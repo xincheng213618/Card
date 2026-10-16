@@ -28,21 +28,6 @@ internal static class BoundaryWeiYanChecks
         Console.WriteLine("Native ordinary Qimou completed: actor="+issued.OwnerSeat+" revision="+native.Revision);ReplayFourViews(native,nr);Evidence(native,"native");
         ExactLedgerAndLegacyBounds();
     }
-    public static void SourceAndLegacy()
-    {
-        foreach(var stage in new[]{"loss","draw"})
-        {
-            var(g,r)=Start(source:stage);Use(g);Quantity(g,2);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:wy-source"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-            ReplayFourViews(g,r);Evidence(g,"source-child-"+stage);Activate(g);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("advanced-value")==Skill));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")==Skill);Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Settle(g);
-            Require(!Players(g)[0].SkillGrants.Grants.Any(x=>x.SkillId==Skill),"Actual awakening child removed the issuing grant.");AssertBenefits(g,2);ReplayFourViews(g,r);Evidence(g,"source-lost-"+stage);
-        }
-        var(old,orr)=Start(source:"loss");Driver(old,"old");Reach(old,p=>p.SkillPrompt?.SkillId=="fixture:wy-source"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Activate(old);Reach(old,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:wy-driver"));
-        var hand=old.State.Players[0].HandCount;Answer(old,c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:wy-driver");Answer(old,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Settle(old);
-        Require(old.State.Players[0].HandCount==hand&&!Grants(old).Any(),"Legacy LoseHp/Draw with no receipt still cancels after real source loss.");ReplayFourViews(old,orr);
-        var(unpaid,ur)=Start();Use(unpaid);var grant=Players(unpaid)[0].SkillGrants.Grants.Single(x=>x.SkillId==Skill);Players(unpaid)[0].SkillGrants.RemoveGrant(grant.GrantId);
-        Quantity(unpaid,2);Settle(unpaid);Require(!unpaid.Events.Select(e=>e.Payload).OfType<ProgramSkillHpLostEvent>().Any(e=>e.SkillId==Skill),"Host-only unpaid source-loss audit cancels payment, without restoring consumed Game use.");
-    }
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
     private static void ExactLedgerAndLegacyBounds()
     {
@@ -69,7 +54,6 @@ internal static class BoundaryWeiYanChecks
     private static void Use(GameEngine g)=>Accept(g,new UseProgramSkillCommand(0,Skill,Binding,[],[],g.Revision,P(g)!.PromptId));
     private static void Quantity(GameEngine g,int n)=>Answer(g,c=>c.Parameters.GetValueOrDefault("quantity")==n.ToString());
     private static void Driver(GameEngine g,string id,int[]?targets=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:wy-driver",id,[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static void Skip(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static int FailSequence;

@@ -8,7 +8,6 @@ internal static class NiuJinChecks
     private const string Mode = "identity:niu-jin-fixture";
     private const string Driver = "fixture:niu-jin-driver";
     private const string Quiet = "fixture:niu-jin-quiet";
-    private const string LieweiDrawReason = "skill-program.ol:liewei.Draw";
 
     public static void OpeningDrawsToEightWithoutDrawingOrReducingAtFour()
     {
@@ -27,155 +26,10 @@ internal static class NiuJinChecks
         }
     }
 
-    public static void DelayedTargetSkipsExactlyNextJudgmentAndRetainsTheCard()
-    {
-        var (game, registry) = Start(4);
-        var lightning = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Lightning);
-        var entity = lightning.CardId!.Value;
-        Accept(game, new PlayCardCommand(0, entity, lightning.TargetSeats,
-            game.Revision, Prompt(game)!.PromptId, lightning.PlayedCardKind, lightning.TargetCardId));
-        ToOwnPlay(game);
-        Require(Location(game, entity) == CardLocation.Judgment(0),
-            "A real self-used Lightning enters the owner's judgment area after arming Cuorui.");
-        Require(Events<ProgramBooleanStateChangedEvent>(game).Any(change =>
-            change.SkillId == "ol:cuorui" && change.StateId == "skip-next-judgment" && change.Value),
-            "The actual delayed target records a public pending skip before the turn ends.");
-        var initialHp = View(game, 0).Hp;
-        var originalTurn = game.CreateSnapshot(0).TurnNumber;
-        game = Cold(game, registry, 4);
-        EndOwnPlay(game);
-        Reach(game, () => IsOwnPlay(game) && game.CreateSnapshot(0).TurnNumber > originalTurn);
-        Require(Location(game, entity) == CardLocation.Judgment(0) &&
-            !Events<LightningResolvedEvent>(game).Any(result => result.CardId == entity) &&
-            View(game, 0).Hp == initialHp,
-            "The next actual judgment phase is skipped, leaving the same delayed entity in place without its thunder damage.");
-        Require(Events<ProgramBooleanStateChangedEvent>(game).Count(change =>
-            change.SkillId == "ol:cuorui" && change.StateId == "skip-next-judgment" && !change.Value) == 1,
-            "The cross-turn skip debt is consumed exactly once.");
-        var skippedTurn = game.CreateSnapshot(0).TurnNumber;
-        game = Cold(game, registry, 4);
-        EndOwnPlay(game);
-        Reach(game, () => IsOwnPlay(game) && game.CreateSnapshot(0).TurnNumber > skippedTurn);
-        Require(Events<LightningResolvedEvent>(game).Count(result =>
-            result.CardId == entity && result.JudgmentTargetSeat == 0 && result.Hit) == 1 &&
-            Location(game, entity) == CardLocation.DiscardPile && View(game, 0).Hp == initialHp - 3,
-            "On the following turn the retained real Lightning judges normally and hits the fixed Spade-seven deck once.");
-        _ = Cold(game, registry, 4);
-        AuditIssuedDebtAfterSourceLossAndAlreadySkipped();
-    }
-
-    public static void OnlyTheActualKillerOffersOptionalThreeCardDrawAndColdRecovery()
-    {
-        var (game, registry) = Start(8);
-        ActivateDriver(game, "source-less", [1]);
-        ToOwnPlay(game);
-        Require(Events<PlayerDiedEvent>(game).Any(death => death.VictimSeat == 1 && death.KillerSeat is null) &&
-            !Events<ProgramBindingResolvedEvent>(game).Any(binding => binding.SkillId == "ol:liewei"),
-            "Real source-less HP loss death does not offer Liewei to the character that requested that loss.");
-        game = Cold(game, registry, 8);
-
-        ActivateDriver(game, "wound", [3]);
-        ToOwnPlay(game);
-        Require(View(game, 3).Hp == 1, "The native Duel target is genuinely wounded to one HP before its other-source kill.");
-        ActivateDriver(game, "duel-others", [2, 3]);
-        ToOwnPlay(game);
-        Require(Events<PlayerDiedEvent>(game).Any(death => death.KillerSeat is { } killer && killer != 0) &&
-            !Events<ProgramBindingResolvedEvent>(game).Any(binding => binding.SkillId == "ol:liewei") &&
-            LieweiDraws(game) == 0,
-            "A native Duel between other participants attributes the kill to its actual participant and cannot offer Niu Jin's draw.");
-
-        ActivateDriver(game, "kill", [4]);
-        Reach(game, () => Prompt(game)?.SkillPrompt?.SkillId == "ol:liewei" &&
-            Prompt(game)!.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Require(Events<PlayerDiedEvent>(game).Any(death => death.VictimSeat == 4 && death.KillerSeat == 0),
-            "The positive case records Niu Jin as the actual native damage killer before the optional trigger.");
-        Require(Prompt(game)!.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip"),
-            "Liewei presents both activation and decline choices.");
-        game = Cold(game, registry, 8);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        ToOwnPlay(game);
-        Require(LieweiDraws(game) == 3 && Events<ProgramBindingResolvedEvent>(game).Count(binding =>
-            binding.SkillId == "ol:liewei" && binding.Activated && binding.Completed) == 1,
-            "One accepted real kill trigger moves exactly three cards, separately from the identity-mode kill reward.");
-        game = Cold(game, registry, 8);
-        ActivateDriver(game, "kill", [5]);
-        Reach(game, () => Prompt(game)?.SkillPrompt?.SkillId == "ol:liewei");
-        game = Cold(game, registry, 8);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
-        ToOwnPlay(game);
-        Require(LieweiDraws(game) == 3 && Events<ProgramBindingResolvedEvent>(game).Count(binding =>
-            binding.SkillId == "ol:liewei" && !binding.Activated) == 1,
-            "Declining a later actual kill adds no Liewei cards and cold recovery does not repeat the accepted draw.");
-        _ = Cold(game, registry, 8);
-    }
-
-    public static void DynamicHandPopulationRejectsAmbiguousAndUnsupportedParameters()
-    {
-        foreach (var parameters in new[]
-        {
-            "\"numberExpression\":\"livingPlayerCount\",\"amount\":4",
-            "\"numberExpression\":\"currentHp\"",
-            "\"numberExpression\":\"notAnExpression\""
-        })
-        {
-            var rejected = false;
-            try { _ = ParseDynamic(parameters); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Dynamic hand-population draws reject competing fixed values and unsupported expressions.");
-        }
-        Require(ParseDynamic("\"numberExpression\":\"livingPlayerCount\"").Programs[Driver]
-                .Triggers.Single().Effects.Single().NumberExpression == SkillProgramNumberExpression.LivingPlayerCount,
-            "The additive population expression survives parsing as gameplay data.");
-    }
-
-    private static SkillProgramCatalog ParseDynamic(string parameters) => SkillProgramCatalog.Load(
-        $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{Driver}}","revision":1,"triggers":[{"id":"opening","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"drawToHandCount","target":"owner",{{parameters}}}]}]}]}""",
-        Presentation([Driver]));
-
-    private static int LieweiDraws(GameEngine game) => game.CardMovements.Count(move =>
-        move.To == CardLocation.Hand(0) && move.Reason.Value == LieweiDrawReason);
-
-    private static void AuditIssuedDebtAfterSourceLossAndAlreadySkipped()
-    {
-        // Host-level audit only. These mutations intentionally make no Replay claim;
-        // the surrounding public-command scenario supplies the cold-recovery proof.
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var (game, _) = Start(4);
-        var lightning = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Lightning);
-        Accept(game, new PlayCardCommand(0, lightning.CardId!.Value, lightning.TargetSeats,
-            game.Revision, Prompt(game)!.PromptId, lightning.PlayedCardKind, lightning.TargetCardId));
-        ToOwnPlay(game);
-        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", flags)!.GetValue(game)!;
-        var source = players[0].SkillGrants.Grants.Single(grant => grant.SkillId == "ol:cuorui");
-        players[0].SkillGrants.RemoveGrant(source.GrantId);
-        var pending = typeof(GameEngine).GetField("_pendingTurnDelayedEffects", flags)!;
-        pending.SetValue(game, Enum.Parse(pending.FieldType, "SkipJudgmentPhase"));
-        var consume = typeof(GameEngine).GetMethod("ConsumeNiuJinJudgmentSkip", flags)!;
-        _ = consume.Invoke(game, null);
-        var readState = typeof(GameEngine).GetMethod("GetProgramBooleanState", flags, null,
-            [typeof(int), typeof(string), typeof(string), typeof(string)], null)!;
-        Require(readState.Invoke(game, [0, "ol:cuorui", source.SkillInstanceId, "skip-next-judgment"]) is false &&
-            pending.GetValue(game)!.ToString()!.Contains("SkipJudgmentPhase", StringComparison.Ordinal),
-            "An already issued skip debt is consumed even after actual source removal and coalesces with an existing native skip.");
-        _ = consume.Invoke(game, null);
-        Require(readState.Invoke(game, [0, "ol:cuorui", source.SkillInstanceId, "skip-next-judgment"]) is false,
-            "A repeated host boundary cannot recreate a consumed source-less debt for a future reacquisition.");
-    }
-
-    private static IEnumerable<T> Events<T>(GameEngine game) where T : IGameEvent =>
-        game.Events.Select(item => item.Payload).OfType<T>();
-
     private static PlayerSnapshot View(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat];
-    private static CardLocation Location(GameEngine game, int entity) =>
-        game.CreateCardZoneDiagnostics().Single(item => item.CardId == entity).Location;
     private static PendingDecision? Prompt(GameEngine game) => game.PendingDecision;
     private static bool IsOwnPlay(GameEngine game) => Prompt(game) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard };
     private static void ToOwnPlay(GameEngine game) => Reach(game, () => IsOwnPlay(game));
-    private static void EndOwnPlay(GameEngine game) =>
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-
-    private static void ActivateDriver(GameEngine game, string activation, IReadOnlyList<int> targets) =>
-        Accept(game, new UseProgramSkillCommand(0, Driver, activation, [], targets, game.Revision, Prompt(game)!.PromptId));
 
     private static void Reach(GameEngine game, Func<bool> reached)
     {

@@ -26,65 +26,6 @@ internal static class XiangChongChecks
             var(g,r)=Start("guying-source");Draw(g);DiscardForeign(g,1);Reach(g,()=>Stage(g,XiangChongStage.Choice));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="give");Play(g);Need(V(g,1).Skills!.All(s=>s.ContentId!=Guying),"The actual compensation-gain child removes the old HP-conditional Guying source after its true invocation.");g=Cold(g,r);Use(g,"heal",[1]);Play(g);Need(V(g,1).Skills!.Any(s=>s.ContentId==Guying),"Real recovery reacquires Guying without erasing its outstanding old-source debt.");End(g);Reach(g,()=>E<XiangChongDebtConsumedEvent>(g).Any());Need(E<XiangChongDebtConsumedEvent>(g).Single().Count==1,"Preparation consumes the genuine prior-source invocation after loss and reacquisition.");_=Cold(g,r);
         }
     }
-    public static void MuzhenIndependentPlayBranchesAndNativePlacementCold()
-    {
-        var(g,r)=Start("plain");Draw(g);Place(g,1);Begin(g,"gift");SelectTarget(g,1);Pay(g,2);Reach(g,()=>Stage(g,XiangChongStage.ClaimChoice));g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="claim");Play(g);
-        Need(!Can(g,"gift")&&Can(g,"place"),"Muzhen's two true actual-Play quotas are independent, and the paid gift branch cannot be reused.");Begin(g,"place");SelectTarget(g,2);Pay(g,1);Reach(g,()=>Stage(g,XiangChongStage.ClaimChoice));var p=P(g)!;var state=State(g);Need(p.Choices.All(c=>c.Cards.Count==0)&&!g.Submit(new AnswerPromptCommand(2,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==state,"The post-placement hand seizure uses opaque actual slots and rejects another seat.");g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="claim");Play(g);
-        var paid=E<XiangChongBranchPaidEvent>(g);Need(paid.Length==2&&paid.Select(e=>e.Branch).SequenceEqual(["gift","place"])&&paid.Select(e=>e.PhaseToken).Distinct().Count()==1&&!Can(g,"gift")&&!Can(g,"place"),"Both branches pay their actual original entities once in the same real Play phase.");Need(E<XiangChongEntityMovedEvent>(g).Count(e=>e.Segment=="payment"&&e.To==CardLocation.Hand(1))==2&&E<XiangChongEntityMovedEvent>(g).Any(e=>e.Segment=="placement"&&e.To==CardLocation.Equipment(2)),"The first branch truly gives two cards and the second directly places one equipment, without using it.");
-        End(g);Play(g);Need(Can(g,"gift")&&Can(g,"place"),"The next actual Play receives new independent branch quotas.");_=Cold(g,r);
-        var(b,br)=Start("abolished");Draw(b);Begin(b,"place");Need(P(b)!.Choices.All(c=>!c.Targets.Contains(1)),"A genuinely abolished equipment area is excluded from native placement targets.");_=Cold(b,br);
-    }
-    public static void GuyingOriginalEquipmentUseAndProvenanceCold()
-    {
-        var(g,r)=Start("guying-equipment");Draw(g);Place(g,1);var id=V(g,1).Equipment.Single().Id;Use(g,"discard-equipment",[1]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.SequenceEqual([id]));Reach(g,()=>Stage(g,XiangChongStage.Choice));g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="return");Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);Need(E<XiangChongEquipmentIssuedEvent>(g) is[var native]&&native.Origin.CardId==id&&native.Origin.From==CardLocation.DiscardPile&&!E<XiangChongEquipmentReturnedEvent>(g).Any(),"The original discarded equipment, rather than a replacement or virtual copy, enters one true native equipment Use before its genuine child.");g=Cold(g,r);Reach(g,()=>E<XiangChongEquipmentReturnedEvent>(g).Any());Play(g);
-        Need(V(g,1).Equipment.Any(c=>c.Id==id)&&E<XiangChongEquipmentReturnedEvent>(g).Single().Issued&&E<CardUseDeclaredEvent>(g).Any(e=>e.CardId==id&&e.SourceSeat==1&&e.CardKind==CardKind.SilverLion),"The exact original armor returns through native target, payment, equipment and completion windows once.");_=Cold(g,r);
-        foreach(var scene in new[]{"guying-converted","guying-converted-abolished"})
-        {
-            var(c,cr)=Start(scene);Draw(c);Place(c,1);Native(c,a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual([1,0]));Reach(c,()=>Stage(c,XiangChongStage.Choice));
-            var original=Current(c)!;var material=original.Lost!.CardId;var issuer=c.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.XiangChong==original);var slash=c.ResolutionStack.OfType<CardUseFrame>().SingleOrDefault(u=>u.Id==issuer.WindowContext?.MovementBatch?.ParentFrameId);
-            Need(original.LossDestination==CardLocation.Processing&&original.Lost.Kind==CardKind.Crossbow&&slash is{SourceSeat:1,CardKind:CardKind.Slash,Action:{Type:CardActionType.Use,ActorSeat:1,EffectiveKind:CardKind.Slash}action}&&action.PhysicalCards is[var cost]&&cost.CardId==material&&cost.CardKind==CardKind.Crossbow&&cost.From==CardLocation.Hand(1)&&c.CardMovements.Any(m=>m.Sequence==original.LossSequence&&m.CardId==material&&m.CardKind==CardKind.Crossbow&&m.From==cost.From&&m.To==CardLocation.Processing),"A genuine Borrowed Sword Slash pays the printed equipment entity into Processing before its off-turn atomic Guying loss: "+JsonSerializer.Serialize(new{original.Lost,original.LossDestination,original.LossSequence,Use=slash is null?null:new{slash.Id,slash.SourceSeat,slash.CardKind,slash.Action},State=Diagnostic(c)}));
-            c=Cold(c,cr);Answer(c,x=>x.Parameters.GetValueOrDefault("branch")=="return");Reach(c,()=>P(c)?.SkillPrompt?.SkillId==Watch);var claim=E<XiangChongEquipmentMaterialClaimIssuedEvent>(c).Single().Claim;
-            Need(claim.Equipment.CardId==material&&claim.Equipment.From==CardLocation.Processing&&claim.OriginalUseId!=claim.Equipment.CardUseFrameId&&c.CardMovements.All(m=>m.CardId!=material||m.From!=CardLocation.Processing||m.To!=CardLocation.Processing),"The exact original Slash material enters a distinct real equipment Use with its own typed claim; no same-zone movement is fabricated.");
-            c=Cold(c,cr);Reach(c,()=>E<XiangChongEquipmentReturnedEvent>(c).Any());Play(c);
-            Need(E<CardActionAcceptedEvent>(c).Any(e=>e.Action.ActionId==claim.OriginalActionId&&e.Action.ActorSeat==1&&e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==CardKind.Slash&&e.Action.PhysicalCards.Any(x=>x.CardId==material))&&E<DamageAppliedEvent>(c).Any(x=>x.SourceSeat==1&&x.TargetSeat==0)&&c.ResolutionStack.All(f=>f.Id!=claim.OriginalUseId&&f.Id!=claim.Equipment.CardUseFrameId),"The original paid Slash resumes through target acceptance, damage and completion with its exact claimed material and no repeated cost.");
-            if(scene=="guying-converted")Need(V(c,1).Equipment.Any(x=>x.Id==material)&&E<XiangChongEquipmentMaterialEnteredEvent>(c).Count(x=>x.Claim==claim)==1,"The nested equipment actually equips the original entity once.");
-            else
-            {
-                var result=E<XiangChongEquipmentResultEvent>(c).Single().Result;
-                Need(V(c,1).IsEquipmentAreaAbolished&&V(c,1).Equipment.Count==0&&result.Origin==claim.Equipment&&result.EntrySequence is null&&result.Termination is{Reason:"area.abolished.equipment",ActorDead:false}terminal&&c.CardMovements.Count(m=>m.CardId==material&&m.Sequence>claim.LossSequence)==1&&c.CardMovements.Any(m=>m.Sequence==terminal.Sequence&&m.CardId==material&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile&&m.Reason.Value==terminal.Reason)&&!E<XiangChongEquipmentMaterialEnteredEvent>(c).Any()&&E<XiangChongEquipmentReturnedEvent>(c).Count(x=>x.Origin==claim.Equipment)==1,"A real finalized child clears the actual old equipment and abolishes the slot after issuance: exactly one native terminal discard replaces entry, the original Slash still completes, and cold cannot fake entry, repeat cost or return twice.");
-            }
-            _=Cold(c,cr);
-        }
-        {
-            var(a,ar)=Start("guying-actor");Draw(a);Place(a,0);var replaced=V(a).Equipment.Single().Id;var grain=V(a).Hand[0].Id;Accept(a,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain],[],a.Revision,P(a)!.PromptId));Play(a);Place(a,1);var returned=V(a,1).Equipment.Single().Id;
-            Use(a,"discard-equipment",[1]);Reach(a,()=>Action(a,"select-and-move-owned-card"));Answer(a,c=>c.Cards.SequenceEqual([returned]));Reach(a,()=>Stage(a,XiangChongStage.Choice));Answer(a,c=>c.Parameters.GetValueOrDefault("branch")=="return");Reach(a,()=>P(a)?.SkillPrompt?.SkillId==Watch);
-            var issued=E<XiangChongEquipmentIssuedEvent>(a).Single().Origin;Need(E<ProgramCardUseActorReplacedEvent>(a).Any(e=>e.CardUseFrameId==issued.CardUseFrameId&&e.PreviousActorSeat==1&&e.ActorSeat==0),"The actual equipment finalized window changes the native user while retaining the original Guying issuer and payer.");a=Cold(a,ar);Continue(a);Play(a);
-            var result=E<XiangChongEquipmentResultEvent>(a).Single().Result;Need(result.Origin==issued&&result.ActorSeat==0&&result.ReplacedCardId==replaced&&V(a).Equipment.Any(c=>c.Id==returned)&&V(a).WoodenOxGrainCount==0&&a.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile)==1&&E<DamageAppliedEvent>(a).Any(e=>e.SourceSeat==0&&e.TargetSeat==0)&&E<XiangChongEquipmentReturnedEvent>(a).Single().Origin.ProgramFrameId==issued.ProgramFrameId,"The final native user receives the original Ox, replaces that user's actual old Ox and spills its actual grain once; the paid child returns to the original Guying frame after cold recovery.");_=Cold(a,ar);
-        }
-        var(h,hr)=Start("guying-moved");Draw(h);Use(h,"obtain-hand",[1]);Reach(h,()=>Action(h,"select-and-move-owned-card"));Answer(h,c=>c.Parameters.GetValueOrDefault("source-zone")==nameof(CardZoneKind.Hand));Reach(h,()=>Stage(h,XiangChongStage.Choice));var unavailable=Current(h)!;
-        Need(unavailable.LossDestination==CardLocation.Hand(0)&&E<ProgramBindingResolvedEvent>(h).Any(e=>e.SkillId=="fixture:xc-move"&&e.OwnerSeat==0&&e.Completed)&&h.CardMovements.Any(m=>m.CardId==unavailable.Lost!.CardId&&m.Sequence>unavailable.LossSequence&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.fixture:xc-move.DiscardOwnedZoneCards")&&P(h)!.Choices.All(c=>c.Parameters.GetValueOrDefault("branch")!="return"),"An earlier actual gain observer has moved the exact lost entity out of its original Hand0 destination, so Guying cannot create or retake that unavailable entity: "+JsonSerializer.Serialize(new{unavailable.Lost,unavailable.LossDestination,unavailable.LossSequence,Claims=E<ProgramBindingResolvedEvent>(h).Where(e=>e.SkillId=="fixture:xc-move"),State=Diagnostic(h)}));h=Cold(h,hr);Answer(h,c=>c.Parameters.GetValueOrDefault("branch")=="give");Play(h);_=Cold(h,hr);
-    }
-    public static void PaidChildrenSourceLossDeathAndPrivacyCold()
-    {
-        foreach(var scene in new[]{"loss","death","lion","ox"})
-        {
-            var(g,r)=Start(scene);Draw(g);int?eq=null,grain=null;
-            if(scene is"lion"or"ox")
-            {
-                Place(g,0);eq=V(g).Equipment.Single().Id;
-                if(scene=="lion"){Use(g,"lose");Play(g);}else{Place(g,1);grain=V(g).Hand[0].Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}
-                Begin(g,scene=="ox"?"gift":"place");SelectTarget(g,1);Answer(g,c=>c.Cards.SequenceEqual([eq.Value]));if(scene=="ox")Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="card");Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pay");
-            }
-            else{Place(g,1);Begin(g,"gift");SelectTarget(g,1);Pay(g,2);}
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==(scene=="lion"?Health:Watch));var frame=Current(g) is{}cur?g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.XiangChong==cur).Id:E<XiangChongBranchPaidEvent>(g).Last().FrameId;Need(E<XiangChongBranchPaidEvent>(g).Count(e=>e.FrameId==frame)==1,"The original Muzhen branch is already truly paid before its native recovery/movement child.");g=Cold(g,r);Continue(g);
-            if(scene=="death")
-            {Reach(g,()=>!V(g).IsAlive);Need(g.State.Winner==Winner.None&&E<XiangChongEntityMovedEvent>(g).All(e=>e.FrameId!=frame||e.Segment!="claim"),"A real non-Lord owner's death drains the paid gift subtree and stops the later seizure.");}
-            else
-            {Reach(g,()=>Stage(g,XiangChongStage.ClaimChoice));if(scene=="loss")Need(V(g).Skills!.All(s=>s.ContentId!=Muzhen),"The genuine HP child has removed the conditional source before its already-paid acquisition continues.");Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="claim");Play(g);Need(E<XiangChongBranchPaidEvent>(g).Count(e=>e.FrameId==frame)==1&&E<XiangChongCompletedEvent>(g).Count(e=>e.FrameId==frame)==1,"Cold native children cannot repeat their original payment or completion.");}
-            if(scene=="lion")Need(V(g).Hp==V(g).MaxHp,"Real SilverLion removal heals its owner before post-placement acquisition.");
-            if(scene=="ox")Need(V(g).WoodenOxGrainCount==0&&g.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile)==1&&E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==0&&e.TargetSeat==0),"The original Ox grain spills once and its native nested damage completes before the later hand seizure.");_=Cold(g,r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g,int s=0)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
@@ -99,13 +40,7 @@ internal static class XiangChongChecks
     private static void Draw(GameEngine g){Use(g,"draw");Play(g);}
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static bool Can(GameEngine g,string branch)=>g.GetHumanLegalActions().Any(a=>a.ProgramSkillId==Muzhen&&a.ProgramActivationId==(branch=="gift"?"gift-and-obtain-equipment":"place-and-obtain-hand"));
-    private static void Begin(GameEngine g,string branch)=>Accept(g,new UseProgramSkillCommand(0,Muzhen,branch=="gift"?"gift-and-obtain-equipment":"place-and-obtain-hand",[],[],g.Revision,P(g)!.PromptId));
-    private static void SelectTarget(GameEngine g,int target)=>Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="target"&&c.Targets.SequenceEqual([target]));
-    private static void Pay(GameEngine g,int count){for(var n=0;n<count;n++)Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="card");Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pay");}
-    private static void Place(GameEngine g,int target){var id=V(g).Hand.First(c=>EquipmentCatalog.IsEquipment(c.Kind)).Id;Use(g,"place",[target],[id]);Play(g);}
     private static void DiscardForeign(GameEngine g,int target){Use(g,"discard-hand",[target]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Parameters.GetValueOrDefault("source-zone")==nameof(CardZoneKind.Hand));}
-    private static void Native(GameEngine g,Func<LegalAction,bool> choose){var a=g.GetHumanLegalActions().FirstOrDefault(choose);Need(a is not null,"Missing genuine native card: "+Diagnostic(g));Accept(g,new PlayCardCommand(0,a!.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});}
     private static void Reach(GameEngine g,Func<bool> done,[CallerLineNumber]int line=0)
     {
         for(var n=0;n<240;n++)

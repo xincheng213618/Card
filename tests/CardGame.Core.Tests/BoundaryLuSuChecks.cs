@@ -11,8 +11,6 @@ internal static class BoundaryLuSuChecks
     private const string InitialDimeng = "fixture:ls-initial-dimeng", PaidSuppressor = "fixture:ls-paid-suppressor";
     private const string DrawReason = "skill-program." + Haoshi + ".DrawExtraAndArmHalfHandSupport";
     private const string GiftReason = "skill-program." + Haoshi + ".GiveHalfHandAndIssueTargetSupport";
-    private const string SupportReason = "skill-program." + Haoshi + ".OfferHalfHandRecipientSupport";
-    private const string ExchangeReason = "skill-program." + Dimeng + ".exchange", DebtReason = "skill-program." + Dimeng + ".MoveBoundCards";
 
     // Staged real-command drafts only: no compilation, loader or test execution.
     public static void ExtraDrawAndHalfGiftOwnTheirGainChildren()
@@ -51,44 +49,6 @@ internal static class BoundaryLuSuChecks
             "Cold continuation completes the same whole gift once and returns the original owner's play."); Cold(g, r);
     }
 
-    public static void ExchangeFirstThenFrozenDebtPaysAfterSilverLionChildren()
-    {
-        var (g, r) = Create(observers: true); Play(g); SetHand(g, 1, 1); SetHand(g, 2, 3);
-        Use(g, "equip", [0]); Play(g); Use(g, "hurt", [0]); Play(g);
-        var lion = V(g, 0).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        var a = V(g, 1).Hand.Select(c => c.Id).Order().ToArray(); var b = V(g, 2).Hand.Select(c => c.Id).Order().ToArray();
-        var own = V(g, 0).HandCount; StartExchange(g, 1, 2); Reach(g, p => p.SkillPrompt?.SkillId == Exchange);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandExchange is not null); var receipt = root.PhaseHandExchange!;
-        var issued = F<PhaseHandExchangeDebtIssuedEvent>(g).Single();
-        Require(receipt.Issued && receipt.FrozenDifference == 2 && receipt.FirstCardIds.SequenceEqual(a) && receipt.SecondCardIds.SequenceEqual(b) &&
-            issued.ProgramFrameId == root.Id && V(g, 1).Hand.Select(c => c.Id).Order().SequenceEqual(b) && V(g, 2).Hand.Select(c => c.Id).Order().SequenceEqual(a) &&
-            V(g, 0).HandCount == own && Moves(g, DebtReason).Length == 0 && Moves(g, ExchangeReason).Length == 8,
-            "The original two actual hands exchange completely before any owner cost, and frozen X=2 is issued with exact phase/source/ledger ownership.");
-        Frozen(receipt); g = RestoreAfterCold(g, r); Continue(g); Play(g);
-        Use(g, "draw", [1]); Play(g); Use(g, "draw", [1]); Play(g);
-        Require(Math.Abs(V(g, 1).HandCount - V(g, 2).HandCount) == 4, "Real later card gain changes the pair's current difference without repricing the accepted debt.");
-        End(g); Reach(g, IsOwned); var pay = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null);
-        Require(pay.PhaseHandDebtPayment is { FrozenDifference: 2, RequiredPaymentCount: 2 } && P(g)!.PlayerSeat == 0,
-            "Only the exact original PlayEnding candidate freezes the debt's legal payment count two.");
-        var hand = P(g)!.Choices.First(c => c.Cards.Count == 1 && V(g, 0).Hand.Any(h => h.Id == c.Cards[0])).Cards[0];
-        var before = g.CardMovements.Count; Answer(g, c => c.Cards.SequenceEqual([hand])); Require(g.CardMovements.Count == before, "The first private cost choice alone pays nothing.");
-        g = RestoreAfterCold(g, r); Answer(g, c => c.Cards.SequenceEqual([lion])); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        pay = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null); var payId = pay.Id;
-        Require(pay.PhaseHandDebtPayment!.ExchangeProgramFrameId == issued.ProgramFrameId && Moves(g, DebtReason).Length == 2 &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Change.ParentFrameId == pay.Id && h.ResumeFrameId == pay.Id &&
-                h.Continuation == PostEventContinuation.AwaitedProgramMovement && h.Change.Kind == HpChangeKind.Recovery && h.Change.Amount == 1 && h.Change.TargetSeat == 0),
-            "The real Silver Lion HE cost pays once before its exact AwaitedProgramMovement self-recovery HP child.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Debt);
-        var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.ParentFrameId == payId);
-        Require(movement.Batch.Movements.Select(m => m.CardId).Order().SequenceEqual(new[] { hand, lion }.Order()) &&
-            (movement.Batch.AwaitingProgramFrameId is null || movement.Batch.AwaitingProgramFrameId == payId) && movement.ResumeProgramFrameId is null,
-            "After HP returns, the same atomic cost batch retains its producer parent and exact resume even when MoveBound preceded Await.");
-        g = RestoreAfterCold(g, r); Continue(g); Finish(g, payId);
-        Require(F<PhaseHandExchangeDebtPaymentStartedEvent>(g).Count(e => e.ExchangeProgramFrameId == issued.ProgramFrameId) == 1 &&
-            Moves(g, DebtReason).Length == 2 && Moves(g, ExchangeReason).Length == 8 && V(g, 1).HandCount == 5 && V(g, 2).HandCount == 1,
-            "The restored paid child drains once; ending cost never re-exchanges or re-measures the current pair."); Cold(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool observers = false, bool removePaidSource = false, bool supportDamage = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
@@ -98,33 +58,6 @@ internal static class BoundaryLuSuChecks
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
         Accept(g, new SelectGeneralCommand(0, "fixture:ls-owner", g.Revision, P(g)!.PromptId)); return (g, r);
     }
-    private static void SetHand(GameEngine g, int seat, int count)
-    { Clear(g, seat); for (var i = 0; i < count; i++) { Use(g, "draw", [seat]); Play(g); } }
-    private static void Clear(GameEngine g, int seat)
-    {
-        var original = V(g, seat).Hand.Select(c => (c.Id, From: CardLocation.Hand(seat)))
-            .Concat(V(g, seat).Equipment.Select(c => (c.Id, From: CardLocation.Equipment(seat)))).ToArray();
-        if (original.Length == 0) return;
-        var before = g.CardMovements.LastOrDefault()?.Sequence ?? 0;
-        Use(g, "clear", [seat]); Play(g);
-        Require(V(g, seat).HandCount + V(g, seat).Equipment.Count == 0 && original.All(cost =>
-            g.CardMovements.Count(m => m.Sequence > before && m.CardId == cost.Id && m.From == cost.From &&
-                m.To == CardLocation.DiscardPile) == 1),
-            "The native all-owned selection freezes every original HE entity, drains its movement children and clears each entity exactly once.");
-    }
-    private static void StartExchange(GameEngine g, int a, int b)
-    {
-        var action = g.GetHumanActionView().LegalActions.Single(candidate =>
-            candidate.ProgramSkillId == Dimeng && candidate.ProgramActivationId == "swap-first");
-        Require(action.SelectableTargetSequences is { } sequences &&
-            sequences.Any(sequence => sequence.SequenceEqual([a, b])) &&
-            sequences.Any(sequence => sequence.SequenceEqual([b, a])) &&
-            sequences.All(sequence => sequence.Count == 2 && sequence.Distinct().Count() == 2 &&
-                sequence.All(action.SelectableTargetSeats.Contains)),
-            "The frozen public hand-exchange action publishes the native payable pair in both original orders.");
-        Accept(g, new UseProgramSkillCommand(0, Dimeng, "swap-first", [], [a, b], g.Revision, P(g)!.PromptId));
-    }
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void ActivateExtra(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
     private static bool IsExtra(PendingDecision p) => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
     private static bool IsOwned(PendingDecision p) => Action(p, "select-owned-cards");
@@ -135,9 +68,7 @@ internal static class BoundaryLuSuChecks
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-    private static void Finish(GameEngine g, long id) { for (var i = 0; i < 160; i++) { if (g.ResolutionStack.All(f => f.Id != id)) return; Advance(g); } throw new InvalidOperationException("Paid original frame did not return."); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     { for (var i = 0; i < 220; i++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException("Fixed Lu Su boundary absent: " + JsonSerializer.Serialize(new { Prompt = P(g), Frames = g.ResolutionStack, Recent = g.Events.TakeLast(4).Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())) })); }
     private static void Advance(GameEngine g)

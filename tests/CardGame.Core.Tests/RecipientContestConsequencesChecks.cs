@@ -32,150 +32,57 @@ internal static class RecipientContestConsequencesChecks
         Cold(g, r); Conserve(g);
     }
 
-    public static void ActualPrintedLordQualificationNativeAndPersistent()
+    public static void ActualBlackGiftWinnerOwnPrivateDiscardsColdReplay()
     {
-        var (g, r) = Start(benefit: true); var target = Players(g)[1]; var before = target.MaxHp;
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => ProgramAction(p, "printed-lord-benefit")); Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([1])); ReachPlay(g);
-        var q = target.SkillGrants.Grants.Single(s => s.SkillId == "classic:hujia").PrintedLordQualification;
-        Require(target.Role == Role.Rebel && target.MaxHp == before + 1 && target.Hp == before + 1 && q is not null,
-            "Actual MaxHp payment and mature recovery precede qualification without role conversion.");
-        Require(Invoke<bool>(g, "HasSkillRoleQualification", target, "classic:hujia", q!.SkillInstanceId, Role.Lord) &&
-            Invoke<IEnumerable<int>>(g, "GetFactionDefenseCandidateSeats", 1).Any(), "The qualified exact printed instance reaches the native response-provider entry.");
-        var payloads = g.Events.Select(e => e.Payload).ToArray();
-        var recovery = Array.FindIndex(payloads, e => e is PrintedLordRecoveryRequestedEvent);
-        var capture = Array.FindIndex(payloads, e => e is PrintedLordQualificationCapturedEvent);
-        var issuance = Array.FindIndex(payloads, e => e is PrintedLordQualificationIssuedEvent);
-        Require(recovery >= 0 && capture > recovery && issuance > capture, "Qualification is captured at the post-recovery step.");
-        DriverUse(g, "source-loss"); ReachPlay(g);
-        Require(Invoke<bool>(g, "HasSkillRoleQualification", target, "classic:hujia", q.SkillInstanceId, Role.Lord), "Issued qualification survives actual loss of the issuing Yongdi skill.");
-        Cold(g, r); Conserve(g);
-    }
-
-    public static void ActualOrdinaryTrickProtectionAndDelayedBoundary()
-    {
-        var (g, r) = Start(trick: true); var actor = Players(g)[0]; var before = g.State.Players[0].HandCount;
-        var action = g.GetHumanLegalActions().First(a => a.PlayedCardKind == CardKind.DrawTwo && a.CardId is not null);
-        Play(g, action); ReachPlay(g);
-        var protection = Facts<OrdinaryTrickCannotNullifyIssuedEvent>(g).Single().Receipt;
-        Require(Facts<NullificationRequestedEvent>(g).All(e => e.ResolutionId != protection.CardUseFrameId),
-            "The actual converted ordinary trick has no prohibited counterspell node.");
-        var finished = Facts<CardUseFinishedEvent>(g).Where(e => e.ResolutionId == protection.CardUseFrameId).ToArray();
-        Require(finished is [{ CardKind: CardKind.DrawTwo }],
-            $"The actual converted ordinary trick finishes once as DrawTwo: {JsonSerializer.Serialize(finished)}");
-        Require(g.State.Players[0].HandCount == before + 1,
-            $"The actual converted ordinary trick pays one entity and resolves Draw2: before={before}, after={g.State.Players[0].HandCount}.");
-        Require(Invoke<bool>(g, "IsCardTargetProhibited", actor, CardKind.Indulgence, (Suit?)Suit.Club, (bool?)false) &&
-            Invoke<bool>(g, "IsCardTargetProhibited", actor, CardKind.SupplyShortage, (Suit?)Suit.Club, (bool?)false) &&
-            !Invoke<bool>(g, "IsCardTargetProhibited", actor, CardKind.Duel, (Suit?)Suit.Club, (bool?)false), "The reused target policy blocks delayed tricks without blanket ordinary-target immunity.");
-        Cold(g, r); Conserve(g);
-        ConvertedDrawTwoThroughCounterspell(counter: false);
-        ConvertedDrawTwoThroughCounterspell(counter: true);
-        ConvertedIronChainCompletion();
-    }
-
-    private static void ConvertedDrawTwoThroughCounterspell(bool counter)
-    {
-        var (g, r) = Start(trick: true, protect: false, humanCounterspellOnly: true);
-        var before = g.State.Players[0].HandCount;
-        Require(g.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == 32).Kind == CardKind.Nullification &&
-            g.CreateCardZoneDiagnostics().All(c => c.CardKind != CardKind.Nullification || c.Location == CardLocation.Hand(0)),
-            "The verified seed deals the one printed counterspell entity 32 to the supported human seat; AI hands contain no counterspell material.");
-        var action = g.GetHumanLegalActions().First(a => a.PlayedCardKind == CardKind.DrawTwo && a.ConversionSource?.SkillId == Driver &&
-            g.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == a.CardId).Kind == CardKind.Slash);
-        Play(g, action);
-        var declared = Facts<CardUseDeclaredEvent>(g).Single(e => e.CardId == action.CardId && e.CardKind == CardKind.DrawTwo);
-        var answeredCounter = false; int? counterCard = null; int? counterSeat = null;
-        for (var step = 0; step < 20; step++)
-        {
-            var prompt = P(g);
-            if (prompt is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }) break;
-            if (prompt is { Kind: DecisionKind.Nullification })
-            {
-                Require(prompt.PlayerSeat == 0, "Only the supported human counterspell window accepts this fixture's answer commands.");
-                var window = g.ResolutionStack.OfType<NullificationWindowFrame>().Single();
-                Require(window.ParentFrameId == declared.ResolutionId && window.EffectCardId == action.CardId && window.EffectCardKind == CardKind.DrawTwo,
-                    "The normal counterspell window retains the exact converted DrawTwo owner and physical material.");
-                Cold(g, r); RejectUnpublished(g);
-                if (counter && !answeredCounter)
-                {
-                    var choice = prompt.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "nullification" && c.Cards.Count == 1);
-                    counterCard = choice.Cards.Single(); counterSeat = prompt.PlayerSeat;
-                    Require(g.CreateSnapshot(counterSeat.Value).Players[counterSeat.Value].Hand.Single(c => c.Id == counterCard).Kind == CardKind.Nullification,
-                        "The selected counterspell is one real printed Nullification in its responder's actual Hand.");
-                    Answer(g, c => c.Id == choice.Id); answeredCounter = true;
-                }
-                else Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
-            }
-            else if (prompt is null) Accept(g, new AdvanceOneStepCommand(g.Revision));
-            else throw new InvalidOperationException($"Unexpected converted DrawTwo boundary: {BoundaryState(g)}");
-        }
-        Require(P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }, $"Converted DrawTwo did not return within twenty native steps: {BoundaryState(g)}");
-        var resolved = Facts<NullificationResolvedEvent>(g).Single(e => e.ResolutionId == declared.ResolutionId);
-        Require(Facts<OrdinaryTrickCannotNullifyIssuedEvent>(g).Length == 0 &&
-            Facts<NullificationRequestedEvent>(g).Any(e => e.ResolutionId == declared.ResolutionId && e.EffectCardKind == CardKind.DrawTwo) &&
-            resolved.EffectCardKind == CardKind.DrawTwo && resolved.EffectNullified == counter && resolved.ChainDepth == (counter ? 1 : 0) &&
-            Facts<CardUseFinishedEvent>(g).Where(e => e.ResolutionId == declared.ResolutionId).ToArray() is [{ CardKind: CardKind.DrawTwo } finished] &&
-            finished.CardId == action.CardId && g.State.Players[0].HandCount == before + (counter ? -2 : 1),
-            "The normal window resolves or genuinely counters DrawTwo while its one completion keeps the original effective kind and entity.");
-        Require(g.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            g.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
-            "Resolving and countered conversions each pay and finish the same physical material once.");
-        if (counter)
-            Require(answeredCounter && Facts<NullificationRespondedEvent>(g) is [{ NullificationCardId: var paid, ResponderSeat: var payer, EffectCardKind: CardKind.DrawTwo }] &&
-                paid == counterCard && paid == 32 && payer == counterSeat && payer == 0 && paid != action.CardId &&
-                g.CardMovements.Count(m => m.CardId == paid && m.From == CardLocation.Hand(payer) && m.To == CardLocation.Processing) == 1 &&
-                g.CardMovements.Count(m => m.CardId == paid && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
-                "The one real counterspell has its exact responder, entity payment and finished movement.");
-        else Require(Facts<NullificationRespondedEvent>(g).Length == 0, "Passing the normal response window invents no counterspell payment.");
-        Cold(g, r); Conserve(g);
-    }
-
-    private static void ConvertedIronChainCompletion()
-    {
-        var (g, r) = Start(trick: true);
-        var action = g.GetHumanLegalActions().First(a => a.PlayedCardKind == CardKind.IronChain && a.ConversionSource?.SkillId == Driver && a.TargetSeats.SequenceEqual([1]));
-        Require(g.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == action.CardId).Kind == CardKind.Nullification,
-            "The converted IronChain begins with a real differently named material in the original owner's Hand.");
-        Play(g, action); ReachPlay(g);
-        var issued = Facts<OrdinaryTrickCannotNullifyIssuedEvent>(g).Single().Receipt;
-        Require(issued.EffectiveKind == CardKind.IronChain && Facts<CardUseDeclaredEvent>(g).Single(e => e.ResolutionId == issued.CardUseFrameId).CardId == action.CardId &&
-            Facts<IronChainStateChangedEvent>(g).Single(e => e.ResolutionId == issued.CardUseFrameId).TargetSeat == 1 && g.State.Players[1].IsChained &&
-            Facts<CardUseFinishedEvent>(g).Where(e => e.ResolutionId == issued.CardUseFrameId).ToArray() is [{ CardKind: CardKind.IronChain } finished] && finished.CardId == action.CardId &&
-            g.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            g.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.IronChainFinished) == 1,
-            "Real chaining and one same-use effective IronChain completion preserve the exact once-paid material.");
-        Cold(g, r); Conserve(g);
-    }
-
-    public static void ReceiptCollectionsAndLegacyGrantAbi()
-    {
-        var source = new CardConversionSource("ol:jianshu", "limited", 0, "template:primary:ol:jianshu");
-        var ids = new[] { 1, 2 }; var locations = new[] { CardLocation.Hand(0), CardLocation.Equipment(0) };
-        var discard = new BlackGiftContestDiscard(0, ids, locations, 1, 3); ids[0] = 99; locations[0] = CardLocation.OutsideGame;
-        Require(discard.CardIds[0] == 1 && discard.Locations[0] == CardLocation.Hand(0), "Constructor clones both nested discard lists.");
-        var selected = new[] { 4 }; var losses = new[] { new BlackGiftContestLoss(1, 8, 7) };
-        var receipt = new BlackGiftContestReceipt(1, source, "hash", 1, 0, 1, 4, Suit.Club, 0, 1, SelectedDiscardIds: selected, Discard: discard, Losses: losses);
-        var changed = receipt with { SelectedDiscardIds = selected, Losses = losses }; selected[0] = 88; losses[0] = new(2, 9, 8);
-        Require(receipt.SelectedDiscardIds[0] == 4 && changed.SelectedDiscardIds[0] == 4 && changed.Losses[0].Seat == 1, "Constructor and init/with clone mutable receipt inputs.");
-        var q = new[] { new PrintedLordSkillQualification(1, "general", CharacterState.PrimarySkillSource, "grant", "classic:hujia", "instance", 7, source, "hash") };
-        var benefit = new PrintedLordBenefitReceipt(1, source, "hash", 1, 5, PrintedLordBenefitStage.Complete, PrintedQualifications: q);
-        var copy = benefit with { PrintedQualifications = q }; q[0] = q[0] with { GeneralId = "changed" };
-        Require(copy.PrintedQualifications[0].GeneralId == "general" &&
-            JsonSerializer.Deserialize<PrintedLordBenefitReceipt>(JsonSerializer.Serialize(copy))!.PrintedQualifications[0].GeneralId == "general", "Qualification lists freeze constructor/init/JSON while their elements and issuer are scalar immutable records.");
-        Require(!JsonSerializer.Serialize(new SkillGrant("a", "standard:none", "a", "b")).Contains("PrintedLordQualification"), "Unqualified old grants preserve their nullable JSON ABI.");
+        var (g, registry) = Start(recipientWins: true);
+        var hp = g.State.Players.Select(p => p.Hp).ToArray();
+        Gift(g); Reach(g, p => ProgramAction(p, "black-gift-contest"));
+        Answer(g, c => c.Targets.SequenceEqual([0]));
+        Reach(g, p => p.Kind == DecisionKind.SkillModule && p.PlayerSeat == 0 &&
+            p.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-card"));
+        Answer(g, c => c.Parameters.GetValueOrDefault("action") == "pindian-card");
+        Reach(g, p => ProgramAction(p, "black-gift-contest"));
+        var result = Facts<BlackGiftContestResultCapturedEvent>(g).Single().Result;
+        Require(result.SourceSeat == 1 && result.SourceWon && result.SourceRank == 13 && result.OpponentRank == 7,
+            "The real recipient wins against the distinct skill issuer.");
+        var winnerHand = g.CreateSnapshot(1).Players[1].Hand.Select(c => c.Id).ToArray();
+        var prompt = P(g)!;
+        Require(prompt.PlayerSeat == 1 && prompt.TargetSeat == 1 && prompt.IsPrivate &&
+            prompt.Choices.All(c => c.Cards.Count == 1 && winnerHand.Contains(c.Cards.Single())) &&
+            prompt.Choices.SelectMany(c => c.Cards).Order().SequenceEqual(winnerHand.Order()),
+            "The winner sees exact own cards for mandatory self-discard.");
+        Require(new[] { 0, 2, 3 }.All(seat => g.CreateSnapshot(seat).PendingDecision is null),
+            "The skill issuer and other viewers cannot inspect the winner's private discard choices.");
+        Cold(g, registry); RejectUnpublished(g);
+        var wrongActor = g.Submit(new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, g.Revision));
+        Require(!wrongActor.Accepted, "The issuer cannot answer the winner's private payment.");
+        Accept(g, new AdvanceOneStepCommand(g.Revision));
+        var receipt = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.BlackGiftContest is not null).BlackGiftContest!;
+        Require(receipt.RequiredDiscards == 2 && receipt.SelectedDiscardIds is [var first] &&
+            P(g)!.PlayerSeat == 1 && P(g)!.Choices.All(c => c.Cards.Count == 1 && c.Cards.Single() != first) &&
+            g.CreateCardZoneDiagnostics().Single(c => c.CardId == first).Location == CardLocation.Hand(1) &&
+            g.State.Players[1].HandCount == winnerHand.Length && Facts<BlackGiftContestDiscardPaidEvent>(g).Length == 0,
+            "The second choice excludes the first card without paying either selection early.");
+        Require(new[] { 0, 2, 3 }.All(seat => g.CreateSnapshot(seat).PendingDecision is null),
+            "The partial selection remains private to the winner.");
+        Cold(g, registry);
+        Accept(g, new AdvanceOneStepCommand(g.Revision)); ReachPlay(g);
+        var paid = Facts<BlackGiftContestDiscardPaidEvent>(g).Single();
+        Require(paid.WinnerSeat == 1 && paid.Count == 2 && g.State.Players[1].HandCount == winnerHand.Length - 2 &&
+            g.CardMovements.Count(m => m.Sequence > paid.Before && m.Sequence <= paid.After &&
+                m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile) == 2,
+            "The winner actually discards exactly two own entities once.");
+        Require(g.State.Players[0].Hp == hp[0] - 1 && g.State.Players[1].Hp == hp[1] &&
+            Facts<BlackGiftContestLossPaidEvent>(g) is [{ Loss.Seat: 0 }],
+            "Only the original losing participant loses one HP after the discard.");
+        Cold(g, registry); Conserve(g);
     }
 
     private static void Gift(GameEngine g) => Accept(g, new UseProgramSkillCommand(0, Contest, "limited-black-hand-recipient-contest",
         [g.CreateSnapshot(0).Players[0].Hand.First().Id], [1], g.Revision, P(g)!.PromptId));
-    private static void DriverUse(GameEngine g, string id) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], [], g.Revision, P(g)!.PromptId));
-    private static void Play(GameEngine g, LegalAction action) => Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-        g.Revision, P(g)!.PromptId, action.PlayedCardKind, action.TargetCardId)
-        { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources });
     private static bool ProgramAction(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static T[] Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static List<CharacterState> Players(GameEngine g) => (List<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!;
-    private static T Invoke<T>(GameEngine g, string name, params object?[] args) => (T)typeof(GameEngine).GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(g, args)!;
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
@@ -208,9 +115,9 @@ internal static class RecipientContestConsequencesChecks
     private static void Conserve(GameEngine g) => Require(g.CreateCardZoneDiagnostics().Count == 80 && g.CreateCardZoneDiagnostics().Select(c => c.CardId).Distinct().Count() == 80, "Every actual card entity retains one zone.");
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 
-    private static (GameEngine, ContentRegistry) Start(bool winner = false, bool benefit = false, bool trick = false, bool woodenOx = false, bool protect = true, bool humanCounterspellOnly = false)
+    private static (GameEngine, ContentRegistry) Start(bool winner = false, bool benefit = false, bool trick = false, bool woodenOx = false, bool protect = true, bool humanCounterspellOnly = false, bool recipientWins = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(winner, trick, woodenOx, protect, humanCounterspellOnly));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(winner, trick, woodenOx, protect, humanCounterspellOnly, recipientWins));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
             ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 8 }, registry);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral);
@@ -219,7 +126,7 @@ internal static class RecipientContestConsequencesChecks
         else ReachPlay(g);
         return (g, registry);
     }
-    private sealed class Fixture(bool winner, bool trick, bool woodenOx, bool protect, bool humanCounterspellOnly) : IGameContentPackage
+    private sealed class Fixture(bool winner, bool trick, bool woodenOx, bool protect, bool humanCounterspellOnly, bool recipientWins) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-recipient-consequences", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
@@ -238,7 +145,8 @@ internal static class RecipientContestConsequencesChecks
             if (protect) ownerSkills.Add("ol:zhenlue");
             if (winner) ownerSkills.Add("fixture:rcc-rank");
             b.AddGeneral(new("fixture:rcc-owner", "真实发行者", "supporter", "fixture:rcc-owner-pick", "wei", 8, ownerSkills.ToArray()));
-            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:rcc-peer-{i}", "真实其他角色", "supporter", "fixture:rcc-peer-pick", "wei", 8, ["classic:hujia", "classic:xueyi"]));
+            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:rcc-peer-{i}", "真实其他角色", "supporter", "fixture:rcc-peer-pick", "wei", 8,
+                recipientWins ? ["classic:hujia", "classic:xueyi", "fixture:rcc-rank"] : ["classic:hujia", "classic:xueyi"]));
             b.AddDeck(new("fixture:rcc-deck", "同质实体", woodenOx ? 6 : 4, 0, []) { PhysicalCards = Enumerable.Range(0, 80)
                 .Select(index => new ContentDeckPhysicalCard(humanCounterspellOnly ? index == 31 ? "standard:nullification" : "standard:slash" :
                     woodenOx ? "classic:wooden-ox" : trick ? "standard:nullification" : "standard:slash", Suit.Club, 7)).ToArray() });

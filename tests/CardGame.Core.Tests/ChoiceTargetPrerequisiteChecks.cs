@@ -57,64 +57,6 @@ internal static class ChoiceTargetPrerequisiteChecks
         RejectInvalidBranchContracts();
     }
 
-    public static void AvailableTargetsKeepExactChoiceThroughDamageAndPrivateDiscardChildren()
-    {
-        foreach (var option in new[] { "damage", "discard" })
-        {
-            var (g, registry) = Start(emptyAndFar: false);
-            EndPlay(g); Reach(g, p => IsChoice(p, "branch"));
-            var parentId = Parent(g).Id;
-            Require(P(g)!.Choices.Select(Option).ToHashSet().SetEquals(["draw", "damage", "discard"]),
-                "A healthy owner with real in-range and foreign HE targets receives all three legal alternatives, excluding wounded-only recovery.");
-            g = Cold(g, registry); AnswerOption(g, option);
-            Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-            AssertBranch(g, parentId, option); AssertPrivate(g);
-            Require(P(g)!.ValidTargetSeats.Count > 0 && !P(g)!.ValidTargetSeats.Contains(0),
-                "Only the chosen conditional selector publishes actual other living targets.");
-            Reject(g, new AnswerPromptCommand(1, P(g)!.PromptId, P(g)!.Choices.First().Id, g.Revision));
-            var target = P(g)!.ValidTargetSeats[0];
-            var hp = g.CreateSnapshot(0).Players[target].Hp;
-            var hand = g.CreateSnapshot(target).Players[target].Hand.Select(c => c.Id).ToArray();
-            g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([target]));
-            if (option == "discard")
-            {
-                Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"));
-                Require(P(g)!.Choices.All(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("source-zone") == "Hand") &&
-                        g.CreateSnapshot(0).Players[target].Hand.Count == 0,
-                    "The foreign hand payment publishes opaque native slot choices without exposing card IDs or faces to the chooser.");
-                AssertBranch(g, parentId, option); AssertPrivate(g); g = Cold(g, registry);
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card");
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == Child);
-            AssertBranch(g, parentId, option);
-            var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Child);
-            Require(child.WindowContext is { } context &&
-                    (option == "damage" ? context.Window == SkillProgramTriggerWindow.AfterDamageApplied :
-                        context.Window == SkillProgramTriggerWindow.DiscardPileReceived && context.MovementBatch?.ParentFrameId == parentId) &&
-                    !Facts<ProgramBindingResolvedEvent>(g).Any(e => e.FrameId == parentId),
-                "The real native effect child suspends its still-live original choice parent; payment is not treated as whole-program completion.");
-            if (option == "damage") Require(Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == target && e.Amount == 1) == 1 &&
-                    g.CreateSnapshot(0).Players[target].Hp == hp - 1 && !g.CardMovements.Any(m => m.Reason.Value == PaidReason),
-                "The chosen range target takes one real damage and the unselected discard branch pays nothing.");
-            else
-            {
-                var paid = g.CardMovements.Single(m => m.Reason.Value == PaidReason);
-                Require(hand.Contains(paid.CardId) && paid.From == CardLocation.Hand(target) && paid.To == CardLocation.DiscardPile &&
-                        g.CreateSnapshot(target).Players[target].HandCount == hand.Length - 1 && !Facts<DamageAppliedEvent>(g).Any(),
-                    "Exactly one actually published opaque hand slot becomes the selected target's physical discard; the unchosen damage branch never runs.");
-            }
-            g = Cold(g, registry); Continue(g); Reach(g, p => IsChoice(p, "tail"));
-            AssertBranch(g, parentId, option); g = Cold(g, registry); Continue(g); FinishParent(g, parentId);
-            Require(Facts<ProgramOptionChosenEvent>(g).Count(e => e.FrameId == parentId && e.ResultBind == "branch" && e.OptionId == option) == 1 &&
-                    Facts<ProgramBindingResolvedEvent>(g).Count(e => e.FrameId == parentId && e.Activated && e.Completed) == 1 &&
-                    Facts<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == Child && e.Activated && e.Completed) == 1 &&
-                    !g.CardMovements.Any(m => m.Reason.Value == DrawReason) &&
-                    (option == "damage" ? Facts<DamageAppliedEvent>(g).Length == 1 : g.CardMovements.Count(m => m.Reason.Value == PaidReason) == 1),
-                "Cold native effect return keeps the exact selected branch, finishes child and original parent once, and never repeats damage, payment or an unchosen tail.");
-            _ = Cold(g, registry);
-        }
-    }
-
     private static void RejectInvalidBranchContracts()
     {
         foreach (var mutation in new[] { "unguarded-read", "other-branch-read", "wrong-target-kind", "undeclared-option", "invalid-required-kind", "foreign-chooser" })

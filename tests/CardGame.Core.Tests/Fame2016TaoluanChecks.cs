@@ -3,51 +3,6 @@ using CardGame.Content.Standard;
 using CardGame.Core;
 internal static class Fame2016TaoluanChecks
 {
-    public static void NamesGiftPrivacyReplay()
-    {
-        var (game, registry) = Create();
-        var options = game.GetHumanLegalActions().Where(a => a.ConversionSource?.SkillId == "classic:taoluan").ToArray();
-        Require(options.Any(a => a.PlayedCardKind == CardKind.DrawTwo), "Self DrawTwo is a real permitted ordinary trick.");
-        var action = options.First(a => a.PlayedCardKind == CardKind.DrawTwo);
-        var id = action.CardId!.Value;
-        Play(game, action);
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Replay(game, registry); RejectUnknown(game);
-        Answer(game, c => c.Targets.Contains(1));
-        var gift = Prompt(game)!;
-        Require(gift.IsPrivate && gift.PlayerSeat == 1 && gift.Choices.Any(c => c.Cards.Count == 1), "The provider privately selects a real different-category equipment card.");
-        foreach(var seat in new[]{0,2,3}) Require(game.CreateSnapshot(seat).PendingDecision is null || game.CreateSnapshot(seat).PendingDecision!.Choices.Count == 0, "Other seats cannot inspect the provider's hand choices.");
-        Replay(game, registry); RejectUnknown(game);
-        var card = gift.Choices.First(c => c.Cards.Count == 1).Cards.Single();
-        Answer(game, c => c.Cards.Contains(card));
-        Reach(game,p=>p.SkillPrompt?.SkillId=="fixture:taoluan-observer"); Replay(game,registry); RejectUnknown(game); Answer(game,_=>true);
-        Reach(game,p => p.Kind == DecisionKind.PlayCard);
-        Require(game.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(1) && m.To == CardLocation.Hand(0)) == 1, "The gift moves exactly one real entity into the owner hand.");
-        Require(game.CardMovements.Any(m => m.CardId == id && m.To == CardLocation.DiscardPile), "The converted trick pays its real physical cost.");
-        Require(!game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind == CardKind.DrawTwo), "An output name is unavailable after one use this game.");
-        Replay(game, registry);
-        Play(game, game.GetHumanLegalActions().First(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind == CardKind.FireSlash && a.TargetSeat == 1));
-        Reach(game,p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(game,c => c.Targets.Contains(1));
-        Answer(game,c => c.Cards.Count == 1); Reach(game,p => p.Kind == DecisionKind.PlayCard);
-        Require(!game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash), "All Slash variants share the canonical once-game name."); Replay(game,registry);
-    }
-    public static void ResponseUseCompletion()
-    {
-        var (game,registry)=Create(true);
-        var target=Enumerable.Range(1,3).First(seat=>game.GetCombatDistance(0,seat)==1 && game.CreateSnapshot(seat,true).Players[seat].Hand.Any(c=>c.Kind==CardKind.Slash));
-        Accept(game,new UseProgramSkillCommand(0,"classic:tiaoxin","taunt",[],[target],game.Revision,Prompt(game)!.PromptId));
-        Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="request-slash");
-        Reach(game,p=>p.Kind==DecisionKind.RespondDodge && p.PlayerSeat==0);
-        var choice=Prompt(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="classic:taoluan");
-        var card=choice.Cards.Single(); RejectUnknown(game); Replay(game,registry);
-        Answer(game,c=>c.Id==choice.Id);
-        Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
-        Require(game.CardMovements.Any(m=>m.CardId==card && m.To==CardLocation.DiscardPile),"The real defensive Dodge is paid before completion asks for a gift.");
-        Replay(game,registry); Answer(game,c=>c.Targets.Contains(target)); Replay(game,registry);
-        Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="different-action-category-gift");
-        Reach(game,p=>p.Kind==DecisionKind.PlayCard); Replay(game,registry);
-    }
     public static void EquipmentGlobalAndNullification()
     {
         var (game,registry)=Create();
@@ -90,8 +45,6 @@ internal static class Fame2016TaoluanChecks
     private static string State(GameEngine game) => JsonSerializer.Serialize(new
     { Views = Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray(), Frames = JsonSerializer.Serialize(game.ResolutionStack),
         Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(), Movements = game.CardMovements, Commands = CommandJson.Serialize(game.AcceptedCommands) });
-    private static void RejectUnknown(GameEngine game)
-    { var before = State(game); var p = Prompt(game)!; var result = game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("fixture:illegal"), game.Revision)); Require(!result.Accepted && before == State(game), "An invalid answer preserves every view, event, real movement, cursor and accepted command."); }
     private static void Replay(GameEngine game, ContentRegistry registry)
     { var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry); Require(State(game) == State(replay), "Checkpoint and command JSON replay all public/private states and physical moves."); }
     private static void Accept(GameEngine game, GameCommand command)

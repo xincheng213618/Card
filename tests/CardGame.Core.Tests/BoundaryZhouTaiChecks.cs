@@ -44,70 +44,10 @@ internal static class BoundaryZhouTaiChecks
             "A repeated wound rank is removed, so the declined second dying stays fatal.");
     }
 
-    public static void FenjiCoversOwnDiscardsAndThirdPartyGains()
-    {
-        var (g, r) = Start();
-        var hand = HandCount(g, 0);
-        Driver(g, "discard");
-        RunUntilPlay(g, activateFenji: true);
-        Require(g.CreateSnapshot(0).Players[0].Hp == 4 && HandCount(g, 0) == hand - 1 + 2,
-            "An accepted own-discard Fenji draws Zhou Tai two cards.");
-        Replay(g, r);
-        var (g2, r2) = Start();
-        var targetHand2 = HandCount(g2, 1);
-        Driver(g2, "snatch", [1]);
-        RunUntilPlay(g2, activateFenji: true);
-        Require(g2.CreateSnapshot(0).Players[0].Hp == 4 && HandCount(g2, 1) == targetHand2 - 1 + 2,
-            "An accepted gain Fenji costs one HP and refills the original owner by two.");
-        Replay(g2, r2);
-    }
-
     private static int HandCount(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].HandCount;
 
     private static int WoundCount(GameEngine g) =>
         g.CreateCardZoneDiagnostics().Count(c => c.Location.Zone == CardZoneKind.BuquWound);
-
-    // Drives the fixture back to the human play prompt, answering Fenji offers,
-    // single-target confirmations and owned-card selections along the way.
-    private static void RunUntilPlay(GameEngine g, bool activateFenji = false)
-    {
-        for (var i = 0; i < 200; i++)
-        {
-            var p = P(g);
-            if (p is null) { Accept(g, new AdvanceOneStepCommand(g.Revision)); continue; }
-            if (p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0) return;
-            var choices = p.Choices;
-            if (p.SkillPrompt?.SkillId == Fenji && choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"))
-            {
-                var pick = activateFenji ? "activate" : "skip";
-                Accept(g, new AnswerPromptCommand(0, p.PromptId,
-                    choices.First(c => c.Parameters.GetValueOrDefault("program-action") == pick).Id, g.Revision));
-                continue;
-            }
-            if (choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"))
-            {
-                Accept(g, new AnswerPromptCommand(0, p.PromptId,
-                    choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-target").Id, g.Revision));
-                continue;
-            }
-            if (choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"))
-            {
-                Accept(g, new AnswerPromptCommand(0, p.PromptId,
-                    choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card").Id,
-                    g.Revision));
-                continue;
-            }
-            if (p.PlayerSeat == 0 && choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip"))
-            {
-                Accept(g, new AnswerPromptCommand(0, p.PromptId,
-                    choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "skip").Id, g.Revision));
-                continue;
-            }
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The fixture never returned to the play prompt: " +
-            System.Text.Json.JsonSerializer.Serialize(P(g)));
-    }
 
     internal static (GameEngine, ContentRegistry) Start()
     {

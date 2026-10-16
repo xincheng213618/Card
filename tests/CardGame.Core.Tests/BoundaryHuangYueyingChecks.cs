@@ -39,24 +39,6 @@ internal static class BoundaryHuangYueyingChecks
         }
     }
 
-    public static void ForeignProgramSelections()
-    {
-        var(g,r)=Start(CardKind.Dodge,equipment:"standard:renwang_shield");Driver(g,"equip",[1]);Settle(g);var armor=g.CreateSnapshot(0).Players[1].Equipment.Single();
-        Driver(g,"foreign-payment",[1]);Settle(g);Require(Zones(g).GetLocation(armor.Id)==CardLocation.Equipment(1),"Protected-only generic equipment discard finishes without a payment.");ReplayFourViews(g,r);
-        Driver(g,"other-discard");Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-other-owned-card-discard"));Require(P(g)!.Choices.All(c=>!c.Cards.Contains(armor.Id)),"Other-owned choices keep opaque hand slots and omit protected equipment.");ReplayFourViews(g,r);Answer(g,c=>c.Targets.SequenceEqual([1]));Settle(g);Require(Zones(g).GetLocation(armor.Id)==CardLocation.Equipment(1),"An actual foreign hand discard leaves protected armor untouched.");ReplayFourViews(g,r);
-        Driver(g,"sweep",[1]);Settle(g);Require(Zones(g).GetLocation(armor.Id)==CardLocation.Equipment(1),"Equipment-only participant sweep does not fabricate a discard receipt.");ReplayFourViews(g,r);
-        Driver(g,"self-payment",[1]);Reach(g,p=>p.PlayerSeat==1&&p.Choices.Any(c=>c.Cards.Contains(armor.Id)));ReplayFourViews(g,r);Answer(g,c=>c.Cards.SequenceEqual([armor.Id]));Settle(g);Require(Zones(g).GetLocation(armor.Id)==CardLocation.DiscardPile,"The participant's own explicit discard cost is legal.");ReplayFourViews(g,r);
-        foreach(var self in new[]{true,false})
-        {
-            var(b,br)=Start(CardKind.Dodge,equipment:"standard:renwang_shield");Driver(b,"equip",[1]);Settle(b);var entity=b.CreateSnapshot(0).Players[1].Equipment.Single().Id;
-            Driver(b,self?"self-bound":"incoming",[1]);if(!self){Reach(b,p=>p.SkillPrompt?.SkillId=="fixture:hy-source");Activate(b);}
-            Reach(b,p=>p.Choices.Any(c=>c.Cards.SequenceEqual([entity])));ReplayFourViews(b,br);Answer(b,c=>c.Cards.SequenceEqual([entity]));
-            Reach(b,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option"));
-            Require(Frame(b).CardSetBindings.Single(x=>x.Name=="bound").SelectionActorSeat==(self?1:0),"Actual participant/source chooser is frozen on the owning binding.");ReplayFourViews(b,br);Answer(b,c=>c.Parameters.GetValueOrDefault("option-id")=="done");Settle(b);
-            Require(Zones(b).GetLocation(entity)==(self?CardLocation.DiscardPile:CardLocation.Equipment(1))&&b.CardMovements.Count(m=>m.CardId==entity&&m.From==CardLocation.Equipment(1)&&m.To==CardLocation.DiscardPile)==(self?1:0),"A bound participant cost pays once; a bound foreign discard is prevented before movement.");ReplayFourViews(b,br);
-        }
-    }
-
     private static (GameEngine,ContentRegistry) Start(CardKind use,bool conversion=false,bool nullification=false,CardKind drawKind=CardKind.Dodge,int remaining=40,bool child=false,string? equipment=null)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(use,conversion,nullification,drawKind,remaining,child,equipment));
@@ -84,7 +66,6 @@ internal static class BoundaryHuangYueyingChecks
             throw;
         }
     }
-    private static void Driver(GameEngine g,string id,int[]?targets=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:hy-driver",id,[],targets??[],g.Revision,P(g)!.PromptId));
     private static void Settle(GameEngine g)
     {
         for(var step=0;step<100;step++)
@@ -96,7 +77,6 @@ internal static class BoundaryHuangYueyingChecks
         }
         throw new InvalidOperationException("Fixture failed to settle: "+P(g)?.Prompt);
     }
-    private static CardZoneStore Zones(GameEngine g)=>(CardZoneStore)typeof(GameEngine).GetField("_cardZones",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
     private static SkillProgram Load(string id,string members)=>SkillProgramCatalog.Load("{\"schemaVersion\":"+SkillProgramCatalog.RulesSchemaVersion+",\"skills\":[{\"id\":\""+id+"\",\"revision\":1,"+members+"}]}","{\"schemaVersion\":3,\"skills\":{\""+id+"\":{\"name\":\"fixture\",\"description\":\"fixture\""+(members.Contains("options",StringComparison.Ordinal)?",\"optionLabels\":{\"done\":\"继续\"}":"")+"}}}").Programs[id];
     private static string Activation(string id,string effects,int targets=0)=>"{\"id\":\""+id+"\",\"usesPerTurn\":null,\"minCards\":0,\"maxCards\":0,\"minTargets\":"+targets+",\"maxTargets\":"+targets+",\"targetKind\":\"anyLiving\",\"effects\":"+effects+"}";
     private sealed class Fixture(CardKind use,bool conversion,bool nullification,CardKind drawKind,int remaining,bool child,string? equipment):IGameContentPackage

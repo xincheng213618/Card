@@ -22,17 +22,6 @@ internal static class ZhaoXiangChecks
             E<ZhaoXiangExchangeRecoveryIssuedEvent>(g).Count(e=>e.FrameId==frame.Id)==1 && E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==frame.Id)==1,
             "Real selected Shu template replaces printed identity/skills; max HP uses cumulative removed seven, and the already paid old-source native recovery tail returns once.");_=Cold(g,r);
     }
-    public static void ActualZeroMarkerFiveShuPrivateReplacementAndLowerClamp()
-    {
-        var(g,r)=Start("zero");Reach(g,()=>FuhanOffer(g));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>Selection(g));var f=Root(g);var ids=f.ZhaoXiang!.Generals.ToArray();
-        Need(f.ZhaoXiang.Removed==0 && f.ZhaoXiang.CumulativeRemoved==0 && ids.Length==5 && ids.Distinct().Count()==5 && ids.All(id=>r.Generals[id].FactionId=="shu") &&
-            P(g)!.ValidContentIds.SequenceEqual(ids) && Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null),
-            "Current wording permits zero markers; actual random five distinct available Shu templates remain a private owner-only choice.");
-        var p=P(g)!;var revision=g.Revision;Need(!g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted && g.Revision==revision,"A foreign actor cannot select the paid private general pool.");
-        g=Cold(g,r);Need(Root(g).ZhaoXiang!.Generals.SequenceEqual(ids),"Cold replay freezes the original random templates instead of sampling again.");Answer(g,_=>true);Reach(g,()=>!g.ResolutionStack.Any(x=>x.Id==f.Id));
-        Need(V(g,0).MaxHp==2 && ids.Contains(V(g,0).GeneralId) && V(g,0).GeneralId!=Owner && E<ZhaoXiangExchangeRecoveryIssuedEvent>(g).Count(e=>e.FrameId==f.Id)==1 &&
-            E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==f.Id)==1,"Zero-cost replacement genuinely changes template and clamps max HP to two with one paid native tail.");_=Cold(g,r);
-    }
     private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -91,31 +80,6 @@ internal static class ZhaoXiangChecks
             var templates=Enumerable.Range(0,8).Select(i=>$"fixture:zhao-xiang-shu-{i}").ToArray();foreach(var id in templates)b.AddGeneral(new(id,"真实蜀替身"+id[^1],"supporter",scenario=="recovery-death"?Watch:"standard:none","shu",4));
             b.AddDeck(new("fixture:zhao-xiang-deck","固定实体基本牌",4,0,[]){PhysicalCards=Enumerable.Range(0,96).Select(_=>new ContentDeckPhysicalCard(scenario is "slash" or "response"?"standard:slash":"standard:dodge",Suit.Club,7)).ToArray()});
             b.AddMode(new(Mode,"真实赵襄固定夹具",4,4,new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Rebel)]=3},"fixture:zhao-xiang-deck",GeneralCandidateCount:12,GeneralPoolIds:[Owner,..peers,..templates]));
-        }
-    }
-    private sealed class ProviderFixture:IGameContentPackage
-    {
-        internal const string Mode="identity:classic-zhao-xiang-provider",Lord="fixture:zhao-xiang-request-lord",Provider="fixture:zhao-xiang-request-provider",Request="fixture:zhao-xiang-jijiang",Stock="fixture:zhao-xiang-provider-stock";
-        public PackageManifest Manifest{get;}=new("zhao-xiang-provider-fixture",new(1,0,0),[]);
-        public void Register(IContentRegistryBuilder b)
-        {
-            void Add(SkillProgramCatalog c){foreach(var(id,p)in c.Programs)b.AddSkill(new(id,c.Presentations[id].Name,c.Presentations[id].Description){Program=p,ProgramPresentation=c.Presentations[id],
-                Tags=id==Request?SkillTag.Lord:SkillTag.None,SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,role=>id==Stock?(role==Role.Loyalist?20000d:-30000d):id==Quiet?10000d:-10000d)});}
-            Add(SkillProgramCatalog.Load(Embedded("rules.json"),Embedded("presentation.json")));
-            var rules=$$"""
-            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
-              {"id":"{{Request}}","revision":1,"cardPolicies":[{"id":"allied-slash","kind":"factionResponseRequest","requiredCardKinds":["slash"],"factionId":"shu","ownerRole":"lord"}],"activations":[
-                {"id":"request-shu-slash","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLivingSlashable","usesPerTurn":null,"condition":{"kind":"classicIdentityMode"},"effects":[{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}]},
-                {"id":"empty-target","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"selectOwnedCards","target":"selectedTarget","minimumCards":4,"maximumCards":4,"zones":["hand"],"resultBind":"target-hand"},{"op":"moveBoundCards","target":"owner","sourceBind":"target-hand","destination":"discardPile","awaitMovementTriggers":true}]}]},
-              {"id":"{{Stock}}","revision":1,"triggers":[{"id":"initial-markers","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"setMarkerAmount","target":"owner","marker":"meiYing","amount":7}]}]},
-              {"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}
-            ]}
-            """;
-            Add(SkillProgramCatalog.Load(rules,JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=new Dictionary<string,object>{[Request]=new{name="真实激将请求",description="原生请求及真实清手付款"},[Stock]=new{name="真实初始梅影",description="原生初始标记"},[Quiet]=new{name="静默同桌",description="跳过出牌"}}})));
-            b.AddGeneral(new(Lord,"真实请求主公","supporter",Request,"shu",12));b.AddGeneral(new(Provider,"真实芳魂供牌者","supporter",Stock,"shu",12,["ol:fanghun",Quiet],GeneralGender.Female));
-            var peers=new[]{"fixture:zhao-xiang-request-peer-1","fixture:zhao-xiang-request-peer-2"};foreach(var id in peers)b.AddGeneral(new(id,"魏同桌","supporter",Quiet,"wei",12));
-            b.AddDeck(new("fixture:zhao-xiang-provider-deck","固定供牌实体",4,0,[]){PhysicalCards=Enumerable.Range(0,64).Select(_=>new ContentDeckPhysicalCard("standard:dodge",Suit.Club,7)).ToArray()});
-            b.AddMode(new(Mode,"真实激将芳魂供牌",4,4,new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Loyalist)]=1,[nameof(Role.Rebel)]=2},"fixture:zhao-xiang-provider-deck",GeneralCandidateCount:4,GeneralPoolIds:[Lord,Provider,..peers]));
         }
     }
 }

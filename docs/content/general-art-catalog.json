@@ -14566,6 +14566,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-cao-teng",
+      "characterName": "曹腾·OL",
+      "defaultSkinId": "61900",
+      "skins": [
+        {
+          "id": "61900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/619",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-teng.png",
+          "sha256": "3883edad42edff33b5e08da1499714d8e57d6520f4af08981399a629bc7980c3",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-yang-fu",
+      "characterName": "杨阜·OL",
+      "defaultSkinId": "66600",
+      "skins": [
+        {
+          "id": "66600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/666",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-fu.png",
+          "sha256": "ae49cc07b3b5070a803b4b230be01b53fa7a2b62a007628c8a9a04f9e5c338c3",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

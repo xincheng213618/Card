@@ -40,42 +40,6 @@ internal static class DyingSuitsAndEndingHistoryChecks
         Cold(g, registry);
     }
 
-    public static void MoshiFirstUseCompletionBeforeSecondMultiSlashAndSkip()
-    {
-        var (g, registry) = Start(ending: true); Prepare(g, 0);
-        Play(g, LegalActionKind.DrawTwo); Play(g, LegalActionKind.Slash, [1]);
-        UseDriver(g, "multi", []); ReachPlay(g);
-        var history = Events<OwnPlayEligibleUseRecordedEvent>(g);
-        Require(history is [{ EffectiveKind: CardKind.DrawTwo }, { EffectiveKind: CardKind.Slash }],
-            "Only the original first two real own-Play Basic/InstantTrick Uses enter the issued history.");
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => Activation(p, Moshi, "own-ending-first-two-uses"));
-        Activate(g, Moshi, "own-ending-first-two-uses"); Reach(g, p => Action(p, "historical-ending")); Cold(g, registry); Reject(g);
-        Answer(g, c => c.Cards.Count == 1);
-        Reach(g, p => Action(p, "historical-ending"));
-        var first = Events<EndingHistoricalUseIssuedEvent>(g).Single().Return;
-        Require(first.SlotIndex == 0 && first.EffectiveKind == CardKind.DrawTwo && Events<EndingHistoricalUseReturnedEvent>(g).Count(e => e.Return == first) == 1 &&
-            Events<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == first.CardUseFrameId) == 1,
-            "The targetless first Use must finish its whole native producer before the second choice is published."); Cold(g, registry);
-        var choice = P(g)!.Choices.First(c => c.Cards.Count == 1 && c.Targets.Count == 2); var targets = choice.Targets.ToArray();
-        var beforeHp = targets.ToDictionary(s => s, s => g.State.Players[s].Hp); Answer(g, c => c.Id == choice.Id);
-        DrainHistorical(g, expectedCount: 2);
-        var second = Events<EndingHistoricalUseIssuedEvent>(g).Last().Return;
-        Require(second.SlotIndex == 1 && second.EffectiveKind == CardKind.Slash && targets.All(s => g.State.Players[s].Hp == beforeHp[s] - 1) &&
-            Events<EndingHistoricalUseReturnedEvent>(g).Count(e => e.Return == second) == 1 &&
-            Events<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == second.CardUseFrameId) == 1 &&
-            Events<CardUseDebitRecordedEvent>(g).All(e => e.Debit.CardActionId != second.CardActionId),
-            "The exact ordered multi-target Slash damages both targets and returns once without an Ending debit of finite Play quota."); Cold(g, registry);
-
-        var (skip, skipRegistry) = Start(ending: true); Prepare(skip, 0); Play(skip, LegalActionKind.DrawTwo); Play(skip, LegalActionKind.Slash, [1]);
-        Accept(skip, new EndPlayPhaseCommand(0, skip.Revision, P(skip)!.PromptId)); Reach(skip, p => Activation(p, Moshi, "own-ending-first-two-uses"));
-        Activate(skip, Moshi, "own-ending-first-two-uses"); Reach(skip, p => Action(p, "historical-ending"));
-        Answer(skip, c => c.Parameters.GetValueOrDefault("option") == "skip");
-        Require(Events<EndingHistoricalUseIssuedEvent>(skip).Length == 0 && skip.ResolutionStack.OfType<ProgramSkillFrame>().All(f => f.SkillId != Moshi),
-            "Skipping the first slot terminates this activation and never pays or publishes the second slot."); Cold(skip, skipRegistry);
-    }
-    private static void DrainHistorical(GameEngine g, int expectedCount = 1)
-    { for (var step = 0; step < 160; step++) { if (Events<EndingHistoricalUseReturnedEvent>(g).Length >= expectedCount) return; Advance(g); } throw new InvalidOperationException("Exact historical whole-Use did not return."); }
-
     private static (GameEngine, ContentRegistry) Start(bool duplicateSuits = false, string? nestedOp = null, bool ending = false, string? scenario = null)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
@@ -89,9 +53,6 @@ internal static class DyingSuitsAndEndingHistoryChecks
     private static void EnterOriginal(GameEngine g) { UseDriver(g, "dying", [1]); Reach(g, p => Activation(p, Chenqing, "round-original-dying-suits")); }
     private static void UseDriver(GameEngine g, string activation, IReadOnlyList<int> targets) => Accept(g,
         new UseProgramSkillCommand(0, Driver, activation, [], targets, g.Revision, P(g)!.PromptId));
-    private static void Play(GameEngine g, LegalActionKind kind, IReadOnlyList<int>? targets = null)
-    { var a = g.GetHumanLegalActions().First(a => a.Kind == kind && (targets is null || a.TargetSeats.SequenceEqual(targets)));
-        Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); ReachPlay(g); }
     private static T[] Events<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string name) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == name);

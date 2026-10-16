@@ -17,6 +17,7 @@ public sealed partial class SeatViewModel : ObservableObject
     public string SecondaryGeneralText { get; set; } = string.Empty;
     public bool HasSecondaryGeneral => SecondaryGeneralText.Length > 0;
     public bool IsNationalSeat { get; set; }
+    public bool HasDualGenerals => IsNationalSeat || HasSecondaryGeneral;
     public GeneralSlotViewModel? PrimaryGeneral { get; set; }
     public GeneralSlotViewModel? SecondaryGeneral { get; set; }
     public string RelationshipLabel { get; set; } = string.Empty;

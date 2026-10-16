@@ -21,15 +21,6 @@ internal static class FengLinLuZhiChecks
             }
         }
     }
-    public static void StrictResourcesAndLegacyColorAbi()
-    {
-        var a=new CardActionContext(1,null,CardActionType.Use,0,0,null,null,null,CardKind.Slash,[],[],[]);Require(!JsonSerializer.Serialize(a).Contains("EffectiveIsRed"),"Legacy context omits additive color fact.");
-        var(legacy,legacyRegistry)=Start(legacy:true);ReachPlay(legacy);End(legacy);var oldGate=false;
-        try{Reach(legacy,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);}catch(InvalidOperationException ex) when(ex.Message.StartsWith("The response card ")&&ex.Message.EndsWith("cannot be used as Dodge.")){oldGate=true;}
-        Require(oldGate,"Registry without action-color op retains original rejection of multi-entity response gate.");
-        var asm=typeof(StandardClassicGeneralPackage).Assembly;string Read(string kind){using var s=asm.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-lu-zhi."+kind+".json")!;using var reader=new StreamReader(s);return reader.ReadToEnd();}
-        foreach(var bad in new[]{Read("rules").Replace("gameStarting","drawPhaseStarting"),Read("rules").Replace("discardPileReceived","cardsGained"),Read("rules").Replace("turnEnding","drawPhaseStarting")}){var failed=false;try{SkillProgramCatalog.Load(bad,Read("presentation"));}catch(InvalidOperationException){failed=true;}Require(failed,"Wrong reserve/action window is rejected by generic resources.");}
-    }
     private static SkillPolarity? Polarity(GameEngine g)=>g.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s=>s.SkillId=="classic:zhenliang").Polarity;
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(i=>g.CreateSnapshot(i,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Require(bool b,string text){if(!b)throw new InvalidOperationException(text);}

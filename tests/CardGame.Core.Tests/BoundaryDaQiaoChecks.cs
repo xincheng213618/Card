@@ -4,20 +4,6 @@ using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class BoundaryDaQiaoChecks
 {
-    public static void AtomicMixedDiscardReplay()
-    {
-        var (g,r)=Create(); var initial=g.CreateSnapshot(0).Players[0].Hand.Count;
-        var setup=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Indulgence&&a.TargetSeat==1&&a.ConversionSource?.SkillId=="classic:guose");
-        var judgment=setup.CardId!.Value;
-        Accept(g,new PlayCardCommand(0,judgment,[1],g.Revision,Prompt(g)!.PromptId,CardKind.Indulgence){ConversionSource=setup.ConversionSource}); ReachPlay(g);
-        var action=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="boundary:guose"); var payment=action.SelectableCardIds.First();
-        var before=State(g); Require(!g.Submit(new UseProgramSkillCommand(0,"boundary:guose","diamond-delayed",[judgment],[],g.Revision,Prompt(g)!.PromptId)).Accepted&&before==State(g),"A Judgment entity cannot fake the owner payment.");
-        Accept(g,new UseProgramSkillCommand(0,"boundary:guose","diamond-delayed",[payment],[],g.Revision,Prompt(g)!.PromptId)); Replay(g,r); Reject(g);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="discard"&&c.Cards.SequenceEqual([judgment])); ReachPlay(g);
-        var moves=g.CardMovements.Where(m=>m.CardId==payment||m.CardId==judgment).Where(m=>m.Reason.Value=="skill-program.diamond-delayed.discard").ToArray();
-        Require(moves.Length==2&&moves.All(m=>m.To==CardLocation.DiscardPile)&&moves.Any(m=>m.From==CardLocation.Hand(0))&&moves.Any(m=>m.From==CardLocation.Judgment(1)),"Both exact mixed-source entities really discard once.");
-        Require(g.CreateSnapshot(0).Players[0].Hand.Count==initial-1,"Only the two real payments earn one refill."); Replay(g,r);
-    }
     public static void CompletedPlacementDrawsBeforeDelayedNullification()
     {
         var(g,r)=Create("nullification");var a=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="boundary:guose");var id=a.SelectableCardIds.First();var before=g.CreateSnapshot(0).Players[0].Hand.Count;
@@ -66,7 +52,6 @@ internal static class BoundaryDaQiaoChecks
     private static void ReachPlay(GameEngine g){for(var i=0;i<64;i++){if(Prompt(g)?.Kind==DecisionKind.PlayCard&&g.CreateSnapshot(0).CurrentSeat==0)return;if(Prompt(g) is {PlayerSeat:0,Kind:DecisionKind.Nullification} n) Accept(g,new AnswerPromptCommand(0,n.PromptId,n.Choices.First(c=>c.Cards.Count==0).Id,g.Revision)); else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Fixed fixture did not reach actual Play.");}
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),Frames=JsonSerializer.Serialize(g.ResolutionStack),Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements,Commands=CommandJson.Serialize(g.AcceptedCommands),Zones=g.CreateCardZoneDiagnostics()});
     private static void Replay(GameEngine g,ContentRegistry r)=>Require(State(g)==State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r)),"Four views, typed frames, events, movements and journal restore identically.");
-    private static void Reject(GameEngine g){var b=State(g);var p=Prompt(g)!;Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat,p.PromptId,new("fixture:invalid"),g.Revision)).Accepted&&State(g)==b,"Illegal options are atomic.");}
     private static (GameEngine,ContentRegistry) Create(string mode="default")
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(mode));

@@ -742,6 +742,25 @@
                             </ItemsControl>
                         </Viewbox>
                         <Image x:Name="PlayPhaseMarker" Grid.Row="3" Source="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seat__SeatRoundState_4.png" Width="140" Height="14" HorizontalAlignment="Left" Margin="146,0,0,0" Stretch="Fill" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False" />
+                        <Border x:Name="OpeningHandControls" Grid.RowSpan="4" Background="#2C2117" Padding="8,3" Visibility="{Binding CanRerollOpeningHand, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="TableOverlay_IsVisibleChanged">
+                            <StackPanel VerticalAlignment="Center">
+                                <DockPanel LastChildFill="True">
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button x:Name="RerollOpeningHandButton" Content="随 机" Command="{Binding RerollOpeningHandCommand}" Style="{StaticResource ToolbarButton}" Padding="16,5" ToolTip="将起手牌放回牌堆，重新随机同样数量的手牌" />
+                                        <Button x:Name="ChangeOpeningHandButton" Content="换 牌" Command="{Binding ToggleOpeningHandEditorCommand}" Style="{StaticResource ToolbarButton}" Padding="16,5" Margin="8,0" ToolTip="点选一张手牌，按牌名选择想换入的牌" />
+                                        <Button x:Name="ConfirmOpeningHandButton" Content="确 定" Command="{Binding DismissOpeningDealCommand}" Style="{StaticResource PrimaryButton}" Padding="16,5" ToolTip="确认当前手牌，进入牌局" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding OpeningHandHint}" Foreground="#F0D08F" VerticalAlignment="Center" Margin="0,0,12,0" TextTrimming="CharacterEllipsis" />
+                                </DockPanel>
+                                <Grid Margin="0,5,0,0" Visibility="{Binding IsOpeningHandEditorOpen, Converter={StaticResource BoolToVisibility}}">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="140" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="搜索牌名" Foreground="#C8B48D" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBox x:Name="OpeningCardSearchBox" Grid.Column="1" Text="{Binding OpeningCardSearch, UpdateSourceTrigger=PropertyChanged}" Padding="6,3" ToolTip="例如：丈八、诸葛连弩" AutomationProperties.Name="搜索起手牌牌名" />
+                                    <ComboBox x:Name="OpeningCardSelector" Grid.Column="2" ItemsSource="{Binding OpeningCardChoices}" SelectedItem="{Binding SelectedOpeningCardChoice}" DisplayMemberPath="Name" Margin="8,0" MinWidth="100" MaxDropDownHeight="240" AutomationProperties.Name="选择换入的牌" />
+                                    <Button x:Name="ReplaceOpeningCardButton" Grid.Column="3" Content="换入手牌" Command="{Binding ReplaceOpeningCardCommand}" Style="{StaticResource ToolbarButton}" Padding="12,3" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </Border>
                 <Border x:Name="HandDock" Grid.Row="2" Grid.ColumnSpan="2" Background="#2C2117" BorderBrush="#84725B" BorderThickness="0,1,0,0" Padding="8,6">
@@ -858,7 +877,6 @@
                             </ScrollViewer>
                             <TextBlock Text="发牌完成 · 这些牌已进入你的私有手牌区" Foreground="#718A7E" FontSize="10" HorizontalAlignment="Center" Margin="0,18,0,0" />
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
-                                <Button x:Name="RerollOpeningHandButton" Content="重新随机手牌" Command="{Binding RerollOpeningHandCommand}" Visibility="{Binding CanRerollOpeningHand, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="18,9" Margin="0,0,14,0" />
                                 <Button x:Name="DismissOpeningDealButton" Content="进 入 牌 局" Command="{Binding DismissOpeningDealCommand}" Style="{StaticResource PrimaryButton}" MinWidth="160" Padding="18,9" />
                             </StackPanel>
                         </StackPanel>

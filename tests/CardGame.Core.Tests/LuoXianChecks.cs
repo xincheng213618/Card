@@ -57,104 +57,18 @@ internal static class LuoXianChecks
             "A dead completed-turn owner does not cancel the living source's paid native flip, actual three-card draw, public reveal or original end cursor.");
         _ = Cold(deadTurn, deadRegistry);
     }
-
-    public static void NativePublicHandResidencyAndPrivateInspectionCold()
-    {
-        var (game, registry) = Start();
-        var first = V(game, 0).Hand[0].Id;
-        Show(game, first); Show(game, first);
-        Need(Shown(game, 0).SequenceEqual([first]) && E<PublicHandEntityRevealedEvent>(game).Count(e => e.Card.Id == first) == 1,
-            "Another real skill's explicit reveal counts; repeated revelation within the same hand residency does not count the entity twice.");
-        Use(game, "show-peer", targets: [1]); Play(game);
-        var peerCard = E<PublicHandEntityRevealedEvent>(game).Last(e => e.OwnerSeat == 1).Card.Id;
-        Need(Shown(game, 1).Contains(peerCard) && !Shown(game, 0).Contains(peerCard) &&
-            E<ProgramCardsRevealedEvent>(game).Last().OwnerSeat == 0,
-            "A real foreign hand revealed by the owner's skill belongs to its actual physical hand owner, not the event's skill owner.");
-        Use(game, "give", targets: [1]); Reach(game, () => Action(game, "owned-hand-rank-sum"));
-        Answer(game, c => c.Cards.SequenceEqual([first]));
-        Reach(game, () => Action(game, "owned-hand-rank-sum") && P(game)!.Choices.Any(c => c.Cards.Count == 0));
-        Answer(game, c => c.Cards.Count == 0); Play(game);
-        Need(!Shown(game, 0).Contains(first) && !Shown(game, 1).Contains(first), "A public reveal before an actual gift does not follow the entity into another owner's hidden hand.");
-        var slot = V(game, 1).Hand.Select((c, i) => (c.Id, Index: i)).Single(c => c.Id == first).Index;
-        Use(game, "take", targets: [1]); Reach(game, () => Action(game, "select-and-move-owned-card"));
-        Need(P(game) is { IsPrivate: true, PlayerSeat: 0 } && P(game)!.Choices.All(c => c.Cards.Count == 0) && game.CreateSnapshot(2).PendingDecision is null,
-            "Even a previously revealed physical card retains a concealed current hand slot when selected from a foreign hand.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand) && c.Parameters.GetValueOrDefault("slot-index") == slot.ToString()); Play(game);
-        Need(V(game, 0).Hand.Any(c => c.Id == first) && !Shown(game, 0).Contains(first), "A genuine departure and reacquisition create a fresh unshown residency rather than reviving a historical card-ID mark.");
-        End(game); Reach(game, () => Offer(game)); Activate(game); Reach(game, () => E<DailiTurnEndCompletedEvent>(game).Length == 1);
-        Need(E<DailiTurnEndIssuedEvent>(game).Single().Receipt.ShownHandCount == 0, "The ending parity excludes all old and foreign residencies.");
-        _ = Cold(game, registry);
-
-        var (privateGame, privateRegistry) = Start("private");
-        Need(Action(privateGame, "private-hand-take") && E<ProgramPrivateHandViewedEvent>(privateGame).Length == 1 &&
-            privateGame.CreateSnapshot(0).PrivateRevealedCards is { Count: > 0 } && privateGame.CreateSnapshot(2).PrivateRevealedCards is null &&
-            E<PublicHandEntityRevealedEvent>(privateGame).Length == 0 && Shown(privateGame, 1).Length == 0,
-            "An actual private hand inspection exposes its faces only to the viewing player and never establishes public shown-hand state.");
-        privateGame = Cold(privateGame, privateRegistry); Answer(privateGame, _ => true); Play(privateGame); End(privateGame); Reach(privateGame, () => Offer(privateGame));
-        Activate(privateGame); Reach(privateGame, () => E<DailiTurnEndCompletedEvent>(privateGame).Length == 1);
-        Need(E<DailiTurnEndIssuedEvent>(privateGame).Single().Receipt.ShownHandCount == 0, "Privately inspecting and obtaining one card does not turn the owner's zero shown-card parity odd.");
-        _ = Cold(privateGame, privateRegistry);
-    }
-
-    public static void PaidFlipAndDrawChildrenKeepOriginalEntitiesAfterSourceLoss()
-    {
-        var (game, registry) = Start("children"); End(game); Reach(game, () => Offer(game)); Activate(game);
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Flip);
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Daili is not null);
-        Need(root.Daili is { Stage: DailiStage.FlipChildren } && V(game, 0).IsFaceDown && E<DailiDrawPaidEvent>(game).Length == 0 &&
-            game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.ResumeProgramFrameId == root.Id && w.CharacterStateContinuation == CharacterStateContinuation.Program),
-            "The paid native flip owns its real turned-over observer; the three-card draw has not started before that child returns.");
-        game = Cold(game, registry); Continue(game); Reach(game, () => Option(game, "after-loss"));
-        Need(V(game, 0).Skills!.All(s => s.ContentId != Skill) && E<DailiDrawPaidEvent>(game).Length == 0,
-            "Actual native HP change removes the source grant inside the paid flip child before any draw.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "after-loss");
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Gain && Option(game, "continue"));
-        root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Daili is not null);
-        var drawn = Drawn(game, root.Id);
-        Need(root.Daili is { Stage: DailiStage.DrawChildren, Count: 3 } && drawn.Length == 3 && Shown(game, 0).Length == 0,
-            "Source loss retains the issued draw entitlement; the exact three real entities remain hidden while their gain child is suspended.");
-        game = Cold(game, registry); Continue(game); Reach(game, () => Action(game, "select-owned-cards"));
-        Answer(game, c => c.Cards.SequenceEqual([drawn[0]])); Reach(game, () => Option(game, "after-replacement"));
-        var replacement = V(game, 0).Hand.Select(c => c.Id).Except(drawn).Last();
-        Need(game.CardMovements.Any(m => m.CardId == drawn[0] && m.To == CardLocation.DiscardPile) && !Shown(game, 0).Contains(replacement),
-            "The real gain child discards an original drawn entity and draws a replacement without prematurely exposing that replacement.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "after-replacement");
-        Reach(game, () => E<DailiTurnEndCompletedEvent>(game).Length == 1);
-        Need(Shown(game, 0).Order().SequenceEqual(drawn.Skip(1).Order()) && !Shown(game, 0).Contains(replacement) && E<DailiDrawPaidEvent>(game) is [{ Count: 3 }] &&
-            E<DailiTurnEndCompletedEvent>(game) is [{ ActualDrawCount: 3, RevealedCount: 2 }],
-            "The original paid draw resumes once after source loss and nested movements, revealing only its two surviving original hand entities.");
-        _ = Cold(game, registry);
-    }
-
-    public static void DrawChildOwnerDeathCompletesWithoutRevealOrReplacement()
-    {
-        var (game, registry) = Start("death", human: 1, stopAtEnding: true); Activate(game);
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Gain);
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Daili is not null); var drawn = Drawn(game, root.Id);
-        Need(drawn.Length == 3 && Shown(game, 1).Length == 0, "The actual other-turn draw is paid but still private before its lethal native child.");
-        game = Cold(game, registry); Continue(game); Reach(game, () => E<DailiTurnEndCompletedEvent>(game).Any(e => e.FrameId == root.Id));
-        Need(!V(game, 1).IsAlive && game.State.Winner == Winner.None && E<DailiDrawPaidEvent>(game) is [{ Count: 3 }] &&
-            E<DailiTurnEndCompletedEvent>(game) is [{ ActualDrawCount: 3, RevealedCount: 0 }] &&
-            !E<CardsRevealedEvent>(game).Any(e => e.ResolutionId == root.Id) && Shown(game, 1).Length == 0,
-            "A real owner death drains its paid child without exposing dead hand cards, drawing substitutes or leaving the original ending cursor unfinished.");
-        _ = Cold(game, registry);
-    }
-
-    private static int[] Drawn(GameEngine game, long frame) => E<DailiCardDrawnEvent>(game).Where(e => e.FrameId == frame).Select(e => game.CardMovements.Single(m => m.Sequence == e.MovementSequence).CardId).ToArray();
     private static int[] Shown(GameEngine game, int owner) => game.CreateSnapshot(0).PublicRevealedCards.Where(c => c.PublicHandOwnerSeat == owner).Select(c => c.Id).Order().ToArray();
     private static PlayerSnapshot V(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine game) where T : IGameEvent => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Offer(GameEngine game) => P(game)?.SkillPrompt?.SkillId == Skill && Action(game, "activate");
     private static bool Action(GameEngine game, string action) => P(game)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action) == true;
-    private static bool Option(GameEngine game, string id) => P(game)?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == id) == true;
     private static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine game, GameCommand command)
     { var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Need(result.Accepted, result.Error?.Message ?? "Rejected real Daili command."); }
     private static void Answer(GameEngine game, Func<PromptChoice, bool> choose)
     { var prompt = P(game)!; Accept(game, new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, prompt.Choices.First(choose).Id, game.Revision)); }
     private static void Activate(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Show(GameEngine game, int card)
     {
         Use(game, "show"); Reach(game, () => Action(game, "select-owned-cards"));

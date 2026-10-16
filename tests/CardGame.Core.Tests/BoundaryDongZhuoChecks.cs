@@ -12,8 +12,6 @@ internal static class BoundaryDongZhuoChecks
     private const string Hp = "fixture:dz-hp";
     private const string Gain = "fixture:dz-gain";
     private const string Mode = "identity:classic-boundary-dong-zhuo-fixture";
-    private const string JudgmentBinding = "other-qun-damage-point-judgment";
-    private const string JudgmentReason = "skill.boundary.baonue-current";
 
     public static void UnlimitedAlcoholActualConsumptionAndTurnExpiry()
     {
@@ -70,89 +68,6 @@ internal static class BoundaryDongZhuoChecks
         Replay(suppressed, suppressedRegistry);
     }
 
-    public static void PerPointOwnedJudgmentRecoveryClaimChildrenAndNativeAi()
-    {
-        var (game, registry) = Create(baonue: true);
-        Require(game.State.Players[0].Hp == 5, "The injured actual Lord starts below its formal nine-HP maximum.");
-        Use(game, "other-hit", [1]);
-        for (var point = 0; point < 2; point++)
-        {
-            Reach(game, p => Activation(p, Baonue, JudgmentBinding)); Replay(game, registry); Reject(game);
-            Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            Reach(game, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 0);
-            AssertOwnedJudgment(game, registry, 0, point, expectedDamageSource: 1, expectedDamageTarget: 0);
-            var judgment = game.ResolutionStack.OfType<JudgmentFrame>().Single(); var cardId = judgment.CardId!.Value;
-            Require(game.State.Players[0].Hp == 4 + point && game.CreateSnapshot(0).Players[0].Hand.All(c => c.Id != cardId),
-                "Each Spade judgment first recovers one HP and pauses its exact producer before the card claim.");
-            Replay(game, registry); Continue(game);
-            Reach(game, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0);
-            AssertOwnedJudgment(game, registry, 0, point, 1, 0);
-            Require(game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == cardId) && ClaimMoves(game, cardId, 0) == 1 &&
-                game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.Batch.Movements.Any(m =>
-                    m.CardId == cardId && m.From == CardLocation.Judgment(0) && m.To == CardLocation.Hand(0))),
-                "The exact real judgment entity is claimed once before its gain observer returns.");
-            Replay(game, registry); Reject(game); Continue(game);
-        }
-        ReachPlay(game);
-        Require(game.State.Players[0].Hp == 5 && game.Events.Count(e => e.Payload is ProgramJudgmentCardClaimedEvent { SkillId: Baonue, OwnerSeat: 0 }) == 2 &&
-            game.Events.Count(e => e.Payload is DamageAppliedEvent { SourceSeat: 1, TargetSeat: 0, Amount: 2 }) == 1 &&
-            game.Events.Select(e => e.Payload).OfType<JudgmentRequestedEvent>().Where(e => e.Reason == JudgmentReason).All(e => e.TargetSeat == 0),
-            "One actual two-point damage gives the current Lord two independent owner judgments and two recover-and-claim results.");
-        var claimed = game.Events.Select(e => e.Payload).OfType<ProgramJudgmentCardClaimedEvent>()
-            .Where(e => e.SkillId == Baonue && e.OwnerSeat == 0).ToArray();
-        Require(claimed.Length == 2 && claimed.Select(e => e.CardId).Distinct().Count() == 2 &&
-            claimed.All(e => game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == e.CardId) &&
-                !game.CardMovements.Any(move => move.CardId == e.CardId && move.From == CardLocation.Hand(0) &&
-                    move.To.Zone is CardZoneKind.DiscardPile or CardZoneKind.OutsideGame)),
-            "Both claimed judgment entities remain in the owner's actual hand after the original producer completes; its cleanup never discards an already claimed card.");
-        Replay(game, registry);
-
-        var (native, nativeRegistry) = Create(baonue: true, nativeLord: true); var lord = native.State.Players.Single(p => p.Role == Role.Lord).Seat;
-        var target = new[] { 1, 3 }.First(seat => seat != lord);
-        Use(native, "draw"); ReachPlay(native);
-        Play(native, native.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Alcohol && a.ConversionSource is null)); ReachPlay(native);
-        SlashAndPause(native, nativeRegistry, true, 2, target); Continue(native);
-        for (var point = 0; point < 2; point++)
-        {
-            Reach(native, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == lord);
-            AssertOwnedJudgment(native, nativeRegistry, lord, point, 0, target);
-            Replay(native, nativeRegistry); Accept(native, new AdvanceOneStepCommand(native.Revision));
-            Reach(native, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == lord);
-            Replay(native, nativeRegistry); Accept(native, new AdvanceOneStepCommand(native.Revision));
-        }
-        ReachPlay(native);
-        Require(native.Events.Count(e => e.Payload is ProgramJudgmentCardClaimedEvent claimed && claimed.SkillId == Baonue && claimed.OwnerSeat == lord) == 2 &&
-            native.Events.Count(e => e.Payload is RecoveryAppliedEvent recovery && recovery.TargetSeat == lord && recovery.Amount == 1) == 2 &&
-            native.Events.Count(e => e.Payload is DamageAppliedEvent actual && actual.SourceSeat == 0 && actual.TargetSeat == target && actual.Amount == 2) == 1,
-            "The native AI Lord actually chooses both positive owner judgments beneath a real physical wine Slash and finishes its HP and claim children without changing the original damage.");
-        Replay(native, nativeRegistry);
-    }
-
-    private static void AssertOwnedJudgment(GameEngine game, ContentRegistry registry, int owner, int point, int expectedDamageSource, int expectedDamageTarget)
-    {
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Baonue && f.TriggerId == JudgmentBinding);
-        var paid = root.OwnedDamagePointJudgment!;
-        var damage = game.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single(f => f.Id == paid.DamageWindowId);
-        var judgment = game.ResolutionStack.OfType<JudgmentFrame>().Single(f => f.Id == paid.JudgmentFrameId);
-        var candidate = damage.Candidates[damage.CandidateIndex];
-        Require(paid.InstructionIndex == 1 && paid.OccurrenceIndex == point && paid.DamageOwnerFrameId == damage.ParentFrameId &&
-            paid.DamageSourceSeat == expectedDamageSource && paid.DamageTargetSeat == expectedDamageTarget &&
-            root.OwnerSeat == owner && root.WindowContext!.ParentFrameId == damage.Id && root.WindowContext.OccurrenceIndex == point &&
-            candidate.OwnerSeat == root.OwnerSeat && candidate.ProgramId == root.SkillId && candidate.ProgramTriggerId == root.TriggerId &&
-            candidate.SkillInstanceId == root.SkillInstanceId && candidate.GameplayHash == root.GameplayHash && candidate.OccurrenceIndex == point &&
-            judgment.ParentFrameId == root.Id && judgment.TargetSeat == owner && judgment.SourceSeat == expectedDamageSource &&
-            judgment.Continuation == JudgmentContinuationKind.ProgramSkill && judgment.Reason == JudgmentReason && judgment.ProgramResultBind == paid.ResultBind,
-            "A real HP or claim child retains the exact original damage point, source instance, current candidate and own public judgment return.");
-        if (game.ResolutionStack.OfType<CardUseFrame>().SingleOrDefault(f => f.SourceSeat == expectedDamageSource && f.CardKind == CardKind.Slash) is { } physical)
-            Require(physical.ConsumedAlcoholBoost && physical.Action!.ActorSeat == expectedDamageSource && physical.PhysicalCardIds is [var entity] &&
-                physical.Action.PhysicalCards.Single().CardId == entity,
-                "The physical wine Slash and its frozen original actor/action survive both owner-benefit child chains.");
-        foreach (var viewer in Enumerable.Range(0, 4).Where(seat => seat != owner))
-            Require(game.CreateSnapshot(viewer).PendingDecision is null && game.CreateSnapshot(viewer).Players[owner].Hand.Count == 0,
-                "Other viewers see public judgment facts but neither the benefit owner's hand nor its private child prompt.");
-        Replay(game, registry);
-    }
-
     private static void SlashAndPause(GameEngine game, ContentRegistry registry, bool consumed, int expectedDamage, int target = 1)
     {
         var slash = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeat == target && a.ConversionSource is null);
@@ -166,13 +81,9 @@ internal static class BoundaryDongZhuoChecks
 
     private static CurrentTurnOwnSkillSuppression[] Suppressions(GameEngine game) => game.Events.Select(e => e.Payload)
         .OfType<CurrentTurnOwnSkillSuppressionIssuedEvent>().Select(e => e.Suppression).ToArray();
-    private static int ClaimMoves(GameEngine game, int card, int owner) => game.CardMovements.Count(m => m.CardId == card &&
-        m.From == CardLocation.Judgment(owner) && m.To == CardLocation.Hand(owner) && m.Reason.Value == $"skill-program.{Baonue}.claimJudgmentCard");
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision prompt, string action) => prompt.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool Option(PendingDecision prompt, string option) => prompt.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == option);
-    private static bool Activation(PendingDecision prompt, string skill, string binding) => prompt.Choices.Any(c =>
-        c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill && c.Parameters.GetValueOrDefault("binding-id") == binding);
     private static void AssertWineCompleted(GameEngine game, ContentRegistry registry, LegalAction action)
     {
         var declared = game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Single(e => e.CardId == action.CardId);

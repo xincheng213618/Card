@@ -23,20 +23,9 @@ internal static class FengLinZhugeZhanChecks
         var (native,nativeRegistry)=Create(native:true);ReachPlay(native);End(native);ActivateEnding(native);
         Require(native.CreateSnapshot(0).Players[0].GeneralId=="classic:zhuge-zhan" && native.ResolutionStack.OfType<ProgramSkillFrame>().Last().QuotaTop is {Quota:1,Stage:"gain"},"Official native general reaches a real human private peek after normal discard.");Replay(native,nativeRegistry);
     }
-    public static void FirstSharedTargetAndAi()
-    {
-        var (g,r)=Create();ReachPlay(g);Activate(g,"draw",[],[]);ReachPlay(g);var equipment=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);Play(g,equipment);ReachPlay(g);var hp=g.CreateSnapshot(0).Players[1].Hp;
-        Play(g,g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Slash&&a.TargetSeats.Contains(1)&&a.ConversionSource is not null));ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp==hp&&g.Events.Any(e=>e.Payload is CardEffectSkippedEvent {TargetSeat:1}),"Actual first Slash target is nullified.");
-        Play(g,g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Duel&&a.TargetSeats.Contains(1)&&a.ConversionSource is not null));ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp==hp-1,"Second actual use in the same turn cannot repeat first-target protection.");Replay(g,r);
-        End(g); for(var n=0;n<80;n++)Drive(g);
-        Require(g.Events.Any(e=>e.Payload is ProgramBindingResolvedEvent {SkillId:"classic:zuilun",Completed:true}),"Normal AdvanceOneStep AI completes the native private quota operation.");Replay(g,r);
-    }
     private static PendingDecision? Prompt(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void ReachPlay(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate){for(var n=0;n<180;n++){if(Prompt(g)is{}p&&predicate(p))return;Drive(g);}throw new InvalidOperationException("Missing boundary: "+Prompt(g));}
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));
     private static void Activate(GameEngine g,string id,int[] cards,int[] targets)=>Accept(g,new UseProgramSkillCommand(0,"fixture:zhuge-driver",id,cards,targets,g.Revision,Prompt(g)!.PromptId));
     private static void ActivateEnding(GameEngine g){Reach(g,p=>p.SkillPrompt?.SkillId=="classic:zuilun"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");}

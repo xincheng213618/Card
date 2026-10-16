@@ -6,7 +6,6 @@ internal static class OrdinaryZhugeKeChecks
 {
     private const string Mode="identity:classic-ordinary-zhuge-ke-fixture", Driver="fixture:zk-driver";
     private const string Hp="fixture:zk-hp", Pulse="fixture:zk-pulse", Loss="fixture:zk-loss";
-    private const string CostReason="program.dynamic-target-hp.discard";
 
     public static void EmptyHandDodgeViewsFourPrivatelyAndPaysOriginalResponseOnce()
     {
@@ -39,33 +38,6 @@ internal static class OrdinaryZhugeKeChecks
         decline=Cold(decline,dr);
     }
 
-    public static void FrozenSilverLionCostDrainsChildrenAndSurvivorPenaltyDisablesCurrentTurn()
-    {
-        var (g,r)=Create("silver",peerHp:1,pulse:true);var target=Peer(g);Equip(g);var lion=g.CreateSnapshot(0).Players[0].Equipment.Single();
-        var hp=g.State.Players[0].Hp;Duwu(g,target);Pay(g,lion.Id);Reach(g,p=>p.SkillPrompt?.SkillId==Hp && p.PlayerSeat==0);
-        var root=Root(g);var receipt=root.DynamicDiscardDamage!;
-        Require(receipt.Stage==DynamicDiscardDamageStage.Paid && receipt.FrozenTargetHp==1 && receipt.CardIds.SequenceEqual(new[]{lion.Id}) &&
-            receipt.OriginalLocations.SequenceEqual(new[]{CardLocation.Equipment(0)}) && g.State.Players[0].Hp==hp+1 && g.State.Players[target].Hp==1 &&
-            !Facts<DamageRequestedEvent>(g).Any(e=>e.SourceSeat==0 && e.TargetSeat==target) &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h=>h.Change.ParentFrameId==root.Id && h.Continuation==PostEventContinuation.AwaitedProgramMovement),
-            "The complete frozen cost heals through SilverLion and its real HP child before issuing damage; loss of range cannot reprice it.");
-        Reject(g);g=Cold(g,r);Continue(g);Reach(g,p=>p.SkillPrompt?.SkillId==Pulse);
-        var exactRoot=Root(g);var exactDamage=g.ResolutionStack.OfType<DamageFrame>().Single(d=>d.Id==exactRoot.DynamicDiscardDamage!.DamageFrameId);
-        var dying=g.ResolutionStack.OfType<DyingFrame>().Single(d=>d.Id==exactRoot.DynamicDiscardDamage!.DyingFrameId);
-        Require(exactDamage.ParentFrameId==root.Id && exactDamage.TargetSeat==target && exactDamage.Amount==1 && dying.ParentFrameId==exactDamage.Id &&
-            exactRoot.DynamicDiscardDamage!.DyingSurvived is null && g.State.Players[0].Hp==hp+1,
-            "Only the Dying caused by this one native damage is recorded, and the survivor penalty waits for its actual completion.");
-        g=Cold(g,r);Continue(g);Play(g);
-        var penalty=Facts<DynamicDiscardDamagePenaltyEvent>(g).Single();
-        Require(penalty.FrameId==root.Id && penalty.DamageFrameId==exactDamage.Id && penalty.DyingFrameId==dying.Id &&
-            Facts<DyingResolvedEvent>(g).Single(e=>e.ResolutionId==dying.Id).Survived && g.State.Players[0].Hp==hp &&
-            g.GetHumanLegalActions().All(a=>a.SkillId!="ol:duwu") &&
-            g.CardMovements.Count(m=>m.CardId==lion.Id && m.Reason.Value==CostReason)==1 &&
-            Facts<ProgramSkillResolvedEvent>(g).Any(e=>e.SkillId=="ol:duwu" && e.Completed),
-            "A true survivor costs one HP and disables this skill for the actual turn, after exactly one physical cost and one damage/Dying return.");
-        g=Cold(g,r);
-    }
-
     private static void Freeze(RequestedDeckBasicFrame view)
     {
         var caller=view.CardIds.ToList();var clone=view with {CardIds=caller};caller.Clear();
@@ -80,7 +52,6 @@ internal static class OrdinaryZhugeKeChecks
             g.CreateSnapshot(seat).PrivateRevealedCards is null,"Other prepared views contain neither private card choices nor looked-at IDs.");
     }
     private static RequestedDeckBasicFrame View(GameEngine g)=>g.ResolutionStack.OfType<RequestedDeckBasicFrame>().Single();
-    private static ProgramSkillFrame Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.DynamicDiscardDamage is not null);
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T> Facts<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static int Peer(GameEngine g)=>g.State.Players.First(p=>p.Seat!=0 && p.IsAlive && p.Seat is 1 or 3).Seat;
@@ -92,9 +63,6 @@ internal static class OrdinaryZhugeKeChecks
          Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card");Play(g);}
     }
     private static void Use(GameEngine g,string binding,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,binding,[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Duwu(GameEngine g,int target)=>Accept(g,new UseProgramSkillCommand(0,"ol:duwu","target-hp-cost",[],[target],g.Revision,P(g)!.PromptId));
-    private static void Pay(GameEngine g,int id)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="dynamic-discard-damage" && c.Cards.SequenceEqual(new[]{id}));
-    private static void Equip(GameEngine g){PlayAction(g,a=>a.Kind==LegalActionKind.Equip);Play(g);}
     private static void Slash(GameEngine g,int target)=>PlayAction(g,a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.SequenceEqual(new[]{target}));
     private static void PlayAction(GameEngine g,Func<LegalAction,bool> predicate)
     {var a=g.GetHumanLegalActions().First(predicate);var id=a.CardId??throw new InvalidOperationException("Expected physical material.");

@@ -5,8 +5,6 @@ internal static class SkillOwnershipChecks
 {
     public static void PrintedLordSkillsFollowIdentityAndReplayBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 97,
-            "Structured printed-skill ownership requires rules v97 or newer.");
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Generals["classic:sun-quan"].SkillIds
                 .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]),

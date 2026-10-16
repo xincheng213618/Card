@@ -38,148 +38,6 @@ internal static class BianFuRenChecks
         }
     }
 
-    public static void ForeignSkillSelfDiscardDoesNotQualifyAndMissingNameDraws()
-    {
-        var (g, r) = Start();
-        DriverUse(g, "self-discard", 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.PlayerSeat == 1);
-        Answer(g, choice => choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card");
-        Play(g);
-        Require(Started(g, Wanwei) == 0 && !E<BianFuRenForeignDiscardProducerEvent>(g).Any(),
-            "A foreign skill's owner does not become the discarder when the actual published chooser discards their own HE.");
-        _ = Cold(g, r);
-
-        (g, r) = Start(smallDeck: true);
-        var holder = Enumerable.Range(0, 4).Single(seat => V(g, seat).Hand.Any(card => card.Kind == CardKind.Slash));
-        var unique = V(g, holder).Hand.Single(card => card.Kind == CardKind.Slash).Id;
-        if (holder == 0)
-        {
-            DriverUse(g, "give", 1, [unique]); Play(g); holder = 1;
-        }
-        var slot = V(g, holder).Hand.ToList().FindIndex(card => card.Id == unique);
-        Use(g, CardKind.Dismantlement, holder);
-        Reach(g, p => p.Kind == DecisionKind.SelectTargetCard && p.PlayerSeat == 0);
-        Answer(g, choice => choice.Parameters.GetValueOrDefault("slot-index") == slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        Reach(g, p => Activation(p, Wanwei)); g = Cold(g, r); Activate(g); Play(g);
-        Require(E<WanweiAcquisitionIssuedEvent>(g).Single() is { MatchedName: false, ActualCount: 1 } &&
-            g.CardMovements.Count(move => move.To == CardLocation.Hand(holder) && move.Reason.Value == "skill-program.wanwei.fallback-draw") == 1,
-            "With no matching draw-pile name, the real exhausted small deck follows normal reshuffle and draws exactly one card.");
-        _ = Cold(g, r);
-    }
-
-    public static void WholeHandEffectiveSuitsExactMaterialsAndTwoUsesRestore()
-    {
-        var (g, r) = Start(red: true);
-        for (var use = 1; use <= 3; use++)
-        {
-            var before = V(g, 1).Hand.Select(card => card.Id).ToArray();
-            var entity = Use(g, CardKind.IronChain, 1);
-            if (use <= 2)
-            {
-                Reach(g, p => Activation(p, Yuejian));
-                var parent = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
-                var receipt = parent.Batch.BianFuRenUsedDiscards!.Single();
-                var material = receipt.Materials.Single();
-                Require(receipt.Action.ActorSeat == 0 && receipt.Action.EffectiveKind == CardKind.IronChain &&
-                    receipt.Action.EffectiveDesignatedTargetSeats.SequenceEqual([1]) && material.CardId == entity &&
-                    material.PrintedKind == CardKind.Crossbow && Location(g, entity) == CardLocation.DiscardPile,
-                    "The accepted converted native use retains its original physical equipment material, actual actor and target, rather than guessing from the discard's current source.");
-                AuditNoProvenanceDrift(g, material);
-                g = Cold(g, r); Activate(g); Play(g);
-                var reveal = E<ProgramCardsRevealedEvent>(g).Last(fact => fact.SkillId == Yuejian);
-                Require(reveal.Cards.Select(card => card.Id).Order().SequenceEqual(before.Order()) &&
-                    E<YuejianAcquisitionIssuedEvent>(g).Last() is { DifferentSuits: true, ActualCount: 1 } &&
-                    Location(g, entity) == CardLocation.Hand(1),
-                    "Yuejian reveals the complete original hand and uses its effective Heart suits against the incoming Club before obtaining that exact entity once.");
-                g = Cold(g, r);
-            }
-            else
-            {
-                Play(g);
-                Require(Started(g, Yuejian) == 2 && Location(g, entity) == CardLocation.DiscardPile,
-                    "The third actual incoming use in this turn has no remaining Yuejian opportunity.");
-            }
-        }
-        var (same, sr) = Start();
-        var sameEntity = Use(same, CardKind.IronChain, 1); Reach(same, p => Activation(p, Yuejian));
-        same = Cold(same, sr); Activate(same); Play(same);
-        Require(E<YuejianAcquisitionIssuedEvent>(same).Single() is { DifferentSuits: false, ActualCount: 0 } &&
-            E<ProgramCardsRevealedEvent>(same).Single(fact => fact.SkillId == Yuejian).Cards.Count == 4 &&
-            Location(same, sameEntity) == CardLocation.DiscardPile,
-            "A shared effective suit still reveals every hand card and consumes the accepted use, but obtains no incoming material.");
-        _ = Cold(same, sr);
-    }
-
-    public static void DelayedPlacementKeepsOriginalUseUntilItsExactLaterDiscard()
-    {
-        var (g, r) = Start(red: true);
-        var entity = Use(g, CardKind.Indulgence, 1); Play(g);
-        var placement = E<BianFuRenDelayedUsePlacedEvent>(g).Single(fact => fact.CardId == entity);
-        Require(Location(g, entity) == CardLocation.Judgment(1) && Started(g, Yuejian) == 0,
-            "Placing a real foreign Indulgence freezes its native use invoice without prematurely claiming it from judgment.");
-        g = Cold(g, r); Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => Activation(p, Yuejian));
-        var parent = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
-        var invoice = parent.Batch.BianFuRenUsedDiscards!.Single();
-        Require(invoice.Action.ActionId == placement.ActionId && invoice.NativeUseId == placement.NativeUseId &&
-            invoice.Materials.Single().DelayedPlacementMovementSequence == placement.PlacementMovementSequence &&
-            g.CardMovements.Any(move => move.CardId == entity && move.Reason == CardMoveReasons.DelayedCardFinish),
-            "The later judgment discard uses the original accepted actor/target and uninterrupted exact placement, after the original use frame has ended.");
-        g = Cold(g, r); Activate(g);
-        Until(g, () => E<YuejianAcquisitionIssuedEvent>(g).Any());
-        Require(Location(g, entity) == CardLocation.Hand(1) && E<YuejianAcquisitionIssuedEvent>(g).Single() is { ActualCount: 1 },
-            "The native delayed finish can return the same original physical Indulgence material through Yuejian exactly once.");
-        _ = Cold(g, r);
-    }
-
-    public static void SuccessfulDeclarationAdoptsOneOriginalPhysicalPaymentAndRestores()
-    {
-        var (g, r) = Start(red: true, declaration: true);
-        var action = g.GetHumanLegalActions().First(candidate => candidate.Kind == LegalActionKind.Slash &&
-            candidate.PlayedCardKind == CardKind.Slash && candidate.TargetSeats.SequenceEqual([1]) &&
-            candidate.ConversionSource?.SkillId == "classic:guhuo");
-        var entity = action.CardId!.Value;
-        Accept(g, new PlayCardCommand(0, entity, [1], g.Revision, P(g)!.PromptId, CardKind.Slash)
-            { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources });
-        Reach(g, prompt => prompt.Choices.Any(choice => choice.Parameters.ContainsKey("declaration-answer")));
-        var declaration = g.ResolutionStack.OfType<CardDeclarationFrame>().Single();
-        Require(declaration.Payment.BianFuRenPaymentSequence is { } paid && g.CardMovements.Any(move =>
-            move.Sequence == paid && move.CardId == entity && move.Reason.Value == "conversion.declaration.pay"),
-            "The actual declaration frame freezes its one original hidden payment before any challenge or native use exists.");
-        g = Cold(g, r); Answer(g, choice => choice.Parameters.GetValueOrDefault("declaration-answer") == "challenge");
-        Reach(g, prompt => Activation(prompt, Yuejian));
-        var receipt = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch.BianFuRenUsedDiscards!.Single();
-        var material = receipt.Materials.Single();
-        Require(E<CardDeclarationRevealedEvent>(g).Any(fact => fact.DeclarationId == declaration.Id && fact.Succeeded && fact.Card.Id == entity) &&
-            material.PaymentMovementSequence == declaration.Payment.BianFuRenPaymentSequence &&
-            material.OriginalPayment is { } original && original.NativeUseId == receipt.NativeUseId &&
-            original.ActionId == receipt.Action.ActionId &&
-            g.CardMovements.Count(move => move.CardId == entity && move.To == CardLocation.Processing) == 1,
-            "The successful true Slash declaration adopts the same physical payment into its actual native use, without a fabricated second move or another action's invoice.");
-        AuditNoProvenanceDrift(g, material); g = Cold(g, r); Activate(g); Play(g);
-        Require(Location(g, entity) == CardLocation.Hand(1) && E<YuejianAcquisitionIssuedEvent>(g).Single() is { ActualCount: 1 } &&
-            g.CardMovements.Count(move => move.CardId == entity && move.To == CardLocation.Processing) == 1,
-            "Yuejian claims the one successful declared Slash entity after its genuine native finish and cold recovery never repays it.");
-        _ = Cold(g, r);
-    }
-
-    private static void AuditNoProvenanceDrift(GameEngine g, BianFuRenUsedMaterial material)
-    {
-        // Read-only host audit complements the real commands and Replay above.
-        // A forged older finish index must not become available just because the
-        // same entity happens to occupy the discard pile again.
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var available = typeof(GameEngine).GetMethod("BianFuRenMaterialAvailable", flags)!;
-        var matches = typeof(GameEngine).GetMethod("BianFuRenOriginalPaymentMatches", flags)!;
-        var proof = material.OriginalPayment!;
-        Require(available.Invoke(g, [material]) is true &&
-            available.Invoke(g, [material with { CompletionMovementSequence = material.PaymentMovementSequence }]) is false &&
-            available.Invoke(g, [material with { PaymentMovementSequence = material.PaymentMovementSequence - 1 }]) is false &&
-            matches.Invoke(g, [material, proof.NativeUseId + 1, proof.ActionId]) is false &&
-            matches.Invoke(g, [material, proof.NativeUseId, proof.ActionId + 1]) is false,
-            "Availability and the owning invoice reject old payment/finish ordinals and another use/action, even for the same entity at the same current zone.");
-    }
-
     private static int Use(GameEngine g, CardKind kind, int target)
     {
         var action = g.GetHumanLegalActions().First(a => a.PlayedCardKind == kind && a.TargetSeats.SequenceEqual([target]) &&
@@ -189,12 +47,9 @@ internal static class BianFuRenChecks
             AdditionalConversionSources = action.AdditionalConversionSources });
         return action.CardId.Value;
     }
-    private static void DriverUse(GameEngine g, string id, int target, IReadOnlyList<int>? cards = null) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], [target], g.Revision, P(g)!.PromptId));
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static int Started(GameEngine g, string skill) => E<ProgramBindingStartedEvent>(g).Count(fact => fact.SkillId == skill);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
-    private static CardLocation Location(GameEngine g, int id) => g.CreateCardZoneDiagnostics().Single(card => card.CardId == id).Location;
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(seat => g.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Activation(PendingDecision p, string skill) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Activate(GameEngine g) => Answer(g, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");

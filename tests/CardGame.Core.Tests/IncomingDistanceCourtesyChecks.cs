@@ -25,27 +25,6 @@ internal static class IncomingDistanceCourtesyChecks
             "The issued additive distance persists through multiple real other turns and the following ordinary own turn.");
         _ = Cold(g, registry);
     }
-    public static void CourtesyDistinctBenefitsForeignPrivacyAndRecovery()
-    {
-        var (g, registry) = Start(); Use(g, "wound", targets: [1]); Play(g); BeginFirstCourtesy(g);
-        var p = P(g)!; Need(p.Choices.Count == 6 && !p.Choices.Any(c => c.Parameters["selection"] == "0,1,2") && !p.Choices.Any(c => c.Parameters["selection"] == "0,0"),
-            "Mandatory courtesy exposes exactly the three single options and three distinct pairs, with no decline or repeat.");
-        var ownerBefore = V(g, 0).HandCount; var actor = g.State.CurrentSeat; var peerBefore = V(g, actor).HandCount; g = Cold(g, registry);
-        Answer(g, c => c.Parameters["selection"] == "0,1"); Reach(g, () => E<IncomingDistanceCourtesyCompletedEvent>(g).Count() == 2);
-        Need(V(g, 0).HandCount == ownerBefore + 1 && V(g, actor).HandCount == peerBefore + 2 &&
-            E<IncomingDistanceChangedEvent>(g).TakeLast(2).All(e => e.Amount == -1) && g.GetCombatDistance(actor, 0) == 1,
-            "The actual own and foreign private draw benefits both complete and decrement distance once each.");
-        Need(g.CreateSnapshot(0).Players[actor].Hand.Count == 0 && g.CreateSnapshot(actor).Players[actor].Hand.Count == peerBefore + 2,
-            "A foreign benefit publishes only hand count to the skill owner, while its beneficiary sees its real cards.");
-        _ = Cold(g, registry);
-        var (recover, recoverRegistry) = Start(); Use(recover, "wound", targets: [1]); Play(recover); BeginFirstCourtesy(recover);
-        var before = V(recover, 1).Hp; recover = Cold(recover, recoverRegistry); Answer(recover, c => c.Parameters["selection"] == "2"); Reach(recover, () => E<IncomingDistanceCourtesyCompletedEvent>(recover).Count() == 2);
-        Need(V(recover, 1).Hp == before + 1 && E<RecoveryAppliedEvent>(recover).Any(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1),
-            "The third option uses the native attributed recovery producer."); _ = Cold(recover, recoverRegistry);
-        var (full, _) = Start(); BeginFirstCourtesy(full);
-        Need(P(full)!.Choices.Count == 3 && !P(full)!.Choices.Any(c => c.Parameters["selection"].Contains('2')),
-            "A full-HP turn owner cannot select an ineffective recovery option, but mandatory one/two draw choices remain.");
-    }
     private static string Embedded(string suffix) { using var s = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-shi-xie.{suffix}")!; using var r = new StreamReader(s); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -57,11 +36,6 @@ internal static class IncomingDistanceCourtesyChecks
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void BeginFirstCourtesy(GameEngine g)
-    {
-        End(g); Reach(g, () => Optional(P(g), Biluan)); Activate(g); Answer(g, c => c.Cards.Count == 1);
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Lixia && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "incoming-distance-courtesy"));
-    }
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 180; step++)

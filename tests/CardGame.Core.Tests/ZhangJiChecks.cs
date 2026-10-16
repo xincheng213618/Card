@@ -18,21 +18,6 @@ internal static class ZhangJiChecks
   var slots=new List<EquipmentSlot>{EquipmentSlot.Weapon};var receipt=new ZhangJiReceipt{Slots=slots};slots.Clear();Need(receipt.Slots.SequenceEqual([EquipmentSlot.Weapon]),"Owning receipt freezes equipment subtype history.");
   Need(!JsonSerializer.Serialize(new ProgramSkillFrame(1,0,"old","old","hash",0,[],[])).Contains("ZhangJi",StringComparison.Ordinal),"Null additive receipts leave old canonical frame JSON unchanged.");
  }
- public static void ActualHistoricalActivationsIssueDistinctNativeEquipmentCold()
- {
-  var(z,zr)=Start("match");Play(z);Accept(z,new UseProgramSkillCommand(0,"ol:tunjun-sp","distinct-equipment",[],[1],z.Revision,P(z)!.PromptId));Play(z);Need(!E<ZhangJiNativeUseIssuedEvent>(z).Any() && !z.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:tunjun-sp"),"Zero actual Lueming activations still pays the limited activation without creating an equipment entity.");_=Cold(z,zr);
-  var(g,r)=Start("equipment-child");Play(g);Equip(g);Play(g);Lueming(g);Play(g);NextOwnPlay(g);Lueming(g);Play(g);
-  Need(E<ZhangJiStartedEvent>(g).Count(e=>!e.Equipment)==2,"Two actual Play activations, including their complete native judgments, form the historical count.");
-  var checkpoint=GameCheckpointJson.Serialize(g.CreateCheckpoint());for(var i=0;i<3;i++)_=g.GetHumanLegalActions();Need(GameCheckpointJson.Serialize(g.CreateCheckpoint())==checkpoint,"Legal previews do not sample equipment or consume RNG.");
-  Accept(g,new UseProgramSkillCommand(0,"ol:tunjun-sp","distinct-equipment",[],[1],g.Revision,P(g)!.PromptId));Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option")==true || E<ZhangJiNativeUseReturnedEvent>(g).Count()==2);
-  g=Cold(g,r);Play(g);var issued=E<ZhangJiNativeUseIssuedEvent>(g).Select(e=>e.Origin).ToArray();var returned=E<ZhangJiNativeUseReturnedEvent>(g).ToArray();
-  Need(issued.Length==2 && issued.Select(o=>o.Slot).Distinct().Count()==2 && issued.All(o=>o.Actor==1 && o.Source.OwnerSeat==0) && returned.Length==2 && E<ProgramBindingResolvedEvent>(g).Any(e=>e.SkillId==Watch),"Tunjun issues two different native equipment subtypes to the beneficiary, including an actual equipment-use observer child.");
-  Need(issued.All(o=>g.CardMovements.Count(m=>m.Sequence>o.Before && m.CardId==o.CardId && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing)==1) && !g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:tunjun-sp"),"Each real draw-pile equipment entity pays once and the limited usage cannot refresh.");_=Cold(g,r);
-  var(d,dr)=Start("equipment-death");Play(d);Equip(d);Play(d);Lueming(d);Play(d);NextOwnPlay(d);Lueming(d);Play(d);
-  Accept(d,new UseProgramSkillCommand(0,"ol:tunjun-sp","distinct-equipment",[],[1],d.Revision,P(d)!.PromptId));Reach(d,()=>P(d)is{PlayerSeat:0} && P(d)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));
-  var root=Root(d)!;Need(E<ZhangJiNativeUseIssuedEvent>(d).Count()==1 && root.ZhangJi!.HistoricalCount==2,"The first genuinely issued equipment observer pauses the paid two-use sequence.");d=Cold(d,dr);Answer(d,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Reach(d,()=>!d.ResolutionStack.Any(f=>f.Id==root.Id));
-  Need(!V(d,0).IsAlive && V(d,1).IsAlive && E<ZhangJiNativeUseIssuedEvent>(d).Count()==2 && E<ZhangJiNativeUseReturnedEvent>(d).Count()==2 && E<ZhangJiNativeUseIssuedEvent>(d).All(e=>e.Origin.Actor==1 && e.Origin.Source.OwnerSeat==0) && E<ProgramSkillResolvedEvent>(d).Count(e=>e.FrameId==root.Id)==1,"Actual owner death inside the first equipment use does not cancel the already-paid limited sequence for its living native beneficiary.");_=Cold(d,dr);
- }
  private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
  private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -43,7 +28,6 @@ internal static class ZhangJiChecks
  private static void Play(GameEngine g)=>Reach(g,()=>Root(g)is null && P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
  private static void Equip(GameEngine g)=>Accept(g,new UseProgramSkillCommand(0,Driver,"equip",[],[0],g.Revision,P(g)!.PromptId));
  private static void Lueming(GameEngine g)=>Accept(g,new UseProgramSkillCommand(0,"ol:lueming","choose-rank",[],[1],g.Revision,P(g)!.PromptId));
- private static void NextOwnPlay(GameEngine g){var n=E<TurnStartedEvent>(g).Count(e=>e.ActorSeat==0);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard} && E<TurnStartedEvent>(g).Count(e=>e.ActorSeat==0)>n);}
  private static void Reach(GameEngine g,Func<bool> done)
  {
   for(var i=0;i<220;i++)

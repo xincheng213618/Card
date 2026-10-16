@@ -172,11 +172,11 @@ public sealed partial class GameEngine
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
-                IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
+                IsSecondaryGeneralPublic = IsDualGeneralMode && player.SecondaryGeneralRevealed,
                 Skills = primarySkills,
                 SecondarySkills = secondarySkills,
                 SkillRuntimeStates = primarySkills is not null
-                    ? primarySkills
+                    ? primarySkills.Concat(secondarySkills ?? [])
                         .Select(skill => skill.ContentId)
                         .OfType<string>()
                         .Distinct(StringComparer.Ordinal)

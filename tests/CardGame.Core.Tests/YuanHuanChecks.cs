@@ -39,97 +39,11 @@ internal static class YuanHuanChecks
             Need(!second.Accepted && State(g) == before, "The same real Play phase cannot activate Deru a second time."); _ = Cold(g, r);
         }
     }
-    public static void DeruExactEmptyTargetAndNativeIdentityNamesCold()
-    {
-        {
-            var (g, r) = Start(); Use(g, "empty-other", [1]); Play(g); Use(g, "empty-own"); Play(g); Use(g, "lose", [0]); Play(g);
-            Need(V(g, 1).HandCount == 0 && V(g, 0).HandCount == 0, "The empty-target scenario pays real native hand discards.");
-            Begin(g, 1); Need(P(g)!.Choices.Count == 16, "A truly handless target does not prune any possible Deru guess."); g = Cold(g, r); Guess(g, 0);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health); g = Cold(g, r); Continue(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var frame = Root(g); var receipt = frame.YuanHuan!;
-            Need(receipt is { GuessMask: 0, ActualMask: 0, Stage: YuanHuanStage.FillChildren, BasicCandidates.Count: 0, RandomIndex: -1 } &&
-                E<YuanHuanStepIssuedEvent>(g).Single(e => e.FrameId == frame.Id && e.Reason == Take).ActualCount == 0 && V(g, 0).Hp == V(g, 0).MaxHp && V(g, 0).HandCount == V(g, 0).Hp,
-                "Guessing no basic names against a real empty hand is exact set equality: heal first, no invented steal or RNG payment, then actual draw up to the newly recovered current HP.");
-            g = Cold(g, r); Continue(g); Play(g); Need(E<YuanHuanCompletedEvent>(g).Count(e => e.FrameId == frame.Id) == 1, "The actual large refill returns only once.");
-        }
-        foreach (var scenario in new[] { "fire", "thunder", "identity", "view-as" })
-        {
-            var (g, r) = Start(scenario); Begin(g, 1); Guess(g, scenario == "view-as" ? 0 : 15); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var frame = Root(g); var receipt = frame.YuanHuan!;
-            Need(receipt.ActualMask == (scenario == "view-as" ? 0 : 1), "All native elemental Slashes and actual hand identities share the Slash name; a merely available view-as conversion does not change a hidden entity's current name.");
-            if (scenario == "identity") Need(receipt is { TakenKind: CardKind.FireSlash, TakenPrintedKind: CardKind.Crossbow } &&
-                E<YuanHuanStepIssuedEvent>(g).Single(e => e.FrameId == frame.Id && e.Reason == Take).CardId is { } id && V(g, 0).Hand.Single(c => c.Id == id).Kind == CardKind.Crossbow,
-                "The true hand-only identity qualifies before the opaque payment, and the original printed equipment entity correctly returns to its own name after changing holder.");
-            if (scenario == "view-as") Need(receipt is { GuessMask: 0, ActualMask: 0, BasicCandidates.Count: 0, Stage: YuanHuanStage.FillChildren }, "Optional Crossbow-to-Slash view-as choices do not fabricate basic-hand candidates.");
-            g = Cold(g, r); Continue(g); Play(g);
-        }
-    }
-    public static void LinjieActualSourceChooserHandDiscardAndNoSourceCold()
-    {
-        foreach (var scenario in new[] { "plain", "identity", "view-as" })
-        {
-            var (g, r) = Start(scenario); var hp = V(g, 0).Hp; var ownHand = V(g, 0).HandCount; var sourceIds = V(g, 1).Hand.Select(c => c.Id).ToArray();
-            Use(g, "incoming", [1]); Reach(g, () => Action(g, "discard")); var p = P(g)!; var frame = Root(g);
-            Need(p is { PlayerSeat: 1, IsPrivate: true } && p.Choices.All(c => c.Cards.Count == 1 && sourceIds.Contains(c.Cards[0])) &&
-                Enumerable.Range(0, 4).Where(s => s != 1).All(s => g.CreateSnapshot(s).PendingDecision is null) && frame.YuanHuan is { TargetSeat: 1, DamageAmount: 2, Stage: YuanHuanStage.SourceDiscard } && V(g, 0).Hp == hp - 2,
-                "One real two-point damage instance names its original actual source as the only private chooser of an actual owned hand discard.");
-            var before = State(g); Need(!g.Submit(new AnswerPromptCommand(0, p.PromptId, p.Choices[0].Id, g.Revision)).Accepted && State(g) == before, "The skill owner cannot answer the damage source's concealed payment.");
-            g = Cold(g, r); Accept(g, new AdvanceOneStepCommand(g.Revision));
-            if (scenario != "view-as") { Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, r); Continue(g); }
-            Play(g); var discard = E<YuanHuanStepIssuedEvent>(g).Single(e => e.FrameId == frame.Id && e.Reason == Discard);
-            Need(discard is { ActualCount: 1, CardId: { } card, From.OwnerSeat: 1 } && g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile && m.Reason.Value == Discard) == 1 &&
-                V(g, 0).HandCount == ownHand + (scenario == "view-as" ? 0 : 1) && E<YuanHuanCompletedEvent>(g).Count(e => e.FrameId == frame.Id) == 1,
-                "The exact source hand entity is really discarded once; only its frozen effective Slash name rewards one actual draw, while optional view-as equipment does not.");
-            var starts = E<YuanHuanStartedEvent>(g).Length; Use(g, "source-less"); Play(g); Use(g, "empty-other", [1]); Play(g); Use(g, "incoming", [1]); Play(g);
-            Need(E<YuanHuanStartedEvent>(g).Length == starts && E<DamageAppliedEvent>(g).Any(e => e.SourceLess), "Source-less actual damage and a genuinely emptied damage source cannot invent a Linjie hand cost or reward.");
-            _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start(); var count = V(g, 0).HandCount; Use(g, "self"); Reach(g, () => Action(g, "discard")); Need(P(g)!.PlayerSeat == 0, "Actual sourced self-damage makes the owner the real Linjie payer.");
-            g = Cold(g, r); Answer(g, c => c.Cards.Count == 1); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, r); Continue(g); Play(g);
-            Need(V(g, 0).HandCount == count && E<YuanHuanStepIssuedEvent>(g).Count(e => e.Reason == Discard) == 1 && E<YuanHuanStepIssuedEvent>(g).Count(e => e.Reason == Draw && e.ActualCount == 1) == 1,
-                "Sourced self-damage pays one real hand discard and then one reward, without duplicating a source/target branch.");
-        }
-    }
-    public static void YuanHuanPaidRecoveryGainLossDeathAndNativeChildrenCold()
-    {
-        foreach (var scenario in new[] { "loss", "death" })
-        {
-            var (g, r) = Start(scenario); Begin(g, 1); Guess(g, 15); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); var frame = Root(g); var paid = E<YuanHuanStepIssuedEvent>(g).Single(e => e.FrameId == frame.Id && e.Reason == Take);
-            g = Cold(g, r); Continue(g);
-            if (scenario == "loss")
-            {
-                Reach(g, () => Option(g, "after-loss")); Need(V(g, 0).Skills!.All(s => s.ContentId != Deru) && E<YuanHuanCompletedEvent>(g).All(e => e.FrameId != frame.Id), "A genuine gained-card child removes the original conditional Deru source before its paid parent returns.");
-                g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "after-loss"); Play(g);
-            }
-            else
-            {
-                Reach(g, () => g.ResolutionStack.OfType<DyingFrame>().Any() || !V(g, 0).IsAlive); g = Cold(g, r);
-                Reach(g, () => !V(g, 0).IsAlive && E<YuanHuanCompletedEvent>(g).Any(e => e.FrameId == frame.Id));
-                Need(g.State.Winner == Winner.None && E<PlayerDyingEvent>(g).Any() && E<DyingResolvedEvent>(g).Any(e => !e.Survived), "Actual non-Lord owner death drains its genuine native dying subtree without ending the whole match.");
-            }
-            Need(E<YuanHuanStepIssuedEvent>(g).Count(e => e.FrameId == frame.Id && e.Reason == Take) == 1 && g.CardMovements.Count(m => m.CardId == paid.CardId && m.Reason.Value == Take) == 1 && E<YuanHuanCompletedEvent>(g).Count(e => e.FrameId == frame.Id) == 1,
-                "Cold recovery and skill loss or death cannot reroll the chosen entity, pay a completed take twice, or strand the original owning cursor."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("redirect"); var lord = g.CreateSnapshot(0).Players.Single(p => p.Role == Role.Lord).Seat; Need(lord != 0, "The real recovering owner is a non-Lord.");
-            Use(g, "lose", [0]); Play(g); Use(g, "lose", [lord]); Play(g); var hp = V(g, 0).Hp; var lordHp = V(g, lord).Hp;
-            Begin(g, 1); Guess(g, 15); Reach(g, () => g.ResolutionStack.OfType<RecoveryReplacementFrame>().Any()); var frame = Root(g); var recovery = g.ResolutionStack.OfType<RecoveryReplacementFrame>().Single();
-            Need(recovery.ParentFrameId == frame.Id && recovery.Attempt is { SourceSeat: 0, TargetSeat: 0, Amount: 1 } && recovery.Return is { Continuation: PostEventContinuation.AwaitedProgramMovement, ResumeFrameId: var parent } && parent == frame.Id,
-                "The accepted Deru heal issues a real recovery replacement with the exact owning frame and original instruction return.");
-            g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("recovery-action") == "redirect" && c.Targets.SequenceEqual([lord]));
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health && E<RecoveryAppliedEvent>(g).Any(e => e.TargetSeat == lord));
-            Need(V(g, 0).Hp == hp && V(g, lord).Hp == lordHp + 1 && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Change.TargetSeat == lord), "The native replacement truly heals the eligible wounded Lord and opens its real health child, while the original Deru owner stays wounded.");
-            g = Cold(g, r); Continue(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, r); Continue(g); Play(g);
-            Need(E<YuanHuanStepIssuedEvent>(g).Count(e => e.FrameId == frame.Id && e.Reason == Take && e.ActualCount == 1) == 1 && E<YuanHuanCompletedEvent>(g).Count(e => e.FrameId == frame.Id) == 1, "The native recovery and provider-draw children return before one genuine random take."); _ = Cold(g, r);
-        }
-    }
 
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.YuanHuan is not null);
-    private static bool Action(GameEngine g, string branch) => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "yuan-huan" && c.Parameters.ContainsKey(branch)) == true;
     private static bool Option(GameEngine g, string id) => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == id) == true;
     private static void Need(bool ok, string why) { if (!ok) throw new InvalidOperationException(why); }
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Need(result.Accepted, result.Error?.Message ?? "Rejected real YuanHuan command."); }

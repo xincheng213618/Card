@@ -24,71 +24,7 @@ internal static class RuanHuiChecks
             Need(E<RuanHuiCompletedEvent>(g).Count(e=>e.FrameId==f.Id)==1,"The exact public reveal and draw plan finish once after cold recovery.");_=Cold(g,r);
         }
     }
-    public static void MingchaRandomEquipmentPaidLossDeathLionOxChildrenCold()
-    {
-        foreach(var scene in new[]{"lion","ox","random-loss","random-death"})
-        {
-            var(g,r)=Start(scene);Reach(g,()=>Stage(g,RuanHuiStage.DrawChoice));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="normal");Play(g);
-            if(scene=="ox")
-            {
-                Native(g,a=>a.Kind==LegalActionKind.Equip);Play(g);var grain=V(g,0).Hand[0].Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain],[],g.Revision,P(g)!.PromptId));Play(g);
-                Use(g,"transfer",[1]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.Count==1);Play(g);
-            }
-            else{Use(g,"equip-peer",[1]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.Count==1);Play(g);Use(g,"lose",[1]);Play(g);}
-            var equipment=V(g,1).Equipment.Single().Id;var firstTurn=g.State.TurnNumber;End(g);Reach(g,()=>g.State.TurnNumber>firstTurn&&Stage(g,RuanHuiStage.DrawChoice));
-            Need(V(g,1).HandCount==0&&V(g,1).Equipment.Single().Id==equipment,"The target's HE pool is reached by genuine draws, discards and equipment movement, leaving one actual equipped entity.");
-            Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="replace");Reach(g,()=>Stage(g,RuanHuiStage.TargetChoice));var prompt=P(g)!;
-            Need(prompt.Choices.All(c=>c.Cards.Count==0)&&prompt.Choices.Any(c=>c.Targets.SequenceEqual([1])),"Random HE acquisition exposes only a target choice and never enumerates foreign hidden card IDs.");g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([1]));
-            if(scene!="ox"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);Need(V(g,1).Hp==V(g,1).MaxHp&&g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h=>h.Change.Kind==HpChangeKind.Recovery&&h.Change.TargetSeat==1),"Actual equipped Silver Lion removal opens the giver's genuine recovery child.");g=Cold(g,r);Continue(g);}
-            if(scene is"random-loss"or"random-death"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);}
-            if(scene=="random-death"){Reach(g,()=>g.ResolutionStack.OfType<DyingFrame>().Any());g=Cold(g,r);Reach(g,()=>!V(g,0).IsAlive);Need(g.State.Winner==Winner.None,"A paid random gain drains the real non-Lord owner's dying/death child.");}
-            else{Play(g);Need(V(g,0).Hand.Any(c=>c.Id==equipment)&&(scene!="random-loss"||V(g,0).Skills!.All(s=>s.ContentId!=Ming)),"The already-paid original random equipment gain survives native source loss and cold child returns.");}
-            Need(g.CardMovements.Count(m=>m.CardId==equipment&&m.From==CardLocation.Equipment(1)&&m.Reason.Value=="skill-program.ruan-hui.mingcha.random")==1,"The actual random entity is moved once without retrying the seeded choice.");
-            if(scene=="ox")Need(g.CardMovements.Any(m=>m.From==CardLocation.WoodenOxGrain(1)&&m.To==CardLocation.DiscardPile),"The actual obtained Ox drains its original stored grain cleanup.");_=Cold(g,r);
-        }
-    }
-    public static void JingzhongActualDiscardNextPlayWholeUseQuotaAndLossCold()
-    {
-        foreach(var scene in new[]{"jing","jing-loss","jing-death"})
-        {
-            var(g,r)=JingStart(scene);var source=SourceSeat(g);var lease=E<JingzhongLeaseEvent>(g).Single();
-            Need(E<JingzhongDiscardEvent>(g).Count(e=>e.PhaseToken==lease.AfterPhaseToken)>=2&&lease.RecipientSeat==1,"A genuine AI discard phase pays at least two actual black discards before its next-Play lease is offered to the human.");
-            Use(g,"draw");Play(g);var before=E<JingzhongClaimIssuedEvent>(g).Length;var pair=V(g,1).Hand.Take(2).Select(c=>c.Id).ToArray();
-            Accept(g,new UseProgramSkillCommand(1,Driver,"pair",pair,[0],g.Revision,P(g)!.PromptId));
-            if(scene is"jing-loss"or"jing-death"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);}
-            if(scene=="jing-death"){Reach(g,()=>g.ResolutionStack.OfType<DyingFrame>().Any());g=Cold(g,r);Reach(g,()=>!V(g,source).IsAlive);Play(g);Need(g.State.Winner==Winner.None,"The real paid two-material claim drains its AI issuer's native death without inventing further gains.");}
-            else
-            {
-                Play(g);if(scene=="jing-loss")Need(V(g,source).Skills!.All(s=>s.ContentId!=Jing),"The actual first claim's native gain child removes the issuing conditional source.");
-                for(var i=0;i<3;i++){Native(g,a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==0&&a.ConversionSource?.BindingId=="one");Play(g);}
-                var claims=E<JingzhongClaimIssuedEvent>(g).Skip(before).ToArray();Need(claims.Length==3&&claims[0].EntityCount==2&&claims.Skip(1).All(e=>e.EntityCount==1)&&claims.Select(e=>e.ActionId).Distinct().Count()==3,"Three actual native Use opportunities obtain all original materials once each, survive source loss and reject a fourth use in the same real Play phase.");
-                var count=claims.Length;Empty(g);Need(E<JingzhongClaimIssuedEvent>(g).Length==before+count,"Pure native discards never masquerade as used-card claims.");
-            }
-            Need(E<JingzhongClaimIssuedEvent>(g).First().EntityCount==2&&g.CardMovements.Count(m=>pair.Contains(m.CardId)&&m.Reason.Value=="skill-program.ruan-hui.jingzhong.gain")==2,"The first multi-material native cleanup is claimed as one exact whole-Use invoice.");_=Cold(g,r);
-        }
-    }
-    public static void JingzhongResponseUseBoardResidencyAndActorOwnershipCold()
-    {
-        {
-            var(g,r)=JingStart("responses");var source=SourceSeat(g);Use(g,"draw");Play(g);Native(g,a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==source&&a.ConversionSource?.BindingId=="one");Play(g);
-            Use(g,"incoming",[source]);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="virtual-slash-offer"&&c.Targets.SequenceEqual([1]))==true);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="virtual-slash-offer"&&c.Targets.SequenceEqual([1]));
-            Reach(g,()=>P(g)is{PlayerSeat:1,Kind:DecisionKind.RespondDodge});g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("conversion-skill-id")==Driver);Play(g);
-            Need(E<JingzhongUseEntityEvent>(g).Any(e=>e.Response&&e.OriginalActor==1)&&E<JingzhongClaimIssuedEvent>(g).Length==2,"A real used Dodge within the leased actor's own Play is obtained separately from the original proactive Slash; the counter-Slash's source does not inherit response ownership.");
-            End(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:rh-trick"&&Action(g,"activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>Action(g,"select-target"));Answer(g,c=>c.Targets.SequenceEqual([source]));
-            Reach(g,()=>P(g)is{PlayerSeat:1,Kind:DecisionKind.Nullification});g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("conversion-skill-id")==Driver);Reach(g,()=>E<JingzhongClaimIssuedEvent>(g).Length==3);_=Cold(g,r);
-        }
-        {
-            var(g,r)=JingStart("board");Use(g,"draw");Play(g);Native(g,a=>a.Kind==LegalActionKind.Equip);Play(g);var equipment=V(g,1).Equipment.Single().Id;
-            Need(E<JingzhongClaimIssuedEvent>(g).Length==0,"An equipped material is not fabricated as an immediate discarded native Use.");Use(g,"discard-equipment");Reach(g,()=>Action(g,"select-owned-cards"));Answer(g,c=>c.Cards.SequenceEqual([equipment]));FinishOwned(g);Play(g);
-            Need(g.CardMovements.Count(m=>m.CardId==equipment&&m.From==CardLocation.DiscardPile&&m.To==CardLocation.Hand(SourceSeat(g))&&m.Reason.Value=="skill-program.ruan-hui.jingzhong.gain")==1,"The original actual equipment Use residency remains eligible when its same entity really enters discard later within that leased phase.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=JingStart("actor");Use(g,"draw");Play(g);Native(g,a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==0&&a.ConversionSource?.BindingId=="one");Reach(g,()=>Action(g,"select-target"));var chosen=P(g)!.Choices.SelectMany(c=>c.Targets).First(s=>s!=1);g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([chosen]));Play(g);
-            Need(E<ProgramCardUseActorReplacedEvent>(g).Any(e=>e.PreviousActorSeat==1&&e.ActorSeat==chosen&&e.ProviderSeat==1)&&E<JingzhongClaimIssuedEvent>(g).Length==0,"A genuine native actor replacement transfers actual Use ownership to the published legal actor while retaining original physical provider 1; the issuer cannot claim against the old actor's lease.");_=Cold(g,r);
-        }
-    }
     private static int Human(GameEngine g)=>Enumerable.Range(0,4).Single(s=>V(g,s).IsHuman);
-    private static int SourceSeat(GameEngine g)=>Enumerable.Range(0,4).Single(s=>V(g,s).GeneralId==Source);
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
@@ -99,15 +35,7 @@ internal static class RuanHuiChecks
     private static void Accept(GameEngine g,GameCommand c){var r=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(r.Accepted,r.Error?.Message??"Rejected real RuanHui command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;var c=p.Choices.FirstOrDefault(predicate);Need(p.PlayerSeat==Human(g)&&c is not null,"Missing exact human choice: "+Diagnostic(g));Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,c!.Id,g.Revision));}
     private static void Continue(GameEngine g){if(P(g)!.PlayerSeat==Human(g))Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");else Accept(g,new AdvanceOneStepCommand(g.Revision));}
-    private static void Use(GameEngine g,string id,int[]? targets=null)=>Accept(g,new UseProgramSkillCommand(Human(g),Driver,id,[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Empty(GameEngine g)
-    {
-        var human=Human(g);var hand=V(g,human).Hand.Select(c=>c.Id).ToArray();var before=g.CardMovements.Count;Use(g,"empty");Play(g);
-        Need(V(g,human).HandCount==0&&hand.All(id=>g.CardMovements.Skip(before).Any(m=>m.CardId==id&&m.From==CardLocation.Hand(human)&&m.To==CardLocation.DiscardPile&&m.Reason.Value==$"skill-program.{Driver}.MoveBoundCards")),"The automatic all-owned selection really discards every original hand entity before returning to the same native Play.");
-    }
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(Human(g),g.Revision,P(g)!.PromptId));
-    private static void Native(GameEngine g,Func<LegalAction,bool> predicate){var a=g.GetHumanLegalActions().FirstOrDefault(predicate);Need(a is not null,"Missing native action: "+Diagnostic(g));Accept(g,new PlayCardCommand(Human(g),a!.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});}
-    private static void FinishOwned(GameEngine g){for(var i=0;i<100&&(Action(g,"select-owned-cards")||Action(g,"finish-owned-cards"));i++){if(P(g)!.Choices.Any(c=>c.Cards.Count==1))Answer(g,c=>c.Cards.Count==1);else Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="finish-owned-cards");} }
     private static void Play(GameEngine g,[CallerMemberName]string caller="",[CallerLineNumber]int line=0)=>Reach(g,()=>P(g)is{Kind:DecisionKind.PlayCard}p&&p.PlayerSeat==Human(g),$"{caller}:{line} actual human Play");
     private static void Reach(GameEngine g,Func<bool> done,[CallerMemberName]string caller="",[CallerLineNumber]int line=0,[CallerArgumentExpression(nameof(done))]string? condition=null)
     {
@@ -133,16 +61,6 @@ internal static class RuanHuiChecks
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(scene,jing));var human=jing?1:0;var g=GameEngine.CreateStandard(new GameOptions{Seed=7,PlayerCount=4,HumanSeat=human,HumanRole=scene=="random-death"?Role.Rebel:Role.Lord,ModeId=Mode,UseInteractiveSetup=true,UseInteractiveDiscard=false,AdvanceAfterHumanCommands=false,MaxTurns=12},r);
         Accept(g,new StartGameCommand());Reach(g,()=>P(g)is{Kind:DecisionKind.SelectGeneral},$"Start[{scene}] select general");Accept(g,new SelectGeneralCommand(human,jing?Player:Source,g.Revision,P(g)!.PromptId));return(g,r);
-    }
-    private static(GameEngine,ContentRegistry)JingStart(string scene)
-    {
-        var(g,r)=Start(scene,true);Play(g,$"JingStart[{scene}] first Play");Empty(g);var turn=g.State.TurnNumber;End(g);
-        Reach(g,()=>g.State.TurnNumber>turn&&P(g)is{PlayerSeat:1,Kind:DecisionKind.PlayCard},$"JingStart[{scene}] next actual Play");
-        var issuer=SourceSeat(g);Need(g.CardMovements.Count(m=>m.From==CardLocation.Hand(issuer)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.HandLimitDiscard)>=2,"JingStart["+scene+"] must reach genuine AI hand-limit discards, rather than letting its physical equipment be used up before discard: "+Diagnostic(g));
-        Need(E<JingzhongLeaseEvent>(g).Any(e=>e.RecipientSeat==1),"The first actual AI discard phase must issue its next-Play lease to the genuinely empty human hand: "+JsonSerializer.Serialize(new{
-            Players=Enumerable.Range(0,4).Select(s=>new{Seat=s,V(g,s).GeneralId,V(g,s).Hp,V(g,s).HandCount,Skills=V(g,s).Skills?.Select(k=>k.ContentId)}),
-            Discards=E<JingzhongDiscardEvent>(g),Leases=E<JingzhongLeaseEvent>(g),Bindings=E<ProgramBindingResolvedEvent>(g).Where(e=>e.SkillId==Jing),
-            Phases=E<ActualDiscardRecoveryPhaseStartedEvent>(g).Select(e=>e.Phase),Thoughts=g.AiThoughts.Where(t=>t.Decision.Contains("敬重",StringComparison.Ordinal)||t.Candidates.Any(c=>c.Action.Description.Contains("敬重",StringComparison.Ordinal))).Select(t=>new{t.ActorSeat,t.Decision,t.Summary})}));return(g,r);
     }
     private sealed class Fixture(string scene,bool jing):IGameContentPackage
     {

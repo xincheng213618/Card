@@ -145,7 +145,7 @@ internal static class ProgramSelectionTransformChecks
         var activation = new SkillProgramActivation("activate", 0, 3, 0, 3,
             SkillProgramTargetKind.AnyLiving, null, condition, effects) { CategoryTargetLedgerId = categoryLedger };
         var program = new SkillProgram("fixture:selection-transform", 1, "fixture-hash", "fixture-runtime",
-            GameCheckpoint.CurrentRulesVersion, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
+            171, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
         var plan = new ProgramExecutionPlan(program.Id, program.GameplayHash, ProgramInstructionSourceKind.Activation,
             activation.Id, effects, activation: activation);
         return new(0, program, plan);

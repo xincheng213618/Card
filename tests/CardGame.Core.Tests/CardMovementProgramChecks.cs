@@ -461,7 +461,6 @@ internal static class CardMovementProgramChecks
         var rules = $$$$"""
             {"schemaVersion":{{{{SkillProgramCatalog.RulesSchemaVersion}}}},"skills":[{
               "id":"fixture:armor-payment","revision":1,
-              "minimumRulesVersion":{{{{GameCheckpoint.CurrentRulesVersion}}}},
               "activations":[{"id":"discard-armor","minCards":1,"maxCards":1,
                 "sourceZones":["equipment"],"minTargets":0,"maxTargets":0,
                 "targetKind":"anyLiving","usesPerTurn":1,

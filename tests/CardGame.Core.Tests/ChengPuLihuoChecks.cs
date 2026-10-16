@@ -224,7 +224,7 @@ internal static class ChengPuLihuoChecks
         AdditionalConversionSources = action.AdditionalConversionSources,
     });
 
-    private static GameEngine CreateGame(string modeId, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion,
+    private static GameEngine CreateGame(string modeId, int seed,
         string ownerGeneralId = OwnerGeneralId)
     {
         var registry = Registry();
@@ -241,10 +241,6 @@ internal static class ChengPuLihuoChecks
             AiPolicyVersion = 2,
             MaxTurns = 20
         }, registry);
-        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
-        {
-            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
-        }
         Require(game.Submit(new StartGameCommand()).Accepted, "The Lihuo fixture failed to start.");
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("The Lihuo fixture has no setup prompt.");
         Require(prompt.Kind == DecisionKind.SelectGeneral && prompt.ValidContentIds.Contains(ownerGeneralId),

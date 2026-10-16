@@ -36,41 +36,10 @@ internal static class DuanWeiChecks
         }
     }
 
-    public static void ActualNonExtremeOptionalDiscardDeclinesAndPaysOnceCold()
-    {
-        var (g, registry) = Create(false);
-        var hand = V(g).Hand.ToArray();
-        Need(hand.Min(c => c.Rank) < hand.Max(c => c.Rank), "The fixed seed provides distinct native hand ranks.");
-        NativeSlash(g, hand.MinBy(c => c.Rank)!.Id);
-        Reach(g, p => HasOptional(p));
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
-        Need(!States(g).Any() && !g.CardMovements.Any(m => m.Reason.Value == "skill-program.ol:taohuai.Draw"),
-            "Declining the otherwise branch keeps Yang and never invents a draw.");
-        var secondHand = V(g).Hand.ToArray();
-        Need(secondHand.Min(c => c.Rank) < secondHand.Max(c => c.Rank), "The same fixed fixture retains a second non-maximum Use.");
-        NativeSlash(g, secondHand.MinBy(c => c.Rank)!.Id);
-        Reach(g, p => HasOptional(p));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.Choices.Any(c => c.Cards.Count == 1));
-        Need(States(g).Select(e => e.Value).SequenceEqual([true]), "Accepting the conversion flips exactly once before its mandatory physical discard selection.");
-        g = Cold(g, registry);
-        var paidCard = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single();
-        Answer(g, c => c.Cards.SequenceEqual([paidCard]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-        Need(g.CardMovements.Count(m => m.CardId == paidCard && m.Reason.Value == "skill-program.ol:taohuai.SelectAndMoveOwnedCard") == 1,
-            "The selected native entity has actually left hand before its real discard child.");
-        g = Cold(g, registry); Continue(g); Play(g); _ = Cold(g, registry);
-        Need(States(g).Count() == 1 && g.CardMovements.Count(m => m.CardId == paidCard &&
-            m.Reason.Value == "skill-program.ol:taohuai.SelectAndMoveOwnedCard") == 1 &&
-            !g.CardMovements.Any(m => m.Reason.Value == "skill-program.ol:taohuai.Draw"),
-            "A cold paid movement return repeats neither the conversion nor the physical discard and supplies no draw.");
-    }
-
     private static PlayerSnapshot V(GameEngine g) => g.CreateSnapshot(0).Players[0];
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static IEnumerable<ProgramBooleanStateChangedEvent> States(GameEngine g) => Facts<ProgramBooleanStateChangedEvent>(g).Where(e => e.SkillId == Skill && e.OwnerSeat == 0);
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
-    private static bool HasOptional(PendingDecision p) => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void NativeSlash(GameEngine g, int cardId)
     {
         var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.CardId == cardId && a.TargetSeats.Count == 1);

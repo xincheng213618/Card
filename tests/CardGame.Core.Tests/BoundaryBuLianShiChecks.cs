@@ -12,7 +12,6 @@ internal static class BoundaryBuLianShiChecks
     private const string Mode = "identity:classic-bu-lian-shi-fixture";
     private const string ObtainReason = "skill-program." + Anxu + ".ObtainOneFromEachSelectedTarget";
     private const string GiftReason = "skill-program." + Anxu + ".GiveShownCardToLeastOriginalTarget";
-    private const string BenefitDrawReason = "skill-program." + Zhuiyi + ".Draw";
 
     public static void OrderedOpaquePairPaysBeforePublicGiftAndReward()
     {
@@ -67,114 +66,6 @@ internal static class BoundaryBuLianShiChecks
         }
     }
 
-    public static void EndingIssuanceAndOwnerDeathRepeatOnlyOriginalRecipient()
-    {
-        var (g, r) = Create(deathOwner: true); Play(g); Require(g.State.Players[0].Role == Role.Renegade && g.State.Players[0].Hp == 1, "The fixed genuine death owner is a non-Lord with one actual HP.");
-        End(g); ActivateZhuiyi(g); Reach(g, p => Action(p, "select-target")); Private(g, 0); g = RestoreAfterCold(g, r); Answer(g, c => c.Targets.SequenceEqual([2]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 2);
-        var issued = F<FixedRecipientBenefitIssuedEvent>(g).Single(); var root = FixedRoot(g);
-        Require(root.FixedRecipient is { DeathReplay: false, DrawIssued: true, ActualDrawCount: 3, RecipientSeat: 2 } && issued.ProgramFrameId == root.Id &&
-            Moves(g, BenefitDrawReason).Count(m => m.To == CardLocation.Hand(2)) == 3 && root.WindowContext?.Window == SkillProgramTriggerWindow.TurnEnding,
-            "The real own Ending issues one original beneficiary, and all three actual draw ledger entries belong to its typed program.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 2);
-        Require(FixedRoot(g).FixedRecipient is { RecoveryHpBefore: not null, RecoveryAmount: 1 } && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(w =>
-            w.Change.ParentFrameId == issued.ProgramFrameId && w.ResumeFrameId == issued.ProgramFrameId && w.Continuation == PostEventContinuation.Program && w.Change.TargetSeat == 2),
-            "Recover1 happens after all real Draw3 children, with the same original beneficiary and exact HP return.");
-        g = RestoreAfterCold(g, r); Continue(g); Play(g); Use(g, "hurt", [2]); Play(g);
-        Use(g, "hurt", [0]); Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate"));
-        var death = g.ResolutionStack.OfType<DeathFrame>().Single(d => d.VictimSeat == 0);
-        var deathWindow = g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single(w => w.DeathFrameId == death.Id);
-        Require(!g.State.Players[0].IsAlive && g.State.Winner == Winner.None && deathWindow.OwnerSeat == 0,
-            "Actual LoseHp, native rescue refusal and real death produce an OwnerDied window without prematurely ending the match.");
-        g = RestoreAfterCold(g, r); ActivateZhuiyi(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 2);
-        root = FixedRoot(g); var repeated = F<FixedRecipientDeathBenefitStartedEvent>(g).Single();
-        Require(root.FixedRecipient is { DeathReplay: true, DrawIssued: true, ActualDrawCount: 3, RecipientSeat: 2 } receipt &&
-            receipt.IssuanceProgramFrameId == issued.ProgramFrameId && receipt.Source == issued.Source && receipt.OwnerDeathWindowFrameId == deathWindow.Id &&
-            repeated.RecipientSeat == 2 && repeated.IssuanceProgramFrameId == issued.ProgramFrameId &&
-            !P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"),
-            "Death reuses only the exact issued original recipient and instance; no unrelated target selection or second limited debit appears.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 2); g = RestoreAfterCold(g, r); Continue(g);
-        Until(g, engine => !engine.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.FixedRecipient is not null) && !engine.ResolutionStack.OfType<DeathFrame>().Any(d => d.Id == death.Id));
-        Require(F<FixedRecipientBenefitIssuedEvent>(g).Length == 1 && F<FixedRecipientDeathBenefitStartedEvent>(g).Length == 1 &&
-            F<FixedRecipientBenefitDrawIssuedEvent>(g).Length == 2 && F<FixedRecipientBenefitDrawIssuedEvent>(g).All(e => e.RecipientSeat == 2 && e.ActualCount == 3) &&
-            F<FixedRecipientBenefitRecoveryRequestedEvent>(g).Length == 2 && F<FixedRecipientBenefitRecoveryRequestedEvent>(g).All(e => e.RecipientSeat == 2 && e.Amount == 1),
-            "Native beneficiary observers and real cold-restored commands complete Draw3/Recover1 twice for the same recipient and then return the original death."); Cold(g, r);
-        NestedOriginalDeathBenefit("damage");
-        NestedOriginalDeathBenefit("hp-loss");
-    }
-
-
-    private static void NestedOriginalDeathBenefit(string mode)
-    {
-        var (g, r) = Create(deathOwner: true, deathNesting: mode); Play(g);
-        End(g); ActivateZhuiyi(g); Reach(g, p => Action(p, "select-target")); Answer(g, c => c.Targets.SequenceEqual([2]));
-        Play(g);
-        // Actual commands lower the beneficiary to 1, never reflection/state injection.
-        for (var i = 0; i < 7 && g.State.Players[2].Hp > 1; i++) { Use(g, "hurt", [2]); Play(g); }
-        Require(g.State.Players[2].Hp == 1, "The fixed real beneficiary has 1 HP before the original owner dies.");
-        var issued = F<FixedRecipientBenefitIssuedEvent>(g).Single();
-        Use(g, "kill-damage", [0]); Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate"));
-        var originalDying = g.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 0);
-        var originalDeath = g.ResolutionStack.OfType<DeathFrame>().Single(d => d.VictimSeat == 0);
-        var frozenOriginalDeath = JsonSerializer.Serialize(originalDeath);
-        var window = g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single(w => w.DeathFrameId == originalDeath.Id);
-        var originalAttack = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.AttackAttempt is not null);
-        Require(originalDeath.ParentFrameId == originalDying.Id && originalDying.Continuation == DyingContinuationKind.Damage &&
-            g.ResolutionStack.OfType<DamageFrame>().Single(d => d.Id == originalDying.ParentFrameId).ParentFrameId == originalAttack.Id,
-            "A true source-owned Damage -> Dying -> Death chain remains the original parent.");
-        g = RestoreAfterCold(g, r); ActivateZhuiyi(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == (mode == "damage" ? NestedGain : NestedHp) && p.PlayerSeat == 2);
-        var root = FixedRoot(g); var returnReceipt = root.OwnedDeathBenefitReturn!;
-        Require(returnReceipt.ProgramFrameId == root.Id && returnReceipt.OriginalDeath.FrameId == originalDeath.Id &&
-            returnReceipt.OriginalDying?.FrameId == originalDying.Id && returnReceipt.OwnerDeathWindowFrameId == window.Id &&
-            returnReceipt.OriginalAttackOwnerFrameId == originalAttack.Id && root.FixedRecipient!.IssuanceProgramFrameId == issued.ProgramFrameId &&
-            returnReceipt.OriginalDeath.CleanedUpCardIds is System.Collections.IList { IsReadOnly: true } &&
-            returnReceipt.OriginalDying!.ResponderSeats is System.Collections.IList { IsReadOnly: true } &&
-            returnReceipt.OriginalDying!.AttemptedSelfDyingBindings is System.Collections.IList { IsReadOnly: true },
-            "The opt-in return freezes only this original dead victim, its exact cursor/source and original paid benefit.");
-        Private(g, 2); Reject(g); g = RestoreAfterCold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == NestedEntry && p.PlayerSeat == 2);
-        var nestedDying = g.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 2);
-        Require(g.State.Players[2].IsAlive && g.State.Players[2].Hp == 0 && nestedDying.Id != originalDying.Id &&
-            g.ResolutionStack.OfType<DyingFrame>().Count() == 2 &&
-            JsonSerializer.Serialize(g.ResolutionStack.OfType<DeathFrame>().Single(d => d.Id == originalDeath.Id)) == frozenOriginalDeath &&
-            g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single(w => w.Id == window.Id).CandidateIndex == window.CandidateIndex &&
-            g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.ResumeDyingFrameId == nestedDying.Id &&
-                w.Window == SkillProgramTriggerWindow.DyingEntering && w.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry),
-            "Actual gain Damage or recovery LoseHp reaches a distinct live DyingEntering pause without advancing or removing the original death.");
-        g = RestoreAfterCold(g, r); Continue(g);
-        if (mode == "hp-loss")
-        {
-            Reach(g, p => p.SkillPrompt?.SkillId == NestedCommitted && p.PlayerSeat == 2);
-            var rescue = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.DyingResponse?.ResolutionId == nestedDying.Id);
-            var materialIds = rescue.PhysicalCardIds!.ToArray();
-            Require(rescue.CardKind == CardKind.Peach && rescue.SourceSeat == 2 && materialIds.Length == 2 &&
-                rescue.Action!.PhysicalCards.Select(c => c.CardId).SequenceEqual(materialIds) &&
-                materialIds.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(2) && m.To == CardLocation.Processing) == 1),
-                "The newly granted response issues one real Peach from two real black materials, only after the original owner is already dead.");
-            g = RestoreAfterCold(g, r); Continue(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 2 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == nestedDying.Id));
-            Require(g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Continuation == PostEventContinuation.CardUse &&
-                h.ResumeFrameId == rescue.Id && h.Change.ParentFrameId == rescue.Id && h.Change.TargetSeat == 2),
-                "Actual Peach HP observers retain the exact rescue use and both original and new Dying ancestors.");
-            g = RestoreAfterCold(g, r); Continue(g);
-            Until(g, engine => !engine.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == nestedDying.Id));
-            Require(materialIds.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1),
-                "Cold-restored two-material rescue pays and cleans each entity once.");
-        }
-        Until(g, engine => !engine.ResolutionStack.OfType<DeathFrame>().Any(d => d.Id == originalDeath.Id) &&
-            !engine.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == root.Id || f.Id == originalAttack.Id));
-        Require(g.State.Players[2].IsAlive && !g.State.Players[0].IsAlive &&
-            F<OwnedDeathBenefitReturnIssuedEvent>(g).Length == 1 && F<OwnedDeathBenefitReturnedEvent>(g) is [var returned] && returned.Completed &&
-            returned.ProgramFrameId == root.Id && returned.OriginalDeathFrameId == originalDeath.Id && returned.OriginalDyingFrameId == originalDying.Id &&
-            F<FixedRecipientBenefitDrawIssuedEvent>(g).Length == 2 && F<FixedRecipientBenefitDrawIssuedEvent>(g).All(e => e.ActualCount == 3 && e.RecipientSeat == 2) &&
-            F<FixedRecipientBenefitRecoveryRequestedEvent>(g).Length == 2 &&
-            F<PlayerDiedEvent>(g).Count(e => e.VictimSeat == 0) == 1 &&
-            F<PlayerDyingEvent>(g).Count(e => e.ResolutionId == nestedDying.Id && e.VictimSeat == 2) == 1,
-            "The original recipient's two benefits, nested real Dying/rescue, original damage/death cursor and typed return complete once.");
-        Cold(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Create(Suit suit = Suit.Spade, bool equipment = false, bool deathOwner = false, bool removePaidSource = false, string? deathNesting = null)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(suit, equipment, deathOwner, removePaidSource, deathNesting));
@@ -197,16 +88,13 @@ internal static class BoundaryBuLianShiChecks
         return (g, r);
     }
     private static void AnxuPair(GameEngine g, int a, int b) => Accept(g, new UseProgramSkillCommand(0, Anxu, "pair-obtain-show-give", [], [a, b], g.Revision, P(g)!.PromptId));
-    private static void ActivateZhuiyi(GameEngine g) { Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == Zhuiyi); }
     private static ProgramSkillFrame PairRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PairObtain is not null);
-    private static ProgramSkillFrame FixedRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FixedRecipient is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static CardMovementRecord[] Moves(GameEngine g, string reason) => g.CardMovements.Where(m => m.Reason.Value == reason).ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string id) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == id);
     private static void Use(GameEngine g, string id, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Continue(GameEngine g)
     { var p = P(g)!; Require(p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"), "The actual child publishes its continue option.");

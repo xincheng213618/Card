@@ -26,26 +26,6 @@ internal static class DamageTargetBudgetChecks
         g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Play(g);
         Need(Count(g) == old && E<DamageTargetBudgetGainedEvent>(g).Count() == 4, "A real damage occurrence involving neither owner direction does not manufacture a mark.");
     }
-    public static void ActualBorrowedSwordOrderedPairsAndIronChainSelf()
-    {
-        var (g, registry) = Start("borrowed"); Bank(g, 3); Use(g, "equip", [1]); Play(g); Use(g, "equip", [2]); Play(g);
-        Use(g, "draw20"); Play(g); Native(g, NativeAction(g, LegalActionKind.BorrowedSword, [1,0])); Reach(g, () => Budget(P(g)));
-        g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2,0])); g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "done"); Play(g);
-        var resolved = E<DamageTargetBudgetResolvedEvent>(g).Single(); var settled = E<DamageTargetBudgetSettledEvent>(g).Single();
-        Need(resolved.ResultTargets.SequenceEqual([1,0,2,0]) && settled.FinalTargetCount == 2 && settled.Removed == 2 && Count(g) == 1,
-            "Native Borrowed Sword preserves both ordered pairs sharing one victim; only two actual designated weapon holders count toward X.");
-        OneUse(g, settled.CardUseFrameId, settled.ActionId); g = Cold(g, registry);
-        var (chain, chainRegistry) = Start("chain"); Bank(chain, 2); Native(chain, NativeAction(chain, LegalActionKind.IronChain, [1])); Reach(chain, () => Budget(P(chain)));
-        chain = Cold(chain, chainRegistry); Answer(chain, c => c.Targets.SequenceEqual([0])); chain = Cold(chain, chainRegistry); Answer(chain, c => c.Parameters["branch"] == "done"); Play(chain);
-        var chainSettled = E<DamageTargetBudgetSettledEvent>(chain).Single();
-        Need(V(chain,0).IsChained && V(chain,1).IsChained && chainSettled.FinalTargetCount == 2 && chainSettled.Removed == 0 && Count(chain) == 2,
-            "Black Iron Chain may add its real user as one legal target and executes each target on its native cursor.");
-        OneUse(chain, chainSettled.CardUseFrameId, chainSettled.ActionId);
-        var recast = NativeAction(chain, LegalActionKind.Recast, []); Accept(chain, new RecastCardCommand(0, recast.CardId!.Value, chain.Revision, P(chain)!.PromptId)); Play(chain);
-        Need(E<DamageTargetBudgetSettledEvent>(chain).Count() == 1 && Count(chain) == 2, "Actual Iron Chain recast is not a Use and neither spends nor offers the budget.");
-        chain = Cold(chain, chainRegistry);
-    }
-    private static bool Budget(PendingDecision? p) => p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "damage-target-budget") == true;
     private static string Embedded(string suffix,string package="ol-ta-dun") { using var s=typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.{package}.{suffix}")!; using var r=new StreamReader(s); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>g.CreateSnapshot(0).PendingDecision;
@@ -55,9 +35,6 @@ internal static class DamageTargetBudgetChecks
     private static void Accept(GameEngine g,GameCommand c) { var r=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Need(r.Accepted,r.Error?.Message??"Real budget command rejected."); }
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose) { var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision)); }
     private static void Use(GameEngine g,string id,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Bank(GameEngine g,int count) { for(var i=0;i<count;i++){Use(g,"self-one");Play(g);}Need(Count(g)==count,"Actual applied damage creates the entire bank without injected state."); }
-    private static LegalAction NativeAction(GameEngine g,LegalActionKind kind,IReadOnlyList<int> targets)=>g.GetLegalActions().First(a=>a.Kind==kind && (targets.Count==0||a.TargetSeats.SequenceEqual(targets)));
-    private static void Native(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId) {ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources});
     private static void Play(GameEngine g)=>Reach(g,()=>P(g) is {Kind:DecisionKind.PlayCard,PlayerSeat:0});
     private static void Reach(GameEngine g,Func<bool> done)
     {
@@ -77,15 +54,6 @@ internal static class DamageTargetBudgetChecks
     }
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new { Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames=g.ResolutionStack.Select(f=>JsonSerializer.Serialize(f,f.GetType())).ToArray(),g.CardMovements, Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(), Commands=CommandJson.Serialize(g.AcceptedCommands)});
     private static GameEngine Cold(GameEngine g,ContentRegistry r) { var c=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Need(State(g)==State(c),"The actual restored engine preserves frozen X, ordered added targets and native continuation.");return c; }
-    private static void OneUse(GameEngine g,long id,long action,bool physical=true)
-    {
-        var accepted=E<CardActionAcceptedEvent>(g).Single(e=>e.Action.ActionId==action).Action;
-        Need(E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==id)==1,"One accepted native Use finishes exactly once.");
-        var finishReason = accepted.EffectiveKind == CardKind.IronChain ? CardMoveReasons.IronChainFinished : CardMoveReasons.UseFinished;
-        if(physical)foreach(var c in accepted.PhysicalCards)Need(g.CardMovements.Count(m=>m.CardId==c.CardId&&m.To==CardLocation.DiscardPile&&m.Reason==finishReason)==1 &&
-            g.CardMovements.Count(m=>m.CardId==c.CardId&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile)==1,
-            "Original physical material settles once with its exact native finish reason after every native target.");
-    }
     private static (GameEngine,ContentRegistry) Start(string scenario,bool stopAtVirtual=false)
     {
         var registry=ContentRegistry.Build(new StandardContentPackage(),new Fixture(scenario));

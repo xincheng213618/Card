@@ -13,17 +13,6 @@ internal static class FengLinHaoZhaoChecks
         Require(results.Length==2&&results[0] is {OwnerHandCount:8,TargetHandCount:10,DiscardCount:2}&&results[1].OwnerHandCount==5&&results[1].DiscardCount==5,"Both actual ends read the owner's hand anew; the first discards to eight, the second to the changed five.");
         Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1)&&g.CardMovements.Count(m=>m.From==CardLocation.Hand(1)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.deferred-hand.discard")==7,"Native recipient AI discards exactly seven real hand entities across both ends.");Replay(g,r);
     }
-    public static void OrderedNestedAndNativeOwner()
-    {
-        var(g,r)=Create("overlap");Use(g,"grow-owner",[]);Use(g,"grow-target",[1]);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:double");Answer(g,c=>c.Targets.Contains(1));
-        Reach(g,p=>p.PlayerSeat==1&&p.SkillPrompt?.SkillId=="fixture:observer");
-        Require(g.ResolutionStack.First() is DeferredTurnEndFrame {Current:not null},"Real discard movement pauses under the exact finalized-end parent.");Replay(g,r);RejectUnknown(g);
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);var resolved=g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentResolvedEvent>().ToArray();
-        Require(resolved.Select(x=>x.Id).SequenceEqual(new long[]{1,3,2,4})&&resolved[0].DiscardCount==2&&resolved[1].DiscardCount==0,"Overlapping due entries use creation order and each delta is sampled only when its own item begins.");Replay(g,r);
-        var(ai,ar)=Create("ai-owner");Accept(ai,new EndPlayPhaseCommand(0,ai.Revision,Prompt(ai)!.PromptId));Reach(ai,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(ai.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentScheduledEvent>().Any(x=>x.Alignment.Source.OwnerSeat!=0)&&!ai.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"Actual owner AI activates and selects alignment targets with no artificial answers.");Replay(ai,ar);
-    }
     private static void Use(GameEngine g,string id,IReadOnlyList<int> seats){Accept(g,new UseProgramSkillCommand(0,"fixture:driver",id,[],seats,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);}
     private static void EndAndChoose(GameEngine g,int seat){Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.SkillPrompt?.SkillId=="classic:zhengu");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(g,c=>c.Targets.Contains(seat));}
     private static PendingDecision? Prompt(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);

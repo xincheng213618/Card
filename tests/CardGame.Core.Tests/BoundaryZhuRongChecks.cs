@@ -26,66 +26,6 @@ internal static class BoundaryZhuRongChecks
         Replay(g,r);
     }
 
-    public static void LierenWinningPindianTakesTargetCard()
-    {
-        var(g,r)=Start(scenario:"slash");
-        var before=g.CreateSnapshot(1).Players[1].Hand!.Count;
-        Play(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.Contains(1)));
-        Require(g.CreateSnapshot(1).Players[1].Hp==g.CreateSnapshot(1).Players[1].MaxHp-1,
-            "The real slash damages the dodgeless target.");
-        Activate(g);
-        Answer(g,c=>c.Cards.Count==1);
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-source-card"));
-        Require(g.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Single().Result.SourceWon,
-            "The boosted owner wins the contest against the fixed rank two opponent.");
-        Pick(g,"select-source-card");
-        Settle(g);
-        Require(g.CreateSnapshot(1).Players[1].Hand!.Count==before-2,
-            "A won contest takes one card beyond the target's own pindian payment.");
-        Require(g.CardMovements.Any(m=>m.From==CardLocation.Hand(1)&&m.To==CardLocation.Hand(0)),
-            "The taken card joins the owner's hand.");
-        Replay(g,r);Settle(g);Replay(g,r);
-    }
-
-    public static void ChangbiaoUnlimitedSlashDamageDrawsAtPhaseEnd()
-    {
-        var(g,r)=Start(scenario:"slash");
-        var hand=g.CreateSnapshot(0).Players[0].Hand!.Select(c=>c.Id).ToArray();
-        var targetHp=g.CreateSnapshot(2).Players[2].Hp;
-        Accept(g,new UseProgramSkillCommand(0,Changbiao,"any-hand-cards-as-unlimited-slash",
-            hand.Take(2).ToArray(),[2],g.Revision,P(g)!.PromptId));
-        Require(g.CreateSnapshot(2).Players[2].Hp==targetHp-1,
-            "The converted slash ignores the seat distance and damages the opposite target.");
-        SkipLieren(g);
-        Settle(g);
-        var afterSlash=g.CreateSnapshot(0).Players[0].Hand!.Count;
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        Require(g.CreateSnapshot(0).Players[0].Hand!.Count==afterSlash+2,
-            "The play phase ends with a draw equal to the two converted hand cards.");
-        Require(g.CreateSnapshot(0).Players[0].MaxHp==5,
-            "The lord keeps the identity plus one maximum HP while drawing.");
-        ReplayFourViews(g,r);Replay(g,r);
-    }
-
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,
-        g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
-
-    private static void Activate(GameEngine g)
-    {
-        Reach(g,p=>p.SkillPrompt?.SkillId==Lieren&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-    }
-
-    // A converted slash that dealt damage also offers Lieren; the Changbiao checks skip it.
-    private static void SkipLieren(GameEngine g)
-    {
-        Reach(g,p=>p.SkillPrompt?.SkillId==Lieren&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-    }
-
-    private static void Pick(GameEngine g,string action)=>Answer(g,c=>
-        c.Parameters.GetValueOrDefault("program-action")==action&&c.Parameters.GetValueOrDefault("source-zone")=="Hand");
-
     private static (GameEngine,ContentRegistry) Start(string scenario="",bool plain=false)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),

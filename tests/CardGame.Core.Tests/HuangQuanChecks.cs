@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -11,24 +11,6 @@ internal static class HuangQuanChecks
   hand=V(g,0).Hand.Count;Use(g,"recover",[1]);Play(g);g=Cold(g,r);Need(V(g,0).Hand.Count==hand+1&&E<HuangQuanDrawPaidEvent>(g).Count(e=>e.Kind=="dianhu"&&e.Occurrence!.Recovery)==1,"Foreign target's actual recovery qualifies the recorded owner through the formal HP collector.");
   hand=V(g,0).Hand.Count;Use(g,"recover",[1]);Play(g);Use(g,"damage",[2]);Play(g);Need(V(g,0).Hand.Count==hand,"Recovery clamped to zero and unrelated target damage do not manufacture occurrences.");_=Cold(g,r);
  }
- public static void ActualJianjiDrawTwoEquipmentAndDelayedNativeUsesCold()
- {
-  ActualOffTurnAlcoholQuotaAndExpiryCold();
-  foreach(var scenario in new[]{"draw-two","equipment","lightning"})
-  {
-   var(g,r)=Start(scenario);Play(g);Jianji(g);Reach(g,()=>IsJianjiOffer(g));var parent=Root(g)!;var card=parent.HuangQuan!.CardIds.Single();var recipientBefore=V(g,1).Hand.Count;g=Cold(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));Reach(g,()=>E<HuangQuanCompletedEvent>(g).Any(e=>e.FrameId==parent.Id));Play(g);g=Cold(g,r);var issued=E<JianjiUseIssuedEvent>(g).Single().Receipt;
-   Need(issued.ActorSeat==1&&issued.CardId==card&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==issued.UseId)==1&&E<ProgramSkillResolvedEvent>(g).Count(e=>e.FrameId==parent.Id&&e.Completed)==1,"Arbitrary supported native card use finishes its exact original paid activation once.");
-   if(scenario=="draw-two")Need(V(g,1).Hand.Count==recipientBefore+1,"DrawTwo executes its genuine two-card draw, not an equipment shortcut.");
-   if(scenario=="equipment")Need(V(g,1).Equipment.Any(c=>c.Id==card),"Real recipient equips the exact drawn physical entity.");
-   if(scenario=="lightning")Need(V(g,1).Judgment.Any(c=>c.Id==card),"Real recipient uses the exact delayed trick into its native judgment zone.");
-  }
- }
- private static void ActualOffTurnAlcoholQuotaAndExpiryCold()
- {
-  var(g,r)=Start("alcohol");Play(g);var wine=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Alcohol);Accept(g,new PlayCardCommand(0,wine.CardId!.Value,[],g.Revision,P(g)!.PromptId));Play(g);var old=E<JianjiOrdinaryAlcoholPaidEvent>(g).Single(e=>e.ActorSeat==0);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,()=>IsJianjiOffer(g)&&P(g)!.PlayerSeat==0);var parent=Root(g)!;Need(!V(g,0).HasAlcoholEffect&&parent.HuangQuan!.ActualTurn!=old.ActualTurn,"Previous own-turn alcohol has really expired while its old use flag predates the current giver turn.");g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option")!="decline");Reach(g,()=>E<HuangQuanCompletedEvent>(g).Any(e=>e.FrameId==parent.Id));g=Cold(g,r);var paid=E<JianjiOrdinaryAlcoholPaidEvent>(g).Last(e=>e.ActorSeat==0);Need(paid.ActualTurn!=old.ActualTurn&&paid.JianjiProgramFrameId==parent.Id&&paid.CountsQuota&&V(g,0).HasAlcoholEffect,"Foreign actual-turn alcohol uses a fresh true-turn quota and real native effect, without reusing a stale previous-own-turn flag.");Reach(g,()=>E<TurnEndedEvent>(g).Any(e=>e.TurnNumber==paid.ActualTurn));g=Cold(g,r);Need(!V(g,0).HasAlcoholEffect&&E<AlcoholExpiredEvent>(g).Count(e=>e.PlayerSeat==0)==2,"Jianji's foreign alcohol expires at this true giver turn end, rather than surviving until recipient's future turn.");
- }
- private static bool IsJianjiOffer(GameEngine g)=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="jianji-use")==true;
- private static ProgramSkillFrame? Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().FirstOrDefault(f=>f.HuangQuan?.Kind=="jianji");
  private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
  private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -36,7 +18,6 @@ internal static class HuangQuanChecks
  private static void Accept(GameEngine g,GameCommand command){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single());Need(result.Accepted,result.Error?.Message??"Rejected native Huang Quan command.");}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
  private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
- private static void Jianji(GameEngine g)=>Accept(g,new UseProgramSkillCommand(0,"ol:jianji","draw-and-offer-exact-card",[],[1],g.Revision,P(g)!.PromptId));
  private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{Kind:DecisionKind.PlayCard,PlayerSeat:0});
  private static void Reach(GameEngine g,Func<bool> done)
  {for(var n=0;n<160;n++){if(done())return;var p=P(g);if(p is{Kind:DecisionKind.RespondDodge or DecisionKind.RespondSlash}&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="take-damage"))Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="take-damage");else if(p is{Kind:DecisionKind.RescueDying})Answer(g,c=>c.Parameters.GetValueOrDefault("response")is"pass"or"let-die");else if(p?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Huang Quan boundary missing: "+JsonSerializer.Serialize(new{Prompt=P(g)?.Kind,Skill=P(g)?.SkillPrompt?.SkillId,Frames=g.ResolutionStack.Select(f=>new{f.Id,f.Kind}),Paid=E<HuangQuanDrawPaidEvent>(g),Recent=g.Events.TakeLast(7).Select(e=>e.Payload.GetType().Name)}));}

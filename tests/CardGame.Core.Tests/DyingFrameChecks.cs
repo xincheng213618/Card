@@ -127,7 +127,7 @@ internal static class DyingFrameChecks
             var rules = $$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
                  {"id":"dying-frame-test:skill","revision":1,
-                  "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"activations":[
+                  "activations":[
                   {"id":"draw-then-wound","minCards":0,"maxCards":0,
                    "minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,
                    "effects":[{"op":"draw","target":"owner","amount":1},

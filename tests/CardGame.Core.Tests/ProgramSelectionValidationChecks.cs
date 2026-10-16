@@ -148,7 +148,7 @@ internal static class ProgramSelectionValidationChecks
         var effects = Array.AsReadOnly(operations.Select(operation => new SkillProgramEffect(operation, SkillProgramEffectTarget.Owner, 0, condition)).ToArray());
         var activation = new SkillProgramActivation("activate", 0, 3, 0, 3, SkillProgramTargetKind.AnyLiving, 1, condition, effects);
         var program = new SkillProgram("fixture:selection-validation", 1, "fixture-hash", "fixture-runtime",
-            GameCheckpoint.CurrentRulesVersion, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
+            171, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
         return new(0, program, new(program.Id, program.GameplayHash, ProgramInstructionSourceKind.Activation,
             activation.Id, effects, activation: activation));
     }

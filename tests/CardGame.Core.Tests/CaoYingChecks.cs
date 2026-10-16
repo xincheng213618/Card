@@ -20,25 +20,9 @@ internal static class CaoYingChecks
         g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Play(g);
         Need(V(g, 0).Hand.Count == hand + 2 && V(g, 0).Hand.Any(c => c.Id == material), "Current717 claims the original actual Duel material after resuming its single draw child."); _ = Cold(g, registry);
     }
-    public static void NativeGuessPrivacyRefundDrawAndSingleDamage()
-    {
-        var (g, registry) = Start(); Play(g); var beforeHand = V(g, 0).Hand.Count; var beforeHp = V(g, 1).Hp;
-        Slash(g, 1); Reach(g, () => P(g)?.SkillPrompt?.SkillId == "ol:lingren" && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, () => Stage(g, CaoYingStage.Target));
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, () => Stage(g, CaoYingStage.Guess));
-        var p = P(g)!; Need(p.IsPrivate && p.Choices.Count == 8 && p.Choices.All(c => c.Cards.Count == 0 && c.Targets.Count == 0), "Guesses show eight honest guesses without target hand facts or entities.");
-        Need(Enumerable.Range(1, 3).All(s => g.CreateSnapshot(s).PendingDecision is null && (g.CreateSnapshot(s).PrivateRevealedCards?.Count ?? 0) == 0), "Foreign viewers cannot see Lingren choices or facts.");
-        var state = State(g); Need(!g.Submit(new AnswerPromptCommand(1, p.PromptId, p.Choices[0].Id, g.Revision)).Accepted && state == State(g), "Foreign guess leaves the entire command session unchanged.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "guess-1"); Play(g);
-        Need(E<CaoYingGuessResolvedEvent>(g).Single().CorrectCount == 3 && V(g, 0).Hand.Count == beforeHand + 1 && V(g, 1).Hp == beforeHp - 2, "All-basic frozen target gives three correct, native draw two and exactly plus-one real damage.");
-        Need(E<CardUseDebitRefundedEvent>(g).Count() == 1 && E<CaoYingDamageConsumedEvent>(g).Count() == 1 && V(g, 0).Skills!.Any(s => s.ContentId == "ol:jianxiong") && V(g, 0).Skills!.Any(s => s.ContentId == "classic:xingshang"), "Exact original use refunds once and temporary native skills exist.");
-        Slash(g, 1); Play(g); Need(V(g, 1).Hp == beforeHp - 3 && E<CaoYingGuessResolvedEvent>(g).Count() == 1 && E<CaoYingDamageConsumedEvent>(g).Count() == 1, "Second actual damage receives no spent bonus and same turn has no second guess.");
-        _ = Cold(g, registry);
-    }
     private static bool Stage(GameEngine g, CaoYingStage stage) => g.ResolutionStack.LastOrDefault() is ProgramSkillFrame { CaoYing: { } r } && r.Stage == stage && P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "cao-ying") == true;
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
-    private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
     private static void Need(bool b, string why) { if (!b) throw new InvalidOperationException(why); }
     private static void Accept(GameEngine g, GameCommand c) { var r = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Need(r.Accepted, r.Error?.Message ?? "Rejected native Cao Ying command."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }

@@ -164,9 +164,9 @@ internal static class OpeningCustomizationChecks
 
     public static void PrivateRosterAndOpeningHandReplay()
     {
-        var registry = StandardContentRegistry.CreateWithTeamModes();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 5, HumanRole = Role.Lord,
-            ModeId = "identity:standard-5", UseInteractiveSetup = true, ConfirmOpeningHand = true,
+            ModeId = "identity:standard-5", DeckId = "classic:standard-deck", UseInteractiveSetup = true, ConfirmOpeningHand = true,
             AdvanceAfterHumanCommands = false }, registry);
         Accept(game, new StartGameCommand());
         var original = game.PendingDecision!;
@@ -214,6 +214,16 @@ internal static class OpeningCustomizationChecks
             Cold(game, registry);
         }
         Require(!game.State.Players[0].Hand!.Select(c => c.Id).SequenceEqual(hand), "The verified seed produces a newly randomized hand.");
+        var zones = game.CreateCardZoneDiagnostics().ToArray();
+        var spear = zones.Single(card => card.CardKind == CardKind.ZhangbaSerpentSpear);
+        if (spear.Location != CardLocation.Hand(0))
+            Replace(CardKind.ZhangbaSerpentSpear);
+        Require(game.State.Players[0].Hand.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
+                !game.PendingDecision!.Choices.Any(choice => choice.Parameters.GetValueOrDefault("kind") == nameof(CardKind.ZhangbaSerpentSpear)),
+            "Selecting the unique Zhangba puts its real entity in the hand and cannot create a second copy.");
+        Require(game.CreateCardZoneDiagnostics().Select(card => card.CardId).Order().SequenceEqual(zones.Select(card => card.CardId).Order()) &&
+                game.CreateCardZoneDiagnostics().Count == zones.Length,
+            "Opening replacements preserve every physical entity and total deck size.");
         var confirmation = game.PendingDecision!;
         Accept(game, new AnswerPromptCommand(0, confirmation.PromptId,
             confirmation.Choices.Single(c => c.Parameters["action"] == "confirm").Id, game.Revision));
@@ -225,6 +235,71 @@ internal static class OpeningCustomizationChecks
                 !game.Submit(new AnswerPromptCommand(0, confirmation.PromptId, confirmation.Choices[0].Id, game.Revision)).Accepted &&
                 before == GameCheckpointJson.Serialize(game.CreateCheckpoint()), "Setup edits are unavailable after confirmation.");
         Cold(game, registry);
+        ReplaceFromDealtHand();
+
+        void Replace(CardKind kind)
+        {
+            var prompt = game.PendingDecision!;
+            var choice = prompt.Choices.First(choice => choice.Parameters.GetValueOrDefault("kind") == kind.ToString() &&
+                game.State.Players[0].Hand.Single(card => card.Id == choice.Cards.Single()).Kind != CardKind.ZhangbaSerpentSpear);
+            var counts = Enumerable.Range(0, 5).Select(seat => game.CreateSnapshot(seat).Players[seat].Hand.Count).ToArray();
+            var ownIds = game.State.Players[0].Hand.Select(card => card.Id).ToHashSet();
+            Require(prompt.Choices.Where(choice => choice.Parameters["action"] == "replace").All(choice =>
+                    choice.Cards.Count == 1 && ownIds.Contains(choice.Cards[0]) && choice.Targets.Count == 0 &&
+                    choice.Parameters.Keys.Order().SequenceEqual(new[] { "action", "kind" })),
+                "Published replacements contain only an owned slot and a card kind, never the source entity, owner or deck order.");
+            Accept(game, new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
+            Require(game.State.Players[0].Hand.Any(card => card.Kind == kind && !ownIds.Contains(card.Id)) &&
+                    game.PendingDecision!.PromptId != prompt.PromptId && game.State.TurnNumber == 0 &&
+                    Enumerable.Range(0, 5).All(seat => game.CreateSnapshot(seat).Players[seat].Hand.Count == counts[seat]) &&
+                    Enumerable.Range(1, 4).Append(-1).All(seat => game.CreateSnapshot(seat).PendingDecision is null &&
+                        game.CreateSnapshot(seat).Players[0].Hand.Count == 0),
+                "A replacement changes exactly one human hand slot, preserves every hand count, stays private and waits for confirmation.");
+            var unchanged = GameCheckpointJson.Serialize(game.CreateCheckpoint());
+            Require(!game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision)).Accepted &&
+                    unchanged == GameCheckpointJson.Serialize(game.CreateCheckpoint()), "A retired replacement cannot move cards twice.");
+            game = Cold(game, registry);
+        }
+    }
+
+    private static void ReplaceFromDealtHand()
+    {
+        const int human = 3;
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new OpeningDeckFixture());
+        var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 5, HumanSeat = human,
+            HumanRole = Role.Rebel, ModeId = "identity:standard-5", DeckId = "fixture:opening-dealt-deck",
+            UseInteractiveSetup = true, ConfirmOpeningHand = true, AdvanceAfterHumanCommands = false }, registry);
+        Accept(game, new StartGameCommand());
+        ReachHumanSelection(game, human);
+        Accept(game, new SelectGeneralCommand(human, game.PendingDecision!.ValidContentIds.First(), game.Revision, game.PendingDecision.PromptId));
+        for (var step = 0; step < 16 && game.PendingDecision?.Kind != DecisionKind.OpeningHand; step++)
+            Accept(game, new AdvanceOneStepCommand(game.Revision));
+        var before = game.CreateCardZoneDiagnostics().ToArray();
+        Require(before.All(card => card.Location.Zone == CardZoneKind.Hand),
+            "The small physical fixture deals every card, so replacement must come from another private hand without a seed search.");
+        var prompt = game.PendingDecision!;
+        var choice = prompt.Choices.First(choice => choice.Parameters["action"] == "replace");
+        var kind = Enum.Parse<CardKind>(choice.Parameters["kind"]);
+        var ownIds = before.Where(card => card.Location.OwnerSeat == human).Select(card => card.CardId).ToHashSet();
+        Accept(game, new AnswerPromptCommand(human, prompt.PromptId, choice.Id, game.Revision));
+        var after = game.CreateCardZoneDiagnostics();
+        var incoming = after.Single(card => card.Location == CardLocation.Hand(human) && !ownIds.Contains(card.CardId));
+        var source = before.Single(card => card.CardId == incoming.CardId);
+        Require(incoming.CardKind == kind && source.Location != CardLocation.Hand(human) &&
+                after.Single(card => card.CardId == choice.Cards.Single()).Location == source.Location &&
+                after.Select(card => card.CardId).Order().SequenceEqual(before.Select(card => card.CardId).Order()) &&
+                Enumerable.Range(0, 5).All(seat => after.Count(card => card.Location == CardLocation.Hand(seat)) == 4) &&
+                game.State.TurnNumber == 0 && Enumerable.Range(0, 5).Append(-1).Where(seat => seat != human)
+                    .All(seat => game.CreateSnapshot(seat).PendingDecision is null && game.CreateSnapshot(seat).Players[human].Hand.Count == 0),
+            "A nonzero human can swap a dealt physical card without exposing other hands, changing counts or starting a turn.");
+        Cold(game, registry);
+    }
+
+    private sealed class OpeningDeckFixture : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture:opening-dealt", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder) => builder.AddDeck(new("fixture:opening-dealt-deck",
+            "All cards dealt", 4, 2, [new("standard:slash", 10), new("standard:dodge", 10)]));
     }
 
     private static GeneralSelectedEvent[] Selections(GameEngine game) =>

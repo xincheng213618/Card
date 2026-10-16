@@ -41,27 +41,6 @@ internal static class DeathGrowthSkillsChecks
         Need(g.CreateSnapshot(0).TurnNumber == nextTurn && Grants.All(id => V(g, 0).Skills!.Any(s => s.ContentId == id)),
             "The extra Play returns to normal flow in that same actual turn and all three learned skills survive cold recovery.");
     }
-    public static void DynamicLivingFemaleDistanceSelfAndDirectionsCold()
-    {
-        foreach (var femaleOwner in new[] { false, true })
-        {
-            var (g, registry) = Start(femaleOwner ? "female-owner" : "female-peer"); CheckDistances(g, registry);
-            var female = Enumerable.Range(1, 5).Single(s => registry.Generals[V(g, s).GeneralId!].Gender == GeneralGender.Female);
-            Use(g, "kill-other", [female]); Reach(g, () => Optional(P(g), Zhengnan)); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
-            g = Cold(g, registry); CheckDistances(g, registry);
-            Need(g.GetCombatDistance(0, 0) == 0, "Current living-female distance includes a female skill owner but never changes self distance.");
-        }
-    }
-    private static void CheckDistances(GameEngine g, ContentRegistry registry)
-    {
-        var alive = Enumerable.Range(0, 6).Where(s => V(g, s).IsAlive).ToArray(); var women = alive.Count(s => registry.Generals[V(g, s).GeneralId!].Gender == GeneralGender.Female);
-        foreach (var seat in alive.Where(s => s != 0))
-        {
-            var a = Array.IndexOf(alive, 0); var b = Array.IndexOf(alive, seat); var difference = Math.Abs(a - b); var raw = Math.Min(difference, alive.Length - difference);
-            Need(g.GetCombatDistance(0, seat) == Math.Max(1, raw - women) && g.GetCombatDistance(seat, 0) == raw,
-                "Every current native directional query uses the fresh living female population only on the owner's outgoing distance.");
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 6).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();

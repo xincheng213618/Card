@@ -153,8 +153,7 @@ internal static class CaoZhangChecks
 
     private static GameEngine CreateGame(
         ContentRegistry registry,
-        int seed,
-        int rulesVersion = GameCheckpoint.CurrentRulesVersion)
+        int seed)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
@@ -169,9 +168,7 @@ internal static class CaoZhangChecks
             AiPolicyVersion = 2,
             MaxTurns = 40
         }, registry);
-        return rulesVersion == GameCheckpoint.CurrentRulesVersion
-            ? game
-            : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        return game;
     }
 
     private static ContentRegistry CreateRegistry() => ContentRegistry.Build(

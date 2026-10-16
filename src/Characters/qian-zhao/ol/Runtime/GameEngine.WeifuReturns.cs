@@ -50,7 +50,9 @@ public sealed partial class GameEngine
     private bool TryGetWeifuVirtualPrimaryReturn(CardUseFrame use, ProgramSkillFrame parent, out IReadOnlyList<int> primary)
     {
         primary = [];
-        if (!HasWeifuTargetTail(use) || use.CardId != 0 || use.PhysicalCardIds is not { Count: 0 } || use.CardKind != CardKind.Slash ||
+        if ((HasBingzhongTargetTail(use) || HasWeifuTargetTail(use)) &&
+            TryGetSuyiVirtualPrimaryReturn(use, parent, out primary)) return true;
+        if (!(HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || use.CardId != 0 || use.PhysicalCardIds is not { Count: 0 } || use.CardKind != CardKind.Slash ||
             use.CardAttack is not { CardId: null, EffectiveCardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } attack ||
             attack.ProgramSkillCardUseFrameId != parent.Id || attack.SourceSeat != use.SourceSeat ||
             use.Action is not { Type: CardActionType.Use, EffectiveKind: CardKind.Slash } action || action.ActorSeat != use.SourceSeat || action.ProviderSeat != action.ActorSeat ||

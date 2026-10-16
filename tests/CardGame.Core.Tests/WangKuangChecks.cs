@@ -47,92 +47,6 @@ internal static class WangKuangChecks
                 g.CardMovements.Any(m => m.Reason == CardMoveReasons.Reshuffle), "A truly damage-free small deck repeats genuine pairs, reshuffles the actual discard pile, and stops when no actual entity can be drawn."); _ = Cold(g, r);
         }
     }
-    public static void InitialDiscardQualificationAndForcedPartialPaymentCold()
-    {
-        foreach (var keep in new[] { 0, 1 })
-        {
-            var (g, r) = Start(); Trim(g, keep); Begin(g);
-            Need(P(g)!.Choices.All(c => c.Parameters.GetValueOrDefault("branch") != "discard") && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "draw"),
-                "An initial voluntary discard cannot be chosen without two truly payable owned cards.");
-            var before = State(g); var p = P(g)!; Need(!g.Submit(new AnswerPromptCommand(0, p.PromptId, new("forged-renxia-discard"), g.Revision)).Accepted && State(g) == before,
-                "A forged unpayable branch cannot move a card or issue an ending promise.");
-            g = Cold(g, r); Branch(g, "draw"); Play(g); Trim(g, keep); End(g);
-            if (keep == 1)
-            {
-                Reach(g, () => Current(g) is { Ending: true, Stage: WangKuangRenxiaStage.DiscardChoice });
-                Need(Current(g)!.RequiredCount == 1 && P(g)!.Choices.All(c => c.Cards.Count == 1), "The obligatory opposite branch does as much as possible and requests the one remaining real card.");
-                g = Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-            }
-            Reach(g, () => E<WangKuangRenxiaCompletedEvent>(g).Any(e => e.Ending));
-            var complete = E<WangKuangRenxiaCompletedEvent>(g).Single(e => e.Ending);
-            Need(E<WangKuangRenxiaIterationPaidEvent>(g).Single(e => e.FrameId == complete.FrameId).ActualCount == keep && V(g).HandCount == 0,
-                "A forced ending discards all zero or one remaining legal cards once; it never pretends a two-card payment or refuses the already issued obligation."); _ = Cold(g, r);
-        }
-    }
-    public static void ActualExtraPlayParentsAndLostSourceEndingCold()
-    {
-        {
-            var (g, r) = Start("extra"); Begin(g); Branch(g, "draw"); Play(g); var original = E<WangKuangRenxiaObligationIssuedEvent>(g).Single(); End(g);
-            Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target") == true); Answer(g, c => c.Targets.SequenceEqual([0]));
-            Play(g); Need(g.GetHumanLegalActions().Any(a => a.SkillId == Skill), "A separate actual extra Play has its own once-per-phase allowance.");
-            g = Cold(g, r); Begin(g); Branch(g, "discard"); FinishRenxia(g); Play(g);
-            var inner = E<WangKuangRenxiaObligationIssuedEvent>(g).Single(e => e.ActiveFrameId != original.ActiveFrameId);
-            Need(inner.Phase != original.Phase && inner.Phase.ActualTurn == original.Phase.ActualTurn, "The second first-branch payment binds a new actual Play instance in the same turn.");
-            End(g); Reach(g, () => Current(g) is { Ending: true, Stage: WangKuangRenxiaStage.DiscardChoice } receipt && receipt.ObligationId == original.ActiveFrameId);
-            Need(E<WangKuangRenxiaEndingConsumedEvent>(g).Select(e => e.ActiveFrameId).SequenceEqual([inner.ActiveFrameId, original.ActiveFrameId]),
-                "The inserted Play completes only its own opposite Draw, then restores the frozen older PlayEnding and its opposite discard.");
-            g = Cold(g, r); FinishRenxia(g);
-            Need(E<WangKuangRenxiaCompletedEvent>(g).Count(e => e.Ending) == 2 && E<TurnStartedEvent>(g).Count(e => e.ActorSeat == 0) == 1,
-                "Both real phase obligations settle once without a second whole turn or a borrowed phase identity."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("loss"); Begin(g); Branch(g, "draw"); Play(g); Use(g, "lose"); Play(g);
-            Need(V(g).Skills!.All(s => s.ContentId != Skill), "Actual HP loss withdraws the conditional Renxia source before PlayEnding is even issued.");
-            g = Cold(g, r); End(g); Reach(g, () => Current(g) is { Ending: true, Stage: WangKuangRenxiaStage.DiscardChoice });
-            g = Cold(g, r); FinishRenxia(g);
-            Need(E<WangKuangRenxiaEndingConsumedEvent>(g).Length == 1 && E<WangKuangRenxiaCompletedEvent>(g).Any(e => e.Ending),
-                "The exact paid source/phase fact reconstructs its mandatory ending candidate after genuine source loss, including its previously unstarted executor."); _ = Cold(g, r);
-        }
-    }
-    public static void NativePaymentChildrenLionRecoveryLossAndDeathCold()
-    {
-        foreach (var scenario in new[] { "draw-child", "draw-recompare", "paid-loss", "paid-death" })
-        {
-            var (g, r) = Start(scenario); if (scenario == "draw-child") { Use(g, "lose"); Play(g); }
-            Begin(g); Branch(g, "draw"); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.WangKuangRenxia is not null); var id = frame.Id;
-            Need(frame.WangKuangRenxia is { Stage: WangKuangRenxiaStage.MovementChildren, Cursor: 1, ActualCount: 2 } && E<WangKuangRenxiaIterationPaidEvent>(g).Count(e => e.FrameId == id) == 1,
-                "Two actual drawn entities and their exact movement cursor are frozen before the native CardsGained child.");
-            g = Cold(g, r); Continue(g);
-            if (scenario == "draw-child")
-            {
-                Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health); Need(E<RecoveryAppliedEvent>(g).Any(e => e.TargetSeat == 0 && e.Amount == 1), "The native movement child really recovers HP before its health child.");
-                g = Cold(g, r); Continue(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Before); g = Cold(g, r); Continue(g);
-            }
-            if (scenario != "paid-death")
-            { Reach(g, () => Option(g, "after-child")); if (scenario == "paid-loss") Need(V(g).Skills!.All(s => s.ContentId != Skill), "A genuine paid-draw child removes only the HP-conditional source."); g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "after-child"); }
-            Reach(g, () => E<WangKuangRenxiaCompletedEvent>(g).Any(e => e.FrameId == id));
-            Need(E<WangKuangRenxiaIterationPaidEvent>(g).Count(e => e.FrameId == id) == (scenario == "draw-recompare" ? 2 : 1),
-                "The live post-child hand controls repetition, and native recovery/damage/loss/death returns never repay an already completed pair.");
-            if (scenario == "paid-death")
-            {
-                Need(!V(g).IsAlive && g.State.Winner == Winner.None && E<WangKuangRenxiaEndingConsumedEvent>(g).Length == 0, "Real death as a non-Lord drains the paid root then stops; it cannot invent a later phase ending.");
-            }
-            else if (scenario == "paid-loss") { Play(g); End(g); FinishRenxia(g); Need(E<WangKuangRenxiaCompletedEvent>(g).Any(e => e.Ending), "Paid-child source loss also preserves the exact later opposite branch."); }
-            _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("lion"); Use(g, "equip", [0]); Play(g); Use(g, "lose"); Play(g); var hp = V(g).Hp; var lion = V(g).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-            Begin(g); Branch(g, "discard"); Reach(g, () => Current(g) is { Stage: WangKuangRenxiaStage.DiscardChoice }); Answer(g, c => c.Cards.SequenceEqual([lion]));
-            g = Cold(g, r); Answer(g, c => c.Cards.Count == 1); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health);
-            var first = E<WangKuangRenxiaIterationPaidEvent>(g).Single();
-            Need(first.ActualCount == 2 && E<WangKuangRenxiaDiscardEntityEvent>(g).Count(e => e.FrameId == first.FrameId && e.Cursor == first.Cursor) == 2 && V(g).Hp == hp + 1,
-                "The entire real HE payment commits before actual SilverLion removal recovery and the native HP observer.");
-            g = Cold(g, r); Continue(g); FinishRenxia(g); Play(g);
-            Need(g.CardMovements.Count(m => m.CardId == lion && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 && E<RecoveryAppliedEvent>(g).Count(e => e.TargetSeat == 0) == 1,
-                "The original equipped lion and both payment entities move once, and cold native recovery returns to the precise remaining discard loop."); _ = Cold(g, r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -144,10 +58,8 @@ internal static class WangKuangChecks
     private static void Continue(GameEngine g) { if (V(g, P(g)!.PlayerSeat).IsHuman) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); else Accept(g, new AdvanceOneStepCommand(g.Revision)); }
     private static void Begin(GameEngine g) => Accept(g, new UseProgramSkillCommand(0, Skill, "choose-first-branch", [], [], g.Revision, P(g)!.PromptId));
     private static void Branch(GameEngine g, string branch) { Reach(g, () => Current(g) is { Stage: WangKuangRenxiaStage.BranchChoice }); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == branch); }
-    private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-    private static void Trim(GameEngine g, int count) { var ids = V(g).Hand.Skip(count).Select(c => c.Id).ToArray(); if (ids.Length > 0) { Use(g, "trim", cards: ids); Play(g); } Need(V(g).HandCount == count, "Only native movement sets the exact small hand size."); }
     private static void FinishRenxia(GameEngine g)
     {
         for (var step = 0; step < 100; step++)

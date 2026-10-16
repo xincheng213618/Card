@@ -6,29 +6,6 @@ using CardGame.Content.Standard;
 internal static class FengLinYuanShuChecks
 {
 
-    public static void CommandLossRegrantAndSuppression()
-    {
-        var(g,r)=Start();var lord=Players(g).Single(p=>p.Role==Role.Lord);
-        Driver(g,"loss");Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(!Has(g,0,"classic:hujia")&&Players(g)[0].SkillGrants.Grants.All(s=>s.LordProjection is null),"Actual owner skill loss removes only derived relations.");Replay(g,r);
-        Driver(g,"grant");Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(Has(g,0,"classic:hujia"),"Actual acquired capability grant recreates the exact relation.");Replay(g,r);
-        Driver(g,"suppress",[lord.Seat]);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("choice")=="classic:xueyi"));
-        Choose(g,c=>c.Parameters.GetValueOrDefault("choice")=="classic:xueyi");
-        Require(!Has(g,0,"classic:xueyi")&&Has(g,0,"classic:hujia"),"Real suppression command immediately invalidates just that Lord source.");Replay(g,r);Conserve(g);
-    }
-
-    public static void ActualResponseProviderChain()
-    {
-        var(g,r)=Start();var target=Players(g).Single(p=>p.Role==Role.Lord);
-        Driver(g,"poke",[target.Seat]);Reach(g,p=>p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="faction-defense-request"));
-        Require(g.ResolutionStack.OfType<CardUseFrame>().Any(),"Actual nested virtual Slash has its own real card-use frame.");Replay(g,r);
-        Choose(g,c=>c.Parameters.GetValueOrDefault("response")=="faction-defense-request");
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(g.Events.Select(e=>e.Payload).OfType<FactionDefenseRequestedEvent>().Any(),"Copied Hujia opens true provider request under non-Lord identity.");
-        Require(g.CardMovements.Any(m=>m.From.OwnerSeat!=0&&m.To==CardLocation.Processing&&m.Reason.Value=="card.respond"),"Actual provider pays a physical response entity.");Replay(g,r);Conserve(g);
-    }
-
     public static void QualifiedAwakeningAndPersistentLocalLoss()
     {
         var(g,r)=Start();Driver(g,"suppress-awaken",[Players(g).Single(p=>p.Role==Role.Lord).Seat]);

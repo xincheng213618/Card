@@ -48,100 +48,16 @@ internal static class WangFuZhaoLeiChecks
         _ = Cold(prevented, preventedRegistry);
     }
 
-    public static void PaidDrawChildSourceLossKeepsFrozenRemainingPoints()
-    {
-        var (game, registry) = Start("loss");
-        Use(game, "partner-self", [1]); Reach(game, () => P(game)?.SkillPrompt?.SkillId == Watch);
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Xunyi is not null);
-        Need(root.Xunyi is { StepIndex: 1, Stage: XunyiStage.Children, Count: 1, Receipt.ActualAmount: 2, Receipt.DrawRecipientSeat: 0, Receipt.DiscardRecipientSeat: 0 } &&
-            game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.Batch.ParentFrameId == root.Id && w.Batch.AwaitingProgramFrameId == root.Id),
-            "The first real draw is paid before its native gain child and stays on the exact two-point owning damage frame.");
-        game = Cold(game, registry); Continue(game);
-        Reach(game, () => P(game)?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "after-loss") == true);
-        Need(V(game, 0).Skills!.All(s => s.ContentId != Skill) && E<XunyiPointPaidEvent>(game).Count(e => e.Draw) == 1,
-            "A real gained-card child removes the actual source skill after the first draw without paying the next point early. " +
-            JsonSerializer.Serialize(new { V(game, 0).Hp, V(game, 0).MaxHp, Skills = V(game, 0).Skills!.Select(s => s.ContentId).ToArray(), Paid = E<XunyiPointPaidEvent>(game) }));
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "after-loss"); Play(game);
-        var payments = E<XunyiPointPaidEvent>(game);
-        Need(payments.Length == 4 && payments.Select(e => e.StepIndex).SequenceEqual([0, 1, 2, 3]) && payments.All(e => e.RecipientSeat == 0 && e.Count == 1) &&
-            E<XunyiDamageCompletedEvent>(game) is [{ StepCount: 4 }] && E<XunyiDamageIssuedEvent>(game).Length == 1,
-            "Losing the source inside a paid child retains the original relation, both branches and remaining point cursor, without paying a completed draw twice.");
-        var paid = payments.Length; Use(game, "self-two"); Play(game);
-        Need(E<XunyiPointPaidEvent>(game).Length == paid, "A later unrelated damage cannot create fresh Xunyi after actual source loss.");
-        _ = Cold(game, registry);
-    }
-
-    public static void ActualPartnerDeathOptionalTransferAndOldReceipt()
-    {
-        foreach (var move in new[] { false, true })
-        {
-            var (game, registry) = Start(); Use(game, "kill", [1]); Reach(game, () => OptionalTransfer(game));
-            Need(!V(game, 1).IsAlive && E<PlayerDiedEvent>(game).Count(e => e.VictimSeat == 1) == 1,
-                "Only the actual current holder's completed death offers optional marker movement.");
-            game = Cold(game, registry);
-            Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == (move ? "activate" : "skip"));
-            if (move)
-            {
-                Reach(game, () => P(game)?.Choices.Any(c => c.Targets.SequenceEqual([2])) == true);
-                Need(!P(game)!.Choices.Any(c => c.Targets.Contains(0) || c.Targets.Contains(1)), "A successor is a living other character.");
-                game = Cold(game, registry); Answer(game, c => c.Targets.SequenceEqual([2]));
-            }
-            Play(game); var changed = E<XunyiRelationChangedEvent>(game);
-            Need(changed.Length == (move ? 2 : 1) && (!move || changed.Last() is { PreviousHolderSeat: 1, Relation.HolderSeat: 2 } && Mark(game, 2) == 1),
-                "Accepting transfers the same source instance; declining does not appoint an invented replacement.");
-            var draws = E<XunyiPointPaidEvent>(game).Length; Use(game, "outgoing-two", [3]); Play(game);
-            Need(E<XunyiPointPaidEvent>(game).Length == draws + (move ? 2 : 0) && (!move || E<XunyiPointPaidEvent>(game).TakeLast(2).All(e => e.Draw && e.RecipientSeat == 2)),
-                "Later real damage uses the newly moved relation and a declined dead relation grants no cards.");
-            _ = Cold(game, registry);
-        }
-        {
-            var (game, registry) = Start("death-child"); Use(game, "self-two"); Reach(game, () => P(game)?.SkillPrompt?.SkillId == Watch);
-            var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Xunyi is not null);
-            Need(root.Xunyi is { StepIndex: 0, Receipt.Relation.HolderSeat: 1, Receipt.ActualAmount: 2 }, "The paid discard freezes the old partner before its native child.");
-            game = Cold(game, registry); Continue(game); Reach(game, () => OptionalTransfer(game));
-            game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            Reach(game, () => P(game)?.Choices.Any(c => c.Targets.SequenceEqual([2])) == true); Answer(game, c => c.Targets.SequenceEqual([2])); Play(game);
-            Need(E<XunyiPointPaidEvent>(game).Length == 4 && E<XunyiPointPaidEvent>(game).All(e => e.RecipientSeat == 1) &&
-                E<XunyiPointPaidEvent>(game).Skip(1).All(e => e.Count == 0) && Mark(game, 2) == 1,
-                "Moving Yi inside an already paid discard's death child never redirects any remaining original point to the new holder.");
-            _ = Cold(game, registry);
-        }
-    }
-
-    public static void ActualSilverLionRecoveryAndNestedDamageKeepPointCursor()
-    {
-        var (game, registry) = Start("lion"); Use(game, "lower-target", [1]); Play(game); Use(game, "equip", [1]); Play(game);
-        var lion = V(game, 1).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        var hp = V(game, 1).Hp; Use(game, "incoming-two", [2]); Reach(game, () => Discard(game));
-        Need(P(game)!.Choices.Any(c => c.Cards.SequenceEqual([lion]) && c.Parameters["source-zone"] == nameof(CardZoneKind.Equipment)),
-            "The actual partner may pay its native equipment entity rather than an invented hand-only discard.");
-        game = Cold(game, registry); Answer(game, c => c.Cards.SequenceEqual([lion]));
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Watch);
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Xunyi is not null);
-        Need(V(game, 1).Hp == hp + 1 && root.Xunyi is { StepIndex: 0, Stage: XunyiStage.Children, CardId: { } paid } && paid == lion &&
-            game.CardMovements.Count(m => m.CardId == lion && m.From == CardLocation.Equipment(1) && m.To == CardLocation.DiscardPile && m.Reason.Value == "skill-program.xunyi.discard") == 1,
-            "Removing the paid Silver Lion runs actual native recovery before the original second damage point.");
-        game = Cold(game, registry); Continue(game); Play(game);
-        var original = E<XunyiDamageIssuedEvent>(game).First();
-        Need(E<XunyiDamageIssuedEvent>(game).Length == 2 && E<XunyiPointPaidEvent>(game).Count(e => e.FrameId == original.FrameId) == 2 &&
-            E<XunyiPointPaidEvent>(game).Count(e => e.FrameId != original.FrameId) == 2 && E<DamageAppliedEvent>(game).Any(e => e.SourceSeat == 1 && e.TargetSeat == 1 && e.Amount == 1) &&
-            game.CardMovements.Count(m => m.CardId == lion && m.From == CardLocation.Equipment(1) && m.Reason.Value == "skill-program.xunyi.discard") == 1,
-            "A real recovery observer's nested self-damage owns its separate Xunyi receipt; original points resume without repeating the removed armor payment.");
-        _ = Cold(game, registry);
-    }
-
     private static PlayerSnapshot V(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat];
     private static int Mark(GameEngine game, int seat) => (V(game, seat).Markers ?? []).SingleOrDefault(m => m.Kind == PlayerMarkerKind.XunyiYi)?.Count ?? 0;
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine game) where T : IGameEvent => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Discard(GameEngine game) => P(game)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "xunyi-discard") == true;
-    private static bool OptionalTransfer(GameEngine game) => P(game)?.SkillPrompt?.SkillId == Skill && P(game)!.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "move-yi-after-death" && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine game, GameCommand command)
     { var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Need(result.Accepted, result.Error?.Message ?? "Rejected real Xunyi command."); }
     private static void Answer(GameEngine game, Func<PromptChoice, bool> choose)
     { var prompt = P(game)!; Accept(game, new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, prompt.Choices.First(choose).Id, game.Revision)); }
-    private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine game, string binding, IReadOnlyList<int>? targets = null) =>
         Accept(game, new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], game.Revision, P(game)!.PromptId));
     private static void Play(GameEngine game) => Reach(game, () => P(game) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });

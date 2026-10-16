@@ -71,7 +71,6 @@ public sealed class FileGameExceptionReportStore(string? directory = null) : IGa
                 }).ToArray(),
             IsFaulted = game?.IsFaulted,
             Revision = game?.Revision,
-            RulesVersion = game?.RulesVersion,
             FailedCommandIncluded = failedCommand is not null
         }, JsonOptions));
         if (failedCommand is not null)

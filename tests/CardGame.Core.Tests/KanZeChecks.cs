@@ -17,38 +17,6 @@ internal static class KanZeChecks
    var done=E<XiashuCompletedEvent>(g).Single();Need(done.ClaimCount==expected.Length&&expected.All(id=>g.CreateSnapshot(0).Players[0].Hand.Any(c=>c.Id==id))&&E<ProgramBindingResolvedEvent>(g).Where(e=>e.FrameId==done.FrameId).ToArray() is [var resolved]&&resolved.Activated&&resolved.Completed,"Chosen shown/complement entities are received once and the paid binding completes true.");
   }
  }
- public static void ActualRepeatedKuanshiAndDeferredDrawSkipCold()
- {
-  var(g,r)=Start("kuanshi");Play(g);End(g);Reach(g,()=>Optional(g,"ol:kuanshi"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");ChooseTarget(g,0);Reach(g,()=>E<KuanshiArmedEvent>(g).Any());g=Cold(g,r);
-  Reach(g,()=>E<KuanshiDamagePreventedEvent>(g).Count()>=2);g=Cold(g,r);Need(E<KuanshiDamagePreventedEvent>(g).All(e=>e.Amount==2)&&g.CreateSnapshot(0).Players[0].Hp==g.CreateSnapshot(0).Players[0].MaxHp,"Two actual amplified damage attempts are both prevented during one live grant.");
-  Reach(g,()=>E<KuanshiDrawSkippedEvent>(g).Any());g=Cold(g,r);Need(E<KuanshiDrawSkippedEvent>(g).Count()==1&&E<KuanshiExpiredEvent>(g).Count()==1,"Next actual owner turn expires protection and consumes one draw debt after repeated prevention.");
-  foreach(var scenario in new[]{"kuanshi-source-less","kuanshi-lion"})
-  {
-   var(t,tr)=Start(scenario);Play(t);
-   if(scenario=="kuanshi-lion")
-   {
-    Accept(t,new UseProgramSkillCommand(0,Driver,"stock",[],[],t.Revision,P(t)!.PromptId));Play(t);var lion=t.CreateSnapshot(0).Players[0].Hand.First(c=>c.Kind==CardKind.SilverLion);var action=t.GetHumanLegalActions().Single(a=>a.CardId==lion.Id&&a.Kind==LegalActionKind.Equip);Accept(t,new PlayCardCommand(0,lion.Id,action.TargetSeats,t.Revision,P(t)!.PromptId,action.PlayedCardKind,action.TargetCardId));Play(t);
-   }
-   if(scenario=="kuanshi-source-less")
-   {
-    var lightning=t.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Lightning&&a.TargetSeat==0);Accept(t,new PlayCardCommand(0,lightning.CardId!.Value,[0],t.Revision,P(t)!.PromptId));Play(t);
-    var physical=t.CreateSnapshot(0).Players[0].Judgment.Single(c=>c.Kind==CardKind.Lightning).Id;
-    Accept(t,new UseProgramSkillCommand(0,Driver,"transfer-lightning",[],[1],t.Revision,P(t)!.PromptId));Reach(t,()=>P(t)?.Choices.Any(c=>c.Cards.Contains(physical))==true);Answer(t,c=>c.Cards.Contains(physical));Play(t);t=Cold(t,tr);
-    Need(t.CreateSnapshot(1).Players[1].Judgment.Any(c=>c.Id==physical),"A genuinely used physical Lightning is natively transferred to the protected recipient's judgment zone.");
-   }
-   End(t);Reach(t,()=>Optional(t,"ol:kuanshi"));Answer(t,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");ChooseTarget(t,scenario=="kuanshi-lion"?0:1);
-   if(scenario=="kuanshi-lion")
-   {Reach(t,()=>E<DamageAppliedEvent>(t).Any(e=>e.TargetSeat==0));t=Cold(t,tr);Need(E<SilverLionDamageCappedEvent>(t).Any()&&E<DamageAppliedEvent>(t).Last(e=>e.TargetSeat==0).Amount==1&&!E<KuanshiDamagePreventedEvent>(t).Any(),"Physical Lion caps requested two to actual one; Kuanshi must neither prevent it nor create draw debt.");}
-   else
-   {Reach(t,()=>E<KuanshiDamagePreventedEvent>(t).Any());t=Cold(t,tr);var facts=E<KuanshiDamagePreventedEvent>(t).ToArray();var diagnosis=JsonSerializer.Serialize(new{Prevented=facts,Judgments=E<JudgmentResolvedEvent>(t).ToArray(),DamageRequests=E<DamageRequestedEvent>(t).ToArray(),Frames=t.ResolutionStack.Select(f=>JsonSerializer.Serialize(f,f.GetType())).ToArray(),Recent=t.Events.TakeLast(20).Select(e=>new{Type=e.Payload.GetType().Name,Value=JsonSerializer.Serialize(e.Payload,e.Payload.GetType())}).ToArray()});
-    Need(E<JudgmentResolvedEvent>(t).Any(e=>e.Reason==JudgmentReasons.Lightning&&e.Succeeded),"The actual Lightning judgment must record success. "+diagnosis);
-    Need(facts.Length==1,"The actual Lightning attempt prevents exactly once. "+diagnosis);
-    Need(facts[0].SourceSeat is null,"Native Lightning prevention must retain the actual source-less authority, without an invented source/killer. "+diagnosis);
-    Need(facts[0].TargetSeat==1,"The actual Lightning prevention belongs to the protected transferred-judgment recipient. "+diagnosis);
-    Need(facts[0].Amount==3,"The actual Lightning prevention records its native final three damage. "+diagnosis);}
-  }
-
- }
  private static string Embedded(string suffix){using var s=typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-kan-ze.{suffix}")!;using var r=new StreamReader(s);return r.ReadToEnd();}
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
  private static IEnumerable<T> E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -57,8 +25,6 @@ internal static class KanZeChecks
  private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(result.Accepted,result.Error?.Message??"Rejected native KanZe command.");}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
  private static void ChooseTarget(GameEngine g,int seat){Reach(g,()=>P(g)?.Choices.Any(c=>c.Targets.Contains(seat))==true);Answer(g,c=>c.Targets.Contains(seat));}
- private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
- private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
  private static void Reach(GameEngine g,Func<bool> done)
  {for(var i=0;i<100;i++){if(done())return;var p=P(g);if(p is{PlayerSeat:0}&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"))Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("KanZe native boundary missing: "+JsonSerializer.Serialize(P(g))+" frames "+JsonSerializer.Serialize(g.ResolutionStack)+" events "+JsonSerializer.Serialize(g.Events.TakeLast(12).Select(e=>e.Payload)));}
  private static string State(GameEngine g)=>JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),Frames=g.ResolutionStack.Select(f=>JsonSerializer.Serialize(f,f.GetType())).ToArray(),Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements});

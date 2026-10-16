@@ -337,7 +337,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             [nameof(Role.Renegade)] = 13
         };
 
-        builder.AddMode(new ContentModeDefinition(
+        var eightPlayerIdentity = new ContentModeDefinition(
             Id: "identity:classic-8",
             Name: "八人经典身份（正式武将首批）",
             MinPlayers: 8,
@@ -356,6 +356,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             RoleGeneralCandidateCounts = roleGeneralCandidateCounts,
             GeneralVariantGroups = generalVariantGroups,
             GeneralSelectionWeights = IdentityGeneralSelectionWeights.EightPlayer
+        };
+        builder.AddMode(eightPlayerIdentity);
+        builder.AddMode(eightPlayerIdentity with
+        {
+            Id = "identity:classic-dual-8",
+            Name = "八人经典身份·双将",
+            DualGenerals = true
         });
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-5",

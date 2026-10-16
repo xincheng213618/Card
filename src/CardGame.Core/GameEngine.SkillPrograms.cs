@@ -686,6 +686,8 @@ public sealed partial class GameEngine
             !AllowsMengDaNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsCaiMaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsYaDanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoTengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsYangFuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !(AllowsKenshangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsFulueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsYangFengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsAHuiNanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsLiuYanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWangGuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsQinLangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWuJingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsXiangChongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess)) &&
             !AllowsKeBiNengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsCaoXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
@@ -1189,6 +1191,7 @@ public sealed partial class GameEngine
                     !IsChengGongYingMovement(frame, paidEffect, pendingMovement) &&
                     !IsMengDaMovement(frame, paidEffect, pendingMovement) &&
                     !IsYaDanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsYangFuMovement(frame, paidEffect, pendingMovement) &&
                     !IsKenshangMovement(frame, paidEffect, pendingMovement) && !IsFulueMovement(frame, paidEffect, pendingMovement) && !IsYangFengMovement(frame, paidEffect, pendingMovement) && !IsWangGuanMovement(frame, paidEffect, pendingMovement) && !IsWuJingMovement(frame, paidEffect, pendingMovement) &&
                     !IsMaMiDiMovement(frame, paidEffect, pendingMovement) &&
                     !IsYanPuAwaitedMovement(frame, paidEffect, pendingMovement) &&

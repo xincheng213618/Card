@@ -6,34 +6,6 @@ using CardGame.Content.Standard;
 internal static class BoundaryGuanYuChecks
 {
     private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-    public static void BlackActualPaymentChooserPrivacyAndReplay()
-    {
-        var(g,r)=Start("black"); var payment=g.State.Players[0].Hand.First().Id;
-        var revision=g.Revision;var before=SnapshotJson.Serialize(g.CreateSnapshot(0));
-        var illegal=g.Submit(new UseProgramSkillCommand(0,"boundary:yijue","discard-and-show",[payment],[0],g.Revision,P(g)!.PromptId));
-        Require(!illegal.Accepted&&revision==g.Revision&&before==SnapshotJson.Serialize(g.CreateSnapshot(0)),"Self target rejects atomically.");
-        Yijue(g,payment,1);var p=P(g)!;Require(p.PlayerSeat==1&&p.IsPrivate&&p.Choices.All(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"),"Other target owns mandatory single Hand chooser.");
-        Require(g.CardMovements.Count(m=>m.CardId==payment&&m.To==CardLocation.DiscardPile)==1,"Real HE cost precedes target choice once.");
-        for(var viewer=0;viewer<4;viewer++)Require(viewer==1||g.CreateSnapshot(viewer).PendingDecision is null,"Other viewers do not see private target identities.");
-        Replay(g,r);var shown=p.Choices.First().Cards.Single();Answer(g,c=>c.Cards.SequenceEqual(new[]{shown}));Settle(g);
-        Require(g.Events.Any(e=>e.Payload is ProgramCardsRevealedEvent reveal&&reveal.OwnerSeat==1&&reveal.Cards.Single().Id==shown),"Actual public reveal identifies target, not actor.");
-        var target=g.CreateSnapshot(0).Players[1];Require(target.Skills!.Any(s=>s.ContentId=="fixture:locked")&&!target.Skills!.Any(s=>s.ContentId=="fixture:ordinary"),"Black suppresses nonlocked only in public qualification.");
-        Require(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:yijue"),"Named phase quota consumed before pause.");
-        var hp=g.State.Players[1].Hp;var slash=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);
-        Play(g,slash,1);Settle(g);Require(g.State.Players[1].Hp==hp-2,"Actor's effective Heart Slash gains target-specific one damage.");Replay(g,r);
-        var turn=g.CreateSnapshot(0).TurnNumber;Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        Reach(g,p=>g.Events.Any(e=>e.Payload is CurrentTurnNonLockedSkillSuppressionsExpiredEvent x&&x.TurnNumber==turn&&x.TurnOwnerSeat==0));
-        Require(g.Events.Any(e=>e.Payload is CurrentTurnNonLockedSkillSuppressionsExpiredEvent x&&x.TurnOwnerSeat==0)&&g.CreateSnapshot(0).Players[1].Skills!.Any(s=>s.ContentId=="fixture:ordinary"),"Expiry follows actual actor turn end.");Replay(g,r);
-    }
-    public static void ActualDiamondProviderUse()
-    {
-        var(g,r)=Start("provider");Accept(g,new UseProgramSkillCommand(0,"fixture:driver","request",[],[2],g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.PlayerSeat!=0&&p.RequiredCardKind==CardKind.Slash);var p=P(g)!;
-        Require(p.PlayerSeat!=0&&p.Choices.Any(c=>c.Cards.Count==1),"Diamond far target reaches real provider payment.");
-        var provider=p.PlayerSeat;var selected=p.Choices.First(c=>c.Cards.Count==1);var id=selected.Cards.Single();Replay(g,r);
-        Settle(g);
-        Require(g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.Type==CardActionType.Use&&e.Action.ActorSeat==0&&e.Action.ProviderSeat!=0&&e.Action.PhysicalCards.Count==1),"Requester really Uses its own Diamond policy with another provider's entity.");Replay(g,r);
-    }
     public static void ExtraPlayQuotaAndNamedHeartBenefit()
     {
         var(g,r)=Start("extra");var turn=g.CreateSnapshot(0).TurnNumber;

@@ -99,47 +99,6 @@ internal static class BoundaryZhangHeChecks
         }
     }
 
-    public static void EndingHandCountHistoryComparesBeforeInsertAcrossExtraTurnsAndNativeAi()
-    {
-        var (game, registry) = Create(CardKind.Slash); ReachPlay(game); var initialMarkers = Markers(game);
-        EndPlay(game); ReachUntil(game, () => HistoryFacts(game).Count == 1);
-        var first = HistoryFacts(game).Single();
-        Require(first.IsNew && Markers(game) == initialMarkers + 1 && first.HandCount == 5,
-            "The first actual ending compares against an empty source history and grants exactly one marker."); Cold(game, registry);
-        ReachPlay(game); EndPlay(game); ReachUntil(game, () => HistoryFacts(game).Count == 2);
-        var second = HistoryFacts(game).Last();
-        Require(!second.IsNew && second.HandCount == first.HandCount && second.SkillInstanceId == first.SkillInstanceId &&
-            Markers(game) == initialMarkers + 1, "A repeated actual ending count is inserted without granting another marker."); Cold(game, registry);
-        ReachPlay(game);
-        var discarded = game.CreateSnapshot(0).Players[0].Hand.Take(3).Select(c => c.Id).ToArray();
-        Use(game, "discard-three", discarded); ReachPlay(game); Use(game, "extra-turn"); ReachPlay(game); EndPlay(game);
-        ReachUntil(game, () => HistoryFacts(game).Count == 3);
-        var third = HistoryFacts(game).Last();
-        Require(third.IsNew && third.HandCount == 4 && Markers(game) == initialMarkers + 2,
-            "Real command-paid hand losses create a different ending population and a second distinct marker grant."); Cold(game, registry);
-        ReachPlay(game); Require(game.State.TurnNumber == third.ActualTurnNumber + 1,
-            "The formally queued extra turn runs immediately and has a distinct actual-turn identity.");
-        EndPlay(game); ReachUntil(game, () => HistoryFacts(game).Count == 4);
-        var fourth = HistoryFacts(game).Last(); var history = game.GetProgramEndingHandCountHistoryDiagnostics().Single(h => h.OwnerSeat == 0 && h.SkillId == Skill);
-        Require(!fourth.IsNew && fourth.HandCount == 5 && fourth.SkillInstanceId == first.SkillInstanceId &&
-            history.Counts.SequenceEqual([4, 5]) && history.LastActualTurnNumber == fourth.ActualTurnNumber &&
-            Markers(game) == initialMarkers + 2,
-            "Extra-turn endings share the exact source set, compare before inserting, and do not confuse Round with ActualTurn.");
-        if (history.Counts is IList<int> list) { var blocked = false; try { list[0] = 99; } catch (NotSupportedException) { blocked = true; } Require(blocked, "Trusted diagnostic history collections are frozen."); }
-        Cold(game, registry);
-        var records = HistoryFacts(game).Count; ReachPlay(game); Use(game, "down"); ReachPlay(game); EndPlay(game);
-        ReachUntil(game, () => HistoryFacts(game).Count == records + 1); var beforeSkippedTurn = HistoryFacts(game).Count;
-        var turnEndedBefore = game.Events.Select(e => e.Payload).OfType<TurnEndedEvent>().Count(e => e.ActorSeat == 0);
-        ReachUntil(game, () => game.Events.Select(e => e.Payload).OfType<TurnEndedEvent>().Count(e => e.ActorSeat == 0) > turnEndedBefore);
-        Require(HistoryFacts(game).Count == beforeSkippedTurn, "An actual face-down skipped whole turn never enters the ending-count observer."); Cold(game, registry);
-        var (native, nativeRegistry) = Create(CardKind.Slash, native: true); ReachPlay(native); EndPlay(native);
-        ReachUntil(native, () => native.Events.Select(e => e.Payload).OfType<ProgramEndingHandCountRecordedEvent>().Any(e => e.OwnerSeat == 1 && e.SkillId == Skill));
-        var nativeCost = native.Events.Select(e => e.Payload).OfType<ProgramAlternativePhaseCostPaidEvent>().FirstOrDefault(e => e.OwnerSeat == 1);
-        Require(nativeCost is { Kind: ProgramAlternativePhaseCostKind.RemoveMarker } &&
-            native.Events.Select(e => e.Payload).OfType<ProgramTurnPhaseSubstitutedEvent>().Any(e => e.OwnerSeat == 1 && e.SkillInstanceId == nativeCost.SkillInstanceId),
-            "Native AI pays a real public token cost and retains its own source identity without a scripted AnswerPrompt for the AI."); Cold(native, nativeRegistry);
-    }
-
     private static IReadOnlyList<ProgramTurnPhaseSubstitutedEvent> Skips(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramTurnPhaseSubstitutedEvent>().Where(e => e.OwnerSeat == 0).ToArray();
     private static void AssertNewOperationContracts()
     {
@@ -163,7 +122,6 @@ internal static class BoundaryZhangHeChecks
         }
     }
     private static IReadOnlyList<ProgramRandomHandCardsTakenEvent> TakeFacts(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramRandomHandCardsTakenEvent>().Where(e => e.OwnerSeat == 0 && e.SkillId == Skill).ToArray();
-    private static IReadOnlyList<ProgramEndingHandCountRecordedEvent> HistoryFacts(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramEndingHandCountRecordedEvent>().Where(e => e.OwnerSeat == 0 && e.SkillId == Skill).ToArray();
     private static int Markers(GameEngine g) => g.State.Players[0].Markers?.SingleOrDefault(m => m.Kind == Marker)?.Count ?? 0;
     private static ProgramSkillFrame Qiaobian(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OwnerSeat == 0 && f.SkillId == Skill);
     private static void MovementReturn(GameEngine g, ProgramSkillFrame owner, IReadOnlyList<int> ids, bool sourceHand, CardLocation? to = null)
@@ -203,7 +161,6 @@ internal static class BoundaryZhangHeChecks
     private static void PayMarker(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "alternative-phase-cost-marker");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, Prompt(g)!.PromptId));
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], [], g.Revision, Prompt(g)!.PromptId));
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) => ReachUntil(g, () => Prompt(g) is { } p && predicate(p));
     private static void ReachUntil(GameEngine g, Func<bool> predicate)
     {

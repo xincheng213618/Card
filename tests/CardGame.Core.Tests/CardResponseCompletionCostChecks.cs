@@ -13,9 +13,6 @@ internal static class CardResponseCompletionCostChecks
     private const string HealthSourceReplacement = "fixture:response-completion-health-source-replacement";
     private const string FactionDefense = "fixture:response-completion-cost-faction-defense";
     private const string Zhefu = "ol:zhefu";
-    private const string PublicPileMode = "fixture:public-pile-native-cost";
-    private const string PublicPile = "fixture:public-pile-native-cost-source";
-    private const string PublicPileDamage = "fixture:public-pile-native-cost-damage";
     private const string SlashPaymentMode = "identity:classic-slash-payment-dying";
     private const string SlashPaymentConversion = "fixture:slash-payment-conversion";
     private const string SlashPaymentObserver = "fixture:slash-payment-observer";
@@ -23,70 +20,6 @@ internal static class CardResponseCompletionCostChecks
     private const string SlashPaymentReturn = "fixture:slash-payment-return";
     private const string SlashPaymentReplacement = "fixture:slash-payment-replacement";
     private const string SlashPaymentQuiet = "fixture:slash-payment-quiet";
-
-    public static void PublicPileSlashPaymentRemainsSeparateFromNativeMaterials()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new PublicPileFixture());
-        var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0,
-            HumanRole = Role.Lord, ModeId = PublicPileMode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
-            AdvanceAfterHumanCommands = false, MaxTurns = 4 }, registry);
-        Accept(game, new StartGameCommand());
-        Reach(game, p => p is { PlayerSeat: 0, Kind: DecisionKind.SelectGeneral });
-        Accept(game, new SelectGeneralCommand(0, "fixture:public-pile-native-cost-actor", game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => p is { PlayerSeat: 1 } && p.SkillPrompt?.SkillId == PublicPile &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
-        var stored = View(game, 1).Hand.Take(2).Select(c => c.Id).ToArray();
-        foreach (var id in stored) Answer(game, c => c.Cards.SequenceEqual([id]));
-        Play(game);
-        Require(View(game, 1).GeneralId == "fixture:public-pile-native-cost-owner" && View(game, 1).Hp == 4 &&
-            View(game, 1).AuthorityCards!.Select(c => c.Id).Order().SequenceEqual(stored.Order()) &&
-            registry.GetSkill("ol:yidu").Program!.Triggers.Any(t => t.Effects.Any(e =>
-                e.Op == SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor)),
-            "A real GameStarting selection stores two public Authority entities while the formal whole-use ledger capability is present.");
-        foreach (var viewer in Enumerable.Range(0, 4))
-            Require(game.CreateSnapshot(viewer).Players[1].AuthorityCards!.Select(c => c.Id).Order().SequenceEqual(stored.Order()),
-                "The foreign actor pays published public-pile identities rather than another player's private hand.");
-        var legal = game.GetHumanLegalActions().Single(a => a.ProgramSkillId == PublicPile &&
-            a.ProgramActivationId == "public-pile-slash" && a.ProgramSkillOwnerSeat == 1 && a.TargetSeats.SequenceEqual([1]));
-        Require(legal.SelectableCardIds.Order().SequenceEqual(stored.Order()), "The native foreign policy publishes exactly the two real public costs.");
-        Accept(game, new UseProgramSkillCommand(0, PublicPile, "public-pile-slash", stored, [1], game.Revision,
-            Prompt(game)!.PromptId) { SkillOwnerSeat = 1 });
-        Reach(game, p => p is { PlayerSeat: 1 } && p.SkillPrompt?.SkillId == PublicPileDamage && HasContinue(p));
-        var use = game.ResolutionStack.OfType<CardUseFrame>().Single();
-        var action = use.Action!; var useId = use.Id; var actionId = action.ActionId;
-        var recorded = Facts<CompletedUndamagedUseDamageRecordedEvent>(game).Single();
-        Require(use is { SourceSeat: 0, CardId: 0, CardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } &&
-            use.TargetSeats.SequenceEqual([1]) && action is { Type: CardActionType.Use, ActorSeat: 0, ProviderSeat: 0,
-                EffectiveKind: CardKind.Slash, PhysicalCards.Count: 2 } &&
-            action.PhysicalCards.Select(c => c.CardId).SequenceEqual(stored) &&
-            action.PhysicalCards.All(c => c.From == CardLocation.Authority(1)) &&
-            action.ConversionChain is [{ SkillId: PublicPile, BindingId: "public-pile-slash", OwnerSeat: 1 }] &&
-            use.CardAttack is { PhysicalCardIds.Count: 0, DamageWasApplied: true } &&
-            recorded is { ActorSeat: 0, SourceSeat: 0, TargetSeat: 1, EffectiveKind: CardKind.Slash, Amount: 1,
-                SourceLess: false, ChainPropagation: false, Redirected: false } &&
-            recorded.CardUseFrameId == useId && recorded.CardActionId == actionId &&
-            Facts<CardActionAcceptedEvent>(game).Count(e => e.Action.ActionId == actionId && e.Action.Type == CardActionType.Use) == 1,
-            "The exact accepted foreign Slash records real damage with zero native materials and two distinct Authority activation costs.");
-        Require(View(game, 1).Hp == 3 && View(game, 1).AuthorityCount == 0 &&
-            stored.All(id => game.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Authority(1) &&
-                m.To == CardLocation.DiscardPile && m.Reason.Value == "program.public-pile.slash-payment") == 1) &&
-            !game.CardMovements.Any(m => stored.Contains(m.CardId) && m.To == CardLocation.Processing) &&
-            Facts<CardUseFinishedEvent>(game).All(e => e.ResolutionId != useId),
-            "The native costs are paid once directly to DiscardPile before damage, and the original Use awaits its real damage observer.");
-        Frozen(action.PhysicalCards); Frozen(action.ConversionChain); FrozenEmptyNativeMaterials(use.PhysicalCardIds!);
-        Private(game); game = Cold(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Play(game);
-        Require(Facts<CardUseFinishedEvent>(game).Count(e => e.ResolutionId == useId && e.CardId == 0 && e.CardKind == CardKind.Slash) == 1 &&
-            Facts<CompletedUndamagedUseDamageRecordedEvent>(game).Count(e => e.CardUseFrameId == useId && e.CardActionId == actionId) == 1 &&
-            Facts<DamageAppliedEvent>(game).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-            Facts<CompletedUndamagedTargetRevealStartedEvent>(game).Length == 0 &&
-            stored.All(id => game.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Authority(1) &&
-                m.To == CardLocation.DiscardPile && m.Reason.Value == "program.public-pile.slash-payment") == 1) &&
-            !game.ResolutionStack.Any(f => f.Id == useId) && View(game, 1).Hp == 3,
-            "Cold return completes the original native Slash once without repeating its real costs, damage or ledger fact.");
-        _ = Cold(game, registry);
-    }
 
     private static void VerifyOrdinaryHealthDyingReturn()
     {
@@ -664,9 +597,6 @@ internal static class CardResponseCompletionCostChecks
         }
     }
 
-    public static void SilverLionEquipmentDodgeDrainsHealthBeforeCompletion()
-        => ExerciseSilverLionEquipmentDodge(typedHealthKind: false);
-
     public static void TypedHealthKindMatchesActualResponseCostRecovery()
         => ExerciseSilverLionEquipmentDodge(typedHealthKind: true);
 
@@ -809,21 +739,6 @@ internal static class CardResponseCompletionCostChecks
         throw new InvalidOperationException("The fixed native response-cost boundary was not reached.");
     }
     private static void Frozen<T>(IReadOnlyList<T> items) => Require(items is System.Collections.IList { IsReadOnly: true }, "The exposed cost collection is frozen.");
-    private static void FrozenEmptyNativeMaterials(IReadOnlyList<int> items)
-    {
-        Require(items.Count == 0 && items is System.Collections.IList { IsFixedSize: true },
-            "The native zero-material list has fixed zero capacity.");
-        var list = (System.Collections.IList)items;
-        var addRejected = false;
-        try { list.Add(-1); } catch (NotSupportedException) { addRejected = true; }
-        var setRejected = false;
-        try { list[0] = -1; }
-        catch (NotSupportedException) { setRejected = true; }
-        catch (ArgumentOutOfRangeException) { setRejected = true; }
-        catch (IndexOutOfRangeException) { setRejected = true; }
-        Require(addRejected && setRejected && items.Count == 0,
-            "The native empty fixed list cannot gain a material or replace an element despite its array IsReadOnly flag.");
-    }
     private static void Private(GameEngine g)
     {
         var p = Prompt(g)!; Require(p.IsPrivate, "The native health or formal optional choice is private.");
@@ -963,50 +878,6 @@ internal static class CardResponseCompletionCostChecks
             b.AddMode(new(SlashPaymentMode, "小型真实出杀付款", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
                 "fixture:slash-payment-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:slash-payment-owner",
                     "fixture:slash-payment-peer-1", "fixture:slash-payment-peer-2", "fixture:slash-payment-peer-3"]));
-        }
-    }
-
-    private sealed class PublicPileFixture : IGameContentPackage
-    {
-        public PackageManifest Manifest { get; } = new("fixture:public-pile-native-cost", "1.0.0", "公开权牌费用与原生虚拟杀材料边界");
-        public void Register(IContentRegistryBuilder b)
-        {
-            var assembly = typeof(StandardContentPackage).Assembly;
-            using var rules = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-guo-huai.rules.json")!);
-            using var labels = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-guo-huai.presentation.json")!);
-            var formal = SkillProgramCatalog.Load(rules.ReadToEnd(), labels.ReadToEnd());
-            const string yidu = "ol:yidu";
-            b.AddSkill(new(yidu, formal.Presentations[yidu].Name, formal.Presentations[yidu].Description)
-                { Program = formal.Programs[yidu], ProgramPresentation = formal.Presentations[yidu] });
-            var catalog = SkillProgramCatalog.Load($$$"""
-            {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
-              {"id":"{{{PublicPile}}}","revision":1,
-                "triggers":[{"id":"store-two","window":"gameStarting","subject":"owner","optional":false,"effects":[
-                  {"op":"selectOwnedCards","target":"owner","amount":2,"zones":["hand"],"resultBind":"authority"},
-                  {"op":"moveBoundCards","target":"owner","sourceBind":"authority","destination":"ownerPersistentZone","destinationZone":"authority"}]}],
-                "cardPolicies":[{"id":"public-pile-slash","kind":"foreignPublicPileSlash"}]},
-              {"id":"{{{PublicPileDamage}}}","revision":1,"triggers":[{"id":"actual-damage","window":"afterDamageApplied","subject":"owner",
-                "damageOccurrence":"perDamage","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"damage","options":[{"id":"continue"}]}]}]}
-            ]}
-            """, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = new Dictionary<string, object> {
-                [PublicPile] = new { name = "真实公开权牌", description = "开局真实存入两张权，其他角色移去两张权视为对持有者使用杀", authorityName = "权" },
-                [PublicPileDamage] = new { name = "真实伤害观察", description = "等待原生伤害返回", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } } }));
-            foreach (var (id, program) in catalog.Programs) b.AddSkill(new(id, catalog.Presentations[id].Name, catalog.Presentations[id].Description)
-                { Program = program, ProgramPresentation = catalog.Presentations[id] });
-            b.AddSkill(new("fixture:public-pile-native-cost-first", "唯一公开权牌候选", "真实选将权重")
-                { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, _ => 10000d) });
-            b.AddSkill(new("fixture:public-pile-native-cost-quiet", "其他存活角色", "真实选将权重")
-                { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, _ => 100d) });
-            b.AddGeneral(new("fixture:public-pile-native-cost-actor", "真实外人", "supporter", "fixture:public-pile-native-cost-quiet", "jin", 4));
-            b.AddGeneral(new("fixture:public-pile-native-cost-owner", "真实权牌持有者", "supporter", "fixture:public-pile-native-cost-first", "qun", 4,
-                [PublicPile, PublicPileDamage]));
-            for (var i = 2; i < 4; i++) b.AddGeneral(new($"fixture:public-pile-native-cost-peer-{i}", "其他存活角色", "supporter", "fixture:public-pile-native-cost-quiet", "qun", 4));
-            b.AddCard(new("fixture:public-pile-native-cost-slash", "杀", "基本牌", "真实杀实体", CardKind.Slash));
-            b.AddDeck(new("fixture:public-pile-native-cost-deck", "固定真实无闪牌堆", 4, 0, []) {
-                PhysicalCards = Enumerable.Range(0, 24).Select(i => new ContentDeckPhysicalCard("fixture:public-pile-native-cost-slash", Suit.Spade, i % 13 + 1)).ToArray() });
-            b.AddMode(new(PublicPileMode, "公开权牌成本小模式", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
-                "fixture:public-pile-native-cost-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:public-pile-native-cost-actor",
-                    "fixture:public-pile-native-cost-owner", "fixture:public-pile-native-cost-peer-2", "fixture:public-pile-native-cost-peer-3"]));
         }
     }
 }

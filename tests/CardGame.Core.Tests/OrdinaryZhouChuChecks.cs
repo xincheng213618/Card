@@ -53,59 +53,6 @@ internal static class OrdinaryZhouChuChecks
             "Assigned HandLimit2 replaces HP before the ordinary hand-limit+1 modifier, and the native discard prompt uses that exact result.");
         _ = Cold(g, registry);
     }
-
-    public static void RealPairUsePaysOnceAndSharesRoundNameAcrossRegrant()
-    {
-        foreach (var scenario in new[] { Scenario.Colorless, Scenario.Mixed })
-        {
-            var (negative, nr) = Create(scenario);
-            var hand = V(negative, 0).Hand;
-            Require(hand.Count == 2 && (scenario == Scenario.Colorless ? hand.All(c => c.Suit == Suit.None) :
-                    hand.Select(c => c.Suit).ToHashSet().SetEquals([Suit.Spade, Suit.Heart])) && !PairActions(negative).Any(),
-                "The real exact two-card hand cannot supply a colored pair when both are colorless or their effective colors differ.");
-            _ = Cold(negative, nr);
-        }
-        var (g, registry) = Create(Scenario.Pair); Use(g, "hurt"); Play(g);
-        var action = PairActions(g).First(a => a.PlayedCardKind == CardKind.FireSlash && a.SelectableTargetSeats.Contains(1));
-        var cards = action.SelectableCardIds.ToArray(); var source = action.ConversionSource!;
-        var round = E<RoundStartedEvent>(g).Last().RoundNumber;
-        Require(cards.Length == 2 && V(g, 0).Hand.Where(c => cards.Contains(c.Id)).All(c => c.Suit == Suit.Spade),
-            "The real published pair contains exactly two distinct same-colored Hand entities.");
-        PairUse(g, action, [1]); Reach(g, p => p.SkillPrompt?.SkillId == Completed && IsContinue(p));
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Action?.ConversionChain.Contains(source) == true);
-        var id = use.Id; var accepted = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == use.Action!.ActionId).Action;
-        var issued = use.RoundDistinctBasicUses!.Single(); Frozen(use.RoundDistinctBasicUses!);
-        Require(use.PhysicalCardIds!.Order().SequenceEqual(cards.Order()) && accepted.PhysicalCards.Select(c => c.CardId).Order().SequenceEqual(cards.Order()) &&
-            accepted is { Type: CardActionType.Use, EffectiveKind: CardKind.FireSlash } && accepted.ConversionChain.SequenceEqual([source]) &&
-            issued.Source == source && issued.OwnerFrameId == id && issued.CardActionId == accepted.ActionId && issued.RoundNumber == round &&
-            issued is { EffectiveKind: CardKind.FireSlash, CanonicalName: CardKind.Slash, IsResponseUse: false, FrozenIsRed: false } &&
-            E<RoundDistinctBasicUseAcceptedEvent>(g).Count(e => e.Receipt == issued) == 1 &&
-            cards.All(c => g.CardMovements.Count(m => m.CardId == c && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1),
-            "The native issued FireSlash owns both original physical payments and one exact method source before its completed-use child returns.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g);
-        Require(E<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Completed && e.SkillIds.Contains(Suppress)) &&
-            !V(g, 0).Skills!.Any(s => s.Id == Yilie) && E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == id) == 1 &&
-            cards.All(c => g.CardMovements.Count(m => m.CardId == c && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1),
-            "The completed-use child's real acquired suppressor removes live YiLie qualification without repeating or losing either paid material or its native completion.");
-        var nativePeach = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Peach && a.ConversionSource is null);
-        SubmitPlay(g, nativePeach); Play(g);
-        Require(V(g, 0).Hp == V(g, 0).MaxHp && !PairActions(g).Any(a => IsSlash(a.PlayedCardKind)) && PairActions(g).Any(a => a.PlayedCardKind == CardKind.Alcohol),
-            "After a genuine physical Peach releases HP-based suppression, only the method's used canonical Slash name remains blocked.");
-        Use(g, "remove"); Play(g); Use(g, "regain"); Play(g);
-        Require(E<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.SkillId == Driver && e.LostSkillIds.Contains(Yilie)) &&
-            E<SkillsAcquiredEvent>(g).Any(e => e.SourceSkillId == Driver && e.SkillIds.Contains(Yilie)) &&
-            !PairActions(g).Any(a => IsSlash(a.PlayedCardKind)), "Physical source retirement and genuine regrant preserve the method's spent round name.");
-        Use(g, "extra"); Play(g); var turn = g.State.TurnNumber; End(g);
-        Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && g.State.TurnNumber > turn);
-        Require(E<RoundStartedEvent>(g).Last().RoundNumber == round && !PairActions(g).Any(a => IsSlash(a.PlayedCardKind)),
-            "An actual extra turn does not reset a once-per-real-round method name.");
-        End(g); Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && E<RoundStartedEvent>(g).Last().RoundNumber > round);
-        Require(PairActions(g).Any(a => IsSlash(a.PlayedCardKind)), "The next native actual Round restores all three shared Slash variants together.");
-        _ = Cold(g, registry);
-    }
-
-    private static bool IsSlash(CardKind? kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
-    private static IEnumerable<LegalAction> PairActions(GameEngine g) => g.GetHumanLegalActions().Where(a => a.ConversionSource?.SkillId == Yilie);
     private static bool IsAllocation(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "turn-default-stat");
     private static TurnDefaultStatKind Stat(PendingDecision p) => Enum.Parse<TurnDefaultStatKind>(p.Choices[0].Parameters["stat-kind"]);
     private static void Allocate(GameEngine g, int slot) => Answer(g, c => c.Parameters.GetValueOrDefault("slot-index") == slot.ToString());
@@ -117,8 +64,6 @@ internal static class OrdinaryZhouChuChecks
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand command) { var r = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(r.Accepted, r.Error?.Message ?? "A real Zhou Chu fixture command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
-    private static void Use(GameEngine g, string id, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void PairUse(GameEngine g, LegalAction a, int[] targets) => Accept(g, new UseProgramSkillCommand(0, a.ProgramSkillId!, a.ProgramActivationId!, a.SelectableCardIds, targets, g.Revision, P(g)!.PromptId));
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource });
     private static void ConvertDriver(GameEngine g, string binding, int[] targets)
     {

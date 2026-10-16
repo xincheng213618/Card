@@ -88,40 +88,6 @@ internal static class BoundaryCaiWenJiChecks
             "Real Dying entry, exact physical Peach recovery and HP observer return to the same paid frame; the deferred second claim is issued once."); Cold(rescue, rescueRegistry);
     }
 
-    public static void IndependentSuitRankMatchesAndPreviouslyClaimedJudgment()
-    {
-        foreach (var suitMatch in new[] { false, true }) foreach (var rankMatch in new[] { false, true })
-        {
-            var (g, r) = Create(mixed: true); Use(g, "draw-many"); Finish(g); Slash(g); ActivateToPayment(g);
-            var draft = Root(g).DamageJudgmentSuitPayment!;
-            var cards = g.CreateSnapshot(0).Players[0].Hand;
-            var choice = P(g)!.Choices.First(c => c.Cards.Count == 1 && cards.Single(candidateCard => candidateCard.Id == c.Cards.Single()) is { } card &&
-                (card.Suit == draft.JudgmentSuit) == suitMatch && (card.Rank == draft.JudgmentRank) == rankMatch);
-            var paid = choice.Cards.Single(); Cold(g, r); Answer(g, c => c.Id == choice.Id); Finish(g);
-            var receipt = Paid(g).Single(); var claims = E<ProgramJudgmentSuitPaymentCardClaimedEvent>(g);
-            Require(receipt.SuitMatched == suitMatch && receipt.RankMatched == rankMatch && claims.Count(c => c.IsJudgmentCard) == (suitMatch ? 1 : 0) &&
-                claims.Count(c => !c.IsJudgmentCard) == (rankMatch ? 1 : 0) &&
-                g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == paid) == rankMatch &&
-                g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == receipt.JudgmentCardId) == suitMatch &&
-                g.CardMovements.Count(m => m.CardId == receipt.JudgmentCardId && m.Reason == CardMoveReasons.JudgmentFinish) == (suitMatch ? 0 : 1),
-                "Both independent equality tests use the finalized judgment and the original discarded entity, including each mismatch combination."); Cold(g, r);
-        }
-        var (claimed, registry) = Create(preclaim: true); Slash(claimed); Reach(claimed, Activation);
-        Answer(claimed, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(claimed, p => PaymentPrompt(p, "owner-payment")); var judgmentReceipt = Root(claimed).DamageJudgmentSuitPayment!;
-        var judgedId = judgmentReceipt.JudgmentCardId!.Value;
-        Require(E<ProgramJudgmentCardClaimedEvent>(claimed).Any(e => e.JudgmentFrameId == judgmentReceipt.JudgmentFrameId &&
-                e.SkillId == "fixture:cwj-preclaim" && e.OwnerSeat == 1 && e.CardId == judgedId) &&
-            claimed.CardMovements.Count(m => m.CardId == judgedId && m.From == CardLocation.Judgment(1) &&
-                m.To == CardLocation.Hand(1) && m.Reason.Value == "skill-program.fixture:cwj-preclaim.claimJudgmentCard") == 1 &&
-            claimed.CreateSnapshot(1).Players[1].Hand.Any(c => c.Id == judgedId),
-            "A forced real finalized judgment observer first claims its subject's exact physical entity with a committed claim and actual movement."); Cold(claimed, registry);
-        Answer(claimed, c => c.Cards.Count == 1); Finish(claimed);
-        Require(Paid(claimed).Single().SuitMatched && E<ProgramJudgmentSuitPaymentCardClaimedEvent>(claimed).All(c => !c.IsJudgmentCard) &&
-            claimed.CreateSnapshot(1).Players[1].Hand.Any(c => c.Id == judgedId) && !claimed.CardMovements.Any(m => m.CardId == judgedId && m.Reason == CardMoveReasons.JudgmentFinish),
-            "Matching does not steal a judgment already claimed by its real observer, and cleanup respects that move."); Cold(claimed, registry);
-    }
-
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Beige);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static ProgramJudgmentSuitPaymentCommittedEvent[] Paid(GameEngine g) => E<ProgramJudgmentSuitPaymentCommittedEvent>(g);

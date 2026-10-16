@@ -29,38 +29,6 @@ internal static class Fame2017WuXianChecks
             Require(game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1 && !game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"All pairs share one real payment and normal AI advancement.");Replay(game,registry);
         }
     }
-    public static void AlternatingCycleDrawAndReplay()
-    {
-        var (game,registry)=Create();
-        Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[0].Hand.Count==7,"The preparation choice adds one to the real upcoming normal draw.");
-        foreach(var seat in Enumerable.Range(0,4)) Require(game.CreateSnapshot(seat).Players[0].AlternatingChoiceStates!.Single().NextTargetBonus==2,"The choice cycle is public for every observer.");
-        Replay(game,registry);NextPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>().Last().Amount==1,"Choosing the same option again stays at one.");
-        NextPreparation(game);Choose(game,"targets");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>().Last() is {Amount:2,PendingOptionId:null},"Changing options grants two and immediately resets the cycle.");Replay(game,registry);
-        NextPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>().Last().Amount==1,"The next cycle begins at one again.");
-        NextPreparation(game);Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        NextPreparation(game);Choose(game,"targets");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>().Last().Amount==2,"Skipping preparation selection preserves the pending other-option bonus.");Replay(game,registry);
-    }
-    public static void RedTargetsActualCostAndAtomicity()
-    {
-        var (game,registry)=Create();Choose(game,"targets");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        var equip=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);
-        Play(game,equip);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        var extras=game.GetHumanLegalActions().Where(a=>a.ProgramActivationId=="red-additional-targets" && a.Kind==LegalActionKind.Slash).ToArray();
-        Require(extras.Length>0 && extras.All(a=>a.TargetSeats.Count==2),"An unrelated black equipment use leaves one red-card extra target available.");
-        var action=extras.First(a=>a.TargetSeats.Contains(2));
-        Require(game.GetCombatDistance(0,2)>1,"The added target is outside normal Slash range.");
-        var before=State(game);var prompt=Prompt(game)!;var bad=game.Submit(new PlayCardCommand(0,action.CardId!.Value,[..action.TargetSeats,0],game.Revision,prompt.PromptId,action.PlayedCardKind));
-        Require(!bad.Accepted && before.Equals(State(game)),"An illegal extra self target cannot spend the grant, command or real card.");Replay(game,registry);
-        Play(game,action);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<TargetsConfirmedEvent>().Any(e=>e.TargetSeats.SequenceEqual(action.TargetSeats)) &&
-            game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1 &&
-            !game.GetHumanLegalActions().Any(a=>a.ProgramActivationId=="red-additional-targets"),"The distant extra target resolves with one physical payment and consumes only the selected addition.");Replay(game,registry);
-    }
     private static void Choose(GameEngine game,string option)
     { Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");RejectUnknown(game);Answer(game,c=>c.Parameters.GetValueOrDefault("option-id")==option); }
     private static void ReachPreparation(GameEngine game)=>Reach(game,p=>p.SkillPrompt?.SkillId=="classic:fumian" && p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));

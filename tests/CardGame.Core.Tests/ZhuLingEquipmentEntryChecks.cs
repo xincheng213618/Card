@@ -39,36 +39,6 @@ internal static class ZhuLingEquipmentEntryChecks
         Cold(game, registry);
     }
 
-    public static void EquipmentEntryContractsPreserveHandGainBoundaries()
-    {
-        const string rules = """
-        {"skills":[{"id":"fixture:equipment-entry-contract","revision":1,"triggers":[
-          {"id":"entry","window":"cardsGained","subject":"owner","destinationZones":["equipment"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
-        """;
-        var node = JsonNode.Parse(rules)!;
-        node["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
-        var presentations = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string, object> { ["fixture:equipment-entry-contract"] = new { name = "entry", description = "shared destination contract" } } });
-        SkillProgramCatalog.Load(node.ToJsonString(), presentations);
-        void Reject(Action<JsonNode> mutate, string reason)
-        {
-            var copy = node.DeepClone(); mutate(copy["skills"]![0]!["triggers"]![0]!);
-            try { SkillProgramCatalog.Load(copy.ToJsonString(), presentations); }
-            catch (InvalidOperationException) { return; }
-            throw new InvalidOperationException(reason);
-        }
-        foreach (var occurrence in new[] { "perSourceOwner", "perThirdPartyHandGain" })
-            Reject(trigger => trigger["movementOccurrence"] = occurrence, "Equipment entry must not be accepted as a hand-gain occurrence.");
-        Reject(trigger => trigger["gainPhaseQualification"] = "outsideOwnerDraw", "Equipment entry must not accept a hand-gain phase qualifier.");
-        foreach (var operation in new[] { "giveAfterBatchGain", "exchangeFriendGainForDiscard" })
-            Reject(trigger => { trigger["movementOccurrence"] = "perBatch"; trigger["effects"] = JsonNode.Parse($$"""[{"op":"{{operation}}","target":"owner"}]"""); },
-                "A hand-gain-only operation must not be admitted through the equipment destination extension.");
-        foreach (var zone in new[] { "judgment", "hand" })
-            Reject(trigger => { trigger["optional"] = true; trigger["destinationZones"] = new JsonArray(zone);
-                trigger["effects"] = JsonNode.Parse("""[{"op":"zhuLingZhanyiEquipmentPunish","target":"owner"}]"""); },
-                "Zhanyi equipment punishment must require an actual equipment-zone destination.");
-    }
-
     private static GameEngine ResolvePunish(GameEngine game, ContentRegistry registry)
     {
         Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");

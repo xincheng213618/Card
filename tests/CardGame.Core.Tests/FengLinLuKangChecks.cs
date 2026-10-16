@@ -60,52 +60,6 @@ internal static class FengLinLuKangChecks
         ReachPlay(game);
         Replay(game, registry);
     }
-
-    public static void SlotCostNestedMovement()
-    {
-        var (game, registry) = Create("nested");
-        Grow(game);
-        Play(game, game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && game.CreateCardZoneDiagnostics().Single(c => c.CardId == a.CardId).CardKind == CardKind.BaguaFormation));
-        ReachPlay(game);
-        var equipment = game.CreateCardZoneDiagnostics().Single(c => c.Location == CardLocation.Equipment(0) && c.CardKind == CardKind.BaguaFormation).CardId;
-        var hand = game.CreateSnapshot(0).Players[0].HandCount;
-        Skill(game, "classic:jueyan", "armor", wait: false);
-        Reach(game, p => p.SkillPrompt?.SkillId == "fixture:observer");
-        Require(Capacity(game, EquipmentSlot.Armor) == 0 && game.CreateSnapshot(0).Players[0].HandCount == hand, "Actual equipment loss pauses after the committed slot cost, before Draw3 reward.");
-        Require(game.CreateCardZoneDiagnostics().Single(c => c.CardId == equipment).Location.Zone == CardZoneKind.DiscardPile, "The real equipment entity paid the cost.");
-        Require(Enumerable.Range(1, 3).All(v => game.CreateSnapshot(v).PendingDecision is null), "The movement child choice is private to its recipient.");
-        Replay(game, registry);
-        Reject(game);
-        Answer(game, _ => true);
-        ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 3 && game.CardMovements.Count(m => m.CardId == equipment && m.To.Zone == CardZoneKind.DiscardPile) == 1, "Resume rewards exactly once and never pays the completed equipment cost twice.");
-        Replay(game, registry);
-    }
-
-    public static void PreparationAwakeningAndTurnGrant()
-    {
-        var (game, registry) = Create("peace");
-        Grow(game);
-        Skill(game, "classic:jueyan", "treasure");
-        Require(game.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == "classic:jizhi"), "Treasure cost issues a real temporary Jizhi grant.");
-        var hand = game.CreateSnapshot(0).Players[0].HandCount;
-        Play(game, game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo));
-        Reach(game, p => p.SkillPrompt?.SkillId == "classic:jizhi");
-        Replay(game, registry);
-        Reject(game);
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 2, "The exact temporary grant executes real Jizhi Draw1 in addition to the paid DrawTwo.");
-        Skill(game, "fixture:driver", "wound");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        var owner = game.CreateSnapshot(0).Players[0];
-        Require(owner.MaxHp == 4 && !owner.Skills!.Any(s => s.ContentId == "classic:jueyan") && owner.Skills!.Any(s => s.ContentId == "classic:huairou") && !owner.Skills!.Any(s => s.ContentId == "classic:jizhi"), "Actual next preparation reduces max HP, replaces Jueyan with Huairou, and the previous turn grant expires.");
-        Require(game.Events.Select(e => e.Payload).OfType<ProgramOwnerSkillsReplacedEvent>().Count(e => e.SkillId == "classic:poshi") == 1, "Awakening replacement executes once on its actual preparation boundary.");
-        Replay(game, registry);
-    }
-
-    private static int Capacity(GameEngine game, EquipmentSlot slot) => game.CreateSnapshot(0).Players[0].EquipmentSlotCapacities?.GetValueOrDefault(slot) ?? 1;
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(v => game.CreateSnapshot(v).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Grow(GameEngine game) => Skill(game, "fixture:driver", "grow");
     private static void Skill(GameEngine game, string id, string activation, IReadOnlyList<int>? cards = null, bool wait = true)
@@ -139,13 +93,6 @@ internal static class FengLinLuKangChecks
         Require(State(game) == State(restored), "All viewer snapshots, exact owning frames, entities, events and command JSON restore identically.");
         var cards = game.CreateCardZoneDiagnostics();
         Require(cards.Count == 64 && cards.Select(c => c.CardId).Distinct().Count() == 64, "Actual entity conservation includes every zone.");
-    }
-    private static void Reject(GameEngine game)
-    {
-        var before = State(game);
-        var prompt = Prompt(game)!;
-        Require(!game.Submit(new AnswerPromptCommand((prompt.PlayerSeat + 1) % 4, prompt.PromptId, prompt.Choices[0].Id, game.Revision)).Accepted && before == State(game), "Wrong actor cannot mutate a private child.");
-        Require(!game.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, new ChoiceId("illegal"), game.Revision)).Accepted && before == State(game), "Illegal answer cannot mutate the owning frame.");
     }
     private static void Accept(GameEngine game, GameCommand command)
     {

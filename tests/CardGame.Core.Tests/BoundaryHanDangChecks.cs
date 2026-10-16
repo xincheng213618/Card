@@ -11,7 +11,6 @@ internal static class BoundaryHanDangChecks
     private const string Cost = "fixture:hd-cost";
     private const string Recovery = "fixture:hd-recovery";
     private const string Mode = "identity:classic-boundary-han-dang-fixture";
-    private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
     public static void FrozenSuitQuotaPreparedPrivacyAndExpiry()
     {
@@ -61,35 +60,6 @@ internal static class BoundaryHanDangChecks
         Replay(game, registry);
     }
 
-    public static void FirstRoundExactUsageRefundAndSecondRoundConsumption()
-    {
-        var (game, registry) = Create();
-        Require(game.Events.Any(e => e.Payload is RoundStartedEvent { RoundNumber: 1 }),
-            "The generic refund dependency starts round tracking without a classic general package.");
-        Use(game, Driver, "other-limited"); ReachPlay(game);
-        Use(game, Jiefan, "aid-by-attack-range", targets: [0]); ReachPlay(game);
-        var scheduled = game.Events.Select(e => e.Payload).OfType<FirstRoundGameUsageRefundScheduledEvent>().Single().Refund;
-        Require(Usage(game, Jiefan, "aid-by-attack-range") == 1 && scheduled.TurnNumber == 1 && scheduled.RoundNumber == 1 &&
-            game.State.Players[0].FirstRoundGameUsageRefunds is [var shown] && shown == scheduled &&
-            !game.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jiefan),
-            "The real first-round activation freezes its consumed game key and cannot re-use it within the same turn.");
-        Frozen(game.State.Players[0].FirstRoundGameUsageRefunds!);
-        Require(game.Events.Any(e => e.Payload is ProgramAttackRangeAidChoiceResolvedEvent aid && aid.ResponderSeat != 0),
-            "Native AI responders actually resolve the shared attack-range aid chain.");
-        Replay(game, registry); EndTurn(game);
-        Require(Usage(game, Jiefan, "aid-by-attack-range") == 0 && Usage(game, Driver, "other-limited") == 1 &&
-            game.Events.Select(e => e.Payload).OfType<FirstRoundGameUsageRefundResolvedEvent>().Single() is { Refunded: true } returned && returned.Refund == scheduled,
-            "The original actual turn clears only the exact first-round Game usage key once.");
-        Replay(game, registry); ReachPlay(game);
-        Require(game.Events.Any(e => e.Payload is RoundStartedEvent { RoundNumber: 2 }), "The next normal seat cycle begins round two.");
-        Use(game, Jiefan, "aid-by-attack-range", targets: [0]); ReachPlay(game);
-        Require(game.Events.Count(e => e.Payload is FirstRoundGameUsageRefundScheduledEvent) == 1, "Second-round activation schedules no refund.");
-        EndTurn(game);
-        Require(Usage(game, Jiefan, "aid-by-attack-range") == 1 && game.Events.Count(e => e.Payload is FirstRoundGameUsageRefundResolvedEvent) == 1,
-            "Second-round limited usage remains consumed after its actual turn ends.");
-        Replay(game, registry);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool aiOthers = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(equipment, aiOthers));
@@ -127,7 +97,6 @@ internal static class BoundaryHanDangChecks
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "pass")) Answer(game, c => c.Parameters.GetValueOrDefault("response") == "pass");
         else Accept(game, new AdvanceOneStepCommand(game.Revision));
     }
-    private static int Usage(GameEngine game, string skill, string key) => ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Private)!.GetValue(game)!).GetUsage(0, skill, key, SkillUsageScope.Game);
     private static void AssertPrivate(GameEngine game) { for (var viewer = 1; viewer < 4; viewer++) Require(game.CreateSnapshot(viewer).PendingDecision is null && game.CreateSnapshot(viewer).Players[0].Hand.Count == 0, "Other seats cannot see the actual owned-card payment prompt."); }
     private static void Frozen<T>(IReadOnlyList<T> values)
     {

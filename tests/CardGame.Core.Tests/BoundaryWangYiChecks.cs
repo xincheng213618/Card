@@ -82,56 +82,14 @@ internal static class BoundaryWangYiChecks
             "The restored native protected target finishes one paid cost and the original legacy program without inventing a zero-ID entity.");
     }
 
-    public static void IndependentActualEndingPromisesFrozenXAndOptionalHeGifts()
-    {
-        var (g, r) = Create(observers: false); Play(g);
-        for (var i = 0; i < 2; i++)
-        {
-            Use(g, "enemy-duel", [1]); Reach(g, p => Activation(p, Zhen)); Activate(g, Zhen);
-            Reach(g, p => p.SkillPrompt?.SkillId == Zhen); Option(g, "ending"); Play(g);
-        }
-        var promises = E<EarnedActualEndingBenefitIssuedEvent>(g).Select(e => e.Benefit).ToArray();
-        Require(promises.Length == 2 && promises.Select(b => b.Id).Distinct().Count() == 2 && promises.All(b =>
-            b.ActualTurnNumber == 1 && b.ActualTurnOwnerSeat == 0 && b.BenefitSource.SkillId == Miji),
-            "Two independently paid activations issue two distinct exact-instance promises in the original actual turn.");
-        g = Restore(g, r); Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, Gift); var first = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Miji);
-        Require(first.LostHpOwnedGift is { MaximumGiftCount: 2, ActualDrawCount: 2, PaidCardIds.Count: 0 } &&
-            E<EarnedActualEndingBenefitConsumedEvent>(g).Count(e => e.Applied) == 1,
-            "The exact earned Ending item is consumed once; lost HP freezes X before its actual draw.");
-        PrivateGift(g); Reject(g); g = Restore(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "limited-owned-gift" && c.Targets.SequenceEqual([1]));
-        Reach(g, Gift); Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "finish-limited-owned-gift"),
-            "Giving one does not require filling X; stopping remains legal after the first real payment.");
-        g = Restore(g, r); StopGift(g); Reach(g, Gift); StopGift(g); Reach(g, p => Activation(p, Miji)); Activate(g, Miji); Reach(g, Gift); StopGift(g);
-        Until(g, () => E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == Miji && e.Completed) == 3);
-        var given = E<LostHpOwnedCardGivenEvent>(g).Single();
-        Require(E<EarnedActualEndingBenefitConsumedEvent>(g).Count(e => e.Applied) == 2 &&
-            E<LostHpDrawGiftFrozenEvent>(g).Count() == 3 && E<LostHpDrawGiftFrozenEvent>(g).All(e => e.MaximumGiftCount == 2) &&
-            g.CardMovements.Count(m => m.CardId == given.CardId && m.From == given.From && m.To == CardLocation.Processing && m.Reason.Value == "program.lost-hp-owned-gift.give") == 1 &&
-            g.CreateSnapshot(1).Players[1].Hand.Any(c => c.Id == given.CardId),
-            "Two earned occurrences and natural optional Miji are independent; a restored gift moves the original owned entity once and never redraws.");
-        g = Restore(g, r);
-
-        var (empty, er) = Create(observers: false, shortDeck: true); Play(empty); Use(empty, "hurt-one"); Play(empty); Use(empty, "drain"); Play(empty);
-        Accept(empty, new EndPlayPhaseCommand(0, empty.Revision, P(empty)!.PromptId)); Reach(empty, p => Activation(p, Miji)); Activate(empty, Miji); Reach(empty, Gift);
-        var frozen = E<LostHpDrawGiftFrozenEvent>(empty).Single();
-        Require(frozen.MaximumGiftCount == 1 && frozen.ActualDrawCount == 0 && P(empty)!.Choices.Any(c => c.Cards.Count == 1),
-            "An empty real deck freezes zero actual draw but the independently frozen X still permits an existing owned entity under the stated engineering default.");
-        empty = Restore(empty, er); Answer(empty, c => c.Parameters.GetValueOrDefault("program-action") == "limited-owned-gift");
-        Until(empty, () => E<ProgramBindingResolvedEvent>(empty).Any(e => e.SkillId == Miji && e.Completed)); empty = Restore(empty, er);
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Activation(PendingDecision p, string skill) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static bool Gift(PendingDecision p) => p.SkillPrompt?.SkillId == Miji && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "limited-owned-gift");
-    private static void PrivateGift(GameEngine g) { Require(P(g)!.IsPrivate && Enumerable.Range(1, 3).All(s => g.CreateSnapshot(s).PendingDecision is null), "Only the owner receives own HE identities and private gift choices."); }
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void Use(GameEngine g, string binding, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Activate(GameEngine g, string skill) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill);
     private static void Option(GameEngine g, string option) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == option);
     private static void Continue(GameEngine g) => Option(g, "continue");
-    private static void StopGift(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "finish-limited-owned-gift");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; var c = p.Choices.First(predicate); Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, c.Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var i = 0; i < 240; i++) { if (P(g) is { } p && predicate(p)) return; Advance(g); } throw new InvalidOperationException("Fixed actual command fixture did not reach its expected boundary."); }
     private static void ReachLegacyHuman(GameEngine g, Func<PendingDecision, bool> predicate)

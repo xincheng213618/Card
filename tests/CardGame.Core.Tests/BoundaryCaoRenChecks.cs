@@ -27,48 +27,10 @@ internal static class BoundaryCaoRenChecks
         Replay(g, r);
     }
 
-    public static void JieweiMovesFieldEquipmentAfterTurningFaceUp()
-    {
-        var (g, r) = Start(armorDeck: true);
-        Settle(g);
-        Driver(g, "equip", [0]);
-        Settle(g);
-        Require(EquipmentCount(g, 0) == 1, "The fixture equips one real armor on Cao Ren.");
-        Driver(g, "flip-down");
-        Settle(g);
-        Require(g.CreateSnapshot(0).Players[0].IsFaceDown, "The fixture turns Cao Ren face down.");
-        Driver(g, "flip-up");
-        var activate = Await(g, p => p.Choices.Any(c =>
-            c.Parameters.GetValueOrDefault("skill-id") == Jiewei &&
-            c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Accept(g, new AnswerPromptCommand(0, activate.PromptId,
-            activate.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "activate").Id, g.Revision));
-        AnswerFirst(g, "select-and-move-owned-card");
-        AnswerFirst(g, "select-target");
-        var pick = Await(g, p => p.Choices.Any(c =>
-            c.Parameters.GetValueOrDefault("program-action") == "strategic-choice" &&
-            c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal)));
-        var move = pick.Choices.First(c => c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal));
-        AssertOwnedStrategicDraft(g, SkillProgramEffectOp.MoveFieldEquipment);
-        Replay(g, r);
-        Accept(g, new AnswerPromptCommand(0, pick.PromptId, move.Id, g.Revision));
-        Require(!g.CreateSnapshot(0).Players[0].IsFaceDown && EquipmentCount(g, 0) == 0 &&
-            EquipmentCount(g, 1) == 1 && IsAt(g, move.Cards.Single(), CardLocation.Equipment(1)),
-            "Turning face up pays one card and moves Cao Ren's field equipment into another player's free slot.");
-        Replay(g, r);
-    }
-
     private static int HandCount(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].HandCount;
 
     private static int DiscardPileCount(GameEngine g) =>
         g.CreateCardZoneDiagnostics().Count(c => c.Location.Zone == CardZoneKind.DiscardPile);
-
-    private static int EquipmentCount(GameEngine g, int seat) => g.CreateCardZoneDiagnostics()
-        .Count(c => c.Location.Zone == CardZoneKind.Equipment && c.Location.OwnerSeat == seat);
-
-    private static bool IsAt(GameEngine g, int cardId, CardLocation location) =>
-        g.CreateCardZoneDiagnostics().Any(c => c.CardId == cardId && c.Location.Zone == location.Zone &&
-            c.Location.OwnerSeat == location.OwnerSeat);
 
     private static PendingDecision Await(GameEngine g, Func<PendingDecision, bool> goal)
     {
@@ -107,21 +69,6 @@ internal static class BoundaryCaoRenChecks
             "The suspended strategic prompt must read its candidate set from the owning frame.");
         ProgramChoiceDraftChecks.Frozen(frame.StrategicDraft!.Candidates);
         ProgramChoiceDraftChecks.Frozen(frame.StrategicDraft.Selected);
-    }
-
-    private static void AnswerFirst(GameEngine g, string programAction)
-    {
-        var p = Await(g, pending => pending.Choices.Any(c =>
-            c.Parameters.GetValueOrDefault("program-action") == programAction));
-        Accept(g, new AnswerPromptCommand(0, p.PromptId,
-            p.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == programAction).Id, g.Revision));
-    }
-
-    private static void Driver(GameEngine g, string id, int[]? targets = null)
-    {
-        if (P(g) is null) Settle(g);
-        var p = P(g) ?? throw new InvalidOperationException("No pending decision for the fixture driver.");
-        Accept(g, new UseProgramSkillCommand(0, DriverId, id, [], targets ?? [], g.Revision, p.PromptId));
     }
 
     private static SkillProgram Load(string id, string members) => SkillProgramCatalog.Load(

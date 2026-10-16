@@ -6,8 +6,7 @@ internal static class RuleQueryReducerChecks
     public static void ActualRoundUseDistanceRequiresCapturedCountAndOutgoingAddition()
     {
         var json = $$"""
-            {"id":"fixture:round-distance","revision":1,"minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},
-             "modifiers":[{"id":"round","query":"outgoingDistance","operation":"add",
+            {"id":"fixture:round-distance","revision":1,"modifiers":[{"id":"round","query":"outgoingDistance","operation":"add",
                "valueExpression":"negatedCurrentRoundActualUseCount","priority":0}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """;

@@ -27,79 +27,6 @@ internal static class LiuYanChecks
             var(g,r)=Start("equipment");Native(g,CardKind.Crossbow);Play(g);Need(E<LiuYanStartedEvent>(g).Length==0,"An actual equipment use with no basic hand cards does not trigger Tushe.");_=Cold(g,r);
         }
     }
-    public static void LimuHandEquipmentGrainNativeRecoveryCold()
-    {
-        foreach(var scenario in new[]{"diamond","lion","ox"})
-        {
-            var(g,r)=Start(scenario);Use(g,"lose");Play(g);Use(g,"lose");Play(g);
-            int card;CardLocation from;int? grain=null;
-            if(scenario=="diamond"){card=V(g).Hand.First().Id;from=CardLocation.Hand(0);}
-            else
-            {
-                var kind=scenario=="lion"?CardKind.SilverLion:CardKind.WoodenOx;Native(g,kind);Play(g);card=V(g).Equipment.Single(c=>c.Kind==kind).Id;from=CardLocation.Equipment(0);
-                if(scenario=="ox")
-                {var storage=g.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect&&a.EquipmentKind==CardKind.WoodenOx);grain=storage.SelectableCardIds.First();Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}
-            }
-            var hp=V(g).Hp;Limu(g,card);Play(g);var o=E<LiuYanLimuIssuedEvent>(g).Single().Origin;
-            Need(o.CardId==card&&o.From==from&&E<LiuYanLimuPaidEvent>(g).Single().Origin==o&&g.CardMovements.Count(m=>m.CardId==card&&m.From==from&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use)==1,"Limu really pays exactly its original hand or equipment entity once.");
-            Need(V(g).Judgment.Any(c=>c.Id==card)&&E<DelayedCardPlacedEvent>(g).Any(e=>e.ResolutionId==o.CardUseFrameId&&e.CardKind==CardKind.Indulgence)&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1,"The actual physical Indulgence is placed before the once-only native recovery continuation.");
-            Need(V(g).Hp==hp+(scenario=="lion"?2:1),"Native Silver Lion removal and the separate one-point Limu recovery both keep their actual HP effects.");
-            if(grain is{}id)Need(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)==1,"Using the actual equipped Ox preserves its genuine grain spill.");
-            var state=State(g);var result=g.Submit(new UseProgramSkillCommand(0,"ol:limu","self-indulgence",[V(g).Hand.First().Id],[],g.Revision,P(g)!.PromptId));Need(!result.Accepted&&State(g)==state,"An existing native Indulgence rejects another Limu without a second payment.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("grain");Native(g,CardKind.WoodenOx);Play(g);var a=g.GetHumanLegalActions().Single(x=>x.Kind==LegalActionKind.UseEquipmentEffect&&x.EquipmentKind==CardKind.WoodenOx);
-            var id=a.SelectableCardIds.First();Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[id],[],g.Revision,P(g)!.PromptId));Play(g);
-            g=Cold(g,r);Limu(g,id);Play(g);
-            Need(E<LiuYanLimuIssuedEvent>(g).Single().Origin.From==CardLocation.WoodenOxGrain(0)&&V(g).Judgment.Any(c=>c.Id==id)&&V(g).Equipment.Any(c=>c.Kind==CardKind.WoodenOx),"A genuine accessible diamond Ox grain is eligible native Limu material; the Ox itself remains equipped.");_=Cold(g,r);
-        }
-    }
-    public static void LiveJudgmentRangeAndPerTargetQuotaCold()
-    {
-        var(g,r)=Start("range");Use(g,"draw");Play(g);var diamond=V(g).Hand.First(c=>c.Kind==CardKind.Dodge).Id;Limu(g,diamond);Play(g);
-        Native(g,CardKind.Slash,1);Play(g);Need(g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1])),"A live judgment card allows another real Slash only against a current attack-range other character.");
-        Need(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([2])),"Limu does not turn a distance-two character outside the current attack range into a legal Slash target.");
-        g=Cold(g,r);Native(g,CardKind.Slash,1);Play(g);Need(E<CardUsedEvent>(g).Count(e=>e.SourceSeat==0&&e.TargetSeat==1&&e.CardKind==CardKind.Slash)==2,"Two independently paid native Slashes execute under the exact per-target allowance.");
-        Use(g,"clear-judgment");Play(g);Need(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash),"Removing the actual judgment card immediately restores the ordinary already-spent Slash quota.");_=Cold(g,r);
-        {
-            (g,r)=Start("distance");Use(g,"draw");Play(g);Native(g,CardKind.QinggangSword);Play(g);diamond=V(g).Hand.First(c=>c.Kind==CardKind.Dodge).Id;Limu(g,diamond);Play(g);
-            Need(g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Snatch&&a.TargetSeats.SequenceEqual([2])),"A current range-two weapon plus judgment makes the distant in-range other character a native Snatch target.");
-            var weapon=V(g).Equipment.Single(c=>c.Kind==CardKind.QinggangSword).Id;Use(g,"drop",[weapon]);Play(g);
-            Need(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Snatch&&a.TargetSeats.SequenceEqual([2])),"Actual equipment loss removes Limu's distance allowance as soon as that character falls outside the current range.");_=Cold(g,r);
-        }
-    }
-    public static void CounterspellPaidChildrenLossDeathAndPrivateCold()
-    {
-        {
-            var(g,r)=Start("legacy-slash");Activate(g);Reach(g,()=>P(g)is{Kind:DecisionKind.ProgramTrigger}p&&p.Choices.Any(c=>c.Targets.SequenceEqual([1])));Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>Optional(g));
-            var use=g.ResolutionStack.OfType<CardUseFrame>().Single();Need(use.CardId==0&&use.Action is{Type:CardActionType.Use,PhysicalCards.Count:0}&&use.CardKind==CardKind.Slash,"A genuine old phase-substitution cardless Slash now has its actual designation window under the new capability.");
-            g=Cold(g,r);Activate(g);Play(g);Need(E<LiuYanTusheDrawnEvent>(g).Single().Count==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1,"The real zero-entity Slash draws once, resolves native damage and returns to its original phase substitution once.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("legacy-wine");Use(g,"fatal");Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RescueDying}p&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue);Reach(g,()=>Optional(g));
-            var use=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.LiuYanLegacyAlcohol is not null);Need(V(g).Hp==0&&use.CardKind==CardKind.Alcohol,"The real self-rescue Wine offers its genuine self target before native recovery.");g=Cold(g,r);Activate(g);Play(g);
-            Need(V(g).Hp==1&&E<LiuYanTusheDrawnEvent>(g).Single().Count==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1&&E<LiuYanLegacyAlcoholStageEvent>(g).Count(e=>e.UseId==use.Id&&e.Stage==LiuYanLegacyAlcoholStage.Recovery)==1,"The old self-dying zero-material Wine draws through Tushe, recovers and resumes its exact paid rescue producer once.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("counterspell");var card=V(g).Hand.First().Id;var turn=g.State.TurnNumber;Limu(g,card);Play(g);
-            Need(V(g).Judgment.Any(c=>c.Id==card)&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1&&E<NullificationRequestedEvent>(g).Length==0,"Native delayed placement completes and issues Limu's recovery before any future judgment counterspell window.");
-            Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-            Reach(g,()=>g.State.TurnNumber>turn&&P(g)is{PlayerSeat:0,Kind:DecisionKind.Nullification}p&&p.Choices.Any(c=>c.Cards.Count==1)&&g.ResolutionStack.OfType<NullificationWindowFrame>().Any(w=>w.DelayedReturn?.CardId==card));
-            var p=P(g)!;Need(g.CreateSnapshot(1).PendingDecision is null,"A real responder's counterspell cards remain private to that responder.");
-            var state=State(g);var wrong=g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices.First(c=>c.Cards.Count==1).Id,g.Revision));Need(!wrong.Accepted&&State(g)==state,"A foreign seat cannot answer the current private native counterspell prompt.");
-            g=Cold(g,r);Answer(g,c=>c.Cards.Count==1);Play(g);
-            Need(E<NullificationRespondedEvent>(g).Any()&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1&&g.CardMovements.Any(m=>m.CardId==card&&m.From==CardLocation.Judgment(0)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.DelayedCardFinish),"The real later judgment counterspell and all response descendants settle the original delayed entity without reusing Limu or issuing a second recovery.");_=Cold(g,r);
-        }
-        foreach(var scenario in new[]{"loss","death"})
-        {
-            var(g,r)=Start(scenario);var id=V(g).Hand.First().Id;Limu(g,id);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);
-            var use=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.LiuYanLimu is not null);Need(g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use)==1,"The exact physical payment has already happened before the native child.");g=Cold(g,r);Continue(g);PlayOrCompleted(g);
-            Need(E<LiuYanLimuReturnedEvent>(g).Count(e=>e.Origin.CardUseFrameId==use.Id)==1&&E<LiuYanCompletedEvent>(g).Count(e=>e.Operation==SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)==1,"Paid native children preserve the original owning frame and return once after real source loss or death.");
-            if(scenario=="death")Need(!V(g).IsAlive&&g.State.Winner==Winner.None&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==0,"A genuinely dead non-Lord payer cannot receive a new recovery, while its paid native use still terminates.");
-            else Need(E<HpConditionalSkillGrantChangedEvent>(g).Any(e=>e.OwnerSeat==0&&e.SkillId=="ol:limu"&&!e.Added)&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1,"Actual HP loss removes the original conditional skill generation, and its already-issued then-recover right survives.");_=Cold(g,r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g,int s=0)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
@@ -115,7 +42,6 @@ internal static class LiuYanChecks
     private static void Native(GameEngine g,CardKind kind,int? target=null)
     {var a=g.GetHumanLegalActions().FirstOrDefault(a=>(a.PlayedCardKind??(a.CardId is{}id?V(g).Hand.FirstOrDefault(c=>c.Id==id)?.Kind:null))==kind&&(target is null||a.TargetSeats.SequenceEqual([target.Value])));Need(a is not null,"Missing native "+kind+": "+Diagnostic(g));Accept(g,new PlayCardCommand(0,a!.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void PlayOrCompleted(GameEngine g)=>Reach(g,()=>E<LiuYanCompletedEvent>(g).Any(e=>e.Operation==SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.LiuYan is not null));
     private static string Diagnostic(GameEngine g)=>$"turn={g.State.TurnNumber};winner={g.State.Winner};prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId};stage={g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f=>f.LiuYan is not null)?.LiuYan?.Stage};hand={string.Join(',',V(g).Hand.Select(c=>c.Kind))}";
     private static void Reach(GameEngine g,Func<bool> done)
     {

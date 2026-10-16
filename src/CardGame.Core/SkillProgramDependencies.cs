@@ -23,7 +23,6 @@ internal sealed class SkillProgramDependencies
         var definitions = skills.ToArray();
         var programs = definitions.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
         var triggers = programs.SelectMany(program => program.Triggers).ToArray();
-        RequiredProgramRulesVersion = programs.Select(program => program.MinimumRulesVersion).DefaultIfEmpty(0).Max();
         HpSensitiveSkillIds = definitions.Where(skill => skill.SuppressionRule is not null || skill.Program?.HpSkillGrants.Count > 0)
             .Select(skill => skill.Id).ToFrozenSet(StringComparer.Ordinal);
         HpConditionalCapabilitySkillIds = definitions.Where(skill => skill.Program?.HpSkillGrants.Count > 0)
@@ -45,7 +44,9 @@ internal sealed class SkillProgramDependencies
             triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse));
         TracksCurrentRoundActualUses = programs.Any(program => program.Modifiers.Any(modifier =>
             modifier.ValueExpression == SkillRuleValueExpression.NegatedCurrentRoundActualUseCount));
-        TracksCurrentTurnUseKinds = TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || programs.Any(program =>
+        TracksWholeActualTurnUseOrdinal = triggers.Any(trigger => trigger.Effects.Any(effect =>
+            effect.Op == SkillProgramEffectOp.ResolveBingzhongExtraTargets));
+        TracksCurrentTurnUseKinds = TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal || programs.Any(program =>
             program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
             program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||
             UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards);
@@ -99,7 +100,6 @@ internal sealed class SkillProgramDependencies
     internal IReadOnlySet<string> EquipmentPresenceSkillIds { get; }
     internal IReadOnlySet<string> EquipmentSuitCapabilitySkillIds { get; }
     internal bool UsesOwnerMarkerCount { get; }
-    internal int RequiredProgramRulesVersion { get; }
     internal IReadOnlySet<string> HpSensitiveSkillIds { get; }
     internal IReadOnlySet<string> HpConditionalCapabilitySkillIds { get; }
     internal bool UsesLordSkillProjection { get; }
@@ -109,6 +109,7 @@ internal sealed class SkillProgramDependencies
     internal bool TracksCurrentTurnUseKinds { get; }
     internal bool TracksActualTurnUseOrdinal { get; }
     internal bool TracksCurrentRoundActualUses { get; }
+    internal bool TracksWholeActualTurnUseOrdinal { get; }
     internal bool UsesDynamicRoundUsage { get; }
     internal bool UsesTieredRoundConversions { get; }
     internal bool UsesRoundOnceCardlessBasics { get; }

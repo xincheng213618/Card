@@ -185,7 +185,7 @@ internal static class ModalFocusChecks
             var emptyHistory = historyStore.Current;
             var populatedHistory = new MemoryMatchHistoryStore();
             var historyEntry = new MatchHistoryEntry(1, new string('a', 64),
-                new DateTimeOffset(2026, 10, 11, 0, 0, 0, TimeSpan.Zero), "键盘导航夹具", Program.Engine(model).RulesVersion,
+                new DateTimeOffset(2026, 10, 11, 0, 0, 0, TimeSpan.Zero), "键盘导航夹具",
                 MatchOutcome.Win, new MatchSummary(1, [new PlayerMatchResult(0, "战绩夹具", "主公", true, true, 1, 0, 0, 0, 0, 0, 0)]));
             populatedHistory.Record(historyEntry);
             var historyList = (ListBox)historyPanel.FindName("HistoryList");

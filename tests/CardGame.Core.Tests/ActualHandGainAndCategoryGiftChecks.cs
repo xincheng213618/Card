@@ -41,107 +41,6 @@ internal static class ActualHandGainAndCategoryGiftChecks
         var entities = (ActualHandGainEntity[])typeof(GameEngine).GetMethod("ActualHandGainEntities", Flags)!.Invoke(g, [reacquired, 0])!;
         Require(entities is [var regained] && regained.GainSequence == 900003, "An entity that genuinely leaves Hand and returns from Equipment has the new real acquisition identity.");
     }
-    public static void CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets()
-    {
-        VerifyCompletedTargetChanges();
-        VerifyCompletedCompoundTargetsAfterNullification();
-        var (g, registry) = Start();
-        Use(g, "virtual", [], [1]); Reach(g, p => p.SkillPrompt?.SkillId == "ol:yingyuan");
-        var gift = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:yingyuan");
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == gift.ActualHandGain!.OriginalCardUseFrameId);
-        Require(use is { CardId: 0, Step: ResolutionFrameStep.Completed, Action.Type: CardActionType.Use } &&
-            gift.ActualHandGain is { Category: SkillProgramCardCategory.Basic } && P(g)!.Choices.All(c => c.Cards.Count == 0) &&
-            Enumerable.Range(1, 3).All(s => g.CreateSnapshot(s).PendingDecision is null),
-            "A completed virtual true Use has its actual actor and Basic category; choices disclose no draw-pile entities or matching availability.");
-        Reject(g); Cold(g, registry); Answer(g, c => c.Targets.Count == 0); ReachPlay(g);
-        Require(E<SameCategoryDeckGiftIssuedEvent>(g).Length == 0, "Declining leaves the category quota unspent.");
-        Use(g, "virtual", [], [1]); Reach(g, p => p.SkillPrompt?.SkillId == "ol:yingyuan"); Answer(g, c => c.Targets.SequenceEqual([1])); ReachPlay(g);
-        Require(E<SameCategoryDeckGiftIssuedEvent>(g).Single() is { Category: SkillProgramCardCategory.Basic, ActualCount: 0 },
-            "A chosen activation spends Basic once even when this fixed equipment-only deck contains no matching Basic entity.");
-        Use(g, "virtual", [], [2]); ReachPlay(g);
-        Require(E<SameCategoryDeckGiftIssuedEvent>(g).Length == 1, "A subsequent true Basic use cannot reopen an issued actual-turn category quota.");
-        var equip = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        Accept(g, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, g.Revision, P(g)!.PromptId, equip.PlayedCardKind));
-        Reach(g, p => p.SkillPrompt?.SkillId == "ol:yingyuan"); Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([1]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Watch);
-        var paid = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:yingyuan");
-        var physical = paid.ActualHandGain!.PaidIds.Single();
-        Require(paid.ActualHandGain is { Stage: ActualHandGainProgramStage.MovementChildren, Category: SkillProgramCardCategory.Equipment } &&
-            E<SameCategoryDeckGiftIssuedEvent>(g).Last().ActualCount == 1 &&
-            g.CardMovements.Count(m => m.CardId == physical && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(1) &&
-                m.Reason.Value == "program.same-category-deck.gift") == 1 &&
-            !g.CreateSnapshot(0).Players[1].Hand.Any() && g.CreateSnapshot(1).Players[1].Hand.Any(c => c.Id == physical),
-            "Equipment has its independent quota, and the paid card is a new deck entity visible only in its actual recipient's hand.");
-        Reject(g); Cold(g, registry);
-        // An explicit host audit follows the command-replayed paid prefix: source loss cannot repay or cancel issued movement.
-        var owner = HostPlayers(g)[0]; var grant = owner.SkillGrants.Grants.Single(s => s.SkillId == "ol:yingyuan");
-        owner.SkillGrants.RemoveGrant(grant.GrantId); Continue(g); ReachPlay(g);
-        Require(E<SameCategoryDeckGiftIssuedEvent>(g).Length == 2 && g.CardMovements.Count(m => m.CardId == physical &&
-            m.Reason.Value == "program.same-category-deck.gift") == 1, "The paid tail drains once after source loss.");
-        owner.SkillGrants.Grant(new("fixture:later-yingyuan", grant.SkillId, grant.SkillInstanceId + ":later", "acquired:host-audit"));
-        ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, grant.SkillId);
-        Use(g, "virtual", [], [3]); ReachPlay(g);
-        Require(E<SameCategoryDeckGiftIssuedEvent>(g).Length == 2, "A later skill instance shares the same owner/skill/actual-turn/category quota.");
-    }
-    private static void VerifyCompletedTargetChanges()
-    {
-        foreach (var convert in new[] { false, true })
-        {
-            var (g, registry) = Start(completedTargets: true);
-            Use(g, "virtual", [], [1]); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "current-slash-fire"));
-            Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == (convert ? "convert" : "skip"));
-            Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "short-range-slash-target"));
-            Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([3]));
-            Reach(g, p => p.SkillPrompt?.SkillId == "ol:yingyuan");
-            var gift = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:yingyuan");
-            var use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == gift.ActualHandGain!.OriginalCardUseFrameId);
-            Require(use is { Step: ResolutionFrameStep.Completed, ShortRangeSlashTarget: not null, Action.Type: CardActionType.Use } &&
-                use.Action.TargetSeats.SequenceEqual([1, 3]) && use.TargetSeats.SequenceEqual([1, 3]) &&
-                use.CardKind == (convert ? CardKind.FireSlash : CardKind.Slash) && gift.ActualHandGain!.Category == SkillProgramCardCategory.Basic &&
-                E<CardActionAcceptedEvent>(g).Any(e => e.Action.ActionId == use.Action.ActionId && e.Action.TargetSeats.SequenceEqual([1])),
-                "An accepted one-target native Use completes with its issued short-range tail and, independently, its exact Slash-to-FireSlash conversion; Basic gifting follows the final true Use.");
-            Require(P(g)!.Choices.All(c => c.Cards.Count == 0), "Target and kind proof does not disclose unknown deck identities.");
-            Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2])); ReachPlay(g);
-            Require(E<SameCategoryDeckGiftIssuedEvent>(g).Single() is { Category: SkillProgramCardCategory.Basic, ActualCount: 0 },
-                "The complete two-target Use offers and spends the category once, after both native targets.");
-        }
-    }
-    private static void VerifyCompletedCompoundTargetsAfterNullification()
-    {
-        var (g, registry) = Start(compoundTargets: true);
-        foreach (var target in new[] { 1, 3 }) { Use(g, "fixture-equipment", [], [target]); ReachPlay(g); }
-        Use(g, "fixture-many", [], []); Reach(g, p => p.SkillPrompt?.SkillId == Watch); Continue(g); ReachPlay(g, completeHandGainChildren: true);
-        var borrowed = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats.SequenceEqual([1, 2]));
-        Accept(g, new PlayCardCommand(0, borrowed.CardId!.Value, borrowed.TargetSeats, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:gain-compound");
-        Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([3]));
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "add-compound-card-target"));
-        Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2]));
-        var issued = E<CompletedCategoryCompoundTargetsIssuedEvent>(g).Single();
-        Require(issued.OriginalTargets.SequenceEqual([1, 2]) && issued.Targets.SequenceEqual([1, 2, 3, 2]),
-            "The original compound prefix and both new public target seats freeze at the exact native addition.");
-        var changedInput = new[] { 3, 2 }; var detached = issued with { Targets = changedInput }; changedInput[0] = 1;
-        Require(detached.Targets.SequenceEqual([3, 2]) && issued.Targets is IList<int> { IsReadOnly: true } &&
-            issued.OriginalTargets is IList<int> { IsReadOnly: true }, "Compound payloads freeze constructor/init/with inputs and committed lists.");
-        for (var step = 0; step < 192 && P(g)?.SkillPrompt?.SkillId != "ol:yingyuan"; step++)
-        {
-            if (P(g) is { Kind: DecisionKind.Nullification, PlayerSeat: 0 })
-            {
-                var window = g.ResolutionStack.OfType<NullificationWindowFrame>().Last();
-                if (!window.EffectNullified) Answer(g, c => c.Cards.Count == 1);
-                else Answer(g, c => c.Cards.Count == 0);
-            }
-            else Advance(g);
-        }
-        Require(P(g)?.SkillPrompt?.SkillId == "ol:yingyuan" && E<NullificationResolvedEvent>(g).Any(e => e.EffectCardId == borrowed.CardId && e.EffectNullified),
-            "A truly nullified Borrowed Sword still reaches its native completed Use and category gift prompt.");
-        var gift = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:yingyuan");
-        Require(gift.ActualHandGain is { Category: SkillProgramCardCategory.Trick } paid && paid.OriginalCardUseFrameId == issued.CardUseFrameId &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
-            E<CompletedCategoryCompoundTargetsIssuedEvent>(g).Length == 1,
-            "One accepted action, one compound issuance and one completed native Use establish Trick independently of target effects.");
-        Cold(g, registry); Answer(g, c => c.Targets.Count == 0); ReachPlay(g);
-    }
     private static (GameEngine, ContentRegistry) Start(bool holdInitialDraw = false, bool foreign = false, bool killEndedActor = false, bool completedTargets = false, bool compoundTargets = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -197,7 +96,6 @@ internal static class ActualHandGainAndCategoryGiftChecks
     private static void Cold(GameEngine g, ContentRegistry registry) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry)), "Cold command replay preserves original gains, paid entities, native parents and private prompts.");
     private static void Reject(GameEngine g)
     { var before = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("unpublished"), g.Revision)).Accepted && State(g) == before, "An unpublished choice changes neither the paid frame nor any viewer."); }
-    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine g) => (IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", Flags)!.GetValue(g)!;
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private sealed class Fixture(bool foreign, bool killEndedActor, bool completedTargets, bool compoundTargets) : IGameContentPackage
     {

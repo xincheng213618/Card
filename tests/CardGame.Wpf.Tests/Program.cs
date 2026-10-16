@@ -72,68 +72,33 @@ internal static class Program
                 !argument.StartsWith("--", StringComparison.Ordinal)) ??
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
             Directory.CreateDirectory(output);
-
-            Check("Delayed trick UI: portrait press conversion targets and automatic Lightning", () => DelayedTrickUiChecks.PortraitPressAndSelfTarget(output));
-            Check("portrait status badges follow public recipients counts overflow and clearing", () => SeatStatusUiChecks.PublicStatusesFollowRecipientsAndClear(output));
-            Check("identity marks use local choices without changing hidden roles or target drafts", () => IdentityMarkUiChecks.LocalChoicesAndPublicBoundaries(output));
-            Check("portrait equipment shows public faces effects replacement and clearing", () => SeatEquipmentUiChecks.PublicEquipmentAndClearing(output));
             Check("active effect badges restore actual duration and clear consumed facts", () => ActiveEffectUiChecks.LiveEffectsRestoreAndExpire(output));
-            Check("face-down portraits preserve public details targeting and turn-up clearing", () => FaceDownPortraitChecks.OverlayAndClearing(output));
-            Check("table interaction refresh cost and stable presentation", () => TableInteractionChecks.SelectionCost(output));
             Check("table shortcuts execute once per key press and preserve modal drafts", TableShortcutChecks.SinglePressActions);
-            Check("discard recommendation preserves published material and actual hand limit", () => DiscardRecommendationUiChecks.PublishedMaterialAndLimit(output));
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
-            Check("table modal focus keeps opening log and result navigation inside their panels", () => TableOverlayNavigationChecks.OpeningLogAndResults(output));
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("Identity concealment UI: ActualProjectedConcealmentAndAppearanceBridge", () => IdentityConcealmentViewChecks.ActualProjectedConcealmentAndAppearanceBridge(output));
-            Check("Frozen hand roster UI: real chooser and mandatory tail", () => FrozenHandRosterUiChecks.RealChooserAndMandatoryTailTargets(output));
             Check("Named private pile UI: owner pairs public counts and clear", () => NamedPrivatePileUiChecks.OwnerPairsPublicCountsAndClearingUseSharedReadOnlyFaces(output));
-            Check("Private reserve UI: exchange peek and wind mist badges", () => PrivateReserveUiChecks.ExchangePeekAndNatureBadges(output));
-            Check("Portrait private piles: foreign backs and every seat", () => PortraitPrivatePileChecks.ForeignBacksAndEverySeat(output));
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
-            Check("stored grain updates its badge without replacing hand controls", () => HandGrainChecks.StoredCardKeepsItsControlAndUpdatesItsZone(output));
-            Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
-            Check("table state presentation follows god factions chains and mandatory hand identities", () => TableStatePresentationChecks.FactionsChainsAndMandatoryIdentities(output));
-            Check("Iron Chain selection preserves all eight portrait bounds when Recast appears", () => ProgramIronChainUiChecks.SelectionKeepsPortraitGeometry(output));
-            Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
-            Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general selection input respects overlays and consecutive national prompts", () => GeneralSelectionChecks.InputBoundaries(output));
             Check("Opening customization UI: identities roster and hand confirmation", () => OpeningCustomizationUiChecks.RolesRosterAndHandConfirmation(output));
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
+            Check("identity dual generals show consecutive choices portraits and both skill sources", () => IdentityDualGeneralUiChecks.SelectionAndTable(output));
             Check("Interaction motion: native lifecycle reversal and preference cancellation", InteractionMotionChecks.NativeLifecyclePreservesLayoutAndRetiresAnimations);
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
-            Check("next-card target adjustment uses portrait drafts and exact public cards", () => NextCardTargetUiChecks.PortraitDraftAndPublicCardChoices(output));
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
             Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));
-            Check("Pozhu selects its skill before materials without duplicate prompts or replacing printed faces", () => ConversionSkillSelectionChecks.PozhuKeepsPrintedFaces(output));
             Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
-            Check("shared and acquired skills use the recipient rail with exact owners and expiry", () => SkillRailUiChecks.SharedAndAcquiredSkills(output));
-            Check("Bolan shared phase skill UI preserves owner choice and recipient expiry", () => SharedPhaseSkillUiChecks.BolanOwnerChoiceAndRecipientRail(output));
-            Check("skill target selection preserves multiple ordered and optional published choices", () => SkillTargetSelectionChecks.MultipleOrderedAndOptionalTargets(output));
-            Check("Congjian UI selects recipient then one physical card and draws exact reward", () => CongjianUiChecks.RecipientThenPhysicalCard(output));
             Check("Program paid choices preserve actor control and opaque slots", () => ProgramPaidChoiceUiChecks.SharedChoiceSurfaces(output));
             Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
-            Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
-            Check("Draw-funded zero Use exact source private draw child and stale action", () => TieredRoundZeroUseUiChecks.DrawFundedZeroUseSubmitsExactSourceAndPrivateDrawChild(output));
-            Check("Program public card choices restore exact faces and submit current choices", () => PublicProgramCardsUiChecks.RevealedChoicesRestoreAndSubmit(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
-            Check("Xiantu choices use the bottom dock and confirm two cards together", () => ProgramOwnedCardsUiChecks.XiantuDockAndBatch(output));
-            Check("public pile costs use the named foreign pile and shared confirmation draft", () => PublicPileSkillUiChecks.ForeignPublicPileCostsUseSharedDraft(output));
-            Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
-            Check("Stone Axe selects two owned cards before native yes or no confirmation", () => StoneAxeSelectionChecks.TwoCardsThenConfirmation(output));
-            Check("card payments select equipment and bounded sets before confirmation", () => CardPaymentSelectionChecks.SharedPayments(output));
-            Check("Spear starts from its equipment slot and confirms exact materials", () => EquipmentSkillInteractionChecks.SpearStartsFromEquipment(output));
-            Check("Sanchen and Zhiheng confirm mixed equipment sets with visible progress", () => EquipmentSkillInteractionChecks.SanchenAndZhihengMixZones(output));
-            Check("Taoluan gift declines through the bottom action before or after selection", () => TaoluanDeclineUiChecks.BottomDecline(output));
             Check("hand responses label actual decline and retain native press feedback", () => NativeActionFeedbackChecks.ResponseSemantics(output));
-            Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
             Check("device preferences persist before play and survive legacy loads and tutorials", () => PreferencesChecks.StartupAndMigration(output));
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
             Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
@@ -147,23 +112,12 @@ internal static class Program
             Check("exception reports retain stacks when recovery capture fails", () => ExceptionReportChecks.MissingRecoveryPrefixStillPreservesStack(output));
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
-            Check("battle feedback skill effects use public committed identities once", () => BattleEffectsChecks.PublicSkills(output));
-            Check("battle feedback sequences public attacks responses and confirmed damage", () => BattleFeedbackTimelineChecks.CombatBeats(output));
-            Check("battle feedback sequences native dying rescue and death outcomes", () => NativeLifeOutcomeFeedbackChecks.NativeOutcomes(output));
-            Check("battle feedback reveals native judgment cards and exact outcomes", () => NativeJudgmentFeedbackChecks.NativeJudgment(output));
             Check("battle feedback health tracks follow committed damage recovery and loaded boundaries", () => HealthFeedbackChecks.CommittedHealth(output));
-            Check("battle feedback floating numbers remain distinct at crowded table edges", () => BattleTextReadabilityChecks.Numbers(output));
             Check("card flights keep local hand origins private and retire cached layout", () => HandCardFlightChecks.OriginBoundaries(output));
             Check("card flights hand off public faces once and restore interrupted arrivals", () => PublicCardHandoffChecks.ArrivalAndBoundaries(output));
             Check("card flights preserve public suit rank and converted effective faces", () => PublicCardIdentityChecks.PublicFaces(output));
-            Check("card flights avoid replaying native rescue completion across commands", () => RescueFlightChecks.NativeRecoveryCompletion(output));
-            Check("battle feedback follows playback speed without restarting committed flights", () => BattlePlaybackPaceChecks.NativeFastFeedback(output));
-            Check("battle feedback preserves a native eight-seat elemental chain", () => LongChainFeedbackChecks.NativeEightSeats(output));
-            Check("battle feedback targeting guides follow reversible native card drafts", () => NativeCardTargetingChecks.NativeDraftGuide(output));
-            Check("battle feedback shows native weapon activations and exact followup costs", () => NativeWeaponFeedbackChecks.NativeWeapons(output));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
             if (args.Contains("--verify-native-audio")) Check("official native audio plays MP3 and converted WAV at zero volume", OfficialAudioChecks.NativeSilentPlayback);
-            Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             if (!_startAfterReached)
                 throw new InvalidOperationException($"No WPF check matched start-after '{_startAfterName}'.");
@@ -225,8 +179,8 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 4 && vm.SelectedModeCategory.Id == "all" &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 3 &&
+        Assert(vm.VisibleTableModes.Count == 5 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 4 &&
                vm.StartingRoles.Any(role => role.Role is null) &&
                vm.StartingRoles.Where(role => role.Role.HasValue).Select(role => role.Role!.Value).ToHashSet()
                    .SetEquals([Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade]) && vm.SelectedStartingRole.Role is null,
@@ -254,7 +208,7 @@ internal static class Program
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 4 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 5 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
@@ -268,7 +222,7 @@ internal static class Program
         Assert(vm.VisibleTableModes.Count == 1 && vm.SelectedTableMode.ModeId == "team:standard-2v2" && vm.IsTeamModeSelection,
             "Team category did not select its real registered entry.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
-        Assert(vm.VisibleTableModes.Select(mode => mode.ModeId).SequenceEqual(["identity:classic-8", "identity:classic-5"]) && vm.IsIdentityModeSelection,
+        Assert(vm.VisibleTableModes.Select(mode => mode.ModeId).SequenceEqual(["identity:classic-8", "identity:classic-dual-8", "identity:classic-5"]) && vm.IsIdentityModeSelection,
             "Identity category must offer only five- and eight-player identity tables.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");

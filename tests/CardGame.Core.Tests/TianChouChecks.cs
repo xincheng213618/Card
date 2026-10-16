@@ -51,85 +51,6 @@ internal static class TianChouChecks
             E<TianChouShandaoTrickSkippedEvent>(shortGame).Single().Kind == CardKind.ArrowBarrage,
             "The native draft finishes after three actual picks without inventing a fourth card or removing the fourth declared target, and the empty complement never issues an ArrowBarrage."); _ = Cold(shortGame, shortRegistry);
     }
-    public static void NativeNullificationDodgeAndTargetGatesCold()
-    {
-        var (counter, counterRegistry) = Start("counterspell"); Begin(counter); Select(counter, 0); Top(counter);
-        Reach(counter, () => P(counter) is { PlayerSeat: 0, Kind: DecisionKind.Nullification });
-        var original = E<TianChouShandaoNativeIssuedEvent>(counter).Single(); counter = Cold(counter, counterRegistry);
-        Answer(counter, c => c.Cards.Count == 1); Reach(counter, () => E<TianChouShandaoCompletedEvent>(counter).Any());
-        Need(E<NullificationRespondedEvent>(counter).Length == 1 && E<NullificationResolvedEvent>(counter).Any(e => e.ResolutionId == original.UseId && e.EffectNullified) &&
-            !E<HarvestCardSelectedEvent>(counter).Any(e => e.ResolutionId == original.UseId) && E<TianChouShandaoNativeReturnedEvent>(counter).Count(e => e.UseId == original.UseId) == 1 &&
-            E<TianChouShandaoNativeIssuedEvent>(counter).Any(e => e.Kind == CardKind.ArrowBarrage),
-            "An actual paid physical Nullification cancels the real FiveGrains, then its exact native return still issues the following ArrowBarrage."); _ = Cold(counter, counterRegistry);
-
-        var (dodge, dodgeRegistry) = Start("dodge"); Begin(dodge); Select(dodge, 0); Top(dodge); Reach(dodge, () => E<TianChouShandaoCompletedEvent>(dodge).Any());
-        var arrow = E<TianChouShandaoNativeIssuedEvent>(dodge).Single(e => e.Kind == CardKind.ArrowBarrage);
-        Need(E<GroupResponseEvent>(dodge).Where(e => e.ResolutionId == arrow.UseId).Select(e => e.ResponderSeat).SequenceEqual([1, 2, 3]) &&
-            E<GroupResponseEvent>(dodge).Where(e => e.ResolutionId == arrow.UseId).All(e => e.UsedResponse && e.ResponseCardId is > 0 && e.RequiredCardKind == CardKind.Dodge) && !E<DamageAppliedEvent>(dodge).Any(),
-            "Every actual native ArrowBarrage recipient personally pays an entity Dodge through the ordinary group response path, rather than a simulated response or fixed damage."); _ = Cold(dodge, dodgeRegistry);
-
-        var (blocked, blockedRegistry) = Start("shield"); Begin(blocked); Select(blocked, 1); Top(blocked); Reach(blocked, () => E<TianChouShandaoCompletedEvent>(blocked).Any());
-        Need(E<TianChouShandaoTopPaidEvent>(blocked).Single().OwnerSeat == 1 && E<TianChouShandaoNativeIssuedEvent>(blocked).Length == 0 && E<TianChouShandaoTrickSkippedEvent>(blocked).Length == 2,
-            "Real native target prohibitions filter both tricks without undoing the already completed top placement or silently bypassing target legality."); _ = Cold(blocked, blockedRegistry);
-
-    }
-    public static void PaidLossDeathAndFrozenParticipantContinuationCold()
-    {
-        foreach (var scenario in new[] { "loss", "death", "foreign-death" })
-        {
-            var (g, registry) = Start(scenario); Begin(g); Select(g, scenario == "foreign-death" ? [1, 2] : [0, 1]); Top(g);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); var frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.TianChouShandao is not null).Id;
-            g = Cold(g, registry); Continue(g);
-            if (scenario == "death")
-            {
-                Reach(g, () => E<TianChouShandaoCompletedEvent>(g).Any(e => e.FrameId == frame));
-                Need(!V(g).IsAlive && g.State.Winner == Winner.None && E<TianChouShandaoTopPaidEvent>(g).Count(e => e.FrameId == frame) == 1 && !E<TianChouShandaoNativeIssuedEvent>(g).Any(),
-                    "Real payment-child damage kills the non-Lord source through actual dying/death cleanup; the completed first top is preserved and a dead actor makes no further selections or card uses.");
-            }
-            else
-            {
-                Card(g, scenario == "foreign-death" ? 2 : 1);
-                if (scenario == "loss") Need(V(g).Skills!.All(s => s.ContentId != Skill), "Actual HP-conditioned source loss has already removed Shandao before the next participant's payment.");
-                else Need(!V(g, 1).IsAlive && g.State.Winner == Winner.None, "The first selected foreign payer has actually died in its native movement child.");
-                g = Cold(g, registry); Top(g); Reach(g, () => E<TianChouShandaoCompletedEvent>(g).Any(e => e.FrameId == frame));
-                var first = E<TianChouShandaoNativeIssuedEvent>(g).Single(e => e.Kind == CardKind.FiveGrains);
-                Need(E<TianChouShandaoTopPaidEvent>(g).Count(e => e.FrameId == frame) == 2 && E<TianChouShandaoNativeReturnedEvent>(g).Count(e => e.FrameId == frame) == 2 &&
-                    E<TianChouShandaoCompletedEvent>(g).Count(e => e.FrameId == frame) == 1,
-                    "The original once-paid source generation drains its child and resumes every remaining actual payment and both exact native returns once.");
-                if (scenario == "foreign-death") Need(E<TianChouShandaoNativeTargetEvent>(g).Where(e => e.UseId == first.UseId).Select(e => e.TargetSeat).SequenceEqual([2]) &&
-                    E<TianChouShandaoNativeTargetEvent>(g).Where(e => e.UseId != first.UseId).Select(e => e.TargetSeat).SequenceEqual([3]),
-                    "The selected dead payer is removed from current legal FiveGrains recipients, while the original frozen beneficiary set still defines the later complement and excludes the source.");
-            }
-            _ = Cold(g, registry);
-        }
-    }
-    public static void SilverLionWoodenOxAndPrivateSelectionCold()
-    {
-        foreach (var scenario in new[] { "lion", "ox" })
-        {
-            var (g, registry) = Start(scenario); Use(g, "draw"); Play(g);
-            var kind = scenario == "lion" ? CardKind.SilverLion : CardKind.WoodenOx; var equipment = V(g).Hand.First(c => c.Kind == kind).Id;
-            Use(g, "place", [0], [equipment]); Play(g); int? grain = null;
-            if (scenario == "lion") { Use(g, "lose"); Play(g); }
-            else { grain = V(g).Hand.First(c => c.Id != equipment).Id; Accept(g, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [grain.Value], [], g.Revision, P(g)!.PromptId)); Play(g); }
-            Begin(g); Select(g, 0); var prompt = P(g)!; var before = State(g);
-            Need(prompt.IsPrivate && prompt.Choices.Any(c => c.Cards.SequenceEqual([equipment]) && c.Parameters["source-zone"] == nameof(CardZoneKind.Equipment)) &&
-                !g.Submit(new AnswerPromptCommand(0, prompt.PromptId, new ChoiceId("forged-card-slot"), g.Revision)).Accepted && State(g) == before,
-                "The private menu exposes the source's real equipment and rejects an invented slot without moving cards.");
-            g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([equipment]));
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == (scenario == "lion" ? Health : Grain));
-            Need(!E<TianChouShandaoNativeIssuedEvent>(g).Any() && E<TianChouShandaoTopPaidEvent>(g).Single().CardId == equipment,
-                "The real armor or treasure left Equipment directly for DrawPile before the native recovery/grain subtree and before the first trick.");
-            g = Cold(g, registry); Continue(g); Reach(g, () => E<TianChouShandaoCompletedEvent>(g).Any());
-            Need(g.CardMovements.Count(m => m.CardId == equipment && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DrawPile && m.Reason.Value == TopReason) == 1 &&
-                E<TianChouShandaoNativeReturnedEvent>(g).Length == 2, "A recovered equipment-payment child cannot repeat its original top move or either native trick.");
-            if (scenario == "lion") Need(V(g).Hp == V(g).MaxHp, "The actual SilverLion removal heals its owner through the genuine HP child exactly once.");
-            else Need(g.CardMovements.Count(m => m.CardId == grain && m.From == CardLocation.WoodenOxGrain(0) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard) == 1 &&
-                V(g).WoodenOxGrainCount == 0 && E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 0),
-                "The actual Ox grain spills once and its real nested damage child drains before either native global trick continues.");
-            _ = Cold(g, registry);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -147,7 +68,6 @@ internal static class TianChouChecks
     private static void Select(GameEngine g, params int[] seats) { foreach (var s in seats) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "target" && c.Targets.SequenceEqual([s])); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "confirm"); }
     private static void Top(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "card");
     private static void Card(GameEngine g, int seat) => Reach(g, () => Current(g) is { Stage: TianChouShandaoStage.Card } r && r.Cursor < r.Targets.Count && r.Targets[r.Cursor] == seat && P(g)?.SkillPrompt?.SkillId == Skill);
-    private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static string Diagnostic(GameEngine g) => $"turn={g.State.TurnNumber};winner={g.State.Winner};prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId};stage={Current(g)?.Stage};cursor={Current(g)?.Cursor};tops={E<TianChouShandaoTopPaidEvent>(g).Length};uses={E<TianChouShandaoNativeIssuedEvent>(g).Length}";

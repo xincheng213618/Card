@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "generalId": "ol:cao-teng",
+  "officialGid": 619,
+  "identity": {
+    "name": "曹腾",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3,
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "liveHeroAndReleaseRecheckedOn": "2026-10-17",
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61900.png",
+    "repositoryAsset": "src/CardGame.Wpf/Assets/official-ol-cao-teng.png",
+    "byteCount": 1032398,
+    "width": 750,
+    "height": 950,
+    "sha256": "3883edad42edff33b5e08da1499714d8e57d6520f4af08981399a629bc7980c3",
+    "hashScope": "HTTP response body bytes"
+  },
+  "linkedSkillMapping": {
+    "717": {
+      "skillId": "ol:caoteng-jianxiong",
+      "text": "当你受到伤害后，你可以摸一张牌，并获得造成此伤害的牌。",
+      "implementation": "Independent exact current linked leaf: draw one AND claim the genuine original damage materials. No alias to boundary draw-OR-claim or classic claim-only variants."
+    },
+    "604": {
+      "skillId": "ol:tianming",
+      "implementation": "Reuse current Liu Xie native discard/draw and unique highest-HP peer offer. Isolated registries must also register ol:liu-xie. Cao Teng does not duplicate Tianming."
+    }
+  },
+  "supplementary": [
+    {
+      "url": "https://www.taptap.cn/moment/574650609144169244?group_id=5009",
+      "title": "OL大乔：曹腾攻略（转载爱多i club1365331）",
+      "published": "2024-08-19",
+      "evidenceLevel": "Same-product community guide, not an official rules FAQ",
+      "supports": [
+        "Owner chooses first; the other participant chooses a different remaining option.",
+        "Wei receives Jianxiong; Qun receives Tianming.",
+        "The chosen beneficiary own next turn start expires its skill.",
+        "Hand-limit growth is permanent, stacks and survives Cao Teng death or skill loss.",
+        "Restoring a face-up unchained character is a valid no-op."
+      ],
+      "precedence": "The guide old Jianxiong analogy is superseded by the fresh linked717 AND wording."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/572084451987688252",
+      "title": "OL大乔：《收益稳定的小腾子》（转载国服第一杨彪 club1363201）",
+      "published": "2024-08-12",
+      "evidenceLevel": "Same-product community guide, not an official rules FAQ",
+      "supports": [
+        "Recovery cannot be chosen at full HP.",
+        "The first saved dying occurrence includes genuine self-Peach and self-Alcohol."
+      ]
+    },
+    {
+      "url": "https://game.xiaomi.com/viewpoint/1624366642_1742539198491_13",
+      "title": "三国杀小乔：《武将排位全析——曹腾》（原作者洛奈）",
+      "published": "2025-03-21",
+      "evidenceLevel": "Official community-account same-product guide, not an explicit FAQ",
+      "supports": [
+        "Full-HP recovery is unavailable; ineffective restoration remains available.",
+        "Permanent hand-limit growth survives its source death.",
+        "The fifth option expiry belongs to its chooser.",
+        "Qingliu follows the completed saved dying procedure."
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "rule": "Same-faction extra-menu qualification is frozen when the other recipient is selected; the issued pair keeps this menu through native children.",
+      "basis": "The original conditional describes the selected pair. No same-product mid-resolution faction-change FAQ was found."
+    },
+    {
+      "rule": "At actual skill-option resolution, map the chooser current effective Wei to linked717 or Qun to linked604. If meanwhile outside both listed factions, award no invented third skill.",
+      "basis": "The text says according to faction. The located guides do not specifically rule on mid-resolution changes."
+    },
+    {
+      "rule": "A face-down skipped turn begins with a genuine TurnStarted and expires the exact temporary grant.",
+      "basis": "The duration names own next turn start without requiring any phase to execute."
+    },
+    {
+      "rule": "First dying is the actual first PlayerDyingEvent, including an occurrence ending in death; a later revival or regrant does not redefine it as first.",
+      "basis": "First-entered literal, rather than first positive-HP observation."
+    }
+  ],
+  "runtimeBoundaries": {
+    "pending": "Only ProgramSkillFrame.CaoTeng contains pending choices, paid step and original damage-material identities. Nested lists are defensively frozen; all new history events contain only scalar fields or scalar records.",
+    "nativeFaction": "The native effective-faction writer validates the exact GameStarting or first successful DyingExited candidate. Setup records no actual-turn faction mutation.",
+    "benefits": "Owner then original other participant each privately chooses once, with distinct options. Draw, recovery and restoration retain existing native movement, HP, state windows and typed returns. An issued first benefit continues the original second beneficiary after source loss or nonterminal source death.",
+    "grants": "Each temporary grant has its own exact source and reuses an already active instance. The fully validated Yongzu Begin primes only absent entries in the existing native ownership-observation cache with old revisions before any benefit; TryAdd preserves known revisions and pending differences. This is cache initialization, not new pending state. Grant application drains real SkillsChanged revision windows, including a first-ever option-five grant. Expiry removes only the recorded source at the beneficiary genuine next TurnStarted, using the existing native temporary-grant revision/fact protocol.",
+    "damageClaim": "Linked717 freezes cause entities and their original Processing entry sequence before drawing. It cannot claim an entity removed and re-entered by a different use. Native group and repeated-effect material-claim receipts remain intact.",
+    "handLimit": "Actual permanent choice facts contribute to the native hand-limit query after source loss and death."
+  },
+  "focusedChecks": [
+    "CaoTengChecks.SetupAndFirstActualDyingRescueFactionCold",
+    "CaoTengChecks.OrderedPrivateDistinctBenefitsRecoveryAndRestoreCold",
+    "CaoTengChecks.PermanentHandGrowthLinkedAndGrantOwnTurnExpiryCold",
+    "CaoTengChecks.PaidNativeChildrenSourceLossDeathAndExactClaimCold"
+  ],
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "scope": "Four focused Core behavior groups cover the new rules and native child boundaries. Shared registry, replay, privacy and WPF checks use the bounded routine scope. Full verification remains manual-only.",
+    "note": "Measured development-run results are kept with task verification output rather than duplicated in the lasting source evidence."
+  },
+  "capturedAtUtc": "2026-10-17T03:04:16.213173+08:00",
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/619",
+      "finalUrl": "https://www.sanguosha.com/hero/619",
+      "status": 200,
+      "byteCount": 24962,
+      "sha256": "96411a0c75ecc2ec313bc9e0f1c5d6f0704b69151e8a1bb280f40fc7b49a7316",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀曹腾 - 三国杀OL-三国杀官网-武将技能介绍",
+      "publishedTimes": [],
+      "targetNamesPresent": [
+        "曹腾"
+      ]
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=619",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=619",
+      "status": 200,
+      "byteCount": 1122,
+      "sha256": "e56c635455f7ea515215206ba9db90be8639f1021e9760e6d19dfc1aff6fb5de",
+      "hashScope": "HTTP response body bytes",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 619,
+              "name": "曹腾",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/619.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61900.png",
+              "label": [
+                "防御",
+                "辅助",
+                "发育"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "曹腾（100年~159年），字季兴，沛国谯（今安徽亳县）人，是东汉时期的一位宦官。曹腾早年因事入宫，担任黄门从官、太子侍读。汉顺帝即位后，历任小黄门、中常侍、长乐太仆。他因策划迎立桓帝有功，受封为“费亭侯”，并累迁至大长秋，加位特进。曹腾在159年去世，时年六十岁，无子，过继族子曹嵩为嗣。曹嵩就是曹操的父亲。",
+              "characteristic": "可以令自身和队友获得加成。重点关注队友和自己的势力。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "主公",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 4
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "officialRelease": {
+      "url": "https://www.sanguosha.com/news/20240724_5125_5110",
+      "finalUrl": "https://www.sanguosha.com/news/20240724_5125_5110",
+      "status": 200,
+      "byteCount": 274528,
+      "sha256": "24efa7084d37b1e57a84d68f7528f1b2734d720e081a4674680b8e9628464970",
+      "hashScope": "HTTP response body bytes",
+      "title": "7.27-8.2 大暑祈愿曹腾上新 神张角翻翻乐返场 传说皮肤舍身酬国*罗宪上新 - 三国杀OL官网",
+      "publishedTimes": [
+        "2024-07-26 16:59:17"
+      ],
+      "targetNamesPresent": [
+        "曹腾"
+      ]
+    }
+  },
+  "client": {
+    "spellRowCount": 3116,
+    "extract": {
+      "path": "GameCharacters.character[1320]",
+      "row": {
+        "a": 619,
+        "b": "曹腾",
+        "d": "CaoTeng",
+        "e": 44,
+        "f": "41",
+        "g": 4,
+        "h": 1,
+        "i": 3,
+        "j": 3469,
+        "k": 3468,
+        "p": 2,
+        "q": "1",
+        "r": "9061901",
+        "y": "曹腾（100年~159年），字季兴，沛国谯（今安徽亳县）人，是东汉时期的一位宦官。曹腾早年因事入宫，担任黄门从官、太子侍读。汉顺帝即位后，历任小黄门、中常侍、长乐太仆。他因策划迎立桓帝有功，受封为“费亭侯”，并累迁至大长秋，加位特进。曹腾在159年去世，时年六十岁，无子，过继族子曹嵩为嗣。曹嵩就是曹操的父亲。",
+        "z": "可以令自身和队友获得加成。重点关注队友和自己的势力。",
+        "aa": 32,
+        "ab": "1159,1160",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20240827T235959",
+        "LordCardRate1": 7,
+        "LordCardRate2": 41,
+        "starMax": 4,
+        "freetitle": "0,防御强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2500]",
+          "row": {
+            "a": 3469,
+            "b": "3,5",
+            "c": "清流",
+            "d": "QingLiu",
+            "e": 0,
+            "g": 7,
+            "i": 2,
+            "o": "锁定技，游戏开始时，你选择群或魏势力加入。你首次进入濒死状态被救回后，更换至另一个势力。",
+            "v": "请选择群或魏势力加入"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2499]",
+          "row": {
+            "a": 3468,
+            "b": "3,5",
+            "c": "拥族",
+            "d": "YongZu",
+            "e": 0,
+            "g": 5,
+            "i": 2,
+            "m": "717,604",
+            "n": 1,
+            "o": "准备阶段，你可以选择一名其他角色，你与其依次选择不同的一项：<br>&nbsp;1.摸两张牌；2.回复1点体力；3.复原武将牌。<br>若你选择的角色与你势力相同，则增加两个选项：<br>&nbsp;4.手牌上限+1；<br>&nbsp;5.根据势力获得“<font href='717'>奸雄</font>”或“<font href='604'>天命</font>”直到自己下个回合开始。",
+            "w": "请选择一项",
+            "v": "请选择一名角色，对其发动<font color='#FFD800'>拥族</font>"
+          }
+        }
+      ],
+      "linkedSpells": [
+        {
+          "path": "GameSpells.spell[513]",
+          "row": {
+            "a": 717,
+            "b": "3,5",
+            "c": "奸雄",
+            "d": "JianXiongPo",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "ab": 1,
+            "o": "当你受到伤害后，你可以摸一张牌，并获得造成此伤害的牌。",
+            "bb": "你受伤后，可以摸一张牌，并获得造成此伤害的牌。",
+            "v": "是否发动<font color='#FFD800'>奸雄</font>获得伤害牌并摸1张牌",
+            "ac": "是否发动<font color='#FFD800'>奸雄</font>获得伤害牌并摸1张牌",
+            "j": 1,
+            "ay": "系统提示→点\"确定\"→选择摸牌或获得伤害牌"
+          }
+        },
+        {
+          "path": "GameSpells.spell[419]",
+          "row": {
+            "a": 604,
+            "b": "3,5",
+            "c": "天命",
+            "d": "TianMing",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "ab": 1,
+            "o": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。",
+            "w": "{0}发动<font color='#FFD800'>天命</font>，请弃置{1}张牌，然后摸两张牌，或者点取消不操作",
+            "v": "请弃置{0}张牌",
+            "ay": "系统提示→点\"确定\"→选择两张要弃置的牌→点\"确定\""
+          }
+        }
+      ]
+    },
+    "currentRawHashVerified": true,
+    "characterRowCount": 1632,
+    "decoder": "Fresh public sgsGame_a.sgs InitOfb: AES-CFB128 then gzip; decoded only character.sgs and cha_spell.sgs in memory",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "headContentLength": "5386466",
+        "etag": "\"6ad22bd5-5230e2\"",
+        "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "headContentLength": "4154044",
+        "etag": "\"6ad22fbc-3f62bc\"",
+        "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT"
+      }
+    }
+  }
+}

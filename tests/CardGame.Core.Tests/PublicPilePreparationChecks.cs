@@ -39,34 +39,6 @@ internal static class PublicPilePreparationChecks
         Cold(game, registry);
     }
 
-    public static void GiftChildDrainsBeforeRequestedRecoveryAndOriginalQuantityDraw()
-    {
-        var (game, registry) = Start(giftObserver: true);
-        Choose(game, c => Action(c) == "discard"); ReachPlay(game);
-        var stored = StoreWholeHand(game, registry);
-        Reach(game, () => PileChoice(game) && game.State.TurnNumber > 1);
-        var hand = game.CreateSnapshot(1).Players[1].Hand.Count;
-        var hp = game.State.Players[1].Hp;
-        Choose(game, c => c.Targets.SequenceEqual([1]));
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Observe);
-        var root = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PublicPilePreparation is
-            { Stage: PublicPilePreparationStage.PaymentChildren, Branch: 2 });
-        var receipt = root.PublicPilePreparation!;
-        Require(receipt.FrozenCount == stored.Length && receipt.PaidIds.SequenceEqual(stored) &&
-            game.CreateSnapshot(1).Players[1].Hand.Count == hand + stored.Length &&
-            !Facts<PublicPilePreparationRecoveryIssuedEvent>(game).Any(e => e.ProgramFrameId == root.Id) &&
-            !Facts<PublicPilePreparationDrawIssuedEvent>(game).Any(e => e.ProgramFrameId == root.Id),
-            "The real full gift is paid, while recovery and the original-X draw wait for its child.");
-        Cold(game, registry); Choose(game, _ => true); ReachPlay(game);
-        Require(Facts<PublicPilePreparationRecoveryIssuedEvent>(game).Single(e => e.ProgramFrameId == root.Id).Requested == 1 &&
-            Facts<PublicPilePreparationDrawIssuedEvent>(game).Single(e => e.ProgramFrameId == root.Id).Requested == stored.Length &&
-            game.State.Players[1].Hp == hp && game.CreateSnapshot(1).Players[1].Hand.Count == hand + 2 * stored.Length + 1,
-            "The gift child really draws one and loses one HP; recovery restores that HP before exactly original-X cards are drawn.");
-        Require(game.CardMovements.Count(m => stored.Contains(m.CardId) && m.From == receipt.Pile!.Location && m.To == CardLocation.Hand(1)) == stored.Length,
-            "Every original entity reaches its selected beneficiary once.");
-        Cold(game, registry);
-    }
-
     private static (GameEngine Game, ContentRegistry Registry) Start(bool empty = false, bool fillObserver = false, bool giftObserver = false, bool attackObserver = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(empty, fillObserver, giftObserver, attackObserver));

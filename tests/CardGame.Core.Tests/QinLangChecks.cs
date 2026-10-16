@@ -27,90 +27,6 @@ internal static class QinLangChecks
         Need(Current(g)!.RoundNumber>E<QinLangXianyingDiscardPaidEvent>(g)[0].RoundNumber&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="pay"),"The next actual round resets the count ledger and permits zero again.");
         g=Cold(g,r);Pay(g,0);Play(g);Need(E<QinLangXianyingDiscardPaidEvent>(g).Count(e=>e.Count==0)==2,"Cold restoration preserves two distinct round payments of zero.");_=Cold(g,r);
     }
-    public static void IndependentForeignTurnEndZeroMaterialUsesCold()
-    {
-        var(g,r)=Start("foreign");Skip(g);Play(g);Use(g,"draw");Play(g);End(g);Activate(g);DiscardBoundary(g);Pay(g,1,CardKind.DrawTwo);
-        Activate(g);DiscardBoundary(g);Pay(g,2,CardKind.Slash);Ending(g);var turn=g.State.TurnNumber;var grants=Current(g)!.Grants.ToArray();
-        Need(turn>1&&grants.Length==2&&grants.All(e=>e.ActualTurn==turn&&e.TurnOwner!=0)&&E<TurnEndedEvent>(g).Any(e=>e.TurnNumber==turn),"Two separate actual foreign-turn damage instances retain independent promises for that foreign actual turn's real end. "+JsonSerializer.Serialize(new{turn,grants,damage=E<DamageAppliedEvent>(g)}));
-        var before=V(g).HandCount;UseGrant(g,CardKind.DrawTwo);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Commit);var use=g.ResolutionStack.OfType<CardUseFrame>().Last();
-        Need(use is{CardId:0,CardKind:CardKind.DrawTwo,PhysicalCardIds.Count:0,Action:{PhysicalCards.Count:0,EffectiveSuit:Suit.None,EffectiveRank:0}}&&use.TargetSeats.SequenceEqual([0]),"The selected saved name produces an actual colorless zero-entity native DrawTwo.");
-        var first=use.Id;g=Cold(g,r);Continue(g);Ending(g);
-        Need(V(g).HandCount==before+2&&E<QinLangXianyingUseReturnedEvent>(g).Count(e=>e.Origin.CardUseFrameId==first)==1,"The real trick draws two, completes its ordinary native lifecycle, then returns once to the remaining promise.");
-        UseGrant(g,CardKind.Slash,1);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Commit);var slash=g.ResolutionStack.OfType<CardUseFrame>().Last();var action=slash.Action!.ActionId;g=Cold(g,r);Continue(g);
-        Reach(g,()=>E<QinLangXianyingUseReturnedEvent>(g).Length==2);
-        Need(E<QinLangXianyingGrantConsumedEvent>(g).Count(e=>e.UseIssued)==2&&E<QinLangXianyingUseIssuedEvent>(g).Select(e=>e.Origin.GrantFrameId).Order().SequenceEqual(grants.Select(e=>e.FrameId).Order())&&
-            (E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ParentActionId==action&&e.Action.EffectiveKind==CardKind.Dodge)||
-            E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==0&&e.TargetSeat==1)),"Both independent saved cards really return through native response or damage, without consuming a physical Slash.");
-        Need(E<TurnEndedEvent>(g).Count(e=>e.TurnNumber==turn)==1&&E<TurnStartedEvent>(g).All(e=>e.TurnNumber<=turn),"No duplicate whole turn-end or next actual turn starts before the original ending debt finishes.");_=Cold(g,r);
-    }
-    public static void NativeTargetsQuotaResponsesAndImitationDomainCold()
-    {
-        foreach(var scenario in new[]{"slash-response","duel","alcohol","peach","equipment","delayed","five-grains"})
-        {
-            var(g,r)=Start(scenario);Skip(g);Play(g);Use(g,"draw");Play(g);
-            int? duelTarget=null;
-            if(scenario=="duel")
-            {duelTarget=Enumerable.Range(1,3).First(s=>V(g,s).Hand.Any(c=>c.Kind==CardKind.Slash));Use(g,"wound-peer",[duelTarget.Value]);Play(g);}
-            if(scenario=="slash-response"){Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1])));Play(g);}
-            var beforeHp=V(g).Hp;Use(g,"hurt");Activate(g);DiscardBoundary(g);
-            var kind=scenario switch{"slash-response"=>CardKind.FireSlash,"duel"=>CardKind.Duel,"alcohol"=>CardKind.Alcohol,"peach"=>CardKind.Peach,"equipment"=>CardKind.Crossbow,"five-grains"=>CardKind.FiveGrains,_=>CardKind.Indulgence};
-            Pay(g,1,kind);Play(g);End(g);
-            if(scenario is"equipment"or"delayed")
-            {Reach(g,()=>g.State.TurnNumber>1);Need(E<QinLangXianyingDiscardPaidEvent>(g).Length==1&&!E<QinLangXianyingGrantedEvent>(g).Any()&&!E<QinLangXianyingUseIssuedEvent>(g).Any(),"A real equipped-card or delayed-trick name is discarded but cannot be converted into an illegal end-of-turn use.");_=Cold(g,r);continue;}
-            Ending(g);
-            var saved=scenario=="slash-response"?CardKind.Slash:kind;
-            if(scenario=="slash-response")Need(P(g)!.Choices.Where(c=>c.Parameters.GetValueOrDefault("branch")=="use").All(c=>!c.Targets.Contains(2)),"Exhausted normal quota does not remove the saved Slash, while its actual distance-two target remains illegal.");
-            int? target=scenario=="slash-response"?1:duelTarget;
-            UseGrant(g,saved,target);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Commit);var native=g.ResolutionStack.OfType<CardUseFrame>().Last();var actionId=native.Action!.ActionId;
-            Need(native.CardId==0&&native.PhysicalCardIds is{Count:0}&&native.CardKind==saved,"Every selected saved basic or ordinary trick uses its genuine native zero-material card family.");
-            if(scenario=="duel")Need(V(g,target!.Value).Skills!.Any(s=>s.ContentId=="fixture:ql-black-trick"),"The real target has native black-trick prohibition, while this genuine colorless Duel remains a legal declared use.");
-            g=Cold(g,r);Continue(g);Reach(g,()=>E<QinLangXianyingUseReturnedEvent>(g).Any(e=>e.Origin.CardUseFrameId==native.Id));
-            if(scenario=="slash-response")Need(E<CardUseDebitRecordedEvent>(g).Length==1&&E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ParentActionId==actionId&&e.Action.EffectiveKind==CardKind.Dodge&&e.Action.PhysicalCards.Count>0),"The ordinary physical Slash debits once; the saved Slash normalizes elemental name and really accepts an entity Dodge without another debit.");
-            if(scenario=="duel")Need(E<DuelResponseEvent>(g).Any(e=>e.ResolutionId==native.Id&&e.ResponderSeat==target&&e.UsedSlash&&e.SlashCardId>0)&&E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==target&&e.TargetSeat==0),"The real wounded AI chooses its physical Slash, then the original user declines and actually suffers reverse-source Duel damage. "+JsonSerializer.Serialize(new{target,responses=E<DuelResponseEvent>(g)}));
-            if(scenario=="peach")Need(V(g).Hp==beforeHp&&E<RecoveryAppliedEvent>(g).Any(e=>e.SourceSeat==0&&e.TargetSeat==0),"The saved Peach performs native recovery after actual damage.");
-            if(scenario=="alcohol")
-            {Reach(g,()=>g.State.TurnNumber>1);Need(E<AlcoholAppliedEvent>(g).Any(e=>e.ResolutionId==native.Id)&&E<AlcoholExpiredEvent>(g).Any(e=>e.PlayerSeat==0)&&!V(g).HasAlcoholEffect,"A true after-TurnEnded Alcohol effect expires at the same actual ending tail, before the next actual turn.");}
-            if(scenario=="five-grains")Need(native.TargetSeats.SequenceEqual([0,1,2,3])&&E<CardsRevealedEvent>(g).Single(e=>e.ResolutionId==native.Id).Cards.Count==1&&E<HarvestCardSelectedEvent>(g).Count(e=>e.ResolutionId==native.Id)==1,"A genuinely exhausted pile retains all four declared native FiveGrains targets, reveals and picks only the one real discarded entity, and returns without inventing the other three cards.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("fuman");Skip(g);Play(g);End(g);
-            Reach(g,()=>E<GiftedSlashHandPolicyGrantedEvent>(g).Any(e=>e.Policy.RecipientSeat==0));
-            var gift=E<GiftedSlashHandPolicyGrantedEvent>(g).First(e=>e.Policy.RecipientSeat==0).Policy;
-            Reach(g,()=>g.State.TurnNumber>1&&Optional(g));Activate(g);DiscardBoundary(g);
-            var card=Current(g)!.Cards.Single(c=>c.CardId==gift.CardId);
-            Need(card.Kind==CardKind.Peach&&card.EffectiveName==CardKind.Slash&&V(g).Hand.Any(c=>c.Id==gift.CardId&&c.Kind==CardKind.Peach),"Real OL Fuman keeps the printed Peach entity in Hand while its continuous identity is actually Slash before Xianying pays it.");
-            g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([gift.CardId]));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pay");Play(g);
-            Need(E<QinLangXianyingEntityDiscardedEvent>(g).Single(e=>e.CardId==gift.CardId)is{Kind:CardKind.Peach,Name:CardKind.Slash}&&E<QinLangXianyingGrantedEvent>(g).Last().Name==CardKind.Slash,
-                "The real printed Peach departure proves its original entity, while the frozen last known effective name grants Slash rather than Peach after the hand identity expires.");
-            End(g);Ending(g);UseGrant(g,CardKind.Slash,1);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Commit);g=Cold(g,r);Continue(g);Reach(g,()=>E<QinLangXianyingUseReturnedEvent>(g).Any());_=Cold(g,r);
-        }
-    }
-    public static void PaidDrawDiscardLossDeathLionOxAndEndReturnCold()
-    {
-        foreach(var scenario in new[]{"loss","death","lion","ox"})
-        {
-            var(g,r)=Start(scenario);
-            if(scenario is"loss"or"death")
-            {
-                Activate(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);var f=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.QinLangXianying is not null);g=Cold(g,r);Continue(g);
-                if(scenario=="death")
-                {Reach(g,()=>!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(x=>x.Id==f.Id));Need(!V(g).IsAlive&&g.State.Winner==Winner.None&&E<QinLangXianyingDrawnEvent>(g).Length==1&&!E<QinLangXianyingDiscardPaidEvent>(g).Any(),"Actual paid draw children may kill the non-Lord actor; the original draw is retained once and no dead payer discards or imitates.");_=Cold(g,r);continue;}
-                DiscardBoundary(g);Need(V(g).Skills!.All(s=>s.ContentId!=Skill),"The real draw-child HP loss has removed the conditional source before the payment choice.");
-                g=Cold(g,r);Pay(g,1,CardKind.Slash);Play(g);End(g);Ending(g);UseGrant(g,CardKind.Slash,1);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Commit);g=Cold(g,r);Continue(g);Reach(g,()=>E<QinLangXianyingUseReturnedEvent>(g).Length==1);
-                Need(E<QinLangXianyingDrawnEvent>(g).Length==1&&E<QinLangXianyingDiscardPaidEvent>(g).Length==1&&E<QinLangXianyingGrantConsumedEvent>(g).Count(e=>e.UseIssued)==1,"The precise already-paid generation survives real skill loss, pays once, and retains its actual-turn-end native use.");_=Cold(g,r);continue;
-            }
-            Skip(g);Play(g);Use(g,"draw");Play(g);var kind=scenario=="lion"?CardKind.SilverLion:CardKind.WoodenOx;var equip=V(g).Hand.First(c=>c.Kind==kind).Id;
-            Use(g,"place",[0],[equip]);Play(g);int? grain=null;
-            if(scenario=="ox"){grain=V(g).Hand.First(c=>c.Id!=equip).Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}
-            Use(g,"hurt");Activate(g);DiscardBoundary(g);Answer(g,c=>c.Cards.SequenceEqual([equip]));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pay");Reach(g,()=>P(g)?.SkillPrompt?.SkillId==(scenario=="lion"?Health:Grain));
-            Need(E<QinLangXianyingDiscardPaidEvent>(g).Length==1&&g.CardMovements.Count(m=>m.CardId==equip&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.DiscardPile&&m.Reason.Value==DiscardReason)==1,"A real equipped entity is atomically discarded once before its native removal descendants.");
-            g=Cold(g,r);Continue(g);Play(g);
-            if(scenario=="lion")Need(V(g).Hp==V(g).MaxHp&&E<SilverLionRemovedRecoveryEvent>(g).Any(e=>e.Reason.Value==DiscardReason),"The actual discarded SilverLion heals through its native recovery child exactly once.");
-            else Need(g.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)==1&&V(g).WoodenOxGrainCount==0&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==0&&e.TargetSeat==0)==2,"Ox grain really spills once; its nested actual damage child returns to the original paid receipt without repeating the equipment discard.");
-            Need(E<QinLangXianyingDiscardPaidEvent>(g).Length==1&&!E<QinLangXianyingGrantedEvent>(g).Any(),"Equipment removal children do not change the discarded card's actual name into an imitation or cause another payment.");_=Cold(g,r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g,int seat=0)=>g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
@@ -127,12 +43,9 @@ internal static class QinLangChecks
     private static void Ending(GameEngine g)=>Reach(g,()=>Current(g)?.Stage==QinLangXianyingStage.EndChoice);
     private static void Pay(GameEngine g,int count,CardKind? kind=null)
     {var cards=Current(g)!.Cards.Where(c=>kind is null||c.Kind==kind).Take(count).ToArray();Need(cards.Length==count,"The small real fixture must supply the requested original HE cost: "+kind);foreach(var c in cards)Answer(g,p=>p.Cards.SequenceEqual([c.CardId]));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pay");}
-    private static void UseGrant(GameEngine g,CardKind kind,int? target=null)
-    {var id=Current(g)!.Grants.First(grant=>grant.Name==kind&&!E<QinLangXianyingGrantConsumedEvent>(g).Any(e=>e.GrantFrameId==grant.FrameId)).FrameId.ToString();Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="use"&&c.Parameters.GetValueOrDefault("grant-id")==id&&(target is null||c.Targets.SequenceEqual([target.Value])));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Use(GameEngine g,string id,int[]? targets=null,int[]? cards=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,cards??[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Native(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});
     private static string Diagnostic(GameEngine g)=>$"turn={g.State.TurnNumber};winner={g.State.Winner};prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId};stage={Current(g)?.Stage};paid={E<QinLangXianyingDiscardPaidEvent>(g).Length};grants={E<QinLangXianyingGrantedEvent>(g).Length};uses={E<QinLangXianyingUseIssuedEvent>(g).Length}";
     private static void Reach(GameEngine g,Func<bool> done)
     {

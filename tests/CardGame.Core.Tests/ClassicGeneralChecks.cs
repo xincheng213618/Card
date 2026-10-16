@@ -9,7 +9,7 @@ internal static class ClassicGeneralChecks
     public static void SetupHealthAndReplay()
     {
         var registry = CreatePreProgramClassicRegistry();
-        var currentSun = SelectGeneral(registry, "classic:sun-quan", GameCheckpoint.CurrentRulesVersion);
+        var currentSun = SelectGeneral(registry, "classic:sun-quan");
         var currentSunPlayer = currentSun.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(currentSunPlayer.MaxHp == 5 && currentSunPlayer.Hp == 5,
             "A classic 4-HP Lord must receive the identity-mode +1 maximum HP.");
@@ -17,7 +17,7 @@ internal static class ClassicGeneralChecks
                 currentSunPlayer.Skills.Select(skill => skill.ContentId).SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]),
             "The current snapshot must publish the selected general's ordered skill list.");
 
-        var simaYi = SelectGeneral(registry, "classic:sima-yi", GameCheckpoint.CurrentRulesVersion);
+        var simaYi = SelectGeneral(registry, "classic:sima-yi");
         var simaYiPlayer = simaYi.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(simaYiPlayer.MaxHp == 4 &&
                 simaYiPlayer.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:feedback", "classic:guicai"]),
@@ -208,9 +208,6 @@ internal static class ClassicGeneralChecks
     public static void FormalWushengEquipmentFlow()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(GameCheckpoint.CurrentRulesVersion >= 40,
-            "Formal Wusheng equipment conversion must have an explicit rules-version boundary.");
-
         Require(registry.Skills["classic:wusheng"].Program?.ViewAs.Single().SourceZones.Contains(
                 CardZoneKind.Equipment) == true,
             "Configured Wusheng must accept eligible equipment sources.");
@@ -523,15 +520,9 @@ internal static class ClassicGeneralChecks
     private static GameEngine? StartClassicGeneralAtPlay(
         ContentRegistry registry,
         int seed,
-        string generalId,
-        int rulesVersion)
+        string generalId)
     {
         var game = CreateInteractive(registry, seed);
-        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
-        {
-            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
-        }
-
         var started = game.Submit(new StartGameCommand());
         Require(started.Accepted, started.Error?.Message ?? "Classic active-skill fixture failed to start.");
         if (started.Result.PendingDecision?.Choices.Any(choice =>
@@ -562,8 +553,7 @@ internal static class ClassicGeneralChecks
             var game = StartClassicGeneralAtPlay(
                 registry,
                 seed,
-                "classic:zhang-fei",
-                GameCheckpoint.CurrentRulesVersion);
+                "classic:zhang-fei");
             if (game is null)
             {
                 continue;
@@ -615,8 +605,7 @@ internal static class ClassicGeneralChecks
             var game = StartClassicGeneralAtPlay(
                 registry,
                 seed,
-                "classic:zhao-yun",
-                GameCheckpoint.CurrentRulesVersion);
+                "classic:zhao-yun");
             if (game is null)
             {
                 continue;
@@ -663,8 +652,7 @@ internal static class ClassicGeneralChecks
             var current = StartClassicGeneralAtPlay(
                 registry,
                 seed,
-                "classic:guan-yu",
-                GameCheckpoint.CurrentRulesVersion);
+                "classic:guan-yu");
             if (current is null)
             {
                 continue;
@@ -789,14 +777,12 @@ internal static class ClassicGeneralChecks
     private static ContentRegistry CreatePreProgramClassicRegistry() =>
         StandardContentRegistry.CreateWithClassicGenerals();
 
-    private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion,
+    private static GameEngine SelectGeneral(ContentRegistry registry, string generalId,
         Func<GameEngine, bool>? fixtureFilter = null)
     {
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = CreateInteractive(registry, seed);
-            if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
-                game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
             var started = game.Submit(new StartGameCommand());
             Require(started.Accepted, started.Error?.Message ?? "Classic selection fixture failed to start.");
             if (started.Result.PendingDecision?.Choices.Any(choice => choice.ContentIds.SequenceEqual([generalId])) != true)

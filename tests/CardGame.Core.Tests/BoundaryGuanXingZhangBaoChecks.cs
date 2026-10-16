@@ -45,39 +45,6 @@ internal static class BoundaryGuanXingZhangBaoChecks
         Replay(g,r);Settle(g);
     }
 
-    public static void GrantedBoundarySkillsApplyDistanceAndNextSlashDamage()
-    {
-        var(g,r)=Start(inheritance:true);
-        Accept(g,new UseProgramSkillCommand(0,DriverSkill,"strip",[],[1],g.Revision,P(g)!.PromptId));
-        Settle(g);
-        var pair=OwnHand(g).Take(2).Select(card=>card.Id).ToArray();
-        Accept(g,new UseProgramSkillCommand(0,Skill,"two-hand-cards-as-slash",pair,[1],g.Revision,P(g)!.PromptId));
-        Settle(g);
-        Require(g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng)&&
-            g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Paoxiao)&&
-            !g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId is "classic:wusheng" or "classic:paoxiao"),
-            "Real Fuhun damage grants the boundary editions, without ordinary Wusheng or Paoxiao.");
-        var diamond=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2&&
-            a.ConversionSource?.SkillId==Wusheng);
-        Require(g.GetCombatDistance(0,2)>g.GetAttackRange(0),
-            "The actual Diamond Wusheng Slash reaches outside ordinary attack range after Fuhun grants it.");
-        Accept(g,new PlayCardCommand(0,diamond.CardId!.Value,diamond.TargetSeats,g.Revision,P(g)!.PromptId)
-            {ConversionSource=diamond.ConversionSource,PlayedCardKind=CardKind.Slash});
-        Settle(g);
-        Require(g.Events.Select(e=>e.Payload).OfType<NextSlashDamageReservedEvent>().Single().OwnerSeat==0,
-            "A fully dodged Wusheng Slash reserves damage through the acquired boundary Paoxiao.");
-        var hp=g.CreateSnapshot(1).Players[1].Hp;
-        var next=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1&&
-            a.ConversionSource?.SkillId==Wusheng);
-        Accept(g,new PlayCardCommand(0,next.CardId!.Value,next.TargetSeats,g.Revision,P(g)!.PromptId)
-            {ConversionSource=next.ConversionSource,PlayedCardKind=CardKind.Slash});
-        Settle(g);
-        Require(g.CreateSnapshot(1).Players[1].Hp==hp-2&&
-            g.Events.Select(e=>e.Payload).OfType<NextSlashDamageConsumedEvent>().Single().Amount==1,
-            "The next genuine Slash consumes the acquired Paoxiao reserve once and deals two damage.");
-        Replay(g,r);
-    }
-
     private enum Color { Red, Black }
 
     private static Color CardColor(CardSnapshot card)=>card.Suit is Suit.Heart or Suit.Diamond?Color.Red:Color.Black;

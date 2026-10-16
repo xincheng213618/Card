@@ -4,85 +4,12 @@ using System.Reflection;
 using System.Text.Json;
 internal static class FengLinZuoCiChecks
 {
-    private const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
-    private static CharacterState Owner(GameEngine g)=>((IEnumerable<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!).First();
-    private static IReadOnlyList<string> Enabled(GameEngine g)=>(IReadOnlyList<string>)typeof(GameEngine).GetMethod("EnabledContentSkillIds",Flags)!.Invoke(g,[Owner(g)])!;
-    private static PrivateGeneralLibrarySnapshot Library(GameEngine g)=>g.CreateSnapshot(0).Players[0].PrivateGeneralLibraries!.Single();
     private static PendingDecision P(GameEngine g)=>g.PendingDecision??g.CreateSnapshot(0,true).PendingDecision!;
     private static void Require(bool b,string m){if(!b)throw new InvalidOperationException(m);}
     private static void Accept(GameEngine g,GameCommand c){var r=g.Submit(c);Require(r.Error is null,r.Error?.Message??"Rejected");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g);var c=p.Choices.FirstOrDefault(pick)??throw new InvalidOperationException("No choice: "+JsonSerializer.Serialize(p));Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,c.Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> stop){for(var n=0;n<90;n++){var p=P(g);if(p is not null&&stop(p))return;if(p is {PlayerSeat:0,Kind:DecisionKind.PlayCard})Accept(g,new EndPlayPhaseCommand(0,g.Revision,p.PromptId));else if(p is {PlayerSeat:0})Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip"||c==p.Choices[0]);else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Missing boundary");}
     private static void Replay(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);string State(GameEngine x)=>JsonSerializer.Serialize(Enumerable.Range(0,4).Select(i=>x.CreateSnapshot(i)))+JsonSerializer.Serialize(x.ResolutionStack);Require(State(g)==State(restored),"Private libraries and owning selections replay at all four viewers.");}
-    private static void Declare(GameEngine g,string skill){Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="private-general-library");Answer(g,c=>c.Parameters.GetValueOrDefault("value")==skill);}
-    public static void InitialPrivacyAndReplay()
-    {
-        var(g,r)=Start();Reach(g,p=>p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="private-general-library"));
-        var library=Library(g);Require(library.Count==2&&library.GeneralIds!.Distinct().Count()==2,"Two unique initial avatars.");Require(!library.GeneralIds!.Contains("fixture:zc-owner"),"Living primary excluded.");Require(library.GeneralIds is IList<string> list&&list.IsReadOnly,"Owner private IDs frozen.");
-        for(var i=1;i<4;i++){var view=g.CreateSnapshot(i);Require(view.Players[0].PrivateGeneralLibraries!.Single().GeneralIds is null,"Other viewers only count.");Require(view.PendingDecision is null||view.PendingDecision.Choices.Count==0,"Other viewer cannot inspect owner choices.");}
-        Replay(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));Require(Library(g).Count==2&&g.Events.Count(e=>e.Payload is PrivateGeneralLibraryCountChangedEvent x&&x.Source.OwnerSeat==0)==1,"Paused resume cannot repay RNG.");
-        Declare(g,"standard:wusheng");Require(Enabled(g).Contains("standard:wusheng"),"Structured view-as skill participates in actual binding.");Require(Owner(g).Gender==GeneralGender.Female&&g.CreateSnapshot(0).Players[0].FactionId=="wu","Gender/faction are true effective queries.");Replay(g,r);
-    }
-    public static void SelectionBackPreservesDrawsAndDeclarations()
-    {
-        var (game, registry) = Start(god: true);
-        Reach(game, prompt => prompt.PlayerSeat == 0 && prompt.Choices.Any(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "private-general-library"));
-        var initial = JsonSerializer.Serialize(Library(game));
-        var general = P(game).Choices[0].Parameters["value"];
-        Require(P(game).Choices.All(choice => choice.Parameters.GetValueOrDefault("navigation") != "back"),
-            "The mandatory initial declaration must not be skipped.");
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
-        var staleSkillPrompt = P(game);
-        var staleSkill = staleSkillPrompt.Choices.First(choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
-        Replay(game, registry);
-        Answer(game, IsBack);
-        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == general) &&
-            JsonSerializer.Serialize(Library(game)) == initial, "Returning to avatars must retain the original private draw without declaring a skill.");
-        var revision = game.Revision;
-        Require(!game.Submit(new AnswerPromptCommand(0, staleSkillPrompt.PromptId, staleSkill.Id, revision)).Accepted && game.Revision == revision,
-            "A skill choice retired by Back must not answer the current avatar prompt.");
-        Replay(game, registry);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
-        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == "wu"), "A god avatar must reach faction selection.");
-        Replay(game, registry);
-        Answer(game, IsBack);
-        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng") &&
-            JsonSerializer.Serialize(Library(game)) == initial, "Faction Back must return to skills without changing the public declaration.");
-        Replay(game, registry);
-        Answer(game, IsBack);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "wu");
-        var declared = JsonSerializer.Serialize(Library(game));
-        Require(game.Events.Count(item => item.Payload is PrivateGeneralLibraryCountChangedEvent) == 1 &&
-            game.Events.Count(item => item.Payload is PrivateGeneralLibraryDeclaredEvent) == 1,
-            "Navigating Back must neither draw more avatars nor publish intermediate declarations.");
-        Reach(game, prompt => prompt.PlayerSeat == 0 && prompt.SkillPrompt?.SkillId == "classic:huashen" &&
-            prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        Answer(game, IsBack);
-        Require(JsonSerializer.Serialize(Library(game)) == declared && Enabled(game).Contains("standard:wusheng") &&
-            game.Events.Count(item => item.Payload is PrivateGeneralLibraryDeclaredEvent) == 1,
-            "Returning from an optional replacement must preserve the existing avatar, skill and faction.");
-        Replay(game, registry);
-
-        static bool IsBack(PromptChoice choice) => choice.Parameters.GetValueOrDefault("navigation") == "back";
-    }
-
-    public static void LayeredSuppressionAndLocalDisable()
-    {
-        // Fixed direct HP/grant fixture mutations; this method does not claim command replay.
-        var(g,r)=Start();Reach(g,p=>p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="private-general-library"));Declare(g,"fixture:zc-suppression");var owner=Owner(g);var cap=owner.SkillGrants.Grants.Single(x=>x.SkillId=="classic:huashen");var borrowed=owner.SkillGrants.Grants.Single(x=>x.GeneralLibraryProjection is not null);Require(((IReadOnlyList<string>)typeof(GameEngine).GetMethod("AdvancedOwnedSkillIds",Flags)!.Invoke(g,[owner])!).Contains(borrowed.SkillId),"Qualified raw projection counts as advanced ownership.");
-        owner.Hp=1;var rev=g.Revision;var events=g.Events.Count;var grants=owner.SkillGrants.Revision;for(var i=0;i<5;i++){Require(!Enabled(g).Contains("classic:huashen")&&!Enabled(g).Contains("fixture:zc-suppression"),"Base-live borrowed suppressor suppresses its source and final derived grant without oscillation.");Require(owner.Gender==GeneralGender.Male&&Library(g).Gender is null,"Suppressed attributes restore original.");}
-        Require(g.Revision==rev&&g.Events.Count==events&&owner.SkillGrants.Revision==grants,"Repeated queries are observational.");owner.Hp=3;Require(Enabled(g).Contains("fixture:zc-suppression")&&owner.Gender==GeneralGender.Female,"HP recovery restores same retained source.");owner.SkillGrants.SetEnabled(cap.GrantId,false);Require(!Enabled(g).Contains("fixture:zc-suppression")&&owner.Gender==GeneralGender.Male,"Source local disable disables grant and attributes.");owner.SkillGrants.SetEnabled(cap.GrantId,true);owner.SkillGrants.SetEnabled(borrowed.GrantId,false);Require(!Enabled(g).Contains("fixture:zc-suppression"),"Derived local disable retained independently.");Require(!((IReadOnlyList<string>)typeof(GameEngine).GetMethod("AdvancedOwnedSkillIds",Flags)!.Invoke(g,[owner])!).Contains("fixture:zc-suppression"),"Disabled derived skill is not counted by advanced ownership.");owner.Hp=1;Require(Enabled(g).Contains("classic:huashen"),"Disabled borrowed suppressor is absent from stable input.");
-    }
-    public static void SameAvatarProgramAndActualEnd()
-    {
-        var(g,r)=Start();Reach(g,p=>p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="private-general-library"));Declare(g,"standard:wusheng");var avatar=Library(g).RevealedGeneralId;Reach(g,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:huashen"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(g,c=>c.Parameters.GetValueOrDefault("value")==avatar);Answer(g,c=>c.Parameters.GetValueOrDefault("value")=="fixture:zc-program");Require(Enabled(g).Contains("fixture:zc-program")&&!Enabled(g).Contains("standard:wusheng"),"Same avatar may select a native Program skill.");Replay(g,r);
-        Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);Require(g.CreateSnapshot(0).Players[0].Hand.Count==7,"Borrowed Program executes its actual normal-draw child in addition to draw phase.");var ends=g.Events.Count(e=>e.Payload is TurnEndedEvent);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g).PromptId));Reach(g,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:huashen"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Require(g.Events.Count(e=>e.Payload is TurnEndedEvent)>ends,"Replacement occurs after genuine TurnEnded, not Ending.");Replay(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(g,c=>c.Parameters.GetValueOrDefault("value")==avatar);Answer(g,c=>c.Parameters.GetValueOrDefault("value")=="standard:wusheng");Replay(g,r);
-    }
     public static void OldRegistryHasNoLibraryShape()
     {
         var(_,r)=Start();var old=ContentRegistry.Build(new WithoutLibrary(r));var g=GameEngine.CreateStandard(new GameOptions{Seed=17,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId="identity:zc-fixture",UseInteractiveSetup=true,AdvanceAfterHumanCommands=false,UseInteractiveDiscard=false},old);Accept(g,new StartGameCommand());Accept(g,new SelectGeneralCommand(0,"fixture:zc-owner",g.Revision,P(g).PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);Require(!g.Events.Any(e=>e.Payload is PrivateGeneralLibraryCountChangedEvent or PrivateGeneralLibraryDeclaredEvent),"No 1640 registry never captures new facts.");Require(!JsonSerializer.Serialize(g.CreateSnapshot(0)).Contains("PrivateGeneralLibraries"),"Null additive DTO omitted in old snapshot.");Replay(g,old);

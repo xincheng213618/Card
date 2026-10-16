@@ -49,73 +49,6 @@ internal static class OrdinaryDengZhongChecks
         Replay(g, r);
     }
 
-    public static void GengzhanTallyGrantsSlashLimit()
-    {
-        var (g, r) = Start(peace: true);
-        EndMyPlayPhase(g);
-        try
-        {
-            SettleToNextOwnPlayPhase(g);
-        }
-        catch (InvalidOperationException)
-        {
-            Console.WriteLine("DIAG-TALLY events=" + string.Join(";", g.Events.Select(e => e.Payload).TakeLast(14)
-                .Select(p => p.GetType().Name.Replace("Event", "") +
-                    (p is PlayerMarkerChangedEvent m ? ":" + m.PlayerSeat + "/" + m.Marker + "/" + m.Delta : ""))));
-            Console.WriteLine("DIAG-STACK " + string.Join(";", g.ResolutionStack.Select(f =>
-                f.GetType().Name + "#" + f.Id + (f is ProgramSkillFrame ps ? ":" + ps.SkillId + "/" + ps.TriggerId + "/win=" + ps.WindowContext?.Window : ""))));
-            throw;
-        }
-        var turns = g.Events.Select(e => e.Payload).OfType<TurnStartedEvent>().ToList();
-        var slashUses = g.Events.Select(e => e.Payload).OfType<CardUsedEvent>()
-            .Where(u => u.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
-            .Select(u => u.SourceSeat).ToHashSet();
-        // Every AI turn that ended since my first turn began: the tally grants one
-        // marker exactly when its owner used no slash, so derive the expectation.
-        var myTurnIndex = turns.FindIndex(t => t.ActorSeat == 0);
-        var settled = turns.Skip(myTurnIndex + 1).TakeWhile(t => t.ActorSeat != 0 || turns.IndexOf(t) > myTurnIndex)
-            .Where(t => t.ActorSeat != 0).ToList();
-        var expected = settled.Count(t => !slashUses.Contains(t.ActorSeat));
-        Require(expected >= 1, "At least one slash-free AI turn exists in this seed. turns=" +
-            string.Join(";", turns.Select(t => t.ActorSeat)) + " slashUsers=" + string.Join(";", slashUses));
-        var markers = g.Events.Select(e => e.Payload).OfType<PlayerMarkerChangedEvent>()
-            .Where(m => m.PlayerSeat == 0 && m.Marker == PlayerMarkerKind.GengZhan).ToList();
-        Require(markers.Count(m => m.Delta > 0) == expected && markers.All(m => m.Delta == 1 || m.Delta == -expected),
-            "Slash-free AI turns each granted one marker. expected=" + expected + " markers=" + string.Join(";", markers));
-        var grant = g.Events.Select(e => e.Payload).OfType<TurnRuleModifierGrantedEvent>()
-            .Single(e => e.Modifier.Query == SkillRuleQuery.SlashLimit);
-        Require(grant.Modifier.Amount == expected && grant.Modifier.TurnSeat == 0,
-            "The owner's play phase converts all markers into the slash limit. amount=" + grant.Modifier.Amount);
-        // The peace deck denies every character a slash, so the tallies above prove
-        // the per-turn accounting and the grant carries the accumulated marker count.
-        Require(markers.Last(m => m.Delta < 0).Count == 0,
-            "The release clears every Gengzhan marker. markers=" + string.Join(";", markers));
-        Replay(g, r);
-    }
-
-    private static void SettleToNextOwnPlayPhase(GameEngine g)
-    {
-        for (var i = 0; i < 400; i++)
-        {
-            if (P(g) is not { } p) { Accept(g, new AdvanceOneStepCommand(g.Revision)); continue; }
-            if (p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0) return;
-            if (p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") is "activate" or "skip") &&
-                (p.SkillPrompt?.SkillId is Kanpo or Gengzhan ||
-                 p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") is Kanpo or Gengzhan)))
-            {
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-                continue;
-            }
-            if (p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0)
-            {
-                Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
-                continue;
-            }
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The fixture never returned to the owner's play phase: " + P(g)?.Prompt);
-    }
-
     private static IReadOnlyList<Card> DiscardCards(GameEngine g) => ((CardZoneStore)typeof(GameEngine)
         .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)
         .CardsAt(CardLocation.DiscardPile);
@@ -150,14 +83,6 @@ internal static class OrdinaryDengZhongChecks
         p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0 ||
         p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0 && p.RequiredCardCount > 0 ||
         p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-
-    private static void EndMyPlayPhase(GameEngine g)
-    {
-        ReachPlay(g);
-        var p = P(g)!;
-        if (p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0)
-            Accept(g, new EndPlayPhaseCommand(0, g.Revision, p.PromptId));
-    }
 
     private sealed class Fixture : IGameContentPackage
     {

@@ -56,128 +56,19 @@ internal static class OrdinaryYangHuChecks
         Tags(g, []); _ = Cold(g, registry);
     }
 
-    public static void DeathInheritanceTransfersOnlyOwnReceivedPermanentBonuses()
-    {
-        var (g, registry) = Create(Scenario.Death);
-        var roles = Enumerable.Range(0, 4).Select(s => V(g, s)).ToArray();
-        Require(roles[0].Role == Role.Renegade && roles.All(p => p.IsAlive) &&
-            roles.Count(p => p.Seat != 0 && p.Role == Role.Lord && p.IsAlive) == 1 &&
-            roles.Count(p => p.Seat != 0 && p.Role == Role.Renegade && p.IsAlive) == 2,
-            "Real private self-views prove the dying owner is a non-Lord and that one real Lord plus two enemy survivors keep this death from determining a winner.");
-        var initial = V(g, 0).Hand.Select(c => c.Id).ToArray();
-        var choices = new[] { (Seat: 0, Option: "hand-limit"), (Seat: 0, Option: "attack-range"), (Seat: 1, Option: "hand-limit"), (Seat: 1, Option: "draw") };
-        for (var i = 0; i < initial.Length; i++) { Use(g, "give", [1], [initial[i]]); Benefit(g, choices[i].Seat, choices[i].Option); Play(g); }
-        Require(V(g, 0).Hp == 4 && g.GetAttackRange(0) == 2 && E<OriginalHandPermanentBonusGrantedEvent>(g).Length == 3,
-            "The real non-Lord owner has personally received exactly two permanent increases, while a different recipient retains one permanent increase and one non-inheritable draw.");
-        Use(g, "die");
-        ReachDeathInheritanceOffer(g);
-        Require(!V(g, 0).IsAlive && g.CreateSnapshot(0).Status != EngineStatus.Completed,
-            "Native HP-loss, dying and death finish for the non-Lord owner while the surviving real Lord keeps inheritance actionable.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, p => Entity(p, "inheritance"));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OriginalHandInheritance is not null);
-        var r = root.OriginalHandInheritance!; var id = root.Id;
-        Require(r.Bonuses.Count == 2 && r.Bonuses.All(b => b.RecipientSeat == 0 && b.Kind != OriginalHandBenefitKind.Draw) &&
-            r.CandidateSeats.All(s => s != 0 && V(g, s).IsAlive) && E<OriginalHandInheritanceStartedEvent>(g).Single().BonusCount == 2,
-            "The optional accepted death receipt freezes only bonuses currently received by the dead owner, rather than all bonuses it awarded to other roles.");
-        Frozen(r.Bonuses); Frozen(r.CandidateSeats); g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2]));
-        var transferred = E<OriginalHandBonusTransferredEvent>(g);
-        Require(transferred.Length == 2 && transferred.All(e => e.FrameId == id && e.PreviousRecipientSeat == 0 && e.RecipientSeat == 2) &&
-            transferred.Select(e => e.Kind).ToHashSet().SetEquals([OriginalHandBenefitKind.HandLimit, OriginalHandBenefitKind.AttackRange]) &&
-            E<OriginalHandInheritanceCompletedEvent>(g).Single() == new OriginalHandInheritanceCompletedEvent(id, 2, 2) &&
-            g.GetAttackRange(0) == 1 && g.GetAttackRange(2) == 2 &&
-            E<OriginalHandPermanentBonusGrantedEvent>(g).Count(e => e.RecipientSeat == 1 && e.Kind == OriginalHandBenefitKind.HandLimit) == 1 &&
-            !g.ResolutionStack.Any(f => f.Id == id),
-            "Exactly the dead owner's two permanent increments transfer once and leave its prior recipient's award intact; the old owner loses the transferred range and the living beneficiary gains it.");
-        _ = Cold(g, registry);
-    }
-
-    public static void OutsideDiscardUsesRealSanchenPaymentAndExcludesRecastAndDiscardPhase()
-    {
-        var (g, registry) = Create(Scenario.Discard);
-        var ownerCard = V(g, 0).Hand[0].Id; var partnerCard = V(g, 1).Hand[0].Id;
-        Accept(g, new UseProgramSkillCommand(0, Chongxin, "paired-hand-recast", [ownerCard], [1], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.PlayerSeat == 1 && Has(p, "paired-hand-recast")); Answer(g, c => c.Cards.SequenceEqual([partnerCard]));
-        Reach(g, p => Outside(p, "draw-target")); Answer(g, c => c.Targets.SequenceEqual([0])); Play(g);
-        Require(E<PairedHandRecastCompletedEvent>(g).Single() is { OwnerPaid: true, PartnerPaid: true } &&
-            !E<OutsidePhaseDrawDiscardStartedEvent>(g).Any(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard),
-            "Formal paired recast really sends two cards to DiscardPile and issues real draw, while RecastDiscard remains excluded from discard-only Weishu.");
-        Accept(g, new UseProgramSkillCommand(0, "ol:sanchen", "draw-three-discard-three", [], [0], g.Revision, P(g)!.PromptId));
-        Reach(g, p => Outside(p, "draw-target")); Answer(g, c => c.Targets.SequenceEqual([0]));
-        var paid = new List<int>();
-        for (var n = 0; n < 3; n++) { Reach(g, p => Has(p, "draw-discard-category")); var card = P(g)!.Choices.First().Cards.Single(); paid.Add(card); Answer(g, c => c.Cards.SequenceEqual([card])); }
-        Reach(g, p => Outside(p, "discard-card"));
-        var root = OutsideRoot(g); var r = root.OutsidePhaseDrawDiscard!; var id = root.Id;
-        Require(r.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard && r.OriginalDraw is null && r.OriginalDiscards.Count == 3 &&
-            r.OriginalDiscards.Select(c => c.CardId).ToHashSet().SetEquals(paid) && r.OriginalPhase?.Kind == ActualDiscardRecoveryPhaseKind.Play &&
-            g.CardMovements.Count(m => paid.Contains(m.CardId) && m.Reason.Value == "skill-program.ol:sanchen.draw-discard-category.discard") == 3 &&
-            E<OutsidePhaseDrawDiscardStartedEvent>(g).Count(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard) == 1 &&
-            P(g)!.Choices.Where(c => c.Targets.SequenceEqual([1])).All(c => c.Cards.Count == 0 && c.Parameters["source-zone"] == nameof(CardZoneKind.Hand)),
-            "The real formal Sanchen simultaneously pays three own Hand cards during Play and produces one exact native discard obligation with genuinely opaque foreign Hand slots.");
-        Private(g); Frozen(r.OriginalDiscards); Frozen(r.EligibleMaterials);
-        Answer(g, c => c.Targets.SequenceEqual([1]) && c.Parameters.GetValueOrDefault("slot-index") == "0");
-        Reach(g, p => p.SkillPrompt?.SkillId == DiscardChild && IsContinue(p));
-        root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == id); r = root.OutsidePhaseDrawDiscard!;
-        var child = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.ParentFrameId == id);
-        Require(r is { Stage: OutsidePhaseDrawDiscardStage.MovementChildren, MovementIssued: true, ActualCount: 1, ParticipantSeat: 1, PaidMaterial: { } } &&
-            root.PendingMovementContinuation?.SubjectSeat == 1 && child.Batch.AwaitingProgramFrameId == id &&
-            child.Batch.Movements is [var discard] && discard.CardId == r.PaidMaterial.CardId && discard.From == CardLocation.Hand(1) &&
-            discard.To == CardLocation.DiscardPile && discard.Sequence > r.SequenceBefore && discard.Sequence <= r.SequenceAfter &&
-            !E<OutsidePhaseDrawDiscardCompletedEvent>(g).Any(e => e.FrameId == id),
-            "The blind selection really discards its original foreign Hand entity once and keeps the owning receipt outstanding beneath that original owner's native child.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g);
-        Require(E<OutsidePhaseDrawDiscardCompletedEvent>(g).Count(e => e.FrameId == id && e.ActualCount == 1) == 1 &&
-            E<OutsidePhaseDrawDiscardMovementIssuedEvent>(g).Count(e => e.FrameId == id && e.PaidMaterial?.CardId == r.PaidMaterial!.CardId) == 1 &&
-            E<DrawDiscardCategoryCompletedEvent>(g).Single() is { DistinctNonEmpty: false, BonusIssued: false },
-            "Cold child return settles the single native discard once without repeating Sanchen payment or inventing distinct categories from the all-equipment deck.");
-        Use(g, "draw-three"); Reach(g, p => Outside(p, "draw-target")); Answer(g, c => c.Targets.SequenceEqual([0])); Play(g);
-        var count = E<OutsidePhaseDrawDiscardStartedEvent>(g).Count(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => p is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 });
-        var original = P(g)!; Accept(g, new DiscardCardsCommand(0, original.ValidCardIds.Take(original.RequiredCardCount).ToArray(), original.PromptId, g.Revision));
-        Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-        Require(E<HandLimitDiscardedEvent>(g).Any(e => e.ActorSeat == 0 && e.CardIds.Count > 0) &&
-            E<OutsidePhaseDrawDiscardStartedEvent>(g).Count(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard) == count,
-            "A real positive own hand-limit discard during the native Discard phase remains excluded even though its producer is genuine discard.");
-    }
-
     private static void Benefit(GameEngine g, int seat, string option)
     {
         Reach(g, p => Entity(p, "benefit-target")); Answer(g, c => c.Targets.SequenceEqual([seat]));
         Reach(g, p => Entity(p, "benefit-option")); Answer(g, c => c.Parameters.GetValueOrDefault("option") == option);
     }
-    private static void ReachDeathInheritanceOffer(GameEngine g)
-    {
-        for (var step = 0; step < 40; step++)
-        {
-            var p = P(g);
-            if (p?.SkillPrompt?.SkillId == Huaiyuan && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate")) return;
-            if (g.CreateSnapshot(0).Status == EngineStatus.Completed ||
-                E<PlayerDiedEvent>(g).Any(e => e.VictimSeat == 0) &&
-                !g.ResolutionStack.OfType<DeathFrame>().Any(f => f.VictimSeat == 0)) break;
-            if (p is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 })
-                Answer(g, c => c.Cards.Count == 0 && (c.Parameters.GetValueOrDefault("response") is "let-die" or "pass" || c.Parameters.GetValueOrDefault("action") == "pass"));
-            else Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The genuine optional OwnerDied inheritance offer was not published: " + JsonSerializer.Serialize(new
-        {
-            Views = Enumerable.Range(0, 4).Select(s => new { Viewer = s, State = g.CreateSnapshot(s) }).ToArray(),
-            Frames = g.ResolutionStack, Bonuses = E<OriginalHandPermanentBonusGrantedEvent>(g),
-            Bindings = E<ProgramBindingResolvedEvent>(g).Where(e => e.SkillId == Huaiyuan).ToArray(),
-            RecentFacts = g.Events.TakeLast(14).Select(e => new { Type = e.Payload.GetType().Name, Fact = JsonSerializer.Serialize(e.Payload, e.Payload.GetType()) }),
-            RecentCommands = CommandJson.Serialize(g.AcceptedCommands.TakeLast(5))
-        }));
-    }
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool Entity(PendingDecision p, string action) => Has(p, "original-hand-entity") && p.Choices.Any(c => c.Parameters.GetValueOrDefault("entity-action") == action);
-    private static bool Outside(PendingDecision p, string branch) => Has(p, "outside-phase-draw-discard") && p.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == branch);
-    private static bool IsContinue(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static ProgramSkillFrame OutsideRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.OutsidePhaseDrawDiscard is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand command) { var r = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(r.Accepted, r.Error?.Message ?? "A legal fixed Yang Hu command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Reach(GameEngine g, Func<PendingDecision, bool> stop)

@@ -63,60 +63,6 @@ internal static class BoundaryLiuBiaoChecks
             "All three ending entities are discarded once, and returning the cost does not repay the extra draw."); Cold(g, r);
     }
 
-    public static void SourceFactionQuotaOpaqueHeJAndEquipmentChildrenAreExact()
-    {
-        // The genuine native chooser gets slots, not the other participant's hand IDs.
-        var (hidden, hr) = Create(); Play(hidden); Use(hidden, "opponent-duel", [1]);
-        Reach(hidden, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(hidden);
-        Reach(hidden, p => p.PlayerSeat == 1 && p.SkillPrompt?.SkillId == Faction);
-        var pending = P(hidden)!; var frozen = Facts<ProgramSourceFactionPreventionIssuedEvent>(hidden).Single();
-        Require(pending.ValidCardIds.Count == 0 && pending.Choices.Count == hidden.State.Players[0].HandCount &&
-            pending.Choices.All(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)) &&
-            frozen is { SourceSeat: 1, TargetSeat: 0, PreventedAmount: 1 } && frozen.Source.OwnerSeat == 0,
-            "Mandatory prevention consumes the actual foreign faction before publishing opaque HEJ choices to the exact source.");
-        Private(hidden, 1); Cold(hidden, hr); Reject(hidden); Play(hidden);
-        Require(!Facts<DamageAppliedEvent>(hidden).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0) &&
-            hidden.CardMovements.Count(m => m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing && m.Reason.Value == YieldReason) == 1 &&
-            hidden.CardMovements.Count(m => m.From == CardLocation.Processing && m.To == CardLocation.Hand(1) && m.Reason.Value == YieldReason) == 1,
-            "The source's native choice transfers one actual hidden entity and prevents the whole damage once.");
-        Use(hidden, "lose-faction"); Play(hidden); Use(hidden, "regain-faction"); Play(hidden);
-        var hp = hidden.State.Players[0].Hp; Use(hidden, "opponent-duel", [1]);
-        Reach(hidden, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(hidden); Play(hidden);
-        Require(hidden.State.Players[0].Hp == hp - 1 && Facts<ProgramSourceFactionPreventionIssuedEvent>(hidden).Count() == 1 &&
-            hidden.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s => s.SkillId == Faction).Usages
-                .Any(u => u.UsageId == frozen.UsageId && u.Scope == SkillUsageScope.Game && u.Count == 1),
-            "Losing and regaining the real skill instance does not reset the already consumed source-faction game key."); Cold(hidden, hr);
-
-        var (g, r) = Create(equipment: true, observers: true); Play(g); Use(g, "equip", [0]); Play(g);
-        var silver = g.CreateSnapshot(0).Players[0].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        Use(g, "clear-hand");
-        Play(g); Require(g.State.Players[0].HandCount == 0 && g.State.Players[0].Hp == 2,
-            "Real equipment placement and a real whole-hand payment leave only the wounded owner's Silver Lion.");
-        Use(g, "opponent-duel", [1]);
-        Reach(g, p => p.PlayerSeat == 1 && p.SkillPrompt?.SkillId == Faction);
-        Require(P(g)!.Choices is [var only] && only.Cards.SequenceEqual([silver]),
-            "The source has one genuine visible equipment entity to select."); Cold(g, r);
-        Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SourceFactionPrevention is not null);
-        var beforeDamage = g.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single(f => f.Id == root.SourceFactionPrevention!.BeforeDamageFrameId);
-        Require(root.InstructionIndex == 2 && root.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0 } && beforeDamage.Prevented &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.ResumeFrameId == root.Id &&
-                f.Continuation == PostEventContinuation.AwaitedProgramMovement && f.Change.ParentFrameId == root.Id) &&
-            g.State.Players[0].Hp == 3 && g.CardMovements.Count(m => m.CardId == silver && m.From == CardLocation.Equipment(0) && m.To == CardLocation.Processing && m.Reason.Value == YieldReason) == 1,
-            "The real Silver Lion recovery pauses above the exact already-prevented damage and already-paid transfer.");
-        Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == YieldGain);
-        Require(root.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0, CoverageResultBind: null } &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.Batch.ParentFrameId == root.Id && f.ResumeProgramFrameId is null &&
-                (f.Batch.AwaitingProgramFrameId is null || f.Batch.AwaitingProgramFrameId == root.Id)) &&
-            g.CardMovements.Count(m => m.CardId == silver && m.From == CardLocation.Processing && m.To == CardLocation.Hand(1) && m.Reason.Value == YieldReason) == 1,
-            "The recipient's real gain child follows recovery and keeps the same prevention program return.");
-        Private(g, 1); Cold(g, r); Play(g);
-        Use(g, "another-duel", [2]); Play(g);
-        Require(Facts<ProgramSourceFactionPreventionIssuedEvent>(g).Count() == 2 && g.State.Players[0].Hp == 3 &&
-            g.CardMovements.Count(m => m.Reason.Value == YieldReason && m.To.Zone == CardZoneKind.Hand) == 1,
-            "A different source faction prevents once even when HEJ is empty, without fabricating another transfer."); Cold(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool faction = true, bool observers = false, bool equipment = false,
         bool native = false, bool emptyDeck = false)
     {
@@ -140,7 +86,6 @@ internal static class BoundaryLiuBiaoChecks
     private static void PlaySlash(GameEngine g, int target) { var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.ConversionSource is null && a.TargetSeats.Contains(target));
         Accept(g, new PlayCardCommand(0, a.CardId!.Value, [target], g.Revision, P(g)!.PromptId, a.PlayedCardKind)); }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "take-damage");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);

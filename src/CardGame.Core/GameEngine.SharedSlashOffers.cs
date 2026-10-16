@@ -264,7 +264,7 @@ public sealed partial class GameEngine
                 a.ActionId != returned.CardActionId || a.ActorSeat != actor || a.ProviderSeat != actor ||
                 a.PhysicalCards.Count != 0 || a.ConversionChain.Count != 0 ||
                 !a.TargetSeats.SequenceEqual(use.TargetSeats) && !IsCurrentSlashFireChangedUse(use) ||
-                use.TargetSeats.Count > 1 && !(HasWeifuTargetTail(use) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) && !HasIssuedOriginalTargetAdditionTail(use) && !HasSameTypeAidTargetTail(use) && !HasShortRangeSlashTail(use) && !IsCurrentSlashFireChangedUse(use) ||
+                use.TargetSeats.Count > 1 && !((HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) && !HasIssuedOriginalTargetAdditionTail(use) && !HasSameTypeAidTargetTail(use) && !HasShortRangeSlashTail(use) && !IsCurrentSlashFireChangedUse(use) ||
                 !SharedSlashHistory().OfType<TargetsConfirmedEvent>().Any(e => e.ResolutionId == use.Id && e.TargetSeats.SequenceEqual([returned.OriginalTargetSeat]))))
                 throw new InvalidOperationException("A shared Slash changed its exact zero-entity accepted action.");
             if (r.Stage == SharedSlashOfferStage.SlashIssued && (use is null || r.CausedDamage is not null) ||

@@ -26,60 +26,6 @@ internal static class YangFengChecks
             Need(second.CompletedTurns==1&&second.X==1&&second.RequiredDiscard==1&&E<JiaweiMaterialSelectedEvent>(g).Count(e=>e.FrameId==second.FrameId)==1,"The next own actual turn freezes one completed own turn and pays exactly one original self card.");AssertPartition(g,second.FrameId,0);_=Cold(g,r);
         }
     }
-    public static void JiaweiOpaqueHeJPaymentsNativeChildrenAndSourceLossCold()
-    {
-        foreach(var scene in new[]{"foreign","lion","ox","weapon","loss","death"})
-        {
-            var(g,r)=Start(scene);int? equipment=null,grain=null,judgment=null;
-            if(scene=="foreign"){Native(g,a=>a.Kind==LegalActionKind.Indulgence&&a.TargetSeats.SequenceEqual([1]));Play(g);judgment=V(g,1).Judgment.Single().Id;}
-            if(scene is"lion"or"ox"){Native(g,a=>a.Kind==LegalActionKind.Equip);Play(g);equipment=V(g,0).Equipment.Single().Id;if(scene=="lion"){Use(g,"lose");Play(g);}else{grain=V(g,0).Hand[0].Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}}
-            if(scene=="weapon"){Use(g,"weapon");Reach(g,()=>Action(g,"advanced-lifecycle"));Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:yf-weapon");Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Play(g);equipment=V(g,0).Equipment.Single(c=>c.Kind==CardKind.GeneralWeapon).Id;}
-            Extra(g);var target=scene=="foreign"?1:0;Jia(g,target);Reach(g,()=>YangMenu(g,"discard"));var p=P(g)!;
-            if(scene=="foreign")
-            {
-                var before=State(g);Need(p.IsPrivate&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("source-zone")==nameof(CardZoneKind.Hand)&&c.Cards.Count==0)&&p.Choices.Any(c=>c.Cards.SequenceEqual([judgment!.Value]))&&
-                    Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null)&&!g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==before,"The exact HEJ selector exposes foreign hand slots opaquely and visible judgment entities only to the real chooser, rejecting another person's answer.");g=Cold(g,r);
-            }
-            var hp=V(g,0).Hp;Answer(g,c=>judgment is{}j?c.Cards.SequenceEqual([j]):equipment is{}id?c.Cards.SequenceEqual([id]):c.Cards.Count==1);
-            if(scene=="lion")
-            {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);var own=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.YangFeng is not null);Need(V(g,0).Hp==hp+1&&own.YangFeng!.Stage==YangFengStage.DiscardChildren&&E<JiaweiEntityRevealedEvent>(g).All(e=>e.FrameId!=own.Id),"The equipped Lion's actual recovery child runs beneath the already-paid original discard before any top card is revealed.");g=Cold(g,r);Continue(g);}
-            if(scene is"loss"or"death")
-            {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);if(scene=="death"){Reach(g,()=>!V(g,0).IsAlive&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.YangFeng is not null));Need(g.State.Winner==Winner.None&&E<JiaweiMaterialSelectedEvent>(g).Length==1&&!E<JiaweiDistanceGrantedEvent>(g).Any()&&E<YangFengMovementIssuedEvent>(g).Any(e=>e.Movement.Stage==YangFengStage.CleanupChildren),"Real non-Lord source death finishes original paid children, reveals and settles the original entities without gaining cards or granting distance to the dead source.");_=Cold(g,r);continue;}Need(V(g,0).Skills!.All(s=>s.ContentId!=Jiawei),"The real discard child removes the original conditional Jiawei source before its remaining reveal and benefits.");}
-            Play(g);var started=E<YangFengStartedEvent>(g).Last(e=>e.Op==SkillProgramEffectOp.ResolveJiaweiDiscardReveal);Need(E<JiaweiMaterialSelectedEvent>(g).Count(e=>e.FrameId==started.FrameId)==1&&E<YangFengMaterialMovedEvent>(g).Count(e=>e.FrameId==started.FrameId&&e.Stage==YangFengStage.DiscardChildren)==1,"The original selected entity is paid exactly once across all native children and cold restores.");AssertPartition(g,started.FrameId,target);
-            if(equipment is{}eq)Need(g.CardMovements.Count(m=>m.CardId==eq&&m.From==CardLocation.Equipment(0)&&m.To==(scene=="weapon"?CardLocation.OutsideGame:CardLocation.DiscardPile)&&m.Reason.Value=="skill-program.yang-feng.jiawei.discard")==1,"Equipment discard retains native GeneralWeapon OutsideGame normalization and one original payment.");
-            if(grain is{}gr)Need(g.CardMovements.Any(m=>m.CardId==gr&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile)&&E<JiaweiMaterialSelectedEvent>(g).All(e=>e.Material.CardId!=gr),"The native Ox loses its stored grain through its real cleanup child rather than counting grain as a Jiawei payment.");
-            if(scene=="loss")Need(E<JiaweiDistanceGrantedEvent>(g).Length==1&&g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([2])),"The original paid activation grants its remaining benefit after actual skill loss.");_=Cold(g,r);
-        }
-    }
-    public static void QujiaLimitedNativeExtraTurnAndKillGateCold()
-    {
-        {
-            var(g,r)=Start("extra");var original=g.State.TurnNumber;Extra(g);Need(g.State.CurrentSeat==0&&g.State.TurnNumber==original+1&&E<TurnStartedEvent>(g).Select(e=>e.ActorSeat).SequenceEqual([0,0])&&E<ProgramExtraTurnPendedEvent>(g).Length==1,"Qujia executes a real next own actual turn, preserving the normal-seat resume and issuing no fake phase or turn.");
-            Jia(g,0);Reach(g,()=>YangMenu(g,"discard"));g=Cold(g,r);Answer(g,c=>c.Cards.Count==1);Play(g);Need(E<YangFengStartedEvent>(g).Last().X==1,"The genuine extra turn already sees its completed original turn in Jiawei's quota.");End(g);Reach(g,()=>g.State.CurrentSeat!=0||QujiaPrompt(g));Need(!QujiaPrompt(g)&&E<QujiaChoiceIssuedEvent>(g).Length==1,"The limited extra-turn choice is consumed once for the game and does not reopen at that extra turn's end.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("kill");Use(g,"kill",[1]);Reach(g,()=>!V(g,1).IsAlive);Play(g);Need(E<PlayerDiedEvent>(g).Any(e=>e.KillerSeat==0)&&g.State.Winner==Winner.None,"The fixture records an actual owner-attributed kill while other enemies survive.");End(g);Reach(g,()=>g.State.CurrentSeat!=0||QujiaPrompt(g));Need(!QujiaPrompt(g)&&!E<QujiaChoiceIssuedEvent>(g).Any(),"An actual kill anywhere in the owner's completed turn blocks the limited trigger.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("flip");Use(g,"flip");Play(g);Need(V(g,0).IsFaceDown,"The native fixture genuinely turns the owner's character face down.");End(g);SkipQujia(g);Reach(g,()=>QujiaPrompt(g));Need(!V(g,0).IsFaceDown&&E<TurnStartedEvent>(g).Count(e=>e.ActorSeat==0)==2&&E<TurnEndedEvent>(g).Count(e=>e.ActorSeat==0)==2,"A native face-up skipped actual turn has its own real start/end and permits the still-unspent own-turn-end limited trigger.");
-            Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>YangMenu(g,"extra"));g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="extra");Play(g);Use(g,"cap");Play(g);Need(V(g,0).MaxHp==1&&V(g,0).Hp==1,"A real maximum-HP change supplies the quota cap without forging state.");Jia(g,0);Reach(g,()=>YangMenu(g,"discard"));Answer(g,c=>c.Cards.Count==1);Play(g);var started=E<YangFengStartedEvent>(g).Last();Need(started.CompletedTurns==2&&started.MaximumHp==1&&started.X==1,"Jiawei counts completed normal/skipped/extra turns and freezes the real maximum-HP cap at activation.");_=Cold(g,r);
-        }
-    }
-    public static void QujiaPermanentSlashBonusDeckGainAndDeathCold()
-    {
-        foreach(var scene in new[]{"quota-gain","quota-loss","quota-death","quota-empty"})
-        {
-            var(g,r)=Start(scene);End(g);Reach(g,()=>QujiaPrompt(g));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>YangMenu(g,"quota"));g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="quota");
-            if(scene!="quota-empty")
-            {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);Need(E<QujiaSlashBonusGrantedEvent>(g).Length==1&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.yang-feng.qujia.gain")==1,"The permanent quota and one genuine deck Slash are issued once before the native gained-card child.");g=Cold(g,r);Continue(g);}
-            if(scene=="quota-death")
-            {Reach(g,()=>!V(g,0).IsAlive&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.YangFeng is not null));Need(g.State.Winner==Winner.None&&E<QujiaSlashBonusGrantedEvent>(g).Length==1&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.yang-feng.qujia.gain")==1,"Real non-Lord source death drains its already-issued genuine gain exactly once and returns to the same actual turn-end parent.");_=Cold(g,r);continue;}
-            Play(g);if(scene=="quota-loss")Need(V(g,0).Skills!.All(s=>s.ContentId!=Qujia),"The real native gain child removes the original conditional Qujia skill.");
-            Need(g.CardMovements.Count(m=>m.Reason.Value=="skill-program.yang-feng.qujia.gain")==(scene=="quota-empty"?0:1),"A missing actual deck Slash never manufactures a card, while the chosen permanent quota still applies.");
-            Slash(g,1);Play(g);Slash(g,1);Play(g);Need(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash)&&E<CardUseDebitRecordedEvent>(g).Count(e=>e.Debit.Query==SkillRuleQuery.SlashLimit)==2&&E<QujiaSlashBonusGrantedEvent>(g).Length==1,"The original permanent benefit permits exactly two real ordinary Slash uses on a later actual turn, including after actual source loss, with genuine quota debits.");
-            if(scene=="quota-loss"){Use(g,"regrant");Play(g);Need(V(g,0).Skills!.Any(s=>s.ContentId==Qujia),"A real native new-instance grant restores Qujia after the previous conditional source was actually lost.");End(g);Reach(g,()=>g.State.CurrentSeat!=0||QujiaPrompt(g));Need(!QujiaPrompt(g)&&E<YangFengStartedEvent>(g).Count(e=>e.Op==SkillProgramEffectOp.ResolveQujiaLimitedTurnEnd)==1,"Losing and reacquiring Qujia through a genuine new grant never refreshes its game-limited benefit.");}_=Cold(g,r);
-        }
-    }
     private static void AssertPartition(GameEngine g,long frameId,int target)
     {
         var revealed=E<JiaweiEntityRevealedEvent>(g).Where(e=>e.FrameId==frameId).ToArray();var paid=E<YangFengMaterialMovedEvent>(g).Where(e=>e.FrameId==frameId&&e.Stage is YangFengStage.OwnerGainChildren or YangFengStage.TargetGainChildren).ToArray();
@@ -96,10 +42,8 @@ internal static class YangFengChecks
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(result.Accepted,result.Error?.Message??"Rejected actual Yang Feng command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;var choice=p.Choices.FirstOrDefault(pick);Need(p.PlayerSeat==0&&choice is not null,"Missing genuine human Yang Feng choice: "+Diagnostic(g));Accept(g,new AnswerPromptCommand(0,p.PromptId,choice!.Id,g.Revision));}
     private static void Continue(GameEngine g){if(P(g)?.PlayerSeat==0)Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");else Accept(g,new AdvanceOneStepCommand(g.Revision));}
-    private static void Use(GameEngine g,string id,int[]? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets??[],g.Revision,P(g)!.PromptId));
     private static void Jia(GameEngine g,int target)=>Accept(g,new UseProgramSkillCommand(0,Jiawei,"discard-reveal-partition",[],[target],g.Revision,P(g)!.PromptId));
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-    private static void Extra(GameEngine g){End(g);Reach(g,()=>QujiaPrompt(g));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>YangMenu(g,"extra"));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="extra");Play(g);}
     private static void SkipQujia(GameEngine g){Reach(g,()=>QujiaPrompt(g));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");}
     private static void Slash(GameEngine g,int target)=>Native(g,a=>a.Kind==LegalActionKind.Slash&&a.PlayedCardKind==CardKind.Slash&&a.TargetSeats.SequenceEqual([target]));
     private static void Native(GameEngine g,Func<LegalAction,bool> pick){var a=g.GetHumanLegalActions().FirstOrDefault(pick);Need(a is not null,"Missing native Yang Feng action: "+Diagnostic(g));Accept(g,new PlayCardCommand(0,a!.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});}

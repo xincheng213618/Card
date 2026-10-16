@@ -13,7 +13,7 @@ public sealed partial class GameEngine
             !IsYanPuDyingExitEdge(_resolutionStack.Count - 1) ||
             parent.CandidateIndex < 0 || parent.CandidateIndex >= parent.Candidates.Count ||
             !MountObserverCandidateMatches(frame, parent.Candidates[parent.CandidateIndex]) ||
-            GetProgramTrigger(frame).Effects is not [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance }])
+            GetProgramTrigger(frame).Effects is not [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice }])
             throw new InvalidOperationException("A survived-Dying binding lost its exact completed-Dying parent and current candidate.");
         AdvanceProgramLifecycleCursor(parent);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();

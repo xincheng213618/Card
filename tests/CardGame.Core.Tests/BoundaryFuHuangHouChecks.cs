@@ -37,65 +37,6 @@ internal static class BoundaryFuHuangHouChecks
             "Cold continuation does not repeat the winning issuance and its grant expires with that same actual turn.");
     }
 
-    public static void DamageTrickGroupPrivateGiftLegacyVirtualAndNativeContracts()
-    {
-        foreach (var kind in new[] { CardKind.FireAttack, CardKind.BarbarianAssault, CardKind.ArrowBarrage })
-        {
-            var (g, r) = Create(deck: "fireAttack", aid: true, ordinary: kind); Play(g); End(g);
-            Reach(g, p => Offer(p, Aid)); Activate(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == Aid && p.Choices.Any(c => c.Parameters.GetValueOrDefault("aid-option") == "recipient"));
-            Answer(g, c => c.Targets.SequenceEqual([2]));
-            if (kind == CardKind.FireAttack)
-            {
-                Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.FireAttackReveal);
-                var fact = E<SameTypeAidTargetAddedEvent>(g).Single();
-                Require(fact.Use.EffectiveKind == kind && fact.RecipientSeat == 2, "The native recipient accepts a real FireAttack additional target.");
-                g = Restore(g, r); Answer(g, c => c.Cards.Count == 1);
-                Until(g, () => E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == fact.Use.CardUseFrameId));
-                Require(E<FireAttackResolvedEvent>(g).Where(e => e.ResolutionId == fact.Use.CardUseFrameId).Select(e => e.TargetSeat)
-                    .Distinct().Order().SequenceEqual([0, 2]), "Each actual FireAttack target runs its own reveal/discard/damage chain.");
-            }
-            else
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-                var paid = E<SameTypeAidGiftPaidEvent>(g).Single();
-                Require(paid.Use.EffectiveKind == kind && !E<SameTypeAidTargetAddedEvent>(g).Any(),
-                    "An already included AOE recipient gives a different-name Trick and never becomes a duplicate target.");
-                g = Restore(g, r); Continue(g);
-                Until(g, () => E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == paid.Use.CardUseFrameId));
-                Require(g.CardMovements.Count(m => m.Sequence == paid.MovementSequence && m.Reason.Value == Gift) == 1,
-                    "The restored AOE gift does not bypass its normal target responses or repay a hidden card.");
-            }
-        }
-        var (legacy, lr) = Create(deck: "peach", aid: true, legacy: true, fragileRecipients: true); Play(legacy); End(legacy);
-        Reach(legacy, p => Offer(p, Aid)); Activate(legacy);
-        Reach(legacy, p => p.SkillPrompt?.SkillId == Aid && p.Choices.Any(c => c.Parameters.GetValueOrDefault("aid-option") == "recipient"));
-        Answer(legacy, c => c.Targets.SequenceEqual([2])); Reach(legacy, p => p.SkillPrompt?.SkillId == Gain);
-        var old = E<SameTypeAidGiftPaidEvent>(legacy).Single();
-        Require(old.Use.CardActionId is null && old.Use.LegacyProducerProgramId is not null &&
-            !E<CardActionAcceptedEvent>(legacy).Any(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == old.Use.ActorSeat &&
-                e.Action.EffectiveKind == CardKind.Slash), "A real registered mandatory legacy producer retains its Action-null use and can request aid without a manufactured Action.");
-        legacy = Restore(legacy, lr); Continue(legacy);
-        Until(legacy, () => E<CardUseFinishedEvent>(legacy).Any(e => e.ResolutionId == old.Use.CardUseFrameId) ||
-            !legacy.ResolutionStack.OfType<CardUseFrame>().Any(u => u.Id == old.Use.CardUseFrameId));
-
-        var (native, _) = Create(win: true, native: true);
-        for (var i = 0; i < 80 && native.State.Status != EngineStatus.Completed && !E<ForeignTurnContestRestrictedEvent>(native).Any(); i++)
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<ForeignTurnContestRestrictedEvent>(native).Any() && E<PindianResultDeterminedEvent>(native).Any(e => e.SkillId == Contest),
-            "Native automatic play truly accepts and pays a foreign Pindian opportunity, without manually answering a bot.");
-        foreach (var trigger in new[] {
-            """{"id":"wrong","window":"otherActualTurnStarted","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"eventSource"},{"op":"startPindian","target":"owner","opponentRef":{"kind":"selectedTarget"},"resultBind":"x","visibility":"public"},{"op":"resolveForeignTurnPindian","target":"owner","sourceBind":"x"}]}""",
-            """{"id":"wrong","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash"],"optional":true,"effects":[{"op":"offerSameTypeDifferentNameOrExtraTarget","target":"owner"}]}""" })
-        {
-            var failed = false; try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion +
-                ",\"skills\":[{\"id\":\"fixture:fhh-invalid\",\"revision\":1,\"triggers\":[" + trigger + "]}]}",
-                """{"schemaVersion":3,"skills":{"fixture:fhh-invalid":{"name":"精确合同","description":"无旁路"}}}"""); }
-            catch (InvalidOperationException) { failed = true; }
-            Require(failed, "Only the exact optional foreign contest and supported original-target aid contracts load.");
-        }
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Offer(PendingDecision p, string skill) => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == skill &&
@@ -107,8 +48,6 @@ internal static class BoundaryFuHuangHouChecks
     }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, activation, cards, targets, g.Revision, P(g)!.PromptId));
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");

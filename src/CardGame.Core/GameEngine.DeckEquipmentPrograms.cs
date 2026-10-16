@@ -86,7 +86,7 @@ public sealed partial class GameEngine
 
     private bool RandomEquipmentFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath)
     {
-        if (IsXiangChongGuyingEquipmentRide(ride, beneath)) return true;
+        if (IsXiangChongGuyingEquipmentRide(ride, beneath) || IsSuyiEquipmentRide(ride, beneath)) return true;
         if (IsHuoJunFenruiNativeEquipment(ride, beneath)) return true;
         if (FriendXuanjianFrameRidesOn(ride, beneath)) return true;
         if (ride is ProgramSkillFrame { WindowContext: { } observer } && observer.ParentFrameId == beneath.Id &&

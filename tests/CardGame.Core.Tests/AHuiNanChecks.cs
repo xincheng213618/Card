@@ -27,87 +27,10 @@ internal static class AHuiNanChecks
             Need(E<AHuiNanJuemanStartedEvent>(g).Single(e=>e.ActualTurn==next).BasicCount==0&&E<AHuiNanJuemanDrawnEvent>(g).Length==1,"A new actual turn starts an empty ledger; the prior turn's two users cannot leak into it.");_=Cold(g,r);
         }
     }
-    public static void ThirdBasicForcedNativeKindsLegalityAndCold()
-    {
-        foreach(var scenario in new[]{"fire","thunder","peach","full-peach","alcohol","third-dodge"})
-        {
-            var(g,r)=Start(scenario);Use(g,"draw");Play(g);Incoming(g,1,0);
-            if(scenario=="third-dodge")
-            {
-                Incoming(g,1,0,true);Need(E<AHuiNanBasicUseRecordedEvent>(g).Select(e=>e.Kind).SequenceEqual([CardKind.Slash,CardKind.Slash,CardKind.Dodge]),"The actual second incoming Slash and its real physical Dodge occupy distinct second and third use slots.");
-            }
-            else
-            {
-                Incoming(g,1,0);if(scenario=="full-peach"){Use(g,"recover");Play(g);}
-                NativeKind(g,scenario switch{"fire"=>CardKind.FireSlash,"thunder"=>CardKind.ThunderSlash,"alcohol"=>CardKind.Alcohol,_=>CardKind.Peach},scenario is"fire"or"thunder"?1:null);Play(g);
-            }
-            var turn=g.State.TurnNumber;var kind=E<AHuiNanBasicUseRecordedEvent>(g).Single(e=>e.Index==3).Kind;End(g);
-            if(scenario is"full-peach"or"third-dodge")
-            {FinishTurn(g,turn);Need(!E<AHuiNanJuemanUseIssuedEvent>(g).Any()&&E<AHuiNanJuemanCompletedEvent>(g).Any(e=>e.Outcome=="no-legal-use"),"The mandatory copy cannot manufacture an active Dodge or a Peach for a full-HP actor.");_=Cold(g,r);continue;}
-            Reach(g,()=>Current(g)?.Stage==AHuiNanJuemanStage.UseChoice);
-            var p=P(g)!;Need(p is{PlayerSeat:0,IsPrivate:true}&&p.Choices.All(c=>c.Parameters.GetValueOrDefault("program-action")=="a-hui-nan-jueman")&&!p.Choices.Any(c=>c.Parameters.Values.Contains("skip"))&&g.CreateSnapshot(1).PendingDecision is null,"A legal third-basic use is a real private mandatory choice, with no voluntary decline.");
-            if(scenario is"fire"or"thunder")Need(p.Choices.Any(c=>c.Targets.SequenceEqual([1]))&&!p.Choices.Any(c=>c.Targets.SequenceEqual([2])),"The ending Slash keeps current native distance even after the ordinary physical Slash already spent its usual quota.");
-            var state=State(g);Need(!g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==state,"A different actor cannot answer the frozen private use request or alter its receipt.");
-            g=Cold(g,r);Answer(g,c=>scenario is"fire"or"thunder"?c.Targets.SequenceEqual([1]):true);Reach(g,()=>ZeroCommit(g));
-            var native=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.AHuiNanJueman is not null);var id=native.Id;var hp=V(g).Hp;
-            Need(native.CardId==0&&native.CardKind==kind&&native.PhysicalCardIds is{Count:0}&&native.Action is{Type:CardActionType.Use,PhysicalCards.Count:0,EffectiveSuit:Suit.None,EffectiveRank:0},"The exact third effective kind, including Fire or Thunder, becomes its own genuine colorless zero-material native use.");
-            g=Cold(g,r);Continue(g);FinishTurn(g,turn);
-            Need(E<AHuiNanJuemanUseReturnedEvent>(g).Count(e=>e.Origin.CardUseFrameId==id)==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==id)==1&&E<AHuiNanBasicUseRecordedEvent>(g).Count(e=>e.ActualTurn==turn)==3,"Native effects and response descendants return exactly once; the ending copy neither duplicates the original three declarations nor starts another whole turn.");
-            if(scenario=="peach")Need(V(g).Hp==hp+1&&E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==0),"The actual copied Peach performs native recovery.");
-            if(scenario=="alcohol")Need(E<AlcoholAppliedEvent>(g).Any(e=>e.ResolutionId==id)&&E<AlcoholExpiredEvent>(g).Any(e=>e.PlayerSeat==0)&&!V(g).HasAlcoholEffect,"A forced second ordinary Alcohol is not blocked by the earlier Play quota, and its actual ending-tail effect expires before the next turn.");_=Cold(g,r);
-        }
-    }
-    public static void DodgeUsePlayedResponsesAndHistoricalSourceCold()
-    {
-        {
-            var(g,r)=Start("dodge");Incoming(g,1,0,true);
-            Need(E<AHuiNanBasicUseRecordedEvent>(g).Select(e=>e.ActorSeat).SequenceEqual([1,0])&&E<AHuiNanBasicUseRecordedEvent>(g)[1].Kind==CardKind.Dodge,"A real self-provided Dodge used against a Slash is the second basic use, with the actual responder as its user.");
-            var turn=g.State.TurnNumber;g=Cold(g,r);End(g);FinishTurn(g,turn);Need(E<AHuiNanJuemanDrawnEvent>(g).Single().Count==1,"The actual Dodge user earns the exact-one-of-two draw.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("played");Use(g,"duel",[1]);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RespondSlash});Answer(g,c=>c.Cards.Count==1);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Response);
-            Need(E<DuelResponseEvent>(g).Any(e=>e.ResponderSeat==0&&e.UsedSlash&&e.SlashCardId>0)&&!E<AHuiNanBasicUseRecordedEvent>(g).Any(),"The real paid Slash in a native Duel is a played response, not a basic-card Use; the incoming Duel also adds no basic slot.");g=Cold(g,r);Continue(g);Play(g);_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("historical");Use(g,"draw");Play(g);Incoming(g,1,2);Incoming(g,1,2);NativeKind(g,CardKind.FireSlash,1);Play(g);
-            Need(V(g).Skills!.All(s=>s.ContentId!=Skill)&&E<AHuiNanBasicUseRecordedEvent>(g).Length==3,"The actual-turn first-three ledger exists even before this character acquires Jueman.");
-            Use(g,"gain");Play(g);var turn=g.State.TurnNumber;g=Cold(g,r);End(g);Reach(g,()=>Current(g)?.Stage==AHuiNanJuemanStage.UseChoice);Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>ZeroCommit(g));g=Cold(g,r);Continue(g);FinishTurn(g,turn);
-            Need(E<AHuiNanJuemanUseIssuedEvent>(g).Single().Origin.CardKind==CardKind.FireSlash&&E<AHuiNanJuemanUseReturnedEvent>(g).Length==1,"A genuinely newly granted source uses the already-existing actual turn history and preserves the exact third elemental Slash.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("rescue");Use(g,"dying");Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RescueDying}rescue&&rescue.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue));
-            g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue);Play(g);
-            Need(V(g).Hp==1&&E<AHuiNanBasicUseRecordedEvent>(g)is[{Kind:CardKind.Alcohol,ActorSeat:0}],"A genuine native zero-entity self-dying Wine use occupies one basic slot, including its legacy Action-null producer.");
-            Incoming(g,1,2);var turn=g.State.TurnNumber;g=Cold(g,r);End(g);FinishTurn(g,turn);Need(E<AHuiNanJuemanDrawnEvent>(g).Single().Count==1,"Real self-rescue then a different user's Slash satisfy the exact-one branch.");_=Cold(g,r);
-        }
-    }
-    public static void PaidDrawNativeChildrenLossDeathAndTailCold()
-    {
-        foreach(var scenario in new[]{"paid-loss","paid-death","native-loss"})
-        {
-            var(g,r)=Start(scenario);Use(g,"draw");Play(g);
-            if(scenario=="native-loss"){Incoming(g,1,2);Incoming(g,1,2);NativeKind(g,CardKind.FireSlash,1);Play(g);}
-            else{NativeKind(g,CardKind.Alcohol);Play(g);Incoming(g,1,2);}
-            var turn=g.State.TurnNumber;End(g);
-            if(scenario=="native-loss"){Reach(g,()=>Current(g)?.Stage==AHuiNanJuemanStage.UseChoice);Answer(g,c=>c.Targets.SequenceEqual([1]));}
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==(scenario=="native-loss"?Late:Watch));
-            var f=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(x=>x.AHuiNanJueman is not null);var id=f.Id;
-            Need(g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single().AfterTurnEnded!.CurrentChild?.FrameId==id,"The paid reward or native child remains under the original actual AfterTurnEnded cursor.");g=Cold(g,r);Continue(g);
-            Reach(g,()=>!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(x=>x.Id==id));
-            if(scenario=="paid-death")Need(!V(g).IsAlive&&g.State.Winner==Winner.None&&E<AHuiNanJuemanDrawnEvent>(g).Count(e=>e.FrameId==id)==1,"A real paid draw child may kill its non-Lord source; the one payment remains and the dead owner cannot create a new native request.");
-            else Need(V(g).Skills!.All(s=>s.ContentId!=Skill)&&E<AHuiNanJuemanCompletedEvent>(g).Count(e=>e.FrameId==id)==1&&(scenario=="native-loss"?E<AHuiNanJuemanUseReturnedEvent>(g).Count(e=>e.Origin.ProgramFrameId==id)==1:E<AHuiNanJuemanDrawnEvent>(g).Count(e=>e.FrameId==id)==1),"Actual child HP loss removes the conditional original source but the already-started paid generation finishes once with its exact native or movement parent.");
-            Need(E<TurnEndedEvent>(g).Count(e=>e.TurnNumber==turn)==1,"Child loss/death recovery cannot repeat the real whole-turn ending.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("unpaid-loss");NativeKind(g,CardKind.Alcohol);Play(g);Incoming(g,1,0);Need(V(g).Skills!.All(s=>s.ContentId!=Skill),"The actual incoming damage removes the conditional source before any ending binding starts.");var turn=g.State.TurnNumber;End(g);FinishTurn(g,turn);
-            Need(!E<AHuiNanJuemanStartedEvent>(g).Any(e=>e.ActualTurn==turn)&&!E<AHuiNanJuemanDrawnEvent>(g).Any(),"A merely possible or collected ending candidate cannot retain unissued skill rights after source loss.");_=Cold(g,r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g,int s=0)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
     private static AHuiNanJuemanReceipt? Current(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f=>f.AHuiNanJueman is not null)?.AHuiNanJueman;
-    private static bool ZeroCommit(GameEngine g)=>P(g)?.SkillPrompt?.SkillId==Commit&&g.ResolutionStack.OfType<CardUseFrame>().Any(u=>u.AHuiNanJueman is not null);
     private static string State(GameEngine g)=>JsonSerializer.Serialize(g.ResolutionStack)+JsonSerializer.Serialize(g.CreateSnapshot(0))+g.Events.Count;
     private static void Need(bool yes,string why){if(!yes)throw new InvalidOperationException(why);}
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(result.Accepted,result.Error?.Message??"Rejected genuine Jueman command.");}

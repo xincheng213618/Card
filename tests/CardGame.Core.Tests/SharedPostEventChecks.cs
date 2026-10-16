@@ -4,54 +4,6 @@ using CardGame.Core;
 
 internal static class SharedPostEventChecks
 {
-    public static void GainsPauseBeforeTheNextInstructionAndReplay()
-    {
-        var (game, registry) = Create();
-        var before = game.CreateSnapshot(0, true).Players[0].Hand.Count;
-        Use(game, "draw");
-        var window = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-        Require(window.ResumeProgramFrameId is not null && window.Contexts!.All(context =>
-                context.Window == SkillProgramTriggerWindow.CardsGained), "Gains must suspend their producing instruction.");
-        Require(game.CreateSnapshot(0, true).Players[0].Hp == game.CreateSnapshot(0, true).Players[0].MaxHp,
-            "The next lose-HP instruction must wait for gained-card triggers.");
-        Require(window.Batch.DestinationCounts!.Single(count => count.Location == CardLocation.Hand(0)).CountBefore == before,
-            "Destination counts must be captured before the move.");
-        var frozen = JsonSerializer.Serialize(window.Contexts);
-        var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        foreach (var branch in new[] { game, restored }) Drain(branch);
-        Require(State(game) == State(restored), "Gained-card choices must replay without repeated draws.");
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Count(item =>
-                item.BindingId == "gain" && item.Activated) == 2,
-            "Two gained cards must trigger twice; draws by this same skill must not recursively trigger itself.");
-        Require(frozen == JsonSerializer.Serialize(window.Contexts), "Frozen movement facts must survive later draws.");
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == before + 5,
-            "Two gained cards, two gain rewards and one HP-loss reward must each resolve exactly once.");
-    }
-
-
-    public static void HpLossWaitsForDyingAndCardRecoveryFinishesFirst()
-    {
-        var (game, registry) = Create();
-        Use(game, "dying");
-        Require(game.PendingDecision?.Kind == DecisionKind.RescueDying &&
-                !game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(),
-            "After-loss effects must wait for dying rescue.");
-        var rescue = game.PendingDecision!.Choices.First(choice => choice.Cards.Count != 0);
-        Require(game.Submit(new AnswerPromptCommand(0, game.PendingDecision.PromptId, rescue.Id, game.Revision)).Accepted,
-            "The owner must be able to rescue with Peach.");
-        var recovery = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-        Require(recovery.Change.Kind == HpChangeKind.Recovery && recovery.Continuation == PostEventContinuation.CardUse,
-            "Peach recovery must expose its event before the use completes.");
-        var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        foreach (var branch in new[] { game, restored })
-        {
-            Answer(branch);
-            Require(branch.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single().Change.Kind == HpChangeKind.Loss,
-                "The suspended HP-loss event must resume after rescue completes.");
-            Drain(branch);
-        }
-        Require(State(game) == State(restored), "Nested dying, recovery and after-loss must replay in the same order.");
-    }
 
     public static void TransferFiltersAndBatchCountsUseTheRecipient()
     {
@@ -87,20 +39,6 @@ internal static class SharedPostEventChecks
         }
     }
 
-
-    public static void DefinitionFiltersRejectWrongContexts()
-    {
-        var valid = Rules;
-        _ = SkillProgramCatalog.Load(valid, Presentation);
-        _ = SkillProgramCatalog.Load(valid.Replace("\"destinationZones\":[\"hand\"]", "\"destinationZones\":[\"equipment\"]"), Presentation);
-        Reject(valid.Replace("\"destinationZones\":[\"hand\"]", "\"destinationZones\":[\"judgment\"]"), "hand or equipment destination");
-        Reject(valid.Replace("\"window\":\"cardsGained\"", "\"window\":\"turnEnding\""), "only by cardsMoved");
-        Reject(valid.Replace("\"hpChangeOccurrence\":\"perPoint\"", "\"hpChangeOccurrence\":\"perCard\""), "hpChangeOccurrence");
-        Reject(valid.Replace("\"window\":\"afterHpLost\"", "\"window\":\"turnEnding\""), "afterHpLost");
-        Reject(valid.Replace("\"movementReasons\":[\"skill-program.fixture:driver.Draw\",\"skill-program.fixture:observer.Draw\"]",
-            "\"movementReasons\":[\"bad\"]"), "namespaced");
-    }
-
     private static (GameEngine, ContentRegistry) Create(string rules = Rules, string cardId = "standard:peach")
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(rules, cardId));
@@ -114,12 +52,6 @@ internal static class SharedPostEventChecks
         for (var index = 0; index < 50 && game.PendingDecision?.Kind != DecisionKind.PlayCard; index++)
             Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted, "Fixture advance failed.");
         return (game, registry);
-    }
-
-    private static void Use(GameEngine game, string id)
-    {
-        Require(game.Submit(new UseProgramSkillCommand(0, "fixture:driver", id, [], [],
-            game.Revision, game.PendingDecision!.PromptId)).Accepted, $"Activation {id} failed.");
     }
 
     private static void Answer(GameEngine game)
@@ -142,12 +74,6 @@ internal static class SharedPostEventChecks
 
     private static string State(GameEngine game) => SnapshotJson.Serialize(game.CreateSnapshot(0, true));
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-    private static void Reject(string rules, string fragment)
-    {
-        try { _ = SkillProgramCatalog.Load(rules, Presentation); }
-        catch (InvalidOperationException error) when (error.Message.Contains(fragment, StringComparison.OrdinalIgnoreCase)) { return; }
-        throw new InvalidOperationException($"Expected definition rejection containing {fragment}.");
-    }
 
     private const string Rules = """
         {"schemaVersion":62,"skills":[

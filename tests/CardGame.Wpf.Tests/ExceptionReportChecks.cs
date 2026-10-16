@@ -31,6 +31,12 @@ internal static class ExceptionReportChecks
         Program.Assert(stack.Contains("InvalidOperationException") && stack.Contains("AssertCoreInvariants") &&
             stack.Contains("SubmitCommand"), "The report must retain the original rules stack, not just the recovery message.");
         var checkpoint = GameCheckpointJson.Deserialize(File.ReadAllText(Path.Combine(directory, "checkpoint.json")));
+        using (var manifest = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "manifest.json"))))
+        {
+            Program.Assert(!manifest.RootElement.TryGetProperty("RulesVersion", out _) &&
+                manifest.RootElement.TryGetProperty("Assemblies", out var assemblies) && assemblies.GetArrayLength() > 0,
+                "Reports omit the removed rules epoch and retain actual assembly identities.");
+        }
         var failed = CommandJson.Deserialize(File.ReadAllText(Path.Combine(directory, "failed-command.json")));
         Program.Assert(failed is [SelectGeneralCommand command] && command.ExpectedRevision == checkpoint.Revision &&
             checkpoint.Commands.Count == saved.Checkpoint.Commands.Count && checkpoint.ContentHash == saved.Checkpoint.ContentHash,

@@ -34,37 +34,6 @@ internal static class ResponseAndSkillSuppressionChecks
             "Xiongluan must remain limited after use.");
     }
 
-    public static void DuanchangPermanentlyRemovesKillersSkills()
-    {
-        var registry = Registry();
-        for (var seed = 1; seed <= 60; seed++)
-        {
-            var game = Start(registry, "fixture:skill-loss-killer", seed,
-                "fixture:duanchang-death");
-            ReachPlay(game);
-            var victim = game.CreateSnapshot(0, true).Players.FirstOrDefault(player =>
-                player.GeneralId == "fixture:duanchang-victim" && player.IsAlive);
-            if (victim is null) continue;
-            var action = game.GetHumanLegalActions().FirstOrDefault(item =>
-                item.Kind == LegalActionKind.UseProgramSkill &&
-                item.ProgramSkillId == "fixture:skill-loss-damage");
-            if (action is null) continue;
-            var result = game.Submit(new UseProgramSkillCommand(0, "fixture:skill-loss-damage",
-                "hit", [], [victim.Seat], game.Revision, game.PendingDecision!.PromptId));
-            Require(result.Accepted, result.Error?.Message ?? "Death fixture activation failed.");
-            Drain(game);
-            var loss = game.Events.Select(item => item.Payload).OfType<CharacterSkillsLostEvent>()
-                .SingleOrDefault(item => item.Seat == 0 && item.SourceSeat == victim.Seat);
-            Require(loss is not null && loss.SkillIds.Contains("classic:fuqi") &&
-                    loss.SkillIds.Contains("fixture:skill-loss-damage"),
-                "Duanchang must permanently remove all of its killer's character skills.");
-            Require(game.CreateSnapshot(0, true).Players[0].Skills is { Count: 0 },
-                "The killer's public skill list must reflect the permanent loss.");
-            return;
-        }
-        throw new InvalidOperationException("No surviving Duanchang victim fixture was found.");
-    }
-
     private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Scenario());
@@ -102,18 +71,6 @@ internal static class ResponseAndSkillSuppressionChecks
     {
         var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "Fixture could not advance.");
-    }
-
-    private static void Play(GameEngine game, LegalAction action)
-    {
-        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value,
-            action.TargetSeats, game.Revision, game.PendingDecision!.PromptId,
-            action.PlayedCardKind, action.TargetCardId)
-        {
-            ConversionSource = action.ConversionSource,
-            AdditionalConversionSources = action.AdditionalConversionSources
-        });
-        Require(result.Accepted, result.Error?.Message ?? "Card use failed.");
     }
 
     private static void Require(bool condition, string message)

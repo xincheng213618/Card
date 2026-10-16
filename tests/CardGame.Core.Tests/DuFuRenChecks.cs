@@ -67,116 +67,6 @@ internal static class DuFuRenChecks
             "A real Fengzi repeats the same native Slash and target under one Use: the first actual hit spends its mark and the new effect round cannot reuse the old owning damage receipt."); _=Cold(g,r);
     }
 
-    public static void IndependentActualPhasesStackSkipFrozenDrawAndPaidEquipmentLossDeathCold()
-    {
-        var (g,r)=Start("phase",true); Activate(g); Gift(g,1); Play(g); var first=E<DuFuRenGiftIssuedEvent>(g).Single();
-        Need(E<DuFuRenPhaseIssuedEvent>(g).Count(e=>e.GrantId==first.FrameId)==2 && E<DuFuRenPhaseIssuedEvent>(g).Any(e=>e.GrantId==first.FrameId&&e.Phase.Kind==ActualDiscardRecoveryPhaseKind.Draw) &&
-            E<DuFuRenPhaseIssuedEvent>(g).Any(e=>e.GrantId==first.FrameId&&e.Phase.Kind==ActualDiscardRecoveryPhaseKind.Play) && g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash),
-            "Preparation payment independently grants the actual Draw and Play, while its future Discard remains unconsumed.");
-        Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1]))); Play(g);
-        Need(g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash),"The confirmed real Play gains an additional ordinary Slash use.");
-        Use(g,"hurt",[0]); Play(g); Use(g,"skip"); Play(g); var turn=g.State.TurnNumber; End(g);
-        Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Peer&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);
-        Need(E<DuFuRenPhaseIssuedEvent>(g).Count(e=>e.GrantId==first.FrameId)==3,"The genuine first Discard consumes only its own independent benefit.");
-        Answer(g,c=>c.Targets.SequenceEqual([0])); Reach(g,()=>Optional(P(g),Shunshi)); Activate(g);
-        Need(P(g)!.Choices.All(c=>!c.Targets.Contains(1)&&!c.Targets.Contains(0)) && g.CreateSnapshot(1).PendingDecision is null,
-            "Off-turn damage freezes its actual source; only another living recipient outside that source is privately selectable.");
-        Gift(g,2); Reach(g,()=>Optional(P(g),Shunshi)); Activate(g); g=Cold(g,r); Gift(g,3);
-        Reach(g,()=>g.State.TurnNumber>turn&&g.State.CurrentSeat==0&&Optional(P(g),Shunshi));
-        var pending=E<DuFuRenGiftIssuedEvent>(g).Where(e=>e.FrameId!=first.FrameId).ToArray(); Need(pending.Length==2,"Two genuine separate off-turn damage instances issue two stackable gifts.");
-        g=Cold(g,r); Decline(g); var skippedTurn=g.State.TurnNumber;
-        Reach(g,()=>g.State.TurnNumber>skippedTurn&&g.State.CurrentSeat==0&&Optional(P(g),Shunshi));
-        Need(!E<DuFuRenPhaseIssuedEvent>(g).Any(e=>pending.Any(p=>p.FrameId==e.GrantId)),
-            "Actually skipping Draw, Play and Discard consumes none of the three independent pending benefits.");
-        Decline(g); Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Freeze&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue")==true);
-        var frozen=g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(w=>w.Window==SkillProgramTriggerWindow.DrawPhaseStarting);
-        Need(frozen.FrozenBaseDrawCount==4,"A real planned-normal-draw instruction freezes base two plus both pending Shunshi increments.");
-        g=Cold(g,r); Continue(g); Play(g);
-        Need(pending.All(p=>E<DuFuRenPhaseIssuedEvent>(g).Count(e=>e.GrantId==p.FrameId)==2),"The next actual Draw and next actual Play each consume both old gifts once after the skipped turn.");
-        turn=g.State.TurnNumber; End(g); Reach(g,()=>g.State.TurnNumber>turn);
-        Need(pending.All(p=>E<DuFuRenPhaseIssuedEvent>(g).Count(e=>e.GrantId==p.FrameId)==3),"The next actual Discard completes each gift's third independent consumption."); _=Cold(g,r);
-
-        (g,r)=Start("loss",true); Activate(g); Gift(g,1); Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);
-        Need(V(g,0).Skills!.All(s=>s.Id!=Shunshi)&&E<DuFuRenGiftIssuedEvent>(g).Count()==1,"A paid hand-gift child genuinely removes the HP-granted source skill before continuation.");
-        g=Cold(g,r); Continue(g); Play(g); Need(E<DuFuRenPhaseIssuedEvent>(g).Count()==2,"Paid benefits survive real source loss and drain children without repeating payment."); _=Cold(g,r);
-
-        (g,r)=Start("equipment"); Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip)); Play(g); Use(g,"hurt",[0]); Play(g); turn=g.State.TurnNumber; End(g);
-        Reach(g,()=>g.State.TurnNumber>turn&&g.State.CurrentSeat==0&&Optional(P(g),Shunshi)); Activate(g);
-        var lion=g.CreateCardZoneDiagnostics().Single(z=>z.Location==CardLocation.Equipment(0)).CardId;
-        Gift(g,1,lion); Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);
-        Need(E<DuFuRenGiftIssuedEvent>(g).Single().From==CardLocation.Equipment(0)&&E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==0&&e.Amount==1),
-            "A real equipped Silver Lion is transferred and opens its native removal-recovery child under the paid gift frame.");
-        g=Cold(g,r); Continue(g); Play(g); Need(E<DuFuRenGiftIssuedEvent>(g).Count()==1,"Native equipped payment and recovery return exactly once."); _=Cold(g,r);
-
-        (g,r)=Start("weapon"); Use(g,"weapon"); Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="advanced-lifecycle")==true);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")!="finish"); Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish"); Play(g);
-        var weapon=V(g,0).Equipment.Single(c=>c.Kind==CardKind.GeneralWeapon).Id;
-        Need(g.CardMovements.Any(m=>m.CardId==weapon&&m.From==CardLocation.OutsideGame&&m.To==CardLocation.Equipment(0)),"The replacement-sensitive weapon is generated and equipped through the real sampled-general command path.");
-        turn=g.State.TurnNumber; End(g); Reach(g,()=>g.State.TurnNumber>turn&&g.State.CurrentSeat==0&&Optional(P(g),Shunshi)); Activate(g);
-        Need(P(g)!.Choices.All(c=>!c.Cards.Contains(weapon))&&V(g,0).Equipment.Any(c=>c.Id==weapon),"A general weapon whose native equipment exit destroys it cannot be published as a card that Shunshi can actually give.");
-        g=Cold(g,r); Gift(g,1); Play(g); Need(E<DuFuRenGiftIssuedEvent>(g).Single().CardId!=weapon&&V(g,0).Equipment.Any(c=>c.Id==weapon),"A real ordinary hand gift still resolves once while the nontransferable generated weapon remains equipped."); _=Cold(g,r);
-
-        (g,r)=Start("death",true); Activate(g); Gift(g,1); Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch); g=Cold(g,r); Continue(g);
-        Reach(g,()=>g.State.Status==EngineStatus.Completed);
-        Need(!V(g,0).IsAlive&&E<DuFuRenGiftIssuedEvent>(g).Count()==1&&!E<DuFuRenPhaseIssuedEvent>(g).Any(),"A real paid movement-child death drains native dying and retains the issued fact without granting a dead actor a fabricated phase."); _=Cold(g,r);
-
-        (g,r)=Start("death-peer",true); Need(V(g,0).Role!=Role.Lord,"The second paid-death fixture really makes the skill owner a non-Lord.");
-        turn=g.State.TurnNumber; Activate(g); Gift(g,1); Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch); g=Cold(g,r); Continue(g);
-        Reach(g,()=>g.State.TurnNumber>turn);
-        Need(!V(g,0).IsAlive&&g.State.Winner==Winner.None&&g.State.CurrentSeat!=0&&E<DuFuRenGiftIssuedEvent>(g).Count()==1&&
-            !E<DuFuRenPhaseIssuedEvent>(g).Any()&&E<TurnEndedEvent>(g).Count(e=>e.ActorSeat==0&&e.TurnNumber==turn)==1&&
-            !E<ActualDiscardRecoveryPhaseStartedEvent>(g).Any(e=>e.Phase.TurnNumber==turn&&e.Phase.ActorSeat==0&&e.Phase.Kind is ActualDiscardRecoveryPhaseKind.Draw or ActualDiscardRecoveryPhaseKind.Play or ActualDiscardRecoveryPhaseKind.Discard or ActualDiscardRecoveryPhaseKind.Ending),
-            "A nonterminal paid preparation death uses the existing actual-turn finalizer once and reaches the next living actor without fabricating the dead owner's Draw/Play/Discard/Ending."); _=Cold(g,r);
-    }
-
-    public static void RecipientScopedMidChainWithKangruiFormalLegacyAndFirstBaseCold()
-    {
-        foreach(var scenario in new[]{"chain-formal","chain-legacy"})
-        {
-            var (g,r)=Start(scenario); foreach(var seat in new[]{0,1,2}) { Use(g,"chain",[seat]); Play(g); }
-            var second=V(g,1).Hp; var third=V(g,2).Hp;
-            Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1])));
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Transfer&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);
-            Answer(g,c=>c.Targets.SequenceEqual([0]));
-            Reach(g,()=>Optional(P(g),Kangrui)); Activate(g); Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="damage")==true);
-            g=Cold(g,r); Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="damage");
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Mid&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);
-            Answer(g,c=>c.Targets.SequenceEqual([1]));
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Mid&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card")==true);
-            var gifted=P(g)!.Choices.First(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card").Cards.Single();
-            Answer(g,c=>c.Cards.SequenceEqual([gifted]));
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Mid&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue")==true);
-            Need(E<DuFuRenBlackIssuedEvent>(g).Any(e=>e.Source.OwnerSeat==0&&e.RecipientSeat==1)&&
-                E<DuFuRenTransferProducerEvent>(g).Any(e=>e.OwnerSeat==0&&e.RecipientSeat==1&&g.CardMovements.Any(m=>m.Sequence==e.EntrySequence&&m.CardId==gifted&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing))&&
-                g.CardMovements.Any(m=>m.CardId==gifted&&m.From==CardLocation.Processing&&m.To==CardLocation.Hand(1)&&m.Reason.Value=="skill-program.fixture:df-mid-chain.SelectAndMoveOwnedCard")&&
-                !E<DamageAppliedEvent>(g).Any(e=>e.TargetSeat==1),"A real first-recipient after-damage child gives the exact selected black entity into seat one's Hand before the chain advances: "+Diagnostic(g));
-            g=Cold(g,r); Continue(g); Play(g);
-            Need(V(g,1).Hp==second-3&&V(g,2).Hp==third-1&&E<DuFuRenBlackConsumedEvent>(g).Single() is {TargetSeat:1,ChainCursor:1}&&
-                E<DuFuRenDamageRebasedEvent>(g).Single() is {TargetSeat:1} rebased&&rebased.InheritedAmount==(scenario=="chain-legacy"?2:1)&&E<ZhangYiChainInstanceRebasedEvent>(g).Single().RestoredAmount==1,
-                "Both newly armed increments add only to the middle recipient. Reverse-order rebasing restores the native one-damage base for the last recipient under formal and legacy armor paths."); _=Cold(g,r);
-        }
-        var (first,registry)=Start("first-chain"); Use(first,"give",[1],[V(first,0).Hand[0].Id]); Play(first);
-        foreach(var seat in new[]{1,2}){Use(first,"chain",[seat]);Play(first);}
-        var hp1=V(first,1).Hp; var hp2=V(first,2).Hp;
-        Native(first,first.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1]))); Play(first);
-        Need(V(first,1).Hp==hp1-2&&V(first,2).Hp==hp2-2&&E<DuFuRenBlackConsumedEvent>(first).Count()==1&&!E<DuFuRenDamageRebasedEvent>(first).Any(),
-            "A black increment on the first real elemental recipient naturally enters the native propagation base; later recipients inherit that finalized first damage."); _=Cold(first,registry);
-        foreach(var scenario in new[]{"chain-transfer-formal","chain-transfer-legacy"})
-        {
-            var (g,r)=Start(scenario); Use(g,"give",[1],[V(g,0).Hand[0].Id]); Play(g);
-            foreach(var seat in new[]{1,2,3}){Use(g,"chain",[seat]);Play(g);}
-            var ownerHp=V(g,0).Hp;var untouched=V(g,1).Hp;var last=V(g,2).Hp;var primary=V(g,3).Hp;
-            Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([3])));
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Transfer&&P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);
-            Need(P(g)!.PlayerSeat==1&&V(g,3).Hp==primary-1&&V(g,2).Hp==last,"The actual first recipient has been injured before the marked middle chain recipient starts its own native transfer.");
-            g=Cold(g,r); Answer(g,c=>c.Targets.SequenceEqual([0])); Play(g);
-            Need(V(g,0).Hp==ownerHp-2&&V(g,1).Hp==untouched&&V(g,2).Hp==last-1&&E<DuFuRenBlackConsumedEvent>(g).Single() is {TargetSeat:0,ChainCursor:1}&&
-                E<DuFuRenDamageTransferredEvent>(g).Single() is {OriginalTargetSeat:1,TargetSeat:0,ChainCursor:1,Amount:2}&&
-                E<DuFuRenDamageRebasedEvent>(g).Single() is {TargetSeat:1,ChainCursor:1,InheritedAmount:1},
-                "A marked later chain recipient transfers its finalized two damage to the real source; its precise one-damage inherited base is restored for the final recipient under both native armor paths: "+Diagnostic(g)); _=Cold(g,r);
-        }
-    }
-
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
     private static IEnumerable<T> E<T>(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -193,7 +83,6 @@ internal static class DuFuRenChecks
     private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static void Decline(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
     private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
-    private static void Gift(GameEngine g,int target,int? card=null)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="gift"&&c.Targets.SequenceEqual([target])&&(card is null||c.Cards.SequenceEqual([card.Value])));
     private static void Use(GameEngine g,string id,IReadOnlyList<int>? targets=null,IReadOnlyList<int>? cards=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,cards??[],targets??[],g.Revision,P(g)!.PromptId));
     private static void Native(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));

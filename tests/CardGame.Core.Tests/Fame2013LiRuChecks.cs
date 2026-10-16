@@ -83,7 +83,7 @@ internal static class Fame2013LiRuChecks
             {
                 var rules = $$"""
                   {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:cost-observer","revision":1,
-                  "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[{"id":"after-cost","window":"cardsMoved",
+                  "triggers":[{"id":"after-cost","window":"cardsMoved",
                   "subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","optional":false,
                   "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
                   """;

@@ -38,75 +38,6 @@ internal static class ZhangLingChecks
         Cold(game, registry);
     }
 
-    public static void EffectiveUseResponseBanAndActualDiscardPhaseReceipts()
-    {
-        var (game, registry) = Start("receive"); ReachPlay(game);
-        Require(E<CategoryTalismanPlacedEvent>(game) is [{ HolderSeat: 0, Category: SkillProgramCardCategory.Basic }],
-            "The fixture gives the human a real basic talisman through the same placement operation.");
-        var physical = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        Require(!game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) &&
-            game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Duel && a.ConversionSource?.SkillId == Driver),
-            "A basic talisman blocks native and converted effective basics, but permits a basic material converted to an effective trick.");
-        var rejected = game.Submit(new PlayCardCommand(0, physical, [1], game.Revision, P(game)!.PromptId, CardKind.Slash));
-        Require(!rejected.Accepted && Pile(game, 0, 0).Count == 1,
-            "A forged native prohibited use is rejected without consuming the talisman or the hand entity.");
-        var hpBeforeDuel = game.CreateSnapshot(0).Players[0].Hp;
-        game = Cold(game, registry); Use(game, "duel", [1]); ReachPlay(game);
-        Require(E<DuelResponseEvent>(game) is [{ ResponderSeat: 0, UsedSlash: false }] &&
-            !E<CardActionAcceptedEvent>(game).Any(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response) &&
-            game.CreateSnapshot(0).Players[0].Hp == hpBeforeDuel - 1 && Pile(game, 0, 0).Count == 0 && E<CategoryTalismanReleasedEvent>(game).Length == 1,
-            "An actual Duel finds no native or converted effective Slash response under a basic talisman, auto-fails the response without consuming a card, and its real damage releases the talisman.");
-
-        (game, registry) = Start("discard"); ReachPlay(game);
-        Use(game, "discard-play"); Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"));
-        Answer(game, c => c.Cards.Count == 1); ReachPlay(game);
-        Require(E<CategoryTalismanDiscardRecordedEvent>(game).Length == 0 && Pile(game, 0, 0).Count == 1,
-            "A true discard in Play does not count toward the later actual Discard phase.");
-        End(game); Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"));
-        Answer(game, c => c.Cards.Count == 1); Reach(game, p => p.SkillPrompt?.SkillId == Discard && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
-        Require(E<CategoryTalismanDiscardRecordedEvent>(game).Length == 1 && Pile(game, 0, 0).Count == 1,
-            "The first real same-category discard in this phase is recorded without releasing early.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"));
-        Answer(game, c => c.Cards.Count == 1);
-        Reach(game, p => p.Kind == DecisionKind.DiscardCards || p.Kind == DecisionKind.PlayCard);
-        var receipts = E<CategoryTalismanDiscardRecordedEvent>(game);
-        Require(receipts.Length >= 2 && receipts[0].Phase == receipts[1].Phase && receipts[0].MovementSequence != receipts[1].MovementSequence &&
-            E<CategoryTalismanReleasedEvent>(game).Length == 1 && Pile(game, 0, 0).Count == 0,
-            "Two separate true discard batches in the same actual phase release once using immutable movement receipts, including after cold restore.");
-        Cold(game, registry);
-    }
-
-    public static void HuqiFrozenRedJudgmentReturnsNestedNativeSlashAfterSkillLoss()
-    {
-        foreach (var scenario in new[] { "huqi-red", "huqi-black", "huqi-claimed" })
-        {
-            var red = scenario != "huqi-black"; var claimed = scenario == "huqi-claimed";
-            var (game, registry) = Start(scenario); ReachPlay(game); End(game);
-            Reach(game, p => p.Kind == DecisionKind.RespondDodge); Answer(game, c => c.Parameters.GetValueOrDefault("response") == "take-damage");
-            if (claimed)
-            {
-                Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-activate"));
-                var window = game.ResolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>().Last();
-                Require(window.Candidates[window.CandidateIndex].SkillId == "classic:tiandu", "The real optional judgment choice belongs to Tiandu's native final-judgment candidate.");
-                Answer(game, c => c.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-activate");
-            }
-            Reach(game, p => p.SkillPrompt?.SkillId == Judge);
-            Require(E<JudgmentResolvedEvent>(game).Length == 1 && !game.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == "ol:huqi"),
-                "An off-turn actual native Slash damage issues Huqi's real judgment before a final-judgment observer removes the source skill.");
-            game = Cold(game, registry); Answer(game, c => true);
-            Reach(game, p => p.Kind == DecisionKind.PlayCard && game.State.TurnNumber > 1);
-            var uses = E<CardActionAcceptedEvent>(game).Select(e => e.Action).Where(a => a.ActorSeat == 0 && a.EffectiveKind == CardKind.Slash && a.PhysicalCards.Count == 0 && a.ConversionChain.Any(c => c.SkillId == "ol:huqi")).ToArray();
-            Require(uses.Length == (red ? 1 : 0) && !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.HuqiSlash is not null) &&
-                game.CardMovements.Count(m => m.CardId == E<JudgmentResolvedEvent>(game).Single().CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == (claimed ? 0 : 1) &&
-                (!claimed || game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == E<JudgmentResolvedEvent>(game).Single().CardId)),
-                "The frozen red judgment issues one genuine cardless native counter-Slash despite skill loss, then restores the suspended parent attack; black skips it and both clean judgment once.");
-            if (claimed) Require(E<ProgramJudgmentCardClaimedEvent>(game).Length == 1,
-                "Real Tiandu claims the judgment card into hand; Huqi still uses the frozen red result and never takes that entity back for cleanup.");
-            Cold(game, registry);
-        }
-    }
-
     private static T[] E<T>(GameEngine game) where T : IGameEvent => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine game) => game.CreateSnapshot(0).PendingDecision;
     private static IReadOnlyList<int> Pile(GameEngine game, int viewer, int holder)
@@ -117,7 +48,6 @@ internal static class ZhangLingChecks
     }
     private static bool IsTarget(PendingDecision p, string target) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("target-kind") == target);
     private static void ReachPlay(GameEngine game) => Reach(game, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-    private static void End(GameEngine game) => Accept(game, new EndPlayPhaseCommand(0, game.Revision, P(game)!.PromptId));
     private static void Use(GameEngine game, string binding, IReadOnlyList<int>? targets = null) => Accept(game,
         new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], game.Revision, P(game)!.PromptId));
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate)

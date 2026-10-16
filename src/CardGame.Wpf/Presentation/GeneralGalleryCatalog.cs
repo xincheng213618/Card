@@ -287,6 +287,8 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:meng-da", "other");
         groups.Add("ol:cai-mao", "other");
         groups.Add("ol:ya-dan", "other");
+        groups.Add("ol:cao-teng", "other");
+        groups.Add("ol:yang-fu", "other");
         groups.Add("ol:zhong-yan", "other");
         groups.Add("ol:han-sui", "other");
         groups.Add("ol:xiahou-ba", "other");

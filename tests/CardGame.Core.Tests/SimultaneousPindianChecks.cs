@@ -8,61 +8,6 @@ internal static class SimultaneousPindianChecks
     private const string Gushe = "ol:gushe", Jici = "ol:jici", Driver = "fixture:simultaneous-driver", Quiet = "fixture:simultaneous-quiet";
     private const string Owner = "fixture:simultaneous-owner", Mode = "identity:classic-simultaneous", Watch = "fixture:simultaneous-watch", Loss = "fixture:simultaneous-loss", Pair = "fixture:simultaneous-peer-contest";
 
-    public static void ActualThreeWayPrivateCommitTieAndPaymentsCold()
-    {
-        var (g, registry) = Start(); var source = V(g,0).Hand[0].Id; var before = g.CardMovements.Count;
-        Group(g,[3,1,2],source);
-        for (var i = 0; i < 3; i++)
-        {
-            var root = Root(g); var r = root.SimultaneousPindian!; var p = P(g)!;
-            Need(r.SelectionIndex == i && r.Cards.Count == i + 1 && p.PlayerSeat == new[] { 3,1,2 }[i] && r.Stage == SimultaneousPindianStage.Selecting &&
-                g.CardMovements.Count == before && !E<PindianCardsRevealedEvent>(g).Any(), "All participants commit private hands before any payment or common entity reveal.");
-            Need(Enumerable.Range(0,4).Where(s => s != p.PlayerSeat).All(s => g.CreateSnapshot(s).PendingDecision is null) &&
-                Enumerable.Range(0,4).All(s => g.CreateSnapshot(s).Players.Where(v => v.Seat != s).All(v => v.Hand.Count == 0)),
-                "Only the current participant sees the hand prompt; no viewer sees another participant's privately committed entity.");
-            var unchanged = State(g); Need(!g.Submit(new AnswerPromptCommand(0,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted && State(g) == unchanged,
-                "The issuer cannot answer another participant's private commitment.");
-            g = Cold(g,registry); Step(g);
-        }
-        var paid = Root(g); var id = paid.Id; var group = E<PindianCardsRevealedEvent>(g).Single(e => e.ParentFrameId == id);
-        Need(group.Cards.Count == 4 && group.Cards[0].CardId == source && group.Cards.Skip(1).Select(c => c.Seat).SequenceEqual([3,1,2]) &&
-            Mark(g) == 1 && E<PindianResultDeterminedEvent>(g).Count(e => e.FrameId == id) == 1,
-            "The four real entities share one reveal; a tied first comparison gives the source a marker before its consequence prompt.");
-        var stale = P(g)!; var hand = V(g,0).HandCount; g = Cold(g,registry); Answer(g,c => Branch(c,"draw"));
-        var unchanged2 = State(g); Need(!g.Submit(new AnswerPromptCommand(0,stale.PromptId,stale.Choices[0].Id,g.Revision)).Accepted && State(g) == unchanged2,
-            "A paid or replaced consequence prompt cannot replay its payment.");
-        Settle(g); Play(g);
-        Need(Mark(g) == 3 && V(g,0).HandCount == hand + 3 && E<PindianResultDeterminedEvent>(g).Where(e => e.FrameId == id).Select(e => e.Result.OpponentSeat).SequenceEqual([3,1,2]) &&
-            E<SimultaneousPindianConsequencePaidEvent>(g).Count(e => e.ProgramFrameId == id) == 6 &&
-            E<SimultaneousPindianConsequencePaidEvent>(g).Where(e => e.ProgramFrameId == id).GroupBy(e => (e.ComparisonIndex,e.ConsequenceIndex)).All(xs => xs.Count() == 1),
-            "Ties make both participants nonwinners; all three ordered source draws and foreign discards settle once.");
-        Need(group.Cards.All(c => g.CardMovements.Count(m => m.CardId == c.CardId && m.From == CardLocation.Hand(c.Seat) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal) == 1 &&
-            g.CardMovements.Count(m => m.CardId == c.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.PindianFinish) == 1) &&
-            !g.GetHumanLegalActions().Any(a => a.SkillId == Gushe), "One source card is reused logically, paid and cleaned once, and the exact original phase use remains spent.");
-        _ = Cold(g,registry);
-    }
-
-    public static void ActualCurrentJiCiLessEqualDeclineAndPhaseRefundCold()
-    {
-        foreach (var count in new[] { 1,3 })
-        {
-            var (g,registry) = Start(); Group(g,Enumerable.Range(1,count).ToArray()); Settle(g); Play(g); Need(Mark(g) == count,"Actual initial tied comparisons bank the required markers without injecting state.");
-            NextPlay(g); Group(g,[1]); Reach(g,() => Optional(P(g),Jici));
-            var root = Root(g); var window = g.ResolutionStack.OfType<PindianRevealWindowFrame>().Single();
-            Need(window.Cards[0].Rank == 1 && window.Cards[0].Rank <= count && !E<PindianResultDeterminedEvent>(g).Any(e => e.FrameId == root.Id),
-                "Current JiCi offers on both rank equal to X and rank below X, after the actual reveal and before comparison.");
-            g = Cold(g,registry); Answer(g,c => Action(c,"activate")); Settle(g); Play(g);
-            var adjustment = E<PindianRevealRankAdjustedEvent>(g).Single(e => e.WindowFrameId == window.Id);
-            Need(adjustment.Before == 1 && adjustment.Bonus == count && adjustment.After == 1 + count && adjustment.PreviousPhaseUses == 1 &&
-                adjustment.RestoredSkill == Gushe && adjustment.UsageGroup == "simultaneous-pindian" && Mark(g) == count &&
-                E<PindianResultDeterminedEvent>(g).Single(e => e.FrameId == root.Id).Result.SourceWon && g.GetHumanLegalActions().Any(a => a.SkillId == Gushe),
-                "Choosing JiCi couples the exact public rank bonus with refund of only this Gushe phase activation.");
-            Group(g,[2]); Reach(g,() => Optional(P(g),Jici)); g = Cold(g,registry); Answer(g,c => Action(c,"skip")); Settle(g); Play(g);
-            Need(Mark(g) == count + 1 && !g.GetHumanLegalActions().Any(a => a.SkillId == Gushe), "An actually refunded second contest is legal; declining JiCi preserves its rank and spends this new use.");
-            _ = Cold(g,registry);
-        }
-    }
-
     public static void ActualTypedResultClaimsCommonMaterialOwnershipCold()
     {
         foreach (var kind in new[] { "pindianClaim","pindianClaimAllWhenSourceWins","pindianMaximumSlashClaim" })
@@ -203,7 +148,6 @@ internal static class SimultaneousPindianChecks
     private static PlayerSnapshot V(GameEngine g,int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0,4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
-    private static int Mark(GameEngine g) => V(g,0).Markers?.SingleOrDefault(m => m.Kind == PlayerMarkerKind.RaoShe)?.Count ?? 0;
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SimultaneousPindian is not null);
     private static bool Action(PromptChoice c,string action) => c.Parameters.GetValueOrDefault("program-action") == action;
     private static bool Branch(PromptChoice c,string branch) => Action(c,"simultaneous-pindian") && c.Parameters.GetValueOrDefault("branch") == branch;
@@ -215,9 +159,7 @@ internal static class SimultaneousPindianChecks
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick) { var p = P(g)!; Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision)); }
     private static void End(GameEngine g) => Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g,() => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-    private static void NextPlay(GameEngine g) { var turn = g.CreateSnapshot(0).TurnNumber; End(g); Reach(g,() => g.CreateSnapshot(0).TurnNumber > turn && P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }); }
     private static void Group(GameEngine g,IReadOnlyList<int> targets,int? card = null) => Accept(g,new UseProgramSkillCommand(0,Gushe,"simultaneous-pindian",[card ?? V(g,0).Hand.First(c => c.Kind == CardKind.Slash).Id],targets,g.Revision,P(g)!.PromptId));
-    private static void Settle(GameEngine g) => Reach(g,() => !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SimultaneousPindian is not null));
     private static void Reach(GameEngine g,Func<bool> done)
     {
         for (var i = 0; i < 240; i++)

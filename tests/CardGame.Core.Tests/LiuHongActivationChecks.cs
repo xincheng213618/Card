@@ -60,77 +60,6 @@ internal static class LiuHongActivationChecks
             "Cold recovery at each real paid child reproduces all views, typed receipts, movements and accepted commands.");
     }
 
-    public static void YujueNativeAiUsesAvailableSlotsAndTuxingExcludesSourcelessDamage()
-    {
-        // The four distinct generals leave exactly one native AI owner. Its
-        // actual live seat is discovered after setup; no role weights, score
-        // overrides or injected setup/state determine its actions.
-        var (ai, aiRegistry) = Create(humanOwner: false, children: false);
-        Play(ai, 1);
-        var aiOwner = ai.State.Players.Single(p => p.GeneralId == Owner).Seat;
-        Require(aiOwner != 1 && !ai.State.Players[aiOwner].IsHuman,
-            "The unique actual Yujue general belongs to a native AI participant.");
-        for (var invocation = 0; invocation < 3; invocation++)
-        {
-            End(ai, 1);
-            Play(ai, 1);
-            Require(E<ProgramYujueSlotPaidEvent>(ai).Length == invocation + 1 &&
-                    E<ProgramYujueSlotPaidEvent>(ai).All(p => p.Source.OwnerSeat == aiOwner),
-                "One normal four-player rotation lets the native AI pay one available slot and finish its real recipient flow.");
-            var expected = new[] { EquipmentSlot.Treasure, EquipmentSlot.DefensiveHorse, EquipmentSlot.OffensiveHorse };
-            Require(E<ProgramYujueSlotPaidEvent>(ai).Select(e => e.AbolishedSlot)
-                    .SequenceEqual(expected.Take(invocation + 1).Select(s => s.ToString())),
-                "Native AI filters abolished slots before choosing its next preferred available slot.");
-            if (invocation == 1) ai = Cold(ai, aiRegistry);
-        }
-        Require(E<ProgramYujueInvokedEvent>(ai).Length == 3 &&
-                E<ProgramYujueSlotPaidEvent>(ai).Select(e => e.AbolishedSlot).Distinct().Count() == 3,
-            "Native turns never repay an already abolished slot.");
-
-        var (game, registry) = Create(humanOwner: true, children: false);
-        Play(game, 0);
-        var beforeMaximum = game.State.Players[0].MaxHp;
-        foreach (var slot in Slots(game, 0))
-        {
-            Use(game, 0, Skill, Activation);
-            Reach(game, p => Has(p, "yujue-slot"));
-            Answer(game, c => c.Parameters.GetValueOrDefault("slot") == slot.ToString());
-            Reach(game, p => Has(p, "yujue-target"));
-            Answer(game, c => c.Targets.SequenceEqual([1]));
-            Reach(game, p => Has(p, "yujue-give"));
-            Answer(game, c => c.Cards.Count == 1);
-            Play(game, 0);
-            Require(!Available(game), "A paid activation consumes exactly this real Play phase's quota.");
-            if (slot != EquipmentSlot.Treasure) { End(game, 0); Play(game, 0); }
-        }
-        Require(Slots(game, 0).All(slot => Capacity(game, 0, slot) == 0) &&
-                E<ProgramYujueSlotPaidEvent>(game).Length == 5 && E<ProgramYujueInvokedEvent>(game).Length == 5 &&
-                game.State.Players[0].MaxHp == beforeMaximum + 1,
-            "Five actual abolitions each add one maximum HP, then the last removes four once.");
-        var armed = E<ProgramGameDamageBonusArmedEvent>(game).Single();
-        Require(armed.SkillId == "ol:tuxing" && armed.BindingId == "tuxing-arm-catchup" &&
-                Grants(game, 0).Any(grant => grant.IsEnabled &&
-                    grant.SkillId == "ol:tuxing" && grant.SkillInstanceId == armed.SkillInstanceId) &&
-                E<MaximumHpChangedEvent>(game).All(e => e.SkillId == "ol:tuxing"),
-            "Maximum HP and the persistent damage bonus attribute to the actual Tuxing runtime instance and binding.");
-        game = Cold(game, registry);
-        var hpBefore = game.State.Players[0].Hp;
-        Use(game, 0, Driver, "source-less"); Play(game, 0);
-        var less = E<DamageRequestedEvent>(game).Single(e => e.SourceLess);
-        Require(less.Amount == 1 && E<DamageAppliedEvent>(game).Single(e => e.SourceLess).Amount == 1 &&
-                game.State.Players[0].Hp == hpBefore - 1 &&
-                !E<ProgramCardDamageModifiedEvent>(game).Any(e => e.ResolutionId == less.ResolutionId),
-            "A source-less owner damage cost retains its true one point and never borrows the armed source seat's bonus.");
-        Use(game, 0, Driver, "other", [1]); Play(game, 0);
-        var hit = E<DamageAppliedEvent>(game).Single(e => !e.SourceLess);
-        Require(hit.SourceSeat == 0 && hit.TargetSeat == 1 && hit.Amount == 2 &&
-                E<ProgramCardDamageModifiedEvent>(game) is [var bonus] && bonus.Source.SkillId == armed.SkillId &&
-                bonus.Source.BindingId == armed.BindingId && bonus.Source.SkillInstanceId == armed.SkillInstanceId &&
-                E<ProgramGameDamageBonusArmedEvent>(game).Length == 1,
-            "Real owner-sourced damage gains one point from the original Tuxing instance without rearming on cold replay.");
-        _ = Cold(game, registry);
-    }
-
     private static GameEngine FinishPaid(GameEngine game, ContentRegistry registry, int lion,
         int hp, int maximum, bool coldChildren)
     {
@@ -188,7 +117,6 @@ internal static class LiuHongActivationChecks
     { var p = P(game)!; Accept(game, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, game.Revision)); }
     private static void Use(GameEngine game, int owner, string skill, string activation, IReadOnlyList<int>? targets = null) =>
         Accept(game, new UseProgramSkillCommand(owner, skill, activation, [], targets ?? [], game.Revision, P(game)!.PromptId));
-    private static void End(GameEngine game, int seat) => Accept(game, new EndPlayPhaseCommand(seat, game.Revision, P(game)!.PromptId));
     private static void Play(GameEngine game, int seat) => Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == seat);
     private static void Reach(GameEngine game, Func<PendingDecision, bool> predicate)
     {

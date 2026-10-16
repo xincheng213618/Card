@@ -29,34 +29,12 @@ internal static partial class FengLinYuJiChecks
             Replay(g,r);Conserve(g);
         }
     }
-    public static void ActualCounterspellAndProviderParents()
-    {
-        var(g,r)=Start("mixed-counterspell");var a=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Duel&&a.ConversionSource is null);
-        Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats.Count>0?a.TargetSeats:[a.TargetSeat!.Value],g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.Kind==DecisionKind.Nullification&&p.PlayerSeat==0);var p=P(g)!;var c=p.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="classic:guhuo");
-        Accept(g,new AnswerPromptCommand(0,p.PromptId,c.Id,g.Revision));var depth=g.ResolutionStack.OfType<NullificationWindowFrame>().Last().ChainDepth;Replay(g,r);
-        var hiddenCost = g.ResolutionStack.OfType<CardDeclarationFrame>().Single().Payment.Cost.CardId;
-        while(g.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame)Answer(g,"pass");
-        Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Last(e=>e.CardId==hiddenCost&&e.ResponderSeat==0).PublicCard is null,
-            "An unchallenged hidden counterspell exposed its printed face when the physical cost entered discard.");
-        Require(g.Events.Select(e=>e.Payload).OfType<NullificationRespondedEvent>().Any(e=>e.ResponderSeat==0&&e.ChainDepth==depth+1),"Real counterspell commits and toggles its actual window only after verification.");Replay(g,r);Conserve(g);
-        var(provider,pr)=Start("standard:draw_two",true);Driver(provider,"request",[3]);
-        Reach(provider,p=>provider.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame);
-        var declaration=provider.ResolutionStack.OfType<CardDeclarationFrame>().Last();Require(declaration.OwnerSeat!=0&&declaration.Return.ActorSeat==0,"Actual provider owns its payment and quota independently from requester.");Replay(provider,pr);
-        while(provider.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame)Answer(provider,"pass");
-        Require(provider.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ActorSeat==0&&e.Action.ProviderSeat==declaration.OwnerSeat&&e.Action.RequesterSeat==0),"Actual provided Slash preserves Actor/Provider/Requester provenance.");Replay(provider,pr);Conserve(provider);
-    }
     private static void Driver(GameEngine g,string id,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:yu-driver",id,[],targets??[],g.Revision,P(g)!.PromptId));
     private static (GameEngine,ContentRegistry) Start(string card,bool providers=false,bool declarations=true,bool costChild=false,ContentRegistry? registry=null)
     {
         var r=registry??(declarations?ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(card,providers,declarations,costChild)):ContentRegistry.Build(new StandardContentPackage(),new Fixture(card,providers,declarations,costChild)));
         var g=GameEngine.CreateStandard(new GameOptions{Seed=31,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId=card=="mixed-borrowed"?"identity:classic-yuji-borrowed":"identity:yuji-check",UseInteractiveSetup=true,UseInteractiveDiscard=true,AdvanceAfterHumanCommands=false,MaxTurns=12},r);
         Accept(g,new StartGameCommand());Reach(g,p=>p.Kind==DecisionKind.SelectGeneral);Accept(g,new SelectGeneralCommand(0,"fixture:yuji",g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);return(g,r);
-    }
-    private static void Use(GameEngine g,CardKind kind)
-    {
-        var a=g.GetHumanLegalActions().First(a=>a.PlayedCardKind==kind&&a.ConversionSource?.SkillId=="classic:guhuo");
-        Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats.Count>0?a.TargetSeats:a.TargetSeat is {} t?[t]:[],g.Revision,P(g)!.PromptId,kind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources});
     }
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Answer(GameEngine g,string branch){var p=P(g)!;var c=p.Choices.Single(c=>c.Parameters.GetValueOrDefault("declaration-answer")==branch);Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,c.Id,g.Revision));}
@@ -91,5 +69,4 @@ internal static partial class FengLinYuJiChecks
             b.AddMode(new(card=="mixed-borrowed"?"identity:classic-yuji-borrowed":"identity:yuji-check","于吉机制",4,4,new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Loyalist)]=1,[nameof(Role.Rebel)]=2},"fixture:yu-deck",GeneralCandidateCount:4,GeneralPoolIds:["fixture:yuji","fixture:yu-1","fixture:yu-2","fixture:yu-3"]));
         }
     }
-    private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
 }

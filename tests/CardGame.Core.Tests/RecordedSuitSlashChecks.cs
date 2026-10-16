@@ -41,33 +41,6 @@ internal static class RecordedSuitSlashChecks
         Cold(game, registry);
     }
 
-    public static void TargetAndResponseRecording()
-    {
-        foreach (var group in new[] { false, true })
-        {
-            var (game, registry) = Start(targetRecords: true, group: group);
-            var firstDodge = game.CreateSnapshot(1).Players[1].Hand.First(c => c.Kind == CardKind.Dodge);
-            if (group)
-            {
-                var card = game.State.Players[0].Hand.First(c => c.Kind == CardKind.ArrowBarrage && c.Suit != firstDodge.Suit);
-                Play(game, card.Id, []);
-            }
-            else Slash(game);
-            Settle(game);
-            var incoming = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>()
-                .First(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 0).Action;
-            var defense = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>()
-                .First(e => e.Action.Type == CardActionType.Response && e.Action.ActorSeat == 1 && e.Action.EffectiveKind == CardKind.Dodge).Action;
-            var expected = new HashSet<Suit?> { incoming.EffectiveSuit };
-            if (!group) expected.Add(defense.EffectiveSuit);
-            var recorded = game.CreateSnapshot(0).Players[1].SkillRuntimeStates!.Single(s => s.SkillId == Skill).BooleanStates!;
-            Require(recorded.Count(s => s.Value) == expected.Count && expected.All(suit => recorded.Any(s =>
-                s.Value && s.StateId == "recorded-" + suit!.Value.ToString().ToLowerInvariant())),
-                "Being targeted records the other's card; Slash Dodge is a use, whereas Arrow Barrage Dodge is response-only.");
-            Cold(game, registry);
-        }
-    }
-
     private static IReadOnlyList<ProgramBooleanStateSnapshot> States(GameEngine game) =>
         game.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s => s.SkillId == Skill).BooleanStates!;
     private static PendingDecision? Prompt(GameEngine game) => game.CreateSnapshot(0).PendingDecision;

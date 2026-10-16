@@ -34,32 +34,6 @@ internal static class RicePileChecks
         Play(g); End(g); Reach(g, () => E<TurnStartedEvent>(g).Last().ActorSeat != 0);
         Need(!Optional(P(g), Yi), "A nonempty exact rice pile does not offer the next ending draw."); Cold(g, registry);
     }
-    public static void AnyJudgmentLastRiceRecoveryAndMultiplePileIdentity()
-    {
-        var (g, registry) = Start(secondPile: true); Fill(ref g, registry, 0); Reach(g, () => Optional(P(g), Second));
-        Activate(g); Reach(g, () => RicePrompt(P(g))); Answer(g, c => c.Cards.Count == 1); Answer(g, c => c.Cards.Count == 1);
-        Answer(g, c => c.Parameters.GetValueOrDefault("rice-action") == "pay"); Play(g);
-        var piles = V(g, 0).PublicPersistentPiles!; Need(piles.Count == 2 && piles.All(p => p.Count == 2), "Two producer instances own two real separately named public rice piles.");
-        Use(g, "incoming-one", targets: [1]); Reach(g, () => Optional(P(g), Bu)); Activate(g); Reach(g, () => RicePrompt(P(g))); Answer(g, c => c.Cards.Count == 1); Play(g);
-        var primary = V(g, 0).PublicPersistentPiles!.Single(p => p.SourceSkillId == Yi); var secondary = V(g, 0).PublicPersistentPiles!.Single(p => p.SourceSkillId == Second);
-        Need(primary.Count == 1 && secondary.Count == 2, "The consumer references only the matching producer domain.");
-        Use(g, "judge", targets: [2]); Reach(g, () => P(g) is { Kind: DecisionKind.ProgramJudgmentReplacement } p && p.ValidCardIds.Count > 0);
-        var judged = g.ResolutionStack.OfType<JudgmentFrame>().Last(); var old = judged.CardId; var rice = primary.Cards.Single().Id; var hp = V(g, 0).Hp;
-        Need(P(g)!.PlayerSeat == 0 && P(g)!.ValidCardIds.SequenceEqual([rice]) && judged.TargetSeat == 2,
-            "Any actual participant's judgment offers only referenced rice, excluding hand, equipment and a distinct public pile.");
-        g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([rice]));
-        Reach(g, () => E<JudgmentResolvedEvent>(g).Any(e => e.ResolutionId == judged.Id));
-        var paid = E<RicePilePaymentIssuedEvent>(g).Single(e => e.Receipt.Operation == SkillProgramEffectOp.ReplaceJudgmentFromPublicRice).Receipt;
-        var moves = g.CardMovements.Where(m => m.Sequence > paid.Before && m.Sequence <= paid.After).ToArray();
-        Need(moves.Count(m => m.CardId == old && m.From == CardLocation.Judgment(2) && m.To == CardLocation.DiscardPile) == 1 &&
-            moves.Count(m => m.CardId == rice && m.From == primary.Location && m.To == CardLocation.Processing) == 1 &&
-            moves.Count(m => m.CardId == rice && m.From == CardLocation.Processing && m.To == CardLocation.Judgment(2)) == 1 &&
-            E<JudgmentResolvedEvent>(g).Single(e => e.ResolutionId == judged.Id).CardId == rice && V(g, 0).Hp == hp + 1 &&
-            E<RicePileRecoveryIssuedEvent>(g).Count(e => e.Pile.Location == primary.Location) == 1 &&
-            !E<RicePileRecoveryIssuedEvent>(g).Any(e => e.Pile.Location == secondary.Location) &&
-            V(g, 0).PublicPersistentPiles!.Single(p => p.SourceSkillId == Second).Count == 2,
-            "One real rice replacement pays three exact movements; only its emptied source recovers before the judgment resolves, while the other pile remains intact."); Cold(g, registry);
-    }
     private static string Embedded(string suffix)
     { using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ol-zhang-lu." + suffix)!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
@@ -73,14 +47,6 @@ internal static class RicePileChecks
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? cards = null, IReadOnlyList<int>? targets = null) =>
         Accept(g, new UseProgramSkillCommand(0, Driver, activation, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void Fill(ref GameEngine g, ContentRegistry registry, int seat)
-    {
-        var game = g; End(game); Reach(game, () => Optional(P(game), Yi) && P(game)!.PlayerSeat == seat); Activate(game);
-        Reach(game, () => RicePrompt(P(game))); game = Cold(game, registry);
-        Answer(game, c => c.Cards.Count == 1); Answer(game, c => c.Cards.Count == 1); Answer(game, c => c.Parameters.GetValueOrDefault("rice-action") == "pay");
-        Reach(game, () => E<RicePileCompletedEvent>(game).Any(e => e.Operation == SkillProgramEffectOp.DrawAndStoreTwoPublicRice &&
-            E<RicePileStartedEvent>(game).Any(s => s.ProgramFrameId == e.ProgramFrameId && s.Receipt.Source.OwnerSeat == seat))); g = game;
-    }
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 300; step++)

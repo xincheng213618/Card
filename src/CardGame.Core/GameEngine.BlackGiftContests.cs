@@ -49,10 +49,13 @@ public sealed partial class GameEngine
         // “另一名角色” may be the original owner; its hand is checked after the gift.
         return _players.Where(p => p.IsAlive && p.Seat != first && CanBePindianTarget(first, p.Seat)).Select(p => p.Seat).ToArray();
     }
-    private IReadOnlyList<PromptChoice> BlackGiftDiscardOptions(ProgramSkillFrame f) =>
-        BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, BlackGiftWinner(f.BlackGiftContest!.Result!)!.Value,
+    private IReadOnlyList<PromptChoice> BlackGiftDiscardOptions(ProgramSkillFrame f)
+    {
+        var winner = BlackGiftWinner(f.BlackGiftContest!.Result!)!.Value;
+        return BuildOwnedCardPaymentChoices(f.Id, winner, winner,
             [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard,
             canSelect: (_, c) => !f.BlackGiftContest.SelectedDiscardIds.Contains(c.Id));
+    }
     private static int? BlackGiftWinner(PindianResult p) => p.SourceRank == p.OpponentRank ? null : p.SourceWon ? p.SourceSeat : p.OpponentSeat;
     private static int[] BlackGiftLosers(PindianResult p) => new[] { p.SourceSeat, p.OpponentSeat }.Where(s => s != BlackGiftWinner(p)).ToArray();
 

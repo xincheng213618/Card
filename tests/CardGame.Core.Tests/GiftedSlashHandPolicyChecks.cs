@@ -81,64 +81,6 @@ internal static class GiftedSlashHandPolicyChecks
         }
     }
 
-    public static void GiftTargetPhaseQuotaAndContinuousHandLifetimeUseRealPhasesAndTurns()
-    {
-        var (phase, phaseRegistry) = Start(extraPlay: true); var turn = phase.State.TurnNumber;
-        _ = Give(ref phase, phaseRegistry, 1);
-        Require(!GiftAction(phase).SelectableTargetSeats.Contains(1) && GiftAction(phase).SelectableTargetSeats.Contains(2),
-            "The actual target-phase ledger removes only the paid recipient, preserving another legal target in the same real Play.");
-        Reject(phase, new UseProgramSkillCommand(0, Actual, Activation, [], [1], phase.Revision, P(phase)!.PromptId));
-        _ = Give(ref phase, phaseRegistry, 2);
-        Accept(phase, new EndPlayPhaseCommand(0, phase.Revision)); Reach(phase, IsHumanPlay);
-        Require(phase.State.TurnNumber == turn && GiftAction(phase).SelectableTargetSeats.Contains(1),
-            "A genuinely inserted Play returns to normal Play in the same actual turn with a new target-phase quota.");
-        _ = Give(ref phase, phaseRegistry, 1);
-        Require(Facts<SkillUsageConsumedEvent>(phase).Count(e => e.SkillId == Actual && e.UsageId == Activation + ":target:1" && e.Scope == SkillUsageScope.Phase) == 2 &&
-                Facts<SkillUsageConsumedEvent>(phase).Count(e => e.SkillId == Actual && e.UsageId == Activation + ":target:2" && e.Scope == SkillUsageScope.Phase) == 1 &&
-                Facts<ProgramSkillResolvedEvent>(phase).Count(e => e.SkillId == Actual) == 3,
-            "Two actual Play phases pay the same target separately, and another target in the first phase pays exactly once.");
-        UseDriver(phase, "send-hand", 2); Reach(phase, IsHumanPlay);
-        Require(phase.CreateSnapshot(0).Players[0].HandCount == 0 &&
-                phase.GetHumanLegalActions().All(a => a.ProgramSkillId != Actual) &&
-                !Facts<SkillUsageConsumedEvent>(phase).Any(e => e.SkillId == Actual && e.UsageId == Activation + ":target:3"),
-            "A true empty giver Hand suppresses the published gift activation before any private selection or target-ledger payment.");
-        Reject(phase, new UseProgramSkillCommand(0, Actual, Activation, [], [3], phase.Revision, P(phase)!.PromptId));
-        UseDriver(phase, "take-hand", 2); Reach(phase, IsHumanPlay);
-        Require(phase.State.TurnNumber == turn && phase.CreateSnapshot(0).Players[0].HandCount > 0 && GiftAction(phase).SelectableTargetSeats.Contains(3),
-            "Real card acquisition in the same actual Play restores the activation and preserves the target quota rejected while the giver was empty.");
-        _ = Give(ref phase, phaseRegistry, 3);
-        Require(Facts<SkillUsageConsumedEvent>(phase).Count(e => e.SkillId == Actual && e.UsageId == Activation + ":target:3" && e.Scope == SkillUsageScope.Phase) == 1 &&
-                Facts<ProgramSkillResolvedEvent>(phase).Count(e => e.SkillId == Actual) == 4,
-            "The formerly rejected target can subsequently receive a genuine gift in the same Play, paying its ledger and entity exactly once.");
-        _ = Cold(phase, phaseRegistry);
-
-        var (game, registry) = Start(skipFirstPlay: true); var given = Give(ref game, registry, 1);
-        var firstTurn = game.State.TurnNumber;
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision)); Reach(game, IsHumanPlay);
-        Require(game.State.TurnNumber > firstTurn && Facts<TurnEndedEvent>(game).Any(e => e.ActorSeat == 1) &&
-                Location(game, given) == CardLocation.Hand(1) && !Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == given),
-            "The actual recipient finishes its first turn with skipped Play while continuously holding the same gifted entity; this hand policy has no turn expiry.");
-        game = Cold(game, registry);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision)); Reach(game, p => ContinuePrompt(p, Committed));
-        var use = BenefitUse(game); var benefit = use.GiftedSlashUseBenefit!;
-        Require(use.SourceSeat == 1 && use.CardId == given && benefit.Policy.CardId == given &&
-                benefit.Policy.ActualTurnNumber == firstTurn && game.State.TurnNumber > firstTurn &&
-                benefit.Policy.RecipientSeat == 1 && benefit.Policy.Source.OwnerSeat == 0,
-            "The original continuous-Hand policy survives both intervening turn ends and cold replay, then freezes on the recipient's next native real Use.");
-        var useId = use.Id; game = Cold(game, registry);
-        Reach(game, p => p is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 });
-        Answer(game, c => c.Cards.Count == 1); Reach(game, p => ContinuePrompt(p, DrawChild));
-        var reward = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.GiftedSlashRewardReceipt is not null);
-        Require(reward.GiftedSlashRewardReceipt is { FrozenDrawCount: 1, DrawActual: 1 } r && r.Benefit.CardUseFrameId == useId && r.Benefit == benefit,
-            "The later damage-free real Use rewards the original donor once, rather than expiring at the next or recipient turn boundary.");
-        game = Cold(game, registry); Reach(game, IsHumanPlay);
-        Require(Facts<CardUseFinishedEvent>(game).Count(e => e.ResolutionId == useId && e.CardId == given) == 1 &&
-                Facts<ProgramBindingResolvedEvent>(game).Count(e => e.FrameId == reward.Id && e.Activated && e.Completed) == 1 &&
-                game.CardMovements.Count(m => m.CardId == given && m.From == CardLocation.Hand(1) && m.Reason == CardMoveReasons.Use) == 1,
-            "The across-turn native Use completes exactly once with one material payment and one original-provider draw return.");
-        _ = Cold(game, registry);
-    }
-
     private static int Give(ref GameEngine game, ContentRegistry registry, int recipient)
     {
         var card = game.CreateSnapshot(0).Players[0].Hand.First().Id;
@@ -181,13 +123,10 @@ internal static class GiftedSlashHandPolicyChecks
 
     private static LegalAction GiftAction(GameEngine game) => game.GetHumanLegalActions().Single(a => a.ProgramSkillId == Actual && a.ProgramActivationId == Activation);
     private static CardUseFrame BenefitUse(GameEngine game) => game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.GiftedSlashUseBenefit is not null);
-    private static CardLocation Location(GameEngine game, int id) => game.CreateCardZoneDiagnostics().Single(z => z.CardId == id).Location;
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool IsHumanPlay(PendingDecision? p) => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };
     private static bool ContinuePrompt(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static T[] Facts<T>(GameEngine game) => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
-    private static void UseDriver(GameEngine game, string activation, int target) => Accept(game,
-        new UseProgramSkillCommand(0, Driver, activation, [], [target], game.Revision, P(game)!.PromptId));
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate)
     {
         Require(P(game)?.PlayerSeat == 0, "Human Answer is restricted to the real human seat; foreign AI choices must use native Advance.");

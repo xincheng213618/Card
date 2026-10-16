@@ -172,7 +172,7 @@ internal static class ProgramSelectionRegistrationChecks
         var activation = new SkillProgramActivation("activate", 0, 4, 1, 1, SkillProgramTargetKind.AnyLiving,
             null, condition, effects);
         var program = new SkillProgram("fixture:selection-registration", 1, "fixture-hash", "fixture-runtime",
-            GameCheckpoint.CurrentRulesVersion, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
+            171, [], [], Array.AsReadOnly(new[] { activation }), [], [], []);
         var plan = new ProgramExecutionPlan(program.Id, program.GameplayHash, ProgramInstructionSourceKind.Activation,
             activation.Id, effects, activation: activation);
         return new(0, program, plan);

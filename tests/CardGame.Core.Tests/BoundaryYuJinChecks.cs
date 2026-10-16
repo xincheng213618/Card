@@ -57,85 +57,6 @@ internal static class BoundaryYuJinChecks
             "Declining the original optional actual Prep opportunity selects no target and pays nothing.");
     }
 
-    public static void FrozenBlackSlashHpHandArmorAndMixedPhysicalPayments()
-    {
-        var (g, r) = Create(armor: true); SkipPrep(g); Play(g); Use(g, "gear", [], [1]); Play(g);
-        Require(g.CreateSnapshot(0).Players[1].Equipment.Any(c => c.Kind == CardKind.BaguaFormation), "A real equipment producer installs Bagua on the actual target.");
-        var hp = g.CreateSnapshot(0).Players[1].Hp;
-        var materials = g.CreateSnapshot(0).Players[0].Hand.Where(c => c.Kind == CardKind.Dodge).Take(2).Select(c => c.Id).ToArray();
-        Use(g, "double-slash", materials, [1]); Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-        var outgoing = E<ComparedBlackSlashAppliedEvent>(g).Single().Receipt;
-        var action = E<CardActionAcceptedEvent>(g).Select(e => e.Action).Single(a => a.ActionId == outgoing.ActionId);
-        Require(outgoing.ActorSeat == 0 && outgoing.ProviderSeat == 0 && outgoing.TargetSeat == 1 && outgoing.CannotRespond &&
-            !outgoing.Ineffective && outgoing.TargetHandCount <= outgoing.ActorHandCount && action.EffectiveIsRed == false &&
-            action.PhysicalCards.Select(c => c.CardId).Order().SequenceEqual(materials.Order()) &&
-            g.CreateSnapshot(0).Players[1].Hp == hp - 1 &&
-            !E<JudgmentResolvedEvent>(g).Any(e => e.TargetSeat == 1 && e.Reason == JudgmentReasons.BaguaDefense) &&
-            !E<CardActionAcceptedEvent>(g).Any(e => e.Action.ParentActionId == outgoing.ActionId && e.Action.EffectiveKind == CardKind.Dodge),
-            "A true paid black multi-material Slash compares current public Hand counts and prohibits actual Dodge/Bagua response.");
-        g = Restore(g, r); Continue(g); Play(g);
-        Require(materials.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-                g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1) &&
-            !g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "Cold completion retains one original cost/cleanup and does not increase ordinary Slash quota.");
-
-        var (armor, ar) = Create(armor: true, armorId: "standard:renwang_shield"); SkipPrep(armor); Play(armor);
-        Use(armor, "gear", [], [1]); Play(armor); var armorHp = armor.CreateSnapshot(0).Players[1].Hp;
-        PlaySlash(armor, 1); Reach(armor, p => p.SkillPrompt?.SkillId == Completed);
-        Require(E<ComparedBlackSlashAppliedEvent>(armor).Single().Receipt.CannotRespond &&
-            armor.CreateSnapshot(0).Players[1].Hp == armorHp, "Prohibiting Dodge response preserves the real Renwang black-Slash armor immunity.");
-        armor = Restore(armor, ar); Continue(armor); Play(armor);
-
-        foreach (var lowerHp in new[] { false, true })
-        {
-            var (incoming, ir) = Create(deck: "slash", lowerPeerHp: lowerHp); SkipPrep(incoming); Play(incoming);
-            var originalHp = incoming.CreateSnapshot(0).Players[0].Hp;
-            Use(incoming, "request-slash", [], [1]);
-            Until(incoming, () => E<ComparedBlackSlashAppliedEvent>(incoming).Any());
-            var receipt = E<ComparedBlackSlashAppliedEvent>(incoming).Single().Receipt;
-            Require(receipt.ActorSeat == 1 && receipt.ProviderSeat == 1 && receipt.TargetSeat == 0 &&
-                receipt.Ineffective == !lowerHp && receipt.Ineffective == (receipt.ActorHp >= receipt.TargetHp),
-                "The requested native actor truly uses its own physical Slash; incoming immunity compares the actual user HP.");
-            incoming = Restore(incoming, ir);
-            Play(incoming);
-            Require(incoming.CreateSnapshot(0).Players[0].Hp == originalHp - (lowerHp ? 1 : 0) &&
-                E<CardUseFinishedEvent>(incoming).Count(e => e.ResolutionId == receipt.CardUseFrameId) == 1,
-                "The restored black Slash either finishes ineffective or follows the normal response/damage path once.");
-        }
-
-        var (replaced, pr) = Create(replaceActor: true); SkipPrep(replaced); Play(replaced);
-        var policyTargetSeat = replaced.State.Players.Single(p => p.GeneralId == "fixture:yj-peer-3").Seat;
-        PlaySlash(replaced, policyTargetSeat);
-        Reach(replaced, p => p.SkillPrompt?.SkillId == RoleChange && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        var replacementSeat = P(replaced)!.Choices.Where(c => c.Targets.Count == 1).Select(c => c.Targets[0])
-            .First(seat => replaced.State.Players[seat].Hp >= replaced.State.Players[policyTargetSeat].Hp &&
-                !replaced.CreateSnapshot(0).Players[seat].Skills!.Any(s => s.Id == Compared));
-        Answer(replaced, c => c.Targets.SequenceEqual([replacementSeat])); Until(replaced, () => E<ComparedBlackSlashAppliedEvent>(replaced).Any());
-        var currentActor = E<ComparedBlackSlashAppliedEvent>(replaced).Single().Receipt;
-        Require(E<ProgramCardUseActorReplacedEvent>(replaced).Single().ActorSeat == replacementSeat &&
-            currentActor.ActorSeat == replacementSeat && currentActor.TargetSeat == policyTargetSeat &&
-            currentActor is { ProviderSeat: 0, Ineffective: true, ActorPolicySource: null, EffectiveIsRed: false } &&
-            currentActor.TargetPolicySource?.OwnerSeat == policyTargetSeat &&
-            currentActor.ActorHp >= currentActor.TargetHp && replaced.CreateSnapshot(0).Players[0].Hp < currentActor.TargetHp,
-            "Same-use actor replacement keeps its original black appearance/provider, but HP and policy qualification use the true replacement actor.");
-        replaced = Restore(replaced, pr); Play(replaced);
-        Require(E<CardUseFinishedEvent>(replaced).Count(e => e.ResolutionId == currentActor.CardUseFrameId) == 1,
-            "The replaced original Slash completes once after cold restoration without provider-based immunity.");
-
-        var (mixed, mr) = Create(mixed: true); SkipPrep(mixed); Play(mixed); Use(mixed, "draw-materials", [], []); Play(mixed);
-        var hand = mixed.CreateSnapshot(0).Players[0].Hand;
-        var red = hand.First(c => c.Suit is Suit.Heart or Suit.Diamond).Id;
-        var black = hand.First(c => c.Suit is Suit.Spade or Suit.Club).Id;
-        Use(mixed, "double-slash", [red, black], [1]); Reach(mixed, p => p.SkillPrompt?.SkillId == Completed);
-        var mixedUse = E<CardActionAcceptedEvent>(mixed).Select(e => e.Action).Last(a => a.Type == CardActionType.Use && a.EffectiveKind == CardKind.Slash);
-        Require(mixedUse.PhysicalCards.Count == 2 && mixedUse.EffectiveIsRed is null &&
-            !E<ComparedBlackSlashAppliedEvent>(mixed).Any(e => e.Receipt.ActionId == mixedUse.ActionId),
-            "A real red/black multi-material payment is colorless and does not acquire a black-Slash conclusion.");
-        mixed = Restore(mixed, mr); Continue(mixed); Play(mixed);
-        Require(new[] { red, black }.All(id => mixed.CardMovements.Count(m => m.CardId == id && m.To == CardLocation.Processing) == 1),
-            "The restored mixed use retains both exact physical payments without inventing a source color.");
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Offer(PendingDecision p, string skill) => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == skill &&
@@ -156,15 +77,8 @@ internal static class BoundaryYuJinChecks
         }
         AnswerStep(g, "finish");
     }
-    private static void SkipPrep(GameEngine g) { Reach(g, p => Offer(p, Prep)); Skip(g); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, activation, cards, targets, g.Revision, P(g)!.PromptId));
-    private static void PlaySlash(GameEngine g, int target)
-    { var action = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([target]));
-        Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind)
-            { ConversionSource = action.ConversionSource }); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine g)

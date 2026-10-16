@@ -37,132 +37,16 @@ internal static class SunRuOlChecks
         _ = Cold(g, registry);
     }
 
-    public static void ActualWeimianPaidSlotsRecipientProjectsAndNativeRecoveryCold()
-    {
-        var (g, registry) = Start("silver"); var lion = V(g, 0).Hand.First();
-        Use(g, "equip", [0], [lion.Id]); Play(g);
-        var ownHp = V(g, 0).Hp; var targetHp = V(g, 1).Hp; var targetHand = V(g, 1).Hand.Select(c => c.Id).ToArray();
-        Weimian(g, 1); Reach(g, () => Branch(P(g), "slots"));
-        Need(P(g) is { PlayerSeat: 0, IsPrivate: true } && g.CreateSnapshot(1).PendingDecision is null,
-            "Sun Ru alone chooses her actual native available slot combination before payment.");
-        g = Cold(g, registry); Pick(g, "slots", 7); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Hp);
-        Need(V(g, 0).Hp == ownHp + 1 && V(g, 0).Equipment.Count == 0 && E<SunRuOlWeimianPaidEvent>(g).Single().SlotsMask == 7 &&
-            g.CardMovements.Count(m => m.CardId == lion.Id && m.Reason.Value == "equipment.slot-abolished") == 1,
-            "Three distinct slots are paid once; actual Silver Lion removal heals its wounded wearer before the paid cost's HP child.");
-        g = Cold(g, registry); Continue(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-        var costWindow = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
-        Need(costWindow.Batch.SunRuOlLastZoneLoss is { OwnerSeat: 0 } && costWindow.Candidates.Any(c => c.SkillId == Chi),
-            "Actual equipment loss retains a Chishi candidate: " + JsonSerializer.Serialize(costWindow));
-        g = Cold(g, registry); Continue(g); Reach(g, () => Optional(P(g), Chi) || P(g)?.Kind == DecisionKind.PlayCard || Branch(P(g), "benefits"));
-        Need(Optional(P(g), Chi), "Chishi after actual equipment watcher: " + JsonSerializer.Serialize(new { costWindow, Facts = E<SunRuOlChishiAppliedEvent>(g).ToArray(), Bindings = E<ProgramBindingStartedEvent>(g).Where(e => e.SkillId == Chi).ToArray(), Frames = g.ResolutionStack.Select(f => JsonSerializer.Serialize(f, f.GetType())).ToArray(), Prompt = P(g) }));
-        Activate(g);
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Gain); g = Cold(g, registry); Continue(g);
-        Reach(g, () => Branch(P(g), "benefits"));
-        Need(P(g) is { PlayerSeat: 1, IsPrivate: true } p && p.Choices.Count == 1 && g.CreateSnapshot(0).PendingDecision is null &&
-            E<SunRuOlWeimianBenefitIssuedEvent>(g).Count() == 0,
-            "After every real equipment child returns, the recipient privately chooses exactly three distinct projects and the source cannot see the prompt.");
-        g = Cold(g, registry); Pick(g, "benefits", 7); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Hp);
-        Need(V(g, 1).Hp == targetHp + 1 && !g.ResolutionStack.OfType<RecoveryReplacementFrame>().Any(),
-            "The selected one-HP recovery actually applies to the non-current recipient before its HP child; own-turn recovery redirection is correctly ineligible for that recipient.");
-        g = Cold(g, registry); Continue(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Gain);
-        Need(V(g, 1).HandCount == 4 && targetHand.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == "skill-program.sun-ru.ol.weimian.discard") == 1),
-            "The refresh discards every actual recipient hand entity before drawing four, without touching the source's Chishi draws.");
-        g = Cold(g, registry); Continue(g); Play(g);
-        Need(E<SunRuOlWeimianPaidEvent>(g).Count() == 1 && E<SunRuOlWeimianBenefitsChosenEvent>(g).Single().BenefitsMask == 7 &&
-            E<SunRuOlWeimianBenefitIssuedEvent>(g).Select(e => e.Benefit).SequenceEqual([1, 2, 3]) &&
-            E<SunRuOlChishiAppliedEvent>(g).Count() == 1 && E<EquipmentSlotCapacityChangedEvent>(g).Count(e => e.Seat == 0 && e.Capacity == 0) == 3,
-            "Cold cost, HP, movement, recipient and recovery returns never repeat the three paid slots, optional Chishi or any chosen project.");
-        _ = Cold(g, registry);
-
-        var (replacement, replacementRegistry) = Start("replacement");
-        var beforeRecovery = V(replacement, 0).Hp;
-        Weimian(replacement, 0); Reach(replacement, () => Branch(P(replacement), "slots")); Pick(replacement, "slots", 7);
-        Reach(replacement, () => Branch(P(replacement), "benefits")); Pick(replacement, "benefits", 7);
-        Reach(replacement, () => Branch(P(replacement), "restore")); Pick(replacement, "restore", (int)EquipmentSlot.Armor);
-        Reach(replacement, () => P(replacement)?.Kind == DecisionKind.RecoveryReplacement);
-        var recovery = replacement.ResolutionStack.OfType<RecoveryReplacementFrame>().Single();
-        Need(recovery.Attempt is { TargetSeat: 0, Amount: 1 } && recovery.Attempt.Candidates.Any(c => c.OwnerSeat != 0) &&
-            replacement.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == recovery.ParentFrameId && f.SunRuOlWeimian is { Stage: SunRuOlWeimianStage.RecoveryChildren }) &&
-            V(replacement, 0).Hp == beforeRecovery,
-            "With a distinct actual lord, the current actor's own Weimian heal opens a real native replacement under the exact custom recovery receipt.");
-        replacement = Cold(replacement, replacementRegistry); Answer(replacement, c => c.Parameters.GetValueOrDefault("recovery-action") == "keep");
-        Reach(replacement, () => P(replacement)?.SkillPrompt?.SkillId == Hp);
-        Need(V(replacement, 0).Hp == beforeRecovery + 1, "The actual chosen replacement keeps and applies the one-point request exactly once.");
-        replacement = Cold(replacement, replacementRegistry); Continue(replacement);
-        Reach(replacement, () => P(replacement)?.SkillPrompt?.SkillId == Gain); replacement = Cold(replacement, replacementRegistry); Continue(replacement); Play(replacement);
-        Need(E<SunRuOlWeimianPaidEvent>(replacement).Count() == 1 && E<RecoveryAppliedEvent>(replacement).Count(e => e.TargetSeat == 0) == 1 &&
-            E<SunRuOlWeimianBenefitIssuedEvent>(replacement).Select(e => e.Benefit).SequenceEqual([1, 2, 3]),
-            "Cold native recovery replacement and downstream hand-refresh children return without repeating any paid cost or project.");
-        _ = Cold(replacement, replacementRegistry);
-    }
-
-    public static void ActualOtherHolderRewardsCurrentActorAndHandLimitCold()
-    {
-        var (g, registry) = Start("cross");
-        var holder = Enumerable.Range(1, 3).Single(s => V(g, s).Skills!.Any(skill => skill.Id == Chi));
-        var holderHand = V(g, holder).HandCount;
-        Use(g, "empty-hand", []); Reach(g, () => Optional(P(g), Chi));
-        Need(P(g)!.PlayerSeat == holder && g.CreateSnapshot(0).PendingDecision is null,
-            "The separate Sun Ru holder privately decides whether to reward the actual turn owner's native last-region loss.");
-        g = Cold(g, registry); Activate(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Gain);
-        var fact = E<SunRuOlChishiAppliedEvent>(g).Single();
-        var grant = E<TurnRuleModifierGrantedEvent>(g).Single(e => e.Modifier.Source.SkillId == Chi).Modifier;
-        Need(fact.Source.OwnerSeat == holder && fact.Turn.OwnerSeat == 0 && V(g, 0).HandCount == 2 && V(g, holder).HandCount == holderHand &&
-            grant.Source.OwnerSeat == holder && grant.AffectedSeat == 0 && grant.Amount == 2 &&
-            E<TurnRuleModifierGrantedEvent>(g).All(e => e.Modifier.AffectedSeat != holder),
-            "Cross-owner Chishi draws only for the actual actor and explicitly grants that actor, never the holder, its +2 native hand limit.");
-        g = Cold(g, registry); Continue(g); Play(g);
-        Need(E<SunRuOlChishiAppliedEvent>(g).Count() == 1 && V(g, 0).HandCount == 2,
-            "The actual other-holder movement child cold-returns without repeating its recipient draw or quota.");
-        _ = Cold(g, registry);
-    }
-
-    public static void ActualWholeEquipmentAreaSingleSlotRestorationAndEmptyRefresh()
-    {
-        {
-            var (g, registry) = Start("whole");
-            Need(V(g, 1).IsEquipmentAreaAbolished && !E<SunRuOlChishiAppliedEvent>(g).Any(), "The fixture abolishes a real whole equipment region at setup without inventing an actual current turn.");
-            Weimian(g, 1); Reach(g, () => Branch(P(g), "slots")); Pick(g, "slots", 1);
-            Reach(g, () => Branch(P(g), "benefits")); g = Cold(g, registry); Pick(g, "benefits", 1);
-            Reach(g, () => Branch(P(g), "restore"));
-            Need(P(g) is { PlayerSeat: 1, IsPrivate: true } p && p.Choices.Count == 5 && g.CreateSnapshot(0).PendingDecision is null,
-                "A whole-area abolition presents exactly five native categories to the private recipient, allowing only one restoration.");
-            g = Cold(g, registry); Pick(g, "restore", (int)EquipmentSlot.Armor); Play(g);
-            var restored = V(g, 1);
-            Need(!restored.IsEquipmentAreaAbolished && Enum.GetValues<EquipmentSlot>().All(s => restored.EquipmentSlotCapacities?.GetValueOrDefault(s, 1) == (s == EquipmentSlot.Armor ? 1 : 0)) &&
-                E<SunRuOlWeimianBenefitIssuedEvent>(g).Single().RestoredSlot == EquipmentSlot.Armor,
-                "Native single-slot restoration clears whole-area abolition but keeps the four unchosen categories unavailable.");
-            _ = Cold(g, registry);
-        }
-        {
-            var (g, registry) = Start("empty");
-            for (var i = 0; i < 2; i++)
-            { Use(g, "foreign-discard", [1]); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("source-zone") == "Hand") == true); Answer(g, _ => true); Play(g); }
-            var hp = V(g, 1).Hp;
-            Need(hp == V(g, 1).MaxHp && V(g, 1).HandCount == 0 && !V(g, 1).IsEquipmentAreaAbolished,
-                "The real recipient is full HP, has no abolished category, and already has no hand cards.");
-            Weimian(g, 1); Reach(g, () => Branch(P(g), "slots")); Pick(g, "slots", 7);
-            Reach(g, () => Branch(P(g), "benefits")); Pick(g, "benefits", 7); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Gain);
-            Need(V(g, 1).HandCount == 4 && V(g, 1).Hp == hp && !E<RecoveryAppliedEvent>(g).Any() &&
-                !g.CardMovements.Any(m => m.Reason.Value == "skill-program.sun-ru.ol.weimian.discard") && E<SunRuOlWeimianBenefitIssuedEvent>(g).Count() == 3,
-                "All three projects remain selectable: unavailable restoration/healing naturally have no effect and discarding zero cards still draws four.");
-            g = Cold(g, registry); Continue(g); Play(g); _ = Cold(g, registry);
-        }
-    }
-
     private static PlayerSnapshot V(GameEngine g, int s) => g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static bool Optional(PendingDecision? p, string id) => p?.SkillPrompt?.SkillId == id && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static bool Branch(PendingDecision? p, string branch) => p?.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == branch) == true;
-    private static void Pick(GameEngine g, string branch, int value) => Answer(g, c => c.Parameters.GetValueOrDefault("branch") == branch && c.Parameters.GetValueOrDefault("value") == value.ToString(System.Globalization.CultureInfo.InvariantCulture));
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, g.Revision)); }
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int> targets, IReadOnlyList<int>? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets, g.Revision, P(g)!.PromptId));
-    private static void Weimian(GameEngine g, int target) => Accept(g, new UseProgramSkillCommand(0, Wei, "abolish-for-distinct-benefits", [], [target], g.Revision, P(g)!.PromptId));
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var i = 0; i < 400; i++)

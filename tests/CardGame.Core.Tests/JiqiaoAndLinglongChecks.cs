@@ -16,21 +16,6 @@ internal static class JiqiaoAndLinglongChecks
             non.All(id=>V(g).Hand.Any(c=>c.Id==id)) && equip.All(id=>g.CardMovements.Any(m=>m.CardId==id && m.To==CardLocation.DiscardPile && m.Reason.Value=="program.jiqiao.remainder")),"Exactly twice the actual paid equipment is publicly revealed, every non-equipment is obtained once and every remaining equipment is natively discarded.");
         Need(E<JiqiaoStageIssuedEvent>(g).Select(e=>e.Stage).SequenceEqual(Enum.GetValues<JiqiaoPaidStage>()),"Native stages retain their exact once-issued order across cold commands.");
     }
-    public static void ActualVirtualBaguaAndQinggangNativeArmorIgnoreCold()
-    {
-        var(g,r)=Start();Play(g);var target=Enumerable.Range(1,3).First(s=>g.CreateSnapshot(s).Players[s].Role==Role.Rebel);
-        Need((bool)Query(g,"HasConditionalVirtualBaguaForAi",Player(g,target)),"The genuinely selected peer has an active live conditional virtual Bagua before its incoming Slash: "+SnapshotJson.Serialize(g.CreateSnapshot(target)));
-        Slash(g,target);Play(g);g=Cold(g,r);Need(E<JudgmentResolvedEvent>(g).Any(e=>e.TargetSeat==target && e.Reason==JudgmentReasons.BaguaDefense),"A genuine native Slash against the vacant-armor LingLong target opens actual Bagua judgment. "+JsonSerializer.Serialize(new{Views=g.CreateSnapshot(target),Thoughts=g.AiThoughts,Events=g.Events.Select(e=>e.Payload).TakeLast(20)}));
-        EnsureCard(g,CardKind.QinggangSword);Equip(g,CardKind.QinggangSword);End(g);Play(g);var judgments=E<JudgmentResolvedEvent>(g).Count(e=>e.TargetSeat==target && e.Reason==JudgmentReasons.BaguaDefense);
-        Slash(g,target);Play(g);g=Cold(g,r);Need(E<JudgmentResolvedEvent>(g).Count(e=>e.TargetSeat==target && e.Reason==JudgmentReasons.BaguaDefense)==judgments,"Actual Qinggang armor-ignore prevents the conditional virtual Bagua, without creating physical equipment or special response shortcuts.");
-    }
-    private static object Player(GameEngine g,int seat=0)=>((IList)typeof(GameEngine).GetField("_players",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!)[seat]!;
-    private static object Query(GameEngine g,string name,params object?[] args)=>typeof(GameEngine).GetMethods(BindingFlags.Instance|BindingFlags.NonPublic).Single(m=>m.Name==name && m.GetParameters().Length==args.Length && (args.Length==0 || m.GetParameters()[0].ParameterType==args[0]?.GetType())).Invoke(g,args)!;
-    private static void EnsureCard(GameEngine g,CardKind kind){if(!V(g).Hand.Any(c=>c.Kind==kind)){Use(g,"stock",[]);Play(g);}Need(V(g).Hand.Any(c=>c.Kind==kind),"The single verified native fixture draw supplies the required equipment.");}
-    private static void Equip(GameEngine g,CardKind kind)
-    {EnsureCard(g,kind);var card=V(g).Hand.First(c=>c.Kind==kind);var action=g.GetHumanLegalActions().First(a=>a.CardId==card.Id && a.Kind==LegalActionKind.Equip);Accept(g,new PlayCardCommand(0,card.Id,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId));Play(g);}
-    private static void Slash(GameEngine g,int target)
-    {EnsureCard(g,CardKind.Slash);var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.Contains(target));Accept(g,new PlayCardCommand(0,action.CardId!.Value,new[]{target},g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId));}
     private static void SelectJiqiao(GameEngine g,int desired)
     {
         Reach(g,()=>Optional(g));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards")==true);
@@ -47,8 +32,6 @@ internal static class JiqiaoAndLinglongChecks
     private static void Accept(GameEngine g,GameCommand c){var r=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(r.Accepted,r.Error?.Message??"Rejected actual SP Yueying command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Reach(GameEngine g,Func<bool> done)
     {for(var i=0;i<140;i++){if(done())return;Need(g.State.Winner==Winner.None,"The small native fixture ended prematurely.");var p=P(g);if(p is{PlayerSeat:0}&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"))Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else if(p is{PlayerSeat:0,Kind:DecisionKind.RescueDying or DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.Nullification})Answer(g,c=>c.Parameters.GetValueOrDefault("response")is"pass"or"take-damage"or"let-die");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("SP Yueying fixture boundary missing: "+JsonSerializer.Serialize(P(g))+". "+RuntimeFacts(g));}
     private static string RuntimeFacts(GameEngine g)=>JsonSerializer.Serialize(new

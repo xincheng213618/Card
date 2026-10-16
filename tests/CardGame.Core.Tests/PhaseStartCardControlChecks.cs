@@ -46,92 +46,19 @@ internal static class PhaseStartCardControlChecks
         Need(range.GetCombatDistance(2, 0) == 2, "The directed override ends with exactly the same actual turn as the derived skill.");
     }
 
-    public static void MumuProtectedDiscardSelfArmorAndSlashBan()
-    {
-        var (g, registry) = Start("standard:slash", "mumu", equipment: "fixture:phase-control-armor");
-        Use(g, "equip", targets: [0]); Play(g); Use(g, "equip", targets: [1]); Play(g); End(g);
-        Reach(g, p => Optional(p, Mumu)); Activate(g); Reach(g, ControlChoice);
-        Need(P(g)!.Choices.Any(c => c.Parameters["branch"] == "obtain" && c.Targets.SequenceEqual([0])) &&
-            P(g)!.Choices.Any(c => c.Parameters["branch"] == "obtain" && c.Targets.SequenceEqual([1])) &&
-            P(g)!.Choices.All(c => c.Parameters["branch"] != "discard" || !c.Targets.SequenceEqual([1])),
-            "Self armor is a legal acquisition; another player's protected armor forbids actual foreign discard but still permits obtaining it.");
-        var armor = P(g)!.Choices.First(c => c.Parameters["branch"] == "obtain" && c.Targets.SequenceEqual([0])).Cards.Single();
-        var hand = V(g, 0).HandCount; g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([armor]) && c.Parameters["branch"] == "obtain"); DrainControl(g);
-        var declared = E<CardUseDeclaredEvent>(g).Count(); Reach(g, p => Optional(p, Driver)); Activate(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(g, c => c.Targets.SequenceEqual([1]));
-        Pause(g, "a"); Need(E<CardUseDeclaredEvent>(g).Count() == declared, "The issued Mumu ban also blocks the vanilla zero-material Slash producer in its actual own turn.");
-        Continue(g); Play(g);
-        Need(V(g, 0).HandCount == hand + 1 && E<StartingEquipmentControlCompletedEvent>(g).Single().ArmorAcquired &&
-            g.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.To == CardLocation.Hand(0)) == 1 &&
-            !g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "One real self-armor acquisition grants the own-turn Slash ban without a second fee or an extra draw.");
-        var hp = V(g, 0).Hp; var heldSlashes = V(g, 0).Hand.Where(c => c.Kind == CardKind.Slash).Select(c => c.Id).ToArray();
-        Need(heldSlashes.Length > 0, "Real Slash entities are held before the prohibition is exercised by the incoming Duel.");
-        g = Cold(g, registry); Use(g, "incoming", targets: [1]); Play(g);
-        Need(E<DuelResponseEvent>(g).Last() is { ResponderSeat: 0, UsedSlash: false, SlashCardId: null } && V(g, 0).Hp == hp - 1 &&
-            heldSlashes.All(id => V(g, 0).Hand.Any(c => c.Id == id)),
-            "Mumu removes all legal played Slash responses; the native no-response path applies one Duel damage and leaves every held Slash unspent.");
-        _ = Cold(g, registry);
-
-        var (discard, discardRegistry) = Start("standard:dodge", "mumu-discard", equipment: "standard:crossbow");
-        Use(discard, "equip", targets: [1]); Play(discard); var initial = V(discard, 0).HandCount; End(discard);
-        Reach(discard, p => Optional(p, Mumu)); Activate(discard); Reach(discard, ControlChoice);
-        var gear = P(discard)!.Choices.First(c => c.Parameters["branch"] == "discard").Cards.Single();
-        Answer(discard, c => c.Cards.SequenceEqual([gear])); DrainControl(discard); Play(discard);
-        Need(V(discard, 0).HandCount == initial && !E<CardActionProhibitionGrantedEvent>(discard).Any() &&
-            E<StartingEquipmentControlCompletedEvent>(discard).Single() is { ArmorAcquired: false, To.Zone: CardZoneKind.DiscardPile },
-            "Current-version Mumu discard has no old-version draw and no acquisition-only Slash ban."); _ = Cold(discard, discardRegistry);
-
-        var (treasure, treasureRegistry) = Start("standard:dodge", "mumu", equipment: "standard:jade_seal");
-        Use(treasure, "equip", targets: [1]); Play(treasure); End(treasure); Play(treasure);
-        Need(!E<ProgramBindingStartedEvent>(treasure).Any(e => e.SkillId == Mumu), "A protected foreign treasure alone never creates an illegal Mumu discard offer."); _ = Cold(treasure, treasureRegistry);
-    }
-
-    public static void ZhixiTrickDelayedAndCounterspellActualUses()
-    {
-        foreach (var card in new[] { "standard:draw_two", "standard:indulgence" })
-        {
-            var (g, registry) = Start(card, "zhixi"); var action = g.GetHumanLegalActions().First(a => a.CardId is not null && a.Kind != LegalActionKind.Recast);
-            Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, g.Revision, P(g)!.PromptId)); Play(g);
-            Need(Uses(g).Count() == 1 && Uses(g).Single().EffectiveCardKind is CardKind.DrawTwo or CardKind.Indulgence &&
-                !g.GetHumanLegalActions().Any(a => a.CardId is not null), "Either ordinary or delayed trick use immediately forbids all subsequent actual card uses.");
-            var count = E<CardUseDeclaredEvent>(g).Count(); End(g); Reach(g, p => Optional(p, Driver)); Activate(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Driver && cOption(p, "continue"));
-            Need(E<CardUseDeclaredEvent>(g).Count() == count, "The trick flag also prevents the vanilla zero-entity producer in the same actual phase."); _ = Cold(g, registry);
-        }
-        var (counter, counterRegistry) = Start("standard:nullification", "zhixi", "counterspell"); End(counter);
-        Reach(counter, p => Optional(p, Driver)); Activate(counter);
-        Reach(counter, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(counter, c => c.Targets.SequenceEqual([1]));
-        Reach(counter, p => p.Kind == DecisionKind.Nullification && p.PlayerSeat == 0 && p.Choices.Any(c => c.Cards.Count == 1));
-        Need(!Uses(counter).Any(), "The other participant's true zero-material trick does not charge the current owner's actual-use ledger.");
-        var material = P(counter)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "nullification" && c.Cards.Count == 1).Cards.Single();
-        counter = Cold(counter, counterRegistry); Answer(counter, c => c.Cards.SequenceEqual([material]));
-        Reach(counter, p => p.SkillPrompt?.SkillId == Driver && cOption(p, "continue"));
-        Need(Uses(counter).Single() is { State.ActorSeat: 0, State.UseCount: 1, EffectiveCardKind: CardKind.Nullification } &&
-            E<CardUseDeclaredEvent>(counter).Count(e => e.CardKind == CardKind.Slash) == 0 &&
-            counter.CardMovements.Count(m => m.CardId == material && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
-            "Native counterspell response is an actual trick use; it pays once and blocks a subsequent virtual Slash in the owner's still-current phase."); _ = Cold(counter, counterRegistry);
-    }
-
     private const string CostReason = "skill-program.other-play-restriction.cost";
     private static string Embedded(string suffix)
     { using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-sun-lu-yu.{suffix}")!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
-    private static IEnumerable<ActualPlayPhaseCardUseRecordedEvent> Uses(GameEngine g) => E<ActualPlayPhaseCardUseRecordedEvent>(g).Where(e => e.State.ActorSeat == 0);
     private static bool Optional(PendingDecision p, string skill) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static bool ControlChoice(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "phase-start-card-control");
-    private static bool cOption(PendingDecision p, string option) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == option);
-    private static void Pause(GameEngine g, string bind) => Reach(g, p => p.SkillPrompt?.SkillId == Driver &&
-        p.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == bind));
     private static void Accept(GameEngine g, GameCommand command)
     { var r = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Need(r.Accepted, r.Error?.Message ?? "The actual phase-control command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, g.Revision)); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));

@@ -178,7 +178,7 @@ internal static class YaDanChecks
             if(scene=="legacy")
             {
                 Need(RoundCount(g,0)==1&&E<CardUseDeclaredEvent>(g).Any(e=>e.CardId==0&&e.CardKind==CardKind.Slash),
-                    "An isolated legacy zero-entity native Use counts without inventing an accepted physical action.");
+                    "A real useCardActionWindows:false request still records its native zero-entity declaration exactly once.");
                 _=Cold(g,r);continue;
             }
             if(scene=="duel")
@@ -193,16 +193,21 @@ internal static class YaDanChecks
             if(scene=="zero-actor")
             {
                 End(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:yd-zero"&&Action(g,"select-target"));
-                Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:yd-actor"&&Action(g,"select-target"));
+                Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:yd-committed");
                 var use=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.CardId==0&&u.CardKind==CardKind.Slash);var action=use.Action!;
+                var fact=E<CurrentTurnCardUseKindsRecordedEvent>(g).Single(e=>e.OriginFrameId==use.Id);
                 Need(use.PhysicalCardIds is{Count:0}&&!E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ActionId==action.ActionId)&&
-                    E<CardUseDeclaredEvent>(g).Count(e=>e.ResolutionId==use.Id&&e.CardId==0&&e.SourceSeat==0)==1,
-                    "The real triggered zero-entity Use declares and opens native target windows without inventing a CardActionAccepted event: "+JsonSerializer.Serialize(new{NoPhysical=use.PhysicalCardIds is{Count:0},NoAccepted=!E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ActionId==action.ActionId),OneDeclaration=E<CardUseDeclaredEvent>(g).Count(e=>e.ResolutionId==use.Id&&e.CardId==0&&e.SourceSeat==0)==1,UseId=use.Id,action.ActionId,use.PhysicalCardIds}));
+                    E<CardUseDeclaredEvent>(g).Count(e=>e.ResolutionId==use.Id&&e.CardId==0&&e.SourceSeat==0)==1&&
+                    fact.RoundActionType==CardActionType.Use&&fact.RoundProviderSeat==0&&fact.CardActionId==action.ActionId&&RoundCount(g,0)==1,
+                    "At the genuine committed-use child, one zero-entity declaration has already frozen Use/provider/count before native acceptance: "+JsonSerializer.Serialize(new{NoPhysical=use.PhysicalCardIds is{Count:0},NoAccepted=!E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ActionId==action.ActionId),OneDeclaration=E<CardUseDeclaredEvent>(g).Count(e=>e.ResolutionId==use.Id&&e.CardId==0&&e.SourceSeat==0)==1,UseId=use.Id,action.ActionId,use.PhysicalCardIds,fact}));
+                g=Cold(g,r);Continue(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:yd-actor"&&Action(g,"select-target"));
+                Need(E<CardActionAcceptedEvent>(g).Count(e=>e.Action.ActionId==action.ActionId)==1&&RoundCount(g,0)==1,
+                    "Native target finalization then accepts that same zero-entity Use exactly once before publishing the real actor replacement.");
                 g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([2]));Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==use.Id));
                 Need(E<ProgramCardUseActorReplacedEvent>(g).Count(e=>e.CardUseFrameId==use.Id&&e.PreviousActorSeat==0&&e.ActorSeat==2&&e.ProviderSeat==0)==1&&
-                    !E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ActionId==action.ActionId)&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1&&
+                    E<CardActionAcceptedEvent>(g).Count(e=>e.Action.ActionId==action.ActionId)==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1&&
                     RoundCount(g,0)==0&&RoundCount(g,2)==1,
-                    "Without any accepted-action event, the same genuine zero-entity Use follows its actual replacement chain and counts once for the final actor.");
+                    "The declaration originally counted before acceptance now follows its same-Use replacement chain and belongs exactly once to the final actor.");
                 _=Cold(g,r);continue;
             }
             Equip(g);
@@ -311,6 +316,7 @@ internal static class YaDanChecks
             if(scene=="inserted")defs.Add("""{"id":"fixture:yd-insert","revision":1,"triggers":[{"id":"real-inserted-play","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]}]}""");
             if(scene=="offturn-alcohol")defs.Add("""{"id":"fixture:yd-offturn","revision":1,"triggers":[{"id":"real-foreign-ending-zero-use","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"useVirtualSlash","target":"selectedTarget"}]}]}""");
             if(scene=="zero-actor")defs.Add("""{"id":"fixture:yd-zero","revision":1,"triggers":[{"id":"real-ending-zero-use","window":"turnEnding","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"useVirtualSlash","target":"selectedTarget"}]}]}""");
+            if(scene=="zero-actor")defs.Add("""{"id":"fixture:yd-committed","revision":1,"triggers":[{"id":"actual-pre-acceptance-child","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pre-acceptance","options":[{"id":"continue"}]}]}]}""");
             if(loss)defs.Add($$"""{"id":"fixture:yd-conditional","revision":1,"hpSkillGrants":[{"id":"healthy-qingya","skillId":"{{Skill}}","minimumHp":13}]}""");
             if(loss||death)
                 defs.Add($$"""{"id":"{{Peer}}","revision":1,"triggers":[{"id":"real-hand-discard-child","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{DiscardReason}}"],"usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"currentTurnPlayer"},{"op":"loseHp","target":"selectedTarget","amount":{{(death?20:1)}}}]}]}""");
@@ -331,6 +337,7 @@ internal static class YaDanChecks
             if(loss||death||scene=="lion")skills.Add(Watch);
             if(scene=="skip-discard")skills.Add("fixture:yd-skip-discard");if(scene=="residency")skills.Add("fixture:yd-reclaim");if(scene is"actor"or"zero-actor")skills.Add("fixture:yd-actor");if(scene=="legacy")skills.Add("fixture:yd-legacy");
             if(scene=="inserted")skills.Add("fixture:yd-insert");if(scene=="offturn-alcohol")skills.Add("fixture:yd-offturn");if(scene=="zero-actor")skills.Add("fixture:yd-zero");
+            if(scene=="zero-actor")skills.Add("fixture:yd-committed");
             b.AddGeneral(new(Owner,"实际雅丹","ol-ya-dan","fixture:yd-pick","qun",12,skills,GeneralGender.Male));
             var peers=Enumerable.Range(1,3).Select(i=>$"fixture:yd-peer-{i}").ToArray();
             foreach(var peer in peers)

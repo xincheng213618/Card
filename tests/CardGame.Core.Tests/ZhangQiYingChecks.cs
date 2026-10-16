@@ -9,52 +9,6 @@ internal static class ZhangQiYingChecks
  {
   var(g,r)=Start();Play(g);Need(Tokens.All(m=>Count(g,m)==1),"Real gameStarting grants each binary token once.");var hp=V(g,1).Hp;Use(g,"damage",[1]);Reach(g,()=>Offer(g,"ol:zhenyi"));Activate(g);Play(g);Need(V(g,1).Hp==hp-2&&Count(g,PlayerMarkerKind.Yuqing)==0&&E<ZhenyiDamageIncreasedEvent>(g).Count()==1,"Actual source damage spends one Yuqing for precisely +1 without a judgment.");g=Cold(g,r);Use(g,"dump",[]);Play(g);Need(Count(g,PlayerMarkerKind.Yuqing)==1&&Tokens.All(m=>Count(g,m)<=1),"True native whole-hand discard regains its Heart token and never stacks binary marks.");Use(g,"remove",[]);Play(g);Need(Tokens.All(m=>Count(g,m)==1)&&!V(g,0).Skills!.Any(s=>s.ContentId=="ol:falu"),"Losing the source neither clears nor reinitializes existing role tokens.");_=Cold(g,r);
  }
- public static void ActualPrivatePrepareAndEndingArbitraryTopBottomCold()
- {
-  var(g,r)=Start();Reach(g,()=>Offer(g,"ol:dianhua"));Activate(g);Reach(g,()=>P(g)?.Kind==DecisionKind.ProgramTopReorder);var f=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.TopReorder is not null);var ids=f.TopReorder!.ViewedCardIds.ToArray();Need(ids.Length==4&&f.TopReorder.RequiredTopCount is null,"Actual current four marks freeze four private cards with arbitrary top count.");Need(Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null),"Other viewers cannot inspect the private reordered entities.");g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([ids[0]]));Answer(g,c=>c.Parameters.GetValueOrDefault("action")=="finish-top");foreach(var id in ids.Skip(1).Reverse())Answer(g,c=>c.Cards.SequenceEqual([id]));Play(g);Need(V(g,0).Hand.Any(c=>c.Id==ids[0])&&!ids.Skip(1).Any(id=>V(g,0).Hand.Any(c=>c.Id==id)),"Normal native draw uses the chosen top while the other viewed cards genuinely go below.");End(g);Reach(g,()=>Offer(g,"ol:dianhua"));Activate(g);Reach(g,()=>P(g)?.Kind==DecisionKind.ProgramTopReorder);Need(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.TopReorder is not null).WindowContext!.Window==SkillProgramTriggerWindow.TurnEnding,"The second native reorder occurs at real own ending.");g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("action")=="finish-top");while(P(g)?.Kind==DecisionKind.ProgramTopReorder)Answer(g,c=>c.Cards.Count==1);_=Cold(g,r);
- }
- public static void ActualJudgmentFiveKeepsPhysicalEntityCold()
- {
-  foreach(var suit in new[]{Suit.Spade,Suit.Heart})
-  {
-   var(g,r)=Start();Play(g);Use(g,"judge",[1]);Reach(g,()=>Offer(g,"ol:zhenyi"));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="zhenyi-judgment")==true);var j=g.ResolutionStack.OfType<JudgmentFrame>().Single();var physical=g.CardMovements.Last(m=>m.CardId==j.CardId).CardId;g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("suit")==suit.ToString());Play(g);var result=E<ZhenyiJudgmentOverriddenEvent>(g).Single().Receipt;Need(result.CardId==physical&&result.Suit==suit&&result.Rank==5&&Count(g,PlayerMarkerKind.Ziwei)==0,"Real final judgment changes to the selected five with the same native physical entity.");Need(g.CreateCardZoneDiagnostics().Single(c=>c.CardId==physical).Location==CardLocation.DiscardPile&&E<JudgmentResolvedEvent>(g).Last(e=>e.CardId==physical).Rank==5,"Native consumers finish with effective five and discard the original judgment entity.");_=Cold(g,r);
-  }
- }
- public static void ActualElementalThreeCategoryGainPaidChildCold()
- {
-  var(g,r)=Start(watch:true);Play(g);
-  Use(g,"fire",[0]);
-  Reach(g,()=>Offer(g,"ol:zhenyi")&&P(g)!.SkillPrompt!.SkillId=="ol:zhenyi");
-  Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-  Reach(g,()=>Offer(g,"ol:zhenyi"));
-  Activate(g);
-  Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:zhang-qi-ying-watch");
-  var paid=E<ZhenyiDeckGainPaidEvent>(g).Single();var ids=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.ZhangQiYing?.Stage=="gain-children").ZhangQiYing!.Cards.ToArray();Need(paid.ActualCount==3&&Count(g,PlayerMarkerKind.Gouchen)==0&&g.CardMovements.Count(m=>m.Sequence>paid.Before&&m.Sequence<=paid.After&&ids.Contains(m.CardId)&&m.To==CardLocation.Hand(0))==3,"Actual elemental damage pays one token and obtains three original deck categories before its real gain child pauses.");g=Cold(g,r);
-  Answer(g,_=>true);
-  Play(g);
-  Need(E<ZhenyiDeckGainPaidEvent>(g).Count()==1&&!V(g,0).Skills!.Any(s=>s.ContentId=="ol:zhenyi")&&ids.All(id=>V(g,0).Hand.Any(c=>c.Id==id)),"Cold paid child truly removes Zhenyi while all already obtained original entities remain once paid.");_=Cold(g,r);
- }
- public static void ActualOutOfTurnOtherDyingPeachCostCold()
- {
-  var(g,r)=Start(rescue:true);Play(g);Need(g.GetHumanLegalActions().All(a=>a.ConversionSource?.SkillId!="ol:zhenyi"),"Houtu is unavailable during its owner's own turn.");End(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RescueDying}&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="ol:zhenyi"));var choice=P(g)!.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="ol:zhenyi");var id=choice.Cards.Single();var dying=g.CreateSnapshot(0).Players.Single(p=>p.IsAlive&&!p.HpUndefined&&p.Hp<=0).Seat;g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([id])&&c.Parameters.GetValueOrDefault("conversion-skill-id")=="ol:zhenyi");Reach(g,()=>E<ZhenyiHoutuPaidEvent>(g).Any()&&V(g,dying).Hp>0);var paid=E<ZhenyiHoutuPaidEvent>(g).Single();Need(paid.Source.OwnerSeat==0&&paid.Provider==0&&paid.Material.CardId==id&&Count(g,PlayerMarkerKind.Houtu)==0&&g.CardMovements.Count(m=>m.CardId==id&&m.From==paid.Material.From&&m.To==CardLocation.Processing)==1,"A genuine other character's dying rescue spends one original out-of-turn material and one Houtu token exactly once.");_=Cold(g,r);
- }
- public static void ActualApprovedGrainDiscardVersusNativeCleanupCold()
- {
-  foreach(var cleanup in new[]{false,true})
-  {
-   var(g,r)=Start(grain:true);Play(g);Use(g,"equip",[0]);Play(g);var ox=V(g,0).Equipment.Single(c=>c.Kind==CardKind.WoodenOx).Id;var storage=g.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect&&a.EquipmentKind==CardKind.WoodenOx);var grain=storage.SelectableCardIds.First(id=>V(g,0).Hand.Single(c=>c.Id==id).Suit==Suit.Heart);Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain],[],g.Revision,P(g)!.PromptId));Play(g);Need(V(g,0).WoodenOxGrain!.Single().Id==grain,"The actual equipment command stores one original Heart hand entity in its approved grain zone.");Use(g,"damage",[1]);Reach(g,()=>Offer(g,"ol:zhenyi"));Activate(g);Play(g);Need(Count(g,PlayerMarkerKind.Yuqing)==0,"The native damage payment truly spends the Heart token before the grain movement.");g=Cold(g,r);
-   if(cleanup)Use(g,"dump-equipment",[]);else{Use(g,"grain-discard",[]);Reach(g,()=>P(g)?.Choices.Any(c=>c.Cards.SequenceEqual([grain]))==true);g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([grain]));}Play(g);
-   Need(Count(g,PlayerMarkerKind.Yuqing)==(cleanup?0:1)&&V(g,0).WoodenOxGrainCount==0&&g.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile)==1,"Only genuine approved grain discard refills Yuqing; native Ox-removal grain cleanup never impersonates discard.");Need(!cleanup||g.CardMovements.Any(m=>m.CardId==ox&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.DiscardPile)&&g.CardMovements.Any(m=>m.CardId==grain&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard),"The exclusion case really removes the original equipment and invokes its native cleanup.");_=Cold(g,r);
-  }
- }
- public static void ActualBaguaConsumesEffectiveFiveAndNativeDefenseCold()
- {
-  foreach(var suit in new[]{Suit.Heart,Suit.Spade})
-  {
-   var(g,r)=Start(bagua:true);Play(g);Use(g,"equip",[1]);Play(g);Need(V(g,1).Equipment.Single().Kind==CardKind.BaguaFormation,"The actual selected other participant uses a real native deck Bagua before the Slash.");var hp=V(g,1).Hp;var slash=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.ConversionSource is null&&a.TargetSeats.SequenceEqual([1]));var material=slash.CardId!.Value;Accept(g,new PlayCardCommand(0,material,slash.TargetSeats,g.Revision,P(g)!.PromptId,slash.PlayedCardKind,slash.TargetCardId));Reach(g,()=>Offer(g,"ol:zhenyi"));Need(g.ResolutionStack.OfType<JudgmentFrame>().Single().Reason==JudgmentReasons.BaguaDefense,"The native defender independently chooses its real Bagua response rather than a fabricated generic judgment.");Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="zhenyi-judgment")==true);var judgment=g.ResolutionStack.OfType<JudgmentFrame>().Single();var id=judgment.CardId!.Value;var judgmentId=judgment.Id;Need(!E<JudgmentResolvedEvent>(g).Any(e=>e.ResolutionId==judgmentId),"The new choice pauses before any final result or native success is published.");g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("suit")==suit.ToString());Play(g);
-   var result=E<JudgmentResolvedEvent>(g).Single(e=>e.ResolutionId==judgmentId);Need(result.CardId==id&&result.Rank==5&&result.Suit==suit&&result.Succeeded==(suit==Suit.Heart)&&E<ZhenyiJudgmentOverriddenEvent>(g).Count()==1,"The unchanged actual Bagua judgment entity yields exactly one chosen effective five and correct native success.");Need(V(g,1).Hp==hp-(suit==Suit.Heart?0:1)&&!E<ZhenyiDamageIncreasedEvent>(g).Any(),"Heart5 actually blocks the native Slash; Spade5 truly takes one unboosted damage with Yuqing declined.");Need(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.Judgment(1)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.JudgmentFinish)==1&&g.CardMovements.Count(m=>m.CardId==material&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"Cold return pays the original Slash once and disposes the actual judgment card once.");_=Cold(g,r);
-  }
- }
  private static int Count(GameEngine g,PlayerMarkerKind m)=>V(g,0).Markers?.SingleOrDefault(x=>x.Kind==m)?.Count??0;
  private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
  private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();

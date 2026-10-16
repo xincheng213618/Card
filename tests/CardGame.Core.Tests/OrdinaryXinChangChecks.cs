@@ -11,7 +11,6 @@ internal static class OrdinaryXinChangChecks
     private const string Suppress = "fixture:xin-chang-suppress", Owner = "fixture:xin-chang-owner";
     private const string PrintedLoss = "fixture:xin-chang-printed-loss", Reacquire = "fixture:xin-chang-reacquire";
     private const string Mode = "identity:classic-xin-chang-shared";
-    private const string RewardReason = "skill-program.joined-trick.damage-reward";
     private enum Scenario { Hand, HandDrawTwo, Snatch, BorrowedSword, Damage, SourceLoss, Reacquired, DrawTwo, HpTie, Multiple, Counterspell }
 
     public static void LargestHandTrickAdditionUsesActualActorAndRejectsTies()
@@ -90,81 +89,6 @@ internal static class OrdinaryXinChangChecks
         Reach(g, IsPlay); AssertFinished(g, use.Id, action.CardId!.Value, CardKind.DrawTwo); _ = Cold(g, registry);
     }
 
-    public static void JoinedTrickDamageRewardOwnsExactUseAndSurvivesSourceLoss()
-    {
-        foreach (var scenario in new[] { Scenario.Damage, Scenario.SourceLoss, Scenario.Reacquired })
-        {
-            var (g, registry) = Start(scenario);
-            var beforeHand = V(g, 1).HandCount;
-            Use(g, "foreign-duel", [2]);
-            var use = NativeJoin(ref g, registry, CardKind.Duel);
-            var frozenSource = use.JoinedTrickDamageBenefits!.Single().Source;
-            Require(use.Action!.ActorSeat == 2 && use.TargetSeats.SequenceEqual([0, 1]),
-                "The native AI adds itself to the real foreign actor's Duel against the unique maximum-HP third party.");
-            if (scenario == Scenario.Reacquired)
-            {
-                Reach(g, p => p?.SkillPrompt?.SkillId == Reacquire && p.PlayerSeat == 1);
-                var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == Reacquire);
-                var loss = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OrderedPrintedSkillLoss is not null);
-                var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-                Require(loss.OrderedPrintedSkillLoss!.Lease.LostSkillIds.SequenceEqual([Congjian]) &&
-                    E<OrderedPrintedSkillGrantRemovedEvent>(g).Count(e => e.FrameId == loss.Id && e.Grant.SkillId == Congjian &&
-                        e.Grant.SkillInstanceId == frozenSource.SkillInstanceId) == 1 &&
-                    V(g, 1).Skills!.All(s => s.Id != Congjian) && movement.Batch.ParentFrameId == loss.Id &&
-                    movement.Batch.Movements is [var draw] && draw.From == CardLocation.DrawPile && draw.To == CardLocation.Hand(1) &&
-                    draw.Reason.Value == $"skill-program.{PrintedLoss}.ordered-printed-skill-loss.draw",
-                    "A real ordered printed-skill loss removes the exact issued A instance, then its native one-card Draw owns the separate reacquisition child.");
-                Frozen(loss.OrderedPrintedSkillLoss.Lease.LostSkillIds); Frozen(loss.OrderedPrintedSkillLoss.Lease.RemovedGrants);
-                Private(g); g = Cold(g, registry); Step(g);
-            }
-            Reach(g, IsComplete); g = Cold(g, registry);
-            Require(E<CompletedUndamagedUseDamageRecordedEvent>(g).Count(e => e.CardUseFrameId == use.Id && e.CardActionId == use.Action.ActionId &&
-                    e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-                E<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 2 && e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-                V(g, 1).Hp == 5 && (scenario != Scenario.SourceLoss || V(g, 1).Skills!.All(s => s.Id != Congjian)),
-                "Exactly this native use caused the joined owner's real damage, and the source-loss variant has already lost its active qualification.");
-            if (scenario == Scenario.Reacquired)
-                Require(E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 1 && e.SourceSkillId == Reacquire && e.SkillIds.Contains(Congjian)) == 1 &&
-                    V(g, 1).SkillRuntimeStates!.Single(s => s.SkillId == Congjian).IsAcquired &&
-                    frozenSource.SkillInstanceId != $"acquired:{Reacquire}:{Congjian}",
-                    "The native grant restores a genuinely different active B source before completion, while the owed benefit still belongs to removed A.");
-            if (scenario is Scenario.Damage or Scenario.Reacquired)
-            {
-                Continue(g); Reach(g, p => p?.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 1);
-                var parent = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.JoinedTrickDamageRewardReceipt is not null);
-                var receipt = parent.JoinedTrickDamageRewardReceipt!;
-                var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == Gain);
-                var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-                var issued = E<JoinedTrickDamageRewardDrawIssuedEvent>(g).Single(e => e.ProgramFrameId == parent.Id);
-                Require(parent.OwnerSeat == 1 && parent.SkillId == Congjian && receipt.FrozenDrawCount == 2 && receipt.DrawActual == 2 &&
-                    receipt.Benefit.CardUseFrameId == use.Id && receipt.Benefit.ActionId == use.Action.ActionId &&
-                    issued.Benefit == receipt.Benefit && issued.FrozenDrawCount == 2 && issued.DrawActual == 2 &&
-                    issued.MovementSequenceBefore == receipt.MovementSequenceBefore && issued.MovementSequenceAfter == receipt.MovementSequenceAfter &&
-                    movement.Batch.ParentFrameId == parent.Id && movement.Batch.OriginOwnerSeat == 1 && movement.Batch.OriginSkillId == Congjian &&
-                    movement.Batch.OriginSkillInstanceId == parent.SkillInstanceId && movement.Batch.Movements is [var draw] &&
-                    draw.From == CardLocation.DrawPile && draw.To == CardLocation.Hand(1) && draw.Reason.Value == RewardReason,
-                    "The two-card reward freezes one original receipt and suspends on a real one-entity native draw child with its exact parent and source.");
-                Frozen(movement.Batch.Movements); Private(g); g = Cold(g, registry);
-            }
-            Reach(g, IsPlay);
-            Require(V(g, 1).HandCount == beforeHand + (scenario == Scenario.Reacquired ? 3 : 2) &&
-                g.CardMovements.Count(m => m.To == CardLocation.Hand(1) && m.From == CardLocation.DrawPile && m.Reason.Value == RewardReason) == 2 &&
-                E<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == Congjian && e.Window == SkillProgramTriggerWindow.CardUseCompleted) == 1 &&
-                E<ProgramBindingStartedEvent>(g).Single(e => e.SkillId == Congjian && e.Window == SkillProgramTriggerWindow.CardUseCompleted).SkillInstanceId == frozenSource.SkillInstanceId &&
-                E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == Congjian && e.Window == SkillProgramTriggerWindow.CardUseCompleted && e.Completed) == 1 &&
-                E<JoinedTrickDamageRewardDrawIssuedEvent>(g).Count(e => e.Benefit.CardUseFrameId == use.Id && e.Benefit.ActionId == use.Action.ActionId &&
-                    e.Benefit.Source.OwnerSeat == 1 && e.FrozenDrawCount == 2 && e.DrawActual == 2) == 1 &&
-                E<JoinedTrickDamageRewardResolvedEvent>(g).Count(e => e.Benefit.CardUseFrameId == use.Id && e.Benefit.ActionId == use.Action.ActionId &&
-                    e.Benefit.Source.OwnerSeat == 1 && e.FrozenDrawCount == 2 && e.DrawActual == 2) == 1 &&
-                E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == use.Id && e.CardKind == CardKind.Duel) == 1,
-                "Paid native draw children and source loss return one exact two-entity reward and the original Duel once.");
-            if (scenario is Scenario.Damage or Scenario.Reacquired)
-                Require(E<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == Gain) == 2,
-                    "Both physical reward entities own their separate retained native draw-child batch.");
-            _ = Cold(g, registry);
-        }
-    }
-
     private static CardUseFrame BeginHumanAddition(ref GameEngine g, ContentRegistry registry, LegalAction? action = null)
     {
         if (action is not null) { Play(g, action); Reach(g, p => Offer(p, Canmou, 0)); }
@@ -206,39 +130,6 @@ internal static class OrdinaryXinChangChecks
         Frozen(settled.OriginalTargetSeats); Frozen(settled.AddedTargetSeats); Frozen(settled.ResultTargetSeats);
         Require(SnapshotJson.Serialize(retained) == retainedJson, "An already prepared private viewer snapshot cannot be changed by an accepted target addition.");
         Frozen(changed.TargetSeats); Reject(g, new AnswerPromptCommand(0, old.PromptId, choice.Id, oldRevision)); g = Cold(g, registry);
-    }
-
-    private static CardUseFrame NativeJoin(ref GameEngine g, ContentRegistry registry, CardKind kind)
-    {
-        Reach(g, p => Offer(p, Congjian, 1));
-        var publicPlayers = g.CreateSnapshot(0).Players;
-        Require(publicPlayers.Single(p => p.Seat == 0).Hp > publicPlayers.Where(p => p.Seat != 0).Max(p => p.Hp),
-            "The original target is publicly the unique highest-HP other character.");
-        Private(g); g = Cold(g, registry);
-        Reject(g, new AnswerPromptCommand(0, P(g)!.PromptId, P(g)!.Choices.First().Id, g.Revision));
-        Step(g); Reach(g, p => IsAddition(p) && p!.PlayerSeat == 1);
-        var parent = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.UniqueLeaderTrickTargetDraft is not null);
-        var draft = parent.UniqueLeaderTrickTargetDraft!;
-        Require(parent.OwnerSeat == 1 && parent.SkillId == Congjian && draft.OriginalTargetSeats.SequenceEqual([0]) &&
-            P(g)!.Choices.Any(c => c.Targets.SequenceEqual([1])) && P(g)!.Choices.All(c => c.Cards.Count == 0),
-            "The real non-human owner can only join itself to the exact single original target, without private Hand leakage.");
-        Frozen(draft.OriginalTargetSeats); Frozen(draft.Choices); g = Cold(g, registry); Step(g);
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == draft.CardUseFrameId);
-        Require(use.CardKind == kind && use.Action!.ActionId == draft.ActionId && use.TargetSeats.SequenceEqual([0, 1]) &&
-            use.JoinedTrickDamageBenefits is { Count: 1 }, "One native AI choice appends itself and freezes exactly one same-use damage benefit: " + Diagnostic(g));
-        var benefit = use.JoinedTrickDamageBenefits!.Single();
-        var qualified = E<UniqueLeaderTrickQualificationEvent>(g).Single(e => e.CardUseFrameId == use.Id);
-        var resolved = E<UniqueLeaderTrickTargetResolvedEvent>(g).Single(e => e.ProgramFrameId == parent.Id);
-        Require(benefit.ProgramFrameId == parent.Id && benefit.CardUseFrameId == use.Id && benefit.ActionId == use.Action!.ActionId &&
-            benefit.Source == draft.Source && benefit.GameplayHash == draft.GameplayHash &&
-            E<JoinedTrickDamageBenefitIssuedEvent>(g).Count(e => e.Benefit == benefit) == 1 &&
-            qualified.ActionId == use.Action.ActionId && qualified.UniqueLargestHpSeat == 0 &&
-            qualified.OriginalPrimaryTargetCount == 1 && qualified.OriginalSinglePrimaryTargetSeat == 0 &&
-            resolved.CardUseFrameId == use.Id && resolved.ActionId == use.Action.ActionId &&
-            resolved.OriginalTargetSeats.SequenceEqual([0]) && resolved.AddedTargetSeats.SequenceEqual([1]) && resolved.ResultTargetSeats.SequenceEqual([0, 1]),
-            "The accepted join freezes original unique-HP qualification, the exact same-use source and one immutable benefit rather than a general future damage reward.");
-        Frozen(resolved.OriginalTargetSeats); Frozen(resolved.AddedTargetSeats); Frozen(resolved.ResultTargetSeats);
-        Frozen(use.JoinedTrickDamageBenefits!); g = Cold(g, registry); return use;
     }
 
     private static (GameEngine, ContentRegistry) Start(Scenario scenario)

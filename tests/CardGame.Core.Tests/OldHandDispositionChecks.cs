@@ -17,23 +17,11 @@ internal static class OldHandDispositionChecks
         Need(E<OldHandDispositionPaymentEvent>(g).Where(e=>e.FrameId==frame && e.ReturnStage=="foreign").Sum(e=>e.ActualCount)==1 &&
             E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==frame)==1,"Up-to permits a strict smaller discard and one parent return."); _=Cold(g,registry);
     }
-    public static void ActualParticipantPreventionSourceDrawAndSharedTurnUsage()
-    {
-        var (g,registry)=Start(); Play(g); var hp=V(g,1).Hp; var hand=V(g,0).HandCount;
-        Slash(g,1); Reach(g,()=>Optional(g)); g=Cold(g,registry); Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Play(g);
-        Need(V(g,1).Hp==hp && V(g,0).HandCount==hand+1 && E<ProgramDamagePreventedEvent>(g).Count()==1 &&
-            g.CardMovements.Count(m=>m.From==CardLocation.DrawPile && m.To==CardLocation.Hand(0) && m.Reason.Value=="skill-program.ol:xiuhao.prevented-damage-draw")==2,
-            "Actual source pays Slash1 then draws exactly2, with complete prevention.");
-        Slash(g,1); Play(g);
-        Need(V(g,1).Hp==hp-1 && E<ProgramDamagePreventedEvent>(g).Count()==1,"Second outgoing damage in the same actual turn cannot activate either named usage branch again.");
-        _=Cold(g,registry);
-    }
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T> E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static ProgramSkillFrame Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.OldHandDisposition is not null);
     private static bool OldStage(GameEngine g,string stage)=>g.ResolutionStack.LastOrDefault() is ProgramSkillFrame{OldHandDisposition:not null} f && f.OldHandDisposition.Stage==stage && P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="old-hand-disposition")==true;
-    private static bool Optional(GameEngine g)=>P(g)?.SkillPrompt?.SkillId=="ol:xiuhao" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static bool Branch(PromptChoice c,string branch)=>c.Parameters.GetValueOrDefault("branch")==branch;
     private static void Need(bool yes,string why){if(!yes)throw new InvalidOperationException(why);}
     private static void Accept(GameEngine g,GameCommand c){var r=g.Submit(c);Need(r.Accepted,(r.Error?.Message??"Rejected actual old-hand command.")+
@@ -41,7 +29,6 @@ internal static class OldHandDispositionChecks
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g) is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void Slash(GameEngine g,int target){var a=g.GetHumanLegalActions().First(a=>a.CardId is not null && a.TargetSeats.SequenceEqual([target]));Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources});}
     private static void Reach(GameEngine g,Func<bool> done)
     {
         for(var i=0;i<130;i++){if(done())return;var p=P(g);

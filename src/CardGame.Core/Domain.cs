@@ -732,7 +732,7 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsFactionRevealed { get; init; }
 
-    /// <summary>Second general data for the national-war lite dual-general slice.</summary>
+    /// <summary>Viewer-visible second general data for dual-general modes.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SecondaryGeneralId { get; init; }
 

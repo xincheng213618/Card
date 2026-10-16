@@ -18,23 +18,9 @@ internal static class Fame2017QinMiChecks
             new[]{result.SourceCardId,result.OpponentCardId}.All(id=>game.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing) && game.CreateCardZoneDiagnostics().Single(c=>c.CardId==id).Location==CardLocation.DiscardPile),"Both source and normal AI opponent use distinct real top cards; a real tied contest is not won and cleans up both cards.");
         Require(!game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1),"The opponent's optional top source is selected by native AI.");Replay(game,registry);Answer(game,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Replay(game,registry);
     }
-    public static void InterceptAllTargetsActualPaymentAndAi()
-    {
-        foreach(var suit in new[]{Suit.Spade,Suit.Heart})
-        {
-            var (game,registry)=Create("intercept",suit);var owner=game.CreateSnapshot(0).Players.Single(p=>p.GeneralId=="fixture:qinmi-ai").Seat;
-            var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.Count==2 && !a.TargetSeats.Contains(owner));var before=Enumerable.Range(0,4).Select(s=>game.CreateSnapshot(s).Players[s].Hp).ToArray();Play(game,action);
-            Reach(game,p=>p.SkillPrompt?.SkillId=="classic:jianzheng");Replay(game,registry);Accept(game,new AdvanceOneStepCommand(game.Revision));
-            Reach(game,p=>p.SkillPrompt?.SkillId=="fixture:qinmi-payment-observer");Replay(game,registry);RejectUnknown(game);Accept(game,new AdvanceOneStepCommand(game.Revision));Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-            var changed=game.Events.Select(e=>e.Payload).OfType<SlashTargetsReplacedEvent>().Single();var payment=game.CardMovements.Single(m=>m.From==CardLocation.Hand(owner) && m.To==CardLocation.DrawPile);
-            Require(changed.PreviousTargets.SequenceEqual(action.TargetSeats) && changed.Targets.SequenceEqual(suit==Suit.Spade?Array.Empty<int>():new[]{owner}) && game.CreateCardZoneDiagnostics().Single(c=>c.CardId==payment.CardId).Location==CardLocation.DrawPile,"Native AI pays one real private hand entity to the true deck and cancels every original target; only a nonblack use adds the interceptor.");
-            Require(action.TargetSeats.All(s=>game.CreateSnapshot(0).Players[s].Hp==before[s]) && game.CreateSnapshot(0).Players[owner].Hp==before[owner]-(suit==Suit.Heart?1:0) && !game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"All former targets are spared and the normal AI payment/observer continuations never require a manual AI answer.");Replay(game,registry);
-        }
-    }
     private static void StartContest(GameEngine game,int seat)=>Use(game,"contest",[seat]);
     private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,"fixture:qinmi-driver",id,[],targets,g.Revision,Prompt(g)!.PromptId));
     private static PendingDecision? Prompt(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=Prompt(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)
     {

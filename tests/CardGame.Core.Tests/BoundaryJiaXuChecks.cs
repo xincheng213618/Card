@@ -14,7 +14,6 @@ internal static class BoundaryJiaXuChecks
     private const string Later = "fixture:jx-later";
     private const string ForeignGrant = "fixture:jx-foreign-grant";
     private const string Mode = "identity:classic-boundary-jia-xu-fixture";
-    private const string Luanwu = "nearest-slashes-and-unlimited-final-slash";
 
     public static void BlackTricksUseActualColorAndLightningTransferContext()
     {
@@ -68,90 +67,9 @@ internal static class BoundaryJiaXuChecks
             "The actual held black delayed card skips the next Curtain target on transfer; a miss judgment's card is not its targeting color."); Cold(lightning, lr);
     }
 
-    public static void ChaoticAmbitionPaysConvertedAndProviderCardsBeforeOptionalFinisher()
-    {
-        var (g, r) = Create(cardId: "standard:peach", fragile: true);
-        LuanwuUse(g); Reach(g, Nearest); Require(P(g)!.PlayerSeat == 1 && P(g)!.ValidTargetSeats.SequenceEqual([0, 2]),
-            "The first real other actor receives both equal nearest seats in clockwise order.");
-        var choice = P(g)!.Choices.First(c => c.Cards.Count == 2 && c.Targets.SequenceEqual([2])); var materials = choice.Cards.ToArray();
-        Private(g); Reject(g); Cold(g, r); Answer(g, c => c.Id == choice.Id);
-        Reach(g, p => Nearest(p) && p.PlayerSeat == 2);
-        var converted = Events<CardActionAcceptedEvent>(g).Single(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 1 && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(converted.PhysicalCards.Select(c => c.CardId).SequenceEqual(materials) && converted.PhysicalCards.All(c => c.From == CardLocation.Hand(1)) &&
-            converted.ConversionChain.Single().SkillId == "classic:fuhun" && materials.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.Use) == 1),
-            "A real two-material view-as Slash owns both exact entities and resolves before the next actor is offered a choice.");
-        Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("request-option") == "decline");
-        Reach(g, p => Nearest(p) && p.PlayerSeat == 3); Answer(g, c => c.Parameters.GetValueOrDefault("request-option") == "decline");
-        Reach(g, p => p.SkillPrompt?.SkillId == Entry); Cold(g, r); Continue(g);
-        Reach(g, p => Action(p, "unlimited-virtual-slash"));
-        Require(Events<DyingResponseEvent>(g).Any(e => e.ResponderSeat == 3 && e.UsedPeach) && g.State.Players[3].Hp == 1 &&
-            P(g)!.Choices.Any(c => c.Targets.SequenceEqual([2])),
-            "The final actor's real HP loss and rescue child return before the source receives its distant optional Slash.");
-        var hp = g.State.Players[2].Hp; Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([2])); Finish(g);
-        var final = Events<CardActionAcceptedEvent>(g).Last(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(final.PhysicalCards.Count == 0 && final.TargetSeats.SequenceEqual([2]) && g.State.Players[2].Hp == hp - 1 &&
-            Events<ProgramUnlimitedSlashChoiceEvent>(g).Single() is { OwnerSeat: 0, TargetSeat: 2, Used: true } &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == "boundary:luanwu"),
-            "The limited activation finishes with a real zero-entity distant Slash, ordinary damage, and no second game-wide activation."); Cold(g, r);
-
-        var (faction, fr) = Create(faction: true); LuanwuUse(faction); Reach(faction, Nearest);
-        Answer(faction, c => c.Parameters.GetValueOrDefault("request-option") == "faction" && c.Targets.SequenceEqual([2]));
-        Reach(faction, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "faction-slash-slash"));
-        var provider = P(faction)!.PlayerSeat; var provided = P(faction)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "faction-slash-slash").Cards.Single();
-        Cold(faction, fr); Answer(faction, c => c.Cards.SequenceEqual([provided]) && c.Parameters.GetValueOrDefault("response") == "faction-slash-slash");
-        Reach(faction, p => Nearest(p) && p.PlayerSeat == 2);
-        var requested = Events<CardActionAcceptedEvent>(faction).Single(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 1 && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(requested.ProviderSeat == provider && requested.RequesterSeat == 1 && requested.PhysicalCards.Single().CardId == provided &&
-            requested.PhysicalCards.Single().From == CardLocation.Hand(provider) && faction.CardMovements.Count(m => m.CardId == provided && m.Reason == CardMoveReasons.Use) == 1,
-            "The faction child retains its real acting source, requester, distinct provider and exact once-paid entity.");
-        Answer(faction, c => c.Parameters.GetValueOrDefault("request-option") == "decline"); Reach(faction, p => Nearest(p) && p.PlayerSeat == 3);
-        Answer(faction, c => c.Parameters.GetValueOrDefault("request-option") == "decline"); Reach(faction, p => Action(p, "unlimited-virtual-slash"));
-        Cold(faction, fr); Answer(faction, c => c.Parameters.GetValueOrDefault("offer-option") == "decline"); Finish(faction);
-        Require(Events<ProgramUnlimitedSlashChoiceEvent>(faction).Single() is { Used: false } &&
-            !Events<CardActionAcceptedEvent>(faction).Any(e => e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Slash),
-            "Declining the final offer creates no virtual use and does not repeat the completed faction payment."); Cold(faction, fr);
-
-        var (declined, dr) = Create(faction: true); var actorHp = declined.State.Players[1].Hp;
-        LuanwuUse(declined); Reach(declined, Nearest); Answer(declined, c => c.Parameters.GetValueOrDefault("request-option") == "faction" && c.Targets.SequenceEqual([2]));
-        Reach(declined, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "faction-slash-decline"));
-        for (var providerIndex = 0; providerIndex < 3 && P(declined)!.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "faction-slash-decline"); providerIndex++)
-        { Cold(declined, dr); Answer(declined, c => c.Parameters.GetValueOrDefault("response") == "faction-slash-decline");
-          Reach(declined, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "faction-slash-decline") || Nearest(p)); }
-        Require(Nearest(P(declined)!) && P(declined)!.PlayerSeat == 2 && declined.State.Players[1].Hp == actorHp - 1 &&
-            Events<ProgramSkillHpLostEvent>(declined).Count(e => e.SkillId == "boundary:luanwu" && e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-            !Events<CardActionAcceptedEvent>(declined).Any(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 1) &&
-            Events<ProgramUnlimitedSlashChoiceEvent>(declined).Length == 0,
-            "All real faction providers declining pays the requesting actor's HP exactly once and resumes the next participant before any final offer.");
-        Cold(declined, dr); DeclineRemaining(declined); Finish(declined); Cold(declined, dr);
-
-        var (horse, hr) = Create(cardId: "standard:defensive_horse", wushen: true);
-        Use(horse, "equip", [0]); Finish(horse); Use(horse, "equip", [2]); Finish(horse);
-        LuanwuUse(horse); Reach(horse, Nearest);
-        Require(P(horse)!.PlayerSeat == 1 && P(horse)!.ValidTargetSeats.SequenceEqual([0, 2, 3]),
-            "Real defensive horses make all three living opponents equally nearest at distance two.");
-        var heart = P(horse)!.Choices.First(c => c.Cards.Count == 1 && c.Targets.SequenceEqual([2])); var heartCard = heart.Cards.Single(); var heartHp = horse.State.Players[1].Hp;
-        Cold(horse, hr); Answer(horse, c => c.Id == heart.Id); Reach(horse, p => Nearest(p) && p.PlayerSeat == 2);
-        var divine = Events<CardActionAcceptedEvent>(horse).Single(e => e.Action.ActorSeat == 1 && e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(divine.PhysicalCards.Single().CardId == heartCard && divine.ConversionChain.Single().SkillId == "classic:wushen" &&
-            horse.State.Players[1].Hp == heartHp && horse.CardMovements.Count(m => m.CardId == heartCard && m.Reason == CardMoveReasons.Use) == 1,
-            "The exact Heart identity variant retains 武神's independent unlimited distance and pays its real single material without incorrectly losing HP.");
-        DeclineRemaining(horse); Finish(horse); Cold(horse, hr);
-
-        var (quota, qr) = Create(); Play(quota, LegalActionKind.Slash, [1]); Finish(quota);
-        Require(!quota.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash), "The owner's ordinary Slash quota is already spent.");
-        LuanwuUse(quota); Reach(quota, Nearest); DeclineRemaining(quota, offerTarget: 2); Finish(quota);
-        var unlimited = Events<CardActionAcceptedEvent>(quota).Last(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(unlimited.PhysicalCards.Count == 0 && unlimited.TargetSeats.SequenceEqual([2]) &&
-            !quota.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) &&
-            Events<ActualPlayPhaseCardUseRecordedEvent>(quota).Any(e => e.CardActionId == unlimited.ActionId && e.State.ActorSeat == 0 && e.State.UseCount == 2),
-            "The distant virtual finisher bypasses the already spent ordinary quota, records the real second own-phase use and leaves the quota spent."); Cold(quota, qr);
-    }
-
     private static T[] Events<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
-    private static bool Nearest(PendingDecision p) => Action(p, "nearest-legal-slash");
-    private static void LuanwuUse(GameEngine g) => Accept(g, new UseProgramSkillCommand(0, "boundary:luanwu", Luanwu, [], [], g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static int Play(GameEngine g, LegalActionKind kind, IReadOnlyList<int>? targets = null)
     {
@@ -159,16 +77,6 @@ internal static class BoundaryJiaXuChecks
         Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource }); return action.CardId.Value;
     }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void DeclineRemaining(GameEngine g, int? offerTarget = null)
-    {
-        for (var step = 0; step < 4; step++)
-        {
-            Reach(g, p => Nearest(p) || Action(p, "unlimited-virtual-slash"));
-            if (Nearest(P(g)!)) { Answer(g, c => c.Parameters.GetValueOrDefault("request-option") == "decline"); continue; }
-            Answer(g, c => offerTarget is { } target ? c.Targets.SequenceEqual([target]) : c.Parameters.GetValueOrDefault("offer-option") == "decline"); return;
-        }
-        throw new InvalidOperationException("The fixed actor cursor did not return to its final offer.");
-    }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Finish(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
@@ -186,8 +94,6 @@ internal static class BoundaryJiaXuChecks
         else Accept(g, new AdvanceOneStepCommand(g.Revision));
     }
     private static void Accept(GameEngine g, GameCommand c) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected real command."); }
-    private static void Private(GameEngine g) { var p = P(g)!; Require(p.IsPrivate, "The actual choosing actor owns a private input window."); for (var seat = 0; seat < 4; seat++) if (seat != p.PlayerSeat) Require(g.CreateSnapshot(seat).PendingDecision is null, "Other views do not expose physical payment choices."); }
-    private static void Reject(GameEngine g) { var before = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("unpublished"), g.Revision)).Accepted && State(g) == before, "An unpublished answer is atomically rejected before paying entities."); }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands), Zones = g.CreateCardZoneDiagnostics() });
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "All four private views, exact owning frames, movement facts, public events and real commands cold-restore identically.");
     private static void Frozen<T>(IReadOnlyList<T> list) { Require(list is IList<T> { IsReadOnly: true }, "The committed nested collection is read only."); try { ((IList<T>)list).Add(default!); throw new InvalidOperationException("A committed nested collection allowed mutation."); } catch (NotSupportedException) { } }

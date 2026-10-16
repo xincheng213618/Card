@@ -80,10 +80,6 @@ internal static class SkillProgramSelectedJudgmentChecks
                 replay.Events.Select(item => item.Payload).OfType<ProgramJudgmentDamageRequestedEvent>()
                     .Count(item => item.SkillId == ProgramId && item.TargetSeat == targetSeat) == 1,
             "The selected subject, final-result cursor, damage and resumed Dodge response must replay exactly.");
-        var olderMarker = GameReplay.Restore(RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry);
-        Require(SnapshotJson.Serialize(olderMarker.CreateSnapshot(0, revealAll: true)) ==
-            SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)),
-            "An older diagnostic rules marker does not block the validated judgment journal.");
     }
 
 

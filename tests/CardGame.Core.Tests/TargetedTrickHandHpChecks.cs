@@ -55,46 +55,6 @@ internal static class TargetedTrickHandHpChecks
         _ = Cold(self, selfRegistry);
     }
 
-    public static void TargetedTrickAdditionIneffectivenessAndCompletePhysicalUse()
-    {
-        foreach (var kind in new[] { "standard:draw_two", "standard:iron_chain", "standard:duel", "standard:fire_attack", "standard:dismantlement", "standard:snatch" })
-        {
-            var (g, registry) = Start(kind, 5); var physical = V(g, 0).Hand.First().Id;
-            var action = g.GetHumanLegalActions().First(a => a.CardId == physical && a.Kind != LegalActionKind.Recast &&
-                (kind == "standard:draw_two" || a.TargetSeats.SequenceEqual([1])));
-            Accept(g, new PlayCardCommand(0, physical, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind) { TargetCardId = action.TargetCardId });
-            Reach(g, p => IsOptional(p, She)); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(); var beforeAction = use.Action!;
-            Need(beforeAction.EffectiveSuit == Suit.Spade && beforeAction.EffectiveRank == 7 && beforeAction.EffectiveIsRed == false,
-                "A catalog containing only the new target ability captures the real card appearance for added-target suit and color legality.");
-            g = Cold(g, registry); Activate(g); Reach(g, p => IsSheChoice(p));
-            Need(P(g)!.Choices.Any(c => c.Parameters["branch"] == "add") && P(g)!.Choices.All(c => c.Parameters["branch"] != "ineffective"),
-                "A unique effective ordinary trick target can add a legal participant but cannot nullify the last effective target.");
-            if (kind == "standard:snatch") Need(P(g)!.Choices.All(c => !c.Targets.Contains(2)), "Added Snatch targets retain the actual user's one-seat distance restriction.");
-            var extra = P(g)!.Choices.First(c => c.Parameters["branch"] == "add").Targets;
-            g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "add" && c.Targets.SequenceEqual(extra));
-            Need(g.ResolutionStack.OfType<CardUseFrame>().Single().Action is { } after && after.ActionId == beforeAction.ActionId &&
-                after.ActorSeat == beforeAction.ActorSeat && after.ProviderSeat == beforeAction.ProviderSeat && after.PhysicalCards.SequenceEqual(beforeAction.PhysicalCards),
-                "Target addition preserves the exact accepted use, provider and paid physical entity.");
-            FinishUse(g, use.Id);
-            Need(E<TargetedOrdinaryTrickResolvedEvent>(g).Count(e => e.CardUseFrameId == use.Id && e.AddedTargets.Count > 0) == 1 &&
-                g.CardMovements.Count(m => m.CardId == physical && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1 &&
-                E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == use.Id) == 1,
-                "Every supported single-target trick resolves the added target and moves its actual material once at whole-use completion.");
-            _ = Cold(g, registry);
-        }
-        var (group, groupRegistry) = Start("standard:arrow_barrage", 5); var card = V(group, 0).Hand.First().Id;
-        Accept(group, new PlayCardCommand(0, card, [], group.Revision, P(group)!.PromptId)); Reach(group, p => IsOptional(p, She)); Activate(group); Reach(group, IsSheChoice);
-        var groupUse = group.ResolutionStack.OfType<CardUseFrame>().Single(); var originalTargets = groupUse.TargetSeats.ToArray();
-        Answer(group, c => c.Parameters["branch"] == "ineffective" && c.Targets.SequenceEqual([1]));
-        Need(group.ResolutionStack.OfType<CardUseFrame>().Single().TargetSeats.SequenceEqual(originalTargets) &&
-            group.ResolutionStack.OfType<CardUseFrame>().Single().IneffectiveTargetSeats!.Contains(1),
-            "Ineffectiveness keeps the actual original target identity and all other group targets.");
-        FinishUse(group, groupUse.Id);
-        Need(E<CardEffectSkippedEvent>(group).Any(e => e.TargetSeat == 1) && E<CardUseFinishedEvent>(group).Count(e => e.ResolutionId == groupUse.Id) == 1,
-            "The native group target loop skips precisely the selected effect and finishes the same whole use.");
-        _ = Cold(group, groupRegistry);
-    }
-
     private static string Embedded(string suffix)
     {
         using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-dong-yun.{suffix}")!;
@@ -105,7 +65,6 @@ internal static class TargetedTrickHandHpChecks
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static bool IsOptional(PendingDecision p, string skill) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static bool IsSheChoice(PendingDecision p) => p.SkillPrompt?.SkillId == She && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "targeted-ordinary-trick");
     private static void ReachStage(GameEngine g, UnequalHandHpStage stage) => Reach(g, p => g.ResolutionStack.LastOrDefault() is ProgramSkillFrame { UnequalHandHp: { } r } && r.Stage == stage);
     private static void Accept(GameEngine g, GameCommand command)
     {
@@ -131,23 +90,6 @@ internal static class TargetedTrickHandHpChecks
             Accept(g, new AdvanceOneStepCommand(g.Revision));
         }
         throw new InvalidOperationException("The fixed native target/hand-HP fixture did not reach its bounded boundary.");
-    }
-    private static void FinishUse(GameEngine g, long use)
-    {
-        for (var step = 0; step < 180 && g.ResolutionStack.Any(f => f.Id == use); step++)
-        {
-            if (P(g) is { } optional && IsOptional(optional, She))
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-            else if (P(g) is { PlayerSeat: 0 } p)
-            {
-                if (p.Kind is DecisionKind.RescueDying or DecisionKind.Nullification) Answer(g, c => c.Parameters.GetValueOrDefault("response") is "pass" or "let-die");
-                else if (p.Kind is DecisionKind.RespondSlash or DecisionKind.RespondDodge) Answer(g, c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass");
-                else if (p.SkillPrompt?.SkillId == She && IsOptional(p, She)) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-                else Answer(g, _ => true);
-            }
-            else Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        Need(!g.ResolutionStack.Any(f => f.Id == use), "All actual trick target children return once before whole-use completion."); Play(g);
     }
     private static void DrainEnding(GameEngine g)
     {

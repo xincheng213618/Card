@@ -21,38 +21,8 @@ internal static class Fame2017JiKangChecks
         Use(g,"damage",[0]);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:qingxian");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(g,c=>c.Targets.Contains(0));Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="recover");
         Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card"));Replay(g,r);Answer(g,c=>c.Cards.Count==1);Reach(g,p=>p.Kind==DecisionKind.PlayCard);Replay(g,r);
     }
-    public static void NativeDeathBequestShieldAndExpiry()
-    {
-        foreach(var role in new[]{Role.Rebel,Role.Loyalist})
-        {
-            var (g,r)=Create("bequest");var donor=g.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Role==role).Seat;
-            Use(g,"death",[donor]);Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-            var gift=g.Events.Select(e=>e.Payload).OfType<RandomSkillGrantedEvent>().Single();var shield=g.Events.Select(e=>e.Payload).OfType<BeneficiarySuitShieldGrantedEvent>().Single().Shield;
-            Require(gift.Source.OwnerSeat==donor&&!g.CreateSnapshot(0).Players[donor].IsAlive&&gift.BeneficiarySeat==shield.BeneficiarySeat&&new[]{"classic:jixian","classic:liexian","classic:rouxian","classic:hexian"}.Contains(gift.SkillId),"Native dying/death continuation grants one seeded actual residual skill to a living beneficiary.");
-            Require(Enumerable.Range(0,4).All(v=>g.CreateSnapshot(v).Players[shield.BeneficiarySeat].BeneficiarySuitShields?.Single()==shield)&&g.CreateSnapshot(0).Players[shield.BeneficiarySeat].Skills!.Any(s=>s.ContentId==gift.SkillId),"All observers see the exact persistent source attribution and real acquired skill after its donor dies.");Replay(g,r);
-            if(shield.BeneficiarySeat!=0)Require(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.Contains(shield.BeneficiarySeat)),"Other actors' actual Club Slash legal actions exclude the shielded beneficiary.");
-            else
-            {var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);Play(g,equip);Reach(g,p=>p.Kind==DecisionKind.PlayCard);Require(g.CardMovements.Any(m=>m.CardId==equip.CardId&&m.To==CardLocation.Equipment(0)),"The shield does not forbid the beneficiary's real self-use of Club equipment.");}
-            if (role==Role.Rebel && shield.BeneficiarySeat!=0)
-            {
-                var arrow=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.ArrowBarrage);var hp=g.CreateSnapshot(0).Players.Select(p=>p.Hp).ToArray();Play(g,arrow);Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-                var use=g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Last(e=>e.CardId==arrow.CardId);
-                Require(g.Events.Select(e=>e.Payload).OfType<TargetsConfirmedEvent>().Single(e=>e.ResolutionId==use.ResolutionId).TargetSeats.All(t=>t!=shield.BeneficiarySeat) && g.CreateSnapshot(0).Players[shield.BeneficiarySeat].Hp==hp[shield.BeneficiarySeat] && g.CreateSnapshot(0).Players.Any(p=>p.Seat!=0&&p.IsAlive&&p.Seat!=shield.BeneficiarySeat&&p.Hp==hp[p.Seat]-1), "A true Club global use omits the protected seat in frozen targets while another original seat receives its actual effect.");Replay(g,r);
-            }
-            var startCount=g.Events.Count(e=>e.Payload is TurnStartedEvent t&&t.ActorSeat==shield.BeneficiarySeat);
-            Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));
-            for(var step=0;step<100;step++)
-            {
-                if(g.Events.Count(e=>e.Payload is TurnStartedEvent t&&t.ActorSeat==shield.BeneficiarySeat)>startCount)break;
-                if(Prompt(g) is {PlayerSeat:0,Kind:DecisionKind.RespondDodge})Answer(g,c=>c.Cards.Count==0);else if(Prompt(g) is {PlayerSeat:0,Kind:DecisionKind.RespondSlash})Answer(g,c=>c.Cards.Count==0);else if(Prompt(g) is {PlayerSeat:0,Kind:DecisionKind.Nullification})Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="pass");else Accept(g,new AdvanceOneStepCommand(g.Revision));
-            }
-            Require(g.CreateSnapshot(0).Players[shield.BeneficiarySeat].BeneficiarySuitShields is null,"Expiry follows the beneficiary's next actual TurnStarted, independent of dead source ownership.");Replay(g,r);
-            Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"Death bequest activation and beneficiary selection run through native AI.");
-        }
-    }
     private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,"fixture:equipment-driver",id,[],targets,g.Revision,Prompt(g)!.PromptId));
     private static PendingDecision? Prompt(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=Prompt(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)
     {

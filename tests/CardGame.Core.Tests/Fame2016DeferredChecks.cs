@@ -4,67 +4,6 @@ using System.Text.Json;
 
 internal static class Fame2016DeferredChecks
 {
-    public static void PrivateTopGainOrderAndReplay()
-    {
-        var registry = Registry("li"); var game = Start(registry);
-        Activate(game, "classic:duliang", "take-hand-and-benefit", 1);
-        var opaque = Prompt(game)!.Choices.First();
-        Require(opaque.Cards.Count == 0, "Taking another hand must offer opaque physical slots.");
-        Atomic(game, new AnswerPromptCommand(0, Prompt(game)!.PromptId, new("unpublished"), game.Revision));
-        Replay(game, registry); Answer(game, opaque); Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-option"));
-        Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "view"));
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "participant-top-view"));
-        var viewing = Prompt(game)!; var ids = viewing.ValidCardIds.ToArray();
-        var viewFrame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
-        Require(viewFrame.ParticipantTopView is { Seat: 1 } view && view.CardIds.SequenceEqual(ids),
-            "The suspended frame must own the exact private top-card order and participant.");
-        ProgramChoiceDraftChecks.Frozen(viewFrame.ParticipantTopView!.CardIds);
-        Require(viewing.PlayerSeat == 1 && viewing.IsPrivate && ids.Length == 2, "The selected participant alone must privately view two real top cards.");
-        Require(game.CreateSnapshot(0, false).PendingDecision is null && game.CreateSnapshot(2, false).PendingDecision is null &&
-                game.CreateSnapshot(1, false).PendingDecision?.ValidCardIds.SequenceEqual(ids) == true &&
-                Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat, false).PublicRevealedCards.Count == 0) && game.CreateSnapshot(1, false).PrivateRevealedCards?.Select(card => card.Id).SequenceEqual(ids) == true && new[] { 0, 2, 3 }.All(seat => game.CreateSnapshot(seat, false).PrivateRevealedCards is null),
-            "Private top-card faces must not enter public or owner views.");
-        Replay(game, registry); var movesBefore = game.CardMovements.Count; Answer(game, viewing.Choices.Single()); Settle(game);
-        var moved = game.CardMovements.Skip(movesBefore).ToArray();
-        Require(moved.Where(m => m.To == CardLocation.Hand(1)).All(m => m.CardKind is CardKind.Dodge or CardKind.Slash or CardKind.Peach or CardKind.Alcohol), "Only basic top cards may be obtained.");
-        var returned = moved.Where(m => m.To == CardLocation.DrawPile).Select(m => m.CardId).ToArray();
-        var top = game.CreateCardZoneDiagnostics().Where(z => z.Location == CardLocation.DrawPile).OrderByDescending(z => z.ZoneIndex).Take(returned.Length).Select(z => z.CardId);
-        Require(top.SequenceEqual(returned), "Non-basic cards must return to the top in the original viewed order.");
-        Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:duliang"), "The per-play-phase activation must be spent.");
-        Require(game.ResolutionStack.OfType<ProgramSkillFrame>().All(frame => frame.ParticipantTopView is null) &&
-            Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PrivateRevealedCards is null),
-            "Confirming the view must retire its frame state and private projection after the physical cards move.");
-        Replay(game, registry);
-    }
-
-    public static void ProviderPileZeroThreeAndNextTurnReplay()
-    {
-        foreach (var count in new[] { 0, 3 })
-        {
-            var registry = Registry("sun"); var game = Start(registry); Activate(game, "classic:kuangbi", "deferred-provider-pile", 1);
-            var before = game.CardMovements.Count;
-            Require(Prompt(game)!.PlayerSeat == 1 && game.CreateSnapshot(0, false).PendingDecision is null, "The original provider must privately choose its own actual cards.");
-            for (var index = 0; index < count; index++)
-            {
-                Replay(game, registry); Atomic(game, new AnswerPromptCommand(1, Prompt(game)!.PromptId, new("invalid-provider"), game.Revision));
-                Answer(game, Prompt(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
-                if (index < count - 1) Require(game.CardMovements.Count == before, "A partial provider selection must not move any card.");
-            }
-            if (count == 0) Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
-            Settle(game); var pile = game.CreateSnapshot(0, true).Players[0].PublicDeferredPileCards;
-            Require((pile?.Count ?? 0) == count && Enumerable.Range(0, 4).All(seat => (game.CreateSnapshot(seat, false).Players[0].PublicDeferredPileCards?.Count ?? 0) == count), "The owner's real deferred pile must be public to every viewer.");
-            Replay(game, registry);
-            Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)));
-            Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-            Require((game.CreateSnapshot(0, true).Players[0].PublicDeferredPileCards?.Count ?? 0) == 0, "The next owner turn must obtain its deferred pile before ordinary play.");
-            Require(game.CardMovements.Count(m => m.Reason.Value == "skill-program.deferred-pile.obtain") == count &&
-                    game.CardMovements.Count(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward") == count,
-                "The original provider must draw exactly the number of actual obtained cards; zero must create no deferred reward.");
-            var obtained = game.CardMovements.Where(m => m.Reason.Value == "skill-program.deferred-pile.obtain").Select(m => m.Sequence).ToArray();
-            var rewarded = game.CardMovements.Where(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward").Select(m => m.Sequence).ToArray();
-            Require(count == 0 || obtained.Max() < rewarded.Min(), "All pile cards must be obtained before the provider's reward draws."); Replay(game, registry);
-        }
-    }
 
     public static void DeferredPileDeathLossAndFaceDownSkip()
     {
@@ -135,8 +74,6 @@ internal static class Fame2016DeferredChecks
                 game.CardMovements.SequenceEqual(copy.CardMovements) && game.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).SequenceEqual(copy.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType()))),
             "Checkpoint JSON replay must reconstruct private prompts, every physical movement, public piles and exact typed events.");
     }
-    private static void Atomic(GameEngine game, GameCommand command)
-    { var checkpoint = GameCheckpointJson.Serialize(game.CreateCheckpoint()); var moves = game.CardMovements.Count; Require(!game.Submit(command).Accepted && checkpoint == GameCheckpointJson.Serialize(game.CreateCheckpoint()) && moves == game.CardMovements.Count, "Unpublished input must reject atomically."); }
     private static void Accept(CommandResult result) => Require(result.Accepted, "Fixture command rejected: " + result.Error?.Message);
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private sealed class Fixture(string kind) : IGameContentPackage

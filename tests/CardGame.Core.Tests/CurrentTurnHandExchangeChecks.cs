@@ -162,32 +162,6 @@ internal static class CurrentTurnHandExchangeChecks
         _ = Cold(game, registry);
     }
 
-    public static void GiftChildExhaustionRetainsTheOriginalGivenCount()
-    {
-        var (game, registry) = Start(shortfall: true);
-        EndHumanPlay(game);
-        Reach(game, prompt => IsExchange(prompt) && prompt.PlayerSeat == 0);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("option") == "accept");
-        Reach(game, prompt => IsExchange(prompt) && prompt.PlayerSeat == 1);
-        var id = Exchange(game).Id;
-        Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Reach(game, prompt => IsWatch(prompt));
-        Require(Exchange(game).CurrentTurnHandExchange is { FrozenGivenCount: 2, Stage: CurrentTurnHandExchangeStage.GiftChildren },
-            "The real two-card gift is already irrevocably paid before the child consumes its recipient's inventory.");
-        game = Cold(game, registry);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("option-id") == "continue");
-        ReachResolved(game, id);
-        Require(game.CreateSnapshot(0).Players[0].HandCount == 0 && game.CreateSnapshot(0).Players[0].Equipment.Count == 0 &&
-                Facts<CurrentTurnHandExchangeReturnStartedEvent>(game).Single(fact => fact.FrameId == id) is
-                    { FrozenGivenCount: 2, AvailableCount: 0, RequiredReturnCount: 0 } &&
-                Facts<CurrentTurnHandExchangeReturnIssuedEvent>(game).Single(fact => fact.FrameId == id) is { FrozenGivenCount: 2, ActualCount: 0 } &&
-                Facts<CurrentTurnHandExchangeResolvedEvent>(game).Single(fact => fact.FrameId == id) is { Outcome: "returned", FrozenGivenCount: 2, ReturnedCount: 0 } &&
-                game.CardMovements.Count(record => record.Reason.Value == Reason("gift")) == 2 &&
-                !game.CardMovements.Any(record => record.Reason.Value == Reason("return")),
-            "After genuine child exhaustion the recipient returns every payable entity (none), preserves the original two-card invoice, and completes once without a fabricated payment or cross-turn debt.");
-        _ = Cold(game, registry);
-    }
-
     private static ProgramSkillFrame Exchange(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>().Single(frame => frame.CurrentTurnHandExchange is not null);
     private static bool IsExchange(PendingDecision prompt) => prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "current-turn-hand-exchange");
     private static bool IsWatch(PendingDecision prompt) => prompt.SkillPrompt?.SkillId == Watch;

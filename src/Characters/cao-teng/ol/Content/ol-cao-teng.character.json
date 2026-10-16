@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-teng",
+  "skills": [
+    {
+      "registrationOrder": 1860,
+      "programBundle": "ol-cao-teng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qingliu",
+        "name": "清流",
+        "description": "锁定技，游戏开始时，你选择群或魏势力加入。你首次进入濒死状态被救回后，更换至另一个势力。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1861,
+      "programBundle": "ol-cao-teng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yongzu",
+        "name": "拥族",
+        "description": "准备阶段，你可以选择一名其他角色，你与其依次选择不同的一项：1.摸两张牌；2.回复1点体力；3.复原武将牌。若你选择的角色与你势力相同，则增加两个选项：4.手牌上限+1；5.根据势力获得“奸雄”或“天命”直到自己下个回合开始。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1862,
+      "programBundle": "ol-cao-teng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:caoteng-jianxiong",
+        "name": "奸雄",
+        "description": "当你受到伤害后，你可以摸一张牌，并获得造成此伤害的牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1863,
+      "pools": {
+        "current": 460
+      },
+      "definition": {
+        "id": "ol:cao-teng",
+        "name": "曹腾",
+        "portraitKey": "ol-cao-teng",
+        "skillId": "ol:qingliu",
+        "additionalSkillIds": [
+          "ol:yongzu"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:cao-teng",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

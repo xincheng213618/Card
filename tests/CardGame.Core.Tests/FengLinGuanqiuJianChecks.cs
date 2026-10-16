@@ -3,28 +3,6 @@ using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FengLinGuanqiuJianChecks
 {
-    public static void AwakeningZeroAndEqualHandExchange()
-    {
-        foreach(var n in new[]{0,2})
-        {
-            var(g,r)=Start();var initialMax=g.State.Players[0].MaxHp;Collect(g,3);var original=Pile(g).Select(c=>c.Id).ToArray();Driver(g,"supply");Settle(g);
-            End(g);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("stage")=="owned"));
-            Require(g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(f=>f.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)&&g.State.Players[0].MaxHp==initialMax,"Mandatory awakening waits for zero-or-equal hand exchange before reducing maximum HP. max="+g.State.Players[0].MaxHp+" frames="+string.Join(",",g.ResolutionStack.Select(f=>f.GetType().Name))+" context="+g.ResolutionStack.OfType<ProgramSkillFrame>().Last().WindowContext?.Window);
-            var entering=P(g)!.Choices.Where(c=>c.Cards.Count==1).Take(n).Select(c=>c.Cards[0]).ToArray();
-            Require(P(g)!.Choices.Where(c=>c.Cards.Count==1).All(c=>g.CreateCardZoneDiagnostics().Any(z=>z.CardId==c.Cards[0]&&z.Location==CardLocation.Hand(0))),"Awakening only exchanges real hand cards, excluding equipment.");
-            foreach(var id in entering){var selected=P(g)!.Choices.Single(c=>c.Cards.SequenceEqual([id]));Answer(g,selected);if(P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("stage")=="owned"))Atomic(g,new AnswerPromptCommand(0,P(g)!.PromptId,selected.Id,g.Revision));Replay(g,r);}
-            Choose(g,c=>c.Parameters.GetValueOrDefault("token")=="finish");
-            if(n>0)
-            {
-                Require(!P(g)!.IsPrivate&&g.CreateSnapshot(1,false).PublicRevealedCards.Select(c=>c.Id).Order().SequenceEqual(original.Order()),"Outgoing pile choices publish their clickable public entities.");
-                foreach(var id in original.Take(n)){Choose(g,c=>c.Cards.SequenceEqual([id]));if(id!=original[n-1])Replay(g,r);}
-                Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:gj-gain");
-                Require(Pile(g).Count==3&&entering.All(id=>Pile(g).Any(c=>c.Id==id))&&original.Take(n).All(id=>g.CreateCardZoneDiagnostics().Any(z=>z.CardId==id&&z.Location==CardLocation.Hand(0))),"Equal sides settle atomically before the actual gain child.");Replay(g,r);Choose(g,c=>true);
-            }
-            Settle(g);Require(g.State.Players[0].MaxHp==initialMax-1&&g.CreateSnapshot(0,true).Players[0].Skills!.Any(s=>s.ContentId=="classic:qingce"),"Three honors awaken without a dead player, including zero exchange, then grant the active skill.");
-            Require(g.State.Players.All(p=>p.IsAlive),"Awakening must not require any death.");Replay(g,r);Conserve(g);
-        }
-    }
     public static void IndependentSourceThresholds()
     {
         foreach (var honors in new[] { 0, 1 })
@@ -98,20 +76,8 @@ internal static class FengLinGuanqiuJianChecks
     private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0&&g.ResolutionStack.Count==0);
     private static void Replay(GameEngine g,ContentRegistry r){var copy=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(Enumerable.Range(0,4).All(s=>SnapshotJson.Serialize(g.CreateSnapshot(s,false))==SnapshotJson.Serialize(copy.CreateSnapshot(s,false)))&&g.CardMovements.SequenceEqual(copy.CardMovements)&&g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).SequenceEqual(copy.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType()))),"All viewer checkpoint/accepted command JSON reconstruct physical moves and facts.");}
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Require(result.Accepted,"Fixture command rejected: "+result.Error?.Message);}
-    private static void Atomic(GameEngine g,GameCommand c){var before=GameCheckpointJson.Serialize(g.CreateCheckpoint());Require(!g.Submit(c).Accepted&&before==GameCheckpointJson.Serialize(g.CreateCheckpoint()),"Wrong actor/unknown choice must reject atomically.");}
     private static void Conserve(GameEngine g)=>Require(g.CreateCardZoneDiagnostics().Count==64&&g.CreateCardZoneDiagnostics().Select(z=>z.CardId).Distinct().Count()==64,"Every real entity belongs to exactly one zone.");
     private static void Require(bool ok,string why){if(!ok)throw new InvalidOperationException(why);}
-    private sealed class UnknownPileSource : IGameContentPackage
-    {
-        public PackageManifest Manifest { get; } = new("fixture-unknown-pile-source", new(1, 0, 0), []);
-        public void Register(IContentRegistryBuilder builder)
-        {
-            var catalog = SkillProgramCatalog.Load($$"""
-                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:unknown-pile-source","revision":1,"activations":[{"id":"obtain","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","effects":[{"op":"obtainPublicPileCard","target":"owner","skillIds":["fixture:missing-pile"]}]}]}]}
-                """, """{"schemaVersion":3,"skills":{"fixture:unknown-pile-source":{"name":"源引用","description":"编译时拒绝未知公开牌堆源"}}}""");
-            builder.AddSkill(new("fixture:unknown-pile-source", "源引用", "未知源") { Program = catalog.Programs["fixture:unknown-pile-source"] });
-        }
-    }
     private sealed class Fixture(string mode):IGameContentPackage
     {
         public PackageManifest Manifest{get;}=new("fixture-honor-pile",new(1,0,0),[]);

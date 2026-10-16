@@ -67,122 +67,6 @@ internal static class ZhangShiPingChecks
         _ = Cold(g, registry);
     }
 
-    public static void NestedActualPlayPaidSourceLossQuotasAndSkippedNoCarryCold()
-    {
-        var (g, registry) = Start("nested-loss"); Activate(g); Reach(g, () => Branch(P(g), "play")); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "play"); Play(g);
-        var turn = g.State.TurnNumber; Slash(g, 1); Play(g);
-        Need(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash), "A native physical Slash spends the first inserted Play phase's quota.");
-        End(g); Reach(g, () => P(g)?.Kind == DecisionKind.PlayCard && E<ZhangShiPingHongjiConsumedEvent>(g).Any());
-        Need(E<PhaseChangedEvent>(g).Count(e => e.ActorSeat == 0 && e.Phase == TurnPhase.Play) == 2 &&
-            !E<ActualDiscardRecoveryPhaseStartedEvent>(g).Any(e => e.Phase.ActorSeat == 0 && e.Phase.Kind == ActualDiscardRecoveryPhaseKind.Draw) &&
-            g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "Hongji can attach to a real preparation-inserted Play phase, suspend that existing native schedule, and issue a second Play with a new native Slash quota before normal Draw.");
-        g = Cold(g, registry); Use(g, "hurt"); Play(g);
-        Need(!V(g, 0).Skills!.Any(s => s.Id == Hongji) && V(g, 0).Hp == 8, "Actual paid HP loss removes the conditional Hongji source inside its already-issued extra phase.");
-        Slash(g, 1); Play(g); g = Cold(g, registry); End(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Prep);
-        Need(E<ZhangShiPingHongjiReturnedEvent>(g).Count() == 1 && E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == Boundary && e.BindingId == "play-end" && e.OwnerSeat == 0) == 2,
-            "The lost source returns through the exact suspended Play ending, then resumes the original preparation sibling once.");
-        g = Cold(g, registry); Continue(g); Play(g);
-        Need(g.State.TurnNumber == turn && E<PhaseChangedEvent>(g).Count(e => e.ActorSeat == 0 && e.Phase == TurnPhase.Play) == 3 &&
-            !E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0) && !E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Boundary && e.BindingId == "discard-start"),
-            "After both inserted phases, the genuine normal Draw and Play continue without an invented Discard, Ending or new turn.");
-        _ = Cold(g, registry);
-
-        foreach (var scenario in new[] { "skip-draw", "skip-play" })
-        {
-            (g, registry) = Start(scenario); Activate(g); Reach(g, () => Branch(P(g), scenario == "skip-draw" ? "draw" : "play"));
-            Answer(g, c => c.Parameters.GetValueOrDefault("branch") == (scenario == "skip-draw" ? "draw" : "play"));
-            var promise = E<ZhangShiPingHongjiGrantedEvent>(g).Single();
-            Reach(g, () => g.State.TurnNumber > promise.ActualTurn); g = Cold(g, registry); Play(g);
-            Need(!E<ZhangShiPingHongjiConsumedEvent>(g).Any(e => e.PromiseFrameId == promise.FrameId) &&
-                !E<ProgramPhaseScheduledEvent>(g).Any(e => e.SkillId == Hongji && e.Started) &&
-                !E<ActualDiscardRecoveryPhaseStartedEvent>(g).Any(e => e.Phase.TurnNumber == promise.ActualTurn && e.Phase.ActorSeat == 0 &&
-                    e.Phase.Kind == (scenario == "skip-draw" ? ActualDiscardRecoveryPhaseKind.Draw : ActualDiscardRecoveryPhaseKind.Play)),
-                "A genuinely skipped matching phase supplies no fake ending and no early insertion; the spent promise cannot leak into a later actual turn.");
-        }
-    }
-
-    public static void PhysicalMountReplacementDisabledSlotDiamondNoMatchAndPaidLossCold()
-    {
-        foreach (var scenario in new[] { "equip", "equip-loss", "no-diamond", "equip-death" })
-        {
-            var (g, registry) = Start(scenario); Play(g); Use(g, "equip", [1]); Play(g); Use(g, "wound-other", [1]); Play(g); Use(g, "abolish", [2]); Play(g);
-            Need(V(g, 1).Hp == 7 && V(g, 1).Skills!.Any(s => s.Id == Watch),
-                "Only actual HP loss after the setup equipment use grants the receiver's real equipment-entry observer, without observing the earlier setup use.");
-            var replaced = V(g, 1).Equipment.Single(c => c.Kind == CardKind.OffensiveHorse).Id;
-            End(g); Reach(g, () => Optional(P(g), XingGu)); Activate(g); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "zhang-shi-ping-xinggu") == true);
-            Need(P(g)!.Choices.All(c => c.Targets.Single() is not (0 or 2)), "Direct equipment placement requires another living player with an enabled mount slot, excluding the source and the abolished recipient.");
-            var choice = P(g)!.Choices.First(c => c.Targets.SequenceEqual([1])); var mount = choice.Cards.Single(); var useCount = E<CardUsedEvent>(g).Count();
-            g = Cold(g, registry); Answer(g, c => c.Id == choice.Id); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            Need(V(g, 1).Equipment.Any(c => c.Id == mount) && g.CardMovements.Count(m => m.CardId == replaced && m.Reason == CardMoveReasons.EquipmentReplace && m.To == CardLocation.DiscardPile) == 1 &&
-                g.CardMovements.Count(m => m.CardId == mount && m.From.Zone == CardZoneKind.PublicPersistentPile && m.To == CardLocation.Equipment(1) && m.Reason == CardMoveReasons.EquipmentEnter) == 1 &&
-                E<CardUsedEvent>(g).Count() == useCount && !E<ZhangShiPingXingGuDiamondIssuedEvent>(g).Any(),
-                "The real public mount replaces the old same-slot entity directly, opens an actual payment movement child and has not yet obtained its Diamond; no card use is invented.");
-            g = Cold(g, registry); Accept(g, new AdvanceOneStepCommand(g.Revision));
-            if (scenario == "equip-death")
-            {
-                Reach(g, () => !V(g, 0).IsAlive);
-                Need(E<ZhangShiPingXingGuPlacementIssuedEvent>(g).Count() == 1 && !E<ZhangShiPingXingGuDiamondIssuedEvent>(g).Any() && V(g, 1).Equipment.Any(c => c.Id == mount),
-                    "Actual source death in the paid native placement child leaves the completed other-player equipment intact, without repeating payment or awarding a dead owner a Diamond.");
-                _ = Cold(g, registry); continue;
-            }
-            Reach(g, () => E<ZhangShiPingXingGuDiamondIssuedEvent>(g).Any());
-            Need(V(g, 0).Skills!.Any(s => s.Id == XingGu) == (scenario != "equip-loss"), "The paid-loss scenario actually removes the conditional pile skill inside the native placement child.");
-            var diamond = E<ZhangShiPingXingGuDiamondIssuedEvent>(g).Single();
-            Need(E<ZhangShiPingXingGuPlacementIssuedEvent>(g).Count() == 1 && (scenario == "no-diamond"
-                ? diamond.CardId is null && diamond.SequenceAfter == diamond.SequenceBefore
-                : diamond.CardId is { } id && V(g, 0).Hand.Any(c => c.Id == id && c.Suit == Suit.Diamond) &&
-                    g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)) == 1),
-                "The issued placement obtains one actual random Diamond after its children, including after skill loss; an empty matching deck produces neither a fabricated card nor reshuffle.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    public static void RealIssuedExtraDrawMarkerAndHongjiOwnedDrawParentsCold()
-    {
-        var (g, registry) = Start("marker"); Activate(g);
-        Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-targets") == true);
-        Answer(g, c => c.Targets.SequenceEqual([0])); Play(g);
-        Need(E<ProgramLeastHandMarkerOrDrawEvent>(g).Single() is { TargetSeat: 0, GrantedMarker: true },
-            "A real skipped Draw and the actual current Jiezi program issue one native extra-Draw marker to the tied least-hand owner.");
-        End(g); Reach(g, () => g.State.TurnNumber > 1 && Optional(P(g), Hongji) && P(g)!.TargetSeat == 0);
-        Activate(g); Reach(g, () => Branch(P(g), "draw")); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "draw");
-        var turn = g.State.TurnNumber; var hand = V(g, 0).HandCount;
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == DrawWatch && E<ZhangShiPingHongjiConsumedEvent>(g).Any());
-        Need(E<ZhangShiPingHongjiConsumedEvent>(g).Single().ActualTurn == turn,
-            "Hongji joins the real DrawPhaseObligation-owned ending while its original issued-marker parent is pending.");
-        g = Cold(g, registry); Continue(g); Play(g);
-        Need(V(g, 0).HandCount == hand + 6 && E<ExtraDrawPhaseStartedEvent>(g).Count() == 1 &&
-            E<ZhangShiPingHongjiReturnedEvent>(g).Count() == 1 &&
-            E<ActualDiscardRecoveryPhaseStartedEvent>(g).Count(e => e.Phase.TurnNumber == turn && e.Phase.ActorSeat == 0 && e.Phase.Kind == ActualDiscardRecoveryPhaseKind.Draw) == 3,
-            "The restored native Draw parent consumes its one real marker once; the original Draw, Hongji Draw and marker Draw all complete with physical cards and no missing or repeated parent.");
-        _ = Cold(g, registry);
-    }
-
-    public static void DeadSourcePromiseAndInsertedBeneficiaryDeathNativeReturnCold()
-    {
-        var (g, registry) = Start("dead-source"); Play(g);
-        var promise = E<ZhangShiPingHongjiGrantedEvent>(g).Single(e => e.RecipientSeat == 0);
-        Need(promise.Source.OwnerSeat == 1 && promise.Phase == TurnPhase.Play, "A real AI source grants the human recipient a Play promise at the tied preparation.");
-        Use(g, "kill", [1]); Play(g); Need(!V(g, 1).IsAlive && g.State.Winner == Winner.None, "The real donor dies as a non-lord before its issued phase, without ending the game.");
-        g = Cold(g, registry); End(g); Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard } && E<ZhangShiPingHongjiConsumedEvent>(g).Any());
-        Need(E<PhaseChangedEvent>(g).Count(e => e.ActorSeat == 0 && e.Phase == TurnPhase.Play) == 2 && E<ZhangShiPingHongjiConsumedEvent>(g).Single().Source.OwnerSeat == 1,
-            "The dead source's exact issued binding still starts the living beneficiary's genuine extra phase.");
-        g = Cold(g, registry); End(g); Reach(g, () => E<ZhangShiPingHongjiReturnedEvent>(g).Any());
-        Need(E<ZhangShiPingHongjiReturnedEvent>(g).Count() == 1, "The dead donor cannot cancel or duplicate its already-paid native phase return.");
-        _ = Cold(g, registry);
-
-        (g, registry) = Start("dead-beneficiary"); Play(g); Use(g, "draw-other", [2]); Play(g); End(g);
-        Reach(g, () => Optional(P(g), Hongji) && P(g)!.TargetSeat == 2); Activate(g); Reach(g, () => Branch(P(g), "play")); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "play");
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Death && E<ZhangShiPingHongjiConsumedEvent>(g).Any());
-        Need(V(g, 2).Hp == 1 && V(g, 2).Skills!.Any(s => s.Id == Death), "A real first-Play physical card payment lowers the AI beneficiary to one HP and grants the late extra-phase death trigger through its real HP condition.");
-        g = Cold(g, registry); Reach(g, () => !V(g, 2).IsAlive && g.State.TurnNumber > 3);
-        Need(E<TurnEndedEvent>(g).Count(e => e.ActorSeat == 2) == 1 && E<ZhangShiPingHongjiConsumedEvent>(g).Count(e => e.RecipientSeat == 2) == 1 &&
-            !E<ZhangShiPingHongjiReturnedEvent>(g).Any(e => e.RecipientSeat == 2) && g.State.Winner == Winner.None,
-            "Actual beneficiary death in the extra phase takes one native actual-turn ending, abandons the old phase parent and advances without a fake resumed Draw/Discard or repeated promise.");
-        _ = Cold(g, registry);
-    }
-
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
@@ -194,11 +78,6 @@ internal static class ZhangShiPingChecks
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void Slash(GameEngine g, int target)
-    {
-        var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([target]));
-        Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource });
-    }
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 320; step++)

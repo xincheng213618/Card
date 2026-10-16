@@ -150,11 +150,11 @@ internal static class CorrelatedActiveSkillAiChecks
         Require(json["Options"]!.AsObject().Remove("AiPolicyVersion"),
             "The small policy-one checkpoint must originally record its decision policy.");
         var checkpoint = GameCheckpointJson.Deserialize(json.ToJsonString());
-        Require(checkpoint.Options.AiPolicyVersion == 1 && checkpoint.RulesVersion == GameCheckpoint.CurrentRulesVersion,
-            "Removing only the old optional AI policy field must retain default policy one and the original exact rules marker.");
+        Require(checkpoint.Options.AiPolicyVersion == 1,
+            "Removing the old optional AI policy field must retain default policy one.");
         var restored = GameReplay.Restore(checkpoint, registry);
         Require(Boundary(restored) == Boundary(original),
-            "A checkpoint with its valid rules marker and omitted AI policy must restore the policy-one four safe views, accepted commands, events and movements exactly.");
+            "A checkpoint with an omitted AI policy must restore the policy-one four safe views, accepted commands, events and movements exactly.");
     }
 
     private static void VerifyExchange(GameEngine game, GameCheckpoint before, IReadOnlyList<int> targets, int owner = 0)

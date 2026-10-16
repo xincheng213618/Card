@@ -49,6 +49,7 @@ public sealed partial class GameEngine
         RecordMaWanHunjiangRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordZhangYanLangdaoRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordWeifuRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordBingzhongRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordKenshangRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordDesignatedExtraTargetRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordCurrentEnhancementSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);

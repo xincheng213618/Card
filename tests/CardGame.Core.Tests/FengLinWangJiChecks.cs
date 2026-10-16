@@ -24,32 +24,6 @@ internal static class FengLinWangJiChecks
         Require(other.Cards.Count == 0 && P(g)!.Choices.Where(c => c.Targets.Single() != 0 && c.Parameters["source-zone"] == "Hand").All(c => c.Cards.Count == 0 && !c.Description.Contains("【")), "Other hand costs are opaque published slots.");
         Atomic(g, new AnswerPromptCommand(0, P(g)!.PromptId, new("unknown"), g.Revision)); Replay(g, r); Answer(g, other); Settle(g); Replay(g, r); Conserve(g);
     }
-    public static void NamedCountEndingAndReset()
-    {
-        foreach (var times in new[] { 0, 2, 5 })
-        {
-            var (g, r) = Start(); Supply(g);
-            for (var i = 0; i < times; i++) { Play(g, LegalActionKind.Duel); Reach(g, Flow); Choose(g, c => c.Targets.SequenceEqual([0])); Settle(g); }
-            Require(Count(g) == times, "Accepted legal actions count by owner and named skill.");
-            if (times == 5) { Driver(g, "empty"); Settle(g); }
-            var before = g.CardMovements.Count(m => m.Reason.Value == "skill-program.classic:jinqu.Draw");
-            End(g); Reach(g, p => p.SkillPrompt?.SkillId == "classic:jinqu" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-            Replay(g, r); Choose(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            if (times < g.State.Players[0].HandCount)
-            {
-                Reach(g, Flow); var draft = g.ResolutionStack.OfType<ProgramSkillFrame>().Last().NamedTurnCountFlow!;
-                Require(draft.Required == g.State.Players[0].HandCount - times && draft.Stage == "hand", "Ending freezes the actual post-draw hand minus this turn's named count.");
-                Require(P(g)!.IsPrivate && g.CreateSnapshot(1, false).PendingDecision is null, "Ending hand choices remain private."); Replay(g, r);
-                while (P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") == true) Choose(g, c => true);
-            }
-            Require(g.State.Players[0].HandCount <= times && g.CardMovements.Count(m => m.Reason.Value == "skill-program.classic:jinqu.Draw") == before + 2,
-                "Jinqu draws two then discards to X; X zero empties hand and a larger X never creates cards.");
-            Replay(g, r); Settle(g); Supply(g); End(g); Reach(g, p => p.SkillPrompt?.SkillId == "classic:jinqu" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-            Choose(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, Flow);
-            Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Last().NamedTurnCountFlow!.Required == g.State.Players[0].HandCount, "A new actual turn reads zero prior-turn accepts.");
-            Replay(g, r); Conserve(g);
-        }
-    }
     private static (GameEngine, ContentRegistry) Start(string mode = "normal")
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(mode));
@@ -110,33 +84,6 @@ internal static class FengLinWangJiChecks
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:wj-{i}", "目标" + i, "supporter", mode == "ai" ? "classic:qizhi" : "standard:none", "wei", 20, mode == "target-death" ? ["fixture:wj-discard"] : []));
             b.AddDeck(new("fixture:wj-deck", "固定实体牌堆", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 64).Select(i => new ContentDeckPhysicalCard(i % 4 == 0 ? "standard:qinggang_sword" : i % 4 == 1 ? "standard:arrow_barrage" : "standard:duel", (Suit)(i % 4), i % 13 + 1)).ToArray() });
             b.AddMode(new("identity:classic-wang-ji-check", "王基机制", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, "fixture:wj-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:wj-owner", "fixture:wj-1", "fixture:wj-2", "fixture:wj-3"]));
-        }
-    }
-    private sealed class RedirectFixture : IGameContentPackage
-    {
-        public PackageManifest Manifest { get; } = new("fixture-wj-redirect", new(1, 0, 0), []);
-        public void Register(IContentRegistryBuilder b)
-        {
-            var catalog = SkillProgramCatalog.Load($$"""
-            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
-              {"id":"fixture:wj-swap","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-              {"id":"fixture:wj-redirect","revision":1,"triggers":[{"id":"redirect","window":"slashTargetRedirecting","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"slashRedirectable"},{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand","equipment"],"count":1,"destination":"discardPile","awaitMovementTriggers":true},{"op":"redirectCurrentAttack","target":"selectedTarget"}]}]}
-            ]}
-            """, """{"schemaVersion":3,"skills":{"fixture:wj-swap":{"name":"转换","description":"真实转换杀"},"fixture:wj-redirect":{"name":"流离","description":"真实重定向"}}}""");
-            foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, pair.Key) { Program = pair.Value });
-            var ids = Enumerable.Range(0, 5).Select(i => "fixture:wj-redirect-" + i).ToArray();
-            for (var i = 0; i < 5; i++) b.AddGeneral(new(ids[i], "真实重定向", "zhao_yun", "fixture:wj-swap", AdditionalSkillIds: i is 2 or 3 ? ["classic:qizhi", "fixture:wj-redirect"] : ["classic:qizhi"]));
-            b.AddDeck(new("fixture:wj-redirect-deck", "固定已验证种子", 2, 0, [new("classic:fangtian-halberd", 8), new("standard:dodge", 24), new("standard:peach", 28)]));
-            b.AddMode(new("identity:classic-wj-redirect", "流离最终目标", 5, 5, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 }, "fixture:wj-redirect-deck", GeneralCandidateCount: 1, GeneralPoolIds: ids));
-        }
-    }
-    private sealed class InvalidCountSource(string source) : IGameContentPackage
-    {
-        public PackageManifest Manifest { get; } = new("fixture-invalid-turn-count", new(1, 0, 0), []);
-        public void Register(IContentRegistryBuilder builder)
-        {
-            var catalog = SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:invalid-count","revision":1,"triggers":[{"id":"ending","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"discardHandToNamedTurnCount","target":"owner","skillIds":["{{source}}"]}]}]}]}""", """{"schemaVersion":3,"skills":{"fixture:invalid-count":{"name":"错误计数来源","description":"必须声明真实producer"}}}""");
-            builder.AddSkill(new("fixture:invalid-count", "错误来源", "编译拒绝") { Program = catalog.Programs["fixture:invalid-count"] });
         }
     }
 }

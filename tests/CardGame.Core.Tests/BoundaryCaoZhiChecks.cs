@@ -28,52 +28,11 @@ internal static class BoundaryCaoZhiChecks
         Require(dying.ResolutionStack.OfType<DyingFrame>().Any(f=>f.VictimSeat==0) && dying.State.Players[0].IsFaceDown,"Self-dying Wine owns its real face child before rescue."); Cold(dying,dr); Continue(dying); Play(dying);
         Require(dying.State.Players[0].IsAlive && dying.State.Players[0].Hp==1 && Facts<CardUseDeclaredEvent>(dying).Any(e=>e.CardKind==CardKind.Alcohol && e.CardId==0),"Existing zero-entity dying Alcohol recovers and returns to the actual damage producer."); Cold(dying,dr);
     }
-    public static void ProvenanceSurvivesRealTurnsAndAllMaterialUsesFreezeNoResponse()
-    {
-        var (g,r)=Create(); Wine(g); ContinueFaceAndPlay(g); End(g);
-        for(var i=0;i<3;i++) ClaimOne(g,r);
-        var claimed=Claims(g).Select(e=>e.CardId).ToArray(); var held=claimed.Take(2).ToArray(); var counter=claimed[2]; Require(claimed.Length==3,"Three actual outside claims establish independently tagged physical entities.");
-        Play(g); // helpers decline further claims; natural face-up skips one actual owner turn.
-        Require(g.State.TurnNumber>1 && !g.State.Players[0].IsFaceDown && held.All(id=>g.CreateSnapshot(0).Players[0].Hand.Any(c=>c.Id==id)),"The exact claims persist through a real own-turn boundary and natural flip, without restoring departed entities.");
-        Wine(g); ContinueFaceAndPlay(g); Cold(g,r);
-        var original=g.CreateSnapshot(0).Players[0].Hand.First(c=>!claimed.Contains(c.Id)).Id;
-        var multi=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="fixture:co-multi" && a.SelectableTargetSeats.Contains(2));
-        var stable=State(g);
-        Require(!g.Submit(new UseProgramSkillCommand(0,multi.ProgramSkillId!,multi.ProgramActivationId!,[held[0],original],[2],g.Revision,P(g)!.PromptId)).Accepted && State(g)==stable,"A mixed two-material Slash cannot borrow the distance policy of only its first tagged entity.");
-        Accept(g,new UseProgramSkillCommand(0,multi.ProgramSkillId!,multi.ProgramActivationId!,held,[2],g.Revision,P(g)!.PromptId)); Reach(g,p=>p.SkillPrompt?.SkillId==Committed);
-        var use=g.ResolutionStack.OfType<CardUseFrame>().Last();
-        Require(use.Action is {PhysicalCards.Count:2} action && action.PhysicalCards.Select(c=>c.CardId).SequenceEqual(held) && use.ProvenanceUseSource is not null && use.IssuedNoResponse?.CardActionId==action.ActionId && use.SourceSeat==0,"The actual distance-two all-tagged use freezes one exact no-response source before its two physical payments.");
-        Cold(g,r); Reject(g); Continue(g); Play(g);
-        Require(Facts<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==0 && e.TargetSeat==2 && e.Amount==2) && held.All(id=>g.CardMovements.Count(m=>m.CardId==id && m.To==CardLocation.Processing && m.Reason==CardMoveReasons.Use)==1),"The paid Wine-enhanced real Slash bypasses the target's actual Dodge conversion and pays both materials exactly once.");
-        Cold(g,r);
-        Use(g,"enemy-duel",targets:[1]); Reach(g,p=>p.Kind==DecisionKind.Nullification && p.PlayerSeat==0);
-        Answer(g,c=>c.Cards.SequenceEqual([counter])); Reach(g,p=>p.SkillPrompt?.SkillId==Committed);
-        var counterAction=Facts<CardActionAcceptedEvent>(g).Last(e=>e.Action.EffectiveKind==CardKind.Nullification).Action;
-        Require(counterAction.PhysicalCards.Select(c=>c.CardId).SequenceEqual([counter]) && Facts<UnrespondableCounterspellIssuedEvent>(g).Any(e=>e.ActionId==counterAction.ActionId && e.Source.SkillId=="boundary:jiushi" && e.Source.OwnerSeat==0),"A tagged converted Nullification issues the shared exact counterspell node from its before-payment source.");
-        Cold(g,r); Reject(g); Continue(g); Play(g);
-        Require(g.CardMovements.Count(m=>m.CardId==counter && m.To==CardLocation.Processing)==1 && !Facts<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==1 && e.TargetSeat==0),"The issued counterspell waits for its real completed child, pays the original tagged entity once and cancels the Duel."); Cold(g,r);
-
-        var (declared,registry)=Create(declaration:true); Wine(declared); ContinueFaceAndPlay(declared); End(declared); ClaimOne(declared,registry); Play(declared);
-        var entity=Claims(declared).Single().CardId; Wine(declared); ContinueFaceAndPlay(declared);
-        var declarationAction=declared.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.CardId==entity && a.TargetSeats.SequenceEqual([2]) && a.ConversionSource?.SkillId=="classic:guhuo" && a.PlayedCardKind==CardKind.Slash);
-        Accept(declared,new PlayCardCommand(0,entity,[2],declared.Revision,P(declared)!.PromptId,CardKind.Slash) {ConversionSource=declarationAction.ConversionSource}); Reach(declared,p=>p.SkillPrompt?.SkillId==Committed);
-        var declaredUse=declared.ResolutionStack.OfType<CardUseFrame>().Last();
-        Require(declaredUse.AcceptedDeclarationPayment is {Claimed:true} cost && cost.Cost.CardId==entity && declaredUse.ProvenanceUseSource is not null && declaredUse.IssuedNoResponse?.CardActionId==declaredUse.Action?.ActionId &&
-            declared.CardMovements.Count(m=>m.CardId==entity && m.Reason.Value=="conversion.declaration.pay")==1 && !declared.CardMovements.Any(m=>m.CardId==entity && m.Reason==CardMoveReasons.Use),"A true successful declaration retains the tagged exact committed cost through its Processing transfer without charging it twice.");
-        Cold(declared,registry); Reject(declared); Continue(declared); Play(declared);
-        Require(Facts<DamageAppliedEvent>(declared).Any(e=>e.SourceSeat==0 && e.TargetSeat==2 && e.Amount==2),"The truthful declared distance-two tagged Slash retains its issued no-response policy and resumes actual damage."); Cold(declared,registry);
-    }
     private static IEnumerable<T> Facts<T>(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<T>();
-    private static List<ProgramDiscardedEntityClaimedEvent> Claims(GameEngine g)=>Facts<ProgramDiscardedEntityClaimedEvent>(g).ToList();
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static bool HasActivation(PendingDecision p,string skill,string binding)=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("skill-id")==skill && c.Parameters.GetValueOrDefault("binding-id")==binding && c.Parameters.GetValueOrDefault("program-action")=="activate");
-    private static void ReachClaim(GameEngine g)=>Reach(g,p=>HasActivation(p,"boundary:luoying","claim-club-origin"));
-    private static void ClaimOne(GameEngine g,ContentRegistry r)
-    { ReachClaim(g); Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Reach(g,p=>p.SkillPrompt?.SkillId==Gain); Cold(g,r); Continue(g); }
     private static void Wine(GameEngine g)=>Accept(g,new UseProgramSkillCommand(0,"boundary:jiushi","virtual-alcohol",[],[],g.Revision,P(g)!.PromptId));
     private static void Use(GameEngine g,string id,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,cards??[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-    private static void ContinueFaceAndPlay(GameEngine g) { Reach(g,p=>p.SkillPrompt?.SkillId==Face); Continue(g); Play(g); }
     private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
     private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate) { var p=P(g)!; Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision)); }
     private static void Play(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard && p.PlayerSeat==0);

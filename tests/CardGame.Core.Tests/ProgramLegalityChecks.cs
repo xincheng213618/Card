@@ -33,7 +33,6 @@ internal static class ProgramLegalityChecks
         var program = SkillProgramCatalog.Load($$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
               {"id":"fixture:legality","revision":1,
-               "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},
                "activations":[{"id":"activate","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"usesPerTurn":1,
                  "targetKind":"otherLiving","effects":[{"op":"draw","target":"owner","amount":1}]}],
                "triggers":[{"id":"trigger","window":"turnEnding","subject":"owner","optional":true,

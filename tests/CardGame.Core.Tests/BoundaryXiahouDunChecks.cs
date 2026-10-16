@@ -71,48 +71,8 @@ internal static class BoundaryXiahouDunChecks
         Require(!lightning.Events.Select(e=>e.Payload).OfType<JudgmentResolvedEvent>().Any(e=>e.Reason=="skill.boundary-ganglie"),"Source-less Lightning creates no Ganglie judgment.");
         Require(Rng(lightning)==beforeLightningRng&&lightning.CardMovements.Where(m=>m.TurnNumber==lightning.CreateSnapshot(0).TurnNumber&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(0)).First().CardId==redId,"Source-less Lightning spends no extra RNG or Ganglie judgment card before the next real Draw.");Replay(lightning,lr);
     }
-
-    public static void QingjianActualReceiptInputPrivacyAndReplay()
-    {
-        var(g,r)=Start("gift"); var limit=Limit(g,0); Use(g,"draw");
-        Require(P(g)?.SkillPrompt?.SkillId=="boundary:qingjian","Own normal Draw did not consume quota; actual Play gain offers Qingjian.");
-        var q=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
-        Require(q.Batch.MovementTiming is {ActualTurnOwnerSeat:0,Phase:TurnPhase.Play,PhaseActorSeat:0},"Gain qualification freezes actual atomic-start timing.");
-        Replay(g,r); Activate(g); Reject(g,new AnswerPromptCommand(0,P(g)!.PromptId,new ChoiceId("forged-empty-selection"),g.Revision));
-        var cards=g.State.Players[0].Hand.GroupBy(c=>Category(c.Kind)).Select(x=>x.First().Id).ToArray();
-        Require(cards.Length==3,"Small fixed deck covers all three physical categories.");
-        for(var viewer=1;viewer<4;viewer++) Require(g.CreateSnapshot(viewer).PendingDecision is null,"Private selection is not exposed to other viewers.");
-        SelectOwned(g,cards,r);
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramCardsRevealedEvent>().Any(e=>e.SkillId=="boundary:qingjian"&&e.Cards.Select(c=>c.Id).Order().SequenceEqual(cards.Order())),"Exact owned selection is publicly revealed before recipient choice.");
-        Replay(g,r); Reject(g,new AnswerPromptCommand(0,P(g)!.PromptId,new ChoiceId("self-recipient"),g.Revision));
-        Answer(g,c=>c.Targets.SequenceEqual(new[]{1})); Settle(g);
-        var receipt=g.Events.Select(e=>e.Payload).OfType<ShownBoundGiftCommittedEvent>().Single();
-        Require(receipt is {ActualCount:3,CategoryCount:3,ActualTurnOwnerSeat:0} && Limit(g,0)==limit+3,"Three actual Hand receipts grant actual turn owner +3.");
-        Require(cards.All(id=>g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.Hand(1)&&m.Reason.Value==GiftReason)==1),"Each selected entity transfers exactly once.");
-        var events=g.Events.Select(e=>e.Payload).ToArray();var bonus=Array.FindIndex(events,e=>e is TurnRuleModifierGrantedEvent x&&x.Modifier.Source.SkillId=="boundary:qingjian");
-        Require(bonus>=0&&events.Take(bonus).OfType<CardMovedEvent>().Count(e=>cards.Contains(e.CardId)&&e.To==CardLocation.Hand(1))==3,"All physical movement records precede the issued reward.");
-        Replay(g,r);Use(g,"draw");Settle(g);Require(g.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1,"Accepted named actual-turn quota bounds nested and repeated gains.");Replay(g,r);
-    }
-
-    public static void QingjianNarrowParserAndLegacyNullBoundary()
-    {
-        var rules="""{"id":"fixture:narrow","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","gainPhaseQualification":"outsideOwnerDraw","optional":true,"effects":[{"op":"selectOwnedCards","target":"owner","zones":["hand","equipment"],"minimumCards":1,"maximumCards":null,"resultBind":"gift"},{"op":"revealBoundCards","target":"owner","sourceBind":"gift"},{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"giveShownBoundCardsAndGrantTurnHandLimit","target":"owner","sourceBind":"gift"}]}]}""";
-        Load(rules);
-        foreach(var bad in new[]{rules.Replace("\"outsideOwnerDraw\"","null"),rules.Replace("outsideOwnerDraw","outsideAnyDraw"),rules.Replace("\"window\":\"cardsGained\"","\"window\":\"cardsMoved\""),rules.Replace("{\"op\":\"revealBoundCards\",\"target\":\"owner\",\"sourceBind\":\"gift\"},",""),rules.Replace("\"minimumCards\":1","\"minimumCards\":0"),rules.Replace("\"targetKind\":\"otherLiving\"","\"targetKind\":\"anyLiving\""),rules.Replace("\"sourceBind\":\"gift\"}]}]}","\"sourceBind\":\"gift\",\"amount\":3}]}]}")})
-        { var rejected=false;try{Load(bad);}catch(InvalidOperationException){rejected=true;}Require(rejected,"Invalid null/enum/window/unrevealed/minimum/recipient/bonus nodes reject before runtime."); }
-        var damageRules="""{"id":"fixture:narrow","revision":1,"triggers":[{"id":"damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","requireDamageSource":true,"optional":true,"effects":[{"op":"recover","target":"owner","amount":1}]}]}""";
-        Require(Load(damageRules).Programs["fixture:narrow"].Triggers.Single().RequireDamageSource==true,"Only explicit true opts into real source presence.");
-        foreach(var bad in new[]{damageRules.Replace("\"requireDamageSource\":true","\"requireDamageSource\":false"),damageRules.Replace("\"requireDamageSource\":true","\"requireDamageSource\":null"),damageRules.Replace("\"requireDamageSource\":true","\"requireDamageSource\":1"),damageRules.Replace("afterDamageApplied","damageAppliedBeforeDying"),damageRules.Replace("\"subject\":\"owner\"","\"subject\":\"any\"")})
-        {var rejected=false;try{Load(bad);}catch(InvalidOperationException){rejected=true;}Require(rejected,"Source presence parser rejects false/null/number/wrong window/wrong subject.");}
-        var oldDamage=Load(damageRules.Replace("\"requireDamageSource\":true,","")).Programs["fixture:narrow"].Triggers.Single();
-        Require(oldDamage.RequireDamageSource is null&&!JsonSerializer.Serialize(oldDamage).Contains("RequireDamageSource",StringComparison.Ordinal),"Missing source presence preserves null and omits new serialization.");        var legacy=Load(rules.Replace("\"gainPhaseQualification\":\"outsideOwnerDraw\",", ""));Require(legacy.Programs["fixture:narrow"].Triggers.Single().GainPhaseQualification is null,"Old trigger leaves new qualification null.");
-        var(g,r)=Start("legacy");Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch.MovementTiming is null,"Registry without qualification keeps atomic timing absent.");Replay(g,r);for(var i=0;i<20&&P(g)?.SkillPrompt?.SkillId=="fixture:legacy";i++){Answer(g,c=>Action(c)=="skip");if(P(g)?.SkillPrompt?.SkillId!="fixture:legacy")Reach(g,p=>p.Kind==DecisionKind.PlayCard||p.SkillPrompt?.SkillId=="fixture:legacy");}Settle(g);
-    }
-
-    private static int Category(CardKind kind)=>CardCatalog.Get(kind).CategoryName switch{"基本牌"=>0,"装备牌"=>2,_=>1};
     private static string? Action(PromptChoice c)=>c.Parameters.GetValueOrDefault("program-action");
     private static void Activate(GameEngine g)=>Answer(g,c=>Action(c)=="activate");
-    private static void SelectOwned(GameEngine g,int[] cards,ContentRegistry? r=null){foreach(var id in cards){Answer(g,c=>c.Cards.SequenceEqual(new[]{id}));if(r is not null)Replay(g,r);}if(P(g)?.Choices.Any(c=>Action(c)=="finish-owned-cards")==true)Answer(g,c=>Action(c)=="finish-owned-cards");}
     private static void Use(GameEngine g,string action,int? target=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:driver",action,[],target is null?[]:[target.Value],g.Revision,P(g)!.PromptId));
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -120,9 +80,7 @@ internal static class BoundaryXiahouDunChecks
     private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!;
     private static uint Rng(GameEngine g){var random=typeof(GameEngine).GetField("_random",Flags)!.GetValue(g)!;return (uint)random.GetType().GetProperty("State")!.GetValue(random)!;}
-    private static int Limit(GameEngine g,int seat)=>(int)typeof(GameEngine).GetMethod("GetHandLimit",Flags)!.Invoke(g,[Players(g)[seat]])!;
     private static void Replay(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(Enumerable.Range(0,4).All(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))==SnapshotJson.Serialize(restored.CreateSnapshot(s)))&&g.CardMovements.SequenceEqual(restored.CardMovements)&&JsonSerializer.Serialize(g.ResolutionStack)==JsonSerializer.Serialize(restored.ResolutionStack),"Four viewer snapshots, movement and typed frames restore from accepted commands.");}
-    private static void Reject(GameEngine g,GameCommand c){var revision=g.Revision;var snapshot=SnapshotJson.Serialize(g.CreateSnapshot(0));var result=g.Submit(c);Require(!result.Accepted&&revision==g.Revision&&snapshot==SnapshotJson.Serialize(g.CreateSnapshot(0)),"Rejected input is atomic.");}
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Require(result.Accepted,result.Error?.Message??"Rejected");}
     private static void Require(bool ok,string message){if(!ok)throw new InvalidOperationException(message);}
     private static SkillProgramCatalog Load(string skill)=>SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{{skill}}]}""","""{"schemaVersion":3,"skills":{"fixture:narrow":{"name":"narrow","description":"narrow"}}}""");

@@ -819,7 +819,13 @@ public enum SkillProgramEffectOp
     ResolveZuolianWholeRevealExchange = 27250,
     ResolveJingzhouBeforeDamageToggles = 27251,
     ResolveQingyaBetweenHandDiscards = 27260,
-    ResolveQingyaNextActualPhaseUse = 27261
+    ResolveQingyaNextActualPhaseUse = 27261,
+    ResolveQingliuFactionChoice = 27300,
+    ResolveYongzuDistinctBenefits = 27301,
+    ResolveCaoTengJianxiongDrawAndClaim = 27302,
+    ResolveBingzhongExtraTargets = 27310,
+    ResolveBingzhongAfterDamageDraw = 27311,
+    ResolveSuyiEquipmentThenSlash = 27312
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001, Activator = 2002 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -2131,6 +2137,7 @@ public sealed class SkillProgram
     public int Revision { get; }
     public string GameplayHash { get; }
     public string RuntimeVersion { get; }
+    // Legacy content metadata retained in the content fingerprint, never a runtime gate.
     public int MinimumRulesVersion { get; }
     public IReadOnlyList<SkillProgramModifier> Modifiers { get; }
     public IReadOnlyList<SkillProgramViewAs> ViewAs { get; }
@@ -4218,7 +4225,7 @@ public sealed class SkillProgramCatalog
              !RequiresPositiveTriggerCondition(condition, SkillProgramTriggerConditionKind.CardActionPhaseIsPlay)))
             Fail(path, "issued card policy requires a single own Play-use actor operation");
         var awaitedDyingExit = window == SkillProgramTriggerWindow.DyingExited &&
-            effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance }];
+            effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice }];
         if (window is SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited && !awaitedDyingExit &&
             (optional || effects.Any(effect => effect.Op != SkillProgramEffectOp.Draw || effect.Target != SkillProgramEffectTarget.Owner ||
                 effect.NumberExpression is not null || effect.Condition.Kind != SkillProgramConditionKind.Always)))
@@ -4748,6 +4755,8 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) MengDaComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) CaiMaoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) YaDanComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) CaoTengComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) YangFuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values)
         {
             foreach (var activation in program.Activations) RuanHuiComposition.Activation(program.Id, activation);

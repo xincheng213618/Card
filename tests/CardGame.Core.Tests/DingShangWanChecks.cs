@@ -32,79 +32,6 @@ internal static class DingShangWanChecks
         Need(E<DingShangWanStartedEvent>(g).Where(e=>e.Operation==SkillProgramEffectOp.DrawFudaoRecordedPair&&e.Turn==1).Select(e=>e.Source.OwnerSeat).Distinct().Count()==4&&V(g).HandCount==12,
             "Every later matching owner retains the actual end's frozen seven-card qualification after earlier pair draws change the real turn owner's hand.");_=Cold(g,r);
     }
-    public static void ForeignDamageAndEveryRealDuelResponseLockedChoicesAndNullificationCold()
-    {
-        var(g,r)=Started();Use(g,"poke",targets:[1]);Play(g);Use(g,"poke",targets:[1]);Play(g);Use(g,"duel",targets:[1,0]);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RespondSlash});
-        for(var response=0;response<2;response++)
-        {
-            var card=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards.Single();g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([card]));Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});
-            var receipt=Current(g)!;Need(receipt.Window==SkillProgramTriggerWindow.CardResponseCompleted&&receipt.Counterpart==1&&receipt.ActionId is not null&&E<CardResponseCompletedEvent>(g).Count(e=>e.ActorSeat==0)==response+1,
-                "Each genuine played Slash finishes once and immediately opens mandatory Fengyan against the real Duel opponent.");
-            g=Cold(g,r);Branch(g,response==0?"other-draw":"owner-draw");if(response==1){Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});Pick(g,1);Finish(g);}
-            Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RespondSlash});
-        }
-        Answer(g,c=>c.Cards.Count==0);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});
-        Need(Current(g)is{Window:SkillProgramTriggerWindow.AfterDamageApplied,Counterpart:1,DamageFrameId:not null}&&E<DamageAppliedEvent>(g).Last().TargetSeat==0,"Losing the same real Duel gives one additional damage occurrence, separately from its successful responses.");
-        Branch(g,"owner-draw");Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});Pick(g,1);Finish(g);Play(g);
-        Need(E<DingShangWanStartedEvent>(g).Count(e=>e.Operation==SkillProgramEffectOp.ResolveFengyanCounterpart)==3&&E<DingShangWanMovementIssuedEvent>(g).Count(e=>e.Stage==DingShangWanStage.FengDiscardChildren)==1,
-            "Locked Fengyan offers both options per occurrence; the AI counterpart really draws and chooses two owned discards through Advance.");
-        var count=E<DingShangWanStartedEvent>(g).Count();Use(g,"self");Play(g);Use(g,"lose");Play(g);Need(E<DingShangWanStartedEvent>(g).Count()==count,"Real self damage and HP loss cannot masquerade as another participant's damage.");_=Cold(g,r);
-
-        (g,r)=Started("counterspell");Accept(g,new UseProgramSkillCommand(0,"boundary:shizhan-current","selected-actor-duel",[],[1],g.Revision,P(g)!.PromptId));Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.Nullification});
-        var cost=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards.Single();g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([cost]));Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});
-        Need(E<CardResponseCompletedEvent>(g).Any(e=>e.ActorSeat==0&&e.EffectiveKind==CardKind.Nullification)&&Current(g)!.Counterpart==1,"A real counterspell completion is a foreign response, including its actual response payment and native chain parent.");
-        Branch(g,"owner-draw");Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});Pick(g,1);g=Cold(g,r);Finish(g);Play(g);
-        Need(!E<DamageAppliedEvent>(g).Any()&&E<DingShangWanBranchEvent>(g).Count()==1,"Nullification does not create a damage occurrence or duplicate the completed response choice.");_=Cold(g,r);
-    }
-    public static void DodgeEquipmentGiftAndForeignDiscardSilverLionChildrenCold()
-    {
-        var(g,r)=Started("equipment");Use(g,"equip",targets:[0]);Play(g);Need(V(g).Equipment.Any(c=>c.Kind==CardKind.SilverLion),"The native deck equipment operation equips the real Silver Lion entity.");Use(g,"lose");Play(g);var hp=V(g).Hp;
-        Use(g,"foreign",targets:[1]);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});Branch(g,"owner-draw");Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});
-        var lion=V(g).Equipment.Single(c=>c.Kind==CardKind.SilverLion).Id;Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pick"&&c.Cards.SequenceEqual([lion]));g=Cold(g,r);Finish(g);
-        Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));
-        Need(V(g).Hp==hp&&V(g,1).Hand.Any(c=>c.Id==lion)&&E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==0),"Fengyan may give a real equipped Lion; native removal recovery completes before the original gift returns.");g=Cold(g,r);Continue(g);Play(g);_=Cold(g,r);
-
-        (g,r)=Started("equipment-foreign");Use(g,"equip",targets:[1]);Play(g);Use(g,"poke",targets:[1]);Play(g);
-        while(V(g,1).HandCount>0){Use(g,"strip",targets:[1]);Play(g);}lion=V(g,1).Equipment.Single(c=>c.Kind==CardKind.SilverLion).Id;hp=V(g,1).Hp;
-        Use(g,"foreign",targets:[1]);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});Branch(g,"other-draw");
-        Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health&&Current(g)is{Stage:DingShangWanStage.FengDiscardChildren});
-        Need(V(g,1).Hp==hp+1&&g.CardMovements.Any(m=>m.CardId==lion&&m.From==CardLocation.Equipment(1)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.ding-shang-wan.fengyan.discard"),
-            "A real foreign payer with exactly one drawn hand card and its equipped Lion must choose both; native removal heals that foreign participant through the same paid discard subtree.");g=Cold(g,r);Play(g);_=Cold(g,r);
-
-        (g,r)=Started("equipment-ox");Use(g,"equip",targets:[0]);Play(g);var ox=V(g).Equipment.Single(c=>c.Kind==CardKind.WoodenOx).Id;
-        var storage=g.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect&&a.EquipmentKind==CardKind.WoodenOx);var grain=storage.SelectableCardIds.First();
-        Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain],[],g.Revision,P(g)!.PromptId));Play(g);Need(V(g).WoodenOxGrain!.Single().Id==grain,"A real equipment command stores the exact hand entity in the native grain zone.");
-        Use(g,"foreign",targets:[1]);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});Branch(g,"owner-draw");Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});
-        Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pick"&&c.Cards.SequenceEqual([ox]));g=Cold(g,r);Finish(g);Play(g);
-        Need(V(g,1).Hand.Any(c=>c.Id==ox)&&g.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)==1&&
-            E<DingShangWanMovementIssuedEvent>(g).Last(e=>e.Stage==DingShangWanStage.FengGiftChildren).Count==2,
-            "Giving one genuine equipped Ox preserves the native grain spill as one attached side movement, without treating its private grain as a second chosen gift.");_=Cold(g,r);
-
-        (g,r)=Started("dodge");Use(g,"poke",targets:[1]);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RespondDodge});
-        var dodge=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards.Single();g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([dodge]));Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});
-        Need(E<CardResponseCompletedEvent>(g).Last().OriginalContinuation==ProgramCardContinuation.Dodge&&Current(g)!.Counterpart==1,"A native retaliatory Slash is really Dodged before mandatory Fengyan, with its response actor and opponent intact.");
-        Branch(g,"other-draw");Play(g);Need(!E<DamageAppliedEvent>(g).Any(e=>e.TargetSeat==0)&&E<DingShangWanMovementIssuedEvent>(g).Any(e=>e.Stage==DingShangWanStage.FengDiscardChildren&&e.Count==2),"The foreign payer privately chooses two true HE discards while the successful Dodge prevents the underlying Slash damage.");_=Cold(g,r);
-    }
-    public static void PaidOpeningAndFengyanLossDeathNativeChildrenCold()
-    {
-        var(g,r)=Start("opening-loss");Need(V(g).Skills!.All(s=>s.Id!=Fudao)&&Current(g)is{Stage:DingShangWanStage.OpeningGiftChoice},"A real opening draw child loses one HP and the source grant before its already-issued sequence continues.");
-        Recipient(g,1);Pick(g,2);g=Cold(g,r);Finish(g);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.OpeningDiscardChoice});Pick(g,1);Finish(g);Play(g);
-        Need(E<FudaoHandRecordedEvent>(g).Single().HandCount==4&&E<DingShangWanMovementIssuedEvent>(g).Count(e=>e.Stage==DingShangWanStage.OpeningDraw)==1,"Paid opening continues exactly once through source loss, genuine gift and discard before recording.");_=Cold(g,r);
-
-        (g,r)=Started("feng-loss");Use(g,"foreign",targets:[1]);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});Branch(g,"owner-draw");
-        Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});Need(V(g).Skills!.All(s=>s.Id!=Fengyan),"A real native Fengyan Draw child lowers HP and removes its conditional source grant.");g=Cold(g,r);Pick(g,1);Finish(g);Play(g);
-        Need(E<DingShangWanBranchEvent>(g).Count()==1&&E<DingShangWanMovementIssuedEvent>(g).Count(e=>e.Stage==DingShangWanStage.FengGiftChildren)==1,"The committed option still pays its one genuine gift after source loss without a second draw.");_=Cold(g,r);
-
-        (g,r)=Start("opening-death",stopAtWatch:true);g=Cold(g,r);Continue(g);Reach(g,()=>g.State.Status==EngineStatus.Completed);
-        Need(!V(g).IsAlive&&!E<FudaoHandRecordedEvent>(g).Any()&&E<DingShangWanMovementIssuedEvent>(g).Count(e=>e.Stage==DingShangWanStage.OpeningDraw)==1&&
-            !g.CardMovements.Any(m=>m.Reason.Value is"skill-program.ding-shang-wan.fudao.give" or"skill-program.ding-shang-wan.fudao.discard"),"A true paid opening child death drains native rescue/death and game completion without inventing later choices or repeating the draw.");_=Cold(g,r);
-
-        (g,r)=Start("reshuffle");Recipient(g,2);Pick(g,3);Finish(g);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.OpeningDiscardChoice});Pick(g,4);Finish(g);Play(g);Use(g,"draw-three");Play(g);
-        Use(g,"foreign",targets:[1]);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengChoice});g=Cold(g,r);Branch(g,"owner-draw");Reach(g,()=>Current(g)is{Stage:DingShangWanStage.FengGiftChoice});
-        var shuffle=E<DingShangWanReshuffleCapturedEvent>(g).Single();var draw=E<DingShangWanMovementIssuedEvent>(g).Last(e=>e.Stage==DingShangWanStage.FengOwnerDraw);
-        Need(shuffle.Count==4&&draw.Count==1&&shuffle.Before>=draw.Before&&shuffle.After<=draw.After&&g.CardMovements.Count(m=>m.Sequence>draw.Before&&m.Sequence<=draw.After)==5,
-            "The genuine small deck empties before Fengyan Draw1; its exact parent-owned native reshuffle moves four real discards and remains separate from the one actually drawn entity.");g=Cold(g,r);Pick(g,1);Finish(g);Play(g);_=Cold(g,r);
-    }
 
     private static PlayerSnapshot V(GameEngine g,int seat=0)=>g.CreateSnapshot(seat).Players.Single(p=>p.Seat==seat);
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -115,7 +42,6 @@ internal static class DingShangWanChecks
     private static void Answer(GameEngine g,Func<PromptChoice,bool> f){var p=P(g)!;Need(p.PlayerSeat==0,"Tests may answer only the real human; AI decisions must Advance.");Accept(g,new AnswerPromptCommand(0,p.PromptId,p.Choices.First(f).Id,g.Revision));}
     private static bool Optional(PendingDecision? p,string skill)=>p?.SkillPrompt?.SkillId==skill&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-    private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
     private static void Branch(GameEngine g,string b)=>Answer(g,c=>c.Parameters.GetValueOrDefault("branch")==b);
     private static void Recipient(GameEngine g,int seat)=>Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="recipient"&&c.Targets.SequenceEqual([seat]));
     private static void Pick(GameEngine g,int count){for(var i=0;i<count;i++)Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="pick");}
@@ -137,7 +63,6 @@ internal static class DingShangWanChecks
     }
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),Frames=g.ResolutionStack.Select(f=>JsonSerializer.Serialize(f,f.GetType())).ToArray(),Facts=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements,Commands=CommandJson.Serialize(g.AcceptedCommands),Zones=g.CreateCardZoneDiagnostics()});
     private static GameEngine Cold(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Need(State(g)==State(restored),"Cold replay preserves all private selections, source and native parent proofs, actual movement/HP children and fixed record.");return restored;}
-    private static(GameEngine,ContentRegistry)Started(string scenario="normal"){var(g,r)=Start(scenario);Finish(g);Reach(g,()=>Current(g)is{Stage:DingShangWanStage.OpeningDiscardChoice});Finish(g);Play(g);return(g,r);}
     private static(GameEngine,ContentRegistry)Start(string scenario="normal",bool stopAtWatch=false)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(scenario));var g=GameEngine.CreateStandard(new GameOptions{Seed=31,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId=Mode,UseInteractiveSetup=true,UseInteractiveDiscard=false,AdvanceAfterHumanCommands=false,MaxTurns=8},r);

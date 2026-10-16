@@ -82,26 +82,37 @@ internal static class PersistenceChecks
         var legacyPath = store.GetPath(GameSaveSlot.Manual);
         var oldJson = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(legacyPath))!;
         oldJson["Checkpoint"]!["Options"]!.AsObject().Remove("AiPolicyVersion");
-        oldJson["Checkpoint"]!.AsObject().Remove("RulesVersion");
+        oldJson["Checkpoint"]!["RulesVersion"] = int.MaxValue;
         File.WriteAllText(legacyPath, oldJson.ToJsonString());
         using var resumedLegacy = Create(store, showSetup: true);
         var oldFileText = File.ReadAllText(legacyPath);
         resumedLegacy.LoadManualGameCommand.Execute(null);
         Require(!resumedLegacy.HasSaveError &&
-                Engine(resumedLegacy).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
                 State(resumedLegacy) == SnapshotJson.Serialize(legacy.CreateSnapshot(0, true)) &&
                 File.ReadAllText(legacyPath) == oldFileText,
-            "A JSON save without a rules marker replays under current rules without rewriting its source file.");
-        foreach (var marker in new[] { GameCheckpoint.CurrentRulesVersion - 1, GameCheckpoint.CurrentRulesVersion + 1 })
-        {
-            store.Write(GameSaveSlot.Manual, store.Read(GameSaveSlot.Manual) with
-                { Checkpoint = legacy.CreateCheckpoint() with { RulesVersion = marker } });
-            resumedLegacy.LoadManualGameCommand.Execute(null);
-            Require(!resumedLegacy.HasSaveError && State(resumedLegacy) == SnapshotJson.Serialize(legacy.CreateSnapshot(0, true)),
-                "Earlier and later rules markers do not block restoring a valid save through the real UI command.");
-        }
+            "Legacy JSON fields do not block replay or rewrite the source file.");
+        resumedLegacy.SaveGameCommand.Execute(null);
+        Require(!resumedLegacy.HasSaveError &&
+                !System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(legacyPath))!["Checkpoint"]!.AsObject().ContainsKey("RulesVersion"),
+            "Saving the restored match must omit the removed rules epoch.");
         resumedLegacy.StartNewGameCommand.Execute(null);
         Require(Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "Starting another game should opt into the current public-evidence AI.");
+
+        var historyDirectory = Path.Combine(output, "versionless-history");
+        var historyStore = new FileMatchHistoryStore(historyDirectory);
+        var historyEntry = new MatchHistoryEntry(1, new string('c', 64), DateTimeOffset.UtcNow, "存档夹具", MatchOutcome.Win,
+            new CardGame.Wpf.Presentation.MatchSummary(1,
+                [new CardGame.Wpf.Presentation.PlayerMatchResult(0, "战绩夹具", "主公", true, true, 1, 0, 0, 0, 0, 0, 0)]));
+        var historyPath = Path.Combine(historyDirectory, historyEntry.Id + ".json");
+        if (File.Exists(historyPath)) File.Delete(historyPath);
+        historyStore.Record(historyEntry);
+        var historyJson = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(historyPath))!.AsObject();
+        Require(!historyJson.ContainsKey("RulesVersion"), "New history records must omit the removed rules epoch.");
+        historyJson["RulesVersion"] = int.MaxValue;
+        File.WriteAllText(historyPath, historyJson.ToJsonString());
+        var history = historyStore.Read();
+        Require(history.UnreadableCount == 0 && history.Entries.Single().Id == historyEntry.Id,
+            "Old history JSON retains its identity and remains readable after removing the rules field.");
     }
 
     public static void FailedWritesPreserveSavesAndFailedLoadsInitializeGame(string output)

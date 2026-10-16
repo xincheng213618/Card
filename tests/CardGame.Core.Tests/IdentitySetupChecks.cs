@@ -56,7 +56,7 @@ internal static class IdentitySetupChecks
 
         var classic = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
+        foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8", "identity:classic-dual-8" })
         {
             var mode = classic.Modes[modeId];
             Require(mode.RoleGeneralCandidateCounts!.All(entry => entry.Value == Expected(Enum.Parse<Role>(entry.Key))),

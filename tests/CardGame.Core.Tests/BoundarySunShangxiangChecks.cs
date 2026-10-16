@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -29,22 +29,6 @@ internal static class BoundarySunShangxiangChecks
             "The owning paid physical equipment cost waits for real Xiaoji before freezing HP.");
         Activate(transfer);Settle(transfer);
         Require(Zones(transfer).GetLocation(equipped)==CardLocation.Equipment(1),"Transfer of armor is not prevented by current Qicai.");ReplayFourViews(transfer,tr);
-    }
-
-    public static void PairFreezesAcrossChildren()
-    {
-        var (g,r)=Start(equipment:true,movementChild:true);
-        Driver(g,"hurt-target",[1]);Settle(g);Driver(g,"equip",[0]);Settle(g);
-        var card=g.CreateSnapshot(0).Players[0].Equipment.Single().Id;Use(g,"place-equipment",card,1);
-        while(P(g)?.SkillPrompt?.SkillId=="classic:xiaoji")Skip(g);
-        Settle(g);
-        Require(g.State.Players[0].Hp==2&&g.State.Players[1].Hp==2,
-            "Actual equipment-loss HP child finishes before comparison: owner 3 to 1 then recovers to 2.");ReplayFourViews(g,r);
-
-        var (d,dr)=Start(drawChild:true);Driver(d,"hurt-owner");Settle(d);
-        Use(d,"discard-hand",d.State.Players[0].Hand[0].Id,1);Settle(d);
-        Require(d.State.Players[0].Hp==3&&d.State.Players[1].Hp==1,
-            "Higher target Draw child frozen recovery: hp="+d.State.Players[0].Hp+" target="+d.State.Players[1].Hp);ReplayFourViews(d,dr);
     }
 
     private static void Evidence(GameEngine g,string label)

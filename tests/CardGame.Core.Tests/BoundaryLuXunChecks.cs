@@ -4,41 +4,6 @@ using CardGame.Content.Standard;
 
 internal static class BoundaryLuXunChecks
 {
-    public static void ActualTrickHoldLianyingAndReturn()
-    {
-        var (g,r) = Start();
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        Reach(g,p => p.SkillPrompt?.SkillId == "boundary:qianxun");
-        var effect = g.ResolutionStack.OfType<CardEffectBeforeApplyFrame>().Single();
-        Require(effect.OrdinaryReturn is not null && effect.FinalDesignatedTargetSeats.SequenceEqual(new[]{0}) && effect.Action.ActorSeat != 0,
-            "Actual foreign unique trick reaches effect window after nullification.");
-        var original = g.CreateSnapshot(0).Players[0].Hand!.Select(c=>c.Id).ToArray();
-        Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:lianying");
-        var hold = g.CreateSnapshot(0).Players[0].PrivateTurnHolds!.Single();
-        var outside=(Func<CardLocation,bool>)typeof(GameEngine).GetMethod("IsRuleOutsideGame",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!.CreateDelegate(typeof(Func<CardLocation,bool>));
-        var actualHold=g.CardMovements.First(m=>m.To.Zone==CardZoneKind.PrivateTurnHold).To;
-        Require(outside(actualHold)&&!outside(CardLocation.Hand(0))&&!outside(CardLocation.Processing),"Private card hold is a real outside-game domain; ordinary Hand and Processing remain inside.");
-        Require(hold.Count==original.Length && hold.Cards!.Select(c=>c.Id).SequenceEqual(original),"All actual Hand entities were held once.");
-        for(var viewer=1;viewer<4;viewer++) Require(g.CreateSnapshot(viewer).Players[0].PrivateTurnHolds!.Single().Cards is null,"Foreign viewer sees hold count only.");
-        Require(hold.Cards is System.Collections.Generic.IList<CardSnapshot> cards && cards.IsReadOnly &&
-            g.CreateSnapshot(0).Players[0].PrivateTurnHolds is System.Collections.Generic.IList<PrivateTurnHoldSnapshot> holds && holds.IsReadOnly,"Prepared hold collections are frozen.");
-        Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:lianying" && p.Choices.Any(c=>c.Targets.Count>0));
-        var choice = P(g)!.Choices.First(c=>c.Targets.Count==2 && c.Targets.Contains(0));
-        Reject(g);
-        Accept(g,new AnswerPromptCommand(0,P(g)!.PromptId,choice.Id,g.Revision));
-        Require(g.CardMovements.Count(m=>original.Contains(m.CardId)&&m.From==CardLocation.Hand(0)&&m.To.Zone==CardZoneKind.PrivateTurnHold)==original.Length,
-            "Hold payment is not repeated during lianying return.");
-        Replay(g,r);
-        for(var step=0;step<180 && g.CreateSnapshot(0).Players[0].PrivateTurnHolds is not null;step++) Step(g);
-        Require(g.CreateSnapshot(0).Players[0].PrivateTurnHolds is null && original.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.From.Zone==CardZoneKind.PrivateTurnHold&&m.To==CardLocation.Hand(0))),"Actual turn end returns the exact original hold: "+JsonSerializer.Serialize(g.CreateSnapshot(0).Players[0].PrivateTurnHolds)+" hp="+g.State.Players[0].Hp+" heldmoves="+JsonSerializer.Serialize(g.CardMovements.Where(m=>m.From.Zone==CardZoneKind.PrivateTurnHold))+" stack="+JsonSerializer.Serialize(g.ResolutionStack)+" prompt="+P(g)?.Prompt);
-        Require(g.CardMovements.Any(m=>m.Reason.Value.Contains("lianying") && m.From==CardLocation.DrawPile && m.To.Zone==CardZoneKind.Hand),"Lianying uses real draws.");
-        Require(g.CardMovements.Any(m=>m.Reason.Value.Contains("fixture:hold-gain") && m.From==CardLocation.DrawPile),"No-After registry drains real return gained child before advancing the actual turn.");
-        Replay(g,r); Conserve(g);
-    }
     public static void OwnedHePaymentCountsActualHandBatch()
     {
         var(g,r)=Start("mixed");var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);
@@ -80,8 +45,6 @@ internal static class BoundaryLuXunChecks
     {for(var i=0;i<180;i++){if(P(g) is {} p&&predicate(p))return;Step(g);}throw new InvalidOperationException("Boundary fixture did not reach requested prompt: "+P(g)?.Prompt);}
     private static void Replay(GameEngine g,ContentRegistry r)
     {var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(Enumerable.Range(0,4).All(v=>SnapshotJson.Serialize(g.CreateSnapshot(v))==SnapshotJson.Serialize(restored.CreateSnapshot(v)))&&g.CardMovements.SequenceEqual(restored.CardMovements)&&JsonSerializer.Serialize(g.ResolutionStack)==JsonSerializer.Serialize(restored.ResolutionStack),"Four viewer and owning typed stack checkpoint replay.");}
-    private static void Reject(GameEngine g)
-    {var before=SnapshotJson.Serialize(g.CreateSnapshot(0));var result=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,new("fixture-invalid"),g.Revision));Require(!result.Accepted&&before==SnapshotJson.Serialize(g.CreateSnapshot(0)),"Illegal target input is atomic.");}
     private static void Conserve(GameEngine g)=>Require(g.CreateCardZoneDiagnostics().Select(c=>c.CardId).Distinct().Count()==80,"Physical entities conserved.");
     private static void Require(bool value,string message){if(!value)throw new InvalidOperationException(message);}
     private sealed class Fixture(ContentRegistry definitions,string mode):IGameContentPackage

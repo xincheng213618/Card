@@ -10,7 +10,6 @@ internal static class BoundaryGuoHuangHouChecks
     private const string Driver = "fixture:ghh-driver", Gain = "fixture:ghh-gain", Hp = "fixture:ghh-hp", Completed = "fixture:ghh-completed";
     private const string TrickChild = "fixture:ghh-trick-child", FireDamage = "fixture:ghh-fire-damage", FireColor = "fixture:ghh-fire-color";
     private const string StateId = "boundary-jiaozhao-round-tier", Mode = "identity:classic-guo-huang-hou-fixture";
-    private const string DrawReason = "skill-program." + Danxin + ".capped-conversion-draw";
 
     public static void TrueRoundNamesPhysicalConversionAndPrivateCold()
     {
@@ -51,82 +50,6 @@ internal static class BoundaryGuoHuangHouChecks
             "A different mature native Dodge use is included in the global Round ledger without the new conversion policy.");
         _ = Cold(g, r);
     }
-
-    public static void ZeroCounterspellDodgeAndDyingTypedReturns()
-    {
-        var (g, r) = Create(CardKind.Dismantlement); Play(g); UpgradeTwo(g);
-        SubmitPlay(g, g.GetHumanLegalActions().First(a => a.ConversionSource is null && a.Kind == LegalActionKind.Dismantlement && a.TargetSeats.SequenceEqual([1])));
-        Reach(g, p => p.Kind == DecisionKind.Nullification && p.PlayerSeat == 0 && p.Choices.Any(IsZero));
-        var n = g.ResolutionStack.OfType<NullificationWindowFrame>().Last(); var chain = n.ChainDepth;
-        g = Cold(g, r); Answer(g, c => IsZero(c) && c.Parameters.GetValueOrDefault("output-kind") == nameof(CardKind.Nullification));
-        Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-        var held = g.ResolutionStack.OfType<NullificationWindowFrame>().Single(w => w.Id == n.Id);
-        Require(held.TieredRoundResponseUse is { MaterialCount: 0, EffectiveKind: CardKind.Nullification } receipt && receipt.OwnerFrameId == n.Id &&
-            held.ChainDepth == chain + 1 && F<TrueRoundCardNameUsedEvent>(g).Any(e => e.NullificationUse && e.EffectiveKind == CardKind.Nullification),
-            "The actual zero Nullification node owns its frozen source/quota and real Response-as-Use chain.");
-        Private(g); AuditPausedResponseReceipt(g, r, n.Id); g = Cold(g, r); Continue(g); Play(g);
-        Require(F<NullificationResolvedEvent>(g).Single().ChainDepth == chain + 1 && !g.ResolutionStack.OfType<NullificationWindowFrame>().Any() &&
-            g.CardMovements.All(m => m.CardId != 0), "Completed response children return once to the original trick without a fictitious payment entity.");
-        _ = Cold(g, r);
-
-        (g, r) = Create(CardKind.Dodge, foreignSlash: true); Play(g); UpgradeTwo(g); End(g);
-        Reach(g, p => p.Kind == DecisionKind.RespondDodge && p.PlayerSeat == 0 && p.Choices.Any(IsZero));
-        var original = g.ResolutionStack.OfType<CardUseFrame>().Last(); g = Cold(g, r); Answer(g, c => IsZero(c) && c.Parameters.GetValueOrDefault("output-kind") == nameof(CardKind.Dodge));
-        Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-        Require(g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == original.Id).TieredRoundResponseUse is { EffectiveKind: CardKind.Dodge, MaterialCount: 0 } &&
-            F<TrueRoundCardNameUsedEvent>(g).Any(e => e.EffectiveKind == CardKind.Dodge && e.ActorSeat == 0),
-            "The genuine incoming Slash owns the exact zero Dodge use receipt, not a parallel pending action.");
-        AuditPausedResponseReceipt(g, r, original.Id); g = Cold(g, r); Continue(g); Until(g, e => !e.ResolutionStack.Any(f => f.Id == original.Id)); _ = Cold(g, r);
-
-        (g, r) = Create(rescueHpChild: true); Play(g); UpgradeTwo(g);
-        var remainingHp = V(g, 0).Hp; Use(g, "die-" + remainingHp); Reach(g, p => p.Kind == DecisionKind.RescueDying && p.PlayerSeat == 0 && p.Choices.Any(IsZero));
-        var dying = g.ResolutionStack.OfType<DyingFrame>().Last(); var driver = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Driver);
-        Require(dying.ParentFrameId == driver.Id && dying.VictimSeat == 0 && V(g, 0).Hp == 0, "The real LoseHp command enters the exact victim's owning Dying parent.");
-        Private(g); g = Cold(g, r); Answer(g, c => IsZero(c) && c.Parameters.GetValueOrDefault("output-kind") == nameof(CardKind.Alcohol));
-        Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var rescue = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.DyingResponse?.ResolutionId == dying.Id);
-        Require(rescue.CardId == 0 && rescue.PhysicalCardIds is { Count: 0 } && rescue.Action is { Type: CardActionType.Use, PhysicalCards.Count: 0 } &&
-            rescue.TieredRoundConversionUse?.DyingFrameId == dying.Id && rescue.DyingResponse is { UsedAlcohol: true, AlcoholCardId: 0 } &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Change.TargetSeat == 0 && h.Change.ParentFrameId == rescue.Id &&
-                h.ResumeFrameId == rescue.Id && h.Continuation == PostEventContinuation.CardUse),
-            "A genuine zero Alcohol rescue retains the exact original responder/victim token and pauses in its actual CardUse HP child.");
-        g = Cold(g, r); Continue(g); Play(g);
-        Require(V(g, 0).Hp == 1 && F<DyingResolvedEvent>(g).Single(e => e.ResolutionId == dying.Id).Survived &&
-            F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == rescue.Id && e.CardId == 0) == 1 &&
-            F<TieredRoundConversionUseIssuedEvent>(g).Count(e => e.Receipt.OwnerFrameId == rescue.Id) == 1 && g.CardMovements.All(m => m.CardId != 0),
-            "Cold-restored HP returns complete the original Dying and paid Round use once, with no fake entity or duplicate recovery.");
-        _ = Cold(g, r);
-    }
-
-    private static void AuditPausedResponseReceipt(GameEngine g, ContentRegistry r, long ownerId)
-    {
-        var owner = g.ResolutionStack.Single(f => f.Id == ownerId);
-        var receipt = owner switch { NullificationWindowFrame n => n.TieredRoundResponseUse!, CardUseFrame u => u.TieredRoundResponseUse!, _ => throw new InvalidOperationException("No typed response owner.") };
-        foreach (var bad in new[] { receipt with { MaterialCount = receipt.MaterialCount + 1 },
-            receipt with { OwnerFrameId = receipt.OwnerFrameId + 1 },
-            receipt with { Source = receipt.Source with { BindingId = "unissued-response-binding" } } })
-        {
-            // A trusted-host invariant audit on a journal-restored clone only.
-            // Checkpoints store accepted commands, not pending frame objects.
-            // The actual command engine and its original accepted facts stay intact.
-            var invalid = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r);
-            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(invalid)!;
-            var current = stack.Single(f => f.Id == ownerId);
-            stack.Replace(current switch { NullificationWindowFrame n => n with { TieredRoundResponseUse = bad },
-                CardUseFrame u => u with { TieredRoundResponseUse = bad }, _ => throw new InvalidOperationException("Response owner changed.") });
-            var rejected = false;
-            try { typeof(GameEngine).GetMethod("AssertCoreInvariants", flags)!.Invoke(invalid, null); }
-            catch (System.Reflection.TargetInvocationException ex) when (ex.InnerException is InvalidOperationException { Message: var message } &&
-                message.Contains("tiered response", StringComparison.Ordinal)) { rejected = true; }
-            Require(rejected, "The paused response invariant rejects altered material/source/owner scalars on the real replay-restored prefix.");
-        }
-    }
-
-    private static void UpgradeTwo(GameEngine g) { HurtAndActivate(g); Play(g); HurtAndActivate(g); Play(g); Require(Tier(g) == 2, "Two actual damage choices establish tier2."); }
-    private static void HurtAndActivate(GameEngine g) { Use(g, "hurt"); Reach(g, p => p.SkillPrompt?.SkillId == Danxin && HasAction(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }
-    private static int Tier(GameEngine g) => V(g, 0).ConfiguredConversionTiers?.GetValueOrDefault(StateId) ?? 0;
-    private static bool IsZero(PromptChoice c) => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use";
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));

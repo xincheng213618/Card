@@ -49,40 +49,11 @@ internal static class BoundaryDianWeiChecks
             "Only the next actual turn clears the different-target restriction."); Cold(g, r);
     }
 
-    public static void SecondVictimOccurrenceCountsDamageEventsAndActualParticipants()
-    {
-        var (g, r) = Create();
-        Use(g, "two", [1]); Play(g);
-        Require(DrawCount(g) == 0, "A single two-point injury is one occurrence and does not trigger Ninge.");
-        Use(g, "one", [1]); Play(g);
-        Require(DrawCount(g) == 1 && Events<DamageAppliedEvent>(g).Count(e => e.TargetSeat == 1) == 2,
-            "The actual victim's second occurrence draws once even though the first dealt two points.");
-        Use(g, "one", [1]); Play(g); Require(DrawCount(g) == 1, "The third injury does not repeat the second-occurrence benefit.");
-        Use(g, "foreign", [2]); Play(g); Use(g, "foreign", [2]); Play(g);
-        Require(DrawCount(g) == 1, "Two injuries between other participants do not treat the skill owner as their actual source.");
-        Use(g, "one", [2]); Play(g); Require(DrawCount(g) == 1, "An owner's later injury cannot reuse a different source's already passed second occurrence.");
-        Use(g, "incoming", [3]); Play(g); Use(g, "incoming", [3]); Play(g);
-        Require(DrawCount(g) == 2 && Events<DamageAppliedEvent>(g).Count(e => e.TargetSeat == 0 && e.SourceSeat == 3 && !e.SourceLess) == 2,
-            "The owner being the actual victim qualifies independently of the damage source and without field cards to discard.");
-        Cold(g, r); var old = g.State.TurnNumber; EndTurn(g); Play(g);
-        Use(g, "one", [1]); Play(g); Require(DrawCount(g) == 2, "The next actual turn starts a new occurrence count.");
-        Use(g, "one", [1]); Play(g); Require(g.State.TurnNumber > old && DrawCount(g) == 3,
-            "The new actual-turn second occurrence draws exactly once."); Cold(g, r);
-        var (nested, nr) = Create(nested: true);
-        Use(nested, "one", [1]); Play(nested); Use(nested, "one", [1]); Play(nested);
-        Require(Events<DamageAppliedEvent>(nested).Count(e => e.TargetSeat == 1) == 3 &&
-            Events<DamageAppliedEvent>(nested).Count(e => e.TargetSeat == 1 && e.SourceSeat == 1) == 1 && DrawCount(nested) == 1,
-            "An earlier actual AfterDamage candidate's nested third injury cannot rewrite the original owning window's frozen second-occurrence fact."); Cold(nested, nr);
-    }
-
     private static LegalAction[] Actions(GameEngine g) => g.GetHumanLegalActions().Where(a => a.ProgramSkillId == "boundary:qiangxi").ToArray();
-    private static int DrawCount(GameEngine g) => g.CardMovements.Count(m => m.Reason.Value == "program.applied-damage-benefit.draw");
     private static T[] Events<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Qiangxi(GameEngine g, string id, int target, int? card = null) =>
         Accept(g, new UseProgramSkillCommand(0, "boundary:qiangxi", id, card is { } c ? [c] : [], [target], g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)

@@ -7,7 +7,7 @@ public sealed partial class GameEngine
 
     // The round reader reuses native declaration facts. Keeping the old turn
     // reader separate preserves its deliberate TurnEnded/Finished boundary.
-    private IEnumerable<IGameEvent> CurrentUseKindDeduplicationHistory() => TracksCurrentRoundActualUses
+    private IEnumerable<IGameEvent> CurrentUseKindDeduplicationHistory() => TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal
         ? CompleteProgramEventHistory()
         : EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent);
 

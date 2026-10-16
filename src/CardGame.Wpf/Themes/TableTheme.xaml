@@ -547,7 +547,7 @@
                 <MultiDataTrigger.Conditions><Condition Binding="{Binding StatusBadgesOnLeft}" Value="True" /><Condition Binding="{Binding HasGale}" Value="True" /><Condition Binding="{Binding HasMist}" Value="True" /></MultiDataTrigger.Conditions>
                 <Setter TargetName="SeatStatusBadges" Property="Margin" Value="-24,72,0,28" />
             </MultiDataTrigger>
-            <DataTrigger Binding="{Binding IsNationalSeat}" Value="True">
+            <DataTrigger Binding="{Binding HasDualGenerals}" Value="True">
                 <Setter TargetName="SinglePortrait" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="UnknownGeneral" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="SingleGeneralTitle" Property="Visibility" Value="Collapsed" />

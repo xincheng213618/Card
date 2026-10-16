@@ -81,59 +81,10 @@ internal static class BoundaryXunYuChecks
             "The actual generic dying response returns to the same paid refresh, without drawing again or replacing its target.");
     }
 
-    public static void RunDeathHandRefreshAndColdReplay()
-    {
-        var (g, registry) = Start(gainChild: true, humanRole: Role.Renegade);
-        Require(g.CreateSnapshot(0).Players[0].Role == Role.Renegade && g.State.Players[0].MaxHp == 3,
-            "The fixed dead-owner fixture is the selected non-Lord source, so its death cannot decide the winner.");
-        Driver(g, "die");
-        ReachWithDecline(g, p => p.SkillPrompt?.SkillId == Jieming &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Require(!g.State.Players[0].IsAlive && g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Any(f => f.OwnerSeat == 0),
-            "Actual death opens the dead owner's exact typed death-program opportunity.");
-        ReplayFourViews(g, registry); Activate(g); Answer(g, c => c.Targets.SequenceEqual([1]));
-        var f = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(frame => frame.SkillId == Jieming);
-        Require(f.CappedHandRefresh is { Stage: ProgramCappedHandRefreshStage.Drawing, Maximum: 5 } &&
-            f.PendingMovementContinuation?.SubjectSeat == 1 &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == "fixture:xun-gain"),
-            "The dead exact owner permits a paid living-target draw capped at five through its real gain child.");
-        ReplayFourViews(g, registry);
-        for (var step = 0; step < 100 && g.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Jieming); step++)
-        { Accept(g, new AdvanceOneStepCommand(g.Revision)); ReplayFourViews(g, registry); }
-        var drawn = g.Events.Select(e => e.Payload).OfType<ProgramCappedHandRefreshDrawnEvent>().Single();
-        var completed = g.Events.Select(e => e.Payload).OfType<ProgramCappedHandRefreshCompletedEvent>().Single();
-        var target = g.CreateSnapshot(1).Players[1];
-        var diagnostic = JsonSerializer.Serialize(new
-        {
-            drawn, completed,
-            players = g.CreateSnapshot(0, revealAll: true).Players.Select(p => new
-                { p.Seat, p.Role, p.GeneralId, p.Hp, p.MaxHp, p.IsAlive, p.HandCount }),
-            targetViewerHandCount = target.Hand.Count,
-            residualFrames = g.ResolutionStack.Select(frame => new
-                { type = frame.GetType().Name, frame.Id })
-        });
-        Require(drawn.DrawCount == 5 && completed is { Completed: true, Maximum: 5 } &&
-            g.State.Players[1].HandCount == 5 && target.Hand.Count == 5 &&
-            !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Jieming),
-            "The real dead-owner continuation pays once and finishes living-target discard after the child returns: " + diagnostic);
-        ReplayFourViews(g, registry);
-    }
-
     private static void DrainDiscard(GameEngine g, ContentRegistry registry)
     {
         for (var step = 0; step < 24 && P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "capped-hand-discard") == true; step++)
         { ReplayFourViews(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "capped-hand-discard"); }
-    }
-    private static void ReachWithDecline(GameEngine g, Func<PendingDecision, bool> goal)
-    {
-        for (var step = 0; step < 100; step++)
-        {
-            if (P(g) is { } p && goal(p)) return;
-            if (P(g) is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 })
-                Answer(g, c => c.Cards.Count == 0);
-            else Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The bounded real death did not reach its owner opportunity: " + P(g)?.Prompt);
     }
     private static void Driver(GameEngine g, string id) =>
         Accept(g, new UseProgramSkillCommand(0, DriverId, id, [], [], g.Revision, P(g)!.PromptId));

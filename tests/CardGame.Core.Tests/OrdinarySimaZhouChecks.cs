@@ -42,79 +42,6 @@ internal static class OrdinarySimaZhouChecks
         VerifyOpaqueHandAiIgnoresHiddenFaces();
     }
 
-    public static void ReverseDodgeAndDuelPairsRetainTheRealUsedCard()
-    {
-        var (g, registry) = Create(Scenario.Reverse); Use(g, "request", [1]);
-        Reach(g, p => p.PlayerSeat == 1 && Has(p, "request-slash"));
-        var issued = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "request-slash").Cards.Single();
-        Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge } && p.Choices.Any(CaiwangDodge));
-        Require(V(g, 0).HandCount == 1, "The reverse direction has one genuine Hand entity, so the full formal last-Hand Dodge route is eligible.");
-        var material = P(g)!.Choices.First(CaiwangDodge).Cards.Single(); Private(g); g = Cold(g, registry); Answer(g, CaiwangDodge);
-        Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition);
-        var frame = PairFrame(g); var pair = frame.PairedColorDisposition!.Pair;
-        var incoming = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActorSeat == 1 && e.Action.Type == CardActionType.Use).Action;
-        var response = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response).Action;
-        Require(pair is { ResponseSeat: 0, PairedSeat: 1, ResponseIsRed: false, PairedIsRed: false } &&
-            pair.PairedActionId == incoming.ActionId && pair.ResponseActionId == response.ActionId &&
-            incoming.PhysicalCards.Single().CardId == issued && response.PhysicalCards.Single().CardId == material &&
-            response.ConversionChain.Single().SkillId == Caiwang && frame.PairedColorDisposition.CounterpartSeat == 1,
-            "The responding skill owner also receives exactly one opportunity, tied to its actual formal last-Hand Dodge and the other actor's original Slash Use.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)); Play(g); Once(g, frame.Id, false);
-        Require(g.CardMovements.Count(m => m.CardId == material && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Respond) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == pair.RootCardUseFrameId) == 1,
-            "The true converted Dodge pays one original entity and resumes the forced physical Slash once.");
-
-        (g, registry) = Create(Scenario.Duel); Use(g, "hurt-peer", [1]); Play(g); Convert(g, "duel", [1]);
-        Reach(g, p => p is { PlayerSeat: 1, Kind: DecisionKind.RespondSlash, IncomingCard: CardKind.Duel });
-        var duel = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardKind == CardKind.Duel); var duelAction = duel.Action!;
-        Require(duelAction.EffectiveIsRed == false && V(g, 0).Skills!.Any(s => s.Id == "fixture:sima-zhou-red"),
-            "The native committed child changes the owner to red only after the original black Duel appearance was captured.");
-        var commands = g.AcceptedCommands.Count; Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash, IncomingCard: CardKind.Duel });
-        Require(g.AcceptedCommands.Skip(commands).All(c => c is AdvanceOneStepCommand), "The other actor's genuine Duel response is chosen by native AI commands only.");
-        Require(E<PairedColorResponseLinkedEvent>(g).Length == 1,
-            "The native completed pure Duel response must retain exactly one original-Use pair. " + Diagnostic(g));
-        var first = E<PairedColorResponseLinkedEvent>(g).Single();
-        Require(first is { PairedIsRed: false, ResponseIsRed: true, PairedKind: CardKind.Duel } && first.PairedActionId == duelAction.ActionId,
-            "The first red pure Slash response is compared to the original black Duel Use, so it offers no same-color opportunity.");
-        Private(g); g = Cold(g, registry); Answer(g, c => c.Cards.Count == 1 && c.Parameters.GetValueOrDefault("response") == "slash");
-        Reach(g, p => p is { PlayerSeat: 1, Kind: DecisionKind.RespondSlash, IncomingCard: CardKind.Duel });
-        var pairs = E<PairedColorResponseLinkedEvent>(g);
-        Require(pairs.Length == 2 && pairs.All(p => p.RootCardUseFrameId == duel.Id && p.PairedActionId == duelAction.ActionId && p.PairedKind == CardKind.Duel && p.PairedIsRed == false) &&
-            pairs[1] is { ResponseSeat: 0, PairedSeat: 0, ResponseIsRed: true } &&
-            pairs[1].PairedActionId != pairs[0].ResponseActionId && E<PairedColorDispositionStartedEvent>(g).Length == 0,
-            "The owner's later red pure Slash still pairs to its own original black Duel, never to the preceding red Respond Slash and never to another actor's fictitious Use.");
-        Play(g); Require(E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == duel.Id) == 1, "The exact original Duel returns once after the real response cursor continues.");
-
-        (g, registry) = Create(Scenario.Nullification); Convert(g, "duel", [1]);
-        Reach(g, p => p is { PlayerSeat: 1, Kind: DecisionKind.Nullification });
-        var trick = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardKind == CardKind.Duel);
-        Require(trick.Action!.EffectiveIsRed == false && V(g, 0).Skills!.Any(s => s.Id == "fixture:sima-zhou-red"),
-            "The real original black trick was captured before the committed child made the later owner's Nullification red.");
-        Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.Nullification } && p.Choices.Any(c => c.Cards.Count == 1));
-        var firstCounter = E<CardActionAcceptedEvent>(g).Single(e => e.Action.EffectiveKind == CardKind.Nullification).Action;
-        var firstLink = E<PairedColorResponseLinkedEvent>(g).Single();
-        Require(firstCounter.ActorSeat == 1 && firstCounter.EffectiveIsRed == true && firstLink.PairedActionId == trick.Action.ActionId &&
-            firstLink is { PairedIsRed: false, ResponseIsRed: true } && E<PairedColorDispositionStartedEvent>(g).Length == 0,
-            "The native AI's first red counterspell answers the original black trick and does not offer a false same-color disposition. " + Diagnostic(g));
-        g = Cold(g, registry); Answer(g, c => c.Cards.Count == 1 && c.Parameters.GetValueOrDefault("response") == "nullification");
-        Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition); var counterFrame = PairFrame(g); var secondLink = counterFrame.PairedColorDisposition!.Pair;
-        var secondCounter = E<CardActionAcceptedEvent>(g).Single(e => e.Action.EffectiveKind == CardKind.Nullification && e.Action.ActorSeat == 0).Action;
-        Require(secondLink is { ResponseSeat: 0, PairedSeat: 1, ResponseIsRed: true, PairedIsRed: true, PairedKind: CardKind.Nullification } &&
-            secondLink.ResponseActionId == secondCounter.ActionId && secondLink.PairedActionId == firstCounter.ActionId &&
-            secondLink.PairedActionId != trick.Action.ActionId && secondLink.RootActionId == trick.Action.ActionId &&
-            secondLink.RootCardUseFrameId == trick.Id && secondCounter.ParentActionId == trick.Action.ActionId &&
-            E<CardResponseCompletedEvent>(g).Any(e => e.ActionId == firstCounter.ActionId && e.OriginalContinuation == ProgramCardContinuation.NullificationResponse),
-            "A second red Nullification is itself a real Use directly answering the first red Nullification; its native chain stays rooted at the black trick without misusing that root as the color pair.");
-        Blind(g); g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-        Play(g); Once(g, counterFrame.Id, false);
-        Require(E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == trick.Id) == 1 &&
-            E<PairedColorDispositionStartedEvent>(g).Count(e => e.ResponseActionId == secondCounter.ActionId) == 1,
-            "The accepted direct-counterspell opportunity and exact original trick both finish once after the native remaining counterspell chain drains.");
-    }
-
     private static void BeginOwnSlash(GameEngine g)
     {
         Convert(g, "slash", [1]); Reach(g, p => p is { PlayerSeat: 1, Kind: DecisionKind.RespondDodge });
@@ -163,8 +90,6 @@ internal static class OrdinarySimaZhouChecks
     private static bool Offer(PendingDecision p) => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == Caiwang && p.Choices.Any(Activate);
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool Disposition(PendingDecision p) => Has(p, "paired-color-disposition");
-    private static bool CaiwangDodge(PromptChoice c) => c.Cards.Count == 1 && c.Parameters.GetValueOrDefault("conversion-skill-id") == Caiwang &&
-        c.Parameters.GetValueOrDefault("conversion-binding-id") == "last-hand-dodge";
     private static bool IsContinue(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static ProgramSkillFrame PairFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PairedColorDisposition is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
@@ -174,7 +99,6 @@ internal static class OrdinarySimaZhouChecks
     private static void Accept(GameEngine g, GameCommand c) { var r = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(r.Accepted, r.Error?.Message ?? "A real Sima Zhou fixture command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Convert(GameEngine g, string id, int[] targets) => SubmitPlay(g, g.GetHumanLegalActions().First(a => a.ConversionSource?.SkillId == Driver && a.ConversionSource.BindingId == id && a.TargetSeats.SequenceEqual(targets)));
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));

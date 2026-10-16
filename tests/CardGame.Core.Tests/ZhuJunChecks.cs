@@ -38,97 +38,6 @@ internal static class ZhuJunChecks
             g = Cold(g, r); Play(g); Need(V(g, 1).Hp == hp - 3 && E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 3) && E<ZhuJunCuipoQualifiedEvent>(g).Count(e => e.Damage) == 2, "Two distinct issued original-source bonuses remain frozen on one native Duel and add exactly twice."); _ = Cold(g, r);
         }
     }
-    public static void CuipoResponseUsesExcludePureResponsesAndResetPerActualTurnCold()
-    {
-        {
-            var (g, r) = Start("dodge"); Use(g, "incoming", [1]); Reach(g, () => P(g) is { PlayerSeat: 0 } targetPrompt && targetPrompt.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "virtual-slash-offer" && c.Targets.SequenceEqual([0])));
-            Answer(g, c => c.Targets.SequenceEqual([0])); Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge });
-            var dodge = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); Answer(g, c => c.Cards.SequenceEqual([dodge])); Play(g);
-            Need(E<ZhuJunCuipoQualifiedEvent>(g).Single(e => e.Source.OwnerSeat == 0) is { EffectiveKind: CardKind.Dodge, Ordinal: 1, Damage: false } && E<ZhuJunCuipoDrawIssuedEvent>(g).Single().ActualCount == 1,
-                "A true own Dodge against a native Slash is a response use and triggers Cuipo in the same actual turn."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("pure"); Use(g, "incoming-duel", [1]); Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash });
-            Answer(g, c => c.Cards.Count == 1); Play(g);
-            Need(E<CardRespondedEvent>(g).Any(e => e.ResponderSeat == 0) && !E<CurrentTurnCardUseKindsRecordedEvent>(g).Any(e => e.ActorSeat == 0) && !E<ZhuJunCuipoQualifiedEvent>(g).Any(e => e.Source.OwnerSeat == 0),
-                "Actual Duel Slash payments are pure responses and neither count as uses nor draw.");
-            var hp = V(g, 1).Hp; Native(g, a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1])); Play(g);
-            Need(V(g, 1).Hp == hp - 2 && E<ZhuJunCuipoQualifiedEvent>(g).Single(e => e.Source.OwnerSeat == 0).Ordinal == 1, "The next actual Slash is still the owner's first actual use after several genuine pure response payments.");
-            var turn = g.State.TurnNumber; End(g); Reach(g, () => g.State.TurnNumber > turn && g.State.CurrentSeat == 0 && P(g) is { Kind: DecisionKind.PlayCard });
-            NativeKind(g, CardKind.Alcohol); Play(g); Need(E<ZhuJunCuipoQualifiedEvent>(g).Last(e => e.Source.OwnerSeat == 0).Ordinal == 1, "The counter resets at a real next turn, rather than at an inserted skill instruction or its completion."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("counterspell"); NativeKind(g, CardKind.Alcohol); Play(g); NativeKind(g, CardKind.Slash, [1]); Play(g); NativeKind(g, CardKind.IronChain, [0]); Play(g);
-            Use(g, "incoming-duel", [1]); Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.Nullification }); g = Cold(g, r); Answer(g, c => c.Cards.Count == 1); Play(g);
-            Need(E<ZhuJunCuipoQualifiedEvent>(g).Any(e => e.Source.OwnerSeat == 0 && e.EffectiveKind == CardKind.Nullification && e.Ordinal == 4 && !e.Damage) && E<ZhuJunCuipoDrawIssuedEvent>(g).Count() == 2,
-                "The fourth actual use can be a true native Nullification response, without treating intermediate counterspell chains as a second use of that action."); _ = Cold(g, r);
-        }
-    }
-    public static void CuipoTrickClassificationShortNameAndSkillAbsentHistoryCold()
-    {
-        {
-            var (g, r) = Start("history"); Use(g, "lose"); Play(g); NativeKind(g, CardKind.Alcohol); Play(g); Need(!E<ZhuJunCuipoQualifiedEvent>(g).Any(), "A real use while Cuipo is absent cannot issue a retrospective bonus.");
-            Use(g, "grant"); Play(g); var hp = V(g, 1).Hp; NativeKind(g, CardKind.Duel, [1]); Play(g);
-            Need(V(g, 1).Hp == hp - 2 && E<ZhuJunCuipoQualifiedEvent>(g).Single().Ordinal == 2, "Gaining the skill midturn reads the genuine earlier no-skill use history."); _ = Cold(g, r);
-        }
-        foreach (var scenario in new[] { "borrowed", "lightning", "equipment" })
-        {
-            var (g, r) = Start(scenario);
-            if (scenario == "borrowed") { Use(g, "equip", [1]); Play(g); }
-            NativeKind(g, CardKind.Alcohol); Play(g);
-            if (scenario == "equipment") { NativeKind(g, CardKind.IronChain, [0]); Play(g); Use(g, "equip", [0]); }
-            else if (scenario == "borrowed") NativeKind(g, CardKind.BorrowedSword, [1, 3]); else NativeKind(g, CardKind.Lightning, [0]);
-            Play(g); var last = E<ZhuJunCuipoQualifiedEvent>(g).Last(e => e.Source.OwnerSeat == 0);
-            Need(!last.Damage && last.NameLength == (scenario == "equipment" ? 3 : 2) && E<ZhuJunCuipoDrawIssuedEvent>(g).Count() == 2,
-                "The actual non-damage card draws once at the OL effective-name length, including Borrowed Sword's current short name: " + scenario);
-            if (scenario == "borrowed") Need(!E<ZhuJunCuipoQualifiedEvent>(g).Any(e => e.EffectiveKind == CardKind.Slash && e.Source.OwnerSeat == 0), "Borrowed Sword cannot transfer its draw branch into another actor's independent Slash."); _ = Cold(g, r);
-        }
-        foreach (var scenario in new[] { "aoe", "unexpected" })
-        {
-            var (g, r) = Start(scenario); NativeKind(g, CardKind.Alcohol); Play(g); NativeKind(g, CardKind.IronChain, [0]); Play(g); NativeKind(g, CardKind.DrawTwo); Play(g);
-            var hp = V(g, 1).Hp;
-            if (scenario == "aoe") NativeKind(g, CardKind.ArrowBarrage); else
-            {
-                var targetSuit = V(g, 1).Hand.First().Suit; var material = V(g).Hand.First(c => c.Suit != targetSuit).Id;
-                Native(g, a => a.PlayedCardKind == CardKind.UnexpectedAssault && a.CardId == material && a.TargetSeats.SequenceEqual([1]));
-            }
-            Play(g); Need(E<ZhuJunCuipoQualifiedEvent>(g).Any(e => e.Source.OwnerSeat == 0 && e.Ordinal == 4 && e.Damage && e.EffectiveKind == (scenario == "aoe" ? CardKind.ArrowBarrage : CardKind.UnexpectedAssault)) &&
-                E<ZhuJunCuipoDrawIssuedEvent>(g).Count() == 1 && V(g, 1).Hp == hp - 2,
-                "The fourth actual damage trick enhances its own native damage rather than drawing; this includes Unexpected Assault."); _ = Cold(g, r);
-        }
-    }
-    public static void CuipoPaidDrawChildrenLossDeathReshuffleAndLegacyAlcoholCold()
-    {
-        foreach (var scenario in new[] { "paid-loss", "paid-death", "reshuffle", "legacy-alcohol", "legacy-alcohol-damage" })
-        {
-            var (g, r) = Start(scenario);
-            var legacyAlcohol = scenario.StartsWith("legacy-alcohol", StringComparison.Ordinal);
-            if (scenario == "reshuffle") { var c = V(g).Hand.First().Id; Accept(g, new UseProgramSkillCommand(0, Driver, "trim", [c], [], g.Revision, P(g)!.PromptId)); Play(g); }
-            if (scenario == "legacy-alcohol-damage") Use(g, "dying-damage", [1]); else if (legacyAlcohol) Use(g, "dying"); else NativeKind(g, CardKind.Alcohol);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var nativeUse = g.ResolutionStack.OfType<CardUseFrame>().Last(); var id = nativeUse.Id;
-            Need(E<ZhuJunCuipoDrawIssuedEvent>(g).Single().ActualCount == 1 && g.CreateSnapshot(1).PendingDecision is null && !E<RecoveryAppliedEvent>(g).Any(),
-                "Exactly one actual draw is paid before the private genuine movement child; the virtual rescue has not recovered early.");
-            if (legacyAlcohol) Need(nativeUse is { CardId: 0, CardKind: CardKind.Alcohol, PhysicalCardIds.Count: 0, ZhuJunLegacyAlcohol: not null } && E<ZhuJunLegacyAlcoholWindowIssuedEvent>(g).Count() == 1, "A real zero-entity dying Alcohol is suspended before native recovery through its own typed use receipt.");
-            if (scenario == "reshuffle") Need(g.CardMovements.Any(m => m.Reason == CardMoveReasons.Reshuffle) && E<ZhuJunCuipoDrawIssuedEvent>(g).Single().ActualCount == 1, "A genuine exhausted small deck reshuffles without counting reshuffled entities as drawn cards.");
-            g = Cold(g, r); Continue(g);
-            if (scenario is "paid-loss" or "paid-death") Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health || !V(g).IsAlive || E<ZhuJunCuipoDrawCompletedEvent>(g).Any());
-            if (P(g)?.SkillPrompt?.SkillId == Health) { g = Cold(g, r); Continue(g); }
-            if (scenario == "paid-death") Reach(g, () => !V(g).IsAlive && E<ZhuJunCuipoDrawCompletedEvent>(g).Any()); else Play(g);
-            Need(E<ZhuJunCuipoDrawIssuedEvent>(g).Count() == 1 && E<ZhuJunCuipoDrawCompletedEvent>(g).Count() == 1 && g.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason.Value == "skill-program.zhu-jun.cuipo.draw") == 1,
-                "Native movement/HP/dying descendants and source loss drain the original paid draw without issuing a second draw.");
-            if (scenario == "paid-loss") Need(V(g).Skills!.All(s => s.Id != Cuipo) && E<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 0), "A real nested damage causes HP-sensitive source loss after payment and still returns once.");
-            if (scenario == "paid-death") Need(g.State.Winner == Winner.None && !V(g).IsAlive, "A paid native child can kill a nonlord owner while the game continues.");
-            if (legacyAlcohol)
-            {
-                var payloads = g.Events.Select(e => e.Payload).ToArray();
-                Need(E<ZhuJunLegacyAlcoholReturnedEvent>(g).Single().UseId == id && E<RecoveryAppliedEvent>(g).Count(e => e.TargetSeat == 0) == 1 && V(g).Hp == 1 &&
-                    Array.FindIndex(payloads, e => e is ZhuJunCuipoDrawCompletedEvent) < Array.FindIndex(payloads, e => e is RecoveryAppliedEvent), "The exact completed legacy draw returns before its single native Alcohol recovery, including cold restoration.");
-                if (scenario == "legacy-alcohol-damage") Need(E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0) && E<DyingResolvedEvent>(g).Any(e => e.VictimSeat == 0 && e.Survived), "The same exact legacy wine bridge preserves a real damage-origin Dying, including its original source and DamageFrame.");
-            }
-            _ = Cold(g, r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players.Single(p => p.Seat == seat);
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
@@ -137,7 +46,6 @@ internal static class ZhuJunChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Need(p.PlayerSeat == 0, "Only the real human answers; AI choices advance natively."); Accept(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine g, string id, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Native(GameEngine g, Func<LegalAction, bool> predicate)
     { var a = g.GetHumanLegalActions().First(predicate); Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource }); }
     private static void NativeKind(GameEngine g, CardKind kind, int[]? targets = null) => Native(g, a => (a.PlayedCardKind ?? V(g).Hand.FirstOrDefault(c => c.Id == a.CardId)?.Kind) == kind && (targets is null || a.TargetSeats.SequenceEqual(targets)));

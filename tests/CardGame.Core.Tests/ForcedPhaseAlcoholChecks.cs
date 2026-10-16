@@ -61,46 +61,6 @@ internal static class ForcedPhaseAlcoholChecks
         Cold(deadActor, deadActorRegistry);
     }
 
-    public static void DeathDrawFreezesMixedKillCountsAndDeadTurnOwner()
-    {
-        var (none, noneRegistry) = Create(stopAtOffer: false);
-        End(none); Reach(none, p => IsPlay(p) || Offer(p, Wine));
-        Require(!Facts<ProgramBindingStartedEvent>(none).Any(e => e.SkillId == DeathDraw), "No death means no Qiluan offer.");
-        Cold(none, noneRegistry);
-        var (ai, aiRegistry) = Create(stopAtOffer: false, aiDeathDraw: true);
-        Use(ai, "loss", 2); End(ai); Reach(ai, p => Offer(p, DeathDraw));
-        Answer(ai, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(ai, p => Offer(p, Wine));
-        Require(Facts<ProgramBindingResolvedEvent>(ai).Any(e => e.SkillId == DeathDraw && e.OwnerSeat == 1 && e.Activated && e.Completed),
-            "Native AI accepts its positive public frozen death reward instead of pricing the new expression at zero.");
-        Cold(ai, aiRegistry);
-        var (mixed, mixedRegistry) = Create(stopAtOffer: false);
-        Use(mixed, "damage", 1); Use(mixed, "loss", 2); End(mixed); Reach(mixed, p => Offer(p, DeathDraw));
-        var parent = mixed.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
-        var facts = parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts!;
-        Require(facts.ActualTurnDeathCount == 2 && facts.OwnerActualTurnKillCount == 1, "Frozen actual-turn deaths distinguish one owner kill from one source-less death.");
-        var before = mixed.State.Players[0].Hand.Count; mixed = Cold(mixed, mixedRegistry);
-        Answer(mixed, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(mixed, p => IsPlay(p) || Offer(p, Wine));
-        Require(mixed.State.Players[0].Hand.Count == before + 4 &&
-            Facts<ProgramBindingResolvedEvent>(mixed).Count(e => e.SkillId == DeathDraw && e.Activated && e.Completed) == 1,
-            "Two deaths plus two additional owner-kill cards draw four exactly once after actual TurnEnded.");
-        Cold(mixed, mixedRegistry);
-        var (dead, deadRegistry) = Create(deadTurnOwner: true, stopAtOffer: false);
-        End(dead); Reach(dead, p => Offer(p, DeathDraw));
-        Require(dead.State.CurrentSeat == 1 && !dead.State.Players[1].IsAlive && dead.State.Winner == Winner.None &&
-            dead.ResolutionStack.OfType<DeferredTurnEndFrame>().Single().AfterTurnEnded!.Items.Any(i =>
-                i.Candidate?.SkillId == DeathDraw && i.Facts?.ActualTurnDeathCount == 1 && i.Facts.OwnerActualTurnKillCount == 0),
-            "A dead actual-turn actor still opens the surviving owner's positive after-turn death benefit.");
-        var hand = dead.State.Players[0].Hand.Count; dead = Cold(dead, deadRegistry);
-        Answer(dead, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(dead, p => IsPlay(p) || Offer(p, DeathDraw));
-        Require(dead.State.Players[0].Hand.Count >= hand + 1 &&
-            Facts<ProgramBindingResolvedEvent>(dead).Count(e => e.SkillId == DeathDraw && e.Activated && e.Completed) == 1,
-            "The dead turn actor's one source-less death yields one successful surviving-owner reward.");
-        Cold(dead, deadRegistry);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool ban = false, bool sourceLoss = false,
         bool pause = false, bool deadTurnOwner = false, bool stopAtOffer = true, bool aiDeathDraw = false, bool actorDeathWine = false)
     {

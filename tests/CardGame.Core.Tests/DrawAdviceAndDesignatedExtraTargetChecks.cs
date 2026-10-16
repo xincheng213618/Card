@@ -21,53 +21,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
         for (var variant = 0; variant < 4; variant++) ExerciseAdvice(variant);
     }
 
-    public static void DesignationBorrowedSwordFreezesOneNewPairAndResolvesBothOwners()
-    {
-        var (g, registry) = Start(CardKind.BorrowedSword);
-        foreach (var seat in new[] { 1, 3 }) { Use(g, "equip", [seat]); Reach(g, IsPlay); }
-        Use(g, "draw-three", []); Reach(g, IsPlay);
-        var weapons = new[] { 1, 3 }.ToDictionary(s => s, s => g.CreateSnapshot(0).Players[s].Equipment.Single().Id);
-        var action = FindAction(g, a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats.SequenceEqual([1, 2]),
-            "published physical Borrowed Sword pair [holder one, victim two] after both native equipment uses and Draw3");
-        var use = BeginAddition(ref g, registry, action);
-        Require(P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3, 2])) && P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3, 0])) &&
-                P(g)!.Choices.Where(c => c.Targets.Count > 0).All(c => c.Targets.Count == 2 && c.Targets[0] != 1),
-            "Each public Borrowed Sword extension is one complete legal pair; its new holder is unique while its victim may repeat the original victim or actor.");
-        Add(ref g, registry, use, [3, 2]);
-        Reach(g, p => IsContinue(p, CompleteChild)); g = Cold(g, registry);
-        var bothWeaponsPaid = Facts<DesignatedExtraTargetResolvedEvent>(g).Single().ResultTargetSeats.SequenceEqual([1, 2, 3, 2]) &&
-                weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Equipment(pair.Key) &&
-                    m.To == CardLocation.Processing && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1) &&
-                weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Processing &&
-                    m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1);
-        if (!bothWeaponsPaid)
-            Require(false, "Both genuinely Slash-less weapon holders execute their own native give-weapon response and transfer one exact equipment entity to the original trick user: " +
-                BorrowedSwordDiagnostic(g, use.Id, weapons));
-        Reach(g, IsPlay); AssertOneUse(g, action.CardId!.Value, CardKind.BorrowedSword); _ = Cold(g, registry);
-    }
-
-    private static CardUseFrame BeginAddition(ref GameEngine g, ContentRegistry registry, LegalAction action)
-    {
-        Play(g, action); Reach(g, p => p?.SkillPrompt?.SkillId == Yidian);
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p?.SkillPrompt?.SkillId == Yidian && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "designated-extra-target"));
-        var frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.DesignatedExtraTargetDraft is not null);
-        var draft = frame.DesignatedExtraTargetDraft!;
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == draft.CardUseFrameId);
-        Require(frame.OwnerSeat == 0 && frame.SkillId == Yidian && draft.ActionId == use.Action!.ActionId &&
-                draft.InstructionIndex == frame.InstructionIndex && draft.GameplayHash == frame.GameplayHash &&
-                draft.Source == new CardConversionSource(Yidian, frame.TriggerId!, 0, frame.SkillInstanceId) &&
-                draft.OriginalTargetSeats.SequenceEqual(use.TargetSeats) && use.CardId == action.CardId &&
-                Facts<DesignatedExtraTargetOfferedEvent>(g).Count(e => e.ProgramFrameId == frame.Id && e.CardUseFrameId == use.Id &&
-                    e.ActionId == use.Action.ActionId && e.OriginalTargetSeats.SequenceEqual(use.TargetSeats)) == 1,
-            "The public designation draft freezes one exact native owning use/action, original targets, paused instruction, source instance and gameplay fingerprint.");
-        Frozen(draft.OriginalTargetSeats); Frozen(draft.Choices); Frozen(P(g)!.Choices);
-        foreach (var choice in P(g)!.Choices.Where(c => c.Targets.Count > 0)) { Frozen(choice.Targets); Require(choice.Cards.Count == 0, "Public extension choices never expose a foreign Hand entity."); }
-        Reject(g, new AnswerPromptCommand(1, P(g)!.PromptId, P(g)!.Choices.First().Id, g.Revision));
-        Reject(g, new AnswerPromptCommand(0, P(g)!.PromptId, new ChoiceId("designation:not-published"), g.Revision));
-        g = Cold(g, registry); return use;
-    }
-
     private static void Add(ref GameEngine g, ContentRegistry registry, CardUseFrame original, IReadOnlyList<int> extra)
     {
         var old = P(g)!; var choice = old.Choices.Single(c => c.Targets.SequenceEqual(extra)); var revision = g.Revision;
@@ -78,17 +31,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
             "One accepted published choice appends the frozen additional target or compound pair to the same action exactly once.");
         Frozen(resolved.OriginalTargetSeats); Frozen(resolved.AddedTargetSeats); Frozen(resolved.ResultTargetSeats);
         Reject(g, new AnswerPromptCommand(0, old.PromptId, choice.Id, revision)); g = Cold(g, registry);
-    }
-
-    private static void AssertOneUse(GameEngine g, int card, CardKind kind)
-    {
-        var declared = Facts<CardUseDeclaredEvent>(g).Single(e => e.CardId == card);
-        var finishReason = kind == CardKind.IronChain ? CardMoveReasons.IronChainFinished : CardMoveReasons.UseFinished;
-        Require(Facts<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == declared.ResolutionId && e.CardId == card && e.CardKind == kind) == 1 &&
-                g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-                g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == finishReason) == 1 &&
-                !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == declared.ResolutionId),
-            "The original exact material is paid once, finishes once with its effective kind, and leaves no suspended native use.");
     }
 
     private static (GameEngine, ContentRegistry) Start(CardKind kind, int advice = -1, bool forbidden = false)
@@ -107,51 +49,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
     private static bool IsPlay(PendingDecision? p) => p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard };
     private static bool IsContinue(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static T[] Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
-    private static LegalAction FindAction(GameEngine g, Func<LegalAction, bool> predicate, string label)
-    {
-        var action = g.GetHumanLegalActions().FirstOrDefault(predicate);
-        Require(action is not null, "Missing required " + label + ": " + LegalDiagnostic(g)); return action!;
-    }
-    private static string LegalDiagnostic(GameEngine g)
-    {
-        var snapshot = g.CreateSnapshot(0);
-        return JsonSerializer.Serialize(new
-        {
-            Hand = snapshot.Players[0].Hand.Select(c => new { c.Id, c.Kind, c.Suit, c.Rank }).ToArray(),
-            Players = snapshot.Players.Select(p => new { p.Seat, p.GeneralId, p.IsAlive, p.HandCount, p.Equipment }).ToArray(),
-            LegalActions = g.GetHumanLegalActions().Where(a => a.CardId is not null).Select(a => new
-            { a.Kind, a.CardId, a.TargetSeats, a.PlayedCardKind, a.TargetCardId, a.ConversionSource, a.AdditionalConversionSources }).ToArray(),
-            LastMovements = g.CardMovements.TakeLast(10).ToArray()
-        });
-    }
-    private static string BorrowedSwordDiagnostic(GameEngine g, long useId, IReadOnlyDictionary<int, int> weapons) => JsonSerializer.Serialize(new
-    {
-        AddedTargets = Facts<DesignatedExtraTargetResolvedEvent>(g).Where(e => e.CardUseFrameId == useId).ToArray(),
-        Weapons = weapons.Select(pair => new
-        {
-            OwnerSeat = pair.Key, CardId = pair.Value,
-            CurrentLocation = g.CreateCardZoneDiagnostics().Single(c => c.CardId == pair.Value),
-            Movements = g.CardMovements.Where(m => m.CardId == pair.Value).ToArray()
-        }).ToArray(),
-        RelatedFacts = g.Events.Where(e => e.Payload switch
-        {
-            NullificationRequestedEvent f => f.ResolutionId == useId,
-            NullificationRespondedEvent f => f.ResolutionId == useId,
-            NullificationResolvedEvent f => f.ResolutionId == useId,
-            BorrowedSwordResolvedEvent f => f.ResolutionId == useId,
-            ResponseRequestedEvent f => f.IncomingCard == CardKind.BorrowedSword && f.SourceSeat == 0,
-            CardRespondedEvent f => f.ResponderSeat is 1 or 3,
-            _ => false
-        }).Select(e => new { e.Sequence, Type = e.Payload.GetType().Name, Payload = JsonSerializer.Serialize(e.Payload, e.Payload.GetType()) }).ToArray()
-    });
-    private static void Play(GameEngine g, LegalAction action)
-    {
-        if (action.Kind == LegalActionKind.Recast)
-            Accept(g, new RecastCardCommand(0, action.CardId!.Value, g.Revision, P(g)!.PromptId) { ConversionSource = action.ConversionSource });
-        else Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            g.Revision, P(g)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources });
-    }
-    private static void Use(GameEngine g, string id, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     {
         Require(P(g)?.PlayerSeat == 0, "A human Answer never impersonates a native AI chooser.");

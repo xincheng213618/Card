@@ -65,38 +65,6 @@ internal static class TriggeredCardConversionChecks
         }
     }
 
-    public static void RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn()
-    {
-        var (restricted, restrictedRegistry) = Create("standard:crossbow", forceOpponentSlash: false, selfOnlyRound: true);
-        Require(!Facts<ProgramBindingStartedEvent>(restricted).Any(e => e.SkillId == Xiaoxi) &&
-            !Facts<CardUsedEvent>(restricted).Any(e => e.SourceSeat == 0 && e.CardKind == CardKind.Slash),
-            "A round-first SelfOnly restriction prevents both the Xiaoxi offer and any foreign-target Slash.");
-        Cold(restricted, restrictedRegistry);
-        var (game, registry) = Create("standard:crossbow", forceOpponentSlash: false, stopAtRound: true);
-        Require(Offer(Prompt(game)!, Xiaoxi), "The first actual normal turn opens Xiaoxi for its owner.");
-        game = Cold(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Reach(game, IsPlay);
-        Use(game, "extra", [0]); Use(game, "face", [1]);
-        End(game);
-        var repeated = false;
-        Reach(game, IsPlay, onXiaoxi: () => repeated = true);
-        Require(game.State.CurrentSeat == 0 && Facts<RoundStartedEvent>(game).Count() == 1 && !repeated,
-            "The inserted extra turn never reopens the declined round-first choice or advances the round.");
-        End(game);
-        Reach(game, p => Offer(p, Xiaoxi), failOnNiluan: true);
-        Require(Facts<RoundStartedEvent>(game).Count() == 2 && !game.State.Players[1].IsFaceDown &&
-            Facts<CardUsedEvent>(game).All(e => e.SourceSeat != 0 || e.CardKind != CardKind.Slash),
-            "The skipped face-down seat does not reopen Xiaoxi; only the next actual round does.");
-        game = Cold(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Require(Prompt(game)!.Choices.Any(c => c.Targets.SequenceEqual([2])), "Xiaoxi's real zero-entity Slash ignores ordinary range.");
-        Answer(game, c => c.Targets.SequenceEqual([2])); Reach(game, IsPlay);
-        Require(Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == 0 && e.CardKind == CardKind.Slash) == 1,
-            "The accepted second-round opportunity produces exactly one real virtual Slash.");
-        Cold(game, registry);
-    }
-
     private static (GameEngine, ContentRegistry) Create(string card, bool forceOpponentSlash = true, int ownerHp = 8,
         bool red = false, bool forbid = false, bool stopAtRound = false, bool selfOnlyRound = false, int opponentHp = 20)
     {

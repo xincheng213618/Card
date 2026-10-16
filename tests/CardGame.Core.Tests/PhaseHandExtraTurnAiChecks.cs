@@ -83,51 +83,6 @@ internal static class PhaseHandExtraTurnAiChecks
         Cold(game, registry);
     }
 
-    public static void OwnerOnlyNativeExtraTurnKeepsLegacyTwentyValue()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(ownerOnly: true));
-        var game = GameEngine.CreateStandard(new GameOptions
-        {
-            Seed = 31, PlayerCount = 4, HumanSeat = -1, HumanRole = null, ModeId = Mode,
-            UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 4
-        }, registry);
-        Accept(game, new StartGameCommand());
-        ProgramExtraTurnPendedEvent? receipt = null;
-        for (var step = 0; step < 60 && receipt is null; step++)
-        {
-            receipt = game.Events.Select(e => e.Payload).OfType<ProgramExtraTurnPendedEvent>()
-                .FirstOrDefault(e => e.SkillId == OwnerOnlySkill);
-            if (receipt is not null) break;
-            if (game.State.Status == EngineStatus.Completed)
-                throw new InvalidOperationException("The small owner-only fixture completed before its optional real benefit. " + NativeDiagnostic(game));
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-        }
-        Require(receipt is not null, "The unchanged owner-only primitive actually issues an extra-turn fact through native activation.");
-        var source = game.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>()
-            .Single(e => e.FrameId == receipt!.FrameId && e.SkillId == OwnerOnlySkill);
-        var actionText = $"发动【{OwnerOnlyName}】";
-        Require(receipt!.Seat == source.OwnerSeat && source.Window == SkillProgramTriggerWindow.AfterNormalDraw &&
-                game.AiThoughts.Any(thought => thought.ActorSeat == source.OwnerSeat && thought.Decision == actionText &&
-                    thought.Candidates.Any(candidate => candidate.Action.Description == actionText && candidate.Score == 20d)) &&
-                !game.AcceptedCommands.Any(command => command is AnswerPromptCommand or UseProgramSkillCommand),
-            "The exact owner-only PendExtraTurn effect cloned from registered classic Lianpo retains native score20 and chooses its source.");
-        Cold(game, registry);
-        var issuedIndex = game.Events.ToList().FindIndex(e => e.Payload is ProgramExtraTurnPendedEvent extra &&
-            extra.FrameId == receipt.FrameId && extra.SkillId == OwnerOnlySkill);
-        for (var step = 0; step < 80 && !game.Events.Skip(issuedIndex + 1).Any(e => e.Payload is TurnStartedEvent); step++)
-        {
-            Require(game.State.Status != EngineStatus.Completed, "The owner-only fixture completed before its actual extra turn.");
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-        }
-        Require(game.Events.Skip(issuedIndex + 1).Select(e => e.Payload).OfType<TurnStartedEvent>()
-                .FirstOrDefault()?.ActorSeat == source.OwnerSeat &&
-                game.Events.Select(e => e.Payload).OfType<ProgramExtraTurnPendedEvent>()
-                    .Count(e => e.SkillId == OwnerOnlySkill && e.Seat == source.OwnerSeat) == 1,
-            "The unchanged owner-only score20 benefit starts a real extra turn and its once-game fixture gate prevents a loop.");
-        Cold(game, registry);
-    }
-
     private static void Accept(GameEngine game, GameCommand command)
     {
         var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single());

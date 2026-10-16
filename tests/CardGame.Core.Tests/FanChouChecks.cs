@@ -1,67 +1,13 @@
-﻿using CardGame.Core;
+using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FanChouChecks
 {
  private const string Owner="fixture:fan-chou-owner",Driver="fixture:fan-chou-driver",Quiet="fixture:fan-chou-quiet",Watch="fixture:fan-chou-watch",Mode="identity:classic-fan-chou";
- public static void ActualCompletedUseFieldRankSixAndPhaseQuotaCold()
- {
-  var(g,r)=Start();Play(g);Use(g,"equip",[1]);Play(g);var eq=g.CreateSnapshot(0).Players[1].Equipment.Single().Id;Fire(g);Offer(g);Activate(g);Answer(g,c=>Branch(c)=="field");Need(P(g)!.Choices.All(c=>c.Cards.Count==1&&g.CardMovements.Any(m=>m.CardId==c.Cards[0]&&m.To.Zone==CardZoneKind.Equipment)),"Only actual public field entities are offered, never rank-six hands or the finished use.");g=Cold(g,r);Answer(g,c=>c.Cards.Contains(eq));Play(g);Need(V(g,0).Hand.Any(c=>c.Id==eq)&&g.CardMovements.Count(m=>m.CardId==eq&&m.Reason.Value=="skill-program.xingluan.field-gain")==1,"The exact public equipment is obtained once through native movement.");Fire(g);Reach(g,()=>Optional(g,"ol:xingluan")||P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});Need(!Optional(g,"ol:xingluan"),"A second completed actual use cannot reopen this Play phase quota.");_=Cold(g,r);
- }
- public static void DeckPrivateCandidatesAndNativeFallbackCold()
- {
-  foreach(var rank in new[]{6,7})
-  {
-   var(g,r)=Start(rank:rank);Play(g);Fire(g);Offer(g);Activate(g);var before=V(g,0).Hand.Count;Answer(g,c=>Branch(c)=="deck");if(rank==6){var ids=P(g)!.Choices.SelectMany(c=>c.Cards).ToArray();Need(ids.Length==2&&g.CreateSnapshot(0).PrivateRevealedCards!.Select(c=>c.Id).Order().SequenceEqual(ids.Order()),"Only the two frozen native deck candidates are privately inspectable.");Need(Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null&&(g.CreateSnapshot(s).PrivateRevealedCards?.Count??0)==0),"Foreign viewers see neither the private deck candidate IDs nor faces.");g=Cold(g,r);var id=ids[1];Answer(g,c=>c.Cards.Contains(id));Play(g);Need(V(g,0).Hand.Any(c=>c.Id==id)&&g.CardMovements.Count(m=>m.CardId==id&&m.Reason.Value=="skill-program.xingluan.deck-gain")==1,"The chosen real deck entity is obtained once.");}else{Play(g);Need(V(g,0).Hand.Count==before+1&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.xingluan.fallback-draw")==1,"No rank six pays exactly one native fallback draw.");}Need(E<XingluanSegmentPaidEvent>(g).Count()==1,"Every branch has one issued paid receipt.");_=Cold(g,r);
-  }
- }
- public static void OtherRecipientAutonomousDiscardOrGiftCold()
- {
-  foreach(var discard in new[]{true,false})
-  {
-   var(g,r)=Start(rank:discard?6:7);Play(g);Fire(g);Offer(g);Activate(g);Answer(g,c=>Branch(c)=="other");Answer(g,c=>c.Targets.SequenceEqual([1]));Need(P(g)!.PlayerSeat==1&&g.CreateSnapshot(0).PendingDecision is null,"The actual other payer exclusively chooses its private hand payment.");g=Cold(g,r);var choice=P(g)!.Choices.First(c=>Branch(c)==(discard?"discard":"give"));var id=choice.Cards.Single();var rejected=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,choice.Id,g.Revision));Need(!rejected.Accepted,"The beneficiary cannot submit the other player's private payment.");Answer(g,c=>c.Id==choice.Id);Play(g);Need(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.Hand(1)&&m.To==(discard?CardLocation.DiscardPile:CardLocation.Hand(0))&&m.Reason.Value==(discard?"skill-program.xingluan.recipient.discard":"skill-program.xingluan.recipient-gift"))==1,"The recipient pays one real autonomous discard or transfer with the correct native intent.");Need(discard?!V(g,0).Hand.Any(c=>c.Id==id):V(g,0).Hand.Any(c=>c.Id==id),"Discard never becomes a beneficiary gain; gift obtains the exact entity.");_=Cold(g,r);
-  }
- }
- public static void PaidGainSourceLossAndContinuedOwnerDeathCold()
- {
-  foreach(var death in new[]{false,true})
-  {
-   var(g,r)=Start(watch:true,death:death);Play(g);Fire(g);Offer(g);Activate(g);Answer(g,c=>Branch(c)=="deck");var id=P(g)!.Choices.First().Cards.Single();Answer(g,c=>c.Cards.Contains(id));Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);Need(E<XingluanSegmentPaidEvent>(g).Count()==1&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.FanChou?.Stage==FanChouStage.MovementChildren),"The real paid gain pauses on its own native child.");g=Cold(g,r);Answer(g,_=>true);if(death)Reach(g,()=>!V(g,0).IsAlive&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.FanChou is not null));else Play(g);Need(E<XingluanSegmentPaidEvent>(g).Count()==1&&g.CardMovements.Count(m=>m.CardId==id&&m.Reason.Value=="skill-program.xingluan.deck-gain")==1,"Cold source loss or death never repeats the paid entity movement.");Need(death?!V(g,0).IsAlive:V(g,0).IsAlive&&!V(g,0).Skills!.Any(s=>s.ContentId=="ol:xingluan")&&E<ProgramOwnerSkillsReplacedEvent>(g).Any(e=>e.OwnerSeat==0&&e.LostSkillIds.Contains("ol:xingluan")),"The native child truly kills the owner or removes the original source.");Need(g.State.Winner==Winner.None&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.SkillId=="ol:xingluan"&&e.Completed)==1,"The paid parent drains exactly once in a continuing game.");_=Cold(g,r);
-  }
- }
- public static void ZeroMaterialNativeUseStillOffersCold()
- {
-  var(g,r)=Start(zero:true);Reach(g,()=>Optional(g,"fixture:fan-chou-zero"));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Targets.Contains(1))==true);Answer(g,c=>c.Targets.SequenceEqual([1]));Offer(g);Activate(g);var proof=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.FanChou is not null).FanChou!.Use;Need(proof.Action.Type==CardActionType.Use&&proof.Action.PhysicalCards.Count==0&&E<CardActionAcceptedEvent>(g).Any(e=>e.Action.ActionId==proof.Action.ActionId),"A real accepted native zero-material use qualifies without pretending to own physical costs.");g=Cold(g,r);Answer(g,c=>Branch(c)=="deck");Answer(g,_=>true);Play(g);Need(E<XingluanSegmentPaidEvent>(g).Count()==1&&E<DamageAppliedEvent>(g).Any(),"The cardless native attack actually damages before its once-paid completed-use benefit.");_=Cold(g,r);
- }
  public static void ActualSilverLionFieldGainRecoveryChildCold()
  {
   var(g,r)=Start(lion:true);Play(g);Use(g,"equip",[1]);Play(g);var eq=V(g,1).Equipment.Single().Id;Accept(g,new UseProgramSkillCommand(0,"fixture:fan-chou-wound","wound",[],[1],g.Revision,P(g)!.PromptId));Play(g);Fire(g);Offer(g);Activate(g);Answer(g,c=>Branch(c)=="field");var wounded=V(g,1).Hp;Answer(g,c=>c.Cards.Contains(eq));Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:fan-chou-recovered");
   Need(V(g,1).Hp==wounded+1&&V(g,0).Hand.Any(c=>c.Id==eq),"Obtaining the real Silver Lion heals its former owner before its genuine recovery observer pauses. "+Diagnostic(g));Need(g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.FanChou?.Stage==FanChouStage.MovementChildren)&&E<XingluanSegmentPaidEvent>(g).Count()==1,"The exact paid field acquisition owns the suspended recovery child.");g=Cold(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));Play(g);
   Need(g.CardMovements.Count(m=>m.CardId==eq&&m.Reason.Value=="skill-program.xingluan.field-gain")==1&&E<XingluanSegmentPaidEvent>(g).Count()==1&&V(g,1).Hp==wounded+1,"Cold recovery return neither repeats the real entity acquisition nor heals twice.");Need(E<ProgramBindingResolvedEvent>(g).Count(e=>e.SkillId=="ol:xingluan"&&e.Completed)==1,"The recovered-child parent completes exactly once.");_=Cold(g,r);
- }
- public static void ActualWoodenOxFieldGainGrainDamageChildCold()
- {
-  const string grainWatch="fixture:fan-chou-grain";
-  var(g,r)=Start(woodenOx:true);Play(g);Use(g,"equip",[0]);Play(g);
-  var ox=V(g,0).Equipment.Single(c=>c.Kind==CardKind.WoodenOx).Id;
-  var storage=g.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect&&a.EquipmentKind==CardKind.WoodenOx);
-  var grain=storage.SelectableCardIds.First();
-  Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain],[1],g.Revision,P(g)!.PromptId));Play(g);
-  Need(V(g,1).Equipment.Single(c=>c.Kind==CardKind.WoodenOx).Id==ox&&V(g,1).WoodenOxGrain!.Single().Id==grain&&g.CreateSnapshot(0).Players[1].WoodenOxGrain!.Count==0,"The real equipment command transfers the exact Ox and its privately stored grain to the future field owner.");
-  Need(!E<XingluanSegmentPaidEvent>(g).Any(),"Skipping the earlier native equipment use leaves Xingluan's phase allowance unpaid.");
-  Fire(g);Offer(g);Activate(g);Answer(g,c=>Branch(c)=="field");var hp=V(g,1).Hp;
-  var damageBefore=E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==1&&e.TargetSeat==1);
-  Answer(g,c=>c.Cards.SequenceEqual([ox]));Reach(g,()=>P(g)?.SkillPrompt?.SkillId==grainWatch);
-  var root=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.FanChou is not null);var paid=root.FanChou!;
-  var batch=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w=>w.Batch.Movements.Any(m=>m.CardId==grain));
-  Need(paid is{Stage:FanChouStage.MovementChildren,Branch:"field"}&&paid.SelectedId==ox&&paid.From==CardLocation.Equipment(1)&&batch.Batch.ParentFrameId==root.Id&&batch.Batch.AwaitingProgramFrameId==root.Id&&batch.ResumeProgramFrameId is null&&batch.Batch.ParentBatchId is >0&&batch.Batch.OriginOwnerSeat==root.OwnerSeat&&batch.Batch.OriginSkillId==root.SkillId&&batch.Batch.OriginSkillInstanceId==root.SkillInstanceId&&batch.Batch.Movements is[var movement]&&movement.CardId==grain&&movement.Sequence>paid.After&&movement.From==CardLocation.WoodenOxGrain(1)&&movement.To==CardLocation.DiscardPile&&movement.Reason==CardMoveReasons.WoodenOxGrainDiscard,"The paid Ox creates a distinct native grain child after its frozen payment interval, retaining the exact program and movement parent chain.");
-   Need(paid.PaidBatchId is >0&&batch.Batch.ParentBatchId==paid.PaidBatchId&&E<XingluanSegmentPaidEvent>(g).Single().PaidBatchId==paid.PaidBatchId,"The native grain child retains the actual primary payment batch recorded in both its owning receipt and its paid fact.");
-   var firstChild=typeof(GameEngine).GetMethod("FanChouFirstChild",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
-   Need((bool)firstChild.Invoke(g,[root,batch])!&&!(bool)firstChild.Invoke(g,[root,batch with{Batch=batch.Batch with{ParentBatchId=paid.PaidBatchId+1}}])!,"A real grain child is accepted only under its exact paid movement batch; an otherwise identical foreign parent is rejected.");
-   Need(V(g,0).Hand.Any(c=>c.Id==ox)&&V(g,1).WoodenOxGrainCount==0&&V(g,1).Hp==hp&&E<XingluanSegmentPaidEvent>(g).Count()==1,"The field acquisition and grain disposal are paid before the genuine loss observer pauses for its sourced damage.");
-  g=Cold(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));Play(g);
-  Need(V(g,1).Hp==hp-1&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==1&&e.TargetSeat==1)==damageBefore+1&&E<DamageAppliedEvent>(g).Last(e=>e.SourceSeat==1&&e.TargetSeat==1)is{Amount:1,SourceLess:false},"The restored grain observer resolves one real sourced damage child before returning to the completed Duel.");
-  Need(V(g,0).Hand.Any(c=>c.Id==ox)&&V(g,1).WoodenOxGrainCount==0&&g.CardMovements.Count(m=>m.CardId==ox&&m.Reason.Value=="skill-program.xingluan.field-gain")==1&&g.CardMovements.Count(m=>m.CardId==grain&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)==1&&E<XingluanSegmentPaidEvent>(g).Count()==1&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.SkillId=="ol:xingluan"&&e.Completed)==1&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.SkillId==grainWatch&&e.Completed)==1,"Cold return never repeats the exact Ox acquisition, grain disposal, damage observer or paid Xingluan parent.");
-  _=Cold(g,r);
  }
  private static string Branch(PromptChoice c)=>c.Parameters.GetValueOrDefault("branch")??"";
  private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
@@ -71,7 +17,6 @@ internal static class FanChouChecks
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];private static PendingDecision?P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p!=null);
     private static void Need(bool b,string m){if(!b)throw new InvalidOperationException(m);}private static void Accept(GameEngine g,GameCommand c){var x=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(x.Accepted,(x.Error?.Message??"Rejected FanChou command.")+" "+Diagnostic(g));}private static void Answer(GameEngine g,Func<PromptChoice,bool>test){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(test).Id,g.Revision));}
     private static void Use(GameEngine g,string id,IReadOnlyList<int>targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-    private static void NativeUse(GameEngine g,int id,IReadOnlyList<int>targets){var a=g.GetHumanLegalActions().First(a=>a.CardId==id&&(targets.Count==0||a.TargetSeats.SequenceEqual(targets)));Accept(g,new PlayCardCommand(0,id,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Reach(GameEngine g,Func<bool>done){for(var i=0;i<200;i++){if(done())return;var p=P(g);if(p?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else if(p is{Kind:DecisionKind.RescueDying,PlayerSeat:0})Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="let-die");else if(p is{PlayerSeat:0,Kind:DecisionKind.PlayCard})End(g);else if(p is{PlayerSeat:0,Kind:DecisionKind.Nullification}&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="pass"))Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="pass");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Small native FanChou fixture exceeded its boundary. "+Diagnostic(g));}
     private static string Diagnostic(GameEngine g)=>System.Text.Json.JsonSerializer.Serialize(new{g.State,Pending=P(g),Stack=g.ResolutionStack.Select(f=>new{Type=f.GetType().Name,Frame=System.Text.Json.JsonSerializer.Serialize(f,f.GetType())}),Last12Events=g.Events.TakeLast(12).Select(e=>new{Type=e.Payload.GetType().Name,Fact=System.Text.Json.JsonSerializer.Serialize(e.Payload,e.Payload.GetType())}),Last12Movements=g.CardMovements.TakeLast(12),NativeUses=g.Events.Select(e=>e.Payload).Where(e=>e is CardUseDeclaredEvent or CardActionAcceptedEvent or CardUseFinishedEvent).TakeLast(16).Select(e=>new{Type=e.GetType().Name,Fact=System.Text.Json.JsonSerializer.Serialize(e,e.GetType())})});

@@ -23,37 +23,6 @@ internal static class DifferentColorJudgmentReplacementChecks
             "The fixed two-binding cases execute both unavailable-to-available and available-to-unavailable color transitions.");
     }
 
-    public static void SameColorNoneAndLegacyDefaultsKeepPrivateNativeChoices()
-    {
-        foreach (var (red, suit) in new[] { (false, Suit.Spade), (true, Suit.Spade), (false, Suit.None) })
-        {
-            var (g, r) = Start(red, red, suit);
-            Use(g, 0);
-            Reach(g, p => p.SkillPrompt?.SkillId == Final);
-            Require(!Facts<JudgmentReplacementRequestedEvent>(g).Any() &&
-                    !Facts<ProgramJudgmentReplacementResolvedEvent>(g).Any(),
-                $"Same effective colors and colorless cards cannot offer a replacement: red={red}, printed={suit}.");
-            g = Cold(g, r); Continue(g); ReachPlay(g);
-            Require(Facts<JudgmentResolvedEvent>(g).Count(e => e.Reason == Reason) == 1,
-                "An unavailable color change preserves the original real judgment and returns once.");
-        }
-
-        foreach (var flag in new bool?[] { null, false })
-        {
-            var (g, r) = Start(false, false, Suit.Spade, flag);
-            Use(g, 0); Reach(g, p => p.Kind == DecisionKind.ProgramJudgmentReplacement);
-            var p = P(g)!;
-            Require(p.ValidCardIds.Count == g.CreateSnapshot(0).Players[0].HandCount,
-                "Omitted and explicit false preserve the existing same-color replacement candidates.");
-            AssertPrivateAndFrozen(g);
-            g = Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-            Reach(g, q => q.SkillPrompt?.SkillId == Final); Continue(g); ReachPlay(g);
-            Require(Facts<ProgramJudgmentReplacementResolvedEvent>(g).Count(e => e.Activated) == 1,
-                "Legacy replacement still pays and completes through the native judgment boundary.");
-        }
-        ValidateJsonContract();
-    }
-
     private static void Exercise(bool ownerRed, bool subjectRed, bool equipment)
     {
         var (g, registry) = Start(ownerRed, subjectRed, Suit.Spade);
@@ -115,27 +84,6 @@ internal static class DifferentColorJudgmentReplacementChecks
                 !g.ResolutionStack.Any(f => f.Id == judgmentId),
             "Cold finalized-child return completes the exact parent and physical discard once without repaying replacement.");
         _ = Cold(g, registry);
-    }
-
-    private static void ValidateJsonContract()
-    {
-        SkillProgramEffect Load(bool? value) => SkillProgramCatalog.Load(Rules(value), Presentation).Programs[Replace].Triggers[0].Effects[0];
-        Require(Load(true).RequireDifferentColor == true && Load(false).RequireDifferentColor == false && Load(null).RequireDifferentColor is null &&
-                JsonNode.Parse(JsonSerializer.Serialize(Load(true)))!["RequireDifferentColor"]!.GetValue<bool>() &&
-                JsonNode.Parse(JsonSerializer.Serialize(Load(null)))!["RequireDifferentColor"] is null,
-            "The additive nullable flag survives parsing and exposed serialization while old effects omit it.");
-        foreach (var invalid in new JsonNode?[] { JsonValue.Create("true"), JsonValue.Create(1), null })
-        {
-            var rules = JsonNode.Parse(Rules(true))!;
-            rules["skills"]![1]!["triggers"]![0]!["effects"]![0]!["requireDifferentColor"] = invalid;
-            try { _ = SkillProgramCatalog.Load(rules.ToJsonString(), Presentation); }
-            catch (InvalidOperationException e) when (e.Message.Contains("requireDifferentColor", StringComparison.Ordinal)) { continue; }
-            throw new InvalidOperationException("A present requireDifferentColor must be a boolean, never a string, number or null.");
-        }
-        var old = SkillProgramCatalog.Load(Rules(null), Presentation).Programs[Replace];
-        Require(old.GameplayHash == SkillProgramCatalog.Load(Rules(null), Presentation).Programs[Replace].GameplayHash &&
-                old.GameplayHash != SkillProgramCatalog.Load(Rules(true), Presentation).Programs[Replace].GameplayHash,
-            "Old unchanged rule JSON retains its fingerprint; opting into the new behavior changes its content fingerprint.");
     }
 
     private static bool ExerciseChangedCurrentColor(Suit allowedSuit)

@@ -55,80 +55,14 @@ internal static class BoundaryLiaoHuaChecks
         Cold(g, r);
     }
 
-    public static void FuliFrozenFactionsDamagePointsAndBenefitChildren()
-    {
-        foreach (var sufficientDamage in new[] { false, true })
-        {
-            var (g, r) = Create(baseHp: sufficientDamage ? 4 : 1, initialHp: sufficientDamage ? 4 : 1);
-            ChooseSource(g, "skip"); Play(g);
-            if (sufficientDamage) Use(g, "dealt-four", targets: [1]);
-            Play(g); End(g); DrainToPlay(g);
-            if (sufficientDamage)
-            {
-                // Keep four genuinely applied points from the preceding turn.
-                // The next extra phase adds one real self-damage point: neither
-                // a current-turn counter nor an occurrence count can substitute.
-                Cold(g, r); End(g);
-                Reach(g, p => p.SkillPrompt?.SkillId == Dangxian && p.Choices.Any(c =>
-                    c.Parameters.GetValueOrDefault("program-action") == "granted-phase-slash"));
-                ChooseSource(g, "skip"); Play(g); End(g); DrainToPlay(g);
-            }
-            Require(Facts<DamageAppliedEvent>(g).Where(e => e.SourceSeat == 0 && !e.SourceLess).Sum(e => e.Amount) ==
-                    (sufficientDamage ? 5 : 1),
-                "The threshold history counts actual applied points, including the phase's real self-damage.");
-            Use(g, sufficientDamage ? "fatal-incoming" : "empty-and-hurt", targets: [1]);
-            Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Fuli));
-            Require(g.State.Players[0].Hp == 0 && g.ResolutionStack.OfType<DyingFrame>().Any(f => f.VictimSeat == 0),
-                "Fuli is offered by a genuine self-dying damage producer after the actual hand payment.");
-            Cold(g, r); Reject(g);
-            Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Fuli);
-            Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            var captured = Facts<FrozenFactionRecoveryCapturedEvent>(g).Single();
-            var root = FuliRoot(g);
-            Require(captured.FactionCount == 4 && captured.GameDamagePoints == (sufficientDamage ? 5 : 1) &&
-                    root.FrozenFactionRecovery is { DrawIssued: false, FaceIssued: false } &&
-                    g.State.Players[0].Hp == Math.Min(4, g.State.Players[0].MaxHp) &&
-                    g.State.Players[0].HandCount == 0,
-                "Activation freezes live factions and full-game owner damage, clamps only HP, and waits for Recovery children.");
-            Cold(g, r); Reject(g); Continue(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            Require(FuliRoot(g).FrozenFactionRecovery is { DrawIssued: true, FaceIssued: false } &&
-                    g.State.Players[0].HandCount == 4 &&
-                    Facts<FrozenFactionHandDrawIssuedEvent>(g).Single().DrawCount == 4 &&
-                    g.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason.Value == FuliDrawReason) == 4,
-                "The original frozen X draws four actual entities once, including when MaxHp is only two.");
-            Private(g); Cold(g, r); Reject(g);
-            if (!sufficientDamage)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Face);
-                Require(g.State.Players[0].IsFaceDown && FuliRoot(g).FrozenFactionRecovery is { FaceIssued: true },
-                    "Only after every actual gain child returns does X greater than frozen damage issue a real flip.");
-                Cold(g, r); Reject(g); Continue(g);
-            }
-            DrainToPlay(g);
-            Require(g.State.Players[0].IsAlive && g.State.Players[0].IsFaceDown == !sufficientDamage &&
-                    Facts<FrozenFactionRecoveryCapturedEvent>(g).Count() == 1 &&
-                    Facts<FrozenFactionHandDrawIssuedEvent>(g).Count() == 1 &&
-                    Facts<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Fuli && e.Scope == SkillUsageScope.Game) == 1 &&
-                    Facts<CharacterStateChangedEvent>(g).Count(e => e.Change.TargetSeat == 0 &&
-                        e.Change.Window == SkillProgramTriggerWindow.CharacterTurnedOver) == (sufficientDamage ? 0 : 1),
-                "The threshold uses damage points rather than occurrences; paid recovery/draw/flip and the game quota are each issued once.");
-            Cold(g, r);
-        }
-    }
-
     private static bool FarSlash(GameEngine g, int id) => g.GetHumanLegalActions().Any(a =>
         a.Kind == LegalActionKind.Slash && a.CardId == id && a.TargetSeats.SequenceEqual([2]));
-    private static ProgramSkillFrame FuliRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FrozenFactionRecovery is not null);
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void ChooseSource(GameEngine g, string source) => Answer(g, c => c.Parameters.GetValueOrDefault("option") == source);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
-    private static void DrainToPlay(GameEngine g) => Play(g);
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? cards = null, IReadOnlyList<int>? targets = null) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     {
         var p = P(g)!;

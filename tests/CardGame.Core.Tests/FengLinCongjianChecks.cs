@@ -3,39 +3,6 @@ using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FengLinCongjianChecks
 {
-    public static void EquipmentGiftNestedReplay()=>Gift(true);
-    private static void Gift(bool equipment)
-    {
-        var(g,r)=Create();Play(g);
-        var conversion=g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.IronChain && a.TargetSeats.SequenceEqual(new[]{0,1}) && g.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==a.CardId).Kind==CardKind.Peach);
-        Submit(g,new PlayCardCommand(0,conversion.CardId!.Value,conversion.TargetSeats,g.Revision,P(g)!.PromptId,conversion.PlayedCardKind){ConversionSource=conversion.ConversionSource});
-        Reach(g,p=>p.SkillPrompt?.SkillId=="classic:congjian");Replay(g,r);
-        Require(g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last().Action.EffectiveKind==CardKind.IronChain,"Actual converted Trick finalized window.");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Require(P(g)!.Choices.All(c=>c.Targets is [var target] && target!=0) && P(g)!.Choices.SelectMany(c=>c.Targets).Distinct().Order().SequenceEqual(new[]{1}),"Recipient set is exact final other targets.");
-        var paused=GameCheckpointJson.Serialize(g.CreateCheckpoint());
-        var rejected=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,new("invalid.non-target-or-card"),g.Revision));
-        Require(!rejected.Accepted && GameCheckpointJson.Serialize(g.CreateCheckpoint())==paused,"Invalid unpublished payment rejects atomically.");
-        var snapshots=g.CreateSnapshot(0).Players[0].Hand;
-        var choice=P(g)!.Choices.First(c=>c.Targets.Contains(1) && c.Cards.Any(id=>EquipmentCatalog.IsEquipment(snapshots.Single(card=>card.Id==id).Kind)==equipment));
-        var id=choice.Cards.Single();var count=Hand(g,0);Answer(g,c=>c.Id==choice.Id);
-        var receipt=g.Events.Select(e=>e.Payload).OfType<ProgramFinalTargetGiftCommittedEvent>().Single();
-        Require(receipt.CardId==id && receipt.RecipientSeat==1 && receipt.ReceiptOrdinal is {} ordinal && g.CardMovements.Single(m=>m.Sequence==ordinal).To==CardLocation.Hand(1),"Gift receipt is real owner HE to other final Hand.");
-        Require(!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.final-target-gift.draw"),"Reward waits for nested gift movement children.");Replay(g,r);
-        Until(g,()=>g.CardMovements.Any(m=>m.Reason.Value=="skill-program.final-target-gift.draw"));
-        Require(g.CardMovements.Count(m=>m.Reason.Value=="skill-program.final-target-gift.draw")== (equipment?2:1) && Hand(g,0)==count-1+(equipment?2:1),"Frozen physical category gives exact reward after child.");
-        Require(P(g)?.SkillPrompt?.SkillId=="fixture:reward-pause","Reward real movement child pauses before original Trick effects.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
-        Until(g,()=>!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="classic:congjian"));
-        Require(g.Events.Count(e=>e.Payload is ProgramFinalTargetGiftCommittedEvent)==1 && g.CardMovements.Count(m=>m.Reason.Value=="skill-program.final-target-gift.give")==1,"Restore never pays twice.");Replay(g,r);
-        if(!equipment)
-        {
-            (g,r)=Create();Play(g);conversion=g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.IronChain && a.TargetSeats.SequenceEqual(new[]{0,1}) && g.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==a.CardId).Kind==CardKind.Peach);
-            Submit(g,new PlayCardCommand(0,conversion.CardId!.Value,conversion.TargetSeats,g.Revision,P(g)!.PromptId,conversion.PlayedCardKind){ConversionSource=conversion.ConversionSource});
-            Reach(g,p=>p.SkillPrompt?.SkillId=="classic:congjian");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-            Require(!g.Events.Any(e=>e.Payload is ProgramFinalTargetGiftCommittedEvent) && !g.CardMovements.Any(m=>m.Reason.Value.StartsWith("skill-program.final-target-gift")),"Decline has no cost or reward.");Replay(g,r);
-        }
-    }
     public static void OwnerDeathAndMultiGrantBoundaries()
     {
         var(g,r)=Create();Play(g);

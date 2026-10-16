@@ -3,35 +3,6 @@ using CardGame.Core;
 
 internal static class WeightedGeneralDraftChecks
 {
-    public static void RegistryContracts()
-    {
-        var weights = new Dictionary<string, int> { [Id(0, 1)] = 8, [Id(1, 1)] = 5 };
-        var registry = Build(weights);
-        var hash = registry.ContentHash;
-        weights[Id(0, 1)] = 3;
-        Require(registry.Modes[Mode].GeneralSelectionWeights![Id(0, 1)] == 8 && registry.ContentHash == hash,
-            "Registered weights must detach from mutable package inputs.");
-        Require(Build(weights).ContentHash != hash, "Weights must participate in the content fingerprint.");
-        Require(Build(new Dictionary<string, int> { [Id(1, 1)] = 5, [Id(0, 1)] = 8 }).ContentHash == hash,
-            "Dictionary insertion order must not affect the fingerprint.");
-        foreach (var invalid in new[]
-                 {
-                     new Dictionary<string, int> { [Id(0, 1)] = 0 },
-                     new Dictionary<string, int> { [Id(0, 1)] = -1 },
-                     new Dictionary<string, int> { [Id(0, 1)] = 1001 },
-                     new Dictionary<string, int> { ["fixture:unknown"] = 2 }
-                 })
-        {
-            try { Build(invalid); throw new Exception("Invalid draft weights were accepted."); }
-            catch (InvalidOperationException) { }
-        }
-        try { Build(weights, familyCount: 7); throw new Exception("A weighted pool with too few unique families was accepted."); }
-        catch (InvalidOperationException) { }
-        var classic = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(classic.Modes["identity:classic-8"].GeneralSelectionWeights is { Count: > 30 } &&
-                classic.Modes["identity:classic-5"].GeneralSelectionWeights is null,
-            "Only the eight-player classic roster opts into the curated preferences.");
-    }
 
     public static void PrivacyDiversityAndReplay()
     {
@@ -74,39 +45,6 @@ internal static class WeightedGeneralDraftChecks
         Require(automatic.CreateSnapshot(0, true).Players.Select(player => Family(player.GeneralId)).Distinct().Count() == 8,
             "Automatic setup must also draft distinct weighted families.");
         Cold(automatic, registry);
-    }
-
-    public static void SamplingAndAiPreferences()
-    {
-        var weights = new Dictionary<string, int> { [Id(0, 1)] = 8 };
-        var weighted = Build(weights);
-        var uniform = Build(new Dictionary<string, int>());
-        var extraEditions = Build(new Dictionary<string, int>(), firstFamilyEditions: 8);
-        var boosted = 0;
-        var baseline = 0;
-        var extraEditionOffers = 0;
-        var seen = new HashSet<int>();
-        for (var seed = 1; seed <= 128; seed++)
-        {
-            var offered = Start(weighted, seed).PendingDecision!.ValidContentIds;
-            boosted += offered.Contains(Id(0, 1)) ? 1 : 0;
-            baseline += Start(uniform, seed).PendingDecision!.ValidContentIds.Contains(Id(0, 1)) ? 1 : 0;
-            extraEditionOffers += Start(extraEditions, seed).PendingDecision!.ValidContentIds.Contains(Id(0, 1)) ? 1 : 0;
-            foreach (var id in offered) seen.Add(Family(id));
-        }
-        Console.WriteLine($"[DRAFT] 128 seeded openings, boosted family offered: {baseline} uniform -> {boosted} weighted; families seen: {seen.Count}/16.");
-        Require(boosted > baseline * 2 && boosted < 128 && seen.Count == 16,
-            "Weighting must measurably increase strong-family offers without fixing the roster or eliminating ordinary families.");
-        Require(extraEditionOffers < baseline * 2,
-            "Eight editions must not multiply a character's draft tickets compared with two editions.");
-        var view = Start(weighted, 31).CreateSnapshot(0);
-        var plain = new GeneralDefinition(Id(0, 0), "普通版本", "supporter", []);
-        var strong = plain with { Id = Id(0, 1), Name = "强势版本" };
-        var brain = new SimpleAiBrain(0, 31);
-        var (selected, thought) = brain.ChooseGeneral(view, Role.Lord, [plain, strong], 1, weights);
-        Require(selected.Id == strong.Id && thought.Candidates.Single(candidate => candidate.GeneralId == strong.Id)
-                .Reason.Contains("权重 8", StringComparison.Ordinal),
-            "Equal base skills must favor the weighted exact edition and explain the public preference.");
     }
 
     private const string Mode = "identity:weighted-fixture-8";

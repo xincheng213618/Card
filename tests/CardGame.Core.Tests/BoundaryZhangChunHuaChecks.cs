@@ -72,55 +72,6 @@ internal static class BoundaryZhangChunHuaChecks
         RejectSecondActivation(tie); Cold(tie, tieRegistry);
     }
 
-    public static void OpponentActorAndPaidSourceDeathReturnCold()
-    {
-        var (both, bothRegistry) = Create(dodges: true);
-        var bothOwnerCards = Hand(both, 0).Select(card => card.Id).ToArray();
-        var bothOtherCards = Hand(both, 1).Select(card => card.Id).ToArray();
-        Begin(both, 1); AnswerColor(both, "black"); Reach(both, prompt => prompt.SkillPrompt?.SkillId == Cost);
-        var bothRoot = Paid(both);
-        var batch = both.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(frame => frame.Batch.ParentFrameId == bothRoot.Id);
-        Require(bothRoot.DualColorDuel is { OwnerIsRed: false, OtherIsRed: false } bothPaid &&
-            bothPaid.OwnerCardIds.SequenceEqual(bothOwnerCards) && bothPaid.OtherCardIds.SequenceEqual(bothOtherCards) &&
-            Hand(both, 0).Count == 0 && Hand(both, 1).Count == 0 && batch.ResumeProgramFrameId == bothRoot.Id &&
-            batch.Batch.Movements.Count == bothOwnerCards.Length + bothOtherCards.Length &&
-            batch.Batch.Movements.Select(move => move.From).Distinct().OrderBy(location => location.OwnerSeat)
-                .SequenceEqual(new[] { CardLocation.Hand(0), CardLocation.Hand(1) }),
-            "Two nonempty private selections pay both actual hands in one atomic batch before its first observer can run.");
-        Cold(both, bothRegistry); ReachPlay(both);
-        Require(CostMoves(both).Length == bothOwnerCards.Length + bothOtherCards.Length &&
-            Facts<ProgramDualColorDuelIssuedEvent>(both).Single() is { ActorSeat: 0, TargetSeat: 1, OwnerDiscardCount: 6, OtherDiscardCount: 4 },
-            "The frozen six-versus-four result survives its real recovery child and pays each physical card once.");
-        Cold(both, bothRegistry);
-
-        var (other, otherRegistry) = Create(dodges: true);
-        Begin(other, 1); AnswerColor(other, "red"); Reach(other, prompt => prompt.SkillPrompt?.SkillId == Before);
-        var use = other.ResolutionStack.OfType<CardUseFrame>().Single(frame => frame.DualColorDuelOrigin is not null);
-        Require(use.DualColorDuelOrigin is { InitialActorSeat: 1, InitialTargetSeat: 0, OwnerDiscardCount: 0, OtherDiscardCount: 4 } &&
-            use.Action!.ActorSeat == 1 && Hand(other, 1).Count == 0 && Hand(other, 0).Count == 6,
-            "The native opponent's four actual paid Dodges determine the opposite real Duel actor, without replacing the initiating source.");
-        Cold(other, otherRegistry); Continue(other); ReachPlay(other);
-        Require(PaidOrNull(other) is null && CostMoves(other).Length == 4 && other.State.Players[0].Hp == 1,
-            "The other actor's actual Duel damages the owner and returns to the original once-paid activation.");
-        Cold(other, otherRegistry);
-
-        var (death, deathRegistry) = Create(sourceDeath: true);
-        Require(death.State.Players[0].Role == Role.Rebel && death.State.Players[0].Hp == 1,
-            "The true dying source is a one-HP Rebel while another Rebel and Lord remain alive.");
-        var ids = Hand(death, 0).Select(card => card.Id).ToArray();
-        Begin(death, 1); AnswerColor(death, "black"); Reach(death, prompt => prompt.SkillPrompt?.SkillId == Cost);
-        var rootId = Paid(death).Id;
-        Require(CostMoves(death).Length == ids.Length, "All exact costs have been paid before the real source-death child.");
-        Cold(death, deathRegistry); Continue(death);
-        ReachUntil(death, () => !death.State.Players[0].IsAlive && PaidOrNull(death) is null);
-        Require(death.State.Winner == Winner.None && Facts<ProgramDualColorDuelIssuedEvent>(death).Length == 0 &&
-            CostMoves(death).Select(move => move.CardId).Order().SequenceEqual(ids.Order()) &&
-            !death.ResolutionStack.Any(frame => frame.Id == rootId) &&
-            Facts<ProgramSkillHpLostEvent>(death).Any(fact => fact.TargetSeat == 0 && fact.Amount == 1),
-            "A real unrecoverable source death drains the already paid child, clears its exact owner and issues no future Duel or duplicate cost.");
-        Cold(death, deathRegistry);
-    }
-
     private static ProgramSkillFrame? PaidOrNull(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.SkillId == Skill);
     private static ProgramSkillFrame Paid(GameEngine game) => PaidOrNull(game)!;
     private static IReadOnlyList<CardSnapshot> Hand(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat].Hand;

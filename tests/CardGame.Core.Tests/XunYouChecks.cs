@@ -173,7 +173,6 @@ internal static class XunYouChecks
     private static GameEngine CreateGame(
         ContentRegistry registry,
         int seed,
-        int rulesVersion = GameCheckpoint.CurrentRulesVersion,
         string modeId = ScenarioPackage.ModeId)
     {
         var game = GameEngine.CreateStandard(new GameOptions
@@ -189,9 +188,7 @@ internal static class XunYouChecks
             AiPolicyVersion = 2,
             MaxTurns = 40
         }, registry);
-        return rulesVersion == GameCheckpoint.CurrentRulesVersion
-            ? game
-            : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        return game;
     }
 
     private static ContentRegistry CreateRegistry() => ContentRegistry.Build(

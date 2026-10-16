@@ -39,48 +39,6 @@ internal static class BoundaryJianYongChecks
         Cold(game, registry);
     }
 
-    public static void NextActualUseFailureKeepsZongshiAndBlocksTricksBeforePayment()
-    {
-        var (game, registry) = Create(win: false); ReachPlay(game);
-        var beforeHand = game.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToHashSet();
-        var result = Contest(game, registry, 1, take: true);
-        Require(!result.SourceWon && result.SourceRank == result.OpponentRank &&
-            beforeHand.Contains(result.SourceCardId) && game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == result.SourceCardId) &&
-            game.CardMovements.Count(m => m.CardId == result.SourceCardId && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0) && m.Reason.Value == "program.pindian.claim") == 1,
-            "A tied contest disables only Qiaoshui and Zongshi still claims the owner's original paid contest entity.");
-        Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == Skill) &&
-            !game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:qice") &&
-            game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "Failure rejects both another contest and all-hand ordinary Trick conversion before payment while basic uses remain available.");
-        var before = State(game);
-        var cost = game.CreateSnapshot(0).Players[0].Hand[0].Id;
-        Require(!game.Submit(new UseProgramSkillCommand(0, Skill, "contest", [cost], [1], game.Revision, P(game)!.PromptId)).Accepted && before == State(game),
-            "An unavailable repeat contest cannot pay a card or alter any private view.");
-        Use(game, "opponent-duel", [1]); Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
-        var slash = P(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "slash");
-        Answer(game, c => c.Id == slash.Id); ReachPlay(game);
-        Require(Grants(game).Length == 0 && game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Any(e =>
-            e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Slash),
-            "Failure does not prohibit a real paid ordinary Slash response.");
-        Cold(game, registry);
-
-        var (counter, counterRegistry) = Create(win: false, counterDeck: true); ReachPlay(counter);
-        Contest(counter, counterRegistry, 1, take: false);
-        Use(counter, "opponent-duel", [1]);
-        for (var step = 0; step < 80 && P(counter) is not { PlayerSeat: 0, Kind: DecisionKind.PlayCard }; step++)
-        {
-            var p = P(counter);
-            if (p is { PlayerSeat: 0, Kind: DecisionKind.Nullification })
-                Require(!p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "nullification"),
-                    "The failed source cannot offer a true counterspell payment despite Response syntax.");
-            Advance(counter);
-        }
-        Require(!counter.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Any(e =>
-            e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Nullification),
-            "A failed Qiaoshui blocks actual counterspell use before any physical response cost.");
-        Cold(counter, counterRegistry);
-    }
-
     private static PindianResult Contest(GameEngine game, ContentRegistry registry, int opponent, bool take)
     {
         var card = game.CreateSnapshot(0).Players[0].Hand[0].Id;

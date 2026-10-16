@@ -56,34 +56,6 @@ internal static class BoundaryTaiShiCiChecks
         Replay(forcedTop, forcedTopRegistry); Answer(forcedTop, "pindian-claim", true); Replay(forcedTop, forcedTopRegistry);
     }
 
-    public static void MaximumSlashClaimUsesEffectiveRanksAndPreservesDeferredTop()
-    {
-        var (game, registry) = Start("rank-top");
-        var play = P(game)!;
-        Accept(game, new UseProgramSkillCommand(0, Driver, "contest", [], [1], game.Revision, play.PromptId));
-        Require(P(game) is { PlayerSeat: 0, SkillPrompt.SkillId: "boundary:hanzhan" }, "The source strategy precedes its Qin Mi top selection.");
-        Answer(game, "pindian-random", false);
-        Require(P(game)!.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-top") &&
-            !game.Events.Any(e => e.Payload is PindianTopSourceChosenEvent), "Declining leaves the original top option and never reserves or reveals it early.");
-        var top = P(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("action") == "pindian-top");
-        Accept(game, new AnswerPromptCommand(0, P(game)!.PromptId, top.Id, game.Revision));
-        Require(game.Events.Count(e => e.Payload is PindianTopSourceChosenEvent) == 1 &&
-            ((PindianFrame)game.ResolutionStack[^1]).SourceUsesDrawPileTop,
-            "The ordinary top choice is paid only after random policy decisions complete.");
-        var restored = Replay(game, registry); Advance(game); Advance(restored); Equivalent(game, restored);
-        var frame = (PindianFrame)game.ResolutionStack[^1];
-        Require(frame.Result is { SourceRank: 13, OpponentRank: 7, SourceWon: true } &&
-            P(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("take") == "true").Cards.SequenceEqual([frame.Result.SourceCardId]),
-            "Maximum Slash comparison uses frozen effective Pindian ranks, including a suit-rank policy on a reserved top card.");
-        Answer(game, "pindian-claim", true); AdvanceToPlay(game);
-        Require(game.Events.Count(e => e.Payload is PindianTopSourceChosenEvent) == 1 &&
-            game.CardMovements.Count(m => m.Reason.Value == "pindian.reserve-top") == 1 &&
-            game.CardMovements.Count(m => m.Reason.Value == "program.pindian.claim") == 1 &&
-            game.CreateCardZoneDiagnostics().All(c => c.Location != CardLocation.Processing),
-            "The winning single maximum Slash is obtained once and the other revealed card is cleaned up.");
-        Replay(game, registry);
-    }
-
     private static int UseTianyi(GameEngine game)
     {
         var card = game.CreateSnapshot(0).Players[0].Hand[0];

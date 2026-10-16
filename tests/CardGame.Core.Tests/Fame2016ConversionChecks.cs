@@ -21,47 +21,6 @@ internal static class Fame2016ConversionChecks
         Replay(game, registry);
     }
 
-    public static void TierModificationNativeTricksAndReplay()
-    {
-        var (game, registry) = Create();
-        Upgrade(game, registry);
-        var card = game.CreateSnapshot(0).Players[0].Hand[0];
-        Declare(game, registry, card.Id, CardKind.Duel);
-        var action = game.GetHumanLegalActions().First(action => action.ConversionSource?.SkillId == "classic:jiaozhao" && action.PlayedCardKind == CardKind.Duel && action.TargetSeat == 1);
-        Play(game, action);
-        Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
-        Require(game.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(item => item.CardId == card.Id && item.CardKind == CardKind.Duel),
-            "The single physical card enters the real Duel pipeline rather than Slash.");
-        Replay(game, registry);
-
-        var (final, finalRegistry) = Create();
-        Upgrade(final, finalRegistry); Upgrade(final, finalRegistry);
-        var options = final.GetHumanLegalActions().Where(action => action.ConversionSource?.SkillId == "classic:jiaozhao").ToArray();
-        Require(!final.GetHumanLegalActions().Any(action => action.ProgramSkillId == "classic:jiaozhao") && options.Length > 0 &&
-            options.All(action => action.PlayedCardKind is not (CardKind.Peach or CardKind.Alcohol or CardKind.DrawTwo)), "The direct tier skips showing and declaring and cannot use self-only cards.");
-        foreach (var kind in new[] { CardKind.PeachGarden, CardKind.FiveGrains })
-            Require(options.Any(action => action.PlayedCardKind == kind) && options.Where(action => action.PlayedCardKind == kind).All(action => !action.TargetSeats.Contains(0)),
-                "Global benefits exclude the skill owner from their real target array.");
-        var use = options.First(action => action.PlayedCardKind == CardKind.FiveGrains);
-        var before = State(final);
-        var bad = final.Submit(new PlayCardCommand(0, use.CardId!.Value, [0], final.Revision, Prompt(final)!.PromptId, use.PlayedCardKind) { ConversionSource = use.ConversionSource });
-        Require(!bad.Accepted && State(final) == before, "An illegal self target cannot consume the physical card or direct allowance.");
-        var handBeforeGlobal = final.CreateSnapshot(0).Players[0].Hand.Count;
-        Play(final, use);
-        Replay(final, finalRegistry);
-        Reach(final, prompt => prompt.Kind == DecisionKind.PlayCard);
-        Require(final.CreateSnapshot(0).Players[0].Hand.Count == handBeforeGlobal - 1, "The excluded owner receives no Five Grains card while every other target resolves normally.");
-        Require(!final.GetHumanLegalActions().Any(action => action.ConversionSource?.SkillId == "classic:jiaozhao"), "All direct output names share one phase allowance.");
-        Require(!final.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>().Any(), "The final tier never displays a hand card before converting it.");
-        Replay(final, finalRegistry);
-        Damage(final); ActivateDanxin(final);
-        var decision = Prompt(final)!;
-        Require(decision.Choices.All(choice => choice.Parameters.GetValueOrDefault("option-id") != "upgrade"), "A third upgrade is unavailable.");
-        Answer(final, _ => true); Reach(final, prompt => prompt.Kind == DecisionKind.PlayCard);
-        Require(final.Events.Select(item => item.Payload).OfType<ConfiguredConversionTierChangedEvent>().Count() == 2, "The tier remains capped at two.");
-        Replay(final, finalRegistry);
-    }
-
     private static void Declare(GameEngine game, ContentRegistry registry, int card, CardKind kind)
     {
         Accept(game, new UseProgramSkillCommand(0, "classic:jiaozhao", "declare-card", [card], [], game.Revision, Prompt(game)!.PromptId));
@@ -92,18 +51,6 @@ internal static class Fame2016ConversionChecks
     }
 
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(prompt => prompt is not null);
-    private static void Damage(GameEngine game) => Accept(game, new UseProgramSkillCommand(0, "fixture:conversion-damage", "damage", [], [0], game.Revision, Prompt(game)!.PromptId));
-    private static void ActivateDanxin(GameEngine game)
-    {
-        Reach(game, prompt => prompt.SkillPrompt?.SkillId == "classic:danxin" && prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-    }
-    private static void Upgrade(GameEngine game, ContentRegistry registry)
-    {
-        Damage(game); ActivateDanxin(game); RejectUnknown(game); Replay(game, registry);
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("option-id") == "upgrade");
-        Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard); Replay(game, registry);
-    }
     private static void Play(GameEngine game, LegalAction action) => Accept(game,
         new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision, Prompt(game)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource });
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate)

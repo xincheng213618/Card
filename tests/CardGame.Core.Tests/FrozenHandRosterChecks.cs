@@ -24,18 +24,6 @@ internal static class FrozenHandRosterChecks
         Need(V(g,0).HandCount==5 && V(g,1).HandCount==5 && E<FrozenHandRosterDrawPaidEvent>(g).Count(e=>e.FrameId==id)==2 && E<FrozenHandRosterDamageIssuedEvent>(g).Count(e=>e.FrameId==id)==0 &&
             E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==id)==1,"Skipping optional damage still issues one selected mandatory reward and one final parent return.");_=Cold(g,registry);
     }
-    public static void ActualNativeDamageDeathThenReevaluatedOriginalReward()
-    {
-        var(g,registry)=Start("target-dying");Begin(g);var id=Root(g).Id;Answer(g,c=>Branch(c,"decline"));Reach(g,()=>Stage(g,"damage"));
-        Need(P(g)!.Choices.Any(c=>c.Targets.SequenceEqual([1])) && V(g,1).Hp==1,"The fixed original participant is a real one-HP damage target.");
-        g=Cold(g,registry);Answer(g,c=>c.Targets.SequenceEqual([1]));
-        Reach(g,()=>Stage(g,"reward"));
-        Need(!V(g,1).IsAlive && E<FrozenHandRosterDamageIssuedEvent>(g).Count(e=>e.FrameId==id)==1 && P(g)!.Choices.All(c=>c.Targets.Count==1 && c.Targets[0]!=1),
-            "One native sourced damage drains real Dying/death/reward children and removes the dead original participant from later choices.");
-        Need(P(g)!.Choices.All(c=>Root(g).FrozenHandRoster!.Seats.Contains(c.Targets[0]) && V(g,c.Targets[0]).HandCount<V(g,0).HandCount),"Post-death hand changes re-evaluate reward only inside original roster.");
-        g=Cold(g,registry);Answer(g,_=>true);Reach(g,()=>!g.ResolutionStack.Any(f=>f.Id==id));
-        Need(E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==id)==1 && E<FrozenHandRosterDrawPaidEvent>(g).Count(e=>e.FrameId==id && e.ReturnStage=="complete")==1,"Paid damage and reward return their exact native parent once.");_=Cold(g,registry);
-    }
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();

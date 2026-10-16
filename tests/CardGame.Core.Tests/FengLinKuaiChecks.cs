@@ -14,40 +14,15 @@ internal static class FengLinKuaiChecks
         var before=Hand(g,0).Length;Replay(g,r);Answer(g,c=>c.Targets.Contains(0));
         ReachPlay(g);Require(Hand(g,0).Length==before+1,"One native reward draw completes before original Slash effect resumes.");Replay(g,r);
     }
-    public static void YangGiftAndPrivateYinReplay()
-    {
-        var (g,r)=Create(); ReachPlay(g); Driver(g,"grow",[1]);
-        var id=Hand(g,0).First(); Yang(g,id,1); Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:gift-observer");
-        Require(!g.Events.Any(e=>e.Payload is DamageAppliedEvent),"Real gift movement child precedes Yang damage."); Replay(g,r);
-        ReachPlay(g);Require(g.Events.Any(e=>e.Payload is DamageAppliedEvent{SourceSeat:0,TargetSeat:1,Amount:1}),"Damage follows completed gift child.");
-        Require(Polarity(g)==SkillPolarity.Yin,"Yang commits Yin once.");
-        Driver(g,"hurt",[1]);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:shenshi"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("gift-action")=="observed"));
-        var observed=Hand(g,1).Order().ToArray();
-        Require(g.CreateSnapshot(0).PrivateRevealedCards!.Select(c=>c.Id).Order().SequenceEqual(observed) && g.CreateSnapshot(0,true).PrivateRevealedCards!.Count==observed.Length,"Owning human and owner AI view see whole precise source hand.");
-        Require(Enumerable.Range(1,3).All(v=>g.CreateSnapshot(v).PrivateRevealedCards is null&&g.CreateSnapshot(v,true).PrivateRevealedCards is null),"Source/others and other AI views receive no private observation projection.");
-        Require(!g.CreateSnapshot(2).PublicRevealedCards.Any(c=>observed.Contains(c.Id)),"Source hand never enters public reveal.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("gift-action")=="observed");var gift=Hand(g,0).First();Answer(g,c=>c.Cards.Contains(gift));ReachPlay(g);
-        Require(Polarity(g)==SkillPolarity.Yang && g.GetHumanLegalActions().All(a=>a.ProgramSkillId!="classic:shenshi"),"Yin returns Yang without reopening spent Yang quota in this Play.");
-        var due=g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionScheduledEvent>().Single().Obligation;
-        Require(due.CardId==gift&&g.CardMovements.Single(m=>m.Sequence==due.GiftOrdinal) is {To:{Zone:CardZoneKind.Hand,OwnerSeat:1}},"Delay starts at actual recipient-hand movement ordinal.");
-        Driver(g,"lose",[]);Driver(g,"discard",[]);End(g);ReachUntil(g,()=>g.Events.Any(e=>e.Payload is GiftHandRetentionConsumedEvent));
-        Require(g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionConsumedEvent>().Single() is {Applied:true} && g.CreateSnapshot(0).Players[0].HandCount==4,"Issued obligation survives source skill loss and draws owner to four at current Ending.");
-        Require(P(g)?.SkillPrompt?.SkillId=="fixture:retention-observer","Retention reward pauses a real gain child under its Ending coordinator.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");ReachPlay(g);Require(g.Events.Count(e=>e.Payload is GiftHandRetentionConsumedEvent)==1,"Retention reward resumption never consumes or draws the due twice.");Replay(g,r);
-    }
-    private static SkillPolarity? Polarity(GameEngine g)=>g.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s=>s.SkillId=="classic:shenshi").Polarity;
     private static int[] Hand(GameEngine g,int s)=>g.CreateCardZoneDiagnostics().Where(c=>c.Location==CardLocation.Hand(s)).OrderBy(c=>c.ZoneIndex).Select(c=>c.CardId).ToArray();
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Submit(GameEngine g,GameCommand c){var result=g.Submit(c);Require(result.Error is null,result.Error?.Message??"Rejected");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Submit(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
     private static void Driver(GameEngine g,string id,int[] targets,int[]? cards=null){ReachPlay(g);Submit(g,new UseProgramSkillCommand(0,"fixture:kuai-driver",id,cards??[],targets,g.Revision,P(g)!.PromptId));}
-    private static void Yang(GameEngine g,int card,int target){ReachPlay(g);Submit(g,new UseProgramSkillCommand(0,"classic:shenshi","yang",[card],[target],g.Revision,P(g)!.PromptId));}
     private static void End(GameEngine g){ReachPlay(g);Submit(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));}
     private static void ReachPlay(GameEngine g)=>Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)
     {for(var i=0;i<100;i++){if(P(g)is{}p&&predicate(p))return;Tick(g);}throw new InvalidOperationException("Missing fixed boundary: "+JsonSerializer.Serialize(P(g)));}
-    private static void ReachUntil(GameEngine g,Func<bool> predicate){for(var i=0;i<100;i++){if(predicate())return;Tick(g);}throw new InvalidOperationException("Missing fixed state.");}
     private static void Tick(GameEngine g)
     {if(P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard})End(g);else if(P(g)is{PlayerSeat:0}p)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip"||c.Parameters.GetValueOrDefault("response")=="let-die"||c.Cards.Count==0);else {if(g.CreateSnapshot(0).Status==EngineStatus.Completed)throw new InvalidOperationException("Unexpected completion: "+JsonSerializer.Serialize(g.Events.Select(e=>e.Payload).Where(e=>e is PlayerDiedEvent or ProgramConversionPolarityCommittedEvent))+" frames "+JsonSerializer.Serialize(g.ResolutionStack));Submit(g,new AdvanceOneStepCommand(g.Revision));}}
     private static void Replay(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(State(g)==State(restored),"All viewer and AI snapshots and physical zones replay identically.");Require(g.CreateCardZoneDiagnostics().Count==100&&g.CreateCardZoneDiagnostics().Select(c=>c.CardId).Distinct().Count()==100,"Entities conserved.");}

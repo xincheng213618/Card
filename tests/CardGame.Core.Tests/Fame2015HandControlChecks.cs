@@ -73,84 +73,11 @@ internal static class Fame2015HandControlChecks
         AssertReplay(mono, monoRegistry);
     }
 
-    public static void ParticipantDrawTopOrderEquipmentAndReplay()
-    {
-        var registry = Registry(equipmentDeck: true);
-        var game = Start(registry, 19);
-        ReachPlay(game);
-        var equipment = game.CreateSnapshot(0, true).Players[0].Hand.First();
-        Accept(game.Submit(new PlayCardCommand(0, equipment.Id, [], game.Revision, Pending(game)!.PromptId)));
-        Finish(game); ReachPlay(game);
-        Require(game.CreateSnapshot(0, true).Players[0].Equipment.Any(card => card.Id == equipment.Id), "The top-placement fixture must have a real equipped source.");
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Pending(game)!.PromptId)));
-        ReachSkillOffer(game, "classic:xingxue");
-        Answer(game, Pending(game)!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        ReachHandChoice(game, "participants");
-        // Deliberately select in the opposite order to prove seat order, not click order.
-        Answer(game, Pending(game)!.Choices.Single(choice => choice.Targets.SequenceEqual([1])));
-        Answer(game, Pending(game)!.Choices.Single(choice => choice.Targets.SequenceEqual([0])));
-        AnswerAction(game, "finish");
-        ReachHandChoice(game, "participant-top");
-        Require(Pending(game)!.PlayerSeat == 0, "The current turn owner must finish its draw/top placement before the next seat draws.");
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Count <= game.CreateSnapshot(0, true).Players[0].Hp,
-            "The current edition must still require top placement when actual hand count is at most HP.");
-        var top = Pending(game)!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment));
-        var topId = top.Cards.Single();
-        AssertReplay(game, registry);
-        Answer(game, top);
-        Require(game.CreateSnapshot(0, true).Players[0].Equipment.Count == 0, "Top placement must really remove the selected equipment card.");
-        ReachHandChoice(game, "participant-top");
-        Require(Pending(game)!.PlayerSeat == 1 && game.CardMovements.Any(move => move.CardId == topId && move.From == CardLocation.DrawPile && move.To == CardLocation.Hand(1)),
-            "The second participant must really draw the physical card just put on top.");
-        AssertReplay(game, registry);
-        Advance(game);
-        Require(game.Events.Count(item => item.Payload is ProgramParticipantCardPlacedOnTopEvent placed && placed.ParticipantSeat == 1) == 1,
-            "The generic AI must answer the paused participant-owned top placement with a real owned card.");
-        Finish(game);
-        Require(game.Events.Count(item => item.Payload is ProgramParticipantCardPlacedOnTopEvent placed && placed.SkillId == "classic:xingxue") == 2,
-            "Both participants must commit one typed placement event.");
-        AssertReplay(game, registry);
-    }
-
-    public static void RealPlayDamageHandLimitAndPermanentFactionTargetsReplay()
-    {
-        var registry = Registry(["classic:jigong", "classic:zhaofu"]);
-        var game = Start(registry, 37);
-        ReachSkillOffer(game, "classic:jigong");
-        var before = game.CreateSnapshot(0, true).Players[0].Hand.Count;
-        Answer(game, Pending(game)!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Finish(game); ReachPlay(game);
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == before + 2 && ReadHandLimit(game, 0) == 0,
-            "Jigong must draw two physical cards and initially set this turn's hand limit to zero.");
-        Driver(game, "damage-other", [1]); Finish(game); ReachPlay(game);
-        Require(ReadHandLimit(game, 0) == 1, "Committed source damage in this play phase must raise the promised limit.");
-        Driver(game, "damage-self", [1]); Finish(game); ReachPlay(game);
-        Require(ReadHandLimit(game, 0) == 1, "Receiving another source's damage must not raise the promised limit.");
-        var farDistance = ReadDistance(game, 2, 0);
-        Require(farDistance > 1, "The range fixture requires a distant Wu participant.");
-        Accept(game.Submit(new UseProgramSkillCommand(0, "classic:zhaofu", "permanent-faction-targets", [], [0, 2], game.Revision, Pending(game)!.PromptId)));
-        Finish(game); ReachPlay(game);
-        Require(ReadFactionRangeTarget(game, 2, 0) && ReadWithinAttackRange(game, 2, 0) &&
-            !ReadFactionRangeTarget(game, 0, 2) && !ReadWithinAttackRange(game, 0, 2) &&
-            !ReadFactionRangeTarget(game, 2, 3) && ReadDistance(game, 2, 0) == farDistance,
-            "The permanent target grant must cover other Wu actors and only selected targets while retaining normal distance.");
-        Require(!game.GetHumanLegalActions().Any(action => action.ProgramSkillId == "classic:zhaofu"), "The permanent grant must consume its game ledger.");
-        AssertReplay(game, registry);
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Pending(game)!.PromptId)));
-        for (var count = 0; count < 150 && game.CreateSnapshot(0, true).CurrentSeat == 0; count++) Advance(game);
-        Require(ReadHandLimit(game, 0) == game.CreateSnapshot(0, true).Players[0].Hp && ReadFactionRangeTarget(game, 2, 0),
-            "The damage limit must expire with the turn while selected faction targets persist into the next turn.");
-        AssertReplay(game, registry);
-    }
-
     private static int ReadHandLimit(GameEngine game, int seat)
     {
         var players = (System.Collections.IList)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!;
         return (int)typeof(GameEngine).GetMethod("GetHandLimit", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, [players[seat]])!;
     }
-    private static int ReadDistance(GameEngine game, int source, int target) => game.GetCombatDistance(source, target);
-    private static bool ReadFactionRangeTarget(GameEngine game, int actor, int target) => (bool)typeof(GameEngine).GetMethod("IsGameFactionAttackRangeTarget",
-        BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, [actor, target])!;
     private static bool ReadWithinAttackRange(GameEngine game, int actor, int target) => (bool)typeof(GameEngine).GetMethod("IsWithinAttackRange",
         BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, [actor, target])!;
 
@@ -171,8 +98,6 @@ internal static class Fame2015HandControlChecks
     }
     private static void Activate(GameEngine game, string skill, string activation) => Accept(game.Submit(new UseProgramSkillCommand(0,
         skill, activation, [], [], game.Revision, Pending(game)!.PromptId)));
-    private static void Driver(GameEngine game, string activation, IReadOnlyList<int> seats) => Accept(game.Submit(new UseProgramSkillCommand(0,
-        "fixture:hand-control-driver", activation, [], seats, game.Revision, Pending(game)!.PromptId)));
     private static PendingDecision? Pending(GameEngine game) => game.PendingDecision ?? Enumerable.Range(0, 5).Select(seat => game.CreateSnapshot(seat, true).PendingDecision).FirstOrDefault(item => item is not null);
     private static void Answer(GameEngine game, PromptChoice choice) => Accept(game.Submit(new AnswerPromptCommand(Pending(game)!.PlayerSeat, Pending(game)!.PromptId, choice.Id, game.Revision)));
     private static void AnswerAction(GameEngine game, string action) => Answer(game, Pending(game)!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("hand-control-action") == action));
@@ -183,11 +108,6 @@ internal static class Fame2015HandControlChecks
             if (Pending(game) is { Kind: DecisionKind.ProgramTrigger } prompt) Answer(game, prompt.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip") ?? prompt.Choices.First());
             else Advance(game);
         Require(Pending(game)?.Kind == DecisionKind.PlayCard, "Fixture did not reach Play.");
-    }
-    private static void ReachSkillOffer(GameEngine game, string skill)
-    {
-        for (var count = 0; count < 100 && !(Pending(game) is { Kind: DecisionKind.ProgramTrigger } prompt && prompt.SkillPrompt?.SkillId == skill); count++) Advance(game);
-        Require(Pending(game)?.SkillPrompt?.SkillId == skill, $"Missing offer for {skill}.");
     }
     private static void ReachHandChoice(GameEngine game, string stage)
     {

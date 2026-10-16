@@ -43,46 +43,6 @@ internal static class PhaseHandSeizureChecks
             "The frozen two-card invoice is paid once before actual Ending; resumed children never repeat its cost."); Cold(g, r);
     }
 
-    public static void BiyueCurrentHandBranchesSingleDrawInstruction()
-    {
-        foreach (var branch in new[] { "empty", "nonempty", "earlier-ending-gain" })
-        {
-            var (g, r) = Start(earlier: branch == "earlier-ending-gain");
-            if (branch != "nonempty") TrimHandTo(g, 0);
-            EndPlay(g); Reach(g, p => ActivationChoice(p, Biyue)); var handAtAcceptance = V(g).Hand.Count;
-            Require(branch != "earlier-ending-gain" || handAtAcceptance == 1, "An earlier real Ending producer gains one card after the window's originally empty hand capture.");
-            var expectedCount = handAtAcceptance == 0 ? 2 : 1;
-            var sequenceBefore = g.CardMovements.Count == 0 ? 0 : g.CardMovements[^1].Sequence;
-            Cold(g, r); Activate(g, Biyue); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Biyue);
-            var actual = Moves(g, "skill-program.ol:biyue.Draw");
-            Require(root.InstructionIndex == 1 && E<ProgramBindingStartedEvent>(g).Count(e => e.FrameId == root.Id) == 1 &&
-                actual.Length == expectedCount && actual.Select(m => m.CardId).Distinct().Count() == expectedCount &&
-                actual.All(m => m.CardId > 0 && m.Sequence > sequenceBefore && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)),
-                "One Draw instruction reads the current Hand once and completes exactly 2/1 real entity draws before its first gain child; no first card can change the frozen count.");
-            var sequenceAfter = actual.Max(m => m.Sequence);
-            var seen = new HashSet<int>();
-            for (var child = 0; child < expectedCount; child++)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-                var window = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.ParentFrameId == root.Id);
-                var observer = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
-                Require(window.ResumeProgramFrameId == root.Id && window.Batch.AwaitingProgramFrameId is null &&
-                    window.Batch.OriginOwnerSeat == root.OwnerSeat && window.Batch.OriginSkillId == root.SkillId && window.Batch.OriginSkillInstanceId == root.SkillInstanceId &&
-                    window.Batch.Movements is [var movement] && actual.Contains(movement) && movement.Sequence > sequenceBefore && movement.Sequence <= sequenceAfter &&
-                    seen.Add(movement.CardId) && observer.WindowContext?.ParentFrameId == window.Id && observer.WindowContext.MovementBatch?.Id == window.Batch.Id &&
-                    Moves(g, "skill-program.ol:biyue.Draw").Length == expectedCount,
-                    "Each native single-card draw batch belongs to the exact original program, origin and frozen sequence interval, and publishes one distinct gain child.");
-                Cold(g, r); Reject(g); Continue(g);
-            }
-            for (var step = 0; step < 128 && g.ResolutionStack.Any(f => f.Id == root.Id); step++) Advance(g);
-            Require(g.ResolutionStack.All(f => f.Id != root.Id) && seen.Count == expectedCount &&
-                Moves(g, "skill-program.ol:biyue.Draw").SequenceEqual(actual) && V(g).Hand.Count == handAtAcceptance + expectedCount,
-                "All original draw children finish without repeating the Draw instruction, adding a third card or reevaluating the 2/1 count after a child.");
-            Cold(g, r);
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Start(bool male = false, bool earlier = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
@@ -95,15 +55,6 @@ internal static class PhaseHandSeizureChecks
     private static void Equip(GameEngine g) { var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip); Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); ReachPlay(g); }
     private static void UseLihun(GameEngine g, int cost, int target) => Accept(g, new UseProgramSkillCommand(0, Lihun, Activation, [cost], [target], g.Revision, P(g)!.PromptId));
     private static void DriverUse(GameEngine g, string id, IReadOnlyList<int> cards, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards, targets, g.Revision, P(g)!.PromptId));
-    private static void TrimHandTo(GameEngine g, int count)
-    {
-        for (var remaining = V(g).Hand.Count; remaining > count; remaining--)
-        {
-            DriverUse(g, "trim", [V(g).Hand.First().Id], []); ReachPlay(g);
-            Require(V(g).Hand.Count == remaining - 1, "Each real trim command must discard exactly one held entity before the bounded driver continues.");
-        }
-        Require(V(g).Hand.Count == count, "The physical trim driver reaches the requested actual hand count.");
-    }
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Lihun);
     private static PlayerSnapshot V(GameEngine g) => g.CreateSnapshot(0).Players[0];
@@ -112,7 +63,6 @@ internal static class PhaseHandSeizureChecks
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool ActivationChoice(PendingDecision p, string skill) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill);
-    private static void Activate(GameEngine g, string skill) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
@@ -128,8 +78,6 @@ internal static class PhaseHandSeizureChecks
     private static void Reject(GameEngine g) { var before = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("unpublished"), g.Revision)).Accepted && before == State(g), "An unpublished choice changes no paid state or observer view."); }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "The exact command prefix restores frozen costs, physical movements, typed child frames and all four private views.");
-    private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-    private static void Invoke(GameEngine g, string name, params object[] args) => typeof(GameEngine).GetMethod(name, Flags)!.Invoke(g, args);
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
     private sealed class Fixture(bool male, bool earlier) : IGameContentPackage

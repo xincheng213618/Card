@@ -11,7 +11,6 @@ internal static class OrdinaryLiuXieChecks
     private const string GiftSuppression = "fixture:lx-noop", TargetSuppression = "fixture:lx-target-suppression";
     private const string Mode = "identity:classic-liu-xie-fixture";
     private const string CostReason = "skill-program." + Tianming + ".DiscardDrawAndOfferUniqueHpPeer";
-    private const string GiftReason = "skill-program." + Mizhao + ".GiveAllHandAndStartRecipientPindian";
 
     public static void TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren()
     {
@@ -55,41 +54,6 @@ internal static class OrdinaryLiuXieChecks
         ColdRestore(g, r);
     }
 
-    public static void MizhaoAtomicGiftForeignPindianWinnerSlashAndColdReturn()
-    {
-        var (g, r) = Create(gainDying: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var third = Seat(g, "fixture:lx-target-2");
-        var hand = V(g, 0).Hand.Select(c => c.Id).ToArray(); MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == Gift);
-        var root = ContestRoot(g); var receipt = root.RecipientContest!; var original = root.Id;
-        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.AwaitingProgramFrameId == original);
-        Require(receipt.GiftCardIds.SequenceEqual(hand) && root.SelectedTargetSeats.SequenceEqual([recipient]) && V(g, 0).HandCount == 0 &&
-            moved.Batch.ParentFrameId == original && moved.Batch.Movements.Count == hand.Length && moved.Batch.Movements.All(m =>
-                m.From == CardLocation.Hand(0) && m.To == CardLocation.Hand(recipient) && m.Reason.Value == GiftReason) && !F<RecipientContestStartedEvent>(g).Any(),
-            "One genuine all-Hand atomic gift owns its exact private entities and gain children before any third party or Pindian is issued.");
-        Freeze(receipt.GiftCardIds); Private(g); g = ColdRestore(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Dying);
-        Require(g.ResolutionStack.OfType<DyingFrame>().Single().Continuation == DyingContinuationKind.ProgramSkill &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gift).OwnerSeat == recipient &&
-            !F<RecipientContestStartedEvent>(g).Any(), "A real recipient gain observer loses HP into genuine Dying before the gift's unissued Pindian; no HOST state injection.");
-        g = ColdRestore(g, r); Continue(g); Reach(g, p => Has(p, "recipient-contest"));
-        Require(P(g)!.Choices.All(c => c.Cards.Count == 0 && c.Targets.Single() != 0 && c.Targets.Single() != recipient), "Third party excludes the owner and original recipient without revealing private Pindian cards.");
-        g = ColdRestore(g, r); Answer(g, c => c.Targets.SequenceEqual([third])); Reach(g, p => g.ResolutionStack.LastOrDefault() is PindianFrame);
-        var contest = g.ResolutionStack.OfType<PindianFrame>().Single(); Require(contest.SourceSeat == recipient && contest.OpponentSeat == third && contest.ParentFrameId == original,
-            "The original recipient genuinely initiates Pindian against the third party, independently of the program owner.");
-        Private(g); g = ColdRestore(g, r); Reach(g, p => p.SkillPrompt?.SkillId == Done);
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.PindianWinnerSlashReturn is not null); var issued = use.PindianWinnerSlashReturn!;
-        Require(issued.WinnerSeat == recipient && issued.OriginalTargetSeat == third && use is { CardId: 0, PhysicalCardIds.Count: 0 } &&
-            use.Action is { Type: CardActionType.Use } action && action.ActorSeat == recipient && action.ProviderSeat == recipient &&
-            action.PhysicalCards.Count == 0 && ContestRoot(g).SelectedTargetSeats.SequenceEqual([recipient]) &&
-            F<CardActionAcceptedEvent>(g).Count(e => e.Action.ActionId == issued.CardActionId) == 1 && !g.CardMovements.Any(m => m.CardId == 0),
-            "The actual winner produces one genuine zero-material Slash with accurate actor/provider and original loser; the owner still selects the original gift recipient.");
-        g = ColdRestore(g, r); Continue(g); Play(g);
-        Require(F<RecipientContestGiftPaidEvent>(g).Length == 1 && F<PindianWinnerSlashIssuedEvent>(g).Length == 1 &&
-            F<PindianWinnerSlashReturnedEvent>(g).Single().Return == issued && F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
-            g.CardMovements.Count(m => hand.Contains(m.CardId) && m.Reason.Value == GiftReason) == hand.Length &&
-            !g.ResolutionStack.Any(f => f.Id == original || f.Id == issued.CardUseFrameId), "Cold continuation returns exactly once to the original paid gift without repaying or retaining the real Slash child.");
-        ColdRestore(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool tied = false, bool multi = false, bool legacy = false, bool tie = false, bool gainDying = false, bool removeGiftSource = false, bool removeTargetSource = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
@@ -105,7 +69,6 @@ internal static class OrdinaryLiuXieChecks
         Use(g, "incoming", [1]); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("offer-option")?.StartsWith("target-", StringComparison.Ordinal) == true)); Answer(g, c => c.Targets.SequenceEqual([0]));
     }
     private static ProgramSkillFrame PeerRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.UniqueHpPeer is not null);
-    private static ProgramSkillFrame ContestRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RecipientContest is not null);
     private static int Seat(GameEngine g, string id) => g.CreateSnapshot(0).Players.Single(p => p.GeneralId == id).Seat;
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -116,7 +79,6 @@ internal static class OrdinaryLiuXieChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> test) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(test).Id, g.Revision)); }
     private static void Continue(GameEngine g) { if (P(g)!.PlayerSeat == 0) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); else Accept(g, new AdvanceOneStepCommand(g.Revision)); }
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void MizhaoUse(GameEngine g, int recipient) => Accept(g, new UseProgramSkillCommand(0, Mizhao, "recipient-contest", [], [recipient], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> test)
     {

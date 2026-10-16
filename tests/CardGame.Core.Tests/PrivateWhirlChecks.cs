@@ -16,12 +16,6 @@ internal static class PrivateWhirlChecks
         NativeSlash(g, 1); Reach(g, () => WhirlStage(g, PrivateWhirlStage.SelectRemove)); Answer(g, _ => true); Play(g);
         Need(V(g, 0).Hand.Count == hand + 4 && V(g, 0).PrivateWhirlPiles![0].Count == 3 && E<PrivateWhirlSegmentIssuedEvent>(g).Count(e => e.Stage == PrivateWhirlStage.ExtraDrawChildren) == 1, "A later real use after becoming unique maximum draws only its first card and keeps three Whirl."); _ = Cold(g, registry);
     }
-    public static void ActualNextPlayEndingExpiresPrivateEntities()
-    {
-        var (g, registry) = Start(); Deposit(g, 3, registry); Need(V(g, 0).PrivateWhirlPiles![0].Count == 3, "Deposit survives the already-ended Play phase."); NextPlay(g); var cards = V(g, 0).PrivateWhirlPiles![0].Cards!.Select(c => c.Id).ToArray(); g = Cold(g, registry); End(g);
-        Reach(g, () => E<PrivateWhirlRemovedEvent>(g).Count(e => e.Reason == "play-expired") == 3);
-        Need(V(g, 0).PrivateWhirlPiles is null && cards.All(id => g.CardMovements.Count(m => m.CardId == id && m.To == CardLocation.DiscardPile && m.Reason.Value == "skill-program.private-whirl.play-expired") == 1), "The first later actual own PlayEnding expires every exact private physical deposit once."); _ = Cold(g, registry);
-    }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();

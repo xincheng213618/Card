@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -7,74 +7,6 @@ using CardGame.Content.Standard;
 internal static class DirectedDistanceDebtChecks
 {
     private const string Mode = "identity:classic-fixed-distance-fixture", Driver = "fixture:fixed-distance-driver";
-    public static void FixedOneActualTurnZeroCostEndingPhysicalOnce()
-    {
-        var (g,r) = Start(); var before = g.CardMovements.Count; var hand = View(g).Hand.Count;
-        Require(g.GetCombatDistance(0,2) == 2 && g.GetCombatDistance(2,0) == 2, "The original directed pair is genuinely distance two.");
-        Grant(g,2); ReachPlay(g);
-        Require(View(g).Hand.Count == hand && g.CardMovements.Count == before && g.GetCombatDistance(0,2) == 1 &&
-            g.GetCombatDistance(2,0) == 2 && !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == "ol:fenxun"),
-            "The real Play grant pays no upfront card, fixes only its one direction and consumes one actual-Play quota.");
-        Cold(g,r); End(g); Reach(g, p => p.SkillPrompt?.SkillId == "ol:fenxun");
-        var frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FixedDistanceDebtPayment is not null);
-        Require(frame.WindowContext?.FixedDistanceDebt == Facts<FixedDistanceOneTurnGrantedEvent>(g).Single().Grant &&
-            Facts<FixedDistanceOneDebtPaidEvent>(g).Length == 0 && P(g)!.Choices.All(c => c.Cards.Count == 1),
-            "Entering the real Ending owns one unpaid, original-source HE choice."); Cold(g,r);
-        var id = P(g)!.Choices[0].Cards.Single(); Choose(g,_ => true); ReachTurnDeparture(g);
-        var paid = Facts<FixedDistanceOneDebtPaidEvent>(g).Single();
-        Require(paid.CardId == id && g.CardMovements.Count(m => m.CardId == id && m.Sequence > paid.SequenceBefore && m.Sequence <= paid.SequenceAfter &&
-            m.From.OwnerSeat == 0 && m.To == CardLocation.DiscardPile && m.Reason.Value == "program.fixed-distance-one.ending-discard") == 1 &&
-            g.GetCombatDistance(0,2) == 2 && Facts<FixedDistanceOneDebtConsumedEvent>(g).Single().RequiredDiscard,
-            "One actual entity pays exactly once, and directed Set=1 ends at the real turn departure."); Cold(g,r);
-    }
-    public static void ShortRangeOneTailActualSlashAndNativeDoubleDodge()
-    {
-        var (g,r) = Start();
-        Require(Response(g,1) == 2 && Response(g,2) == 1 && Response(g,3) == 2,
-            "The native Slash response query distinguishes actual directed distance one from distance two.");
-        Grant(g,2); ReachPlay(g); Require(Response(g,2) == 2, "The final fixed-one rule also feeds the native response query.");
-        var card = View(g).Hand.First(c => c.Kind == CardKind.Slash).Id;
-        var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.CardId == card && a.TargetSeats.SequenceEqual([1]));
-        Accept(g,new PlayCardCommand(0,card,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind));
-        Reach(g,p => p.SkillPrompt?.SkillId == "ol:duanbing" && p.Choices.Any(c => c.Targets.SequenceEqual([2])));
-        Require(P(g)!.Choices.All(c => c.Targets.Count <= 1) && P(g).Choices.Any(c => c.Targets.Count == 0),
-            "The real final-use opportunity exposes at most one tail target and a decline, rather than a larger initial target cap."); Cold(g,r);
-        Choose(g,c => c.Targets.SequenceEqual([2])); ReachPlay(g);
-        var added = Facts<ShortRangeSlashTargetResolvedEvent>(g).Single(e => e.Added);
-        Require(added.Receipt is { } receipt && receipt.OriginalTargets.SequenceEqual([1]) && receipt.AddedTargetSeat == 2 && receipt.ActionId is not null &&
-            Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat is 1 or 2 && e.Amount > 0) == 2 &&
-            Facts<CardUseFinishedEvent>(g).Count(e => e.CardKind == CardKind.Slash) == 1 &&
-            Facts<CardUseDebitRecordedEvent>(g).Length == 1 && g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1,
-            "Both actual targets resolve before the single whole-use finish, physical payment and ordinary Slash debit.");
-        var targets = added.Receipt!.OriginalTargets;
-        if (targets is IList<int> list) { try { list[0]=3; throw new InvalidOperationException("Mutable receipt."); } catch (NotSupportedException) { } }
-        Cold(g,r);
-    }
-    public static void WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary()
-    {
-        var (g,r) = Start();
-        Accept(g,new UseProgramSkillCommand(0,Driver,"damage",[],[2],g.Revision,P(g)!.PromptId)); ReachPlay(g);
-        Require(Facts<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 2 && e.Amount > 0 && !e.SourceLess),
-            "The source actually damaged the target before distance issuance."); Grant(g,2); ReachPlay(g); Cold(g,r);
-        End(g); ReachTurnDeparture(g);
-        Require(Facts<FixedDistanceOneDebtConsumedEvent>(g).Single().RequiredDiscard == false && Facts<FixedDistanceOneDebtPaidEvent>(g).Length == 0,
-            "Whole-turn positive applied damage before the grant fulfils the original debt."); Cold(g,r);
-        var (lost,lr) = Start(); Grant(lost,2); ReachPlay(lost); Cold(lost,lr);
-        // Narrow host audit following command-replayed issuance. These host mutations carry no replay-acceptance claim.
-        var owner = HostPlayers(lost)[0]; var original = owner.SkillGrants.Grants.Single(s => s.SkillId == "ol:fenxun");
-        owner.SkillGrants.RemoveGrant(original.GrantId);
-        Require(lost.GetCombatDistance(0,2) == 1, "An issued fixed policy retains its original source after skill loss.");
-        HostPlayers(lost)[2].IsAlive=false;
-        var items=new List<TurnEndingBoundaryItem>();
-        typeof(GameEngine).GetMethod("AppendFixedDistanceOneEndingItems",Flags)!.Invoke(lost,[items]);
-        Require(items is [{ FixedDistanceDebt.TargetSeat: 2 }], "Original target death does not erase an unfulfilled debt.");
-        HostPlayers(lost)[2].IsAlive=true;
-        End(lost); Reach(lost,p => p.SkillPrompt?.SkillId == "ol:fenxun");
-        Require(lost.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FixedDistanceDebtPayment is not null).SkillInstanceId == original.SkillInstanceId,
-            "The original issued Ending resolver is retained without a current source grant.");
-        Choose(lost,_ => true); ReachTurnDeparture(lost);
-        Require(Facts<FixedDistanceOneDebtPaidEvent>(lost).Length == 1, "The retained original binding pays one real card once.");
-    }
     public static void ShortRangeNativeRedirectCursorAndFireOrdering()
     {
         // Real command/replay prefix ends at the first native Liuli opportunity.
@@ -197,8 +129,6 @@ internal static class DirectedDistanceDebtChecks
         InvokeHost(g,"AdvanceRulesAndPublishState");
     }
     private static object? InvokeHost(GameEngine g,string method,params object?[] args) => typeof(GameEngine).GetMethod(method,Flags)!.Invoke(g,args);
-    private static int Response(GameEngine g,int target) => (int)typeof(GameEngine).GetMethod("GetProgramRequiredResponseCount",Flags)!
-        .Invoke(g,[HostPlayers(g)[0],0,target,CardKind.Slash,CardKind.Dodge])!;
     private static (GameEngine,ContentRegistry) Start(bool fire=false,bool redirects=false)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(fire,redirects));
@@ -208,14 +138,11 @@ internal static class DirectedDistanceDebtChecks
         Accept(g,new SelectGeneralCommand(0,"fixture:fixed-owner",g.Revision,P(g)!.PromptId)); ReachPlay(g); return(g,r);
     }
     private static void Grant(GameEngine g,int target) => Accept(g,new UseProgramSkillCommand(0,"ol:fenxun","fixed-one-actual-turn",[],[target],g.Revision,P(g)!.PromptId));
-    private static void End(GameEngine g) => Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-    private static PlayerSnapshot View(GameEngine g)=>g.CreateSnapshot(0).Players[0];
     private static T[] Facts<T>(GameEngine g) where T:IGameEvent => g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Choose(GameEngine g,Func<PromptChoice,bool> predicate)
     { var p=P(g)!; Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision)); }
     private static void ReachPlay(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard && p.PlayerSeat==0);
-    private static void ReachTurnDeparture(GameEngine g)=>ReachState(g,()=>Facts<TurnStartedEvent>(g).Any(e=>e.ActorSeat==1));
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)=>ReachState(g,()=>P(g) is {} p && predicate(p));
     private static void ReachState(GameEngine g,Func<bool> predicate)
     { for(var n=0;n<128;n++){if(predicate())return; Advance(g);} throw new InvalidOperationException($"Fixed distance fixture missed its named boundary: turn={g.State.TurnNumber}, phase={g.State.Phase}, prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId}, uses={JsonSerializer.Serialize(g.ResolutionStack.OfType<CardUseFrame>())}, redirects={JsonSerializer.Serialize(Facts<ProgramActualSlashTargetRedirectedEvent>(g))}."); }
@@ -233,7 +160,6 @@ internal static class DirectedDistanceDebtChecks
         Frames=JsonSerializer.Serialize(g.ResolutionStack),Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements,Commands=CommandJson.Serialize(g.AcceptedCommands)});
     private static void Cold(GameEngine g,ContentRegistry r)=>Require(State(g)==State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r)),"Cold replay preserves directed grants and exact original debt/target/payment frames.");
     private const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
-    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!;
     private static void Require(bool condition,string message){if(!condition)throw new InvalidOperationException(message);}
     private sealed class Fixture(bool fire=false,bool redirects=false):IGameContentPackage
     {

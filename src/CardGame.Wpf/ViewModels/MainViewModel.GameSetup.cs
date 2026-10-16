@@ -133,12 +133,14 @@ public sealed partial class MainViewModel
     public string TableModeText => IsTutorialActive
         ? "新手演练 · 四步基础操作"
         : IsNationalSnapshot ? NationalModeDisplayName
+        : IsDualIdentitySnapshot ? "八人身份·双将 · 本地对战"
         : IsTeamSnapshot
             ? "2v2公开阵营 · 本地对战"
             : $"{(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份 · 本地对战";
     public string WindowTitle => IsNewGameSetupOpen ? "群雄逐鹿 · 游戏大厅" : IsTutorialActive
         ? $"群雄逐鹿 · 新手演练 {TutorialProgress}"
         : IsNationalSnapshot ? $"群雄逐鹿 · {NationalModeDisplayName}"
+        : IsDualIdentitySnapshot ? "群雄逐鹿 · 八人身份·双将牌局"
         : IsTeamSnapshot
             ? "群雄逐鹿 · 2v2公开阵营"
             : $"群雄逐鹿 · {(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份牌局";
@@ -165,6 +167,10 @@ public sealed partial class MainViewModel
                 return viewer.GeneralId.Length == 0
                     ? "选择主将 · 双将同势力，暗置入场"
                     : $"主将 · {viewer.GeneralName} · 选择同势力副将";
+            if (IsDualIdentitySnapshot)
+                return viewer.GeneralId.Length == 0
+                    ? "选择主将 · 势力与性别沿用主将"
+                    : $"主将 · {viewer.GeneralName} · 选择副将（不限势力）";
             if (IsTeamSnapshot) return "公开阵营 · 与 1 位队友协作";
             // These public flags remain authoritative even in the diagnostic
             // reveal-all view. Never infer a public general from its visible name.
@@ -182,6 +188,8 @@ public sealed partial class MainViewModel
         get
         {
             if (IsNationalSnapshot) return NationalSelectionSubtitle;
+            if (IsDualIdentitySnapshot)
+                return $"你是{HumanPlayer?.RoleLabel} · 全员双将 · 两将体力平均向下取整，主公 +1";
             if (IsTeamSnapshot) return $"你是{HumanPlayer?.RoleLabel} · 与 1 位队友合作，迎战 2 位对手";
             var lord = _snapshot?.Players.FirstOrDefault(player => player.Role == Role.Lord && player.IsGeneralPublic);
             return lord is null
@@ -191,6 +199,7 @@ public sealed partial class MainViewModel
     }
     public string GeneralSelectionFooter => IsNationalSnapshot
         ? "候选仅对你可见 · 双将暗置登场，可在出牌或杀响应时分别明置"
+        : IsDualIdentitySnapshot ? "两将技能同时生效 · 势力与性别沿用主将 · 主公先公开，其余开局亮相"
         : IsTeamSnapshot ? "候选仅对你可见 · 所有玩家选将结束后，武将同时亮相"
         : "候选仅对你可见 · 主公先选并公开，其余玩家选完后亮相";
     public string IdentityObjective => IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
@@ -205,10 +214,13 @@ public sealed partial class MainViewModel
         };
 
     private bool IsTeamSnapshot => _snapshot?.Players.Any(player => player.TeamId is not null) == true;
+    private bool IsDualIdentitySnapshot => _snapshot is not null &&
+        _contentRegistry.Modes.TryGetValue(_game.ModeId, out var mode) && mode.DualGenerals;
+    private bool HasDualGeneralSlots => IsNationalSnapshot || IsDualIdentitySnapshot;
     private string NationalModeDisplayName => _snapshot?.Players.Count == 6
         ? "六人国战 M3 · 魏蜀野心家"
         : "四人国战 Lite · 魏蜀双将";
-    public string TableArenaTitle => IsNationalSnapshot ? "国 战 · 暗 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
+    public string TableArenaTitle => IsNationalSnapshot ? "国 战 · 暗 将" : IsDualIdentitySnapshot ? "身 份 场 · 双 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
     public ICommand StartNewGameCommand { get; private set; } = null!;
     public ICommand StartNewGameFromLobbyCommand { get; private set; } = null!;
     public ICommand CancelNewGameSetupCommand { get; private set; } = null!;
@@ -288,6 +300,7 @@ public sealed record TableModeOption(int PlayerCount, string Name, string Descri
 {
     public string PlayerCountText => $"{PlayerCount} 人";
     public string ModeBadge => ModeId.StartsWith("national:", StringComparison.Ordinal) ? "双将试验"
+        : ModeId == "identity:classic-dual-8" ? "双将身份"
         : ModeId.StartsWith("team:", StringComparison.Ordinal) ? "公开阵营"
         : ModeId.Contains("composed-skills", StringComparison.Ordinal) ? "配置组合"
         : ModeId.Contains("active-skills", StringComparison.Ordinal) ? "机制演示"

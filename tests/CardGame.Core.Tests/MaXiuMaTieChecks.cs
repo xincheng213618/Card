@@ -32,79 +32,6 @@ internal static class MaXiuMaTieChecks
             Need(E<CardUseDebitRecordedEvent>(g).Count(e=>e.Debit.Query==SkillRuleQuery.SlashLimit)==1,"The proactive converted Slash spends exactly its ordinary native Slash allowance.");_=Cold(g,r);
         }
     }
-    public static void KenshangEquipmentPaymentsLionOxSourceLossDeathCold()
-    {
-        foreach(var scene in new[]{"lion","ox","weapon","loss","death","gain-child"})
-        {
-            var(g,r)=Start(scene);Draw(g);int? equipment=null,grain=null;
-            if(scene is"lion"or"ox")
-            {Native(g,a=>a.Kind==LegalActionKind.Equip);Play(g);equipment=V(g,0).Equipment.Single().Id;if(scene=="lion"){Use(g,"lose");Play(g);}else{grain=V(g,0).Hand[0].Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}}
-            if(scene=="weapon")
-            {Use(g,"weapon");Reach(g,()=>Action(g,"advanced-lifecycle"));Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:mx-weapon");Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Play(g);equipment=V(g,0).Equipment.Single(c=>c.Kind==CardKind.GeneralWeapon).Id;}
-            var pair=(equipment is{}eq?new[]{eq,V(g,0).Hand[0].Id}:V(g,0).Hand.Take(2).Select(c=>c.Id).ToArray()).Order().ToArray();var hp=V(g,0).Hp;
-            try{Begin(g,pair,1);}catch(Exception ex){throw new InvalidOperationException("Kenshang actual payment scene="+scene+" materials="+string.Join(',',pair)+" "+Diagnostic(g),ex);}
-            if(scene=="lion"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);Need(V(g,0).Hp==hp+1&&!E<KenshangDrawIssuedEvent>(g).Any(),"Removing the genuine equipped Lion heals before target rewriting or post-use draw.");g=Cold(g,r);Continue(g);}
-            if(scene is"loss"or"death")
-            {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);if(scene=="death"){Reach(g,()=>!V(g,0).IsAlive);Need(g.State.Winner==Winner.None&&!E<KenshangDrawIssuedEvent>(g).Any(),"Real non-Lord source death drains the paid movement's native dying/death without drawing for a dead owner.");_=Cold(g,r);continue;}Need(V(g,0).Skills!.All(s=>s.ContentId!=Ks),"The real native payment child removes the issuing conditional skill before its still-issued target window.");}
-            Reach(g,()=>Action(g,"kenshang-target"));g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="keep");
-            if(scene=="gain-child"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);var paid=E<KenshangDrawIssuedEvent>(g).Single();Need(paid.ActualCount==1,"The actual draw is paid before its real gained-card child.");g=Cold(g,r);Continue(g);}
-            Play(g);Need(E<KenshangDrawIssuedEvent>(g) is[{ActualCount:1}]&&pair.All(id=>E<KenshangMaterialEvent>(g).Count(e=>e.Cost.CardId==id)==1),"Paid equipment and hand costs stay original, with one eventual draw including after true source loss.");
-            if(equipment is{}id)Need(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.Equipment(0)&&m.To==(scene=="weapon"?CardLocation.OutsideGame:CardLocation.Processing)&&m.Reason==CardMoveReasons.Use)==1,"Equipment payment preserves native Processing/GeneralWeapon OutsideGame normalization.");
-            if(grain is{}gr)Need(g.CardMovements.Any(m=>m.CardId==gr&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile)&&E<KenshangMaterialEvent>(g).All(e=>e.Cost.CardId!=gr),"Native Ox grain cleanup is neither a third material nor a substitute entity.");_=Cold(g,r);
-        }
-    }
-    public static void KenshangBorrowedSwordQinglongUseAndPureResponseCold()
-    {
-        {
-            var(g,r)=Start("borrowed");Draw(g);var actor=PeerSeat(g);
-            Native(g,a=>a.Kind==LegalActionKind.Duel&&a.TargetSeats.SequenceEqual([actor]));Play(g);Native(g,a=>a.Kind==LegalActionKind.BarbarianAssault);Play(g);
-            Need(!E<KenshangUseIssuedEvent>(g).Any()&&!E<KenshangRequestStartedEvent>(g).Any(),"Pure Duel/AOE played-Slash requests cannot advertise a use-only Kenshang conversion.");
-            Use(g,"equip-peer",[actor]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.Count==1);Play(g);
-            Native(g,a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual([actor,0]));Reach(g,()=>P(g)?.PlayerSeat==actor&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="kenshang-request-open"));
-            g=Cold(g,r);Reach(g,()=>P(g)?.PlayerSeat==actor&&Action(g,"kenshang-request-pick"));Need(g.CreateSnapshot(0).PendingDecision is null&&g.CreateSnapshot(actor).PendingDecision is{IsPrivate:true},"Only the real requested user sees its private HE material selection.");g=Cold(g,r);Play(g);
-            var use=E<KenshangUseIssuedEvent>(g).Single();Need(use.ActorSeat==actor&&use.ProviderSeat==actor&&use.MaterialCount==2&&E<KenshangDrawIssuedEvent>(g).Single().UseId==use.UseId,"Borrowed Sword uses the requested character's own real multi-material Slash, not a pure faction-provided response.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("borrowed-weapon");Draw(g);var actor=PeerSeat(g);var weapon=V(g,actor).Equipment.Single(c=>c.Kind==CardKind.GeneralWeapon).Id;
-            while(V(g,actor).HandCount>1){Use(g,"trim-peer",[actor]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");Play(g);}
-            Need(V(g,actor).HandCount==1&&V(g,actor).Equipment.Single().Id==weapon,"The actual AI weapon owner has exactly one hand entity plus its natively equipped sampled GeneralWeapon before the Borrowed Sword request.");
-            Native(g,a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual([actor,0]));Reach(g,()=>P(g)?.PlayerSeat==actor&&Action(g,"kenshang-request-pick"));
-            Need(g.CreateSnapshot(0).PendingDecision is null&&g.CreateSnapshot(actor).PendingDecision is{IsPrivate:true},"Borrowed GeneralWeapon material selection remains private to the actual requested AI user.");g=Cold(g,r);
-            Reach(g,()=>g.ResolutionStack.OfType<CardUseFrame>().Any(f=>f.KenshangRequest?.Selected.Count==1));g=Cold(g,r);
-            Reach(g,()=>Action(g,"kenshang-target"));var use=E<KenshangUseIssuedEvent>(g).Single();var materials=E<KenshangMaterialEvent>(g).Where(e=>e.UseId==use.UseId).ToArray();
-            Need(use.ActorSeat==actor&&use.ProviderSeat==actor&&use.MaterialCount==2&&materials.Count(e=>e.Cost.CardId==weapon&&e.Cost.From==CardLocation.Equipment(actor))==1&&materials.Count(e=>e.Cost.From==CardLocation.Hand(actor))==1&&g.CardMovements.Count(m=>m.CardId==weapon&&m.From==CardLocation.Equipment(actor)&&m.To==CardLocation.OutsideGame&&m.Reason==CardMoveReasons.Use)==1,"The real borrowed Kenshang pays the original equipped GeneralWeapon to OutsideGame exactly once alongside the actual single hand entity.");g=Cold(g,r);
-            Play(g);Need(E<BorrowedSwordResolvedEvent>(g) is[{UsedSlash:true,WeaponOwnerSeat:var paidOwner,SlashTargetSeat:0,TransferredWeaponCardId:null}]&&paidOwner==actor&&E<KenshangDrawIssuedEvent>(g).Single().UseId==use.UseId&&E<KenshangMaterialEvent>(g).Count(e=>e.UseId==use.UseId)==2&&g.CardMovements.Count(m=>m.CardId==weapon&&m.From==CardLocation.Equipment(actor)&&m.To==CardLocation.OutsideGame&&m.Reason==CardMoveReasons.Use)==1&&!g.ResolutionStack.OfType<CardUseFrame>().Any(),"Cold-restored GeneralWeapon payment drains the complete nested Slash and its original Borrowed Sword return without repaying or transferring that removed weapon.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("qinglong");Draw(g);Native(g,a=>a.Kind==LegalActionKind.Equip&&V(g,0).Hand.Any(c=>c.Id==a.CardId&&c.Kind==CardKind.QinglongCrescentBlade));Play(g);var qinglong=V(g,0).Equipment.Single().Id;
-            Use(g,"inherit");Reach(g,()=>Action(g,"advanced-lifecycle"));Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")==qinglong.ToString());Play(g);
-            Need(g.CardMovements.Any(m=>m.CardId==qinglong&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.OutsideGame&&m.Reason.Value=="equipment.permanent-removal"),"Native weapon inheritance removes the actual equipped Qinglong while retaining its real follow-up ability.");
-            Use(g,"weapon");Reach(g,()=>Action(g,"advanced-lifecycle"));Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:mx-weapon");Answer(g,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Play(g);var weapon=V(g,0).Equipment.Single(c=>c.Kind==CardKind.GeneralWeapon).Id;
-            Begin(g,V(g,0).Hand.Take(2).Select(c=>c.Id).ToArray(),1);
-            Reach(g,()=>Action(g,"kenshang-target"));Answer(g,c=>c.Targets.SequenceEqual([1]));Answer(g,c=>c.Targets.SequenceEqual([2]));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="commit");Reach(g,()=>P(g)is{Kind:DecisionKind.QinglongCrescentBlade});Answer(g,c=>c.Parameters.GetValueOrDefault("action")=="kenshang-request-open");Reach(g,()=>Action(g,"kenshang-request-pick"));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="card"&&c.Cards.SequenceEqual([weapon]));g=Cold(g,r);PickRequest(g);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="finish");Reach(g,()=>Action(g,"kenshang-target"));
-            var outer=E<KenshangUseIssuedEvent>(g).First();var inner=E<KenshangUseIssuedEvent>(g).Last();var original=E<KenshangMaterialEvent>(g).Where(e=>e.UseId==outer.UseId).Select(e=>e.Cost.CardId).ToArray();
-            Need(outer.UseId!=inner.UseId&&E<KenshangMaterialEvent>(g).Count(e=>e.UseId==inner.UseId&&e.Cost.CardId==weapon&&e.Cost.From==CardLocation.Equipment(0))==1&&g.CardMovements.Count(m=>m.CardId==weapon&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.OutsideGame&&m.Reason==CardMoveReasons.Use)==1&&g.ResolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==outer.UseId)&&original.All(id=>g.CardMovements.Last(m=>m.CardId==id).To==CardLocation.Processing),"The inner genuine Qinglong Kenshang removes its own GeneralWeapon while both original outer materials still remain in their native Processing residency: "+JsonSerializer.Serialize(new{OuterUseId=outer.UseId,InnerUseId=inner.UseId,weapon,InnerMaterials=E<KenshangMaterialEvent>(g).Where(e=>e.UseId==inner.UseId).Select(e=>e.Cost),WeaponMoves=g.CardMovements.Where(m=>m.CardId==weapon),OuterLocations=original.Select(id=>new{CardId=id,LastMove=g.CardMovements.Last(m=>m.CardId==id)}),Frames=g.ResolutionStack.Select(f=>new{f.Id,Type=f.GetType().Name,Use=f is CardUseFrame u?new{u.CardId,u.CardKind,u.SourceSeat,u.PhysicalCardIds,u.TargetSeats}:null})}));g=Cold(g,r);
-            Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="keep");Play(g);
-            Need(E<KenshangUseIssuedEvent>(g).Length==2&&E<KenshangUseIssuedEvent>(g).All(e=>e.MaterialCount==2&&e.ActorSeat==0&&e.ProviderSeat==0)&&E<QinglongCrescentBladeResolvedEvent>(g).Any(e=>e.Used)&&E<CardUseDebitRecordedEvent>(g).Count(e=>e.Debit.Query==SkillRuleQuery.SlashLimit)==1,"The real Qinglong follow-up independently uses Kenshang and retains its native extra-use quota contract.");_=Cold(g,r);
-            Need(g.CardMovements.Count(m=>m.CardId==weapon&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.OutsideGame&&m.Reason==CardMoveReasons.Use)==1&&!g.ResolutionStack.OfType<CardUseFrame>().Any(),"Cold native Qinglong returns complete both nested Uses without paying the removed GeneralWeapon again.");
-        }
-    }
-    public static void KenshangActualProgramRequestsCancelPrivacyAndKeNativeCold()
-    {
-        {
-            var(g,r)=Start("request");Draw(g);End(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.ProgramTrigger}&&Action(g,"kenshang-request-open"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="kenshang-request-open");Reach(g,()=>Action(g,"kenshang-request-pick"));var p=P(g)!;var before=State(g);
-            Need(p.IsPrivate&&Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null)&&!g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==before,"Only the actual requested user can see or answer the private native material selection.");
-            PickRequest(g);g=Cold(g,r);var movement=g.CardMovements.Count;Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="cancel");Need(g.CardMovements.Count==movement&&!E<KenshangUseIssuedEvent>(g).Any(),"Cancel restores the original exact native request without paying or exposing a selected hand entity.");
-            Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="kenshang-request-open");PickRequest(g);g=Cold(g,r);PickRequest(g);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="finish");Reach(g,()=>Action(g,"kenshang-target"));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="keep");Reach(g,()=>E<KenshangDrawIssuedEvent>(g).Length==1&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Request));
-            Need(E<KenshangRequestStartedEvent>(g).Length==2&&E<KenshangRequestStartedEvent>(g).Select(e=>e.OriginalPromptId).Distinct().Count()==2&&E<KenshangUseIssuedEvent>(g) is[{ActorSeat:0,ProviderSeat:0,MaterialCount:2}]&&E<CardUseDebitRecordedEvent>(g).Length==0,"Cancel/reopen keeps separate exact private invoices; the true out-of-turn skill-request Slash consumes no ordinary Play allowance.");_=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("ke");Draw(g);var actor=PeerSeat(g);Accept(g,new UseProgramSkillCommand(0,"ol:pingduan","ordered-three-items",[],[actor],g.Revision,P(g)!.PromptId));Reach(g,()=>Action(g,"kenshang-request-pick"));g=Cold(g,r);Play(g);
-            var use=E<KenshangUseIssuedEvent>(g).Single();Need(use.ActorSeat==actor&&use.ProviderSeat==actor&&E<KenshangKeActionAcceptedEvent>(g).Single().MaterialCount==2&&E<KeBiNengPingduanNativeIssuedEvent>(g).Single().Origin.CardUseFrameId==use.UseId&&E<KeBiNengPingduanCompletedEvent>(g).Single().CompletedItems==1&&g.State.CurrentSeat==0&&g.State.Phase==TurnPhase.Play,"Ke's genuine recipient may choose any native legal Kenshang use with exact private acceptance, original native return and reward, without faking turn or phase.");_=Cold(g,r);
-        }
-    }
-    private static int PeerSeat(GameEngine g)=>Enumerable.Range(0,4).Single(s=>V(g,s).GeneralId==Peer);
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();
@@ -117,7 +44,6 @@ internal static class MaXiuMaTieChecks
     private static void Draw(GameEngine g){Use(g,"draw");Play(g);}
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Begin(GameEngine g,int[] cards,int target)=>Accept(g,new UseProgramSkillCommand(0,Ks,"native-variable-slash",cards,[target],g.Revision,P(g)!.PromptId));
-    private static void PickRequest(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="card"&&c.Cards.Count==1&&V(g,0).Hand.Any(h=>h.Id==c.Cards[0]));
     private static void Native(GameEngine g,Func<LegalAction,bool> predicate){var a=g.GetHumanLegalActions().FirstOrDefault(predicate);Need(a is not null,"Missing native action: "+Diagnostic(g));Accept(g,new PlayCardCommand(0,a!.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource,AdditionalConversionSources=a.AdditionalConversionSources??[]});}
     private static void Play(GameEngine g,[CallerMemberName]string caller="",[CallerLineNumber]int line=0)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard},$"{caller}:{line} actual human Play");
     private static void Reach(GameEngine g,Func<bool> done,[CallerMemberName]string caller="",[CallerLineNumber]int line=0,[CallerArgumentExpression(nameof(done))]string? boundary=null)

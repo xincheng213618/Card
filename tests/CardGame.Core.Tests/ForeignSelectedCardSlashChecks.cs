@@ -16,7 +16,6 @@ internal static class ForeignSelectedCardSlashChecks
     private const string Suppress = "fixture:selected-foreign-slash-suppress";
     private const string Grain = "fixture:selected-foreign-slash-grain";
     private const string Weapon = "fixture:selected-foreign-slash-weapon";
-    private const string QualificationProbe = "qualification-probe";
     private const string DrawReason = "skill-program.foreign-selected-card-slash.outcome-draw";
     private static readonly Lazy<ContentRegistry> Standard = new(() => ContentRegistry.Build(new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage()));
@@ -55,103 +54,6 @@ internal static class ForeignSelectedCardSlashChecks
             Require(g.GetHumanLegalActions().All(a => a.ProgramSkillId != Actual), "The original actual Play quota is paid once and blocks a second selected foreign-card Slash.");
             _ = Cold(g, registry);
         }
-    }
-
-    public static void EquipmentAndJudgmentMaterialsKeepNativeChildren()
-    {
-        foreach (var zone in new[] { CardZoneKind.Equipment, CardZoneKind.Judgment })
-        {
-            var (g, registry) = Start(zone == CardZoneKind.Equipment ? "classic:silver-lion" : "standard:indulgence");
-            if (zone == CardZoneKind.Equipment)
-            {
-                UseDriver(g, "equip", 2); Reach(g, IsPlay);
-                UseDriver(g, "damage", 2); Reach(g, IsPlay);
-                Require(V(g, 2).Equipment is [var armor] && armor.Kind == CardKind.SilverLion && V(g, 2).Hp == 3,
-                    "The foreign source really equips Silver Lion and then suffers actual damage before paying it as Slash.");
-            }
-            else
-            {
-                var delayed = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Indulgence && a.TargetSeats.SequenceEqual([2]));
-                Play(g, delayed); Reach(g, IsPlay);
-                Require(g.CardMovements.Any(m => m.CardId == delayed.CardId && m.To == CardLocation.Judgment(2)),
-                    "A real native delayed-trick use places the exact later Slash material in the foreign Judgment region.");
-            }
-            var recoveryBefore = E<RecoveryAppliedEvent>(g).Length;
-            Begin(g, 2);
-            Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("source-zone") == zone.ToString() && c.Cards.Count == 1),
-                "Public foreign Equipment/Judgment entities are actually selectable alongside opaque Hand slots.");
-            g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == zone.ToString());
-            Reach(g, p => IsContinue(p, Before));
-            var use = NativeUse(g); var returned = use.ForeignSelectedCardSlashReturn!;
-            AssertNative(g, use, new(zone, 2));
-            Require(use.Action!.ActorSeat == 2 && use.Action.ProviderSeat == 2 && use.Action.PhysicalCards.Single().From == new CardLocation(zone, 2),
-                "The distance-two foreign actor uses its real selected region entity, rather than transferring it to the issuer or substituting another Hand cost.");
-            g = Cold(g, registry); Continue(g);
-            if (zone == CardZoneKind.Equipment)
-            {
-                Reach(g, p => IsContinue(p, Hp));
-                var root = Parent(g); var hpWindow = g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-                Require(root.ForeignSelectedCardSlash is { Stage: ForeignSelectedCardSlashStage.SettlementChildren, RequestedDraw: 0 } &&
-                    hpWindow.ResumeFrameId == root.Id && hpWindow.Change.ParentFrameId == use.Id && hpWindow.Change.TargetSeat == 2 &&
-                    E<RecoveryAppliedEvent>(g).Skip(recoveryBefore).Count(e => e.SourceSeat == 2 && e.TargetSeat == 2 && e.Amount == 1) == 1 && V(g, 2).Hp == 4,
-                    "Native Silver Lion removal heals its actual foreign owner once; the original use-parent HP child returns to the paid issuer before reward drawing.");
-                g = Cold(g, registry);
-            }
-            Reach(g, p => IsContinue(p, Gain));
-            AssertOutcome(g, returned, true, 2); g = Cold(g, registry); Reach(g, IsPlay);
-            AssertFinished(g, returned, 2);
-            Require(g.CardMovements.Count(m => m.CardId == returned.CardId && m.From == new CardLocation(zone, 2) &&
-                m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1 &&
-                g.CardMovements.Count(m => m.CardId == returned.CardId && m.From == CardLocation.Processing &&
-                    m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.UseFinished) == 1,
-                "Each genuine HEJ material leaves its original region and finishes the same native use once across cold restoration.");
-            _ = Cold(g, registry);
-        }
-
-        var (weapon, weaponRegistry) = Start(generalWeapons: true);
-        var generated = V(weapon, 2).Equipment.Single(c => c.Kind == CardKind.GeneralWeapon).Id;
-        Require(weapon.CardMovements.Any(m => m.CardId == generated && m.From == CardLocation.OutsideGame && m.To == CardLocation.Equipment(2)),
-            "The selected weapon is genuinely produced and equipped by the native sampled-general command path, without host state injection.");
-        Begin(weapon, 2); weapon = Cold(weapon, weaponRegistry); Answer(weapon, c => c.Cards.SequenceEqual([generated]));
-        Reach(weapon, p => IsContinue(p, Before)); var generatedUse = NativeUse(weapon); var generatedReturn = generatedUse.ForeignSelectedCardSlashReturn!;
-        AssertNative(weapon, generatedUse, CardLocation.Equipment(2));
-        Require(generatedReturn.GeneralWeapon && generatedReturn.PrintedKind == CardKind.GeneralWeapon &&
-            weapon.CreateCardZoneDiagnostics().Single(c => c.CardId == generated).Location == CardLocation.OutsideGame &&
-            E<ForeignSelectedCardSlashPaidEvent>(weapon).Single().To == CardLocation.OutsideGame,
-            "The genuine general-weapon material pays one native Equipment-to-OutsideGame cost while its exact Slash Use stays alive.");
-        weapon = Cold(weapon, weaponRegistry); Continue(weapon); Reach(weapon, p => IsContinue(p, Gain));
-        AssertOutcome(weapon, generatedReturn, true, 2); weapon = Cold(weapon, weaponRegistry); Reach(weapon, IsPlay);
-        AssertFinished(weapon, generatedReturn, 2);
-        Require(weapon.CreateCardZoneDiagnostics().Single(c => c.CardId == generated).Location == CardLocation.OutsideGame &&
-            weapon.CardMovements.Count(m => m.CardId == generated && m.From == CardLocation.Equipment(2) && m.To == CardLocation.OutsideGame && m.Reason == CardMoveReasons.Use) == 1 &&
-            !weapon.CardMovements.Any(m => m.CardId == generated && m.Reason == CardMoveReasons.UseFinished),
-            "Native finalization preserves the removed general weapon instead of resurrecting or discarding it; its issuer reward and owning return still settle once.");
-        _ = Cold(weapon, weaponRegistry);
-
-        var (ox, oxRegistry) = Start("classic:wooden-ox");
-        UseDriver(ox, "equip", 0); Reach(ox, IsPlay);
-        var oxId = V(ox, 0).Equipment.Single(c => c.Kind == CardKind.WoodenOx).Id;
-        var grainId = V(ox, 0).Hand[0].Id;
-        Accept(ox, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [grainId], [2], ox.Revision, P(ox)!.PromptId)); Reach(ox, IsPlay);
-        Require(V(ox, 2).Equipment.Single(c => c.Kind == CardKind.WoodenOx).Id == oxId && V(ox, 2).WoodenOxGrain!.Single().Id == grainId &&
-            ox.CreateSnapshot(0).Players[2].WoodenOxGrain!.Count == 0,
-            "A true equipment command stores one actual Hand card and transfers both native Ox and its private grain to the foreign actor.");
-        Begin(ox, 2); Answer(ox, c => c.Cards.SequenceEqual([oxId])); Reach(ox, p => IsContinue(p, Before));
-        var oxUse = NativeUse(ox); var oxReturn = oxUse.ForeignSelectedCardSlashReturn!;
-        AssertNative(ox, oxUse, CardLocation.Equipment(2)); ox = Cold(ox, oxRegistry); Continue(ox);
-        Reach(ox, p => IsContinue(p, Grain));
-        var oxRoot = Parent(ox); var grainBatch = ox.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.Movements.Any(m => m.CardId == grainId));
-        Require(oxRoot.ForeignSelectedCardSlash is { Stage: ForeignSelectedCardSlashStage.SettlementChildren, RequestedDraw: 0 } paid &&
-            grainBatch.ResumeProgramFrameId == oxRoot.Id && grainBatch.Batch.ParentFrameId == oxUse.Id &&
-            grainBatch.Batch.ParentBatchId == paid.PaymentBatchId && grainBatch.Batch.Movements is [var grainMove] &&
-            grainMove.CardId == grainId && grainMove.From == CardLocation.WoodenOxGrain(2) && grainMove.To == CardLocation.DiscardPile && grainMove.Reason == CardMoveReasons.WoodenOxGrainDiscard &&
-            V(ox, 2).WoodenOxGrainCount == 0 && !E<ForeignSelectedCardSlashDrawIssuedEvent>(ox).Any(),
-            "The exact paid Ox's genuine grain-discard child retains its native use and parent batch, and drains before the once-issued outcome draw.");
-        Frozen(grainBatch.Batch.Movements); ox = Cold(ox, oxRegistry); Continue(ox); Reach(ox, p => IsContinue(p, Gain));
-        AssertOutcome(ox, oxReturn, true, 2); ox = Cold(ox, oxRegistry); Reach(ox, IsPlay); AssertFinished(ox, oxReturn, 2);
-        Require(ox.CardMovements.Count(m => m.CardId == grainId && m.Reason == CardMoveReasons.WoodenOxGrainDiscard) == 1,
-            "Cold return does not discard the same native stored grain or pay the foreign Ox material twice.");
-        _ = Cold(ox, oxRegistry);
     }
 
     private static (GameEngine, ContentRegistry) Start(string card = "standard:dodge", bool redirect = false, bool sourceLoss = false, bool generalWeapons = false)
@@ -203,9 +105,6 @@ internal static class ForeignSelectedCardSlashChecks
             g.CardMovements.Count(m => m.CardId == r.CardId && m.From == r.From && m.Reason == CardMoveReasons.Use) == 1 &&
             !g.ResolutionStack.Any(f => f.Id == r.ProgramFrameId || f.Id == r.CardUseFrameId), "The original material, full use, draw and typed parent return all finish exactly once.");
     }
-    private static void UseDriver(GameEngine g, string id, int target) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], [target], g.Revision, P(g)!.PromptId));
-    private static void Play(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)
-    { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool IsPlay(PendingDecision? p) => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };

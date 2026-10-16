@@ -27,8 +27,6 @@ internal static class PublicMarkerChecks
 
     public static void WuhunDamageOrderAndReplay()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 91,
-            "Source-attributed public markers require rules version 91 or newer.");
         var registry = CreateRegistry(ownerHp: 3, packageId: "wuhun-marker-nonlethal");
         var current = FindFixture(registry, requireAlcohol: true);
 
@@ -383,7 +381,7 @@ internal static class PublicMarkerChecks
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 replay.Events.Select(item => item.Payload).OfType<PlayerMarkerChangedEvent>().Count() == expectedCount,
-            $"Rules v{game.RulesVersion} public markers did not replay exactly.");
+            "Public markers did not replay exactly.");
     }
 
 

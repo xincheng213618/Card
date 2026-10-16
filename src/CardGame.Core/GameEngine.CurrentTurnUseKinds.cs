@@ -13,7 +13,9 @@ public sealed record CurrentTurnCardUseKindsRecordedEvent(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     CardActionType? RoundActionType = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    int? RoundProviderSeat = null) : IGameEvent;
+    int? RoundProviderSeat = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? WholeActualTurnUseSequence = null) : IGameEvent;
 
 public sealed partial class GameEngine
 {
@@ -29,7 +31,7 @@ public sealed partial class GameEngine
         if (payload is CardActionAcceptedEvent accepted)
         {
             var response = accepted.Action;
-            if ((TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses) && response.Type == CardActionType.Response && response.EffectiveKind == CardKind.Dodge &&
+            if ((TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal) && response.Type == CardActionType.Response && response.EffectiveKind == CardKind.Dodge &&
                 response.ActorSeat == response.ProviderSeat && response.ResponderSeat == response.ActorSeat && response.RequesterSeat is null)
             {
                 // Defending against a Slash is a use of Dodge. Arrow Barrage and
@@ -77,7 +79,7 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.FindIndex(f => f.Id == use.Id);
         if (index <= 0 || _resolutionStack[index - 1] is not ProgramSkillFrame producer ||
-            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null && !TracksActualTurnUseOrdinal && !TracksCurrentRoundActualUses) return false;
+            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null && !TracksActualTurnUseOrdinal && !TracksCurrentRoundActualUses && !TracksWholeActualTurnUseOrdinal) return false;
         var program = _contentRegistry.GetSkill(producer.SkillId).Program;
         if (program is null || program.GameplayHash != producer.GameplayHash) return false;
         var paused = ProgramInstructionResolver.Default.Resolve(producer, program)
@@ -111,8 +113,10 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CurrentTurnCardUseKindsRecordedEvent(
             _turnNumber, _currentSeat, actorSeat, frameId, action?.ActionId,
             handSuit, 1 << (int)category, nullificationUse, ordinal,
-            TracksCurrentRoundActualUses ? action?.Type ?? CardActionType.Use : null,
-            TracksCurrentRoundActualUses ? action?.ProviderSeat ?? actorSeat : null));
+            TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal ? action?.Type ?? CardActionType.Use : null,
+            TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal ? action?.ProviderSeat ?? actorSeat : null,
+            TracksWholeActualTurnUseOrdinal && HasOngoingWholeActualUseTurn
+                ? checked(WholeActualTurnUseHistory().Length + 1) : null));
     }
 
     private int? CapturedActualTurnActorUseOrdinal(CardActionContext action)

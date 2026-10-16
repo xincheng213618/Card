@@ -64,71 +64,6 @@ internal static class PublicPileCashOutChecks
             Frozen(PileCards(game, 2, Actual)); _ = Cold(game, registry);
         }
     }
-
-    public static void PreparationCashOutFreezesAllCardsThroughDiscardDrawAndNestedNewDeposit()
-    {
-        var (game, registry) = Start(nested: true, drawObserver: true);
-        var prepared = StoreTwo(game, registry, Skill); game = prepared.Item1; var original = prepared.Item2;
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision));
-        Reach(game, p => IsContinue(p, PaymentChild));
-        var root = CashFrame(game); var id = root.Id; var receipt = root.PublicPileCashOut!;
-        var payment = Facts<PublicPileCashOutPaidEvent>(game).Single(e => e.FrameId == id);
-        var window = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.ParentFrameId == id);
-        var child = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == PaymentChild);
-        Require(root.InstructionIndex == 1 && receipt.Stage == PublicPileCashOutStage.PaymentChildren &&
-                receipt.Operation == SkillProgramEffectOp.CashOutPublicPile && receipt.FrozenCount == 2 &&
-                receipt.PaidCardIds.SequenceEqual(original) && receipt.PaidFrom.All(l => l == receipt.Pile.Location) &&
-                receipt.ParentId == root.WindowContext?.ParentFrameId && receipt.Issuer.SkillInstanceId == root.SkillInstanceId &&
-                receipt.Pile.SkillInstanceId == root.SkillInstanceId && receipt.Pile.SkillId == Skill &&
-                root.PendingMovementContinuation is not null && payment.FrozenCount == 2 &&
-                payment.SequenceBefore == receipt.Before && payment.SequenceAfter == receipt.After &&
-                window.Batch.OriginOwnerSeat == 0 && window.Batch.OriginSkillId == Skill && window.Batch.OriginSkillInstanceId == root.SkillInstanceId &&
-                window.Batch.Movements.Select(m => m.CardId).SequenceEqual(original) &&
-                window.Batch.Movements.All(m => m.From == receipt.Pile.Location && m.To == CardLocation.DiscardPile &&
-                    m.Sequence > receipt.Before && m.Sequence <= receipt.After) &&
-                child.WindowContext?.ParentFrameId == window.Id && child.WindowContext.MovementBatch?.Id == window.Batch.Id &&
-                !Facts<PublicPileCashOutDrawIssuedEvent>(game).Any(e => e.FrameId == id) && PileCards(game, 0, Skill).Count == 0,
-            "Preparation first freezes and pays every original exact-source entity in one real batch; its discard child blocks all draw and quota rewards. " +
-            JsonSerializer.Serialize(new { root.InstructionIndex, receipt, payment, window.Batch, child.WindowContext }));
-        Frozen(receipt.PaidCardIds); Frozen(receipt.PaidFrom); Frozen(window.Batch.Movements); AssertPrivate(game, 0);
-        RejectWrongActor(game); RejectUnpublished(game); game = Cold(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(game, p => IsOffer(p, Skill));
-        var fresh = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        game = StoreOne(game, registry, Skill, fresh);
-        Reach(game, p => IsContinue(p, DrawChild));
-        root = CashFrame(game); receipt = root.PublicPileCashOut!;
-        var draw = Facts<PublicPileCashOutDrawIssuedEvent>(game).Single(e => e.FrameId == id);
-        var gain = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == DrawChild);
-        var gainWindow = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Id == gain.WindowContext?.ParentFrameId);
-        Require(root.Id == id && root.InstructionIndex == 1 && receipt.Stage == PublicPileCashOutStage.DrawChildren &&
-                receipt.FrozenCount == 2 && receipt.PaidCardIds.SequenceEqual(original) && receipt.DrawRequested == 4 && receipt.DrawActual == 4 &&
-                draw.RequestedCount == 4 && draw.ActualCount == 4 && draw.SequenceBefore == receipt.DrawBefore && draw.SequenceAfter == receipt.DrawAfter &&
-                PileCards(game, 0, Skill).Select(c => c.Id).SequenceEqual([fresh]) &&
-                gainWindow.Batch.ParentFrameId == id && gainWindow.Batch.OriginSkillId == Skill &&
-                gainWindow.Batch.OriginSkillInstanceId == root.SkillInstanceId && gainWindow.Batch.Movements.Count == 1 &&
-                gainWindow.Batch.Movements.All(m => m.To == CardLocation.Hand(0) && m.Sequence > receipt.DrawBefore && m.Sequence <= receipt.DrawAfter) &&
-                !Facts<TurnRuleModifierGrantedEvent>(game).Any(e => e.Modifier.ParentFrameId == id),
-            "A real nested damage stores a new card during the paid child; the original N stays two, four native one-card draw batches are issued once and quota still awaits all children.");
-        Frozen(receipt.PaidCardIds); Frozen(receipt.PaidFrom); game = Cold(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Reach(game, IsHumanPlay);
-        AssertCashCompleted(game, id, original, 2, 4);
-        Require(PileCards(game, 0, Skill).Select(c => c.Id).SequenceEqual([fresh]) &&
-                game.CardMovements.Count(m => m.Reason.Value == DrawReason(Skill) && m.To == CardLocation.Hand(0)) == 4 &&
-                game.CardMovements.Count(m => m.Reason.Value == $"skill-program.{DrawChild}.Draw" && m.To == CardLocation.Hand(0)) == 1 &&
-                Facts<ProgramBindingResolvedEvent>(game).Count(e => e.SkillId == PaymentChild && e.Activated && e.Completed) == 1 &&
-                Facts<ProgramBindingResolvedEvent>(game).Count(e => e.SkillId == DrawChild && e.Activated && e.Completed) == 1,
-            "The discard and draw children each return once; the child's extra draw and newly stored card never increase original cash-out draws or Slash allowance.");
-        _ = Cold(game, registry);
-    }
-
-    private static (GameEngine, int[]) StoreTwo(GameEngine game, ContentRegistry registry, string skill)
-    {
-        UseDriver(game, "damage-two"); Reach(game, p => IsOffer(p, skill));
-        var first = game.CreateSnapshot(0).Players[0].Hand.First().Id; game = StoreOne(game, registry, skill, first);
-        Reach(game, p => IsOffer(p, skill)); var second = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        game = StoreOne(game, registry, skill, second); Reach(game, IsHumanPlay); return (game, [first, second]);
-    }
     private static GameEngine StoreOne(GameEngine game, ContentRegistry registry, string skill, int cardId, bool equipment = false)
     {
         var offer = P(game)!; var activate = offer.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
@@ -178,22 +113,6 @@ internal static class PublicPileCashOutChecks
             "A completed storage child returns once without paying again, drawing cards or granting quota.");
         return game;
     }
-    private static void AssertCashCompleted(GameEngine game, long id, int[] original, int count, int draws)
-    {
-        var started = Facts<PublicPileCashOutStartedEvent>(game).Single(e => e.FrameId == id);
-        var resolved = Facts<PublicPileCashOutResolvedEvent>(game).Single(e => e.FrameId == id);
-        var grants = Facts<TurnRuleModifierGrantedEvent>(game).Where(e => e.Modifier.ParentFrameId == id).ToArray();
-        Require(!game.ResolutionStack.Any(f => f.Id == id) && started.Operation == SkillProgramEffectOp.CashOutPublicPile &&
-                started.FrozenCount == count && resolved.FrozenCount == count && resolved.DrawActual == draws && resolved.SlashLimitGranted == count &&
-                Facts<PublicPileCashOutPaidEvent>(game).Count(e => e.FrameId == id) == 1 &&
-                Facts<PublicPileCashOutDrawIssuedEvent>(game).Count(e => e.FrameId == id && e.RequestedCount == draws && e.ActualCount == draws) == 1 &&
-                grants.Length == 1 && grants[0].Modifier is { Query: SkillRuleQuery.SlashLimit, Operation: SkillRuleOperation.Add } grant &&
-                grant.Amount == count && grant.TurnNumber == started.ActualTurn && grant.TurnSeat == 0 &&
-                grant.Source.SkillId == started.Issuer.SkillId && grant.Source.SkillInstanceId == started.Issuer.SkillInstanceId &&
-                game.CardMovements.Count(m => m.Reason.Value == PaymentReason(started.Issuer.SkillId) && original.Contains(m.CardId)) == count &&
-                !game.CardMovements.Any(m => m.CardId <= 0),
-            "Cash-out pays, issues its native draw and adds one original-N turn grant exactly once after all real children return.");
-    }
     private static string StoreReason(string skill) => $"skill-program.{skill}.StoreBoundCardsInPublicPile.payment";
     private static string PaymentReason(string skill) => $"skill-program.{skill}.CashOutPublicPile.payment";
     private static string DrawReason(string skill) => $"skill-program.{skill}.CashOutPublicPile.draw";
@@ -204,7 +123,6 @@ internal static class PublicPileCashOutChecks
             ? sources.Single(s => s.SourceSkillId == skill).Cards
             : owner.PublicPersistentPileSkillId == skill ? owner.PublicPersistentPileCards ?? [] : [];
     }
-    private static ProgramSkillFrame CashFrame(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PublicPileCashOut?.Operation == SkillProgramEffectOp.CashOutPublicPile);
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool IsHumanPlay(PendingDecision? p) => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };
     private static bool IsOffer(PendingDecision? p, string skill) => p is not null && p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");

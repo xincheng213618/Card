@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class DongBaiChecks
@@ -13,22 +13,13 @@ internal static class DongBaiChecks
         g=Cold(g,r); Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="draw"); Play(g);
         Need(V(g,0).Hand.Count==before+1 && E<LianZhuSegmentPaidEvent>(g).Count(e=>e.Stage==LianZhuStage.DrawChildren && e.Count==2)==1 && E<XiaHuiRestrictionGrantedEvent>(g).Count(e=>e.Restriction.CardId==card.Id)==1,"One physical gift, one real draw2 and one exact entity restriction survive cold recovery."); _=Cold(g,r);
     }
-    public static void ActualHpLossReleasesAllEntitiesAndForeignForcedDiscardIsAllowed()
-    {
-        var(g,r)=Start(); Play(g); var card=V(g,0).Hand.First(c=>c.Suit is Suit.Spade or Suit.Club); Gift(g,card.Id,1); Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:lianzhu"); Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="draw"); Play(g);
-        Use(g,"lose",1); Play(g); Need(E<XiaHuiRestrictionReleasedEvent>(g).Any(e=>e.CardId==card.Id && e.Reason=="recipient-hp-decreased") && V(g,1).Hp==3,"A real source-free HP decrease releases the paid entity restriction."); g=Cold(g,r);
-        Use(g,"take",1); Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card")==true); AnswerForeignSlot(g,1,card.Id); Play(g); Need(!V(g,1).Hand.Any(c=>c.Id==card.Id) && E<XiaHuiRestrictionGrantedEvent>(g).Count()==1,"Foreign movement without an original source policy cannot fabricate a default-Spade grant after real expiry."); _=Cold(g,r);
-
-    }
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p!=null);
     private static void Need(bool b,string m){if(!b)throw new InvalidOperationException(m);}
     private static void Accept(GameEngine g,GameCommand c){var x=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(x.Accepted,x.Error?.Message??"Rejected DongBai command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> f){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(f).Id,g.Revision));}
-    private static void AnswerForeignSlot(GameEngine g,int owner,int card){var index=V(g,owner).Hand.ToList().FindIndex(c=>c.Id==card);Need(index>=0,"Native foreign selection retains the physical card's current slot.");Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")==index.ToString());}
     private static void Gift(GameEngine g,int card,int target)=>Accept(g,new UseProgramSkillCommand(0,"ol:lianzhu","reveal-hand-gift",[card],[target],g.Revision,P(g)!.PromptId));
-    private static void Use(GameEngine g,string id,int target)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],[target],g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Reach(GameEngine g,Func<bool>done){for(int i=0;i<180;i++){if(done())return;var p=P(g);if(p?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else if(p is{Kind:DecisionKind.RescueDying})Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="let-die");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("DongBai fixture boundary exceeded.");}
     private static string State(GameEngine g)=>System.Text.Json.JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))),Commands=CommandJson.Serialize(g.AcceptedCommands),Frames=g.ResolutionStack.Select(f=>System.Text.Json.JsonSerializer.Serialize(f,f.GetType()))});

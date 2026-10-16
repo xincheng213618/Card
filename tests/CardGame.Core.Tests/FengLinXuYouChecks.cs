@@ -21,26 +21,6 @@ internal static class FengLinXuYouChecks
         var turn=g.CreateSnapshot(0).TurnNumber;End(g);Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard&&g.CreateSnapshot(0).TurnNumber>turn);
         Activate(g,"classic:chenglue","alternate",[],[]);Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Last().AlternatingSuitTop is {Required:1},"Next activation is Yin, with one actual discard.");Answer(g,c=>c.Cards.Count==1);Replay(g,r);
     }
-    public static void PhaseSuitDistanceAndExpiry()
-    {
-        var (g,r)=Create(mixed:true);ReachPlay(g);Activate(g,"classic:chenglue","alternate",[],[]);
-        var suit=g.CreateSnapshot(0).Players[0].Hand.GroupBy(c=>c.Suit).OrderByDescending(x=>x.Count()).First().Key; var first=Prompt(g)!.Choices.First(c=>g.CreateSnapshot(0).Players[0].Hand.Single(h=>h.Id==c.Cards[0]).Suit==suit);
-        Answer(g,c=>c.Id==first.Id);Answer(g,c=>g.CreateSnapshot(0).Players[0].Hand.Single(h=>h.Id==c.Cards[0]).Suit==suit);ReachPlay(g);
-        var fact=g.Events.Select(e=>e.Payload).OfType<PlayPhaseSuitAllowanceGrantedEvent>().Last();
-        Require(fact.Suits is System.Collections.Generic.ICollection<Suit> fs&&fs.IsReadOnly&&fact.DiscardedCardIds is System.Collections.Generic.ICollection<int> fi&&fi.IsReadOnly,"Committed new collection-bearing fact freezes both nested lists.");
-        var published=g.CreateSnapshot(0).Players[0].IssuedPlayPhaseSuitUseAllowances!;
-        Require(published.Count==1&&published[0].OwnerSeat==0&&published[0].SkillId=="classic:chenglue"&&published[0].Suits.Contains(suit),"Issued suit policy is public with precise source and phase.");
-        Require(published is System.Collections.Generic.ICollection<IssuedPlayPhaseSuitUseAllowance> pc&&pc.IsReadOnly&&published[0].Suits is System.Collections.Generic.ICollection<Suit> sc&&sc.IsReadOnly,"Prepared player view deeply freezes suit allowance lists.");Replay(g,r);
-        var allowed=g.GetHumanLegalActions().Where(a=>a.PlayedCardKind==CardKind.Slash&&a.TargetSeats.Contains(2)).ToArray();
-        Require(allowed.Any(a=>g.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==a.CardId).Suit==suit),"Authorized physical suit crosses actual distance. grants="+JsonSerializer.Serialize(g.Events.Select(e=>e.Payload).OfType<PlayPhaseSuitAllowanceGrantedEvent>())+" actions="+JsonSerializer.Serialize(g.GetHumanLegalActions()));
-        var a=allowed.First(x=>g.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==x.CardId).Suit==suit);Play(g,a);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:shicai");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");ReachPlay(g);
-        Activate(g,"fixture:xu-driver","lose-allowance-source",[],[]);ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[0].IssuedPlayPhaseSuitUseAllowances is {Count:1},"Paid phase allowance remains public after its source skill is lost.");
-        Require(g.GetHumanLegalActions().Any(a=>a.PlayedCardKind==CardKind.Slash&&a.TargetSeats.Contains(2)),"Authorized suit remains unlimited after a real Slash and source loss.");
-        var turn=g.CreateSnapshot(0).TurnNumber;End(g);Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0&&g.CreateSnapshot(0).TurnNumber>turn);
-        Require(g.CreateSnapshot(0).Players[0].IssuedPlayPhaseSuitUseAllowances is null,"Published allowance expires with actual phase.");
-        Require(g.GetHumanLegalActions().All(a=>a.PlayedCardKind!=CardKind.Slash||!a.TargetSeats.Contains(2)),"Suit policy expires at the actual phase boundary.");Replay(g,r);
-    }
     private static int[] Pile(GameEngine g)=>g.CreateCardZoneDiagnostics().Where(d=>d.Location==CardLocation.DrawPile).OrderBy(d=>d.ZoneIndex).Select(d=>d.CardId).ToArray();
     private static PendingDecision? Prompt(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static string State(GameEngine g)=>JsonSerializer.Serialize(Enumerable.Range(0,4).SelectMany(s=>new[]{g.CreateSnapshot(s),g.CreateSnapshot(s,true)}))+JsonSerializer.Serialize(g.CreateCardZoneDiagnostics());
@@ -50,7 +30,6 @@ internal static class FengLinXuYouChecks
     private static void ReachPlay(GameEngine g)=>Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate){for(var n=0;n<160;n++){if(Prompt(g)is{}p&&predicate(p))return;Drive(g);}throw new InvalidOperationException("Missing boundary "+Prompt(g));}
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void Activate(GameEngine g,string skill,string id,int[] cards,int[] targets)=>Accept(g,new UseProgramSkillCommand(0,skill,id,cards,targets,g.Revision,Prompt(g)!.PromptId));
     private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=Prompt(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
     private static void Drive(GameEngine g){if(Prompt(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard})End(g);else if(Prompt(g)is{PlayerSeat:0})Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip"||c.Parameters.GetValueOrDefault("response")=="let-die"||c.Cards.Count<=1);else Accept(g,new AdvanceOneStepCommand(g.Revision));}

@@ -144,7 +144,7 @@ internal static class DamageProgramChecks
             var rules = $$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
                 {"id":"damage-cursor-test:skill","revision":1,
-                 "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[
+                 "triggers":[
                  {"id":"nested","window":"afterDamageApplied","subject":"owner",
                   "damageOccurrence":"perDamage","optional":false,"priority":0,
                   "effects":[{"op":"damage","target":"owner",
@@ -153,7 +153,7 @@ internal static class DamageProgramChecks
                   "damageOccurrence":"perDamage","optional":false,"priority":1,
                   "effects":[{"op":"draw","target":"owner","amount":1}]}]},
                 {"id":"damage-cursor-test:child","revision":1,
-                 "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[
+                 "triggers":[
                  {"id":"child-follow","window":"afterDamageApplied","subject":"owner",
                   "damageOccurrence":"perDamage","optional":false,
                   "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}

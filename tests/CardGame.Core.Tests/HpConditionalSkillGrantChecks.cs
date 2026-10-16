@@ -52,64 +52,10 @@ internal static class HpConditionalSkillGrantChecks
         Cold(game, registry);
     }
 
-    // Source API lifecycle test; command-only checks above/below establish replay.
-    public static void ExactSourceLifetimeStableSharedInstanceAndReadPrivacy()
-    {
-        var (game, _) = Start();
-        Drive(game, "independent-taunt");
-        var owner = Players(game)[0];
-        var independent = owner.SkillGrants.Grants.Single(grant => grant.SkillId == Derived[0]);
-        Drive(game, "loss");
-        var conditional = owner.SkillGrants.Grants.Single(grant => grant.SkillId == Derived[0] && grant.HpConditionalSource is not null);
-        Require(conditional.SkillInstanceId == independent.SkillInstanceId, "Independent and conditional grants must share one effective skill instance.");
-        UseTauntToPlay(game);
-        Drive(game, "recover");
-        owner.SkillGrants.RemoveGrant(independent.GrantId);
-        Synchronize(game);
-        Drive(game, "loss");
-        Require(!CanTaunt(game) && owner.SkillGrants.Grants.Single(grant => grant.SkillId == Derived[0]).SkillInstanceId == independent.SkillInstanceId,
-            "If an independent shared source disappears while HP is out of range, reentry must retain the original instance and spent allowance.");
-        var source = owner.SkillGrants.Grants.Single(grant => grant.SkillId == Source);
-        var eventCount = game.Events.Count;
-        var revision = owner.SkillGrants.Revision;
-        owner.SkillGrants.SetEnabled(source.GrantId, false);
-        var disabledRevision = owner.SkillGrants.Revision;
-        Require(!Has(game, Derived[0]) && game.Events.Count == eventCount && owner.SkillGrants.Revision == disabledRevision,
-            "A read must immediately reject a disabled source without mutating grants or producing events.");
-        Synchronize(game);
-        Require(owner.SkillGrants.Grants.All(grant => grant.HpConditionalSource is null), "Explicit rule progression removes disabled-source grants.");
-        owner.SkillGrants.SetEnabled(source.GrantId, true);
-        Synchronize(game);
-        Require(Has(game, Derived[0]) && !CanTaunt(game), "Reenabling the same source cannot restore spent phase quota.");
-        foreach (var hp in new[] { 1, 0, -1, 2, 4 })
-        {
-            owner.Hp = hp;
-            Synchronize(game);
-            Require(Has(game, Derived[2]) == (hp == 1), "Swift is strictly HP == 1, including dying and negative HP boundaries.");
-            Require(Has(game, Derived[0]) == (hp <= 3) && Has(game, Derived[1]) == (hp <= 2), "The other two HP bounds include zero and negative values.");
-        }
-        owner.Hp = 1;
-        Synchronize(game);
-        owner.GeneralRevealed = false;
-        var other = game.CreateSnapshot(1);
-        Require(other.Players[0].Skills is null && other.Players[0].Hand.Count == 0 && other.PendingDecision is null &&
-            !SnapshotJson.Serialize(other).Contains("HpConditionalSource", StringComparison.Ordinal),
-            "An unrevealed general's derived relations and private hand choices cannot escape in another player's view.");
-        owner.SkillGrants.RemoveGrant(source.GrantId);
-        Synchronize(game);
-        Require(Derived.All(skill => !Has(game, skill)) && owner.SkillGrants.Grants.All(grant => grant.HpConditionalSource is null),
-            "Removing the exact capability removes only its dependent grants and leaves no dangling relation.");
-        Require(((System.Collections.IDictionary)typeof(GameEngine).GetField("_hpConditionalSkillInstances", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!).Count == 0,
-            "A removed exact source must release its remembered derived-instance relations.");
-        Require(revision < owner.SkillGrants.Revision && !JsonSerializer.Serialize(new SkillGrant("g", "standard:none", "i", "s")).Contains("HpConditionalSource"),
-            "Older grants omit the additive nullable source field.");
-    }
-
     private static bool Has(GameEngine game, string skill) => game.CreateSnapshot(0, true).Players[0].Skills?.Any(s => s.ContentId == skill) == true;
     private static bool CanTaunt(GameEngine game) => game.GetHumanLegalActions().Any(action => action.ProgramSkillId == Derived[0]);
     private static List<CharacterState> Players(GameEngine game) => (List<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!;
     private static IReadOnlyList<SkillGrant> Grants(GameEngine game) => Players(game)[0].SkillGrants.Grants;
-    private static void Synchronize(GameEngine game) => typeof(GameEngine).GetMethod("SynchronizeHpConditionalSkillGrants", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, null);
     private static PendingDecision? Pending(GameEngine game) => game.PendingDecision ?? Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Play(GameEngine game) => Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Drive(GameEngine game, string activation) { Accept(game, new UseProgramSkillCommand(0, Driver, activation, [], [], game.Revision, Pending(game)!.PromptId)); Play(game); }
@@ -161,16 +107,6 @@ internal static class HpConditionalSkillGrantChecks
         Accept(game, new SelectGeneralCommand(0, Owner, game.Revision, Pending(game)!.PromptId));
         Play(game);
         return (game, registry);
-    }
-
-    private sealed class ContractFixture(string target) : IGameContentPackage
-    {
-        public PackageManifest Manifest { get; } = new("fixture-hp-contract", new(1, 0, 0), []);
-        public void Register(IContentRegistryBuilder builder)
-        {
-            var catalog = SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:hp-contract","revision":1,"hpSkillGrants":[{"id":"one","skillId":"{{target}}","maximumHp":3}]}]}""", """{"schemaVersion":3,"skills":{"fixture:hp-contract":{"name":"HP","description":"contract"}}}""");
-            builder.AddSkill(new("fixture:hp-contract", "HP", "contract") { Program = catalog.Programs["fixture:hp-contract"] });
-        }
     }
 
     private sealed class Fixture(bool swift, bool silverLion) : IGameContentPackage

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:qingliu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "choose-opening-faction",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveQingliuFactionChoice",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-rescue-faction",
+          "window": "dyingExited",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveQingliuFactionChoice",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yongzu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "distinct-benefits",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveYongzuDistinctBenefits",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:caoteng-jianxiong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-and-claim",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveCaoTengJianxiongDrawAndClaim",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

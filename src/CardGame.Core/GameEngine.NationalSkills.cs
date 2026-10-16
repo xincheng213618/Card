@@ -4,33 +4,36 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private int NationalMaxHp(GeneralDefinition primary, GeneralDefinition secondary) =>
-        ((primary.BaseHp + secondary.BaseHp) / 2 );
+    private static int DualGeneralMaxHp(GeneralDefinition primary, GeneralDefinition secondary) =>
+        (primary.BaseHp + secondary.BaseHp) / 2;
 
-    private void InitializeNationalHealth()
+    private void InitializeDualGeneralHealth()
     {
-        if (!IsNationalWarMode) return;
+        if (!IsDualGeneralMode) return;
         foreach (var player in _players)
         {
             if (!player.GeneralSelected || !player.SecondaryGeneralSelected || player.SecondaryGeneral is null)
-                throw new InvalidOperationException("Both national generals must be selected before initializing health.");
-            player.MaxHp = NationalMaxHp(player.General, player.SecondaryGeneral);
+                throw new InvalidOperationException("Both generals must be selected before initializing dual-general health.");
+            player.MaxHp = DualGeneralMaxHp(player.General, player.SecondaryGeneral) +
+                (_modeDefinition.DualGenerals && player.Role == Role.Lord ? 1 : 0);
             player.Hp = player.MaxHp;
         }
     }
 
-    private PromptChoice WithNationalHealthPreview(PromptChoice choice, CharacterState player, GeneralDefinition candidate)
+    private PromptChoice WithDualGeneralHealthPreview(PromptChoice choice, CharacterState player, GeneralDefinition candidate)
     {
-        if (!IsNationalWarMode) return choice;
+        if (!IsDualGeneralMode) return choice;
         var parameters = new Dictionary<string, string>(choice.Parameters);
         parameters["base-hp"] = candidate.BaseHp.ToString(CultureInfo.InvariantCulture);
         var health = $"基础体力 {candidate.BaseHp}";
         if (player.GeneralSelected)
         {
-            var maxHp = NationalMaxHp(player.General, candidate);
+            var lordBonus = _modeDefinition.DualGenerals && player.Role == Role.Lord ? 1 : 0;
+            var maxHp = DualGeneralMaxHp(player.General, candidate) + lordBonus;
             parameters["primary-base-hp"] = player.General.BaseHp.ToString(CultureInfo.InvariantCulture);
             parameters["combined-max-hp"] = maxHp.ToString(CultureInfo.InvariantCulture);
             health += $" · 组合上限 {maxHp}（{player.General.BaseHp}+{candidate.BaseHp} 平均向下取整）";
+            if (lordBonus > 0) health += " · 含主公 +1";
         }
         parameters["health-preview"] = health;
         return choice with { Description = choice.Description + " · " + health, Parameters = parameters };

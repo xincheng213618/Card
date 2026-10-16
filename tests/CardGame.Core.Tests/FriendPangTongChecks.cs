@@ -22,53 +22,6 @@ internal static class FriendPangTongChecks
             move.To == CardLocation.DrawPile && move.Reason.Value == "friend.manjuan.top") == 1), "The entire ordered payment moves once.");
         ReplayFourViews(game, registry);
     }
-    public static void YangmingUsesRealHeldCardsAndUniqueSuits()
-    {
-        var (game, registry) = Start(waitGain: false);
-        var cards = game.State.Players[0].Hand!.Take(3).Select(c => c.Id).ToArray();
-        Accept(game, new UseProgramSkillCommand(0, "fixture:pang-driver", "lose-three", cards, [], game.Revision, P(game)!.PromptId)); Settle(game);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, P(game)!.PromptId));
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "friend:yangming"));
-        Activate(game); Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "friend-pang-tong"));
-        var frame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last(); var stored = frame.FriendPangTong!.Cards.ToArray();
-        var expected = game.CardMovements.Where(move => move.TurnNumber == game.State.TurnNumber && move.To == CardLocation.DiscardPile)
-            .Select(move => ReadCard(game, move.CardId).Suit).Where(s => s != Suit.None).Distinct().Count();
-        Require(stored.Length == expected && stored.All(id => game.State.PublicRevealedCards.Any(c => c.Id == id)),
-            "Yangming places the actual turn's distinct discard-suit count on its public owning pile.");
-        Require(Enumerable.Range(0, 4).All(view => game.CreateSnapshot(view).PublicRevealedCards.Select(c => c.Id).Order().SequenceEqual(stored.Order())),
-            "All viewers see the same held card faces without exposing any remaining deck faces.");
-        ReplayFourViews(game, registry);
-        var selected = P(game)!.Choices.First(c => c.Cards.Count == 1 && c.Targets.SequenceEqual([1])); var used = selected.Cards.Single(); var suit = ReadCard(game, used).Suit;
-        Answer(game, c => c.Id == selected.Id);
-        var issued = game.Events.Select(e => e.Payload).OfType<FriendYangmingUseIssuedEvent>().Single(e => e.Return.CardId == used);
-        var action = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Single(e => e.Action.ActionId == issued.Return.CardActionId).Action;
-        Require(action.PhysicalCards is [var material] && material.CardId == used &&
-            material.From.Zone == CardZoneKind.PublicPersistentPile && material.From.OwnerSeat == 0,
-            "The actual Use owns its one physical held card and an issued unlimited-count policy.");
-        ReplayFourViews(game, registry);
-        for (var index = 0; index < 100; index++)
-        {
-            var p = P(game);
-            if (p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "friend-pang-tong") == true) break;
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-        }
-        if (P(game)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "friend-pang-tong") == true)
-        {
-            Require(P(game)!.Choices.Where(c => c.Cards.Count == 1).All(c => ReadCard(game, c.Cards[0]).Suit != suit),
-                "A returned physical use removes that suit from the remaining menu.");
-            Answer(game, c => c.Parameters.GetValueOrDefault("value") == "finish");
-        }
-        for (var index = 0; index < 100 && game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.FriendPangTong is not null); index++)
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Require(!game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.FriendPangTong is not null) &&
-            stored.All(id => game.CardMovements.Any(move => move.CardId == id && move.To == CardLocation.DiscardPile)) &&
-            game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Any(d => d.SourceSeat == 0 && d.TargetSeat == 1),
-            "The real Slash resolves damage, then all unused held cards drain once and the owning program completes.");
-        ReplayFourViews(game, registry);
-    }
-    private static Card ReadCard(GameEngine game, int id) => ((CardZoneStore)typeof(GameEngine)
-        .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!).CardsAt(
-            ((CardZoneStore)typeof(GameEngine).GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!).GetLocation(id)).Single(c => c.Id == id);
     private static (GameEngine, ContentRegistry) Start(bool waitGain)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());

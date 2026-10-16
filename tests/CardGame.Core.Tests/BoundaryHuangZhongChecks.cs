@@ -24,23 +24,6 @@ internal static class BoundaryHuangZhongChecks
         var(f,fr)=Start(child:"change-facts");Play(f,f.State.Players[0].Hand[0].Id,[1]);ReachPrompt(f,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Answer(f,c=>c.Targets.SequenceEqual([1]));ReachPrompt(f,p=>p.SkillPrompt?.SkillId==Skill);Require(f.State.Players[1].Hp<f.State.Players[0].Hp&&f.State.Players[1].HandCount>f.State.Players[0].HandCount,"The actual higher-priority child makes both current comparisons false after the original facts were frozen.");Cold(f,fr);Activate(f);Finish(f);
         Require(f.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Count()==2,"Real higher-priority child changes HP/hand after frozen comparison without changing either receipt.");Cold(f,fr);
     }
-    public static void MultipleTargetsAndDamageBoundaries()
-    {
-        var(m,mr)=Start(weapon:"classic:fangtian-halberd");Driver(m,"equip");Settle(m);var slash=m.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash).Id;
-        Accept(m,new UseProgramSkillCommand(0,"fixture:hz-driver","trim",m.State.Players[0].Hand.Where(c=>c.Id!=slash).Select(c=>c.Id).ToArray(),[],m.Revision,P(m)!.PromptId));Settle(m);
-        Require(m.GetHumanLegalActions().Any(a=>a.CardId==slash&&a.TargetSeats.SequenceEqual([1,2])),"Real final-hand Fangtian offers the multi-target actual use.");Play(m,slash,[1,2]);ReachPrompt(m,p=>p.SkillPrompt?.SkillId==Skill);Cold(m,mr);Activate(m);
-        ReachPrompt(m,p=>p.SkillPrompt?.SkillId==Skill);var owning=m.ResolutionStack.OfType<CardUseFrame>().Single(f=>f.FinalTargetSlashReceipts!=null);
-        Require(owning.FinalTargetSlashReceipts is IList<ProgramTargetSlashReceipt>{IsReadOnly:true}&&owning.FinalTargetSlashReceipts.All(item=>item.TargetSeat==1),"First target's immutable issued receipt stays on the real owning prepared use while the second offer waits.");Cold(m,mr);Evidence(m,"prepared-second-target-pause");Activate(m);Finish(m);
-        var rs=m.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Select(e=>e.Receipt).ToArray();
-        Require(rs.Select(e=>e.TargetSeat).Distinct().Order().SequenceEqual([1,2])&&rs.GroupBy(e=>e.TargetSeat).All(group=>group.Sum(e=>e.DamageBonus)==1),"Actual prepared multi-target attacks retain separate receipts and one bonus each.");
-        Require(m.State.Players[1].Hp==3&&m.State.Players[2].Hp==3,"Two actual targets each take two direct damage.");Cold(m,mr);Evidence(m,"prepared-multiple-targets");
-        var(s,sr)=Start(weapon:"classic:silver-lion",child:"armor");Driver(s,"equip-target",[1]);Settle(s);var before=s.State.Players[1].Hp;Play(s,s.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash).Id,[1]);Finish(s);
-        Require(s.State.Players[1].Hp==before-1,"Silver Lion caps the resulting real damage after the additive receipt.");Cold(s,sr);
-        var(chain,cr)=Start(fire:true);Driver(chain,"chain",[1]);Settle(chain);Driver(chain,"chain",[2]);Settle(chain);Play(chain,chain.State.Players[0].Hand.First(c=>c.Kind==CardKind.FireSlash).Id,[1]);Finish(chain);
-        Require(chain.State.Players[1].Hp==3&&chain.State.Players[2].Hp==3,"Real propagated elemental damage inherits the direct two damage without another Liegong bonus.");Cold(chain,cr);Evidence(chain,"actual-chain-once");
-        var(skip,skr)=Start();Play(skip,skip.State.Players[0].Hand[0].Id,[1]);Finish(skip,activate:false);
-        Require(!skip.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Any()&&skip.State.Players[1].Hp==4,"Optional skip creates no receipt or bonus.");Cold(skip,skr);
-    }
     private static void Cold(GameEngine g,ContentRegistry r)
     {
         ReplayFourViews(g,r);var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);

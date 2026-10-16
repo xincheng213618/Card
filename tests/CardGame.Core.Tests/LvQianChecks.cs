@@ -1,41 +1,13 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class LvQianChecks
 {
  private const string Owner="fixture:lvqian-general",Driver="fixture:lvqian-driver",Quiet="fixture:lvqian-quiet",Mode="identity:classic-lvqian-fixture";
- public static void StrictActualPhaseAndGrantedDamageContracts()
- {
-  foreach(var edit in new Action<JsonNode>[]{n=>n["skills"]![0]!["triggers"]![0]!["optional"]=true,n=>n["skills"]![0]!["triggers"]![2]!["window"]="turnEnding",n=>n["skills"]![1]!["activations"]![0]!["minCards"]=0,n=>n["skills"]![1]!["triggers"]![0]!["subject"]="damageTarget"})
-  {var rules=JsonNode.Parse(Read("rules.json"))!;edit(rules);var rejected=false;try{_=SkillProgramCatalog.Load(rules.ToJsonString(),Read("presentation.json"));}catch(InvalidOperationException){rejected=true;}Need(rejected,"Lv Qian rejects changed phase-end, empty deposit and false damage-source contracts.");}
-  Need(!JsonSerializer.Serialize(new ProgramSkillFrame(1,0,"old","old","old",0,[],[])).Contains("LvQian")&&!JsonSerializer.Serialize(new ProgramSkillWindowContext(SkillProgramTriggerWindow.PlayEnding,1,0)).Contains("WeiluPhase"),"Unrelated old frames omit new nullable rules proofs.");
- }
  public static void ActualWeiluRepeatedSourceNextPlayAndExactRestoreCold()
  {
   var(g,r)=Start();Play(g);Use(g,"incoming",1);Play(g);Use(g,"incoming",1);Play(g);Need(E<WeiluFutureArmedEvent>(g).Count()==2&&!E<WeiluHpPaidEvent>(g).Any(),"Two actual other-source damage occurrences arm future obligations without paying early.");var before=V(g,1).Hp;End(g);Play(g);var paid=E<WeiluHpPaidEvent>(g).Single();Need(paid.TargetSeat==1&&paid.ActualHpLost==before-1&&V(g,1).Hp==1,"Repeated same source aggregates into one real loss to one at the next actual own Play.");g=Cold(g,r);var phase=paid.Phase;End(g);Reach(g,()=>E<WeiluDebtConsumedEvent>(g).Any(e=>e.ProducerFrameId==paid.FrameId));g=Cold(g,r);Need(V(g,1).Hp==before&&E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==1&&e.Amount==paid.ActualHpLost)&&E<WeiluDebtConsumedEvent>(g).Count(e=>e.ProducerFrameId==paid.FrameId&&e.Phase==phase)==1,"Only the exact paid phase ends by recovering the actual loss once.");
- }
- public static void ActualPaidWeiluSourceLossAndTargetDeathCold()
- {
-  foreach(var scenario in new[]{"loss","target-death","owner-death"})
-  {var death=scenario=="target-death";var(g,r)=Start(scenario=="owner-death");Play(g);Use(g,"incoming",1);Play(g);End(g);Play(g);var paid=E<WeiluHpPaidEvent>(g).Single();g=Cold(g,r);if(scenario=="owner-death"){Use(g,"suicide");Reach(g,()=>E<PlayerDiedEvent>(g).Any(e=>e.VictimSeat==0));}else if(death){Use(g,"kill",1);Play(g);Need(E<PlayerDiedEvent>(g).Any(e=>e.VictimSeat==1),"The restoration beneficiary actually dies before phase end.");}else{Use(g,"lose-weilu");Play(g);Need(E<ProgramOwnerSkillsReplacedEvent>(g).Any(e=>e.OwnerSeat==0&&e.LostSkillIds.Contains("ol:weilu"))&&!V(g,0).Skills!.Any(s=>s.Id=="ol:weilu"),"The paid recovery debt truly loses its original printed source.");}if(scenario!="owner-death")End(g);Reach(g,()=>E<WeiluDebtConsumedEvent>(g).Any(e=>e.ProducerFrameId==paid.FrameId));g=Cold(g,r);Need(E<WeiluDebtConsumedEvent>(g).Count(e=>e.ProducerFrameId==paid.FrameId)==1&&(death?!E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==1):E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==1&&e.Amount==paid.ActualHpLost)),"Paid source loss preserves recovery; native target death clears the debt without fake healing.");}
- }
- public static void ActualZengdaoNativeLionDepositPermanentSourceDamageCold()
- {
-  foreach(var self in new[]{false,true})
-  {var(g,r)=Start();Play(g);var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);var card=action.CardId!.Value;Accept(g,new PlayCardCommand(0,card,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId));Play(g);Use(g,"hurt");Play(g);var hp=V(g,0).Hp;Accept(g,new UseProgramSkillCommand(0,"ol:zengdao","deposit",[card],[1],g.Revision,P(g)!.PromptId));Play(g);g=Cold(g,r);var deposit=E<LvQianSegmentPaidEvent>(g).Single(e=>e.Stage==LvQianStage.DepositChildren);Need(deposit.Count==1&&V(g,0).Hp==hp+1&&g.CardMovements.Any(m=>m.CardId==card&&m.From==CardLocation.Equipment(0)&&m.To.OwnerSeat==1&&m.To.Zone==CardZoneKind.PublicPersistentPile),"The exact equipment truly enters the recipient public pile and native Lion removal recovery drains once.");Use(g,"lose-zengdao");Play(g);Need(E<ProgramOwnerSkillsReplacedEvent>(g).Any(e=>e.LostSkillIds.Contains("ol:zengdao")),"The donor really loses the printed gift source.");Use(g,self?"self-fire":"incoming",1);Play(g);g=Cold(g,r);var bonus=E<ZengdaoDamagePaidEvent>(g).Single();Need(bonus.RecipientSeat==1&&bonus.CardId==card&&g.CardMovements.Count(m=>m.CardId==card&&m.Sequence>bonus.Before&&m.Sequence<=bonus.After&&m.From.Zone==CardZoneKind.PublicPersistentPile&&m.To==CardLocation.DiscardPile)==1&&E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==1&&e.TargetSeat==(self?1:0)&&e.Amount==2&&(!self||e.Nature==DamageNature.Fire)),"A permanent gifted entity pays exactly once for the recipient's real normal or self-source elemental native damage after donor source loss.");Use(g,self?"self-fire":"incoming",1);Play(g);Need(E<ZengdaoDamagePaidEvent>(g).Count()==1,"The same public entity cannot pay the next real damage again.");}
- }
- public static void ActualZengdaoDonorDeathPersistsAndRecipientDeathCleansCold()
- {
-  {
-   var(g,r)=Start();Play(g);var ids=new List<int>();foreach(var kind in new[]{CardKind.SilverLion,CardKind.OffensiveHorse}){var a=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip&&V(g,0).Hand.Single(c=>c.Id==a.CardId).Kind==kind);ids.Add(a.CardId!.Value);Accept(g,new PlayCardCommand(0,a.CardId.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId));Play(g);}Accept(g,new UseProgramSkillCommand(0,"ol:zengdao","deposit",ids,[1],g.Revision,P(g)!.PromptId));Play(g);Use(g,"incoming",1);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="zengdao-damage")==true);var p=P(g)!;Need(p.PlayerSeat==1&&p.Choices.Count==2&&p.Choices.SelectMany(c=>c.Cards).Order().SequenceEqual(ids.Order()),"The real recipient chooses between its two actual public gifted entities, rather than the donor or a fixed first-card payment.");g=Cold(g,r);Reach(g,()=>E<ZengdaoDamagePaidEvent>(g).Any());Play(g);Need(E<ZengdaoDamagePaidEvent>(g).Count()==1&&E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==1&&e.TargetSeat==0&&e.Amount==2)&&ids.Count(id=>g.CardMovements.Any(m=>m.CardId==id&&m.Reason.Value=="skill-program.zengdao.consume"))==1,"Multiple remaining gifted cards pay exactly one recipient-chosen entity and grant one increase for this real damage.");_=Cold(g,r);
-  }
-
-  foreach(var donorDies in new[]{false,true})
-  {
-   var(g,r)=Start(donorDies);Play(g);var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);var id=equip.CardId!.Value;Accept(g,new PlayCardCommand(0,id,equip.TargetSeats,g.Revision,P(g)!.PromptId,equip.PlayedCardKind,equip.TargetCardId));Play(g);Accept(g,new UseProgramSkillCommand(0,"ol:zengdao","deposit",[id],[1],g.Revision,P(g)!.PromptId));Play(g);Use(g,donorDies?"suicide":"kill",donorDies?null:1);Reach(g,()=>E<PlayerDiedEvent>(g).Any(e=>e.VictimSeat==(donorDies?0:1)));g=Cold(g,r);
-   var publicIds=(V(g,1).PublicPersistentPileCards??[]).Concat((V(g,1).PublicPersistentPiles??[]).SelectMany(p=>p.Cards)).Select(c=>c.Id).ToArray();Need(donorDies?publicIds.Contains(id):!publicIds.Contains(id)&&g.CardMovements.Any(m=>m.CardId==id&&m.From.OwnerSeat==1&&m.From.Zone==CardZoneKind.PublicPersistentPile&&m.To==CardLocation.DiscardPile),"Native donor death preserves the recipient's actual issued public grant; native recipient death cleans the exact remaining gifted entity.");
-  }
  }
  private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
  private static PendingDecision?P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);

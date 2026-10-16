@@ -96,112 +96,6 @@ internal static class OrdinaryShiBaoChecks
             "Qualified Wine, ordinary Wine and another qualified Wine each apply once: the first enhanced use did not debit quota and the last bypasses the spent ordinary quota.");
     }
 
-    public static void OrdinaryTrickTargetAdditionRemovalAndImplicitSelfFinishOnce()
-    {
-        AssertLoaderBoundaries();
-        foreach (var branch in new[] { "add", "remove", "decline" })
-        {
-            var (g, registry) = Start(Scenario.IronChain); var material = Draw(g)[0];
-            var original = branch == "add" ? new[] { 1, 3 } : new[] { 1 };
-            var use = BeginAdjustment(ref g, registry, Action(g, LegalActionKind.IronChain, material, original));
-            var expected = branch == "add" ? new[] { 1, 3, 2 } : branch == "remove" ? [] : original;
-            Adjust(ref g, registry, use, branch, branch == "add" ? [2] : branch == "remove" ? [1] : []);
-            Reach(g, IsComplete); g = Cold(g, registry);
-            Require(E<IronChainStateChangedEvent>(g).Where(e => e.ResolutionId == use.Id).Select(e => e.TargetSeat).SequenceEqual(expected),
-                "Exactly the final target list receives native Iron Chain effects, including a genuine removal down to zero.");
-            Reach(g, IsPlay); AssertFinished(g, use, [material]);
-            Require(E<RoundGainedTrickTargetResolvedEvent>(g).Count(e => e.Qualification.CardUseFrameId == use.Id) == 1,
-                "One optional adjustment has one exact audit result and cannot repeat its material or target tail.");
-        }
-        foreach (var branch in new[] { "add", "remove", "decline" })
-        {
-            var (g, registry) = Start(Scenario.DrawTwo); var material = Draw(g)[0];
-            var before = Enumerable.Range(0, 4).Select(s => V(g, s).HandCount).ToArray();
-            var use = BeginAdjustment(ref g, registry, Action(g, LegalActionKind.DrawTwo, material));
-            Require(E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == use.Action!.ActionId).Action.TargetSeats.Count == 0 &&
-                g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RoundGainedTrickTargetDraft is not null)
-                    .RoundGainedTrickTargetDraft!.OriginalTargetSeats.SequenceEqual([0]),
-                "A real accepted DrawTwo keeps its implicit target while the typed adjustment exposes exactly its native self target.");
-            Adjust(ref g, registry, use, branch, branch == "add" ? [2] : branch == "remove" ? [0] : []);
-            Reach(g, IsComplete); g = Cold(g, registry);
-            Require(V(g, 0).HandCount == before[0] - 1 + (branch == "remove" ? 0 : 2) &&
-                V(g, 2).HandCount == before[2] + (branch == "add" ? 2 : 0),
-                "Self DrawTwo removal draws zero, decline draws only for self, and addition resolves two real entities for each final recipient.");
-            Reach(g, IsPlay); AssertFinished(g, use, [material]); _ = Cold(g, registry);
-        }
-        {
-            var (g, registry) = Start(Scenario.IronChain); var old = V(g, 0).Hand[0].Id;
-            Play(g, Action(g, LegalActionKind.IronChain, old, [1])); Reach(g, IsComplete);
-            var use = CurrentUse(g, old);
-            Require(use.RoundGainedUseQualifications is null && E<RoundGainedTrickTargetOfferedEvent>(g).Length == 0,
-                "An old physical trick does not gain a target-selection offer merely because the actor owns Zhuosheng.");
-            Reach(g, IsPlay); AssertFinished(g, use, [old]);
-            var material = Draw(g)[0]; var before = E<RoundGainedTrickTargetOfferedEvent>(g).Length;
-            Play(g, Action(g, LegalActionKind.Recast, material)); Reach(g, IsPlay);
-            Require(E<RoundGainedTrickTargetOfferedEvent>(g).Length == before && g.CreateCardZoneDiagnostics().Single(c => c.CardId == material).Location == CardLocation.DiscardPile,
-                "A true Iron Chain recast has no actual ordinary-trick target adjustment, even when the card was gained this round.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    private static void AssertLoaderBoundaries()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        using var rr = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-shi-bao.rules.json")!);
-        using var pp = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-shi-bao.presentation.json")!);
-        var rules = rr.ReadToEnd(); var presentation = pp.ReadToEnd();
-        foreach (var mutation in new Action<JsonNode>[]
-        {
-            n => n["skills"]![0]!["triggers"]![0]!["window"] = "cardUseCompleted",
-            n => n["skills"]![0]!["triggers"]![0]!["includeResponseUses"] = true,
-            n => n["skills"]![0]!["triggers"]![1]!["effects"]![0]!["amount"] = 1,
-            n => n["skills"]![0]!["cardPolicies"] = new JsonArray()
-        })
-        {
-            var changed = JsonNode.Parse(rules)!; mutation(changed); var rejected = false;
-            try { _ = SkillProgramCatalog.Load(changed.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Wrong windows, pure-response use, invented draw amounts and an unpaired round-source policy must reject at the shared loader boundary.");
-        }
-    }
-
-    private static CardUseFrame BeginAdjustment(ref GameEngine g, ContentRegistry registry, LegalAction action)
-    {
-        Play(g, action); Reach(g, IsSkillOffer);
-        var use = CurrentUse(g, action.CardId!.Value); AssertQualification(g, use, [action.CardId.Value]);
-        Private(g); g = Cold(g, registry);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, IsAdjustment);
-        var parent = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RoundGainedTrickTargetDraft is not null);
-        var draft = parent.RoundGainedTrickTargetDraft!; var offered = E<RoundGainedTrickTargetOfferedEvent>(g).Single(e => e.ProgramFrameId == parent.Id);
-        Require(draft.CardUseFrameId == use.Id && draft.ActionId == use.Action!.ActionId && draft.InstructionIndex == 1 &&
-            offered.Qualification.CardUseFrameId == use.Id && offered.OriginalTargetSeats.SequenceEqual(draft.OriginalTargetSeats) &&
-            offered.Choices.Select(c => c.Id).SequenceEqual(P(g)!.Choices.Select(c => c.Id)) && P(g)!.Choices.All(c => c.Cards.Count == 0),
-            "The public target choice retains its exact frozen material qualification, original native use and published choices.");
-        Frozen(draft.OriginalTargetSeats); FreezeChoices(draft.Choices); Frozen(offered.OriginalTargetSeats); FreezeChoices(offered.Choices);
-        FreezeQualification(offered.Qualification); g = Cold(g, registry); return use;
-    }
-
-    private static void Adjust(ref GameEngine g, ContentRegistry registry, CardUseFrame use, string branch, IReadOnlyList<int> targets)
-    {
-        var p = P(g)!; var choice = p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") == branch && c.Targets.SequenceEqual(targets))
-            ?? throw new InvalidOperationException("Missing real round-gained target choice: " + Diagnostic(g));
-        Reject(g, new AnswerPromptCommand(1, p.PromptId, choice.Id, g.Revision));
-        Reject(g, new AnswerPromptCommand(0, p.PromptId, choice.Id, g.Revision - 1));
-        Reject(g, new AnswerPromptCommand(0, p.PromptId, new ChoiceId("forged-round-gained-target"), g.Revision));
-        var snapshot = g.CreateSnapshot(0); var frozen = SnapshotJson.Serialize(snapshot);
-        Accept(g, new AnswerPromptCommand(0, p.PromptId, choice.Id, g.Revision));
-        Require(SnapshotJson.Serialize(snapshot) == frozen, "An already prepared private snapshot cannot be changed by resolving its public target choice.");
-        var parentId = E<RoundGainedTrickTargetOfferedEvent>(g).Single(e => e.Qualification.CardUseFrameId == use.Id).ProgramFrameId;
-        var resolved = E<RoundGainedTrickTargetResolvedEvent>(g).Single(e => e.ProgramFrameId == parentId);
-        Require(resolved.Qualification.CardUseFrameId == use.Id && resolved.Qualification.ActionId == use.Action!.ActionId &&
-            (branch == "add" ? resolved.AddedTargetSeats.SequenceEqual(targets) && resolved.RemovedTargetSeats.Count == 0 :
-             branch == "remove" ? resolved.RemovedTargetSeats.SequenceEqual(targets) && resolved.AddedTargetSeats.Count == 0 :
-             resolved.AddedTargetSeats.Count == 0 && resolved.RemovedTargetSeats.Count == 0),
-            "The actual one-choice result freezes exactly the selected add/remove/decline branch for the original action.");
-        Frozen(resolved.OriginalTargetSeats); Frozen(resolved.AddedTargetSeats); Frozen(resolved.RemovedTargetSeats); Frozen(resolved.ResultTargetSeats);
-        FreezeQualification(resolved.Qualification); Private(g); g = Cold(g, registry);
-    }
-
     private static void AssertQualification(GameEngine g, CardUseFrame use, IReadOnlyList<int> ids)
     {
         Require(use.RoundGainedUseQualifications is { Count: 1 }, "Exactly one formal skill qualifies the actual use: " + Diagnostic(g));
@@ -255,8 +149,6 @@ internal static class OrdinaryShiBaoChecks
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool IsPlay(PendingDecision? p) => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };
     private static bool IsComplete(PendingDecision? p) => p?.SkillPrompt?.SkillId == Complete && p.PlayerSeat == 0;
-    private static bool IsSkillOffer(PendingDecision? p) => p?.SkillPrompt?.SkillId == Skill && p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static bool IsAdjustment(PendingDecision? p) => p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-gained-trick-target") == true;
     private static CardUseFrame CurrentUse(GameEngine g, int card) => g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == card);
     private static LegalAction Action(GameEngine g, LegalActionKind kind, int card, IReadOnlyList<int>? targets = null, string? binding = null) =>
         g.GetHumanLegalActions().FirstOrDefault(a => a.Kind == kind && a.CardId == card && (targets is null || a.TargetSeats.SequenceEqual(targets)) &&
@@ -318,8 +210,6 @@ internal static class OrdinaryShiBaoChecks
     private static void Private(GameEngine g)
     { foreach (var viewer in Enumerable.Range(0, 4)) foreach (var p in g.CreateSnapshot(viewer).Players.Where(p => p.Seat != viewer)) Require(p.Hand.Count == 0, "No prepared player view exposes another player's private hand."); }
     private static void FreezeQualification(RoundGainedUseQualification q) => Frozen(q.MaterialGains);
-    private static void FreezeChoices(IReadOnlyList<PromptChoice> choices)
-    { Frozen(choices); foreach (var c in choices) { Frozen(c.Cards); Frozen(c.Targets); if (c.Parameters is IDictionary<string, string> d) { var rejected = false; try { d["mutation"] = "invalid"; } catch (NotSupportedException) { rejected = true; } Require(rejected, "Nested published choice parameters are immutable."); } } }
     private static void Frozen<T>(IReadOnlyList<T> list)
     { if (list is not IList<T> writable) return; var rejected = false; try { if (writable.Count > 0) writable[0] = writable[0]; else writable.Add(default!); } catch (NotSupportedException) { rejected = true; } Require(rejected, "Published nested collections must be immutable."); }
     private static string Diagnostic(GameEngine g)

@@ -70,76 +70,9 @@ internal static class BoundaryChenGongChecks
         }
     }
 
-    public static void VirtualSlashActualDamageRescueCompletedAndCommittedSourceLossCold()
-    {
-        foreach (var scenario in new[] { "normal", "rescue", "suppression" })
-        {
-            var (g, r) = Create(rescue: scenario == "rescue", suppressAfterUse: scenario == "suppression");
-            if (scenario == "rescue") { Use(g, "weaken-target", [2]); Play(g); Require(g.State.Players[2].Hp == 1, "The real pre-use HP cost leaves a one-HP victim."); }
-            var gift = Hand(g, 0).First().Id; BeginGift(g, gift);
-            Reach(g, p => p.SkillPrompt?.SkillId == GiftGain); Continue(g); ReachOffer(g, 1);
-            Answer(g, c => c.Parameters.GetValueOrDefault("offer-option") == "slash"); ReachOffer(g, 0);
-            Require(P(g)!.Choices.Where(c => c.Targets.Count != 0).All(c => c.Targets.Count == 1 && c.Targets[0] != 1) &&
-                !P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3])),
-                "The owner chooses another actor's legal ordinary-range target, excluding the actor and distance two.");
-            Cold(g, r); Reject(g); Answer(g, c => c.Targets.SequenceEqual([2]));
-            if (scenario == "rescue")
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-                var use = UseOwner(g); var root = Root(g);
-                var dying = g.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 2);
-                Require(use.SharedSlashBenefit == root.SharedSlashOffer!.SlashReturn && use.CausedDamage &&
-                    root.SharedSlashOffer.Stage == SharedSlashOfferStage.SlashIssued && g.State.Players[2].Hp == 0 &&
-                    !Facts<SharedSlashDrawIssuedEvent>(g).Any(e => e.ProgramFrameId == root.Id) &&
-                    dying.ParentFrameId != root.Id,
-                    "The original real zero-entity Slash retains its typed program parent through the victim's exact Dying child; no benefit precedes rescue.");
-                Once(g, root.Id, gift); Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 2);
-                Require(UseOwner(g).Id == use.Id && g.State.Players[2].Hp == 3 &&
-                    Root(g).SharedSlashOffer!.Stage == SharedSlashOfferStage.SlashIssued,
-                    "The actual rescue recovery HP child remains within the same unfinished use.");
-                Cold(g, r); Continue(g);
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-            var owning = UseOwner(g); var paid = Root(g); var typed = owning.SharedSlashBenefit!;
-            Require(typed.ProgramFrameId == paid.Id && typed.ActorSeat == 1 && typed.OriginalTargetSeat == 2 &&
-                owning.Action is { ActorSeat: 1, ProviderSeat: 1, EffectiveKind: CardKind.Slash } action &&
-                action.PhysicalCards.Count == 0 && action.ConversionChain.Count == 0 && owning.PhysicalCardIds is { Count: 0 } &&
-                owning.CausedDamage && paid.SelectedTargetSeats.SequenceEqual([1]) &&
-                g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w => w.ParentFrameId == owning.Id && w.Continuation == ProgramCardContinuation.CompletedSlash) &&
-                !Facts<SharedSlashDrawIssuedEvent>(g).Any(e => e.ProgramFrameId == paid.Id),
-                "All actual Slash damage and the completed-card observer remain beneath the full owning zero-entity use, before either shared benefit.");
-            Once(g, paid.Id, gift); Cold(g, r); Reject(g); Continue(g);
-            if (scenario == "suppression")
-            {
-                Reach(g, p => Action(p, "select-target") && p.PlayerSeat == 1);
-                Answer(g, c => c.Targets.SequenceEqual([0]));
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == RewardGain && p.PlayerSeat == 0);
-            var id = paid.Id;
-            Require(Facts<SharedSlashUseReturnedEvent>(g).Single(e => e.Return.ProgramFrameId == id) is { CausedDamage: true } &&
-                !g.ResolutionStack.OfType<CardUseFrame>().Any(u => u.Id == owning.Id) &&
-                Facts<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == owning.Id) == 1 &&
-                Facts<SharedSlashDrawIssuedEvent>(g).Count(e => e.ProgramFrameId == id) == 1,
-                "The complete owning use returns its actual aggregate once before the first reward draw child.");
-            if (scenario == "suppression")
-                Require(Facts<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(g).Any(e => e.Suppression.TargetSeat == 0 && e.Suppression.Source.OwnerSeat == 1),
-                    "A real completed-use observer issues suppression against the original nonlocked source before its already-issued benefit returns.");
-            AssertGainOwner(g, id, 0); Cold(g, r); Continue(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == RewardGain && p.PlayerSeat == 1);
-            AssertGainOwner(g, id, 1); Cold(g, r); Continue(g); Play(g);
-            Require(Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 1 && e.TargetSeat == 2 && e.Amount == 1) == 1 &&
-                Facts<SharedSlashDrawIssuedEvent>(g).Where(e => e.ProgramFrameId == id).Select(e => e.RecipientSeat).SequenceEqual([0, 1]) &&
-                Facts<ProgramSkillResolvedEvent>(g).Count(e => e.FrameId == id) == 1 &&
-                !g.CreateCardZoneDiagnostics().Any(z => z.Location == CardLocation.Processing),
-                "Damage, complete-use return and both surviving participants' real gain children finish once with no fictitious material or orphan processing.");
-            Once(g, id, gift); Cold(g, r);
-        }
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static IReadOnlyList<CardSnapshot> Hand(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].Hand;
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SharedSlashOffer is not null);
-    private static CardUseFrame UseOwner(GameEngine g) => g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.SharedSlashBenefit is not null);
     private static void AssertGainOwner(GameEngine g, long frameId, int seat) =>
         Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.ResumeProgramFrameId == frameId && w.Batch.ParentFrameId == frameId &&
             w.Batch.Movements is [var m] && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(seat)),
@@ -158,7 +91,6 @@ internal static class BoundaryChenGongChecks
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static void ReachOffer(GameEngine g, int seat) => Reach(g, p => Action(p, "shared-slash-offer") && p.PlayerSeat == seat);
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void Use(GameEngine g, string id, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)

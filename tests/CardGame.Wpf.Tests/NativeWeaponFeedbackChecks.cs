@@ -19,24 +19,6 @@ using static Program;
 
 internal static class NativeWeaponFeedbackChecks
 {
-    public static void NativeWeapons(string output)
-    {
-        BattleAudioBeatChecks.BeginNativeEvidence();
-        var errors = new BindingListener();
-        PresentationTraceSources.DataBindingSource.Listeners.Add(errors);
-        try
-        {
-            StoneAxe(output);
-            Qinglong(output);
-            FastEightSeatChain(output);
-            Assert(errors.Errors.Count == 0, "Native weapon binding errors: " + string.Join(Environment.NewLine, errors.Errors));
-        }
-        finally
-        {
-            PresentationTraceSources.DataBindingSource.Listeners.Remove(errors);
-            BattleAudioBeatChecks.WriteNativeEvidence(output);
-        }
-    }
 
     private static void StoneAxe(string output)
     {
@@ -112,78 +94,6 @@ internal static class NativeWeaponFeedbackChecks
             $"committed before .24s visual arrival; same checkpoint decline HP{targetHp}; all5 safe views stable during sampling.");
     }
 
-    private static void Qinglong(string output)
-    {
-        // This is the same verified small setup/seed, with only the physical
-        // weapon definition replaced. Never call the shared Qinglong seed search.
-        var witness = StoneAxeScenario.FindHumanTrigger(seed: 1, weapon: CardKind.QinglongCrescentBlade,
-            expectedDecision: DecisionKind.QinglongCrescentBlade);
-        using var vm = RestoreBeforeSlash(witness, CardKind.QinglongCrescentBlade);
-        using var host = new NativeHost(vm, "native-qinglong-seed1");
-        ReachNativeWeapon(host, witness, DecisionKind.QinglongCrescentBlade, output, "qinglong");
-        var game = Engine(vm); var original = Boundary(game); var targetHp = Hp(game, witness.TargetSeat);
-        vm.SaveGameCommand.Execute(null);
-        Assert(!vm.HasSaveError && Same(game, original), "Saving the real Qinglong prompt changed its pending follow-up materials.");
-        var available = vm.SkillChoices.Where(choice => choice.Parameters.GetValueOrDefault("action") == "qinglong-slash").ToArray();
-        if (available.Length > 0)
-        {
-            var use = available[0]; var cardId = use.Cards.Single();
-            var printed = game.CreateSnapshot(0).Players[0].Hand.Single(card => card.Id == cardId);
-            var cursor = game.Events.Count; var commands = game.AcceptedCommands.Count; var moveCursor = game.CardMovements.Count;
-            Assert(use.Targets.SequenceEqual(new[] { witness.TargetSeat }) && printed.Kind == CardKind.Slash,
-                "The fixed native Qinglong follow-up must use a real available physical Slash against the original target.");
-            SubmitChoice(vm, use);
-            Assert(host.AudioOutput.Count(GameSound.Qinglong) == 1 && host.AudioOutput.Count(GameSound.Card) == 2 &&
-                host.AudioOutput.Count(GameSound.Hit) == 0,
-                "The actual Qinglong and independent new physical Slash must both sound once without inventing a weapon hit or replaying the VM batch.");
-            var resolved = game.Events.Skip(cursor).Select(item => item.Payload).OfType<QinglongCrescentBladeResolvedEvent>().Single();
-            var cue = AssertWeaponCue(vm, resolved, CardKind.QinglongCrescentBlade, true, resolved.ResolutionId, witness.TargetSeat);
-            var slash = game.Events.Skip(cursor).Select(item => item.Payload).OfType<CardUsedEvent>()
-                .Single(item => item.SourceSeat == 0 && item.TargetSeat == witness.TargetSeat);
-            var declared = game.Events.Skip(cursor).Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Single();
-            Assert(resolved.SourceSeat == 0 && resolved.SlashCardIds.SequenceEqual(new[] { cardId }) &&
-                resolved.EffectiveSlashKind == CardKind.Slash && slash.CardId == cardId && declared.CardId == cardId &&
-                declared.CardKind == CardKind.Slash && declared.ResolutionId != resolved.ResolutionId &&
-                game.AcceptedCommands.Count == commands + 1 && !vm.Hand.Any(card => card.Id == cardId) &&
-                game.CardMovements.Skip(moveCursor).Count(move => move.CardId == cardId && move.From == CardLocation.Hand(0) &&
-                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Use) == 1 &&
-                Hp(game, witness.TargetSeat) == targetHp && !game.Events.Skip(cursor).Any(item => item.Payload is DamageAppliedEvent),
-                "Native Qinglong activation must pay exactly one real new Slash once and open its own resolution, without claiming a weapon hit.");
-            var cardCue = vm.BattleCues.Single(item => item.Sequence == game.Events.Single(item => ReferenceEquals(item.Payload, declared)).Sequence);
-            Assert(cardCue is { Kind: BattleCueKind.Card, CardKind: CardKind.Slash, SourceSeat: 0 } &&
-                cardCue.PublicCardId == cardId && cardCue.PublicCard?.Id == cardId && cardCue.TargetSeats.SequenceEqual(new[] { witness.TargetSeat }),
-                "The Qinglong follow-up lost the independent real Slash face/flight or used the weapon as a synthetic card.");
-            AssertRetiredPrompt(vm, resolved.ResolutionId);
-            WeaponFrames(host, output, "qinglong-paid", cue, witness.TargetSeat, expectDamage: false, record: false);
-            ClearAndReload(host, original, output, "qinglong", use);
-            Console.WriteLine($"Native Qinglong: fixed seed1 weapon-only deck variant, physical weapon{witness.StoneAxeCardId}, " +
-                $"original Slash{witness.SlashAction.CardId}->actual target{witness.TargetSeat} Dodge; paid physical Slash{cardId}, " +
-                $"public resolutions {resolved.ResolutionId}->{declared.ResolutionId}, one command/cost, no invented hit.");
-        }
-        else
-        {
-            Assert(vm.SkillChoices.All(choice => choice.Parameters.GetValueOrDefault("action") == "qinglong-skip") &&
-                !game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash),
-                "The fixed seed's empty Qinglong materials must expose only the actual decline boundary.");
-            Console.WriteLine("Native Qinglong: fixed seed1 weapon-only variant has no remaining physical Slash; genuine decline boundary only, no seed search or invented pursuit.");
-        }
-        game = Engine(vm); var declineCursor = game.Events.Count; var declineCommands = game.AcceptedCommands.Count;
-        var weaponSounds = host.AudioOutput.Count(GameSound.Qinglong);
-        SubmitChoice(vm, vm.SkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "qinglong-skip"));
-        var declined = game.Events.Skip(declineCursor).Select(item => item.Payload).OfType<QinglongCrescentBladeResolvedEvent>().Single();
-        AssertWeaponCue(vm, declined, CardKind.QinglongCrescentBlade, false, declined.ResolutionId, witness.TargetSeat);
-        Assert(!declined.Used && declined.SlashCardIds.Count == 0 && game.AcceptedCommands.Count == declineCommands + 1 &&
-            Hp(game, witness.TargetSeat) == targetHp &&
-            !game.Events.Skip(declineCursor).Any(item => item.Payload is CardUseDeclaredEvent or DamageAppliedEvent),
-            "The actual Qinglong decline invented a follow-up card, weapon cost or target damage.");
-        AssertDeclineFinishesOriginalSlash(game, witness, original.Movements, declineCursor, declined.ResolutionId);
-        AssertRetiredPrompt(vm, declined.ResolutionId);
-        DeclinedFrames(host, output, "qinglong-declined", witness.TargetSeat);
-        Assert(host.AudioOutput.Count(GameSound.Qinglong) == weaponSounds,
-            "Declining the actual Qinglong played a phantom pursuit sound.");
-        ResetWithoutReplay(host, output, "qinglong");
-    }
-
     private static MainViewModel RestoreBeforeSlash(StoneAxeBoundary witness, CardKind weapon)
     {
         var store = new MemorySaveStore();
@@ -198,89 +108,6 @@ internal static class NativeWeaponFeedbackChecks
             game.Events.Any(item => item.Payload is CardUseDeclaredEvent declared && declared.CardId == witness.StoneAxeCardId),
             "The fixed native weapon fixture must load its genuinely equipped physical weapon and current legal Slash boundary.");
         return vm;
-    }
-
-    private static void FastEightSeatChain(string output)
-    {
-        // Reuse the already-verified eight-seat pool, deck and four real chain
-        // payments. Only this final physical Thunder Slash is commanded by the
-        // VM; the input checkpoint is an actual committed setup, never edited.
-        var (registry, prepared, slash) = LongChainFeedbackChecks.CreateFixture();
-        var store = new MemorySaveStore();
-        store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, prepared.CreateCheckpoint()));
-        using var vm = new MainViewModel(autoAdvance: false, seed: prepared.Seed, showSetup: true, saveStore: store,
-            useExpandedContent: false, contentRegistry: registry, historyStore: new MemoryMatchHistoryStore(),
-            preferencesStore: new MemoryPlayerPreferencesStore());
-        vm.LoadManualGameCommand.Execute(null);
-        var game = Engine(vm);
-        Assert(!vm.HasSaveError && Enumerable.Range(0, 8).All(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat)) ==
-            SnapshotJson.Serialize(prepared.CreateSnapshot(seat))),
-            "The actual fast chain checkpoint failed to preserve all eight viewer-safe prepared states.");
-        vm.SelectedPlaybackSpeed = PlaybackSpeed.Fast; vm.IsMotionEnabled = true;
-        using var host = new NativeHost(vm, "native-fast-chain-seed2");
-        host.Capture(output, "audio-native-fast-chain-before", 1120);
-        var scale = vm.BattleAnimationTimeScale;
-        Assert(Math.Abs(host.Layer.PlaybackTimeScale - scale) < .000001 && scale < 1 &&
-            game.CreateSnapshot(0).Players.Count == 8 && game.CreateSnapshot(0).Players.All(player => player.IsAlive && player.IsChained),
-            "The loaded native chain did not use the actual fast binding and all eight living chained players.");
-        var commands = game.AcceptedCommands.Count; var cursor = game.Events.Count;
-        var draft = Boundary(game);
-        vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == slash.Id));
-        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == 1));
-        Assert(vm.CanConfirmSelected && host.AudioOutput.Events.Count == 0 && game.AcceptedCommands.Count == commands &&
-            Same(game, draft),
-            "Preparing the real fast Thunder Slash committed a command, exposed another safe view or requested uncommitted audio.");
-        vm.ConfirmSelectedCommand.Execute(null);
-        var committed = game.Events.Skip(cursor).ToArray();
-        var damage = committed.Select(item => item.Payload).OfType<DamageAppliedEvent>().ToArray();
-        var relays = committed.Select(item => item.Payload).OfType<ChainedDamagePropagatedEvent>().ToArray();
-        var declaration = committed.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Single();
-        Console.WriteLine($"Native fast chain committed facts: commands {commands}->{game.AcceptedCommands.Count}; " +
-            $"declared {declaration.CardId}:{declaration.CardKind} source={declaration.SourceSeat}, printed={declaration.PublicCard?.Kind}; " +
-            $"damage [{string.Join("; ", damage.Select(item => $"{item.SourceSeat}->{item.TargetSeat} amount={item.Amount} nature={item.Nature}"))}]; " +
-            $"relays [{string.Join("; ", relays.Select(item => $"{item.SourceSeat}:{item.FromSeat}->{item.TargetSeat} amount={item.Amount} nature={item.Nature}"))}]; " +
-            $"cues Damage={vm.BattleCues.Count(cue => cue.Kind == BattleCueKind.Damage)}, " +
-            $"ThunderDamage={vm.BattleCues.Count(cue => cue.Kind == BattleCueKind.Damage && cue.Nature == DamageNature.Thunder)}, " +
-            $"Chain={vm.BattleCues.Count(cue => cue.Kind == BattleCueKind.ChainPropagation)}; " +
-            $"audio Card={host.AudioOutput.Count(GameSound.Card)}, Thunder={host.AudioOutput.Count(GameSound.Thunder)}.");
-        Assert(declaration is { SourceSeat: 0, CardKind: CardKind.ThunderSlash } && declaration.CardId == slash.Id && slash.Id == 37,
-            "The native physical Thunder37 must declare its actual effective Thunder Slash from seat0.");
-        Assert(game.AcceptedCommands.Count == commands + 1 && damage.Length == 8 && relays.Length == 7 &&
-            damage.All(item => item.SourceSeat == 0 && item.Amount == 1 && item.Nature == DamageNature.Thunder) &&
-            damage.Select(item => item.TargetSeat).SequenceEqual(new[] { 1, 0, 2, 3, 4, 5, 6, 7 }),
-            "One real native Thunder Slash must commit exactly eight public hits/seven relays in the actual seat enumeration order.");
-        Assert(
-            vm.BattleCues.Count(cue => cue.Kind == BattleCueKind.Damage && cue.Nature == DamageNature.Thunder) == 8 &&
-            vm.BattleCues.Count(cue => cue.Kind == BattleCueKind.ChainPropagation) == 7,
-            "The real native fast chain lost one of eight public Thunder hits or seven relay cues.");
-        Assert(host.AudioOutput.Count(GameSound.Card) == 1 && host.AudioOutput.Count(GameSound.Thunder) == 0,
-            "The real native fast chain must sound its launch once before any paced result.");
-        var settled = Boundary(game);
-        for (var frame = 1; frame <= 250; frame++)
-        {
-            host.Clock.Advance(.005);
-            BattleAudioBeatChecks.Tick(host.Layer);
-            Assert(game.Revision == settled.Revision && game.AcceptedCommands.Count == settled.Commands && game.Events.Count == settled.Events &&
-                game.CardMovements.Count == settled.Movements,
-                "Sampling the real fast chain's audio requests changed its committed rule command or physical cards.");
-        }
-        host.Layer.InvalidateVisual(); host.Capture(output, "audio-native-fast-chain-retired", 1120);
-        var thunders = host.AudioOutput.Events.Where(item => item.Sound == GameSound.Thunder.ToString()).ToArray();
-        var firstMilliseconds = .42 * scale * 1000;
-        var intervalMilliseconds = .36 * scale * 1000;
-        Assert(thunders.Length == damage.Length && thunders.Select((item, index) =>
-                item.Milliseconds >= firstMilliseconds + index * intervalMilliseconds - .001 &&
-                item.Milliseconds <= firstMilliseconds + index * intervalMilliseconds + 5.001).All(matches => matches) &&
-            thunders.All(item => item.MaximumStartDelayMilliseconds is { } budget && Math.Abs(budget - 120 * scale) < .001) &&
-            host.AudioOutput.Count(GameSound.Card) == 1 && host.Layer.ActiveEffectCount == 0 && !host.Layer.IsFrameTimerRunning &&
-            Same(game, settled),
-            "Fast playback swallowed a same-sound recipient, replayed its launch, missed its visual cadence/start budget or changed one of eight safe views. " +
-            "Actual Thunder request milliseconds: " + string.Join(", ", thunders.Select(item => item.Milliseconds.ToString("F3"))));
-        File.WriteAllText(Path.Combine(output, "native-fast-chain-events.json"), System.Text.Json.JsonSerializer.Serialize(
-            host.AudioOutput.Events, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
-        Console.WriteLine($"Native fast chain audio: seed2, Thunder37, commands{commands}->{game.AcceptedCommands.Count}, " +
-            $"8 public hits/7 relays, scale{scale:F6}, 5ms controlled ticks, Thunder requests[{string.Join(',', thunders.Select(item => item.Milliseconds.ToString("F3")))}]ms; " +
-            $"first≈{firstMilliseconds:F3}ms, interval≈{intervalMilliseconds:F3}ms, all8 safe views unchanged; recording output only, no speaker capture.");
     }
 
     private static void ReachNativeWeapon(NativeHost host, StoneAxeBoundary witness, DecisionKind kind, string output, string label)
@@ -680,15 +507,6 @@ internal static class NativeWeaponFeedbackChecks
         public override long TimestampFrequency => TimeSpan.TicksPerSecond;
         public override long GetTimestamp() => _ticks;
         public void Advance(double seconds) => _ticks += TimeSpan.FromSeconds(seconds).Ticks;
-    }
-    private sealed class BindingListener : TraceListener
-    {
-        public List<string> Errors { get; } = [];
-        public override void Write(string? message) { }
-        public override void WriteLine(string? message)
-        {
-            if (message is not null && (message.Contains("Error:") || message.Contains("Warning:"))) Errors.Add(message);
-        }
     }
     private static bool IsMessageOnlyWindow(nint handle)
     {

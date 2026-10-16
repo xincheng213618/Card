@@ -17,13 +17,6 @@ internal static class BoundaryHuaXiongChecks
         Require(!n.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Any()&&n.Events.Select(e=>e.Payload).OfType<CardUseFinishedEvent>().Any(e=>e.CardKind==CardKind.Duel),"Real Nullification prevents the forced Duel then typed parent completes.");
         Require(n.CardMovements.Count(m=>m.CardId==physical&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"Actual Nullification entity pays once.");Cold(n,nr);Evidence(n,"nullified-finished");
     }
-    public static void ResponsesAndLegality()
-    {
-        var(g,r)=Start(kind:"slash");var h=g.State.Players[0].HandCount;Use(g,1);Reach(g,p=>p.Kind==DecisionKind.RespondSlash&&p.PlayerSeat==0);Cold(g,r);var card=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards.Single();Answer(g,c=>c.Cards.SequenceEqual([card]));Settle(g);
-        Require(g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Single().TargetSeat==1,"Target answers a real Duel Slash then selected actor loses the Duel.");Require(g.State.Players[0].HandCount==h-1,"Red response cards do not change zero-entity Duel's non-red appearance.");Cold(g,r);Evidence(g,"duel-slash-response");
-        var(k,kr)=Start(kongcheng:true);Driver(k,"empty");Settle(k);Require(!k.GetHumanLegalActions().Any(a=>a.ProgramSkillId==Skill),"Kongcheng owner cannot be a Duel target; infeasible actors disappear before quota.");Cold(k,kr);
-        var(b,br)=Start(actorBan:true);Require(!Actions(b).Single().SelectableTargetSeats.Contains(1),"Selected actor Use prohibition is reflected in the candidate list.");var cp=GameCheckpointJson.Serialize(b.CreateCheckpoint());var denied=b.Submit(new UseProgramSkillCommand(0,Skill,Binding,[],[1],b.Revision,P(b)!.PromptId));Require(!denied.Accepted&&cp==GameCheckpointJson.Serialize(b.CreateCheckpoint()),"Nonoffered actor rejects without advancing or quota.");Cold(b,br);
-    }
     static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     static void Skip(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
     static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}

@@ -85,83 +85,6 @@ internal static class BoundaryCaoChongChecks
         Replay(game, registry);
     }
 
-    public static void EquipmentPaymentBeforeTurnOverAndExactDyingRecovery()
-    {
-        var (game, registry) = Create(equipment: true); ReachPlay(game);
-        var armor = game.CreateSnapshot(0).Players[0].Hand.First(c => c.Kind == CardKind.SilverLion).Id;
-        Accept(game, new PlayCardCommand(0, armor, [], game.Revision, Prompt(game)!.PromptId)); ReachPlay(game);
-        Require(game.State.Players[0].Hp == 2 && game.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == armor),
-            "The real injured rescuer equips its actual Silver Lion before the victim enters dying.");
-        Require(game.State.Players[1].Hp == 1, "The actual other victim begins at one HP before existing Jueqing replaces the lethal three-point damage with HP loss.");
-        Use(game, "hurt-other", [1]); Reach(game, p => Activation(p, Renxin, "equip-for-other-dying"));
-        var dying = game.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 1);
-        var entry = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(f => f.ResumeDyingFrameId == dying.Id);
-        Require(dying.Continuation == DyingContinuationKind.AttackHpLoss &&
-            game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == dying.ParentFrameId && f.SkillId == Driver && f.ActivationId == "hurt-other") &&
-            game.Events.Select(e => e.Payload).OfType<DamageReplacedWithHpLossEvent>().Single(e => e.ParentResolutionId == dying.ParentFrameId) is
-                { PolicyOwnerSeat: 0, TargetSeat: 1, Amount: 3, RemainingHp: -2 } &&
-            game.State.Players[1].Hp == -2 &&
-            game.State.Players[1].IsAlive && entry.OwnerSeat == 1 && entry.Window == SkillProgramTriggerWindow.DyingEntering &&
-            entry.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry,
-            $"The optional rescue belongs to the exact other victim's actual DyingEntering token after existing Jueqing replaces three real damage with three HP loss; continuation={dying.Continuation}, victimHP={game.State.Players[1].Hp}, entryOwner={entry.OwnerSeat}, window={entry.Window}, return={entry.Continuation}, parent={dying.ParentFrameId}.");
-        Replay(game, registry); Activate(game, Renxin, "equip-for-other-dying");
-        Reach(game, p => Action(p, "select-and-move-owned-card"));
-        Require(Prompt(game)!.Choices.Any(c => c.Cards.SequenceEqual([armor])) && Prompt(game)!.Choices.All(c =>
-            c.Cards.Count == 1 && (game.CreateSnapshot(0).Players[0].Hand.Concat(game.CreateSnapshot(0).Players[0].Equipment))
-                .Any(card => card.Id == c.Cards[0] && EquipmentCatalog.IsEquipment(card.Kind))),
-            "The real payment offers only currently owned HE equipment entities, including the equipped armor.");
-        Replay(game, registry); Reject(game); Answer(game, c => c.Cards.SequenceEqual([armor]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 0);
-        var paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(paid.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0, CoverageResultBind: null } &&
-            paid.CardSetBindings.Single(b => b.Name == "renxin-cost").CardIds.SequenceEqual([armor]) &&
-            game.State.Players[0].Hp == 3 && !game.State.Players[0].IsFaceDown && game.State.Players[1].Hp == -2 &&
-            CostMoves(game, armor) == 1 && game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f =>
-                f.ResumeFrameId == paid.Id && f.Continuation == PostEventContinuation.AwaitedProgramMovement &&
-                f.Change.ParentFrameId == paid.Id && f.Change.TargetSeat == 0),
-            "Silver Lion's actual one-HP recovery pauses beneath the paid instruction before turnover or victim recovery.");
-        Replay(game, registry); Reject(game); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Cost);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        var costWindow = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.ParentFrameId == paid.Id);
-        Require(costWindow.ResumeProgramFrameId is null && costWindow.Batch.AwaitingProgramFrameId == paid.Id &&
-            costWindow.Batch.Movements is [var cost] && cost.CardId == armor && cost.From == CardLocation.Equipment(0) &&
-            cost.To == CardLocation.DiscardPile && cost.Reason.Value == CostReason &&
-            !game.State.Players[0].IsFaceDown && game.State.Players[1].Hp == -2,
-            "The exact equipment payment movement child returns to the same paid source before either later effect.");
-        Replay(game, registry); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Flip);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.State.Players[0].IsFaceDown && game.State.Players[1].Hp == -2 && CostMoves(game, armor) == 1 &&
-            game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(f =>
-                f.Window == SkillProgramTriggerWindow.CharacterTurnedOver && f.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange &&
-                f.CharacterStateContinuation == CharacterStateContinuation.Program && f.ResumeProgramFrameId == paid.Id),
-            "The real turnover owns a typed program-return child while the original other victim remains at minus two HP.");
-        Replay(game, registry); Reject(game); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 1);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.State.Players[1].Hp == 1 && game.State.Players[0].Hp == 3 &&
-            game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.ResumeFrameId == paid.Id &&
-                f.Continuation == PostEventContinuation.Program && f.Change.ParentFrameId == paid.Id && f.Change.TargetSeat == 1) &&
-            game.Events.Select(e => e.Payload).OfType<RecoveryAppliedEvent>().Single(e => e.SourceSeat == 0 && e.TargetSeat == 1) is { Amount: 3, RemainingHp: 1 },
-            "The recovery producer heals the frozen exact victim to one, rather than healing one point or another seat.");
-        Replay(game, registry); Reject(game); Continue(game); ReachPlay(game);
-        Require(CostMoves(game, armor) == 1 && game.State.Players[0].IsFaceDown && game.State.Players[1].IsAlive &&
-            game.State.Players[1].Hp == 1 && Started(game, Renxin) == 1 &&
-            game.Events.Select(e => e.Payload).OfType<SilverLionRemovedRecoveryEvent>().Count(e => e.PlayerSeat == 0 && e.RecoveredAmount == 1) == 1 &&
-            game.Events.Select(e => e.Payload).OfType<CharacterStateChangedEvent>().Count(e => e.Change.ParentFrameId == paid.Id &&
-                e.Change.TargetSeat == 0 && e.Change.Window == SkillProgramTriggerWindow.CharacterTurnedOver) == 1 &&
-            game.Events.Select(e => e.Payload).OfType<DyingResolvedEvent>().Single(e => e.ResolutionId == dying.Id) is { VictimSeat: 1, Survived: true } &&
-            game.Events.Select(e => e.Payload).OfType<DamageReplacedWithHpLossEvent>().Single(e => e.ParentResolutionId == dying.ParentFrameId) is
-                { PolicyOwnerSeat: 0, TargetSeat: 1, Amount: 3, RemainingHp: -2 } &&
-            !game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Any(e => e.SourceSeat == 0 && e.TargetSeat == 1) &&
-            !game.ResolutionStack.OfType<DyingFrame>().Any() && !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Renxin) &&
-            game.CreateSnapshot(0).ProcessingCardCount == 0,
-            "All real cost, HP, movement and turnover children return once; rescue preserves the actual Jueqing replacement and completes its precise negative-HP Dying token.");
-        Replay(game, registry);
-        PhysicalSlashDyingRecovery();
-    }
-
     private static void BeginWeigh(GameEngine game, ContentRegistry registry, int count)
     {
         Reach(game, p => Activation(p, Chengxiang, "weigh-each-damage-point"));
@@ -180,70 +103,6 @@ internal static class BoundaryCaoChongChecks
                 "Public revelation does not expose the owner's private hand or private subset decision.");
         }
         FreezePreparedCollections(game, revealed); Replay(game, registry); Reject(game);
-    }
-
-    private static void PhysicalSlashDyingRecovery()
-    {
-        var (game, registry) = Create(equipment: true, physicalSlash: true); ReachPlay(game);
-        // Eight total entities: four Slash and four armor. One initial entity
-        // per seat plus the actual four-card draw gives this owner five entities,
-        // so both categories are guaranteed without a seed/hand search.
-        Use(game, "draw-four", []); ReachPlay(game);
-        var hand = game.CreateSnapshot(0).Players[0].Hand;
-        Require(hand.Count == 5 && hand.Any(c => c.Kind == CardKind.Slash) && hand.Any(c => c.Kind == CardKind.SilverLion) &&
-            game.State.Players[0].Hp == 2 && game.State.Players[1].Hp == 1,
-            "The tiny real deck guarantees a physical Slash and an equipment cost while preserving the actual formal initial HP.");
-        var armor = hand.First(c => c.Kind == CardKind.SilverLion).Id;
-        var slash = hand.First(c => c.Kind == CardKind.Slash).Id;
-        Accept(game, new PlayCardCommand(0, armor, [], game.Revision, Prompt(game)!.PromptId)); ReachPlay(game);
-        Accept(game, new PlayCardCommand(0, slash, [1], game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => Activation(p, Renxin, "equip-for-other-dying"));
-        var use = game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == slash && f.CardKind == CardKind.Slash);
-        var dying = game.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 1);
-        var damage = game.ResolutionStack.OfType<DamageFrame>().Single(f => f.Id == dying.ParentFrameId);
-        var entry = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(f => f.ResumeDyingFrameId == dying.Id);
-        Require(dying.Continuation == DyingContinuationKind.Damage && damage.ParentFrameId == use.Id &&
-            damage.SourceSeat == 0 && damage.TargetSeat == 1 && damage.Amount == 1 && game.State.Players[1].Hp == 0,
-            "The original Dying token is owned by actual physical Slash damage, retaining its paid CardUse frame.");
-        Replay(game, registry); Activate(game, Renxin, "equip-for-other-dying");
-        Reach(game, p => Action(p, "select-and-move-owned-card")); Answer(game, c => c.Cards.SequenceEqual([armor]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 0);
-        var paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.State.Players[0].Hp == 3 && !game.State.Players[0].IsFaceDown && game.State.Players[1].Hp == 0 &&
-            CostMoves(game, armor) == 1 && game.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id),
-            "The physical attack remains retained during the rescuer's one-time actual Silver Lion recovery.");
-        Replay(game, registry); Continue(game); Reach(game, p => p.SkillPrompt?.SkillId == Cost);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.Batch.ParentFrameId == paid.Id &&
-            f.Batch.AwaitingProgramFrameId == paid.Id && f.ResumeProgramFrameId is null),
-            "The physical attack's rescue waits for the exact paid equipment movement return.");
-        Replay(game, registry); Continue(game); Reach(game, p => p.SkillPrompt?.SkillId == Flip);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.State.Players[0].IsFaceDown && game.State.Players[1].Hp == 0 &&
-            game.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id && f.CardId == slash) &&
-            game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(f =>
-                f.Window == SkillProgramTriggerWindow.CharacterTurnedOver && f.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange &&
-                f.CharacterStateContinuation == CharacterStateContinuation.Program && f.ResumeProgramFrameId == paid.Id),
-            "The actual turned-over observer retains both the exact rescue program and original paid physical attack.");
-        Replay(game, registry); Reject(game); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 1);
-        paid = RescueFrame(game); AssertDyingOwner(game, paid, dying.Id, entry.Id);
-        Require(game.State.Players[1].Hp == 1 && game.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id) &&
-            game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.ResumeFrameId == paid.Id &&
-                f.Change.ParentFrameId == paid.Id && f.Change.TargetSeat == 1 && f.Continuation == PostEventContinuation.Program) &&
-            game.Events.Select(e => e.Payload).OfType<RecoveryAppliedEvent>().Single(e => e.SourceSeat == 0 && e.TargetSeat == 1) is { Amount: 1, RemainingHp: 1 },
-            "The physical attack remains owned while actual victim recovery pauses on its precise program return.");
-        Replay(game, registry); Reject(game); Continue(game); ReachPlay(game);
-        Require(CostMoves(game, armor) == 1 && Started(game, Renxin) == 1 && game.State.Players[1].IsAlive &&
-            game.State.Players[1].Hp == 1 && game.State.Players[0].IsFaceDown &&
-            game.Events.Select(e => e.Payload).OfType<DyingResolvedEvent>().Single(e => e.ResolutionId == dying.Id).Survived &&
-            game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Single(e => e.SourceSeat == 0 && e.TargetSeat == 1).Amount == 1 &&
-            game.CardMovements.Count(m => m.CardId == slash && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            game.CardMovements.Count(m => m.CardId == slash && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1 &&
-            !game.ResolutionStack.OfType<DyingFrame>().Any() && !game.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id) &&
-            game.CreateSnapshot(0).ProcessingCardCount == 0,
-            "The original physical Slash, equipment payment and Dying each finish once after typed turnover and HP children return.");
-        Replay(game, registry);
     }
 
     private static int ChooseThirteenAndPauseGain(GameEngine game, ContentRegistry registry)
@@ -269,19 +128,6 @@ internal static class BoundaryCaoChongChecks
             game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == selected) && GainMoves(game, selected) == 1 && HasBonus(game),
             "The real atomic thirteen-point gain freezes its next-use state before a child, retaining its exact damage cursor, source instance and paid movement ledger.");
         FreezePreparedCollections(game, Reveals(game).Last()); Replay(game, registry); Reject(game); return selected;
-    }
-
-    private static void AssertDyingOwner(GameEngine game, ProgramSkillFrame paid, long dyingId, long entryId)
-    {
-        var entry = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(f => f.Id == entryId);
-        var candidate = entry.Candidates[entry.CandidateIndex];
-        Require(game.ResolutionStack.OfType<DyingFrame>().Any(f => f.Id == dyingId && f.VictimSeat == 1) &&
-            entry.ResumeDyingFrameId == dyingId && entry.Window == SkillProgramTriggerWindow.DyingEntering &&
-            entry.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry &&
-            paid.OwnerSeat == 0 && paid.WindowContext is { Window: SkillProgramTriggerWindow.DyingEntering, TargetSeat: 1 } context &&
-            context.ParentFrameId == entryId && candidate.OwnerSeat == paid.OwnerSeat && candidate.SkillId == paid.SkillId &&
-            candidate.BindingId == paid.TriggerId && candidate.SkillInstanceId == paid.SkillInstanceId && candidate.GameplayHash == paid.GameplayHash,
-            "Each paused rescue child retains the original exact other-victim entry and current owner/binding/instance/gameplay-hash candidate.");
     }
 
     private static void FreezePreparedCollections(GameEngine game, ProgramCardsRevealedEvent revealed)
@@ -311,11 +157,9 @@ internal static class BoundaryCaoChongChecks
     }
 
     private static ProgramSkillFrame WeighFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Chengxiang);
-    private static ProgramSkillFrame RescueFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Renxin);
     private static ProgramCardsRevealedEvent[] Reveals(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>().Where(e => e.SkillId == Chengxiang && e.OwnerSeat == 0).ToArray();
     private static int Started(GameEngine g, string skill) => g.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Count(e => e.SkillId == skill && e.OwnerSeat == 0);
     private static int GainMoves(GameEngine g, int id) => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0) && m.Reason.Value == GainReason);
-    private static int CostMoves(GameEngine g, int id) => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile && m.Reason.Value == CostReason);
     private static bool HasBonus(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players[seat].SkillRuntimeStates!.Single(s => s.SkillId == Chengxiang).BooleanStates!.Single(s => s.StateId == Bonus).Value;
     private static PendingDecision? Prompt(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);

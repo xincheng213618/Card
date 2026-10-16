@@ -387,6 +387,7 @@ public partial class MainWindow : Window
             ConfirmGeneralChoiceButton.Focus();
         }
         else if (ReferenceEquals(surface, OpeningDealOverlay)) DismissOpeningDealButton.Focus();
+        else if (ReferenceEquals(surface, TableSurface) && viewModel.CanRerollOpeningHand) ConfirmOpeningHandButton.Focus();
         else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
     }
 
@@ -400,6 +401,9 @@ public partial class MainWindow : Window
         CancelCardAim();
         if (DataContext is not MainViewModel viewModel) return false;
         // The roster search owns text input, including repeated digits and Enter.
+        if (viewModel.CanRerollOpeningHand && ReferenceEquals(CurrentFocusSurface(viewModel), TableSurface) &&
+            (ReferenceEquals(Keyboard.FocusedElement, OpeningCardSearchBox) || OpeningCardSelector.IsKeyboardFocusWithin) &&
+            modifiers != ModifierKeys.Control) return false;
         if (viewModel.IsCustomGeneralSelectionOpen &&
             ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay) &&
             ReferenceEquals(Keyboard.FocusedElement, CustomGeneralSearchBox) && modifiers == ModifierKeys.None &&
@@ -451,6 +455,17 @@ public partial class MainWindow : Window
             if (ReferenceEquals(surface, TableSurface) && viewModel.CanEndTurn)
                 viewModel.EndTurnCommand.Execute(null);
             return true;
+        }
+        if (viewModel.CanRerollOpeningHand && ReferenceEquals(surface, TableSurface))
+        {
+            if (key == Key.Escape && modifiers == ModifierKeys.None)
+            {
+                if (viewModel.IsOpeningHandEditorOpen) viewModel.ToggleOpeningHandEditorCommand.Execute(null);
+                return true;
+            }
+            if (key is Key.Enter or Key.Space)
+                return Keyboard.FocusedElement is not Button { IsVisible: true, IsEnabled: true } openingButton ||
+                    !(openingButton.IsDescendantOf(OpeningHandControls) || openingButton.IsDescendantOf(HandViewport));
         }
         if (IsStartupOverlayActive(viewModel))
         {

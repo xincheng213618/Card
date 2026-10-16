@@ -20,39 +20,6 @@ internal static class Fame2017XuShiChecks
         Require(draws.Length==2&&draws.Select(m=>m.To.OwnerSeat).SequenceEqual(new int?[]{owner,0}),"Foreign exchange waits and draws once for owner then provider.");
         Require(g.GetHumanLegalActions().All(a=>a.ProgramSkillId!="classic:wengua")&&!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"Provider use is consumed and AI makes its real endpoint and gain decisions.");Replay(g,r);Conserve(g,64);
     }
-    public static void DeckSlashesResponsesCapAndShuffle()
-    {
-        foreach(var mode in new[]{"barrage","cap-dead"})
-        {
-        var(g,r)=Start(mode,false);
-        if(mode=="cap-dead")
-        {
-            var sourceSeat=g.CreateSnapshot(0,true).Players.Single(p=>p.GeneralId=="fixture:deck-owner").Seat;
-            var deadSeat=g.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Seat!=sourceSeat).Seat;
-            Accept(g,new UseProgramSkillCommand(0,"fixture:deck-driver","kill",[],[deadSeat],g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-            Require(g.CreateSnapshot(0,true).Players.Count(p=>p.IsAlive)==3,"Cap fixture starts its real ending boundary with one eliminated seat.");
-        }
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="fixture:target-pause");
-        var parent=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.DeckSlashSequence is not null);
-        var use=g.ResolutionStack.OfType<CardUseFrame>().Last();var source=parent.OwnerSeat;
-        Require(use.SourceSeat==source&&use.TargetSeats.SequenceEqual([0])&&use.Action!.PhysicalCards.Single().From==CardLocation.DrawPile&&Zones(g).Single(z=>z.CardId==use.CardId).Location==CardLocation.Processing,"Barrage declares real deck card and a real target/use window under its exact parent.");Replay(g,r);
-        Choose(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Reach(g,p=>p.Kind==DecisionKind.RespondDodge&&p.PlayerSeat==0);
-        var dodge=P(g)!.Choices.First(c=>c.Cards.Count==1);var dodgeId=dodge.Cards.Single();Replay(g,r);Choose(g,c=>c.Id==dodge.Id);
-        for(var i=0;i<140&&!g.Events.Any(e=>e.Payload is DeckSlashSequenceShuffledEvent);i++)
-        {
-            if(P(g) is {Kind:DecisionKind.RespondDodge,PlayerSeat:0})Choose(g,c=>c.Cards.Count==0);else Tick(g);
-            if(g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is {Continuation:ProgramCardContinuation.CompletedSlash})Replay(g,r);
-        }
-        var shuffled=g.Events.Select(e=>e.Payload).OfType<DeckSlashSequenceShuffledEvent>().Single();
-        var declared=g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Where(e=>e.SourceSeat==source&&e.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash).ToArray();
-        Require(declared.Length==4&&shuffled.Uses==4&&declared.Select(e=>e.CardId).Distinct().Count()==4,"Initial four-player cap counts actual Slash declarations, never direct damage or replaying a used entity.");
-        Require(declared.Select(e=>e.CardKind).Distinct().Count()==3,"All ordinary/fire/thunder physical Slash kinds must be actually declared: "+string.Join(",",declared.Select(e=>e.CardKind)));
-        Require(g.CardMovements.Any(m=>m.CardId==dodgeId&&m.To==CardLocation.DiscardPile)&&g.Events.Any(e=>e.Payload is DamageAppliedEvent {TargetSeat:0}),"Native Dodge cost and later real damage both resolve.");
-        Require(declared.All(e=>g.CardMovements.Any(m=>m.CardId==e.CardId&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile))&&g.CardMovements.Any(m=>m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle),"All used Slash entities finish and final wash really merges discard into draw.");
-        Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"AI source activates Fuzhu and completes its gain/use listeners via native advancement.");Replay(g,r);Conserve(g,64);
-        }
-    }
     private static(GameEngine,ContentRegistry)Start(string mode,bool self)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(mode));

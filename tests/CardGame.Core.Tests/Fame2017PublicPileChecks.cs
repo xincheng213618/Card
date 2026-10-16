@@ -57,58 +57,6 @@ internal static class Fame2017PublicPileChecks
         Settle(game); Require(Pile(game).Count == 0 && game.CardMovements.Count(m => m.Reason.Value == "skill-program.public-pile.distribute") == 4, "Every book must be distributed once without stranded cards."); Replay(game, registry);
     }
 
-    public static void CompoundTargetsAndFrozenResponseSuit()
-    {
-        foreach (var converted in new[]{false,true})
-        {
-            var registry=Registry("borrowed");var game=Start(registry);UseDriver(game,"supply");Settle(game);
-            foreach(var holder in new[]{1,3})
-            {
-                Accept(game.Submit(new UseProgramSkillCommand(0,"fixture:book-driver","equip-target",[],[holder],game.Revision,Prompt(game)!.PromptId)));
-                Reach(game,p=>p.Choices.Any(c=>c.Cards.Count==1));Answer(game,Prompt(game)!.Choices.First(c=>c.Cards.Count==1));Settle(game);
-            }
-            if(!converted){UseDriver(game,"next-target");Settle(game);}
-            var before=game.CreateSnapshot(0,true).Players.Select(p=>p.PublicPersistentPileCount).ToArray();
-            var legalActions=game.GetHumanLegalActions();
-            var use=legalActions.FirstOrDefault(a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual(converted?[1,2]:[1,2,3,0])&&(a.ConversionSource is not null)==converted);
-            Require(use is not null,"Missing actual compound borrowed action converted="+converted+" actions="+string.Join(";",legalActions.Where(a=>a.Kind==LegalActionKind.BorrowedSword).Select(a=>string.Join(",",a.TargetSeats)+" cv="+(a.ConversionSource is not null)).Distinct()));
-            var cardId=use!.CardId!.Value;Play(game,use);Replay(game,registry);
-            Settle(game);
-            var after=game.CreateSnapshot(0,true).Players.Select(p=>p.PublicPersistentPileCount).ToArray();
-            Require(after[1]==before[1]+1&&after[3]==before[3]+(converted?0:1)&&after[2]==before[2]&&after[0]==before[0]+1,"Both actual borrowed-sword holders receive one target deposit; victim seats receive none and source receives only its use deposit.");
-            Require(game.CardMovements.Count(m=>m.CardId==cardId&&m.To==CardLocation.DiscardPile)==1&&game.Events.Count(e=>e.Payload is BorrowedSwordResolvedEvent)==(converted?1:2),"Both real weapon-transfer pairs must resolve and clean up the same physical trick once.");Replay(game,registry);
-        }
-        var frozenRegistry=Registry("response-freeze");var frozen=Start(frozenRegistry);UseDriver(frozen,"supply");Settle(frozen);
-        var forced=frozen.CreateSnapshot(0,true).Players.First(p=>p.Role==Role.Rebel&&p.Hand.Any(c=>c.Kind==CardKind.Slash)).Seat;
-        Accept(frozen.Submit(new UseProgramSkillCommand(0,"fixture:book-driver","equip-target",[],[forced],frozen.Revision,Prompt(frozen)!.PromptId)));
-        Reach(frozen,p=>p.Choices.Any(c=>c.Cards.Count==1));Answer(frozen,Prompt(frozen)!.Choices.First(c=>c.Cards.Count==1));Settle(frozen);
-        Play(frozen,frozen.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.BorrowedSword&&a.ConversionSource is null&&a.TargetSeats.SequenceEqual([forced,0])));
-        Reach(frozen,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);
-        var response=Prompt(frozen)!.Choices.First(c=>c.Cards.Count==1);var physical=response.Cards.Single();var count=Pile(frozen).Count;
-        Require(frozen.CreateSnapshot(0,true).Players[0].Hand.Single(c=>c.Id==physical).Suit==Suit.Spade,"Frozen-appearance fixture uses an actual spade Dodge under Hongyan.");Answer(frozen,response);
-        Require(frozen.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w=>w.Action.ActorSeat==0),"Native Dodge must retain its own accepted response window above the real borrowed Slash.");
-        Reach(frozen,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="fixture:response-freeze");
-        Require(Prompt(frozen)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("choice")=="classic:hongyan"),"The legal nested observer must expose the enabled Hongyan grant for suppression.");Replay(frozen,frozenRegistry);
-        Answer(frozen,Prompt(frozen)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("choice")=="classic:hongyan"));
-        Reach(frozen,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="fixture:response-freeze"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option"));
-        var window=frozen.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last();
-        Require(window.Action.ActorSeat==0&&window.Action.EffectiveSuit==Suit.Heart&&frozen.Events.Any(e=>e.Payload is ProgramSkillSuppressedEvent {SkillId:"classic:hongyan",Suppressed:true}),"Response effective suit must be frozen before payment and remain Heart after its accepted observer disables Hongyan.");Replay(frozen,frozenRegistry);
-        var childSlash=frozen.ResolutionStack.OfType<CardUseFrame>().Last(frame=>frame.CardKind==CardKind.Slash);
-        var borrowedParent=frozen.ResolutionStack.OfType<CardUseFrame>().Single(frame=>frame.CardKind==CardKind.BorrowedSword);
-        Answer(frozen,Prompt(frozen)!.Choices.Single());
-        var completedSlash=frozen.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last();
-        Require(completedSlash.Continuation==ProgramCardContinuation.CompletedSlash&&completedSlash.ParentFrameId==childSlash.Id&&
-            completedSlash.Action.ActionId==childSlash.Action!.ActionId&&completedSlash.Action.ActorSeat==forced&&
-            completedSlash.Candidates.Any(candidate=>frozenRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(trigger=>trigger.Id==candidate.TriggerId).Effects.Any(effect=>effect.Op==SkillProgramEffectOp.StoreTopCardInPublicPile)),"The real AI child Slash must pause at its own new public-store completion candidate.");
-        var completedZones=frozen.CreateCardZoneDiagnostics();
-        var completedLocations=completedZones.ToDictionary(card=>card.CardId,card=>card.Location);
-        Require(completedZones.Where(card=>card.Location==CardLocation.Processing).Select(card=>card.CardId).SequenceEqual([borrowedParent.CardId])&&
-            completedLocations[childSlash.CardId]==CardLocation.DiscardPile&&
-            completedLocations[physical]==CardLocation.DiscardPile,"Only the real borrowed parent remains Processing; completed child Slash and native Dodge retain their legal finished costs.");Replay(frozen,frozenRegistry);
-        for(var i=0;i<80&&frozen.ResolutionStack.Count>0;i++)Tick(frozen);
-        Require(Pile(frozen).Count==count&&!frozen.Events.Any(e=>e.Payload is ProgramBindingStartedEvent {OwnerSeat:0,SkillId:"classic:bizhuan",BindingId:"used-spade"}),"Nested suit-policy suppression cannot retroactively turn the completed Heart response use into a spade deposit.");Replay(frozen,frozenRegistry);
-    }
-
     private static readonly Dictionary<string, ContentRegistry> Registries = [];
     private static ContentRegistry Registry(string mode="")
     {

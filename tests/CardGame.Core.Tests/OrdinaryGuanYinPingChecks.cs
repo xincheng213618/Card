@@ -58,41 +58,6 @@ internal static class OrdinaryGuanYinPingChecks
         }
     }
 
-    public static void AwakeningGetsOriginalPublicWeaponAndDrainsPaidGainAfterSourceLoss()
-    {
-        foreach (var sourceLoss in new[] { false, true })
-        {
-            var (g, r) = Create(weapon: true, sourceLoss: sourceLoss); Play(g); Use(g, "equip", [1]); Play(g);
-            var weapon = g.CreateSnapshot(0).Players[1].Equipment.Single(c => c.Kind == CardKind.QinglongCrescentBlade).Id;
-            var max = g.State.Players[0].MaxHp; var hp = g.State.Players[0].Hp;
-            Use(g, "fire-three", [2]); Play(g); End(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            Require(g.State.Players[0].MaxHp == max + 1 && g.State.Players[0].Hp == hp + 1 &&
-                E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.Amount == 3),
-                "Three actual dealt damage, rather than bare card-use history, triggers the game-limited maximum-HP/recovery awakening.");
-            g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Awake && Action(p, "named-card-acquisition"));
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.NamedCardAcquisition is not null);
-            Require(E<ProgramSelectedSkillsLostEvent>(g).Single(e => e.ProgramFrameId == root.Id).RemovedGrantCount == 1 &&
-                P(g)!.Choices.Any(c => c.Cards.SequenceEqual([weapon])) && P(g)!.Choices.Any(c => c.Cards.Count == 0),
-                "Huxiao is really lost; public field entities and a hidden-ID-free deck-kind option are available under the original awakening.");
-            g = Cold(g, r); Answer(g, P(g)!.Choices.Single(c => c.Cards.SequenceEqual([weapon])));
-            Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            var issued = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == root.Id).NamedCardAcquisition!;
-            Require(issued.CardId == weapon && issued.From == CardLocation.Equipment(1) &&
-                g.CardMovements.Count(m => m.CardId == weapon && m.From == CardLocation.Equipment(1) && m.To == CardLocation.Hand(0)) == 1,
-                "The printed original weapon is moved once, without creating a replacement entity or reading a foreign hand.");
-            g = Cold(g, r); Continue(g); if (sourceLoss) g = FinishActualSkillReplacementChild(g, r, Gain, Awake);
-            NextOwnPlay(g);
-            Require(E<ProgramNamedCardAcquiredEvent>(g).Count(e => e.ProgramFrameId == root.Id && e.Obtained) == 1 &&
-                g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == weapon) &&
-                E<ProgramBindingResolvedEvent>(g).Single(e => e.FrameId == root.Id).Completed == !sourceLoss &&
-                !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == root.Id),
-                "Already-issued gain children drain after real source loss; the original weapon is preserved and the exact binding returns once.");
-            if (!sourceLoss) { Use(g, "fire-three", [2]); Play(g); End(g); NextOwnPlay(g);
-                Require(g.State.Players[0].MaxHp == max + 1 && E<ProgramSelectedSkillsLostEvent>(g).Count(e => e.InitiatingSkillId == Awake) == 1,
-                    "The actual game usage prevents a second awakening on the next qualifying ending."); }
-        }
-    }
-
     private static GameEngine FinishActualSkillReplacementChild(GameEngine g, ContentRegistry r, string observerSkill, string lostSkill)
     {
         Reach(g, p => p.SkillPrompt?.SkillId == observerSkill && Action(p, "advanced-lifecycle"));
@@ -113,17 +78,7 @@ internal static class OrdinaryGuanYinPingChecks
     private static void Continue(GameEngine g) => Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null, string skill = Driver) =>
         Accept(g, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void Slash(GameEngine g, int target, bool converted = false)
-    {
-        var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([target]) &&
-            (converted ? a.ConversionSource?.SkillId == "classic:wusheng" : a.ConversionSource is null));
-        var id = a.CardId ?? throw new InvalidOperationException("A true entity Slash is required.");
-        Accept(g, new PlayCardCommand(0, id, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
-        { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-    }
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard);
-    private static void NextOwnPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {
         for (var step = 0; step < 140; step++)

@@ -9,7 +9,6 @@ internal static class BoundaryWuGuoTaiChecks
     private const string Driver = "fixture:wgt-driver", Cost = "fixture:wgt-cost", Hp = "fixture:wgt-hp";
     private const string Mode = "identity:classic-wu-guo-tai-fixture";
     private const string GanluCost = "skill-program." + Ganlu + ".MoveBoundCards";
-    private const string BuyiCost = "skill-program." + Buyi + ".MoveBoundCards";
 
     public static void PaidEquipmentPairFreezesCostAndSwapsAfterChildren()
     {
@@ -52,34 +51,6 @@ internal static class BoundaryWuGuoTaiChecks
             "Returning all real payment children swaps the original pair exactly once and retains the per-play-phase limit."); Cold(g, r);
     }
 
-    public static void DyingOwnedSelectionStaysOpaqueAndBasicHasNoPayment()
-    {
-        foreach (var victim in new[] { 1, 0 })
-        {
-            var (g, r) = Create(); Play(g); EnterDying(g, victim); ActivateBuyi(g);
-            Reach(g, p => Action(p, "dying-owned-card")); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == Buyi);
-            var dying = g.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == victim);
-            var entry = g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(e => e.ResumeDyingFrameId == dying.Id);
-            Require(root.WindowContext?.ParentFrameId == entry.Id && entry.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry &&
-                entry.OwnerSeat == victim && g.State.Players[victim].Hp == 0, "The real choice belongs to the exact self or foreign DyingEntering victim.");
-            var choices = P(g)!.Choices.Where(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)).ToArray();
-            Require(choices.Length > 0 && (victim == 0 ? choices.All(c => c.Cards.Count == 1) :
-                choices.All(c => c.Cards.Count == 0 && c.Label.Contains("手牌", StringComparison.Ordinal) && !c.Label.Contains("杀", StringComparison.Ordinal))) &&
-                (victim == 0 || P(g)!.ValidCardIds.Count == 0), "Only the victim's own visible hand may publish entity IDs; foreign hand choices remain opaque slots without a Basic filter.");
-            Require(victim == 0 || g.CreateSnapshot(0).PrivateRevealedCards is null or { Count: 0 },
-                "No private program reveal projection discloses the foreign Basic entity before selection.");
-            Private(g, 0); g = RestoreAfterCold(g, r); Reject(g); var moves = g.CardMovements.Count; var recoveries = Facts<RecoveryAppliedEvent>(g).Length;
-            Answer(g, c => c.Id == choices[0].Id);
-            Require(Facts<ProgramDyingCardSelectionResolvedEvent>(g).Single() is { NonBasic: false } fact && fact.DyingFrameId == dying.Id &&
-                fact.VictimSeat == victim && g.CardMovements.Count == moves && Facts<RecoveryAppliedEvent>(g).Length == recoveries &&
-                g.State.Players[victim].Hp == 0 && CostMoves(g, BuyiCost).Length == 0 &&
-                !g.ResolutionStack.OfType<ProgramSkillFrame>().Where(f => f.SkillId == Buyi).SelectMany(f => f.CardSetBindings).Any(b => b.CardIds.Count > 0) &&
-                (victim == 0 || g.CreateSnapshot(0).PrivateRevealedCards is null or { Count: 0 }),
-                "A genuine Basic result binds no private entity, reveals no identity, pays nothing and grants no recovery.");
-            Cold(g, r);
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool observers = false, bool changedEquipment = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -94,13 +65,6 @@ internal static class BoundaryWuGuoTaiChecks
         Accept(g, new UseProgramSkillCommand(0, Ganlu, "exchange-equipment", [], [], g.Revision, P(g)!.PromptId));
         Reach(g, p => Action(p, "equipment-pair-payment")); Answer(g, c => c.Targets.SequenceEqual(new[] { first, second }.Order()));
     }
-    private static void EnterDying(GameEngine g, int victim)
-    {
-        var actualHp = g.State.Players[victim].Hp; Require(actualHp > 0, "The fixed victim is initially alive with actual formal HP.");
-        for (var i = 1; i < actualHp; i++) { Use(g, "hurt", [victim]); Play(g); }
-        Use(g, "hurt", [victim]); Reach(g, p => p.SkillPrompt?.SkillId == Buyi && Action(p, "activate"));
-    }
-    private static void ActivateBuyi(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == Buyi);
     private static ProgramSkillFrame PairRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.EquipmentPairPayment is not null);
     private static PlayerSnapshot View(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();

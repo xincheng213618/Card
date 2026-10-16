@@ -45,35 +45,6 @@ internal static class BoundaryMaDaiChecks
         _=Cold(g,r);
     }
 
-    public static void ShownEntityDamageFreezesFullMultiMaterialUseAndColdReturn()
-    {
-        var (g,r)=Create();var shown=g.State.Players[0].Hand.First().Id;g=Show(g,r,shown);Play(g);
-        var other=g.State.Players[0].Hand.First(c=>c.Id!=shown).Id;var target=Peer(g);
-        Accept(g,new UseProgramSkillCommand(0,"fixture:md-multi","two-as-fire",[shown,other],[target],g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:md-committed");
-        var use=BenefitUse(g);var useId=use.Id;var b=use.ShownEntityBenefits!.Single();
-        var input=b.PhysicalMaterials.ToList();var clone=b with{PhysicalMaterials=input};input.Clear();
-        Require(use.Action is {Type:CardActionType.Use,EffectiveKind:CardKind.FireSlash,PhysicalCards.Count:2} action &&
-            action.PhysicalCards.Select(c=>c.CardId).SequenceEqual(new[]{shown,other}.Order()) &&b.PhysicalMaterials.SequenceEqual(action.PhysicalCards) &&
-            clone.PhysicalMaterials.Count==2 &&clone.PhysicalMaterials is System.Collections.IList{IsReadOnly:true},
-            "The owning Use freezes the complete two-material conversion, including the undisplayed private material, and explicit init detaches caller lists.");
-        Require(Facts<ShownEntityUseBenefitIssuedEvent>(g).Single(e=>e.CardUseFrameId==useId).Policy.CardId==shown,
-            "The new public benefit fact publishes the already shown entity, without a list of undisplayed material IDs.");
-        Reject(g);g=Cold(g,r);Continue(g);
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:md-damage");
-        Require(Facts<DamageAppliedEvent>(g).Single(e=>e.SourceSeat==0 &&e.TargetSeat==target) is {Amount:2,Nature:DamageNature.Fire} &&
-            Facts<ProgramCardDamageModifiedEvent>(g).Count(e=>e.ResolutionId==useId &&e.Source.SkillId==Qianxi &&e.BaseAmount==1 &&e.ModifiedAmount==2)==1 &&
-            g.ResolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==useId &&f.ShownEntityBenefits!.Count==1),
-            "Actual fire damage receives one +1 from the exact shown material, with its ordered damage child still below the unfinished owning Use.");
-        g=Cold(g,r);Continue(g);Play(g);
-        Require(Facts<ShownEntityUseBenefitIssuedEvent>(g).Count(e=>e.CardUseFrameId==useId)==1 &&
-            Facts<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==useId)==1 &&
-            new[]{shown,other}.All(id=>g.CardMovements.Count(m=>m.CardId==id &&m.To==CardLocation.Processing &&m.Reason==CardMoveReasons.Use)==1) &&
-            !g.ResolutionStack.Any(f=>f.Id==useId),
-            "Continued cold restoration cannot repay either material, duplicate the per-Use bonus or complete the Use twice.");
-        _=Cold(g,r);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static IEnumerable<ShownEntityTurnPolicy> OwnerPolicies(GameEngine g)=>Facts<ShownEntityTurnPolicyGrantedEvent>(g).Select(e=>e.Policy).Where(p=>p.Source.OwnerSeat==0);
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);

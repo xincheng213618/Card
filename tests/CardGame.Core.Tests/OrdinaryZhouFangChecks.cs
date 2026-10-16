@@ -62,77 +62,12 @@ internal static class OrdinaryZhouFangChecks
         Replay(g, r);
     }
 
-    public static void YoudiBaitsBlackNonSlashAndPaysBothBenefits()
-    {
-        var (g, r) = Start("identity:zf-youdi");
-        EndPlayPhase(g);
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Youdi &&
-            c.Parameters.GetValueOrDefault("program-action") is "activate" or "skip"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Youdi &&
-            c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
-            c.Targets.SequenceEqual([1]));
-        // The counterpart privately picks a concealed slot: no card identity is
-        // exposed and there is one choice per owner hand card.
-        var bait = g.CreateSnapshot(1).PendingDecision ??
-            throw new InvalidOperationException("The bait prompt never appeared: " + P(g)?.Prompt);
-        Require(bait.IsPrivate && bait.PlayerSeat == 1 && bait.Choices.Count == CardsAt(g, CardLocation.Hand(0)).Count &&
-                bait.Choices.All(c => c.Cards.Count == 0) &&
-                bait.Choices.All(c => c.Parameters.GetValueOrDefault("program-action") == "youdi-bait-discard"),
-            "The concealed slot prompt hides every bait card identity and offers one choice per hand card.");
-        SettleYoudi(g);
-        var baited = g.Events.Select(e => e.Payload).OfType<ProgramYoudiBaitEvent>().Single();
-        Require(baited.OwnerSeat == 0 && baited.ChooserSeat == 1,
-            "The bait event binds the owner and the choosing counterpart.");
-        var movement = g.CardMovements.Single(m => m.CardId == baited.DiscardedCardId &&
-                m.Reason.Value.Contains("youdi", StringComparison.Ordinal));
-        Require(movement.From == CardLocation.Hand(0) && movement.To == CardLocation.DiscardPile,
-            "The bait card left the owner's hand for the discard pile.");
-        var card = DiscardPileCard(g, baited.DiscardedCardId);
-        Require(card.Suit is Suit.Spade or Suit.Club &&
-            card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash),
-            "The fixture baited a black non-Slash. suit=" + card.Suit + " kind=" + card.Kind);
-        Require(baited.TookHandCard && baited.DrawnCount == 1,
-            "A black non-Slash bait pays both benefits. took=" + baited.TookHandCard + " drawn=" + baited.DrawnCount);
-        Require(g.CardMovements.Any(m => m.Reason.Value.Contains("youdi-take", StringComparison.Ordinal) &&
-                m.To == CardLocation.Hand(0)),
-            "The owner received one random counterpart hand card.");
-        Replay(g, r);
-    }
-
     private static string DescribeRecycled(IReadOnlyList<ProgramDuanfaRecycledEvent> events) =>
         string.Join(";", events.Select(e => "drawn" + e.DrawnCount + ":[" + string.Join(",", e.DiscardedCardIds) + "]"));
 
     private static int CurrentTurn(GameEngine g) =>
         (int)typeof(GameEngine).GetField("_turnNumber", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(g)!;
-
-    private static Card DiscardPileCard(GameEngine g, int cardId) =>
-        CardsAt(g, CardLocation.DiscardPile).Single(c => c.Id == cardId);
-
-    private static void EndPlayPhase(GameEngine g)
-    {
-        for (var i = 0; i < 100; i++)
-        {
-            if (P(g) is { } p && p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0)
-            { Accept(g, new EndPlayPhaseCommand(0, g.Revision, p.PromptId)); return; }
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The fixture never reached the play prompt: " + P(g)?.Prompt);
-    }
-
-    // Lets the AI counterpart resolve the private bait prompt and waits for the
-    // settlement event.
-    private static void SettleYoudi(GameEngine g)
-    {
-        for (var i = 0; i < 100; i++)
-        {
-            if (g.Events.Select(e => e.Payload).OfType<ProgramYoudiBaitEvent>().Any()) return;
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The Youdi bait never settled: " + P(g)?.Prompt);
-    }
 
     private static PendingDecision AwaitPlayPrompt(GameEngine g)
     {

@@ -217,6 +217,7 @@ internal sealed class MatchSkillBindingIndex
 {
     private readonly Func<string, ContentSkillDefinition> _resolveDefinition;
     private readonly bool _isNationalWarMode;
+    private readonly bool _allowsSecondaryGeneral;
     private readonly Func<CharacterState, bool>? _hasHpSensitiveSuppression;
     private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
     private readonly Func<CharacterState,IReadOnlySet<string>>? _suppressionInputs;
@@ -229,11 +230,12 @@ internal sealed class MatchSkillBindingIndex
         bool isNationalWarMode,
         Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
         Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null,
-        Func<CharacterState, long>? derivedProjectionStamp = null)
+        Func<CharacterState, long>? derivedProjectionStamp = null, bool dualGenerals = false)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
+        _allowsSecondaryGeneral = isNationalWarMode || dualGenerals;
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
         _grantQualification = grantQualification; _projectionStamp = projectionStamp; _suppressionInputs = suppressionInputs;
         _derivedProjectionStamp = derivedProjectionStamp;
@@ -354,7 +356,7 @@ internal sealed class MatchSkillBindingIndex
         if (sourceId == CharacterState.PrimarySkillSource)
             return !_isNationalWarMode || player.GeneralSelected && player.GeneralRevealed;
         if (sourceId == CharacterState.SecondarySkillSource)
-            return _isNationalWarMode && player.SecondaryGeneral is not null &&
+            return _allowsSecondaryGeneral && player.SecondaryGeneral is not null &&
                    player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed;
         return true;
     }

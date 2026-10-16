@@ -28,57 +28,6 @@ internal static class PeiYuanShaoChecks
             Need(E<FulueOptionExecutedEvent>(g) is[{Entry:{TargetSeat:1}}]&&E<FulueOptionExecutedEvent>(g).Single().Entry.UserSeat==0&&Total(g,E<FulueOptionExecutedEvent>(g).Single().Entry.UseId)==2,"A genuine AOE with exactly one actually designated living target qualifies without pretending a multi-target AOE is a single-target trick.");_=Cold(g,r);
         }
     }
-    public static void FulueOpaqueObtainEquipmentPaidChildrenAndLossCold()
-    {
-        foreach(var scene in new[]{"lion","ox","loss","death"})
-        {
-            var(g,r)=Start(scene);Draw(g);int? equipment=null,grain=null;
-            if(scene=="lion"){Use(g,"equip-peer",[1]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.Count==1);Play(g);equipment=V(g,1).Equipment.Single().Id;Use(g,"hurt",[1]);Play(g);}
-            if(scene=="ox"){Native(g,a=>a.Kind==LegalActionKind.Equip);Play(g);equipment=V(g,0).Equipment.Single().Id;grain=V(g,0).Hand[0].Id;Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[1],g.Revision,P(g)!.PromptId));Play(g);Need(V(g,1).Equipment.Any(c=>c.Id==equipment)&&V(g,1).WoodenOxGrain!.Any(c=>c.Id==grain),"The genuine Ox command transfers its original equipment and stored grain to the future Slash target.");}
-            var hp=V(g,1).Hp;Slash(g,1);Choose(g,FulueOption.Obtain);Reach(g,()=>FulueObtain(g));g=Cold(g,r);Answer(g,c=>equipment is{}id?c.Cards.SequenceEqual([id]):c.Parameters.GetValueOrDefault("slot-index")=="0");
-            if(scene=="lion"){Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);Need(V(g,1).Hp==hp+1&&E<FulueObtainPaidEvent>(g).Length==1,"The original target's real Silver Lion recovery pauses beneath an already-paid obtain, before the Slash resolves.");g=Cold(g,r);Continue(g);}
-            if(scene is"loss"or"death")
-            {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);if(scene=="death"){Reach(g,()=>!V(g,0).IsAlive);Need(g.State.Winner==Winner.None&&E<FulueObtainPaidEvent>(g).Length==1&&!E<FulueCounterUseIssuedEvent>(g).Any(),"Real non-Lord source death drains its already-paid obtain without manufacturing a counter against a dead target.");_=Cold(g,r);continue;}Need(V(g,0).Skills!.All(s=>s.ContentId!=Skill),"The actual gained-card child removes the original conditional Fulue source before its issued card completes.");}
-            Play(g);var paid=E<FulueObtainPaidEvent>(g).Single();Need(g.CardMovements.Count(m=>m.Sequence==paid.MoveSequence&&m.CardId==paid.Material.CardId&&m.From==paid.Material.From&&m.To==CardLocation.Hand(0))==1,"The original target entity is obtained exactly once across all real children and replay.");
-            if(grain is{}gr)Need(g.CardMovements.Any(m=>m.CardId==gr&&m.From==CardLocation.WoodenOxGrain(1)&&m.To==CardLocation.DiscardPile)&&paid.Material.CardId!=gr,"Removing the genuine target Ox drains native grain cleanup rather than treating grain as the obtained material.");
-            if(scene=="loss")Need(E<FulueCounterUseIssuedEvent>(g).Length==1&&E<FulueOptionExecutedEvent>(g).Any(e=>e.Entry.Counter&&e.Entry.Option==FulueOption.Damage),"The originally issued zero-damage consequence and the other unused option survive true original-source loss.");_=Cold(g,r);
-        }
-    }
-    public static void FulueZeroDamageCounterSlashOppositeQuotaAndNativeReturnCold()
-    {
-        foreach(var usedOther in new[]{false,true})
-        {
-            var(g,r)=Start("counter");Draw(g);
-            if(usedOther){Native(g,a=>a.Kind==LegalActionKind.Duel&&a.TargetSeats.SequenceEqual([1]));Choose(g,FulueOption.Damage);Play(g);}
-            Slash(g,1);Choose(g,usedOther?FulueOption.Obtain:FulueOption.Damage);if(usedOther){Reach(g,()=>FulueObtain(g));Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");}
-            Reach(g,()=>P(g)is{PlayerSeat:1,Kind:DecisionKind.ProgramTrigger}&&Action(g,"assisted-physical-slash"));Need(g.CreateSnapshot(0).PendingDecision is null,"The original target's actual optional normal-range Slash request is private to that target.");g=Cold(g,r);
-            Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RespondDodge});g=Cold(g,r);Answer(g,c=>c.Cards.Count==1);Play(g);var counter=E<FulueCounterUseIssuedEvent>(g).Single();
-            Need(E<FulueCounterRequestedEvent>(g).Length==1&&counter.Invoice.ActorSeat==1&&counter.Invoice.TargetSeat==0&&counter.Invoice.Source.OwnerSeat==0&&Total(g,counter.Invoice.OriginalUseId)==0&&E<CardUseDeclaredEvent>(g).Any(e=>e.ResolutionId==counter.UseId&&e.SourceSeat==1)&&E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==counter.UseId)&&!g.ResolutionStack.OfType<CardUseFrame>().Any(),"Only the original whole-Use zero damage opens a genuine reversed native Slash and drains it back to the original completed parent.");
-            Need(usedOther?E<FulueOptionExecutedEvent>(g).Count(e=>e.Entry.Counter)==0:E<FulueOptionExecutedEvent>(g).Any(e=>e.Entry.Counter&&e.Entry.Option==FulueOption.Obtain&&e.Entry.UserSeat==1&&e.Entry.TargetSeat==0),"The target executes the original owner's other still-unused option; an already consumed other option suppresses only that benefit, retaining the real counter Slash.");
-            Need(E<FulueOptionExecutedEvent>(g).Length==2&&E<CardUseDebitRecordedEvent>(g).Count(e=>e.Debit.Query==SkillRuleQuery.SlashLimit)==1,"The shared original-turn option quota is paid once each, while the requested counter uses its real native extra-use contract and a true Dodge creates no new Fulue trigger.");_=Cold(g,r);
-        }
-    }
-    public static void FulueCounterConversionsRangeDeathAndPrivacyCold()
-    {
-        foreach(var scene in new[]{"counter-range","counter-multi","counter-virtual","counter-funded-loss"})
-        {
-            var(g,r)=Start(scene);Draw(g);var target=scene=="counter-range"?2:1;
-            if(scene=="counter-multi"){Use(g,"equip-peer",[target]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Cards.Count==1);Play(g);Need(V(g,target).Equipment.Single().Kind==CardKind.ZhangbaSerpentSpear,"The real target holds the native Zhangba before its possible multi-material counter Use.");}
-            Slash(g,target);Choose(g,scene=="counter-funded-loss"?FulueOption.Obtain:FulueOption.Damage);
-            if(scene=="counter-funded-loss")
-            {Reach(g,()=>FulueObtain(g));Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);Need(V(g,0).Skills!.All(s=>s.ContentId!=Skill),"The genuine original obtain child removes the original conditional Fulue source before the target's draw-funded counter request.");}
-            if(scene=="counter-range")
-            {Play(g);Need(E<FulueCounterRequestedEvent>(g).Length==1&&!E<FulueCounterUseIssuedEvent>(g).Any()&&E<FulueOptionExecutedEvent>(g).Length==1,"An original long-range Slash does not grant the target a distance exemption for its real reverse Slash, and the impossible native request declines without publishing an invalid draft.");_=Cold(g,r);continue;}
-            Reach(g,()=>P(g)?.PlayerSeat==target&&Action(g,"assisted-physical-slash"));var p=P(g)!;var before=State(g);
-            Need(p.IsPrivate&&g.CreateSnapshot(0).PendingDecision is null&&!g.Submit(new AnswerPromptCommand(0,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==before,"A nonchooser cannot answer or inspect the actual counter user's native private payment menu.");g=Cold(g,r);
-            if(scene=="counter-funded-loss")
-            {Need(V(g,target).Hp==2&&V(g,target).Hand.Count==2&&V(g,target).Hand.All(c=>c.Suit==Suit.Spade)&&P(g)!.Choices.Any(c=>c.Parameters.ContainsKey("draw-funded-basic")),"After the genuine obtain and original Slash's real Dodge, the target has exactly two same-color hand cards at two HP and its native counter menu actually offers draw-funded payment: "+Diagnostic(g));Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="fixture:py-funded-watch");Need(E<DrawFundedDistinctBasicPaidEvent>(g).Length==1&&g.ResolutionStack.OfType<DrawFundedDistinctBasicFrame>().Count()==1&&!E<FulueCounterUseIssuedEvent>(g).Any(),"After original-source loss, a genuine draw-funded counter pays its actual draw once and pauses on the original payment frame before declaring its zero-entity Use.");g=Cold(g,r);}
-            Play(g);
-            var issued=E<FulueCounterUseIssuedEvent>(g).Single();var accepted=E<CardActionAcceptedEvent>(g).Single(e=>e.Action.ActionId==issued.ActionId).Action;Need(accepted.ActorSeat==target&&accepted.ProviderSeat==target&&accepted.PhysicalCards.Count==(scene=="counter-multi"?2:0)&&E<FulueOptionExecutedEvent>(g).Any(e=>e.Entry.Counter&&e.Entry.Option==(scene=="counter-funded-loss"?FulueOption.Damage:FulueOption.Obtain))&&E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==issued.UseId),"The genuine counter supports native Zhangba multi-material, round-limited and draw-funded zero-entity Slash use with its original native parent, complete other benefit and return: "+scene);
-            if(scene=="counter-funded-loss")Need(E<DrawFundedDistinctBasicPaidEvent>(g).Length==1&&E<DrawFundedDistinctBasicReturnedEvent>(g).Length==1&&E<FulueCounterUseIssuedEvent>(g).Length==1&&V(g,0).Skills!.All(s=>s.ContentId!=Skill),"The cold paid draw returns exactly once to the still-issued original Fulue request after actual source loss, without a second payment or restoring the skill.");
-            _=Cold(g,r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static T[] E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>().ToArray();

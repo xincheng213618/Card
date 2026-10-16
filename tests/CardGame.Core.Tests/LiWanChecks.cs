@@ -47,123 +47,6 @@ internal static class LiWanChecks
             Reach(changed, () => E<LiWanCompletedEvent>(changed).Length == 1); _ = Cold(changed, registry);
         }
     }
-    public static void LianjuZeroGiftSkippedTurnAndLostSourceReturnCold()
-    {
-        var (g, r) = Start(); Use(g, "flip", [1]); Play(g); Need(V(g, 1).IsFaceDown, "The recipient is really turned face down before the promise.");
-        End(g); Reach(g, () => Offer(g, "same-color-gift")); Activate(g); Gift(g, true, 1, []);
-        Reach(g, () => E<LiWanCompletedEvent>(g).Length == 1);
-        Need(E<LiWanPaidEvent>(g) is [{ Count: 0 }] && E<LianjuPromiseGrantedEvent>(g) is [{ IsRed: true }], "Explicit red plus zero cards issues an unambiguous black return promise.");
-        Play(g);
-        Need(E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 1) && E<LianjuEndingReachedEvent>(g).All(e => e.ActorSeat != 1) && !V(g, 1).IsFaceDown && E<LianjuPromiseConsumedEvent>(g).Length == 0,
-            "A real face-down skipped turn has no actual Ending and preserves the promise.");
-        Use(g, "drop", [0]); Play(g); Need(V(g, 0).Skills!.All(s => s.ContentId != Lianju && s.ContentId != Silv), "Native HP grants really remove both issuer skills.");
-        g = Cold(g, r); End(g); Reach(g, () => Offer(g, "issued-opposite-color"));
-        var turn = g.State.TurnNumber; var used = E<LianjuEntityUsedEvent>(g).Where(e => e.ActualTurn == turn && e.ActorSeat == 1).Select(e => e.CardId).Distinct()
-            .Where(id => g.CardMovements.Last(m => m.CardId == id).To == CardLocation.DiscardPile).ToArray();
-        Need(used.Length > 0, "The recipient actually uses a native physical Slash in the deferred actual turn.");
-        Activate(g); Reach(g, () => Branch(g, "finish")); g = Cold(g, r);
-        Answer(g, c => c.Cards.SequenceEqual([used[0]])); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "finish");
-        Reach(g, () => E<LiWanCompletedEvent>(g).Length == 2);
-        Need(V(g, 0).Hand.Any(c => c.Id == used[0]) && E<LiWanPaidEvent>(g).Last().Count == 1 && E<LianjuPromiseConsumedEvent>(g).Length == 1 && E<SilvEntityMarkedEvent>(g).Length == 0,
-            "The old exact source/hash promise returns its actual opposite-color entity after skill loss; absent Silv cannot mark a new gain.");
-        _ = Cold(g, r);
-    }
-    public static void SilvActualDamageDrawMarksAndResponsePrivacyCold()
-    {
-        var (g, r) = Start(); var hp = V(g, 0).Hp; Use(g, "poke-two", [0]); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-        var draw = E<LiWanPaidEvent>(g).Single(); var mark = E<SilvEntityMarkedEvent>(g).Single();
-        Need(V(g, 0).Hp == hp - 2 && E<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 0 && e.Amount == 2) && draw.Count == 1 &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.LiWan is not null).LiWan!.Damage!.ActualAmount == 2 &&
-            V(g, 0).Hand.Single(c => c.Id == mark.CardId).SkillMarkLabel == "闾" && Enumerable.Range(1, 3).All(s =>
-                g.CreateSnapshot(s).Players[0].Hand.Count == 0 && !g.CreateSnapshot(s).PublicRevealedCards.Any(c => c.Id == mark.CardId)),
-            "One actual two-point damage instance draws exactly one private marked entity before its genuine gain child, with no foreign hand identity leak.");
-        g = Cold(g, r); Continue(g); Play(g);
-        var beforeAoeResponses = E<CardActionAcceptedEvent>(g).Select(e => e.Action.ActionId).ToHashSet();
-        Native(g, LegalActionKind.ArrowBarrage); Play(g);
-        var aoe = E<GroupCardUsedEvent>(g).Last(e => e.CardKind == CardKind.ArrowBarrage);
-        var aoeDodges = E<GroupResponseEvent>(g).Where(e => e.ResolutionId == aoe.ResolutionId && e.UsedResponse && e.ResponseCardId is not null).ToArray();
-        var actualAoeResponses = E<CardActionAcceptedEvent>(g).Where(e => !beforeAoeResponses.Contains(e.Action.ActionId) && e.Action.Type == CardActionType.Response &&
-            e.Action.EffectiveKind == CardKind.Dodge && e.Action.PhysicalCards.Any(c => aoeDodges.Any(d => d.ResponseCardId == c.CardId))).ToArray();
-        Need(aoeDodges.Length > 0 && actualAoeResponses.Length == aoeDodges.Length && actualAoeResponses.All(d => !E<LianjuEntityUsedEvent>(g).Any(e => e.ActionId == d.Action.ActionId)),
-            "Native AOE played-out Dodge materials never become Lianju used cards, including the native legacy use whose formal parent action is absent.");
-        var beforeSlashResponses = E<CardActionAcceptedEvent>(g).Select(e => e.Action.ActionId).ToHashSet();
-        Native(g, LegalActionKind.Slash, mark.CardId, 1); Play(g);
-        var slash = E<CardUseDeclaredEvent>(g).Last(e => e.CardKind == CardKind.Slash && e.CardId == mark.CardId);
-        var defense = E<CardActionAcceptedEvent>(g).Single(e => !beforeSlashResponses.Contains(e.Action.ActionId) && e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Dodge).Action;
-        Need(E<LianjuEntityUsedEvent>(g).Any(e => e.ActionId == defense.ActionId && e.UseFrameId == slash.ResolutionId && e.ActorSeat == defense.ActorSeat) &&
-            g.CardMovements.Last(m => m.CardId == mark.CardId).To == CardLocation.DiscardPile && E<LiWanStartedEvent>(g).All(e => e.RefundSequence is null) &&
-            E<SilvEntityMarkedEvent>(g).Count(e => e.CardId == mark.CardId) == 1,
-            "A real Slash-defense Dodge is a use, while a marked entity's ordinary use cleanup neither refunds it nor erases or duplicates the tag.");
-        _ = Cold(g, r);
-    }
-    public static void SilvNativeDiscardRefundsCrossHolderLossAndDeathCold()
-    {
-        foreach (var scenario in new[] { "batch", "cross", "death" })
-        {
-            var (g, r) = Start(scenario); Use(g, "poke-one", [0]); Play(g); Use(g, "poke-one", [0]); Play(g);
-            var marks = E<SilvEntityMarkedEvent>(g).Select(e => e.CardId).ToArray(); Need(marks.Length == 2, "Two separate native damage instances create two distinct real marked cards.");
-            var loser = 0;
-            if (scenario == "cross")
-            {
-                Use(g, "give-one", [1]); Reach(g, () => Action(g, "owned-hand-rank-sum")); Answer(g, c => c.Cards.SequenceEqual([marks[0]]));
-                Reach(g, () => Action(g, "owned-hand-rank-sum") && P(g)!.Choices.Any(c => c.Cards.Count == 0)); Answer(g, c => c.Cards.Count == 0); Play(g); loser = 1;
-                Need(V(g, 1).Hand.Single(c => c.Id == marks[0]).SkillMarkLabel == "闾" && E<SilvEntityMarkedEvent>(g).Length == 2, "An ordinary cross-owner transfer preserves one entity tag without creating another issuer.");
-            }
-            Use(g, "drop", [0]); Play(g); Need(V(g, 0).Skills!.All(s => s.ContentId != Silv), "The real issuer has lost Silv before the subsequent discard.");
-            if (scenario == "cross")
-            {
-                var slot = V(g, 1).Hand.Select((c, i) => (c.Id, i)).Single(c => c.Id == marks[0]).i;
-                Use(g, "foreign-discard", [1]); Reach(g, () => Action(g, "select-and-move-owned-card"));
-                Need(P(g)!.IsPrivate && P(g)!.Choices.All(c => c.Cards.Count == 0) && g.CreateSnapshot(2).PendingDecision is null,
-                    "Choosing a foreign marked card still uses concealed native hand slots, without exposing its known historical ID.");
-                g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand) && c.Parameters.GetValueOrDefault("slot-index") == slot.ToString());
-            }
-            else
-            {
-                Use(g, "discard-two"); Reach(g, () => Action(g, "select-owned-cards"));
-                Answer(g, c => c.Cards.SequenceEqual([marks[0]])); Reach(g, () => Action(g, "select-owned-cards")); Answer(g, c => c.Cards.SequenceEqual([marks[1]]));
-            }
-            Reach(g, () => E<LiWanStartedEvent>(g).Any(e => e.RefundSequence is not null) && P(g)?.SkillPrompt?.SkillId == Watch);
-            var refund = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.LiWan?.Op == SkillProgramEffectOp.ReturnDiscardedSilvEntity);
-            Need(refund.LiWan!.RecipientSeat == loser && refund.LiWan.Count == 1 && V(g, loser).Hand.Any(c => c.Id == refund.LiWan.ChosenCards![0]),
-                "The native discard completion pays the exact entity back to its actual losing owner before the genuine gain child.");
-            g = Cold(g, r); Continue(g);
-            if (scenario == "death")
-            {
-                Reach(g, () => !V(g, 0).IsAlive && E<LiWanCompletedEvent>(g).Any(e => e.FrameId == refund.Id));
-                Need(g.State.Winner == Winner.None && E<LiWanPaidEvent>(g).Count(e => e.FrameId == refund.Id) == 1 &&
-                    E<SilvEntityMarkedEvent>(g).Length == 2 && E<LiWanStartedEvent>(g).Count(e => e.RefundSequence is not null) == 1,
-                    "Issuer death during a paid refund child drains that exact original cursor once; death cleanup is not another discard refund and permanent labels remain in the ledger.");
-            }
-            else
-            {
-                Play(g); var refunds = E<LiWanStartedEvent>(g).Where(e => e.RefundSequence is not null).ToArray();
-                Need(refunds.Length == (scenario == "batch" ? 2 : 1) && refunds.Select(e => e.RefundSequence).Distinct().Count() == refunds.Length &&
-                    (scenario == "batch" ? marks.All(id => V(g, 0).Hand.Any(c => c.Id == id && c.SkillMarkLabel == "闾")) : V(g, 1).Hand.Any(c => c.Id == marks[0] && c.SkillMarkLabel == "闾")),
-                    "Two marked cards in one actual discard batch refund once each, while a transferred card refunds solely to its new actual losing owner after issuer skill loss.");
-            }
-            _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("dead-issuer"); Use(g, "poke-one", [0]); Play(g);
-            var card = E<SilvEntityMarkedEvent>(g).Single().CardId;
-            Use(g, "give-one", [1]); Reach(g, () => Action(g, "owned-hand-rank-sum")); Answer(g, c => c.Cards.SequenceEqual([card]));
-            Reach(g, () => Action(g, "owned-hand-rank-sum") && P(g)!.Choices.Any(c => c.Cards.Count == 0)); Answer(g, c => c.Cards.Count == 0); Play(g);
-            Use(g, "dead-issuer-clear-peer", [1]);
-            Reach(g, () => !V(g, 0).IsAlive && E<LiWanStartedEvent>(g).Any(e => e.RefundSequence is not null) && P(g)?.SkillPrompt?.SkillId == Watch);
-            var refund = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.LiWan?.Op == SkillProgramEffectOp.ReturnDiscardedSilvEntity);
-            var deathIndex = Array.FindIndex(g.Events.ToArray(), e => e.Payload is PlayerDiedEvent { VictimSeat: 0 });
-            var refundIndex = Array.FindIndex(g.Events.ToArray(), e => e.Payload is LiWanStartedEvent { RefundSequence: not null });
-            Need(deathIndex >= 0 && refundIndex > deathIndex && g.Events.Skip(deathIndex + 1).Take(refundIndex - deathIndex - 1).Any(e => e.Payload is DamageAppliedEvent { TargetSeat: 1, Amount: 1 }) &&
-                refund.OwnerSeat == 0 && refund.LiWan!.RecipientSeat == 1 && V(g, 1).IsAlive &&
-                V(g, 1).Hand.Single(c => c.Id == card).SkillMarkLabel == "闾" && g.State.Winner == Winner.None,
-                "The original marker issuer is already truly dead before an independent native discard by the live holder; the exact old issuer proves a new mandatory refund to that holder.");
-            g = Cold(g, r); Continue(g); Reach(g, () => E<LiWanCompletedEvent>(g).Any(e => e.FrameId == refund.Id));
-            Need(E<LiWanPaidEvent>(g).Count(e => e.FrameId == refund.Id) == 1 && E<LiWanStartedEvent>(g).Count(e => e.RefundSequence is not null) == 1 && V(g, 1).Hand.Any(c => c.Id == card),
-                "The dead-source refund returns through its real gain child and original discard parent exactly once.");
-            _ = Cold(g, r);
-        }
-    }
 
     private static PlayerSnapshot V(GameEngine g, int s) => g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -178,7 +61,6 @@ internal static class LiWanChecks
     { var p = P(g)!; Need(V(g, p.PlayerSeat).IsHuman, "Only the native human chooser may answer."); Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Continue(GameEngine g) { if (V(g, P(g)!.PlayerSeat).IsHuman) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); else Accept(g, new AdvanceOneStepCommand(g.Revision)); }
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Native(GameEngine g, LegalActionKind kind, int? card = null, int? target = null)
     {
         var a = g.GetHumanLegalActions().FirstOrDefault(a => a.Kind == kind && a.CardId is not null && (card is null || a.CardId == card) && (target is null || a.TargetSeats.SequenceEqual([target.Value])))

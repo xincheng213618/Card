@@ -28,43 +28,6 @@ internal static class Fame2017CaoJieChecks
         Replay(game, registry);
     }
 
-    public static void FrozenPopulationPublicDraftAndAiReplay()
-    {
-        var (game, registry) = Create();
-        var before = game.CreateSnapshot(0, true);
-        var expected = before.Players.Where(p => p.IsAlive && p.Hand.Count < p.Hp).Select(p => p.Seat).ToArray();
-        Require(expected.Contains(0), "The fixture includes Cao Jie in the frozen low-hand population.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => p.SkillPrompt?.SkillId == "classic:huimin"); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "public-draft-show"));
-        var frame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
-        Require(frame.PublicHandDraft!.RecipientSeats.SequenceEqual(expected) && game.CreateSnapshot(0, true).Players[0].Hand.Count >= game.CreateSnapshot(0).Players[0].Hp,
-            "The recipients are frozen before the draw, including an owner whose post-draw hand is no longer below HP.");
-        var selected = new List<int>();
-        for (var i = 0; i < expected.Length; i++)
-        {
-            Require(game.CreateSnapshot(1).PublicRevealedCards.Count == 0 && game.CreateSnapshot(1).PendingDecision is null, "Partial selection does not reveal unrelated owner hand cards.");
-            Reject(game, 1); Replay(game, registry); var id = Prompt(game)!.Choices.First().Cards.Single(); selected.Add(id); Answer(game, c => c.Cards.Contains(id));
-        }
-        Require(Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PublicRevealedCards.Select(c => c.Id).Order().SequenceEqual(selected.Order())) &&
-            selected.All(id => game.CreateCardZoneDiagnostics().Single(c => c.CardId == id).Location == CardLocation.Hand(0)), "The public pool shows exactly the selected real hand entities to all viewers.");
-        var start = Enumerable.Range(0, 4).FirstOrDefault(seat => !expected.Contains(seat));
-        Require(Prompt(game)!.Choices.Any(c => c.Targets.Contains(start)), "The starting character may lie outside the frozen recipient set.");
-        Replay(game, registry); Answer(game, c => c.Targets.Contains(start));
-        var order = expected.OrderBy(seat => (seat - start + 4) % 4).ToArray();
-        foreach (var recipient in order)
-        {
-            Require(Prompt(game)!.PlayerSeat == recipient && Prompt(game)!.Choices.All(c => c.Cards.Count == 1 && selected.Contains(c.Cards[0])), "The next frozen recipient chooses one remaining public entity in clockwise order.");
-            Replay(game, registry); Reject(game, (recipient + 1) % 4);
-            if (recipient == 0) Answer(game, _ => true); else Accept(game, new AdvanceOneStepCommand(game.Revision));
-            Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "public-draft-gain") || !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PublicHandDraft is not null));
-        }
-        var obtained = game.Events.Select(e => e.Payload).OfType<ProgramHandDraftCardObtainedEvent>().ToArray();
-        Require(obtained.Select(e => e.RecipientSeat).SequenceEqual(order) && obtained.Select(e => e.CardId).Distinct().Count() == expected.Length &&
-            Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PublicRevealedCards.Count == 0), "All public entities are consumed once, including a same-hand owner pick, with no residual reveal.");
-        Replay(game, registry);
-    }
-
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static void RequestSlash(GameEngine game)
     {

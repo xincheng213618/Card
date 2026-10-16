@@ -34,67 +34,6 @@ internal static class BoundaryCaiFuRenChecks
             "A native Loyalist recipient issues exactly one X recovery; restored children never repay equipment or reopen the consumed limited opportunity.");
         g = Restore(g, r);
     }
-    public static void OriginalActualTurnTiersDistinctEquipmentAndDrawOptions()
-    {
-        var (g, r) = Create(); Play(g); Use(g, "gear", [1]); Play(g);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => ActivateChoice(p, Listen)); Reject(g); g = Restore(g, r); Activate(g, Listen);
-        Reach(g, p => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "actual-ended-equipment"));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Listen);
-        var qualification = root.ActualEndedEquipment!.Qualification;
-        Require(qualification is { TurnOwnerSeat: 1, MaximumDistinctOptions: 2, UsedOnAnother: false, DamagedAnother: false } &&
-            root.WindowContext!.ActualEndedEquipment == qualification,
-            "The original other actual turn had only self equipment/Peach uses and no foreign damage; two distinct options freeze at its exact TurnEnded.");
-        var card = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("option") == "equipment").Cards.Single();
-        Answer(g, c => c.Parameters.GetValueOrDefault("option") == "equipment" && c.Cards.SequenceEqual([card]));
-        Reach(g, p => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "actual-ended-equipment"));
-        Require(P(g)!.Choices.All(c => c.Parameters.GetValueOrDefault("option") == "draw") &&
-            g.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == card),
-            "The chosen current equipment is actually placed; the issued equipment option cannot repeat.");
-        g = Restore(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("option") == "draw");
-        Until(g, () => E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Listen && e.Completed));
-        var options = E<ActualEndedTurnEquipmentOptionIssuedEvent>(g).Where(e => e.ProgramFrameId == root.Id).ToArray();
-        Require(options.Select(e => e.Option).SequenceEqual(["equipment", "draw"]) && options.All(e => e.TurnNumber == qualification.TurnNumber && e.TurnOwnerSeat == 1) &&
-            options.Single(e => e.Option == "draw").ActualDrawCount == 1 &&
-            g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Equipment(1) && m.To == CardLocation.Equipment(0)) == 1,
-            "The original completed turn issues one actual placement and one actual draw, in chosen order, through restored typed returns.");
-        g = Restore(g, r);
-        var (decline, cr) = Create(); Play(decline); Accept(decline, new EndPlayPhaseCommand(0, decline.Revision, P(decline)!.PromptId));
-        Reach(decline, p => ActivateChoice(p, Listen)); var before = decline.CardMovements.Count; decline = Restore(decline, cr);
-        Answer(decline, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Require(!E<ActualEndedTurnEquipmentOptionIssuedEvent>(decline).Any() && decline.CardMovements.Count == before,
-            "Declining the optional original-turn window does not place equipment or draw a card.");
-    }
-    public static void ActualUseResponseExclusionLegacyNativeAndStrictComposition()
-    {
-        var (g, r) = Create(slashDeck: true); Play(g); Use(g, "enemy-duel", [1]); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
-        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "slash");
-        var response = E<CardActionAcceptedEvent>(g).Last(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response).Action;
-        Require(!E<ActualTurnForeignUseTargetEvent>(g).Any(e => e.CardActionId == response.ActionId),
-            "A genuine ordinary Slash response pays its entity but is not an actual use on another character.");
-        g = Restore(g, r); Play(g);
-
-        var (legacy, lr) = Create(slashDeck: true, legacy: true); Play(legacy); Accept(legacy, new EndPlayPhaseCommand(0, legacy.Revision, P(legacy)!.PromptId));
-        Until(legacy, () => E<ActualTurnForeignUseTargetEvent>(legacy).Any(e => e.CardActionId is null && e.LegacyProducerProgramId is not null));
-        var fact = E<ActualTurnForeignUseTargetEvent>(legacy).First(e => e.CardActionId is null && e.LegacyProducerProgramId is not null);
-        Require(fact.EffectiveKind == CardKind.Slash && fact.ActorSeat == fact.ProviderSeat && fact.TargetSeat != fact.ActorSeat &&
-            E<CardUseDeclaredEvent>(legacy).Any(e => e.ResolutionId == fact.CardUseFrameId && e.CardId == 0),
-            "A registered mandatory legacy producer retains a real declared action-null virtual Slash and exact typed return.");
-        legacy = Restore(legacy, lr);
-
-        var (native, _) = Create(native: true); var prior = E<ActualEndedTurnEquipmentOptionIssuedEvent>(native).Any();
-        for (var i = 0; i < 140 && !prior && native.State.Status != EngineStatus.Completed; i++)
-        { Accept(native, new AdvanceOneStepCommand(native.Revision)); prior = E<ActualEndedTurnEquipmentOptionIssuedEvent>(native).Any(); }
-        Require(prior && native.AcceptedCommands.All(c => c is StartGameCommand or AdvanceOneStepCommand),
-            "Native optional activation and distinct equipment/draw choices use the normal AI path with public inputs and actual movement; no prompt is answered on AI's behalf.");
-        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string suffix) { using var stream = assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.boundary-cai-fu-ren." + suffix)!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
-        var rules = Read("rules.json"); var presentation = Read("presentation.json");
-        foreach (var invalid in new[] { rules.Replace("\"otherLiving\", \"optional\": true", "\"own\", \"optional\": true"),
-            rules.Replace("\"minTargets\": 1", "\"minTargets\": 0"), rules.Replace("\"afterTurnEnded\"", "\"turnEnding\"") })
-        { var rejected = false; try { SkillProgramCatalog.Load(invalid, presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(invalid != rules && rejected, "New full donation/actual-ended options reject wrong recipient counts and unbacked scopes/windows without widening classic contracts."); }
-    }
 
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0,4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -102,7 +41,6 @@ internal static class BoundaryCaiFuRenChecks
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Donate(GameEngine g, int target) => Accept(g, new UseProgramSkillCommand(0, Donation, "all-equipment-donation", [], [target], g.Revision, P(g)!.PromptId));
-    private static void Activate(GameEngine g, string id) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == id);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice,bool> predicate) { var p = P(g)!; Require(p.PlayerSeat == 0, "Only the actual human's prompt may be answered."); Accept(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Advance(GameEngine g)

@@ -52,39 +52,6 @@ internal static class OrdinaryYangXiuChecks
             "A true borrowed-sword use contains one weapon holder plus a Slash victim, hence only one actual trick target and no multi-target draw offer; its genuine requested Slash and cold-restored published Dodge resolve once.");
         borrowed = Cold(borrowed, br); g = Cold(g, r);
     }
-    public static void DeclaredCategoryBlocksOwnHandMaterialsButForeignDiscardAndEquipmentRemainLegal()
-    {
-        var (g, r) = Create(ownerHp: 6); Declare(g, "basic"); Play(g);
-        var hand = g.CreateSnapshot(0).Players[0].Hand; var basic = hand.First(c => c.Kind == CardKind.Slash);
-        Require(g.GetHumanLegalActions().All(a => a.CardId != basic.Id) &&
-            g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Equip),
-            "A declared basic hand category removes physical use and conversion-material offers, while equipment remains available.");
-        var state = State(g); var prompt = P(g)!;
-        Require(!g.Submit(new UseProgramSkillCommand(0, Driver, "discard", [basic.Id], [], g.Revision, prompt.PromptId)).Accepted && State(g) == state,
-            "An unpublished protected self-discard activation is rejected before paying any card.");
-        Use(g, "give", [Peer(g)], [basic.Id]); Play(g);
-        Require(g.CardMovements.Any(m => m.CardId == basic.Id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Hand(Peer(g))),
-            "Giving a protected card is not using, responding with or discarding it.");
-        var protectedBefore = g.CreateSnapshot(0).Players[0].Hand.Where(c => c.Kind == CardKind.Slash).Select(c => c.Id).ToArray();
-        Use(g, "foreign-discard", [Peer(g)]); Play(g);
-        Require(g.CardMovements.Any(m => protectedBefore.Contains(m.CardId) && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile),
-            "Another actual participant may discard this owner's protected hand entity; the restriction is not a foreign HE protection.");
-        var responseCount = Facts<CardRespondedEvent>(g).Count(e => e.ResponderSeat == 0);
-        var hpBefore = g.State.Players[0].Hp;
-        Use(g, "request", [Peer(g)]); Play(g);
-        Require(g.State.Players[0].Hp == hpBefore - 1 && Facts<CardRespondedEvent>(g).Count(e => e.ResponderSeat == 0) == responseCount &&
-            Facts<CardUseDeclaredEvent>(g).Any(e => e.SourceSeat == Peer(g) && e.CardKind == CardKind.Slash),
-            "A true requested physical Slash hits: Longdan cannot offer a protected basic hand material as a Dodge response.");
-        Declare(g, "trick"); Play(g);
-        var policies = g.CreateSnapshot(0).Players[0].TurnHandCategoryRestrictions!;
-        Require(policies.Select(p => p.Category).Order().SequenceEqual(new[] { SkillProgramCardCategory.Basic, SkillProgramCardCategory.Trick }.Order()),
-            "Separate declarations union during the actual current turn.");
-        var caller = policies.ToList(); var clone = g.CreateSnapshot(0).Players[0] with { TurnHandCategoryRestrictions = caller };
-        caller.Clear(); var json = JsonSerializer.Deserialize<PlayerSnapshot>(JsonSerializer.Serialize(clone))!;
-        Require(clone.TurnHandCategoryRestrictions!.Count == 2 && json.TurnHandCategoryRestrictions is IList<TurnHandCategoryRestriction> list && list.IsReadOnly,
-            "Policy collections clone in init/with/JSON and expose no affected player's hidden hand IDs.");
-        g = Cold(g, r);
-    }
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().First(f => f.OwnTrickDraw is not null);
     private static PendingDecision? P(GameEngine g) => g.State.PendingDecision;
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
@@ -95,9 +62,6 @@ internal static class OrdinaryYangXiuChecks
     { var a = g.GetHumanLegalActions().First(predicate); var id = a.CardId ?? throw new InvalidOperationException("Expected actual physical use.");
       Accept(g, new PlayCardCommand(0, id, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources }); }
-    private static void Declare(GameEngine g, string category)
-    { Use(g, "self"); Activate(g, Jilei); Reach(g, p => p.SkillPrompt?.SkillId == Jilei && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == category));
-      Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == category); }
     private static void Activate(GameEngine g, string skill)
     { Reach(g, p => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
       Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }

@@ -103,6 +103,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         TableModes = useExpandedContent
             ? [
                 new TableModeOption(8, "八人经典身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:classic-8"),
+                new TableModeOption(8, "八人身份·双将", "两将体力平均向下取整 · 主公 +1\n势力与性别沿用主将", "identity:classic-dual-8"),
                 new TableModeOption(5, "五人经典身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:classic-5"),
                 new TableModeOption(4, "2v2阵营", "青队 2 · 赤队 2\n公开阵营，协作对抗", "team:standard-2v2"),
                 new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6")
@@ -578,7 +579,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Text = choice.Description,
                     Name = general.Name,
                     Kingdom = FactionName(general.FactionId),
-                    HealthText = !IsNationalSnapshot
+                    HealthText = !HasDualGeneralSlots
                         ? choice.Parameters.TryGetValue("identity-max-hp", out var identityHp) ? $"体力上限 {identityHp}" : string.Empty
                         : choice.Parameters.TryGetValue("combined-max-hp", out var combinedHp) ? $"组合体力 {combinedHp}" :
                         choice.Parameters.TryGetValue("base-hp", out var baseHp) ? $"基础体力 {baseHp}" : "旧规则体力 4",
@@ -756,10 +757,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 Portrait = GetGeneralPortrait(player.GeneralId),
                 GeneralName = player.GeneralName,
                 IsNationalSeat = IsNationalSnapshot,
-                PrimaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, false, GetGeneralPortrait) : null,
-                SecondaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, true, GetGeneralPortrait) : null,
+                PrimaryGeneral = HasDualGeneralSlots ? GeneralSlotViewModel.FromPlayer(player, false, GetGeneralPortrait) : null,
+                SecondaryGeneral = HasDualGeneralSlots ? GeneralSlotViewModel.FromPlayer(player, true, GetGeneralPortrait) : null,
                 RelationshipLabel = IsNationalSnapshot ? NationalRelationship(player) : string.Empty,
-                SecondaryGeneralText = IsNationalSnapshot ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
+                SecondaryGeneralText = HasDualGeneralSlots ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
                 Hp = player.Hp,
                 IdentityConcealed = player.IdentityConcealed,
@@ -867,7 +868,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 var activeSkillSelectable = activeSkillCardIds.Contains(card.Id);
                 var responseChoice = HandResponseChoice(card.Id);
-                var normallyPlayable = playableCardIds.Contains(card.Id) || responseChoice is not null || IsOwnedSelectionMaterial(card.Id) || IsCardPaymentMaterial(card.Id);
+                var normallyPlayable = CanRerollOpeningHand || playableCardIds.Contains(card.Id) || responseChoice is not null || IsOwnedSelectionMaterial(card.Id) || IsCardPaymentMaterial(card.Id);
                 var normallySelectable = TutorialAllowsHandCard(card, normallyPlayable);
                 var availability = IsActiveSkillSelectionPending
                     ? activeSkillSelectable ? $"可用于{HumanActiveSkillAction?.Description ?? "主动技能"}" : "本次技能不能选择这张牌；可按 Esc 退出技能选择。"
@@ -1002,6 +1003,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void SelectCard(CardViewModel card)
     {
         if (!Hand.Contains(card)) return;
+
+        if (CanRerollOpeningHand)
+        {
+            SelectOpeningHandCard(card);
+            return;
+        }
 
         if (IsOwnedCardSelectionPending)
         {
@@ -1308,7 +1315,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var selectingNationalPrimary = IsNationalSnapshot &&
+        var selectingDualPrimary = HasDualGeneralSlots &&
             _snapshot.Players.Single(player => player.IsHuman).GeneralId.Length == 0;
         IsIdentityRevealOpen = false;
         ExecuteSafely(() =>
@@ -1324,9 +1331,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            // A completed primary selection starts a different national slot.
+            // A completed primary selection starts a different general slot.
             // Refreshing or restoring the same slot keeps its search untouched.
-            if (selectingNationalPrimary) CustomGeneralSearch = string.Empty;
+            if (selectingDualPrimary) CustomGeneralSearch = string.Empty;
             RefreshCommandResult(result.State);
         });
     }

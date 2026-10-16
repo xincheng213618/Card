@@ -44,7 +44,7 @@ public sealed partial class MainViewModel
         // Submit has returned, so the final accepted command is included in this fingerprint.
         var id = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(GameCheckpointJson.Serialize(_game.CreateCheckpoint())))).ToLowerInvariant();
         var sound = GameSoundRules.Outcome(_snapshot);
-        _pendingHistory.TryAdd(id, new MatchHistoryEntry(1, id, DateTimeOffset.UtcNow, TableModeText, _game.RulesVersion,
+        _pendingHistory.TryAdd(id, new MatchHistoryEntry(1, id, DateTimeOffset.UtcNow, TableModeText,
             sound switch { GameSound.Victory => MatchOutcome.Win, GameSound.Defeat => MatchOutcome.Loss, _ => MatchOutcome.Draw }, CompletedMatch));
         _historyCapturedGame = _game;
         FlushMatchHistory();

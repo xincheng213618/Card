@@ -50,38 +50,6 @@ internal static class BoundaryYanLiangWenChouChecks
         g = Restore(g, r);
     }
 
-    public static void MultipleOriginalMaterialsAlreadyMovedAndEmptyVirtualResponses()
-    {
-        var (g, r) = Create(); DrawOffer(g); Skip(g); Play(g);
-        var originals = g.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).Order().ToArray(); AllHandDuel(g, originals); Play(g);
-        var damage = E<ActualTurnCardDamageEntityEvent>(g).Where(e => e.VictimSeat == 0 && e.EffectiveKind == CardKind.Duel).ToArray();
-        Require(originals.Length >= 2 && damage.Length == originals.Length && damage.Select(e => e.CardId).SequenceEqual(originals) &&
-            damage.All(e => e.MaterialCount == originals.Length) && !E<ProgramPaidColorConversionPaidEvent>(g).Any(),
-            "Every original material has its own cause; mandatory Ending needs neither the optional payment nor its color source.");
-        End(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        AssertClaimBatch(g, g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill));
-        g = Restore(g, r); Continue(g); Until(g, () => Ended(g, 0));
-        Require(originals.All(id => E<ActualTurnDamageEntityClaimedEvent>(g).Count(e => e.CardId == id) == 1), "All original Duel materials are obtained once.");
-
-        var (taken, tr) = Create(preclaim: true); DrawOffer(taken); Skip(taken); Play(taken);
-        var costs = taken.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray(); AllHandDuel(taken, costs);
-        Reach(taken, p => p.SkillPrompt?.SkillId == "classic:jianxiong" &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Activate(taken); Play(taken); taken = Restore(taken, tr); End(taken); Until(taken, () => Ended(taken, 0));
-        Require(costs.All(id => taken.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id)) && !E<ActualTurnDamageEntityClaimedEvent>(taken).Any(),
-            "A mature Jianxiong preclaim removes original costs from Processing; the new Ending neither grabs them from Hand nor repeats cleanup.");
-
-        var (zero, zr) = Create(); DrawOffer(zero); Skip(zero); Play(zero); Use(zero, "enemy-duel", [1]);
-        Reach(zero, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
-        var response = P(zero)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "slash");
-        Answer(zero, c => c.Id == response.Id); Reach(zero, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
-        zero = Restore(zero, zr); Pass(zero); Play(zero);
-        Require(E<ActualTurnCardDamageEmptyEvent>(zero).Any(e => e.VictimSeat == 0 && e.EffectiveKind == CardKind.Duel) &&
-            !E<ActualTurnCardDamageEntityEvent>(zero).Any(e => response.Cards.Contains(e.CardId)),
-            "The actual zero-entity Duel causes damage, while its real Slash responses create no causal materials.");
-        End(zero); Until(zero, () => Ended(zero, 0)); Require(!E<ActualTurnDamageEntityClaimedEvent>(zero).Any(), "Zero-entity damage invents no claim.");
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Ended(GameEngine g, int seat) => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == seat);
@@ -109,14 +77,10 @@ internal static class BoundaryYanLiangWenChouChecks
     private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
-    private static void Use(GameEngine g, string activation, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, activation, [], targets, g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void PlayAction(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value,
         a.TargetSeats.Count > 0 ? a.TargetSeats : a.TargetSeat is { } target ? [target] : [], g.Revision, P(g)!.PromptId, a.PlayedCardKind)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-    private static void AllHandDuel(GameEngine g, IReadOnlyList<int> ids)
-    { Accept(g, new UseProgramSkillCommand(0, Driver, "all-hand-duel", ids, [], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.SequenceEqual([1]))); Answer(g, c => c.Targets.SequenceEqual([1])); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)

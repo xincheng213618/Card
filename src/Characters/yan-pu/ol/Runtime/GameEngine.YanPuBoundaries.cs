@@ -75,10 +75,11 @@ public sealed partial class GameEngine
     private bool TryBeginYanPuDyingExit(DyingCompletionReceipt dying, bool survived)
     {
         if (!survived || _winner != Winner.None || !_players[dying.VictimSeat].IsAlive || _players[dying.VictimSeat].Hp <= 0 ||
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawDyingExitRoundDistance)) return false;
+            !(_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawDyingExitRoundDistance) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice))) return false;
         var facts = _players.Where(p => p.IsAlive).ToDictionary(p => p.Seat, CaptureProgramTriggerFacts);
         var candidates = _players.Where(p => p.IsAlive).SelectMany(p => CollectProgramTriggerCandidates(p, SkillProgramTriggerWindow.DyingExited))
-            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance }])
+            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice }])
             .OrderBy(c => (c.OwnerSeat - _currentSeat + _playerCount) % _playerCount).ThenByDescending(c => c.Priority).ToArray();
         if (candidates.Length == 0) return false;
         var ret = new YanPuDyingExitReturn(dying.FrameId, dying.ParentFrameId, dying.VictimSeat, dying.Continuation, _roundNumber, _turnNumber, _currentSeat);

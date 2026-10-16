@@ -208,6 +208,20 @@ public sealed partial class GameEngine
                 // extra target after that original group completes.
                 continue;
             }
+            if (e is BingzhongTargetsAppliedEvent { AddedCount: > 0 } bingzhong && bingzhong.UseId == use.Id)
+            {
+                if (use.BingzhongTail is not { } tail || !HasBingzhongTargetTail(use) ||
+                    bingzhong != new BingzhongTargetsAppliedEvent(tail.FrameId, tail.UseId, tail.ActionId,
+                        tail.Source, tail.GameplayHash, tail.X, tail.Ordinal, tail.OriginalActor,
+                        tail.ProviderSeat, tail.OriginalTargets.Count, tail.AddedTargets.Count) ||
+                    !tail.OriginalTargets.SequenceEqual(designated) || !tail.OriginalTargets.SequenceEqual(actual))
+                    throw new InvalidOperationException("A Bingzhong fire tail lost its exact finalized target prefix.");
+                designated.AddRange(tail.AddedTargets);
+                actual.AddRange(tail.AddedTargets);
+                // These finalized additions retain the already prepared native
+                // Fangtian plan and run through the ordinary enhanced cursor.
+                continue;
+            }
             int? added = e switch
             {
                 CurrentCardEnhancedEvent { Enhancement: CurrentCardEnhancement.ExtraTarget } enhancement when enhancement.CardUseFrameId == use.Id && enhancement.CardActionId == p.OriginalAction.ActionId => enhancement.ExtraTargetSeat,

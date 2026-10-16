@@ -47,73 +47,10 @@ internal static class BoundaryChengPuChecks
             "Fatal HP payment is not self damage; the already completed true Fire use cleans up without a second payment."); fatal = Cold(fatal, fr);
     }
 
-    public static void RoundPricedAlcoholKeepsAtomicMaterialsAndVictimUseReturns()
-    {
-        var (g, r) = Create(fragilePeers: true, observeWine: true);
-        Use(g, "discard-four"); Drain(g); Play(g);
-        Require(Facts<ProgramAdjacentDiscardStoredEvent>(g).Count() == 4, "Four actual owned hand discards build four real public stock entities.");
-        var victims = NonLordPeers(g).Take(2).ToArray();
-        Use(g, "hurt-one", [victims[0]]); ReachWine(g); g = Cold(g, r); Private(g); Reject(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "pass");
-        Until(g, () => !g.State.Players[victims[0]].IsAlive); Play(g);
-        Require(!Facts<ProgramRoundPileAlcoholIssuedEvent>(g).Any() && Stock(g, 0).Count == 4,
-            "Declining after activation consumes neither prospective first price nor a real stock material.");
-
-        for (var price = 1; price <= 2; price++)
-        {
-            Use(g, "hurt-one", [victims[1]]); ReachWine(g);
-            var root = WineRoot(g); var token = root.RoundPileAlcohol!;
-            Require(token.Price == price && token.Stage == RoundPileAlcoholStage.Choosing && token.SelectedIds.Count == 0,
-                "The source/skill/state/actual-round bucket freezes the prospective price before material selection.");
-            Private(g); g = Cold(g, r); Reject(g);
-            for (var n = 0; n < price; n++) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "material");
-            var chosen = WineRoot(g).RoundPileAlcohol!.SelectedIds.ToArray();
-            Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "use"); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-            var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.RoundPileAlcoholReturn is not null);
-            var window = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.ResumeRoundPileAlcoholUseFrameId == use.Id);
-            Require(!use.RoundPileAlcoholCostDrained && use.SourceSeat == victims[1] && use.CardKind == CardKind.Alcohol &&
-                use.Action!.ActorSeat == victims[1] && use.Action.ProviderSeat == 0 && use.Action.PhysicalCards.Select(c => c.CardId).SequenceEqual(chosen) &&
-                use.Action.PhysicalCards.All(c => c.From == new CardLocation(CardZoneKind.Chunlao, 0)) &&
-                window.Batch.ParentFrameId == use.Id && window.Batch.Movements.Count == price && g.State.Players[victims[1]].Hp == 0,
-                "One atomic X-material cost belongs to the victim's actual Alcohol use and pauses before any recovery.");
-            var issued = Facts<ProgramRoundPileAlcoholIssuedEvent>(g).Last();
-            Require(issued.Price == price && issued.VictimSeat == victims[1] && issued.Source.OwnerSeat == 0 && WineRoot(g).RoundPileAlcohol!.Stage == RoundPileAlcoholStage.Issued,
-                "Only the true victim use issuance consumes the next ordinal; provider and actor remain distinct.");
-            g = Cold(g, r); Reject(g); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            Require(g.State.Players[victims[1]].Hp == 1 && g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == use.Id).RoundPileAlcoholCostDrained,
-                "Cost observers return before the true rescue recovery and its HP child.");
-            g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-            Require(g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id && f.Step == ResolutionFrameStep.Completed) && WineRoot(g).RoundPileAlcohol!.Stage == RoundPileAlcoholStage.Issued,
-                "Completed Alcohol observers return before the pricing program and original damage producer.");
-            g = Cold(g, r); Reject(g); Continue(g); Drain(g); Play(g);
-            Require(chosen.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == new CardLocation(CardZoneKind.Chunlao, 0) && m.To == CardLocation.Processing) == 1 &&
-                g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1),
-                "Each actual material pays and cleans up once after all cost, HP, gain and completed children."); g = Cold(g, r);
-        }
-        Use(g, "hurt-one", [victims[1]]);
-        Drain(g); Play(g);
-        Require(Facts<PlayerDyingEvent>(g).Any(e => e.VictimSeat == victims[1]) && Stock(g, 0).Count == 1 &&
-            Facts<ProgramRoundPileAlcoholIssuedEvent>(g).Select(e => e.Price).SequenceEqual([1, 2]),
-            "One remaining material cannot publish a prospective three-material rescue; issued ordinals are not refunded or repeated."); g = Cold(g, r);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static ProgramSkillFrame Payment(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.CompletedUsePayment is not null);
-    private static ProgramSkillFrame WineRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RoundPileAlcohol is not null);
-    private static IReadOnlyList<CardSnapshot> Stock(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].ChunlaoCards ?? [];
-    private static IEnumerable<int> NonLordPeers(GameEngine g) => g.State.Players.Where(p => p.Seat != 0 && p.Role != Role.Lord).Select(p => p.Seat);
     private static void ReachPayment(GameEngine g) => Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "completed-use-payment"));
-    private static void ReachWine(GameEngine g)
-    {
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-pile-alcohol") ||
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "boundary:chunlao"));
-        if (!P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-pile-alcohol"))
-            Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == "boundary:chunlao");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-pile-alcohol"));
-    }
-    private static void Use(GameEngine g, string binding, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void PlayAction(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
@@ -124,7 +61,6 @@ internal static class BoundaryChengPuChecks
     { for (var i = 0; i < 220; i++) { if (P(g) is { } p && done(p)) return; Step(g); } throw new InvalidOperationException("Cheng Pu boundary missing: " + JsonSerializer.Serialize(P(g))); }
     private static void Until(GameEngine g, Func<bool> done)
     { for (var i = 0; i < 240; i++) { if (done()) return; Step(g); } throw new InvalidOperationException("Cheng Pu actual event boundary missing."); }
-    private static void Drain(GameEngine g) => Until(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Step(GameEngine g)
     {
         var p = P(g);

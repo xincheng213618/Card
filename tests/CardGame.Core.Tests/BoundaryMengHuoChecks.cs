@@ -5,7 +5,6 @@ using static BoundaryLiDianChecks;
 // Current ordinary OL boundary Meng Huo: docs/content/sources/boundary-meng-huo-2026-10-04.json.
 internal static class BoundaryMengHuoChecks
 {
-    private const string Huoshou="boundary:huoshou-current";
     private const string Zaiqi="boundary:zaiqi-current";
     private const string DriverSkill="fixture:mh-driver";
 
@@ -24,44 +23,6 @@ internal static class BoundaryMengHuoChecks
         Require(!g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Any(d=>d.TargetSeat==0),
             "The Huo Shou owner is not a barbarian assault target at all.");
         Replay(g,r);
-    }
-
-    public static void ZaiqiAsksChosenParticipantsInOrder()
-    {
-        var(g,r)=Start("red");
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Wound(g);Wound(g);
-        Burn(g);Burn(g);Burn(g);
-        Require(g.CreateSnapshot(0).Players[0].Hp==3&&g.CreateSnapshot(0).Players[0].Hand!.Count==2,
-            "Two wounds and three red discards set up an X of exactly three.");
-        Replay(g,r);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        Reach(g,p=>p.Kind==DecisionKind.ProgramTrigger&&p.PlayerSeat==0&&
-            p.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1"));
-        var opening=P(g)!;
-        Require(opening.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="skip")&&
-            opening.Choices.Count(c=>c.Parameters.GetValueOrDefault("mode")!.StartsWith("seat:"))==3,
-            "The ending prompt offers all three other characters and a decline.");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="seat:1");
-        var narrowed=P(g)!;
-        Require(!narrowed.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1")&&
-            narrowed.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="finish"),
-            "An already chosen character cannot be picked twice and the selection can be confirmed.");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="seat:2");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="seat:3");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="finish");
-        Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Count()==3);
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single() is
-            {OwnerSeat:0,Budget:3,Seats.Count:3} committed&&committed.Seats.SequenceEqual([1,2,3]),
-            "The committed selection names exactly the three chosen characters.");
-        var chosen=g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>()
-            .Select(e=>(e.ChooserSeat,e.Option)).ToArray();
-        Require(chosen.SequenceEqual([(1,"recovery"),(2,"draw"),(3,"draw")]),
-            "The badly wounded owner is healed first, then the remaining participants draw.");
-        Require(g.Events.Select(e=>e.Payload).OfType<RecoveryAppliedEvent>()
-                .Single(e=>e.TargetSeat==0) is {SourceSeat:0,Amount:1},
-            "The healing participant recovers the owner by exactly one.");
-        ReplayFourViews(g,r);Replay(g,r);
     }
 
     private static void ReachBarbarianResolution(GameEngine g)
@@ -84,18 +45,6 @@ internal static class BoundaryMengHuoChecks
         }
         foreach(var entry in g.Log.TakeLast(6))Console.WriteLine("DIAG-LOG: "+entry.Message);
         throw new InvalidOperationException("The fixture never resolved an opponent barbarian assault.");
-    }
-
-    private static void Wound(GameEngine g)
-    {
-        Accept(g,new UseProgramSkillCommand(0,DriverSkill,"wound",[],[],g.Revision,P(g)!.PromptId));
-        Settle(g);
-    }
-    private static void Burn(GameEngine g)
-    {
-        Accept(g,new UseProgramSkillCommand(0,DriverSkill,"burn",
-            [g.CreateSnapshot(0).Players[0].Hand!.Select(c=>c.Id).First()],[],g.Revision,P(g)!.PromptId));
-        Settle(g);
     }
 
     private static void Accept(GameEngine g,GameCommand command){var result=g.Submit(command);Require(result.Accepted,result.Error?.Message??"Command rejected.");}

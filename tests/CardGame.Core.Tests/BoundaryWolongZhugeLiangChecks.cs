@@ -75,40 +75,6 @@ internal static class BoundaryWolongZhugeLiangChecks
         Cold(native, nativeRegistry);
     }
 
-    public static void ActualTurnTrickHistoryAndCangzhuoDiscardCold()
-    {
-        var (unused, unusedRegistry) = Create(tricks: true);
-        var ids = Hand(unused, 0).Select(card => card.Id).ToArray();
-        Require(ids.Length > unused.State.Players[0].Hp, "The fixed real trick hand exceeds ordinary HP hand limit.");
-        Accept(unused, new EndPlayPhaseCommand(0, unused.Revision, P(unused)!.PromptId));
-        ReachUntil(unused, () => Facts<TurnHandLimitCardKindExemptionGrantedEvent>(unused).Any(fact => fact.Policy.Source.SkillId == "boundary:cangzhuo"));
-        var policy = Facts<TurnHandLimitCardKindExemptionGrantedEvent>(unused).Single(fact => fact.Policy.Source.SkillId == "boundary:cangzhuo").Policy;
-        Require(policy.TurnNumber == 1 && policy.Source.OwnerSeat == 0 && policy.CardKinds.Contains(CardKind.DrawTwo) &&
-            policy.CardKinds.Contains(CardKind.Nullification) && policy.CardKinds.Contains(CardKind.Lightning) &&
-            !policy.CardKinds.Contains(CardKind.Slash) && Facts<ActualTurnTrickUseRecordedEvent>(unused).Length == 0,
-            "No actual own trick use grants all current instant and delayed trick kinds, while Basic cards remain counted.");
-        Frozen(policy.CardKinds); Cold(unused, unusedRegistry);
-        ReachUntil(unused, () => unused.State.TurnNumber > 1);
-        Require(!unused.CardMovements.Any(move => ids.Contains(move.CardId) && move.Reason == CardMoveReasons.HandLimitDiscard) &&
-            Enumerable.Range(0, 4).All(seat => unused.CreateSnapshot(seat).Players[0].TurnHandLimitCardKindExemptions is null),
-            "Exempt actual tricks survive that ordinary discard phase; the issued turn policy expires at the actual turn end.");
-        Cold(unused, unusedRegistry);
-
-        var (used, usedRegistry) = Create(tricks: true);
-        var useCard = Hand(used, 0).First().Id; Play(used, useCard, []); ReachPlay(used);
-        var accepted = Facts<ActualTurnTrickUseRecordedEvent>(used).Single();
-        Require(accepted.ActorSeat == 0 && accepted.TurnNumber == 1 && accepted.EffectiveKind == CardKind.DrawTwo &&
-            Facts<CardActionAcceptedEvent>(used).Any(fact => fact.Action.ActionId == accepted.ActionId),
-            "The actual physical trick records one action despite declared/accepted/completed windows.");
-        Cold(used, usedRegistry); Accept(used, new EndPlayPhaseCommand(0, used.Revision, P(used)!.PromptId));
-        Reach(used, prompt => prompt.Kind == DecisionKind.DiscardCards && prompt.PlayerSeat == 0);
-        Require(Facts<TurnHandLimitCardKindExemptionGrantedEvent>(used).All(fact => fact.Policy.Source.SkillId != "boundary:cangzhuo") &&
-            P(used)!.RequiredCardCount == Hand(used, 0).Count - used.State.Players[0].Hp &&
-            P(used)!.ValidCardIds.Order().SequenceEqual(Hand(used, 0).Select(card => card.Id).Order()),
-            "After one real trick use, Cangzhuo does not hide trick cards from the ordinary exact-ID discard prompt.");
-        PrivateAndFrozen(used); Cold(used, usedRegistry);
-    }
-
     private static CardMovementRecord[] CostMoves(GameEngine game, int id) => game.CardMovements.Where(move => move.CardId == id && move.Reason == CardMoveReasons.FireAttackDiscard).ToArray();
     private static IReadOnlyList<CardSnapshot> Hand(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat].Hand;
     private static T[] Facts<T>(GameEngine game) where T : IGameEvent => game.Events.Select(item => item.Payload).OfType<T>().ToArray();

@@ -143,6 +143,7 @@
         'Opening customization: public Lord then nonzero human and private AI',
         'Opening customization: nonzero team and national human before private AI',
         'identity role general candidates freeze private choices and replay',
+        'identity dual generals preserve selection health privacy skills and replay',
         'identity general variants keep candidate families private and replay exact editions',
         'weighted identity draft preserves private diverse families and exact replay',
         'identity Rebel kill reward draws exactly three cards and replays once'
@@ -157,6 +158,7 @@
         'Named private pile UI: owner pairs public counts and clear',
         'active effect badges restore actual duration and clear consumed facts',
         'general selection switches related editions without consuming candidate slots',
+        'identity dual generals show consecutive choices portraits and both skill sources',
         'Opening customization UI: identities roster and hand confirmation',
         'Interaction motion: native lifecycle reversal and preference cancellation',
         'conversion choices retain exact provenance without leaking trusted action details',

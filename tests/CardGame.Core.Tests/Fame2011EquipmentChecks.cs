@@ -139,7 +139,7 @@ internal static class Fame2011EquipmentChecks
         {
             var rules = $$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
-            {"id":"fixture:fame-equipment-driver","revision":1,"minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"activations":[
+            {"id":"fixture:fame-equipment-driver","revision":1,"activations":[
             {"id":"weapon","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"placeNamedWeapon","target":"selectedTarget","outputKind":"crossbow"}]},
             {"id":"other-weapon","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"placeNamedWeapon","target":"selectedTarget","outputKind":"qinggangSword"}]},
             {"id":"double-slot","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"alterEquipmentSlots","target":"selectedTarget","equipmentSlots":["weapon"],"amount":2}]},
@@ -149,8 +149,8 @@ internal static class Fame2011EquipmentChecks
             {"id":"damage-one","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":1}]},
             {"id":"dying","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":1}]}
             ]},
-            {"id":"fixture:fame-batch","revision":1,"minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[{"id":"batch","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perBatch","optional":false,"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
-            {"id":"fixture:fame-card","revision":1,"minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[{"id":"card","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perCard","optional":false,"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
+            {"id":"fixture:fame-batch","revision":1,"triggers":[{"id":"batch","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perBatch","optional":false,"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+            {"id":"fixture:fame-card","revision":1,"triggers":[{"id":"card","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perCard","optional":false,"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
             ]}
             """;
             var catalog = SkillProgramCatalog.Load(rules, """{"schemaVersion":3,"skills":{"fixture:fame-equipment-driver":{"name":"Fixture","description":"Fixture"},"fixture:fame-batch":{"name":"Batch","description":"Batch"},"fixture:fame-card":{"name":"Card","description":"Card"}}}""");

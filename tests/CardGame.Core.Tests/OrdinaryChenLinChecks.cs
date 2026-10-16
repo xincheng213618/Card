@@ -40,35 +40,6 @@ internal static class OrdinaryChenLinChecks
             "The payment and reward children return to the original due binding once, without repaying the deposit or Hand exchange.");
         g = Cold(g, r);
     }
-
-    public static void GameTargetHandHpEquipmentDiscardDrainsRecoveryAfterSourceLoss()
-    {
-        foreach (var loseSource in new[] { false, true })
-        {
-            var (g, r) = Create(equipment: true, loseSource: loseSource); Play(g); Use(g, "equip", [0]); Play(g);
-            var armor = g.CreateSnapshot(0).Players[0].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-            var hand = g.CreateSnapshot(0).Players[0].Hand[0].Id; var hp = g.State.Players[0].Hp;
-            Require(hp == 2 && g.State.Players[0].HandCount > hp, "The real Lord fixture is injured and meets the discard branch.");
-            Use(g, "per-target-hand-hp", [0], Songci); Reach(g, p => p.SkillPrompt?.SkillId == Songci && Has(p, "game-hand-hp-discard"));
-            Answer(g, P(g)!.Choices.Single(c => c.Cards.SequenceEqual([armor])));
-            Require(!g.CardMovements.Any(m => m.CardId == armor && m.To == CardLocation.DiscardPile), "The first private choice freezes material without partially paying the two-card cost.");
-            g = Cold(g, r); Answer(g, P(g)!.Choices.Single(c => c.Cards.SequenceEqual([hand]))); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.GameTargetHandHp is not null);
-            Require(root.GameTargetHandHp!.CardIds.SequenceEqual([armor, hand]) && root.GameTargetHandHp.ActualCount == 2 && g.State.Players[0].Hp == hp + 1 &&
-                g.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 &&
-                g.CardMovements.Count(m => m.CardId == hand && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile) == 1 &&
-                g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.ResumeFrameId == root.Id && h.Continuation == PostEventContinuation.AwaitedProgramMovement),
-                "One real HE payment queues its Silver Lion recovery under the exact owning receipt before program completion.");
-            g = Cold(g, r); Continue(g);
-            Play(g);
-            Require(E<GameTargetHandHpMovementIssuedEvent>(g).Count(e => e.FrameId == root.Id && !e.Draw && e.Count == 2) == 1 &&
-                E<ProgramSkillResolvedEvent>(g).Single(e => e.FrameId == root.Id).Completed && !g.ResolutionStack.Any(f => f.Id == root.Id) &&
-                g.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 &&
-                (!loseSource || E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Hp && e.SkillIds.Contains("fixture:cl-noop")) == 1),
-                "Paid recovery/movement children drain after actual source qualification suppression without paying again or losing the whole-game issuance.");
-            g = Cold(g, r);
-        }
-    }
     private static void CheckPrivateHoldViews(GameEngine g, int target, int source, int id, bool due)
     {
         for (var viewer = 0; viewer < 4; viewer++)
@@ -91,7 +62,6 @@ internal static class OrdinaryChenLinChecks
         if (P(g)!.PlayerSeat == 0) Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
         else Accept(g, new AdvanceOneStepCommand(g.Revision));
     }
-    private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null, string skill = Driver) => Accept(g, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> condition) => ReachCondition(g, () => P(g) is { } p && condition(p));

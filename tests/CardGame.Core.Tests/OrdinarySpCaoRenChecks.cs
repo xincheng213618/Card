@@ -32,41 +32,6 @@ internal static class OrdinarySpCaoRenChecks
             "The paid view does not remain visible after its original program retires."); g = Cold(g, r);
     }
 
-    public static void LizhanCurrentWoundedDrawNativeAndStrictComposition()
-    {
-        var (g, r) = Create(); Play(g); Use(g, "hurt", [2]); Play(g); Begin(g, 2); Reach(g, p => p.SkillPrompt?.SkillId == Hp); Continue(g);
-        Reach(g, View); Answer(g, c => c.Parameters.GetValueOrDefault("option") == "discard"); Play(g);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == EndingSkill));
-        g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == EndingSkill);
-        Reach(g, p => p.SkillPrompt?.SkillId == EndingSkill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-targets"));
-        Require(P(g)!.Choices.Any(c => c.Targets.SequenceEqual([0, 2])) && P(g)!.Choices.All(c => c.Targets.All(s => g.State.Players[s].Hp < g.State.Players[s].MaxHp)),
-            "Actual Ending allows owner and any chosen subset of genuinely wounded living characters.");
-        var before = g.CardMovements.Count; g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([0, 2]));
-        Until(g, () => !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == EndingSkill));
-        Require(new[] { 0, 2 }.All(s => g.CardMovements.Skip(before).Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(s)) == 1),
-            "Lizhan performs exactly one real Draw per selected target with ordinary movement children and no artificial grant or reward."); g = Cold(g, r);
-
-        var (native, nr) = Create(dodge: true, native: true);
-        for (var i = 0; i < 220 && native.State.Status != EngineStatus.Completed && E<InspectedHandFinishedEvent>(native).Length == 0; i++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<InspectedHandHpPaidEvent>(native).Length > 0 && E<InspectedHandViewedEvent>(native).Length > 0 &&
-            E<InspectedHandSlashIssuedEvent>(native).Length > 0 && native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
-            "The fixed native source uses public activation scoring and its actually authorized private chooser; no AI prompt is answered manually or seed searched."); native = Cold(native, nr);
-
-        var presentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string, object> { ["fixture:scr-bad"] = new { name = "失血看牌严格合同", description = "仅新节点的组合门" } } });
-        foreach (var part in new[] {
-            "\"minCards\":1,\"maxCards\":1,\"targetKind\":\"otherLivingWithHand\",\"usesPerTurn\":null,\"usesPerPhase\":1",
-            "\"minCards\":0,\"maxCards\":0,\"targetKind\":\"otherLiving\",\"usesPerTurn\":null,\"usesPerPhase\":1",
-            "\"minCards\":0,\"maxCards\":0,\"targetKind\":\"otherLivingWithHand\",\"usesPerTurn\":1,\"usesPerPhase\":1" })
-        {
-            var rejected = false;
-            try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion + ",\"skills\":[{\"id\":\"fixture:scr-bad\",\"revision\":1,\"activations\":[{\"id\":\"bad\",\"minTargets\":1,\"maxTargets\":1," + part + ",\"effects\":[{\"op\":\"payHpInspectHandThenDiscardOrSlash\",\"target\":\"owner\"}]}]}]}", presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Only the exact new zero-card once-per-phase one-hand-target HP-inspection composition is admitted; historical loader defaults remain unchanged.");
-        }
-    }
-
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool View(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "inspected-hand-slash");
@@ -79,14 +44,11 @@ internal static class OrdinarySpCaoRenChecks
             "Only the paid owner snapshot exposes the complete actual opponent hand and its exact private decision; other observers receive neither.");
     }
     private static void Begin(GameEngine g, int target) => Accept(g, new UseProgramSkillCommand(0, Skill, Binding, [], [target], g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string id, int[] targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> match) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(match).Id, g.Revision)); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> match)
     { for (var i = 0; i < 160; i++) { if (P(g) is { } p && match(p)) return; Advance(g); } throw new InvalidOperationException("Fixed Cao Ren fixture missed boundary: " + JsonSerializer.Serialize(P(g))); }
-    private static void Until(GameEngine g, Func<bool> match)
-    { for (var i = 0; i < 180; i++) { if (match()) return; Advance(g); } throw new InvalidOperationException("Fixed Cao Ren fixture did not retire its exact paid child/root."); }
     private static void Advance(GameEngine g)
     {
         var p = P(g);

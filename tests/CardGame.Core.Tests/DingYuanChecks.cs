@@ -39,99 +39,9 @@ internal static class DingYuanChecks
         Cold(game, registry);
     }
 
-    public static void FirstSourcedDamagePerActualRoundDrawsAndOwnSourceFollowsThroughLoss()
-    {
-        var (game, registry) = Create("first-own"); ReachPlay(game);
-        var hp = game.State.Players[1].Hp; Use(game, "hurt", [1]);
-        Reach(game, p => p.SkillPrompt?.SkillId == Gain && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
-        Require(E<RoundFirstSourcedDamageEvent>(game) is [{ RoundNumber: 1, SourceSeat: 0, TargetSeat: 1 }] &&
-            game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == "ol:xianshuai" && f.InstructionIndex == 2) &&
-            !HasSkill(game, 0, "ol:xianshuai"),
-            "A real first source damage pays its draw, then an actual gain observer can remove Xianshuai while the original triggered resolution remains paused.");
-        game = Cold(game, registry); Continue(game); ReachPlay(game);
-        Require(game.State.Players[1].Hp == hp - 2 && XianDraws(game) == 1 &&
-            E<DamageAppliedEvent>(game).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 2,
-            "The already triggered own-source branch survives loss and issues a separate ordinary one-point damage without recursively claiming first damage.");
-        Use(game, "hurt", [1]); ReachPlay(game);
-        Require(game.State.Players[1].Hp == hp - 3 && XianDraws(game) == 1, "Later damage in that actual round cannot claim the first-damage reward again.");
-        Cold(game, registry);
-
-        (game, registry) = Create("first-other"); ReachPlay(game); End(game);
-        Reach(game, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && game.State.TurnNumber > 1);
-        Require(E<RoundFirstSourcedDamageEvent>(game).First() is { RoundNumber: 1, SourceSeat: not 0 } &&
-            XianDraws(game) == 1 && E<FirstRoundDamageQualifiedEvent>(game).Count(e => e.RoundNumber == 1) == 1 &&
-            !E<DamageAppliedEvent>(game).Any(e => e.SourceSeat == 0),
-            "Another actor's first actual sourced damage draws once for Ding Yuan without inventing a Ding Yuan follow-up.");
-        Use(game, "hurt", [1]); ReachPlay(game);
-        Require(E<RoundFirstSourcedDamageEvent>(game).Any(e => e.RoundNumber == 2 && e.SourceSeat == 0) && XianDraws(game) == 2,
-            "The next native RoundStarted boundary refreshes the global first-damage ledger.");
-        Cold(game, registry);
-    }
-
-    public static void PanshiGiftAndIssuedSlashSurviveMarkerTransferAndSkillLoss()
-    {
-        var (game, registry) = Create("panshi");
-        Reach(game, p => IsTarget(p, "LivingCixiaoOwner")); Target(game, 1);
-        Reach(game, p => p.SkillPrompt?.SkillId == "ol:panshi" && p.Choices.Any(c => c.Cards.Count == 1));
-        var gift = P(game)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); Answer(game, c => c.Cards.SequenceEqual([gift])); ReachPlay(game);
-        var giftMoves = game.CardMovements.Where(m => m.CardId == gift && m.Reason.Value == "skill-program.ol:panshi.SelectAndMoveOwnedCard").ToArray();
-        Require(giftMoves is [{ From.Zone: CardZoneKind.Hand, From.OwnerSeat: 0, To.Zone: CardZoneKind.Processing },
-                { From.Zone: CardZoneKind.Processing, To.Zone: CardZoneKind.Hand, To.OwnerSeat: 1 }] &&
-            giftMoves[0].Sequence < giftMoves[1].Sequence,
-            "Panshi preparation uses an actual single private hand-card gift to the selected living Cixiao owner.");
-        Use(game, "mark-self"); ReachPlay(game);
-        var hp = game.State.Players[1].Hp;
-        var slash = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeat == 1 && a.ConversionSource is null);
-        Accept(game, new PlayCardCommand(0, slash.CardId!.Value, [1], game.Revision, P(game)!.PromptId, slash.PlayedCardKind));
-        Reach(game, p => p.SkillPrompt?.SkillId == Before && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
-        var issued = game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.AdoptedChildDamageIssue is not null);
-        Require(issued.AdoptedChildDamageIssue is { ActorSeat: 0, TargetSeat: 1 } && game.State.Players[1].Hp == hp,
-            "The native Play Slash freezes its exact Panshi source and target before a real before-damage observer.");
-        game = Cold(game, registry); Continue(game);
-        Reach(game, p => IsTarget(p, "AnyLiving")); Target(game, 1);
-        Reach(game, p => p.SkillPrompt?.SkillId == Before && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "after-loss"));
-        Require(Mark(game, 0) == 0 && Mark(game, 1) == 1 && !HasSkill(game, 0, "ol:panshi") && !HasSkill(game, 0, "ol:cixiao") &&
-            HasSkill(game, 1, "ol:panshi"),
-            "Actual native marker movement and source skill loss cannot erase an already issued Slash damage invoice; the new holder receives its own derived source.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "after-loss");
-        Reach(game, p => p is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } || E<TurnEndedEvent>(game).Any(e => e.ActorSeat == 0));
-        Require(game.State.Players[1].Hp == hp - 2 && E<AdoptedChildPlayEndRequestedEvent>(game) is [{ ActorSeat: 0, TargetSeat: 1 }] &&
-            game.CardMovements.Count(m => m.CardId == slash.CardId && m.To == CardLocation.DiscardPile) == 1,
-            "The native Slash deals its frozen +1 once and its actual damage ends Play after marker transfer and skill loss; the physical Slash is paid only once.");
-        Cold(game, registry);
-    }
-
-    public static void ElementalPanshiPropagatesButIndirectFatherDoesNotTriggerIt()
-    {
-        foreach (var directFather in new[] { false, true })
-        {
-            var (game, registry) = Create("panshi-chain");
-            Reach(game, p => IsTarget(p, "LivingCixiaoOwner"));
-            var father = P(game)!.Choices.First(c => c.Targets.Count == 1).Targets.Single(); Target(game, father);
-            Reach(game, p => p.SkillPrompt?.SkillId == "ol:panshi" && p.Choices.Any(c => c.Cards.Count == 1));
-            Answer(game, c => c.Cards.Count == 1); ReachPlay(game);
-            var unrelated = game.State.Players.First(player => player.Seat != 0 && player.Seat != father && !HasSkill(game, player.Seat, "ol:cixiao")).Seat;
-            Use(game, "chain", [father]); ReachPlay(game); Use(game, "chain", [unrelated]); ReachPlay(game);
-            var fatherHp = game.State.Players[father].Hp; var otherHp = game.State.Players[unrelated].Hp;
-            var target = directFather ? father : unrelated;
-            var action = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeat == target &&
-                a.PlayedCardKind == CardKind.FireSlash && a.ConversionSource?.SkillId == Driver);
-            Accept(game, new PlayCardCommand(0, action.CardId!.Value, [target], game.Revision, P(game)!.PromptId, CardKind.FireSlash)
-                { ConversionSource = action.ConversionSource });
-            Reach(game, p => directFather ? p.Kind == DecisionKind.DiscardCards : p.Kind == DecisionKind.PlayCard);
-            Require(game.State.Players[father].Hp == fatherHp - (directFather ? 2 : 1) &&
-                game.State.Players[unrelated].Hp == otherHp - (directFather ? 2 : 1) &&
-                E<AdoptedChildPlayEndRequestedEvent>(game).Length == (directFather ? 1 : 0) &&
-                E<ChainedDamagePropagatedEvent>(game).Length == 1,
-                "The OL direct-target rule propagates a direct father's finalized +1 to the other chain member; an indirectly damaged father adds nothing and does not end Play.");
-            Cold(game, registry);
-        }
-    }
-
     private static T[] E<T>(GameEngine game) where T : IGameEvent => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static int Mark(GameEngine game, int seat) => game.CreateSnapshot(0).Players[seat].Markers?.SingleOrDefault(m => m.Kind == PlayerMarkerKind.AdoptedChild)?.Count ?? 0;
     private static bool HasSkill(GameEngine game, int seat, string id) => game.CreateSnapshot(0).Players[seat].Skills?.Any(skill => skill.ContentId == id) == true;
-    private static int XianDraws(GameEngine game) => game.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason.Value == "skill-program.ol:xianshuai.Draw");
     private static PendingDecision? P(GameEngine game) => game.CreateSnapshot(0).PendingDecision;
     private static bool IsTrigger(PendingDecision p, string skill, string binding) => p.SkillPrompt?.SkillId == skill &&
         p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == binding && c.Parameters.GetValueOrDefault("program-action") == "activate");

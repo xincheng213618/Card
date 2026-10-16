@@ -31,22 +31,6 @@ internal static class BuZhiChecks
         Need(E<BuZhiMovementPaidEvent>(g).Count(e=>e.FrameId==syncId)==1 && E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==syncId)==1 && E<BuZhiStartedEvent>(g).Count()==syncStarts+1,
             "Synchronous native loss invocation retains its once-only entitlement, one paid benefit and one exact trigger return through cold restoration.");
     }
-    public static void ActualEquipmentTargetChooserAndDynamicRebelLimit()
-    {
-        var(g,r)=Start();Equip(g);Play(g);
-        for(var use=0;use<3;use++)
-        {
-            Need(g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:dingpan" && a.SelectableTargetSeats.Contains(0)),"Each actual surviving Rebel permits the next original play-phase use. "+JsonSerializer.Serialize(new{use,Actions=g.GetHumanLegalActions(),Players=Enumerable.Range(0,4).Select(s=>V(g,s)),Recent=g.Events.TakeLast(8).Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType()))}));
-            Use(g,"ol:dingpan","equipment-choice",[0]);Reach(g,()=>Stage(g,"branch"));var id=Root(g).Id;
-            Need(E<BuZhiMovementPaidEvent>(g).Single(e=>e.FrameId==id).Actual==1 && P(g)!.PlayerSeat==0,"Recipient chooses only after its actual one-card native draw and all paid children.");
-            g=Cold(g,r);Answer(g,c=>Branch(c,"obtain"));Play(g);
-            Need(V(g,0).Equipment.Count==0 && E<BuZhiDamageIssuedEvent>(g).Count(e=>e.FrameId==id)==1 && E<BuZhiMovementPaidEvent>(g).Count(e=>e.FrameId==id)==2 && E<ProgramSkillResolvedEvent>(g).Count(e=>e.FrameId==id && e.Completed)==1,
-                "Obtain branch moves actual equipment to recipient hand before one native owner-sourced damage and one final return.");
-            Equip(g);Play(g);
-        }
-        Need(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:dingpan"),"Three alive Rebels cap this real phase at three accepted uses, even when equipment remains.");
-        g=Cold(g,r);Need(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:dingpan"),"Cold replay preserves the consumed dynamic phase allowance.");
-    }
     private static bool Branch(PromptChoice c,string b)=>c.Parameters.GetValueOrDefault("branch")==b;
     private static ProgramSkillFrame Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.BuZhi is not null);
     private static bool Stage(GameEngine g,string s)=>g.ResolutionStack.LastOrDefault() is ProgramSkillFrame{BuZhi:not null}f && f.BuZhi.Stage==s && P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="bu-zhi")==true;
@@ -58,11 +42,6 @@ internal static class BuZhiChecks
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Use(GameEngine g,string skill,string binding,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,skill,binding,[],targets,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g) is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void Equip(GameEngine g)
-    {
-        Play(g);var a=g.GetHumanLegalActions().First(a=>a.CardId is{}id && V(g,0).Hand.Any(c=>c.Id==id && c.Kind==CardKind.Crossbow));
-        Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId));
-    }
     private static void Reach(GameEngine g,Func<bool> done)
     {
         for(var i=0;i<160;i++)

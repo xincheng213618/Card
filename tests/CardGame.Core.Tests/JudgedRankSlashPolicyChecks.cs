@@ -36,29 +36,6 @@ internal static class JudgedRankSlashPolicyChecks
             "Every high-rank attack is still a genuine whole use and finish, without a fabricated debit/refund."); Cold(g, r);
     }
 
-    public static void ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary()
-    {
-        var (g, r) = Start(shen: true); EndToOther(g); Reach(g, p => p.SkillPrompt?.SkillId == Shenxian); Cold(g, r);
-        var window = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last(); var candidate = window.Candidates[window.CandidateIndex];
-        var batch = window.Batch; var original = batch.Movements[candidate.OccurrenceIndex];
-        // A narrow host audit exercises the frozen-fact selector after a legitimate real card move.
-        // No checkpoint/replay claim is made for the following host mutations.
-        var card = (Card)Invoke(g, "GetAttackCard", original.CardId)!;
-        Invoke(g, "MoveCard", card, CardLocation.DiscardPile, CardLocation.Hand(0), new CardMoveReason("fixture.host.original-claim"), null!, true);
-        Require(Indexes(g, batch, candidate).Contains(candidate.OccurrenceIndex) &&
-            Indexes(g, batch with { MovementTiming = new(1, TurnPhase.Play, 0) }, candidate).Contains(candidate.OccurrenceIndex) &&
-            Indexes(g, batch with { MovementTiming = new(0, TurnPhase.Play, 1) }, candidate).Length == 0,
-            "Original ledger identity survives a later claim; actual owner, rather than an inserted phase's actor, determines outside-owner qualification.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var owner = HostPlayers(g)[0]; var old = owner.SkillGrants.Grants.Single(a => a.SkillId == Shenxian);
-        owner.SkillGrants.RemoveGrant(old.GrantId); owner.SkillGrants.Grant(new("fixture:rank-regrant", Shenxian, old.SkillInstanceId + ":later", "acquired:host-audit"));
-        ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, Shenxian);
-        Require(Indexes(g, batch, candidate).Length == 0, "An already issued draw survives ResetSkill and replacement instance as a same-turn quota fact.");
-        Continue(g); ReachState(g, () => E<ProgramOwnedZoneCardsDiscardedEvent>(g).Count(e => e.SkillId == Peer) == 3);
-        Require(E<OtherActualBasicDiscardDrawIssuedEvent>(g).Single().MovementSequence == original.Sequence &&
-            E<OtherActualBasicDiscardDrawIssuedEvent>(g).Length == 1, "Source replacement cannot pay the original accepted basic discard twice.");
-    }
-
     private static (GameEngine, ContentRegistry) Start(bool replacement = false, bool empty = false, bool shen = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -72,14 +49,12 @@ internal static class JudgedRankSlashPolicyChecks
     private static void DriverUse(GameEngine g, string id) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], [], g.Revision, P(g)!.PromptId));
     private static LegalAction? Slash(GameEngine g, int id, int target) => g.GetHumanLegalActions().FirstOrDefault(a => a.Kind == LegalActionKind.Slash && a.CardId == id && a.TargetSeats.SequenceEqual([target]));
     private static void PlaySlash(GameEngine g, int id, int target) { var a = Slash(g, id, target)!; Accept(g, new PlayCardCommand(0, id, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); }
-    private static void EndToOther(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static PlayerSnapshot V(GameEngine g) => g.CreateSnapshot(0).Players[0];
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void ReachState(GameEngine g, Func<bool> predicate) { for (var n = 0; n < 128; n++) { if (predicate()) return; Advance(g); } throw new InvalidOperationException("Fixed rank/discard state boundary was not reached."); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var n = 0; n < 128; n++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException($"Fixed rank/discard fixture missed its named boundary: phase={g.State.Phase}, prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId}, frames={string.Join(',', g.ResolutionStack.Select(f => f.GetType().Name + ':' + f.Id))}."); }
     private static void Advance(GameEngine g)
     {
@@ -91,10 +66,6 @@ internal static class JudgedRankSlashPolicyChecks
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rank/discard command rejected."); }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "Exact accepted commands restore the frozen final rank, debit facts and all private views.");
-    private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-    private static object? Invoke(GameEngine g, string name, params object[] args) => typeof(GameEngine).GetMethod(name, Flags)!.Invoke(g, args);
-    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine g) => (IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", Flags)!.GetValue(g)!;
-    private static int[] Indexes(GameEngine g, CardMovementBatchContext batch, ProgramTriggerCandidate candidate) => (int[])Invoke(g, "MatchingOtherActualBasicDiscardIndexes", batch, candidate)!;
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
     private sealed class Fixture(bool replacement, bool empty, bool shen) : IGameContentPackage

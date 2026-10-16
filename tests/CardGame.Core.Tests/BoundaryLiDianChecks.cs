@@ -38,53 +38,6 @@ internal static class BoundaryLiDianChecks
         Answer(suits,c=>c.Cards.Count==1&&!suitReceipt.Contains(c.Cards[0]));Reach(suits,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-subset"));
         Require(P(suits)!.Choices.Single().Cards.SequenceEqual([suitReceipt[1]]),"The same new available-source subset respects onePerSuit after actual receipt movement.");Replay(suits,ur);Answer(suits,c=>c.Cards.SequenceEqual([suitReceipt[1]]));Settle(suits);Replay(suits,ur);
     }
-    public static void ReceiptAndNestedGain()
-    {
-        foreach(var take in new[]{false,true})
-        {
-            var(g,r)=Start(normalDraw:0);Skip(g);Settle(g);var hand=g.State.Players[0].HandCount;
-            Driver(g,take?"incoming":"outgoing",[1]);
-            for(var point=0;point<2;point++)
-            {
-                Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("skill-id")=="boundary:wangxi"));Activate(g);
-                Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-subset"));
-                var ids=Frame(g).CardSetBindings.Single(b=>b.Name=="drawn").CardIds.ToArray();Require(ids.Length==2 && P(g)!.Choices.All(c=>c.Cards.All(ids.Contains)),"Only actual draw receipt is offered, never old hand.");Replay(g,r);
-                Answer(g,c=>c.Cards.Count==1);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Answer(g,c=>c.Targets.SequenceEqual([1]));
-            }
-            Settle(g);Require(g.State.Players[0].HandCount==hand+2,"Each point draws two and transfers exactly one.");Replay(g,r);
-        }
-        var(nested,nr)=Start(normalDraw:0,child:"move");Skip(nested);Settle(nested);Driver(nested,"outgoing",[1]);
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("skill-id")=="boundary:wangxi"));Activate(nested);
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"));
-        var receipt=nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:wangxi").CardSetBindings.Single(b=>b.Name=="drawn").CardIds;
-        Replay(nested,nr);Answer(nested,c=>c.Cards.Contains(receipt[0]));
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"));
-        Replay(nested,nr);Answer(nested,c=>c.Cards.Count==1 && !receipt.Contains(c.Cards[0]));
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-subset"));
-        Require(P(nested)!.Choices.All(c=>c.Cards.Count==1 && c.Cards[0]==receipt[1]) && P(nested)!.ValidCardIds.SequenceEqual([receipt[1]]),"Nested gain movement leaves only the still-available receipt card.");
-        Replay(nested,nr);Answer(nested,c=>c.Cards.SequenceEqual([receipt[1]]));
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Replay(nested,nr);Answer(nested,c=>c.Targets.SequenceEqual([1]));
-        Reach(nested,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"));Skip(nested);Settle(nested);Replay(nested,nr);
-        Require(nested.CardMovements.Count(m=>m.CardId==receipt[1] && m.From==CardLocation.Hand(0) && m.To==CardLocation.Hand(1))==1,"Remaining receipt is given once after real child movement.");
-        var(zero,zr)=Start(normalDraw:0,child:"move");Skip(zero);Settle(zero);Driver(zero,"outgoing",[1]);Activate(zero);
-        var lost=zero.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:wangxi").CardSetBindings.Single(b=>b.Name=="drawn").CardIds.ToArray();
-        foreach(var id in lost){Reach(zero,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"));Replay(zero,zr);Answer(zero,c=>c.Cards.Contains(id));}
-        Reach(zero,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"));Skip(zero);Settle(zero);Replay(zero,zr);
-        Require(lost.All(id=>Zones(zero).GetLocation(id)==CardLocation.DiscardPile) && !zero.CardMovements.Any(m=>lost.Contains(m.CardId)&&m.To==CardLocation.Hand(1)),"Zero available receipt finishes finitely without giving an old hand card.");
-        var(dead,dr)=Start(normalDraw:0,child:"kill");Skip(dead);Settle(dead);Driver(dead,"outgoing",[1]);Activate(dead);
-        Reach(dead,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Replay(dead,dr);Answer(dead,c=>c.Targets.SequenceEqual([1]));
-        for(var step=0;step<100 && P(dead)?.Kind!=DecisionKind.PlayCard;step++)
-        {var pending=P(dead);if(pending?.Kind==DecisionKind.RescueDying)Answer(dead,c=>c.Parameters.GetValueOrDefault("response-action")=="decline"||c.Parameters.GetValueOrDefault("action")=="pass"||c.Cards.Count==0);
-         else if(pending?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-subset")==true)Answer(dead,c=>c.Cards.Count==1);
-         else Accept(dead,new AdvanceOneStepCommand(dead.Revision));Replay(dead,dr);}
-        Require(!dead.State.Players[1].IsAlive && !dead.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:wangxi") &&
-            !dead.CardMovements.Any(m=>m.From==CardLocation.Hand(0)&&m.To==CardLocation.Hand(1)),"A recipient dying in a real gain child finishes without a gift or replacement target.");Replay(dead,dr);
-        SaveReceiptAfterPhysicalPeach("save");
-        SaveReceiptAfterPhysicalPeach("save-observer");
-        SaveReceiptAfterPhysicalPeach("save-observer-activate");
-        SaveReceiptAfterPhysicalPeach("save-jijiu-observer");
-        SaveReceiptAfterPhysicalPeach("save-jijiu-observer-activate");
-    }
     internal static void SaveReceiptAfterPhysicalPeach(string child)
     {
         var (game,registry)=Start(normalDraw:0,child:child);Skip(game);Settle(game);

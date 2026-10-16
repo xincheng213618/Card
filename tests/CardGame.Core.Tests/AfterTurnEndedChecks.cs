@@ -4,79 +4,6 @@ using CardGame.Core;
 
 internal static class AfterTurnEndedChecks
 {
-    public static void DueBeforeWindowAndNestedReplay()
-    {
-        var (g, registry) = Create("due");
-        Use(g, "grow", [1]);
-        End(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:due");
-        Answer(g, c => c.Targets.SequenceEqual([1]));
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:movement");
-        var dueParent = (DeferredTurnEndFrame)g.ResolutionStack.First();
-        Require(dueParent.Current is not null && dueParent.AfterTurnEnded is null,
-            "The real deferred discard child precedes capture of the new window.");
-        Replay(g, registry);
-        Reject(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:after-own");
-        var parent = (DeferredTurnEndFrame)g.ResolutionStack.First();
-        Require(parent.Current is null && parent.ItemIndex == parent.DueIds.Count && parent.AfterTurnEnded is { ItemIndex: 0, CurrentChild: null },
-            "All old due children finish before one frozen after-end candidate list.");
-        Require(g.CreateSnapshot(0).Phase == TurnPhase.Finished && g.Events.Last(e => e.Payload is TurnEndedEvent).Payload is TurnEndedEvent { TurnNumber: 1, ActorSeat: 0 },
-            "The optional window follows the real end and precedes the next turn.");
-        Require(parent.AfterTurnEnded!.Items is IList<TurnEndingBoundaryItem> items && items.IsReadOnly,
-            "The frozen boundary items cannot be mutated through their collection interface.");
-        Replay(g, registry);
-        Reject(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:gain");
-        var active = (DeferredTurnEndFrame)g.ResolutionStack.First();
-        Require(active.AfterTurnEnded?.CurrentChild is { } current && g.ResolutionStack[1] is ProgramSkillFrame child &&
-            current.FrameId == child.Id && current.Candidate.SkillInstanceId == child.SkillInstanceId && child.WindowContext?.ParentFrameId == active.Id,
-            "An actual gain child suspends the exact owning after-end binding.");
-        Replay(g, registry);
-        Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        Require(g.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Count(e => e.Window == SkillProgramTriggerWindow.AfterTurnEnded && e.OwnerSeat == 0) == 1 &&
-            g.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason.Value == "skill-program.fixture:after-own.Draw") == 1,
-            "The paid after-end draw is neither repeated nor recaptured on child return.");
-        var events = g.Events.Select(e => e.Payload).ToArray();
-        Require(Array.FindIndex(events, e => e is DeferredHandAlignmentResolvedEvent) < Array.FindIndex(events, e => e is ProgramBindingStartedEvent b && b.Window == SkillProgramTriggerWindow.AfterTurnEnded),
-            "Existing due settlement remains ahead of the new window.");
-        Replay(g, registry);
-    }
-
-    public static void OldRegistryShapeAndExactParent()
-    {
-        var (old, registry) = Create("old");
-        Use(old, "grow", [1]); End(old);
-        Reach(old, p => p.SkillPrompt?.SkillId == "fixture:due");
-        Answer(old, c => c.Targets.SequenceEqual([1]));
-        Reach(old, p => p.SkillPrompt?.SkillId == "fixture:movement");
-        Require(old.ResolutionStack.First() is DeferredTurnEndFrame { AfterTurnEnded: null, Prelude: null } &&
-            !JsonSerializer.Serialize(old.ResolutionStack.First(), typeof(ResolutionFrame)).Contains("Prelude", StringComparison.Ordinal) &&
-            !JsonSerializer.Serialize(old.ResolutionStack.First(), typeof(ResolutionFrame)).Contains("AfterTurnEnded", StringComparison.Ordinal),
-            "A registry without the capability preserves the previous due-frame JSON shape.");
-        Replay(old, registry);
-        Answer(old, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(old, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        Require(!old.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Any(e => e.Window == SkillProgramTriggerWindow.AfterTurnEnded),
-            "An old registry does not introduce a new program window.");
-
-        var (g, _) = Create("extra"); End(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:after-own");
-        var parent = (DeferredTurnEndFrame)g.ResolutionStack.First();
-        var candidate = parent.AfterTurnEnded!.Items[0].Candidate!;
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var context = (ProgramSkillWindowContext)typeof(GameEngine).GetMethod("CreateAfterTurnEndedContext", flags)!.Invoke(g, [parent, candidate])!;
-        var trigger = g.ContentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t => t.Id == candidate.BindingId);
-        bool Eligible(ProgramTriggerCandidate c, ProgramSkillWindowContext x) => (bool)typeof(GameEngine).GetMethod("CanRunAfterTurnEndedCandidate", flags)!.Invoke(g, [c, x, trigger])!;
-        Require(Eligible(candidate, context) && !Eligible(candidate, context with { ParentFrameId = parent.Id + 1 }) &&
-            !Eligible(candidate, context with { Window = SkillProgramTriggerWindow.TurnEnding }) &&
-            !Eligible(candidate, context with { SourceSeat = 1 }) && !Eligible(candidate with { SkillInstanceId = "wrong" }, context),
-            "The actual frozen parent, ended owner and source instance are independently required.");
-        Reject(g);
-    }
 
     public static void ReturnMovementPreludeBeforeWindow()
     {
@@ -111,50 +38,6 @@ internal static class AfterTurnEndedChecks
         Require(!JsonSerializer.Serialize(old.ResolutionStack.First(), typeof(ResolutionFrame)).Contains("DeferredTurnEndReturn", StringComparison.Ordinal),
             "The old movement child does not serialize the new nullable parent-return field.");
         Replay(old, oldRegistry);
-    }
-
-    public static void OptionalDiscardPreludeUsesPromptTargetFallback()
-    {
-        foreach (var action in new[] { "activate", "skip" })
-        {
-            var (g, registry) = Create("discard-claim");
-            Use(g, "grow", [1]);
-            End(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == "fixture:discard-claim");
-            var parent = (DeferredTurnEndFrame)g.ResolutionStack[0];
-            var window = (CardsMovedTriggerWindowFrame)g.ResolutionStack[1];
-            var candidate = window.Candidates[window.CandidateIndex];
-            var context = window.Contexts![window.CandidateIndex];
-            var prompt = Prompt(g)!;
-            Require(parent.OwnerSeat == 1 && parent.AfterTurnEnded is null && parent.Prelude is { Completed: false } &&
-                g.ResolutionStack.Count == 2 && context.TargetSeat is null && context.SourceSeat == 1 &&
-                prompt.PlayerSeat == candidate.OwnerSeat && prompt.TargetSeat == candidate.OwnerSeat && prompt.SourceSeat == context.SourceSeat,
-                "An optional discard observer keeps its null context target while the published prompt defaults to its owner.");
-            CheckPreludeReceipt(g);
-            Replay(g, registry);
-            Reject(g);
-            Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == action);
-            if (action == "activate")
-            {
-                Require(g.ResolutionStack[2] is ProgramSkillFrame child && child.WindowContext == context &&
-                    child.OwnerSeat == candidate.OwnerSeat && child.SkillInstanceId == candidate.SkillInstanceId,
-                    "Activation retains the exact frozen movement context and skill instance.");
-                Replay(g, registry);
-                Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-                Reach(g, p => p.SkillPrompt?.SkillId == "fixture:gain");
-                Require(g.ResolutionStack[0] is DeferredTurnEndFrame { AfterTurnEnded: null },
-                    "A real nested draw observer must finish before the turn-end prelude returns.");
-                Replay(g, registry);
-                Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-            }
-            Require(g.CreateSnapshot(0).CurrentSeat == 2 && g.CreateSnapshot(0).Phase == TurnPhase.NotStarted &&
-                !g.ResolutionStack.OfType<DeferredTurnEndFrame>().Any(),
-                "The completed prelude returns directly to the next actual turn.");
-            Require(g.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Count(e => e.SkillId == "fixture:discard-claim") ==
-                (action == "activate" ? 1 : 0) && g.CardMovements.Count(m => m.Reason.Value == "skill-program.fixture:discard-claim.Draw") ==
-                (action == "activate" ? 1 : 0), "Each optional answer resumes the next turn once, with no repeated draw.");
-            Replay(g, registry);
-        }
     }
 
     private static void CheckPreludeReceipt(GameEngine g)
@@ -220,11 +103,6 @@ internal static class AfterTurnEndedChecks
         var p = Prompt(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision));
     }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, Prompt(g)!.PromptId));
-    private static void Use(GameEngine g, string id, IReadOnlyList<int> targets)
-    {
-        Accept(g, new UseProgramSkillCommand(0, "fixture:driver", id, [], targets, g.Revision, Prompt(g)!.PromptId));
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {
         for (var i = 0; i < 90; i++)

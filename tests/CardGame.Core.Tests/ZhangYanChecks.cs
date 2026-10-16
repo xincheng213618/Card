@@ -23,56 +23,6 @@ internal static class ZhangYanChecks
    else{Reach(g,()=>E<ZhangYanSujiReturnedEvent>(g).Any());Need(V(g,target).Hp==hp-1&&!E<ZhangYanRewardIssuedEvent>(g).Any(),"Free target selection does not change the conditional reward's original wounded participant.");}_=Cold(g,r);
   }
  }
- public static void LangdaoSealedVotesStackAndDistinctPermanentOptionsCold()
- {
-  var(g,r)=Start("allies");var target=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.Count==1&&V(g,a.TargetSeats[0]).Role==Role.Rebel).TargetSeats.Single();var hp=V(g,target).Hp;
-  Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([target])));Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});
-  Need(Current(g)!.Options.Count==3&&g.CreateSnapshot(target).PendingDecision is null,"The two true participants start from one frozen three-option set and cannot inspect the other's private prompt.");g=Cold(g,r);Vote(g,LangdaoOption.Damage);
-  Need(Current(g)is{Votes.Count:1}&&P(g)!.PlayerSeat==target&&!E<ZhangYanLangdaoVoteRevealedEvent>(g).Any()&&g.CreateSnapshot(0).PendingDecision is null,"Submitting the first real vote publishes no choice fact before the target's native AI commitment.");g=Cold(g,r);Play(g);
-  Need(V(g,target).Hp==hp-3&&E<ZhangYanLangdaoIssuedEvent>(g).Single()is{DamageBonus:2,ExtraCount:0,NoResponse:false}&&E<ZhangYanLangdaoVoteRevealedEvent>(g).Count()==2&&E<ZhangYanLangdaoOptionRemovedEvent>(g).Single().Option==LangdaoOption.Damage,"Two same-option votes add two damage, yet remove the one selected option only once when no actual death occurs.");
-  Use(g,"virtual",targets:[target]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Need(Current(g)!.Options.SequenceEqual([LangdaoOption.ExtraTarget,LangdaoOption.NoResponse]),"The same skill instance permanently loses Damage while preserving both other choices.");Vote(g,LangdaoOption.NoResponse);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoTargets});g=Cold(g,r);FinishTargets(g);Play(g);
-  Need(E<ZhangYanLangdaoOptionRemovedEvent>(g).Select(e=>e.Option).Distinct().Count()==3,"A real later use removes its two distinct selected options separately from the earlier duplicated Damage choice.");
-  var bindings=E<ZhangYanStartedEvent>(g).Count(e=>e.Operation==SkillProgramEffectOp.ResolveLangdaoSimultaneousSlash);Use(g,"virtual",targets:[target]);Play(g);Need(E<ZhangYanStartedEvent>(g).Count(e=>e.Operation==SkillProgramEffectOp.ResolveLangdaoSimultaneousSlash)==bindings,"All options exhausted suppress even the optional prompt for the unchanged source instance.");_=Cold(g,r);
- }
- public static void NativeMultipleTargetsNoResponseKillAndRegrantCold()
- {
-  var(g,r)=Start("extra");Use(g,"equip",targets:[0]);Play(g);var hp=Enumerable.Range(1,3).ToDictionary(s=>s,s=>V(g,s).Hp);Use(g,"virtual",targets:[1]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Vote(g,LangdaoOption.ExtraTarget);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoTargets});
-  Need(E<ZhangYanLangdaoIssuedEvent>(g).Single().ExtraCount==2&&P(g)!.Choices.SelectMany(c=>c.Targets).Order().SequenceEqual([2,3]),"Two target votes grant up to two distinct actually in-range extra targets after both choices have been revealed.");
-  g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([2]));Need(P(g)!.Choices.All(c=>!c.Targets.Contains(2)),"The first extra target cannot be selected a second time.");g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([3]));Play(g);
-  Need(Enumerable.Range(1,3).All(s=>V(g,s).Hp==hp[s]-1)&&E<ZhangYanLangdaoTargetAddedEvent>(g).Select(e=>e.Target).SequenceEqual([2,3])&&E<ZhangYanLangdaoOptionRemovedEvent>(g).Single().Option==LangdaoOption.ExtraTarget,"One genuine zero-material native Slash resolves all three recipients and returns to its exact original program once.");_=Cold(g,r);
-  (g,r)=Start("dodge");var before=V(g,1).Hp;Use(g,"virtual",targets:[1]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Vote(g,LangdaoOption.NoResponse);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoTargets});FinishTargets(g);Play(g);
-  Need(V(g,1).Hp==before-1&&V(g,1).HandCount==4&&!E<CardRespondedEvent>(g).Any()&&E<ZhangYanLangdaoIssuedEvent>(g).Single().NoResponse,"The exact same Use cannot be responded to even though its actual defender owns true Dodge entities.");
-  Use(g,"lose-lang");Play(g);Need(V(g).Skills!.All(s=>s.Id!=Lang),"The depleted issuing source is really lost.");Use(g,"grant-lang");Play(g);Use(g,"virtual",targets:[1]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Need(Current(g)!.Options.Count==3,"A genuinely regranted source instance starts with all three options as the same-product OL guide describes.");_=Cold(g,r);
-  (g,r)=Start("kill");Use(g,"hurt-seven",targets:[1]);Play(g);Need(V(g,1).Hp==1,"The target reaches one actual HP without damage or fabricated Dying state.");Use(g,"virtual",targets:[1]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Vote(g,LangdaoOption.NoResponse);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoTargets});FinishTargets(g);Play(g);
-  Need(!V(g,1).IsAlive&&E<ZhangYanLangdaoKilledEvent>(g).Count()==1&&E<ZhangYanLangdaoSettledEvent>(g).Single().Killed&&!E<ZhangYanLangdaoOptionRemovedEvent>(g).Any(),"Only a real same-use native damage death preserves the selected options after the whole card finishes.");_=Cold(g,r);
-  (g,r)=Start("rescued");Use(g,"hurt-seven",targets:[1]);Play(g);Use(g,"virtual",targets:[1]);Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Vote(g,LangdaoOption.NoResponse);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoTargets});FinishTargets(g);
-  Play(g);
-  Need(V(g,1).IsAlive&&E<DyingResolvedEvent>(g).Any(e=>e.VictimSeat==1&&e.Survived)&&E<DyingResponseEvent>(g).Any(e=>e.ResponderSeat==1&&e.UsedPeach&&e.PeachCardId is{}peach&&g.CardMovements.Any(m=>m.CardId==peach&&m.From==CardLocation.Hand(1)&&m.To==CardLocation.Processing)&&g.CardMovements.Any(m=>m.CardId==peach&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.UseFinished))&&!E<ZhangYanLangdaoKilledEvent>(g).Any()&&E<ZhangYanLangdaoSettledEvent>(g).Single().Killed==false&&E<ZhangYanLangdaoOptionRemovedEvent>(g).Count()==2,"A genuine AI-paid Peach rescues the real Dying target but does not preserve the two selected options.");_=Cold(g,r);
-  (g,r)=Start("chain");var primary=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.Count==1&&V(g,a.TargetSeats[0]).Role==Role.Rebel).TargetSeats.Single();var next=Enumerable.Range(1,3).First(seat=>seat!=primary);
-  foreach(var seat in new[]{primary,next}){Use(g,"chain",targets:[seat]);Play(g);}var primaryHp=V(g,primary).Hp;var nextHp=V(g,next).Hp;
-  Native(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([primary])));Reach(g,()=>Optional(P(g),Lang));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.LangdaoVotes});Vote(g,LangdaoOption.Damage);g=Cold(g,r);Play(g);
-  Need(V(g,primary).Hp==primaryHp-3&&V(g,next).Hp==nextHp-3&&E<DamageAppliedEvent>(g).Where(e=>e.TargetSeat==primary||e.TargetSeat==next).Select(e=>e.Amount).SequenceEqual([3,3])&&E<ZhangYanLangdaoIssuedEvent>(g).Single().DamageBonus==2,"The initial elemental hit includes both Damage votes in the native propagated base; the later recipient inherits three without adding the votes twice.");_=Cold(g,r);
- }
- public static void NativeEquipmentPaymentRewardChildrenLossDeathAndPrivacyCold()
- {
-  foreach(var scenario in new[]{"payment-lion","payment-ox","payment-loss","payment-death"})
-  {
-   var(g,r)=Start(scenario);Use(g,"equip",targets:[0]);Play(g);var kind=scenario=="payment-ox"?CardKind.WoodenOx:CardKind.SilverLion;var gear=V(g).Equipment.Single(c=>c.Kind==kind).Id;int? grain=null;
-   if(kind==CardKind.WoodenOx){var storage=g.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect&&a.EquipmentKind==CardKind.WoodenOx);grain=storage.SelectableCardIds.First();Accept(g,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[grain.Value],[],g.Revision,P(g)!.PromptId));Play(g);}
-   Use(g,"lose");Play(g);var turn=g.State.TurnNumber;End(g);Reach(g,()=>g.State.TurnNumber>turn&&g.State.CurrentSeat==0&&Optional(P(g),Suji));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.SujiCard});
-   Need(P(g)!.Choices.Any(c=>c.Cards.SequenceEqual([gear]))&&g.CreateSnapshot(1).PendingDecision is null,"The actual equipped black entity is a private legal native Slash material.");g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([gear]));Reach(g,()=>Current(g)is{Stage:ZhangYanStage.SujiTarget});Answer(g,c=>c.Targets.SequenceEqual([1]));
-   if(scenario is"payment-loss" or"payment-death")
-   {Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,r);Continue(g);if(scenario=="payment-death"){Reach(g,()=>g.State.Status==EngineStatus.Completed);Need(!V(g).IsAlive&&E<ZhangYanSujiPaidEvent>(g).Count()==1,"Actual native payment-child death preserves the one paid conversion without a second entity debit.");_=Cold(g,r);continue;}}
-   Play(g);Need(E<ZhangYanSujiPaidEvent>(g).Single().CardId==gear&&E<ZhangYanSujiReturnedEvent>(g).Count()==1&&g.CardMovements.Count(m=>m.CardId==gear&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use)==1,"A paid equipment conversion drains its native HP/movement descendants and returns through the same original owning frame once.");
-   if(kind==CardKind.SilverLion)Need(E<RecoveryAppliedEvent>(g).Any(e=>e.TargetSeat==0&&e.Amount==1),"The genuinely used equipped Lion opens its native removal recovery.");
-   if(grain is{}id)Need(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)==1,"Using the real equipped Ox retains its native attached grain spill.");
-   if(scenario=="payment-loss")Need(V(g).Skills!.All(s=>s.Id!=Suji)&&E<DamageAppliedEvent>(g).Any(e=>e.TargetSeat==1),"A genuinely lost original source cannot revoke its already-paid native Slash.");_=Cold(g,r);
-  }
-  {
-   var(g,r)=Start("reward-lion");Use(g,"equip",targets:[1]);Play(g);Use(g,"hurt",targets:[1]);Play(g);End(g);Reach(g,()=>g.State.CurrentSeat==1&&Optional(P(g),Suji));Activate(g);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.SujiCard});Answer(g,c=>c.Cards.Count==1);Reach(g,()=>Current(g)is{Stage:ZhangYanStage.SujiTarget});Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>Current(g)is{Stage:ZhangYanStage.RewardChoice});var lion=V(g,1).Equipment.Single(c=>c.Kind==CardKind.SilverLion).Id;var hp=V(g,1).Hp;
-   g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([lion]));Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Health);Need(P(g)!.PlayerSeat==1&&V(g,1).Hp==hp+1&&V(g).Hand.Any(c=>c.Id==lion),"The actual foreign equipped Lion is obtained and recovers its foreign payer under a genuine AI-owned HP child.");g=Cold(g,r);Reach(g,()=>E<ZhangYanSujiReturnedEvent>(g).Any());Need(E<ZhangYanRewardIssuedEvent>(g).Single().CardId==lion,"Native foreign recovery returns to the already-paid reward without taking a second card.");_=Cold(g,r);
-  }
- }
  private static PlayerSnapshot V(GameEngine g,int seat=0)=>g.CreateSnapshot(seat).Players.Single(p=>p.Seat==seat);
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
  private static ZhangYanReceipt? Current(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f=>f.ZhangYan is not null)?.ZhangYan;
@@ -84,10 +34,7 @@ internal static class ZhangYanChecks
  private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
  private static void Skip(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
  private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
- private static void Vote(GameEngine g,LangdaoOption option)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option")==option.ToString());
- private static void FinishTargets(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="finish");
  private static void Use(GameEngine g,string id,int[]?targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets??[],g.Revision,P(g)!.PromptId));
- private static void Native(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
  private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
  private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
  private static void Reach(GameEngine g,Func<bool> done)

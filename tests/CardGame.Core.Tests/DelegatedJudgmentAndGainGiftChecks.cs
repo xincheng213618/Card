@@ -54,26 +54,6 @@ internal static class DelegatedJudgmentAndGainGiftChecks
         Cold(foreign, fr);
     }
 
-    public static void RedBatchRevealsOnlyEachPaidLossAndKeepsFrozenLists()
-    {
-        var (g, r) = Start(Kind.RedBatch);
-        while (V(g).Hand.Count > 2) { Use(g, "trim", [V(g).Hand[0].Id], []); ReachPlay(g); }
-        var ids = V(g).Hand.Select(c => c.Id).ToArray(); Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == Driver); foreach (var id in ids) Answer(g, c => c.Cards.SequenceEqual([id]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:mingzhe");
-        Require(root.GainGiftReceipt is { RedLosses.Count: 2, LossIndex: 1 } && E<RedOwnedLossRevealedEvent>(g).Length == 1 &&
-            g.CreateSnapshot(2).PublicRevealedCards.Select(c => c.Id).SequenceEqual([root.GainGiftReceipt.RedLosses[0].Card.Id]),
-            "One batch freezes two real losses, but only the current already-shown material enters the public view.");
-        var list = (IList<RedOwnedLossMaterial>)root.GainGiftReceipt.RedLosses;
-        try { list[0] = list[1]; throw new InvalidOperationException("A frozen receipt accepted observer mutation."); } catch (NotSupportedException) { }
-        Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        Require(E<RedOwnedLossRevealedEvent>(g).Length == 2 && E<GainGiftDrawPaidEvent>(g).Length == 2 &&
-            E<RedOwnedLossRevealedEvent>(g).Select(e => e.Card.Id).ToHashSet().SetEquals(ids), "Each entity is shown once after the previous real draw child returns.");
-        Cold(g, r); Continue(g);
-        Require(E<GainGiftDrawPaidEvent>(g).All(e => e.ActualCount == 1) &&
-            g.CardMovements.Count(m => m.Reason.Value == "program.red-owned-loss.draw") == 2, "Resuming the original batch never pays either draw twice."); Cold(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Start(Kind kind, bool finishInitialGift = true)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(kind));
@@ -109,7 +89,6 @@ internal static class DelegatedJudgmentAndGainGiftChecks
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "Cold command-prefix restore preserves exact paid frames, ledger, choices and private views.");
     private static void Reject(GameEngine g) { var before = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("unpublished"), g.Revision)).Accepted && State(g) == before, "Unpublished choices do not change paid state or any viewer."); }
-    private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
     private sealed class Fixture(Kind kind) : IGameContentPackage

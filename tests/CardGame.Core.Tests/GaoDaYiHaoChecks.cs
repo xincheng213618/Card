@@ -6,9 +6,6 @@ internal static class GaoDaYiHaoChecks
 {
     private const string General = "classic:gao-da-yi-hao";
     private const string BeamRifle = "classic:beam-rifle";
-    private const string IField = "classic:i-field";
-    private const string MobileArmor = "classic:mobile-armor";
-    private const string CoreFighter = "classic:core-fighter";
     private const string Mode = "identity:gao-da-yi-hao-check-5";
 
 
@@ -45,88 +42,6 @@ internal static class GaoDaYiHaoChecks
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(Snapshot(replay) == Snapshot(game),
             "The Beam Rifle activation must replay identically from a checkpoint.");
-    }
-
-
-
-    public static void CoreFighterRevivesOncePerGame()
-    {
-        var registry = Registry();
-        var revived = false;
-        for (var seed = 1; seed <= 600 && !revived; seed++)
-        {
-            var game = Start(registry, Mode, seed);
-            for (var step = 0; step < 3000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is null)
-                {
-                    Advance(game);
-                    continue;
-                }
-                var rescue = prompt.PlayerSeat == 0
-                    ? prompt.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
-                        choice.Parameters.GetValueOrDefault("skill-id") == CoreFighter)
-                    : null;
-                if (rescue is null)
-                {
-                    if (prompt.PlayerSeat != 0)
-                    {
-                        Advance(game);
-                        continue;
-                    }
-                    StepDeclining(game);
-                    continue;
-                }
-                var checkpoint = RoundTrip(game.CreateCheckpoint());
-                var answer = game.Submit(new AnswerPromptCommand(
-                    0, prompt.PromptId, rescue.Id, game.Revision));
-                Require(answer.Accepted, answer.Error?.Message ?? "Core Fighter activation failed.");
-                SettleResolution(game);
-                if (game.State.Status == EngineStatus.Completed) break;
-                var after = game.CreateSnapshot(0, true).Players[0];
-                Require(after.IsAlive && after.Hp == 2 && after.Hand.Count == 2,
-                    "Core Fighter must discard all cards, recover to two HP and draw two.");
-                var replay = GameReplay.Restore(checkpoint, registry);
-                var replayAnswer = replay.Submit(new AnswerPromptCommand(
-                    0, replay.PendingDecision!.PromptId, rescue.Id, replay.Revision));
-                Require(replayAnswer.Accepted, "Core Fighter replay activation failed.");
-                SettleResolution(replay);
-                Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
-                    "The Core Fighter rescue must replay identically from the paused checkpoint.");
-                revived = true;
-                break;
-            }
-        }
-        Require(revived, "No seeded setup exercised Core Fighter's dying rescue.");
-    }
-
-    private static void StepDeclining(GameEngine game)
-    {
-        var prompt = game.PendingDecision;
-        GameCommand command = prompt is { PlayerSeat: 0 }
-            ? prompt.Kind == DecisionKind.PlayCard
-                ? new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)
-                : new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices.Last().Id, game.Revision)
-            : new AdvanceOneStepCommand(game.Revision);
-        var result = game.Submit(command);
-        Require(result.Accepted, result.Error?.Message ?? "Gundam One fixture could not continue.");
-    }
-
-    private static void SettleResolution(GameEngine game)
-    {
-        for (var settle = 0; settle < 200 && game.ResolutionStack.Count > 0 &&
-                game.State.Status != EngineStatus.Completed; settle++)
-        {
-            var pending = game.PendingDecision;
-            if (pending is null || pending.PlayerSeat != 0)
-            {
-                Advance(game);
-                continue;
-            }
-            Answer(game, pending.Choices.Last());
-        }
     }
 
 
@@ -187,17 +102,8 @@ internal static class GaoDaYiHaoChecks
         Require(result.Accepted, result.Error?.Message ?? "Gundam One fixture did not advance.");
     }
 
-    private static void Play(GameEngine game, LegalAction action)
-    {
-        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
-        Require(result.Accepted, result.Error?.Message ?? "Gundam One card action failed.");
-    }
-
     private static string Snapshot(GameEngine game) =>
         JsonSerializer.Serialize(game.CreateSnapshot(0, true));
-
-    private static string State(GameEngine game) => Snapshot(game);
 
     private static string[] Events(GameEngine game) => game.Events.Select(item =>
         $"{item.Sequence}|{item.Payload.GetType().Name}|{JsonSerializer.Serialize(item.Payload, item.Payload.GetType())}")

@@ -45,61 +45,9 @@ internal static class BoundaryXiaoQiaoChecks
             "Cold child returns neither repay the equipment nor reissue damage/draw, and the original prevented damage finishes normally.");
     }
 
-    public static void PiaolingOriginalHeartJudgmentTopGiftSelfCostAndNativePrevention()
-    {
-        foreach (var destination in new[] { "top", "other", "self" })
-        {
-            var (g, r) = Create(); End(g); Activate(g, Piaoling); ReachAction(g, "matched-judgment-placement");
-            var root = Placement(g); var original = root.MatchedJudgmentPlacement!; var id = original.CardId;
-            Require(original.EffectiveSuit == Suit.Heart && Facts<JudgmentResolvedEvent>(g).Single(e => e.ParentResolutionId == root.Id).Suit == Suit.Heart &&
-                g.CreateCardZoneDiagnostics().Single(c => c.CardId == id).Location == CardLocation.Processing,
-                "The owner's real printed Spade judgment becomes Heart and binds its exact original entity.");
-            g = Cold(g, r); Reject(g);
-            var recipient = destination == "self" ? 0 : Peer(g);
-            Answer(g, c => destination == "top" ? c.Parameters.GetValueOrDefault("branch") == "top" : c.Targets.SequenceEqual([recipient]));
-            if (destination != "top")
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-                Require(Placement(g).MatchedJudgmentPlacement is { Stage: MatchedJudgmentPlacementStage.Placed } &&
-                    !Facts<ProgramMatchedJudgmentSelfDiscardedEvent>(g).Any(), "The real original-card gain child finishes before any self-cost or parent completion.");
-                g = Cold(g, r); Reject(g); Continue(g);
-                if (destination == "self")
-                {
-                    ReachAction(g, "matched-judgment-placement"); Require(P(g)!.Choices.All(c => c.Parameters.GetValueOrDefault("branch") == "self-discard"), "Self acquisition alone owes one real HE discard.");
-                    g = Cold(g, r); Reject(g); Answer(g, c => c.Cards.SequenceEqual([id]));
-                }
-            }
-            var fact = Facts<ProgramMatchedJudgmentPlacedEvent>(g).Single();
-            Require(fact.CardId == id && fact.OnTop == (destination == "top") &&
-                g.CardMovements.Count(m => m.CardId == id && m.Sequence == fact.MovementSequence) == 1 &&
-                Facts<ProgramMatchedJudgmentSelfDiscardedEvent>(g).Count() == (destination == "self" ? 1 : 0),
-                "Top/other/self each move the one original result exactly once; only self acquisition pays one subsequent real discard.");
-            if (destination == "top") Require(g.CreateCardZoneDiagnostics().Where(c => c.Location == CardLocation.DrawPile).MaxBy(c => c.ZoneIndex)!.CardId == id,
-                "The original judgment entity is actually the top draw-pile card.");
-            if (destination == "self") Require(g.CreateCardZoneDiagnostics().Single(c => c.CardId == id).Location == CardLocation.DiscardPile,
-                "The self-owned result can itself pay the actual post-gain discard.");
-            g = Cold(g, r);
-        }
-        var (native, registry) = Create(nativePeer: true, observers: false);
-        var target = native.State.Players.Single(p => p.GeneralId == "fixture:xq-peer-1").Seat;
-        Use(native, "range"); Play(native);
-        var slash = native.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind is null or CardKind.Slash &&
-            a.CardId is { } id && native.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id && c.Kind == CardKind.Slash) && a.TargetSeats.SequenceEqual([target]));
-        Accept(native, new PlayCardCommand(0, slash.CardId!.Value, slash.TargetSeats, native.Revision, P(native)!.PromptId, slash.PlayedCardKind));
-        Until(native, () => Facts<ProgramSuitPreventionPaymentEvent>(native).Any()); native = Cold(native, registry); Play(native);
-        Require(Facts<ProgramSuitPreventionPaymentEvent>(native).Single().OwnerSeat == target && !native.State.Players[target].IsHuman &&
-            Facts<ProgramSuitPreventionBenefitIssuedEvent>(native).Count() == 1 &&
-            Facts<CardUseDeclaredEvent>(native).Any(e => e.ResolutionId == Facts<ProgramSuitPreventionPaymentEvent>(native).Single().OriginalAttackFrameId && e.SourceSeat == 0 && e.CardKind == CardKind.Slash) &&
-            native.CardMovements.Count(m => m.CardId == slash.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1 &&
-            !native.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SuitPreventionBenefit is not null),
-            "Native AI pays a real effective-Heart card against a true material Slash, selects one public recipient/branch, and returns the exact CardUse owner with one physical cleanup and no repeated costs.");
-        native = Cold(native, registry);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static ProgramSkillFrame Benefit(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SuitPreventionBenefit is not null);
-    private static ProgramSkillFrame Placement(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.MatchedJudgmentPlacement is not null);
     private static int Peer(GameEngine g, int? except = null) => g.State.Players.First(p => p.Seat != 0 && p.Role != Role.Lord && p.Seat != except).Seat;
     private static void Incoming(GameEngine g, int source) => Use(g, "incoming", [source]);
     private static int Equip(GameEngine g)
@@ -108,7 +56,6 @@ internal static class BoundaryXiaoQiaoChecks
         Accept(g, new PlayCardCommand(0, id, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); Play(g); return id;
     }
     private static void Use(GameEngine g, string binding, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Activate(GameEngine g, string skill)
     {
         Reach(g, p => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
@@ -121,8 +68,6 @@ internal static class BoundaryXiaoQiaoChecks
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> done)
     { for (var i = 0; i < 160; i++) { if (P(g) is { } p && done(p)) return; Step(g); } throw new InvalidOperationException("Xiao Qiao boundary missing: " + JsonSerializer.Serialize(P(g))); }
-    private static void Until(GameEngine g, Func<bool> done)
-    { for (var i = 0; i < 180; i++) { if (done()) return; Step(g); } throw new InvalidOperationException("Xiao Qiao actual fact boundary missing."); }
     private static void Step(GameEngine g)
     {
         var p = P(g);

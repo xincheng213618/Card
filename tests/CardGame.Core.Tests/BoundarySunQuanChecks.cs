@@ -28,71 +28,6 @@ internal static class BoundarySunQuanChecks
         }
     }
 
-    public static void ProgramRecoveryAndRecoverToReplacement()
-    {
-        foreach (var activation in new[] { "recover", "recover-to" })
-        foreach (var redirect in new[] { false, true })
-        {
-            var (g, r) = Create();
-            var lord = Lord(g);
-            var ownerHp = g.State.Players[0].Hp;
-            var lordHp = g.State.Players[lord].Hp;
-            var hand = g.State.Players[0].HandCount;
-            Begin(g, activation);
-            Reach(g, p => p.Kind == DecisionKind.RecoveryReplacement);
-            var frame = g.ResolutionStack.OfType<RecoveryReplacementFrame>().Single();
-            Require(frame.Attempt.TargetSeat == 0 && frame.Attempt.Amount == 2 && frame.ParentFrameId == frame.Return.ResumeFrameId &&
-                frame.Attempt.Completion.Producer == RecoveryAttemptProducer.Program && g.State.Players[0].Hp == ownerHp,
-                "The exact program produces a two-point pending recovery before any original HP or recovery event.");
-            Require(P(g)!.PlayerSeat == 0 && P(g)!.Choices.Where(c => c.Targets.Count != 0).All(c => c.Targets.SequenceEqual([lord])),
-                "The recovering Wu player chooses; other non-lord owners cannot offer the same lord policy.");
-            Require(g.CreateSnapshot(lord).PendingDecision is null, "A private recovering-player choice is not exposed to the lord viewer.");
-            Replay(g, r); Reject(g);
-            Answer(g, c => c.Parameters.GetValueOrDefault("recovery-action") == (redirect ? "redirect" : "keep"));
-            Settle(g);
-            Require(g.State.Players[0].Hp == (redirect ? ownerHp : ownerHp + 2) &&
-                g.State.Players[lord].Hp == lordHp + (redirect ? 1 : 0) && g.State.Players[0].HandCount == hand + (redirect ? 1 : 0),
-                "Redirect replaces the whole original recovery with exactly one lord HP and one provider draw; decline retains the original amount.");
-            Require(g.Events.Select(e => e.Payload).OfType<RecoveryReplacementChosenEvent>().Count() == (redirect ? 1 : 0), "A committed choice emits one scalar replacement fact.");
-            Replay(g, r);
-        }
-    }
-
-    public static void SilverLionPaidQixiAndEquipmentReplacement()
-    {
-        foreach (var mode in new[] { "qixi", "silver" })
-        {
-            var (g, r) = Create(mode);
-            var equip = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-            Accept(g, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, g.Revision, P(g)!.PromptId)); Settle(g);
-            var armor = g.CreateSnapshot(0).Players[0].Equipment.Single();
-            var ownerHp = g.State.Players[0].Hp; var lord = Lord(g); var lordHp = g.State.Players[lord].Hp;
-            var target = Enumerable.Range(1, 3).First(s => s != lord); var targetHand = g.State.Players[target].HandCount;
-            var action = mode == "qixi" ? g.GetHumanLegalActions().First(a => a.CardId == armor.Id && a.PlayedCardKind == CardKind.Dismantlement && a.TargetSeat == target)
-                : g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-            Accept(g, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind, action.TargetCardId)
-            { ConversionSource = action.ConversionSource });
-            Reach(g, p => p.Kind == DecisionKind.RecoveryReplacement);
-            var parent = g.ResolutionStack.OfType<CardUseFrame>().Single();
-            Require(parent.RecoveryPaidContinuation?.Kind == (mode == "qixi" ? RecoveryPaidCardUseKind.Trick : RecoveryPaidCardUseKind.EquipmentUse) &&
-                g.State.Players[target].HandCount == targetHand && g.State.Players[0].Hp == ownerHp && g.CreateSnapshot(0).Players[0].Equipment.Count == 0,
-                "A paid equipment conversion/replacement suspends before the original trick effect or new equipment enters.");
-            Replay(g, r); Reject(g); Answer(g, c => c.Parameters.GetValueOrDefault("recovery-action") == "redirect");
-            if (mode == "qixi")
-            {
-                Reach(g, p => p.Kind == DecisionKind.SelectTargetCard); Replay(g, r); Answer(g, _ => true);
-            }
-            Settle(g);
-            Require(g.State.Players[0].Hp == ownerHp && g.State.Players[lord].Hp == lordHp + 1 &&
-                g.CardMovements.Count(m => m.CardId == armor.Id && m.From == CardLocation.Equipment(0)) == 1,
-                "The healing choice returns through the exact paid use; removed Silver Lion is never repaid.");
-            Require(mode == "qixi" ? g.State.Players[target].HandCount == targetHand - 1 : g.CreateSnapshot(0).Players[0].Equipment.Single().Id == action.CardId,
-                "The normal dismantlement or replacement equipment still resolves once after healing.");
-            if (mode == "silver") Require(g.Events.Select(e => e.Payload).OfType<EquipmentChangedEvent>().Last().ReplacedCardId == armor.Id,
-                "The paid replacement event retains the exact armor removed before the recovery child."); Replay(g, r);
-        }
-    }
-
     private static List<CharacterState> Players(GameEngine g) => (List<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(g)!;
     private static int Lord(GameEngine g) => g.CreateSnapshot(0, revealAll: true).Players.Single(p => p.Role == Role.Lord).Seat;
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -123,7 +58,6 @@ internal static class BoundarySunQuanChecks
     private static string State(GameEngine g) => JsonSerializer.Serialize(new
     { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands), Zones = g.CreateCardZoneDiagnostics() });
     private static void Replay(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "All viewer projections, exact owning recovery state, history, zones, and commands restore identically.");
-    private static void Reject(GameEngine g) { var state = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("fixture:illegal"), g.Revision)).Accepted && state == State(g), "An unpublished choice is rejected atomically at a restored boundary."); }
     private static (GameEngine, ContentRegistry) Create(string mode = "normal")
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(mode));

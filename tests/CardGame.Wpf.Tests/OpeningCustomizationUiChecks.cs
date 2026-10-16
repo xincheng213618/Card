@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Persistence;
@@ -15,8 +16,9 @@ internal static class OpeningCustomizationUiChecks
     public static void RolesRosterAndHandConfirmation(string output)
     {
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true,
-            saveStore: new MemorySaveStore(), confirmOpeningHand: true) { IsMotionEnabled = false };
-        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:standard-5");
+            saveStore: new MemorySaveStore(), confirmOpeningHand: true, useExpandedContent: true,
+            contentRegistry: StandardContentRegistry.CreateWithClassicGenerals()) { IsMotionEnabled = false };
+        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
         vm.StartNewGameFromLobbyCommand.Execute(null);
         GeneralChoiceViewModel? retiredIdentityChoice = null;
         foreach (var role in new[] { Role.Loyalist, Role.Rebel, Role.Renegade, Role.Lord })
@@ -207,7 +209,7 @@ internal static class OpeningCustomizationUiChecks
                 !vm.IsGeneralSelectionPending,
                 "Second Enter must confirm the newly previewed roster row exactly once and select that actual general.");
             for (var step = 0; step < 30 && !vm.CanRerollOpeningHand; step++) vm.StepAiCommand.Execute(null);
-            Program.Assert(vm.IsOpeningDealVisible && vm.CanRerollOpeningHand && vm.OpeningHandCards.Count == vm.Hand.Count &&
+            Program.Assert(!vm.IsOpeningDealVisible && vm.CanRerollOpeningHand && vm.OpeningHandCards.Count == vm.Hand.Count &&
                 Program.Engine(vm).State.TurnNumber == 0 && !vm.CanStepAi,
                 "Even with motion disabled, initial cards wait for explicit confirmation before any turn.");
             var oldCards = vm.Hand.Select(card => card.Id).ToArray();
@@ -222,7 +224,7 @@ internal static class OpeningCustomizationUiChecks
             var openingPrompt = openingGame.PendingDecision!;
             var acceptedBeforeShiftReroll = openingGame.AcceptedCommands.Count;
             Press(rerollButton, Key.Enter, modifiers: ModifierKeys.Shift);
-            Program.Assert(vm.IsOpeningDealVisible && vm.CanRerollOpeningHand && openingGame.State.TurnNumber == 0 &&
+            Program.Assert(!vm.IsOpeningDealVisible && vm.CanRerollOpeningHand && openingGame.State.TurnNumber == 0 &&
                 ReferenceEquals(Program.Engine(vm), openingGame) && vm.Hand.Count == oldCards.Length &&
                 !vm.Hand.Select(card => card.Id).SequenceEqual(oldCards) &&
                 vm.OpeningHandCards.Select(card => card.Id).SequenceEqual(vm.Hand.Select(card => card.Id)) &&
@@ -239,7 +241,7 @@ internal static class OpeningCustomizationUiChecks
             var repeatedOpeningViews = Enumerable.Range(0, openingGame.CreateSnapshot(0).Players.Count)
                 .Select(seat => SnapshotJson.Serialize(openingGame.CreateSnapshot(seat))).ToArray();
             var repeatHandled = Press(rerollButton, Key.Enter, allowShortcut: true, modifiers: ModifierKeys.Shift, repeat: true);
-            Program.Assert(repeatHandled && vm.IsOpeningDealVisible && vm.CanRerollOpeningHand &&
+            Program.Assert(repeatHandled && !vm.IsOpeningDealVisible && vm.CanRerollOpeningHand &&
                 ReferenceEquals(Program.Engine(vm), openingGame) && openingGame.PendingDecision?.PromptId == repeatedOpeningPrompt &&
                 openingGame.Revision == repeatedOpeningRevision && openingGame.AcceptedCommands.SequenceEqual(repeatedOpeningCommands) &&
                 vm.Hand.Select(card => card.Id).SequenceEqual(repeatedOpeningCards) &&
@@ -252,20 +254,47 @@ internal static class OpeningCustomizationUiChecks
                 $"accepted={repeatedOpeningCommands.Length}->{openingGame.AcceptedCommands.Count}.");
             rerollButton.Focus();
             Program.Assert(!Input(Key.Tab) && rerollButton.MoveFocus(new(FocusNavigationDirection.Next)) &&
-                ReferenceEquals(Keyboard.FocusedElement, window.FindName("DismissOpeningDealButton")),
-                "Tab can move from reroll to the actual enter-match button without starting the match.");
+                ReferenceEquals(Keyboard.FocusedElement, window.FindName("ChangeOpeningHandButton")),
+                "Tab moves from random to the inline replacement action without starting the match.");
+            Press((Button)window.FindName("ChangeOpeningHandButton"), Key.Enter);
+            var replaceTarget = vm.Hand.First(card => card.Kind != CardKind.ZhangbaSerpentSpear);
+            Program.Assert(replaceTarget.IsPlayable, "Opening cards remain selectable in the actual hand area.");
+            var handButton = Program.Find<Button>((ItemsControl)window.FindName("HandCards")).Single(button =>
+                ReferenceEquals(button.Command, vm.SelectCardCommand) && ReferenceEquals(button.CommandParameter, replaceTarget));
+            Press(handButton, Key.Enter);
+            vm.OpeningCardSearch = "__missing_card__";
+            Program.Assert(vm.OpeningCardChoices.Count == 0 && !vm.ReplaceOpeningCardCommand.CanExecute(null),
+                "An empty card search cannot submit a replacement.");
+            vm.OpeningCardSearch = "丈八";
+            Program.Assert(vm.IsOpeningHandEditorOpen && vm.OpeningCardChoices.Single().Kind == CardKind.ZhangbaSerpentSpear &&
+                replaceTarget.IsSelected && !vm.IsOpeningDealVisible,
+                "The inline editor filters by card name and highlights the selected existing hand card without an opening overlay.");
+            var openingSearch = (TextBox)window.FindName("OpeningCardSearchBox");
+            openingSearch.Focus();
+            var beforeSearchKey = openingGame.AcceptedCommands.Count;
+            Program.Assert(!Input(Key.Space) && !Input(Key.D1) && !Input(Key.Enter) &&
+                beforeSearchKey == openingGame.AcceptedCommands.Count && openingGame.State.TurnNumber == 0,
+                "Search typing and Enter belong to the search box and cannot confirm the opening hand.");
+            Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-replace.png"));
+            Press((Button)window.FindName("ReplaceOpeningCardButton"), Key.Enter);
+            Program.Assert(vm.Hand.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
+                vm.Hand.All(card => card.Id != replaceTarget.Id) && vm.Hand.Count == oldCards.Length &&
+                openingGame.AcceptedCommands.Count == beforeSearchKey + 1 && openingGame.State.TurnNumber == 0 &&
+                vm.CanRerollOpeningHand && !vm.IsOpeningDealVisible,
+                "The actual inline replacement button swaps one real hand card for Zhangba and keeps the match before its first turn.");
             var saved = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0));
             vm.SaveGameCommand.Execute(null);
             vm.LoadManualGameCommand.Execute(null);
             vm.IsMotionEnabled = false;
             Program.Assert(saved == SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0)) &&
-                vm.IsOpeningDealVisible && vm.CanRerollOpeningHand,
+                !vm.IsOpeningDealVisible && vm.CanRerollOpeningHand && !vm.IsOpeningHandEditorOpen,
                 "Loading the pre-game save restores both the actual hand and its manual confirmation controls.");
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-hand.png"));
             Program.Assert(((Button)window.FindName("RerollOpeningHandButton")).Visibility == Visibility.Visible &&
-                ((Button)window.FindName("DismissOpeningDealButton")).ActualWidth > 0,
-                "Reroll and enter-match actions are both visible on the opening hand panel.");
-            vm.DismissOpeningDealCommand.Execute(null);
+                ((Button)window.FindName("ConfirmOpeningHandButton")).ActualWidth > 0 &&
+                ((Button)window.FindName("ChangeOpeningHandButton")).Visibility == Visibility.Visible,
+                "Random, replace and confirm are visible immediately above the existing hand area.");
+            Press((Button)window.FindName("ConfirmOpeningHandButton"), Key.Enter);
             before = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0));
             vm.RerollOpeningHandCommand.Execute(null);
             vm.ChangeStartingIdentityCommand.Execute(vm.StartingRoles[2]);

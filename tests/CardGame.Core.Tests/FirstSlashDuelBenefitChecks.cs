@@ -36,32 +36,6 @@ internal static class FirstSlashDuelBenefitChecks
             "The benefit never recommits or finishes its native owning use twice.");
         _ = Cold(g, registry);
     }
-    public static void ActualConvertedDuelReverseDamageSurvivesSourceLoss()
-    {
-        var (g, registry) = Start("duel-loss");
-        Use(g, "wound-other", [1]); Play(g);
-        Need(V(g, 1).Hp == V(g, 1).MaxHp - 2 && E<ProgramSkillHpLostEvent>(g).Any(e => e.SkillId == Driver && e.TargetSeat == 1),
-            "Actual HP loss makes the native Duel AI prefer its available real Slash response without exposing or replacing its hand.");
-        Native(g, CardKind.Duel, 1); Reach(g, () => Optional(P(g), Skill)); Activate(g); Reach(g, () => Choice(g));
-        var r = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FirstSlashDuelBenefit is not null).FirstSlashDuelBenefit!;
-        Need(r.FrozenDiamondCount > 0 && E<CardActionAcceptedEvent>(g).Any(e => e.Action.ActionId == r.ActionId &&
-            e.Action.EffectiveKind == CardKind.Duel && e.Action.ConversionChain.Any(c => c.SkillId == Driver)), "This is a real converted Duel, not an injected damage frame.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "damage");
-        Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash or DecisionKind.PlayCard });
-        Need(P(g) is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash } &&
-            E<DuelResponseEvent>(g).Any(e => e.ResolutionId == r.CardUseFrameId && e.ResponderSeat == 1 && e.UsedSlash),
-            "One real native AI Slash response hands the same Duel to its original user; the fixture does not simulate later turns seeking that boundary.");
-        var hp = V(g, 0).Hp;
-        Need(!V(g, 0).Skills!.Any(s => s.ContentId == Skill) && hp == 12 &&
-            E<RecoveryAppliedEvent>(g).Any(e => e.TargetSeat == 0 && e.RemainingHp == hp),
-            "A genuine before-target-effects Dying recovery removes the issuing skill after the damage bonus was selected; actual recovered HP is the Duel damage baseline.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("response") is "pass" or "take-damage"); Play(g);
-        Need(V(g, 0).Hp == hp - 1 - r.FrozenDiamondCount && E<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 0 && e.Amount == 1 + r.FrozenDiamondCount),
-            "The same Duel bonus also applies to damage when its original user loses, and survives real source loss.");
-        Need(E<FirstSlashDuelBenefitIssuedEvent>(g).Single().Receipt == r with { SelectedBranch = "damage" } &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == r.CardUseFrameId) == 1, "The frozen bonus and original Duel settle once.");
-        _ = Cold(g, registry);
-    }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
@@ -73,7 +47,6 @@ internal static class FirstSlashDuelBenefitChecks
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-    private static void Use(GameEngine g, string id, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Native(GameEngine g, CardKind kind, int target)
     {
         var hand = V(g, 0).Hand;

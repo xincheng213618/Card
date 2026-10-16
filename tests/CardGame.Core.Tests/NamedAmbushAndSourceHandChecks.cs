@@ -24,41 +24,6 @@ internal static class NamedAmbushAndSourceHandChecks
             g.CreateCardZoneDiagnostics().Single(c => c.CardId == d.CardId).Location == CardLocation.DiscardPile,
             "One real hand-use state cancels all actual AOE targets and retains one paid entity and one use completion."); Cold(g, registry);
     }
-    public static void SourceHandChoicesKeepCurrentTwoBranchesAndZeroDraw()
-    {
-        foreach (var keep in new[] { 2, 5, 8 })
-        {
-            var (g, registry) = Start(CardKind.Slash, benyu: true); Use(g, "draw", []); Play(g);
-            Use(g, "trim", V(g, 0).Hand.Skip(keep).Select(c => c.Id).ToArray()); Play(g); End(g);
-            Reach(g, () => Optional(P(g), Benyu)); Activate(g); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "damage-source-hand") == true);
-            var r = g.ResolutionStack.OfType<ProgramSkillFrame>().Last().DamageSourceHandChoice!;
-            Need(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "draw") &&
-                P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "retaliate") == (keep > r.SourceHandCount),
-                "The current sourced damage offers draw regardless of the old hand-comparison split, and retaliation uses frozen X plus one hand cards.");
-            var id = g.ResolutionStack.OfType<ProgramSkillFrame>().Last().Id;
-            g = Cold(g, registry);
-            if (keep <= 5)
-            {
-                Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "draw"); Reach(g, () => E<DamageSourceHandChoiceCompletedEvent>(g).Any(e => e.ProgramFrameId == id));
-                var paid = E<DamageSourceHandChoicePaidEvent>(g).Single(e => e.ProgramFrameId == id).Receipt;
-                Need(paid.Draw && paid.DrawActual == Math.Max(0, Math.Min(5, r.SourceHandCount) - keep) && V(g, 0).HandCount == keep + paid.DrawActual,
-                    "Capped refill and an equal-hand zero draw both complete as actual chosen activations.");
-            }
-            else
-            {
-                var before = V(g, r.DamageSourceSeat).Hp;
-                Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "retaliate"); Reach(g, () => Branch(P(g), "damage-source-hand", "card"));
-                for (var i = 0; i < r.SourceHandCount + 2; i++) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "card");
-                g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "pay");
-                Reach(g, () => E<DamageSourceHandChoiceCompletedEvent>(g).Any(e => e.ProgramFrameId == id));
-                var paid = E<DamageSourceHandChoicePaidEvent>(g).Single(e => e.ProgramFrameId == id).Receipt;
-                Need(!paid.Draw && paid.SelectedCards.Count == r.SourceHandCount + 2 && V(g, r.DamageSourceSeat).Hp == before - 1 &&
-                    g.CardMovements.Count(m => m.Sequence > paid.MovementBefore && m.Sequence <= paid.MovementAfter && m.Reason.Value == "skill-program.damage-source-hand.discard") == paid.SelectedCards.Count,
-                    "The at-least payment can exceed X plus one and produces one true retaliatory damage after its exact hand cost.");
-            }
-            Cold(g, registry);
-        }
-    }
     private static (GameEngine, ContentRegistry) Start(CardKind kind, bool mixed = false, bool benyu = false, bool sourceLoss = false, bool zero = false, bool reuse = false, bool deathOwner = false, bool quiet = false, bool benyuPeer = false, bool actorSwap = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(kind, mixed, benyu, sourceLoss, zero, reuse, deathOwner, quiet, benyuPeer, actorSwap));

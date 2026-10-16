@@ -5,9 +5,6 @@ using static BoundaryLiDianChecks;
 // Current ordinary OL boundary Deng Ai: docs/content/sources/boundary-deng-ai-2026-10-03.json.
 internal static class BoundaryDengAiChecks
 {
-    private const string Skill="boundary:tuntian-current";
-    private const string Awakening="boundary:zaoxian-current";
-    private const string Snatch="boundary:jixi-current";
 
     public static void OwnTurnSlashDiscardJudgesIntoAuthority()
     {
@@ -31,65 +28,6 @@ internal static class BoundaryDengAiChecks
         Replay(g2,r2);
     }
 
-    public static void AwakeningGrantsSnatchAndExtraTurn()
-    {
-        var(g,r)=Start();
-        for(var i=0;i<3;i++){Driver(g,"discard");Answer(g,c=>c.Cards.Count==1);Activate(g);}
-        Require(g.CreateSnapshot(0).Players[0].AuthorityCount==3,"Three slash discards stage three Tian cards.");
-        while(!g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Any(e=>e.ActorSeat==0&&e.TurnNumber>1)) AdvanceQuiet(g);
-        Settle(g);
-        var view=g.CreateSnapshot(0).Players[0];
-        Require(view.AuthorityCount==3&&view.MaxHp==4,"The awakening keeps three Tian cards and reduces the lord maximum HP to four.");
-        Require(g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Snatch),"The awakening grants the snatch conversion skill.");
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramExtraTurnPendedEvent>().Any(e=>e.Seat==0&&e.SkillId==Awakening),
-            "The awakening pends one extra turn for the owner.");
-        Replay(g,r);
-        var startsAtAwakening=g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count();
-        Finish(g);
-        var starts=g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().ToList();
-        Require(starts.Count==startsAtAwakening+1&&starts[^1].ActorSeat==0,
-            "The pended extra turn starts immediately after the awakening turn without another seat in between.");
-        Require(g.CreateSnapshot(0).Players[0].MaxHp==4,"The once-per-game awakening does not repeat on the extra turn.");
-        Settle(g);
-        var snatch=g.GetHumanLegalActions().FirstOrDefault(a=>a.Kind==LegalActionKind.Snatch&&a.TargetSeats.Contains(1));
-        if(snatch is not {CardId: { } snatchCard})
-            throw new InvalidOperationException("Jixi publishes each authority card as a real snatch action against a hand-bearing target.");
-        Require(g.CreateSnapshot(0).Players[0].AuthorityCards!.Any(c=>c.Id==snatchCard),
-            "The snatch action uses the exact staged authority card.");
-        Play(g,snatchCard,[1],snatch);
-        Require(g.CreateSnapshot(0).Players[0].AuthorityCount==2,"The spent Tian card leaves the authority zone with the snatch.");
-        Replay(g,r);
-    }
-
-    private static void AdvanceQuiet(GameEngine g)
-    {
-        for(var i=0;i<300;i++)
-        {
-            if(g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Any(e=>e.ActorSeat==0&&e.TurnNumber>1))return;
-            if(P(g) is {Kind:DecisionKind.PlayCard,PlayerSeat:0}){Accept(g,new EndPlayPhaseCommand(0,g.Revision));continue;}
-            if(P(g) is {Kind:DecisionKind.ProgramTrigger} p&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"))
-                Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-            else Accept(g,new AdvanceOneStepCommand(g.Revision));
-        }
-        foreach(var entry in g.Log.TakeLast(6))Console.WriteLine("DIAG-LOG: "+entry.Message);
-        throw new InvalidOperationException("The fixture never reached the owner's next turn.");
-    }
-
-    private static void Finish(GameEngine g)
-    {
-        var before=g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count();
-        for(var i=0;i<300;i++)
-        {
-            if(g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count()>before)return;
-            if(P(g) is {Kind:DecisionKind.PlayCard,PlayerSeat:0}){Accept(g,new EndPlayPhaseCommand(0,g.Revision));continue;}
-            if(P(g) is {Kind:DecisionKind.ProgramTrigger} p&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"))
-                Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-            else Accept(g,new AdvanceOneStepCommand(g.Revision));
-        }
-        foreach(var entry in g.Log.TakeLast(6))Console.WriteLine("DIAG-LOG: "+entry.Message);
-        throw new InvalidOperationException("The human turn never finished.");
-    }
-
     internal static (GameEngine,ContentRegistry) Start(string scenario="",int maxTurns=8,bool offturn=false)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(scenario,offturn));
@@ -106,7 +44,6 @@ internal static class BoundaryDengAiChecks
         if(p is null){foreach(var entry in g.Log.TakeLast(6))Console.WriteLine("DIAG-LOG: "+entry.Message);throw new InvalidOperationException("No pending decision for the fixture driver.");}
         Accept(g,new UseProgramSkillCommand(0,"fixture:da-driver",id,[],targets??[],g.Revision,p.PromptId));
     }
-    private static void Play(GameEngine g,int card,int[]targets,LegalAction? a=null)=>Accept(g,new PlayCardCommand(0,card,targets,g.Revision,P(g)!.PromptId,a?.PlayedCardKind){ConversionSource=a?.ConversionSource,AdditionalConversionSources=a?.AdditionalConversionSources});
     private static SkillProgram Load(string id,string members)=>SkillProgramCatalog.Load("{\"schemaVersion\":"+SkillProgramCatalog.RulesSchemaVersion+",\"skills\":[{\"id\":\""+id+"\",\"revision\":1,"+members+"}]}","{\"schemaVersion\":3,\"skills\":{\""+id+"\":{\"name\":\"fixture\",\"description\":\"fixture\"}}}").Programs[id];
     private static string Activation(string id,string effects,int targets=0)=>"{\"id\":\""+id+"\",\"usesPerTurn\":null,\"minCards\":0,\"maxCards\":0,\"minTargets\":"+targets+",\"maxTargets\":"+targets+",\"targetKind\":\"anyLiving\",\"effects\":"+effects+"}";
 

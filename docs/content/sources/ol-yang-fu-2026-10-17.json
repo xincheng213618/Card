@@ -1,0 +1,235 @@
+{
+  "capturedOn": "2026-10-17",
+  "product": "sanguosha-ol",
+  "generalId": "ol:yang-fu",
+  "identity": {
+    "gid": 666,
+    "name": "杨阜",
+    "variant": "ordinary",
+    "faction": "wei",
+    "gender": "Male",
+    "baseHp": 4,
+    "identityEvidence": "The current official hero/API, official June 2025 release and character row a666/YangFu agree. Client g1/h1/i4 supplies Wei/male/four HP. No same-product ordinary identity was found in the repository."
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-17T03:04:16.213173+08:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "headContentLength": "5386466",
+        "etag": "\"6ad22bd5-5230e2\"",
+        "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "headContentLength": "4154044",
+        "etag": "\"6ad22fbc-3f62bc\"",
+        "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT"
+      }
+    },
+    "decoder": "Fresh public sgsGame_a.sgs InitOfb: AES-CFB128 then gzip; decoded only character.sgs and cha_spell.sgs in memory",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1366]",
+      "row": {
+        "a": 666,
+        "b": "杨阜",
+        "d": "YangFu",
+        "e": 44,
+        "f": "42",
+        "g": 1,
+        "h": 1,
+        "i": 4,
+        "j": 3582,
+        "k": 3583,
+        "p": 2,
+        "q": "1",
+        "r": "9066601",
+        "y": "字义山，天水人。为主君韦康复仇，暗中与姜叙等人反击马超，因此功封侯。魏明帝时在朝廷任职，曾质疑曹叡穿着不合法度，是当时的重要谏臣。",
+        "z": "需要思考装备与杀的目标，收益上限很高",
+        "aa": 147,
+        "ab": "1257,1258",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250714T000000",
+        "LordCardRate1": 39,
+        "LordCardRate2": 44,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2605]",
+          "row": {
+            "a": 3582,
+            "b": "3,4,5",
+            "c": "屏忠",
+            "d": "BingZhong",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，你每回合使用的前X张牌能多指定X个目标。你受到伤害后，你摸X张牌（X为没有手牌的角色数+1）。",
+            "w": "选择至多{0}个角色为额外目标"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2606]",
+          "row": {
+            "a": 3583,
+            "b": "3",
+            "c": "肃衣",
+            "d": "SuYi",
+            "e": 0,
+            "g": 5,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可以令一名其他角色随机使用牌堆中一张装备牌，然后视为对其使用一张【杀】。"
+          }
+        }
+      ],
+      "linkedSpells": []
+    }
+  },
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/666",
+      "finalUrl": "https://www.sanguosha.com/hero/666",
+      "status": 200,
+      "byteCount": 23538,
+      "sha256": "1e7f93b4e2a2f9b12d0bcb257ee1bc02a286a328f50373e1016cf65f80e78935",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀杨阜 - 三国杀OL-三国杀官网-武将技能介绍",
+      "publishedTimes": [],
+      "targetNamesPresent": [
+        "杨阜"
+      ]
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=666",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=666",
+      "status": 200,
+      "byteCount": 848,
+      "sha256": "9d3b03054b22850aad3b10d2c9126df60064f8c74458933d53e50e6d3a2af68a",
+      "hashScope": "HTTP response body bytes",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 666,
+              "name": "杨阜",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/666.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66600.png",
+              "label": [
+                "进攻",
+                "防御",
+                "辅助"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "字义山，天水人。为主君韦康复仇，暗中与姜叙等人反击马超，因此功封侯。魏明帝时在朝廷任职，曾质疑曹叡穿着不合法度，是当时的重要谏臣。",
+              "characteristic": "需要思考装备与杀的目标，收益上限很高",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "主公",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 8
+            },
+            {
+              "name": "反贼",
+              "value": 8
+            },
+            {
+              "name": "内奸",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "officialRelease": {
+      "url": "https://www.sanguosha.com/news/20250611_6214_2713",
+      "finalUrl": "https://www.sanguosha.com/news/20250611_6214_2713",
+      "status": 200,
+      "byteCount": 395474,
+      "sha256": "619a120e2a016a98f7ebc5516c4b8b210e5a23173a3cd0ec3f789553565d95b6",
+      "hashScope": "HTTP response body bytes",
+      "title": "6.14-6.22 夏日许愿界曹植、杨阜来袭 界廖化、悬香乘鲤*界曹植夺宝上新 - 三国杀OL官网",
+      "publishedTimes": [
+        "2025-06-13 17:09:07"
+      ],
+      "targetNamesPresent": [
+        "曹腾",
+        "杨阜"
+      ]
+    }
+  },
+  "formalAvailability": {
+    "availableFrom": "2025-06-14",
+    "evidence": "Official OL summer wishing notice explicitly announces Yang Fu and shows his original portrait."
+  },
+  "ruleInterpretation": [
+    {
+      "rule": "Bingzhong dynamic X",
+      "basis": "Current official hero/API and current OL client 3582 use X = characters with no Hand cards + 1. The native target instruction freezes living empty-Hand count + 1 when it actually begins. The separate mandatory per-damage draw recalculates and freezes X when it begins; multiple points in one real damage occurrence do not create multiple draws. These timing details are implementation inferences; no dedicated official FAQ was found."
+    },
+    {
+      "rule": "First X true uses in the whole actual turn",
+      "basis": "Each true native Use occupies one ordinal, including equipment, targetless cards, zero-entity uses, Slash-defense Dodge and self-supplied Nullification. Pure played/provided responses, recast and material movements do not. Raw TurnEnded does not end a still-running actual turn with an inserted tail phase; actual cursor return does. The new declaration sequence is distinct from the historical AHui ordinal contract. Original immutable declarations follow an exact native actor-replacement chain within the current declaration prefix; a new actor does not borrow the old actor ordinal. This final-actor attribution and complete-actual-turn cutoff are implementation inferences."
+    },
+    {
+      "rule": "Native extra targets",
+      "basis": "Bingzhong provides a target-count allowance and does not remove distance, target prohibitions, self restrictions, required target cards or native card structure. The native equipment and delayed-card hosts retain their ordinary single-zone material structure; they still consume an ordinal. Borrowed Sword counts each additional holder/victim pair as one additional designated target. Select zero through X legal additions, without changing the already-paid Use or paying its Slash quota again. No official special equipment/delayed-card target whitelist is claimed."
+    },
+    {
+      "rule": "Suyi stock equipment",
+      "basis": "Current official text says the other character uses one random equipment from the deck. Select among genuinely legal stock equipment with the native deterministic random source, then issue a real foreign-actor equipment Use. Replacement, Lion recovery, Ox grain cleanup, abolished-slot termination, movement, health, dying and skill-loss children complete before the following Slash. Empty legal stock produces no fabricated equipment but proceeds to the Slash. This empty-stock/failed-entry continuation is a text/native sequencing inference."
+    },
+    {
+      "rule": "Suyi ordinary zero-entity Slash",
+      "basis": "After all equipment children, the living original owner may issue one genuine zero-entity Slash against the surviving original recipient under current ordinary native range, quota and prohibitions. A counted own-Play Slash debits its real native quota once. No fake phase, distance bypass or equipment-card substitute is introduced. Already-issued payment/children return after skill loss; a dead owner never starts a new Slash. These boundaries are implementation inferences because no same-product dedicated FAQ was found."
+    }
+  ],
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "scope": "Four focused Core behavior groups cover the new rules and native child boundaries. Shared registry, replay, privacy and WPF checks use the bounded routine scope. Full verification remains manual-only.",
+    "note": "Measured development-run results are kept with task verification output rather than duplicated in the lasting source evidence."
+  }
+}

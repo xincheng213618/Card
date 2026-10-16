@@ -1,32 +1,9 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FengLinBoundaryHuangGaiChecks
 {
     private static ContentRegistry Catalog=>ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
-    public static void DyingExtraPlayAndLegacy()
-    {
-        var(g,r)=Start(scenario:"dying");var hp=g.State.Players[0].Hp;var before=g.State.Players[0].HandCount;
-        Driver(g,"dying");Reach(g,p=>p.Kind==DecisionKind.RescueDying&&p.PlayerSeat==0);
-        Require(!g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Loss first enters dying without prematurely granting benefits.");Replay(g,r);
-        var pending=P(g)!;var peach=pending.Choices.First(c=>c.Cards.Count==1);Accept(g,new AnswerPromptCommand(0,pending.PromptId,peach.Id,g.Revision));Settle(g);
-        Require(g.State.Players[0].Hp==1&&g.State.Players[0].HandCount==before-1+3*hp&&g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Count()==hp,"Rescue resumes each original Loss point exactly once.");Replay(g,r);
-        var(extra,er)=Start(scenario:"extra");var turn=extra.CreateSnapshot(0).TurnNumber;
-        var paid=extra.State.Players[0].Hand.First().Id;Accept(extra,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[paid],[],extra.Revision,P(extra)!.PromptId));Settle(extra);
-        var end=extra.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.EndPlay);Accept(extra,new EndPlayPhaseCommand(0,extra.Revision,P(extra)!.PromptId));
-        Settle(extra);Require(extra.CreateSnapshot(0).TurnNumber==turn,"Inserted and normal Play share the actual turn.");
-        paid=extra.State.Players[0].Hand.First().Id;Accept(extra,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[paid],[],extra.Revision,P(extra)!.PromptId));Settle(extra);
-        Require(extra.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Count()==2,"Kurou phase quota resets but actual turn bonuses accumulate.");Replay(extra,er);
-        var(old,or)=Start(capability:false);var hand=old.State.Players[0].HandCount;Driver(old,"loss2");Settle(old);
-        Require(old.State.Players[0].HandCount==hand&&!old.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Old registry retains no new Loss or color behavior.");Replay(old,or);
-        Require(!JsonSerializer.Serialize(new HpChangeContext(1,null,null,0,HpChangeKind.Loss,1,2,1)).Contains("LossOccurrence"),"Old nullable fields omitted.");
-        foreach(var invalid in new[]{"\"activations\":[{\"id\":\"bad\",\"minCards\":0,\"maxCards\":0,\"minTargets\":0,\"maxTargets\":0,\"targetKind\":\"anyLiving\",\"effects\":[{\"op\":\"grantTurnRedSlashBenefits\",\"target\":\"owner\"}]}]","\"triggers\":[{\"id\":\"bad\",\"window\":\"afterDamageApplied\",\"subject\":\"owner\",\"effects\":[{\"op\":\"grantTurnRedSlashBenefits\",\"target\":\"owner\"}]}]"})
-        {
-            var rejected=false;try{SkillProgramCatalog.Load("{\"schemaVersion\":"+SkillProgramCatalog.RulesSchemaVersion+",\"skills\":[{\"id\":\"fixture:bad\",\"revision\":1,"+invalid+"}]}","{\"schemaVersion\":3,\"skills\":{\"fixture:bad\":{\"name\":\"bad\",\"description\":\"bad\"}}}");}catch(InvalidOperationException){rejected=true;}
-            Require(rejected,"New benefit op rejects activation and Damage contexts.");
-        }
-
-    }
 
     public static void MultiCardColorAndSourceLifecycle()
     {

@@ -34,10 +34,7 @@ public sealed partial class GameEngine
             revision,
             _modeDefinition.Id,
             GameReplay.GetPackageSignatures(_contentRegistry),
-            GameReplay.GetContentHash(_contentRegistry))
-        {
-            RulesVersion = GameCheckpoint.CurrentRulesVersion
-        };
+            GameReplay.GetContentHash(_contentRegistry));
     }
 
     private void MarkSessionFaulted(Exception failure)

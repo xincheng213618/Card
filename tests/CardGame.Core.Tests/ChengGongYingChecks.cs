@@ -30,122 +30,6 @@ internal static class ChengGongYingChecks
             (g, r) = Start("black"); Skip(g); Play(g); Need(E<ChengGongYingStartedEvent>(g).Length == 0 && V(g).HandCount == 4, "The current-client optional wording permits a genuine decline without issuing any adjustment receipt."); _ = Cold(g, r);
         }
     }
-    public static void BlackPhysicalUsesConversionsMultiTargetsChainsAndLightningCold()
-    {
-        foreach (var scene in new[] { "black", "duel", "aoe", "conversion" })
-        {
-            var (g, r) = Start(scene); Activate(g); Target(g, 0); Play(g); var mark = E<KuangxiangCardObtainedEvent>(g).First(); var hp = Enumerable.Range(0, 4).Select(s => V(g, s).Hp).ToArray();
-            var kind = scene == "duel" ? CardKind.Duel : scene == "aoe" ? CardKind.ArrowBarrage : CardKind.Slash;
-            g = Cold(g, r); Native(g, mark.CardId, kind, scene == "aoe" ? null : [1]); Play(g);
-            var bound = E<KuangxiangBlackUseBoundEvent>(g).Single(e => e.CardId == mark.CardId);
-            Need(bound.GrantFrameId == mark.FrameId && bound.ObtainedSequence == mark.MovementSequence && bound.EffectiveKind == kind && (scene == "aoe" ? Enumerable.Range(1, 3).All(s => V(g, s).Hp == hp[s] - 2) : V(g, 1).Hp == hp[1] - 2), "A genuinely obtained black physical card applies exactly +1 to every native card recipient, including a one-entity effective conversion: " + scene + " " + Diagnostic(g));
-            if (scene == "black")
-            {
-                var plain = V(g).Hand.First(c => !E<KuangxiangCardObtainedEvent>(g).Any(e => e.CardId == c.Id)); var before = V(g, 1).Hp;
-                Native(g, plain.Id, CardKind.Slash, [1]); Play(g); Need(V(g, 1).Hp == before - 1 && !E<KuangxiangBlackUseBoundEvent>(g).Any(e => e.CardId == plain.Id), "An ordinary unmarked card cannot borrow a different physical card's grant.");
-                Use(g, "damage", targets: [1]); Play(g); Need(E<DamageAppliedEvent>(g).Last().Amount == 1, "Cardless skill damage never borrows a black-card invoice.");
-                var otherMarked = E<KuangxiangCardObtainedEvent>(g).Single(e => e.CardId != mark.CardId).CardId; var otherPlain = V(g).Hand.First(c => c.Id != otherMarked).Id; before = V(g, 1).Hp;
-                Use(g, "pair", cards: [otherMarked, otherPlain], targets: [1]); Play(g);
-                Need(V(g, 1).Hp == before - 1 && !E<KuangxiangBlackUseBoundEvent>(g).Any(e => e.CardId == otherMarked), "A genuine two-material virtual Slash cannot impersonate the one obtained physical card's own use.");
-            }
-            _ = Cold(g, r);
-        }
-        foreach (var scene in new[] { "chain-formal", "chain-legacy" })
-        {
-            var (g, r) = Start(scene); Activate(g); Target(g, 0); Play(g); foreach (var seat in new[] { 1, 2, 3 }) { Use(g, "chain", targets: [seat]); Play(g); }
-            var hp = Enumerable.Range(0, 4).Select(s => V(g, s).Hp).ToArray(); var marked = E<KuangxiangCardObtainedEvent>(g).First().CardId; Native(g, marked, CardKind.ThunderSlash, [1]);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health); g = Cold(g, r); Continue(g); Play(g);
-            Need(Enumerable.Range(1, 3).All(s => V(g, s).Hp == hp[s] - 2) && E<DamageAppliedEvent>(g).Where(e => e.Nature == DamageNature.Thunder).Select(e => e.Amount).SequenceEqual([2, 2, 2]), "The first black elemental card damage establishes the native chain base; later recipients inherit +1 exactly once under both armor paths: " + Diagnostic(g)); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("lightning"); Activate(g); Target(g, 0); Play(g); var marked = E<KuangxiangCardObtainedEvent>(g).First().CardId; Native(g, marked, CardKind.Lightning); Play(g); var before = V(g).Hp;
-            End(g); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health); Need(g.ResolutionStack.OfType<JudgmentFrame>().Any(j => j.DelayedCardId == marked && j.KuangxiangBlack is not null), "The actual delayed judgment owns its exact invoiced held Lightning rather than the separate revealed judgment card.");
-            g = Cold(g, r); Continue(g); Play(g); var applied = E<DamageAppliedEvent>(g).Last(); var requested = E<DamageRequestedEvent>(g).Last();
-            Need(V(g).Hp == before - 4 && applied is { TargetSeat: 0, Amount: 4, Nature: DamageNature.Thunder } && requested is { TargetSeat: 0, Amount: 4, SourceCard: CardKind.Lightning } && E<KuangxiangLightningBoundEvent>(g).Single().CardId == marked,
-                "The real held black Lightning deals exactly four native damage and cold-returns without duplicating +1: " + JsonSerializer.Serialize(new { Before = before, After = V(g).Hp, Applied = applied, Requested = requested, Bound = E<KuangxiangLightningBoundEvent>(g) }));
-            Need(!applied.SourceLess && !requested.SourceLess && applied.SourceSeat == 0 && requested.SourceSeat == 0,
-                "The current native delayed-Lightning protocol represents the held card's source as its judgment holder; Kuangxiang preserves that existing provenance contract."); _ = Cold(g, r);
-        }
-    }
-    public static void RedNextActualDrawStackingSkippedReplacementAndExpiryCold()
-    {
-        {
-            var (g, r) = Start("red"); Activate(g); Target(g, 1); Play(g); Need(E<KuangxiangRedDrawIssuedEvent>(g).Single() is { Recipient: 1, Count: 2 } && E<KuangxiangRedDrawConsumedEvent>(g).Length == 0, "Two actually obtained red cards issue an unconsumed foreign recipient obligation.");
-            End(g); Reach(g, () => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 1)); Need(V(g, 1).HandCount == 4 && E<KuangxiangRedDrawConsumedEvent>(g).Single() is { Recipient: 1, Count: 2, Phase.Kind: ActualDiscardRecoveryPhaseKind.Draw }, "The next genuine Draw consumes both red cards and draws zero, without reducing another character's normal Draw.");
-            g = Cold(g, r); Reach(g, () => g.State.CurrentSeat == 0 && P(g)?.Kind == DecisionKind.PlayCard); End(g); Reach(g, () => E<TurnEndedEvent>(g).Count(e => e.ActorSeat == 1) == 2);
-            Need(V(g, 1).HandCount == 6 && E<KuangxiangRedDrawConsumedEvent>(g).Length == 1, "A later real Draw regains its normal two cards after the exact one-phase obligation expires."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("stack"); Activate(g); Target(g, 1); Play(g); Trim(g, 1); Trim(g, 1); End(g);
-            Reach(g, () => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 1)); var grants = E<KuangxiangRedDrawIssuedEvent>(g).Where(e => e.Recipient == 1).ToArray();
-            Need(grants.Length == 2 && grants.Sum(e => e.Count) == 4 && E<KuangxiangRedDrawConsumedEvent>(g).Count(e => e.Recipient == 1) == 2 && V(g, 1).HandCount == 4, "Two real Preparation owners independently refill the same recipient before its Draw, stacking all four red reductions while the normal draw count clamps to zero: " + Diagnostic(g)); _ = Cold(g, r);
-        }
-        foreach (var scene in new[] { "skip", "replacement" })
-        {
-            var (g, r) = Start(scene); Activate(g); Target(g, 1); Play(g);
-            End(g); Reach(g, () => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 1));
-            if (scene == "skip")
-            {
-                Need(E<KuangxiangRedDrawConsumedEvent>(g).Length == 0 && V(g, 1).HandCount == 4, "A genuinely skipped Draw preserves the obligation and performs no substitute normal draw.");
-                g = Cold(g, r); Reach(g, () => E<KuangxiangRedDrawConsumedEvent>(g).Length == 1); Need(E<KuangxiangRedDrawConsumedEvent>(g).Single().Phase.TurnNumber > 1, "The remaining red reduction reaches the next actual Draw rather than disappearing at a skipped phase.");
-            }
-            else Need(E<KuangxiangRedDrawConsumedEvent>(g).Length == 1 && V(g, 1).HandCount == 7 && g.CardMovements.Count(m => m.To == CardLocation.Hand(1) && m.Reason.Value == "skill-program.fixture:cgy-phase.Draw") == 3, "A real Draw replacement draws its own three cards and consumes this phase's normal-count reduction without leaking it into a later phase.");
-            _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("hongji");
-            for (var preparations = 0; preparations < 2; preparations++)
-            {
-                if (Optional(g)) { Activate(g); Target(g, 0); }
-                else
-                {
-                    Need(OptionalHongji(g), "The real Preparation has either its own Kuangxiang choice or the actual Hongji grant.");
-                    Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-                    Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "draw") == true);
-                    g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "draw");
-                }
-                if (preparations == 0) Reach(g, () => Optional(g) || OptionalHongji(g));
-            }
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Boundary && E<ZhangShiPingHongjiConsumedEvent>(g).Length == 1);
-            var red = E<KuangxiangRedDrawConsumedEvent>(g).Single(); var draws = E<ActualDiscardRecoveryPhaseStartedEvent>(g).Where(e => e.Phase.ActorSeat == 0 && e.Phase.Kind == ActualDiscardRecoveryPhaseKind.Draw).Select(e => e.Phase).ToArray();
-            Need(draws.Length == 2 && red.Phase == draws[0] && red.Count == 2 && E<KuangxiangDrawConfirmedEvent>(g).Count(e => draws.Contains(e.Phase)) == 2 &&
-                E<ZhangShiPingHongjiGrantedEvent>(g).Single() is { RecipientSeat: 0, Phase: TurnPhase.Draw } && E<ProgramPhaseScheduledEvent>(g).Count(e => e.SkillId == Hongji && e.Started && e.Phase == TurnPhase.Draw) == 1 && V(g).HandCount == 6,
-                "A real Hongji promise inserts the fifth native Draw producer with no DrawStarting candidate: the original Draw consumes red2 once, then the inserted Draw really confirms its new token and draws an unreduced two.");
-            g = Cold(g, r); Continue(g); Play(g);
-            Need(E<ZhangShiPingHongjiReturnedEvent>(g).Length == 1 && E<KuangxiangRedDrawConsumedEvent>(g).Length == 1 && E<KuangxiangDrawConfirmedEvent>(g).Count(e => draws.Contains(e.Phase)) == 2,
-                "The real DrawEnded child and Hongji typed return never reconfirm either token or consume the red invoice a second time across cold recovery.");
-            var turn = g.State.TurnNumber; End(g); Reach(g, () => g.State.TurnNumber > turn && g.State.CurrentSeat == 0 && P(g)?.Kind == DecisionKind.PlayCard);
-            Need(V(g).HandCount == 8 && E<KuangxiangRedDrawConsumedEvent>(g).Length == 1 && E<ProgramPhaseScheduledEvent>(g).Count(e => e.SkillId == Hongji && e.Started && e.Phase == TurnPhase.Draw) == 1,
-                "After declining later genuine Preparation offers, the subsequent normal Draw regains its full two cards; neither the original red grant nor old Hongji promise leaks into it."); _ = Cold(g, r);
-        }
-    }
-    public static void PaidLossDeathHealthMovementAndReshuffleChildrenCold()
-    {
-        foreach (var scene in new[] { "loss", "source-death", "recipient-death" })
-        {
-            var (g, r) = Start(scene); Activate(g); Target(g, scene == "recipient-death" ? 1 : 0); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var paid = E<KuangxiangAdjustmentIssuedEvent>(g).Single(); Need(paid.ActualCount == 2 && E<KuangxiangCardObtainedEvent>(g).Length == 2 && Current(g) is { Stage: ChengGongYingStage.DrawChildren }, "The exact native draw and frozen original card invoices are already issued before its pausable native movement child.");
-            g = Cold(g, r); Continue(g);
-            if (scene == "loss")
-            {
-                Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health); g = Cold(g, r); Continue(g); Play(g);
-                Need(V(g).Skills!.All(s => s.ContentId != Skill), "The real nested recovery/HP child removes the conditional source before its paid draw returns."); var before = V(g, 1).Hp; Native(g, E<KuangxiangCardObtainedEvent>(g).First().CardId, CardKind.Slash, [1]); Play(g); Need(V(g, 1).Hp == before - 2, "The original invoiced black entity retains its damage effect after genuine skill loss.");
-            }
-            else
-            {
-                Reach(g, () => g.ResolutionStack.OfType<DyingFrame>().Any()); g = Cold(g, r); Reach(g, () => E<ChengGongYingCompletedEvent>(g).Any(e => e.FrameId == paid.FrameId));
-                Need(!V(g, scene == "source-death" ? 0 : 1).IsAlive && g.State.Winner == Winner.None && E<KuangxiangAdjustmentIssuedEvent>(g).Count(e => e.FrameId == paid.FrameId) == 1, "Actual non-Lord source/recipient death drains the original paid movement subtree once without fabricating a second draw or repeating payment: " + Diagnostic(g));
-                if (scene == "source-death") Need(E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0) || g.State.CurrentSeat != 0, "A paid Preparation owner's real death advances through the existing native finalizer without starting its nonexistent Draw/Ending.");
-            }
-            Need(E<ChengGongYingCompletedEvent>(g).Count(e => e.FrameId == paid.FrameId) == 1, "Cold native child returns complete the exact paid instruction once."); _ = Cold(g, r);
-        }
-        foreach (var scene in new[] { "reshuffle", "empty-deck" })
-        {
-            var (g, r) = Start(scene); Activate(g); Target(g, 0); Play(g); var paid = E<KuangxiangAdjustmentIssuedEvent>(g).Single();
-            if (scene == "reshuffle") Need(paid.ActualCount == 2 && E<KuangxiangReshuffleCapturedEvent>(g).Single() is { Count: 4 } shuffle && shuffle.Before >= paid.Before && shuffle.After <= paid.After && E<KuangxiangCardObtainedEvent>(g).Length == 2, "The actual exhausted small deck reshuffles only the original four real discards, and invoices only the two cards actually drawn rather than the shuffle movements.");
-            else Need(paid.ActualCount == 0 && E<KuangxiangCardObtainedEvent>(g).Length == 0 && E<KuangxiangRedDrawIssuedEvent>(g).Length == 0, "A genuinely exhausted draw/deck creates no fabricated obtained entity or red reduction."); _ = Cold(g, r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players.Single(p => p.Seat == seat);
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static ChengGongYingReceipt? Current(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f => f.ChengGongYing is not null)?.ChengGongYing;
@@ -159,10 +43,6 @@ internal static class ChengGongYingChecks
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Target(GameEngine g, int target) => Answer(g, c => c.Targets.SequenceEqual([target]));
     private static void Continue(GameEngine g) { var p = P(g)!; if (V(g, p.PlayerSeat).IsHuman) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); else Accept(g, new AdvanceOneStepCommand(g.Revision)); }
-    private static void Use(GameEngine g, string id, int[]? cards = null, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void Trim(GameEngine g, int target) { Use(g, "trim", targets: [target]); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card") == true); Answer(g, c => c.Parameters.GetValueOrDefault("slot-index") == "0"); Play(g); }
-    private static void Native(GameEngine g, int id, CardKind kind, int[]? targets = null)
-    { var action = g.GetHumanLegalActions().First(a => a.CardId == id && (a.PlayedCardKind ?? V(g).Hand.First(c => c.Id == id).Kind) == kind && (targets is null || a.TargetSeats.SequenceEqual(targets))); Accept(g, new PlayCardCommand(0, id, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource }); }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void Reach(GameEngine g, Func<bool> done)

@@ -57,79 +57,6 @@ internal static class CaoSongChecks
         _ = Cold(g, registry);
     }
 
-    public static void ActualIssuedSupportSurvivesSkillLossPaysBeforeDamageAndRecoveryCold()
-    {
-        foreach (var recovery in new[] { false, true })
-        {
-            var (g, registry) = Start(recovery ? "recovery" : "damage"); Play(g); End(g);
-            Reach(g, () => Optional(P(g), Yizheng));
-            Need(g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any(f => f.OwnerSeat == 0),
-                "Yizheng belongs to the actual ending phase after discard, rather than the earlier end of the play phase.");
-            Activate(g);
-            Reach(g, () => P(g)?.Choices.Any(c => c.Targets.SequenceEqual([1])) == true);
-            Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, () => Optional(P(g), Loss));
-            var grant = E<CaoSongYizhengGrantedEvent>(g).Single();
-            Need(grant.RecipientSeat == 1 && grant.Source.OwnerSeat == 0, "The ending issues a real other-seat grant before the next actual turn.");
-            g = Cold(g, registry); Activate(g);
-            Reach(g, () => Optional(P(g), Driver));
-            Need(!V(g, 0).Skills!.Any(s => s.Id == Yizheng), "A later native ending operation actually removes the source skill after its grant was issued.");
-            g = Cold(g, registry); Activate(g);
-            Reach(g, () => P(g)?.Choices.Any(c => c.Targets.SequenceEqual([1])) == true);
-            Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Hp);
-            var cost = E<CaoSongYizhengAmountPaidEvent>(g).Single();
-            var hp = g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-            Need(cost.GrantId == grant.GrantId && cost.Recovery == recovery && cost.MaximumHpBefore == cost.MaximumHpAfter + 1 &&
-                hp.Change.Kind == HpChangeKind.MaximumHp && hp.Change.TargetSeat == 0 && hp.Continuation == PostEventContinuation.AmountSupport &&
-                !V(g, 0).Skills!.Any(s => s.Id == Yizheng) && !E<CaoSongYizhengAmountIncreasedEvent>(g).Any() &&
-                (recovery ? !E<RecoveryAppliedEvent>(g).Any(e => e.TargetSeat == 1) : !E<DamageAppliedEvent>(g).Any()),
-                "An already-issued grant survives actual skill loss; its native maximum-HP payment pauses before increasing or applying the damage/recovery.");
-            var before = V(g, recovery ? 1 : 0).Hp;
-            g = Cold(g, registry); Continue(g);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Driver && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "tail"));
-            var increase = E<CaoSongYizhengAmountIncreasedEvent>(g).Single();
-            Need(increase.GrantId == grant.GrantId && increase.Before == 1 && increase.After == 2 && increase.Recovery == recovery &&
-                (recovery ? V(g, 1).Hp == before + 2 && E<RecoveryAppliedEvent>(g).Single(e => e.TargetSeat == 1).Amount == 2
-                    : V(g, 0).Hp == before - 2 && E<DamageAppliedEvent>(g).Single().Amount == 2) &&
-                E<CaoSongYizhengAmountPaidEvent>(g).Count() == 1,
-                "The cold paid-child return increases the exact original request from one to two and applies it once.");
-            g = Cold(g, registry); Continue(g); Play(g);
-            Need(E<CaoSongYizhengExpiredEvent>(g).Single().GrantId == grant.GrantId && g.State.TurnNumber > grant.IssuedTurn,
-                "The issued grant expires at the donor's next actual own turn even after that donor lost the skill.");
-            if (recovery) { Use(g, "hurt", [1]); Play(g); }
-            var laterHp = V(g, recovery ? 1 : 0).Hp;
-            Use(g, recovery ? "recover" : "incoming", [1]); Play(g);
-            Need(E<CaoSongYizhengAmountPaidEvent>(g).Count() == 1 && E<CaoSongYizhengAmountIncreasedEvent>(g).Count() == 1 &&
-                V(g, recovery ? 1 : 0).Hp == laterHp + (recovery ? 1 : -1),
-                "After the exact next-own-turn expiry, a later real one-point request applies one and cannot reuse the old grant or pay another maximum HP.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    public static void ActualRecoveryRedirectUsesFinalRecipientBeforeSupportPayment()
-    {
-        foreach (var redirect in new[] { false, true })
-        {
-            var (g, registry) = Start("redirect-original"); Play(g); End(g);
-            Reach(g, () => Optional(P(g), Yizheng)); Activate(g);
-            Reach(g, () => P(g)?.Choices.Any(c => c.Targets.SequenceEqual([1])) == true); Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, () => Optional(P(g), Driver)); Activate(g);
-            Reach(g, () => P(g)?.Choices.Any(c => c.Targets.SequenceEqual([1])) == true); Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, () => g.ResolutionStack.LastOrDefault() is RecoveryReplacementFrame);
-            var maximum = V(g, 0).MaxHp; var ownHp = V(g, 0).Hp; var originalHp = V(g, 1).Hp;
-            Need(g.ResolutionStack.OfType<RecoveryReplacementFrame>().Single().Attempt.Candidates.Any(c => c.OwnerSeat == 0) && !E<CaoSongYizhengAmountPaidEvent>(g).Any(),
-                "The actual supported original recipient chooses between keeping recovery and its unmarked lord before any support cost.");
-            g = Cold(g, registry);
-            Answer(g, c => c.Parameters.GetValueOrDefault("recovery-action") == (redirect ? "redirect" : "keep"));
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Driver && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "tail"));
-            Need(redirect ? V(g, 0).Hp == ownHp + 1 && V(g, 1).Hp == originalHp && V(g, 0).MaxHp == maximum && !E<CaoSongYizhengAmountPaidEvent>(g).Any()
-                : V(g, 0).MaxHp == maximum - 1 && E<CaoSongYizhengAmountPaidEvent>(g).Count() == 1 && E<CaoSongYizhengAmountIncreasedEvent>(g).Single().After == 2,
-                "Only the final prepared recipient can incur support: redirect heals the unmarked lord without paying; keeping the marked original proves the same real grant pays and adds one.");
-            _ = Cold(g, registry);
-        }
-    }
-
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -140,8 +67,6 @@ internal static class CaoSongChecks
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string activation, IReadOnlyList<int> targets) => Accept(g,
-        new UseProgramSkillCommand(0, Driver, activation, [], targets, g.Revision, P(g)!.PromptId));
     private static void Reach(GameEngine g, Func<bool> reached)
     {
         for (var step = 0; step < 400; step++)

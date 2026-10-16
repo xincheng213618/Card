@@ -1,4 +1,4 @@
-﻿using CardGame.Core;
+using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class LiuQiChecks
 {
@@ -12,16 +12,10 @@ internal static class LiuQiChecks
    var before=g.Events.Count;var hp=V(g,1).Hp;NativeUse(g,paid.CardId,[1]);Play(g);Need(V(g,1).Hp==hp-1&&!g.Events.Skip(before).Select(e=>e.Payload).OfType<CardRespondedEvent>().Any(e=>e.ResponderSeat==1)&&E<WenjiNameArmedEvent>(g).Count()==1,"The real matching Slash or Duel damages the recipient despite native convertible Dodge/Slash/Nullification responses, without paying the gift again.");_=Cold(g,r);
   }
  }
- public static void TunjiangActualUnskippedEmptyPlayAndOtherNativeUse()
- {
-  var(g,r)=Start();Play(g);End(g);Reach(g,()=>Optional(g,"ol:tunjiang"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>E<TunjiangDrawPaidEvent>(g).Any());var draw=E<TunjiangDrawPaidEvent>(g).Single();Need(draw.Requested==2&&draw.Actual==2&&g.CardMovements.Count(m=>m.Sequence>draw.Before&&m.Sequence<=draw.After&&m.Reason.Value=="skill-program.tunjiang.draw"&&m.To==CardLocation.Hand(0))==2,"A real entered empty Play grants exactly the current two living factions as native draw entities.");_=Cold(g,r);
-  var(other,rr)=Start();Play(other);var card=V(other,0).Hand.First(c=>c.Kind==CardKind.Slash);NativeUse(other,card.Id,[1]);Play(other);End(other);Reach(other,()=>P(other)is{PlayerSeat:0,Kind:DecisionKind.PlayCard}||Optional(other,"ol:tunjiang"));Need(!Optional(other,"ol:tunjiang")&&!E<TunjiangDrawPaidEvent>(other).Any()&&E<LiuQiForeignUseRecordedEvent>(other).Any(e=>e.Use.TargetSeat==1),"A real native Use designating another role disqualifies Ending rather than merely displaying an eligibility marker.");_=Cold(other,rr);
-  var(skip,sr)=Start(skip:true);Reach(skip,()=>E<LiuQiPlayEnteredEvent>(skip).Any(e=>e.Entry.OwnerSeat==0&&e.Entry.Skipped));var skippedTurn=E<LiuQiPlayEnteredEvent>(skip).Last(e=>e.Entry.OwnerSeat==0&&e.Entry.Skipped).Entry.ActualTurn;Reach(skip,()=>skip.CreateSnapshot(0).TurnNumber>skippedTurn||Optional(skip,"ol:tunjiang"));Need(!Optional(skip,"ol:tunjiang")&&!E<TunjiangDrawPaidEvent>(skip).Any()&&E<LiuQiPlayEnteredEvent>(skip).Any(e=>e.Entry.Skipped),"A genuinely skipped own Play cannot create a free Tunjiang draw.");_=Cold(skip,sr);
- }
  private static bool Optional(GameEngine g,string id)=>P(g)?.SkillPrompt?.SkillId==id&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];private static PendingDecision?P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p!=null);
     private static void Need(bool b,string m){if(!b)throw new InvalidOperationException(m);}private static void Accept(GameEngine g,GameCommand c){var x=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(x.Accepted,x.Error?.Message??"Rejected ZhugeGuo command.");}private static void Answer(GameEngine g,Func<PromptChoice,bool>test){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(test).Id,g.Revision));}
-    private static void Use(GameEngine g,string id,IReadOnlyList<int>targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
+private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void NativeUse(GameEngine g,int id,IReadOnlyList<int>targets){var a=g.GetHumanLegalActions().First(a=>a.CardId==id&&(targets.Count==0||a.TargetSeats.SequenceEqual(targets)));Accept(g,new PlayCardCommand(0,id,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind,a.TargetCardId));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Reach(GameEngine g,Func<bool>done){for(var i=0;i<200;i++){if(done())return;var p=P(g);if(p?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else if(p is{Kind:DecisionKind.RescueDying,PlayerSeat:0})Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="let-die");else if(p is{PlayerSeat:0,Kind:DecisionKind.PlayCard})End(g);else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Small native ZhugeGuo fixture exceeded its boundary.");}

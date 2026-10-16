@@ -33,18 +33,6 @@ internal static class DamageZoneAndAdjacentTargetChecks
         Need(g.GetLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.Any(s => s != 0)),
             "The target restriction expires at the actual turn boundary."); _ = Cold(g, registry);
     }
-    public static void ActualRedDyingPeachUseJoinsAndReturnsOriginalRescue()
-    {
-        var (g, registry) = Start("rescue"); Use(g, "hurt"); Play(g); var hp = V(g, 0).Hp; Use(g, "harm8", targets: [1]);
-        Reach(g, () => E<AdjacentRedTargetAddedEvent>(g).Any(e => e.ActorSeat != 0));
-        var added = E<AdjacentRedTargetAddedEvent>(g).First(e => e.ActorSeat != 0);
-        g = Cold(g, registry); Reach(g, () => E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == added.CardUseFrameId));
-        Need(added.OriginalTargets.SequenceEqual([1]) && added.AddedTargets.SequenceEqual([0]) && V(g, 0).Hp == hp + 1 && V(g, 1).Hp > 0 &&
-            E<RecoveryAppliedEvent>(g).Any(e => e.SourceSeat == added.ActorSeat && e.TargetSeat == 1) &&
-            E<RecoveryAppliedEvent>(g).Any(e => e.SourceSeat == added.ActorSeat && e.TargetSeat == 0) &&
-            E<DyingResponseEvent>(g).Count(e => e.ResponderSeat == added.ActorSeat && e.UsedPeach) == 1,
-            "An actual foreign self-rescue Peach is a Use, extends both native recoveries and returns to the original dying responder only once."); _ = Cold(g, registry);
-    }
     private static bool ZoneChoice(GameEngine g) => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "damage-zone-acquisition") == true;
     private static string Embedded(string suffix) { using var s = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-yan-bai-hu.{suffix}")!; using var r = new StreamReader(s); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];

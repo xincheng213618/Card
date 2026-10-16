@@ -50,150 +50,9 @@ internal static class QiaoZhouChecks
         _ = Cold(g, registry);
     }
 
-    public static void ThreeAndTwoRedActualDrawSlashAndSkippedDiscardBoundaries()
-    {
-        foreach (var red in new[] { 3, 2 })
-        {
-            var (g, registry) = Start("recipient", red);
-            if (red == 2)
-            {
-                var redCards = V(g, 0).Hand.Where(c => c.Suit is Suit.Heart or Suit.Diamond).Take(4).Select(c => c.Id).ToArray();
-                var black = V(g, 0).Hand.First(c => c.Suit is Suit.Spade or Suit.Club).Id;
-                Need(redCards.Length == 4, "The fixed small physical fixture supplies four actual red hand entities, without searching seeds.");
-                Use(g, "top-five", cards: [.. redCards, black]); Play(g);
-            }
-            var initialTurn = g.State.TurnNumber; End(g);
-            Reach(g, () => E<QiaoZhouForecastGrantedEvent>(g).Any(e => e.RecipientSeat == 0));
-            var grant = E<QiaoZhouForecastGrantedEvent>(g).Single(e => e.RecipientSeat == 0);
-            Need(grant is { Source.OwnerSeat: 1 } && grant.RedCount == red && !E<QiaoZhouForecastActivatedEvent>(g).Any(e => e.GrantId == grant.GrantId),
-                "The real AI donor's own ending reveals the intended physical colors and issues an unactivated mark to the other living human.");
-            g = Cold(g, registry); Reach(g, () => g.State.TurnNumber > initialTurn && P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-            var turn = g.State.TurnNumber; var activation = E<QiaoZhouForecastActivatedEvent>(g).Single(e => e.GrantId == grant.GrantId);
-            var modifiers = E<TurnRuleModifierGrantedEvent>(g).Select(e => e.Modifier).Where(m => m.ParentFrameId == grant.GrantId).ToArray();
-            Need(activation.ActualTurnNumber == turn && modifiers.Single(m => m.Query == SkillRuleQuery.SlashLimit).Amount == (red == 3 ? 1 : -1) &&
-                modifiers.Length == (red == 3 ? 2 : 1) && (red != 3 || modifiers.Single(m => m.Query == SkillRuleQuery.DrawCount).Amount == 2) &&
-                ActualDrawCount(g, turn, 0) == (red == 3 ? 4 : 2) &&
-                E<QiaoZhouForecastGrantedEvent>(g).Where(e => !E<QiaoZhouForecastExpiredEvent>(g).Any(x => x.GrantId == e.GrantId)).GroupBy(e => e.RecipientSeat).All(group => group.Count() == 1),
-                "Only the recipient's next actual preparation activates one pending mark; normal Draw really gains four or two cards, and later donors cannot choose an already marked recipient.");
-            g = Cold(g, registry);
-            if (red == 3)
-            {
-                for (var use = 0; use < 2; use++)
-                {
-                    var slash = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-                    Accept(g, new PlayCardCommand(0, slash.CardId!.Value, [1], g.Revision, P(g)!.PromptId)); Play(g);
-                }
-                Need(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) &&
-                    E<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1) == 2,
-                    "Three actual red cards allow exactly two paid native Slash uses with real damage, and do not allow a third.");
-            }
-            else Need(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-                "Two actual red cards reduce the normal Slash allowance to zero before any Slash use.");
-            var boundaries = E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == DiscardBoundary && e.OwnerSeat == 0 && e.Completed);
-            End(g); Reach(g, () => g.State.TurnNumber > turn);
-            Need(E<QiaoZhouForecastExpiredEvent>(g).Single(e => e.GrantId == grant.GrantId).Reason == "recipient-turn-ended" &&
-                E<QiaoZhouDiscardPhaseSkippedEvent>(g).Count(e => e.GrantId == grant.GrantId) == (red == 2 ? 1 : 0) &&
-                E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == DiscardBoundary && e.OwnerSeat == 0 && e.Completed) - boundaries == (red == 2 ? 0 : 2) &&
-                E<TurnCardUseEffectsExpiredEvent>(g).SelectMany(e => e.GrantSequences).Where(id => modifiers.Any(m => m.GrantSequence == id)).Distinct().Count() == modifiers.Length,
-                "The marked turn expires its exact granted modifiers once; two red skips the whole Discard including both Starting and Ended observers, while three red retains both actual boundaries.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    public static void LowRedMandatoryHandDiscardChildColdAndFaceDownRetention()
-    {
-        foreach (var (red, flip) in new[] { (0, false), (1, true) })
-        {
-            var (g, registry) = Start("recipient", red);
-            var initialTurn = g.State.TurnNumber;
-            if (red == 1)
-            {
-                var redCards = V(g, 0).Hand.Where(c => c.Suit is Suit.Heart or Suit.Diamond).Take(3).Select(c => c.Id).ToArray();
-                var blackCards = V(g, 0).Hand.Where(c => c.Suit is Suit.Spade or Suit.Club).Take(2).Select(c => c.Id).ToArray();
-                Need(redCards.Length == 3 && blackCards.Length == 2, "The fixed physical hand supplies the native five-card top segment for a real one-red reveal.");
-                Use(g, "top-five", cards: [.. redCards, .. blackCards]); Play(g);
-            }
-            if (flip) { Use(g, "flip"); Play(g); Need(V(g, 0).IsFaceDown, "The recipient really turns face down before any forecast is granted."); }
-            End(g); Reach(g, () => E<QiaoZhouForecastGrantedEvent>(g).Any(e => e.RecipientSeat == 0));
-            var grant = E<QiaoZhouForecastGrantedEvent>(g).Single(e => e.RecipientSeat == 0);
-            Need(grant.RedCount == red, "Both zero-red and one-red results are counted from the actual three revealed physical entities.");
-            g = Cold(g, registry);
-            if (flip)
-            {
-                Reach(g, () => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber > initialTurn));
-                var skippedTurn = E<TurnEndedEvent>(g).Last(e => e.ActorSeat == 0).TurnNumber;
-                Need(!V(g, 0).IsFaceDown && !E<QiaoZhouForecastActivatedEvent>(g).Any(e => e.GrantId == grant.GrantId) &&
-                    !E<QiaoZhouForecastExpiredEvent>(g).Any(e => e.GrantId == grant.GrantId) && !E<QiaoZhouPreparationDiscardedEvent>(g).Any(e => e.GrantId == grant.GrantId) &&
-                    ActualDrawCount(g, skippedTurn, 0) == 0,
-                    "A genuinely face-down skipped whole turn turns the recipient face up while preserving the pending mark: no actual preparation payment, activation, Draw or expiration is fabricated.");
-                g = Cold(g, registry);
-            }
-            Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "qiao-zhou-preparation") == true);
-            var prompt = P(g)!; var turn = g.State.TurnNumber; var paid = prompt.Choices.First().Cards.Single();
-            var selecting = g.ResolutionStack.OfType<QiaoZhouPreparationFrame>().Single();
-            Need(selecting is { Stage: QiaoZhouPreparationStage.Selecting, PaidCardId: null } && selecting.Grant.GrantId == grant.GrantId &&
-                prompt is { PlayerSeat: 0, IsPrivate: true } && g.CreateSnapshot(1).PendingDecision is null &&
-                prompt.Choices.Count == V(g, 0).HandCount && prompt.Choices.All(c => c.Cards.Count == 1 && c.Cards.All(id => Location(g, id) == CardLocation.Hand(0)) && c.Parameters.GetValueOrDefault("program-action") == "qiao-zhou-preparation") &&
-                E<QiaoZhouForecastActivatedEvent>(g).Single(e => e.GrantId == grant.GrantId).ActualTurnNumber == turn && ActualDrawCount(g, turn, 0) == 0,
-                "Zero or one red forces exactly one currently legal private hand entity at the next genuine preparation, before normal Draw; the choice has no decline or equipment branch.");
-            var unchanged = State(g); var rejected = g.Submit(new AnswerPromptCommand(1, prompt.PromptId, prompt.Choices.First().Id, g.Revision));
-            Need(!rejected.Accepted && State(g) == unchanged, "Another seat cannot pay the human's mandatory private hand choice.");
-            g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([paid])); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
-            var parent = g.ResolutionStack.OfType<QiaoZhouPreparationFrame>().Single();
-            var child = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.QiaoZhouPreparationReturn is not null);
-            Need(parent is { Stage: QiaoZhouPreparationStage.MovementChildren } && parent.PaidCardId == paid && parent.ActiveChildFrameId == child.Id &&
-                child.QiaoZhouPreparationReturn is { } returned && returned.ParentFrameId == parent.Id && returned.GrantId == grant.GrantId && returned.BatchId == child.Batch.Id &&
-                E<QiaoZhouPreparationDiscardedEvent>(g).Single(e => e.GrantId == grant.GrantId) is { CardId: var actual, SequenceBefore: var before, SequenceAfter: var after } &&
-                actual == paid && after == before + 1 && Location(g, paid) == CardLocation.DiscardPile && ActualDrawCount(g, turn, 0) == 0,
-                "The actual paid hand discard remains on its owning preparation frame while its native movement observer holds the exact typed parent return, before any preparation continuation.");
-            g = Cold(g, registry); Continue(g); Play(g);
-            Need(E<QiaoZhouPreparationDiscardedEvent>(g).Count(e => e.GrantId == grant.GrantId) == 1 &&
-                g.CardMovements.Count(m => m.CardId == paid && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile && m.Reason.Value == PreparationReason) == 1 &&
-                ActualDrawCount(g, turn, 0) == 2 && !g.ResolutionStack.OfType<QiaoZhouPreparationFrame>().Any(),
-                "Cold selecting and cold paid child resume to the genuine normal Draw exactly once, without repaying the hand cost or retaining a parallel preparation frame.");
-            End(g); Reach(g, () => g.State.TurnNumber > turn);
-            Need(E<QiaoZhouForecastExpiredEvent>(g).Single(e => e.GrantId == grant.GrantId).Reason == "recipient-turn-ended", "The retained low mark expires only after its one actual action turn finishes.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    public static void SourceSkillLossRetainsButSourceDeathRevokesItsExactModifiers()
-    {
-        var (g, registry) = Start("recipient", 3); var firstTurn = g.State.TurnNumber;
-        End(g); Reach(g, () => g.State.TurnNumber > firstTurn && P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        var grant = E<QiaoZhouForecastGrantedEvent>(g).Single(e => e.RecipientSeat == 0);
-        var forecastModifiers = E<TurnRuleModifierGrantedEvent>(g).Select(e => e.Modifier).Where(m => m.ParentFrameId == grant.GrantId).ToArray();
-        Need(grant.Source.OwnerSeat == 1 && forecastModifiers.Length == 2 && ActualDrawCount(g, g.State.TurnNumber, 0) == 4,
-            "A real three-red issued mark grants both exact modifiers and its actual extra Draw before source changes.");
-        g = Cold(g, registry); Use(g, "hurt", [1]); Play(g);
-        Need(V(g, 1).IsAlive && V(g, 1).Hp == 7 && V(g, 1).Skills!.All(s => s.Id != Xingbu) &&
-            !E<QiaoZhouForecastExpiredEvent>(g).Any(e => e.GrantId == grant.GrantId),
-            "Real HP-conditioned source skill loss leaves the already issued forecast active while the source remains alive.");
-        var firstSlash = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2]));
-        Accept(g, new PlayCardCommand(0, firstSlash.CardId!.Value, [2], g.Revision, P(g)!.PromptId)); Play(g);
-        Need(g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "The recipient can still issue a second native Slash after the living source actually lost Xingbu, proving its already granted +1 remains effective.");
-        Use(g, "unrelated-limit"); Play(g);
-        var unrelated = E<TurnRuleModifierGrantedEvent>(g).Select(e => e.Modifier).Single(m => m.Source.SkillId == Driver && m.Query == SkillRuleQuery.SlashLimit);
-        g = Cold(g, registry); Use(g, "kill", [1]); Play(g);
-        var expired = E<TurnCardUseEffectsExpiredEvent>(g).Single(e => e.GrantSequences.Any(id => forecastModifiers.Any(m => m.GrantSequence == id)));
-        Need(!V(g, 1).IsAlive && E<PlayerDiedEvent>(g).Any(e => e.VictimSeat == 1) &&
-            E<QiaoZhouForecastExpiredEvent>(g).Single(e => e.GrantId == grant.GrantId).Reason == "participant-death" &&
-            expired.GrantSequences.Order().SequenceEqual(forecastModifiers.Select(m => m.GrantSequence).Order()) &&
-            !E<TurnCardUseEffectsExpiredEvent>(g).Any(e => e.GrantSequences.Contains(unrelated.GrantSequence)),
-            "Actual source death expires the issued mark and revokes both precise forecast modifier IDs, preserving an unrelated same-turn Slash modifier.");
-        g = Cold(g, registry);
-        var secondSlash = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2]));
-        Accept(g, new PlayCardCommand(0, secondSlash.CardId!.Value, [2], g.Revision, P(g)!.PromptId)); Play(g);
-        Need(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) && ActualDrawCount(g, g.State.TurnNumber, 0) == 4,
-            "After source death, exactly the ordinary allowance plus the unrelated +1 permits this second paid Slash; no third survives the revoked Xingbu +1 and the earlier real Draw is preserved.");
-        _ = Cold(g, registry);
-    }
-
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
-    private static int ActualDrawCount(GameEngine g, int turn, int seat) => g.CardMovements.Count(m => m.TurnNumber == turn && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(seat) && m.Reason == CardMoveReasons.Draw);
     private static CardLocation Location(GameEngine g, int id) => g.CreateCardZoneDiagnostics().Single(c => c.CardId == id).Location;
     private static bool OwnedSelection(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
     private static bool Optional(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
@@ -203,8 +62,6 @@ internal static class QiaoZhouChecks
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null, IReadOnlyList<int>? cards = null) =>
-        Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 250; step++)

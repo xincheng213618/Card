@@ -24,7 +24,8 @@ public sealed partial class GameEngine
     private bool _synchronizingNativeFactions;
 
     private bool TracksNativeEffectiveFactionChanges => _contentRegistry.ProgramDependencies
-        .HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd);
+        .HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice);
 
     private IReadOnlyList<string> AvailableEffectiveFactionIds() =>
         IsNationalWarMode ? Array.Empty<string>() : NativeEffectiveFactionIds;
@@ -80,6 +81,28 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new NativeEffectiveFactionChangedEvent(++_resolutionSequence,
             _turnNumber, _turnProgression.OwnerSeat, player.Seat, previous, faction, frame.Id,
             new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId), "program"));
+        AddLog("FactionChanged", $"{player.Name} 将势力变更为{GetFactionName(faction)}。", player.Seat);
+    }
+
+    private void ApplyCaoTengFactionChange(ProgramSkillFrame frame, string faction)
+    {
+        if (!TracksNativeEffectiveFactionChanges || _resolutionStack.LastOrDefault()?.Id != frame.Id ||
+            !IsCaoTengFactionChange(frame, faction) || faction is not ("qun" or "wei") ||
+            !AvailableEffectiveFactionIds().Contains(faction, StringComparer.Ordinal))
+            throw new InvalidOperationException("Qingliu requires its exact living setup or first rescued-Dying choice.");
+        SynchronizeNativeEffectiveFactions();
+        var player = _players[frame.OwnerSeat];
+        var previous = GetEffectiveFactionId(player);
+        player.NativeEffectiveFactionOverrideId = faction;
+        player.NativeEffectiveFactionWasDeclared = true;
+        _nativeFactionObservations[player.Seat] = new(faction, CaptureNativeFactionAvatar(player));
+        if (string.Equals(previous, faction, StringComparison.Ordinal)) return;
+        _nativeFactionRevision++;
+        // A setup declaration is visible, but is not an actual-turn mutation.
+        if (_setupComplete && _turnNumber > 0)
+            AdvanceEventRulesAndQueueFact(new NativeEffectiveFactionChangedEvent(++_resolutionSequence,
+                _turnNumber, _turnProgression.OwnerSeat, player.Seat, previous, faction, frame.Id,
+                new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId), "qingliu"));
         AddLog("FactionChanged", $"{player.Name} 将势力变更为{GetFactionName(faction)}。", player.Seat);
     }
 

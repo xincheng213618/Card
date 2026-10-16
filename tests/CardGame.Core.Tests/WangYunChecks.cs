@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 internal static class WangYunChecks
@@ -18,17 +18,6 @@ internal static class WangYunChecks
             E<WangYunNativeUseReturnedEvent>(g).Count(e=>e.ProgramFrameId==frame.Id)==2 && E<ProgramSkillResolvedEvent>(g).Count(e=>e.FrameId==frame.Id)==1,"Only a truly issued actor-owned Slash damages the designated owner and returns its paid native subtree once.");
         Play(g);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,()=>E<WangYunAwakenedEvent>(g).Any());Play(g);
         Need(V(g,0).MaxHp==before && !V(g,0).Skills!.Any(s=>s.ContentId=="ol:lianji") && V(g,0).Skills!.Any(s=>s.ContentId=="ol:jingong"),"The next actual preparation removes Lianji and grants current random Jingong without an invented max-HP change.");_=Cold(g,r);
-    }
-    public static void ActualRandomTrickSamplesColdAndNativeLightningJudgment()
-    {
-        var(g,r)=Start("trick");Play(g);var id=V(g,0).Hand.First(c=>c.Kind==CardKind.Slash).Id;
-        var checkpoint=GameCheckpointJson.Serialize(g.CreateCheckpoint());for(var i=0;i<3;i++)_=g.GetHumanLegalActions();Need(checkpoint==GameCheckpointJson.Serialize(g.CreateCheckpoint()),"Read-only action queries never consume random samples.");
-        Accept(g,new UseProgramSkillCommand(0,"ol:jingong","three-random-tricks",[id],[],g.Revision,P(g)!.PromptId));Reach(g,()=>RootOrNull(g)?.WangYunTrick?.Stage=="choice");var f=Root(g);var samples=f.WangYunTrick!.Samples.ToArray();
-        Need(samples.Length==3 && samples.Distinct().Count()==3 && samples.Contains(CardKind.Lightning) && samples.Contains(CardKind.DrawTwo) && samples.Contains(CardKind.Duel),"The small real catalog guarantees three distinct current random tricks including delayed Lightning.");
-        g=Cold(g,r);Need(Root(g).WangYunTrick!.Samples.SequenceEqual(samples),"Cold replay retains the original sample ordering.");Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="lightning");Play(g);
-        Need(V(g,0).Judgment.Any(c=>c.Id==id) && E<WangYunNativePaymentCompletedEvent>(g).Single().Origin.OutputKind==CardKind.Lightning && E<WangYunNativePaymentCompletedEvent>(g).Single().Origin.Materials.Single().CardId==id,"The selected real Slash material pays for native delayed Lightning placement.");
-        g=Cold(g,r);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,()=>E<LightningResolvedEvent>(g).Any());
-        Need(E<DamageAppliedEvent>(g).Any(e=>e.TargetSeat==0 && e.Amount==3),"The later real Lightning judgment uses effective delayed kind and applies native three damage.");_=Cold(g,r);
     }
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);

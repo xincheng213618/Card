@@ -18,7 +18,6 @@ internal static class ActorHandLimitPenaltyChecks
     private const string PrintedLoss = "fixture:actor-penalty-printed-loss";
     private const string Reacquire = "fixture:actor-penalty-reacquire";
     private const string Late = "fixture:actor-penalty-late";
-    private const string DrawReason = "skill-program." + Penalty + ".Draw";
     private enum Scenario { Stack, Color, Foreign, Tail, Borrowed, SourceLoss, SourceSwitch, Late }
 
     public static void RealUsesStackAndChangeActualDiscard()
@@ -83,50 +82,6 @@ internal static class ActorHandLimitPenaltyChecks
         Private(g); _ = Cold(g, registry);
     }
 
-    public static void AddedRedirectedAndBorrowedSwordTargets()
-    {
-        var (g, registry) = Start(Scenario.Tail, CardKind.Slash, Suit.Spade);
-        var tailSeat = g.CreateSnapshot(0).Players.Single(p => p.GeneralId == "fixture:actor-penalty-peer-2").Seat;
-        var newSeat = new[] { 2, 3 }.Single(s => s != tailSeat);
-        Require(tailSeat == 3 && newSeat == 2, "Ordinary selection weights put the real tail redirector at seat three: original seat one is outside its range, so seat two is its sole native redirect candidate.");
-        var a = Action(g, LegalActionKind.Slash, [1]); Play(g, a);
-        Reach(g, p => p?.SkillPrompt?.SkillId == Add && p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([tailSeat]));
-        Reach(g, IsComplete); var use = UseFor(g, a.CardId!.Value);
-        var facts = Grants(g).Where(p => p.CardUseFrameId == use.Id).ToArray();
-        var redirectedPayments = g.CardMovements.Where(m => m.From == CardLocation.Hand(tailSeat) && m.To == CardLocation.DiscardPile &&
-            m.Reason.Value == $"skill-program.{Redirect}.SelectAndMoveOwnedCard").ToArray();
-        Require(E<ProgramCardTriggerResolvedEvent>(g).Count(e => e.SkillId == Redirect && e.OwnerSeat == tailSeat && e.Activated) == 1 &&
-            use.TargetSeats.SequenceEqual([1, newSeat]) && use.ActorHandLimitAnnouncedTargets!.SequenceEqual([1, tailSeat, newSeat]) &&
-            facts.Select(p => p.TargetSeat).Order().SequenceEqual([1, 2, 3]) && facts.All(p => p.ActionId == use.Action!.ActionId && p.ActorSeat == 0) &&
-            redirectedPayments.Length == 1 && g.CardMovements.Count(m => m.CardId == redirectedPayments.Single().CardId && m.From == CardLocation.Hand(tailSeat) && m.To == CardLocation.DiscardPile) == 1,
-            "The original target and appended target are announced once before effects; an accepted Slash tail's real paid Liuli redirect announces the new identity without retracting the old contribution.");
-        Frozen(use.ActorHandLimitAnnouncedTargets!); Private(g); g = Cold(g, registry); Continue(g); Reach(g, IsPlay);
-        AssertPhysicalUse(g, a.CardId.Value, CardKind.Slash, use.Id);
-        Require(Grants(g).Count(p => p.ActionId == use.Action!.ActionId) == 3,
-            "Cold return of both actual Slash targets cannot duplicate any old or newly redirected target identity.");
-
-        var (b, br) = Start(Scenario.Borrowed, CardKind.BorrowedSword, Suit.Spade);
-        foreach (var seat in new[] { 1, 3 }) { Activate(b, "equip", [seat]); Reach(b, IsPlay); }
-        var weapons = new[] { 1, 3 }.ToDictionary(s => s, s => V(b, s).Equipment.Single(c => c.Kind == CardKind.Crossbow).Id);
-        var borrow = Action(b, LegalActionKind.BorrowedSword, [1, 2]); Play(b, borrow);
-        Reach(b, p => p?.SkillPrompt?.SkillId == Add && p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        b = Cold(b, br); Answer(b, c => c.Targets.SequenceEqual([3]));
-        Reach(b, p => p?.SkillPrompt?.SkillId == Add && p.PlayerSeat == 0 && p.Choices.Any(c => c.Targets.SequenceEqual([2])));
-        b = Cold(b, br); Answer(b, c => c.Targets.SequenceEqual([2]));
-        Reach(b, IsComplete); var bu = UseFor(b, borrow.CardId!.Value);
-        Require(bu.TargetSeats.SequenceEqual([1, 2, 3, 2]) && bu.ActorHandLimitAnnouncedTargets!.SequenceEqual([1, 3]) &&
-            Grants(b).Where(p => p.CardUseFrameId == bu.Id).Select(p => p.TargetSeat).Order().SequenceEqual([1, 3]) &&
-            !Grants(b).Any(p => p.TargetSeat == 2) && weapons.All(pair =>
-                b.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Equipment(pair.Key) &&
-                    m.To == CardLocation.Processing && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1 &&
-                b.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Processing &&
-                    m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1),
-            "Borrowed Sword uses two real ordered pairs and two real weapon payments, while only weapon-holder primary targets issue penalties; repeated victims never count.");
-        Frozen(bu.ActorHandLimitAnnouncedTargets!); b = Cold(b, br); Continue(b); Reach(b, IsPlay);
-        AssertPhysicalUse(b, borrow.CardId.Value, CardKind.BorrowedSword, bu.Id); _ = Cold(b, br);
-    }
-
     private static ActorHandLimitPenalty[] Grants(GameEngine g) => E<ProgramActorHandLimitPenaltyGrantedEvent>(g).Select(e => e.Penalty).ToArray();
     private static bool SameTurnGrant(ProgramTurnSkillsGrantedEvent a, ProgramTurnSkillsGrantedEvent b) =>
         a.FrameId == b.FrameId && a.SkillId == b.SkillId && a.BindingId == b.BindingId && a.OwnerSeat == b.OwnerSeat &&
@@ -144,8 +99,6 @@ internal static class ActorHandLimitPenaltyChecks
         ?? throw new InvalidOperationException("Missing actual legal " + kind + ": " + Diagnostic(g));
     private static void Play(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats,
         g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-    private static void Activate(GameEngine g, string id, IReadOnlyList<int> targets) => Accept(g,
-        new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> match)
     {

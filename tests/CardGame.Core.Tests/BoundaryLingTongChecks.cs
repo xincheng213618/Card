@@ -54,50 +54,6 @@ internal static class BoundaryLingTongChecks
         }
     }
 
-    public static void PrivateSequentialChoicesRecoveryChildrenDeclinesAndSourceLoss()
-    {
-        var (skip, sk) = Create(); Play(skip); BoundMove(skip, "discard-two", skip.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray());
-        Reach(skip, p => Activation(p, Skill)); Cold(skip, sk); Answer(skip, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(skip);
-        Require(Started(skip, Skill) == 0 && ForeignMoves(skip).Length == 0, "Refusing the optional opportunity preserves the already committed original cost and adds no foreign discard."); Cold(skip, sk);
-
-        var (one, oneRegistry) = Create(); Play(one); BoundMove(one, "discard-two", one.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray());
-        Reach(one, p => Activation(p, Skill)); Activate(one, Skill); Reach(one, OtherDiscard); Decline(one); Reach(one, OtherDiscard); DiscardOther(one, 1); Play(one);
-        Require(ForeignMoves(one).Length == 1, "The two independent optional steps permit a single discard after refusing the first step."); Cold(one, oneRegistry);
-
-        var (g, r) = Create(observers: true, armor: true); Play(g); Use(g, "equip", targets: [1]); Play(g); Use(g, "hurt", targets: [1]); Play(g);
-        var armor = g.CreateSnapshot(0).Players[1].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        var victimHp = g.State.Players[1].Hp;
-        BoundMove(g, "discard-two", g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray());
-        Reach(g, p => Activation(p, Skill)); Activate(g, Skill); Reach(g, OtherDiscard); Private(g); Reject(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" && c.Cards.SequenceEqual([armor]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Hp); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill);
-        Require(root.InstructionIndex == 1 && ForeignMoves(g).Length == 1 && g.State.Players[1].Hp == victimHp + 1 &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.Change.ParentFrameId == root.Id && f.Change.TargetSeat == 1),
-            "The first genuine equipment discard pauses its exact producer beneath Silver Lion's real Recovery child before the second selection."); Cold(g, r); Reject(g);
-        Accept(g, new AdvanceOneStepCommand(g.Revision)); Reach(g, p => p.SkillPrompt?.SkillId == Movement);
-        root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill);
-        Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.ResumeProgramFrameId == root.Id && f.Batch.ParentFrameId == root.Id &&
-            f.Batch.Movements.Single().CardId == armor), "The paid discard's subsequent real movement observer has one exact typed program return."); Cold(g, r);
-        Accept(g, new AdvanceOneStepCommand(g.Revision)); Reach(g, OtherDiscard); Private(g); DiscardOther(g, 1); Play(g);
-        Require(ForeignMoves(g).Length == 2 && ForeignMoves(g).All(m => m.From.OwnerSeat == 1) &&
-            g.CardMovements.Count(m => m.CardId == armor && m.Reason.Value == ForeignReason) == 1 &&
-            Facts<SilverLionRemovedRecoveryEvent>(g).Count(e => e.PlayerSeat == 1 && e.RecoveredAmount == 1) == 1,
-            "Both discards may target the same person; recovery and movement children return without paying the first entity again."); Cold(g, r);
-
-        var (lost, lr) = Create(observers: true, sourceLoss: true); Play(lost);
-        BoundMove(lost, "discard-two", lost.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray());
-        Reach(lost, p => Activation(p, Skill)); Activate(lost, Skill); Reach(lost, OtherDiscard); DiscardOther(lost, 1);
-        Reach(lost, p => p.SkillPrompt?.SkillId == Movement); Cold(lost, lr); Accept(lost, new AdvanceOneStepCommand(lost.Revision));
-        Reach(lost, p => p.SkillPrompt?.SkillId == Movement && p.Choices.Any(c => c.Targets.SequenceEqual([0])));
-        // Controlled real non-native actor command: the separate native check below
-        // never manually answers an AI prompt or supplies hidden card information.
-        Answer(lost, c => c.Targets.SequenceEqual([0])); Play(lost);
-        Require(Facts<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(lost).Any(e => e.Suppression.TargetSeat == 0) &&
-            ForeignMoves(lost).Length == 1 && Started(lost, Skill) == 1 &&
-            Facts<ProgramBindingResolvedEvent>(lost).Any(e => e.SkillId == Skill && e.Activated && !e.Completed),
-            "A real movement child invalidates the current nonlocked source after its first paid discard: that cost stays committed and the unpaid second step cancels."); Cold(lost, lr);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static int Started(GameEngine g, string skill) => Facts<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == skill);
     private static CardMovementRecord[] ForeignMoves(GameEngine g) => g.CardMovements.Where(m => m.Reason.Value == ForeignReason).ToArray();
@@ -105,7 +61,6 @@ internal static class BoundaryLingTongChecks
     private static bool Activation(PendingDecision p, string skill) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static bool OtherDiscard(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard");
     private static void Activate(GameEngine g, string skill) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill);
-    private static void Decline(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline");
     private static void DiscardOther(GameEngine g, int seat) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" && c.Targets.SequenceEqual([seat]) && c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));

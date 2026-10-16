@@ -16,12 +16,11 @@ internal static class CompiledSkillMetadataChecks
             var programs = registry.Skills.Values.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
             var triggers = programs.SelectMany(program => program.Triggers).ToArray();
             var dependencies = registry.ProgramDependencies;
-            Require(dependencies.RequiredProgramRulesVersion == programs.Select(program => program.MinimumRulesVersion).DefaultIfEmpty(0).Max() &&
-                    dependencies.HpSensitiveSkillIds.SetEquals(registry.Skills.Values
+            Require(dependencies.HpSensitiveSkillIds.SetEquals(registry.Skills.Values
                         .Where(skill => skill.SuppressionRule is not null || skill.Program?.HpSkillGrants.Count > 0).Select(skill => skill.Id)) &&
                     dependencies.HpConditionalCapabilitySkillIds.SetEquals(registry.Skills.Values
                         .Where(skill => skill.Program?.HpSkillGrants.Count > 0).Select(skill => skill.Id)),
-                "Compiled rules requirements and the broad/strict HP sets must preserve their exact catalog predicates.");
+                "The broad/strict HP sets must preserve their exact catalog predicates.");
             Require(dependencies.UsesLordSkillProjection == programs.Any(program => program.LordSkillProjection) &&
                     dependencies.UsesGainPhaseQualification == triggers.Any(trigger => trigger.GainPhaseQualification is not null),
                 "Lord projection and gain-phase qualification must retain their independent whole-catalog opt-ins.");
@@ -98,7 +97,7 @@ internal static class CompiledSkillMetadataChecks
             "Dependency compilation must not narrow catalog scope to a match's owners.");
         ActualPlayLedgerIncludesUnownedTriggerActivationAndPolicy();
         ConditionalCatalogCapabilitiesIncludeUnownedPrograms();
-        HpCatalogFactsAndRulesGateRemainIndependent();
+        HpCatalogFactsRemainIndependent();
         EndingMarkerRequiresSyntheticTriggerValue();
         var roundTransfer = BuildUnownedCatalogRegistry("""
             "triggers":[{"id":"round","window":"roundStarting","subject":"owner","optional":true,"effects":[{"op":"transferQuxiAtRoundOrDeath","target":"owner"}]}]
@@ -200,7 +199,7 @@ internal static class CompiledSkillMetadataChecks
         return ContentRegistry.Build(new StandardContentPackage(), new ProgramOnlyPackage(program));
     }
 
-    private static void HpCatalogFactsAndRulesGateRemainIndependent()
+    private static void HpCatalogFactsRemainIndependent()
     {
         const string id = "fixture:catalog-opt-in";
         var hp = BuildUnownedCatalogRegistry("""
@@ -213,20 +212,11 @@ internal static class CompiledSkillMetadataChecks
         Require(suppression.HpSensitiveSkillIds.Contains(SuppressionOnlyPackage.Id) &&
                 !suppression.HpConditionalCapabilitySkillIds.Contains(SuppressionOnlyPackage.Id),
             "A suppression-only skill without a program belongs to the broad HP set, not the strict conditional-grant set.");
-        var required = GameCheckpoint.CurrentRulesVersion + 1;
-        var higher = BuildUnownedCatalogRegistry($"\"minimumRulesVersion\":{required},\"lordSkillProjection\":true");
-        Require(higher.ProgramDependencies.RequiredProgramRulesVersion == required,
-            "The highest requirement must include an unowned program.");
-        var rejected = false;
-        try { _ = GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, higher); }
-        catch (InvalidOperationException error)
-        {
-            rejected = error.Message == $"Compiled skill programs require rules version {required} or newer.";
-        }
-        Require(rejected, "The existing engine rules gate must reject the same incompatible catalog with its original message.");
+        var legacyMetadata = BuildUnownedCatalogRegistry($"\"minimumRulesVersion\":{int.MaxValue},\"lordSkillProjection\":true");
+        _ = GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, legacyMetadata);
         var empty = ContentRegistry.Build().ProgramDependencies;
-        Require(empty.RequiredProgramRulesVersion == 0 && empty.HpSensitiveSkillIds.Count == 0 && empty.HpConditionalCapabilitySkillIds.Count == 0,
-            "An empty independent catalog must retain zero/empty facts without inheriting earlier opt-ins.");
+        Require(empty.HpSensitiveSkillIds.Count == 0 && empty.HpConditionalCapabilitySkillIds.Count == 0,
+            "An empty independent catalog must retain empty facts without inheriting earlier opt-ins.");
     }
 
     public static void SourcePlansReuseBindingsWithoutIdentityOrOrderCollisions()

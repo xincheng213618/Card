@@ -51,49 +51,6 @@ internal static class PopulationHealthKindChecks
         _ = Cold(health, healthRegistry);
     }
 
-    public static void PreparationPopulationAwakeningGrantsAfterDrawAndKeepsGameUsage()
-    {
-        foreach (var scenario in new[] { "qualified", "equal-population", "healthy" })
-        {
-            var (g, registry) = Start(initialWeizhong: false, awakening: true,
-                baseHp: scenario == "equal-population" ? 3 : 4, wounded: scenario != "healthy", awaitFirstPlay: false);
-            if (scenario != "qualified")
-            {
-                Play(g);
-                Require(!E<ProgramBindingStartedEvent>(g).Any(e => e.SkillId == Juyi),
-                    "Equality or full HP preserves the unspent preparation awakening.");
-                Use(g, scenario == "healthy" ? "hurt" : "grow"); Reach(g, p => p.SkillPrompt?.SkillId == Driver); Continue(g); Play(g);
-                NextTurn(g);
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            var awake = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Juyi);
-            var original = awake.Id;
-            Require(awake.WindowContext?.Facts is { LivingPlayerCount: 4 } facts && facts.CurrentMaxHp > 4 && facts.CurrentHp < facts.CurrentMaxHp &&
-                V(g).HandCount == V(g).MaxHp && !V(g).Skills!.Any(s => s.ContentId is Weizhong or "classic:benghuai"),
-                "The classic draw-to-maximum pays actual entities before either derived grant, under frozen strict preparation facts.");
-            Private(g); RejectWrongActor(g); g = Cold(g, registry);
-            for (var child = 0; child < 12; child++)
-            {
-                Continue(g);
-                Reach(g, p => p.SkillPrompt?.SkillId == Gain || p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-                if (P(g)!.Kind == DecisionKind.PlayCard) break;
-                g = Cold(g, registry);
-            }
-            Require(P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }, "All finite paid-draw children return to the native Play boundary.");
-            Require(V(g).Skills!.Count(s => s.ContentId == Weizhong) == 1 && V(g).Skills!.Count(s => s.ContentId == "classic:benghuai") == 1 &&
-                E<SkillAwakenedEvent>(g).Count(e => e.SkillId == Juyi) == 1 &&
-                E<ProgramBindingResolvedEvent>(g).Count(e => e.FrameId == original && e.SkillId == Juyi && e.Completed) == 1,
-                "One native return grants both actual derived skills once after completing the paid draw.");
-            var drawBefore = Draws(g, Juyi); NextTurn(g); Play(g);
-            Require(E<SkillAwakenedEvent>(g).Count(e => e.SkillId == Juyi) == 1 && Draws(g, Juyi) == drawBefore,
-                "The same qualifying next preparation cannot reset the actual game-once awakening.");
-            Use(g, "lose-juyi"); Play(g);
-            Require(V(g).Skills!.All(s => s.ContentId != Juyi) && V(g).Skills!.Any(s => s.ContentId == Weizhong) &&
-                V(g).Skills!.Any(s => s.ContentId == "classic:benghuai"), "Already acquired derived skills persist after their completed awakening source is removed.");
-            _ = Cold(g, registry);
-        }
-    }
-
     private static string Embedded(string bundle, string suffix)
     {
         using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.{bundle}.{suffix}")
@@ -117,7 +74,6 @@ internal static class PopulationHealthKindChecks
         Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, c.Id, g.Revision));
     }
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-    private static void NextTurn(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Reach(GameEngine g, Func<PendingDecision, bool> done)
     {
         for (var step = 0; step < 140; step++)

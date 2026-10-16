@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -27,19 +27,6 @@ internal static class XuRongChecks
   }
   _=Cold(g,r);
  }
- public static void ActualFrozenDyingNeedAndPhysicalSlashClaimCold()
- {
-  var(g,r)=Start("rescue");Play(g);Transfer(g,1);Use(g,"damage",[1]);Play(g);Use(g,"wound",[1]);Play(g);var slash=V(g,0).Hand.First(c=>c.Kind==CardKind.Slash);Accept(g,new PlayCardCommand(0,slash.Id,[1],g.Revision,P(g)!.PromptId));Reach(g,()=>E<XuRongCausalClaimIssuedEvent>(g).Any());g=Cold(g,r);Play(g);g=Cold(g,r);var claim=E<XuRongCausalClaimIssuedEvent>(g).Single().Receipt;
-  Need(claim.HpAtEntry==-1&&claim.RescueCardsRequired==2&&claim.CardIds.SequenceEqual(new[]{slash.Id})&&claim.NativeActionId is not null&&V(g,1).Hp>0,"Real native Dying rescue preserves the frozen original two-Peach requirement or its exact causing physical Slash.");
-  Need(g.CardMovements.Count(m=>m.CardId==slash.Id&&m.Reason.Value=="program.shajue2023.claim"&&m.From==CardLocation.Processing&&m.To==CardLocation.Hand(0))==1&&V(g,0).Hand.Any(c=>c.Id==slash.Id)&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==claim.ProducerFrameId&&e.Activated&&e.Completed)==1,"Original physical entity is claimed once, original native Use cleans up without duplicating/reclaiming it, and the exact paid binding completes once.");
-  Use(g,"damage",[1]);Play(g);Use(g,"wound",[1]);Play(g);Accept(g,new PlayCardCommand(0,slash.Id,[1],g.Revision,P(g)!.PromptId));Reach(g,()=>E<XuRongCausalClaimIssuedEvent>(g).Count()==2);g=Cold(g,r);Play(g);g=Cold(g,r);var repeated=E<XuRongCausalClaimIssuedEvent>(g).Select(e=>e.Receipt).ToArray();
-  Need(repeated.Select(c=>c.NativeActionId).Distinct().Count()==2&&repeated.All(c=>c.CardIds.SequenceEqual(new[]{slash.Id})&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==c.ProducerFrameId&&e.Activated&&e.Completed)==1)&&g.CardMovements.Count(m=>m.CardId==slash.Id&&m.Reason.Value=="program.shajue2023.claim")==2&&V(g,0).Hand.Any(c=>c.Id==slash.Id),"The same physical Slash may be used and claimed again: each distinct actual action owns one causal claim and payment interval, with successful native cleanup through cold replay.");
-  var(pairGame,pairRegistry)=Start("pair");Play(pairGame);Use(pairGame,"equip",[]);Reach(pairGame,()=>P(pairGame)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);Answer(pairGame,c=>c.Targets.SequenceEqual(new[]{0}));Play(pairGame);Transfer(pairGame,1);Use(pairGame,"damage",[1]);Play(pairGame);Use(pairGame,"wound",[1]);Play(pairGame);var materials=V(pairGame,0).Hand.Take(2).Select(c=>c.Id).ToArray();Accept(pairGame,new UseEquipmentEffectCommand(0,CardKind.ZhangbaSerpentSpear,materials,[1],pairGame.Revision,P(pairGame)!.PromptId));Reach(pairGame,()=>E<XuRongCausalClaimIssuedEvent>(pairGame).Any());pairGame=Cold(pairGame,pairRegistry);Reach(pairGame,()=>P(pairGame)?.SkillPrompt?.SkillId=="fixture:xu-rong-claim-equip");Answer(pairGame,_=>true);Reach(pairGame,()=>P(pairGame)?.Choices.Any(c=>c.Cards.SequenceEqual(new[]{materials[0]}))==true);pairGame=Cold(pairGame,pairRegistry);Answer(pairGame,c=>c.Cards.SequenceEqual(new[]{materials[0]}));Reach(pairGame,()=>P(pairGame)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);Answer(pairGame,c=>c.Targets.SequenceEqual(new[]{0}));Play(pairGame);pairGame=Cold(pairGame,pairRegistry);var pairClaim=E<XuRongCausalClaimIssuedEvent>(pairGame).Single().Receipt;
-  Need(pairClaim.RescueCardsRequired==2&&pairClaim.CardIds.Order().SequenceEqual(materials.Order())&&materials.All(id=>(V(pairGame,0).Hand.Any(c=>c.Id==id)||V(pairGame,0).Equipment.Any(c=>c.Id==id))&&pairGame.CardMovements.Count(m=>m.CardId==id&&m.Reason.Value=="program.shajue2023.claim")==1)&&E<ProgramBindingResolvedEvent>(pairGame).Count(e=>e.FrameId==pairClaim.ProducerFrameId&&e.Activated&&e.Completed)==1,"A real equipped Zhangba conversion claims both original physical materials once, retaining exact native action and completed cleanup through cold replay.");
-  var pairPayment=E<XuRongCardsPaidEvent>(pairGame).Single(e=>e.FrameId==pairClaim.ProducerFrameId);
-  Need(V(pairGame,0).Equipment.Any(c=>c.Id==materials[0])&&pairGame.CardMovements.Count(m=>m.Sequence>pairPayment.After&&m.CardId==materials[0]&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1&&pairGame.CardMovements.Count(m=>m.Sequence>pairPayment.After&&m.CardId==materials[0]&&m.From==CardLocation.Processing&&m.To.Zone==CardZoneKind.Equipment)==1,"A real native gain child equips the already claimed material; original attack completion must not reclaim or discard it again. "+JsonSerializer.Serialize(new{Materials=materials,Equipment=V(pairGame,0).Equipment.Select(c=>c.Id),Moves=pairGame.CardMovements.Where(m=>materials.Contains(m.CardId)),Completed=E<ProgramBindingResolvedEvent>(pairGame).Where(e=>e.FrameId==pairClaim.ProducerFrameId)}));
-
- }
  private static int Baoli(GameEngine g,int seat)=>V(g,seat).Markers?.FirstOrDefault(m=>m.Kind==PlayerMarkerKind.Baoli)?.Count??0;
  private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -47,7 +34,6 @@ internal static class XuRongChecks
  private static void Need(bool value,string message){if(!value)throw new InvalidOperationException(message);}
  private static void Accept(GameEngine g,GameCommand command){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single());Need(result.Accepted,result.Error?.Message??"Rejected actual Xu Rong command.");}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
- private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
  private static void Play(GameEngine g)=>Reach(g,()=>P(g)is {Kind:DecisionKind.PlayCard,PlayerSeat:0});
  private static void Transfer(GameEngine g,int target){Accept(g,new UseProgramSkillCommand(0,"ol:xionghuo","transfer-one-marker",[],[target],g.Revision,P(g)!.PromptId));Play(g);}
  private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));

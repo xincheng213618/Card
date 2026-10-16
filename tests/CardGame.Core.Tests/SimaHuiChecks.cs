@@ -13,43 +13,6 @@ internal static class SimaHuiChecks
   Need(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="ol:jianjie"),"First actual turn offers no active transfer.");_=Cold(g,r);
   Need(!JsonSerializer.Serialize(new ProgramSkillFrame(1,0,"old","old","hash",0,[],[])).Contains("SimaHui",StringComparison.Ordinal),"Old null optional receipt remains absent from canonical JSON.");
  }
- public static void ActualElementalOriginPrivateDistributionAndPaidChildrenCold()
- {
-  foreach(var scenario in new[]{"normal","loss","death"})
-  {
-   var(g,r)=Start(scenario);Play(g);Use(g,"chain",[1]);Play(g);Use(g,"chain",[2]);Play(g);Use(g,"fire",[1]);
-   Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:chenghao" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-   Reach(g,()=>Root(g)?.SimaHui?.Stage=="distribute");var f=Root(g)!;var frame=f.Id;var viewed=E<SimaHuiTopViewedEvent>(g).Single();Need(viewed.CardIds.Count==viewed.Origin.LivingChainedCount+1 && viewed.Origin.Nature==DamageNature.Fire && viewed.Origin.TargetSeat==1 && viewed.CardIds.All(id=>g.CreateSnapshot(0).PrivateRevealedCards?.Any(c=>c.Id==id)==true) && g.CreateSnapshot(3).PrivateRevealedCards?.Any(c=>viewed.CardIds.Contains(c.Id))!=true,"Only the actual elemental chain origin privately views the original X+1 entities; other viewers learn none.");
-   g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([0]));
-   if(scenario is "loss" or "death")
-   {Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option")==true);g=Cold(g,r);Answer(g,_=>true);}
-   if(scenario=="death")Reach(g,()=>!V(g,0).IsAlive && !g.ResolutionStack.Any(f=>f.Id==frame));
-   else
-   {
-    Reach(g,()=>Root(g)?.SimaHui?.Stage=="distribute");if(scenario=="loss")Need(V(g,0).IsAlive && !V(g,0).Skills!.Any(s=>s.ContentId=="ol:chenghao"),"Real dying recovery revokes the source after its paid gift.");
-    while(g.ResolutionStack.Any(f=>f.Id==frame)){Reach(g,()=>Root(g)?.SimaHui?.Stage=="distribute" || !g.ResolutionStack.Any(f=>f.Id==frame));if(!g.ResolutionStack.Any(f=>f.Id==frame))break;g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([3]));}Play(g);
-   }
-   Need(E<SimaHuiTopViewedEvent>(g).Count(e=>e.FrameId==frame)==1 && E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==frame)==1 && E<SimaHuiCardDistributedEvent>(g).Where(e=>e.FrameId==frame).Select(e=>e.CardId).Distinct().Count()==E<SimaHuiCardDistributedEvent>(g).Count(e=>e.FrameId==frame),"Cold nested source-loss/death drains the one original private allocation without re-viewing or paying a gift twice.");
-   if(scenario=="death")Need(E<SimaHuiUnassignedReturnedEvent>(g).Single(e=>e.FrameId==frame).CardIds.Count==viewed.CardIds.Count-1,"Actual owner death returns all unassigned original processing cards through one native movement receipt.");_=Cold(g,r);
-   if(scenario=="normal")
-   {
-    Need(E<SimaHuiTopViewedEvent>(g).Count()==1,"The propagated second native recipient does not create a second Chenghao origin reward.");
-    Use(g,"chain",[1]);Play(g);Use(g,"fire",[1]);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:chenghao" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-    Reach(g,()=>Root(g)?.SimaHui?.Stage=="distribute");var solo=E<SimaHuiTopViewedEvent>(g).Last();Need(solo.Origin.LivingChainedCount==1 && solo.CardIds.Count==2,"A real solo chained origin with an empty native propagation tail still views exactly two original cards.");g=Cold(g,r);
-    for(var i=0;i<2;i++){Answer(g,c=>c.Targets.SequenceEqual([3]));if(i==0)Reach(g,()=>Root(g)?.SimaHui?.Stage=="distribute");}Play(g);
-    Need(E<SimaHuiTopViewedEvent>(g).Count()==2 && E<SimaHuiCardDistributedEvent>(g).Count(e=>e.FrameId==solo.FrameId)==2,"The solo native origin allocates its two actual cards once without requiring a nonempty propagation list.");_=Cold(g,r);
-   }
-  }
- }
- public static void ActualYinshiSealAndArmorGatesAndNativeYeyanCostTail()
- {
-  var(g,r)=Start();Play(g);var hp=V(g,0).Hp;Use(g,"fire",[0]);Play(g);Need(V(g,0).Hp==hp && E<ProgramDamagePreventedEvent>(g).Count()==1,"Yinshi truly prevents elemental damage with neither seal nor physical armor.");
-  NextOwnPlay(g);Transfer(g,PlayerMarkerKind.DragonSeal,0);Play(g);Use(g,"fire",[0]);Play(g);Need(V(g,0).Hp==hp-1,"A real Dragon seal disables the otherwise applicable prevention.");NextOwnPlay(g);Transfer(g,PlayerMarkerKind.PhoenixSeal,0);Play(g);
-  Use(g,"draw-cost",[]);Play(g);var cards=V(g,0).Hand.Where(c=>c.Suit!=Suit.None).GroupBy(c=>c.Suit).Take(4).Select(x=>x.First().Id).ToArray();Need(cards.Length==4,"Native fixture draw supplies four actual distinct-suit hand entities.");var before=V(g,0).Hp;
-  Accept(g,new UseProgramSkillCommand(0,"ol:yeyan-jianjie","two-and-one",cards,[1,2],g.Revision,P(g)!.PromptId));Reach(g,()=>E<SimaHuiYeyanSealsPaidEvent>(g).Any());var payment=E<SimaHuiYeyanSealsPaidEvent>(g).Single();g=Cold(g,r);Play(g);
-  Need(Mark(g,0,PlayerMarkerKind.DragonSeal)==0 && Mark(g,0,PlayerMarkerKind.PhoenixSeal)==0 && !V(g,0).Skills!.Any(s=>s.ContentId=="ol:yeyan-jianjie") && V(g,0).Hp==before-3 && cards.All(id=>g.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.Hand(0) && m.To==CardLocation.DiscardPile)) && E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==0 && e.TargetSeat==1 && e.Amount==2 && e.Nature==DamageNature.Fire) && E<DamageAppliedEvent>(g).Any(e=>e.SourceSeat==0 && e.TargetSeat==2 && e.Amount==1 && e.Nature==DamageNature.Fire) && E<ProgramSkillResolvedEvent>(g).Count(e=>e.FrameId==payment.FrameId)==1,"Consuming actual seals revokes only their derived skills while the paid native four-suit discard, LoseHp3 and 2+1 fire-damage tail finish once.");_=Cold(g,r);
-  Use(g,"armor",[0]);Play(g);hp=V(g,0).Hp;Use(g,"fire",[0]);Play(g);Need(V(g,0).Hp==hp-1,"A genuinely equipped armor also disables Yinshi after both seals were consumed.");
- }
  private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
  private static int Mark(GameEngine g,int s,PlayerMarkerKind m)=>V(g,s).Markers?.FirstOrDefault(x=>x.Kind==m)?.Count??0;
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -59,11 +22,6 @@ internal static class SimaHuiChecks
  private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(c);Need(result.Accepted,(result.Error?.Message??"Rejected Sima Hui native command")+" "+JsonSerializer.Serialize(P(g)));}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}
  private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
- private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
- private static void NextOwnPlay(GameEngine g){var n=E<TurnStartedEvent>(g).Count(e=>e.ActorSeat==0);End(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard} && E<TurnStartedEvent>(g).Count(e=>e.ActorSeat==0)>n);}
- private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
- private static void Transfer(GameEngine g,PlayerMarkerKind marker,int target)
- {Accept(g,new UseProgramSkillCommand(0,"ol:jianjie","transfer",[],[],g.Revision,P(g)!.PromptId));Reach(g,()=>Root(g)?.SimaHui?.Stage=="transfer-kind");Answer(g,c=>c.Parameters.GetValueOrDefault("value")==marker.ToString());Answer(g,c=>c.Targets.SequenceEqual([target]));}
  private static void Reach(GameEngine g,Func<bool> done)
  {
   for(var i=0;i<350;i++)

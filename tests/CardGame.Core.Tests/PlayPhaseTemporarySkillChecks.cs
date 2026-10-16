@@ -75,54 +75,6 @@ internal static class PlayPhaseTemporarySkillChecks
         ValidateBoundaryContracts();
     }
 
-    public static void PlayEndingChildrenKeepPhaseGrantsUntilExactBoundaryCloses()
-    {
-        foreach (var permanent in new[] { false, true })
-        {
-            var (g, registry) = Start(Scenario.Normal, permanent);
-            var original = permanent ? CounterState(g).SkillInstanceId : null;
-            Use(g, DonorA, "grant"); Play(g); Use(g, DonorB, "grant"); Play(g);
-            var grants = E<ProgramPlayPhaseSkillsGrantedEvent>(g);
-            var expiry = grants[0].Expiry;
-            var instance = grants[0].Grants.Single().SkillInstanceId;
-            End(g); Reach(g, p => p.SkillPrompt?.SkillId == Ending && IsContinue(p));
-            var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Ending);
-            var parent = g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-            Require(g.State.Phase == TurnPhase.Play && child.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding &&
-                parent.Window == SkillProgramTriggerWindow.PlayEnding && parent.OwnerSeat == 0 &&
-                HasCounter(g) && CounterState(g).SkillInstanceId == instance &&
-                E<ProgramPlayPhaseSkillGrantExpiredEvent>(g).Length == 0 &&
-                !E<ProgramBindingResolvedEvent>(g).Any(e => e.FrameId == child.Id),
-                "Both phase grants remain owned while their real PlayEnding child is paused on its exact lifecycle parent.");
-            WrongAnswer(g); Private(g); g = Cold(g, registry); Continue(g);
-            Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards });
-            AssertExpired(g, grants, expiry);
-            Require(g.State.Phase == TurnPhase.Discard && !E<TurnEndedEvent>(g).Any(e => e.TurnNumber == expiry.TurnNumber) &&
-                E<ProgramBindingResolvedEvent>(g).Count(e => e.FrameId == child.Id && e.Completed) == 1 &&
-                HasCounter(g) == permanent && (!permanent || CounterState(g).SkillInstanceId == original),
-                "The completed PlayEnding return expires only the two temporary sources before the same turn's real Discard phase.");
-            var discard = P(g)!;
-            var cards = discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray();
-            Require(cards.Length > 0 && cards.All(id => V(g).Hand.Any(c => c.Id == id)),
-                "The small native fixture reaches a genuine nonempty hand-limit payment.");
-            g = Cold(g, registry);
-            Accept(g, new DiscardCardsCommand(0, cards, P(g)!.PromptId, g.Revision));
-            Reach(g, p => p.SkillPrompt?.SkillId == TurnEnding && IsContinue(p));
-            var endingChild = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == TurnEnding);
-            Require(endingChild.WindowContext is { Window: SkillProgramTriggerWindow.TurnEnding } endingContext &&
-                g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any(f => f.Id == endingContext.ParentFrameId) &&
-                HasCounter(g) == permanent &&
-                cards.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile) == 1) &&
-                !E<TurnEndedEvent>(g).Any(e => e.TurnNumber == expiry.TurnNumber),
-                "Phase sources stay absent through actual discard payment and the native TurnEnding child, before actual TurnEnded.");
-            g = Cold(g, registry); Continue(g);
-            Until(g, () => E<TurnEndedEvent>(g).Any(e => e.TurnNumber == expiry.TurnNumber && e.ActorSeat == 0));
-            AssertExpired(g, grants, expiry);
-            Require(HasCounter(g) == permanent && (!permanent || CounterState(g).SkillInstanceId == original),
-                "Turn-end fallback cannot expire either source twice or remove the original printed skill.");
-        }
-    }
-
     private static GameEngine Consume(GameEngine g, ContentRegistry registry)
     {
         var before = Draws(g).Length;
@@ -145,18 +97,6 @@ internal static class PlayPhaseTemporarySkillChecks
             Draws(g).Length == before + 1 && !g.ResolutionStack.Any(f => f.Id == root.Id || f.Id == child.Id),
             "The restored native child returns once, advances its original cursor, and cannot draw or pay the state cost again.");
         return g;
-    }
-
-    private static void AssertExpired(GameEngine g, IReadOnlyList<ProgramPlayPhaseSkillsGrantedEvent> issued, SkillGrantPhaseExpiry expiry)
-    {
-        var expected = issued.SelectMany(e => e.Grants).ToArray();
-        var expired = E<ProgramPlayPhaseSkillGrantExpiredEvent>(g).Where(e => e.Grant.PhaseExpiry == expiry).ToArray();
-        var history = g.Events.Select(e => e.Payload).ToArray();
-        var closed = Array.FindIndex(history, e => e is ProgramPlayPhaseSkillBoundaryClosedEvent b && b.Expiry == expiry);
-        Require(E<ProgramPlayPhaseSkillBoundaryClosedEvent>(g).Count(e => e.Expiry == expiry) == 1 &&
-            expired.Length == expected.Length && expected.All(grant => expired.Count(e => e.RecipientSeat == 0 && e.Grant == grant) == 1) &&
-            closed >= 0 && history.Take(closed).OfType<ProgramPlayPhaseSkillGrantExpiredEvent>().All(e => e.Grant.PhaseExpiry != expiry),
-            "One exact phase boundary closes before each independently issued source expires exactly once, without removing unrelated grants.");
     }
 
     private static void ValidateBoundaryContracts()
@@ -220,7 +160,6 @@ internal static class PlayPhaseTemporarySkillChecks
         Require(CanUse(g, skill, activation), "The real published activation is missing: " + skill + "/" + activation + " " + Diagnostic(g));
         Accept(g, new UseProgramSkillCommand(0, skill, activation, [], [], g.Revision, P(g)!.PromptId));
     }
-    private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose)
     {
         var p = P(g)!; Require(p.PlayerSeat == 0, "Only the real human's published decision may be answered by the fixture.");

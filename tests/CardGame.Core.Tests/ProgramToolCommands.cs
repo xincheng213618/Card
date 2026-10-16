@@ -193,7 +193,6 @@ internal static class ProgramToolCommands
         }).ToArray();
         Console.WriteLine(JsonSerializer.Serialize(new
         {
-            currentRulesVersion = GameCheckpoint.CurrentRulesVersion,
             latestCompositionSchema = SkillProgramCatalog.RulesSchemaVersion,
             operations,
             entries

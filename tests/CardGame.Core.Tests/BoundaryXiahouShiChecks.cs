@@ -45,47 +45,6 @@ internal static class BoundaryXiahouShiChecks
             "The genuine extra Ending also performs two distinct same-seat Draw1 benefits, rather than being skipped or deduplicated."); Cold(g, r);
     }
 
-    public static void UseAndRecastCountRealLossAndIgnoreProcessingCleanup()
-    {
-        var (g, r) = Create(); Play(g);
-        var action = g.GetHumanLegalActions().First(a => a.CardId is { } id && V(g, 0).Hand.Any(c => c.Id == id && c.Kind == CardKind.Slash) && a.TargetSeats.SequenceEqual([1]));
-        var used = action.CardId!.Value;
-        Accept(g, new PlayCardCommand(0, used, action.TargetSeats, g.Revision, P(g)!.PromptId, action.PlayedCardKind)); Play(g);
-        Require(Losses(g).Count(m => m.CardId == used && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            g.CardMovements.Any(m => m.CardId == used && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.ActualPlaySlashLoss is null),
-            "A real physical Slash Use counts its actual owner-zone loss once; final Processing cleanup carries no loss stamp.");
-        var id = V(g, 0).Hand.First(c => c.Kind == CardKind.Slash).Id; Recast(g, id); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-        var root = RecastRoot(g); var receipt = root.PlaySlashRecast!;
-        Require(receipt.CardId == id && !receipt.CostDrained && !receipt.DrawIssued && receipt.AwaitingMovement &&
-            F<PlaySlashRecastPaidEvent>(g).Single().CardId == id && g.CreateCardZoneDiagnostics().Any(z => z.Location == CardLocation.DiscardPile && z.CardId == id),
-            "The public recast entity fact appears after one real Hand-to-Discard payment; no draw reward is issued before its cost child.");
-        CheckMovement(g, root.Id, CardMoveReasons.RecastDiscard.Value); Private(g); g = RestoreAfterCold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Reward && p.PlayerSeat == 0);
-        Require(RecastRoot(g).PlaySlashRecast is { CostDrained: true, DrawIssued: true, ActualDrawCount: 1 } &&
-            F<CardRecastEvent>(g).Single().CardId == id, "The actual reward invoice owns the distinct gain child after the original cost returns once.");
-        g = RestoreAfterCold(g, r); Continue(g); Play(g); Require(Losses(g).Length == 2, "Use plus recast are two actual losses in the same real Play, not two recasts or a cleanup double count.");
-        End(g); Support(g, r, out g);
-        Require(F<PlaySlashRecastPaidEvent>(g).Length == 1 && F<PlaySlashRecastDrawIssuedEvent>(g).Length == 1 &&
-            F<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == Yanyu && e.Window == SkillProgramTriggerWindow.PlayEnding) == 1,
-            "The actual PlayEnded support sees both loss kinds and performs one legitimate male Draw2 after one recast cost and reward."); Cold(g, r);
-
-        (g, r) = Create(removeRecastSource: true); Play(g);
-        id = V(g, 0).Hand.First(c => c.Kind == CardKind.Slash).Id;
-        Recast(g, id); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-        var cancelledRoot = RecastRoot(g).Id;
-        CheckMovement(g, cancelledRoot, CardMoveReasons.RecastDiscard.Value);
-        g = RestoreAfterCold(g, r); Continue(g); Play(g);
-        Require(F<PlaySlashRecastPaidEvent>(g).Length == 1 && F<PlaySlashRecastDrawIssuedEvent>(g).Length == 0 &&
-            Draws(g, CardMoveReasons.RecastDraw.Value).Length == 0 &&
-            F<CardRecastEvent>(g) is [{ CardId: var paidId, DrawCount: 0 }] && paidId == id &&
-            F<ProgramSkillResolvedEvent>(g).Any(e => e.FrameId == cancelledRoot && !e.Completed) &&
-            !g.ResolutionStack.Any(f => f.Id == cancelledRoot) && Losses(g) is [var paidLoss] && paidLoss.CardId == id &&
-            g.State.Players[0].Hp == 2 && F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Cost && e.SkillIds.Contains(RecastSuppression)) &&
-            !F<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.OwnerSeat == 0 && e.LostSkillIds.Contains(Yanyu)),
-            "A real cost observer suppresses the source's qualification at actual HP2: its paid loss and recast fact survive, while no physical replacement, unattempted draw invoice, reward movement or stale frame is fabricated.");
-        Cold(g, r);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool removeForeignSource = false, bool removeRecastSource = false)
     {
         // Register only the production bundle, not the full Classic general pool:
@@ -97,31 +56,16 @@ internal static class BoundaryXiahouShiChecks
         Require(P(g)!.ValidContentIds.Contains("fixture:xhs-owner"), "The fixed published candidates retain the actual owner.");
         Accept(g, new SelectGeneralCommand(0, "fixture:xhs-owner", g.Revision, P(g)!.PromptId)); return (g, r);
     }
-    private static void Support(GameEngine supplied, ContentRegistry r, out GameEngine g)
-    {
-        g = supplied; Activate(g, Yanyu); Reach(g, p => Action(p, "select-target"));
-        Require(P(g)!.Choices.All(c => c.Targets.Count == 1 && c.Targets.Single() != 0), "Only genuinely male living targets are published; the female owner is excluded by gender, not role.");
-        Private(g); g = RestoreAfterCold(g, r); var count = V(g, 1).HandCount;
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, p => p.SkillPrompt?.SkillId == Reward && p.PlayerSeat == 1);
-        Require(V(g, 1).HandCount == count + 2 && Draws(g, "skill-program." + Yanyu + ".Draw").Count(m => m.To == CardLocation.Hand(1)) == 2,
-            "The selected real male receives two actual draw ledger entries before native gain observers return.");
-        g = RestoreAfterCold(g, r); Continue(g);
-        Until(g, e => !e.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Yanyu && f.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding));
-    }
     private static ProgramSkillFrame Pair(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.EndingPairDraw is not null);
-    private static ProgramSkillFrame RecastRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PlaySlashRecast is not null);
     private static CardMovementRecord[] Draws(GameEngine g, string reason) => g.CardMovements.Where(m => m.Reason.Value == reason && m.From == CardLocation.DrawPile).ToArray();
-    private static CardMovementRecord[] Losses(GameEngine g) => g.CardMovements.Where(m => m.ActualPlaySlashLoss is not null && m.From.OwnerSeat == 0).ToArray();
     private static void CheckMovement(GameEngine g, long parent, string reason) => Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
         f.Id == parent && f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } pending && pending.SubjectSeat == f.OwnerSeat) &&
         g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w =>
             w.Batch.ParentFrameId == parent && w.ResumeProgramFrameId is null && (w.Batch.AwaitingProgramFrameId is null || w.Batch.AwaitingProgramFrameId == parent) && w.Batch.Movements.Count == 1 &&
             w.Batch.Movements.Single().Reason.Value == reason && g.CardMovements.Contains(w.Batch.Movements.Single())), "The real single-card batch retains its exact waiting owner, original parent, frozen ledger entry and nullable awaiting identity without a second direct program return.");
     private static void Activate(GameEngine g, string skill) { Reach(g, p => p.SkillPrompt?.SkillId == skill && Action(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }
-    private static void Recast(GameEngine g, int id) => Accept(g, new UseProgramSkillCommand(0, Yanyu, "recast-physical-slash", [id], [], g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string id) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == id);

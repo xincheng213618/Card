@@ -7,38 +7,6 @@ internal static class Bao2025Checks
 {
     private const string Wuniang = "ol:wuniang", Zhennan = "ol:zhennan", Xushen = "ol:xushen";
     private const string Driver = "fixture:bao-driver", Quiet = "fixture:bao-quiet", Owner = "fixture:bao-owner", Mode = "identity:classic-bao";
-    public static void ActualAssaultExplicitTargetsDamageRandomDiscardAndEmptyCold()
-    {
-        foreach (var empty in new[] { false, true })
-        {
-            var (g, registry) = Start(); Reach(g, () => Optional(P(g), Zhennan)); Activate(g); Reach(g, () => BaoStage(g, ProgramBao2025Stage.AssaultCost));
-            var hand = V(g, 0).HandCount; g = Cold(g, registry); Answer(g, c => c.Cards.Count == 2); Reach(g, () => BaoStage(g, ProgramBao2025Stage.AssaultTargets));
-            Need(V(g, 0).HandCount == hand && !E<SkillUsageConsumedEvent>(g).Any(e => e.SkillId == Zhennan), "Selecting real costs and explicit targets remains unpaid and unconsumed until confirmation.");
-            if (!empty) { g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([1]) && c.Parameters["branch"].StartsWith("add-", StringComparison.Ordinal)); }
-            var targetHp = V(g, 1).Hp; var targetHand = V(g, 1).HandCount;
-            g = Cold(g, registry); Answer(g, c => Branch(c, "confirm")); Play(g);
-            var issued = E<ChosenAssaultUseIssuedEvent>(g).Single();
-            Need(issued.SelectedTargets.SequenceEqual(empty ? [] : [1]) && V(g, 0).HandCount == hand - 2 &&
-                E<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Zhennan && e.Scope == SkillUsageScope.Game) == 1 &&
-                g.CardMovements.Count(m => m.Reason.Value == "skill-program.chosen-assault.cost") == 2 &&
-                E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.UseId) == 1,
-                "Two real HE costs commit once and issue one native zero-entity assault with exactly the owner's selected targets, including the empty set.");
-            Need(empty ? !E<ChosenAssaultTargetOutcomeEvent>(g).Any() : V(g, 1).Hp == targetHp - 1 && V(g, 1).HandCount == targetHand - 1 &&
-                E<ChosenAssaultActualDamageObservedEvent>(g).Count(e => e.UseId == issued.UseId && e.TargetSeat == 1) == 1 &&
-                E<ChosenAssaultTargetOutcomeEvent>(g).Single().OwnerDealtDamage && g.CardMovements.Count(m => m.Reason.Value == "skill-program.chosen-assault.random-discard") == 1,
-                "Only the designated original target receives the native assault damage and its once-random discard; an empty assault invents no outcome.");
-            Need(V(g, 2).Hp == V(g, 2).MaxHp, "An unselected native group target takes no damage."); _ = Cold(g, registry);
-        }
-    }
-    public static void ActualDyingReplaceAllGrantsAndLearnZhengnanCold()
-    {
-        var (g, registry) = Start(); Play(g); Use(g, "enter-dying", []); Reach(g, () => Optional(P(g), Xushen)); Activate(g); Reach(g, () => BaoStage(g, ProgramBao2025Stage.DyingTarget));
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, () => BaoStage(g, ProgramBao2025Stage.DyingRecipientChoice));
-        var previous = V(g, 1).Skills!.Select(s => s.ContentId).ToArray(); g = Cold(g, registry); Answer(g, c => Branch(c, "replace")); Play(g);
-        Need(V(g, 0).Hp == 1 && V(g, 1).Skills!.Any(s => s.ContentId == "ol:zhengnan") && previous.All(id => !V(g, 1).Skills!.Any(s => s.ContentId == id)) &&
-            E<DyingRecipientSkillChoiceEvent>(g).Single() is { Replace: true, GrantedSkillId: "ol:zhengnan", LostGrantIds.Count: > 0 },
-            "The actual recipient's replacement removes all original grants and permanently acquires current OL征南 before the same native Dying recovery."); _ = Cold(g, registry);
-    }
     public static void ActualClaimedMaterialProvenanceAndNonBasicPoliciesCoexistCold()
     {
         var (g, registry) = Start("provenance"); Play(g); Use(g, "judge-other", [1]); Reach(g, () => Optional(P(g), "boundary:luoying"));

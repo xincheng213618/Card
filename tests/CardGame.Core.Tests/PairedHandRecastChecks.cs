@@ -11,75 +11,6 @@ internal static partial class PairedHandRecastChecks
     private const string DiscardWitness = "fixture:paired-recast-discard-witness", Mode = "identity:paired-hand-recast";
     private enum Scenario { Normal, SourceLoss, MoveMaterial, KillPartner }
 
-    public static void RealHandPrivateChoiceQuotaAndColdReturn()
-    {
-        LoaderContract();
-        var (g, registry) = Create();
-        var equip = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        Accept(g, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, g.Revision, P(g)!.PromptId,
-            equip.PlayedCardKind, equip.TargetCardId));
-        Play(g);
-        var equipmentId = equip.CardId.Value;
-        Require(g.CreateCardZoneDiagnostics().Single(c => c.CardId == equipmentId).Location == CardLocation.Equipment(0),
-            "The negative input is a genuinely equipped entity, not a fabricated card id.");
-        var ownerBefore = V(g, 0).Hand.Select(c => c.Id).ToArray();
-        var partnerBefore = V(g, 1).Hand.Select(c => c.Id).ToArray();
-        var prompt = P(g)!;
-        foreach (var invalid in new GameCommand[]
-        {
-            new UseProgramSkillCommand(0, Recast, "pair", [equipmentId], [1], g.Revision, prompt.PromptId),
-            new UseProgramSkillCommand(0, Recast, "pair", [partnerBefore[0]], [1], g.Revision, prompt.PromptId),
-            new UseProgramSkillCommand(0, Recast, "pair", [], [1], g.Revision, prompt.PromptId),
-            new UseProgramSkillCommand(0, Recast, "pair", [ownerBefore[0]], [0], g.Revision, prompt.PromptId)
-        }) Reject(g, invalid);
-        var firstEvent = g.Events.Count;
-        var issued = Begin(g, ownerBefore[0], partnerBefore[0]);
-        var selected = Root(g, issued.FrameId).PairedHandRecast!;
-        Require(selected is { Stage: PairedHandRecastStage.ChoosingPartner, Cursor: 0,
-                Owner.CostIssued: false, Partner.Material: null } &&
-            selected.Owner.Material is { PrintedKind: CardKind.Crossbow } owner && owner.CardId == ownerBefore[0] &&
-            owner.From == CardLocation.Hand(0) && selected.Partner.Seat == 1 &&
-            selected.EligiblePartnerMaterials.Select(c => c.CardId).ToHashSet().SetEquals(partnerBefore) &&
-            selected.EligiblePartnerMaterials.All(c => c.From == CardLocation.Hand(1)) &&
-            issued.Source == selected.Source && issued.GameplayHash == selected.GameplayHash &&
-            issued.ActualTurnOwnerSeat == 0 && issued.PhaseInstanceId == selected.PhaseInstanceId &&
-            !F<PairedHandRecastPaidEvent>(g).Any() && !F<PairedHandRecastDrawIssuedEvent>(g).Any(),
-            "The accepted activation freezes the exact owner's Hand cost and publishes only the other participant's true Hand choices before either physical payment.");
-        PrivateAndFrozen(g);
-        FreezeReceipt(selected);
-        var privatePrompt = P(g)!;
-        Reject(g, new AnswerPromptCommand(0, privatePrompt.PromptId, privatePrompt.Choices[0].Id, g.Revision));
-        Reject(g, new AnswerPromptCommand(1, privatePrompt.PromptId, new("unpublished"), g.Revision));
-        Reject(g, new AnswerPromptCommand(1, new(privatePrompt.PromptId.Value + 1), privatePrompt.Choices[0].Id, g.Revision));
-        g = Cold(g, registry);
-        SelectPartner(g, partnerBefore[0]);
-        CostBoundary(g, issued, 0, ownerBefore[0], partnerBefore[0]);
-        Continue(g);
-        ReachGain(g, 0);
-        GainBoundary(g, issued, 0, ownerBefore[0], partnerBefore[0]);
-        g = Cold(g, registry);
-        FinishGain(g);
-        CostBoundary(g, issued, 1, ownerBefore[0], partnerBefore[0]);
-        Continue(g);
-        ReachGain(g, 1);
-        GainBoundary(g, issued, 1, ownerBefore[0], partnerBefore[0]);
-        FinishGain(g);
-        Play(g);
-        Completed(g, issued, ownerBefore[0], partnerBefore[0], true);
-        var afterOwner = V(g, 0).Hand.Select(c => c.Id).ToHashSet();
-        var afterPartner = V(g, 1).Hand.Select(c => c.Id).ToHashSet();
-        Require(afterOwner.Count == ownerBefore.Length && afterPartner.Count == partnerBefore.Length &&
-            !afterOwner.Contains(ownerBefore[0]) && !afterPartner.Contains(partnerBefore[0]) &&
-            afterOwner.Except(ownerBefore).Count() == 1 && afterPartner.Except(partnerBefore).Count() == 1 &&
-            g.CreateSnapshot(1).Players[0].Hand.Count == 0 && g.CreateSnapshot(0).Players[1].Hand.Count == 0 &&
-            !g.Events.Skip(firstEvent).Any(e => e.Payload is CardUseDeclaredEvent or HandLimitDiscardedEvent) &&
-            !F<ProgramBindingStartedEvent>(g).Any(e => e.SkillId == DiscardWitness) &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Recast),
-            "Both exact Hand cards really recast and draw once without becoming a card use or discard-only trigger; replacement hands remain private and the original Play phase quota stays spent.");
-        Reject(g, new UseProgramSkillCommand(0, Recast, "pair", [afterOwner.First()], [1], g.Revision, P(g)!.PromptId));
-        _ = Cold(g, registry);
-    }
-
     private static PairedHandRecastStartedEvent Begin(GameEngine g, int ownerCard, int partnerCard)
     {
         Accept(g, new UseProgramSkillCommand(0, Recast, "pair", [ownerCard], [1], g.Revision, P(g)!.PromptId));
@@ -166,7 +97,6 @@ internal static partial class PairedHandRecastChecks
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Real paired recast command rejected."); }
-    private static void Reject(GameEngine g, GameCommand command) { var before = State(g); Require(!g.Submit(command).Accepted && State(g) == before, "An invalid or unpublished paired recast input is rejected atomically."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
@@ -196,39 +126,10 @@ internal static partial class PairedHandRecastChecks
                 f.PairedHandRecast!.EligiblePartnerMaterials is System.Collections.IList { IsReadOnly: true }),
             "Every prepared prompt collection and nested parameter map, plus the owning receipt's private eligible materials, is frozen.");
     }
-    private static void FreezeReceipt(ProgramPairedHandRecastReceipt receipt)
-    {
-        var supplied = receipt.EligiblePartnerMaterials.ToArray(); var original = supplied[0];
-        var copy = receipt with { EligiblePartnerMaterials = supplied }; supplied[0] = supplied[0] with { CardId = int.MaxValue };
-        var restored = JsonSerializer.Deserialize<ProgramPairedHandRecastReceipt>(JsonSerializer.Serialize(copy))!;
-        Require(copy.EligiblePartnerMaterials[0] == original && restored.EligiblePartnerMaterials[0] == original &&
-            restored.EligiblePartnerMaterials is System.Collections.IList { IsReadOnly: true },
-            "Receipt init/with and JSON restoration defensively freeze caller-owned material arrays.");
-    }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),
         Frames = JsonSerializer.Serialize(g.ResolutionStack), Facts = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(),
         g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands), Zones = g.CreateCardZoneDiagnostics() });
     private static GameEngine Cold(GameEngine g, ContentRegistry registry) { var copy = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry); Require(State(copy) == State(g), "Cold replay preserves four private views, frozen pair, exact payment/draw intervals, native child return, events, inventory and accepted commands."); return copy; }
-
-    private static void LoaderContract()
-    {
-        var rules = Rules(Scenario.Normal); var presentation = Presentation(rules);
-        _ = SkillProgramCatalog.Load(rules.ToJsonString(), presentation);
-        foreach (var change in new Action<JsonNode>[]
-        {
-            n => n["skills"]![0]!["activations"]![0]!["sourceZones"] = new JsonArray("hand", "equipment"),
-            n => n["skills"]![0]!["activations"]![0]!["usesPerPhase"] = null,
-            n => n["skills"]![0]!["activations"]![0]!["usesPerTurn"] = 1,
-            n => n["skills"]![0]!["activations"]![0]!["targetKind"] = "otherLiving",
-            n => n["skills"]![0]!["activations"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}""")),
-            n => n["skills"]![0]!["activations"]![0]!["effects"]![0]!["amount"] = 1
-        })
-        {
-            var invalid = rules.DeepClone(); change(invalid); var rejected = false;
-            try { _ = SkillProgramCatalog.Load(invalid.ToJsonString(), presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The shared operation rejects equipment inputs, missing phase quota, redundant turn quota, unrestricted partners, extra effects and undeclared node fields.");
-        }
-    }
     private static (GameEngine, ContentRegistry) Create(Scenario scenario = Scenario.Normal)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(scenario));

@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         var grant=owner.SkillGrants.Grants.FirstOrDefault(g=>g.GrantId==source.CapabilityGrantId&&g.SkillId==source.CapabilitySkillId&&g.SkillInstanceId==source.CapabilitySkillInstanceId);
         if(grant is null||!grant.IsEnabled||grant.GeneralLibraryProjection is not null)return false;
         if(grant.SourceId==CharacterState.PrimarySkillSource&&IsNationalWarMode&&(!owner.GeneralSelected||!owner.GeneralRevealed))return false;
-        if(grant.SourceId==CharacterState.SecondarySkillSource&&(!IsNationalWarMode||!owner.SecondaryGeneralSelected||!owner.SecondaryGeneralRevealed))return false;
+        if(grant.SourceId==CharacterState.SecondarySkillSource&&(!IsDualGeneralMode||!owner.SecondaryGeneralSelected||!owner.SecondaryGeneralRevealed))return false;
         return grant.LordProjection is null||LibraryBaseLordProjectionLive(owner,grant);
     }
     // A finite two-layer qualification: base source eligibility precedes HP suppression.
@@ -33,7 +33,7 @@ public sealed partial class GameEngine
     }
     private bool LibraryBaseGrantLive(CharacterState owner,SkillGrant grant)=>owner.IsAlive&&grant.IsEnabled&&
         (grant.SourceId!=CharacterState.PrimarySkillSource||!IsNationalWarMode||owner.GeneralSelected&&owner.GeneralRevealed)&&
-        (grant.SourceId!=CharacterState.SecondarySkillSource||IsNationalWarMode&&owner.SecondaryGeneralSelected&&owner.SecondaryGeneralRevealed)&&
+        (grant.SourceId!=CharacterState.SecondarySkillSource||IsDualGeneralMode&&owner.SecondaryGeneralSelected&&owner.SecondaryGeneralRevealed)&&
         (grant.SourceId is not(CharacterState.PrimarySkillSource or CharacterState.SecondarySkillSource)||!_contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Lord)||owner.Role==Role.Lord||IsPrintedLordGrantQualified(owner,grant));
     // Lord projection suppressors also use base relations, never a final binding shard.
     private bool LibraryBaseLordProjectionLive(CharacterState owner,SkillGrant grant)
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
     }
     private IReadOnlySet<string> PrivateGeneralLibrarySuppressionInputs(CharacterState owner)=>owner.SkillGrants.Grants.Where(g=>g.IsEnabled&&
         (g.SourceId!=CharacterState.PrimarySkillSource||!IsNationalWarMode||owner.GeneralSelected&&owner.GeneralRevealed)&&
-        (g.SourceId!=CharacterState.SecondarySkillSource||IsNationalWarMode&&owner.SecondaryGeneralSelected&&owner.SecondaryGeneralRevealed)&&
+        (g.SourceId!=CharacterState.SecondarySkillSource||IsDualGeneralMode&&owner.SecondaryGeneralSelected&&owner.SecondaryGeneralRevealed)&&
         (g.SourceId is not(CharacterState.PrimarySkillSource or CharacterState.SecondarySkillSource)||!_contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord)||owner.Role==Role.Lord||IsPrintedLordGrantQualified(owner,g))&&
         (g.LordProjection is null||LibraryBaseLordProjectionLive(owner,g))&&
         (g.GeneralLibraryProjection is null||g.GeneralLibraryProjection is {} p&&LibraryProjectionRelationLive(g,p)&&LibraryBaseSourceLive(p.LibrarySource))&&

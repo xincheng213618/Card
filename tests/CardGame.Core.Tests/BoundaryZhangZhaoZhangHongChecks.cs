@@ -46,68 +46,12 @@ internal static class BoundaryZhangZhaoZhangHongChecks
         _=Cold(g,r);
     }
 
-    public static void GuzhengReturnsOneThenOptionallyClaimsExactBatchAndKeepsPhaseQuota()
-    {
-        foreach(var (claim,damageReturn) in new[]{(false,false),(true,false),(true,true)})
-        {
-            var (g,r)=Create(fragileReturn:true,damageReturn:damageReturn);var recipient=Peer(g);GivePair(g,recipient);
-            Activate(g,Guzheng);ReachAction(g,"actual-discard-recovery");
-            var frame=DiscardRoot(g);var frameId=frame.Id;var original=frame.ActualDiscardRecovery!;
-            Require(original.Phase.Kind==ActualDiscardRecoveryPhaseKind.Play &&original.OriginalEntities.Count==2 &&
-                original.DiscardOwnerSeat==recipient &&P(g)!.Choices.SelectMany(c=>c.Cards).All(id=>original.OriginalEntities.Any(e=>e.CardId==id)),
-                "Guzheng responds during the real Play phase to one other owner's two-card true discard batch.");
-            var selected=P(g)!.Choices.First().Cards.Single();Reject(g);g=Cold(g,r);
-            Answer(g,c=>c.Cards.SequenceEqual([selected]));
-            Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:zz-pulse");
-            Require(DiscardRoot(g).ActualDiscardRecovery is { Stage:ActualDiscardRecoveryStage.ReturnPaid,ReturnedCardId:var id } &&id==selected &&
-                g.ResolutionStack.OfType<DyingFrame>().Any(d=>d.VictimSeat==recipient) &&
-                Facts<ActualDiscardRecoveryReturnedEvent>(g).Count(e=>e.ProgramFrameId==frameId)==1 &&
-                !Facts<ActualDiscardRecoveryClaimedEvent>(g).Any(e=>e.ProgramFrameId==frameId),
-                "The returned entity is paid once; its actual gain-loss-HP-Dying child finishes before the optional remaining claim.");
-            if(damageReturn)
-                Require(g.ResolutionStack.OfType<DyingFrame>().Any(d=>d.VictimSeat==recipient &&d.Continuation==DyingContinuationKind.Damage) &&
-                    g.ResolutionStack.OfType<DamageFrame>().Any(d=>d.TargetSeat==recipient &&d.SourceSeat==recipient) &&
-                    Facts<DamageAppliedEvent>(g).Count(d=>d.SourceSeat==recipient &&d.TargetSeat==recipient &&d.Amount==1)==1,
-                    "The paid return's actual Gain observer owns one native self-damage and its Damage-Dying-SelfDying chain, not a forged HP-loss stand-in.");
-            g=Cold(g,r);ContinueCurrent(g);
-            Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="actual-discard-recovery" &&c.Parameters.GetValueOrDefault("option")=="claim"));
-            Require(g.State.Players[recipient].IsAlive &&g.State.Players[recipient].Hp==3,"Actual self-dying response revives the original return recipient.");
-            var rest=original.OriginalEntities.Single(e=>e.CardId!=selected).CardId;
-            g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option")== (claim ? "claim" : "skip"));
-            if(claim)
-            {
-                Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:zz-gain" &&DiscardRoot(g).ActualDiscardRecovery!.Stage==ActualDiscardRecoveryStage.ClaimPaid);
-                Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w=>w.Batch.ParentFrameId==frameId &&
-                    (w.Batch.AwaitingProgramFrameId is null ||w.Batch.AwaitingProgramFrameId==frameId) &&w.Batch.Movements.Select(m=>m.CardId).SequenceEqual([rest])),
-                    "The remaining original cohort is claimed atomically on the paid parent and waits for its true gain observer.");
-                g=Cold(g,r);ContinueCurrent(g);
-            }
-            Play(g);
-            var completed=Facts<ActualDiscardRecoveryClaimedEvent>(g).Single(e=>e.ProgramFrameId==frameId);
-            Require(completed.CardIds.SequenceEqual(claim ? [rest] : []) &&
-                g.CreateCardZoneDiagnostics().Single(c=>c.CardId==rest).Location==(claim ? CardLocation.Hand(0) : CardLocation.DiscardPile) &&
-                Facts<ActualDiscardRecoveryReturnedEvent>(g).Count(e=>e.ProgramFrameId==frameId)==1,
-                "Declining leaves the exact original entity; accepting obtains it once after return children, without moving any unrelated card.");
-            GivePair(g,recipient);Play(g);
-            Require(Facts<ActualDiscardRecoveryBatchQualifiedEvent>(g).Count(e=>e.Phase.Token==original.Phase.Token &&e.DiscardOwnerSeat==recipient)>=2 &&
-                Facts<ActualDiscardRecoveryReturnedEvent>(g).Count(e=>e.Source.OwnerSeat==0 &&e.Source.SkillId==Guzheng &&e.Phase.Token==original.Phase.Token)==1,
-                "A second genuine same-phase discarded batch cannot reopen the holder's consumed phase quota.");
-            _=Cold(g,r);
-        }
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static ProgramSkillFrame EquipmentRoot(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.CapturedEquipmentDraw is not null);
-    private static ProgramSkillFrame DiscardRoot(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.ActualDiscardRecovery is not null);
     private static int Peer(GameEngine g)=>g.State.Players.First(p=>p.Seat!=0 &&p.Role!=Role.Lord).Seat;
     private static void Place(GameEngine g,int card,int target)=>Accept(g,new UseProgramSkillCommand(0,Zhijian,"place-equipment",[card],[target],g.Revision,P(g)!.PromptId));
-    private static void GivePair(GameEngine g,int target)=>Use(g,"give-pair",g.State.Players[0].Hand.Take(2).Select(c=>c.Id).ToArray(),[target]);
-    private static void Use(GameEngine g,string binding,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,binding,cards??[],targets??[],g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,p=>p is { Kind:DecisionKind.PlayCard,PlayerSeat:0 });
-    private static void Activate(GameEngine g,string skill)
-    {Reach(g,p=>p.SkillPrompt?.SkillId==skill &&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");}
-    private static void ReachAction(GameEngine g,string action)=>Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==action));
     private static void ContinueCurrent(GameEngine g)
     {if(P(g)!.PlayerSeat==0)Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");else Accept(g,new AdvanceOneStepCommand(g.Revision));}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose)

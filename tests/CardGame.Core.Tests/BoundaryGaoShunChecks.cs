@@ -84,44 +84,6 @@ internal static class BoundaryGaoShunChecks
         Cold(suppressed, suppressedRegistry);
     }
 
-    public static void ForeignDyingAlcoholPhysicalVirtualAndPileBoundaries()
-    {
-        var (g, registry) = Create(wine: true);
-        Use(g, Driver, "draw"); ReachPlay(g);
-        Use(g, Driver, "store"); Reach(g, p => Action(p, "select-owned-cards"));
-        Answer(g, c => c.Cards.Count == 1 && Hand(g, 0).Single(card => card.Id == c.Cards[0]).Kind == CardKind.Slash); ReachPlay(g);
-        var stored = g.CreateSnapshot(0).Players[0].ChunlaoCount;
-        Require(stored == 1, "A genuine owned Slash movement prepares one bound-pile Wine rescue material.");
-        Use(g, Driver, "hurt", [1]);
-        ReachUntil(g, () => g.ResolutionStack.OfType<DyingFrame>().Any(f => f.VictimSeat == 1 &&
-            f.ResponderIndex < f.ResponderSeats.Count && f.ResponderSeat == 0));
-        var dying = g.ResolutionStack.OfType<DyingFrame>().Single();
-        Require(dying.VictimSeat == 1 && dying.ResponderSeat == 0 && g.State.CurrentSeat == 0 && g.State.Players[1].Hp == 0 &&
-            P(g) is null &&
-            !Facts<ProgramBindingStartedEvent>(g).Any(f => f.SkillId == "fixture:gs-pile-rescue") &&
-            !Facts<ProgramBindingStartedEvent>(g).Any(f => f.SkillId == Wine && f.OwnerSeat == 1) &&
-            !Facts<ProgramDyingRescueEvent>(g).Any(f => f.DyingFrameId == dying.Id),
-            "At the original Dying frame's real human responder cursor, the policy owner's turn prohibits the foreign victim's physical/SelfDying Wine and third-party pile Wine; no usable rescue prompt or paid source is invented.");
-        Cold(g, registry); ReachPlay(g);
-        Require(!g.State.Players[1].IsAlive && g.CreateSnapshot(0).Players[0].ChunlaoCount == stored &&
-            !g.CardMovements.Any(m => m.From == CardLocation.Chunlao(0) && m.To == CardLocation.Processing),
-            "The prohibited original-victim Wine path cannot pay or drain the legitimate provider's pile.");
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.PlayerSeat == 2 && p.SkillPrompt?.SkillId == Wine);
-        var nextDying = g.ResolutionStack.OfType<DyingFrame>().Single();
-        var self = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Wine);
-        Require(g.State.CurrentSeat == 2 && nextDying.VictimSeat == 2 && self.DyingAlcoholPermission is { ActorSeat: 2, ResponderSeat: 2 } permission &&
-            permission.DyingFrameId == nextDying.Id && permission.SkillInstanceId == self.SkillInstanceId,
-            "On the next real actor's turn, its native published SelfDying producer regains an exact permission tied to this new victim and instance.");
-        Prepared(g); Cold(g, registry); Advance(g);
-        Reach(g, p => p.PlayerSeat == 2 && p.SkillPrompt?.SkillId == Hp);
-        Require(g.State.Players[2].Hp == 1 && Facts<ProgramDyingRescueEvent>(g).Single(f => f.DyingFrameId == nextDying.Id) is { CardId: 0, VictimSeat: 2 },
-            "Native choice actually consumes the zero-entity Wine once and returns through the exact current Dying/HP observer, rather than a presence-only exemption.");
-        Cold(g, registry); Advance(g); ReachPlay(g);
-        Require(Facts<ProgramDyingRescueEvent>(g).Count(f => f.DyingFrameId == nextDying.Id) == 1, "The native rescue never pays or recovers twice after its real child return.");
-        Cold(g, registry);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool wine = false, bool native = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(wine, native));

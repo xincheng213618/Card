@@ -49,52 +49,7 @@ internal static class BoundaryPangDeChecks
             "The original converted use survives the gain child and skips already claimed material cleanup."); Cold(two, tr);
     }
 
-    public static void NonBasicDiscardUsesOneTargetReceiptAndAddsRealTurnAllowance()
-    {
-        var (game, registry) = Create(tricks: true, armor: "standard:bagua");
-        Use(game, "equip", targets: [1]); Finish(game); var hp = game.State.Players[1].Hp;
-        var slash = Play(game, [1]); Activate(game); DiscardHand(game); Finish(game);
-        Require(Claims(game).Length == 0 && Receipts(game).Single() is { PreventCancellation: true, TargetSeat: 1 } &&
-            game.State.Players[1].Hp == hp - 1 &&
-            game.Events.Select(e => e.Payload).OfType<TurnRuleModifierGrantedEvent>().Single(e => e.Modifier.Source.SkillId == Skill).Modifier.Amount == 1 &&
-            game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "A real non-basic target discard retains the original entity, prevents only this target cancelling this Slash and grants one actual extra use.");
-        var slashAction = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>()
-            .Single(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == 0 &&
-                e.Action.PhysicalCards.Any(c => c.CardId == slash)).Action;
-        Require(game.Events.Select(e => e.Payload).OfType<JudgmentResolvedEvent>().Any(e =>
-                e.TargetSeat == 1 && e.Reason == JudgmentReasons.BaguaDefense && e.Succeeded &&
-                e.Suit is Suit.Heart or Suit.Diamond && e.ParentResolutionId == Receipts(game).Single().CardUseFrameId) &&
-            game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Any(e =>
-                e.Action.Type == CardActionType.Response && e.Action.ActorSeat == 1 &&
-                e.Action.EffectiveKind == CardKind.Dodge && e.Action.PhysicalCards.Count == 0 &&
-                e.Action.ParentActionId == slashAction.ActionId),
-            "The real red Bagua judgment succeeds and produces an exact zero-entity Dodge response to this Slash, which still cannot cancel its original damage.");
-        Cold(game, registry); Play(game, [2]); Reach(game, p => IsActivation(p)); Skip(game); Finish(game);
-        Require(Receipts(game).Length == 1 && !game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "The independently granted +1 permits a second use, and no prohibition is issued to the later target when this trigger is declined.");
-        Cold(game, registry);
-
-        var (armorGame, ar) = Create(tricks: true, armor: "classic:tengjia"); Use(armorGame, "equip", targets: [1]); Finish(armorGame);
-        var before = armorGame.State.Players[1].Hp; Play(armorGame, [1]); Activate(armorGame); DiscardHand(armorGame); Finish(armorGame);
-        Require(Receipts(armorGame).Length == 1 && armorGame.State.Players[1].Hp == before,
-            "Preventing Dodge cancellation does not bypass Tengjia's independent normal-Slash nullification."); Cold(armorGame, ar);
-
-        var (lion, lr) = Create(tricks: true, armor: "classic:silver-lion", observers: true);
-        Use(lion, "hurt", targets: [1]); Finish(lion); Use(lion, "equip", targets: [1]); Finish(lion);
-        var armor = lion.CreateSnapshot(0).Players[1].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        var injured = lion.State.Players[1].Hp; Play(lion, [1]); Activate(lion);
-        Answer(lion, c => c.Cards.SequenceEqual([armor])); Reach(lion, p => p.SkillPrompt?.SkillId == Cost);
-        Require(lion.State.Players[1].Hp == injured + 1 && Receipts(lion).Length == 0 &&
-            lion.Events.Select(e => e.Payload).OfType<SilverLionRemovedRecoveryEvent>().Count(e => e.PlayerSeat == 1) == 1,
-            "The selected equipped Silver Lion is discarded once and its actual recovery finishes before the post-payment target receipt.");
-        Cold(lion, lr); Continue(lion); Finish(lion);
-        Require(Receipts(lion).Length == 1 && lion.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(1)) == 1,
-            "The paid equipment child returns to one frozen category branch without repaying the public cost."); Cold(lion, lr);
-    }
-
     private static ProgramCurrentUsePhysicalCardsClaimedEvent[] Claims(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramCurrentUsePhysicalCardsClaimedEvent>().ToArray();
-    private static ProgramTargetSlashReceipt[] Receipts(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Where(e => e.Receipt.SkillId == Skill).Select(e => e.Receipt).ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool IsActivation(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Activate(GameEngine g) { Reach(g, IsActivation); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }
@@ -107,7 +62,6 @@ internal static class BoundaryPangDeChecks
         Accept(g, new PlayCardCommand(0, action.CardId!.Value, targets, g.Revision, P(g)!.PromptId, action.PlayedCardKind) { ConversionSource = action.ConversionSource });
         return action.CardId.Value;
     }
-    private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Finish(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {

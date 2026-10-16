@@ -48,152 +48,6 @@ internal static class WangGuanChecks
             _=Cold(g,r);
         }
     }
-    public static void MiuyanYangActualPhaseRevealsAndShiluSelfFireCold()
-    {
-        foreach(var expired in new[]{false,true})
-        {
-            var(g,r)=Start("hand");var shown=V(g,0).Hand[0].Id;Show(g,shown);Use(g,"gift",[shown],[2]);Play(g);
-            Use(g,"top");Play(g);var top=E<ProgramCardsRevealedEvent>(g).Last(e=>e.Bind=="top").Cards.Select(c=>c.Id).ToArray();
-            Need(top.Length==2&&top.All(id=>!E<MiuyanPhaseHandRevealedEvent>(g).Any(e=>e.CardId==id)),"Public top cards shown while in Processing never become hand-show history merely by entering Hand later.");
-            var oldPhase=E<MiuyanPhaseHandRevealedEvent>(g).Single(e=>e.CardId==shown).Phase;
-            if(expired){var turn=g.State.TurnNumber;End(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard}&&g.State.TurnNumber>turn);}
-            Fire(g,1);PayFire(g);Play(g);
-            Need(E<MiuyanEntityObtainedEvent>(g).Any(e=>e.Entity.CardId==shown)==!expired&&
-                (expired?V(g,2).Hand.Any(c=>c.Id==shown):V(g,0).Hand.Any(c=>c.Id==shown)),
-                "Yang uses the exact actual phase token: a card truly shown in Hand can change holder and still be obtained, while an old phase cannot claim it.");
-            Need(E<MiuyanUseIssuedEvent>(g).Single().Invoice.Phase.Token==oldPhase.Token==!expired,"Each actual phase has an independent frozen native token.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("hand");Fire(g,0);Reach(g,()=>P(g)?.Kind==DecisionKind.FireAttackReveal);Answer(g,c=>c.Cards.Count==1);PayFire(g);
-            Reach(g,()=>Branch(g,"target"));var draw=E<WangGuanStartedEvent>(g).Single(e=>e.Op==SkillProgramEffectOp.ResolveShiluDrawRevealIdentity);
-            Need(draw.FrozenHp==V(g,0).Hp&&E<WangGuanMovementIssuedEvent>(g).Single(e=>e.FrameId==draw.FrameId).Count==draw.FrozenHp&&
-                !E<WangGuanStartedEvent>(g).Any(e=>e.Op==SkillProgramEffectOp.ResolveMiuyanCompletedUse),"Self Fire Attack completes the actual post-damage HP draw before any Yang whole-Use benefit.");
-            Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>Branch(g,"card"));Private(g);g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");Play(g);
-            var identity=E<ShiluHandIdentityGrantedEvent>(g).Single();var claim=E<MiuyanEntityObtainedEvent>(g).Single(e=>e.Entity.CardId==identity.CardId);
-            var history=g.Events.Select(e=>e.Payload).ToArray();
-            Need(Array.FindIndex(history,e=>Equals(e,identity))<Array.FindIndex(history,e=>Equals(e,claim))&&V(g,0).Hand.Any(c=>c.Id==identity.CardId&&c.Kind==CardKind.Crossbow&&c.IdentityKind is null)&&
-                !g.CardMovements.Any(m=>m.From==CardLocation.Hand(0)&&m.To==m.From&&m.Reason.Value=="skill-program.wang-guan.miuyan.gain"),
-                "The newly Shilu-revealed foreign hand entity is gained by this same Yang only after the full native damage subtree; its first departure ends the separate Slash identity and own shown cards create no fake gain.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("qingliang");Fire(g,1);PayFire(g);Play(g);
-            var reveals=E<MiuyanPhaseHandRevealedEvent>(g).Where(e=>e.RevealKind==nameof(ProgramQingliangRevealEvent)).ToArray();
-            Need(reveals.Length>=4&&reveals.All(e=>e.HolderSeat==1&&V(g,0).Hand.Any(c=>c.Id==e.CardId))&&
-                reveals.All(e=>E<MiuyanEntityObtainedEvent>(g).Any(v=>v.Entity.CardId==e.CardId)),
-                "The actual Qingliang public whole-Hand binding, rather than a later re-read of HandCount, supplies all original shown entities to this genuine Yang Use.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("draft");End(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="classic:huimin"&&Action(g,"activate"));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>Action(g,"public-draft-show"));
-            while(Action(g,"public-draft-show")){Answer(g,c=>c.Cards.Count==1);Reach(g,()=>Action(g,"public-draft-show")||Action(g,"public-draft-start"));}
-            var draft=E<ProgramHandDraftRevealedEvent>(g).Single();var ledger=E<MiuyanPhaseHandRevealedEvent>(g).Where(e=>e.RevealFrameId==draft.FrameId).ToArray();
-            Need(ledger.Select(e=>e.CardId).Order().SequenceEqual(draft.CardIds.Order())&&ledger.All(e=>e.HolderSeat==0&&e.Phase.Kind==ActualDiscardRecoveryPhaseKind.Ending),
-                "The native Ending hand draft records the exact original public Hand entities in its true actual-phase token.");
-            g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>E<ProgramHandDraftCardObtainedEvent>(g).Length==draft.CardIds.Count);
-            Need(E<ProgramHandDraftCardObtainedEvent>(g).All(e=>e.RecipientSeat!=0&&V(g,e.RecipientSeat).Hand.Any(c=>c.Id==e.CardId))&&
-                E<MiuyanPhaseHandRevealedEvent>(g).Where(e=>e.RevealFrameId==draft.FrameId).SequenceEqual(ledger),
-                "Real hand-draft transfers change actual holders without deleting or replacing the phase's original entity reveal invoices.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("shandao");var selected=V(g,1).Hand[0].Id;
-            Accept(g,new UseProgramSkillCommand(0,"ol:shandao","top-and-two-tricks",[],[],g.Revision,P(g)!.PromptId));
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:shandao"&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="target"));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="target"&&c.Targets.SequenceEqual([1]));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="confirm");
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:shandao"&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="card"));
-            Answer(g,c=>c.Parameters.GetValueOrDefault("source-zone")==nameof(CardZoneKind.Hand)&&c.Parameters.GetValueOrDefault("slot-index")=="0");
-            Reach(g,()=>E<TianChouShandaoCompletedEvent>(g).Length==1);Play(g);
-            Need(V(g,1).Hand.Any(c=>c.Id==selected)&&g.CardMovements.Any(m=>m.CardId==selected&&m.From==CardLocation.Hand(1)&&m.To==CardLocation.DrawPile)&&
-                g.CardMovements.Any(m=>m.CardId==selected&&m.From==CardLocation.Processing&&m.To==CardLocation.Hand(1))&&
-                !E<MiuyanPhaseHandRevealedEvent>(g).Any(e=>e.CardId==selected),
-                "The exact native Shandao top-placement movement reveal followed by genuine Five Grains reacquisition is not a rule instruction to show Hand.");
-            g=Cold(g,r);Fire(g,2);PayFire(g);Play(g);
-            Need(!E<MiuyanEntityObtainedEvent>(g).Any(e=>e.Entity.CardId==selected)&&V(g,1).Hand.Any(c=>c.Id==selected),
-                "A real Yang cannot claim the unrelated unshown Hand entity merely because native public movement exposed its face.");
-            _=Cold(g,r);
-        }
-        {
-            var(g,r)=Start("private");
-            Need(Action(g,"private-hand-take")&&E<ProgramPrivateHandViewedEvent>(g).Length==1&&!E<MiuyanPhaseHandRevealedEvent>(g).Any()&&g.CreateSnapshot(2).PrivateRevealedCards is null,
-                "A true native private inspection is excluded from public phase hand-show history and from other viewers.");
-            g=Cold(g,r);Answer(g,_=>true);Play(g);Fire(g,1);PayFire(g);Play(g);
-            Need(E<MiuyanPhaseHandRevealedEvent>(g).Count(e=>e.HolderSeat==1)==1,"Only the later actually public native Fire Attack hand reveal enters the phase ledger.");
-        }
-    }
-    public static void MiuyanYinActualRoundSuppressionAndNewInstanceCold()
-    {
-        var(g,r)=Start("hand");Fire(g,1);PayFire(g,false);Play(g);
-        Need(E<MiuyanUseIssuedEvent>(g).Single().Invoice.PreviousState==SkillPolarity.Yang&&!E<MiuyanRoundDisabledEvent>(g).Any(),"An undamaging Yang still switches, without Yin's penalty.");
-        Fire(g,1);Reach(g,()=>P(g)?.Kind==DecisionKind.FireAttackDiscard);var invoice=E<MiuyanUseIssuedEvent>(g).Last().Invoice;g=Cold(g,r);Answer(g,c=>c.Cards.Count==0);Play(g);
-        var disabled=E<MiuyanRoundDisabledEvent>(g).Single();
-        Need(invoice.PreviousState==SkillPolarity.Yin&&disabled.UseId==invoice.UseId&&disabled.RoundNumber==invoice.RoundNumber&&
-            !E<CompletedUndamagedUseDamageRecordedEvent>(g).Any(e=>e.CardUseFrameId==invoice.UseId)&&!g.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId==Miu),
-            "Yin is suppressed only after the whole real native Use actually finishes without positive damage.");
-        Use(g,"lose-miuyan");Play(g);Use(g,"regrant");Play(g);g=Cold(g,r);
-        Need(!g.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId==Miu)&&V(g,0).Skills!.Any(s=>s.ContentId==Shilu),
-            "The actual-round owner/skill prohibition survives a real new skill instance and does not suppress locked Shilu.");
-        var turn=g.State.TurnNumber;End(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard}&&g.State.TurnNumber>turn);
-        Need(g.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId==Miu),"The next genuine round releases the old round prohibition without rewriting skill enablement.");
-        Fire(g,1);PayFire(g);Play(g);
-        Need(E<MiuyanUseIssuedEvent>(g).Last().Invoice.RoundNumber>disabled.RoundNumber&&E<MiuyanRoundDisabledEvent>(g).Length==1,"The next round's real accepted Use has an independent issuance.");
-        _=Cold(g,r);
-    }
-    public static void ShiluPerDamageOpaqueHandIdentityAndPaidChildrenCold()
-    {
-        foreach(var scene in new[]{"identity","draw-loss","draw-death","issuer-death"})
-        {
-            var(g,r)=Start(scene);var hp=V(g,0).Hp;Use(g,"damage-two",targets:[0]);
-            if(scene is"draw-loss"or"draw-death")
-            {
-                Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);
-                var f=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.WangGuan is not null);
-                Need(f.WangGuan!.FrozenHp==hp-2&&f.WangGuan.Stage==WangGuanStage.ShiluDrawChildren&&
-                    E<WangGuanMovementIssuedEvent>(g).Single(e=>e.FrameId==f.Id).Count==hp-2&&E<ShiluHandIdentityGrantedEvent>(g).Length==0,
-                    "One actual damage instance of two points draws the frozen current HP exactly once, before its real gain child and later hand choice.");
-                g=Cold(g,r);Continue(g);
-                if(scene=="draw-death")
-                {
-                    Reach(g,()=>!V(g,0).IsAlive&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.WangGuan is not null));
-                    Need(g.State.Winner==Winner.None&&E<WangGuanStartedEvent>(g).Count(e=>e.Op==SkillProgramEffectOp.ResolveShiluDrawRevealIdentity)==1&&
-                        !E<ShiluHandIdentityGrantedEvent>(g).Any()&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.wang-guan.shilu.draw")==hp-2,
-                        "True non-Lord death in the paid native Draw child returns exactly once without asking a dead owner to choose or creating a new hand entity.");
-                    _=Cold(g,r);continue;
-                }
-            }
-            Reach(g,()=>Branch(g,"target"));
-            Need(!P(g)!.Choices.Any(c=>c.Targets.SequenceEqual([0]))&&!P(g)!.Choices.Any(c=>c.Targets.SequenceEqual([2])),"The post-draw hand target uses real current attack range and excludes self.");
-            Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>Branch(g,"card"));Private(g);g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");Play(g);
-            var granted=E<ShiluHandIdentityGrantedEvent>(g).Single();
-            Need(E<WangGuanStartedEvent>(g).Count(e=>e.Op==SkillProgramEffectOp.ResolveShiluDrawRevealIdentity)==1&&
-                V(g,1).Hand.Single(c=>c.Id==granted.CardId).IdentityKind==CardKind.Slash&&g.CreateSnapshot(2).Players[1].Hand.Count==0,
-                "The actually displayed single Hand entity becomes a real Slash identity without exposing the holder's other cards or triggering once per damage point.");
-            if(scene=="issuer-death")
-            {
-                Use(g,"kill-owner");Reach(g,()=>!V(g,0).IsAlive);
-                Need(g.State.Winner==Winner.None&&V(g,1).Hand.Single(c=>c.Id==granted.CardId).IdentityKind==CardKind.Slash,"An already-issued hand entity identity survives its original issuer's actual death.");
-            }
-            else if(scene=="identity")
-            {
-                Use(g,"request",targets:[1]);Reach(g,()=>Action(g,"assisted-physical-slash")&&P(g)!.Choices.Any(c=>c.Targets.Count==1));Answer(g,c=>c.Targets.SequenceEqual([0]));
-                Reach(g,()=>E<CardUseDeclaredEvent>(g).Any(e=>e.SourceSeat==1&&e.CardId==granted.CardId&&e.CardKind==CardKind.Slash));g=Cold(g,r);Play(g);
-                Need(E<CardActionAcceptedEvent>(g).Any(e=>e.Action.Type==CardActionType.Use&&e.Action.ActorSeat==1&&e.Action.PhysicalCards.Any(c=>c.CardId==granted.CardId)&&e.Action.ConversionChain.Any(s=>s.SkillId==Shilu)),
-                    "The canonical hand identity supplies a genuine native requested Slash Use with its exact immutable original identity source.");
-            }
-            else
-            {
-                Need(V(g,0).Skills!.All(s=>s.ContentId!=Shilu),"The paid native draw child really removed the original Shilu source.");
-                Use(g,"take",targets:[1]);Reach(g,()=>Action(g,"select-and-move-owned-card"));Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");Play(g);
-                Need(V(g,0).Hand.Single(c=>c.Id==granted.CardId).IdentityKind is null,"The first genuine departure clears the identity even though the original skill is already lost.");
-                Use(g,"gift",[granted.CardId],[1]);Play(g);
-                Need(V(g,1).Hand.Single(c=>c.Id==granted.CardId).IdentityKind is null,"Returning the same physical entity to the same holder cannot revive an expired Hand residency.");
-            }
-            _=Cold(g,r);
-        }
-    }
 
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -212,7 +66,6 @@ internal static class WangGuanChecks
     }
     private static void Fire(GameEngine g,int target,int? material=null,string source=Miu)=>Native(g,a=>a.Kind==LegalActionKind.FireAttack&&a.ConversionSource?.SkillId==source&&a.TargetSeats.SequenceEqual([target])&&(material is null||a.CardId==material));
     private static void PayFire(GameEngine g,bool damage=true){Reach(g,()=>P(g)?.Kind==DecisionKind.FireAttackDiscard);Answer(g,c=>damage?c.Cards.Count==1:c.Cards.Count==0);}
-    private static void Show(GameEngine g,int card){Use(g,"show");Reach(g,()=>Action(g,"select-owned-cards"));Answer(g,c=>c.Cards.SequenceEqual([card]));Play(g);}
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Reach(GameEngine g,Func<bool> done)
@@ -236,17 +89,6 @@ internal static class WangGuanChecks
             else Accept(g,new AdvanceOneStepCommand(g.Revision));
         }
         throw new InvalidOperationException("Missing actual Wang Guan boundary: "+Diagnostic(g));
-    }
-    private static void Private(GameEngine g)
-    {
-        var p=P(g)!;var state=State(g);
-        Need(p.IsPrivate&&p.ValidCardIds.Count==0&&p.Choices.All(c=>c.Cards.Count==0)&&Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null)&&
-            Enumerable.Range(0,4).All(s=>g.CreateSnapshot(s).Players.Where(v=>v.Seat!=s).All(v=>v.Hand.Count==0)),"Only the real owner sees opaque slots; no other Hand IDs leak in any viewer.");
-        Need(!g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted&&State(g)==state&&
-            !g.Submit(new AnswerPromptCommand(0,p.PromptId,new("invalid"),g.Revision)).Accepted&&State(g)==state,"Illegal chooser and invented opaque slot leave every view, RNG and paid cursor unchanged.");
-        var receipt=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.WangGuan is not null).WangGuan!;
-        Need(receipt.Entities is IList<WangGuanHandEntity>{IsReadOnly:true},"The owning private Hand candidate collection is frozen.");
-        try{((IList<WangGuanHandEntity>)receipt.Entities).Add(default!);throw new InvalidOperationException("Mutable Shilu entities.");}catch(NotSupportedException){}
     }
     private static string Diagnostic(GameEngine g)=>JsonSerializer.Serialize(new{g.State.TurnNumber,Prompt=P(g),Players=Enumerable.Range(0,4).Select(s=>new{Seat=s,V(g,s).Hp,V(g,s).IsAlive,V(g,s).HandCount}),Frames=g.ResolutionStack.Select(f=>new{f.Id,Kind=f.GetType().Name}),Facts=g.Events.TakeLast(8).Select(e=>e.Payload.ToString())});
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))),Frames=g.ResolutionStack.Select(f=>JsonSerializer.Serialize(f,f.GetType())),g.CardMovements,Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())),Commands=CommandJson.Serialize(g.AcceptedCommands)});

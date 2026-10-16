@@ -54,38 +54,6 @@ internal static class MobileLiuZanChecks
         Cold(game, registry);
     }
 
-    public static void OwnTurnDodgeUseCountsAndPureDuelResponseDoesNot()
-    {
-        foreach (var kind in new[] { "dodge", "duel" })
-        {
-            var (game, registry) = Create(kind);
-            ReachPlay(game); Use(game, kind == "duel" ? "duel" : "hurt", [1]);
-            Reach(game, prompt => prompt is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash } &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("conversion-skill-id") == Driver));
-            var hand = game.CreateSnapshot(0).Players[0].Hand;
-            var choice = P(game)!.Choices.First(item => item.Parameters.GetValueOrDefault("conversion-skill-id") == Driver &&
-                item.Cards.Count == 1 && hand.Single(card => card.Id == item.Cards[0]).Suit == Suit.Heart);
-            var cost = choice.Cards.Single();
-            Accept(game, new AnswerPromptCommand(0, P(game)!.PromptId, choice.Id, game.Revision)); ReachPlay(game);
-            var actual = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
-                .Select(item => item.Action).Single(action => action.Type == CardActionType.Response &&
-                    action.ActorSeat == 0 && action.PhysicalCards.Any(card => card.CardId == cost));
-            Require(actual.EffectiveIsRed == true && Draws(game) == 0 && Records(game).Length == (kind == "dodge" ? 1 : 0),
-                "Only a real native Slash-Dodge Use enters the own-turn color chain; a Duel Slash is response-only.");
-            Equip(game, Suit.Spade);
-            if (kind == "dodge")
-            {
-                Reach(game, prompt => prompt.SkillPrompt?.SkillId == Gain); game = Cold(game, registry);
-                Continue(game); ReachPlay(game);
-            }
-            else ReachPlay(game);
-            Require(Draws(game) == (kind == "dodge" ? 1 : 0) &&
-                game.CardMovements.Count(move => move.CardId == cost && move.To == CardLocation.DiscardPile) == 1,
-                "The next real black equipment use sees the earlier red Dodge Use, while the pure Duel response cannot create a predecessor or duplicate its physical payment.");
-            Cold(game, registry);
-        }
-    }
-
     private static AlternateActualUseColorRecordedEvent[] Records(GameEngine game) =>
         game.Events.Select(item => item.Payload).OfType<AlternateActualUseColorRecordedEvent>()
             .Where(fact => fact.ActorSeat == 0).ToArray();

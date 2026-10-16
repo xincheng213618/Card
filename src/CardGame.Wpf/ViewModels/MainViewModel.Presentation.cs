@@ -61,7 +61,7 @@ public sealed partial class MainViewModel
             .Select(action => action.ProgramSkillId!)
             .ToHashSet(StringComparer.Ordinal);
         availablePrograms.UnionWith(PlayConversionModesBySkill.Keys);
-        if (IsNationalSnapshot)
+        if (HasDualGeneralSlots)
         {
             var slots = new[]
             {

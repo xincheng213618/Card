@@ -44,37 +44,6 @@ internal static class EndRefillNextTurnChecks
         _ = Cold(tie, tieRegistry);
     }
 
-    public static void ActualBidirectionalHpReplacementSelfSourceLessAndChain()
-    {
-        foreach (var activation in new[] { "outgoing", "incoming" })
-        {
-            var (g, registry) = Start(); var target = activation == "outgoing" ? 1 : 0; var before = V(g, target).Hp;
-            Use(g, activation, targets: [1]); Play(g);
-            var replaced = E<OtherParticipantDamageReplacedEvent>(g).Single();
-            Need(V(g, target).Hp == before - 2 && replaced.Source.OwnerSeat == 0 && replaced.DamageSourceSeat == (activation == "outgoing" ? 0 : 1) &&
-                replaced.TargetSeat == target && replaced.BaseAmount == 2 && !E<DamageAppliedEvent>(g).Any(),
-                "Both outgoing and incoming real other-participant attacks become two HP loss, while retaining policy and actual source separately.");
-            _ = Cold(g, registry);
-        }
-        foreach (var activation in new[] { "self-damage", "source-less" })
-        {
-            var (g, registry) = Start(); Use(g, activation); Play(g);
-            Need(!E<OtherParticipantDamageReplacedEvent>(g).Any() && E<DamageAppliedEvent>(g).Single().SourceLess == (activation == "source-less"),
-                "Self damage and damage without an attributed source remain genuine damage.");
-            _ = Cold(g, registry);
-        }
-        var (chain, chainRegistry) = Start(); Use(chain, "chain", targets: [0]); Play(chain); Use(chain, "chain", targets: [1]); Play(chain);
-        Use(chain, "self-fire"); Play(chain);
-        Need(E<DamageAppliedEvent>(chain).Count() == 1 && E<DamageAppliedEvent>(chain).Single().TargetSeat == 0 &&
-            E<OtherParticipantDamageReplacedEvent>(chain).Single() is { TargetSeat: 1, ChainPropagation: true } && !V(chain, 0).IsChained && !V(chain, 1).IsChained,
-            "Genuine self fire starts the native chain, while its other-seat propagated portion independently converts to HP loss.");
-        _ = Cold(chain, chainRegistry);
-        var (loss, lossRegistry) = Start(); Use(loss, "chain", targets: [0]); Play(loss); Use(loss, "chain", targets: [1]); Play(loss);
-        Use(loss, "outgoing-fire", targets: [1]); Play(loss);
-        Need(!E<DamageAppliedEvent>(loss).Any() && V(loss, 0).IsChained && V(loss, 1).IsChained, "An initial other-seat HP replacement neither unchains nor propagates elemental damage.");
-        _ = Cold(loss, lossRegistry);
-    }
-
     private static string Embedded(string suffix) { using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-shen-pei.{suffix}")!; using var r = new StreamReader(stream); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);

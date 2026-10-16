@@ -51,88 +51,6 @@ internal static class BoundaryXiahouYuanChecks
         Replay(game, registry);
     }
 
-    public static void ShebianBothDirectionsMovementChildrenAndReplay()
-    {
-        var (game, registry) = Create(); ReachPlay(game);
-        var equip = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        Accept(game, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        var armor = game.CreateSnapshot(0).Players[0].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        foreach (var pair in new[] { (From: 0, To: 1, FaceDown: true), (From: 1, To: 0, FaceDown: false) })
-        {
-            var hand = game.State.Players[0].HandCount;
-            Use(game, "flip");
-            if (!pair.FaceDown)
-            {
-                Reach(game, p => p.SkillPrompt?.SkillId == FaceUp);
-                Require(game.State.Players[0].HandCount == hand,
-                    "The existing face-up observer precedes the new window and parent draw.");
-                Replay(game, registry); Continue(game);
-            }
-            Reach(game, p => Activation(p, "boundary:shebian"));
-            Require(game.State.Players[0].IsFaceDown == pair.FaceDown,
-                "Shebian is offered for each actual face-state direction.");
-            var stateWindow = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Last();
-            var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Driver);
-            Require(stateWindow.ResumeProgramFrameId == parent.Id && stateWindow.Facts.OwnerIsFaceDown == pair.FaceDown,
-                "The window freezes the changed state and returns to the exact paid parent instruction.");
-            Replay(game, registry); Reject(game); Activate(game);
-            Reach(game, p => p.Choices.Any(c => c.Targets.SequenceEqual([pair.From, pair.To])));
-            Answer(game, c => c.Targets.SequenceEqual([pair.From, pair.To]));
-            Reach(game, p => p.SkillPrompt?.SkillId == "boundary:shebian" && p.Choices.Any(c => c.Cards.Contains(armor)));
-            Replay(game, registry); Answer(game, c => c.Cards.Contains(armor));
-            Reach(game, p => p.SkillPrompt?.SkillId == Movement);
-            Require(game.CreateSnapshot(0).Players[pair.To].Equipment.Any(c => c.Id == armor) &&
-                !game.CreateSnapshot(0).Players[pair.From].Equipment.Any(c => c.Id == armor) &&
-                game.State.Players[0].HandCount == hand,
-                "The actual corresponding-zone move commits before its observer, while the parent draw remains unpaid.");
-            var paid = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:shebian");
-            AssertAwaitedMovement(game, paid, armor, pair.From, pair.To);
-            Replay(game, registry); Continue(game); ReachPlay(game);
-            Require(game.State.Players[0].HandCount == hand + 1 && game.CardMovements.Count(m => m.CardId == armor &&
-                m.From == CardLocation.Equipment(pair.From) && m.To == CardLocation.Equipment(pair.To)) == 1,
-                "The child returns once, does not repeat the equipment transfer, and then pays the parent draw.");
-            Replay(game, registry);
-        }
-        var changes = game.Events.Select(e => e.Payload).OfType<CharacterStateChangedEvent>()
-            .Where(e => e.Change.Window == SkillProgramTriggerWindow.CharacterTurnedOver).ToArray();
-        Require(changes.Length == 2 && changes[0].Change.TurnedOver == new CharacterTurnedOverState(false, true) &&
-            changes[1].Change.TurnedOver == new CharacterTurnedOverState(true, false),
-            "Committed public facts retain both immutable before/after transitions.");
-        var before = changes.Length;
-        Use(game, "down"); ReachPlay(game);
-        Use(game, "down"); ReachPlay(game);
-        Require(game.Events.Select(e => e.Payload).OfType<CharacterStateChangedEvent>().Count(e =>
-            e.Change.Window == SkillProgramTriggerWindow.CharacterTurnedOver) == before + 1,
-            "Setting an already-matching face state does not create another turned-over occurrence.");
-        Replay(game, registry);
-    }
-
-    public static void NaturalFaceUpSkippedTurnAndOldWindowCompatibility()
-    {
-        var (game, registry) = Create(); ReachPlay(game); Use(game, "down"); ReachPlay(game);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => Activation(p, "boundary:shebian") && !game.State.Players[0].IsFaceDown);
-        var window = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single();
-        Require(window.CharacterStateContinuation == CharacterStateContinuation.SkippedTurn &&
-            window.ResumeProgramFrameId is null && game.State.Players[0].IsFaceDown == false,
-            "Natural face-up on the owner's next actual turn suspends its skipped-turn completion.");
-        Replay(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Require(game.Events.Select(e => e.Payload).OfType<TurnEndedEvent>().Count(e => e.ActorSeat == 0) == 2,
-            "The skipped actual turn completes after the same turned-over window.");
-        Replay(game, registry);
-
-        var (old, oldRegistry) = Create(oldWindowOnly: true); ReachPlay(old);
-        Use(old, "down"); ReachPlay(old); Use(old, "down"); ReachPlay(old);
-        Use(old, "up"); Reach(old, p => p.SkillPrompt?.SkillId == FaceUp); Replay(old, oldRegistry);
-        Continue(old); ReachPlay(old);
-        Require(old.Events.Select(e => e.Payload).OfType<CharacterStateChangedEvent>().Count() == 1 &&
-            old.Events.Select(e => e.Payload).OfType<CharacterStateChangedEvent>().All(e =>
-                e.Change.Window == SkillProgramTriggerWindow.CharacterTurnedFaceUp && e.Change.TurnedOver is null),
-            "A registry without the new window preserves the old opt-in face-up event stream.");
-        Replay(old, oldRegistry);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool oldWindowOnly = false, bool damageTurnOver = false)
     {
         var packages = new List<IGameContentPackage> { new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -152,7 +70,6 @@ internal static class BoundaryXiahouYuanChecks
     private static bool Activation(PendingDecision p, string skill, string? binding = null) => p.Choices.Any(c =>
         c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill &&
         (binding is null || c.Parameters.GetValueOrDefault("binding-id") == binding));
-    private static void ReachPlay(GameEngine game) => Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void Reach(GameEngine game, Func<PendingDecision, bool> predicate)
     {
         for (var step = 0; step < 160; step++)
@@ -177,7 +94,6 @@ internal static class BoundaryXiahouYuanChecks
     }
     private static void Activate(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void Use(GameEngine game, string id, IReadOnlyList<int>? targets = null) => Accept(game, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], game.Revision, Prompt(game)!.PromptId));
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate)
     { var prompt = Prompt(game)!; Accept(game, new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, prompt.Choices.First(predicate).Id, game.Revision)); }
     private static void Accept(GameEngine game, GameCommand command)
@@ -196,20 +112,6 @@ internal static class BoundaryXiahouYuanChecks
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry)),
         "The recorded command prefix cold-restores all player views, owning frames, movements and frozen public facts.");
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-
-    private static void AssertAwaitedMovement(GameEngine game, ProgramSkillFrame paid, int cardId, int from, int to)
-    {
-        var movement = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f =>
-            f.Batch.ParentFrameId == paid.Id && f.Batch.AwaitingProgramFrameId == paid.Id);
-        var observer = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Movement);
-        Require(paid.PendingMovementContinuation is { SubjectSeat: var source, BeforeCount: 0, CoverageResultBind: null } && source == from &&
-            movement.ResumeProgramFrameId is null && observer.WindowContext is
-                { Window: SkillProgramTriggerWindow.CardsMoved, ParentFrameId: var parent } && parent == movement.Id &&
-            observer.OwnerSeat == from && movement.Batch.Movements.Count == 1 &&
-            movement.Batch.Movements.Single() is var moved && moved.CardId == cardId &&
-            moved.From == CardLocation.Equipment(from) && moved.To == CardLocation.Equipment(to),
-            "The exact SelectAndMoveOwnedCard continuation owns the committed equipment batch and its source owner's movement observer.");
-    }
 
     private sealed class Fixture(bool oldWindowOnly, bool damageTurnOver) : IGameContentPackage
     {

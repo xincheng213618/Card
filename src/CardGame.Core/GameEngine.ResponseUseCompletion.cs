@@ -96,7 +96,8 @@ public sealed partial class GameEngine
         if (!HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
             !(HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||
-              TracksCurrentTurnUseKinds && kind == CardKind.Nullification || TracksActualTurnUseOrdinal && kind == CardKind.Dodge)) return null;
+              TracksCurrentTurnUseKinds && kind == CardKind.Nullification ||
+              (TracksActualTurnUseOrdinal || TracksWholeActualTurnUseOrdinal) && kind == CardKind.Dodge)) return null;
         var suits = cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray();
         return suits.Length == 1 ? suits[0] : null;
     }

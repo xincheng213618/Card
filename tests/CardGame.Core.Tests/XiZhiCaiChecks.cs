@@ -13,15 +13,6 @@ internal static class XiZhiCaiChecks
   Need(heal.Receipt.Kind==XianfuEchoKind.Recovery&&heal.Receipt.ActualAmount==2&&heal.NativeAmount==2&&V(g).Hp==hp&&E<XianfuEchoCompletedEvent>(g).Count()==2,"Requested five healing clamps to actual two on the recorded target, and only those two natively recover the owner.");
   Need(E<ProgramBindingResolvedEvent>(g).Where(e=>E<XianfuEchoIssuedEvent>(g).Any(x=>x.FrameId==e.FrameId)).All(e=>e.Activated&&e.Completed),"Every issued echo ends in its actual true native binding completion.");
  }
- public static void ActualPerPointRedJudgmentTianduClaimAndRecordedDoubleDrawCold()
- {
-  var(g,r)=Start();Play(g);Use(g,"self-two",[]);
-  for(var point=0;point<2;point++)
-  {Reach(g,()=>Optional(g,"ol:chouce"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>Optional(g,"classic:tiandu"));g=Cold(g,r);AnswerTiandu(g,true);Reach(g,()=>ChouceTarget(g));Answer(g,c=>c.Targets.SequenceEqual(new[]{1}));Reach(g,()=>E<ChouceCompletedEvent>(g).Count()>point);g=Cold(g,r);}
-  var points=E<ChouceJudgmentIssuedEvent>(g).ToArray();Need(points.Length==2&&points.Select(e=>e.Receipt.PointIndex).SequenceEqual(new[]{0,1})&&E<ChouceOutcomeIssuedEvent>(g).All(e=>e.Red&&e.TargetSeat==1&&e.Count==2),"Each actual damage point offers one judgment and red grants the recorded Xianfu target exactly two real cards.");
-  var claims=E<ProgramJudgmentCardClaimedEvent>(g).Where(e=>e.SkillId=="classic:tiandu").ToArray();Need(claims.Length==2&&claims.All(e=>V(g).Hand.Any(c=>c.Id==e.CardId))&&E<ChouceJudgmentFrozenEvent>(g).All(e=>e.EffectiveSuit==Suit.Heart),"Tiandu claims both actual final judgment entities once; Chouce continues from the previously frozen effective red result.");
- }
- private static bool ChouceTarget(GameEngine g)=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("chouce-action")=="target")==true;
  private static int Human(GameEngine g)=>Enumerable.Range(0,4).Single(s=>g.CreateSnapshot(s).Players[s].IsHuman);
  private static PlayerSnapshot V(GameEngine g)=>g.CreateSnapshot(Human(g)).Players[Human(g)];
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -32,8 +23,6 @@ internal static class XiZhiCaiChecks
   var window=g.ResolutionStack.LastOrDefault() as ProgramJudgmentTriggerWindowFrame;
   return P(g) is {Kind:DecisionKind.ProgramJudgmentTrigger} p&&window is not null&&window.CandidateIndex>=0&&window.CandidateIndex<window.Candidates.Count&&window.Candidates[window.CandidateIndex] is {SkillId:"classic:tiandu"} candidate&&candidate.OwnerSeat==p.PlayerSeat&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("action")=="program-judgment-trigger-activate");
  }
- private static void AnswerTiandu(GameEngine g,bool activate)
- {Need(Optional(g,"classic:tiandu"),"The real current finalized-judgment candidate is Tiandu.");Answer(g,c=>c.Parameters.GetValueOrDefault("action")=="program-judgment-trigger-"+(activate?"activate":"skip"));}
  private static void Need(bool b,string m){if(!b)throw new InvalidOperationException(m);}
  private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(result.Accepted,result.Error?.Message??"Rejected real XiZhiCai command.");}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision));}

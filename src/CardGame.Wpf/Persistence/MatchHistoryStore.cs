@@ -8,7 +8,7 @@ namespace CardGame.Wpf.Persistence;
 public enum MatchOutcome { Win, Loss, Draw }
 
 public sealed record MatchHistoryEntry(int FormatVersion, string Id, DateTimeOffset RecordedAtUtc,
-    string Mode, int RulesVersion, MatchOutcome Outcome, MatchSummary Summary)
+    string Mode, MatchOutcome Outcome, MatchSummary Summary)
 {
     [JsonIgnore] public string DateLabel => RecordedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
     [JsonIgnore] public string OutcomeLabel => Outcome switch { MatchOutcome.Win => "胜利", MatchOutcome.Loss => "败北", _ => "平局" };
@@ -92,7 +92,7 @@ public sealed class FileMatchHistoryStore : IMatchHistoryStore
     private static void Validate(MatchHistoryEntry entry)
     {
         if (entry.FormatVersion != 1 || entry.Id is not { Length: 64 } || !entry.Id.All(Uri.IsHexDigit) ||
-            string.IsNullOrWhiteSpace(entry.Mode) || entry.Mode.Length > 80 || entry.RulesVersion < 1 || !Enum.IsDefined(entry.Outcome) ||
+            string.IsNullOrWhiteSpace(entry.Mode) || entry.Mode.Length > 80 || !Enum.IsDefined(entry.Outcome) ||
             entry.Summary is not { TurnCount: >= 0, Players.Count: > 0 and <= 16 } ||
             entry.Summary.Players.Any(player => player is null) || entry.Summary.Players.Count(player => player.IsHuman) != 1 ||
             entry.Summary.Players.Select(player => player.Seat).Distinct().Count() != entry.Summary.Players.Count ||

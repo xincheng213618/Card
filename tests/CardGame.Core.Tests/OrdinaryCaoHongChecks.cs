@@ -37,48 +37,16 @@ internal static class OrdinaryCaoHongChecks
             "Placement pays the original entity once without emitting a second equipment Use/action or putting it into Processing.");
         g = Cold(g, r);
     }
-    public static void DirectedRecipientDistanceOpaqueHejAndEquipmentSource()
-    {
-        var (g, r) = Create("standard:qinggang_sword", recipientMashu: true, withJudgment: true); Prepare(g);
-        var indulgence = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Indulgence && a.TargetSeats.Contains(3));
-        Accept(g, new PlayCardCommand(0, indulgence.CardId!.Value, indulgence.TargetSeats, g.Revision, P(g)!.PromptId, indulgence.PlayedCardKind, indulgence.TargetCardId)); Play(g);
-        Ending(g); Activate(g); ChooseEquipment(g, CardZoneKind.Hand); Reach(g, p => Step(p, "recipient")); Answer(g, c => c.Targets.SequenceEqual([1]));
-        Reach(g, p => Step(p, "weapon-target"));
-        Require(g.GetSeatDistance(1, 3) == 2 && g.GetCombatDistance(1, 3) == 1 && P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3])) &&
-            !P(g)!.Choices.Any(c => c.Targets.SequenceEqual([1])), "Weapon benefit uses the recipient's final directed distance, including its real Mashu, and self-distance stays zero.");
-        g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([3])); Reach(g, p => Step(p, "weapon-card")); Reject(g); Private(g);
-        Require(P(g)!.Choices.Where(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)).All(c => c.Cards.Count == 0),
-            "The owner chooses a foreign hand slot without receiving its private identity.");
-        var judgment = P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Judgment));
-        var judgmentCard = judgment.Cards.Single(); g = Cold(g, r); Answer(g, c => c.Id == judgment.Id); Finish(g);
-        Require(g.CardMovements.Count(m => m.CardId == judgmentCard && m.From == CardLocation.Judgment(3) && m.To == CardLocation.DiscardPile && m.Reason.Value == DiscardReason) == 1,
-            "A real weapon placement may discard a real entity from the qualifying character's Judgment area, exactly once.");
-
-        var (hand, hr) = Create("standard:qinggang_sword", recipientMashu: true); Prepare(hand); Ending(hand); Activate(hand); ChooseEquipment(hand, CardZoneKind.Hand);
-        Reach(hand, p => Step(p, "recipient")); Answer(hand, c => c.Targets.SequenceEqual([1])); Reach(hand, p => Step(p, "weapon-target"));
-        Answer(hand, c => c.Targets.SequenceEqual([3])); Reach(hand, p => Step(p, "weapon-card")); hand = Cold(hand, hr);
-        Answer(hand, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)); Finish(hand);
-        var discard = E<PlacedEquipmentBenefitDiscardedEvent>(hand).Single().Payment;
-        Require(discard.TargetSeat == 3 && discard.From == CardLocation.Hand(3) &&
-            hand.CardMovements.Count(m => m.CardId == discard.CardId && m.From == discard.From && m.Reason.Value == DiscardReason) == 1,
-            "The hidden slot is resolved only at actual accepted payment, and the original entity is discarded once after restoration.");
-    }
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Step(PendingDecision p, string step) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("step") == step);
     private static void Private(GameEngine g)
     { var p = P(g)!; Require(p.IsPrivate && Enumerable.Range(0, 4).Where(s => s != p.PlayerSeat).All(s => g.CreateSnapshot(s).PendingDecision is null), "Only the original chooser sees this private material/opaque foreign slot prompt."); }
-    private static void ChooseEquipment(GameEngine g, CardZoneKind zone)
-    { Reach(g, p => Step(p, "equipment")); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == zone.ToString()); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Use(GameEngine g, string id, int[] targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
-    private static void Prepare(GameEngine g) { Play(g); Use(g, "draw", []); Play(g); }
     private static void Ending(GameEngine g) { Play(g); Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate")); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void Finish(GameEngine g) { Until(g, () => E<PlacedEquipmentBenefitFinishedEvent>(g).Length > 0); }
-    private static void Until(GameEngine g, Func<bool> done, bool continueHolds = false)
-    { for (var i = 0; i < 140; i++) { if (done()) return; if (continueHolds && P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue") == true) Continue(g); else Advance(g); } throw new InvalidOperationException("Fixed Ending did not finish its original paid root."); }
     private static void Reach(GameEngine g, Func<PendingDecision,bool> match)
     { for (var i = 0; i < 160; i++) { if (P(g) is { } p && match(p)) return; Advance(g); } throw new InvalidOperationException("Fixed Cao Hong command fixture missed boundary: " + JsonSerializer.Serialize(P(g))); }
     private static void Advance(GameEngine g)

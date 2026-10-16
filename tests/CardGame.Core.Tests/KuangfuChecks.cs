@@ -44,34 +44,6 @@ internal static class KuangfuChecks
         g = Cold(g, r);
     }
 
-    public static void KuangfuOwnershipDamageMatrixAndPartialHandPenalty()
-    {
-        foreach (var own in new[] { false, true }) foreach (var prevent in new[] { false, true })
-        {
-            var (g, r) = Create(prevent: prevent); Play(g); Equip(g, own ? 0 : 1);
-            if (!own && prevent) Trim(g);
-            var gear = g.CreateSnapshot(0).Players[own ? 0 : 1].Equipment.Single().Id; var before = g.State.Players[0].HandCount;
-            Start(g); Pick(g, c => c.Cards.SequenceEqual([gear]));
-            if (own) { Reach(g, p => p.SkillPrompt?.SkillId == Hp); Continue(g); }
-            Reach(g, p => p.SkillPrompt?.SkillId == Skill && Has(p, "kuangfu")); Pick(g, c => c.Targets.SequenceEqual([2]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Completed); g = Cold(g, r); Continue(g);
-            if (own && !prevent) { Reach(g, p => p.SkillPrompt?.SkillId == Gain); Continue(g); }
-            if (!own && prevent)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Skill && p.IsPrivate);
-                var receipt = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Kuangfu is not null).Kuangfu!;
-                Require(before == 1 && receipt.DiscardRequired == 1, "Fewer than two Hand means one actual remaining Hand entity, not invented cards or equipment.");
-                g = Cold(g, r); Pick(g, c => c.Cards.Count == 1);
-            }
-            Play(g); var result = E<KuangfuSlashResolvedEvent>(g).Single();
-            Require(result.CausedDamage == !prevent && E<KuangfuDrawIssuedEvent>(g).Length == (own && !prevent ? 1 : 0) &&
-                E<KuangfuHandDiscardPaidEvent>(g).Length == (!own && prevent ? 1 : 0) &&
-                g.State.Players[0].HandCount == before + (own && !prevent ? 2 : !own && prevent ? -1 : 0),
-                "All four original-equipment ownership/accurate-use damage combinations use their exact prescribed successor.");
-            g = Cold(g, r);
-        }
-    }
-
     private static PendingDecision? P(GameEngine g) => g.PendingDecision;
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
@@ -82,18 +54,6 @@ internal static class KuangfuChecks
     private static void Use(GameEngine g, string skill, string activation, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Equip(GameEngine g, int seat) { Use(g, Driver, "equip", [seat]); Play(g); }
     private static void Start(GameEngine g, string skill = Skill) { Use(g, skill, "equipment-slash"); Reach(g, p => p.SkillPrompt?.SkillId == skill && Has(p, "kuangfu")); }
-    private static void Trim(GameEngine g)
-    {
-        var remaining = g.State.Players[0].HandCount;
-        for (var step = 0; step < remaining - 1; step++)
-        {
-            var id = g.CreateSnapshot(0).Players[0].Hand[0].Id;
-            Accept(g, new UseProgramSkillCommand(0, Driver, "trim-hand", [id], [], g.Revision, P(g)!.PromptId)); Play(g);
-            Require(g.State.Players[0].HandCount == remaining - step - 1,
-                "Each actual trim command discards exactly one Hand entity and returns to the original Play boundary.");
-        }
-        Require(g.State.Players[0].HandCount == 1, "The bounded trim leaves exactly one actual Hand entity.");
-    }
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {

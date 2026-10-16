@@ -148,6 +148,8 @@ public sealed record ContentModeDefinition(
     IReadOnlyDictionary<string, int>? FactionCounts = null,
     IReadOnlyList<string>? SoloFactionIds = null)
 {
+    /// <summary>Eight-player identity variant with two generals per seat.</summary>
+    public bool DualGenerals { get; init; }
     /// <summary>Optional identity-role overrides for the number of general choices.</summary>
     public IReadOnlyDictionary<string, int>? RoleGeneralCandidateCounts { get; init; }
     /// <summary>Optional identity candidate families; every listed version remains a distinct legal general.</summary>
@@ -450,6 +452,7 @@ public sealed class ContentRegistry
                 [nameof(mode.SoloFactionIds)] = (mode.SoloFactionIds ?? []).OrderBy(id => id, StringComparer.Ordinal).ToArray()
             };
             // Modes without overrides keep their historical fingerprint representation.
+            if (mode.DualGenerals) fingerprint[nameof(mode.DualGenerals)] = true;
             if (mode.RoleGeneralCandidateCounts is { } candidates)
                 fingerprint[nameof(mode.RoleGeneralCandidateCounts)] = candidates.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
@@ -895,13 +898,17 @@ public sealed class ContentRegistry
                     var familyKeys = mode.GeneralVariantGroups?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
                         .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
                     if (mode.GeneralPoolIds.DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
-                            StringComparer.Ordinal).Count() < mode.MaxPlayers)
+                            StringComparer.Ordinal).Count() < mode.MaxPlayers * (mode.DualGenerals ? 2 : 1))
                         throw new InvalidOperationException($"Mode '{mode.Id}' needs a distinct general family for every seat.");
                 }
 
+                if (mode.DualGenerals && (mode.ModeKind != ContentModeKind.Identity ||
+                    mode.MinPlayers != 8 || mode.MaxPlayers != 8 || mode.GeneralPoolIds is null))
+                    throw new InvalidOperationException($"Mode '{mode.Id}' must define an eight-player identity dual-general pool.");
+
                 if (mode.GeneralPoolIds is not null)
                 {
-                    var minimumGeneralCount = mode.ModeKind == ContentModeKind.NationalWarLite
+                    var minimumGeneralCount = mode.ModeKind == ContentModeKind.NationalWarLite || mode.DualGenerals
                         ? mode.MaxPlayers * 2
                         : mode.MaxPlayers;
                     if (mode.GeneralPoolIds.Count < minimumGeneralCount ||

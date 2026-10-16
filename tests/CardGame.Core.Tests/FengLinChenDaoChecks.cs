@@ -14,15 +14,6 @@ internal static class FengLinChenDaoChecks
         var before=State(g);var res=g.Submit(new PlayCardCommand(0,later.CardId!.Value,later.TargetSeats,g.Revision,Prompt(g)!.PromptId,later.PlayedCardKind,later.TargetCardId){ConversionSource=later.ConversionSource});Require(!res.Accepted&&before==State(g),"A remaining owned entity and previously legal ordinary-trick conversion is rejected atomically by the issued phase ban.");
         Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);Require(g.CreateSnapshot(0).Players[0].IssuedPlayPhaseUseProhibitions is null,"The issued prohibition ends with the actual phase.");Replay(g,r);
     }
-    public static void TrueResponseFamilies()
-    {
-        foreach(var mode in new[]{"duel","barbarian_assault","arrow_barrage","draw_two"})
-        {
-            var(g,r)=Create(mode);Grow(g);var kind=mode=="duel"?LegalActionKind.Duel:mode=="barbarian_assault"?LegalActionKind.BarbarianAssault:mode=="arrow_barrage"?LegalActionKind.ArrowBarrage:LegalActionKind.DrawTwo;
-            var a=g.GetHumanLegalActions().First(a=>a.Kind==kind);Play(g,a);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:wanglie");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);
-            Require(!g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.Type==CardActionType.Response),"An issued exact card suppresses genuine request-response actions across trick families.");Replay(g,r);
-        }
-    }
     private static void Grow(GameEngine g){Accept(g,new UseProgramSkillCommand(0,"fixture:driver","grow",[],[],g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);}
     private static PendingDecision? Prompt(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});

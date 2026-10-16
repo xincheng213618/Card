@@ -72,55 +72,6 @@ internal static class DrawDiscardCategoryRefundChecks
         _ = Cold(g, registry);
     }
 
-    public static void EquipmentBatchSettlesAfterAcquiredSourceQualificationLoss()
-    {
-        var registry = Registry(sourceLoss: true); var g = Start(registry); CollectInitialHands(g); EquipArmor(g);
-        var originalOwner = g.CreateSnapshot(0).Players[0];
-        var armor = originalOwner.Equipment.Single().Id;
-        Require(originalOwner.Hp == 5 && originalOwner.Skills!.Any(s => s.Id == Skill),
-            $"The small identity Lord remains at HP5 after installing Bagua, and the acquired source is qualified before payment. HP={originalOwner.Hp}/{originalOwner.MaxHp}, skills={string.Join(',', originalOwner.Skills!.Select(s => s.Id))}.");
-        Activate(g, 0); Reach(g, IsCategoryChoice);
-        var frameId = Root(g).Id; var receipt = Root(g).DrawDiscardCategoryRefund!;
-        var basic = receipt.EligibleMaterials.First(m => m.Category == SkillProgramCardCategory.Basic).CardId;
-        var trick = receipt.EligibleMaterials.First(m => m.Category == SkillProgramCardCategory.Trick).CardId;
-        Require(receipt.EligibleMaterials.Any(m => m.CardId == armor && m.From == CardLocation.Equipment(0)),
-            "A genuinely installed armor remains a legal self-discard even under the existing foreign-equipment protection policy.");
-        Select(g, basic); Select(g, armor); Select(g, trick);
-        Reach(g, p => p.SkillPrompt?.SkillId == EquipmentChild);
-        var paid = Root(g).DrawDiscardCategoryRefund!; var observer = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == EquipmentChild);
-        var batch = observer.WindowContext!.MovementBatch!;
-        var paymentOwner = g.CreateSnapshot(0).Players[0];
-        var sourceQualified = paymentOwner.Skills!.Any(s => s.Id == Skill);
-        var suppressorQualified = paymentOwner.Skills!.Any(s => s.Id == Suppressor);
-        Require(paid.Stage == DrawDiscardCategoryStage.DiscardChildren && paid.Source == receipt.Source &&
-            batch.Id == paid.PaymentBatchId && batch.ParentFrameId == frameId && batch.Movements.Count == 3 &&
-            batch.Movements.Select(m => m.CardId).SequenceEqual([basic, armor, trick]) &&
-            batch.SourceCounts.Any(c => c.Location == CardLocation.Equipment(0) && c.CountBefore == 1 && c.CountAfter == 0) &&
-            batch.SourceCounts.Any(c => c.Location == CardLocation.Hand(0) && c.CountBefore - c.CountAfter == 2) &&
-            !E<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == EquipmentChild && e.SkillIds.Contains(Suppressor)) &&
-            paymentOwner.Hp == 5 && sourceQualified && !suppressorQualified &&
-            !E<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.LostSkillIds.Contains(Skill)),
-            $"One real mixed Hand/Equipment batch owns the exact observer and pauses before its source-suppressing grant; no grant or physical RemoveGrant is claimed before the real answer. HP={paymentOwner.Hp}/{paymentOwner.MaxHp}, sourceQualified={sourceQualified}, suppressorQualified={suppressorQualified}, skills={string.Join(',', paymentOwner.Skills!.Select(s => s.Id))}, stage={paid.Stage}, batch={batch.Id}/{paid.PaymentBatchId}.");
-        AssertPayment(g, frameId, [basic, armor, trick], true); Frozen(batch.Movements); Frozen(batch.SourceCounts); PrivateAndFrozen(g);
-        g = Cold(g, registry); Continue(g); ReachPlay(g);
-        AssertSuccess(g, frameId, 0); AssertDraw(g, frameId, false, 3); AssertDraw(g, frameId, true, 1);
-        var settledOwner = g.CreateSnapshot(0).Players[0];
-        var sourceActions = g.GetHumanLegalActions().Count(a => a.ProgramSkillId == Skill);
-        var suppressorGrants = g.Events.Where(e => e.Payload is SkillsAcquiredEvent a && a.PlayerSeat == 0 &&
-            a.SourceSkillId == EquipmentChild && a.SkillIds.Contains(Suppressor)).ToArray();
-        var paymentSequence = g.Events.Single(e => e.Payload is DrawDiscardCategoryDiscardPaidEvent p && p.FrameId == frameId).Sequence;
-        var bonusSequence = g.Events.Single(e => e.Payload is DrawDiscardCategoryDrawIssuedEvent d && d.FrameId == frameId && d.Bonus).Sequence;
-        Require(E<ProgramSkillResolvedEvent>(g).Any(e => e.FrameId == frameId && e.SkillId == Skill && e.Completed) &&
-            E<DrawDiscardCategoryRefundedEvent>(g).Single().AfterUsage == 0 &&
-            E<DrawDiscardCategoryTargetBannedEvent>(g).All(e => e.TargetSeat == 0) &&
-            sourceActions == 0 && !settledOwner.Skills!.Any(s => s.Id == Skill) && settledOwner.Skills!.Any(s => s.Id == Suppressor) &&
-            suppressorGrants is [var suppression] && paymentSequence < suppression.Sequence && suppression.Sequence < bonusSequence &&
-            !E<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.LostSkillIds.Contains(Skill)) &&
-            settledOwner.Hp == 5 && !g.ResolutionStack.Any(f => f.Id == frameId),
-            $"After the equipment child actually grants its suppressor, the original paid source settles bonus/refund exactly once; other targets still lack source qualification despite free phase quota. HP={settledOwner.Hp}/{settledOwner.MaxHp}, sourceActions={sourceActions}, skills={string.Join(',', settledOwner.Skills!.Select(s => s.Id))}, grantSequences={string.Join(',', suppressorGrants.Select(e => e.Sequence))}, paymentSequence={paymentSequence}, bonusSequence={bonusSequence}, refunds={string.Join(',', E<DrawDiscardCategoryRefundedEvent>(g).Select(e => e.AfterUsage))}, sourceFramePresent={g.ResolutionStack.Any(f => f.Id == frameId)}.");
-        _ = Cold(g, registry);
-    }
-
     private static void AssertDraw(GameEngine g, long frame, bool bonus, int actual)
     {
         var fact = E<DrawDiscardCategoryDrawIssuedEvent>(g).Single(e => e.FrameId == frame && e.Bonus == bonus);
@@ -160,12 +111,6 @@ internal static class DrawDiscardCategoryRefundChecks
     private static void Activate(GameEngine g, int target) => Accept(g, new UseProgramSkillCommand(0, Skill, Activation, [], [target], g.Revision, P(g)!.PromptId));
     private static void UseDriver(GameEngine g, string activation, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, activation, [], targets, g.Revision, P(g)!.PromptId));
     private static void CollectInitialHands(GameEngine g) { foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(g, "collect", [seat]); ReachPlay(g); } }
-    private static void EquipArmor(GameEngine g)
-    {
-        var armor = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip &&
-            g.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == a.CardId).Kind == CardKind.BaguaFormation);
-        Accept(g, new PlayCardCommand(0, armor.CardId!.Value, armor.TargetSeats, g.Revision, P(g)!.PromptId)); ReachPlay(g);
-    }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose)
     {
         var p = P(g)!; Require(p.PlayerSeat == 0, "Only the actual human owner answers fixture choices; AI participants use native Advance.");

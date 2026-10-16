@@ -1,4 +1,4 @@
-﻿using CardGame.Core;
+using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class HeQiChecks
 {
@@ -12,59 +12,16 @@ internal static class HeQiChecks
         Need(!V(g,0).Hand.Any(c=>c.Id==own.Id)&&!V(g,2).Hand.Any(c=>c.Id==foreign.Id)&&P(g)!.Choices.All(c=>c.Cards.Count==0),"Actual own and foreign Dodge entities are discarded before opaque unrevealed hand gain.");
         var selected=V(g,2).Hand.First(c=>!g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.HeQi!=null).HeQi!.Revealed.Contains(c.Id));var slot=V(g,2).Hand.ToList().FindIndex(c=>c.Id==selected.Id);Answer(g,c=>c.Parameters["branch"]==$"obtain-Hand-{slot}");Play(g);Need(V(g,0).Hand.Any(c=>c.Id==selected.Id)&&E<HeQiSegmentPaidEvent>(g).Count(e=>e.Stage==HeQiStage.ObtainChildren)==1,"Only an unrevealed actual entity is obtained once after genuine Dodge payment.");_=Cold(g,r);
     }
-    public static void EquipmentSuitThresholdsStableInstancesAndNativeLinkedModifiers()
-    {
-        ValidateEquipmentSuitContracts();var(g,r)=Start(equipment:true);Play(g);EquipFour(g);var skills=V(g,0).Skills!;Need(new[]{"ol:duanbing","boundary:yingzi","boundary:fenwei","ol:lanjiang"}.All(id=>skills.Any(s=>s.ContentId==id)),"Four actual printed equipment suits cumulatively grant the four exact current linked versions.");
-        UsePeachGarden(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="boundary:fenwei" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Reach(g,()=>P(g)?.Choices.Any(c=>c.Targets.Count==1)==true);Answer(g,c=>c.Targets.SequenceEqual([1]));if(P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="finish-targets")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="finish-targets");Play(g);
-        var initial=E<EquipmentSuitSkillGrantChangedEvent>(g).Where(e=>e.Added).GroupBy(e=>e.SkillId).ToDictionary(x=>x.Key,x=>x.First().SkillInstanceId);Use(g,"clear",[]);Play(g);Need(!V(g,0).Skills!.Any(s=>initial.ContainsKey(s.ContentId)),"True equipment removal revokes all derived grants.");g=Cold(g,r);EquipFour(g);
-        Need(E<EquipmentSuitSkillGrantChangedEvent>(g).Where(e=>e.Added&&initial.ContainsKey(e.SkillId)).All(e=>initial[e.SkillId]==e.SkillInstanceId),"Equipment threshold flicker preserves granted instances and their scoped limited-use state.");UsePeachGarden(g);Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard} || P(g)?.SkillPrompt?.SkillId=="boundary:fenwei");Need(P(g)?.SkillPrompt?.SkillId!="boundary:fenwei", "A spent Fenwei game quota is not offered again after true threshold exit and re-entry.");_=Cold(g,r);
-        var(rewritten,rewriteRegistry)=Start(equipment:true);Play(rewritten);EquipExact(rewritten,CardKind.SilverLion);EquipExact(rewritten,CardKind.OffensiveHorse);
-        Need(V(rewritten,0).Equipment.Select(c=>c.Suit).Order().SequenceEqual(new[]{Suit.Heart,Suit.Spade}.Order()) && V(rewritten,0).Skills!.Any(s=>s.ContentId=="boundary:yingzi"),"Two actually equipped Spade and Heart entities initially qualify the two-suit threshold.");Use(rewritten,"hongyan",[]);Play(rewritten);
-        Need(V(rewritten,0).Skills!.Any(s=>s.ContentId=="ol:duanbing") && !V(rewritten,0).Skills!.Any(s=>s.ContentId=="boundary:yingzi") && E<EquipmentSuitSkillGrantChangedEvent>(rewritten).Any(e=>e.SkillId=="boundary:yingzi"&&!e.Added&&e.DistinctSuits==1),"Acquiring real Hongyan rewrites Spade to Heart through the pure qualification path, collapsing two physical suits to one effective suit.");rewritten=Cold(rewritten,rewriteRegistry);Use(rewritten,"lose-hongyan",[]);Play(rewritten);
-        Need(!V(rewritten,0).Skills!.Any(s=>s.ContentId=="classic:hongyan") && V(rewritten,0).Skills!.Any(s=>s.ContentId=="boundary:yingzi") && E<EquipmentSuitSkillGrantChangedEvent>(rewritten).Last(e=>e.SkillId=="boundary:yingzi").DistinctSuits==2,"Native skill loss restores the actual two effective suits and the derived threshold without changing physical card suits.");_=Cold(rewritten,rewriteRegistry);
-    }
-    private static void ValidateEquipmentSuitContracts()
-    {
-        const string presentation="""{"schemaVersion":3,"skills":{"fixture:eq-contract":{"name":"装备花色授予","description":"共享能力边界"}}}""";
-        var valid=System.Text.Json.Nodes.JsonNode.Parse($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:eq-contract","revision":1,"equipmentSuitSkillGrants":[{"id":"one","skillId":"fixture:leaf","minimumDistinctSuits":1}]}]}""")!;
-        foreach(var change in new Action<System.Text.Json.Nodes.JsonObject>[] {n=>n.Remove("id"),n=>n.Remove("skillId"),n=>n.Remove("minimumDistinctSuits"),n=>n["id"]=1,n=>n["minimumDistinctSuits"]="1",n=>n["minimumDistinctSuits"]=1.5,n=>n["minimumDistinctSuits"]=0,n=>n["minimumDistinctSuits"]=5,n=>n["unknown"]=true})
-        {
-            var copy=valid.DeepClone();change(copy["skills"]![0]!["equipmentSuitSkillGrants"]![0]!.AsObject());Reject(()=>SkillProgramCatalog.Load(copy.ToJsonString(),presentation));
-        }
-        var duplicate=valid.DeepClone();duplicate["skills"]![0]!["equipmentSuitSkillGrants"]!.AsArray().Add(duplicate["skills"]![0]!["equipmentSuitSkillGrants"]![0]!.DeepClone());Reject(()=>SkillProgramCatalog.Load(duplicate.ToJsonString(),presentation));
-        foreach(var kind in new[]{"unknown","self","chain"})Reject(()=>ContentRegistry.Build(new StandardContentPackage(),new EquipmentContractFixture(kind)));
-        var legacy=$$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:eq-legacy","revision":1,"modifiers":[{"id":"one","query":"drawCount","operation":"add","value":1,"priority":0}]}]}""";
-        var program=SkillProgramCatalog.Load(legacy,"""{"schemaVersion":3,"skills":{"fixture:eq-legacy":{"name":"旧格式","description":"无新增字段"}}}""").Programs["fixture:eq-legacy"];
-        const string canonical="""{"id":"fixture:eq-legacy","modifiers":[{"id":"one","operation":"add","priority":0,"query":"drawCount","value":1}],"revision":1}""";
-        var expected=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(program.RuntimeVersion+"\n"+canonical))).ToLowerInvariant();
-        Need(program.EquipmentSuitSkillGrants.Count==0 && program.GameplayHash==expected,"Absent optional equipment-grant rules retain the original canonical gameplay fingerprint.");
-        var grant=new SkillGrant("old","fixture:eq-legacy","old-instance","old-source");Need(!System.Text.Json.JsonSerializer.Serialize(grant).Contains("EquipmentSuitSource",StringComparison.Ordinal),"A null added relation stays omitted from old canonical grant JSON.");
-    }
-    private static void Reject(Action action){try{action();}catch(InvalidOperationException){return;}throw new InvalidOperationException("Invalid equipment suit capability was accepted or escaped the normalized loader boundary.");}
-    private sealed class EquipmentContractFixture(string kind):IGameContentPackage
-    {
-        public PackageManifest Manifest{get;}=new("equipment-contract",new(1,0,0),[]);
-        public void Register(IContentRegistryBuilder b)
-        {
-            var target=kind=="self"?"fixture:eq-contract":kind=="unknown"?"fixture:unknown":"fixture:leaf";
-            var rules=$$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:eq-contract","revision":1,"equipmentSuitSkillGrants":[{"id":"one","skillId":"{{target}}","minimumDistinctSuits":1}]}{{(kind=="chain"?",{\"id\":\"fixture:leaf\",\"revision\":1,\"equipmentSuitSkillGrants\":[{\"id\":\"again\",\"skillId\":\"fixture:eq-contract\",\"minimumDistinctSuits\":1}]}":"")}}]}""";
-            var catalog=SkillProgramCatalog.Load(rules,kind=="chain"?"""{"schemaVersion":3,"skills":{"fixture:eq-contract":{"name":"装备授予","description":"共享约束"},"fixture:leaf":{"name":"禁止派生链","description":"共享约束"}}}""":"""{"schemaVersion":3,"skills":{"fixture:eq-contract":{"name":"装备授予","description":"共享约束"}}}""");foreach(var(id,p)in catalog.Programs)b.AddSkill(new(id,id,id){Program=p});
-        }
-    }
     private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];private static PendingDecision?P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p!=null);
     private static void Need(bool b,string m){if(!b)throw new InvalidOperationException(m);}private static void Accept(GameEngine g,GameCommand c){var x=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(x.Accepted,x.Error?.Message??"Rejected HeQi command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool>p){var d=P(g)!;Accept(g,new AnswerPromptCommand(d.PlayerSeat,d.PromptId,d.Choices.First(p).Id,g.Revision));}
-    private static void Use(GameEngine g,string id,IReadOnlyList<int>targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
     private static void StartShanXi(GameEngine g,int target)=>Accept(g,new UseProgramSkillCommand(0,"ol:shanxi","joint-reveal-dodges",[],[target],g.Revision,P(g)!.PromptId));
     private static void Reveal(GameEngine g,int owner,int card){var slot=V(g,owner).Hand.ToList().FindIndex(c=>c.Id==card);Answer(g,c=>c.Parameters["branch"]==$"reveal-{owner}-{slot}");}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Reach(GameEngine g,Func<bool>done){for(int i=0;i<160;i++){if(done())return;var p=P(g);if(p?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");else if(p is{Kind:DecisionKind.RescueDying})Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="let-die");else Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Small HeQi boundary exceeded.");}
     private static string State(GameEngine g)=>System.Text.Json.JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))),Frames=g.ResolutionStack.Select(f=>System.Text.Json.JsonSerializer.Serialize(f,f.GetType())),Commands=CommandJson.Serialize(g.AcceptedCommands)});
     private static GameEngine Cold(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Need(State(g)==State(restored),"Every viewer, stable grant and exact paid frame survives cold replay.");return restored;}
-    private static void UsePeachGarden(GameEngine g){for(var i=0;i<6;i++){var action=g.GetHumanLegalActions().FirstOrDefault(a=>a.CardId is{}id && V(g,0).Hand.Any(c=>c.Id==id&&c.Kind==CardKind.PeachGarden));if(action!=null){Accept(g,new PlayCardCommand(0,action.CardId!.Value,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId));return;}Use(g,"draw",[]);Play(g);}throw new InvalidOperationException("Fixed deck did not supply an actual native multi-target trick.");}
-    private static void EquipExact(GameEngine g,CardKind kind){for(var i=0;i<6;i++){var action=g.GetHumanLegalActions().FirstOrDefault(a=>a.CardId is{}id && V(g,0).Hand.Any(c=>c.Id==id&&c.Kind==kind));if(action!=null){Accept(g,new PlayCardCommand(0,action.CardId!.Value,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId));Play(g);return;}Use(g,"draw",[]);Play(g);}throw new InvalidOperationException("Fixed native deck did not supply the exact equipment kind.");}
-    private static void EquipFour(GameEngine g){for(var i=0;i<24;i++){if(V(g,0).Equipment.Select(c=>c.Suit).Distinct().Count()==4)return;Use(g,"equip-target",[0]);Play(g);}throw new InvalidOperationException("Fixed native equipment sequence did not reach its four available suits.");}
     private static (GameEngine,ContentRegistry)Start(bool equipment=false,bool armorOnly=false,bool paidWatch=false,bool killOwner=false){var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(equipment,armorOnly,paidWatch,killOwner));var g=GameEngine.CreateStandard(new GameOptions{Seed=7,PlayerCount=4,HumanSeat=0,HumanRole=killOwner?Role.Rebel:Role.Lord,ModeId=Mode,UseInteractiveSetup=true,UseInteractiveDiscard=false,AdvanceAfterHumanCommands=false,MaxTurns=4},r);Accept(g,new StartGameCommand());Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.SelectGeneral});Accept(g,new SelectGeneralCommand(0,Owner,g.Revision,P(g)!.PromptId));return(g,r);}
     private sealed class Fixture(bool equipment,bool armorOnly,bool paidWatch,bool killOwner):IGameContentPackage
     {

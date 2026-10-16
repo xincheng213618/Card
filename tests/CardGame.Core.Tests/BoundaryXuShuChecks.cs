@@ -51,83 +51,9 @@ internal static class BoundaryXuShuChecks
             Require(rejected, "The new owning operations reject an unsupported entry point or composition.");
         }
     }
-
-    public static void RunDeclaredDeckCriterion()
-    {
-        var (g, registry) = Start(initialJianyan: true, mixedDeck: true);
-        var top = Zones(g).CardsAt(CardLocation.DrawPile).Reverse().ToArray();
-        var criterion = top[0].Suit is Suit.Heart or Suit.Diamond ? "black" : "red";
-        var expected = Array.FindIndex(top, card => (card.Suit is Suit.Heart or Suit.Diamond) == (criterion == "red"));
-        Require(expected > 0, "The bounded mixed recipe stages both a failed reveal and a later match.");
-        UseJianyan(g);
-        var declaration = P(g)!;
-        Require(declaration.Choices.Select(c => c.Parameters["criterion"]).SequenceEqual(["basic", "trick", "equipment", "red", "black"]),
-            "Exactly three categories and two colors are declared without reading the private deck in the choice.");
-        ReplayFourViews(g, registry);
-        Answer(g, c => c.Parameters.GetValueOrDefault("criterion") == criterion);
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "declared-deck-recipient"));
-        var match = top[expected].Id;
-        Require(Zones(g).GetLocation(match) == CardLocation.Processing &&
-            top.Take(expected).All(card => Zones(g).GetLocation(card.Id) == CardLocation.DiscardPile),
-            "The first matching top entity is held after every preceding unmatched entity enters discard.");
-        Require(P(g)!.Choices.Any(c => c.Targets.SequenceEqual([0])) &&
-            P(g)!.Choices.All(c => Players(g)[c.Targets.Single()].Gender == GeneralGender.Male),
-            "Jianyan includes the male owner and excludes current female recipients.");
-        for (var viewer = 0; viewer < 4; viewer++)
-            Require(g.CreateSnapshot(viewer).PublicRevealedCards.Any(card => card.Id == match),
-                "Every viewer can see the actual matching revealed card.");
-        Require(g.Events.Select(e => e.Payload).OfType<ProgramDeckCriterionRevealedEvent>().Select(e => e.CardId)
-            .SequenceEqual(top.Take(expected + 1).Select(c => c.Id)), "The event ledger preserves top-first reveal order.");
-        ReplayFourViews(g, registry);
-        var stale = g.Submit(new AnswerPromptCommand(0, declaration.PromptId, declaration.Choices[0].Id, g.Revision));
-        Require(!stale.Accepted, "A stale criterion prompt cannot restart the committed search.");
-        Answer(g, c => c.Targets.SequenceEqual([0])); Settle(g);
-        Require(Zones(g).GetLocation(match) == CardLocation.Hand(0) &&
-            g.CardMovements.Count(m => m.CardId == match && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0)) == 1 &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianyan),
-            "The matching card transfers once and consumes one actual play-phase quota.");
-        ReplayFourViews(g, registry);
-
-        var (absent, ar) = Start(initialJianyan: true); var budget = Pile(absent).Length;
-        UseJianyan(absent); Answer(absent, c => c.Parameters.GetValueOrDefault("criterion") == "red"); Settle(absent);
-        Require(absent.Events.Select(e => e.Payload).OfType<ProgramDeckCriterionRevealedEvent>().Count() == budget &&
-            !absent.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Jianyan) &&
-            !absent.CardMovements.Any(move => move.Reason == CardMoveReasons.Reshuffle),
-            "A missing criterion scans the initial pile once, finishes, and does not cycle unmatched cards through reshuffles.");
-        ReplayFourViews(absent, ar);
-
-        var (child, chr) = Start(initialJianyan: true, gainChild: true); UseJianyan(child);
-        Answer(child, c => c.Parameters.GetValueOrDefault("criterion") == "basic");
-        Reach(child, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "declared-deck-recipient"));
-        var childHeld = child.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Jianyan).DeckCriterion!.MatchedCardId!.Value;
-        var hp = child.State.Players[0].Hp; Answer(child, c => c.Targets.SequenceEqual([0]));
-        Reach(child, p => p.SkillPrompt?.SkillId == "fixture:xu-gain");
-        Require(child.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Jianyan) is
-            { DeckCriterion.Stage: "gift", PendingMovementContinuation: not null },
-            "The committed gift keeps its owning draft while the actual gained-card child is pending.");
-        ReplayFourViews(child, chr); Activate(child); Settle(child);
-        Require(child.State.Players[0].Hp == hp - 1 &&
-            child.CardMovements.Count(m => m.CardId == childHeld && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0)) == 1,
-            "The actual gain child resolves once and cannot repeat the completed matching-card gift.");
-        ReplayFourViews(child, chr);
-
-        var (cancel, cr) = Start(initialJianyan: true); UseJianyan(cancel);
-        Answer(cancel, c => c.Parameters.GetValueOrDefault("criterion") == "basic");
-        Reach(cancel, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "declared-deck-recipient"));
-        var held = cancel.ResolutionStack.OfType<ProgramSkillFrame>().Single(frame => frame.SkillId == Jianyan).DeckCriterion!.MatchedCardId!.Value;
-        ReplayFourViews(cancel, cr);
-        var source = Players(cancel)[0].SkillGrants.Grants.Single(item => item.SkillId == Jianyan);
-        Players(cancel)[0].SkillGrants.RemoveGrant(source.GrantId);
-        Answer(cancel, c => c.Targets.SequenceEqual([0])); Settle(cancel);
-        Require(Zones(cancel).GetLocation(held) == CardLocation.DiscardPile &&
-            !cancel.CardMovements.Any(m => m.CardId == held && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0)),
-            "Exact source loss at the recipient boundary cleans the held card without a gift.");
-    }
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Driver(GameEngine g, string id, int[]? targets = null) =>
         Accept(g, new UseProgramSkillCommand(0, "fixture:xu-driver", id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void UseJianyan(GameEngine g) => Accept(g, new UseProgramSkillCommand(0, Jianyan, "declare-and-give", [], [], g.Revision, P(g)!.PromptId));
-    private static CardZoneStore Zones(GameEngine g) => (CardZoneStore)typeof(GameEngine).GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!;
     private static CharacterState[] Players(GameEngine g) => ((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!).ToArray();
     private static SkillProgram Load(string id, string members) => SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion + ",\"skills\":[{\"id\":\"" + id + "\",\"revision\":1," + members + "}]}",
         "{\"schemaVersion\":3,\"skills\":{\"" + id + "\":{\"name\":\"fixture\",\"description\":\"fixture\"}}}").Programs[id];

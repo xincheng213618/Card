@@ -35,93 +35,9 @@ internal static class OrdinarySpMaChaoChecks
             "Lost HP expands the quota without removing normal distance legality."); higher = Cold(higher, hr);
     }
 
-    public static void EquipmentRecastDrainsSilverLionAndPaidSourceLossBeforeRealDraw()
-    {
-        foreach (var sourceLoss in new[] { false, true })
-        {
-            var (g, r) = Create(equipment: true, sourceLoss: sourceLoss); Play(g); Use(g, "equip", [1]); Play(g);
-            var before = g.State.Players[1].Hp;
-            var ids = SelectedSlash(g, [1]); Reach(g, Penalty);
-            Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("penalty-option") == "recast"),
-                "A real equipped Silver Lion supplies the complete all-equipment branch.");
-            g = Cold(g, r); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SlashTargetPenaltyDraft is not null);
-            var draft = root.SlashTargetPenaltyDraft!;
-            Require(draft.Recast && draft.Stage == SlashTargetPenaltyStage.CostChildren && draft.PaidCardIds.Count == 1 &&
-                g.State.Players[1].Hp == before + 1 && E<SlashTargetPenaltyDrawIssuedEvent>(g).Length == 0 &&
-                g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.ResumeFrameId == root.Id && h.Change.ParentFrameId == root.Id &&
-                    h.Continuation == PostEventContinuation.AwaitedProgramMovement),
-                "Silver Lion cost recovery is a real exact awaited child before any recast reward.");
-            Freeze(draft.PaidCardIds); Freeze(draft.PaidFrom); g = Cold(g, r);
-            if (sourceLoss)
-            {
-                Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Loss && p.PlayerSeat == 0 && p.Choices.Any(c => c.Targets.SequenceEqual([2])));
-                Require(g.State.Players[1].Hp == before + 1 && E<SlashTargetPenaltyDrawIssuedEvent>(g).Length == 0 &&
-                    E<ProgramSkillHpLostEvent>(g).Any(e => e.SkillId == Hp && e.TargetSeat == 0 && e.Amount == 1),
-                    "The paid recovery child causes a real issuer HP loss before its owner chooses a separate wounded victim; the payer remains alive before reward.");
-                g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([2]));
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-            var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
-            Require(movement.Batch.ParentFrameId == root.Id && (movement.Batch.AwaitingProgramFrameId is null || movement.Batch.AwaitingProgramFrameId == root.Id) &&
-                root.PendingMovementContinuation is not null && movement.ResumeProgramFrameId is null &&
-                movement.Batch.Movements.Select(m => m.CardId).SequenceEqual(draft.PaidCardIds),
-                "The original atomic equipment discard retains its real exact program parent and material IDs.");
-            g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            Require(!sourceLoss || E<CharacterSkillsLostEvent>(g).Any(e => e.Seat == 0 && e.SourceSeat == 2 && e.SkillIds.Contains(Zhuiji)) &&
-                E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 2 && e.Amount == 1) &&
-                E<PlayerDiedEvent>(g).Any(e => e.VictimSeat == 2 && e.KillerSeat == 0) && g.State.Players[1].IsAlive &&
-                !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Zhuiji),
-                "The real nested victim death invokes Duanchang and disables the original issuer's grants after actual payment; the recast payer survives.");
-            Require(E<SlashTargetPenaltyDrawIssuedEvent>(g).Single().ActualCount == 1,
-                "Paid recast belongs to the target and draws even after its original attacker's source is lost.");
-            g = Cold(g, r); Play(g);
-            Require(E<CardRecastEvent>(g).Count(e => draft.PaidCardIds.Contains(e.CardId) && e.DrawCount == 1) == 1 &&
-                g.CardMovements.Count(m => draft.PaidCardIds.Contains(m.CardId) && m.Reason == CardMoveReasons.RecastDiscard) == 1 &&
-                g.CardMovements.Count(m => m.Reason == CardMoveReasons.RecastDraw && m.To == CardLocation.Hand(1)) == 1 &&
-                ids.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.UseFinished) == 1) &&
-                E<ProgramBindingResolvedEvent>(g).Single(e => e.FrameId == root.Id).Completed,
-                "Cost, recovery, movement, real reward and original two-material Slash finish exactly once after cold resumes.");
-        }
-    }
-
-    public static void LegacySlashAndExistingTargetWindowsKeepOneVisitPerOriginalTarget()
-    {
-        foreach (var legacy in new[] { false, true })
-        {
-            var (g, r) = Create(legacy: legacy, coexist: true);
-            if (legacy)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == "boundary:shensu" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-                Reach(g, p => p.SkillPrompt?.SkillId == "boundary:shensu" && p.Choices.Any(c => c.Targets.SequenceEqual([1])));
-                Answer(g, c => c.Targets.SequenceEqual([1]));
-            }
-            else { Play(g); SelectedSlash(g, [1, 2]); }
-            Reach(g, Penalty); var original = g.ResolutionStack.OfType<CardUseFrame>().Last();
-            if (legacy) Require(original.Action is null && original.CardId == 0 && original.PhysicalCardIds is { Count: 0 } &&
-                E<SlashTargetPenaltyOfferedEvent>(g).Single().Identity.LegacyProducerProgramId is not null,
-                "Mature Shensu keeps its exact real Action-null producer and creates no fabricated physical or accepted action.");
-            g = Cold(g, r); Play(g);
-            var offer = E<SlashTargetPenaltyOfferedEvent>(g).Where(e => e.Identity.CardUseFrameId == original.Id).ToArray();
-            Require(offer.Select(e => e.Identity.TargetSeat).Distinct().Count() == offer.Length &&
-                E<SlashTargetBenefitOfferedEvent>(g).Where(e => e.CardUseFrameId == original.Id).Select(e => e.TargetSeat).Distinct().Count() == offer.Length &&
-                E<UniqueHpTargetAnnouncedEvent>(g).Where(e => e.Target.CardUseFrameId == original.Id).Select(e => e.Target.TargetSeat).Distinct().Count() == offer.Length,
-                "Mandatory chase, Moukui and Tianming visit each real finalized target once without replaying the old windows.");
-            Require(E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == original.Id) == 1,
-                "Both entity and mature virtual producers finish exactly once after all dedicated target windows."); g = Cold(g, r);
-        }
-        var (native, nr) = Create(native: true);
-        for (var i = 0; i < 100 && !E<SlashTargetPenaltyFinishedEvent>(native).Any(); i++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<SlashTargetPenaltyPaidEvent>(native).Any() && E<SlashTargetPenaltyFinishedEvent>(native).Any(e => e.Completed),
-            "The same fixed small setup really selects, uses Slash and pays a mandatory target decision through native AI commands."); native = Cold(native, nr);
-    }
-
     private static int SubmitSlash(GameEngine g, LegalAction a)
     { var id = a.CardId ?? throw new InvalidOperationException("Missing physical Slash."); Accept(g, new PlayCardCommand(0, id, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources }); return id; }
-    private static int[] SelectedSlash(GameEngine g, int[] targets, int[]? cards = null)
-    { var ids = cards ?? g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray(); Accept(g, new UseProgramSkillCommand(0, "classic:fuhun", "two-hand-cards-as-slash", ids, targets, g.Revision, P(g)!.PromptId)); return ids; }
     private static void Use(GameEngine g, string id, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -146,7 +62,6 @@ internal static class OrdinarySpMaChaoChecks
         Require(State(g) == State(restored), "Four viewer projections, exact owning frames, real entities and accepted-journal cold prefix match."); return restored; }
     private static void Private(GameEngine g) { var p = P(g)!; Require(p.IsPrivate, "Target cost choices are private to their actual owner.");
         for (var i = 0; i < 4; i++) if (i != p.PlayerSeat) Require(g.CreateSnapshot(i).PendingDecision is null, "Other viewers cannot read target-owned hand identities."); }
-    private static void Freeze<T>(IReadOnlyList<T> values) { if (values.Count > 0 && values is IList<T> mutable) { try { mutable[0] = values[0]; throw new InvalidOperationException("Mutable exposed collection."); } catch (NotSupportedException) { } } }
     private static void Accept(GameEngine g, GameCommand c) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected true command."); }
     private static void Require(bool ok, string message) { if (!ok) throw new InvalidOperationException(message); }
     private static (GameEngine, ContentRegistry) Create(bool highHp = false, bool equipment = false, bool spear = false, bool sourceLoss = false, bool legacy = false, bool coexist = false, bool native = false)

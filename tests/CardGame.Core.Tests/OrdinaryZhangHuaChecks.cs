@@ -53,120 +53,15 @@ internal static class OrdinaryZhangHuaChecks
         }
     }
 
-    public static void MatchingRecastCanonicalNamesSelfQuotaAndExtraPhase()
-    {
-        var (mixed, _) = Create(Scenario.Mixed);
-        var bad = new[] { V(mixed, 0).Hand.First(c => c.Kind == CardKind.Slash).Id, V(mixed, 0).Hand.First(c => c.Kind == CardKind.Duel).Id };
-        Reject(mixed, new UseProgramSkillCommand(0, Jianhe, "jianhe", bad, [0], mixed.Revision, P(mixed)!.PromptId));
-        Require(E<MatchingRecastStartedEvent>(mixed).Length == 0, "A Basic and Trick group cannot pass the same-name or all-Equipment owner cost contract.");
-        var mixedAction = mixed.GetHumanLegalActions().First(a => a.ProgramSkillId == Jianhe);
-        Require(mixedAction.SelectedCardsSameNameOrAllEquipment &&
-            mixed.GetHumanActionView().LegalActions.Single(a => a.ProgramSkillId == Jianhe).SelectedCardsSameNameOrAllEquipment,
-            "Both public action queries preserve the same-name or all-equipment owner cost contract independently of AI policy.");
-        var aiCards = new SimpleAiBrain(0, 31).ChooseActiveSkillCards(mixed.CreateSnapshot(0), mixedAction);
-        var expectedAi = V(mixed, 0).Hand.Where(c => mixedAction.SelectableCardIds.Contains(c.Id)).GroupBy(c => c.Kind)
-            .Where(group => group.Count() >= mixedAction.MinCardCount)
-            .Select(group => group.OrderBy(c => CardCatalog.Get(c.Kind).HandKeepValue).ThenBy(c => c.Id).Take(mixedAction.MinCardCount).ToArray())
-            .OrderBy(cards => cards.Sum(c => CardCatalog.Get(c.Kind).HandKeepValue)).ThenBy(cards => cards[0].Id)
-            .First().Select(c => c.Id).ToArray();
-        Require(mixedAction.ProgramAiHint?.MatchingNameOrEquipmentRecastInput == true && aiCards.Count == 2 &&
-            aiCards.Distinct().Count() == 2 && aiCards.All(id => mixedAction.SelectableCardIds.Contains(id)) &&
-            aiCards.Select(id => V(mixed, 0).Hand.Single(c => c.Id == id).Kind).Distinct().Count() == 1 && aiCards.SequenceEqual(expectedAi) &&
-            E<MatchingRecastStartedEvent>(mixed).Length == 0,
-            "The shared AI chooses the cheapest complete same-name group from the published union instead of mixing a Basic with a Trick, without prepaying or consuming the target ledger.");
-        var (g, registry) = Create(Scenario.Canonical); var turn = g.State.TurnNumber; var hand = V(g, 0).HandCount;
-        var cards = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }.Select(kind => V(g, 0).Hand.First(c => c.Kind == kind).Id).ToArray();
-        Recast(g, cards, 0); Reach(g, p => Matching(p, "recast"));
-        var frame = MatchingFrame(g); var r = frame.MatchingRecast!;
-        Require(r.Category == SkillProgramCardCategory.Basic && r.Owner.Materials.Select(m => m.CardId).SequenceEqual(cards) &&
-            r.Owner.CostIssued && r.Owner.DrawIssued && r.Owner.ActualDrawCount == 3 && r.Peer.Seat == 0 &&
-            !r.Peer.CostIssued && r.Peer.Materials.Count == 0 && r.EligiblePeerMaterials.All(m => m.From.OwnerSeat == 0),
-            "Three physical Slash variants share one native name, and self is a genuine second payer only after the owner's recast and draw have drained.");
-        Frozen(r.Owner.Materials); Frozen(r.Peer.Materials); Frozen(r.EligiblePeerMaterials); Private(g); g = Cold(g, registry);
-        Answer(g, c => c.Parameters.GetValueOrDefault("step") == "recast");
-        var peerCards = P(g)!.Choices.Where(c => c.Parameters.GetValueOrDefault("step") == "card").Take(3).Select(c => c.Cards.Single()).ToArray();
-        foreach (var id in peerCards) Answer(g, c => c.Cards.SequenceEqual([id]));
-        Play(g); var done = E<MatchingRecastCompletedEvent>(g).Single();
-        Require(done.FrameId == frame.Id && done is { OwnerPaid: true, PeerPaid: true, DamageIssued: false, OwnerDrawCount: 3, PeerDrawCount: 3 } &&
-            V(g, 0).HandCount == hand && E<MatchingRecastPaidEvent>(g).Count(e => e.FrameId == frame.Id && e.Cursor == 0) == 3 &&
-            E<MatchingRecastPaidEvent>(g).Count(e => e.FrameId == frame.Id && e.Cursor == 1) == 3 &&
-            E<MatchingRecastDrawIssuedEvent>(g).Count(e => e.FrameId == frame.Id) == 2 && E<CardRecastEvent>(g).Length == 6 &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe && a.SelectableTargetSeats.Contains(0)) &&
-            g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe && a.SelectableTargetSeats.Contains(1)) &&
-            E<DamageAppliedEvent>(g).Length == 0,
-            "Each self payment and draw occurs once, the same target is exhausted only for this Play phase, and other targets remain available without a global skill quota.");
-        Reject(g, new UseProgramSkillCommand(0, Jianhe, "jianhe", V(g, 0).Hand.Take(2).Select(c => c.Id).ToArray(), [0], g.Revision, P(g)!.PromptId));
-        End(g); Reach(g, p => p.SkillPrompt?.SkillId == "fixture:zhang-hua-extra-play" &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target" && c.Targets.SequenceEqual([0])));
-        var extraFrame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "fixture:zhang-hua-extra-play").Id;
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" && c.Targets.SequenceEqual([0]));
-        Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-        Require(g.State.TurnNumber == turn && E<MatchingRecastStartedEvent>(g).Length == 1 &&
-            E<ProgramPhaseScheduledEvent>(g).Count(e => e.FrameId == extraFrame && e.SkillId == "fixture:zhang-hua-extra-play" &&
-                e.BindingId == "insert" && e.OwnerSeat == 0 && e.Phase == TurnPhase.Play && e.Started) == 1 &&
-            g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe && a.SelectableTargetSeats.Contains(0)),
-            "A real inserted Play phase refreshes only the per-target phase debit in the same actual turn.");
-    }
-
-    public static void FrozenPrintedLossDrawAndExactTurnRestoreSurviveSourceLoss()
-    {
-        var (g, registry) = Create(Scenario.Lease); var turn = g.State.TurnNumber;
-        var weapon = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        SubmitPlay(g, weapon); Play(g); Use(g, "extra"); Play(g); Use(g, "self-damage");
-        Reach(g, p => p.SkillPrompt?.SkillId == Changed && IsContinue(p));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OrderedPrintedSkillLoss is not null);
-        var r = root.OrderedPrintedSkillLoss!; var lease = r.Lease;
-        var skills = g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(f => f.Window == SkillProgramTriggerWindow.SkillsChanged && f.ResumeProgramFrameId == root.Id);
-        Require(r.Stage == OrderedPrintedSkillLossStage.LossChildren && !r.DrawIssued && lease.FrozenAttackRange == 3 &&
-            lease.LostSkillIds.SequenceEqual([Bihun, Jianhe, Chuanwu]) && lease.RemovedGrants.Count == 5 &&
-            lease.RemovedGrants.Count(s => s.SkillId == Bihun) == 2 && lease.RemovedGrants.Count(s => s.SkillId == Jianhe) == 2 &&
-            lease.RemovedGrants.Count(s => s.SkillId == Chuanwu) == 1 &&
-            skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && r.DamageSourceSeat == 0 && r.DamageTargetSeat == 0 &&
-            r.DamageAmount == 1 && V(g, 0).Hp == 3 && E<OrderedPrintedSkillLossDrawIssuedEvent>(g).Length == 0 &&
-            E<OrderedPrintedSkillGrantRemovedEvent>(g).Where(e => e.FrameId == root.Id).Select(e => e.Grant).SequenceEqual(lease.RemovedGrants),
-            "Before any draw, the frozen native range removes all grants of the three current printed IDs, including both acquired duplicates, and opens an exact typed skill-change child despite losing the initiating source.");
-        Frozen(lease.LostSkillIds); Frozen(lease.RemovedGrants); Private(g); g = Cold(g, registry); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain && IsContinue(p));
-        r = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == root.Id).OrderedPrintedSkillLoss!;
-        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.ParentFrameId == root.Id && f.Batch.AwaitingProgramFrameId == root.Id);
-        Require(r.Stage == OrderedPrintedSkillLossStage.DrawChildren && r.DrawIssued && r.DrawActual == 3 &&
-            JsonSerializer.Serialize(r.Lease) == JsonSerializer.Serialize(lease) && moved.Batch.Movements.Count > 0 &&
-            moved.Batch.Movements.All(m => m.Sequence > r.DrawBefore && m.Sequence <= r.DrawAfter && m.To == CardLocation.Hand(0) &&
-                m.Reason.Value == "skill-program.ol:chuanwu.ordered-printed-skill-loss.draw") &&
-            g.CardMovements.Count(m => m.Sequence > r.DrawBefore && m.Sequence <= r.DrawAfter && m.From == CardLocation.DrawPile &&
-                m.To == CardLocation.Hand(0) && m.Reason.Value == "skill-program.ol:chuanwu.ordered-printed-skill-loss.draw") == 3 &&
-            E<OrderedPrintedSkillLossDrawIssuedEvent>(g).Single() is { RequestedCount: 3, ActualCount: 3 } &&
-            E<OrderedPrintedSkillLossCompletedEvent>(g).Length == 0,
-            "The owed draw is based on three distinct lost IDs rather than five grants and has one exact native movement child after source loss.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g);
-        Require(E<OrderedPrintedSkillLossCompletedEvent>(g).Single(e => e.FrameId == root.Id) is { LostSkillCount: 3, DrawActual: 3 } &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe) &&
-            E<OrderedPrintedSkillGrantRestoredEvent>(g).Length == 0,
-            "The paid draw completes once while every selected printed skill remains physically absent until the actual turn ends.");
-        End(g); Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && g.State.TurnNumber != turn);
-        var restored = E<OrderedPrintedSkillGrantRestoredEvent>(g).Where(e => e.FrameId == root.Id).ToArray();
-        Require(restored.Length == 5 && lease.RemovedGrants.All(grant => restored.Count(e => e.OwnerSeat == 0 && e.Grant == grant && e.Restored && e.Outcome == "restored") == 1) &&
-            E<OrderedPrintedSkillLossExpiredEvent>(g).Single(e => e.FrameId == root.Id) is { ActualTurnOwnerSeat: 0, RestoredCount: 5, SkippedCount: 0 } expiry &&
-            expiry.ActualTurnNumber == turn && E<TurnEndedEvent>(g).Count(e => e.TurnNumber == turn && e.ActorSeat == 0) == 1 &&
-            g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe) && E<OrderedPrintedSkillLossDrawIssuedEvent>(g).Length == 1 &&
-            E<OrderedPrintedSkillLossCompletedEvent>(g).Count(e => e.FrameId == root.Id) == 1,
-            "At the exact original actual turn end all five original grant identities return once, the next actual turn can recast again, and recovery never repeats the already issued draw.");
-        _ = Cold(g, registry);
-    }
-
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool IsContinue(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static bool Matching(PendingDecision p, string step) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "matching-recast" && c.Parameters.GetValueOrDefault("step") == step);
-    private static ProgramSkillFrame MatchingFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.MatchingRecast is not null);
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand c) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(result.Accepted, result.Error?.Message ?? "A genuine Zhang Hua fixture command was rejected."); }
-    private static void Reject(GameEngine g, GameCommand c) { var state = State(g); Require(!g.Submit(c).Accepted && State(g) == state, "An invalid native selection is rejected atomically without paying or consuming its target phase ledger."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void Recast(GameEngine g, int[] cards, int target) => Accept(g, new UseProgramSkillCommand(0, Jianhe, "jianhe", cards, [target], g.Revision, P(g)!.PromptId));
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });

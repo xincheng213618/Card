@@ -14,7 +14,6 @@ public sealed partial class MainViewModel
     private string _currentGuideBody = string.Empty;
     private string _guideIdentity = string.Empty;
     private IReadOnlyList<GuideCardEntry> _guideCards = [];
-    private int _guideRulesVersion;
 
     public IReadOnlyList<GuideSection> GuideSections { get; } =
     [new("current", "当前操作", "操作说明与出牌建议"),
@@ -69,7 +68,6 @@ public sealed partial class MainViewModel
                 GetCardDescription(definition.Kind),
                 GetCardTiming(definition.Kind)))
             .ToArray();
-        _guideRulesVersion = GameCheckpoint.CurrentRulesVersion;
         SelectedGuideSection = GuideSections[0];
         FilterGuideCards();
         OpenContextGuideCommand = new RelayCommand(() => { SelectedGuideSection = GuideSections[0]; IsHelpOpen = true; });
@@ -100,19 +98,6 @@ public sealed partial class MainViewModel
     {
         RefreshPlayAdvice();
         if (_snapshot is null) return;
-        if (_guideRulesVersion != _game.RulesVersion)
-        {
-            var selectedKind = SelectedGuideCard?.Kind;
-            _guideRulesVersion = _game.RulesVersion;
-            _guideCards = CardCatalog.ImplementedCards
-                .Select(definition => new GuideCardEntry(
-                    definition,
-                    GetCardDescription(definition.Kind),
-                    GetCardTiming(definition.Kind)))
-                .ToArray();
-            FilterGuideCards();
-            SelectedGuideCard = FilteredGuideCards.FirstOrDefault(card => card.Kind == selectedKind) ?? FilteredGuideCards.FirstOrDefault();
-        }
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
         var prompt = _snapshot.PendingDecision;
         var isFangtianTargetSelection = HasTargetCombinationChoices &&
@@ -173,7 +158,7 @@ public sealed partial class MainViewModel
         {
             CurrentGuideTitle = "确认起手牌再开局";
             CurrentGuideBody = OpeningDealSummary;
-            steps = ["查看起手牌，牌面仅对你可见。", "点击「重新随机手牌」将自己的牌放回牌堆，洗牌后抽取同样数量；其他玩家手牌不变。", "点击「进入牌局」开始对局，此后不能再重新随机起手牌或改选身份。"];
+            steps = ["直接在底部手牌区查看起手牌，牌面仅对你可见。", "点击「随机」将自己的牌放回牌堆，洗牌后抽取同样数量。", "点击「换牌」，点选一张手牌，搜索牌名后点击「换入手牌」，例如选择丈八蛇矛。自选会优先从牌堆换入；若该牌已发给其他角色，则交换双方的这张起手牌，所有角色手牌数量不变。", "点击「确定」开始对局，此后不能再随机或换牌。"];
         }
         else if (IsGeneralSelectionPending)
         {

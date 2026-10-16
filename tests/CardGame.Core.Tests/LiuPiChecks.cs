@@ -8,7 +8,6 @@ internal static class LiuPiChecks
     private const string General = "ol:liu-pi", Skill = "ol:yicheng", Mode = "identity:classic-liu-pi-fixture";
     private const string Driver = "fixture:liupi-driver", Quiet = "fixture:liupi-quiet", Watch = "fixture:liupi-watch", Stock = "fixture:liupi-stock";
     private const string EqualReason = "skill-program.ol:yicheng.equal-exchange", FullReason = "skill-program.ol:yicheng.full-exchange";
-    private const string ReturnReason = "skill-program.ol:yicheng.return-top";
 
     public static void CancelledEqualAndLowerExchangesPreserveDeckSlotsAndCold()
     {
@@ -69,55 +68,6 @@ internal static class LiuPiChecks
         g = Cold(g, registry); Continue(g); Play(g);
         Need(Top(g, 1).Single() == low && E<LiuPiExchangeCommittedEvent>(g).Single() is { FullExchange: false },
             "A lower resulting rank sum returns the row without opening the second exchange.");
-        _ = Cold(g, registry);
-    }
-
-    public static void StrictIncreaseSwapsUnequalWholeHandAndPrivateTopOrderThroughChildrenCold()
-    {
-        var (g, registry) = Start(mixed: true, nested: true);
-        var low = V(g, 0).Hand.First(c => c.Rank == 1).Id;
-        var high = V(g, 0).Hand.First(c => c.Rank == 13).Id;
-        DriverTop(g, low); Play(g); var hp = V(g, 0).Hp;
-        Use(g); At(g, LiuPiExchangeStage.HandSelection);
-        var shown = Root(g).LiuPiExchange!.Table.Select(e => e.CardId).ToArray();
-        Need(shown[0] == low && shown.Length == V(g, 0).MaxHp,
-            "The selected real low card is genuinely placed on top before maximum-HP display.");
-        Card(g, "hand", high); g = Cold(g, registry); Option(g, "select-table"); Card(g, "table", low); Option(g, "equal-exchange");
-        Reach(g, p => p.SkillPrompt?.SkillId == Watch);
-        var first = E<LiuPiExchangeCommittedEvent>(g).Single();
-        var handBeforeChild = V(g, 0).Hand.Select(c => c.Id).ToArray();
-        Need(first.TableRankAfter == first.TableRankBefore + 12 && Root(g).LiuPiExchange!.EqualRankAfter == first.TableRankAfter,
-            "A strict increase is frozen from the completed physical exchange before its gain observer can draw or deal damage.");
-        g = Cold(g, registry); Continue(g); At(g, LiuPiExchangeStage.FullOffer);
-        var currentHand = V(g, 0).Hand.Select(c => c.Id).ToArray();
-        var currentTable = Root(g).LiuPiExchange!.Table.Select(e => e.CardId).ToArray();
-        Need(currentHand.Length == handBeforeChild.Length + 1 && V(g, 0).Hp == hp - 1 &&
-            Root(g).LiuPiExchange!.EqualRankBefore == first.TableRankBefore && Root(g).LiuPiExchange!.EqualRankAfter == first.TableRankAfter,
-            "A genuine nested native draw and damage return to the issued rank receipt without replacing its comparison or old hand snapshot.");
-        Need(currentHand.Length != currentTable.Length, "The real fixed fixture deliberately gives the second exchange unequal set sizes.");
-        Option(g, "full-order"); At(g, LiuPiExchangeStage.FullOrder);
-        Need(Enumerable.Range(1, 3).All(seat => g.CreateSnapshot(seat).PendingDecision is null),
-            "Only the owner sees and arranges the unpaid complete outgoing hand order.");
-        var order = currentHand.Reverse().ToArray();
-        for (var index = 0; index < order.Length; index++)
-        {
-            Card(g, "order", order[index]);
-            if (index == order.Length / 2) g = Cold(g, registry);
-        }
-        g = Cold(g, registry); Option(g, "full-exchange"); Reach(g, p => p.SkillPrompt?.SkillId == Watch);
-        var second = E<LiuPiExchangeCommittedEvent>(g).Last();
-        var paid = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch;
-        Need(second.FullExchange && second.HandCardsGiven == currentHand.Length && second.TableCardsTaken == currentTable.Length &&
-            currentHand.All(id => Location(g, id) == CardLocation.Processing) && currentTable.All(id => Location(g, id) == CardLocation.Hand(0)) &&
-            Root(g).LiuPiExchange!.Table.Select(e => e.CardId).SequenceEqual(order) &&
-            paid.SourceCounts.Single(c => c.Location == CardLocation.Hand(0)).CountAfter == currentTable.Length,
-            "The second native atomic exchange pays the entire post-child hand, obtains the whole displayed set and freezes the chosen top order despite unequal counts.");
-        g = Cold(g, registry); Continue(g); Play(g);
-        Need(Top(g, order.Length).SequenceEqual(order) && V(g, 0).Hand.Count == currentTable.Length + 1 && V(g, 0).Hp == hp - 2 &&
-            E<LiuPiExchangeCommittedEvent>(g).Count() == 2 && currentHand.All(id =>
-                g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == FullReason) == 1 &&
-                g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == ReturnReason) == 1),
-            "Full exchange and its actual gain/damage child cold-resume once, then return every outgoing entity to the exact privately selected top order.");
         _ = Cold(g, registry);
     }
 

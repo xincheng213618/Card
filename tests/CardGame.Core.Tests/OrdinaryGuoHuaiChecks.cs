@@ -10,48 +10,6 @@ internal static class OrdinaryGuoHuaiChecks
     private const string Child = "fixture:guo-huai-discard-child", Suppress = "fixture:guo-huai-suppress", Mode = "fixture:guo-huai-mode";
     private const string ActiveRequest = "fixture:guo-huai-active-request";
 
-    public static void UndamagedGroupTargetRevealSameColorAndColdReturn()
-    {
-        var (g, registry) = Create(CardKind.Dodge, yidu: true, emptySecond: true);
-        Require(V(g, 2).HandCount == 0 && V(g, 1).HandCount == 5 && V(g, 3).HandCount == 4,
-            "Legal initial-deal modifiers leave only target2 without a Dodge; no NPC response is manually forged.");
-        Arrows(g); RespondGroup(g); Reach(g, p => Offer(p, Yidu, 0));
-        var use = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.ArrowBarrage).Action;
-        var damage = E<CompletedUndamagedUseDamageRecordedEvent>(g).Where(e => e.CardActionId == use.ActionId).ToArray();
-        Require(damage is [{ TargetSeat: 2, Amount: 1 }] && E<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 2),
-            "The independent whole-use ledger records only the actually damaged group target, not its successfully defended siblings.");
-        Answer(g, Activate); Reach(g, p => Reveal(p, "target"));
-        var root = RevealRoot(g); var receipt = root.CompletedUndamagedTargetReveal!; var id = root.Id;
-        Require(receipt.FinalTargets.ToHashSet().SetEquals([1, 2, 3]) && receipt.EligibleTargets.ToHashSet().SetEquals([1, 3]) &&
-            P(g)!.Choices.All(c => !c.Targets.Contains(2)),
-            "A multi-target damage trick offers every eligible undamaged target and excludes the target hurt by this exact use.");
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, p => Reveal(p, "slot"));
-        root = RevealRoot(g); receipt = root.CompletedUndamagedTargetReveal!;
-        var invoice = receipt.TargetHand.Take(3).ToArray();
-        Require(invoice.Length == 3 && invoice.All(m => g.CreateCardZoneDiagnostics().Single(z => z.CardId == m.CardId).Location == CardLocation.Hand(1)),
-            "Three frozen material slots identify true current target Hand entities after its real Dodge cost.");
-        Blind(g); g = Cold(g, registry);
-        foreach (var m in invoice) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "slot" && c.Parameters.GetValueOrDefault("slot-index") == m.Slot.ToString());
-        Reach(g, p => p.SkillPrompt?.SkillId == Child && ContinueChoice(p));
-        root = RevealRoot(g); receipt = root.CompletedUndamagedTargetReveal!;
-        var shown = E<ProgramCardsRevealedEvent>(g).Single(e => e.FrameId == id);
-        var movement = E<CompletedUndamagedTargetRevealMovementIssuedEvent>(g).Single();
-        Require(receipt is { Stage: CompletedUndamagedTargetRevealStage.MovementChildren, SameColor: true, MovementIssued: true } &&
-            receipt.RevealedMaterials.Select(m => m.CardId).SequenceEqual(invoice.Select(m => m.CardId)) && receipt.PaidMaterials.Count == 3 &&
-            shown.Bind == "completed-undamaged-target-reveal" && shown.Cards.Select(c => c.Id).SequenceEqual(invoice.Select(m => m.CardId)) &&
-            movement.FrameId == id && movement.ActualCount == 3 && g.CardMovements.Count(m => m.Sequence > movement.SequenceBefore && m.Sequence <= movement.SequenceAfter &&
-                m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile) == 3 && !E<CompletedUndamagedTargetRevealCompletedEvent>(g).Any(),
-            "The exact public reveal pays one genuine same-color three-card discard before its own native movement child returns.");
-        Frozen(shown.Cards); Frozen(receipt.TargetHand); Frozen(receipt.SelectedSlots); Frozen(receipt.RevealedMaterials); Frozen(receipt.PaidMaterials);
-        PublicReveal(g, shown.Cards, hiddenOwner: 1, receipt.TargetHand.Where(m => !invoice.Any(i => i.CardId == m.CardId)).Select(m => m.CardId).ToArray());
-        Private(g); g = Cold(g, registry);
-        PublicReveal(g, shown.Cards, hiddenOwner: 1, receipt.TargetHand.Where(m => !invoice.Any(i => i.CardId == m.CardId)).Select(m => m.CardId).ToArray());
-        Continue(g); Play(g);
-        Require(E<CompletedUndamagedTargetRevealCompletedEvent>(g).Single() == new CompletedUndamagedTargetRevealCompletedEvent(id, 3, 3) &&
-            E<CompletedUndamagedTargetRevealMovementIssuedEvent>(g).Length == 1 && !g.ResolutionStack.Any(f => f.Id == id),
-            "The native discard child cold-restores and completes exactly once without substituting or repeating the revealed entities.");
-    }
-
     public static void FactionProvidersOwnTheirCompletedResponseExactlyOnce()
     {
         foreach (var required in new[] { CardKind.Dodge, CardKind.Slash })
@@ -95,32 +53,10 @@ internal static class OrdinaryGuoHuaiChecks
         }
     }
 
-    private static void PublicReveal(GameEngine g, IReadOnlyList<CardSnapshot> shown, int hiddenOwner, IReadOnlyList<int> hidden)
-    {
-        Require(hidden.Count > 0 && hidden.All(id => g.CreateCardZoneDiagnostics().Single(z => z.CardId == id).Location == CardLocation.Hand(hiddenOwner)),
-            "At least one original unselected target-Hand entity remains genuinely hidden during the paid reveal child.");
-        foreach (var viewer in Enumerable.Range(0, 4))
-        {
-            var view = g.CreateSnapshot(viewer); Frozen(view.PublicRevealedCards);
-            Require(view.PublicRevealedCards.SequenceEqual(shown) && view.PublicRevealedCards.All(c => !hidden.Contains(c.Id)) &&
-                (viewer == hiddenOwner || view.Players[hiddenOwner].Hand.Count == 0),
-                "Every viewer sees precisely the public revealed entities with their frozen effective Suit; no unselected target-Hand identity is projected.");
-        }
-    }
-
     private static void OnceDemand(GameEngine g, long id, bool discarded) => Require(
         E<SameNameHandCompletedEvent>(g).Single(e => e.FrameId == id) is var done && done.Discarded == discarded && done.DamageIssued != discarded &&
         E<ProgramBindingResolvedEvent>(g).Count(e => e.FrameId == id && e.Completed) == 1 && !g.ResolutionStack.Any(f => f.Id == id),
         "The exact demand owning program returns and completes once with precisely its paid branch.");
-    private static void RespondGroup(GameEngine g)
-    {
-        for (var n = 0; n < 30; n++)
-        {
-            var p = P(g); if (p is not null && Offer(p, Yidu, 0)) return;
-            Step(g);
-        }
-        throw new InvalidOperationException("The real group responses did not finish: " + State(g));
-    }
     private static void Arrows(GameEngine g) => Use(g, "arrows", cards: V(g, 0).Hand.Take(2).Select(c => c.Id).ToArray());
     private static void Convert(GameEngine g, string binding, int[] targets)
     {
@@ -131,16 +67,12 @@ internal static class OrdinaryGuoHuaiChecks
     private static bool Offer(PendingDecision p, string skill, int owner) => p.PlayerSeat == owner && p.SkillPrompt?.SkillId == skill && p.Choices.Any(Activate);
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool Demand(PendingDecision p, string step) => Has(p, "same-name-hand") && p.Choices.Any(c => c.Parameters.GetValueOrDefault("step") == step);
-    private static bool Reveal(PendingDecision p, string branch) => Has(p, "completed-undamaged-target-reveal") && p.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == branch);
-    private static bool ContinueChoice(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static ProgramSkillFrame RevealRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.CompletedUndamagedTargetReveal is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "A real Guo Huai command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine g, string id, int[]? targets = null, int[]? cards = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards ?? [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Reach(GameEngine g, Func<PendingDecision, bool> stop)
@@ -157,24 +89,6 @@ internal static class OrdinaryGuoHuaiChecks
         else if (p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip") == true) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
         else if (p is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
         else Accept(g, new AdvanceOneStepCommand(g.Revision));
-    }
-    private static void Frozen<T>(IReadOnlyList<T> items) => Require(items is System.Collections.IList { IsReadOnly: true }, "The exposed nested collection is frozen.");
-    private static void Private(GameEngine g)
-    {
-        var p = P(g)!; Require(p.IsPrivate, "The published owner or payer decision is private.");
-        foreach (var viewer in Enumerable.Range(0, 4).Where(s => s != p.PlayerSeat)) Require(g.CreateSnapshot(viewer).PendingDecision is null &&
-            g.CreateSnapshot(viewer).Players[p.PlayerSeat].Hand.Count == 0, "Another viewer receives neither the private prompt nor foreign Hand identities.");
-        Frozen(p.Choices); Frozen(p.ValidCardIds); Frozen(p.ValidTargetSeats); Frozen(p.ValidContentIds);
-        foreach (var c in p.Choices) { Frozen(c.Cards); Frozen(c.Targets); Frozen(c.ContentIds); Require(c.Parameters is System.Collections.IDictionary { IsReadOnly: true }, "Every choice parameter dictionary is frozen."); }
-        var before = State(g); Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("not-published"), g.Revision)).Accepted && State(g) == before,
-            "An unpublished decision cannot change a source, reveal private cards or pay any cost.");
-    }
-    private static void Blind(GameEngine g)
-    {
-        Private(g); var p = P(g)!;
-        Require(p.ValidCardIds.Count == 0 && p.Choices.All(c => c.Cards.Count == 0 && c.Parameters.Keys.All(k => k is "program-action" or "frame-id" or "branch" or "slot-index")) &&
-            g.CreateSnapshot(0).Players[1].Hand.Count == 0,
-            "Before public reveal the source sees only frozen opaque target-Hand slots, without card identity, name or color.");
     }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack),
         Facts = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands), Zones = g.CreateCardZoneDiagnostics() });

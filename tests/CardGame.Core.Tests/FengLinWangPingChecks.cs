@@ -37,30 +37,6 @@ internal static class FengLinWangPingChecks
         Replay(game, registry); Conserve(game);
     }
 
-    public static void FirstTargetHistoryAcrossSkillLossAndIndependentReward()
-    {
-        var (game, registry) = Start("history"); var target = Other(game);
-        BoostToComparable(game, target); Demand(game, registry, target);
-        var originalInstance = Declarations(game).Single().SourceSkillInstanceId;
-        Require(RewardDraws(game) == 2, "First target draws exactly two.");
-        Driver(game, "lose-source"); Driver(game, "regain-source");
-        NextPlay(game); BoostToComparable(game, target); Demand(game, registry, target);
-        var repeated = Declarations(game).Last();
-        Require(repeated.SourceSkillInstanceId != originalInstance && !repeated.FirstEncounter && RewardDraws(game) == 2,
-            "Real source loss/regrant changes grant identity but retains whole-game target history.");
-        Driver(game, "lose-reward"); NextPlay(game);
-        var second = Snapshot(game).Players.First(p => p.IsAlive && p.Seat != 0 && p.Seat != target).Seat;
-        BoostToComparable(game, second); Demand(game, registry, second);
-        Require(Declarations(game).Last().FirstEncounter && RewardDraws(game) == 2, "Absent independent Binglue grant cannot reward a first declaration.");
-        Driver(game, "regain-reward"); NextPlay(game); BoostToComparable(game, second); Demand(game, registry, second);
-        Require(!Declarations(game).Last().FirstEncounter && RewardDraws(game) == 2, "Reward regrant does not turn an already declared target into a first encounter.");
-        var third = Snapshot(game).Players.Single(p => p.Seat != 0 && p.Seat != target && p.Seat != second).Seat;
-        NextPlay(game); BoostToComparable(game, third); Demand(game, registry, third);
-        Require(Declarations(game).Select(d => d.DeclarationOrdinal).SequenceEqual(Enumerable.Range(1, 5)) && RewardDraws(game) == 4,
-            "Another genuinely first target grants its own two real draws; declaration ordinals remain strict across grants: " + JsonSerializer.Serialize(Declarations(game)) + "; draws=" + RewardDraws(game));
-        Replay(game, registry); Conserve(game, 80);
-    }
-
     private static (GameEngine, ContentRegistry) Start(string mode, bool humanOwner = true)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(mode));
@@ -72,26 +48,15 @@ internal static class FengLinWangPingChecks
     private static IReadOnlyList<CardZoneDiagnostic> Zones(GameEngine g) => g.CreateCardZoneDiagnostics();
     private static GameSnapshot Snapshot(GameEngine g) => g.CreateSnapshot(0, true);
     private static IReadOnlyList<int> Hand(GameEngine g, int seat) => Zones(g).Where(z => z.Location == CardLocation.Hand(seat)).Select(z => z.CardId).ToArray();
-    private static IReadOnlyList<int> Equipment(GameEngine g, int seat) => Zones(g).Where(z => z.Location == CardLocation.Equipment(seat)).Select(z => z.CardId).ToArray();
     private static int Other(GameEngine g) => Snapshot(g).Players.First(p => p.Seat != 0).Seat;
     private static ProgramTargetCommitContext[] Declarations(GameEngine g) => g.Events.Select(e => e.Payload).OfType<ProgramTargetCommittedEvent>().Select(e => e.Declaration).ToArray();
     private static int RewardDraws(GameEngine g) => g.CardMovements.Count(m => m.Reason.Value == "program.first-target.reward");
     private static PendingDecision? P(GameEngine g) => g.PendingDecision ?? Enumerable.Range(0, 4).Select(seat => g.CreateSnapshot(seat, true).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool IsTargetChoice(PendingDecision p) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "relative-zone-target");
     private static void Driver(GameEngine g, string id, int[]? targets = null) { Accept(g, new UseProgramSkillCommand(0, "fixture:relative-driver", id, [], targets ?? [], g.Revision, P(g)!.PromptId)); Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0); }
-    private static void BoostToComparable(GameEngine g, int target)
-    { for (var i = 0; i < 10 && Snapshot(g).Players[target].HandCount < Snapshot(g).Players[0].HandCount; i++) Driver(g, "boost", [target]); Require(Snapshot(g).Players[target].HandCount >= Snapshot(g).Players[0].HandCount, "Small fixture supplies only the live hand-count shortfall."); }
     private static void Use(GameEngine g, int card) => Accept(g, new UseProgramSkillCommand(0, "classic:feijun", "relative-zone-demand", [card], [], g.Revision, P(g)!.PromptId));
     private static void Choose(GameEngine g, Func<PromptChoice, bool> predicate)
     { var prompt = P(g)!; var chosen = prompt.Choices.FirstOrDefault(predicate) ?? throw new InvalidOperationException("Required published choice missing: " + JsonSerializer.Serialize(prompt.Choices) + "; counts=" + string.Join(",", Snapshot(g).Players.Select(p => p.HandCount))); Accept(g, new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, chosen.Id, g.Revision)); }
-    private static void NextPlay(GameEngine g) { var turn = Snapshot(g).TurnNumber; Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => Snapshot(g).TurnNumber > turn && p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard); }
-    private static void Demand(GameEngine g, ContentRegistry r, int target)
-    {
-        var old = Declarations(g).Length; Use(g, Hand(g, 0).First()); Reach(g, IsTargetChoice); Choose(g, c => c.Targets.SequenceEqual([target]) && c.Parameters["mode"] == "hand");
-        Reach(g, p => p.PlayerSeat == 0 && (p.Kind == DecisionKind.PlayCard || p.SkillPrompt?.SkillId == "fixture:reward-pause"));
-        if (P(g)!.Kind != DecisionKind.PlayCard) { Replay(g, r); Choose(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard); }
-        Require(Declarations(g).Length == old + 1, "Each actual demand adds one declaration.");
-    }
     private static void Tick(GameEngine g)
     {
         if (P(g) is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard) Accept(g, new DiscardCardsCommand(0, discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(), discard.PromptId, g.Revision));

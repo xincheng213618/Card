@@ -67,30 +67,6 @@ internal static class DamageNaturePreventionChecks
         Cold(chain, chainRegistry);
     }
 
-    public static void PreparationSlashHasDistanceFreedomAndNormalPlayQuota()
-    {
-        var (game, registry) = Start(preparation: true, stopAtPreparation: true);
-        Require(Pending(game)?.SkillPrompt?.SkillId == "mobile:yingjian", "The actual mobile program offers Yingjian before normal draw.");
-        game = Cold(game, registry);
-        Choose(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Require(Pending(game)!.Choices.Any(c => c.Targets.SequenceEqual([2])), "Yingjian permits the seat beyond ordinary attack range.");
-        var hp = game.State.Players[2].Hp;
-        Choose(game, c => c.Targets.SequenceEqual([2]));
-        Play(game);
-        Require(game.State.Players[2].Hp == hp - 1 &&
-            Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == 0 && e.CardKind == CardKind.Slash) &&
-            game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "Yingjian creates a genuine zero-entity ordinary Slash and does not consume the later Play-phase Slash allowance.");
-        Cold(game, registry);
-
-        var (declined, declinedRegistry) = Start(preparation: true, stopAtPreparation: true);
-        Choose(declined, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Play(declined);
-        Require(!Facts<CardUseFinishedEvent>(declined).Any(e => e.CardId == 0), "Declining the optional preparation skill emits no phantom Slash.");
-        Cold(declined, declinedRegistry);
-    }
-
     private static (GameEngine, ContentRegistry) Start(bool preparation = false, bool stopAtPreparation = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),

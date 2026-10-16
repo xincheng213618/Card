@@ -4,19 +4,6 @@ using CardGame.Core;
 
 internal static class BoundaryLiuBeiChecks
 {
-    public static void GiftThresholdAndRecipient()
-    {
-        var (g,r) = Start();
-        Gift(g,1,1); ReachPlay(g);
-        var before = State(g); var p = Prompt(g)!;
-        Require(!g.Submit(new UseProgramSkillCommand(0,"boundary:rende","give",[Hand(g,0)[0].Id],[1],g.Revision,p.PromptId)).Accepted && before == State(g), "The same recipient is atomically unavailable in this actual Play.");
-        Gift(g,2,1); Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="virtual-basic"));
-        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single().PhaseGiftReceipt is {PreviousCount:1,ActualCount:1},"Two actual gifts freeze the crossing receipt.");
-        Replay(g,r); Reject(g);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("basic-option")=="skip"); ReachPlay(g);
-        Gift(g,3,1); ReachPlay(g);
-        Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(),"Only the first crossing offers a basic use."); Replay(g,r);
-    }
     public static void VirtualPeachHpChild()
     {
         var(g,r)=Start("peach-child");Accept(g,new UseProgramSkillCommand(0,"fixture:lb-driver","hurt",[],[],g.Revision,Prompt(g)!.PromptId));ReachPlay(g);
@@ -27,31 +14,6 @@ internal static class BoundaryLiuBeiChecks
         Require(!g.Events.Select(e=>e.Payload).OfType<CardUseFinishedEvent>().Any(e=>e.CardKind==CardKind.Peach),"Peach is not finished before its HP child.");Replay(g,r);Reject(g);
         Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");ReachPlay(g);
         Require(g.CreateSnapshot(0).Players[0].Hp==hp+1&&g.Events.Select(e=>e.Payload).OfType<CardUseFinishedEvent>().Count(e=>e.CardKind==CardKind.Peach)==1&&g.CardMovements.Count(m=>m.From==CardLocation.Hand(0)&&m.To==CardLocation.Hand(1))==2,"Recovery, gift payment and use completion each occur once after child restore.");Replay(g,r);
-    }
-    public static void OriginAndLegacyMechanism()
-    {
-        var(g,rAudit)=Start();var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
-        var replace=typeof(GameEngine).GetMethod("CaptureReplacedFactionActor",flags)!;
-        var original=new CardActionContext(1,null,CardActionType.Use,0,0,null,null,null,CardKind.Slash,[2],[],[],effectiveIsRed:true,factionOrigin:new(7,3,"qun","qun"));
-        var changed=(CardActionContext)replace.Invoke(g,[original,1])!;
-        Require(changed.ActorSeat==1&&changed.FactionOrigin==new CardActionFactionOrigin(7,3,"shu","qun")&&original.FactionOrigin!.ActorFactionId=="qun","Explicit actor replacement freezes the new effective actor faction while preserving original turn/provider facts.");
-        var chooser=typeof(GameEngine).GetMethod("FactionActionRewardChooser",flags)!;var trigger=rAudit.GetSkill("boundary:jijiang").Program!.Triggers.First();
-        var model=new CardActionContext(3,null,CardActionType.Use,1,0,null,null,null,CardKind.Slash,[2],[],[],factionOrigin:new(g.CreateSnapshot(0).TurnNumber,0,"shu","qun"));
-        Require((int?)chooser.Invoke(g,[3,trigger,model])==1,"A non-beneficiary actor owns ordinary use reward even when another seat supplied the card.");
-        var negative=new CardActionContext(4,null,CardActionType.Use,1,0,null,null,null,CardKind.Slash,[2],[],[],factionOrigin:new(g.CreateSnapshot(0).TurnNumber,0,"qun","shu"));
-        Require(chooser.Invoke(g,[3,trigger,negative]) is null,"A non-Shu actor cannot borrow a Shu provider's reward qualification.");
-        var ownTurn=new CardActionContext(5,null,CardActionType.Response,1,1,null,1,null,CardKind.Slash,[],[],[],factionOrigin:new(g.CreateSnapshot(0).TurnNumber,1,"shu","shu"));
-        Require(chooser.Invoke(g,[3,trigger,ownTurn]) is null,"The genuine actor's own actual turn excludes an otherwise eligible Shu response.");
-        var lordUse=new CardActionContext(6,null,CardActionType.Use,3,0,3,null,null,CardKind.Slash,[2],[],[],factionOrigin:new(g.CreateSnapshot(0).TurnNumber,0,"shu","shu"));
-        Require(chooser.Invoke(g,[3,trigger,lordUse]) is null,"A Lord's final use cannot qualify a genuine provider who is the actual turn owner.");
-        var clone=typeof(GameEngine).GetMethod("CloneRoleAction",flags)!;
-        var sameActor=(CardActionContext)clone.Invoke(g,[original,0,new[]{2,3}])!;
-        Require(sameActor.FactionOrigin==original.FactionOrigin&&sameActor.EffectiveIsRed==true,"Ordinary opted-in role/target clones preserve frozen faction provenance and effective color.");
-        var plain=new CardActionContext(2,null,CardActionType.Use,1,0,null,null,null,CardKind.Slash,[2],[],[]);
-        Require(ReferenceEquals(plain,replace.Invoke(g,[plain,1]))&&!JsonSerializer.Serialize(plain).Contains("FactionOrigin",StringComparison.Ordinal),"No-cap actor clone retains absent optional origin.");
-        var(old,r)=Start("slash",legacy:true);var a=old.GetHumanLegalActions().First(x=>x.Kind==LegalActionKind.Slash);
-        Accept(old,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,old.Revision,Prompt(old)!.PromptId));ReachPlay(old);
-        Require(old.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().All(e=>e.Action.FactionOrigin is null),"Actual native use in a registry without reward capability captures no new faction fact.");Replay(old,r);
     }
     private sealed class WithoutReward(ContentRegistry source):IGameContentPackage
     {

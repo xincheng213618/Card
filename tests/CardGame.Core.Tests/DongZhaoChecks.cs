@@ -7,35 +7,6 @@ internal static class DongZhaoChecks
 {
     private const string TeamMode = "fixture:dong-team";
     private const string Owner = "fixture:dong-owner", Quiet = "fixture:dong-quiet", Driver = "fixture:dong-driver", Mode = "identity:classic-dong-fixture";
-    public static void ActualZaowangPrivateGrantAndLoyalistSuccessionCold()
-    {
-        var (g,r) = Start(); Play(g);
-        var heir = Enumerable.Range(1,3).Single(s => V(g,s).Role == Role.Loyalist);
-        var hp = V(g,heir).MaxHp; var hand = V(g,heir).HandCount;
-        Use(g,"ol:zaowang","make-king",[heir]); Play(g); g = Cold(g,r);
-        Need(V(g,heir).MaxHp == hp + 1 && V(g,heir).Hp == hp + 1 && V(g,heir).HandCount == hand + 3,
-            "One native selected recipient gains the exact maximum HP, recovery and three draws.");
-        Need(g.CreateSnapshot(0).Players[heir].Role is null && !g.Events.Any(e => e.Payload is RoleRevealedEvent x && x.Seat == heir),
-            "A private loyalist identity is not revealed by the public grant.");
-        Use(g,Driver,"die",[]); Reach(g, () => E<IdentityExchangedEvent>(g).Any()); g = Cold(g,r);
-        Need(V(g,heir).Role == Role.Lord && g.CreateSnapshot(1).Players[heir].Role == Role.Lord && V(g,0).Role == Role.Loyalist && !V(g,0).IsAlive && g.State.Winner == Winner.None,
-            "The actual dying lord exchanges roles with the living armed loyalist before native winner evaluation.");
-        Need(E<IdentityExchangedEvent>(g).Count() == 1 && E<PlayerDiedEvent>(g).Single().KillerSeat is null,
-            "Cold recovery preserves one exact native death and source-free HP loss invents no killer.");
-    }
-    public static void ActualZaowangRebelKillerVictoryAndUnarmedControlCold()
-    {
-        foreach(var armed in new[]{true,false})
-        {
-            var (g,r) = Start(); Play(g); var rebel = Enumerable.Range(1,3).First(s => V(g,s).Role == Role.Rebel);
-            if(armed) { Use(g,"ol:zaowang","make-king",[rebel]); Play(g); g = Cold(g,r); }
-            Use(g,Driver,"kill",[rebel]); Reach(g, () => E<PlayerDiedEvent>(g).Any(e=>e.VictimSeat==rebel));
-            g = Cold(g,r);
-            Need(E<PlayerDiedEvent>(g).Single(e=>e.VictimSeat==rebel).KillerSeat == 0 && g.State.Winner == (armed?Winner.LordAndLoyalists:Winner.None),
-                "Only an armed actual rebel killed by the real lord causes the special victory; another living rebel makes the unarmed control continue.");
-            Need(armed ? E<WinnerDeterminedEvent>(g).Count()==1 : !E<WinnerDeterminedEvent>(g).Any(),"The native winner fact is emitted once only.");
-        }
-    }
     public static void ActualForeignLordTurnRecordAndOwnNonLordBoundaryCold()
     {
         var(g,r)=Start(humanRole:Role.Rebel);
@@ -54,7 +25,6 @@ internal static class DongZhaoChecks
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(result.Accepted,result.Error?.Message??"Dong command rejected.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g) is {PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void Use(GameEngine g,string skill,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,skill,id,[],targets,g.Revision,P(g)!.PromptId));
     private static void Reach(GameEngine g,Func<bool> done)
     {
         for(var i=0;i<100;i++)

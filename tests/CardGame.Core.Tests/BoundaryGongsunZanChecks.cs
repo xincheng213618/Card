@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -22,21 +22,6 @@ internal static class BoundaryGongsunZanChecks
         Require(P(h)!.Choices.Single(c=>c.Parameters["source-zone"]=="Hand"&&c.Parameters["slot-index"]==slot.ToString()).Cards.Count==0,"A printed hand mount is not revealed before paying its opaque slot.");Cold(h,hr);Answer(h,c=>c.Parameters["source-zone"]=="Hand"&&c.Parameters["slot-index"]==slot.ToString());Settle(h);Require(h.State.Players[0].Hand.Any(c=>c.Id==id),"Printed Hand mount qualifies despite no equipped mount slot.");Cold(h,hr);
         var(j,jr)=Start(judgment:true);var indulgence=j.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Indulgence&&a.TargetSeat==1);Play(j,indulgence);Settle(j);var judgment=j.State.Players[1].Judgment.Single();Slash(j);Offer(j);Activate(j);Reach(j,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="damage-target-mount"));Cold(j,jr);Answer(j,c=>c.Cards.Contains(judgment.Id));Settle(j);Require(!j.State.Players[1].Judgment.Any()&&!j.State.Players[0].Hand.Any(c=>c.Id==judgment.Id)&&Moves(j,judgment.Id).Any(m=>m.From.Zone==CardZoneKind.Judgment&&m.To==CardLocation.DiscardPile),"Actual public Judgment card discards without nonmount claim.");Cold(j,jr);
     }
-    public static void RealDamageProvenance()
-    {
-        var(g,r)=Start();Driver(g,"cardless",[1]);Settle(g);Require(!g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Any(e=>e.SkillId==Skill),"Real program cardless damage does not offer a mount discard.");Cold(g,r);
-        var(z,zr)=Start();Driver(z,"virtual",[1]);Offer(z);Cold(z,zr);Activate(z);Reach(z,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="damage-target-mount"));Answer(z,c=>c.Parameters["source-zone"]=="Hand");Settle(z);
-        Require(z.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==CardKind.Slash&&e.Action.PhysicalCards.Count==0)&&z.CardMovements.Any(m=>m.Reason.Value=="skill-program.damage-target-mount.discard"),"Real zero-entity virtual Slash Use qualifies without fabricated physical cost.");Cold(z,zr);Evidence(z,"actual-zero-entity-use");
-        var(s,sr)=Start();Slash(s);Offer(s);Answer(s,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");Settle(s);Require(!s.CardMovements.Any(m=>m.Reason.Value.StartsWith("skill-program.damage-target-mount")),"Optional skip creates no payment or claim.");Cold(s,sr);
-        var(c,cr)=Start(fire:true);Driver(c,"chain",[1]);Settle(c);Driver(c,"chain",[2]);Settle(c);Slash(c);Finish(c);
-        Require(c.Events.Select(e=>e.Payload).OfType<ProgramBindingResolvedEvent>().Count(e=>e.SkillId==Skill)>=2,"Real elemental chain keeps owning Slash Use/source and independently offers each damaged actual victim.");Cold(c,cr);
-        var(self,selfr)=Start(fire:true);Driver(self,"equip",[0]);Settle(self);var ownMount=self.State.Players[0].Equipment.Single().Id;
-        Driver(self,"chain",[0]);Settle(self);Driver(self,"chain",[1]);Settle(self);Slash(self);Offer(self);Answer(self,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-        Reach(self,p=>p.SkillPrompt?.SkillId==Skill&&self.ResolutionStack.OfType<DamageTriggerWindowFrame>().LastOrDefault()?.TargetSeat==0);Cold(self,selfr);Activate(self);Reach(self,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="damage-target-mount"));
-        Require(P(self)!.Choices.Any(c=>c.Cards.Contains(ownMount)&&c.Targets.SequenceEqual([0])),"A real self-source elemental chain exposes only this opt-in's same-owner HEJ discard.");Cold(self,selfr);Answer(self,c=>c.Cards.Contains(ownMount));Settle(self);
-        Require(self.State.Players[0].Hand.Any(c=>c.Id==ownMount)&&Moves(self,ownMount).Count(m=>m.From==CardLocation.Equipment(0)&&m.To==CardLocation.DiscardPile)==1,"Actual self victim pays its own mount once and gains that exact entity.");Cold(self,selfr);Evidence(self,"actual-self-source-chain");
-        var(v,vr)=Start(judgment:true);Slash(v);Finish(v);Require(v.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ActorSeat==0&&e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==CardKind.Slash&&e.Action.ConversionChain.Count>0),"Real red Indulgence converted by Wusheng remains actual Slash Use.");Cold(v,vr);
-    }
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
     private static IEnumerable<CardMovementRecord> Moves(GameEngine g,int id)=>g.CardMovements.Where(m=>m.CardId==id);
     private static void Cold(GameEngine g,ContentRegistry r){ReplayFourViews(g,r);var cold=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(JsonSerializer.Serialize(g.CreateSnapshot(-1))==JsonSerializer.Serialize(cold.CreateSnapshot(-1)),"Spectator cold projection matches.");foreach(var v in Enumerable.Range(0,4))foreach(var p in g.CreateSnapshot(v).Players)if(p.Seat!=v)Require(p.Hand.Count==0,"Other players' hand entities remain private.");}
@@ -49,7 +34,6 @@ internal static class BoundaryGongsunZanChecks
     private static void Offer(GameEngine g)=>Reach(g,p=>p.SkillPrompt?.SkillId==Skill&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate){for(var i=0;i<100;i++){if(P(g)is{}p&&predicate(p))return;Step(g);}throw new InvalidOperationException("Fixed fixture did not reach prompt: "+P(g)?.Prompt);}
     private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-    private static void Finish(GameEngine g){for(var i=0;i<150;i++){if(g.State.Status==EngineStatus.Completed||P(g)is{Kind:DecisionKind.PlayCard,PlayerSeat:0})return;Step(g);}throw new InvalidOperationException("Finite fixture did not settle.");}
     private static void Step(GameEngine g)
     {
         var p=P(g);

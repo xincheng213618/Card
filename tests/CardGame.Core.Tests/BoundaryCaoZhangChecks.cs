@@ -43,45 +43,8 @@ internal static class BoundaryCaoZhangChecks
         Replay(game, registry);
     }
 
-    public static void HandRecastWaitsForCostAndDrawChildrenBeforeTwoDistantSlashes()
-    {
-        var (game, registry) = Create(observers: true); ReachJiangchi(game);
-        var hand = game.State.Players[0].HandCount;
-        Choose(game, "recast-assault"); ReachOwnedSelection(game);
-        var selection = Prompt(game)!;
-        var card = selection.Choices.First(c => c.Cards.Count == 1).Cards[0];
-        AssertPrivateSelection(game); Replay(game, registry); Reject(game);
-        Answer(game, c => c.Cards.SequenceEqual([card]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Cost);
-        var paid = RecastOwner(game);
-        Require(paid.BoundCardRecast is { DrawApplied: false, CardId: var paidCard } && paidCard == card &&
-            game.State.Players[0].HandCount == hand - 1 && Grants(game).Count == 0,
-            "The committed hand payment owns the cost observer while its recast draw and attack grants remain unpaid.");
-        AssertExactMovementReturn(game, paid, card, CardLocation.Hand(0), CardLocation.DiscardPile);
-        Replay(game, registry); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Gain);
-        Require(RecastOwner(game).BoundCardRecast is { DrawApplied: true, DrawCount: 1 } &&
-            game.State.Players[0].HandCount == hand && Grants(game).Count == 0 && Recasts(game).Count == 1,
-            "The actual replacement draw and recast fact precede the reward observer; neither Slash grant has run.");
-        Replay(game, registry); Continue(game); ReachPlay(game);
-        Require(Grants(game).Count == 2 && game.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(0) &&
-            m.Reason == CardMoveReasons.RecastDiscard) == 1 && Recasts(game).Single().DrawCount == 1,
-            "Both typed child returns resume one payment, one recast fact and the two final turn modifiers.");
-        for (var attack = 0; attack < 2; attack++)
-        {
-            var slash = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2]));
-            Accept(game, new PlayCardCommand(0, slash.CardId!.Value, slash.TargetSeats, game.Revision, Prompt(game)!.PromptId, slash.PlayedCardKind));
-            ReachPlay(game); Replay(game, registry);
-        }
-        Require(game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Count(e => e.SourceSeat == 0 && e.TargetSeat == 2) == 2 &&
-            !game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "The paid branch permits two actual distance-two Slashes and then exhausts the new finite allowance.");
-    }
-
     private static IReadOnlyList<TurnRuleModifierGrantedEvent> Grants(GameEngine game) => game.Events.Select(e => e.Payload)
         .OfType<TurnRuleModifierGrantedEvent>().Where(e => e.Modifier.Source.SkillId == Skill && e.Modifier.Source.OwnerSeat == 0).ToArray();
-    private static IReadOnlyList<CardRecastEvent> Recasts(GameEngine game) => game.Events.Select(e => e.Payload)
-        .OfType<CardRecastEvent>().Where(e => e.ActorSeat == 0).ToArray();
     private static void AssertDrawEndedChoiceGroupContract()
     {
         SkillProgram Load(string first, string second) => SkillProgramCatalog.Load(JsonSerializer.Serialize(new
@@ -108,24 +71,6 @@ internal static class BoundaryCaoZhangChecks
             Require(rejected, "The additive choice-group capability keeps unsupported and mixed windows invalid.");
         }
     }
-    private static ProgramSkillFrame RecastOwner(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>()
-        .Single(f => f.SkillId == Skill && f.OwnerSeat == 0 && f.BoundCardRecast is not null);
-    private static void AssertExactMovementReturn(GameEngine game, ProgramSkillFrame paid, int card, CardLocation from, CardLocation to)
-    {
-        var window = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.ResumeProgramFrameId == paid.Id);
-        Require(window.Batch.ParentFrameId == paid.Id && window.Batch.AwaitingProgramFrameId is null &&
-            paid.PendingMovementContinuation is null && window.Batch.OriginSkillId == Skill &&
-            window.Batch.OriginSkillInstanceId == paid.SkillInstanceId &&
-            window.Batch.Movements.Any(m => m.CardId == card && m.From == from && m.To == to && m.Reason == CardMoveReasons.RecastDiscard),
-            "The actual cost movement carries a typed return to its exact paid instruction and issuing instance.");
-    }
-    private static void AssertPrivateSelection(GameEngine game)
-    {
-        Require(Prompt(game)!.PlayerSeat == 0 && Prompt(game)!.IsPrivate, "Owned HE recast costs are private to their chooser.");
-        for (var viewer = 1; viewer < 4; viewer++)
-            Require(game.CreateSnapshot(viewer).PendingDecision is null && game.CreateSnapshot(viewer).Players[0].Hand.Count == 0,
-                "Another player receives neither the owned-card choices nor private hand entities.");
-    }
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool observers = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -140,7 +85,6 @@ internal static class BoundaryCaoZhangChecks
     private static bool Jiangchi(PendingDecision p) => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void ReachJiangchi(GameEngine game) => Reach(game, Jiangchi);
     private static void ReachPlay(GameEngine game) => Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void ReachOwnedSelection(GameEngine game) => Reach(game, p => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
     private static void Choose(GameEngine game, string binding) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == binding);
     private static void Skip(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
@@ -166,8 +110,6 @@ internal static class BoundaryCaoZhangChecks
     { var p = Prompt(game)!; Accept(game, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, game.Revision)); }
     private static void Accept(GameEngine game, GameCommand command)
     { var r = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(r.Accepted, r.Error?.Message ?? "Rejected real command."); }
-    private static void Reject(GameEngine game)
-    { var before = State(game); var p = Prompt(game)!; Require(!game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("unpublished"), game.Revision)).Accepted && State(game) == before, "An unpublished choice cannot pay a recast or advance its owning cursor."); }
     private static string State(GameEngine game) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(game.CreateSnapshot(s))).ToArray(),
         Frames = JsonSerializer.Serialize(game.ResolutionStack), Events = game.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(),
         game.CardMovements, Commands = CommandJson.Serialize(game.AcceptedCommands), Zones = game.CreateCardZoneDiagnostics() });

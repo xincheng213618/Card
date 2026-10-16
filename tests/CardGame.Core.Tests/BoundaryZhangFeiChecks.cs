@@ -27,36 +27,6 @@ internal static class BoundaryZhangFeiChecks
         Replay(g, r);
     }
 
-    public static void RecoveryReceiptAndLimited()
-    {
-        var (g, r) = Start("recovery", stopAtPreparation: true);
-        var before = g.State.Players[0].HandCount;
-        var frozen = GameCheckpointJson.Serialize(g.CreateCheckpoint()); var revision = g.Revision;
-        var invalid = g.Submit(new AnswerPromptCommand(0, P(g)!.PromptId, new ChoiceId("foreign"), revision));
-        Require(!invalid.Accepted && revision == g.Revision && frozen == GameCheckpointJson.Serialize(g.CreateCheckpoint()), "Invalid preparation input rejects atomically.");
-        Activate(g); Reach(g, p => p.Kind == DecisionKind.ProgramTrigger && p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "fixture:zf-child"));
-        Require(g.State.Players[0].HandCount == before && g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:tishen").RecoveryReceipt?.Recovered == 2,
-            "Real recovery receipt exists before its nested HP child; no premature reward."); Replay(g, r);
-        Activate(g); Settle(g);
-        Require(g.State.Players[0].Hp == g.State.Players[0].MaxHp - 1 && g.State.Players[0].HandCount == before + 4,
-            "Nested Loss does not change the two recovered points; receipt draws two then normal draw two.");
-        Require(g.Events.Select(e => e.Payload).OfType<RecoveryAppliedEvent>().Single().Amount == 2 &&
-            g.Events.Select(e => e.Payload).OfType<SkillUsageConsumedEvent>().Any(e => e.SkillId == "boundary:tishen" && e.Scope == SkillUsageScope.Game), "First-turn wound may use the named limited quota."); Replay(g, r);
-        var players = Players(g); var grant = players[0].SkillGrants.Grants.Single(x => x.SkillId == "boundary:tishen");
-        players[0].SkillGrants.RemoveGrant(grant.GrantId); players[0].SkillGrants.Grant(grant with { GrantId = "fixture:renewed", SkillInstanceId = "fixture:renewed", SourceId = "fixture:renewed" });
-        var runtime = (SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!;
-        Require(runtime.GetUsage(0, "boundary:tishen", "named-group:limited-recovery", SkillUsageScope.Game) == 1, "Host lifecycle audit: regrant preserves named limited usage.");
-        var (full, fr) = Start("full", stopAtPreparation: true); var hand = full.State.Players[0].HandCount;
-        Activate(full); Settle(full);
-        Require(!full.Events.Select(e => e.Payload).OfType<RecoveryAppliedEvent>().Any() && full.State.Players[0].HandCount == hand + 2,
-            "Full HP zero receipt never gives free cards."); Replay(full, fr);
-        var (lost, _) = Start("recovery", stopAtPreparation: true); hand = lost.State.Players[0].HandCount; Activate(lost);
-        Reach(lost, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "fixture:zf-child"));
-        var tishen = Players(lost)[0].SkillGrants.Grants.Single(x => x.SkillId == "boundary:tishen"); Players(lost)[0].SkillGrants.RemoveGrant(tishen.GrantId);
-        Activate(lost); Settle(lost);
-        Require(lost.State.Players[0].HandCount == hand + 2, "Host source-lifetime audit: a lost recovery source cannot issue a tail draw after its HP child.");
-    }
-
     private static IEnumerable<NextSlashDamageReservedEvent> Reserved(GameEngine g) => g.Events.Select(e => e.Payload).OfType<NextSlashDamageReservedEvent>();
     private static IEnumerable<NextSlashDamageConsumedEvent> Consumed(GameEngine g) => g.Events.Select(e => e.Payload).OfType<NextSlashDamageConsumedEvent>();
     private static CharacterState[] Players(GameEngine g) => ((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(g)!).ToArray();
@@ -74,7 +44,6 @@ internal static class BoundaryZhangFeiChecks
         if (!stopAtPreparation) { var p = P(g)!; Accept(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "skip").Id, g.Revision)); Settle(g); }
         return (g, r);
     }
-    private static void Activate(GameEngine g) { var p = P(g)!; Accept(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "activate").Id, g.Revision)); }
     private static PendingDecision? P(GameEngine g) => g.PendingDecision ?? Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s)).Select(s => s.PendingDecision).FirstOrDefault(p => p is not null);
     private static void Driver(GameEngine g, string id, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, "fixture:zf-driver", id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void Settle(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);

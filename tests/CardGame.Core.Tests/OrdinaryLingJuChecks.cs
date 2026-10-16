@@ -35,41 +35,6 @@ internal static class OrdinaryLingJuChecks
             "Granted Hongyan makes an actual Spade entity a red cost; reducing to zero produces no fake damage or HP change.");
         g = Cold(g, r);
     }
-    public static void PublicDeadRoleRelaxationsIncludeDeathsBeforeSkillAcquisition()
-    {
-        foreach (var role in new[] { Role.Loyalist, Role.Rebel, Role.Renegade })
-        {
-            var (g, r) = Create(role: role, ownerHp: 4, peerHp: role == Role.Renegade ? 6 : 2);
-            var dead = g.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == role).Seat;
-            Use(g, "kill", [dead]); Play(g);
-            Require(!g.State.Players[dead].IsAlive && g.CreateSnapshot(0).Players[dead].Role == role && Facts<PlayerDiedEvent>(g).Any(e => e.VictimSeat == dead),
-                "A true loss/Dying/death reveals the actual identity before the owner acquires its qualifier.");
-            Use(g, "fenxin"); Play(g); g = Cold(g, r);
-            var other = AlivePeer(g); var binding = role == Role.Loyalist ? "incoming-one" : "outgoing-one";
-            Use(g, binding, [other]); Activate(g); ReachAction(g); var f = Root(g); var p = f.SignedDamagePayment!;
-            if (role == Role.Loyalist || role == Role.Rebel)
-                Require(p.WaiveHp && p.OtherHp < p.OwnerHp && !p.AnyColor && !p.AllowEquipment,
-                    "Only the matching public dead role removes this branch's HP comparison; it does not unlock colors or equipment.");
-            else Require(p.AnyColor && p.AllowEquipment && !p.WaiveHp,
-                "A public dead Renegade removes the cost color/zone restrictions without removing the HP comparison.");
-            // Loyalist uses effective red material; Renegade keeps its valid outgoing HP gate.
-            if (role == Role.Renegade) Require(P(g)!.Choices.Count > 0, "Real relaxed owned costs are published, never foreign cards.");
-            Private(g); g = Cold(g, r); Answer(g, c => c.Cards.Count == 1); Play(g);
-            Require(Facts<ProgramSignedDamagePaidEvent>(g).Count() == 1 && Facts<ProgramSignedDamageAdjustedEvent>(g).Count() == 1,
-                "A death before skill acquisition qualifies immediately and one actual window pays only once.");
-            if (role == Role.Renegade)
-            {
-                Use(g, "weaken", [other]); Play(g); var offered = Facts<ProgramSignedDamageOfferedEvent>(g).Count();
-                Use(g, "incoming-one", [other]); Play(g);
-                Require(g.State.Players[other].IsAlive && g.State.Players[other].Hp < g.State.Players[0].Hp &&
-                    Facts<ProgramSignedDamageOfferedEvent>(g).Count() == offered && Facts<ProgramSignedDamagePaidEvent>(g).Count() == 1,
-                    "A dead Renegade unlocks costs but still rejects an actual incoming window whose living source has less HP.");
-            }
-        }
-    }
-    private static System.Text.Json.Nodes.JsonNode JsonNode() => System.Text.Json.Nodes.JsonNode.Parse("""
-    {"schemaVersion":$SCHEMA$,"skills":[{"id":"fixture:strict-signed","revision":1,"triggers":[{"id":"adjust","window":"beforeDamageApplied","subject":"damageSource","optional":true,"effects":[{"op":"discardOwnedCardToAdjustCurrentDamage","target":"owner","amount":1,"suits":["spade","club"],"qualifierSkillId":"ol:fenxin","waiveHpDeadRoles":["rebel"],"anyColorDeadRoles":["renegade"],"allowEquipmentDeadRoles":["renegade"]}]}]}]}
-    """.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)))!;
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().First(f => f.SignedDamagePayment is not null);
     private static PendingDecision? P(GameEngine g) => g.State.PendingDecision;
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();

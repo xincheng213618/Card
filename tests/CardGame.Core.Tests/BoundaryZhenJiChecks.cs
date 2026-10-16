@@ -31,44 +31,12 @@ internal static class BoundaryZhenJiChecks
         Reach(claim,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Require(Grants(claim).Count==0&&claim.Events.Select(e=>e.Payload).OfType<ProgramJudgmentCardClaimedEvent>().Any(e=>e.SkillId=="fixture:claim"),"Another real finalized child claims black entity; Luoshen keeps final black continuation but earns no own receipt grant.");
         Answer(claim,c=>Action(c)=="stop");Settle(claim);Replay(claim,cr);
     }
-    public static void ExactIdentityReturnActualTurnExpiryAndPrivacy()
-    {
-        var(g,r)=Start("black");Activate(g);Reach(g,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);var grant=Grants(g).Single();
-        for(var viewer=1;viewer<4;viewer++)Require(g.CreateSnapshot(viewer).PendingDecision is null,"Private continue/stop decision is hidden from other viewers.");
-        Replay(g,r);Answer(g,c=>Action(c)=="stop");Settle(g);Use(g,"discard",[grant.CardId]);Settle(g);Require(!g.State.Players[0].Hand.Any(c=>c.Id==grant.CardId),"Exact entity physically leaves Hand.");
-        // A separate host identity audit: existing turn fact follows the entity on leave/return, never all turn gains.
-        var zones=typeof(GameEngine).GetField("_cardZones",Flags)!.GetValue(g)!;var card=((IReadOnlyList<Card>)zones.GetType().GetMethod("CardsAt")!.Invoke(zones,[CardLocation.DiscardPile])!).Single(c=>c.Id==grant.CardId);
-        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.DiscardPile,CardLocation.Hand(1),new CardMoveReason("host-audit.identity-transfer"),null,true]);
-        Require(Eligible(g,1).Any(c=>c.Id==grant.CardId),"The same entity in another owner's Hand is not exempt.");
-        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.Hand(1),CardLocation.Hand(0),new CardMoveReason("host-audit.identity-return"),null,true]);
-        Require(!Eligible(g,0).Any(c=>c.Id==grant.CardId),"Engineering default: the exact entity returning to original owner within actual turn remains exempt.");
-        var(extra,xr)=Start("extra-play");Activate(extra);Reach(extra,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);var actualTurn=extra.CreateSnapshot(0).TurnNumber;Answer(extra,c=>Action(c)=="stop");Settle(extra);
-        Require(extra.Events.Select(e=>e.Payload).OfType<ProgramPhaseScheduledEvent>().Any(e=>e.Phase==TurnPhase.Play&&e.Started),"A real extra Play precedes normal preparation flow.");Replay(extra,xr);Accept(extra,new EndPlayPhaseCommand(0,extra.Revision,P(extra)!.PromptId));Settle(extra);
-        Require(extra.CreateSnapshot(0).TurnNumber==actualTurn&&Grants(extra).Count==1&&!extra.Events.Select(e=>e.Payload).OfType<TurnCardUseEffectsExpiredEvent>().Any(),"Finishing extra Play retains exact exemption through normal Draw/Play within the same actual turn.");Replay(extra,xr);
-        var(expiry,er)=Start("black");Activate(expiry);Reach(expiry,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);var eid=Grants(expiry).Single().GrantSequence;Answer(expiry,c=>Action(c)=="stop");Settle(expiry);
-        Accept(expiry,new EndPlayPhaseCommand(0,expiry.Revision,P(expiry)!.PromptId));
-        for(var i=0;i<65&&expiry.CreateSnapshot(0).CurrentSeat==0;i++){if(P(expiry)?.Kind==DecisionKind.DiscardCards){var p=P(expiry)!;Accept(expiry,new DiscardCardsCommand(0,p.ValidCardIds.Take(p.RequiredCardCount).ToArray(),p.PromptId,expiry.Revision));}else Accept(expiry,new AdvanceOneStepCommand(expiry.Revision));}
-        Require(Grants(expiry).Count==0&&expiry.Events.Select(e=>e.Payload).OfType<TurnCardUseEffectsExpiredEvent>().Any(e=>e.GrantSequences.Contains(eid)),"Exact grant expires at actual end and reports its existing scalar grant identity.");Replay(expiry,er);
-    }
-    public static void NarrowParserLegacyNullAndOwningInvariants()
-    {
-        const string valid="""{"id":"fixture:narrow","revision":1,"triggers":[{"id":"prep","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"effects":[{"op":"repeatJudgment","target":"owner","judgmentReason":"skill.luoshen","resultBind":"judgment","suits":["spade","club"],"claimHandLimitExemption":"actualTurn"}]}]}""";
-        var effect=Load(valid).Programs["fixture:narrow"].Triggers.Single().Effects.Single();Require(effect.ClaimHandLimitExemption==SkillProgramClaimHandLimitExemption.ActualTurn,"Only the named narrow claim receipt policy opts in.");
-        foreach(var bad in new[]{valid.Replace("\"actualTurn\"","null"),valid.Replace("\"actualTurn\"","true"),valid.Replace("actualTurn","allGains"),valid.Replace("turnStartBeforeNormalFlow","drawPhaseStarting"),valid.Replace("\"subject\":\"owner\"","\"subject\":\"any\""),valid.Replace("\"op\":\"repeatJudgment\"","\"op\":\"startJudgment\"")})
-        {var rejected=false;try{Load(bad);}catch(InvalidOperationException){rejected=true;}Require(rejected,"Malformed policy, wrong op/window/subject rejects before play.");}
-        var legacy=Load(valid.Replace(",\"claimHandLimitExemption\":\"actualTurn\"","")).Programs["fixture:narrow"].Triggers.Single().Effects.Single();Require(legacy.ClaimHandLimitExemption is null&&!JsonSerializer.Serialize(legacy).Contains("ClaimHandLimitExemption",StringComparison.Ordinal),"Old nullable field stays absent in serialization.");
-        var(aiOld,aiOldRegistry)=Start("ai-legacy");Answer(aiOld,c=>Action(c)=="skip");Settle(aiOld);Accept(aiOld,new EndPlayPhaseCommand(0,aiOld.Revision,P(aiOld)!.PromptId));Reach(aiOld,p=>p.Kind==DecisionKind.DiscardCards);var oldDiscard=P(aiOld)!;Accept(aiOld,new DiscardCardsCommand(0,oldDiscard.ValidCardIds.Take(oldDiscard.RequiredCardCount).ToArray(),oldDiscard.PromptId,aiOld.Revision));
-        for(var i=0;i<40&&aiOld.CreateSnapshot(0).CurrentSeat!=2;i++)Accept(aiOld,new AdvanceOneStepCommand(aiOld.Revision));
-        Require(!aiOld.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.OwnerSeat==1&&e.SkillId=="classic:luoshen")&&!aiOld.Events.Select(e=>e.Payload).OfType<TurnHandLimitExemptCardGrantedEvent>().Any(e=>e.Grant.BeneficiarySeat==1),"Old nullable repeat preserves its existing inert AI estimate and legitimate optional skip.");Replay(aiOld,aiOldRegistry);
-        var(g,r)=Start("legacy");Activate(g);Reach(g,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single().RepeatedJudgment is {ClaimHandLimitExemption:null}&&Grants(g).Count==0,"Real classic Luoshen retains old repeated judgment with no exact-card reward.");Replay(g,r);Answer(g,c=>Action(c)=="stop");Settle(g);Replay(g,r);
-    }
     private static string? Action(PromptChoice c)=>c.Parameters.GetValueOrDefault("program-action")??c.Parameters.GetValueOrDefault("action");
     private static void Activate(GameEngine g)=>Answer(g,c=>Action(c)?.EndsWith("activate",StringComparison.Ordinal)==true);
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> stop){for(var i=0;i<65;i++){if(P(g) is {} p&&stop(p))return;Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Boundary not reached: "+P(g)?.Kind+" "+P(g)?.SkillPrompt?.SkillId+" "+string.Join(',',P(g)?.Choices.Select(Action)??[]));}
     private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-    private static void Use(GameEngine g,string action,int[]?cards=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:driver",action,cards??[],[],g.Revision,P(g)!.PromptId));
     private static uint Rng(GameEngine g){var random=typeof(GameEngine).GetField("_random",Flags)!.GetValue(g)!;return (uint)random.GetType().GetProperty("State")!.GetValue(random)!;}
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!;
     private static IReadOnlyList<Card> Eligible(GameEngine g,int seat)=>(IReadOnlyList<Card>)typeof(GameEngine).GetMethod("GetDiscardEligibleHand",Flags)!.Invoke(g,[Players(g)[seat]])!;

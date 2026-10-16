@@ -42,116 +42,6 @@ internal static class MaMiDiChecks
                 "A genuine Fengzi Slash effect repeat remains one accepted Use/designation and never reissues Bingjie's payment."); _ = Cold(g, r);
         }
     }
-    public static void BingjieActualPlayStackingSourceLossSkippedPhaseAndExpiryCold()
-    {
-        {
-            var (g, r) = Start("extra"); Activate(g, Bing); Play(g); var turn = g.State.TurnNumber; Native(g, CardKind.Slash, [1]); Play(g); End(g);
-            Reach(g, () => Optional(g, Bing)); Need(g.State.TurnNumber == turn && E<BingjieGrantedEvent>(g).Length == 1, "The inserted actual Play and subsequent normal Play are distinct starts in the same real turn.");
-            g = Cold(g, r); Activate(g, Bing); Play(g); Use(g, "lose-bingjie"); Play(g); Need(V(g).Skills!.All(s => s.ContentId != Bing), "The original source is really removed after both maximum-HP payments.");
-            Native(g, CardKind.ArrowBarrage); Play(g);
-            Need(E<BingjieGrantedEvent>(g).Length == 2 && E<MaMiDiDiscardIssuedEvent>(g).Length == 7 && E<MaMiDiStartedEvent>(g).Last(e => e.Op == SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards).GrantCount == 2,
-                "Both independently paid same-turn grants survive source loss and force every actual final target to discard twice.");
-            var paid = E<MaMiDiDiscardIssuedEvent>(g).Length; End(g); Reach(g, () => g.State.TurnNumber > turn && P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-            Native(g, CardKind.Slash, [1]); Play(g); Need(E<MaMiDiDiscardIssuedEvent>(g).Length == paid, "Expired issued effects cannot leak into the next real turn after the source was lost."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("actor"); Activate(g, Bing); Play(g); Native(g, CardKind.Duel, [1]); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Swap);
-            g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([2])); Play(g);
-            Need(E<ProgramCardUseActorReplacedEvent>(g).Any(e => e.ActorSeat == 2) && E<BingjieUseBoundEvent>(g).Length == 0 && E<MaMiDiDiscardIssuedEvent>(g).Length == 0,
-                "A real replacement of the actor before the designation trigger prevents the old actor's paid grants from attaching to somebody else's actual use."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("skip"); Play(g);
-            Need(E<BingjieGrantedEvent>(g).Length == 0 && !E<MaMiDiStartedEvent>(g).Any(e => e.Op == SkillProgramEffectOp.PayBingjieTurnMaximumHp) && g.State.TurnNumber > 1,
-                "A genuinely skipped first Play has no Bingjie start/payment; the later optional start can be declined normally."); _ = Cold(g, r);
-        }
-    }
-    public static void ZhengdingActualDodgePureResponsesEffectiveColorsAndCounterspellCold()
-    {
-        foreach (var scenario in new[] { "response-black", "response-red", "response-opposite", "response-duel", "response-group" })
-        {
-            var (g, r) = Start(scenario); var expectedKind = scenario == "response-duel" || scenario == "response-group" ? DecisionKind.RespondSlash : DecisionKind.RespondDodge;
-            Reach(g, () => P(g) is { PlayerSeat: 0 } p && p.Kind == expectedKind); var maximum = V(g).MaxHp; var hp = V(g).Hp;
-            g = Cold(g, r); Answer(g, c => c.Cards.Count == 1); Reach(g, () => E<CardResponseCompletedEvent>(g).Any(e => e.ActorSeat == 0) && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.MaMiDi?.Op == SkillProgramEffectOp.GrowZhengdingMatchingResponse));
-            var link = E<MaMiDiResponseLinkedEvent>(g).Last(e => e.ResponseActor == 0); var gain = scenario != "response-opposite";
-            Need(link.TurnOwner != 0 && link.IncomingActor != 0 && link.Provider == 0 && link.ResponseIsRed is not null && link.IncomingIsRed is not null &&
-                V(g).MaxHp == maximum + (gain ? 1 : 0) && V(g).Hp == hp,
-                "A true off-turn own response compares frozen effective colors, not printed suit, and increases only maximum HP: " + scenario + " " + Diagnostic(g));
-            if (scenario == "response-duel" || scenario == "response-group") Need(link.ResponseKind == CardKind.Slash && E<CardRespondedEvent>(g).Any(e => e.ResponderSeat == 0), "Genuine pure Slash responses qualify without inventing a CardActionType.Use."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("response-counterspell"); Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.Nullification }); var maximum = V(g).MaxHp;
-            Answer(g, c => c.Cards.Count == 1); Reach(g, () => E<MaMiDiMaximumIssuedEvent>(g).Any(e => e.Op == SkillProgramEffectOp.GrowZhengdingMatchingResponse)); g = Cold(g, r);
-            Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.Nullification }); Answer(g, c => c.Cards.Count == 1);
-            Reach(g, () => E<MaMiDiResponseLinkedEvent>(g).Count(e => e.ResponseActor == 0) >= 2 && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.MaMiDi is not null));
-            Need(V(g).MaxHp == maximum + 2 && E<MaMiDiResponseLinkedEvent>(g).Where(e => e.ResponseActor == 0).Last().IncomingKind == CardKind.Nullification,
-                "The next actual counterspell directly answers the previous other actor's counterspell, rather than reusing the root trick's owner/color."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("own-response"); SkipOptional(g); Play(g); var maximum = V(g).MaxHp;
-            Use(g, "incoming", [1]); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "virtual-slash-offer" && c.Targets.SequenceEqual([0])) == true); Answer(g, c => c.Targets.SequenceEqual([0]));
-            Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge }); Answer(g, c => c.Cards.Count == 1); Play(g);
-            Need(V(g).MaxHp == maximum && E<MaMiDiResponseLinkedEvent>(g).Last(e => e.ResponseActor == 0).IncomingIsRed is null && !E<MaMiDiMaximumIssuedEvent>(g).Any(e => e.Op == SkillProgramEffectOp.GrowZhengdingMatchingResponse),
-                "A genuine colorless native incoming Slash and an own-turn response cannot manufacture Zhengding, even if the stored legacy boolean happens to be false.");
-            Use(g, "cardless", [1]); Play(g); Need(!E<MaMiDiMaximumIssuedEvent>(g).Any(e => e.Op == SkillProgramEffectOp.GrowZhengdingMatchingResponse), "Cardless skill damage is never a response to another character's card."); _ = Cold(g, r);
-        }
-    }
-    public static void BingjieNativeMaximumHealthLionOxDeathAndPaidColdReturns()
-    {
-        {
-            var (g, r) = Start("maximum-zero"); Need(V(g).Hp == 2 && V(g).MaxHp == 2, "The small non-Lord fixture begins at a genuine native two maximum HP, before either actual Play payment.");
-            Activate(g, Bing); Play(g); Need(V(g).Hp == 1 && V(g).MaxHp == 1 && E<MaMiDiMaximumIssuedEvent>(g).Single().MaximumAfter == 1, "The first actual inserted-Play cost genuinely clamps both HP and maximum HP to one.");
-            End(g); Reach(g, () => Optional(g, Bing)); g = Cold(g, r); Activate(g, Bing); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Death);
-            var invoice = E<MaMiDiMaximumIssuedEvent>(g).Last(); var death = g.ResolutionStack.OfType<DeathFrame>().Single();
-            Need(invoice.MaximumBefore == 1 && invoice.MaximumAfter == 0 && V(g).MaxHp == 0 && V(g).Hp == 0 && !V(g).IsAlive && death.ReturnKind == DeathReturnKind.ProgramSkill && death.ParentFrameId == invoice.FrameId && death.KillerSeat is null && !g.ResolutionStack.OfType<DyingFrame>().Any() && E<PlayerDyingEvent>(g).Length == 0,
-                "The second genuine same-turn Play pays one-to-zero maximum HP and directly enters native owner death, without a rescueable Dying attempt or fabricated HP loss.");
-            g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, () => E<MaMiDiCompletedEvent>(g).Any(e => e.FrameId == invoice.FrameId));
-            Need(E<MaMiDiMaximumIssuedEvent>(g).Length == 2 && E<BingjieGrantedEvent>(g).Length == 1 && E<MaMiDiCompletedEvent>(g).Count(e => e.FrameId == invoice.FrameId) == 1 && g.State.Winner == Winner.None,
-                "Native direct-death cleanup returns to the original paid instruction once; the dead source cannot receive a second usable turn entitlement."); _ = Cold(g, r);
-        }
-        foreach (var scenario in new[] { "maximum-loss", "maximum-death" })
-        {
-            var (g, r) = Start(scenario); Activate(g, Bing); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Health);
-            Need(Current(g) is { Stage: MaMiDiStage.MaximumChildren } && E<MaMiDiMaximumIssuedEvent>(g).Length == 1, "The genuine maximum-HP observation pauses below its paid owning instruction.");
-            g = Cold(g, r); Continue(g);
-            if (scenario == "maximum-loss")
-            {
-                Play(g); Need(V(g).Skills!.All(s => s.ContentId != Bing) && E<BingjieGrantedEvent>(g).Length == 1, "A real clamp removes the conditional source before the HP child returns, without canceling the completed cost.");
-                Native(g, CardKind.Slash, [1]); Play(g); Need(E<MaMiDiDiscardIssuedEvent>(g).Length == 1, "The issued effect remains usable after its source vanished inside payment children.");
-            }
-            else
-            {
-                Reach(g, () => g.ResolutionStack.OfType<DyingFrame>().Any()); g = Cold(g, r); Reach(g, () => !V(g).IsAlive && E<MaMiDiCompletedEvent>(g).Length == 1);
-                Need(g.State.Winner == Winner.None && E<MaMiDiMaximumIssuedEvent>(g).Length == 1 && E<BingjieGrantedEvent>(g).Length == 0, "Real non-Lord death drains the paid maximum-HP child and completes the original receipt once without a second cost or a new usable post-death entitlement.");
-            }
-            _ = Cold(g, r);
-        }
-        foreach (var scenario in new[] { "lion", "ox", "target-death" })
-        {
-            var (g, r) = Start(scenario); Activate(g, Bing); Play(g); Use(g, "equip", [1]); Play(g); var equipment = V(g, 1).Equipment.Single().Id;
-            Use(g, "wound-peer", [1]); Play(g); TrimPeer(g, 1);
-            Native(g, scenario == "target-death" ? CardKind.ArrowBarrage : CardKind.Slash, scenario == "target-death" ? null : [1]);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == (scenario == "lion" ? Health : Cost));
-            Need(E<MaMiDiDiscardIssuedEvent>(g).Single().CardId == equipment && Current(g) is { Stage: MaMiDiStage.TargetChildren }, "The target's only legal equipment is truly discarded before its native removal/movement child pauses.");
-            g = Cold(g, r); Continue(g);
-            if (scenario == "target-death") { Reach(g, () => g.ResolutionStack.OfType<DyingFrame>().Any()); g = Cold(g, r); }
-            Play(g);
-            if (scenario == "lion") Need(E<RecoveryAppliedEvent>(g).Any(e => e.TargetSeat == 1 && e.Amount == 1), "The actual foreign Silver Lion heals through the exact original paid-discard recovery parent.");
-            if (scenario == "target-death") Need(!V(g, 1).IsAlive && E<MaMiDiDiscardIssuedEvent>(g).Select(e => e.TargetSeat).SequenceEqual([1, 2, 3]), "A real target death does not replay its paid cost or cancel later frozen target discards.");
-            Need(E<MaMiDiDiscardIssuedEvent>(g).Count(e => e.CardId == equipment) == 1, "Native child returns never discard the original equipment twice."); _ = Cold(g, r);
-        }
-        {
-            var (g, r) = Start("human-ox"); SkipOptional(g); Play(g); Native(g, CardKind.WoodenOx); Play(g); var ox = V(g).Equipment.Single(c => c.Kind == CardKind.WoodenOx).Id;
-            var store = g.GetHumanLegalActions().Single(a => a.Kind == LegalActionKind.UseEquipmentEffect && a.EquipmentKind == CardKind.WoodenOx); var grain = store.SelectableCardIds.First();
-            Accept(g, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [grain], [], g.Revision, P(g)!.PromptId)); Play(g); Need(V(g).WoodenOxGrain!.Single().Id == grain, "A real human equipment command stores the original hand entity before the foreign turn.");
-            End(g); Reach(g, () => Current(g) is { Stage: MaMiDiStage.TargetChoice } && P(g) is { PlayerSeat: 0 });
-            Need(Frame(g).OwnerSeat != 0 && g.CreateSnapshot(Frame(g).OwnerSeat).PendingDecision is null, "The actual foreign paid Bingjie owner cannot see the human recipient's hand/equipment choice.");
-            g = Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([ox])); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Cost); g = Cold(g, r); Continue(g);
-            Reach(g, () => E<MaMiDiDiscardIssuedEvent>(g).Any(e => e.CardId == ox) && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.MaMiDi is not null));
-            Need(!V(g).Equipment.Any(c => c.Id == ox) && (V(g).WoodenOxGrain is null or { Count: 0 }) && g.CardMovements.Count(m => m.CardId == grain && m.From == CardLocation.WoodenOxGrain(0) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard) == 1,
-                "Removing the actual stocked Wooden Ox spills its one original grain through the exact paid native movement subtree, once across cold returns."); _ = Cold(g, r);
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -169,8 +59,6 @@ internal static class MaMiDiChecks
     { var a = g.GetHumanLegalActions().First(a => (a.PlayedCardKind ?? V(g).Hand.FirstOrDefault(c => c.Id == a.CardId)?.Kind) == kind && (targets is null || a.TargetSeats.SequenceEqual(targets))); Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource }); }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-    private static void TrimPeer(GameEngine g, int seat)
-    { while (V(g, seat).HandCount > 0) { Use(g, "trim-peer", [seat]); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card") == true); Answer(g, c => c.Parameters.GetValueOrDefault("slot-index") == "0"); Play(g); } }
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 400; step++)

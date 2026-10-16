@@ -35,6 +35,11 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
         }
         else switch (prompt.Kind)
         {
+            case DecisionKind.OpeningHand:
+                title = "确认起手牌";
+                target = prompt.PlayerSeat;
+                targetLabel = "正在选牌";
+                break;
             case DecisionKind.SelectFaction:
                 title = "选择本局势力";
                 target = prompt.PlayerSeat;

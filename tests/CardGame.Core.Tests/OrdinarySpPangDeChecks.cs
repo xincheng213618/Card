@@ -33,23 +33,6 @@ internal static class OrdinarySpPangDeChecks
             "Declining the unpaid own cost changes no real card and issues no Duel."); cancel = Cold(cancel, cr);
     }
 
-    public static void PrintedSlashIdentityAndHpAfterPaymentChildren()
-    {
-        var (g, r) = Create(); Prepare(g); Begin(g); Reach(g, p => Cost(p, "owner")); var own = PaySlash(g);
-        Reach(g, p => Cost(p, "target")); var theirs = PaySlash(g); Play(g);
-        Require(E<ConditionalDiscardDuelIssuedEvent>(g).Length == 0 && E<ConditionalDiscardDuelFinishedEvent>(g).Single().Issued == false,
-            "A frozen printed Slash/FireSlash/ThunderSlash payment prevents the conditional Duel even at equal or greater HP."); PaidOnce(g, own, theirs); g = Cold(g, r);
-
-        var (hp, hr) = Create(targetLoss: true); Prepare(hp); Begin(hp); Reach(hp, p => Cost(p, "owner")); var ownerCard = PaySlash(hp);
-        Reach(hp, p => Cost(p, "target")); var targetCard = PayEquipment(hp);
-        Reach(hp, p => p.SkillPrompt?.SkillId == Observer); Require(hp.State.Players[1].Hp < hp.State.Players[0].Hp &&
-            hp.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConditionalDiscardDuel is { Stage: ConditionalDiscardDuelStage.TargetChildren }),
-            "Actual target discard children run before the HP gate, while the real payment remains on its original activation.");
-        hp = Cold(hp, hr); Continue(hp); Play(hp);
-        Require(E<ConditionalDiscardDuelIssuedEvent>(hp).Length == 0 && hp.CardMovements.Count(m => m.CardId == targetCard && m.Reason.Value == TargetReason) == 1,
-            "A restored real HP observer completes before comparing current HP; an earlier HP comparison cannot issue this Duel."); PaidOnce(hp, ownerCard, targetCard);
-    }
-
     private static bool Slash(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);

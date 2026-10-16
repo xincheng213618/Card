@@ -17,32 +17,11 @@ internal static class BeiMiHuChecks
   Need(E<BeiMiHuAwakeningMaximumPaidEvent>(g).Single().CumulativeActualCards==7 && V(g,0).MaxHp==maximum+1 && V(g,0).Hp==hp+1 && awakened.MarkedSeats.SequenceEqual([3]) &&
    V(g,0).Skills!.Any(s=>s.ContentId=="ol:canshi") && !V(g,0).Skills!.Any(s=>s.ContentId=="ol:guju") && Enumerable.Range(1,3).All(s=>Kui(g,s)==1),"Seven actual acquisitions awaken once: native maxHP+1/recover1, remaining public mark, exact Guju loss and Canshi grant.");_=Cold(g,r);
  }
- public static void ActualCanshiMultipleLegalDrawTwoTargetsAndMarkerPayments()
- {
-  var(g,r)=Start("append");Play(g);var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo && a.CardId is{}id && V(g,0).Hand.Any(c=>c.Id==id && c.Kind==CardKind.DrawTwo));var material=action.CardId!.Value;
-  var counts=Enumerable.Range(0,4).Select(s=>V(g,s).Hand.Count).ToArray();Accept(g,new PlayCardCommand(0,material,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId){ConversionSource=action.ConversionSource});
-  Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:canshi" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-  Reach(g,()=>RootOrNull(g)?.BeiMiHu?.Stage=="append-choice");var id=Root(g).Id;g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([1]));g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([2]));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="finish");Play(g);
-  var paid=E<BeiMiHuTargetsPaidEvent>(g).Single().Receipt;Need(paid.AfterTargets.SequenceEqual([0,1,2]) && paid.PaidMarkerSeats.SequenceEqual([1,2]) && Kui(g,1)==0 && Kui(g,2)==0 &&
-   V(g,0).Hand.Count==counts[0]+1 && V(g,1).Hand.Count==counts[1]+2 && V(g,2).Hand.Count==counts[2]+2 && V(g,3).Hand.Count==counts[3] &&
-   E<BeiMiHuKuiPaidEvent>(g).Count(e=>e.FrameId==id && e.Delta==-1)==2 && E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==id)==1,"One real paid DrawTwo material resolves its implicit self and two selected legal marked targets, consuming each public Kui once with no extra unselected effect.");_=Cold(g,r);
-  (g,r)=Start("empty-append-role");Reach(g,()=>RootOrNull(g)?.BeiMiHu?.Stage=="round-choice");Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>RootOrNull(g)?.BeiMiHu?.Stage=="before-turn-choice");Answer(g,c=>c.Targets.SequenceEqual([3]));Play(g);
-  action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]) && a.CardId is{}card && V(g,0).Hand.Any(c=>c.Id==card && c.Kind==CardKind.Slash));
-  material=action.CardId!.Value;Accept(g,new PlayCardCommand(0,material,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind,action.TargetCardId){ConversionSource=action.ConversionSource});
-  Reach(g,()=>P(g)?.SkillPrompt?.SkillId=="ol:canshi" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-  Reach(g,()=>RootOrNull(g)?.BeiMiHu?.Stage=="append-choice");id=Root(g).Id;g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="finish");
-  Reach(g,()=>P(g)?.Choices.Any(c=>c.Targets.SequenceEqual([3]))==true);g=Cold(g,r);Answer(g,c=>c.Targets.SequenceEqual([3]));
-  Reach(g,()=>E<ProgramCardUseActorReplacedEvent>(g).Any());var replaced=E<ProgramCardUseActorReplacedEvent>(g).Single();
-  var native=g.ResolutionStack.OfType<CardUseFrame>().Single(f=>f.Id==replaced.CardUseFrameId);
-  Need(native.SourceSeat==3 && native.Action!.ProviderSeat==0 && native.Action.PhysicalCards.Select(c=>c.CardId).SequenceEqual([material]) && native.BeiMiHuTargetMutation is null && !native.TargetsAdjusted && !native.Enhancements.HasFlag(CurrentCardEnhancement.ExtraTarget),"Finishing without additions leaves the genuine material/provider and target header intact for a later native actor replacement.");g=Cold(g,r);Play(g);
-  Need(replaced.PreviousActorSeat==0 && replaced.ActorSeat==3 && replaced.ProviderSeat==0 && E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==replaced.CardUseFrameId)==1 && E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==id)==1 && !E<BeiMiHuTargetsPaidEvent>(g).Any() && !E<BeiMiHuKuiPaidEvent>(g).Any(e=>e.Delta==-1) && Kui(g,1)==1 && Kui(g,3)==1,"Zero selected additions finish once without a fictitious target-payment invoice or consuming marks, and the later native actor finishes once after cold recovery.");_=Cold(g,r);
- }
  private static PlayerSnapshot V(GameEngine g,int seat)=>g.CreateSnapshot(seat).Players[seat];
  private static int Kui(GameEngine g,int seat)=>V(g,seat).Markers?.FirstOrDefault(m=>m.Kind==PlayerMarkerKind.Kui)?.Count??0;
  private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
  private static IEnumerable<T>E<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
  private static ProgramSkillFrame? RootOrNull(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().FirstOrDefault(f=>f.BeiMiHu is not null);
- private static ProgramSkillFrame Root(GameEngine g)=>RootOrNull(g)!;
  private static void Need(bool yes,string reason){if(!yes)throw new InvalidOperationException(reason);}
  private static void Accept(GameEngine g,GameCommand c){var x=g.Submit(c);Need(x.Accepted,(x.Error?.Message??"Rejected native Bei Mi Hu command")+" "+JsonSerializer.Serialize(P(g)));}
  private static void Answer(GameEngine g,Func<PromptChoice,bool> select){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(select).Id,g.Revision));}

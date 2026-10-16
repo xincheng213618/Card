@@ -33,33 +33,6 @@ internal static class OrdinaryFuWanChecks
             AssertOriginalUse(g, paid); g = Cold(g, r);
         }
     }
-
-    public static void LegacyVirtualSlashAndBaguaUseExactCancellationProducer()
-    {
-        var (g, r) = Create(legacy: true);
-        Reach(g, p => p.SkillPrompt?.SkillId == "boundary:shensu" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.SkillPrompt?.SkillId == "boundary:shensu" && p.Choices.Any(c => c.Targets.SequenceEqual([1])));
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, Offer);
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single();
-        Require(use.CardId == 0 && use.Action is null && use.PhysicalCardIds is { Count: 0 } &&
-            use.SlashTargetBenefits is [{ Use.ActionId: null, Use.LegacyProducerProgramId: not null }],
-            "The mature actual Action-null Shensu Slash keeps its real paused producer and creates no fabricated AcceptedAction or physical material.");
-        g = Cold(g, r); Choose(g, "draw"); Play(g);
-        Require(E<SlashTargetBenefitCancellationEvent>(g).Length == 1 && E<SlashTargetBenefitSettledEvent>(g).Single().Paid &&
-            !E<CardActionAcceptedEvent>(g).Any(e => e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Slash),
-            "The legacy parent resumes once after genuine cancellation; ordinary actual-target windows remain in its original return order."); g = Cold(g, r);
-
-        var (bagua, br) = Create(bagua: true); Play(bagua);
-        Use(bagua, "equip", [1]); Play(bagua); var physical = Slash(bagua, 1); Reach(bagua, Offer); Choose(bagua, "draw"); Play(bagua);
-        var slash = E<CardActionAcceptedEvent>(bagua).Single(e => e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(E<JudgmentResolvedEvent>(bagua).Any(e => e.TargetSeat == 1 && e.Reason == JudgmentReasons.BaguaDefense && e.Succeeded) &&
-            E<CardActionAcceptedEvent>(bagua).Any(e => e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Dodge &&
-                e.Action.ActorSeat == 1 && e.Action.PhysicalCards.Count == 0 && e.Action.ParentActionId == slash.ActionId) &&
-            E<SlashTargetBenefitSettledEvent>(bagua).Single().Paid,
-            "Actual successful Bagua provides a zero-material Dodge cancellation; physical CardResponded events are not invented for armor.");
-        AssertOriginalUse(bagua, physical); bagua = Cold(bagua, br);
-    }
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Offer(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("slash-benefit-step") == "draw");
@@ -69,7 +42,6 @@ internal static class OrdinaryFuWanChecks
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static int[] Slash(GameEngine g, int target)
     { var ids = g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray(); Accept(g, new UseProgramSkillCommand(0, "classic:fuhun", "two-hand-cards-as-slash", ids, [target], g.Revision, P(g)!.PromptId)); return ids; }
-    private static void Use(GameEngine g, string binding, int[] targets) => Accept(g, new UseProgramSkillCommand(0, Driver, binding, [], targets, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> match)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(match).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> match)

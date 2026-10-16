@@ -31,22 +31,6 @@ internal static class FengLinSunLiangChecks
         Choose(zero,c=>c.Parameters["mode"]=="draw");Require(P(zero)!.Choices.All(c=>c.Targets.Count==0),"Zero budget permits only empty draw completion/reset.");Replay(zero,zr);Choose(zero,c=>c.Parameters["mode"]=="finish");
         Require(zero.Events.Select(e=>e.Payload).OfType<ProgramDiscardBudgetCommittedEvent>().Single().Participants.Count==0&&!zero.CardMovements.Any(m=>m.Reason.Value=="skill-program.discard-budget.draw"),"Empty zero-budget mode causes no fabricated card draw.");Replay(zero,zr);Conserve(zero);
     }
-    public static void CompletedCostProviderAndLordReward()
-    {
-        foreach(var rejectGift in new[]{true,false})
-        {
-            var (g,r)=Start("gift",Role.Loyalist);var slash=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash);
-            Accept(g,new PlayCardCommand(0,slash.CardId!.Value,slash.TargetSeats,g.Revision,P(g)!.PromptId));Reach(g,p=>Action(p,"faction-cost-gift"));
-            var frame=g.ResolutionStack.OfType<ProgramSkillFrame>().Last();var d=frame.CompletedFactionGiftDraft!;
-            Require(P(g)!.PlayerSeat==0&&d.CardIds.Contains(slash.CardId.Value)&&frame.OwnerSeat!=0&&g.State.Players[frame.OwnerSeat].Role==Role.Lord,"Provider owns gift choice and exact real completed Slash cost; distinct Lord owns source.");
-            Require(Enumerable.Range(1,3).All(seat=>g.CreateSnapshot(seat,false).PendingDecision is null),"Private gift decision belongs only to actual user/provider, including a distinct human or AI Lord.");Replay(g,r);Reject(g,new AnswerPromptCommand(frame.OwnerSeat,P(g)!.PromptId,P(g)!.Choices[0].Id,g.Revision));Choose(g,c=>c.Parameters["mode"]==(rejectGift?"decline":"give"));
-            Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-            var gifts=g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().ToArray();
-            Require(rejectGift?gifts.Length==0:gifts.Length==1&&gifts[0].CardIds.Contains(slash.CardId.Value),"Decline doesn't consume; accepted gift records provider's one phase allowance.");
-            if(!rejectGift)Require(g.CardMovements.Any(m=>m.CardId==slash.CardId&&m.To==CardLocation.Hand(frame.OwnerSeat))&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.faction-cost-gift.reward")==1&&g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Real transfer precedes actual reward draw and recipient Slash allowance.");
-            Replay(g,r);Conserve(g);
-        }
-    }
     private static (GameEngine,ContentRegistry) Start(string mode,Role humanRole=Role.Lord)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(mode));

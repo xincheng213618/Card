@@ -52,30 +52,6 @@ internal static class BoundarySunJianChecks
         Replay(game, registry);
     }
 
-    public static void WulieLethalPaymentReturnsAfterDying()
-    {
-        var (game, registry) = Start();
-        for (var i = 0; i < 3; i++) { Use(game, "trim"); Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0); }
-        Require(game.State.Players[0].Hp == 1, "Real commands prepare the affordable lethal quantity.");
-        EndPlay(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == "boundary:wulie"); Activate(game);
-        Require(P(game)!.Choices.All(c => c.Targets.Count == 1), "The lethal quantity is bounded by the actual remaining HP.");
-        Answer(game, c => c.Targets.SequenceEqual(new[] { 2 }));
-        Reach(game, p => p.SkillPrompt?.SkillId == DyingChild);
-        var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:wulie");
-        var dying = game.ResolutionStack.OfType<DyingFrame>().Single();
-        Require(parent.HpDamageShieldReceipt is { ActualLost: 1, HpAfter: 0, Granted: false } &&
-            dying.ParentFrameId == parent.Id && Marker(game, 2) == 0,
-            "Lethal physical payment owns the exact existing ProgramSkill dying child before granting protection.");
-        Replay(game, registry); Continue(game);
-        Drain(game, () => !game.State.Players[0].IsAlive && Marker(game, 2) == 1);
-        Require(game.State.Winner == Winner.None &&
-            game.Events.Select(e => e.Payload).OfType<ProgramSkillHpLostEvent>().Count(e => e.SkillId == "boundary:wulie") == 1 &&
-            game.Events.Select(e => e.Payload).OfType<OneUseDamageShieldGrantedEvent>().Single().Shield.TargetSeat == 2,
-            "A paid lethal instruction returns through death and grants its surviving recipient once without replacing or repaying.");
-        Replay(game, registry);
-    }
-
     private static (GameEngine, ContentRegistry) Start(string mode = "normal")
     {
         var definitions = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),

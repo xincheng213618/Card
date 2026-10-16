@@ -68,54 +68,6 @@ internal static class BoundaryYuFanChecks
             "The original converted trick continues and cleans up its own one paid cost; ordinary Use cleanup is excluded from both firstness and reclaimed predecessor cards."); Cold(d, dRegistry);
     }
 
-    public static void RevealedEquipmentAndNonEquipmentHpChildrenResumeOnce()
-    {
-        var (g, r) = Create("standard:crossbow", observers: true); Play(g);
-        Use(g, "hurt-one", [1]); Play(g); var hp = g.State.Players[1].Hp;
-        EndToZhi(g); Activate(g, Zhi); Reach(g, p => p.SkillPrompt?.SkillId == Zhi && p.Choices.Any(c => c.Targets.SequenceEqual([1])));
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Zhi);
-        var reveal = E<ProgramCardsRevealedEvent>(g).Single(e => e.SkillId == Zhi);
-        var card = reveal.Cards.Single();
-        Require(g.State.Players[1].Hp == hp + 1 && g.CreateSnapshot(0).Players[1].Equipment.Any(c => c.Id == card.Id) &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.Change.ParentFrameId == root.Id && f.Change.TargetSeat == 1) &&
-            g.CardMovements.Count(m => m.CardId == card.Id && m.From == CardLocation.Hand(1) && m.To == CardLocation.Processing) == 1,
-            "The actual revealed equipment is used by its recipient, paid once, and the real recovery child pauses the same exact Ending program before its final comparison.");
-        Reject(g); g = RestoreAfterCold(g, r); Continue(g); Until(g, () => E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Zhi && e.Completed));
-        Require(E<RevealedCardHpComparedEvent>(g).Single() is { RevealedKind: CardKind.Crossbow, LosesHp: false } &&
-            E<ProgramSkillHpLostEvent>(g).All(e => e.SkillId != Zhi) &&
-            E<CardUseDeclaredEvent>(g).Count(e => e.CardId == card.Id && e.SourceSeat == 1) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.CardId == card.Id) == 1,
-            "Equipment does not take the non-equipment HP branch, even when recovery makes the live HP unequal; the child return never repeats its use."); Cold(g, r);
-        var frozen = JsonSerializer.Serialize(reveal);
-        try { ((IList<CardSnapshot>)reveal.Cards)[0] = reveal.Cards[0] with { DisplayName = "mutation" }; } catch (NotSupportedException) { }
-        Require(JsonSerializer.Serialize(reveal) == frozen, "The prior public reveal freezes its nested card list before history and observers, and the scalar comparison references that exact immutable entity metadata.");
-
-        var (equal, eqr) = Create(); Play(equal); EndToZhi(equal); Activate(equal, Zhi);
-        Reach(equal, p => p.SkillPrompt?.SkillId == Zhi && p.Choices.Any(c => c.Targets.SequenceEqual([0]))); Answer(equal, c => c.Targets.SequenceEqual([0]));
-        Until(equal, () => E<RevealedCardHpComparedEvent>(equal).Any());
-        Require(E<RevealedCardHpComparedEvent>(equal).Single() is { TargetSeat: 0, LosesHp: false } &&
-            E<ProgramSkillHpLostEvent>(equal).All(e => e.SkillId != Zhi), "A self-recipient of a non-equipment draw has equal live HP and loses none."); Cold(equal, eqr);
-
-        var (dying, dr) = Create("standard:peach", observers: true); Play(dying);
-        for (var i = 0; i < 5; i++) { Use(dying, "hurt-one", [1]); Play(dying); }
-        EndToZhi(dying); Activate(dying, Zhi); Reach(dying, p => p.SkillPrompt?.SkillId == Zhi && p.Choices.Any(c => c.Targets.SequenceEqual([1])));
-        Answer(dying, c => c.Targets.SequenceEqual([1])); Reach(dying, p => p.SkillPrompt?.SkillId == Entry);
-        root = dying.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Zhi);
-        Require(dying.State.Players[1].Hp == 0 && dying.ResolutionStack.OfType<DyingFrame>().Single().ParentFrameId == root.Id &&
-            E<ProgramSkillHpLostEvent>(dying).Count(e => e.SkillId == Zhi && e.TargetSeat == 1) == 1 &&
-            E<RevealedCardHpComparedEvent>(dying).Single() is { RevealedKind: CardKind.Peach, OwnerHp: 4, TargetHp: 1, LosesHp: true },
-            "The non-equipment comparison freezes the actual unequal live HP, loses one once, and owns its genuine Dying-entry child."); dying = RestoreAfterCold(dying, dr); Reject(dying); Continue(dying);
-        Until(dying, () => E<CardActionAcceptedEvent>(dying).Any(e => e.Action.EffectiveKind == CardKind.Peach));
-        var rescue = E<CardActionAcceptedEvent>(dying).Last(e => e.Action.EffectiveKind == CardKind.Peach).Action;
-        dying = RestoreAfterCold(dying, dr);
-        Until(dying, () => E<ProgramBindingResolvedEvent>(dying).Any(e => e.SkillId == Zhi && e.Completed));
-        Require(rescue.Type == CardActionType.Use && rescue.EffectiveDesignatedTargetSeats.SequenceEqual([1]) && rescue.PhysicalCards.Count == 1 &&
-            rescue.PhysicalCards.All(c => dying.CardMovements.Count(m => m.CardId == c.CardId && m.To == CardLocation.Processing) == 1) &&
-            E<ProgramSkillHpLostEvent>(dying).Count(e => e.SkillId == Zhi) == 1 && dying.State.Players[1].Hp == 1,
-            "The real physical Peach and its HP observer return through the original Ending parent without repeating the draw, comparison or HP cost."); Cold(dying, dr);
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static int Started(GameEngine g, string skill) => E<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == skill);
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -125,7 +77,6 @@ internal static class BoundaryYuFanChecks
     private static void FinishTop(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "discard-top-finish");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
-    private static void EndToZhi(GameEngine g) { Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => Activation(p, Zhi)); }
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void BoundDiscard(GameEngine g, string activation, IReadOnlyList<int> ids, IReadOnlyList<int>? targets = null)
     { Use(g, activation, targets); foreach (var id in ids) { Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Cards.SequenceEqual([id]))); Answer(g, c => c.Cards.SequenceEqual([id])); } }

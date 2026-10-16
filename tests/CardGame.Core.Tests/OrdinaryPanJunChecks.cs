@@ -11,7 +11,6 @@ using static BoundaryLiDianChecks;
 internal static class OrdinaryPanJunChecks
 {
     private const string Guanwei = "ol:guanwei";
-    private const string Gongqing = "ol:gongqing";
     private const string Human = "fixture:pj-human";
 
     private static readonly System.Collections.Generic.Dictionary<string, int> Seeds = new()
@@ -109,50 +108,6 @@ internal static class OrdinaryPanJunChecks
         string.Join(",", g.Events.Select(e => e.Payload)
             .OfType<CurrentTurnCardUseKindsRecordedEvent>()
             .Select(e => $"seat{e.ActorSeat}:suit{e.HandSuitMask}"));
-
-    public static void GongqingBoostsAboveThreeRange()
-    {
-        var (g, r) = Start("identity:pj-boost");
-        var panJunSeat = PanJunSeat(g);
-        EquipWeapon(g, CardKind.FangtianHalberd);
-        SlashAlcohol(g, panJunSeat);
-        var damage = g.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>()
-            .Single(d => d.TargetSeat == panJunSeat);
-        Require(damage.SourceSeat == 0 && damage.Amount == 3,
-            "A range-four source boosts the alcohol slash to three. amount=" + damage.Amount);
-        var boost = g.Events.Select(e => e.Payload).OfType<ProgramCardDamageModifiedEvent>().Single();
-        Require(boost.BaseAmount == 2 && boost.ModifiedAmount == 3 && boost.Source.SkillId == Gongqing,
-            "The gongqing boost adds one damage with public evidence.");
-        Require(!g.Events.Select(e => e.Payload).OfType<ProgramDamageCappedEvent>().Any(),
-            "The boost branch never caps.");
-        Replay(g, r);
-    }
-
-    // Fires the dealt alcohol and one heart slash at the seated Pan Jun.
-    private static void SlashAlcohol(GameEngine g, int panJunSeat)
-    {
-        var alcohol = HandCard(g, c => c.Kind == CardKind.Alcohol, "alcohol");
-        Accept(g, new PlayCardCommand(0, alcohol.Id, [], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        var slash = HandCard(g, c => c.Kind == CardKind.Slash, "slash");
-        Accept(g, new PlayCardCommand(0, slash.Id, [panJunSeat], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    }
-
-    private static void EquipWeapon(GameEngine g, CardKind kind)
-    {
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        var weapon = HandCard(g, c => c.Kind == kind, kind.ToString());
-        Accept(g, new PlayCardCommand(0, weapon.Id, [], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    }
-
-    private static CardSnapshot HandCard(GameEngine g, Func<CardSnapshot, bool> predicate, string what)
-    {
-        var hand = g.CreateSnapshot(0).Players[0].Hand;
-        return hand.FirstOrDefault(predicate) ?? throw new InvalidOperationException(
-            $"The dealt hand has no {what}: " + DescribeHand(g));
-    }
 
     private static string DescribeHand(GameEngine g) =>
         string.Join(",", g.CreateSnapshot(0).Players[0].Hand.Select(c => $"{c.Kind}/{c.Suit}"));

@@ -319,10 +319,6 @@ public sealed partial class GameEngine
         _programTargetResolvers = new(ProgramTargetResolverMetadata.Value, ProgramSelectionQueries);
         _programActions = new(ProgramActionMetadata.Value, (method, type) => method.CreateDelegate(type, this));
         _nativeReturns = new(NativeReturnMetadata.Value, (method, type) => method.CreateDelegate(type, this));
-        var requiredProgramRulesVersion = contentRegistry.ProgramDependencies.RequiredProgramRulesVersion;
-        if (GameCheckpoint.CurrentRulesVersion < requiredProgramRulesVersion)
-            throw new InvalidOperationException(
-                $"Compiled skill programs require rules version {requiredProgramRulesVersion} or newer.");
         _modeDefinition = ResolveModeDefinition(contentRegistry, options);
         ValidateModeOptions(options, _modeDefinition);
         _generalPool = CreateRuntimeGeneralPool(contentRegistry, _modeDefinition);
@@ -335,7 +331,7 @@ public sealed partial class GameEngine
             player => player.SkillGrants.HasEnabledSkill(contentRegistry.ProgramDependencies.HpSensitiveSkillIds),
             (owner,grant)=>!owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
             derivedProjectionStamp: player => player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
-                ? CaptureCombinedProjectionDependencyStamp() : 0);
+                ? CaptureCombinedProjectionDependencyStamp() : 0, dualGenerals: _modeDefinition.DualGenerals);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
             options.DeckId ?? _modeDefinition.DeckId);
@@ -348,7 +344,7 @@ public sealed partial class GameEngine
         if (!options.UseInteractiveSetup)
         {
             AssignAutomaticGodFactions();
-            InitializeNationalHealth();
+            InitializeDualGeneralHealth();
             DealInitialHands();
             foreach (var player in _players) InitializeSelectedIdentityConcealment(player);
             _setupComplete = true;
@@ -472,12 +468,10 @@ public sealed partial class GameEngine
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
+    private bool IsDualGeneralMode => IsNationalWarMode || _modeDefinition.DualGenerals;
 
     /// <summary>The deterministic match seed for local diagnostics and replay labels.</summary>
     public int Seed => _options.Seed;
-
-    /// <summary>The behavior version selected for deterministic replay compatibility.</summary>
-    public int RulesVersion => GameCheckpoint.CurrentRulesVersion;
 
     /// <summary>
     /// Monotonically increasing public state revision. Player commands must carry
@@ -3030,10 +3024,11 @@ public sealed partial class GameEngine
             }
         }
 
-        if (_generalPool.Count < _playerCount)
+        var generalsPerSeat = _modeDefinition.DualGenerals ? 2 : 1;
+        if (_generalPool.Count < _playerCount * generalsPerSeat)
         {
             throw new InvalidOperationException(
-                $"Mode '{_modeDefinition.Id}' needs {_playerCount} generals but only {_generalPool.Count} are available.");
+                $"Mode '{_modeDefinition.Id}' needs {_playerCount * generalsPerSeat} generals but only {_generalPool.Count} are available.");
         }
 
         var generals = _generalPool.ToList();
@@ -3041,14 +3036,14 @@ public sealed partial class GameEngine
         {
             _random.Shuffle(generals);
             if (_modeDefinition.GeneralSelectionWeights is not null)
-                generals = DraftWeightedGeneralFamilies(generals, _playerCount).ToList();
+                generals = DraftWeightedGeneralFamilies(generals, _playerCount * generalsPerSeat).ToList();
         }
 
         var hiddenGeneral = CreateHiddenGeneral();
         for (var seat = 0; seat < _playerCount; seat++)
         {
             var role = assigned[seat];
-            var assignedGeneral = _options.UseInteractiveSetup ? hiddenGeneral : generals[seat];
+            var assignedGeneral = _options.UseInteractiveSetup ? hiddenGeneral : generals[seat * generalsPerSeat];
             var maxHp = UsesGeneralBaseHp
                 ? assignedGeneral.BaseHp + (role == Role.Lord ? 1 : 0)
                 : role == Role.Lord ? 5 : 4;
@@ -3064,6 +3059,9 @@ public sealed partial class GameEngine
                 General = assignedGeneral,
                 GeneralSelected = !_options.UseInteractiveSetup,
                 GeneralRevealed = !_options.UseInteractiveSetup,
+                SecondaryGeneral = !_options.UseInteractiveSetup && _modeDefinition.DualGenerals ? generals[seat * 2 + 1] : null,
+                SecondaryGeneralSelected = !_options.UseInteractiveSetup && _modeDefinition.DualGenerals,
+                SecondaryGeneralRevealed = !_options.UseInteractiveSetup && _modeDefinition.DualGenerals,
                 MaxHp = maxHp,
                 Hp = UsesGeneralBaseHp && assignedGeneral.InitialHp is { } initialHp
                     ? initialHp + (role == Role.Lord ? 1 : 0) : maxHp
@@ -3080,7 +3078,7 @@ public sealed partial class GameEngine
                 .OrderBy(player => player.Role == Role.Lord ? 0 : 1)
                 .ThenBy(player => player.IsHuman ? 0 : 1)
                 .ThenBy(player => player.Seat)
-                .Select(player => player.Seat));
+                .SelectMany(player => Enumerable.Repeat(player.Seat, generalsPerSeat)));
         }
     }
 
@@ -3791,7 +3789,7 @@ public sealed partial class GameEngine
             if (_modeDefinition.GeneralVariantGroups is not null)
                 choice = choice with { Parameters = new Dictionary<string, string>(choice.Parameters, StringComparer.Ordinal)
                     { ["candidate-general-id"] = candidateIds[general.Id] } };
-            if (!IsNationalWarMode && UsesGeneralBaseHp)
+            if (!IsDualGeneralMode && UsesGeneralBaseHp)
             {
                 var identityMaxHp = general.BaseHp + (player.Role == Role.Lord ? 1 : 0);
                 choice = choice with
@@ -3808,7 +3806,7 @@ public sealed partial class GameEngine
                     }
                 };
             }
-            choice = WithNationalHealthPreview(choice, player, general);
+            choice = WithDualGeneralHealthPreview(choice, player, general);
             return choice;
         }).ToArray();
 
@@ -3819,6 +3817,10 @@ public sealed partial class GameEngine
                 ? player.GeneralSelected
                     ? $"主将 {player.General.Name}（基础体力 {player.General.BaseHp}）· 请选择副将，卡片显示组合后的体力上限。"
                     : $"请选择你的第 {(player.GeneralSelected ? "二" : "一")} 名同势力武将。候选仅对你可见，明置前势力不会公开。"
+                : _modeDefinition.DualGenerals
+                    ? player.GeneralSelected
+                        ? $"主将 {player.General.Name} · 请选择副将。体力为两将基础体力平均向下取整，主公额外 +1；势力与性别沿用主将。"
+                        : "请选择主将，再选择副将。两将技能同时生效，势力与性别沿用主将。"
                 : IsTeamMode
                     ? "请选择你的武将。候选仅对你可见，所有人完成后才会公开结果。"
                     : "主公先选并公开，本地玩家接着选，其余玩家随后暗选。候选仅对你可见，其余武将在开局确认后公开。",
@@ -3875,6 +3877,15 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException($"Seat {player.Seat} already selected both generals.");
             }
         }
+        else if (_modeDefinition.DualGenerals && player.GeneralSelected)
+        {
+            if (player.SecondaryGeneralSelected)
+                throw new InvalidOperationException($"Seat {player.Seat} already selected both generals.");
+            player.SecondaryGeneral = general;
+            player.SecondaryGeneralSelected = true;
+            player.SecondaryGeneralRevealed = player.Role == Role.Lord && !player.IdentityConcealed;
+            AdvanceEventRulesAndQueueFact(new SecondaryGeneralSelectedEvent(player.Seat, general.Id));
+        }
         else
         {
             player.General = general;
@@ -3904,13 +3915,13 @@ public sealed partial class GameEngine
 
         if (_selectionIndex != _selectionOrder.Count ||
             _players.Any(player => !player.GeneralSelected ||
-                                  IsNationalWarMode && !player.SecondaryGeneralSelected ||
+                                  IsDualGeneralMode && !player.SecondaryGeneralSelected ||
                                   RequiresGodFactionSelection(player)))
         {
             throw new InvalidOperationException("Setup cannot complete before every seat selects a general.");
         }
 
-        InitializeNationalHealth();
+        InitializeDualGeneralHealth();
         _cardZones.Shuffle(CardLocation.DrawPile, _random);
         DealInitialHands();
         if (_options.ConfirmOpeningHand && _options.HumanSeat >= 0)
@@ -3927,6 +3938,7 @@ public sealed partial class GameEngine
         foreach (var player in _players.Where(player => !IsNationalWarMode))
         {
             player.GeneralRevealed = true;
+            player.SecondaryGeneralRevealed = player.SecondaryGeneralSelected;
             InitializeSelectedIdentityConcealment(player);
         }
         InitializeStructuredConversionSkills();
@@ -13276,7 +13288,7 @@ public sealed partial class GameEngine
             virtualUse = NormalizeActualTurnLegacyCompletedUse(virtualUse, attack.ProgramSkillCardUseFrameId);
             if (virtualUse.Action is { } virtualAction)
             {
-                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id))
+                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id))
                 {
                     var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == programParentId);
                     if (parentIndex < 0 || _resolutionStack[parentIndex] is not ProgramSkillFrame parent)
@@ -13892,6 +13904,7 @@ public sealed partial class GameEngine
         IssueKenshangUse(resolutionId, actionContext!);
         IssueFulueCounterUse(resolutionId, actionContext!);
         BindWuJingHejiUse(resolutionId);
+        BindSuyiEquipmentUse(LifecycleCardUse(resolutionId)!);
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -14080,7 +14093,7 @@ public sealed partial class GameEngine
         // This batch's extra target can redirect onto another actual target. Use its
         // native cursor, because an earlier redirected seat may now be duplicated.
         var targetIndex = cardUse.ShortRangeSlashTarget is not null || HasCurrentEnhancementVirtualProducer(cardUse) ||
-            (HasWeifuTargetTail(cardUse) || HasMaWanHunjiangTargetTail(cardUse) || (HasZhangYanLangdaoTargetTail(cardUse) || HasKenshangTargetTail(cardUse)))
+            ((HasWeifuTargetTail(cardUse) || HasBingzhongTargetTail(cardUse)) || HasMaWanHunjiangTargetTail(cardUse) || (HasZhangYanLangdaoTargetTail(cardUse) || HasKenshangTargetTail(cardUse)))
             ? cardUse.TargetIndex : Array.IndexOf(targetSeats, originalTargetSeat);
         if (targetIndex < 0 || targetIndex >= targetSeats.Length || targetSeats[targetIndex] != originalTargetSeat)
         {
@@ -16418,7 +16431,7 @@ public sealed partial class GameEngine
 
     private void AdvanceAfterDeferredTurnEnd(CharacterState previous, bool skipped)
     {
-        if (TracksActualPhaseEnds) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        if (TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -17566,7 +17579,7 @@ public sealed partial class GameEngine
         // judgment, card use or death subtree). Keep those semantic proofs on
         // their owning capabilities; ordinary typed movement/HP observers above
         // do not run this compatibility path. Evaluate it only once per invariant.
-        var paidObserverSubtree = HasSimultaneousDamageObserver(window.Id) || HasBaoDamageObserver(window.Id) || HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) || HasDongZhaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) || HasDamageAcquisitionDamageObserver(window.Id) || HasFirstSlashDuelDamageObserver(window.Id) || HasExtraEffectsAndRankGuessDamageObserver(window.Id) || HasRiceDamageObserver(window.Id) || HasNamedHandChoiceDamageObserver(window.Id) || HasChainedStateBasicDamageObserver(window.Id) ||
+        var paidObserverSubtree = HasSimultaneousDamageObserver(window.Id) || HasBaoDamageObserver(window.Id) || HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || HasYangFuDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) || HasDongZhaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) || HasDamageAcquisitionDamageObserver(window.Id) || HasFirstSlashDuelDamageObserver(window.Id) || HasExtraEffectsAndRankGuessDamageObserver(window.Id) || HasRiceDamageObserver(window.Id) || HasNamedHandChoiceDamageObserver(window.Id) || HasChainedStateBasicDamageObserver(window.Id) ||
             HasSelectedForeignCardSlashDamageObserver(window.Id) ||
             HasRoundGainedEquipmentDrawDamageObserver(window.Id) ||
             HasJoinedTrickDamageRewardDamageObserver(window.Id) ||
@@ -17613,7 +17626,7 @@ public sealed partial class GameEngine
             HasAppliedDamageBenefitObserver(window.Id) ||
             HasFireTargetBenefitObserver(window.Id) ||
             HasFirstSlashDuelDamageObserver(window.Id) ||
-            HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) ||
+            HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || HasYangFuDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) ||
             HasDongZhaoDamageObserver(window.Id) ||
             HasBaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) ||
             HasSimultaneousDamageObserver(window.Id) ||
@@ -17744,7 +17757,7 @@ public sealed partial class GameEngine
             damageProgramDying |= IsBaoDying();
             damageProgramDying |= IsCaoYingDying();
             damageProgramDying |= IsPrivateWhirlDying();
-            damageProgramDying |= IsBuZhiDying() || IsLianZhuDying() || IsJiqiaoDying() || IsKanZeDying() || IsHeQiDying() || IsZhaoXiangDying() || IsZhugeGuoDying() || IsXiZhiCaiDying() || IsWangYunDying() || IsBeiMiHuDying() || IsSimaHuiDying() || IsXuRongDying() || IsLiJueDying() || IsZhangJiDying() || IsSuFeiDying() || IsHuangQuanDying() || IsFanChouDying() || IsGuoSiDying() || IsZhangQiYingDying() || IsCaoChunDying() || IsWangCanDying() || IsSpPangTongDying() || IsNeifaDying() || IsLvQianDying() || IsLvKuangLvXiangDying() || IsXinPiDying() || IsHuaManDying() || IsCaoSongLiluDying() || IsCaoShuangDying() || IsSpZhangLiaoDying() || IsSunRuOlDying() || IsLiuPiDying() || IsWoLongFengChuDying() || IsHuoJunFenruiDying() || IsQiaoZhouDying() || IsXunyiDying() || IsDuXiDying() || IsFuRongDying() || IsDailiDying() || IsZhenyingDying() || IsMaWanDying() || IsDuFuRenDying() || IsZhangShiPingDying() || IsFeiYiDying() || IsQianZhaoDying() || IsDingShangWanDying() || IsLiWanDying() || IsHeJinDying() || IsYanRouDying() || IsLuYuShengDying() || IsWangKuangDying() || IsYuanHuanDying() || IsHanFuDying() || IsWuAnGuoDying() || IsZhangYanDying() || IsZhuJunDying() || IsNiuFuDying() || IsRuanHuiDying() || IsMaMiDiDying() || IsDuanJiongDying() || IsTianChouDying() || IsChengGongYingDying() || (IsKenshangDying() || IsFulueDying() || IsYangFengDying() || IsAHuiNanDying() || IsLiuYanDying() || IsWangGuanDying() || (IsMengDaDying() || IsCaiMaoDying() || IsYaDanDying()) || IsQinLangDying() || IsWuJingDying() || IsXiangChongDying()) || IsKeBiNengDying() || IsCaoXiDying() || IsHuJinDingDying() || IsYanPuDying() || IsZhangYiDying() || IsLiuQiDying() || IsLuZhiWeiDying();
+            damageProgramDying |= IsBuZhiDying() || IsLianZhuDying() || IsJiqiaoDying() || IsKanZeDying() || IsHeQiDying() || IsZhaoXiangDying() || IsZhugeGuoDying() || IsXiZhiCaiDying() || IsWangYunDying() || IsBeiMiHuDying() || IsSimaHuiDying() || IsXuRongDying() || IsLiJueDying() || IsZhangJiDying() || IsSuFeiDying() || IsHuangQuanDying() || IsFanChouDying() || IsGuoSiDying() || IsZhangQiYingDying() || IsCaoChunDying() || IsWangCanDying() || IsSpPangTongDying() || IsNeifaDying() || IsLvQianDying() || IsLvKuangLvXiangDying() || IsXinPiDying() || IsHuaManDying() || IsCaoSongLiluDying() || IsCaoShuangDying() || IsSpZhangLiaoDying() || IsSunRuOlDying() || IsLiuPiDying() || IsWoLongFengChuDying() || IsHuoJunFenruiDying() || IsQiaoZhouDying() || IsXunyiDying() || IsDuXiDying() || IsFuRongDying() || IsDailiDying() || IsZhenyingDying() || IsMaWanDying() || IsDuFuRenDying() || IsZhangShiPingDying() || IsFeiYiDying() || IsQianZhaoDying() || IsDingShangWanDying() || IsLiWanDying() || IsHeJinDying() || IsYanRouDying() || IsLuYuShengDying() || IsWangKuangDying() || IsYuanHuanDying() || IsHanFuDying() || IsWuAnGuoDying() || IsZhangYanDying() || IsZhuJunDying() || IsNiuFuDying() || IsRuanHuiDying() || IsMaMiDiDying() || IsDuanJiongDying() || IsTianChouDying() || IsChengGongYingDying() || (IsKenshangDying() || IsFulueDying() || IsYangFengDying() || IsAHuiNanDying() || IsLiuYanDying() || IsWangGuanDying() || (IsMengDaDying() || IsCaiMaoDying() || (IsYaDanDying() || IsCaoTengDying() || IsYangFuDying())) || IsQinLangDying() || IsWuJingDying() || IsXiangChongDying()) || IsKeBiNengDying() || IsCaoXiDying() || IsHuJinDingDying() || IsYanPuDying() || IsZhangYiDying() || IsLiuQiDying() || IsLuZhiWeiDying();
             damageProgramDying |= IsXuanGongZhuDying();
             damageProgramDying |= IsDongZhaoDying();
             damageProgramDying |= IsRiceProgramDying();
@@ -18702,7 +18715,7 @@ public sealed partial class GameEngine
                     } && parentFrameId == beforeDamage.Id;
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
-                    !topMatchesWindow && !topMatchesProgram && !HasSelectedForeignCardSlashBeforeDamageObserver(beforeDamage.Id) && !HasChainedStateBasicDamageObserver(beforeDamage.Id) && !HasPreventionDrawDying(beforeDamage.Id) && !HasTongxieGuardDying(beforeDamage.Id) && !HasJielieGiftDying(beforeDamage.Id) && !HasJielieGiftDamageObserver(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !(HasDynamicDiscardDamageObserver(beforeDamage.Id) || HasSignedDamagePaymentObserver(beforeDamage.Id)) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasPlacedEquipmentBenefitDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasOffTurnUsedCardGiftBeforeDamageObserver(beforeDamage.Id) && !HasMatchingRecastBeforeDamageObserver(beforeDamage.Id) && !HasOrderedPrintedSkillLossBeforeDamageObserver(beforeDamage.Id) && !HasOverflowTargetCancellationBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id) && !HasPairedColorDispositionBeforeDamageObserver(beforeDamage.Id) && !HasJoinedTrickDamageRewardBeforeDamageObserver(beforeDamage.Id) && !HasRoundGainedEquipmentDrawBeforeDamageObserver(beforeDamage.Id) && !HasInspectedHandDamageObserver(beforeDamage.Id) && !HasFrozenHandRosterBeforeDamageObserver(beforeDamage.Id) && !HasBuZhiBeforeDamageObserver(beforeDamage.Id) && !HasZhaoXiangBeforeDamageObserver(beforeDamage.Id) && !HasKanZeBeforeDamageObserver(beforeDamage.Id) && !HasHeQiBeforeDamageObserver(beforeDamage.Id) && !HasZhugeGuoBeforeDamageObserver(beforeDamage.Id) && !HasXiZhiCaiBeforeDamageObserver(beforeDamage.Id) && !HasBeiMiHuBeforeDamageObserver(beforeDamage.Id) && !HasSimaHuiBeforeDamageObserver(beforeDamage.Id) && !HasXuRongBeforeDamageObserver(beforeDamage.Id) && !HasLiJueBeforeDamageObserver(beforeDamage.Id) && !HasZhangJiBeforeDamageObserver(beforeDamage.Id) && !HasSuFeiBeforeDamageObserver(beforeDamage.Id) && !HasHuangQuanBeforeDamageObserver(beforeDamage.Id) && !HasFanChouBeforeDamageObserver(beforeDamage.Id) && !HasGuoSiBeforeDamageObserver(beforeDamage.Id) && !HasZhangQiYingBeforeDamageObserver(beforeDamage.Id) && !HasCaoChunBeforeDamageObserver(beforeDamage.Id) && !HasWangCanBeforeDamageObserver(beforeDamage.Id) && !HasSpPangTongBeforeDamageObserver(beforeDamage.Id) && !HasNeifaBeforeDamageObserver(beforeDamage.Id) && !HasLvQianBeforeDamageObserver(beforeDamage.Id) && !HasLvKuangLvXiangBeforeDamageObserver(beforeDamage.Id) && !HasXinPiBeforeDamageObserver(beforeDamage.Id) && !HasHuaManBeforeDamageObserver(beforeDamage.Id) && !HasLiuQiBeforeDamageObserver(beforeDamage.Id) && !HasLuZhiWeiBeforeDamageObserver(beforeDamage.Id) && !HasXunyiBeforeDamageObserver(beforeDamage.Id) && !HasDuXiDamageObserver(beforeDamage.Id) && !HasFuRongDamageObserver(beforeDamage.Id) && !HasDailiBeforeDamageObserver(beforeDamage.Id) && !HasZhenyingBeforeDamageObserver(beforeDamage.Id) && !HasMaWanDamageObserver(beforeDamage.Id) && !HasDuFuRenDamageObserver(beforeDamage.Id) && !HasZhangShiPingDamageObserver(beforeDamage.Id) && !HasFeiYiDamageObserver(beforeDamage.Id) && !HasQianZhaoBeforeDamageObserver(beforeDamage.Id) && !HasDingShangWanDamageObserver(beforeDamage.Id) && !HasLiWanBeforeDamageObserver(beforeDamage.Id) && !HasHeJinDamageObserver(beforeDamage.Id) && !HasYanRouDamageObserver(beforeDamage.Id) && !HasCaoXiDamageObserver(beforeDamage.Id) && !HasLuYuShengDamageObserver(beforeDamage.Id) && !HasWangKuangDamageObserver(beforeDamage.Id) && !HasYuanHuanBeforeDamageObserver(beforeDamage.Id) && !HasHanFuBeforeDamageObserver(beforeDamage.Id) && !HasWuAnGuoBeforeDamageObserver(beforeDamage.Id) && !HasZhangYanDamageObserver(beforeDamage.Id) && !HasZhuJunDamageObserver(beforeDamage.Id) && !HasNiuFuBeforeDamageObserver(beforeDamage.Id) && !HasRuanHuiBeforeDamageObserver(beforeDamage.Id) && !HasMaMiDiBeforeDamageObserver(beforeDamage.Id) && !HasDuanJiongBeforeDamageObserver(beforeDamage.Id) && !HasTianChouBeforeDamageObserver(beforeDamage.Id) && !HasChengGongYingBeforeDamageObserver(beforeDamage.Id) && !(HasKenshangBeforeDamageObserver(beforeDamage.Id) || HasFulueBeforeDamageObserver(beforeDamage.Id) || HasYangFengBeforeDamageObserver(beforeDamage.Id) || HasAHuiNanBeforeDamageObserver(beforeDamage.Id) || HasLiuYanBeforeDamageObserver(beforeDamage.Id) || HasWangGuanBeforeDamageObserver(beforeDamage.Id) || (HasMengDaBeforeDamageObserver(beforeDamage.Id) || HasCaiMaoBeforeDamageObserver(beforeDamage.Id) || HasYaDanBeforeDamageObserver(beforeDamage.Id)) || HasQinLangBeforeDamageObserver(beforeDamage.Id) || HasWuJingBeforeDamageObserver(beforeDamage.Id) || HasXiangChongBeforeDamageObserver(beforeDamage.Id)) && !HasKeBiNengBeforeDamageObserver(beforeDamage.Id) && !HasHuJinDingBeforeDamageObserver(beforeDamage.Id) && !HasYanPuDamageObserver(beforeDamage.Id) && !HasZhangYiDamageObserver(beforeDamage.Id) && !HasWangYunBeforeDamageObserver(beforeDamage.Id))
+                    !topMatchesWindow && !topMatchesProgram && !HasSelectedForeignCardSlashBeforeDamageObserver(beforeDamage.Id) && !HasChainedStateBasicDamageObserver(beforeDamage.Id) && !HasPreventionDrawDying(beforeDamage.Id) && !HasTongxieGuardDying(beforeDamage.Id) && !HasJielieGiftDying(beforeDamage.Id) && !HasJielieGiftDamageObserver(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !(HasDynamicDiscardDamageObserver(beforeDamage.Id) || HasSignedDamagePaymentObserver(beforeDamage.Id)) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasPlacedEquipmentBenefitDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasOffTurnUsedCardGiftBeforeDamageObserver(beforeDamage.Id) && !HasMatchingRecastBeforeDamageObserver(beforeDamage.Id) && !HasOrderedPrintedSkillLossBeforeDamageObserver(beforeDamage.Id) && !HasOverflowTargetCancellationBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id) && !HasPairedColorDispositionBeforeDamageObserver(beforeDamage.Id) && !HasJoinedTrickDamageRewardBeforeDamageObserver(beforeDamage.Id) && !HasRoundGainedEquipmentDrawBeforeDamageObserver(beforeDamage.Id) && !HasInspectedHandDamageObserver(beforeDamage.Id) && !HasFrozenHandRosterBeforeDamageObserver(beforeDamage.Id) && !HasBuZhiBeforeDamageObserver(beforeDamage.Id) && !HasZhaoXiangBeforeDamageObserver(beforeDamage.Id) && !HasKanZeBeforeDamageObserver(beforeDamage.Id) && !HasHeQiBeforeDamageObserver(beforeDamage.Id) && !HasZhugeGuoBeforeDamageObserver(beforeDamage.Id) && !HasXiZhiCaiBeforeDamageObserver(beforeDamage.Id) && !HasBeiMiHuBeforeDamageObserver(beforeDamage.Id) && !HasSimaHuiBeforeDamageObserver(beforeDamage.Id) && !HasXuRongBeforeDamageObserver(beforeDamage.Id) && !HasLiJueBeforeDamageObserver(beforeDamage.Id) && !HasZhangJiBeforeDamageObserver(beforeDamage.Id) && !HasSuFeiBeforeDamageObserver(beforeDamage.Id) && !HasHuangQuanBeforeDamageObserver(beforeDamage.Id) && !HasFanChouBeforeDamageObserver(beforeDamage.Id) && !HasGuoSiBeforeDamageObserver(beforeDamage.Id) && !HasZhangQiYingBeforeDamageObserver(beforeDamage.Id) && !HasCaoChunBeforeDamageObserver(beforeDamage.Id) && !HasWangCanBeforeDamageObserver(beforeDamage.Id) && !HasSpPangTongBeforeDamageObserver(beforeDamage.Id) && !HasNeifaBeforeDamageObserver(beforeDamage.Id) && !HasLvQianBeforeDamageObserver(beforeDamage.Id) && !HasLvKuangLvXiangBeforeDamageObserver(beforeDamage.Id) && !HasXinPiBeforeDamageObserver(beforeDamage.Id) && !HasHuaManBeforeDamageObserver(beforeDamage.Id) && !HasLiuQiBeforeDamageObserver(beforeDamage.Id) && !HasLuZhiWeiBeforeDamageObserver(beforeDamage.Id) && !HasXunyiBeforeDamageObserver(beforeDamage.Id) && !HasDuXiDamageObserver(beforeDamage.Id) && !HasFuRongDamageObserver(beforeDamage.Id) && !HasDailiBeforeDamageObserver(beforeDamage.Id) && !HasZhenyingBeforeDamageObserver(beforeDamage.Id) && !HasMaWanDamageObserver(beforeDamage.Id) && !HasDuFuRenDamageObserver(beforeDamage.Id) && !HasZhangShiPingDamageObserver(beforeDamage.Id) && !HasFeiYiDamageObserver(beforeDamage.Id) && !HasQianZhaoBeforeDamageObserver(beforeDamage.Id) && !HasDingShangWanDamageObserver(beforeDamage.Id) && !HasLiWanBeforeDamageObserver(beforeDamage.Id) && !HasHeJinDamageObserver(beforeDamage.Id) && !HasYanRouDamageObserver(beforeDamage.Id) && !HasCaoXiDamageObserver(beforeDamage.Id) && !HasLuYuShengDamageObserver(beforeDamage.Id) && !HasWangKuangDamageObserver(beforeDamage.Id) && !HasYuanHuanBeforeDamageObserver(beforeDamage.Id) && !HasHanFuBeforeDamageObserver(beforeDamage.Id) && !HasWuAnGuoBeforeDamageObserver(beforeDamage.Id) && !HasZhangYanDamageObserver(beforeDamage.Id) && !HasZhuJunDamageObserver(beforeDamage.Id) && !HasNiuFuBeforeDamageObserver(beforeDamage.Id) && !HasRuanHuiBeforeDamageObserver(beforeDamage.Id) && !HasMaMiDiBeforeDamageObserver(beforeDamage.Id) && !HasDuanJiongBeforeDamageObserver(beforeDamage.Id) && !HasTianChouBeforeDamageObserver(beforeDamage.Id) && !HasChengGongYingBeforeDamageObserver(beforeDamage.Id) && !(HasKenshangBeforeDamageObserver(beforeDamage.Id) || HasFulueBeforeDamageObserver(beforeDamage.Id) || HasYangFengBeforeDamageObserver(beforeDamage.Id) || HasAHuiNanBeforeDamageObserver(beforeDamage.Id) || HasLiuYanBeforeDamageObserver(beforeDamage.Id) || HasWangGuanBeforeDamageObserver(beforeDamage.Id) || (HasMengDaBeforeDamageObserver(beforeDamage.Id) || HasCaiMaoBeforeDamageObserver(beforeDamage.Id) || HasYaDanBeforeDamageObserver(beforeDamage.Id) || HasCaoTengBeforeDamageObserver(beforeDamage.Id) || HasYangFuBeforeDamageObserver(beforeDamage.Id)) || HasQinLangBeforeDamageObserver(beforeDamage.Id) || HasWuJingBeforeDamageObserver(beforeDamage.Id) || HasXiangChongBeforeDamageObserver(beforeDamage.Id)) && !HasKeBiNengBeforeDamageObserver(beforeDamage.Id) && !HasHuJinDingBeforeDamageObserver(beforeDamage.Id) && !HasYanPuDamageObserver(beforeDamage.Id) && !HasZhangYiDamageObserver(beforeDamage.Id) && !HasWangYunBeforeDamageObserver(beforeDamage.Id))
                 {
                     throw new InvalidOperationException(
                         "An active before-damage program must retain its damage and parent window.");

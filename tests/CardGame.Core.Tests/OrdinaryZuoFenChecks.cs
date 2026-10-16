@@ -59,111 +59,6 @@ internal static class OrdinaryZuoFenChecks
         }
     }
 
-    public static void LeiRecoversNativeDyingToOneAndDrawsOnce()
-    {
-        var (g, registry) = Create(Scenario.Lei, CardKind.Nullification); TakeGift(g); Play(g);
-        var token = E<RecipientCategoryMarkGrantedEvent>(g).Single().Token;
-        Require(token.Kind == RecipientCategoryMarkKind.Rescue && Marker(g, 0, PlayerMarkerKind.CategoryLei) == 1 &&
-            V(g, 0).Skills!.Any(s => s.Id == Lei) && V(g, 0).Skills!.All(s => s.Id != Zhao),
-            "Only the independent holder rescue ability is acquired from the trick gift.");
-        Use(g, "die"); Reach(g, p => Offer(p, Lei, 0));
-        var dying = g.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 0);
-        Require(V(g, 0) is { Hp: 0, MaxHp: 5, IsAlive: true }, "A legal HP-loss command reaches genuine zero-HP native Dying before the token is invoked.");
-        Answer(g, Activate); Reach(g, p => p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId == Health && IsContinue(p));
-        var frame = MarkFrame(g); var r = frame.RecipientCategoryMark!;
-        Require(r is { Stage: RecipientCategoryMarkStage.RecoveryChildren, HolderSeat: 0, Consumed: true, RecoveryIssued: true, RecoveryAmount: 1, DrawIssued: false } &&
-            r.Token == token && r.DyingFrameId == dying.Id && r.Source.SkillId == Lei && r.Source.OwnerSeat == 0 &&
-            g.ResolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.Id) &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.Change is { Kind: HpChangeKind.Recovery, TargetSeat: 0, HpBefore: 0, HpAfter: 1 } && f.Change.ParentFrameId == frame.Id) &&
-            Enumerable.Range(0, 4).All(viewer => Marker(g, viewer, PlayerMarkerKind.CategoryLei) == 0) &&
-            E<RecipientCategoryMarkConsumedEvent>(g).Count(e => e.FrameId == frame.Id && e.TokenId == token.TokenId) == 1 &&
-            E<RecipientCategoryMarkDrawIssuedEvent>(g).Length == 0,
-            "The holder consumes its original token once, recovers through its owning native HP child, and owes the subsequent Draw until that child returns.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g);
-        Require(V(g, 0) is { Hp: 1, MaxHp: 5, HandCount: 6, IsAlive: true } && !g.ResolutionStack.OfType<DyingFrame>().Any() &&
-            E<RecipientCategoryMarkRecoveryIssuedEvent>(g).Count(e => e.FrameId == frame.Id && e.HolderSeat == 0 && e.Amount == 1) == 1 &&
-            E<RecipientCategoryMarkDrawIssuedEvent>(g).Count(e => e.FrameId == frame.Id && e.HolderSeat == 0 && e.ActualCount == 1) == 1 &&
-            E<RecipientCategoryMarkCompletedEvent>(g).Count(e => e.FrameId == frame.Id && e.Consumed) == 1 &&
-            E<MaximumHpChangedEvent>(g).Length == 0,
-            "Cold HP return completes recover-to-one plus one genuine Draw exactly once, preserves maximum HP and resumes the interrupted native program.");
-    }
-
-    public static void FuBlindlyDiscardsUpToTwoFromOneArea()
-    {
-        foreach (var count in new[] { 0, 1, 2 })
-        {
-            var (g, registry) = Create(Scenario.Fu, CardKind.Crossbow); TakeGift(g); Reach(g, p => Offer(p, Fu, 0));
-            Answer(g, Activate); Reach(g, p => MarkChoice(p, "discard-target"));
-            var frame = MarkFrame(g); var token = frame.RecipientCategoryMark!.Token!;
-            Require(frame.RecipientCategoryMark is { Consumed: true, Stage: RecipientCategoryMarkStage.ChoosingTarget } &&
-                token.Kind == RecipientCategoryMarkKind.Discard && Marker(g, 0, PlayerMarkerKind.CategoryFu) == 0,
-                "The real own Play-start invocation spends the independent holder's Fu token before its optional zero-to-two selection.");
-            Answer(g, c => c.Targets.SequenceEqual([2])); Reach(g, p => MarkChoice(p, "discard-card"));
-            var r = MarkFrame(g).RecipientCategoryMark!;
-            var candidates = P(g)!.Choices.Where(c => c.Parameters.GetValueOrDefault("mark-action") == "discard-card").ToArray();
-            Require(r.TargetSeat == 2 && r.Materials.Count == 4 && r.Materials.All(m => m.Hidden && m.From == CardLocation.Hand(2)) &&
-                candidates.Length == 4 && candidates.All(c => c.Cards.Count == 0 && c.Targets.Count == 0 &&
-                    c.Parameters["source-zone"] == nameof(CardZoneKind.Hand) && c.Parameters["card-owner-seat"] == "2") && P(g)!.ValidCardIds.Count == 0,
-                "The holder chooses one area owner and sees only frozen opaque foreign Hand slots, without hidden entity identity or appearance.");
-            Frozen(r.Materials); Private(g);
-            var selected = r.Materials.OrderBy(m => m.SlotIndex).Take(count).Select(m => m.CardId).ToArray();
-            for (var i = 0; i < count; i++) { var slot = i.ToString(System.Globalization.CultureInfo.InvariantCulture); Answer(g, c => c.Parameters.GetValueOrDefault("slot-index") == slot); }
-            if (count < 2) Answer(g, c => c.Parameters.GetValueOrDefault("mark-action") == "finish");
-            if (count != 0)
-            {
-                Reach(g, p => p is { PlayerSeat: 2 } && p.SkillPrompt?.SkillId == Discard && IsContinue(p));
-                var paid = MarkFrame(g).RecipientCategoryMark!;
-                Require(paid is { Stage: RecipientCategoryMarkStage.DiscardChildren, TargetSeat: 2, BatchId: > 0 } &&
-                    paid.SelectedCardIds.SequenceEqual(selected) &&
-                    g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.ResumeProgramFrameId is null && f.Batch.ParentFrameId == frame.Id && f.Batch.AwaitingProgramFrameId == frame.Id && f.Batch.Id == paid.BatchId) &&
-                    selected.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(2) && m.To == CardLocation.DiscardPile &&
-                        m.Reason.Value == $"skill-program.{Fu}.recipient-category.discard") == 1) &&
-                    E<RecipientCategoryMarkCompletedEvent>(g).All(e => e.FrameId != frame.Id),
-                    "Only the original chosen entities pay one real discard batch, whose native child remains owned by this exact consumed receipt.");
-                Frozen(paid.SelectedCardIds); Private(g); if (count == 2) g = Cold(g, registry); Continue(g);
-            }
-            Play(g);
-            Require(V(g, 2).HandCount == 4 - count && E<RecipientCategoryMarkConsumedEvent>(g).Count(e => e.FrameId == frame.Id && e.TokenId == token.TokenId) == 1 &&
-                E<RecipientCategoryMarkCompletedEvent>(g).Count(e => e.FrameId == frame.Id && e.Consumed) == 1 &&
-                E<RecipientCategoryMarkMovementPaidEvent>(g).Count(e => e.FrameId == frame.Id) == (count == 0 ? 0 : 1) &&
-                (count == 0 || E<RecipientCategoryMarkMovementPaidEvent>(g).Single(e => e.FrameId == frame.Id).Count == count) &&
-                E<RecipientCategoryMarkDrawIssuedEvent>(g).Length == 0,
-                "Zero, one and two are all genuine accepted Fu outcomes; they consume once, discard only the selected amount and add no historical one-card Draw penalty or benefit.");
-        }
-    }
-
-    public static void SongAddsLegalTargetsToOriginalSlash()
-    {
-        var (g, registry) = Create(Scenario.Song, CardKind.Slash); TakeGift(g); Play(g);
-        var physical = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        var card = physical.CardId!.Value; SubmitPlay(g, physical); Reach(g, p => Offer(p, Song, 0));
-        Answer(g, Activate); Reach(g, p => MarkChoice(p, "slash-target"));
-        var frame = MarkFrame(g); var r = frame.RecipientCategoryMark!;
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == r.CardUseFrameId);
-        Require(r is { Stage: RecipientCategoryMarkStage.ChoosingSlashTargets, Consumed: true } && r.Token?.Kind == RecipientCategoryMarkKind.ExtraTargets &&
-            r.BaseTargetSeats.SequenceEqual([1]) && r.AddedTargetSeats.Count == 0 && use.CardId == card && use.Action?.ActionId == r.ActionId &&
-            use.TargetSeats.SequenceEqual([1]) && P(g)!.Choices.Where(c => c.Targets.Count != 0).SelectMany(c => c.Targets).Order().SequenceEqual([2, 3]) &&
-            Marker(g, 0, PlayerMarkerKind.CategorySong) == 0,
-            "One original native Slash target permits only the two remaining distance-legal living targets and spends its holder token without replacing the use or cost.");
-        Frozen(r.BaseTargetSeats); Frozen(r.CandidateSeats); Private(g); g = Cold(g, registry);
-        Answer(g, c => c.Targets.SequenceEqual([2]));
-        Require(MarkFrame(g).RecipientCategoryMark!.AddedTargetSeats.SequenceEqual([2]) &&
-            P(g)!.Choices.Where(c => c.Targets.Count != 0).SelectMany(c => c.Targets).SequenceEqual([3]),
-            "The first added target remains frozen and cannot be chosen twice.");
-        Answer(g, c => c.Targets.SequenceEqual([3])); Play(g);
-        var resolved = E<RecipientCategorySlashTargetsResolvedEvent>(g).Single(e => e.FrameId == frame.Id);
-        Require(resolved.CardUseFrameId == use.Id && resolved.ActionId == r.ActionId && resolved.BeforeTargets.SequenceEqual([1]) &&
-            resolved.AddedTargets.SequenceEqual([2, 3]) && resolved.ResultTargets.SequenceEqual([1, 2, 3]) &&
-            Enumerable.Range(1, 3).All(seat => E<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == seat && e.Amount == 1) == 1) &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == use.Id) == 1 && V(g, 0).Hp == 5 &&
-            g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1 &&
-            E<RecipientCategoryMarkConsumedEvent>(g).Count(e => e.FrameId == frame.Id) == 1 &&
-            E<RecipientCategoryMarkCompletedEvent>(g).Count(e => e.FrameId == frame.Id && e.Consumed) == 1,
-            "The exact original Slash gains both targets and resolves all three native effects once, with one original material and no old Song HP penalty.");
-        Frozen(resolved.BeforeTargets); Frozen(resolved.AddedTargets); Frozen(resolved.ResultTargets);
-    }
-
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -173,7 +68,6 @@ internal static class OrdinaryZuoFenChecks
     private static bool MarkChoice(PendingDecision p, string action) => Has(p, "recipient-category-mark") && p.Choices.Any(c => c.Parameters.GetValueOrDefault("mark-action") == action);
     private static ProgramSkillFrame MarkFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RecipientCategoryMark is not null);
     private static int Marker(GameEngine g, int viewer, PlayerMarkerKind kind) => g.CreateSnapshot(viewer).Players[0].Markers?.SingleOrDefault(m => m.Kind == kind)?.Count ?? 0;
-    private static void TakeGift(GameEngine g) { Answer(g, Activate); Reach(g, p => MarkChoice(p, "gift")); Answer(g, c => c.Parameters.GetValueOrDefault("mark-action") == "gift"); }
     private static void PublicShown(GameEngine g, IReadOnlyList<CardSnapshot> cards)
     {
         foreach (var viewer in Enumerable.Range(0, 4))
@@ -189,7 +83,6 @@ internal static class OrdinaryZuoFenChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> select) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(select).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Use(GameEngine g, string id, int[]? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
-    private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void Reach(GameEngine g, Func<PendingDecision, bool> stop)

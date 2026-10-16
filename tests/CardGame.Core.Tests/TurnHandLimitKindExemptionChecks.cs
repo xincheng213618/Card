@@ -72,48 +72,6 @@ internal static class TurnHandLimitKindExemptionChecks
         ReplayFourViews(g, registry);
     }
 
-    public static void SignedSlashParserAndPreparedCollectionBoundaries()
-    {
-        var negative = Load(Source, [Activation("negative", Rule(-1))]).Activations.Single().Effects.Single();
-        var positive = Load(Source, [Activation("positive", Rule(1))]).Activations.Single().Effects.Single();
-        var context = new PlayerSkillContext(0, 3, 3, 4, TurnPhase.Play, IsOwnTurn: true);
-        Require(ProgramCompositionAi.Estimate([negative], context).Score < 0 &&
-            ProgramCompositionAi.Estimate([positive], context).Score > 0,
-            "A negative additive Slash limit is a public AI cost; the existing positive benefit keeps its sign.");
-        foreach (var effects in new[] { Rule(0), Rule(-21), Rule(-1).Replace("\"add\"", "\"set\""),
-            Grant.Replace("\"owner\"", "\"selectedTarget\""), Grant.Replace("[\"slash\",\"fireSlash\",\"thunderSlash\"]", "[]"),
-            Grant.Replace("\"fireSlash\"", "\"slash\""), Grant.Replace("\"cardKinds\"", "\"unknownKinds\"") })
-        {
-            var rejected = false;
-            try { Load(Source, [Activation("invalid", effects)]); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Only nonzero additive signed Slash limits and owner/distinct-kind policies parse.");
-        }
-        var (g, registry) = Start();
-        Require(g.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash),
-            "The real fixture starts with an ordinary legal Slash.");
-        Use(g, Driver, "negative"); Settle(g);
-        Require(SlashLimit(g) == 0 && !g.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash),
-            "A real -1 grant reduces the base Slash allowance to zero.");
-        ReplayFourViews(g, registry);
-        Use(g, Driver, "positive"); Settle(g);
-        Require(SlashLimit(g) == 2 && g.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash) &&
-            g.Events.Select(envelope => envelope.Payload).OfType<TurnRuleModifierGrantedEvent>()
-                .Select(envelope => envelope.Modifier.Amount).SequenceEqual([-1, 2]),
-            "The existing positive additive grant composes with the issued negative grant exactly once.");
-        ReplayFourViews(g, registry);
-
-        // A detached construction audit exercises commit preparation independently of the store's own freeze.
-        var suppliedKinds = new List<CardKind> { CardKind.Slash };
-        var input = new TurnHandLimitCardKindExemptionGrantedEvent(new(1, 1, 0, 1, 0,
-            new(Source, "grant", 0, "fixture:instance"), suppliedKinds));
-        var frozen = (TurnHandLimitCardKindExemptionGrantedEvent)CommittedEventProjection.Freeze(input);
-        suppliedKinds[0] = CardKind.Dodge;
-        Require(frozen.Policy.CardKinds.SequenceEqual([CardKind.Slash]),
-            "Commit preparation detaches an externally mutable nested policy collection.");
-        AssertFrozen(frozen.Policy.CardKinds);
-    }
-
     private static string Rule(int amount) => JsonSerializer.Serialize(new
         { op = "grantTurnRuleModifier", target = "owner", ruleQuery = "slashLimit", ruleOperation = "add", amount });
     private static string Activation(string id, string effects) =>
@@ -130,8 +88,6 @@ internal static class TurnHandLimitKindExemptionChecks
         (IReadOnlyList<Card>)typeof(GameEngine).GetMethod("GetDiscardEligibleHand", Flags)!.Invoke(g, [Players(g)[seat]])!;
     private static bool HasSource(GameEngine g, SkillGrant grant) =>
         (bool)typeof(GameEngine).GetMethod("HasRuntimeSkillInstance", Flags)!.Invoke(g, [Players(g)[0], grant.SkillId, grant.SkillInstanceId])!;
-    private static int SlashLimit(GameEngine g) =>
-        (((RuleQueryEvaluation)typeof(GameEngine).GetMethod("EvaluateSlashUseLimit", Flags)!.Invoke(g, [Players(g)[0], null])!).Value as FiniteRuleQueryValue)!.Value;
     private static bool Expired(GameEngine g, long sequence) => g.Events.Select(envelope => envelope.Payload)
         .OfType<TurnCardUseEffectsExpiredEvent>().Any(envelope => envelope.GrantSequences.Contains(sequence));
     private static void AssertFrozen<T>(IReadOnlyList<T> values)

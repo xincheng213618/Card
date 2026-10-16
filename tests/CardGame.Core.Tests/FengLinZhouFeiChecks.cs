@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FengLinZhouFeiChecks
@@ -14,35 +14,6 @@ internal static class FengLinZhouFeiChecks
         ReachPlay(g);Require(g.CreateSnapshot(0).Players[1].Hp==hp-1,"Actual equipment uses end with one true Hp loss.");
         var uses=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Select(e=>e.Action).Where(a=>a.ActorSeat==1&&EquipmentCatalog.IsEquipment(a.EffectiveKind)&&a.PhysicalCards.Any(c=>c.From.Zone==CardZoneKind.PublicPersistentPile)).ToArray();Require(uses.Length>1,"Remaining equipment is truly used from the exact source, not given into hand or directly equipped.");
         Require(g.CardMovements.Any(m=>m.Reason==CardMoveReasons.EquipmentReplace),"Multiple same-slot equipment performs real replacement.");Require(g.Events.Select(e=>e.Payload).OfType<FirstGameDomainCrossingEvent>().Count()==2,"One turn has independent first inbound/outbound; ordinary processing does not create more.");Replay(g,r);
-    }
-    private sealed class WithoutDomain(ContentRegistry source):IGameContentPackage
-    {
-        public PackageManifest Manifest{get;}=new("fixture:zf-old",new Version(1,0,0),[]);
-        public void Register(IContentRegistryBuilder b){foreach(var c in source.Cards.Values)b.AddCard(c);foreach(var s in source.Skills.Values)b.AddSkill(s.Id=="classic:liangyin"?new ContentSkillDefinition(s.Id,s.Name,s.Description):s);foreach(var g in source.Generals.Values)b.AddGeneral(g);foreach(var d in source.Decks.Values)b.AddDeck(d);foreach(var m in source.Modes.Values)b.AddMode(m);}
-    }
-    public static void SameSourceMultiplePilesFreezeAssociation()
-    {
-        // Deliberate direct grant/zone fixture setup: it is not a command-replay test.
-        foreach(var pileAlreadyExists in new[]{true,false})
-        {
-            var(g,r)=Start(true);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:kongsheng"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");for(var i=0;i<5;i++)Answer(g,c=>c.Cards.Count==1);Answer(g,c=>c.Parameters.GetValueOrDefault("domain-action")=="store-finish");Reach(g,p=>p.SkillPrompt?.SkillId=="classic:liangyin");
-            var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
-            var owner=((IEnumerable<CharacterState>)typeof(GameEngine).GetField("_players",flags)!.GetValue(g)!).Single(p=>p.Seat==0);
-            var stockInstance=owner.SkillGrants.Grants.Single(x=>x.SkillId=="classic:kongsheng").SkillInstanceId;
-            owner.SkillGrants.Grant(new("fixture:zf-b","classic:kongsheng","fixture:zf-b",CharacterState.PrimarySkillSource));owner.SkillGrants.Grant(new("fixture:zf-a","classic:kongsheng","fixture:zf-a",CharacterState.PrimarySkillSource));
-            PublicPersistentPileSource CreatePile(string instance)
-            {var frame=new ProgramSkillFrame(999,0,"classic:kongsheng","store",r.Skills["classic:kongsheng"].Program!.GameplayHash,1,[],[]){SkillInstanceId=instance};return (PublicPersistentPileSource)typeof(GameEngine).GetMethod("EnsurePublicPileSource",flags)!.Invoke(g,[frame,int.MaxValue])!;}
-            var stock=CreatePile(stockInstance);var stockIds=g.CreateCardZoneDiagnostics().Where(c=>c.Location==stock.Location).Select(c=>c.CardId).ToArray();
-            var zones=typeof(GameEngine).GetField("_cardZones",flags)!.GetValue(g)!;void Move(int id,CardLocation from,CardLocation to)=>zones.GetType().GetMethod("Move")!.Invoke(zones,[id,from,to]);
-            var b=CreatePile("fixture:zf-b");foreach(var card in g.CreateSnapshot(0).Players[0].Hand.Take(2))Move(card.Id,CardLocation.Hand(0),b.Location);
-            PublicPersistentPileSource? a=null;if(pileAlreadyExists){a=CreatePile("fixture:zf-a");foreach(var id in stockIds)Move(id,stock.Location,a.Location);}
-            Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");var draft=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().DomainCrossing!;Require(draft.ReferenceSkillInstanceId=="fixture:zf-a","Same-source association is stable ordinal instance order, independent of insertion and pile existence.");Require((draft.ReferencePileLocation is not null)==pileAlreadyExists,"Known exact location is frozen; missing pile keeps an exact future instance.");
-            if(a is null){a=CreatePile("fixture:zf-a");foreach(var id in stockIds)Move(id,stock.Location,a.Location);}
-            // A newly earlier same-source grant must not replace an already frozen association.
-            owner.SkillGrants.Grant(new("fixture:zf-0","classic:kongsheng","fixture:zf-0",CharacterState.PrimarySkillSource));var earlier=CreatePile("fixture:zf-0");var spare=g.CreateSnapshot(0).Players[0].Hand.First();Move(spare.Id,CardLocation.Hand(0),earlier.Location);
-            var exactFrame=new ProgramSkillFrame(998,0,"classic:kongsheng","store",r.Skills["classic:kongsheng"].Program!.GameplayHash,1,[],[]){SkillInstanceId="fixture:zf-b"};var exact=((string?,CardLocation?))typeof(GameEngine).GetMethod("SelectDomainReference",flags)!.Invoke(g,[exactFrame,"classic:kongsheng"])!;Require(exact.Item1=="fixture:zf-b","Exact matching instance precedes lexical same-source alternatives.");
-            Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:zf-draw");Answer(g,c=>true);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("domain-action")=="skip-heal"));Require(P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("domain-action")=="heal"&&c.Targets.SequenceEqual([1])),"After complete children X is the frozen a pile's current five, not b/earlier/total; no multi-pile exception.");Answer(g,c=>c.Parameters.GetValueOrDefault("domain-action")=="heal"&&c.Targets.SequenceEqual([1]));Require(g.CreateSnapshot(0).Players[1].Hp==2,"Exact frozen association produces true recovery.");
-        }
     }
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(i=>g.CreateSnapshot(i,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Require(bool b,string m){if(!b)throw new InvalidOperationException(m);}

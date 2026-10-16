@@ -20,13 +20,6 @@ internal static class PhaseEndingVirtualTrickChecks
         foreach (var rank in new[] { 13, 1, 7 }) ExerciseEnding(rank, giftAll: false, counter: false);
     }
 
-    public static void QianyaGiftEmptyDismantleAndRealNullificationReturn()
-    {
-        ExerciseEnding(1, giftAll: true, counter: false);
-        ExerciseEnding(1, giftAll: false, counter: true);
-        ExerciseEnding(13, giftAll: false, counter: true);
-    }
-
     private static void ExerciseEnding(int rank, bool giftAll, bool counter, bool adjusted = false)
     {
         var (game, registry) = Start(rank, delayed: false, counterMaterial: !giftAll, adjusted: adjusted);

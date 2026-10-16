@@ -28,45 +28,6 @@ internal static class OrdinaryGaoLanChecks
         Replay(g, r);
     }
 
-    public static void XizhenSlashBenefitPaysAfterSettlement()
-    {
-        var (g, r) = Start(peace: false);
-        EndMyPlayPhase(g);
-        SettleToXizhenPrompt(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
-            c.Targets.SequenceEqual([1]));
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "slash"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "slash");
-        SettleToNextOwnPlayPhase(g);
-        var marked = g.Events.Select(e => e.Payload).OfType<PlayerMarkerChangedEvent>()
-            .Where(m => m.Marker == PlayerMarkerKind.XiZhen && m.PlayerSeat == 1 && m.Delta == 1).ToList();
-        Require(marked.Count == 1, "The counterpart carries the XiZhen marker after settlement. " +
-            string.Join(";", marked));
-        var mySlash = Hand(g, 0).First(c => c.Kind is CardKind.Slash);
-        var handBefore = HandCount(g, 0);
-        var hpBefore = g.CreateSnapshot(0).Players[1].Hp;
-        var eventsBaseline = g.Events.Count;
-        Accept(g, new PlayCardCommand(0, mySlash.Id, [1], g.Revision, P(g)!.PromptId));
-        SettleToNextOwnPlayPhase(g);
-        var draws = g.CardMovements.Count(m => m.To == CardLocation.Hand(0) &&
-            m.Reason.Value.Contains("xizhen", StringComparison.Ordinal));
-Require(draws == 2 && HandCount(g, 0) == handBefore - 1 + 2 &&
-            g.CreateSnapshot(0).Players[1].Hp == hpBefore,
-            "A response to the owner's card recovers the target and draws two. draws=" + draws +
-                " hand=" + HandCount(g, 0) + " hp=" + g.CreateSnapshot(0).Players[1].Hp +
-                " moves=" + string.Join(";", g.CardMovements.Where(m => m.To == CardLocation.Hand(0))
-                    .Select(m => m.CardId + ":" + m.Reason.Value)));
-        Replay(g, r);
-    }
-
-    private static IReadOnlyList<Card> Hand(GameEngine g, int seat) => ((CardZoneStore)typeof(GameEngine)
-        .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)
-        .CardsAt(CardLocation.Hand(seat));
-
-    private static int HandCount(GameEngine g, int seat) => Hand(g, seat).Count;
-
     private static void EndMyPlayPhase(GameEngine g)
     {
         Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0 ||

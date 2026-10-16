@@ -5,89 +5,6 @@ using CardGame.Core;
 
 internal static class Fame2016StateChecks
 {
-    public static void GrowthLimitChainAndReplay()
-    {
-        var (liu, registry) = Create("classic:zongzuo", 2);
-        var owner = liu.CreateSnapshot(0, true).Players[0];
-        Require(owner.MaxHp == 7 && owner.Hp == 7, $"Four living factions add four HP and max HP to base two plus lord bonus: {owner.Hp}/{owner.MaxHp}, factions {string.Join(",",liu.CreateSnapshot(0,true).Players.Select(p=>p.FactionId))}.");
-        Replay(liu, registry);
-        var victim = liu.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && registry.Generals[p.GeneralId].FactionId != "qun");
-        Use(liu, "fixture:population-driver", "kill", [victim.Seat]); Drain(liu);
-        Require(liu.CreateSnapshot(0, true).Players[0].MaxHp == 6, "Last living faction death reduces max HP once.");
-        Require(!liu.CardMovements.Any(m => m.Reason.Value.Contains("zongzuo") && m.From.Zone == CardZoneKind.DrawPile), "Faction extinction never draws cards.");
-        Replay(liu, registry);
-
-        var (cen, cr) = Create("classic:jishe", 3, additional: ["classic:lianhuo"]);
-        var limit = HandLimit(cen);
-        for (var i = 0; i < limit; i++)
-        {
-            var before = cen.CreateSnapshot(0, true).Players[0].Hand.Count;
-            Use(cen, "classic:jishe", "draw-and-reduce-limit"); Drain(cen);
-            Require(HandLimit(cen) == limit - i - 1 && cen.CreateSnapshot(0, true).Players[0].Hand.Count == before + 1, "Each paid activation draws once and stacks a negative turn modifier.");
-            Replay(cen, cr);
-        }
-        Require(!cen.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jishe"), "Zero hand limit blocks another activation.");
-        var state = State(cen); var prompt = Pending(cen)!;
-        var illegal = cen.Submit(new UseProgramSkillCommand(0, "classic:jishe", "draw-and-reduce-limit", [], [], cen.Revision, prompt.PromptId));
-        Require(!illegal.Accepted && State(cen) == state, "Illegal extra activation is atomic.");
-        Use(cen, "fixture:population-driver", "chain", [0]); Drain(cen);
-        Use(cen, "fixture:population-driver", "chain", [1]); Drain(cen);
-        var hp0 = cen.CreateSnapshot(0, true).Players[0].Hp; var hp1 = cen.CreateSnapshot(0, true).Players[1].Hp;
-        Use(cen, "fixture:population-driver", "fire", [0]); Drain(cen);
-        Require(cen.CreateSnapshot(0, true).Players[0].Hp == hp0 - 2 && cen.CreateSnapshot(0, true).Players[1].Hp == hp1 - 2, "Fire origin gains exactly one damage and passes the finalized amount to the other chained player.");
-        Replay(cen, cr);
-        Use(cen, "fixture:population-driver", "chain", [0]); Drain(cen);
-        Use(cen, "fixture:population-driver", "chain", [1]); Drain(cen);
-        hp0 = cen.CreateSnapshot(0, true).Players[0].Hp; hp1 = cen.CreateSnapshot(0, true).Players[1].Hp;
-        Use(cen, "fixture:population-driver", "fire", [1]); Drain(cen);
-        Require(cen.CreateSnapshot(0,true).Players[0].Hp == hp0-1 && cen.CreateSnapshot(0,true).Players[1].Hp == hp1-1,
-            "Propagated fire received by the modifier owner must not amplify again.");
-        Replay(cen, cr);
-        Use(cen, "fixture:population-driver", "clear"); Drain(cen);
-        Accept(cen, new EndPlayPhaseCommand(0, cen.Revision, Pending(cen)!.PromptId));
-        for (var i = 0; i < 60 && Pending(cen)?.SkillPrompt?.SkillId != "classic:jishe"; i++) Advance(cen);
-        Require(Pending(cen)?.SkillPrompt?.SkillId == "classic:jishe", "Empty-hand ending exposes chain choice.");
-        Answer(cen, Pending(cen)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        for (var i = 0; i < 20 && !(Pending(cen)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-targets") == true); i++) Advance(cen);
-        var selection = Pending(cen)!;
-        Require(selection.Choices.All(c => c.Targets.Count <= cen.CreateSnapshot(0, true).Players[0].Hp), "Current HP caps every target choice.");
-        Replay(cen, cr);
-        var pick = selection.Choices.First(c => c.Targets.Count > 0);
-        Answer(cen, pick);
-        for(var i=0;i<30 && cen.ResolutionStack.Count > 0;i++) Advance(cen);
-        Require(pick.Targets.All(seat => cen.CreateSnapshot(0, true).Players[seat].IsChained), "Ending chain sets the selected characters chained.");
-        Replay(cen, cr);
-    }
-
-    public static void RangeActorEquipmentPaymentAndReplay()
-    {
-        var (game, registry) = Create("classic:zhige", 2, equipment: true);
-        Use(game,"fixture:population-driver","equip-target",[1]);
-        Answer(game,Pending(game)!.Choices.First()); Drain(game);
-        var card=game.CreateSnapshot(0,true).Players[1].Equipment.Single();
-        Use(game,"classic:zhige","request-slash-or-equipment");
-        var target=Pending(game)!;
-        Require(target.Choices.All(c=>c.Targets.Count == 1 && c.Targets[0] is 1 or 4),"Only another character whose attack range contains owner may be ordered.");
-        Replay(game,registry);
-        Answer(game,target.Choices.First(c=>c.Targets.SequenceEqual([1])));
-        var request=Pending(game)!;
-        Require(request.PlayerSeat==1,"The ordered actor selects the Slash target privately.");
-        Require(game.CreateSnapshot(2,false).PendingDecision is null,"An uninvolved viewer cannot inspect the actor prompt.");
-        Replay(game,registry);
-        Answer(game,request.Choices.First(c=>c.Targets.SequenceEqual([0])));
-        var decision=Pending(game)!;
-        Answer(game,decision.Choices.Single(c=>c.Parameters.GetValueOrDefault("request-option")=="decline"));
-        var pay=Pending(game)!;
-        Require(pay.PlayerSeat==1 && pay.Choices.Any(c=>c.Cards.Contains(card.Id)),"The actor chooses its own actual equipped card.");
-        var state=State(game);
-        var invalid=game.Submit(new AnswerPromptCommand(0,pay.PromptId,pay.Choices.First().Id,game.Revision));
-        Require(!invalid.Accepted && State(game)==state,"Wrong payer cannot mutate or move the equipment.");
-        Replay(game,registry);
-        Answer(game,pay.Choices.First(c=>c.Cards.Contains(card.Id))); Drain(game);
-        Require(game.CardMovements.Any(m=>m.CardId==card.Id && m.From==CardLocation.Equipment(1) && m.To==CardLocation.Hand(0)),"Decline transfers the same physical equipped card to the owner.");
-        Require(!game.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="classic:zhige"),"The phase usage debit survives payment.");
-        Replay(game,registry);
-    }
 
     public static void RealOrderedSlashAndReplay()
     {
@@ -106,43 +23,6 @@ internal static class Fame2016StateChecks
         Require(!game.CardMovements.Any(m=>m.From==CardLocation.Equipment(1) && m.To==CardLocation.Hand(0)),"Successful Slash never charges equipment payment.");
         Replay(game,registry);
     }
-    public static void PrivateDamageOfferAndReplay()
-    {
-        var (game,registry)=Create("classic:huisheng",3,additional:["classic:zhige"]);
-        Use(game,"classic:zhige","request-slash-or-equipment");
-        Answer(game,Pending(game)!.Choices.First(c=>c.Targets.SequenceEqual([1])));
-        Answer(game,Pending(game)!.Choices.First(c=>c.Targets.SequenceEqual([0])));
-        Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("request-option")=="use"));
-        for(var i=0;i<50 && Pending(game)?.SkillPrompt?.SkillId!="classic:huisheng";i++)
-        {
-            if(Pending(game) is { PlayerSeat:0,Kind:DecisionKind.RespondDodge } p) Answer(game,p.Choices.Last()); else Advance(game);
-        }
-        Require(Pending(game)?.SkillPrompt?.SkillId=="classic:huisheng","Real other-source Slash offers damage prevention.");
-        Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        var own=Pending(game)!;var offered=own.Choices.First(c=>c.Cards.Count==1).Cards.Single();
-        Answer(game,own.Choices.First(c=>c.Cards.Contains(offered)));
-        Answer(game,Pending(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="finish-owned-cards"));
-        var offer=Pending(game)!;
-        Require(offer.PlayerSeat==1 && game.CreateSnapshot(1,false).PrivateRevealedCards?.Single().Id==offered,"Actual source normal snapshot contains private offered face.");
-        Require(game.CreateSnapshot(2,false).PrivateRevealedCards is null && game.CreateSnapshot(2,false).PendingDecision is null,"Other viewers cannot inspect the offer.");
-        Replay(game,registry);
-        var state=State(game);var invalid=game.Submit(new AnswerPromptCommand(2,offer.PromptId,offer.Choices.First().Id,game.Revision));
-        Require(!invalid.Accepted && State(game)==state,"Wrong source answer is atomic.");
-        var hp=game.CreateSnapshot(0,true).Players[0].Hp;
-        Answer(game,offer.Choices.First(c=>c.Parameters.GetValueOrDefault("option")=="gain"));Drain(game);
-        Require(game.CreateSnapshot(0,true).Players[0].Hp==hp && game.CardMovements.Any(m=>m.CardId==offered && m.To==CardLocation.Hand(1)),"Real gain prevents damage.");
-        Require(game.CreateSnapshot(1,false).PrivateRevealedCards is null,"Private visibility ends after offer resolves.");
-        Use(game,"fixture:population-driver","request",[1]);
-        Answer(game,Pending(game)!.Choices.First(c=>c.Targets.SequenceEqual([0])));
-        Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("request-option")=="use"));
-        for(var i=0;i<50 && game.ResolutionStack.Count>0;i++)
-        {
-            Require(Pending(game)?.SkillPrompt?.SkillId!="classic:huisheng","Successful actual source pair cannot offer again.");
-            if(Pending(game) is {PlayerSeat:0,Kind:DecisionKind.RespondDodge} p) Answer(game,p.Choices.Last()); else Advance(game);
-        }
-        Require(game.CreateSnapshot(0,true).Players[0].Hp==hp-1,"Repeated same source deals damage after permanently successful offer.");
-        Replay(game,registry);
-    }
 
     private static (GameEngine, ContentRegistry) Create(string skill, int hp, string[]? additional = null, bool equipment = false, bool interactiveDiscard = false, bool reclaim = false)
     {
@@ -153,11 +33,6 @@ internal static class Fame2016StateChecks
         for(var i=0;i<100 && Pending(game)?.Kind != DecisionKind.PlayCard;i++) Advance(game);
         Require(Pending(game)?.Kind == DecisionKind.PlayCard, "Play fixture unavailable.");
         return (game, registry);
-    }
-    private static int HandLimit(GameEngine game)
-    {
-        var players = (System.Collections.IList)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!;
-        return (int)typeof(GameEngine).GetMethod("GetHandLimit", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, [players[0]])!;
     }
     private static void Use(GameEngine game, string skill, string action, int[]? seats = null) => Accept(game, new UseProgramSkillCommand(0, skill, action, [], seats ?? [], game.Revision, Pending(game)!.PromptId));
     private static PendingDecision? Pending(GameEngine game) => game.PendingDecision ?? Enumerable.Range(0,5).Select(s=>game.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);

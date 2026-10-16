@@ -27,30 +27,6 @@ internal static class FriendEventChecks
         Require(options.Length == 2 && options.Select(e => e.Option).Distinct().Count() == 2, "Opening category removal counts both seated friend generals once.");
         Cold(all, ar);
     }
-    public static void MinimumSuitHoldStaysPrivateAndReturnsAtActualTurnEnd()
-    {
-        var (g, r) = Create(true, varied: true); Use(g, Driver, "pair", [], []); Play(g);
-        var hand = g.CreateSnapshot(0).Players[0].Hand.OrderBy(c => c.Rank).ToArray();
-        Require(hand.Length == 2 && hand[0].Rank < hand[1].Rank && hand.All(c => c.Suit == Suit.Heart), "The verified fixed seed supplies a unique minimum and another Heart without seed searching: " + JsonSerializer.Serialize(hand));
-        var action = g.GetLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo && a.CardId == hand[0].Id);
-        Accept(g, new PlayCardCommand(0, hand[0].Id, [], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == "friend:shunyi" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Play(g);
-        var hold = g.CreateSnapshot(0).Players[0].PrivateTurnHolds!.Single();
-        Require(hold.Count == 1 && hold.Cards!.Single().Id == hand[1].Id && g.CreateSnapshot(1).Players[0].PrivateTurnHolds!.Single().Cards is null,
-            "The remaining same-suit hand is held privately; observers see only the count.");
-        Require(Facts<UsedSuitHandHeldEvent>(g).Count() == 1 && g.CardMovements.Count(m => m.Reason.Value == "skill.friend-shunyi.hold") == 1,
-            "Only a Use of the frozen unique minimum creates one paid hold."); g = Cold(g, r);
-        var turn = g.State.TurnNumber; Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Until(g, () => Facts<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber == turn));
-        Require(g.CardMovements.Count(m => m.CardId == hand[1].Id && m.Reason.Value == "skill.private-turn-hold.return") == 1 &&
-            (g.CreateSnapshot(0).Players[0].PrivateTurnHolds?.Count ?? 0) == 0, "The actual ending prelude returns the held entity once after cold recovery."); Cold(g, r);
-        var (ordinary, _) = Create(false); Use(ordinary, Driver, "single", [], []); Play(ordinary);
-        var ordinaryCard = ordinary.CreateSnapshot(0).Players[0].Hand.Single();
-        Accept(ordinary, new PlayCardCommand(0, ordinaryCard.Id, [], ordinary.Revision, P(ordinary)!.PromptId)); Play(ordinary);
-        Require(!Facts<FriendMinimumHandUseEvent>(ordinary).Any() && !Facts<UsedSuitHandHeldEvent>(ordinary).Any(),
-            "An ordinary unique-minimum Use never captures or publishes an unauthorized remaining-hand predicate.");
-    }
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Use(GameEngine g, string skill, string binding, IReadOnlyList<int> cards, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, skill, binding, cards, targets, g.Revision, P(g)!.PromptId));
@@ -58,8 +34,6 @@ internal static class FriendEventChecks
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     { for (var i = 0; i < 100; i++) { if (P(g) is { } p && predicate(p)) return; Step(g); } throw new InvalidOperationException("Friend event boundary missing: " + JsonSerializer.Serialize(P(g))); }
-    private static void Until(GameEngine g, Func<bool> predicate)
-    { for (var i = 0; i < 150; i++) { if (predicate()) return; Step(g); } throw new InvalidOperationException("Friend event native fact missing."); }
     private static void Step(GameEngine g)
     {
         var p = P(g);

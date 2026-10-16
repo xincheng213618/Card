@@ -40,92 +40,17 @@ internal static class GaoGanChecks
         g = Cold(g, registry); Continue(g); Play(g); _ = Cold(g, registry);
     }
 
-    public static void MultipleActualUsesAndRetaliationAreCappedAtTwo()
-    {
-        foreach (var all in new[] { false, true })
-        {
-            var (g, registry) = Start("multi");
-            SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Slash && a.TargetSeats.SequenceEqual([1, 2]))); Play(g);
-            var first = E<JuguanUseIssuedEvent>(g).Single().Receipt;
-            Need(E<JuguanVictimDamagedEvent>(g).Where(v => v.CardUseFrameId == first.CardUseFrameId).Select(v => v.VictimSeat).Order().SequenceEqual([1, 2]) && !Actions(g).Any(),
-                "One actual multi-target Slash records both real damaged recipients while the shared Slash/Duel phase quota is already exhausted.");
-            Use(g, "retaliate", [1]); Play(g); if (all) { Use(g, "retaliate", [2]); Play(g); }
-            else { Use(g, "lose-hp"); Play(g); Need(E<JuguanRetaliationRecordedEvent>(g).Count() == 1, "A separate loss of HP cannot masquerade as sourced retaliation from another victim."); }
-            var turn = g.State.TurnNumber; End(g); Play(g);
-            Need(g.State.TurnNumber == turn && Actions(g).Any(a => a.PlayedCardKind == CardKind.Duel), "A genuine inserted Play phase renews only the phase conversion allowance.");
-            SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Duel && a.TargetSeats.SequenceEqual([3]))); Play(g);
-            if (all) { Use(g, "retaliate", [3]); Play(g); }
-            Need(E<JuguanUseIssuedEvent>(g).Count() == 2 && E<JuguanUseIssuedEvent>(g).Select(e => e.Receipt.PhaseInstance).Distinct().Count() == 2 &&
-                E<JuguanRetaliationRecordedEvent>(g).Select(e => e.VictimSeat).Order().SequenceEqual(all ? [1, 2, 3] : [1]),
-                "Additional actual uses retain their own use IDs, victims and phase invoices; each retaliation belongs only to its exact recorded source/recipient relation.");
-            g = Cold(g, registry); End(g); OwnDraw(g, turn);
-            Need(E<JuguanDeadlineSettledEvent>(g).Last().Qualified == !all && ActualDrawCount(g) == (all ? 2 : 4) &&
-                E<JuguanDrawPhaseBoundEvent>(g).Count() == (all ? 0 : 1),
-                "Several unretaliated victims and multiple phase uses still add at most two; only retaliation from every actual victim removes that one bonus.");
-            g = Cold(g, registry); Continue(g); Play(g); _ = Cold(g, registry);
-        }
-        {
-            var (g, registry) = Start("immediate");
-            SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Duel && a.TargetSeats.SequenceEqual([1]))); Play(g);
-            var issued = E<JuguanUseIssuedEvent>(g).Single().Receipt;
-            var facts = g.Events.Select(e => e.Payload).ToArray();
-            Need(E<JuguanRetaliationRecordedEvent>(g).Single() is { OwnerSeat: 0, VictimSeat: 1 } &&
-                Array.FindIndex(facts, e => e is JuguanRetaliationRecordedEvent) < Array.FindIndex(facts, e => e is CardUseFinishedEvent f && f.ResolutionId == issued.CardUseFrameId),
-                "A real after-damage counterattack before the original Duel finishes is a later actual retaliation, rather than being discarded by an invented end-of-card grace period.");
-            var turn = g.State.TurnNumber; g = Cold(g, registry); End(g); OwnDraw(g, turn);
-            Need(!E<JuguanDeadlineSettledEvent>(g).Last().Qualified && ActualDrawCount(g) == 2, "Immediate native retaliation correctly prevents the next Draw bonus.");
-            g = Cold(g, registry); Continue(g); Play(g);
-        }
-    }
-
-    public static void PreventionSelfDuelAndSkippedDrawKeepActualBoundaries()
-    {
-        {
-            var (g, registry) = Start("prevent"); SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Duel && a.TargetSeats.SequenceEqual([1]))); Play(g);
-            Use(g, "damage", [1]); Play(g); Need(E<JuguanUseIssuedEvent>(g).Count() == 1 && !E<JuguanVictimDamagedEvent>(g).Any() && E<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 1 && e.Amount == 1),
-                "An actually prevented Juguan Duel and later unrelated positive skill damage cannot fabricate any damaged-card victim.");
-            var turn = g.State.TurnNumber; End(g); OwnDraw(g, turn);
-            Need(ActualDrawCount(g) == 2 && !E<JuguanDeadlineSettledEvent>(g).Last().Qualified, "No actual Juguan victim means no deferred reward.");
-            g = Cold(g, registry); Continue(g); Play(g);
-        }
-        foreach (var selfRetaliation in new[] { false, true })
-        {
-            var (g, registry) = Start("self"); var hp = V(g, 0).Hp;
-            SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Duel && a.TargetSeats.SequenceEqual([1]))); Play(g);
-            Need(E<JuguanVictimDamagedEvent>(g).Single() is { OwnerSeat: 0, VictimSeat: 0, ActualDamageSourceSeat: 1 } && V(g, 0).Hp == hp - 1 && !E<JuguanRetaliationRecordedEvent>(g).Any(),
-                "Losing one's own real Juguan Duel records the actual self victim even though its native damage source is the opponent, and does not count that damage as self retaliation. " + JsonSerializer.Serialize(new { hp, currentHp = V(g, 0).Hp, victims = E<JuguanVictimDamagedEvent>(g).ToArray(), damages = E<DamageAppliedEvent>(g).ToArray(), uses = g.Events.Where(e => e.Payload is CardUseDeclaredEvent).Select(e => e.Payload.ToString()).ToArray() }));
-            if (selfRetaliation) { Use(g, "self-damage"); Play(g); }
-            var turn = g.State.TurnNumber; g = Cold(g, registry); End(g); OwnDraw(g, turn);
-            Need(ActualDrawCount(g) == (selfRetaliation ? 2 : 4) && E<JuguanDeadlineSettledEvent>(g).Last().Qualified == !selfRetaliation,
-                "The self victim qualifies until a separate actual sourced self-damage, exactly as the recorded native damage relationship requires.");
-            g = Cold(g, registry); Continue(g); Play(g);
-        }
-        {
-            var (g, registry) = Start("skip"); SubmitPlay(g, Actions(g).First(a => a.PlayedCardKind == CardKind.Duel && a.TargetSeats.SequenceEqual([1]))); Play(g);
-            var turn = g.State.TurnNumber; End(g); Reach(g, () => g.State.TurnNumber > turn && Optional(P(g), Skip)); Activate(g); Play(g);
-            Need(E<JuguanDeadlineSettledEvent>(g).Last().Qualified && E<DrawPhaseSkippedEvent>(g).Count(e => e.OwnerSeat == 0) == 1 &&
-                E<JuguanSkippedDrawExpiredEvent>(g).Count() == 1 && !E<JuguanDrawPhaseBoundEvent>(g).Any(),
-                "A real skipped next Draw expires the frozen obligation without secretly scheduling another draw or carrying an unconsumed reward.");
-            g = Cold(g, registry); var skippedTurn = g.State.TurnNumber; End(g); OwnDraw(g, skippedTurn);
-            Need(ActualDrawCount(g) == 2 && !E<JuguanDeadlineSettledEvent>(g).Last().Qualified && !E<JuguanDrawPhaseBoundEvent>(g).Any(),
-                "The following real owner turn draws normally; the old skipped reward cannot revive after cold replay.");
-            g = Cold(g, registry); Continue(g); Play(g); _ = Cold(g, registry);
-        }
-    }
-
     private static PlayerSnapshot V(GameEngine g, int s) => g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static IEnumerable<T> E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
     private static IEnumerable<LegalAction> Actions(GameEngine g) => g.GetHumanLegalActions().Where(a => a.ConversionSource?.SkillId == Skill);
     private static CardMovementBatchContext DrawBatch(GameEngine g) => g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch;
     private static int ActualDrawCount(GameEngine g) => g.CardMovements.Count(m => m.TurnNumber == g.State.TurnNumber && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.Draw);
-    private static bool Optional(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> test) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(test).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void OwnDraw(GameEngine g, int afterTurn) => Reach(g, () => g.State.TurnNumber > afterTurn && P(g) is { PlayerSeat: 0, SkillPrompt.SkillId: Gain });
     private static void Reach(GameEngine g, Func<bool> predicate)

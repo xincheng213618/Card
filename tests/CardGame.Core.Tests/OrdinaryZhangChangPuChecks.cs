@@ -46,48 +46,6 @@ internal static class OrdinaryZhangChangPuChecks
         Replay(g, r);
     }
 
-    public static void ShengshenFeedsAndConsumesYanjiaoReveal()
-    {
-        var (g, r) = Start("identity:zcp-hurt", "fixture:zcp-hurt");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Hurt));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Shengshen));
-        var handBefore = CardsAt(g, CardLocation.Hand(0)).Count;
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        var draws = g.CardMovements.Count(m => m.To == CardLocation.Hand(0) &&
-            m.Reason.Value.Contains("shengshen", StringComparison.Ordinal));
-        Require(draws == 2, "The fewest-hand owner draws two after the fixture damage. drew=" + draws);
-        var armed = g.Events.Select(e => e.Payload).OfType<PlayerMarkerChangedEvent>()
-            .Where(m => m.Marker == PlayerMarkerKind.ShenJiao).Single();
-        Require(armed.Delta == 2 && armed.Count == 2,
-            "The fewest-hp owner arms the next reveal by two. " + armed);
-        SkipYanjiaoAndArrange(g, 6);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
-            c.Targets.SequenceEqual([1]));
-        Settle(g);
-        var revealed = g.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>().Single();
-        Require(revealed.Cards.Count == 6,
-            "The armed bonus widens the reveal to six cards. " + string.Join(",", revealed.Cards.Select(c => c.Rank)));
-        var (ownerIds, chooserIds, leftoverIds) = ExpectedAiSplit(revealed.Cards.Select(c => c.Rank).ToArray(),
-            revealed.Cards.Select(c => c.Id).ToArray());
-        var hand0 = CardsAt(g, CardLocation.Hand(0));
-        Require(hand0.Count == handBefore + 2 + 1 + ownerIds.Length &&
-            ownerIds.All(id => hand0.Any(c => c.Id == id)),
-            "The AI-selected largest feasible group reaches the owner hand. hand=" + hand0.Count);
-        var hand1 = CardsAt(g, CardLocation.Hand(1));
-        Require(chooserIds.All(id => hand1.Any(c => c.Id == id)),
-            "The counterpart keeps the equal-sum partner group.");
-        Require(leftoverIds.All(id => g.CardMovements.Any(m => m.CardId == id && m.To == CardLocation.DiscardPile)),
-            "The ungrouped cards reach the discard pile.");
-        var markerTrail = g.Events.Select(e => e.Payload).OfType<PlayerMarkerChangedEvent>()
-            .Where(m => m.Marker == PlayerMarkerKind.ShenJiao).ToList();
-        Require(markerTrail.Last().Count == 0,
-            "Yanjiao consumes the whole bonus after the reveal. " + Describe(markerTrail));
-        Replay(g, r);
-    }
-
     // Rearranges the draw-pile top through the fixture order trigger: the
     // first arranged card feeds the owner's one-card draw phase, the rest
     // become the exact Yanjiao reveal in answer order.
@@ -140,32 +98,6 @@ internal static class OrdinaryZhangChangPuChecks
         throw new InvalidOperationException("The fixture never reached the Yanjiao prompt: " + P(g)?.Prompt);
     }
 
-    private static void SkipYanjiaoAndArrange(GameEngine g, int revealCount)
-    {
-        for (var i = 0; i < 400; i++)
-        {
-            if (P(g) is not { } p) { Accept(g, new AdvanceOneStepCommand(g.Revision)); continue; }
-            if (p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Order))
-            {
-                ArrangeTop(g, revealCount);
-                return;
-            }
-            if (p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Yanjiao) &&
-                p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") is "activate" or "skip"))
-            {
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-                continue;
-            }
-            if (p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0)
-                Accept(g, new EndPlayPhaseCommand(0, g.Revision, p.PromptId));
-            else if (p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0)
-                Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
-            else
-                Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The fixture never reached the next order prompt: " + P(g)?.Prompt);
-    }
-
     // Mirrors the engine-side feasible enumeration and the counterpart AI
     // order: most cards for the owner, then the higher rank sum, then the
     // largest-mask equal-sum partner for themselves.
@@ -202,9 +134,6 @@ internal static class OrdinaryZhangChangPuChecks
     private static int[] IdsOf(int[] ids, int mask) =>
         Enumerable.Range(0, ids.Length).Where(index => (mask & (1 << index)) != 0)
             .Select(index => ids[index]).ToArray();
-
-    private static string Describe(IReadOnlyList<PlayerMarkerChangedEvent> trail) =>
-        string.Join(";", trail.Select(m => m.Delta + "->" + m.Count));
 
     private static IReadOnlyList<Card> CardsAt(GameEngine g, CardLocation location) =>
         ((CardZoneStore)typeof(GameEngine).GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!

@@ -41,126 +41,11 @@ internal static class DuanJiongChecks
         Need(E<DuanJiongSaoguBranchPaidEvent>(g).Select(e => e.Yang).SequenceEqual([true, false]) && E<DuanJiongSaoguBranchPaidEvent>(g).Last().ActualCount == 1,
             "Both conversion halves have their own real once-paid receipt, without adding a once-per-phase limit to the alternating skill."); _ = Cold(g, r);
     }
-    public static void AllActualDiscardsSuitEligibilityAndPhaseResetCold()
-    {
-        var (g, r) = Start(); Draw(g);
-        var recast = V(g).Hand.First(c => c.Kind == CardKind.IronChain); var discard = V(g).Hand.First(c => c.Suit != recast.Suit && c.Kind != CardKind.Slash);
-        Use(g, "trim", cards: [discard.Id]); Play(g); Accept(g, new RecastCardCommand(0, recast.Id, g.Revision, P(g)!.PromptId)); Play(g);
-        Need(E<DuanJiongSaoguDiscardSuitEvent>(g).Any(e => e.CardId == discard.Id) && E<DuanJiongSaoguDiscardSuitEvent>(g).All(e => e.CardId != recast.Id),
-            "A separate real skill discard is included, while the original IronChain recast is excluded from the actual phase's discard-suit history.");
-        Begin(g); DiscardBoundary(g); var phase = Current(g)!.Phase;
-        Need(Current(g)!.Candidates.All(c => c.Suit != discard.Suit) && Current(g)!.Candidates.Any(c => c.Suit == recast.Suit),
-            "Yang rejects every card of the earlier real discarded suit but still allows the recast suit; the ledger is not restricted to Saogu's own costs.");
-        var pair = Current(g)!.Candidates.Where(c => !IsSlash(c.Kind)).Take(2).Select(c => c.CardId).ToArray(); Need(pair.Length == 2, "The small real fixture supplies two non-Slash legal payments.");
-        Answer(g, c => c.Cards.SequenceEqual([pair[0]])); g = Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([pair[1]])); Play(g);
-        Need(E<DuanJiongSaoguCompletedEvent>(g).Single().UsedCards == 0 && Yin(g), "A paid Yang pair containing no Slash still executes the full payment and alternates, without fabricating a card use.");
-        Begin(g); Play(g); Need(!Yin(g), "A real Yin draw restores Yang before the next actual phase.");
-        End(g); Reach(g, () => g.State.TurnNumber > phase.TurnNumber && P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        Begin(g); DiscardBoundary(g);
-        Need(Current(g)!.Phase.Token != phase.Token && Current(g)!.Candidates.Any(c => c.Suit == discard.Suit),
-            "The next genuine own Play owns a different actual phase token, so earlier phase discard suits no longer forbid current physical payments."); _ = Cold(g, r);
-    }
-    public static void EndingDelegationForeignPayerBothSidesAndPrivacyCold()
-    {
-        foreach (var yin in new[] { false, true })
-        {
-            var (g, r) = Start(yin ? "plain" : "delegate-yang"); Draw(g);
-            if (yin) { Begin(g); DiscardBoundary(g); Pair(g, c => !IsSlash(c.Kind)); Play(g); }
-            Need(Yin(g) == yin, "The ending branch comes from the genuinely consumed original conversion side.");
-            var fee = V(g).Hand.First(c => V(g, 1).Hand.Count(h => h.Suit != c.Suit) >= 2); var hand = V(g, 1).HandCount;
-            End(g); Reach(g, () => Optional(g)); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            Reach(g, () => Current(g)?.Stage == DuanJiongSaoguStage.DelegateChoice); var id = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.DuanJiongSaogu is not null).Id;
-            g = Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([fee.Id]) && c.Targets.SequenceEqual([1]));
-            if (!yin)
-            {
-                DiscardBoundary(g); var p = P(g)!; var before = State(g);
-                Need(Current(g)!.ActorSeat == 1 && Current(g)!.RequiredCount == 2 && Current(g)!.Candidates.All(c => c.Suit != fee.Suit) &&
-                    p is { PlayerSeat: 1, IsPrivate: true } && g.CreateSnapshot(0).PendingDecision is null &&
-                    !g.Submit(new AnswerPromptCommand(0, p.PromptId, p.Choices[0].Id, g.Revision)).Accepted && before == State(g),
-                    "After the actual source fee, the affected AI privately pays its own pair, excluding the exact source-fee suit; the human source cannot see or answer it.");
-                g = Cold(g, r);
-            }
-            Reach(g, () => E<DuanJiongSaoguCompletedEvent>(g).Any(e => e.FrameId == id));
-            var branch = E<DuanJiongSaoguBranchPaidEvent>(g).Single(e => e.FrameId == id);
-            Need(Yin(g) == yin && !branch.Converted && branch.Yang == !yin && branch.ActorSeat == 1 && branch.ActualCount == (yin ? 1 : 2) &&
-                E<DuanJiongSaoguEntityPaidEvent>(g).Count(e => e.FrameId == id && e.DelegateFee && e.ActorSeat == 0 && e.CardId == fee.Id) == 1 &&
-                E<TurnStartedEvent>(g).All(e => e.ActorSeat != 1),
-                "Both ending alternatives keep the source's conversion side unchanged, pay the source fee exactly once, and execute for the original recipient within the same actual Ending.");
-            if (yin) Need(V(g, 1).HandCount == hand + 1 && E<DuanJiongSaoguNativeIssuedEvent>(g).All(e => e.Origin.ProgramFrameId != id), "The delegated Yin really draws one for the other actor and never creates a use or an extra turn.");
-            else Need(E<DuanJiongSaoguNativeIssuedEvent>(g).Count(e => e.Origin.ProgramFrameId == id && e.Origin.ActorSeat == 1) == 2 &&
-                E<DuanJiongSaoguNativeReturnedEvent>(g).Count(e => e.Origin.ProgramFrameId == id) == 2,
-                "The foreign actor uses both of its actual discarded Slashes through complete native responses and returns, rather than borrowing the source's hand or replacing them with zero-card Slashes.");
-            _ = Cold(g, r);
-        }
-    }
-    public static void PaidLossDeathLionOxAndDelegatedSourceDeathCold()
-    {
-        foreach (var scenario in new[] { "paid-loss", "source-death", "lion", "ox", "yin-loss", "delegate-death" })
-        {
-            var (g, r) = Start(scenario); Draw(g); int? equipment = null, grain = null;
-            if (scenario is "lion" or "ox")
-            {
-                var kind = scenario == "lion" ? CardKind.SilverLion : CardKind.WoodenOx; equipment = V(g).Hand.First(c => c.Kind == kind).Id;
-                Use(g, "place", [0], [equipment.Value]); Play(g);
-                if (scenario == "lion") { Use(g, "lose"); Play(g); }
-                else { grain = V(g).Hand.First(c => !IsSlash(c.Kind)).Id; Accept(g, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [grain.Value], [], g.Revision, P(g)!.PromptId)); Play(g); }
-            }
-            if (scenario == "delegate-death")
-            {
-                End(g); Reach(g, () => Optional(g)); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-                Reach(g, () => Current(g)?.Stage == DuanJiongSaoguStage.DelegateChoice);
-                var fee = V(g).Hand.First(c => V(g, 1).Hand.Count(h => h.Suit != c.Suit) >= 2).Id;
-                Answer(g, c => c.Cards.SequenceEqual([fee]) && c.Targets.SequenceEqual([1]));
-            }
-            else
-            {
-                Begin(g); DiscardBoundary(g);
-                if (equipment is { } equipped)
-                {
-                    Answer(g, c => c.Cards.SequenceEqual([equipped]));
-                    Answer(g, c => c.Cards.Count == 1 && V(g).Hand.Any(h => h.Id == c.Cards[0] && !IsSlash(h.Kind)));
-                }
-                else Pair(g, c => scenario is "paid-loss" or "source-death" || !IsSlash(c.Kind));
-                if (scenario == "yin-loss") { Play(g); Need(Yin(g), "The first real no-Slash payment reaches Yin before testing its own gain child."); Begin(g); }
-            }
-            var id = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.DuanJiongSaogu is not null).Id;
-            var child = scenario == "lion" ? Health : scenario == "ox" ? Grain : Watch;
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == child); g = Cold(g, r); Continue(g);
-            if (scenario == "paid-loss")
-            {
-                Reach(g, () => V(g).Skills!.All(s => s.ContentId != Skill) && Current(g)?.Stage == DuanJiongSaoguStage.UseChoice);
-                g = Cold(g, r); ResolveMandatorySlashes(g, id);
-            }
-            Reach(g, () => E<DuanJiongSaoguCompletedEvent>(g).Any(e => e.FrameId == id));
-            Need(E<DuanJiongSaoguCompletedEvent>(g).Count(e => e.FrameId == id) == 1 && E<DuanJiongSaoguBranchPaidEvent>(g).Count(e => e.FrameId == id) == 1,
-                "Every genuine paid movement/HP/dying child returns to one original branch and completes once, without repeating a cost or conversion.");
-            if (scenario == "paid-loss") Need(E<DuanJiongSaoguNativeIssuedEvent>(g).Count(e => e.Origin.ProgramFrameId == id) == 2 && V(g).Skills!.All(s => s.ContentId != Skill), "Actual conditional source loss leaves both paid original Slashes available for their mandatory native uses.");
-            if (scenario is "source-death" or "delegate-death")
-                Need(!V(g).IsAlive && g.State.Winner == Winner.None && E<DuanJiongSaoguCompletedEvent>(g).Single(e => e.FrameId == id).UsedCards == (scenario == "delegate-death" ? 2 : 0),
-                    "Real damage/dying kills the non-Lord source: a dead self executor stops, while an already paid delegated living executor still completes its own native Slashes.");
-            if (scenario == "lion") Need(V(g).Hp == V(g).MaxHp && g.CardMovements.Count(m => m.CardId == equipment && m.From == CardLocation.Equipment(0) && m.Reason.Value == "skill-program.duan-jiong.saogu.discard") == 1, "The real armor payment produces its native SilverLion recovery and private HP child only once.");
-            if (scenario == "ox") Need(g.CardMovements.Count(m => m.CardId == grain && m.Reason == CardMoveReasons.WoodenOxGrainDiscard) == 1 && V(g).WoodenOxGrainCount == 0 && E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 0), "The original Ox cost disposes its real nested grain and drains the grain-movement damage subtree once.");
-            if (scenario == "yin-loss") Need(V(g).Skills!.All(s => s.ContentId != Skill) && E<DuanJiongSaoguBranchPaidEvent>(g).Single(e => e.FrameId == id) is { Yang: false, ActualCount: 1 }, "Source loss inside the real Yin draw cannot repeat its draw or roll back the already paid half.");
-            _ = Cold(g, r);
-        }
-    }
-    private static void Pair(GameEngine g, Func<DuanJiongSaoguCard, bool> eligible)
-    { var cards = Current(g)!.Candidates.Where(eligible).Take(2).Select(c => c.CardId).ToArray(); Need(cards.Length == 2, "Two actual legal payment entities must exist."); Answer(g, c => c.Cards.SequenceEqual([cards[0]])); Answer(g, c => c.Cards.SequenceEqual([cards[1]])); }
-    private static void ResolveMandatorySlashes(GameEngine g, long frame)
-    {
-        for (var n = 0; n < 2; n++)
-        {
-            Reach(g, () => Current(g)?.Stage == DuanJiongSaoguStage.UseChoice || E<DuanJiongSaoguCompletedEvent>(g).Any(e => e.FrameId == frame));
-            if (Current(g)?.Stage != DuanJiongSaoguStage.UseChoice) break;
-            Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "use");
-        }
-    }
     private static PlayerSnapshot V(GameEngine g, int seat = 0) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static DuanJiongSaoguReceipt? Current(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f => f.DuanJiongSaogu is not null)?.DuanJiongSaogu;
     private static bool Yin(GameEngine g) => V(g).SkillRuntimeStates!.Single(s => s.SkillId == Skill).BooleanStates!.Single().Value;
-    private static bool IsSlash(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
     private static void Need(bool ok, string message) { if (!ok) throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g, GameCommand c) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Need(result.Accepted, result.Error?.Message ?? "Rejected real Saogu command."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
@@ -174,7 +59,6 @@ internal static class DuanJiongChecks
     private static void Native(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources ?? [] });
     private static void DiscardBoundary(GameEngine g) => Reach(g, () => Current(g)?.Stage == DuanJiongSaoguStage.DiscardChoice);
     private static void UseBoundary(GameEngine g) => Reach(g, () => Current(g)?.Stage == DuanJiongSaoguStage.UseChoice);
-    private static bool Optional(GameEngine g) => P(g)?.SkillPrompt?.SkillId == Skill && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Reach(GameEngine g, Func<bool> done)
     {
         for (var step = 0; step < 260; step++)

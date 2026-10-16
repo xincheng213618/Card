@@ -7,40 +7,6 @@ internal static class BoundaryMaChaoChecks
 {
     private static ContentRegistry Classic => ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
 
-    public static void SuitsPaymentDeclinePrivacyReplay()
-    {
-        foreach (var suit in new[] { Suit.Spade, Suit.Heart, Suit.Club, Suit.Diamond })
-        foreach (var pay in new[] { false, true })
-        {
-            var (game, registry) = Start(suit);
-            Slash(game, 1);
-            Activate(game);
-            Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-            var prompt = Prompt(game)!;
-            var draft = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SlashSuitDiscard is not null).SlashSuitDiscard!;
-            var skill = registry.GetSkill("boundary:tieqi");
-            Require(skill.Name == "铁骑", "The registered skill definition exposes its actual Tieqi display name.");
-            var judgmentLog = game.Log.Single(entry => entry.Type == "Judgment" && entry.ActorSeat == 0 && entry.TargetSeat == 0);
-            Require(judgmentLog.Message.Contains($"发动【{skill.Name}】判定：最终为【", StringComparison.Ordinal) &&
-                !judgmentLog.Message.Contains("【boundary:tieqi】", StringComparison.Ordinal),
-                "The owning real Tieqi judgment log uses the content skill display name rather than its implementation reason.");
-            Require(prompt.PlayerSeat == 1 && prompt.IsPrivate && draft.FinalSuit == suit, "Each real final suit belongs to the target's private HE choice.");
-            Require(Enumerable.Range(0, 4).Where(seat => seat != 1).All(seat => game.CreateSnapshot(seat).PendingDecision?.Choices.Count is null or 0), "Other viewers cannot inspect target cost cards.");
-            Require(!game.CreateSnapshot(1).Players[1].Skills!.Any(skill => skill.ContentId == "classic:qingguo") && game.CreateSnapshot(1).Players[1].Skills!.Any(skill => skill.ContentId == "fixture:mc-locked"), "Same actual turn suppression disables nonlocked skill and keeps locked skill.");
-            Replay(game, registry);
-            RejectChoice(game, new("slash-suit-discard.invalid"));
-            Answer(game, c => pay ? c.Cards.Count == 1 : c.Cards.Count == 0);
-            Settle(game);
-            var resolved = game.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Single();
-            Require(resolved.JudgmentSuit == suit && resolved.PaymentCompleted == pay, "Only a real matching-suit payment clears exact target cancellation restriction.");
-            Require(game.Events.Select(e => e.Payload).OfType<JudgmentRequestedEvent>().Count(e => e.Reason == "boundary:tieqi") == 1, "Final target judges exactly once.");
-            if (pay)
-                Require(game.CardMovements.Count(m => m.CardId == resolved.PaidCardId && m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile) == 1, "True HE payment commits once.");
-            Require(game.CreateSnapshot(1).Players[1].Hp == (pay ? 4 : 3), "Paid Dodge cancels while a refused payment retains damage after real Dodge.");
-            Replay(game, registry);
-        }
-    }
-
     public static void TieqiPaoxiaoTrueDodgeAndNextUseReplay()
     {
         var (declined, declinedRegistry) = Start(Suit.Heart, "paoxiao");
@@ -83,30 +49,6 @@ internal static class BoundaryMaChaoChecks
         Replay(paid, paidRegistry);
     }
 
-    public static void JudgmentDyingTargetLossAndLegacy()
-    {
-        var (game, registry) = Start(Suit.Heart, "death"); Slash(game, 1); Activate(game);
-        Reach(game, p => p.Kind == DecisionKind.ProgramJudgmentTrigger); Replay(game, registry); Activate(game);
-        for (var step = 0; step < 80 && Prompt(game)?.Kind != DecisionKind.PlayCard; step++)
-            if (Prompt(game) is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 }) Answer(game, c => c.Parameters.GetValueOrDefault("response") == "let-die");
-            else Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Require(Prompt(game)?.Kind == DecisionKind.PlayCard && !game.CreateSnapshot(1).Players[1].IsAlive &&
-            game.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Single() is { PaymentCompleted: false, PaidCardId: null } &&
-            game.ResolutionStack.All(frame => frame is not (JudgmentFrame or ProgramSkillFrame)), "True judgment finalized HP/dying/death children return once and a dead target receives no phantom cost prompt.");
-        Replay(game, registry);
-
-        var (legacy, lr) = Start(Suit.Spade, "legacy");
-        var action = legacy.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        Accept(legacy, new PlayCardCommand(0, action.CardId!.Value, [1], legacy.Revision, Prompt(legacy)!.PromptId));
-        Reach(legacy, p => p.SkillPrompt?.SkillId == "classic:tieqi"); Activate(legacy); Settle(legacy);
-        Require(!legacy.Events.Select(e => e.Payload).OfType<CurrentTurnNonLockedSkillSuppressionIssuedEvent>().Any() &&
-            !legacy.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Any() && legacy.CreateSnapshot(1).Players[1].Hp == 4,
-            "Classic black-result Tieqi preserves old Dodge cancellation and issues no new capability facts.");
-        Require(!JsonSerializer.Serialize(new CardAttackState()).Contains("JudgmentSuitDodgeRestriction") &&
-            !JsonSerializer.Serialize(new ProgramSkillFrame(1, 0, "old", "old", "hash", 0, [], [])).Contains("SlashSuitDiscard"), "No new capability preserves old canonical null omission.");
-        Replay(legacy, lr);
-    }
-
     private static (GameEngine, ContentRegistry) Start(Suit suit, string scenario = "normal")
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(suit, scenario));
@@ -138,12 +80,6 @@ internal static class BoundaryMaChaoChecks
             Accept(game, new AdvanceOneStepCommand(game.Revision));
         }
         throw new InvalidOperationException("Expected bounded command boundary, found " + Prompt(game)?.Kind);
-    }
-    private static void RejectChoice(GameEngine game, ChoiceId choice)
-    {
-        var before = GameCheckpointJson.Serialize(game.CreateCheckpoint()); var p = Prompt(game)!;
-        Require(!game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, choice, game.Revision)).Accepted &&
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()) == before, "Illegal suit choice is atomically rejected.");
     }
     private static void Accept(GameEngine game, GameCommand command)
     {

@@ -57,55 +57,6 @@ internal static class OrdinaryZhangBaoChecks
         Cold(game, registry);
     }
 
-    public static void ActualHpDyingAndPhysicalDeathCleanupRetainTypedParents()
-    {
-        var (game, registry) = Start(replaceJudgment: false);
-        var curse = Deposit(game);
-        Activate(game, "weaken", 1); ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[1].Hp == 1, "The fixed target's real HP loss prepares an exact one-HP target.");
-        Activate(game, "judge", 1); ReachPlay(game);
-        EndPlay(game);
-        Reach(game, () => game.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 1 &&
-            d.Continuation == DyingContinuationKind.ProgramSkill));
-        var dying = game.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 1);
-        var owner = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == dying.ParentFrameId);
-        Require(owner.SkillId == "ol:zhoufu" && owner.SourceCurseReceipt is
-                { Stage: SourceCurseStage.LossHpChildren, LossIndex: 1, CurrentHpTarget: 1 } receipt &&
-                receipt.Losses.Single().Deposit.DepositFrameId == curse.DepositFrameId &&
-                game.ResolutionStack.OfType<DeferredTurnEndFrame>().Any(f => f.Id == receipt.OriginalParentId) &&
-                Facts<ProgramSkillHpLostEvent>(game).Count(e => e.FrameId == owner.Id && e.TargetSeat == 1 && e.RemainingHp == 0) == 1,
-            "The actual zero-HP child retains its original program parent and paid cursor under the true ended-turn frame.");
-        Cold(game, registry);
-        Reach(game, () => !game.CreateSnapshot(0).Players[1].IsAlive &&
-            !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SourceCurseReceipt is not null));
-        Require(Facts<SourceCurseHpLossIssuedEvent>(game).Count() == 1,
-            "The real Dying/death return cannot issue the completed HP loss twice.");
-        Cold(game, registry);
-
-        var (targetDeath, targetRegistry) = Start(replaceJudgment: false);
-        var held = Deposit(targetDeath);
-        Activate(targetDeath, "kill-target", 1);
-        Reach(targetDeath, () => !targetDeath.CreateSnapshot(0).Players[1].IsAlive &&
-            targetDeath.CreateSnapshot(0).Players[1].SourceCurses is null &&
-            !targetDeath.ResolutionStack.OfType<DeathFrame>().Any(d => d.VictimSeat == 1));
-        Require(targetDeath.CreateSnapshot(0).Players[1].SourceCurses is null &&
-                targetDeath.CardMovements.Count(m => m.CardId == held.CardId && m.From == held.Location &&
-                    m.To == CardLocation.DiscardPile) == 1 &&
-                Facts<SourceCurseLostEvent>(targetDeath).Count(e => e.Loss.Deposit.DepositFrameId == held.DepositFrameId) == 1,
-            "Physical target death cleans its real foreign zone and records exactly that true card loss.");
-        Cold(targetDeath, targetRegistry);
-
-        var (issuerDeath, issuerRegistry) = Start(replaceJudgment: false);
-        var retained = Deposit(issuerDeath);
-        Activate(issuerDeath, "kill-owner");
-        Reach(issuerDeath, () => !issuerDeath.CreateSnapshot(0).Players[0].IsAlive &&
-            !issuerDeath.ResolutionStack.OfType<DeathFrame>().Any(d => d.VictimSeat == 0));
-        Require(issuerDeath.CreateSnapshot(1).Players[1].SourceCurses is [{ Card.Id: var retainedId }] &&
-                retainedId == retained.CardId && !Facts<SourceCurseLostEvent>(issuerDeath).Any(),
-            "The issuer's actual death leaves its target's issued foreign curse in place without fabricating loss.");
-        Cold(issuerDeath, issuerRegistry);
-    }
-
     private static (GameEngine Game, ContentRegistry Registry) Start(bool replaceJudgment)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),

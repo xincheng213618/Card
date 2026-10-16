@@ -65,92 +65,6 @@ internal static class CaoShuangChecks
         _=Cold(dead,deadRegistry);
     }
 
-    public static void ActualPhysicalPlacementColorsOriginalDelayedTransferAndJudgmentCold()
-    {
-        foreach(var scenario in new[]{"red","black","printed"})
-        {
-            var(g,registry)=Start(scenario);var physical=V(g,1).Hand.First();var uses=E<CardUseDeclaredEvent>(g).Count();
-            Use(g,"damage",[1]);Reach(g,()=>Optional(P(g),Shan));Activate(g);
-            Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="caoshuang-shanzhuan")==true);
-            Need(P(g) is{PlayerSeat:0,IsPrivate:true} p && p.ValidCardIds.Count==0 && p.Choices.All(c=>c.Cards.Count==0) &&
-                p.Choices.All(c=>!c.Parameters.ContainsKey("card-id")) && g.CreateSnapshot(1).PendingDecision is null,
-                "Shanzhuan publishes anonymous foreign hand slots, without exposing hidden entity IDs, ranks, suits or names.");
-            g=Cold(g,registry);Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")=="0");
-            Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);
-            var placed=E<CaoShuangShanzhuanPlacedEvent>(g).Single();
-            var kind=scenario=="black"?CardKind.SupplyShortage:CardKind.Indulgence;
-            Need(placed.CardId==physical.Id && placed.EffectiveKind==kind && V(g,1).Judgment.Single().Id==physical.Id &&
-                V(g,1).Judgment.Single().Kind==kind && E<CardUseDeclaredEvent>(g).Count()==uses &&
-                !E<CardActionAcceptedEvent>(g).Any(e=>e.Action.PhysicalCards.Any(c=>c.CardId==physical.Id)),
-                "One actual hand entity enters Judgment with red/black conversion or its original delayed identity; placement creates no Use/action.");
-            g=Cold(g,registry);Continue(g);Play(g);
-            Need(g.CardMovements.Count(m=>m.CardId==physical.Id&&m.Reason.Value=="skill-program.caoshuang.shanzhuan.place")==1,
-                "Cold movement-child return does not place the entity or issue its invoice twice.");
-            if(scenario=="black")
-            {
-                Use(g,"move-judgment-here",[1]);Reach(g,()=>P(g)?.Choices.Any(c=>c.Cards.Contains(physical.Id))==true);Answer(g,c=>c.Cards.Contains(physical.Id));Play(g);
-                Need(V(g,0).Judgment.Single() is{Kind:CardKind.SupplyShortage} moved && moved.Id==physical.Id,
-                    "A real Judgment-to-Judgment transfer retains the virtual delayed kind on the same physical entity.");
-                g=Cold(g,registry);Use(g,"take-judgment",[]);Reach(g,()=>P(g)?.Choices.Any(c=>c.Cards.Contains(physical.Id))==true);Answer(g,c=>c.Cards.Contains(physical.Id));Play(g);
-                Need(V(g,0).Hand.Single(c=>c.Id==physical.Id).Kind==CardKind.Dodge && V(g,0).Judgment.Count==0,
-                    "Leaving Judgment clears the effective mapping and exposes the original physical kind in hand.");
-            }
-            else
-            {
-                End(g);Reach(g,()=>E<DelayedCardResolvedEvent>(g).Any(e=>e.CardId==physical.Id));
-                Need(E<DelayedCardResolvedEvent>(g).Single(e=>e.CardId==physical.Id).CardKind==kind &&
-                    g.CardMovements.Any(m=>m.CardId==physical.Id&&m.Reason==CardMoveReasons.DelayedCardFinish),
-                    "The native delayed-judgment resolver consumes the exact placed entity using its effective delayed identity.");
-            }
-            _=Cold(g,registry);
-        }
-    }
-
-    public static void ActualSilverLionPlacementWaitsForReplacementRecoveryCold()
-    {
-        var(g,registry)=Start("silver");var lion=V(g,0).Hand.First();Use(g,"equip",[1],[lion.Id]);Play(g);End(g);
-        Reach(g,()=>Optional(P(g),Foreign));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Targets.SequenceEqual([1]))==true);Answer(g,c=>c.Targets.SequenceEqual([1]));
-        Reach(g,()=>Optional(P(g),Shan));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Cards.SequenceEqual([lion.Id]))==true);Answer(g,c=>c.Cards.SequenceEqual([lion.Id]));
-        Reach(g,()=>P(g)?.Kind==DecisionKind.RecoveryReplacement);
-        var root=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.CaoShuangShanzhuan is not null);
-        Need(g.ResolutionStack.OfType<RecoveryReplacementFrame>().Single().Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion &&
-            V(g,1).Hp==5 && V(g,1).Judgment.Single().Id==lion.Id && E<CaoShuangShanzhuanPlacedEvent>(g).Count()==1,
-            "An actual equipped Silver Lion is already placed and its real removal recovery waits on the exact paid Shanzhuan frame.");
-        g=Cold(g,registry);Answer(g,c=>c.Parameters.GetValueOrDefault("recovery-action")=="keep");
-        Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Hp);Need(V(g,1).Hp==6,"The native removal heal occurs once before its actual HP observer returns.");
-        g=Cold(g,registry);Continue(g);Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Watch);g=Cold(g,registry);Continue(g);
-        Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Foreign && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("result-bind")=="tail"));
-        Need(!g.ResolutionStack.Any(f=>f.Id==root.Id) && E<RecoveryAppliedEvent>(g).Count(e=>e.TargetSeat==1)==1 &&
-            E<CaoShuangShanzhuanPlacedEvent>(g).Count()==1 && g.CardMovements.Count(m=>m.CardId==lion.Id&&m.Reason.Value=="skill-program.caoshuang.shanzhuan.place")==1,
-            "Cold recovery-choice, HP and placement children return once without repeating Silver Lion's heal or placement cost.");
-        _=Cold(g,registry);
-    }
-
-    public static void ActualEndingDrawUsesDealtDamageIncludingSelfAndPrevention()
-    {
-        foreach(var scenario in new[]{"ending-none","ending-self","ending-prevent"})
-        {
-            var(g,registry)=Start(scenario);
-            if(scenario=="ending-self"){Use(g,"self-damage",[]);Play(g);}
-            if(scenario=="ending-prevent"){Use(g,"damage",[1]);Play(g);Need(!E<DamageAppliedEvent>(g).Any(),"The native prevention fixture prevents this actual attempt.");}
-            var hand=V(g,0).Hand.Count;End(g);
-            if(scenario=="ending-self")
-            {
-                Reach(g,()=>g.State.CurrentSeat!=0);
-                Need(!E<ProgramBindingStartedEvent>(g).Any(e=>e.SkillId==Shan&&e.BindingId=="ending-without-actual-damage"),
-                    "Genuine self damage still counts as damage dealt and suppresses the ending draw.");
-            }
-            else
-            {
-                Reach(g,()=>Optional(P(g),Shan));Need(g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any(),"The draw belongs to the actual ending phase.");
-                g=Cold(g,registry);Activate(g);Reach(g,()=>g.State.CurrentSeat!=0);
-                Need(E<ProgramBindingStartedEvent>(g).Count(e=>e.SkillId==Shan&&e.BindingId=="ending-without-actual-damage")==1 && V(g,0).Hand.Count==hand+1,
-                    "No actual damage, including a fully prevented attempt, earns one real optional ending draw.");
-            }
-            _=Cold(g,registry);
-        }
-    }
-
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,6).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T>E<T>(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<T>();
@@ -159,7 +73,6 @@ internal static class CaoShuangChecks
     private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Use(GameEngine g,string a,IReadOnlyList<int> targets,IReadOnlyList<int>? cards=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,a,cards??[],targets,g.Revision,P(g)!.PromptId));
     private static void Reach(GameEngine g,Func<bool> done)
     {

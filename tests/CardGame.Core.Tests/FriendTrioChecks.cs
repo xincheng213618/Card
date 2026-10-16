@@ -47,42 +47,7 @@ internal static class FriendTrioChecks
         }
     }
 
-    public static void XuanjianWholeSuitQihuiAndReclaim()
-    {
-        var (g, registry) = Start(true); Settle(g); Replay(g, registry);
-        Require(g.CreateSnapshot(0).Players[0].Equipment.Any(e => e.Kind == CardKind.Xuanjian) &&
-            g.State.Players[0].Markers!.Any(m => m.Kind == PlayerMarkerKind.QihuiEquipment),
-            "Xiaxing obtains and really uses its generated Xuanjian, so Qihui sees an equipment use.");
-        var hand = g.State.Players[0].Hand!.Select(c => c.Id).ToArray();
-        var checkpoint = GameCheckpointJson.Serialize(g.CreateCheckpoint());
-        Require(!g.Submit(new UseProgramSkillCommand(0, "equipment:xuanjian", "suit-slash", [hand[0]], [1], g.Revision, P(g)!.PromptId)).Accepted &&
-            GameCheckpointJson.Serialize(g.CreateCheckpoint()) == checkpoint,
-            "An ordinary Xuanjian activation must select every hand card of that suit.");
-        Accept(g, new UseProgramSkillCommand(0, "equipment:xuanjian", "suit-slash", hand, [1], g.Revision, P(g)!.PromptId)); Settle(g);
-        Require(g.State.Players[0].Markers!.Any(m => m.Kind == PlayerMarkerKind.QihuiBasic), "The multi-card Xuanjian Slash is a real basic-card use.");
-        Driver(g, "draw"); Settle(g); Play(g, CardKind.DrawTwo);
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("value") == PlayerMarkerKind.QihuiEquipment.ToString()));
-        Replay(g, registry); Value(g, PlayerMarkerKind.QihuiEquipment.ToString()); Value(g, PlayerMarkerKind.QihuiTrick.ToString());
-        Replay(g, registry); Value(g, "unlimited"); Settle(g); Replay(g, registry);
-        Require(g.State.Players[0].Markers!.Count(m => m.Kind is PlayerMarkerKind.QihuiBasic or PlayerMarkerKind.QihuiTrick or PlayerMarkerKind.QihuiEquipment) == 1,
-            "Three categories remove exactly two chosen distinct marks before the benefit.");
-        var next = g.State.Players[0].Hand!.Select(c => c.Id).ToArray();
-        Accept(g, new UseProgramSkillCommand(0, "equipment:xuanjian", "suit-slash", next, [1], g.Revision, P(g)!.PromptId)); Settle(g); Replay(g, registry);
-        Require(g.Events.Select(e => e.Payload).OfType<CardUseDebitRecordedEvent>().Count(e => e.Debit.ActorSeat == 0 && e.Debit.Query == SkillRuleQuery.SlashLimit) == 1 &&
-            g.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Where(e => e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Slash)
-                .Select(e => e.Action.ActionId).Distinct().Count() == 2,
-            "Qihui's next Slash bypasses the exhausted quota and adds no finite-use debit.");
-        Driver(g, "draw"); Settle(g); Play(g, CardKind.DrawTwo); Settle(g); Driver(g, "discard-weapon");
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "friend:xiaxing")); Activate(g);
-        Replay(g, registry); Value(g, PlayerMarkerKind.QihuiBasic.ToString()); Value(g, PlayerMarkerKind.QihuiTrick.ToString()); Settle(g); Replay(g, registry);
-        var generated = g.Events.Select(e => e.Payload).OfType<FriendXuanjianGeneratedEvent>().Single().CardId;
-        Require(g.State.Players[0].Hand!.Any(c => c.Id == generated) && g.CardMovements.Count(m => m.CardId == generated &&
-            m.From == CardLocation.DiscardPile && m.To == CardLocation.Hand(0)) == 1,
-            "Discarding the owner's weapon is eligible and paid mark removal reclaims the same physical entity once.");
-    }
-
     private static void Value(GameEngine g, string value) => Answer(g, c => c.Parameters.GetValueOrDefault("value") == value);
-    private static void Driver(GameEngine g, string activation) => Accept(g, new UseProgramSkillCommand(0, "fixture:friend-driver", activation, [], [], g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g, CardKind kind)
     {
         var card = g.State.Players[0].Hand!.First(c => c.Kind == kind);

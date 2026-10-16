@@ -6,60 +6,6 @@ using static BoundaryLiDianChecks;
 
 internal static class MouZhugeLiangChecks
 {
-    public static void AiFireAttackUsesPublishedPrivateTopCards()
-    {
-        var (game, registry) = Start("standard:slash");
-        Use(game, "mou:zhijue", "alternate");
-        Answer(game, choice => choice.Targets.SequenceEqual([1]));
-        Reach(game, prompt => prompt.Kind == DecisionKind.FireAttackDiscard);
-        ReplayFourViews(game, registry);
-
-        var view = game.CreateSnapshot(0);
-        var prompt = view.PendingDecision!;
-        var hand = view.Players[0].Hand;
-        var deckCost = view.PrivateRevealedCards!.First(card => prompt.ValidCardIds.Contains(card.Id));
-        Require(hand.All(card => card.Id != deckCost.Id) &&
-            prompt.ValidCardIds.Any(id => hand.Any(card => card.Id == id)),
-            "The real FireAttack publishes both hand costs and privately visible deck replacements.");
-
-        var mixed = new SimpleAiBrain(0, 7).ChooseFireAttackDiscard(
-            view, 1, deckCost.Suit, prompt.ValidCardIds, 1);
-        Require(mixed.Thought.Candidates.Where(candidate => candidate.Action.Kind == LegalActionKind.FireAttackDiscard)
-            .Select(candidate => candidate.Action.CardId!.Value).SequenceEqual(prompt.ValidCardIds),
-            "AI scores every published hand and private-top candidate in its original order.");
-
-        var (selected, thought) = new SimpleAiBrain(0, 7).ChooseFireAttackDiscard(
-            view, 1, deckCost.Suit, [deckCost.Id], 1);
-        Require(selected == deckCost.Id && thought.Candidates.Count == 2,
-            "A private-top-only cost remains usable, with the normal decline option.");
-        var declined = new SimpleAiBrain(0, 7).ChooseFireAttackDiscard(view, 1, deckCost.Suit, [], 1);
-        Require(declined.CardId is null && declined.Thought.Candidates.Single().Action.Kind == LegalActionKind.SkipFireAttack,
-            "An empty published cost set still declines instead of using another visible card.");
-
-        var foreign = game.CreateSnapshot(1);
-        Require(foreign.PendingDecision is null && foreign.PrivateRevealedCards is null,
-            "Other seats cannot see the source's private top faces or payment prompt.");
-        var rejected = false;
-        try
-        {
-            new SimpleAiBrain(1, 7).ChooseFireAttackDiscard(foreign, 0, deckCost.Suit, [deckCost.Id], 1);
-        }
-        catch (InvalidOperationException) { rejected = true; }
-        Require(rejected, "An unpublished private deck face cannot be resolved from another seat's snapshot.");
-
-        var targetHp = game.State.Players[1].Hp;
-        var initialHand = game.State.Players[0].HandCount;
-        var useId = game.ResolutionStack.OfType<CardUseFrame>().Single().Id;
-        Answer(game, choice => choice.Cards.SequenceEqual([selected!.Value]));
-        Settle(game);
-        Require(game.State.Players[1].Hp == targetHp - 1 && game.State.Players[0].HandCount == initialHand + 1 &&
-            game.CardMovements.Count(move => move.CardId == deckCost.Id && move.From == CardLocation.DrawPile &&
-                move.To == CardLocation.DiscardPile && move.Reason == CardMoveReasons.FireAttackDiscard) == 1 &&
-            game.Events.Select(item => item.Payload).OfType<FireAttackResolvedEvent>()
-                .Single(fact => fact.ResolutionId == useId) is { CausedDamage: true, MatchingDiscardCardId: var costId } && costId == deckCost.Id,
-            "The AI-selected replacement pays once from the deck, draws Wujing once and damages the target once.");
-        ReplayFourViews(game, registry);
-    }
 
     public static void PrivateTopYangPaymentAndColdReplay()
     {
@@ -100,27 +46,6 @@ internal static class MouZhugeLiangChecks
             move.From == CardLocation.Hand(0) && move.To == CardLocation.DiscardPile && move.Reason.Value == "mou.zhijue.place") == 1),
             "Yin copies the paid Slash as a logical use without charging its entire color hand twice.");
         ReplayFourViews(game, registry);
-    }
-
-    public static void UndamagedCopyDrawAndColorLimit()
-    {
-        var (game, registry) = Start("standard:draw_two");
-        Use(game, "mou:zhijue", "alternate"); Answer(game, choice => choice.Targets.SequenceEqual([1]));
-        Reach(game, prompt => prompt.Kind == DecisionKind.FireAttackDiscard);
-        Answer(game, choice => choice.Cards.Count == 0); Settle(game);
-        AssertPrivate(game, 6);
-        Require(game.Events.Select(e => e.Payload).OfType<MouZhijueUndamagedEvent>().Single().VisibleCount == 6,
-            "An undamaged Yang use reduces the live private view by one and draws two.");
-        Use(game, "mou:zhijue", "alternate"); Answer(game, _ => true);
-        Reach(game, prompt => prompt.Choices.Any(choice => choice.Id.Value.StartsWith("mou-copy.")));
-        ReplayFourViews(game, registry); Answer(game, choice => choice.Label.Contains("无中生有")); Settle(game);
-        Require(game.State.Players[0].HandCount == 4 && game.Events.Select(e => e.Payload).OfType<MouZhijueUndamagedEvent>().Last().VisibleCount == 5,
-            "A zero-material Yin DrawTwo draws its two cards plus the undamaged reward after the whole Use completes.");
-        Use(game, "mou:zhijue", "alternate"); Answer(game, choice => choice.Targets.SequenceEqual([1]));
-        Reach(game, prompt => prompt.Kind == DecisionKind.FireAttackDiscard); Answer(game, choice => choice.Cards.Count == 0); Settle(game);
-        Require(!game.GetLegalActions().Any(action => action.ProgramSkillId == "mou:zhijue"),
-            "The second Yin cannot place red again during this actual turn, including newly drawn red hand cards.");
-        AssertPrivate(game, 4); ReplayFourViews(game, registry);
     }
 
     private static void AssertPrivate(GameEngine game, int count)

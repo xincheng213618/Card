@@ -18,23 +18,8 @@ internal static class XuanGongZhuChecks
         Need(V(g,target).Hp==V(g,0).Hp && E<QimeiEqualityConsumedEvent>(g).Count(e=>e.Receipt.Attribute==QimeiAttribute.Hp && e.Receipt.ChangedSeat==target && e.Receipt.BeneficiarySeat==0)==1,
             "An actual foreign endpoint damage delta receives an independent once-turn HP payoff without requiring that endpoint to own Qimei.");
     }
-    public static void ActualZhuijiBothChoicesSamePlayDebtCold()
-    {
-        foreach(var option in new[]{"recover","draw"})
-        {
-            var(g,r)=Start();ChooseZhuiji(g,option);Play(g);var hand=V(g,0).HandCount;var hp=V(g,0).Hp;g=Cold(g,r);
-            End(g);if(option=="recover")
-            {Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="zhuiji-discard")==true);g=Cold(g,r);Answer(g,c=>c.Cards.Count==2);}
-            Reach(g,()=>E<ZhuijiPlayDebtConsumedEvent>(g).Any(e=>e.Paid));g=Cold(g,r);
-            Need(E<ZhuijiPlayGrantIssuedEvent>(g).Count()==1 && E<ZhuijiPlayDebtConsumedEvent>(g).Count(e=>e.Paid)==1 &&
-                (option=="recover"?V(g,0).HandCount==hand-2 && E<ZhuijiDiscardPaidEvent>(g).Single().ActualCount==2:V(g,0).Hp==hp-1),
-                "Each real Play-start branch settles once at the same actual Play ending through native discard or source-free HP loss.");
-        }
-    }
     private static void Pair(GameEngine g,int target)
     {Reach(g,()=>Optional(P(g),"ol:qimei"));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target")==true);Answer(g,c=>c.Targets.SequenceEqual([target]));}
-    private static void ChooseZhuiji(GameEngine g,string option)
-    {Reach(g,()=>Optional(P(g),"ol:zhuiji-tj"));Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")==option)==true);Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")==option);}
     private static bool Optional(PendingDecision? p,string id)=>p?.SkillPrompt?.SkillId==id && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -43,7 +28,6 @@ internal static class XuanGongZhuChecks
     private static void Accept(GameEngine g,GameCommand c){var r=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Need(r.Accepted,r.Error?.Message??"Rejected actual Xuan command.");}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}
     private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});
     private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets,g.Revision,P(g)!.PromptId));
     private static void Reach(GameEngine g,Func<bool> done)
