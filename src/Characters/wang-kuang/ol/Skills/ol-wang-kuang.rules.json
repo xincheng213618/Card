@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[{"id":"ol:renxia","revision":1,
+ "activations":[{"id":"choose-first-branch","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveRenxiaRepeatedBranch","target":"owner"}]}],
+ "triggers":[{"id":"issued-opposite-at-play-end","window":"playEnding","subject":"owner","optional":false,"effects":[{"op":"resolveRenxiaOppositeAtPlayEnding","target":"owner"}]}]
+}]}

@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:qiao-zhou",
+  "characterId": "character:qiao-zhou",
+  "product": "三国杀OL",
+  "officialGid": 540,
+  "officialPage": "https://www.sanguosha.com/hero/540",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=540",
+  "identity": {
+    "name": "谯周",
+    "faction": "shu",
+    "hp": 3,
+    "gender": "Male",
+    "clientClass": "QiaoZhou",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "deduplication": "Compared the 449 existing general definitions by identity and printed skill set before implementation. No qiao-zhou identity or OL Zhiming/Xingbu program existed; this is the current ordinary OL identity, not a duplicate boundary or another product's version.",
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T01:48:25.516364+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "b27375358c4d4a149fb19d93beae039575bab4af57e44e3a94169002fec4178f",
+    "decoder": "Fetched the live public ZIP bundle in memory and extracted its actual InitOfb AES-CFB128 IV/key; decoded character.sgs and cha_spell.sgs using that implementation and gzip. No bundle, complete configuration, or temporary source snapshot was persisted.",
+    "characterRow": {
+      "a": 540,
+      "b": "谯周",
+      "d": "QiaoZhou",
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 3232,
+      "k": 3233
+    },
+    "spellRows": [
+      {
+        "a": 3232,
+        "c": "知命",
+        "d": "ZhiMing",
+        "o": "准备阶段与弃牌阶段结束时，你摸一张牌，然后你可以将一张牌置于牌堆顶。",
+        "u": "请选择一张牌置于牌堆顶"
+      },
+      {
+        "a": 3233,
+        "c": "星卜",
+        "d": "XingBu",
+        "o": "结束阶段，你可以亮出牌堆顶三张牌，然后你可以根据其中红色牌数令一名其他角色于其下回合获得以下效果：<br>•3，摸牌阶段额外摸两张牌、出牌阶段使用【杀】的限制次数+1；<br>•2，出牌阶段使用【杀】的限制次数-1、跳过弃牌阶段；<br>•1或0，准备阶段弃置一张手牌。",
+        "u": "请选择一张牌弃置"
+      }
+    ],
+    "comparison": "The two current client descriptions agree with the current official hero page. Current configuration hash differs from the previous batch snapshot; this capture verified the selected current rows afresh rather than treating the old snapshot as current."
+  },
+  "primarySemantics": [
+    "Zhiming's draw is mandatory at preparation and the end of an actually entered discard phase. Putting a card on top is optional.",
+    "Xingbu has two optional decisions: reveal the top three, then optionally assign the corresponding frozen red-count result to another living character.",
+    "Three red cards grant extra draw of two in the draw phase and one extra Slash use in the play phase; exactly two red cards reduce the Slash allowance by one and skip the discard phase; zero or one red card requires discarding one hand card in preparation."
+  ],
+  "secondaryOperationalEvidence": {
+    "url": "https://my.4399.com/yxsgs/ziliao/54800/",
+    "title": "4399三国杀OL 四弼系列武将：谯周攻略！",
+    "publishedDate": "2023-07-12",
+    "status": "Same-product secondary gameplay guide, not an official rules FAQ. Read as HTML text, independently cross-checked by the coordinating agent; these findings are not transcribed from an unread image.",
+    "observations": [
+      "Zhiming can put a hand or equipped card on top; its draw is mandatory while top placement can be declined.",
+      "Xingbu's revealed cards go to the discard pile after resolution. Revealed cards are not left on the draw-pile top.",
+      "A recipient already holding any Xingbu mark cannot be selected again. The guide explicitly gives the example of a face-down Cao Ren whose skipped turn retains the mark, preventing selection in the next round.",
+      "The donor Qiao Zhou's death clears Xingbu marks. Losing the skill without death is not stated to do the same.",
+      "The zero/one-red result can only discard a hand card, and has no discard effect if the recipient has no hand cards.",
+      "The two-red skip conflicts with discard-starting and discard-ended skills; neither boundary should be invented for the skipped phase.",
+      "The three-red draw increases ordinary draw alongside other more/less draw modifications; a skipped, abandoned or replaced normal draw does not receive a separate compensating draw."
+    ]
+  },
+  "semanticInferences": [
+    "Multiple donors obey the same existing-mark exclusion. There is at most one active or pending Xingbu mark per recipient, rather than stacking independent grants.",
+    "A grant remains after the donor loses Xingbu because the same-product guide states death removal, not skill-loss removal. Face-down whole-turn skips preserve it until an actual preparation is reached.",
+    "Donor death during the recipient's active turn clears the mark and precisely revokes only that grant's still-applicable native draw/Slash modifiers. Already drawn cards are not taken back. A not-yet-entered discard phase is no longer skipped by that expired mark.",
+    "Reveal colors freeze from the actual native reveal before movement observers act. An entity removed from Processing and later returned cannot borrow an older reveal receipt for cleanup.",
+    "Mandatory preparation discard respects the native self-discard prohibitions. If there is no legal hand card, it completes without manufacturing a forbidden payment."
+  ],
+  "implementation": [
+    "Zhiming uses existing JSON draw, awaited movement, private owned-card selection and native top-placement operations.",
+    "Xingbu reveal/recipient/cleanup receipts stay on the owning ProgramSkillFrame. Issued future mark facts contain scalar public state; the actual preparation payment and child cursor belong to QiaoZhouPreparationFrame, with no parallel pending object.",
+    "The preparation frame's typed native movement return retains the exact parent, grant, actual turn, batch, physical card and movement ordinal. Cold recovery resumes an already paid discard without charging it twice.",
+    "Native turn-scoped Add modifiers support the negative Slash allowance directly. A local exact-grant removal preserves all unrelated rule modifiers."
+  ],
+  "artwork": {
+    "portraitKey": "ol-qiao-zhou",
+    "officialCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54000.png"
+  },
+  "content": "src/Characters/qiao-zhou/ol/Content/ol-qiao-zhou.character.json",
+  "runtime": "src/Characters/qiao-zhou/ol/Runtime",
+  "behaviorChecks": "tests/CardGame.Core.Tests/QiaoZhouChecks.cs"
+}

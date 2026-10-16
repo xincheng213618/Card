@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:cangxin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-bottom",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "revealBottomHeartsAndDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-damage-bottom",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardBottomHeartsForDamageReduction",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:runwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-discard",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "runweiDrawOrDiscardForActualPhase",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "foreign-discard",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "turnOwnerScope": "otherLiving",
+          "effects": [
+            {
+              "op": "runweiDrawOrDiscardForActualPhase",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

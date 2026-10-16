@@ -44,6 +44,7 @@ public sealed partial class GameEngine
             dyingUse && prompt.Kind != DecisionKind.RescueDying || !dyingUse &&
                 prompt.Kind != (kind == CardKind.Nullification ? DecisionKind.Nullification : DecisionKind.RespondDodge))
             throw new InvalidOperationException("A zero-material response lost its use-qualified producer and allowance before acceptance.");
+        if (TryBeginEquipmentSlotNamedResponse(actor, source, choice, dyingUse)) return;
         if (dyingUse)
         {
             var dying = ActiveDying!; var card = new Card(0, kind, Suit.None, 0); var victim = _players[dying.VictimSeat];
@@ -100,6 +101,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
             actor.Seat, 0, pending.EffectNullified, pending.ChainDepth));
         RecordActualPlayPhaseUse(action); AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
         pending = (NullificationWindowFrame)_resolutionStack.Single(f => f.Id == pending.Id);
         if (TryBeginPolicyCounterspellPayment(pending, action, policy, [])) return;
         if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;

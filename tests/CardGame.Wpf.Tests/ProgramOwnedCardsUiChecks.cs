@@ -37,19 +37,24 @@ internal static class ProgramOwnedCardsUiChecks
         window.ApplyTemplate();
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "231-program-owned-card-set-first.png"));
-        model.SelectSkillChoiceCommand.Execute(model.SkillChoices.Single(choice => choice.Cards.Contains(firstCardId)));
+        model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == firstCardId));
+        Program.Assert(model.CanConfirmSelected && game.PendingDecision!.PromptId == firstPrompt.PromptId &&
+                       game.CardMovements.Count == beforeMoves,
+            "Choosing from the real hand must not submit or consume the first private draft card.");
+        model.ConfirmSelectedCommand.Execute(null);
         var secondPrompt = game.PendingDecision!;
         Program.Assert(secondPrompt.SkillPrompt?.SkillId == SkillId &&
                        secondPrompt.Choices.All(choice => !choice.Cards.Contains(firstCardId)) &&
                        game.CardMovements.Count == beforeMoves &&
                        game.ResolutionStack.OfType<ProgramSkillFrame>().Single().OwnedCardSelection is
-                           { SelectedCardIds.Count: 1 },
+                           { SelectedCardIds.Count: 1 } && !model.HasSelection && !model.CanConfirmSelected,
             "The first shared UI choice must update only the private draft and must not move a card.");
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "232-program-owned-card-set-second.png"));
 
         var secondCardId = model.SkillChoices[0].Cards.Single();
-        model.SelectSkillChoiceCommand.Execute(model.SkillChoices[0]);
+        model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == secondCardId));
+        model.ConfirmSelectedCommand.Execute(null);
         var moved = game.CardMovements.Skip(beforeMoves)
             .Where(move => move.Reason.Value == $"skill-program.{SkillId}.MoveBoundCards").ToArray();
         Program.Assert(moved.Length == 2 && moved.Select(move => move.CardId).ToHashSet().SetEquals([firstCardId, secondCardId]) &&

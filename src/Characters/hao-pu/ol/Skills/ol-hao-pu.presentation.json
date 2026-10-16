@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": { "ol:zhenying": {
+    "name": "镇荧", "description": "出牌阶段限两次，你可以与一名手牌数不大于你的其他角色同时将手牌数调整至至多两张，然后其中手牌数较少的角色视为对另一名角色使用一张【决斗】。",
+    "activationLabels": { "simultaneous-hand-adjustment": "镇荧：同时调整手牌" }
+  } }
+}

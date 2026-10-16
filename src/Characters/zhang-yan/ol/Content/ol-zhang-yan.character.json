@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-yan",
+  "skills": [
+    {
+      "registrationOrder": 1570,
+      "programBundle": "ol-zhang-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:suji",
+        "name": "肃疾",
+        "description": "已受伤角色的出牌阶段开始时，你可以将一张黑色牌当【杀】使用，若其受到此【杀】伤害，你获得其一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1571,
+      "programBundle": "ol-zhang-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:langdao",
+        "name": "狼蹈",
+        "description": "当你使用【杀】指定唯一目标时，你可以与其同时选择一项，令此【杀】：伤害值+1/目标数+1/不能被响应。若未杀死角色，你移除此次被选择的项。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1572,
+      "pools": {
+        "current": 435
+      },
+      "definition": {
+        "id": "ol:zhang-yan",
+        "name": "张燕",
+        "portraitKey": "ol-zhang-yan",
+        "skillId": "ol:suji",
+        "additionalSkillIds": [
+          "ol:langdao"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhang-yan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

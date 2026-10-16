@@ -1,0 +1,303 @@
+{
+  "date": "2026-10-16",
+  "status": "implemented-and-root-verified",
+  "generalId": "ol:he-jin",
+  "characterId": "character:he-jin",
+  "product": "三国杀OL",
+  "officialGid": 583,
+  "officialPage": "https://www.sanguosha.com/hero/583",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=583",
+  "identity": {
+    "name": "何进",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation searched existing character manifests/rules for 何进/何進/HeJin/he-jin, 谋诛/謀誅 and 延祸/延禍; no existing general or either skill was present.",
+  "skills": [
+    {
+      "id": "ol:mouzhu",
+      "name": "谋诛",
+      "clientSkillId": 3372,
+      "clientName": "MouZhu2",
+      "text": "出牌阶段限一次，你可以令一名其他角色交给你一张手牌，若其手牌数小于你，其视为对你使用一张【杀】或【决斗】。"
+    },
+    {
+      "id": "ol:yanhuo",
+      "name": "延祸",
+      "clientSkillId": 3373,
+      "clientName": "YanHuo2",
+      "text": "当你死亡时，你可以弃置杀死你的角色至多X张牌（X为你的牌数）。"
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://wiki.biligame.com/sgsol/%E4%BD%95%E8%BF%9B",
+      "level": "Same-product community reference, checked 2026-10-16; edited 2025-06-01. Not the primary text authority.",
+      "supports": "The classic OL entry explicitly assigns the post-gift Slash/Duel choice to the donor. Its separate 1V1 entry has different Yanhuo wording and is not used."
+    },
+    {
+      "url": "https://g.iqiyi.com/sanguosha/news/321004.html",
+      "level": "Historical OL channel terminology, indexed passage checked 2026-10-16; direct page request timed out. General vocabulary only, not a current He Jin FAQ.",
+      "supports": "The ownership entry assigns a player ownership of Hand and Equipment, while Judgment cards have no player owner."
+    },
+    {
+      "url": "https://gltjk.com/sanguosha/rules/flow/condition.html",
+      "level": "Archived official rulebook 3.0 transcription; general use-condition background, predates this OL edition.",
+      "supports": "Ordinary Slash quota is a condition of free Play declarations. Target legality and distance remain separate conditions."
+    },
+    {
+      "url": "https://gltjk.com/sanguosha/rules/glossary/gamecard.html",
+      "level": "Archived official rulebook 3.0 transcription; general card-operation background.",
+      "supports": "The performer of discarding another player's cards chooses them. A single multi-card discard is one operation, rather than repeated selections after triggered gains."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Gift target and comparison",
+      "basis": "Primary instruction order plus payable target legality; no current OL FAQ on empty-hand targets was located.",
+      "implementation": "The other living target must have a hand card to give. The donor privately chooses the actual hand entity. After the native transfer and its child windows, compare the two actual hands. A tie or greater donor hand ends the skill."
+    },
+    {
+      "rule": "Assault chooser and legality",
+      "basis": "The same-product classic entry explicitly assigns the choice to the donor. Distance/quota details are general-rule inferences, not claims of a current specific FAQ.",
+      "implementation": "The donor chooses among currently legal native Slash and Duel. No physical card is paid. Effect-driven use does not spend ordinary free-Play Slash quota; absent an explicit exception, current distance and use/target prohibitions apply. Native response, nullification, damage, dying and death resolve normally."
+    },
+    {
+      "rule": "Yanhuo X and timing",
+      "basis": "Primary says your cards; historical OL ownership terminology separates owned HE from unowned Judgment. The engine opens OwnerDied after cleanup, so the exact precleanup DeathFrame freezes the owned HE entities.",
+      "implementation": "Capture Hand and Equipment on the native DeathFrame before cleanup; exclude Judgment, processing cards and skill piles. Bind the actual killer from the same DeathFrame. No killer, a dead killer or no owned cards creates no discard operation."
+    },
+    {
+      "rule": "Yanhuo single operation and privacy",
+      "basis": "Primary says up to X cards, contrasted with the separate 1V1 wording expressly saying sequentially.",
+      "implementation": "The dead He Jin privately seals zero through X killer Hand/Equipment cards before payment. Foreign hands publish opaque zone/slot choices; equipment is public. Confirm once, move the selected set natively, and drain genuine equipment-loss/recovery/movement/death children before the original death resumes. Newly gained cards cannot enter the selected operation."
+    }
+  ],
+  "runtime": {
+    "pendingState": "Immutable HeJinMouzhu/HeJinYanhuo receipt on its owning ProgramSkillFrame; predeath cards on its exact DeathFrame, never a mutable use-id sidecar.",
+    "nativeUse": "Zero-entity CardUseFrame.HeJinMouzhu origin binds the actual donor and original paid program to native Slash/Duel and typed attack returns.",
+    "nativeDeath": "Yanhuo freezes original DeathFrame, optional DyingFrame/DamageFrame, original attack and death-window candidate cursor. Only that original dead dying is suspended while genuine discard children run.",
+    "events": "New rule facts use AdvanceEventRulesAndQueueFact. Private hand gift identity is absent from the added public payment fact. Collection-bearing receipts defensively copy into read-only collections."
+  },
+  "focusedChecks": [
+    "DonorPrivateGiftActualComparisonAndPhaseQuotaCold",
+    "NativeSlashDuelChooserRangeAndResponsesCold",
+    "PaidGiftChildrenRecompareAndSurviveSourceLossOrDeathCold",
+    "DeathOwnedCardsOpaqueKillerDiscardAndEquipmentChildrenCold"
+  ],
+  "verification": "Root-owned new focused, related regression, and exact no-argument routine verification passed; see rootVerification.",
+  "officialEvidence": {
+    "capturedAtUtc": "2026-10-16T16:36:34.996839+08:00",
+    "generalId": "ol:he-jin",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/583",
+      "byteCount": 24521,
+      "sha256": "28083c8b72ee88db2fcf08536389e8405aae71c2b3a80586d6c4cb0ffa430974",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=583",
+      "byteCount": 1157,
+      "sha256": "752bba0944507cc843d6c7aec3afd4c9d1239358051e73afee145cad00f3a87f",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 583,
+            "name": "何进",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/583.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58300.png",
+            "label": [
+              "控制",
+              "困难",
+              "爆发"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "东汉灵帝时大将军。何进的异母妹有宠于灵帝并被立为皇后，他也随之升迁。黄巾起义时，何进为大将军，总镇京师。灵帝驾崩后，蹇[jiǎn]硕谋诛进而立皇子刘协，未果，反被进诛。何进从袁绍之言，博征智谋之士为己所用，独揽大权。然而何进不纳陈琳之谏，多结外镇军阀，翘首京师，与袁绍等谋诛宦竖。终于事泄，被张让等先下手为强，遭杀身之祸。",
+            "characteristic": "每回合都能够获得敌人的牌使敌人变得脆弱。死亡时弃置敌人大量的牌使其变得脆弱。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "农民",
+            "value": 4
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          },
+          {
+            "name": "内奸",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58300.png",
+      "sha256": "2b91e89914771e3ad40cc99a3c4b9e4693365122f3c202cc9ad7329cb4017dcf",
+      "byteCount": 525880,
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-he-jin.png",
+      "size": [
+        750,
+        950
+      ]
+    }
+  },
+  "currentClient": {
+    "checkedAtUtc": "2026-10-16T16:36:34.996839+08:00",
+    "product": "sanguosha-ol",
+    "resources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153909,
+        "sha256": "22745509c006706f93b69bfa90a20113a3922adcc78be178a0b163cecc7f0ece",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "decoder": "Public client InitOfb AES-CFB128 then gzip; full resources decoded in memory only.",
+    "characterPath": "GameCharacters.character[1284]",
+    "characterRow": {
+      "a": 583,
+      "b": "何进",
+      "d": "HeJin",
+      "e": 44,
+      "f": "43",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 3372,
+      "k": 3373,
+      "p": 2,
+      "q": "1",
+      "r": "971001",
+      "v": "3041",
+      "y": "东汉灵帝时大将军。何进的异母妹有宠于灵帝并被立为皇后，他也随之升迁。黄巾起义时，何进为大将军，总镇京师。灵帝驾崩后，蹇[jiǎn]硕谋诛进而立皇子刘协，未果，反被进诛。何进从袁绍之言，博征智谋之士为己所用，独揽大权。然而何进不纳陈琳之谏，多结外镇军阀，翘首京师，与袁绍等谋诛宦竖。终于事泄，被张让等先下手为强，遭杀身之祸。",
+      "z": "每回合都能够获得敌人的牌使敌人变得脆弱。死亡时弃置敌人大量的牌使其变得脆弱。",
+      "aa": 264,
+      "ab": "1087,1088",
+      "ad": "画师:G.G.G.",
+      "x": "区区宦官算什么，####挡在我前面的人，都得死！",
+      "al": 900,
+      "am": "true",
+      "ap": 0,
+      "aq": 70,
+      "au": "3041",
+      "av": "3041",
+      "aw": "3041",
+      "starMax": 4,
+      "freetitle": "0,爆发强将"
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[2407]",
+        "row": {
+          "a": 3372,
+          "b": "3",
+          "c": "谋诛",
+          "d": "MouZhu2",
+          "e": 0,
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你可以令一名其他角色交给你一张手牌，若其手牌数小于你，其视为对你使用一张【杀】或【决斗】。"
+        }
+      },
+      {
+        "path": "GameSpells.spell[2408]",
+        "row": {
+          "a": 3373,
+          "b": "3,5",
+          "c": "延祸",
+          "d": "YanHuo2",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "o": "当你死亡时，你可以弃置杀死你的角色至多X张牌（X为你的牌数）。"
+        }
+      }
+    ],
+    "identityInterpretation": "Current g=4 means Qun, h=1 Male, i=4 HP; j=3372 MouZhu2 and k=3373 YanHuo2. API independently supplies Qun and HP4.",
+    "freshness": "Config.sgs raw bytes changed since batch27; both members freshly decoded from the current public client. All three selected skill wordings remain identical."
+  },
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Ding Shang Wan:', 'He Jin:', 'Li Wan:') -WpfFilter @('Program public card choices', 'Edition general gallery')",
+      "corePassed": 12,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 39906,
+      "steps": {
+        "Build selected scope": 26140,
+        "Core selected checks (3 filters, union)": 7184,
+        "WPF selected checks (2 filters, union)": 13390
+      }
+    },
+    "relatedRegression": {
+      "corePassed": 28,
+      "failed": 0,
+      "durationMs": 13812,
+      "scope": "Fei Yi, Zhang Shi Ping, Qian Zhao, Hao Pu, actual turn end, exact discard classification, native use, catalog dependencies and runtime registrations"
+    },
+    "routine": {
+      "command": "tools/Test-Changed.ps1",
+      "status": "passed",
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 35678,
+      "steps": {
+        "Build selected scope": 3538,
+        "Core selected checks (140 filters, union)": 15094,
+        "WPF selected checks (20 filters, union)": 31695
+      },
+      "priorEnvironmentInterference": "The first routine and isolated retry rejected external AsyncLeftDown=true. After the user released the mouse, the unchanged native input check passed in isolation and this complete routine rerun passed. No input guard was weakened."
+    },
+    "renderedUiInspected": [
+      "OL Ding Shang Wan gallery",
+      "OL He Jin gallery",
+      "OL Li Wan gallery",
+      "visible public prompt and own-hand entity mark"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "No global rules epoch, rules JSON schema, or package release version was changed. New central bridges are enabled only by the newly registered operation capabilities or exact native issued receipts.",
+    "verifiedAtUtc": "2026-10-16T09:23:09.312473+00:00"
+  }
+}

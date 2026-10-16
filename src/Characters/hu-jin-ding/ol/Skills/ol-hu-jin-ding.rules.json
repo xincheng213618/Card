@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:qingyuan", "revision": 1, "triggers": [
+      { "id": "opening-partner", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "selectQingyuanOpeningPartner", "target": "owner" }] },
+      { "id": "first-damage-partner", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "selectQingyuanFirstDamagePartner", "target": "owner" }] },
+      { "id": "marked-hand-gain", "window": "cardsGained", "subject": "owner", "destinationZones": ["hand"], "movementOccurrence": "perBatch", "optional": false, "priority": 1000, "usageScope": "turn", "usageLimit": 1,
+        "effects": [{ "op": "takeRandomQingyuanHandAfterGain", "target": "owner" }] }
+    ] },
+    { "id": "ol:zhongshen", "revision": 1, "viewAs": [{ "id": "round-red-dodge", "inputKinds": [], "inputSuits": ["heart", "diamond"], "outputKind": "dodge", "forPlay": false, "forResponse": true,
+      "sourceZones": ["hand"], "useOnly": true, "useEffectiveInputSuit": true, "roundGainedRedHandOnly": true }] }
+  ]
+}

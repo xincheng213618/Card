@@ -280,20 +280,80 @@ public sealed partial class GameEngine
             StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
             if (!TryBeginDrawPhaseProgramWindow(_players[frame.OwnerSeat], false))
             {
-                DrawCards(_players[frame.OwnerSeat], GetTurnDrawCount(_players[frame.OwnerSeat]), true);
+                ConsumeDuFuRenPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
+                ConsumeChengGongYingDraw(frame.OwnerSeat);
+                DrawCards(_players[frame.OwnerSeat], FreezeAndCaptureCaoXiNativeDrawBase(_players[frame.OwnerSeat]), true);
                 CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], DelayedTurnEffects.None);
             }
         }
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    private bool IsEndOwnedExtraPlayPhase() =>
+        _phase == TurnPhase.Play && _programPhaseSchedule is
+            { Phase: TurnPhase.Play, Continuation: SkillProgramPhaseContinuation.AfterActualTurnEnd, ParentFrame: null,
+              AfterTurnEndedReturn: { } parent, Frame: { ZhangYi: { Stage: ZhangYiStage.DianjunExtraPlay } receipt } frame } &&
+        parent.TurnNumber == _turnNumber && parent.OwnerSeat == _currentSeat && frame.OwnerSeat == _currentSeat &&
+        receipt.ParentWindowId == parent.Id && receipt.ActualTurnNumber == _turnNumber &&
+        frame.WindowContext is { Window: SkillProgramTriggerWindow.AfterTurnEnded } context && context.ParentFrameId == parent.Id &&
+        parent.AfterTurnEnded?.CurrentChild?.FrameId == frame.Id;
+
+    private void ExpireEndOwnedPlayEffects(ProgramSkillFrame frame)
+    {
+        if (GetActiveProgramFrame(frame.Id) != frame ||
+            frame.ZhangYi is not { Stage: ZhangYiStage.DianjunCleanupChildren } receipt ||
+            receipt.ActualTurnNumber != _turnNumber || _phase != TurnPhase.Finished || _resolutionStack.Count < 2 ||
+            _resolutionStack[^2] is not DeferredTurnEndFrame parent ||
+            !MatchesAfterTurnEndedChild(parent, frame, frame.WindowContext!))
+            throw new InvalidOperationException("An end-owned phase cleanup lost its original turn and paid child.");
+        ExpireActualTurnEndEffects(_players[frame.OwnerSeat]);
+        ExpirePlayPhaseSkillGrantsForEndedTurn(_turnNumber);
+        ExpireActualTurnSkillGrants(_turnNumber, _currentSeat);
+    }
+
+    private bool TryBeginZhangYiDianjunExtraPlay(ProgramSkillFrame frame)
+    {
+        if (_programPhaseSchedule is not null || frame.ZhangYi is not { Stage: ZhangYiStage.DianjunExtraPlay } receipt ||
+            _phase != TurnPhase.Finished || frame.OwnerSeat != _currentSeat || !_players[frame.OwnerSeat].IsAlive ||
+            receipt.ActualTurnNumber != _turnNumber || _resolutionStack.Count != 2 ||
+            _resolutionStack[^1] != frame || _resolutionStack[^2] is not DeferredTurnEndFrame parent ||
+            !MatchesAfterTurnEndedChild(parent, frame, frame.WindowContext!)) return false;
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
+        PopResolutionFrame(parent.Id, ResolutionFrameKind.DeferredTurnEnd);
+        _programPhaseSchedule = new ProgramPhaseSchedule(frame, null, TurnPhase.Play, SkillProgramPhaseContinuation.AfterActualTurnEnd)
+        { AfterTurnEndedReturn = parent };
+        AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
+            frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, TurnPhase.Play, Started: true));
+        EnterPlayPhase(_players[frame.OwnerSeat]);
+        return true;
+    }
+
     private bool ResumeScheduledProgramPhase()
     {
+        if (TryResumeZhangShiPingHongjiPhase()) return true;
         if (_programPhaseSchedule is not { } schedule) return false;
         var frame = FreezeGrantedEntityPhaseEnd(schedule.Frame);
         _programPhaseSchedule = null;
         AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, schedule.Phase, Started: false));
+        if (schedule.AfterTurnEndedReturn is { } ended)
+        {
+            if (schedule.ParentFrame is not null || schedule.Continuation != SkillProgramPhaseContinuation.AfterActualTurnEnd ||
+                schedule.Phase != TurnPhase.Play || _resolutionStack.Count != 0 ||
+                frame.ZhangYi is not { Stage: ZhangYiStage.DianjunExtraPlay } receipt ||
+                receipt.ParentWindowId != ended.Id || receipt.ActualTurnNumber != _turnNumber ||
+                ended.OwnerSeat != _currentSeat || ended.TurnNumber != _turnNumber)
+                throw new InvalidOperationException("The completed end-owned phase lost its typed actual-turn return.");
+            ClearActualDiscardRecoveryPhase();
+            _phase = TurnPhase.Finished;
+            PushRuntimeFrame(ended);
+            if (!MatchesAfterTurnEndedChild(ended, frame, frame.WindowContext!))
+                throw new InvalidOperationException("The completed phase lost its original after-turn child cursor.");
+            PushRuntimeFrame(frame);
+            ResumeZhangYiDianjunExtraPlay(frame.Id);
+            return true;
+        }
+        var parent = schedule.ParentFrame ?? throw new InvalidOperationException("An inserted phase lost its lifecycle return.");
         if (_winner != Winner.None || !_players[frame.OwnerSeat].IsAlive)
         {
             ClearActualDiscardRecoveryPhase();
@@ -303,13 +363,13 @@ public sealed partial class GameEngine
         RestoreActualDiscardRecoveryPhase(schedule);
         // Turn-start insertion temporarily entered Play. Restore its original
         // coarse phase before normal draw and after-draw triggers resume.
-        if (schedule.ParentFrame.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
+        if (parent.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
             _phase = TurnPhase.Draw;
-        PushRuntimeFrame(schedule.ParentFrame);
+        PushRuntimeFrame(parent);
         if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame))
         {
             CompleteDetachedProgramBinding(frame, completed: false);
-            AdvanceProgramLifecycleCursor(schedule.ParentFrame);
+            AdvanceProgramLifecycleCursor(parent);
             AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
             return true;
         }
@@ -320,6 +380,7 @@ public sealed partial class GameEngine
 
     private void CancelScheduledProgramPhase()
     {
+        if (TryCancelZhangShiPingHongjiPhase()) return;
         if (_programPhaseSchedule is not { } schedule) return;
         _programPhaseSchedule = null;
         ClearActualDiscardRecoveryPhase();
@@ -535,6 +596,7 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.Weifu is not null) return IsWeifuJudgment(pending, frame);
         if (frame?.ZhangJi is not null) return IsZhangJiJudgment(pending, frame);
         if (pending.Continuation != JudgmentContinuationKind.ProgramSkill || frame is null ||
             pending.ParentFrameId != frame.Id ||
@@ -559,6 +621,8 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.Weifu is not null)
+            return MatchesWeifuJudgmentInstruction(frame, targetSeat, reason, resultBind, visibility);
         if (frame.ZhangJi is not null)
             return CanBeginZhangJiJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (visibility != SkillProgramCardSetVisibility.Public || string.IsNullOrWhiteSpace(reason) ||
@@ -1107,7 +1171,7 @@ public sealed partial class GameEngine
             parent.Id != parentId || parent.NormalDrawReplaced)
             throw new InvalidOperationException(
                 "A planned normal-draw target limit requires its active draw-phase parent.");
-        var baseDrawCount = parent.FrozenBaseDrawCount ?? GetTurnDrawCount(_players[frame.OwnerSeat]);
+        var baseDrawCount = parent.FrozenBaseDrawCount ?? FreezeAndCaptureCaoXiNativeDrawBase(_players[frame.OwnerSeat]);
         if (parent.FrozenBaseDrawCount is null)
             ReplaceRuntimeFrame(_resolutionStack[^2].Id, parent with { FrozenBaseDrawCount = baseDrawCount });
         return Math.Max(0, checked(baseDrawCount + parent.NormalDrawAdjustment));
@@ -1140,7 +1204,7 @@ public sealed partial class GameEngine
                 continue;
             var hand = GetHand(target);
             var card = hand[_random.Next(hand.Count)];
-            MoveCard(card, CardLocation.Hand(targetSeat), CardLocation.Processing, reason);
+            MoveCard(card, CardLocation.Hand(targetSeat), CardLocation.Processing, reason, movement => RecordBianFuRenOwnedTransferProducer(movement,ownerSeat,frame.Id));
             MoveCard(card, CardLocation.Processing, CardLocation.Hand(ownerSeat), reason);
             takenSeats.Add(targetSeat);
         }
@@ -1195,7 +1259,7 @@ public sealed partial class GameEngine
                 .ToArray();
             if (candidates.Length == 0) continue;
             var pick = candidates[_random.Next(candidates.Length)];
-            MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason);
+            MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason, movement => RecordBianFuRenOwnedTransferProducer(movement,ownerSeat,frame.Id));
             if (MoveProcessingCardUnlessDestroyed(pick.Card, CardLocation.Hand(ownerSeat), reason))
                 takenSeats.Add(target.Seat);
         }
@@ -2019,13 +2083,27 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsIssuedQinLangXianyingCandidate(candidate, context)) return true;
+        if (IsIssuedLiWanCandidate(candidate)) return CanRunIssuedLiWanCandidate(candidate, context);
+        if (IsIssuedRuanHuiCandidate(candidate)) return CanRunIssuedRuanHuiCandidate(candidate, context);
+        if (IsIssuedKenshangCandidate(candidate)) return CanRunIssuedKenshangCandidate(candidate, context);
+        if (IsIssuedFulueCandidate(candidate)) return CanRunIssuedFulueCandidate(candidate, context);
+        if (IsIssuedMiuyanCandidate(candidate)) return CanRunIssuedMiuyanCandidate(candidate, context);
+        if (_contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program?.Triggers.Any(t => t.Id == candidate.BindingId && t.Effects is [{ Op: SkillProgramEffectOp.RewardHejiUnconvertedUse }]) == true) return IsIssuedWuJingHejiReward(candidate, context);
+        if (IsWuJingLiubingCandidate(candidate)) return CanRunWuJingLiubingCandidate(candidate, context);
+        if (_contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is { } renxiaProgram &&
+            ProgramInstructionResolver.Default.FindTrigger(renxiaProgram, candidate.BindingId)?.Effects.Any(effect =>
+                effect.Op == SkillProgramEffectOp.ResolveRenxiaOppositeAtPlayEnding) == true)
+            return IsIssuedWangKuangRenxiaCandidate(candidate, context);
+        if (IsHongjiPhaseCandidate(candidate)) return HasIssuedHongjiCandidate(candidate, context);
+        if (IsYanPuEndingCandidate(candidate)) return CanRunYanPuEnding(candidate, context);
         if (IsPhaseHandDebtResolver(candidate)) return CanRunIssuedPhaseHandDebt(candidate, context);
         if (IsDeferredPrivateOfferResolver(candidate)) return CanRunDeferredPrivateOffer(candidate, context);
         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive && !HasIssuedWeiluDebtCandidate(candidate, context) ||
-            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) ||
+            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedMaWanHunjiangCandidate(candidate, context) && !IsIssuedBingjieCandidate(candidate, context) && !HasIssuedZhangYanSujiRewardCandidate(candidate, context) && !HasIssuedWeifuCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) ||
             _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
@@ -2142,7 +2220,9 @@ public sealed partial class GameEngine
                 owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
-                 features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
+                 features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
+                 IsYanPuDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
+            SkillProgramTriggerWindow.DyingExited => IsYanPuDyingExitContext(candidate, context),
             SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
                 CanRunAfterTurnEndedCandidate(candidate, context, trigger),
@@ -2239,6 +2319,11 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
                 (features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
                     ? MatchingLiJueUseDiscardIndexes(batch, candidate).Length > 0
+                    : IsSunRuOlChishiTrigger(trigger) ? CanRunSunRuOlChishiCandidate(candidate, context)
+                    : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
+                    : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
+                    : IsDuFuRenYiseTrigger(trigger) ? CurrentDuFuRenGains(candidate, context) is not null
+                    : IsBianFuRenWanweiTrigger(trigger) ? BianFuRenLoss(context, owner.Seat) is not null
                     : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ? BuZhiMovementQualifies(batch, owner.Seat) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsNeighborDiscardTopTrigger(trigger)
                     ? NeighborDiscardIndexes(batch, owner.Seat).Length > 0 &&
                       context.TargetSeat == owner.Seat && context.SourceSeat == NeighborDiscardSourceSeat(batch, owner.Seat) &&
@@ -2731,7 +2816,9 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
             candidates,
             ProgramLifecycleContinuation.NormalTurnStart,
-            facts);
+            facts)
+        { ParticipantFacts = HasHongjiCapability ? new System.Collections.ObjectModel.ReadOnlyDictionary<int, SkillProgramTriggerFacts>(
+            _players.Where(player => player.IsAlive).ToDictionary(player => player.Seat, CaptureProgramTriggerFacts)) : null };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
@@ -2772,7 +2859,7 @@ public sealed partial class GameEngine
     // existing own-turn content keeps the original single-owner enumeration.
     private bool TracksForeignTurnStartPrograms =>
         _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ZhuihuanRetaliate) == true ||
-        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.XianlueRecord) == true;
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.XianlueRecord) == true || HasHongjiCapability;
 
     private IReadOnlyList<ProgramTriggerCandidate> CollectForeignTurnStartCandidates(
         CharacterState turnOwner, SkillProgramTriggerFacts turnOwnerFacts)
@@ -2799,7 +2886,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any())
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any() && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.PlayEnding) && !IssuedWangKuangRenxiaEndingCandidates(owner).Any())
             return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
@@ -2809,12 +2896,15 @@ public sealed partial class GameEngine
                     participantFacts[player.Seat])
                     .Where(candidate => MatchesPlayEndingTurnOwnerScope(
                         GetProgramTrigger(candidate).TurnOwnerScope, player.Seat == owner.Seat))).ToList();
+        candidates = IncludeHongjiPhaseCandidates(owner, SkillProgramTriggerWindow.PlayEnding, candidates).ToList();
         AppendPhaseNamePredictionCandidates(candidates);
         foreach (var issued in IssuedQingzhongEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         foreach (var issued in IssuedWeiluEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         foreach (var issued in IssuedZhuijiEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
+        foreach (var issued in IssuedWangKuangRenxiaEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         var orderedCandidates = candidates.OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -2824,7 +2914,7 @@ public sealed partial class GameEngine
         var frame = new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.PlayEnding,
             orderedCandidates, ProgramLifecycleContinuation.CompletePlayPhase, facts)
-        { ParticipantFacts = participantFacts, WeiluEndingPhase = CaptureWeiluEndingPhase(owner), QingzhongEndingPhase = CaptureQingzhongEndingPhase(owner), ZhuijiEndingPhase = CaptureZhuijiEndingPhase(owner), PhaseNamePredictionPhase = TracksPhaseNamePredictions
+        { ParticipantFacts = participantFacts, WangKuangRenxiaEndingPhase = CaptureWangKuangRenxiaEndingPhase(owner), WeiluEndingPhase = CaptureWeiluEndingPhase(owner), QingzhongEndingPhase = CaptureQingzhongEndingPhase(owner), ZhuijiEndingPhase = CaptureZhuijiEndingPhase(owner), PhaseNamePredictionPhase = TracksPhaseNamePredictions
             ? new(_turnNumber, _currentSeat, _cardUseDebitPhaseInstanceId) : null };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
@@ -2851,6 +2941,7 @@ public sealed partial class GameEngine
         var candidates = CollectEligibleProgramTriggerCandidates(
             owner, SkillProgramTriggerWindow.DrawPhaseStarting, facts);
         candidates = IncludeAttributedDrawObservers(owner,candidates);
+        candidates = IncludeYanPuDrawObservers(owner, candidates);
         if (candidates.Count == 0) return false;
         var frame = new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence,
@@ -2888,11 +2979,12 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DrawPhaseEnded)) return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DrawPhaseEnded) && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.DrawPhaseEnded)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = CollectEligibleProgramTriggerCandidates(
             owner, SkillProgramTriggerWindow.DrawPhaseEnded, facts);
         candidates = IncludeRecipientCategoryGiftObservers(owner, candidates);
+        candidates = IncludeHongjiPhaseCandidates(owner, SkillProgramTriggerWindow.DrawPhaseEnded, candidates);
         if (candidates.Count == 0) return false;
         PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.DrawPhaseEnded,
@@ -2995,6 +3087,8 @@ public sealed partial class GameEngine
         AppendPrepDiscardEndingItems(items);
         AppendGiftRetentionEndingItems(items);
         AppendFixedDistanceOneEndingItems(items);
+        AppendYanPuEndingItems(items);
+        AppendLianjuEndingItems(items);
         var ordered = items
             .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
             .ThenByDescending(item => item.Priority)
@@ -3069,6 +3163,7 @@ public sealed partial class GameEngine
                             .Single(current => current.Id == candidate.BindingId);
                         if (trigger.Optional)
                         {
+                            if (TryExposeTurnEndingOrder(frame, candidate)) return;
                             ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
                             ExposeProgramTriggerDecision(candidate, context);
                             return;
@@ -3127,7 +3222,9 @@ public sealed partial class GameEngine
                         TurnEndingBoundaryItemKind.Program,
                         candidate.Priority,
                         $"program:{candidate.SkillId}:{candidate.BindingId}:{candidate.SkillInstanceId}",
-                        candidate, player.Seat == owner.Seat ? null : playerFacts));
+                        candidate, GetProgramTrigger(candidate).Effects.Any(effect => effect.Op == SkillProgramEffectOp.UseBlackCardAtWoundedPlayStart)
+                            ? playerFacts with { EventTargetHp = owner.Hp, EventTargetMaxHp = owner.MaxHp, EventTargetHpUndefined = !owner.HasHpValue }
+                            : player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
         var ordered = items
             .OrderBy(item => ((item.Candidate!.OwnerSeat - owner.Seat + _players.Count) % _players.Count))
@@ -3194,6 +3291,9 @@ public sealed partial class GameEngine
         { ReturnDrawPhaseObligationWindow(frame); return; }
         switch (frame.Continuation)
         {
+            case ProgramLifecycleContinuation.ResumeYanPuDyingExit:
+                ReturnYanPuDyingExit(frame);
+                break;
             case ProgramLifecycleContinuation.ResumeAfterDeferredPrivateOffers:
                 ContinueTurnAfterForeignActualContests(_players[frame.OwnerSeat]);
                 break;
@@ -3210,6 +3310,8 @@ public sealed partial class GameEngine
             case ProgramLifecycleContinuation.CompleteGameStarting:
                 break;
             case ProgramLifecycleContinuation.NormalTurnStart:
+                if (TryReturnDuFuRenPaidPreparation(frame)) break;
+                if (TryReturnChengGongYingPaidPreparation(frame)) break;
                 BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
                 break;
             case ProgramLifecycleContinuation.ResumeIdentityAppearance:
@@ -3548,6 +3650,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramActivationChoice(PromptChoice selected)
     {
+        if (TryResolveTurnEndingOrder(selected)) return;
         var action = selected.Parameters.GetValueOrDefault("program-action");
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (TryResolveDrivenProgramTriggerGroupChoice(candidate, context, selected, action)) return;
@@ -4038,7 +4141,8 @@ public sealed partial class GameEngine
             ? current
             : throw new InvalidOperationException("The AI program prompt is unavailable.");
         PromptChoice selected;
-        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame)
+        if (TryChooseKenshangAi(decision, out var kenshangChoice)) selected = kenshangChoice;
+        else if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame)
         {
             var paused = ProgramInstructionResolver.Default
                 .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
@@ -4114,6 +4218,7 @@ public sealed partial class GameEngine
     {
         var parentOwnerSeat = _resolutionStack.LastOrDefault() switch
         {
+            TurnEndingBoundaryFrame ending => ending.Items[ending.ItemIndex].Candidate?.OwnerSeat ?? -1,
             ProgramLifecycleTriggerWindowFrame lifecycle => lifecycle.Candidates[lifecycle.CandidateIndex].OwnerSeat,
             PlayPhaseStartingBoundaryFrame starting when starting.Items
                 .Skip(starting.ItemIndex)
@@ -4143,7 +4248,8 @@ public sealed partial class GameEngine
             .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).ToArray();
         var best = estimated[0];
         var activate = skip is null || !best.Estimate.IsSelfLethal && best.Estimate.Score > 0d;
-        var skipAction = new LegalAction(LegalActionKind.UseProgramSkill, null, null, "跳过组合技能分支");
+        var ordering = activateChoices.Any(choice => choice.Parameters.ContainsKey("order-group"));
+        var skipAction = new LegalAction(LegalActionKind.UseProgramSkill, null, null, ordering ? "跳过本次可选技能" : "跳过组合技能分支");
         var candidates = estimated.Select(item => new AiCandidateScore(
             item.Action, item.Estimate.IsSelfLethal ? -1000d : item.Estimate.Score,
             item.Estimate.IsSelfLethal ? "公开效果将令自身失去全部体力。" : item.Estimate.Approximation));
@@ -4153,7 +4259,7 @@ public sealed partial class GameEngine
             _thoughtSequence++, _turnNumber, decision.PlayerSeat,
             activate ? best.Action.Description : skipAction.Description,
             candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            "互斥组使用同一操作目录与公开上下文估值。"));
+            ordering ? "同一时机的技能按公开上下文估值，未选技能保留后续机会。" : "互斥组使用同一操作目录与公开上下文估值。"));
         return activate ? best.Choice : skip!;
     }
 
@@ -4221,7 +4327,8 @@ public sealed partial class GameEngine
             return CreateAttributedPaymentAiContext(owner,trigger);
         if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
             drawPhase.Window != SkillProgramTriggerWindow.DrawPhaseStarting ||
-            drawPhase.OwnerSeat != ownerSeat && !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw))
+            drawPhase.OwnerSeat != ownerSeat && !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) &&
+            !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveCardSkipDrawForEnding))
             throw new InvalidOperationException("A draw-phase estimate lost its lifecycle parent.");
         return CreateAttributedPaymentAiContext(owner,trigger) with
         {
@@ -4247,7 +4354,8 @@ public sealed partial class GameEngine
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
             CurrentTurnUsedCardCategoryCount: TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
             PublicLivingFactionCount: TracksTurnDrawDebt ? GetPublicLivingFactionCount() : null,
-            EquipmentCardCount: GetEquipment(owner).Count);
+            EquipmentCardCount: GetEquipment(owner).Count,
+            LivingPlayerCount: _players.Count(player => player.IsAlive));
 
     private ProgramAiPublicContext WithProgramConditionFacts(ProgramAiPublicContext context,
         CharacterState owner, string skillId, string skillInstanceId)

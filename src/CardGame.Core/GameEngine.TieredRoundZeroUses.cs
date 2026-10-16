@@ -12,11 +12,13 @@ public sealed partial class GameEngine
                 CanUseTieredRoundConversion(owner, instance, rule, responseUse, dyingUse) &&
                 !IsCardUseForbidden(owner.Seat, rule.OutputKind, CardActionType.Use))
                 yield return (new(instance.SkillId, rule.Id, owner.Seat, instance.SkillInstanceId), rule, instance.Program.GameplayHash);
+        foreach (var paid in PaidEquipmentSlotNamedZeroRules(owner, output, responseUse, dyingUse))
+            yield return paid;
     }
 
     private IReadOnlyList<LegalAction> TieredRoundZeroPlayActions(CharacterState actor)
     {
-        if (_phase != TurnPhase.Play || actor.Seat != _currentSeat || !actor.IsAlive) return [];
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(actor)) return [];
         var result = new List<LegalAction>();
         foreach (var (source, rule, _) in TieredRoundZeroRules(actor))
         {
@@ -36,7 +38,7 @@ public sealed partial class GameEngine
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "视为使用【桃】"), kind) { ConversionSource = source });
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&
-                (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+                (CanUseJianjiOrdinaryAlcohol(actor, null) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                  HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) &&
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Alcohol, 0, null, DescribeConversion(source, "视为使用【酒】"), kind) { ConversionSource = source });
@@ -50,7 +52,7 @@ public sealed partial class GameEngine
         }
         AddNextCardTargetAdjustmentActions(result, actor);
         AddNextActualUseAdjustmentActions(result, actor);
-        return Array.AsReadOnly(result.Select(action => action with
+        return Array.AsReadOnly(result.Where(action => IsEquipmentSlotNamedActionPayable(actor, action)).Select(action => action with
         { TieredRoundZeroUse = ViewAsRule(action.ConversionSource!)!.TieredRoundConversion }).ToArray());
     }
 
@@ -65,6 +67,12 @@ public sealed partial class GameEngine
         { result = Reject(CommandErrorCode.IllegalAction, "The zero-material use changed its published source, card name or exact legal targets."); return true; }
         result = Accept(() =>
         {
+            if (TryBeginEquipmentSlotNamedPlay(actor, action))
+            {
+                AdvanceRulesAndPublishState();
+                if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
+                return;
+            }
             ClearPendingDecision(); SelectUseConversion(action); ExecuteTieredRoundZeroPlay(actor, action);
             AdvanceRulesAndPublishState(); if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         }); return true;
@@ -81,6 +89,7 @@ public sealed partial class GameEngine
         var result = new List<PromptChoice>();
         foreach (var (source, rule, _) in TieredRoundZeroForcedSlashRules(actor, target, qinglong))
         {
+            if (!IsEquipmentSlotNamedForcedSlashPayable(actor, source, rule.OutputKind, target, qinglong)) continue;
             var kind = rule.OutputKind;
             var parameters = new Dictionary<string, string> { [qinglong ? "action" : "response"] = "tiered-round-zero-forced-slash",
                 ["output-kind"] = kind.ToString(), ["original-frame-id"] = originalId.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -111,6 +120,7 @@ public sealed partial class GameEngine
         if (!TieredRoundZeroForcedSlashChoices(actor, target, originalId, qinglong).Any(c => AssistedChoicesEqual([c], [selected])))
             throw new InvalidOperationException("A forced zero Slash lost its original legal same-target use and shared allowance.");
         var conversion = RequireConversionSource(selected); CaptureSelectedResponseConversion(selected);
+        if (TryBeginEquipmentSlotNamedForcedSlash(actor, conversion, kind, selected, qinglong)) return true;
         if (qinglong)
         {
             var old = ActiveQinglongCrescentBlade!.Attack;
@@ -118,7 +128,7 @@ public sealed partial class GameEngine
             SetCardUseStep(old.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(old.ResolutionId, actor.Seat, target.Seat,
                 Used: true, SlashCardIds: [], EffectiveSlashKind: kind));
-            CompleteAttack(old); SuspendContinuationForQinglongFollowup(old.ResolutionId);
+            SuspendContinuationForQinglongFollowup(old.ResolutionId);
             BeginTieredRoundForcedZeroSlash(actor, target, kind, conversion, null, false);
         }
         else
@@ -164,6 +174,7 @@ public sealed partial class GameEngine
 
     private void ExecuteTieredRoundZeroPlay(CharacterState actor, LegalAction action)
     {
+        if (TryBeginEquipmentSlotNamedPlay(actor, action)) return;
         var source = action.ConversionSource!; var kind = action.PlayedCardKind!.Value; var card = new Card(0, kind, Suit.None, 0);
         if (IsTargetAdjustmentAction(actor, action)) _selectedNextCardTargetSeats = action.TargetSeats;
         if (kind == CardKind.Peach)

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:zhiming": { "name": "知命", "description": "准备阶段与实际弃牌阶段结束时摸一张牌，可将一张手牌或装备牌置顶。", "triggerLabels": { "preparation": "知命", "discard-end": "知命" } },
+    "ol:xingbu": { "name": "星卜", "description": "结束阶段亮出三张牌，可按红色牌数令另一名尚无星卜标记的角色获得对应下回合效果。亮出的牌结算后弃置。", "triggerLabels": { "forecast": "星卜" } }
+  }
+}

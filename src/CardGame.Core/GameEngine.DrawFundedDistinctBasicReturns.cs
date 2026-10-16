@@ -29,7 +29,7 @@ public sealed partial class GameEngine
             if (ActiveQinglongFollowup is not { } q || q.OuterResolutionId != p.ParentFrameId ||
                 CompleteProgramEventHistory().OfType<QinglongCrescentBladeResolvedEvent>().LastOrDefault(e => e.ResolutionId == p.ParentFrameId) is not
                     { Used: true, SlashCardIds.Count: 0 } fact || fact.SourceSeat != p.Source.OwnerSeat || fact.TargetSeat != p.TargetSeat || fact.EffectiveSlashKind != p.EffectiveKind) return false;
-            exactParentIds = q.NextAttack?.PhysicalCards.Where(c => _cardZones.GetLocation(c.Id) == CardLocation.Processing).Select(c => c.Id).ToArray() ?? [];
+            // Suspended Qinglong ancestor materials are checked and excluded by the native attack boundary.
         }
         else if (p.Intent is DrawFundedDistinctBasicIntent.ProgramSlash or DrawFundedDistinctBasicIntent.ProgramNearestSlash or DrawFundedDistinctBasicIntent.AssistedSlash or DrawFundedDistinctBasicIntent.NearestLegalSlash)
         {
@@ -67,6 +67,8 @@ public sealed partial class GameEngine
             definition.GameplayHash != parent.GameplayHash) return false;
         if (parent.LvKuangLvXiang is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
             QigongAdapterActor(parent,payment.Source.OwnerSeat,payment.TargetSeat,payment.Cursor,payment.ParentFrameId,payment.RequestFrameId);
+        if (parent.WuJing is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
+            WuJingHejiAdapterActor(parent,payment.Source.OwnerSeat,payment.TargetSeat,payment.Cursor,payment.ParentFrameId,payment.RequestFrameId);
         if (parent.CaoChun is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
             CaoChunInitialAdapterActor(parent,payment.Source.OwnerSeat,payment.TargetSeat,payment.Cursor,payment.ParentFrameId,payment.RequestFrameId);
         var plan = ProgramInstructionResolver.Default.Resolve(parent, definition);

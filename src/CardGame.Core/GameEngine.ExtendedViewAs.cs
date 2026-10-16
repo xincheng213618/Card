@@ -83,6 +83,7 @@ public sealed partial class GameEngine
             if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, action);
             else AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
                 pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
+            if (pending.NamedAmbushResponse is null) CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
             if (TryBeginPolicyCounterspellPayment(pending, action, unrespondableSource, selection.Cards.Select(card => card.Id).ToArray())) return;
             if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;
             if (!TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardResponseAccepted, [],

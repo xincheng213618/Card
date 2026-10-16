@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:deru", "revision": 1, "activations": [
+      { "id": "guess-basic-names", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "resolveDeruBasicNames", "target": "owner" }] }
+    ] },
+    { "id": "ol:linjie", "revision": 1, "triggers": [
+      { "id": "actual-damage-source", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "resolveLinjieSourceHandDiscard", "target": "owner" }] }
+    ] }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:yuan-huan",
+  "skills": [
+    { "registrationOrder": 1560, "programBundle": "ol-yuan-huan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:deru", "name": "德辱", "description": "出牌阶段限一次，你可以猜测一名其他角色手牌中的基本牌牌名，若你：有猜对，你回复1点体力；有猜错，随机获得其一张基本牌；全部猜对，你将手牌摸至体力值。", "actionForms": "Active" } },
+    { "registrationOrder": 1561, "programBundle": "ol-yuan-huan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:linjie", "name": "临节", "description": "锁定技，你受到伤害后，来源弃置一张手牌，若为【杀】，你摸一张牌。", "executionForms": "Trigger", "tags": "Locked" } }
+  ],
+  "generals": [{ "registrationOrder": 1562, "pools": { "current": 434 },
+    "definition": { "id": "ol:yuan-huan", "name": "袁涣", "portraitKey": "ol-yuan-huan", "skillId": "ol:deru", "additionalSkillIds": ["ol:linjie"], "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:yuan-huan", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

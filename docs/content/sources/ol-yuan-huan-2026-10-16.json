@@ -1,0 +1,261 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:yuan-huan",
+  "identity": {
+    "gid": 665,
+    "name": "袁涣",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 3,
+    "genderEvidence": "Current OL GameCharacters.character[1365].h=1; same-product official release announcement explicitly 男."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153941,
+        "sha256": "dd4d1cacb8035935fe17bff5e3bf39191cfee06e97759a03b4c40ccd5cc4ec45",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1365]",
+      "row": {
+        "a": 665,
+        "b": "袁涣",
+        "d": "YuanHuan",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 3,
+        "j": 3580,
+        "k": 3581,
+        "p": 2,
+        "q": "1",
+        "r": "9066501",
+        "y": "字曜卿，陈郡袁氏，袁滂之子。履任刘备、袁术、吕布麾下。吕布曾逼迫袁涣辱骂刘备，被袁涣以“闻唯德可以辱人，不闻以骂”拒绝。吕布败亡后，跟随曹操，颇受信任。",
+        "z": "可以猜测他人手牌换取收益，有一定的防御能力",
+        "aa": 82,
+        "ab": "1255,1256",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250504T000000",
+        "LordCardRate1": 50,
+        "LordCardRate2": 53,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2603]",
+          "row": {
+            "a": 3580,
+            "b": "3",
+            "c": "德辱",
+            "d": "DeRu",
+            "e": 0,
+            "g": 4,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可以猜测一名其他角色手牌中的基本牌牌名，若你：<br>•有猜对，你回复1点体力；<br>•有猜错，随机获得其一张基本牌；<br>•全部猜对，你将手牌摸至体力值。"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2604]",
+          "row": {
+            "a": 3581,
+            "b": "3,4,5",
+            "c": "临节",
+            "d": "LinJie",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，你受到伤害后，来源弃置一张手牌，若为【杀】，你摸一张牌。",
+            "w": "{Source}发动了<font color='#FFD800'>临节</font>，请弃置一张手牌"
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySource": {
+    "capturedAtUtc": "2026-10-16T18:24:24.537541+08:00",
+    "generalId": "ol:yuan-huan",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/665",
+      "byteCount": 23704,
+      "sha256": "2d8f3934409c354a2a7626e268fe214cd5a7370ca162359780b0c8c281e4ff16",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=665",
+      "byteCount": 896,
+      "sha256": "d9a3eb2d06821cc77a76f07d897302bc12c14d60393a9f6a56638f7dc177d676",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 665,
+            "name": "袁涣",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/665.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66500.png",
+            "label": [
+              "防御",
+              "辅助",
+              "回复"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "字曜卿，陈郡袁氏，袁滂之子。履任刘备、袁术、吕布麾下。吕布曾逼迫袁涣辱骂刘备，被袁涣以“闻唯德可以辱人，不闻以骂”拒绝。吕布败亡后，跟随曹操，颇受信任。",
+            "characteristic": "可以猜测他人手牌换取收益，有一定的防御能力",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "地主",
+            "value": 8
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/66500.png",
+      "byteCount": 1000000,
+      "sha256": "7bdce34c22e52937d2a93a3cac7dfbe32be176bee22a19f0185bf0658f458796",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-yuan-huan.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "supportingSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20250401_1851_3714",
+      "kind": "official OL release announcement",
+      "published": "2025-04-03",
+      "supports": "Ordinary OL Yuan Huan, male Qun 3 HP, complete Deru/Linjie identical to current hero and decoded client."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/680028709096262974",
+      "originalUrl": "https://club.sanguosha.com/thread-1688169-1-1.html",
+      "kind": "Same-product official-account repost of an attributed original strategy guide",
+      "author": "紫云西来",
+      "published": "2025-06-06",
+      "supports": "Guessing may simultaneously grant healing and a random basic card. All four basic names may be selected; unselected names mean absent. A handless target is legal and selecting no names is completely correct. The source must discard a hand card if able; an actual Slash discard gives the owner one draw."
+    }
+  ],
+  "rules": {
+    "deru": "One activation per actual Play phase; compare four presence bits for Slash/Dodge/Peach/Alcohol. At least one matching presence/absence heals 1, any mismatch obtains one random eligible current basic hand entity, and exact set equality draws up to current HP after the earlier native children finish. Empty guesses and empty target hands remain legal.",
+    "identity": "Native actual entity identity uses AdvancedEffectiveHandKind, which includes actual cardIdentities and excludes optional viewAs conversions. ProgramBasicCardName merges the complete native Slash family. Guess results and pre-payment take/discard effective names are frozen before health or movement children can remove a skill or change a card zone.",
+    "linjie": "One mandatory resolution per actual damage instance. Its exact living damage source privately chooses one discardable hand card; source-less damage, a dead source or no eligible hand card has no cost or reward. Only the actual chosen effective Slash hand entity rewards one draw after its real discard children return.",
+    "privacy": "All 16 Deru guesses are always privately offered, independent of the hidden target hand. The actual hand-name mask, random candidate collection and random index remain solely on the owning typed frame. Linjie card choices belong only to the source. Public custom events contain scalar start/step/completion receipts and no hidden guess masks or unselected card IDs.",
+    "continuations": "Confirmed Deru results and paid Linjie discard survive skill loss and drain native health/movement/recovery/dying children once. Owner death drains issued children and terminates unperformed benefits. Native random state is checkpointed and no resumed step draws random numbers or pays the same movement twice."
+  },
+  "validation": {
+    "status": "implemented-and-root-verified",
+    "focusedChecks": [
+      "DeruPresenceSetsAllNoneAndOpaqueRandomPrivacyCold",
+      "DeruExactEmptyTargetAndNativeIdentityNamesCold",
+      "LinjieActualSourceChooserHandDiscardAndNoSourceCold",
+      "YuanHuanPaidRecoveryGainLossDeathAndNativeChildrenCold"
+    ]
+  },
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 36136,
+      "steps": {
+        "Build selected scope": 23003,
+        "Core selected checks (5 filters, union)": 6318,
+        "WPF selected checks (2 filters, union)": 12769
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Lu Yu Sheng:', 'Wang Kuang:', 'Yuan Huan:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program public card choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 21,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 12353,
+      "steps": {
+        "Build selected scope": 2509,
+        "Core selected checks (8 filters, union)": 9562
+      },
+      "scope": "Li Wan discard refunds; Du Fu Ren and Zhang Yi chain restoration and actual phases; Yan Pu native recovery; Qingzhong issued PlayEnding; actor hand limits; phase prediction; Lu Zhi actual Discard entry."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32005,
+      "steps": {
+        "Build selected scope": 2915,
+        "Core selected checks (140 filters, union)": 10910,
+        "WPF selected checks (20 filters, union)": 28736
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Lu Yu Sheng gallery",
+      "OL Wang Kuang gallery",
+      "OL Yuan Huan gallery",
+      "public-card choice projection"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. New receipts omit null fields, and native bridges require the new capabilities or exact issued receipts.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; native Space press/release check passed with the original input guard.",
+    "verifiedAtUtc": "2026-10-16T10:46:31.681742+00:00"
+  }
+}

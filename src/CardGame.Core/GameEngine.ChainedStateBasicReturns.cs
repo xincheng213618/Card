@@ -20,12 +20,13 @@ public sealed partial class GameEngine
             SetCardUseStep(original.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(original.ResolutionId, actor.Seat, p.TargetSeat!.Value,
                 Used: true, SlashCardIds: [], EffectiveSlashKind: p.EffectiveKind));
-            CompleteAttack(original); SuspendContinuationForQinglongFollowup(original.ResolutionId);
+            SuspendContinuationForQinglongFollowup(original.ResolutionId);
             BeginChainedStateBasicSlash(actor, frame.TargetSeats, p, null, false, null); return;
         }
         var parent = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A paid chained-state Slash lost its request parent.");
         if (!ChainedStateBasicProgramActor(parent, p)) throw new InvalidOperationException("A paid chained-state Slash changed its original actor or instruction.");
         if(IsQigongRequest(parent)){PrepareQigongChainedSlash(parent,p);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
+        if(IsWuJingHejiRequest(parent)){PrepareWuJingChainedSlash(parent,p);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         if(IsCaoChunInitialRequest(parent)){PrepareCaoChunChainedSlash(parent,p);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;
         if (p.Intent == ChainedStateBasicIntent.ProgramSlash)
@@ -168,6 +169,7 @@ public sealed partial class GameEngine
         if (parent.Id != p.ParentFrameId || parent.Id != p.RequestFrameId || parent.InstructionIndex != p.Cursor || parent.InstructionIndex < 1 ||
             _contentRegistry.Skills.GetValueOrDefault(parent.SkillId)?.Program is not { } definition || definition.GameplayHash != parent.GameplayHash) return false;
         if(parent.LvKuangLvXiang is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&QigongAdapterActor(parent,p.Source.OwnerSeat,p.TargetSeat,p.Cursor,p.ParentFrameId,p.RequestFrameId);
+        if(parent.WuJing is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&WuJingHejiAdapterActor(parent,p.Source.OwnerSeat,p.TargetSeat,p.Cursor,p.ParentFrameId,p.RequestFrameId);
         if(parent.CaoChun is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&CaoChunInitialAdapterActor(parent,p.Source.OwnerSeat,p.TargetSeat,p.Cursor,p.ParentFrameId,p.RequestFrameId);
         var plan = ProgramInstructionResolver.Default.Resolve(parent, definition);
         if (parent.InstructionIndex > plan.Instructions.Count) return false;
@@ -241,7 +243,7 @@ public sealed partial class GameEngine
             if (ActiveQinglongFollowup is not { } q || q.OuterResolutionId != p.ParentFrameId ||
                 CompleteProgramEventHistory().OfType<QinglongCrescentBladeResolvedEvent>().LastOrDefault(e => e.ResolutionId == p.ParentFrameId) is not
                     { Used: true, SlashCardIds.Count: 0 } fact || fact.SourceSeat != p.Source.OwnerSeat || fact.TargetSeat != p.TargetSeat || fact.EffectiveSlashKind != p.EffectiveKind) return false;
-            parentIds = q.NextAttack?.PhysicalCards.Where(c => _cardZones.GetLocation(c.Id) == CardLocation.Processing).Select(c => c.Id).ToArray() ?? [];
+            // Suspended Qinglong ancestor materials are checked and excluded by the native attack boundary.
         }
         else if (p.Intent is ChainedStateBasicIntent.ProgramSlash or ChainedStateBasicIntent.ProgramNearestSlash or ChainedStateBasicIntent.AssistedSlash or ChainedStateBasicIntent.NearestLegalSlash)
         {
@@ -459,7 +461,7 @@ public sealed partial class GameEngine
             if (paid.Stage != ChainedStateBasicStage.StateChildren || p.PaymentFrameId != paid.Id || !ValidChainedStateBasicPayment(p) ||
                 paid.OriginalDecision.PlayerSeat != p.Source.OwnerSeat || paid.OriginalDecision.PromptId != p.OriginalPromptId || paid.OriginalDecision.Revision != p.OriginalRevision ||
                 paid.TargetSeats.Count == 0 || paid.TargetSeats.Distinct().Count() != paid.TargetSeats.Count || paid.TargetSeats.Any(t => !IsValidPlayerSeat(t)) ||
-                (p.Intent == ChainedStateBasicIntent.Play ? i != 0 : i <= 0 || !ChainedStateBasicFrameRidesOn(paid, _resolutionStack[i - 1])) ||
+                (p.Intent == ChainedStateBasicIntent.Play ? i != 0 && !IsKeBiNengPingduanPaymentFrame(paid) : i <= 0 || !ChainedStateBasicFrameRidesOn(paid, _resolutionStack[i - 1])) ||
                 !ChainedStateBasicPaidSuffix(i) || CompleteProgramEventHistory().OfType<ChainedStateBasicIssuedEvent>().Any(e => e.Receipt.Payment.PaymentFrameId == p.PaymentFrameId))
                 throw new InvalidOperationException("A chained-state payment lost its frozen original need, real cost or exact child subtree.");
         }

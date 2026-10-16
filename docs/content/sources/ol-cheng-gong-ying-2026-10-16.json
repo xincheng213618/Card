@@ -1,0 +1,207 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:cheng-gong-ying",
+  "product": "sanguosha-ol",
+  "verificationStatus": "verified-focused-related-and-routine",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T13:39:28.444075+00:00",
+    "generalId": "ol:cheng-gong-ying",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/637",
+      "byteCount": 23110,
+      "sha256": "ed8d9f9830f9ec40c0e3d0fbac3ce97ad42e7aa7349c996e51a2a83cd1f265cf",
+      "hashScope": "HTTP response body bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=637",
+      "byteCount": 803,
+      "sha256": "797ed5f419645ab71387fa9eeae468559ea6daa215a764d6316ec0da0a7e2a83",
+      "hashScope": "HTTP response body bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 637,
+            "name": "成公英",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/637.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63700.png",
+            "label": [
+              "控制",
+              "辅助",
+              "简单"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "凉州金城人，是韩遂的心腹。曾帮助韩遂联合羌人抵御意图反叛的阎行。韩遂逝世后，成公英依附曹操，被封为列侯。",
+            "characteristic": "技能的收益和控制并存。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 5
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63700.png",
+      "byteCount": 1012234,
+      "sha256": "bb69ed876fb9987cf6f8285e21162bc873a6aaf0265e2135c04d5b5a3c1378fc",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-cheng-gong-ying.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "clientEvidence": {
+    "capturedAtUtc": "2026-10-16T13:39:28.444075+00:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1338]",
+      "row": {
+        "a": 637,
+        "b": "成公英",
+        "d": "ChengGongYing",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3502,
+        "p": 2,
+        "q": "1",
+        "r": "9063701",
+        "y": "凉州金城人，是韩遂的心腹。曾帮助韩遂联合羌人抵御意图反叛的阎行。韩遂逝世后，成公英依附曹操，被封为列侯。",
+        "z": "技能的收益和控制并存。",
+        "aa": 88,
+        "ab": "1195,1196",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250127T235959",
+        "LordCardRate1": 15,
+        "LordCardRate2": 43,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2533]",
+          "row": {
+            "a": 3502,
+            "b": "3",
+            "c": "匡襄",
+            "d": "KuangXiang",
+            "e": 0,
+            "g": 5,
+            "i": 2,
+            "n": 1,
+            "o": "准备阶段，你可令一名角色将手牌调整为4，其以此法获得的黑色牌造成的伤害+1，其以此法每获得一张红色牌，其下个摸牌阶段摸牌数-1。"
+          }
+        }
+      ]
+    }
+  },
+  "identity": {
+    "gid": 637,
+    "name": "成公英",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "skillIds": [
+      3502
+    ],
+    "variant": "ordinary"
+  },
+  "currentRules": [
+    {
+      "id": "ol:kuangxiang",
+      "clientSkillId": 3502,
+      "name": "匡襄",
+      "text": "准备阶段，你可令一名角色将手牌调整为4，其以此法获得的黑色牌造成的伤害+1，其以此法每获得一张红色牌，其下个摸牌阶段摸牌数-1。"
+    }
+  ],
+  "sourceAssessment": [
+    {
+      "kind": "official-current-primary",
+      "url": "https://www.sanguosha.com/hero/637",
+      "scope": "Current named OL character and complete skill text. The short hero wording omits 可, while the current official client explicitly contains 可."
+    },
+    {
+      "kind": "official-current-primary",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=637",
+      "scope": "Current gid, product portrait, faction 群, maximum HP4 and initial_hp0; gender is corroborated by the current official character row h1."
+    },
+    {
+      "kind": "same-product-community-reference-not-official-faq",
+      "url": "https://wiki.biligame.com/sgsol/成公英",
+      "scope": "The named OL classic entry corroborates optional Preparation adjustment, marked obtained cards, the original recipient using black 匡襄 cards, and a reduction by the actual red cards obtained. It does not settle conversion, physical transfer or skipped-stage edge cases."
+    }
+  ],
+  "engineInterpretations": [
+    "Current official-client 可 controls optional activation despite the shorter hero-page omission. After accepting, the source chooses any living character including itself and a character already holding exactly four hand cards.",
+    "The chosen character really draws max(0,4-handCount) cards or privately chooses its own legal hand discards to four; equipment and Wooden Ox grain are not hand cards. If protected hand cards prevent all requested discards, only legal obtainable discards are required. Draw0 from an exhausted deck does not fabricate obtained entities.",
+    "Only actual Kuangxiang DrawPile→chosen Hand movements in this owning instruction receive a frozen effective-suit invoice. The original beneficiary using one such black physical entity qualifies; single-entity effective conversion retains that exact entity, whereas cardless and multiple-material virtual cards cannot invent a matching single-card invoice. These conversion/provenance edges are implementation inferences without a character-specific official FAQ.",
+    "Black card invoices have no turn or skill-possession expiry in the current text. They remain tied to the original beneficiary and physical card; another character using that card cannot borrow the original beneficiary invoice. Actual accepted use freezes its entitlement, which survives later legal actor replacement or source loss. Reobtaining the same physical card does not stack the same card bonus.",
+    "Each actual original card damage recipient gains +1 in the native finalizer. The initial elemental recipient establishes the native chain base, so later linked recipients inherit the bonus without receiving a second +1. Genuine additional effect rounds independently deal the card damage and retain the same once-issued use entitlement.",
+    "Lightning remains a damaging delayed card. Only the latest real placement from an invoiced black-card use can carry that invoice into the actual delayed-card JudgmentFrame; its held delayed physical card is used, never the separate revealed judgment card. Current native Lightning models its judgment holder as SourceSeat and leaves SourceLess false; Kuangxiang preserves this pre-existing native provenance representation rather than changing unrelated Lightning rules. This engine representation differs from the tabletop no-damage-source convention.",
+    "Red penalties are aggregate recipient-scoped obligations independent of the original source retaining the skill or living. Every red card actually obtained contributes one; normal and inserted actual Draw phases consume the next obligation once. Skipped Draw preserves it. A genuine Draw replacement consumes that phase obligation even if the replacement ignores the normal count. Counts use the native nonnegative draw-count query bounds.",
+    "A completed paid adjustment drains all actual movement, character-state, health, damage, dying and recovery descendant windows before returning. Paid skill loss or source death never repeats adjustment. If the actual turn owner dies in Preparation children, the existing native end-turn finalizer advances the game without fabricating Draw or Ending."
+  ],
+  "behaviorChecks": [
+    "tests/CardGame.Core.Tests/ChengGongYingChecks.cs:PreparationAdjustmentsPrivateDiscardExactGainAndCold",
+    "tests/CardGame.Core.Tests/ChengGongYingChecks.cs:BlackPhysicalUsesConversionsMultiTargetsChainsAndLightningCold",
+    "tests/CardGame.Core.Tests/ChengGongYingChecks.cs:RedNextActualDrawStackingSkippedReplacementAndExpiryCold",
+    "tests/CardGame.Core.Tests/ChengGongYingChecks.cs:PaidLossDeathHealthMovementAndReshuffleChildrenCold"
+  ]
+}

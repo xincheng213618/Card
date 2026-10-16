@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "ol:zhenying", "revision": 1, "activations": [
+    { "id": "simultaneous-hand-adjustment", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+      "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 2,
+      "effects": [{ "op": "resolveZhenyingSimultaneousHands", "target": "owner" }] }
+  ] }]
+}

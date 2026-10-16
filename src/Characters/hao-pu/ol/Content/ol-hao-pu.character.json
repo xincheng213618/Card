@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hao-pu",
+  "skills": [
+    { "registrationOrder": 1420, "programBundle": "ol-hao-pu", "includeProgramPresentation": true,
+      "definition": { "id": "ol:zhenying", "name": "镇荧", "description": "出牌阶段限两次，你可以与一名手牌数不大于你的其他角色同时将手牌数调整至至多两张，然后其中手牌数较少的角色视为对另一名角色使用一张【决斗】。", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1421, "pools": { "current": 420 },
+      "definition": { "id": "ol:hao-pu", "name": "郝普", "portraitKey": "ol-hao-pu", "skillId": "ol:zhenying", "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:hao-pu", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

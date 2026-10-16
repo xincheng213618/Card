@@ -13,7 +13,7 @@
                                                             ↓
 ┌──────────────────────── CardGame.Core ─────────────────────────┐
 │ GameEngine                                                     │
-│   ├─ PlayerRuntime（体力、身份、武将等私有真实状态）           │
+│   ├─ CharacterState（体力、身份、武将与技能授予）             │
 │   ├─ CardZoneStore（所有实体牌位置的唯一真相）                 │
 │   ├─ ContentRegistry（每局独立、冻结的内容输入）              │
 │   ├─ CardCatalog / StandardDeckCatalog（兼容投影）             │
@@ -41,7 +41,9 @@
 
 ## 2. 状态与命令
 
-引擎内部的 `PlayerRuntime` 保存完整身份和手牌。外部只能取得 `GameSnapshot`：
+引擎内部的 `CharacterState` 保存角色属性、完整身份和技能授予，`CardZoneStore` 统一记录手牌等实体牌的位置。外部玩家视图使用 `GameSnapshot`。各区域的归属、初始来源、可见性和失效条件见[牌桌区域与状态归属审查](REGION_STATE_AUDIT.md)。
+
+玩家快照的基本可见性如下：
 
 - 自己：可见身份和完整手牌；
 - 主公：身份公开；
@@ -82,7 +84,7 @@
 - 规则 v43 在经典身份局接入贯石斧。仅当当前 `AttackResolution` 已收到最后一张有效闪、即将把杀判为抵消时，引擎冻结同一攻击帧并向来源发布私有 `DecisionKind.StoneAxe`；每个 Choice 都是来源手牌与装备区中两张不同实体牌的精确组合，贯石斧自身也可成为费用。发动后两张牌各自按实际来源进入 `Processing → DiscardPile`，`StoneAxeResolvedEvent` 记录精确 ID，再由原攻击帧调用统一伤害链；跳过则按已成功的闪完成抵消。rules v42 与经典包 1.23.0 不创建该窗口。
 - 规则 v44 在经典身份局接入丈八蛇矛。主动装备动作冻结两张手牌与一个合法目标，杀响应 Prompt 则枚举自己手牌的全部精确两牌组合；两个实体牌共同进入 `Processing`、共同结束，`ZhangbaSerpentSpearConvertedEvent` 保留原 ID 和主动/响应语义。无固定花色的转换杀不会伪造黑色以触发仁王盾；rules v43 与经典包 1.24.0 不发布动作。
 - 规则 v45 在经典身份局接入雌雄双股剑。`GeneralGender` 由内容包版本化投影；杀指定异性目标后，引擎冻结同一已声明 `CardUseFrame`，先向来源发布私有 `DecisionKind.CixiongDoubleSwords` 发动/跳过 Choice，发动后再仅向目标发布自己每张手牌的精确弃置 Choice 与令来源摸一张牌的替代项。`CixiongDoubleSwordsResolvedEvent`、专用移动原因与攻击内已结算标记保证只触发一次，随后恢复原杀响应；rules v44 与经典包 1.25.0 保留默认性别且不创建窗口。
-- 规则 v46 在经典身份局接入青龙偃月刀。最后一张有效闪会冻结原杀的 `CardUseFrame` 并向来源发布私有 `DecisionKind.QinglongCrescentBlade`；每个发动 Choice 固定一张当前可用的实体杀或武将转换牌以及原目标，刘备还可进入有序私有激将提供者链，另有跳过项。发动时先完整 `CompleteAttack` 被抵消的原杀，再用来源实体牌、激将提供者的实体杀或丈八双牌开启不计普通杀次数的新 `CardUseFrame`；新杀重新执行指定目标、武将技、防具、闪、伤害及青龙触发，因此可连续追杀。`QinglongCrescentBladeResolvedEvent` 记录父结算、同一目标和精确实体牌；rules v45 与经典包 1.26.0 不创建窗口。
+- 规则 v46 在经典身份局接入青龙偃月刀。最后一张有效闪会冻结原杀的 `CardUseFrame` 并向来源发布私有 `DecisionKind.QinglongCrescentBlade`；每个发动 Choice 固定一张当前可用的实体杀或武将转换牌以及原目标，刘备还可进入有序私有激将提供者链，另有跳过项。当前追击会把被闪抵消的原杀及多目标游标保留在所属 `CardUseFrame`，挂起其攻击、武器及请求续接，再用来源实体牌、激将提供者的实体杀或丈八双牌开启不计普通杀次数且无距离限制的子 `CardUseFrame`。每名出闪的目标均可触发；子杀重新执行指定目标、武将技、防具、闪、伤害及青龙触发，允许连续追杀和技能嵌套。只有精确子杀及其全部子结算完成后，原杀才由后续引擎步进恢复；原杀的弃牌、结束事件和结束后技能不会提前发生。`QinglongCrescentBladeResolvedEvent` 记录父结算、同一目标和精确实体牌；rules v45 与经典包 1.26.0 不创建窗口。
 - 规则 v47 在经典身份局接入寒冰剑。直接杀类伤害完成酒/裸衣等数值修正后、进入 `DamageRequestedEvent` 前冻结原 `AttackResolution`，只向来源发布私有 `DecisionKind.IceSword`；目标手牌按不含 ID 的顺序牌位投影，装备区按公开实体投影，首个窗口另含保留伤害项。选择弃牌后防止全部伤害并在仍有目标牌时强制第二次选择，随后直接完成原杀，不产生该次 `DamageAppliedEvent`、`AfterDamageEvent` 或属性连环传导。`IceSwordResolvedEvent` 记录防止量与依次弃置的实体牌；rules v46 与经典包 1.27.0 不创建窗口。
 - `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
 
@@ -373,7 +375,7 @@ v2/v3 的战术覆盖位于 `SimpleAi.Tactical.cs`：群伤/回复净收益、�
 - 内奸在多人阶段保护主公并平衡阵营，最终单挑时才攻击主公；
 - 攻击主公会提高行为者的“反贼嫌疑”，攻击已有反贼嫌疑的人会小幅降低嫌疑；角色阵亡并公开身份后，击杀反贼会降低击杀者嫌疑，击杀忠臣则会提高嫌疑。
 
-关键约束是：AI 收到的是 `CreateSnapshot(aiSeat)`，不是内部 `PlayerRuntime`。它能看自己的身份和手牌，但看不到其他暗身份或暗牌。
+关键约束是：AI 收到的是 `CreateSnapshot(aiSeat)`，不是内部 `CharacterState` 或 `CardZoneStore`。它能看自己的身份和手牌，但看不到其他暗身份或暗牌。
 
 每次选择都会生成 `AiThoughtRecord`，保存所有候选动作、得分、理由和最终选择。WPF 右侧的“AI 思考”面板在开发者视图中展示这些记录，因此算法不是黑盒，同时普通游玩模式不会被评分反向剧透身份或暗牌。
 

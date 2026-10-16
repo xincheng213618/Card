@@ -1,0 +1,97 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-16",
+  "generalId": "mobile:wang-fu-zhao-lei",
+  "name": "王甫赵累",
+  "productLine": "三国杀移动版",
+  "rulesetId": "sanguosha-mobile",
+  "primarySourcePage": "https://www.sanguosha.cn/hero-detail-407.html",
+  "primaryCapture": {
+    "url": "https://www.sanguosha.cn/hero-detail-407.html",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-16T04:20:39.4434820Z",
+    "sha256": "9f6376aeccad4c4c7284ebc37f752871d246014aa248082bf609e674613c4538",
+    "byteCount": 21105,
+    "hashScope": "UTF-8 encoding of decoded official HTML; full page was inspected in memory and no unrelated source snapshot is retained"
+  },
+  "faction": "shu",
+  "gender": "Male",
+  "maxHp": 4,
+  "initialHp": 4,
+  "profileEvidence": {
+    "faction": "Official mobile hero page heading 王甫赵累 蜀.",
+    "gender": "Official biography identifies the two historical male Shu officers. Gender is a biography identification, not a numeric metadata field on this page.",
+    "hp": {
+      "url": "https://www.taptap.cn/moment/857243516558902777",
+      "title": "三国杀：“寄生”袁神的王甫赵累军八不烂的！",
+      "author": "桔子姐姐《三国杀》官方",
+      "officialAccountBadgeVerified": true,
+      "exactExcerpt": "王甫赵累是四体力一技能武将，先看看他的技能。",
+      "note": "Current official-account article independently verifies four HP; selected official hero page does not show numeric HP. Article contains a shortened skill typo, so the complete skill text comes from the official hero page."
+    }
+  },
+  "completeAssignedSkillIds": [
+    "mobile:xunyi"
+  ],
+  "skills": [
+    {
+      "id": "mobile:xunyi",
+      "name": "殉义",
+      "exactOfficialText": "游戏开始时，你选择一名其他角色，令其获得“义”标记。当你/其受到1点伤害后（伤害来源不为其/你），其/你弃置1张牌；当你/其对除其/你以外的角色造成1点伤害后，其/你摸1张牌。当拥有“义”标记的角色死亡时，你可移动此标记。",
+      "tags": [],
+      "executionForms": [
+        "Trigger"
+      ],
+      "officialTextNote": "Initial appointment and damage consequences are mandatory as written; moving the marker after its holder dies is optional. No Locked tag is added."
+    }
+  ],
+  "artwork": {
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/55900.jpg",
+    "source": "First classic skin linked directly by hero-detail-407 official mobile page",
+    "portraitKey": "mobile-wang-fu-zhao-lei",
+    "integrationOwner": "Batch root downloads and inspects official image and integrates WPF assets"
+  },
+  "identityAudit": {
+    "existingCharacterNameOrXunyiMatch": false,
+    "manifestSearchTerms": [
+      "王甫",
+      "赵累",
+      "殉义",
+      "wang-fu-zhao-lei",
+      "xunyi"
+    ],
+    "note": "The selected current mobile product is independent of any OL or offline version. Existing characters were searched by both identity and skill before registration."
+  },
+  "engineMappingsExplicitlyNotOfficialFAQ": {
+    "relationship": "Latest XunyiRelationChangedEvent for owner, skill ID and source skill instance defines the relation. Public player markers display it and never establish authority. Multiple independent instances remain separately attributed.",
+    "damageFreeze": "At actual DamageAppliedEvent, freeze exact native damage and parent attack IDs, actual source or null, target, actual positive amount, original source relation and the qualifying opposite recipients. The owning ProgramSkillFrame pays each point from that immutable receipt.",
+    "perPoint": "A two-point occurrence gives two one-card consequences. Self-damage satisfies the written receive and deal conditions independently and performs each branch once per point; self-damage is not duplicated by participant enumeration. For simultaneous self-damage branches this engine resolves discard then draw for each point.",
+    "sourceLess": "A null damage source is not the other participant, so received source-less damage triggers the opposite participant's discard. Source-less damage never satisfies the dealing clause. HP loss, prevented damage and damage between the two participants do not satisfy either damage clause.",
+    "discardAuthority": "The opposite recipient chooses and discards their own hand or equipment card. A private real owned-card prompt is addressed to that recipient; it does not ask the Xunyi owner to choose a foreign hidden hand card.",
+    "movement": "Each individual draw or discard is paid once and drains its real movement, Silver Lion recovery and observer children before the next point. Skill loss and relation movement during a paid child preserve the original source receipt and frozen remaining recipient.",
+    "deathTransfer": "A real CharacterDied window offers optional movement only for the source instance whose current holder died. Declining leaves that relation attached to the dead holder. The successor must be another living character, carrying forward the initial other-character relation restriction; the selected sources do not provide a separate self-transfer FAQ.",
+    "continuation": "Every suspended point, source, parent, amount, cursor and payment receipt belongs to its ProgramSkillFrame and is validated against exact native ancestry and scalar event receipts. No use-ID sidecar or mutable parallel pending object is introduced."
+  },
+  "newCapability": {
+    "operationNames": [
+      "armXunyiRelation",
+      "settleXunyiDamagePoint",
+      "moveXunyiAfterPartnerDeath"
+    ],
+    "operationEnumValues": [
+      26320,
+      26321,
+      26322
+    ],
+    "marker": "XunyiYi",
+    "contract": "WangFuZhaoLeiContract.Activation and Trigger"
+  },
+  "behaviorCheckMethods": [
+    "WangFuZhaoLeiChecks.ActualDamagePointsSourceLessSelfAndMutualExclusionCold",
+    "WangFuZhaoLeiChecks.PaidDrawChildSourceLossKeepsFrozenRemainingPoints",
+    "WangFuZhaoLeiChecks.ActualPartnerDeathOptionalTransferAndOldReceipt",
+    "WangFuZhaoLeiChecks.ActualSilverLionRecoveryAndNestedDamageKeepPointCursor"
+  ],
+  "status": "root-verified",
+  "behaviorChecks": "tests/CardGame.Core.Tests/WangFuZhaoLeiChecks.cs"
+}

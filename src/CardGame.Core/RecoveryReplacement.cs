@@ -40,7 +40,9 @@ public sealed record RecoveryRewardMovementReceipt(long SequenceBefore, long Seq
     }
 }
 
-public sealed record RecoveryReplacementFrame(long Id, long ParentFrameId, RecoveryAttempt Attempt,
+public sealed record PreparedRecoveryApplication(int SourceSeat, int TargetSeat, int RequestedAmount, int? CandidateIndex);
+
+public sealed partial record RecoveryReplacementFrame(long Id, long ParentFrameId, RecoveryAttempt Attempt,
     RecoveryReplacementReturn Return, RecoveryReplacementStage Stage = RecoveryReplacementStage.Choosing,
     int? CandidateIndex = null, int OriginalRecovered = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
@@ -48,6 +50,8 @@ public sealed record RecoveryReplacementFrame(long Id, long ParentFrameId, Recov
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RecoveryRewardMovementReceipt? RewardMovementReceipt { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PreparedRecoveryApplication? PendingApplication { get; init; }
 }
 
 public sealed record RecoveryReplacementChosenEvent(long RecoveryFrameId, int RecoveringSeat,
@@ -76,7 +80,7 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(useId);
         if (use is null) return false;
         var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use);
+            OwnsGenericSlashPaymentTail(use) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation));
         if (use.PendingRecoveryAttempts is not { Count: > 0 } &&
             !((observesPayment || continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion) &&
               _pendingHpChanges.Any(change => change.ParentFrameId == useId)) &&
@@ -111,7 +115,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault()?.Id != useId)
             throw new InvalidOperationException("Paid card use cannot advance before its recovery children return.");
         var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use);
+            OwnsGenericSlashPaymentTail(use) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation));
         if ((observesPayment || continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion) &&
             TryBeginHpChangedProgramWindow(useId, PostEventContinuation.RecoveryPaidCardUse)) return;
         if (use.PendingRecoveryAttempts is { Count: > 0 })
@@ -161,7 +165,8 @@ public sealed partial class GameEngine
             frame.Return.ResumeFrameId == useId && frame.Return.Continuation == PostEventContinuation.RecoveryPaidCardUse) ||
          _resolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(frame => frame.Change.ParentFrameId == useId &&
             frame.ResumeFrameId == useId && frame.Continuation == PostEventContinuation.RecoveryPaidCardUse &&
-            LifecycleCardUse(useId)?.RecoveryPaidContinuation?.Kind is RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash) ||
+            (LifecycleCardUse(useId)?.RecoveryPaidContinuation?.Kind is RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash ||
+             LifecycleCardUse(useId) is { RecoveryPaidContinuation: { } continuation } use && (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation)))) ||
          _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(frame =>
             LifecycleCardUse(useId) is { } owner && IsPaidCardUseMovementReturn(owner, frame)));
 
@@ -201,11 +206,13 @@ public sealed partial class GameEngine
     private bool TryQueueRecoveryReplacement(long parentFrameId, int sourceSeat, int targetSeat,
         int amount, RecoveryAttemptCompletion completion)
     {
-        if (!HasRecoveryReplacementCapability || amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue ||
+        if (amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue ||
             _players[targetSeat].Hp >= _players[targetSeat].MaxHp) return false;
+        if (!HasRecoveryReplacementCapability && !HasRecoveryAmountSupport(targetSeat)) return false;
         var parent = parentFrameId > 0 ? _resolutionStack.Single(f => f.Id == parentFrameId) : null;
         var candidates = RecoveryReplacementCandidates(targetSeat);
-        if (candidates.Count == 0 && parent?.PendingRecoveryAttempts is not { Count: > 0 }) return false;
+        if (candidates.Count == 0 && !HasRecoveryAmountSupport(targetSeat) &&
+            parent?.PendingRecoveryAttempts is not { Count: > 0 }) return false;
         var request = new RecoveryAttempt(++_resolutionSequence, sourceSeat, targetSeat, amount,
             _players[targetSeat].Hp, _turnNumber, _currentSeat, candidates, completion with
             { Policies = completion.Policies is { } policies ? Array.AsReadOnly(policies.ToArray()) : null });
@@ -270,6 +277,11 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not RecoveryReplacementFrame frame) return;
         if (frame.Stage == RecoveryReplacementStage.Choosing)
         {
+            if (frame.PendingApplication is { } pending)
+            {
+                ApplyRecoveryReplacement(frame, pending.CandidateIndex);
+                return;
+            }
             var choices = RecoveryReplacementChoices(frame);
             if (choices.Count == 1 || !_players[frame.Attempt.TargetSeat].IsAlive || _winner != Winner.None)
             {
@@ -312,15 +324,30 @@ public sealed partial class GameEngine
     private void ApplyRecoveryReplacement(RecoveryReplacementFrame frame, int? candidateIndex)
     {
         var attempt = frame.Attempt;
+        if (frame.PendingApplication is null)
+        {
+            var selected = candidateIndex is { } selectedIndex ? attempt.Candidates[selectedIndex] : null;
+            if (selected is not null && !IsRecoveryReplacementCandidateCurrent(frame, selected)) selected = null;
+            candidateIndex = selected is null ? null : candidateIndex;
+            ReplaceRuntimeTop(frame with
+            {
+                PendingApplication = new(selected is null ? attempt.SourceSeat : attempt.TargetSeat,
+                    selected?.OwnerSeat ?? attempt.TargetSeat, selected?.RecoveryAmount ?? attempt.Amount, candidateIndex),
+                Step = ResolutionFrameStep.ResolvingEffect
+            });
+        }
+        if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeRecoveryApply)) return;
+        frame = (RecoveryReplacementFrame)_resolutionStack.Last();
+        var application = frame.PendingApplication ??
+            throw new InvalidOperationException("Recovery lost its prepared recipient and amount.");
+        candidateIndex = application.CandidateIndex;
         var candidate = candidateIndex is { } index ? attempt.Candidates[index] : null;
-        if (candidate is not null && !IsRecoveryReplacementCandidateCurrent(frame, candidate)) candidate = null;
-        candidateIndex = candidate is null ? null : candidateIndex;
-        var recipient = _players[candidate?.OwnerSeat ?? attempt.TargetSeat];
-        var source = candidate is null ? attempt.SourceSeat : attempt.TargetSeat;
+        var recipient = _players[application.TargetSeat];
+        var source = application.SourceSeat;
         var amount = recipient.IsAlive && recipient.HasHpValue && _winner == Winner.None
-            ? Math.Min(candidate?.RecoveryAmount ?? attempt.Amount, Math.Max(0, recipient.MaxHp - recipient.Hp)) : 0;
+            ? Math.Min(application.RequestedAmount, Math.Max(0, recipient.MaxHp - recipient.Hp)) : 0;
         ReplaceRuntimeTop(frame with { CandidateIndex = candidateIndex, Stage = RecoveryReplacementStage.RecoveryApplied,
-            OriginalRecovered = candidate is null ? amount : 0, Step = ResolutionFrameStep.ResolvingEffect });
+            OriginalRecovered = candidate is null ? amount : 0, PendingApplication = null, Step = ResolutionFrameStep.ResolvingEffect });
         if (candidate is not null)
             AdvanceEventRulesAndQueueFact(new RecoveryReplacementChosenEvent(frame.Id, attempt.TargetSeat, candidate.OwnerSeat,
                 candidate.SkillId, candidate.SkillInstanceId, candidate.PolicyId, attempt.Amount, candidate.RecoveryAmount));
@@ -409,6 +436,10 @@ public sealed partial class GameEngine
             case PostEventContinuation.VirtualBasicCardUse: FinishVirtualBasicUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.GroupRecovery: CompleteGroupRecoveryTarget(); break;
             case PostEventContinuation.RecoveryReplacement: AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.AmountSupport:
+                if (_resolutionStack.LastOrDefault() is not (RecoveryReplacementFrame or BeforeDamageProgramWindowFrame))
+                    throw new InvalidOperationException("Amount support lost its typed parent frame.");
+                AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryPaidCardUse: ContinueRecoveryPaidCardUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.CounterspellPayment: ContinuePolicyCounterspellPayment(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.ColorFireAttackPayment: ContinueColorFireAttackPayment(continuation.ResumeFrameId!.Value); break;
@@ -476,6 +507,19 @@ public sealed partial class GameEngine
                 frame.ParentFrameId > 0 && !_resolutionStack.Any(p => p.Id == frame.ParentFrameId) ||
                 frame.ParentFrameId != (frame.Return.ResumeFrameId ?? frame.ParentFrameId))
                 throw new InvalidOperationException("A recovery replacement lost its exact owning attempt or typed parent.");
+            if (frame.PendingApplication is { } application)
+            {
+                var candidate = application.CandidateIndex is { } preparedIndex && preparedIndex >= 0 &&
+                    preparedIndex < frame.Attempt.Candidates.Count ? frame.Attempt.Candidates[preparedIndex] : null;
+                var baseAmount = candidate?.RecoveryAmount ?? frame.Attempt.Amount;
+                if (frame.Stage != RecoveryReplacementStage.Choosing || frame.CandidateIndex is not null ||
+                    frame.OriginalRecovered != 0 || application.CandidateIndex is not null && candidate is null ||
+                    application.SourceSeat != (candidate is null ? frame.Attempt.SourceSeat : frame.Attempt.TargetSeat) ||
+                    application.TargetSeat != (candidate?.OwnerSeat ?? frame.Attempt.TargetSeat) ||
+                    application.RequestedAmount < baseAmount ||
+                    application.RequestedAmount > SupportedRecoveryAmount(frame, baseAmount))
+                    throw new InvalidOperationException("Recovery lost its frozen application or supported amount receipt.");
+            }
             if (_resolutionStack.LastOrDefault()?.Id == frame.Id && frame.Step == ResolutionFrameStep.AwaitingResponse &&
                 (_pendingDecision is not { Kind: DecisionKind.RecoveryReplacement } p || p.PlayerSeat != frame.Attempt.TargetSeat))
                 throw new InvalidOperationException("Recovery replacement choice lost its recovering player.");

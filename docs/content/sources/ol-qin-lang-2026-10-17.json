@@ -1,0 +1,274 @@
+{
+  "date": "2026-10-17",
+  "status": "verified",
+  "generalId": "ol:qin-lang",
+  "characterId": "character:qin-lang",
+  "product": "三国杀OL",
+  "officialGid": 639,
+  "officialPage": "https://www.sanguosha.com/hero/639",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=639",
+  "identity": {
+    "name": "秦朗",
+    "faction": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Searched current character manifests and runtime for 秦朗/QinLang/qin-lang/贤膺/ol:xianying before implementation; no same-product same-variant identity or skill was registered. The ordinary OL identity is confirmed by the official launch and current public client, rather than inferred from a missing hero-page skill widget.",
+  "skills": [
+    {
+      "id": "ol:xianying",
+      "name": "贤膺",
+      "clientSkillId": 3504,
+      "clientName": "XianYing",
+      "text": "准备阶段或当你受到伤害后，你可以摸两张牌并弃置任意张牌（不能是本轮以此法弃置过的张数），若弃置牌同名，你可以于本回合结束时视为使用之。",
+      "linkedSkills": []
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20241217_2019_1614",
+      "httpStatus": 200,
+      "sha256": "2d8e88f2e24d82a27e571f79d37c636611ac3fab44c4548efb6e19ae995560b6",
+      "byteCount": 298666,
+      "hashScope": "UTF-8 encoding of decoded HTTP HTML response; not raw wire bytes",
+      "title": "12.21-12.27 冬至祈愿秦朗上新 擎天柱石 占星秘宝卫兹返场",
+      "published": "2024-12-20 17:02:45",
+      "availableFrom": "2024-12-21",
+      "checked": "2026-10-17",
+      "level": "Official OL launch announcement",
+      "supports": "Confirms released ordinary Qin Lang, Wei male three HP, and the same full Xianying skill as the current client."
+    },
+    {
+      "url": "https://bbs.4399.cn/thread-view-tid-47347530",
+      "title": "【武将前瞻】颜值很能打 强度有点差的新将秦朗",
+      "author": "紫云西来",
+      "published": "2024-12-13 14:02:05",
+      "checked": "2026-10-17",
+      "level": "Same-product 4399 OL-interoperable forum prelaunch guide by a moderator; supplementary interpretation, not an official FAQ",
+      "supports": "Explains per damage instance, draw then arbitrary self-selected HE discard including zero, round count reset, independent actual-turn-end promises, zero physical materials, ordinary use quotas ignored while distance retained, and exclusion of equipment and delayed tricks. Its prelaunch status is explicit; current primary wording and released identity are separately verified."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Actual draw, count ledger, and payment",
+      "basis": "Current skill text plus same-product guide; source-generation persistence is an engine continuation inference",
+      "implementation": "Preparation or each actual applied damage instance offers Draw2. Drain its real gain/HP/skill children first, then privately select any count of currently discardable hand/equipment entities, including zero. A count becomes used only when its real atomic payment is committed, and cannot repeat by this owner in the same actual round even through skill-source replacement. Zero produces no imitation; if all feasible counts are exhausted the paid draw drains without inventing an impossible cost. Native self-hand discard prohibitions, source equipment restrictions, GeneralWeapon intrinsic OutsideGame routing, SilverLion recovery and WoodenOx grain are preserved."
+    },
+    {
+      "rule": "Same name uses the last known continuous entity identity",
+      "basis": "Native continuous-hand identity semantics, consistent with the existing effective-name recast mechanism; no dedicated Qin Lang FAQ found",
+      "implementation": "The owning receipt freezes printed card kind and effective card name separately before the atomic departure. Continuous identities such as actual OL Fuman count as Slash while held, and all elemental Slash names normalize to Slash. Physical movement still proves the original printed entity. Optional view-as offers do not change an entity name for this test. An equipment or delayed-trick name cannot be imitated; Dodge and Nullification have no proactive legal use in this ending request."
+    },
+    {
+      "rule": "Independent saved zero-material native uses",
+      "basis": "Primary actual-turn-end wording plus supplementary guide explicit independent, colorless zero-material use, quota and distance explanation",
+      "implementation": "Every same-name nonempty eligible payment issues its own scalar promise for this exact actual turn, including damage in another player's turn. At the real completed actual turn, each original source generation retains its own paid candidate and may choose, order, or decline its available promises. Each chosen card follows a genuine native basic or ordinary-trick lifecycle with current legal targets, target-card selections, distance, prohibitions, Nullification, physical responses, damage, recovery and exact one-shot return. No ordinary Slash or Alcohol allowance is charged. There is no extra phase or whole turn and no material is fabricated in Processing. Saved uses are never carried into a later actual turn."
+    },
+    {
+      "rule": "Paid source loss, death and native descendants",
+      "basis": "Engine issued-effect continuation inference, not a separate published Qin Lang FAQ",
+      "implementation": "The owning ProgramSkillFrame stores its exact original source, gameplay hash, actual turn/owner and round, frozen private cards, real payment movement range/batch, pending promises and current native origin. Losing the source after the real draw or payment does not repay or cancel the original living actor's pending choice/use. A dead actor drains paid children and cannot make further choices or issue new uses. The native card tracks legitimate actor replacement while retaining original provider and typed parent. All new events are scalar, and nested frame collections are defensively copied."
+    },
+    {
+      "rule": "Actual ending tail for newly applied Alcohol",
+      "basis": "Native Alcohol duration inference; after-TurnEnded effects are still inside that actual ending",
+      "implementation": "A saved native Alcohol may support a later same-ending Slash, but any remaining effect it actually applied expires at the final deferred actual-turn-end tail after all end children. Ownership follows the genuine AlcoholApplied recipient, including legal actor/target changes, and an unrelated later Alcohol application is not erased."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveXianyingDrawDiscard",
+      "ResolveXianyingTurnEndUses"
+    ],
+    "pendingOwnership": "ProgramSkillFrame.QinLangXianying and nullable CardUseFrame.QinLangXianying, exact DeferredTurnEnd candidate and native use returns; no global pending state or use-ID sidecar. All newly introduced event payloads contain only scalars or scalar-only immutable origin records.",
+    "focusedChecks": [
+      "DrawDiscardCountsRoundResetAndPreparationCold",
+      "IndependentForeignTurnEndZeroMaterialUsesCold",
+      "NativeTargetsQuotaResponsesAndImitationDomainCold",
+      "PaidDrawDiscardLossDeathLionOxAndEndReturnCold"
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-17T00:14:20.84241+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "fetchedAtUtc": "2026-10-17T00:13:34.080096+08:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "fetchedAtUtc": "2026-10-17T00:13:34.081096+08:00"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1340]",
+      "row": {
+        "a": 639,
+        "b": "秦朗",
+        "d": "QinLang",
+        "e": 44,
+        "f": "41",
+        "g": 1,
+        "h": 1,
+        "i": 3,
+        "j": 3504,
+        "p": 2,
+        "q": "1",
+        "r": "9063901",
+        "y": "字元明，杜夫人之子。和何晏俱是曹操继子，受到曹操喜爱。魏明帝曹叡启用秦朗，颇为亲近，曾领兵大破鲜卑轲比能。",
+        "z": "要仔细计算技能中摸牌和弃牌的质与量。",
+        "aa": 262,
+        "ab": "1199,1200",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250104T235959",
+        "LordCardRate1": 46,
+        "LordCardRate2": 54,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2535]",
+          "row": {
+            "a": 3504,
+            "b": "3",
+            "c": "贤膺",
+            "d": "XianYing",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "n": 1,
+            "o": "准备阶段或当你受到伤害后，你可以摸两张牌并弃置任意张牌（不能是本轮以此法弃置过的张数），若弃置牌同名，你可以于本回合结束时视为使用之。",
+            "w": "请选择牌弃置|请选择牌弃置(已弃置过{0})"
+          }
+        }
+      ]
+    }
+  },
+  "primaryEvidence": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/639",
+      "finalUrl": "https://www.sanguosha.com/hero/639",
+      "httpStatus": 200,
+      "byteCount": 23352,
+      "sha256": "cc37344fd06ada644081647ae0836efbb6f1fbe6534cc1510216af0ff78911c7",
+      "hashScope": "HTTP response body bytes",
+      "canonicalUrl": "https://www.sanguosha.com/hero/639",
+      "availability": "available"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=639",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=639",
+      "httpStatus": 200,
+      "byteCount": 824,
+      "sha256": "647e081453840b3395ca0e1061024e495358c46e0037f347468fd3d039a7b19a",
+      "hashScope": "HTTP response body bytes",
+      "availability": "available"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 639,
+            "name": "秦朗",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/639.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63900.png",
+            "label": [
+              "防御",
+              "过牌",
+              "困难"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "字元明，杜夫人之子。和何晏俱是曹操继子，受到曹操喜爱。魏明帝曹叡启用秦朗，颇为亲近，曾领兵大破鲜卑轲比能。",
+            "characteristic": "要仔细计算技能中摸牌和弃牌的质与量。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "主公",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/63900.png",
+      "byteCount": 1042802,
+      "sha256": "e2bf26214515c6de9221f42c660859a59a7f618af4ef0e60f902f81b76518dcf",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-qin-lang.png",
+      "width": 750,
+      "height": 950
+    },
+    "officialRelease": {
+      "url": "https://www.sanguosha.com/news/20241217_2019_1614",
+      "httpStatus": 200,
+      "sha256": "2d8e88f2e24d82a27e571f79d37c636611ac3fab44c4548efb6e19ae995560b6",
+      "byteCount": 298666,
+      "hashScope": "UTF-8 encoding of decoded HTTP HTML response; not raw wire bytes",
+      "title": "12.21-12.27 冬至祈愿秦朗上新 擎天柱石 占星秘宝卫兹返场",
+      "published": "2024-12-20 17:02:45",
+      "availableFrom": "2024-12-21",
+      "checked": "2026-10-17",
+      "level": "Official OL launch announcement",
+      "supports": "Confirms released ordinary Qin Lang, Wei male three HP, and the same full Xianying skill as the current client."
+    },
+    "heroNote": "Official hero HTML identifies Qin Lang but its current skill widget is blank; full current text comes from the fresh decoded client and matching official OL release."
+  },
+  "validation": {
+    "status": "verified",
+    "methodNames": [
+      "DrawDiscardCountsRoundResetAndPreparationCold",
+      "IndependentForeignTurnEndZeroMaterialUsesCold",
+      "NativeTargetsQuotaResponsesAndImitationDomainCold",
+      "PaidDrawDiscardLossDeathLionOxAndEndReturnCold"
+    ],
+    "scope": "Real draw/discard, round count reset, independent actual foreign-turn grants, native zero-material uses, colorless target legality, reverse Duel damage, continuous effective hand identity, paid child loss/death, checkpoint/replay and real UI gallery. Relevant shared regressions and routine verification passed."
+  }
+}

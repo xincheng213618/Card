@@ -41,7 +41,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> DrawFundedDistinctBasicPlayActions(CharacterState actor)
     {
-        if (_phase != TurnPhase.Play || actor.Seat != _currentSeat || _resolutionStack.Count != 0 || !actor.IsAlive) return [];
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat || _resolutionStack.Count != 0) && !IsKeBiNengPingduanBasicQuery(actor)) return [];
         var actions = new List<LegalAction>();
         foreach (var (source, rule, _) in DrawFundedDistinctBasicRules(actor))
             actions.AddRange(DrawFundedDistinctBasicNativePlayActions(actor, source, rule.OutputKind));
@@ -53,7 +53,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<LegalAction> DrawFundedDistinctBasicNativePlayActions(CharacterState actor, CardConversionSource source, CardKind kind)
     {
         var result = new List<LegalAction>();
-        if (!actor.IsAlive || _phase != TurnPhase.Play || _currentSeat != actor.Seat || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return result;
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return result;
         var card = new Card(0, kind, Suit.None, 0);
         if (IsSlashCard(kind))
         {
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
         else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
             result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "摸一张牌，视为使用【桃】"), kind) { ConversionSource = source });
         else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&
-            (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+            (CanUseJianjiOrdinaryAlcohol(actor, null) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
             result.Add(new(LegalActionKind.Alcohol, 0, null, DescribeConversion(source, "摸一张牌，视为使用【酒】"), kind) { ConversionSource = source });
         AddNextCardTargetAdjustmentActions(result, actor);
@@ -125,6 +125,8 @@ public sealed partial class GameEngine
         if (prompt.Kind != DecisionKind.ProgramTrigger || top is not ProgramSkillFrame program) return null;
         if (IsQigongRequest(program) && prompt.PlayerSeat == program.LvKuangLvXiang!.Actor)
             return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, program.LvKuangLvXiang.Target);
+        if (IsWuJingHejiRequest(program) && prompt.PlayerSeat == program.OwnerSeat)
+            return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, program.WuJing!.TargetSeat);
         if (IsCaoChunInitialRequest(program) && prompt.PlayerSeat == program.OwnerSeat)
             return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, null);
         var paused = ProgramInstructionResolver.Default.Resolve(program, _contentRegistry.GetSkill(program.SkillId).Program!).GetPausedInstruction(program.InstructionIndex).Effect;
@@ -159,10 +161,13 @@ public sealed partial class GameEngine
             return ActiveQinglongCrescentBlade is { } q && q.Attack.ResolutionId == need.ParentFrameId && q.Attack.SourceSeat == actor.Seat &&
                 q.Attack.TargetSeat == seat && SameAttackOwner(ActiveCardAttack, q.Attack) && CanUseQinglongCrescentBladeTarget(actor, _players[seat], kind, null, false, Suit.None, 0);
         if (_resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is not ProgramSkillFrame program || program.InstructionIndex != need.Cursor) return false;
+        if (IsWuJingHejiRequest(program))
+            return WuJingHejiAdapterActor(program, actor.Seat, seat, need.Cursor, need.ParentFrameId, need.RequestFrameId) &&
+                CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: [], ignoreDistance: true);
         if (IsQigongRequest(program))
             return QigongAdapterActor(program, actor.Seat, seat, need.Cursor, need.ParentFrameId, need.RequestFrameId) &&
                 CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: [], ignoreDistance: true);
-        if (!_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId) && !IsCaoChunInitialRequest(program)) return false;
+        if (!_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId) && !IsCaoChunInitialRequest(program) && !HasIssuedFulueRequest(program)) return false;
         if (need.FixedTargetSeat is { } fixedTarget && fixedTarget != seat ||
             need.Intent is DrawFundedDistinctBasicIntent.ProgramNearestSlash or DrawFundedDistinctBasicIntent.NearestLegalSlash && !GetNearestLivingCharacterSeats(actor.Seat).Contains(seat)) return false;
         return CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: []);

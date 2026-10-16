@@ -1,0 +1,172 @@
+{
+  "characterId": "character:yan-pu",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T04:53:14.580316+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/542",
+      "sha256": "f370a1f221da59e97290b79de950dba92b174f5849c184e73de902f570a41595",
+      "byteCount": 23972,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=542",
+      "sha256": "7b72e9d62b8a0944bafada69be76c9d6823615c1ee14f7b4384ac02d616e75aa",
+      "byteCount": 787,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "byteCount": 4153477,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 542,
+          "name": "阎圃",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/542.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54200.png",
+          "label": [
+            "辅助",
+            "回复",
+            "简单"
+          ],
+          "figure": "群",
+          "figure_py": "qun",
+          "quality": "史诗",
+          "biography": "益州巴西安汉（今四川省南充市）人。张鲁割据巴、汉，以阎圃为功曹。后随张鲁一同投降曹操，封平乐乡侯。",
+          "characteristic": "能给予多功能辅助，在队友脱离濒死后能给予保护。",
+          "hp": 3,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [
+        {
+          "name": "农民",
+          "value": 6
+        },
+        {
+          "name": "忠臣",
+          "value": 6
+        },
+        {
+          "name": "反贼",
+          "value": 5
+        },
+        {
+          "name": "内奸",
+          "value": 4
+        }
+      ],
+      "deeds": []
+    }
+  },
+  "decoder": "Public current client InitOfb AES-CFB128 then gzip, decoded in memory. Only the target general and skill rows are retained.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "targetRows": [
+        {
+          "a": 542,
+          "b": "阎圃",
+          "d": "YanPu",
+          "e": 44,
+          "f": "42",
+          "g": 4,
+          "h": 1,
+          "i": 3,
+          "j": 3236,
+          "k": 3237,
+          "p": 2,
+          "q": "1",
+          "r": "9054201",
+          "y": "益州巴西安汉（今四川省南充市）人。张鲁割据巴、汉，以阎圃为功曹。后随张鲁一同投降曹操，封平乐乡侯。",
+          "z": "能给予多功能辅助，在队友脱离濒死后能给予保护。",
+          "aa": 80,
+          "ab": "1007,1008",
+          "ad": "画师:鬼画府",
+          "x": "四面险固，####勿为祸先！",
+          "al": 1730,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "ar": "20230620T235959",
+          "LordCardRate1": 4,
+          "LordCardRate2": 40,
+          "cc": 0,
+          "starMax": 4
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "targetRows": [
+        {
+          "a": 3236,
+          "b": "3,5",
+          "c": "缓图",
+          "d": "HuanTu",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "o": "每轮限一次，你攻击范围内其他角色的摸牌阶段开始前，你可以交给其一张牌令其跳过摸牌阶段，若如此做，本回合结束阶段你选择一项：<br>&nbsp;1. 令其回复1点体力并摸两张牌；<br>&nbsp;2. 你摸三张牌并交给其两张手牌。",
+          "v": "选择一张牌交给{Target}并令其跳过摸牌阶段",
+          "ac": "是否对{Target}发动<font color='#FFD800'>缓图</font>"
+        },
+        {
+          "a": 3237,
+          "b": "3,5,6",
+          "c": "避祸",
+          "d": "BiHuo",
+          "e": 0,
+          "g": 2,
+          "i": 2,
+          "l": "yanpubihuo",
+          "o": "限定技，当一名角色脱离濒死状态后，你可以令其摸三张牌，本轮其他角色计算与其的距离时+X（X为存活角色数）。",
+          "v": "选择一张牌令{Target}跳过摸牌阶段",
+          "ac": "是否对{Target}发动<font color='#FFD800'>避祸</font>"
+        }
+      ]
+    }
+  },
+  "identity": {
+    "generalId": "ol:yan-pu",
+    "gid": 542,
+    "name": "阎圃",
+    "faction": "qun",
+    "baseHp": 3,
+    "gender": "Male",
+    "skillIds": [
+      3236,
+      3237
+    ]
+  },
+  "interpretationScope": "The verbatim current wording is retained only in currentClient targetRows and is independently present at the official hero URL. The following engineInterpretation entries describe implementation consequences of that wording and existing native rules, not additional official FAQ quotations. No 4399 or mobile/ten-year explanation is treated as an official source.",
+  "engineInterpretation": [
+    "HuanTu is once per actual round, at another living character actual Draw starting before drawing, with that character inside the owner attack range. A real owned hand/equipment card is transferred; transfer is not discard. Only the exact actual Draw phase is skipped.",
+    "The successful native gift issues one obligation bound to that same actual turn and recipient. At the actual Ending, choose recipient recover1 then draw2, or owner draw3 then transfer two current hand cards (all available if fewer than two). Issued obligations and paid effects retain their original skill source across source loss; death and movement children retain normal native semantics. If the native turn never enters Ending because its owner died earlier, no Ending is fabricated. If that actual Ending already entered and a preceding Ending sibling kills the recipient while the original boundary continues, the living donor can still choose its valid Draw3 and only the impossible transfer to the dead recipient is skipped. This distinction is an engine timing interpretation of the unchanged official text.",
+    "BiHuo is optional once per game at a real survived DyingResolved boundary, including self. Its accepted start is the permanent spent fact, including when the Draw3 recipient dies in a native gain child before a distance policy can be issued; losing and reacquiring the source cannot repeat it. The actual exited character draws3; the issued incoming-distance policy expires at the next actual RoundStarted boundary and includes all other sources. The implementation interprets X as the living count at each distance calculation, since the text defines it as living-character count without freezing a prior value. It never alters that character outgoing distance.",
+    "The official hero page and live client contain identical current skill text. No separate official FAQ for this general was found; no mobile or ten-year variant is substituted."
+  ],
+  "status": "root-verified",
+  "generalId": "ol:yan-pu",
+  "behaviorChecks": "tests/CardGame.Core.Tests/YanPuChecks.cs",
+  "behaviorCheckMethods": [
+    "ActualForeignDrawGiftEndingBranchesRoundQuotaAndSourceLossCold",
+    "RealEquipmentGiftRemovalRecoveryAndPaidDeathChildrenCold",
+    "SurvivedDyingLimitedDrawRoundDistanceLivingCountAndColdNativeReturn"
+  ]
+}

@@ -3,7 +3,8 @@ internal interface IConvertingGiftProgramHost
 {
     SkillProgramStepOutcome GiveSelectedOwnedCardAndDamage(ProgramSkillFrame frame, int handLimit);
     SkillProgramStepOutcome ObserveDamageSourceHandAndGive(ProgramSkillFrame frame, int handLimit);
-    SkillProgramStepOutcome DrawToHandCount(ProgramSkillFrame frame, int seat, int handLimit);
+    SkillProgramStepOutcome DrawToHandCount(ProgramSkillFrame frame, int seat, int handLimit,
+        SkillProgramNumberExpression? numberExpression = null);
 }
 internal sealed record RequireSingleOwnedActivationGift : ProgramResourceOperation;
 internal sealed record ConvertingGiftInstruction(bool Observe, int HandLimit) : ProgramSkillInstruction;
@@ -40,11 +41,16 @@ internal sealed class DrawToHandCountDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.DrawToHandCount(e));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op","target","amount","condition");var limit=r.RequiredInt("amount");
+        r.AllowOnly("op","target","amount","numberExpression","condition");
+        var expression = r.Has("numberExpression")
+            ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+        if (expression is not null && (expression != SkillProgramNumberExpression.LivingPlayerCount || r.Has("amount")))
+            throw new InvalidOperationException("Hand count draws support either a fixed amount or livingPlayerCount.");
+        var limit = expression is null ? r.RequiredInt("amount") : 0;
         if(limit is < 0 or > 16)throw new InvalidOperationException("Hand limit must be 0..16.");
         var target=r.RequiredEnum<SkillProgramEffectTarget>("target");
         if(target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))throw new InvalidOperationException("Hand limit draw needs one participant.");
-        return new(Op,target,limit,r.Condition());
+        return new(Op,target,limit,r.Condition(), numberExpression: expression);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => e.Target==SkillProgramEffectTarget.SelectedTarget ? [new ReadSelectedTarget()]:[];
 }
@@ -61,7 +67,7 @@ public sealed class ObserveDamageSourceHandAndGiveHandler : ISkillProgramEffectH
 public sealed class DrawToHandCountHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawToHandCount;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IConvertingGiftProgramHost>().DrawToHandCount(f,s,e.Amount);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IConvertingGiftProgramHost>().DrawToHandCount(f,s,e.Amount,e.NumberExpression);
 }
 public sealed record ProgramConvertingGiftDraft(bool Observe, string Stage,int RecipientSeat,int HandLimit,
     IReadOnlyList<int> ObservedHandIds,int? GiftCardId=null,int? GiftOrdinal=null,bool ExactDamageDeath=false);

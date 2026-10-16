@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:zhiming", "revision": 1, "triggers": [
+      { "id": "preparation", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+        "effects": [
+          { "op": "draw", "target": "owner", "amount": 1 },
+          { "op": "awaitOwnedCardMovement", "target": "owner" },
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand", "equipment"], "minimumCards": 0, "maximumCards": 1, "resultBind": "zhiming-top" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "zhiming-top", "destination": "drawPileTop", "awaitMovementTriggers": true }
+        ] },
+      { "id": "discard-end", "window": "discardPhaseEnded", "turnOwnerScope": "own", "allowOwnDiscardPhaseEnded": true,
+        "subject": "owner", "optional": false,
+        "effects": [
+          { "op": "draw", "target": "owner", "amount": 1 },
+          { "op": "awaitOwnedCardMovement", "target": "owner" },
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand", "equipment"], "minimumCards": 0, "maximumCards": 1, "resultBind": "zhiming-top" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "zhiming-top", "destination": "drawPileTop", "awaitMovementTriggers": true }
+        ] }
+    ] },
+    { "id": "ol:xingbu", "revision": 1, "triggers": [
+      { "id": "forecast", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "resolveXingbuThreeCardForecast", "target": "owner" }] }
+    ] }
+  ]
+}

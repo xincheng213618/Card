@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:fu-rong",
+  "skills": [{ "registrationOrder": 1370, "programBundle": "ol-fu-rong", "includeProgramPresentation": true,
+    "definition": { "id": "ol:xiaosi", "name": "效死", "description": "出牌阶段限一次，你可以与一名有手牌的其他角色各弃置一张基本牌（若其不能弃置则你摸一张牌），然后你可以使用其中任意张牌（无距离和次数限制）。", "executionForms": "State", "actionForms": "Active" }
+  }],
+  "generals": [{ "registrationOrder": 1371, "pools": { "current": 415 },
+    "definition": { "id": "ol:fu-rong", "name": "傅肜", "portraitKey": "ol-fu-rong", "skillId": "ol:xiaosi", "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:fu-rong", "variantId": "ordinary", "rulesetId": "sanguosha-ol" }
+  }]
+}

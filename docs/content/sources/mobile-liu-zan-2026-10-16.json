@@ -1,0 +1,118 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-16",
+  "generalId": "mobile:liu-zan",
+  "name": "留赞",
+  "productLine": "三国杀移动版",
+  "rulesetId": "sanguosha-mobile",
+  "primarySourcePage": "https://www.sanguosha.cn/hero-detail-93.html",
+  "primaryCapture": {
+    "url": "https://www.sanguosha.cn/hero-detail-93.html",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-15T20:46:07.2973789Z",
+    "sha256": "58d5cf903ed4adad2913c9ab1f8698cd834fc9d1e94b4a7ffe507259d098405d",
+    "byteCount": 21109,
+    "hashScope": "UTF-8 encoding of the decoded official HTML response; no raw transport archive retained"
+  },
+  "faction": "wu",
+  "gender": "Male",
+  "maxHp": 4,
+  "initialHp": 4,
+  "profileEvidence": {
+    "faction": "Official page title: 留赞 吴",
+    "gender": "Official page biography identifies the historical male general and his sons 留略 and 留平",
+    "hp": "The selected official page and 13200 artwork do not display numeric HP. Four HP is corroborated by the frozen local BWIKI character record revid75312 (data/reference/bwiki/generals.json); no official-page HP claim is made."
+  },
+  "completeAssignedSkillIds": [
+    "mobile:fenyin"
+  ],
+  "skills": [
+    {
+      "id": "mobile:fenyin",
+      "name": "奋音",
+      "exactOfficialText": "你的回合内，每当你使用了一张与上一张颜色不同的牌时，你摸一张牌。",
+      "tags": [],
+      "executionForms": [
+        "Trigger"
+      ],
+      "officialTextNote": "The selected mobile official page has one skill and contains neither 可以 nor 锁定技. The implemented trigger is mandatory without adding a Locked tag."
+    }
+  ],
+  "artwork": {
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/13200.jpg",
+    "source": "First classic skin image directly linked by the selected official mobile hero page",
+    "portraitKey": "mobile-liu-zan",
+    "integrationOwner": "Official mobile13200 image downloaded, hashed and visually inspected; integratedArtwork carries exact bytes and dimensions."
+  },
+  "versionSeparation": [
+    "This is the single-skill mobile page version. Other product versions with suit-first-discard Fenyin and Liji are not mixed into this content ID.",
+    "The official mobile name is retained with the project display suffix 移动版 to distinguish independent ruleset identities."
+  ],
+  "engineMappingsExplicitlyNotOfficialFAQ": {
+    "actualTurn": "The owning player's current actual turn number and turn-owner seat identify the history. Extra actual turns start a fresh predecessor chain; additional phases within the same actual turn share it.",
+    "actualUse": "Native CardActionType.Use plus the engine's native own Dodge-Use and Nullification-Use response contracts count. Pure Duel Slash, group Dodge and faction supply are responses and do not create predecessors. Other players' uses and out-of-turn owner uses do not enter this own-turn chain.",
+    "predecessor": "At the actual CardUseCommitted boundary before candidate collection, freeze the exact previous recorded actual-use identity for the same actual turn and actor. This includes native Slash before its later Accepted event; nested uses cannot rewrite the relation.",
+    "appearance": "Use the engine's already-frozen EffectiveIsRed at actual payment/acceptance, including effective conversion appearance and homogeneous multi-material colors. Do not reread later hand or equipment state.",
+    "colorless": "Nullable color is the engine's no-color value: colorless versus red or black differs; two colorless uses match. The selected official page does not provide a separate colorless FAQ.",
+    "privacy": "Trusted internal IsRed state is JsonIgnore and internal on the scalar history fact; public event properties and ToString expose only use identities and actual-turn boundaries. Hidden declaration material is not replaced by an invented colorless value. Command replay reconstructs the trusted internal state.",
+    "drawReturn": "The new operation grants one exact use-pair/source-instance entitlement. Its following ordinary Draw instruction owns physical movement and existing CardsGained children, avoiding a parallel pending object or another use-ID store."
+  },
+  "newCapability": {
+    "operation": "grantAlternateActualUseColorDraw",
+    "operationEnumValue": 26000,
+    "location": "src/Characters/liu-zan/mobile/Runtime/ProgramAlternateActualUseColor.cs",
+    "sharedIntegration": [
+      "SkillProgramEffectOp entry is added by the batch root without changing schema or rules epoch.",
+      "CapturesActionColor opts in when TracksAlternateActualUseColor is true.",
+      "The generic CardUseCommitted entry records the opt-in actual-use color fact before collecting candidates; qualification remains read-only.",
+      "The existing generic ProgramTurnPhase virtual-use producer opts into native card action windows for TracksAlternateActualUseColor.",
+      "The local MobileFenyinCommittedUseContract participates in the root's generic committed-use contract discovery."
+    ]
+  },
+  "behaviorCheckMethods": [
+    "MobileLiuZanChecks.ActualColorPairsDrawOnceThroughGainChildAndResetOnExtraTurn",
+    "MobileLiuZanChecks.OwnTurnDodgeUseCountsAndPureDuelResponseDoesNot"
+  ],
+  "acceptanceAtAuthoring": {
+    "sourceTextVerified": true,
+    "contentAndRuntimeWritten": true,
+    "focusedChecksWritten": true,
+    "focusedChecksRun": false,
+    "routineRun": false,
+    "fullVerificationRun": false,
+    "note": "The assigned subagent intentionally did not build or run checks against concurrent shared output. The batch owner integrates and reports actual focused and routine results."
+  },
+  "integratedArtwork": {
+    "id": "13200",
+    "name": "经典形象",
+    "sourcePage": "https://www.sanguosha.cn/hero-detail-93.html",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/13200.jpg",
+    "localPath": "src/CardGame.Wpf/Assets/official-mobile-liu-zan.jpg",
+    "sha256": "d78bd49ddc7e8f3a1f3b19fec5293f538f28fc35bece946d6f9db3d77a7ec025",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "viewed": true
+  },
+  "status": "root-verified",
+  "rootVerification": {
+    "date": "2026-10-16",
+    "focused": {
+      "corePassed": 13,
+      "coreFailed": 0,
+      "wpfPassed": 1,
+      "wpfFailed": 0,
+      "durationMs": 15241
+    },
+    "routine": {
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 31625
+    },
+    "visualEvidence": "Actual WPF gallery controls rendered offscreen and viewed for all three new generals.",
+    "manualForegroundAcceptance": false,
+    "fullVerificationRun": false,
+    "published": false
+  }
+}

@@ -58,7 +58,6 @@ public partial class MainWindow : Window
         LeftSeatColumn.Width = RightSeatColumn.Width = new GridLength(164 + 26 * expansion);
         HandDockRow.Height = new GridLength(210 + 46 * expansion);
         EquipmentRailColumn.Width = new GridLength(154 + 36 * expansion);
-        HumanSkillColumn.Width = new GridLength(228 + 44 * expansion);
         Resources["EquipmentControlScale"] = 1 + .25 * expansion;
         Resources["SkillControlScale"] = 1 + .2 * expansion;
         HumanPortraitColumn.Width = new GridLength(142 + 36 * expansion);
@@ -101,6 +100,7 @@ public partial class MainWindow : Window
             source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
         }
         if (hand is not null) button = hand.CardButtonAt(e.GetPosition(hand));
+        if (button is IdentityMarkButton) return;
         if (e.ChangedButton == MouseButton.Right && vm.HasSelection && onPlaySurface)
         {
             vm.ClearSelectionCommand.Execute(null);
@@ -135,7 +135,7 @@ public partial class MainWindow : Window
         (vm.IsIdentityRevealOpen || vm.IsOpeningDealVisible && !vm.IsLogOpen && !vm.HasGameOver);
 
     private static bool IsBlockingTableOverlayOpen(MainViewModel vm) => IsNavigationOverlayOpen(vm) || vm.IsIdentityRevealOpen ||
-        vm.IsOpeningDealVisible || vm.HasGameOver || vm.IsLogOpen;
+        vm.IsOpeningDealVisible || vm.HasGameOver || vm.IsLogOpen || vm.IsReserveDialogOpen;
 
     private static bool IsTableModalOpen(MainViewModel vm) =>
         IsBlockingTableOverlayOpen(vm) || vm.IsGeneralSelectionPending;
@@ -270,6 +270,7 @@ public partial class MainWindow : Window
             viewModel.IsLogOpen ? BattleLogOverlay :
             viewModel.HasGameOver ? MatchResultPanel :
             viewModel.IsGeneralSelectionPending ? GeneralSelectionOverlay :
+            viewModel.IsReserveDialogOpen ? PrivateReserveOverlay :
             viewModel.IsOpeningDealVisible ? OpeningDealOverlay : TableSurface;
 
     private void GeneralSelectionPanel_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -362,6 +363,7 @@ public partial class MainWindow : Window
         else if (ReferenceEquals(surface, NewGameSetupPanel)) FocusLobby();
         else if (ReferenceEquals(surface, IdentityRevealOverlay)) ContinueFromIdentityRevealButton.Focus();
         else if (ReferenceEquals(surface, BattleLogOverlay)) CloseBattleLogButton.Focus();
+        else if (ReferenceEquals(surface, PrivateReserveOverlay)) CloseReserveDialogButton.Focus();
         else if (ReferenceEquals(surface, MatchResultPanel)) ResultRematchButton.Focus();
         else if (ReferenceEquals(surface, GeneralSelectionOverlay))
         {
@@ -422,6 +424,23 @@ public partial class MainWindow : Window
         // Shortcut ownership follows the same top surface as deferred focus.
         // A retained lower panel must not intercept the visible panel's keys.
         var surface = CurrentFocusSurface(viewModel);
+        if (ReferenceEquals(surface, TableSurface) && key == Key.Enter && modifiers == ModifierKeys.None &&
+            Keyboard.FocusedElement is IdentityMarkButton { IsVisible: true, IsEnabled: true } marker && marker.IsDescendantOf(TableSurface))
+        {
+            marker.OpenIdentityMenu();
+            return true;
+        }
+        if (ReferenceEquals(surface, PrivateReserveOverlay))
+        {
+            if (key == Key.Enter && modifiers == ModifierKeys.None && Keyboard.FocusedElement is Button { IsVisible: true, IsEnabled: true } reserveButton &&
+                reserveButton.IsDescendantOf(PrivateReserveOverlay)) return false;
+            if (key == Key.Escape && modifiers == ModifierKeys.None) viewModel.CloseReserveDialogCommand.Execute(null);
+            else if (key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmReserveExchange)
+                viewModel.ConfirmReserveExchangeCommand.Execute(null);
+            else if (key == Key.Enter && modifiers == ModifierKeys.None && !viewModel.IsReserveExchange)
+                viewModel.CloseReserveDialogCommand.Execute(null);
+            return key is Key.Enter or Key.Escape || modifiers == ModifierKeys.None && key is >= Key.D1 and <= Key.D9;
+        }
         if (key == Key.Enter && modifiers == ModifierKeys.Control &&
             (ReferenceEquals(surface, TableSurface) || ReferenceEquals(surface, GeneralSelectionOverlay) ||
              ReferenceEquals(surface, IdentityRevealOverlay) || ReferenceEquals(surface, OpeningDealOverlay) ||

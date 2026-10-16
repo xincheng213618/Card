@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed record CardUseDebitRecordedEvent(CardUseDebitIdentity Debit) : IGameEvent;
 public sealed record CardUseDebitRefundedEvent(CardUseDebitIdentity Debit) : IGameEvent;
@@ -23,7 +23,8 @@ public sealed partial class GameEngine
 
     private void RecordSlashUseDebit(long cardUseFrameId, int actorSeat)
     {
-        if (IsJianjiOffTurnNativeUse(cardUseFrameId, actorSeat)) return;
+        if (IsJianjiOffTurnNativeUse(cardUseFrameId, actorSeat) || HasIssuedKeBiNengPingduanUse(cardUseFrameId, actorSeat) ||
+            HasIssuedDuanJiongSaoguUnlimitedUse(cardUseFrameId, actorSeat)) return;
         var action = _resolutionStack.OfType<CardUseFrame>()
             .Single(frame => frame.Id == cardUseFrameId).Action ??
             throw new InvalidOperationException("A counted Slash has no frozen card-action identity.");

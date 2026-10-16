@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-shi-ping",
+  "skills": [
+    { "registrationOrder": 1460, "programBundle": "ol-zhang-shi-ping", "includeProgramPresentation": true,
+      "definition": { "id": "ol:hongji", "name": "鸿济", "description": "每轮各限一次，每名角色的准备阶段，若其手牌数为全场最少/最多，你可以令其于本回合下个摸牌/出牌阶段结束后执行一个额外的摸牌/出牌阶段。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1461, "programBundle": "ol-zhang-shi-ping", "includeProgramPresentation": true,
+      "definition": { "id": "ol:xinggu", "name": "行贾", "description": "游戏开始时，你将随机三张坐骑牌置于你的武将牌上。结束阶段，你可以将其中一张牌置于一名其他角色的装备区，然后你获得牌堆中一张方片牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1462, "pools": { "current": 424 },
+      "definition": { "id": "ol:zhang-shi-ping", "name": "张世平", "portraitKey": "ol-zhang-shi-ping", "skillId": "ol:hongji", "additionalSkillIds": ["ol:xinggu"], "factionId": "shu", "baseHp": 3, "gender": "Male", "characterId": "character:zhang-shi-ping", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -117,6 +117,8 @@ public sealed partial class GameEngine
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;
         if (ContinueMouZhijueSimpleUse(frameId, continuation)) return;
+        if (ContinueAHuiNanJuemanSimpleUse(frameId, continuation)) return;
+        if (ContinueQinLangXianyingSimpleUse(frameId, continuation)) return;
         if (ContinueDrawFundedDistinctBasicSimpleUse(frameId, continuation)) return;
         if (ContinueDesignatedVirtualBasicEffect(frameId, continuation)) return;
         if (ContinueVirtualBasicEffect(frameId, continuation)) return;

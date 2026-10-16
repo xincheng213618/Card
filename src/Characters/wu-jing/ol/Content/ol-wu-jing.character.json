@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wu-jing",
+  "skills": [
+    {
+      "registrationOrder": 1700,
+      "programBundle": "ol-wu-jing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:heji",
+        "name": "合击",
+        "description": "一名角色使用仅指定唯一目标的【决斗】或红色【杀】后，你可对同目标使用一张【杀】或【决斗】，若你以此法使用的牌不为转化牌，你随机获得一张红色牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1701,
+      "programBundle": "ol-wu-jing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:liubing",
+        "name": "流兵",
+        "description": "锁定技，你每回合使用的第一张实体【杀】的花色视为方块。若其他角色于其出牌阶段内使用的非黑色【杀】未造成伤害，此牌进入弃牌堆后，你获得之。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1702,
+      "pools": {
+        "current": 448
+      },
+      "definition": {
+        "id": "ol:wu-jing",
+        "name": "吴景",
+        "portraitKey": "ol-wu-jing",
+        "skillId": "ol:heji",
+        "additionalSkillIds": [
+          "ol:liubing"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wu-jing",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

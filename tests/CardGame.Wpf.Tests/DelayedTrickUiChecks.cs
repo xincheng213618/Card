@@ -30,6 +30,9 @@ internal static class DelayedTrickUiChecks
             {
                 window.Show();
                 var root = (FrameworkElement)window.Content;
+                var judgmentMarkers = (ItemsControl)window.FindName("HumanJudgmentStatuses");
+                Program.Assert(judgmentMarkers.Items.Count == 0 && judgmentMarkers.Visibility == Visibility.Collapsed,
+                    "An empty local judgment zone must not show a hand-dock status marker.");
                 game = Program.Engine(model);
                 var action = game.GetHumanLegalActions().First(a => a.CardId is { } id &&
                     (a.PlayedCardKind ?? game.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == id).Kind) == kind &&
@@ -81,13 +84,75 @@ internal static class DelayedTrickUiChecks
                     accepted.ConversionSource == action.ConversionSource,
                     "The portrait draft must submit the exact original material, selected targets and conversion source.");
                 if (kind is CardKind.Lightning or CardKind.SupplyShortage)
+                {
                     Program.Assert(game.CreateSnapshot(0).Players[target.Seat].Judgment.Any(c => c.Id == card.Id && c.Kind == kind) &&
                         !game.Events.Any(e => e.Payload is NullificationRequestedEvent),
                         "The confirmed delayed card must enter its target's Judgment zone directly.");
+                    root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                    root.UpdateLayout();
+                    Program.Assert(target.JudgmentStatuses.Single() is { } status && status.CardId == card.Id && status.Kind == kind &&
+                        status.Glyph == (kind == CardKind.Lightning ? "闪" : "兵") && status.Tooltip.Contains(status.Name),
+                        "The judgment marker must preserve the physical entity and effective delayed kind, including converted materials.");
+                    if (kind == CardKind.Lightning)
+                        VerifyHandDockMarker(window, root, model, store, judgmentMarkers, card.Id, output);
+                    else
+                    {
+                        Program.Assert(judgmentMarkers.Items.Count == 0 && judgmentMarkers.Visibility == Visibility.Collapsed && target.ShowPortraitJudgment,
+                            "A delayed trick on another player must stay on that player's portrait instead of the local hand dock.");
+                        var portrait = Program.Find<Button>(root).Single(button => ReferenceEquals(button.Command, model.SelectTargetCommand) &&
+                            ReferenceEquals(button.CommandParameter, target));
+                        var markers = Program.Find<ItemsControl>(portrait).Single(control => control.Name == "SeatJudgmentStatuses");
+                        var marker = Program.Find<Grid>(markers).Single(grid => grid.DataContext is JudgmentStatusViewModel);
+                        var bounds = marker.TransformToAncestor(portrait).TransformBounds(new Rect(marker.RenderSize));
+                        Program.Assert(markers.IsVisible && Program.Find<TextBlock>(marker).Single().Text == "兵" &&
+                            bounds.Right >= portrait.ActualWidth - 6 && bounds.Bottom >= portrait.ActualHeight,
+                            "A converted delayed trick must use the shared diamond at the affected portrait's lower-right corner.");
+                        Program.Render(root, 1440, 860, System.IO.Path.Combine(output, "delayed-other-portrait.png"));
+                    }
+                }
                 Console.WriteLine($"{kind}: actual portrait input and confirmation passed; target={target.Seat}; conversion={accepted.ConversionSource?.SkillId ?? "native"}.");
             }
             finally { window.Close(); }
         }
+    }
+
+    private static void VerifyHandDockMarker(MainWindow window, FrameworkElement root, MainViewModel model,
+        MemorySaveStore store, ItemsControl markers, int cardId, string output)
+    {
+        var hand = (FrameworkElement)window.FindName("HandViewport");
+        var dock = (FrameworkElement)window.FindName("HandDock");
+        var marker = Program.Find<Grid>(markers).Single(grid => grid.DataContext is JudgmentStatusViewModel);
+        var point = marker.TranslatePoint(new Point(0, 0), root);
+        var handPoint = hand.TranslatePoint(new Point(0, 0), root);
+        var dockPoint = dock.TranslatePoint(new Point(0, 0), root);
+        var badge = (JudgmentStatusViewModel)marker.DataContext;
+        Program.Assert(markers.IsVisible && markers.Items.Count == 1 && badge.CardId == cardId &&
+            Math.Abs(point.X - dockPoint.X - 8) < 1 && point.X + marker.ActualWidth < handPoint.X &&
+            point.Y < handPoint.Y && point.Y + marker.ActualHeight <= handPoint.Y &&
+            !model.HumanPlayer!.ShowPortraitJudgment && !Program.Find<TextBlock>(marker).Single().IsVisible &&
+            Program.Find<System.Windows.Shapes.Path>(marker).Single(path => path.Name == "LightningGlyph").IsVisible,
+            "Local delayed tricks must render as a diamond at the left edge above the hand dock without covering a card or duplicating the portrait label.");
+        var center = marker.TranslatePoint(new Point(marker.ActualWidth / 2, marker.ActualHeight / 2), root);
+        var hit = root.InputHitTest(center) as DependencyObject;
+        while (hit is not null && !ReferenceEquals(hit, marker)) hit = VisualTreeHelper.GetParent(hit);
+        Program.Assert(ReferenceEquals(hit, marker) && (string)marker.ToolTip == badge.Tooltip,
+            "The visible status marker must receive hover input for its full card and judgment tooltip.");
+        Program.Render(root, 1440, 860, System.IO.Path.Combine(output, "delayed-local-hand-dock.png"));
+
+        var emptySave = store.Read(GameSaveSlot.Manual);
+        model.SaveGameCommand.Execute(null);
+        model.LoadManualGameCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        root.UpdateLayout();
+        Program.Assert(markers.IsVisible && markers.Items.Count == 1 &&
+            ((JudgmentStatusViewModel)markers.Items[0]).CardId == cardId,
+            "Loading a real save must restore the local delayed marker from the viewer snapshot.");
+        store.Write(GameSaveSlot.Manual, emptySave!);
+        model.LoadManualGameCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        root.UpdateLayout();
+        Program.Assert(markers.Items.Count == 0 && markers.Visibility == Visibility.Collapsed,
+            "Restoring an empty judgment zone must remove the previous delayed status marker.");
     }
 
     private static void VerifyLightningAim(MainWindow window, FrameworkElement root, MainViewModel model,

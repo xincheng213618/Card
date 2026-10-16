@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:tushe":{"name":"图射","description":"当你使用非装备牌指定目标后，若你没有基本牌，则你可以摸X张牌（X为此牌指定的目标数）。"},"ol:limu":{"name":"立牧","description":"出牌阶段，你可以将一张方片牌当【乐不思蜀】对自己使用，然后回复1点体力；你的判定区有牌时，你对攻击范围内的其他角色使用牌没有距离和次数限制。","activationLabels":{"self-indulgence":"将一张方片牌当乐不思蜀对自己使用"}}}}

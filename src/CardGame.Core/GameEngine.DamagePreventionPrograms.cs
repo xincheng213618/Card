@@ -13,7 +13,8 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventParticipantDamageDrawActualSource) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction);
 
     private static bool UsesDamageNatureCondition(SkillProgramTriggerCondition condition) =>
         condition.Kind == SkillProgramTriggerConditionKind.DamageNatureIs ||
@@ -46,7 +47,8 @@ public sealed partial class GameEngine
     {
         if (amount <= 0) return false;
         var rangeChainOnly = attack.BeforeDamageProgramsResolved;
-        if (rangeChainOnly && (!attack.IsChainPropagation || !HasRangePreventionPrograms ||
+        if (rangeChainOnly && (!attack.IsChainPropagation ||
+            !(HasRangePreventionPrograms || !attack.IsSourceLess && HasDamageAmountSupport(attack.SourceSeat, attack.TargetSeat)) ||
             !TryVisitRangePreventionChainTarget(attack))) return false;
         return TryBeginBeforeDamageProgramWindow(
             attack.SourceSeat,
@@ -89,7 +91,7 @@ public sealed partial class GameEngine
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
                     .Where(candidate => !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover))
-                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
+                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
@@ -114,7 +116,8 @@ public sealed partial class GameEngine
             .ThenBy(item => item.Candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(item => item.Candidate.BindingId, StringComparer.Ordinal)
             .ToArray();
-        if (candidates.Length == 0) return false;
+        if (candidates.Length == 0 &&
+            (CurrentDamageAttempt?.IsSourceLess == true || !HasDamageAmountSupport(sourceSeat, targetSeat))) return false;
 
         var parentFrameId = _resolutionStack.LastOrDefault()?.Id ??
             (continuation == BeforeDamageProgramContinuation.Attack
@@ -155,6 +158,8 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame frame)
         {
+            if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeDamageApply)) return;
+            frame = (BeforeDamageProgramWindowFrame)_resolutionStack.Last();
             if (frame.Prevented || frame.RedirectedTargetSeat is not null ||
                 frame.CandidateIndex >= frame.Candidates.Count)
             {

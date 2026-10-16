@@ -32,10 +32,13 @@ public sealed partial class GameEngine
         cardId==0 && LifecycleCardUse(frameId) is { CardKind: CardKind.Alcohol, LegacyDyingAlcoholReturn: not null } legacyWine && IsExactLegacyActualUseCompletion(legacyWine) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && LifecycleCardUse(frameId) is { DyingSuitsPeachReturn: { } dyingReturn } dyingUse && ValidDyingSuitsPeachUse(dyingUse,dyingReturn) ? new Card(0,CardKind.Peach,Suit.None,0) :
         cardId==0 && IsChosenAssaultUse(frameId) ? new Card(0,CardKind.BarbarianAssault,Suit.None,0) :
+        cardId==0 && IsAHuiNanJuemanUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
+        cardId==0 && IsQinLangXianyingUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsMouZhijueZeroUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsTieredRoundZeroUse(frameId) ? TieredRoundZeroRepresentation(frameId) :
         cardId==0 && IsChainedStateBasicUse(frameId) ? ChainedStateBasicRepresentation(frameId) :
         cardId==0 && IsDrawFundedDistinctBasicUse(frameId) ? DrawFundedDistinctBasicRepresentation(frameId) :
+        cardId==0 && IsTianChouShandaoUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsProgramVirtualOrdinaryTrickUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
             HasExtraEffectMaterialClaim(frameId, cardId) ? EntityAtCurrentLocation(cardId) :

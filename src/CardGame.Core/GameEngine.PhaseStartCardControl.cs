@@ -104,6 +104,7 @@ public sealed partial class GameEngine
             Payment = payment, ArmorAcquired = obtain }, PendingMovementContinuation = new(from.OwnerSeat.Value, 0, null) });
         MoveProgramCardsFromMultipleSources([card.Id], to, new(PhaseStartControlReason(r.Kind)), (_, moves) =>
         {
+            foreach (var movement in moves) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
             var current = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(current with { PhaseStartCardControl = current.PhaseStartCardControl! with
                 { Payment = payment with { SequenceAfter = moves.Max(m => m.Sequence) } } });

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:cuorui": {
+      "name": "挫锐",
+      "description": "锁定技，游戏开始时，你将手牌数摸至X张（X为场上角色数）。当你成为延时锦囊牌的目标后，你跳过下个判定阶段。",
+      "booleanStates": { "skip-next-judgment": { "trueText": "跳过下个判定阶段", "falseText": "无待跳过的判定阶段" } }
+    },
+    "ol:liewei": {
+      "name": "裂围",
+      "description": "当你杀死一名角色时，你可以摸三张牌。"
+    }
+  }
+}

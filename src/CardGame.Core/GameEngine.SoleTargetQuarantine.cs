@@ -108,9 +108,39 @@ public sealed partial class GameEngine
 
     private bool ContinueSoleTargetQuarantineReturns(DeferredTurnEndFrame parent)
     {
-        if (parent.SoleTargetQuarantineReturns is not { } cursor) return false;
+        var cursor = parent.SoleTargetQuarantineReturns;
+        var afterEnded = parent.AfterTurnEnded is not null;
+        var resumedAfterEnded = afterEnded &&
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveDianjunActualTurnEnd) &&
+            IsActualAfterTurnEndedParent(parent) && parent.AfterTurnEnded!.CurrentChild is null &&
+            parent.AfterTurnEnded.ItemIndex >= 0 && parent.AfterTurnEnded.ItemIndex <= parent.AfterTurnEnded.Items.Count;
+        if (resumedAfterEnded && (cursor is null || cursor.Index == cursor.Receipts.Count))
+        {
+            if (_resolutionStack.LastOrDefault() != parent)
+                throw new InvalidOperationException("Late quarantine return requires its exact resumed actual-end parent.");
+            // The original cursor was frozen before Dianjun's end-owned Play.
+            // Add only still-outstanding receipts from this same actual turn;
+            // retain the consumed prefix and the original after-end window.
+            var late = OutstandingSoleTargetQuarantines(parent.TurnNumber, parent.OwnerSeat);
+            if (late.Length > 0)
+            {
+                var history = CompleteProgramEventHistory().ToArray();
+                if (!history.OfType<ZhangYiResolutionStartedEvent>().Any(start =>
+                    start.ParentWindowId == parent.Id && start.ActualTurnNumber == parent.TurnNumber &&
+                    start.Source.OwnerSeat == parent.OwnerSeat &&
+                    history.OfType<ZhangYiDianjunCleanupIssuedEvent>().Any(cleaned => cleaned.FrameId == start.FrameId &&
+                        cleaned.OwnerSeat == parent.OwnerSeat && cleaned.ActualTurnNumber == parent.TurnNumber)))
+                    throw new InvalidOperationException("A late quarantine lacks its completed end-owned Play return.");
+                if (cursor is not null && late.Any(r => cursor.Receipts.Any(old => old.CardUseFrameId == r.CardUseFrameId && old.ActionId == r.ActionId)))
+                    throw new InvalidOperationException("A consumed quarantine cursor retained an unsettled receipt.");
+                cursor = cursor is null ? new(Array.AsReadOnly(late)) : cursor with
+                    { Receipts = Array.AsReadOnly(cursor.Receipts.Concat(late).ToArray()) };
+                ReplaceRuntimeTop(parent = parent with { SoleTargetQuarantineReturns = cursor });
+            }
+        }
+        if (cursor is null) return false;
         if (cursor.MovementChildFrameId is not null || parent.OwnerSeat != _currentSeat || parent.TurnNumber != _turnNumber ||
-            parent.Current is not null || parent.AfterTurnEnded is not null || parent.Prelude is { Completed: false } ||
+            parent.Current is not null || afterEnded && !resumedAfterEnded || parent.Prelude is { Completed: false } ||
             !CompleteProgramEventHistory().OfType<TurnEndedEvent>().Any(e => e.ActorSeat == parent.OwnerSeat && e.TurnNumber == parent.TurnNumber))
             throw new InvalidOperationException("Quarantine return requires its actual completed turn and drained owned movement child.");
         while (true)

@@ -1,0 +1,98 @@
+{
+  "capturedAtUtc": "2026-10-15T20:44:27.7904031+00:00",
+  "status": "root-verified",
+  "officialId": 584,
+  "generalId": "ol:niu-jin",
+  "characterId": "character:niu-jin",
+  "rulesetId": "sanguosha-ol",
+  "variantId": "ordinary",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/584",
+      "httpStatus": 200,
+      "pageSha256": "8f7c041def6848e7ccc3ae4fc14daf349ccc3bddb724e520d0eb3565614bb6ea"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=584",
+      "httpStatus": 200,
+      "info": {
+        "gid": 584,
+        "name": "牛金",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/584.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58400.png",
+        "label": [
+          "防御",
+          "过牌",
+          "爆发"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "史诗",
+        "biography": "初为曹仁部曲将，周瑜军数万人来攻，前锋数千人始至，曹仁登城望，乃募得三百人，遣牛金迎战。但对方兵力较多，牛金遂被围困。曹仁亲自杀入阵中救出牛金。司马懿使牛金轻骑饵诱蜀军，刚交战诸葛亮就退兵，追至祁山。蜀将马岱入寇，司马懿遣将军牛金击退，斩千余级。公孙渊反，司马懿率牛金、胡遵等步骑四万发自洛阳，后平定辽东。",
+        "characteristic": "开局拥有大量手牌，杀死敌人获得大量手牌。受到延时锦囊牌的影响较小。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      }
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:cuorui",
+      "name": "挫锐",
+      "text": "锁定技，游戏开始时，你将手牌数摸至X张（X为场上角色数）。当你成为延时锦囊牌的目标后，你跳过下个判定阶段。"
+    },
+    {
+      "id": "ol:liewei",
+      "name": "裂围",
+      "text": "当你杀死一名角色时，你可以摸三张牌。"
+    }
+  ],
+  "interpretation": [
+    "Use the official OL hero584 skill pair, not another product or older cuorui initial-hand bonus.",
+    "Official API hp=4; initial_hp=0 means no override. Page OpenGraph hp=0 is inconsistent and not authoritative.",
+    "Opening refill is max(0, living player count - current hand count), without discarding existing cards.",
+    "Delayed use targeting, including self-targeted Lightning, arms a persistent one-next-Judgment skip; moving a delayed card without a use does not arm it.",
+    "Liewei requires the frozen death killer to be the owner and remains optional.",
+    "The next-judgment debt is consumed after all Preparation children, before checking any existing phase skip, and survives source loss; whole face-down skipped turns do not consume it."
+  ],
+  "art": {
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-niu-jin.png",
+    "sha256": "61ed5909e8e9e43e958b687edf71b5544dee3cb355019bdce67b6cf44033bcab",
+    "width": 750,
+    "height": 950
+  },
+  "integratedArtwork": {
+    "id": "58400",
+    "name": "经典形象",
+    "sourcePage": "https://www.sanguosha.com/hero/584",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-niu-jin.png",
+    "sha256": "61ed5909e8e9e43e958b687edf71b5544dee3cb355019bdce67b6cf44033bcab",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "viewed": true
+  },
+  "rootVerification": {
+    "date": "2026-10-16",
+    "focused": {
+      "corePassed": 13,
+      "coreFailed": 0,
+      "wpfPassed": 1,
+      "wpfFailed": 0,
+      "durationMs": 15241
+    },
+    "routine": {
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 31625
+    },
+    "visualEvidence": "Actual WPF gallery controls rendered offscreen and viewed for all three new generals.",
+    "manualForegroundAcceptance": false,
+    "fullVerificationRun": false,
+    "published": false
+  }
+}

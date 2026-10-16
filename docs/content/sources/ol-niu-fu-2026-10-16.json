@@ -1,0 +1,243 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:niu-fu",
+  "identity": {
+    "gid": 655,
+    "name": "牛辅",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "genderEvidence": "Current OL character h=1 and official 2025-04-30 release explicitly state Qun male 4 HP."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1355]",
+      "row": {
+        "a": 655,
+        "b": "牛辅",
+        "d": "NiuFu",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3547,
+        "k": 3548,
+        "p": 2,
+        "q": "1",
+        "r": "9065501",
+        "y": "董卓之婿，董翓之夫，是李傕、郭汜、张济等人的上司。牛辅生性迷信，常把玩兵符，亲信筮人。董卓败亡后，牛辅因营内动乱恐惧出逃，被亲信胡赤儿杀死。",
+        "z": "防御很高，惧怕多刀的对手。使用转化和虚拟杀有超高收益。",
+        "aa": 65,
+        "ab": "1233,1234",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250601T000000",
+        "LordCardRate1": 32,
+        "LordCardRate2": 51,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2576]",
+          "row": {
+            "a": 3547,
+            "b": "3,4,5",
+            "c": "蓍算",
+            "d": "ShiSuan",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，你受到伤害后，你重铸一张牌，来源选择一项：<br>&nbsp;1.失去1点体力；<br>&nbsp;2.交给你一张装备区里的牌；<br>&nbsp;3.将武将牌翻面。",
+            "w": "请选择一张牌重铸",
+            "v": "请选择一张装备牌交给{0}"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2577]",
+          "row": {
+            "a": 3548,
+            "b": "3",
+            "c": "纵掠",
+            "d": "ZongLue",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "n": 0,
+            "o": "出牌阶段限一次，你可以将一张牌当【杀】使用。你使用【杀】对目标角色造成伤害后，若实体牌不为【杀】或没有实体牌，你可以获得其区域各一张牌。",
+            "v": "请选择一张牌当<font color='#FFD800'>杀</font>使用"
+          }
+        }
+      ]
+    },
+    "capturedAtUtc": "2026-10-16T11:22:59.222602+00:00"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/655",
+      "supports": "Current complete Shisuan 3547 and Zonglue 3548."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=655",
+      "supports": "Current ordinary OL identity, Qun 4 HP, biography and portrait."
+    },
+    {
+      "url": "https://sanguosha.com/news/20250427_5050_5013",
+      "published": "2025-04-30",
+      "supports": "Official full release text and explicit male Qun 4 HP."
+    }
+  ],
+  "rules": {
+    "shisuan": "Once per actual positive whole damage instance, the damaged owner really recasts one HE entity, draining native cost/removal children before its native recast draw and all draw children. Then the original living damage source chooses actual HP loss, a transferable equipment-area gift, or native turn-over. The source is the chooser, not Niu Fu.",
+    "emptyRecast": {
+      "status": "implementation inference from sequential mandatory text",
+      "explanation": "If the owner has no HE entity, no recast cost or draw is fabricated, but the remaining living-source choice still executes. A source-less or already dead source skips its own choice after the real owner recast. Owner death drains paid children and cancels unpaid steps."
+    },
+    "zonglue": "Play-phase limited one-entity HE-to-Slash uses the existing real native conversion debit. The separate damage trigger accepts any source of conversion or zero-entity native Slash, with actual damage source and CardUser both equal to the skill owner, actual designated victim and no chain propagation. It never treats arbitrary cardless skill damage or Duel response damage as Slash damage.",
+    "physicalMaterials": {
+      "status": "implementation inference from current primary text; no dedicated official multiple-entity FAQ found",
+      "explanation": "Freeze the original actual physical material kinds: zero entities qualifies; any non-Slash-family entity qualifies; an entity set entirely made of original Slash-family cards does not qualify merely because it has multiple members. Native printed physical payment remains distinct from optional conversion choices. Every physical member is individually invoiced."
+    },
+    "zones": "After accepting Zonglue, choose one actual entity in each currently available Hand, Equipment and Judgment zone, moving and draining the native children before advancing to the next zone. Foreign hand choices use opaque slots with no hidden IDs, public zones preserve actual public identities. Empty zones are skipped. A paid first transfer survives later source loss; owner death cancels unperformed transfers.",
+    "equipment": "GeneralWeapon cannot be given as the source equipment gift. Native permitted recast and obtain normalization may remove it to OutsideGame, never fabricate a hand gain or discard-pile arrival. Silver Lion recovery/replacement and Wooden Ox grain cleanup retain their original native movement/health return boundaries.",
+    "recovery": "All pending state belongs to the exact owning ProgramSkillFrame receipt. Source, gameplay hash, damage candidate, actual turn, original materials, per-zone cursor and paid movement invoices freeze scalar facts or defensively copied collections. Source choice and native HP/turn-over facts survive cold replay without repaying a cost."
+  },
+  "validation": {
+    "status": "implemented-and-root-verified",
+    "judgmentZoneFixture": "The three-zone scenarios use a fixed mixed physical deck of printed Indulgence and Crossbow, one bounded native preparation draw, a real equipment gift and an actual native Indulgence use. No identity rewrite creates the delayed trick; the resulting original Judgment entity is then obtained through Zonglue's actual zone cursor, including paid-source-loss and owner-death paths.",
+    "focusedChecks": [
+      "ShisuanSourceBranchesNullDeadAndEmptyCold",
+      "ShisuanPaidRecastLossDeathLionOxCold",
+      "ZonglueAnySlashMaterialsAndChainProofCold",
+      "ZonglueOnePerZoneOpaqueGainChildrenLossCold"
+    ]
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T11:25:39.618883+00:00",
+    "generalId": 655,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/655",
+      "byteCount": 24170,
+      "sha256": "31baee7708e0229fcad54d658a9ba5ca371796cbaed6eb2f8f114695cb130c72",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=655",
+      "byteCount": 908,
+      "sha256": "dee5fcc40d9d28a50c5994544fb7bb380e5987ab226b67fb14a9d9418ea93281",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 655,
+            "name": "牛辅",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/655.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65500.png",
+            "label": [
+              "进攻",
+              "简单",
+              "永不断杀"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "董卓之婿，董翓之夫，是李傕、郭汜、张济等人的上司。牛辅生性迷信，常把玩兵符，亲信筮人。董卓败亡后，牛辅因营内动乱恐惧出逃，被亲信胡赤儿杀死。",
+            "characteristic": "防御很高，惧怕多刀的对手。使用转化和虚拟杀有超高收益。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/65500.png",
+      "byteCount": 1206891,
+      "sha256": "23a8eb9fad9e3af1423c38e6142e355d2ef0eb9f3dc05c5ebd244a4adeafce42",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-niu-fu.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-16T12:24:06.742965+00:00",
+    "status": "passed",
+    "focusedBehaviorChecksForThisGeneral": 4,
+    "batchFocusedScope": {
+      "newGeneralBehaviorChecks": 12,
+      "sharedCoreChecks": 2,
+      "wpfChecks": 2,
+      "durationMs": 17477
+    },
+    "relatedRegression": {
+      "coreChecks": 41,
+      "durationMs": 21864
+    },
+    "routineScope": {
+      "command": "tools/Test-Changed.ps1",
+      "coreChecks": 140,
+      "wpfChecks": 20,
+      "durationMs": 32611
+    },
+    "portraitAndRenderedGalleryInspected": true,
+    "fullVerificationRun": false,
+    "versions": "Rules epoch, rules JSON schema and package versions remain unchanged at their authoritative source declarations."
+  }
+}

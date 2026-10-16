@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:cuipo", "revision": 1, "triggers": [
+      { "id": "actual-turn-name-ordinal", "window": "cardUseCommitted", "ownerRelation": "actor", "includeResponseUses": true, "optional": false,
+        "effects": [{ "op": "resolveCuipoActualTurnUse", "target": "owner" }] }
+    ] }
+  ]
+}

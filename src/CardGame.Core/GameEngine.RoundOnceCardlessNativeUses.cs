@@ -19,7 +19,7 @@ public sealed partial class GameEngine
  }
  private IReadOnlyList<LegalAction> RoundOnceCardlessPlayActions(CharacterState actor)
  {
-  if(_phase!=TurnPhase.Play||actor.Seat!=_currentSeat||!actor.IsAlive)return [];
+  if(!actor.IsAlive||(_phase!=TurnPhase.Play||actor.Seat!=_currentSeat)&&!IsKeBiNengPingduanBasicQuery(actor))return [];
   var result=new List<LegalAction>();
   foreach(var(source,rule)in RoundOnceCardlessRules(actor,CardKind.Slash))
   {
@@ -124,7 +124,7 @@ public sealed partial class GameEngine
             SetCardUseStep(old.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(old.ResolutionId, actor.Seat, target.Seat,
                 Used: true, SlashCardIds: [], EffectiveSlashKind: kind));
-            CompleteAttack(old); SuspendContinuationForQinglongFollowup(old.ResolutionId);
+            SuspendContinuationForQinglongFollowup(old.ResolutionId);
             BeginRoundOnceCardlessForcedSlash(actor, target, kind, conversion, null, false);
         }
         else

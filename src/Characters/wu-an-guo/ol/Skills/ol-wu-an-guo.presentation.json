@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:liyong":{"name":"历勇","description":"转换技，出牌阶段，阳：你可以将一张本回合你未使用过的花色的牌当【决斗】使用；阴：你可以从牌堆中获得一张你本回合使用过的花色的牌，令一名角色视为对你使用一张【决斗】。","activationLabels":{"yin-obtain-and-incoming-duel":"历勇·阴：获得已用花色牌，再令所选角色对你决斗"},"booleanStates":{"yin":{"trueText":"历勇·阴","falseText":"历勇·阳"}}}}}

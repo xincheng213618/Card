@@ -817,6 +817,9 @@ public sealed partial class SimpleAiBrain
                           prompt.Choices.Any(choice =>
                               choice.Parameters.GetValueOrDefault("response") is
                                   "borrowed-sword-slash" or "faction-slash-request" ||
+                              choice.Parameters.GetValueOrDefault("response") == "kenshang-request-open" &&
+                              choice.Cards.Count == 0 && choice.Targets.SequenceEqual([slashTargetSeat]) &&
+                              choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
                               choice.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash" &&
                               choice.Parameters.GetValueOrDefault("forced-use") == "borrowed-sword" && choice.Cards.Count == 0 &&
                               choice.Targets.SequenceEqual([slashTargetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -1068,14 +1071,16 @@ public sealed partial class SimpleAiBrain
         var candidates = prompt.Choices.Select(choice =>
         {
             var action = choice.Parameters.GetValueOrDefault("action");
-            var usesOwnSlash = action == "qinglong-slash" || action == "tiered-round-zero-forced-slash" &&
+            var usesKenshang = action == "kenshang-request-open" && choice.Cards.Count == 0 &&
+                choice.Targets.SequenceEqual([targetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var usesOwnSlash = usesKenshang || action == "qinglong-slash" || action == "tiered-round-zero-forced-slash" &&
                 choice.Parameters.GetValueOrDefault("forced-use") == "qinglong" && choice.Cards.Count == 0 &&
                 choice.Targets.SequenceEqual([targetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture);
             var requestsFactionSlash = action == "qinglong-jijiang";
             var continuesAttack = usesOwnSlash || requestsFactionSlash;
             var cardCost = usesOwnSlash && choice.Cards.Count == 1 && ownedCards.TryGetValue(choice.Cards[0], out var card)
                 ? CardCatalog.Get(card.Kind).HandKeepValue
-                : 0;
+                : usesKenshang ? ownedCards.Values.Select(card => CardCatalog.Get(card.Kind).HandKeepValue).Order().Take(2).Sum() : 0;
             var score = continuesAttack
                 ? hostility * 1.2d + (target.Hp <= 1 ? 45d : 0d) - cardCost * .45d - (requestsFactionSlash ? 2d : 0d)
                 : 0d;

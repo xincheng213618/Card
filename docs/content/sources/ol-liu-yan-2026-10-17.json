@@ -1,0 +1,253 @@
+{
+  "generalId": "ol:liu-yan",
+  "characterId": "character:liu-yan",
+  "product": "三国杀OL",
+  "variantId": "ordinary",
+  "officialGid": 634,
+  "status": "implemented-awaiting-root-verification",
+  "checkedAtUtc": "2026-10-17T01:43:46.57667+08:00",
+  "identity": {
+    "name": "刘焉",
+    "faction": "群",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3,
+    "clientGenderCode": 1,
+    "clientFactionCode": 4
+  },
+  "skills": [
+    {
+      "id": "ol:tushe",
+      "clientId": 3497,
+      "clientKey": "TuShe",
+      "name": "图射",
+      "text": "当你使用非装备牌指定目标后，若你没有基本牌，则你可以摸X张牌（X为此牌指定的目标数）。"
+    },
+    {
+      "id": "ol:limu",
+      "clientId": 3498,
+      "clientKey": "LiMu",
+      "name": "立牧",
+      "text": "出牌阶段，你可以将一张方片牌当【乐不思蜀】对自己使用，然后回复1点体力；你的判定区有牌时，你对攻击范围内的其他角色使用牌没有距离和次数限制。"
+    }
+  ],
+  "evidence": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    },
+    "decoder": "Public sgsGame_a.sgs InitOfb pR.WorkParse: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": [
+      {
+        "path": "GameCharacters.character[1335]",
+        "row": {
+          "a": 634,
+          "b": "刘焉",
+          "d": "LiuYan",
+          "e": 44,
+          "f": "41",
+          "g": 4,
+          "h": 1,
+          "i": 3,
+          "j": 3497,
+          "k": 3498,
+          "p": 3,
+          "q": "1",
+          "r": "9063401",
+          "y": "字君郎，汉朝宗室。曾劝汉灵帝重设州牧，因听说益州有天子气，自请益州牧。刘焉在任益州时，衣服车具都有所僭越。兴平元年，与马腾同谋反对李傕，事败损失长子刘范。",
+          "z": "可以通过支付延时的代价，换取即时的超强爆发。",
+          "aa": 150,
+          "ab": "1191,1192",
+          "al": 1740,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "ar": "20240812T235959",
+          "bn": "无限出杀 爆发强将",
+          "LordCardRate1": 35,
+          "LordCardRate2": 40,
+          "starMax": 4,
+          "freetitle": "0,爆发强将"
+        },
+        "spells": [
+          {
+            "path": "GameSpells.spell[2528]",
+            "row": {
+              "a": 3497,
+              "b": "3,5",
+              "c": "图射",
+              "d": "TuShe",
+              "e": 0,
+              "g": 3,
+              "i": 2,
+              "ab": 1,
+              "o": "当你使用非装备牌指定目标后，若你没有基本牌，则你可以摸X张牌（X为此牌指定的目标数）。"
+            }
+          },
+          {
+            "path": "GameSpells.spell[2529]",
+            "row": {
+              "a": 3498,
+              "b": "3",
+              "c": "立牧",
+              "d": "LiMu",
+              "e": 0,
+              "g": 1,
+              "h": 1,
+              "i": 2,
+              "o": "出牌阶段，你可以将一张方片牌当【乐不思蜀】对自己使用，然后回复1点体力；你的判定区有牌时，你对攻击范围内的其他角色使用牌没有距离和次数限制。",
+              "v": "请选择一张方片牌"
+            }
+          }
+        ]
+      }
+    ],
+    "primary": {
+      "hero": {
+        "url": "https://www.sanguosha.com/hero/634",
+        "finalUrl": "https://www.sanguosha.com/hero/634",
+        "status": 200,
+        "byteCount": 24509,
+        "sha256": "dc00388a681063db4e9a5542edc03523026fb34833a5f206cf36455ed0549d31"
+      },
+      "api": {
+        "url": "https://www.sanguosha.com/api/v1/hero/info?gid=634",
+        "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=634",
+        "status": 200,
+        "byteCount": 896,
+        "sha256": "d555cab4f18c9693ac1765db8274317448eae90f384af140686e16e74e0d0c61",
+        "payload": {
+          "code": 0,
+          "message": "OK",
+          "data": {
+            "info": [
+              {
+                "gid": 634,
+                "name": "刘焉",
+                "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/634.png",
+                "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63400.png",
+                "label": [
+                  "进攻",
+                  "过牌",
+                  "回复"
+                ],
+                "figure": "群",
+                "figure_py": "qun",
+                "quality": "传说",
+                "biography": "字君郎，汉朝宗室。曾劝汉灵帝重设州牧，因听说益州有天子气，自请益州牧。刘焉在任益州时，衣服车具都有所僭越。兴平元年，与马腾同谋反对李傕，事败损失长子刘范。",
+                "characteristic": "可以通过支付延时的代价，换取即时的超强爆发。",
+                "hp": 3,
+                "initial_hp": 0,
+                "score": 0
+              }
+            ],
+            "radar": [
+              {
+                "name": "地主",
+                "value": 6
+              },
+              {
+                "name": "农民",
+                "value": 5
+              },
+              {
+                "name": "主公",
+                "value": 5
+              },
+              {
+                "name": "忠臣",
+                "value": 6
+              },
+              {
+                "name": "内奸",
+                "value": 7
+              }
+            ],
+            "deeds": []
+          }
+        }
+      },
+      "portrait": {
+        "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63400.png",
+        "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63400.png",
+        "status": 200,
+        "byteCount": 1177284,
+        "sha256": "1b9554212b71a658d322595d5fd5e877c78a35a904b1dde1a3d9b4e2024b5f05",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      },
+      "release": {
+        "url": "https://www.sanguosha.com/news/20240708_7007_4116",
+        "finalUrl": "https://www.sanguosha.com/news/20240708_7007_4116",
+        "status": 200,
+        "byteCount": 423016,
+        "sha256": "e2645e9c86645ad8f5e6ebce4442ebfc9ab855646ddf880a5eb29696675b7701",
+        "title": " 7.13-7.21 蜀中篇祈福限定武将蒋琬首发 限时双倍重置 谋庞统蜀中祈愿上新 - 三国杀OL官网",
+        "publishedTimes": [
+          "2024-07-12 17:02:25",
+          "2024-07-12 17:02:25",
+          "2024-07-12 17:02:25"
+        ]
+      }
+    }
+  },
+  "supplementary": [
+    {
+      "url": "https://my.4399.com/yxxxtjd/ziliao/63305/",
+      "title": "4399三国杀OL 天极系列武将：刘焉攻略！",
+      "published": "2024-07-26",
+      "authority": "Same-product OL guide, supplementary interpretation; not an official FAQ. The page is hosted in an unrelated 4399 site shell, but its title, body and illustrated skill text explicitly identify 三国杀OL.",
+      "supportedRules": [
+        "Tushe can trigger on a real off-turn Peach use and on self-targeted Limu; Dodge and Nullification have no designated character targets and cannot trigger Tushe.",
+        "Equipment uses do not trigger Tushe. Target designation/addition precedes the post-designation Tushe window.",
+        "Limu accepts diamond entities from hand, equipment or accessible Wooden Ox grain. An abolished judgment zone prevents activation, and removing the placed Indulgence permits another use.",
+        "Limu recovery uses the native recovery pipeline and can receive Yizheng support."
+      ]
+    }
+  ],
+  "implementation": {
+    "tushe": "Reads the live native use Action after the real cost and current target adjustments, freezes its distinct designated role targets, and draws one real entity per target. Only current effective Hand identities count as basic; stored Ox grain and optional viewAs conversions do not alter hand identity.",
+    "limu": "Pays one exact diamond entity from its original zone into native Processing; uses that real entity as self Indulgence with a dedicated immutable origin, native nullification and delayed placement. Native completion returns to the original owning frame, drains paid children, then issues one standard recovery if its owner is alive.",
+    "allowance": "A live Limu source and an actual card in judgment grant per-other-target distance/quota allowance only while that target is currently within actual attack range. Material equipment exclusions are preserved; no global unlimited marker is created.",
+    "boundaries": "Pending work is owned by ProgramSkillFrame.LiuYan. Source generation, native Use/Action and physical payment movement are bound exactly. A paid source may finish after skill loss or death; an unpaid unavailable target cannot start. Collections on receipts are defensively frozen; new events contain only scalar values or immutable scalar origins."
+  },
+  "inferences": [
+    "The official phrase no basic cards follows current effective identities of hand cards. Native continuous hand identity such as Fuman is included; optional viewAs eligibility is not a persistent identity.",
+    "The stated then-recover step follows a genuine paid use even if its effect is counterspelled; death prevents a new recovery. A delayed target invalidated after payment terminates through the exact native use return rather than duplicating payment.",
+    "The scope of no distance and number limits is per use against current in-range other characters. Removing judgment, losing Limu or paying an equipped range source removes the live allowance immediately.",
+    "The guide explicitly excludes Dodge and Nullification because neither has designated character targets; the implementation therefore serves genuine Use target windows, including off-turn Peach, rather than counting arbitrary responses."
+  ],
+  "focusedChecks": [
+    "LiuYanChecks.ActualTargetsPostPaymentAndEffectiveHandCold",
+    "LiuYanChecks.LimuHandEquipmentGrainNativeRecoveryCold",
+    "LiuYanChecks.LiveJudgmentRangeAndPerTargetQuotaCold",
+    "LiuYanChecks.CounterspellPaidChildrenLossDeathAndPrivateCold"
+  ],
+  "verification": {
+    "status": "pending",
+    "performedBy": "root",
+    "agentBuildOrTestRuns": 0
+  }
+}

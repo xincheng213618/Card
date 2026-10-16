@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:qiongshou", "revision": 1,
+      "modifiers": [ { "id": "hand-limit-four", "query": "handLimit", "operation": "add", "value": 4, "priority": 0 } ],
+      "triggers": [ { "id": "initial-equipment-abolition", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [ { "op": "abolishOwnerAreas", "target": "owner", "zones": ["equipment"] }, { "op": "draw", "target": "owner", "amount": 4 } ] } ] },
+    { "id": "ol:fenrui", "revision": 1, "triggers": [ {
+      "id": "ending-restore-equipment", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+      "effects": [ { "op": "restoreSlotAndUseMatchingEquipment", "target": "owner" } ]
+    } ] }
+  ]
+}

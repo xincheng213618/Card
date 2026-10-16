@@ -251,42 +251,31 @@ internal static class DrawFundedDistinctBasicResponseChecks
         if (optionalCompleted)
         {
             var suspended = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == outer.Id);
-            var saved = suspended.Continuations.QinglongFollowup?.Decision ??
-                throw new InvalidOperationException("The paid Qinglong follow-up lost its saved outer completion prompt.");
-            var window = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(f => f.ParentFrameId == outer.Id);
-            var windowIndex = g.ResolutionStack.ToList().FindIndex(f => f.Id == window.Id);
-            Require(saved is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true, PlayerSeat: 0 } &&
-                saved.SkillPrompt?.SkillId == Completed && saved.Choices.Count == 2 &&
-                saved.Choices.Select(c => c.Parameters.GetValueOrDefault("program-action")).Order().SequenceEqual(["activate", "skip"]) &&
-                suspended.Step == ResolutionFrameStep.Completed && !window.Activated &&
-                g.ResolutionStack[windowIndex + 1].Id == use.Id &&
-                !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.WindowContext?.ParentFrameId == window.Id) &&
-                P(g)!.PromptId != saved.PromptId && P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"),
-                "The exact outer completion remains an unbound optional candidate with its original private prompt saved beneath the paid follow-up.");
+            Require(suspended.Step != ResolutionFrameStep.Completed && suspended.Continuations.QinglongFollowup is
+                { Active: true, Decision: null, FollowupUseId: var childId } && childId == use.Id &&
+                !F<CardUseFinishedEvent>(g).Any(f => f.ResolutionId == outer.Id) &&
+                !g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(f => f.ParentFrameId == outer.Id),
+                "The optional original completion does not exist before the inserted paid child returns.");
             Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
             ReachNative(g, p => p.SkillPrompt?.SkillId == Completed && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-option"));
             Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Completed).WindowContext?.CardUse?.ParentCardUseFrameId == use.Id &&
                 F<ProgramBindingStartedEvent>(g).Count(f => f.SkillId == Completed) == 1,
-                "Activating the follow-up completion binds only the child Use while the original optional candidate remains unbound.");
+                "The child alone owns the first completed-use skill activation.");
             Private(g); g = Cold(g, r); Continue(g);
-            var restored = P(g)!;
-            Require(restored is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true, PlayerSeat: 0 } &&
-                restored.PromptId == saved.PromptId && restored.Revision == g.Revision && restored.Prompt == saved.Prompt &&
-                restored.SourceSeat == saved.SourceSeat && restored.TargetSeat == saved.TargetSeat &&
-                restored.ValidCardIds.SequenceEqual(saved.ValidCardIds) && restored.ValidTargetSeats.SequenceEqual(saved.ValidTargetSeats) &&
-                restored.ValidContentIds.SequenceEqual(saved.ValidContentIds) &&
-                JsonSerializer.Serialize(restored.SkillPrompt) == JsonSerializer.Serialize(saved.SkillPrompt) &&
-                JsonSerializer.Serialize(restored.Choices) == JsonSerializer.Serialize(saved.Choices) &&
+            ReachNative(g, p => p.SkillPrompt?.SkillId == Completed && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
+            Require(P(g) is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true, PlayerSeat: 0 } &&
                 !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id) &&
                 !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Completed) &&
+                g.Events.Single(e => e.Payload is CardUseFinishedEvent f && f.ResolutionId == use.Id).Sequence <
+                    g.Events.Single(e => e.Payload is CardUseFinishedEvent f && f.ResolutionId == outer.Id).Sequence &&
                 F<ProgramBindingStartedEvent>(g).Count(f => f.SkillId == Completed) == 1,
-                "The child returns before the exact saved outer optional prompt is restored at the current command revision, without activating or rebinding that original candidate.");
+                "The original optional completion is first offered after the child has fully returned, without repaying its fee.");
             Once(g, paid.Payment, use.Id);
             Private(g); g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
             ReachNative(g, p => p.SkillPrompt?.SkillId == Completed && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-option"));
             Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Completed).WindowContext?.CardUse?.ParentCardUseFrameId == outer.Id &&
                 F<ProgramBindingStartedEvent>(g).Count(f => f.SkillId == Completed) == 2,
-                "The restored original optional candidate binds once to its own outer Use only after the paid child has returned.");
+                "The original candidate binds once to its own Use only after the paid child returns.");
             Private(g); g = Cold(g, r);
         }
         Continue(g); ReachNative(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });

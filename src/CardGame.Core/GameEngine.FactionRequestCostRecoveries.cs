@@ -110,6 +110,7 @@ public sealed partial class GameEngine
             SetCardUseStep(qinglong!.Attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(qinglong.Attack.ResolutionId,
                 qinglong.Attack.SourceSeat, qinglong.Attack.TargetSeat, false, [], null));
+            RestoreFactionRequestAfterQinglongChoice(qinglong.Attack.ResolutionId);
             CompleteAttack(qinglong.Attack); return;
         }
         CompleteAttack(responseAttack!);

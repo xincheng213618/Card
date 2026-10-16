@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:guying":{"name":"固营","description":"回合外实际单张失牌，由当前回合角色选择补偿；准备阶段结算累计弃牌。"},"ol:muzhen":{"name":"睦阵","description":"两项各限一次：交两牌换装备，或置入装备后获得手牌。","activationLabels":{"gift-and-obtain-equipment":"交两牌，取装备","place-and-obtain-hand":"置装备，取手牌"}}}}

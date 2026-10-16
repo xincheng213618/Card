@@ -1,0 +1,261 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:zhang-yan",
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T10:49:24.469280+00:00",
+    "generalId": 581,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/581",
+      "byteCount": 24349,
+      "sha256": "4a68211e3796f9021051c378ea7e6e4bbaab954064ed6071ce6a328fdfadeaa0",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=581",
+      "byteCount": 940,
+      "sha256": "bde42f38ced2816f34223b86c263e5e31c0b351932dff5cf39286b59400dbe62",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 581,
+            "name": "张燕",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/581.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58100.png",
+            "label": [
+              "进攻",
+              "强命",
+              "加伤"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "张燕，本姓褚，生卒年不详，常山真定（今河北正定南）人，东汉末年黑山军首领。张燕剽捍，敏捷过人，军中称为“飞燕”。官渡之战时投降曹操，被任命为平北将军，封安国亭侯。死后其子张方袭爵。",
+            "characteristic": "压制型武将，需要在【杀】的效果选择上与敌方互相博弈以取得最大收益。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 5
+          },
+          {
+            "name": "农民",
+            "value": 8
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/58100.png",
+      "byteCount": 847813,
+      "sha256": "1a8f027447cabfa4f20a7d04fbe9bb7ffd3ba0b34ee92edaef61ad38f947b2ff",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-zhang-yan.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T10:49:24.766667+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1282]",
+      "row": {
+        "a": 581,
+        "b": "张燕",
+        "d": "ZhangYan",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3367,
+        "k": 3368,
+        "p": 2,
+        "q": "1",
+        "r": "9058101",
+        "y": "张燕，本姓褚，生卒年不详，常山真定（今河北正定南）人，东汉末年黑山军首领。张燕剽捍，敏捷过人，军中称为“飞燕”。官渡之战时投降曹操，被任命为平北将军，封安国亭侯。死后其子张方袭爵。",
+        "z": "压制型武将，需要在【杀】的效果选择上与敌方互相博弈以取得最大收益。",
+        "aa": 129,
+        "ab": "1091,1092",
+        "ad": "画师:君桓文化",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20231114T235959",
+        "cb": "2;3",
+        "starMax": 4,
+        "freetitle": "0,攻击强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2402]",
+          "row": {
+            "a": 3367,
+            "b": "3,5",
+            "c": "肃疾",
+            "d": "SuJi",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "n": 0,
+            "o": "已受伤角色的出牌阶段开始时，你可以将一张黑色牌当【杀】使用，若其受到此【杀】伤害，你获得其一张牌。",
+            "v": "是否发动<font color='#FFD800'>肃疾</font>，选择一张黑色牌当<font color='#FFD800'>杀</font>使用或取消",
+            "autoCancel": 1
+          }
+        },
+        {
+          "path": "GameSpells.spell[2403]",
+          "row": {
+            "a": 3368,
+            "b": "3,5",
+            "c": "狼蹈",
+            "d": "LangDao",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "n": 0,
+            "o": "当你使用【杀】指定唯一目标时，你可以与其同时选择一项，令此【杀】：伤害值+1/目标数+1/不能被响应。若未杀死角色，你移除此次被选择的项。"
+          }
+        }
+      ]
+    }
+  },
+  "rules": {
+    "ol:suji": "已受伤角色的出牌阶段开始时，你可以将一张黑色牌当【杀】使用，若其受到此【杀】伤害，你获得其一张牌。",
+    "ol:langdao": "当你使用【杀】指定唯一目标时，你可以与其同时选择一项，令此【杀】：伤害值+1/目标数+1/不能被响应。若未杀死角色，你移除此次被选择的项。"
+  },
+  "sameProductGuides": [
+    {
+      "url": "https://www.taptap.cn/moment/476293667028469222?group_id=5009",
+      "originalUrl": "https://club.sanguosha.com/thread-1284824-1-1.html",
+      "title": "【武将攻略】武将排位全析——张燕",
+      "author": "三国杀OL撰稿组 / 原创作者洛奈",
+      "publishedAt": "2023-11-21",
+      "role": "Same-product OL author guide, not an official dedicated FAQ. It explicitly confirms normal attack range, no Slash quota debit, a black equipped card as material, and any legal Slash target at a wounded participant's Play start. Matching votes stack and options reset after true loss and reacquisition of the skill."
+    },
+    {
+      "url": "https://my.4399.com/yxcqsj/ziliao/57617/",
+      "title": "4399三国杀OL 天柱系列武将：张燕攻略！",
+      "role": "Same-product player guide search extract; direct address currently redirects. Corroborates both Damage votes adding two, both ExtraTarget votes allowing up to two, added targets needing legal range, and Dying rescue failing to preserve selected options. No claim of an official FAQ."
+    }
+  ],
+  "implementationInferences": [
+    {
+      "topic": "Suji reward",
+      "explanation": "The pronoun 其 remains the wounded actual Play owner, independently of the freely selected Slash target. Every actual positive AfterDamageApplied occurrence from that same native Use to that participant issues one forced HE obtain through the original source instance, including a legal added target, redirected hit, chained damage or extra effect round. Non-damage/other participants never qualify; dead participants cannot supply a card. A self-overlap hand obtain is a genuine no-op while an equipped card can move into its owner's hand. The per-occurrence timing is an engine reading of the current wording, not a dedicated official FAQ."
+    },
+    {
+      "topic": "simultaneous options",
+      "explanation": "Both participants privately commit to the same frozen available set without reading the earlier vote. Reveal occurs only after both answers. Numeric effects count votes; NoResponse is a boolean. The source owner may then add up to the counted number of distinct currently legal normally in-range targets, including zero; selected effects are not optional after voting."
+    },
+    {
+      "topic": "failure and skill-instance lifetime",
+      "explanation": "UseFinished settles once after all native targets, chains, extra effect rounds, Dying and response children. Current wording 若未杀死角色 covers any actual direct damage death attributed to this same native Use, including a later recipient; an unrelated nested child death and a rescued Dying do not count. Failure removes the distinct selected options for the issuing SkillInstanceId. A new instance after loss/regrant starts with all three, as explicitly tested by the OL guide. Issued use effects survive source loss/death and cannot be re-bound to a replacement actor."
+    }
+  ],
+  "behaviorChecks": [
+    "ZhangYanChecks.SujiAnyTargetOwnForeignNormalRangeAndDamageOwnerCold",
+    "ZhangYanChecks.LangdaoSealedVotesStackAndDistinctPermanentOptionsCold",
+    "ZhangYanChecks.NativeMultipleTargetsNoResponseKillAndRegrantCold",
+    "ZhangYanChecks.NativeEquipmentPaymentRewardChildrenLossDeathAndPrivacyCold"
+  ],
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 35930,
+      "steps": {
+        "Build selected scope": 23030,
+        "Core selected checks (5 filters, union)": 7477,
+        "WPF selected checks (2 filters, union)": 12535
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Zhang Yan:', 'Wu An Guo:', 'Han Fu:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program paid choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 27,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 14644,
+      "steps": {
+        "Build selected scope": 2533,
+        "Core selected checks (10 filters, union)": 11829
+      },
+      "scope": "He Jin and selected-actor Duel native returns; Qian Zhao and Ma Wan extra targets; Lu Yu Sheng and Du Fu Ren chain/phase receipts; original-target addition; legacy Benxi and Fu Wan virtual Slash; Pang De physical-material claims."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32446,
+      "steps": {
+        "Build selected scope": 2836,
+        "Core selected checks (140 filters, union)": 11369,
+        "WPF selected checks (20 filters, union)": 29229
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Zhang Yan gallery",
+      "OL Wu An Guo gallery",
+      "OL Han Fu gallery",
+      "generic private paid choices"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. Nullable new frame fields are omitted when absent; native bridges require exact issued receipts or the new compiled capabilities.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; original native Space press/release guard passed.",
+    "verifiedAtUtc": "2026-10-16T11:18:23.586286+00:00"
+  }
+}

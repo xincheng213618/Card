@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:wanwei": {
+      "name": "挽危",
+      "description": "每回合限一次，当你的牌被其他角色弃置或获得后，你可以从牌堆获得一张同名牌（无同名牌则改为摸一张牌）。",
+      "triggerChoices": {
+        "foreign-owned-loss": "发动挽危，取得同名牌"
+      }
+    },
+    "ol:yuejian": {
+      "name": "约俭",
+      "description": "每回合限两次，当其他角色对你使用的牌置入弃牌堆时，你可以展示所有手牌（至少一张），若花色与此牌均不同，你获得此牌。",
+      "triggerChoices": {
+        "foreign-target-used-card-discard": "展示全部手牌，发动约俭"
+      }
+    }
+  }
+}

@@ -46,6 +46,10 @@ public sealed partial class GameEngine
         RedirectCardUseTarget(attack.ResolutionId, previousSeat, targetSeat);
         RecordCurrentSlashFireRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordShortRangeSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordMaWanHunjiangRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordZhangYanLangdaoRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordWeifuRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordKenshangRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordDesignatedExtraTargetRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordCurrentEnhancementSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordSoleTargetAfterProtectionRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);

@@ -228,7 +228,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The zhiren field card left its field zone.");
             var card = _cardZones.CardsAt(location).Single(item => item.Id == cardId);
             MoveCards([card], location, CardLocation.DiscardPile,
-                new($"skill-program.{active.SkillId}.zhiren-field"));
+                new($"skill-program.{active.SkillId}.zhiren-field"),
+                movement => RecordBianFuRenForeignDiscardProducer(movement,active.OwnerSeat,active.Id));
         }
         if (!delayedStage)
         {

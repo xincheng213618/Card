@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:duan-wei",
+  "characterId": "character:duan-wei",
+  "product": "三国杀OL",
+  "officialGid": 763,
+  "officialPage": "https://www.sanguosha.com/hero/763",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=763",
+  "officialNotice": "https://www.sanguosha.com/news/20260722_7347_4713",
+  "noticePublishedAt": "2026-07-24 17:00:26",
+  "releasedAt": "2026-07-26",
+  "verifiedName": "段煨",
+  "faction": "qun",
+  "hp": 4,
+  "gender": "Male",
+  "genderEvidence": "Official release notice table names 男",
+  "skills": [
+    {
+      "id": "ol:taohuai",
+      "name": "讨怀",
+      "description": "转换技，你使用手牌中点数：阳：最大的牌；阴：最小的牌。摸一张牌。否则你可弃置一张牌。"
+    }
+  ],
+  "pageUtf8Sha256": "d6ae74dd0cf7dd8c27dca0f97b4b411c08a1f685ca251e652b91c13fd50d6f99",
+  "apiUtf8Sha256": "89aacfaff3ebae305ad784ae55b4e641a0da265f867873e887ca4038e0ca3d8d",
+  "artwork": {
+    "portraitKey": "ol-duan-wei",
+    "officialCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/76300.png",
+    "officialAvatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/763.png",
+    "noticeOriginal": "https://wwwoss.sanguosha.com/uploads/202607/BjTkwOBWFqx9odsX.png",
+    "integration": "Official hero763 cover downloaded, hashed and visually inspected; integratedArtwork carries exact bytes and dimensions."
+  },
+  "interpretation": [
+    "The current official hero page and July 2026 release describe 讨怀; the 十周年 classic 狼灭 variant is a different product/version and is not registered here.",
+    "Rank comparison uses the entire owner hand immediately before the actual Use pays its physical materials, reconstructed from trusted native movement facts; tied extrema qualify.",
+    "Only actions whose complete physical cost originates in the owner hand qualify. Zero-material virtual uses and mixed hand/equipment costs do not qualify. Real Dodge and Nullification uses qualify; played Slash responses and recasts do not.",
+    "The public yin state is read from the exact skill instance at the native Use declaration (or actual response acceptance). Native Slash commitment precedes its later finalized-target CardActionAcceptedEvent, so qualification reads the owning live window Action rather than waiting for that event. The ordinary shared toggle is applied for an actual draw or chosen discard, and a declined discard does not toggle. This follows the general conversion-skill activation interpretation; no character-specific official FAQ clarifying the otherwise clause was found.",
+    "The source page includes separate highlighted 阳/阴 texts and the otherwise-discard sentence in both modes."
+  ],
+  "runtime": "src/Characters/duan-wei/ol/Runtime/GameEngine.DuanWeiTaohuai.cs",
+  "content": "src/Characters/duan-wei/ol/Content/ol-duan-wei.character.json",
+  "validation": "Focused native Use, original hand extrema, optional discard, exact frozen mode, checkpoint replay; parent task integrates and runs checks.",
+  "integratedArtwork": {
+    "id": "76300",
+    "name": "经典形象",
+    "sourcePage": "https://www.sanguosha.com/hero/763",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/76300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-duan-wei.png",
+    "sha256": "fcfee4172207e012f4034545fc769469546d13422035e1ef5438c109d80efce6",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "viewed": true
+  },
+  "rootVerification": {
+    "date": "2026-10-16",
+    "focused": {
+      "corePassed": 13,
+      "coreFailed": 0,
+      "wpfPassed": 1,
+      "wpfFailed": 0,
+      "durationMs": 15241
+    },
+    "routine": {
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 31625
+    },
+    "visualEvidence": "Actual WPF gallery controls rendered offscreen and viewed for all three new generals.",
+    "manualForegroundAcceptance": false,
+    "fullVerificationRun": false,
+    "published": false
+  }
+}

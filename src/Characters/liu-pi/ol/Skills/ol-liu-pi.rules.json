@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:yicheng", "revision": 1, "activations": [
+      { "id": "exchange", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "resolveYichengPublicExchange", "target": "owner" }] }
+    ] }
+  ]
+}

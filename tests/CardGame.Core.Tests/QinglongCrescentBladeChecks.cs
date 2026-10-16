@@ -2,7 +2,7 @@ using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-internal static class QinglongCrescentBladeChecks
+internal static partial class QinglongCrescentBladeChecks
 {
     public static void SameTargetFollowupAndReplay()
     {
@@ -85,13 +85,13 @@ internal static class QinglongCrescentBladeChecks
                     movement.CardId == use.Cards.Single() &&
                     movement.To == CardLocation.Processing &&
                     movement.Reason == CardMoveReasons.Use),
-            "Qinglong must finish the canceled Slash and open a real new Slash against the same target.");
+            "Qinglong must suspend the dodged Slash and open a real child Slash against the same target.");
 
         var replayed = GameReplay.Restore(RoundTrip(used.CreateCheckpoint()), registry);
         Require(State(replayed) == State(used) && Events(replayed).SequenceEqual(Events(used)),
             "A paused Qinglong follow-up Slash must replay exactly.");
 
-        UnselectedCompletedGiftSuspendsForQinglongAndReturnsCold();
+        CompletedGiftWaitsForInsertedSlashAndReturnsCold();
 
     }
 
@@ -100,7 +100,7 @@ internal static class QinglongCrescentBladeChecks
     private const string GiftMode = "identity:classic-qinglong-completed-gift";
     private const string GiftDriver = "fixture:qinglong-gift-driver";
 
-    private static void UnselectedCompletedGiftSuspendsForQinglongAndReturnsCold()
+    private static void CompletedGiftWaitsForInsertedSlashAndReturnsCold()
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new CompletedGiftQinglongFixture());
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
@@ -125,34 +125,34 @@ internal static class QinglongCrescentBladeChecks
         var followupCard = followupChoice.Cards.Single();
         GiftAccept(game, new AnswerPromptCommand(0, GiftPrompt(game)!.PromptId, followupChoice.Id, game.Revision));
         var original = game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == firstUse.Id);
-        var gift = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f =>
-            f.SkillId == "classic:zhongyong" && f.WindowContext?.CardUse?.ParentCardUseFrameId == original.Id);
-        var saved = original.Continuations.QinglongFollowup?.Decision;
         var child = game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == followupCard && f.SourceSeat == 0);
-        Require(gift.CompletedCardGiftDraft is { RecipientSeat: null, GiftWasRed: false } && gift.SelectedTargetSeats.Count == 0 &&
-            original.Continuations.QinglongFollowup is { Active: true, NextAttackOwnerId: var oldId } && oldId == original.Id &&
-            saved is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true } && saved.SkillPrompt?.SkillId == gift.SkillId &&
-            saved.Choices.All(c => c.Parameters.GetValueOrDefault("frame-id") == gift.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)) &&
+        Require(original.Step != ResolutionFrameStep.Completed &&
+            original.Continuations.QinglongFollowup is { Active: true, FollowupUseId: var childId, Decision: null } && childId == child.Id &&
+            !game.Events.Select(e => e.Payload).OfType<CardUseFinishedEvent>().Any(e => e.ResolutionId == original.Id) &&
+            !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == "classic:zhongyong" && f.WindowContext?.CardUse?.ParentCardUseFrameId == original.Id) &&
             child.Action is { Type: CardActionType.Use, ActorSeat: 0 } action && action.ParentActionId == original.Action!.ActionId &&
             child.TargetSeats.SequenceEqual([1]) && child.Action.PhysicalCards.Single().CardId == followupCard &&
             game.CardMovements.Count(m => m.CardId == followupCard && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1,
-            "The real original owner's follow-up Slash suspends precisely the unselected Zhongyong gift, with one exact physical payment.");
+            "The inserted Slash retains its unfinished original Use and defers Zhongyong until after the child, with one exact physical payment.");
         for (var seat = 1; seat < 4; seat++) Require(game.CreateSnapshot(seat).Players[0].Hand.Count == 0,
             "The saved private giver choices and physical hand remain hidden in every foreign view.");
         GiftCold(game, registry);
         // The nested Slash may itself be dodged and complete Zhongyong. Skip its
-        // additional Qinglong/gift offers using real commands, retaining the old
-        // saved give prompt until this exact original Program returns.
+        // additional Qinglong/gift offers using real commands, until the original
+        // Use finishes and opens its own Zhongyong window for the first time.
         GiftReach(game, p => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == "classic:zhongyong" &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("frame-id") == gift.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == "classic:zhongyong" && f.WindowContext?.CardUse?.ParentCardUseFrameId == original.Id));
         var restored = GiftPrompt(game)!;
-        Require(restored.PromptId == saved!.PromptId && restored.PlayerSeat == saved.PlayerSeat && restored.IsPrivate &&
-            restored.Choices.Select(c => c.Id).SequenceEqual(saved.Choices.Select(c => c.Id)) &&
+        var gift = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f =>
+            f.SkillId == "classic:zhongyong" && f.WindowContext?.CardUse?.ParentCardUseFrameId == original.Id);
+        Require(restored.PlayerSeat == 0 && restored.IsPrivate &&
             game.ResolutionStack.Last() is ProgramSkillFrame returned && returned.Id == gift.Id &&
             returned.CompletedCardGiftDraft?.RecipientSeat is null &&
+            game.Events.Single(e => e.Payload is CardUseFinishedEvent f && f.ResolutionId == child.Id).Sequence <
+                game.Events.Single(e => e.Payload is CardUseFinishedEvent f && f.ResolutionId == original.Id).Sequence &&
             game.Events.Select(e => e.Payload).OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == child.Id) == 1 &&
             game.CardMovements.Count(m => m.CardId == followupCard && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.UseFinished) == 1,
-            "Only after the real child finishes does the identical private unselected giver prompt resume, without repaying its Slash.");
+            "Only after the real child finishes does the original Use finish and offer its private gift, without repaying its Slash.");
         GiftCold(game, registry);
         var give = restored.Choices.First(c => c.Parameters.GetValueOrDefault("gift-option") == "give" &&
             c.Targets.SequenceEqual([3]) && c.Cards.Contains(firstUse.CardId));
@@ -205,7 +205,7 @@ internal static class QinglongCrescentBladeChecks
     private static void GiftCold(GameEngine game, ContentRegistry registry) => Require(GiftState(game) == GiftState(GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry)),
         "Cold accepted-command replay preserves all four private views, the exact suspended prompt, typed owning frames, facts and one-time costs.");
 
-    private sealed class CompletedGiftQinglongFixture : IGameContentPackage
+    private sealed class CompletedGiftQinglongFixture(bool distant = false, bool dying = false) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-qinglong-completed-gift", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -215,9 +215,13 @@ internal static class QinglongCrescentBladeChecks
                 using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
             var actual = SkillProgramCatalog.Load(Resource("classic-zhou-cang.rules.json"), Resource("classic-zhou-cang.presentation.json"));
             builder.AddSkill(new("classic:zhongyong", "忠勇", "已有经典忠勇真实程序") { Program = actual.Programs["classic:zhongyong"], ProgramPresentation = actual.Presentations["classic:zhongyong"] });
+            var responseTriggers = distant
+                ? """[{"id":"far-after-dodge","window":"slashFullyDodged","ownerRelation":"actor","cardKinds":["slash"],"usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"outgoingDistance","ruleOperation":"add","amount":4}]}]"""
+                : dying ? """[{"id":"death-after-child","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],"usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":20}]}]""" : "[]";
             var catalog = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
-                {"id":"{{GiftDriver}}","revision":1,"activations":[
+                {"id":"{{GiftDriver}}","revision":1,"triggers":{{responseTriggers}},"activations":[
+                 {"id":"multi","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"cardTargetCount","ruleOperation":"add","amount":1,"cardKinds":["slash"]}]},
                  {"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20}]},
                  {"id":"draw-target","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"selectedTarget","amount":20}]}]},
                 {"id":"fixture:qinglong-gift-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}]}

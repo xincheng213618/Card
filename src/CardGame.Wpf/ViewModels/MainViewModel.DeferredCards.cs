@@ -56,8 +56,11 @@ public sealed partial class MainViewModel
                 SuitGlyph = GetSuitGlyph(card.Suit),
                 Rank = card.RankText,
                 Description = GetCardDescription(card.Kind),
+                OriginalHandTag = card.SkillMarkLabel ?? string.Empty,
                 IsPlayable = false,
                 IsPublicChoice = isChoice,
+                PublicHandOwnerLabel = card.PublicHandOwnerSeat is { } ownerSeat
+                    ? _snapshot.Players.Single(player => player.Seat == ownerSeat).Name : string.Empty,
                 IsSelected = false
             });
         }
@@ -126,6 +129,7 @@ public sealed partial class MainViewModel
         Rank = card.RankText,
         Description = GetCardDescription(card.Kind),
         IsPlayable = false,
+        OriginalHandTag = card.SkillMarkLabel ?? string.Empty,
         IsPrivateReveal = privateView,
         IsPublicChoice = false,
         IsSelected = false

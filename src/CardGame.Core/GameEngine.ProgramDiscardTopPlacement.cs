@@ -30,7 +30,10 @@ public sealed partial class GameEngine
     internal static bool IsDiscardMovementReason(CardMoveReason reason)
     {
         var value = reason.Value;
-        if (value is PairedColorDiscardReason or SoleProtectionCostReason or FanChouDiscardReason or
+        if (value is PairedColorDiscardReason or SoleProtectionCostReason or FanChouDiscardReason or ZhenyingDiscardReason or WeifuDiscardReason or FeiYiDiscardReason or FudaoDiscardReason or FengyanDiscardReason or HeJinDiscardReason or "skill-program.yan-rou.choutao.discard" or "skill-program.lu-yu-sheng.cangxin.discard" or "skill-program.lu-yu-sheng.runwei.discard" or "skill-program.yuan-huan.linjie.discard" or "skill-program.han-fu.kuangshou.discard" or "skill-program.wang-kuang.renxia.discard" or
+            "skill-program.duan-jiong.saogu.discard" or "skill-program.ma-mi-di.bingjie.discard" or
+            "skill-program.cheng-gong-ying.kuangxiang.discard" or "skill-program.xiang-chong.guying.debt" or
+            "skill-program.yang-feng.jiawei.discard" or "skill-program.qin-lang.xianying.discard" or
             "skill-program.sanwen.discard" or "skill-program.denglou.unusable-discard" or
             "skill-program.shanjia.discard" or "skill-program.neifa.discard" or "skill-program.huaman.discard") return true;
         if (value is "card.effect.dismantlement" or "card.effect.dismantlement-judgment" or

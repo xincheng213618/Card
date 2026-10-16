@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:mouzhu": { "name": "谋诛", "description": "出牌阶段限一次，你可以令一名其他角色交给你一张手牌，若其手牌数小于你，其视为对你使用一张【杀】或【决斗】。", "activationLabels": { "demand-hand-and-assault": "谋诛：令其交牌" } },
+    "ol:yanhuo": { "name": "延祸", "description": "当你死亡时，你可以弃置杀死你的角色至多X张牌（X为你的牌数）。", "triggerLabels": { "discard-killer-on-death": "延祸：弃置杀手的牌" } }
+  }
+}

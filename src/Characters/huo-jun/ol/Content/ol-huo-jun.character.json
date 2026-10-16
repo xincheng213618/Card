@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huo-jun",
+  "skills": [
+    { "registrationOrder": 1340, "programBundle": "ol-huo-jun", "includeProgramPresentation": true,
+      "definition": { "id": "ol:qiongshou", "name": "穷守", "description": "锁定技，游戏开始时，你废除所有装备栏并摸四张牌。你的手牌上限+4。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 1341, "programBundle": "ol-huo-jun", "includeProgramPresentation": true,
+      "definition": { "id": "ol:fenrui", "name": "奋锐", "description": "结束阶段，你可以：弃置一张牌并复原一个装备栏，随机使用一张对应装备牌，然后你可以对一名装备区里牌数小于你的角色造成X点伤害（X为你与其装备区里牌数之差），若如此做，你不能再以此法造成伤害。", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 1342, "pools": { "current": 412 }, "definition": {
+    "id": "ol:huo-jun", "name": "霍峻", "portraitKey": "ol-huo-jun", "skillId": "ol:qiongshou", "additionalSkillIds": ["ol:fenrui"],
+    "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:huo-jun", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } } ]
+}

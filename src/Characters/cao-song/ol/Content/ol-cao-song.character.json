@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-song",
+  "skills": [
+    { "registrationOrder": 1250, "programBundle": "ol-cao-song", "includeProgramPresentation": true,
+      "definition": { "id": "ol:lilu", "name": "礼赂", "description": "摸牌阶段，你可以改为将手牌摸至体力上限（至多摸至五张），然后交给一名其他角色至少一张手牌，若你首次以此法交出牌或交出的牌数大于上次以此法交出的牌数，你增加1点体力上限并回复1点体力。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1251, "programBundle": "ol-cao-song", "includeProgramPresentation": true,
+      "definition": { "id": "ol:yizheng-cao-song", "name": "翊正", "description": "结束阶段，你可以选择一名其他角色，然后直到你的下回合开始，当其造成伤害或回复体力时，若其体力上限小于你，你减少1点体力上限，然后此伤害值或回复值+1。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1252, "pools": { "current": 403 },
+      "definition": { "id": "ol:cao-song", "name": "曹嵩", "portraitKey": "ol-cao-song", "skillId": "ol:lilu", "additionalSkillIds": ["ol:yizheng-cao-song"], "factionId": "wei", "baseHp": 4, "gender": "Male", "characterId": "character:cao-song", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

@@ -10,11 +10,10 @@ public sealed partial class MainViewModel
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
     public string ActionDockCancelText => HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
         ? "放 弃" : "取 消";
-    public int HumanSkillColumns => HumanSkillCards.Count > 2 ? 2 : 1;
+    public int HumanSkillColumns => HumanSkillCards.Count > 4 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
 
-    // Equipment, borrowed skills and multiple activations still need their exact legal-action choices.
-    // Ordinary owned skills already have a button beside the general, so do not repeat them here.
+    // Equipment and multiple activations still need their exact legal-action choices.
     public IReadOnlyList<LegalAction> SupplementalActiveSkillActions
     {
         get
@@ -24,7 +23,8 @@ public sealed partial class MainViewModel
             var actions = HumanActiveSkillActions;
             var supplemental = actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
                 actions.Count(other => other.ProgramSkillId == action.ProgramSkillId &&
-                    other.EquipmentKind == action.EquipmentKind) > 1).ToArray();
+                    other.EquipmentKind == action.EquipmentKind &&
+                    other.ProgramSkillOwnerSeat == action.ProgramSkillOwnerSeat) > 1).ToArray();
             // The buttons carry action parameters; an equal record from a new view is a new parameter.
             if (!_supplementalActiveSkillActions.SequenceEqual(supplemental, ReferenceEqualityComparer.Instance))
                 _supplementalActiveSkillActions = supplemental;
@@ -33,7 +33,8 @@ public sealed partial class MainViewModel
     }
 
     private static bool MatchesSkill(LegalAction action, HumanSkillViewModel skill) =>
-        skill.ContentId is not null && action.ProgramSkillId == skill.ContentId;
+        skill.ContentId is not null && action.ProgramSkillId == skill.ContentId &&
+        action.ProgramSkillOwnerSeat == skill.SkillOwnerSeat;
 
     private PlayerSnapshot? _equipmentPlayer;
     private IReadOnlyList<EquipmentSlotViewModel>? _humanEquipmentSlots;
@@ -43,7 +44,7 @@ public sealed partial class MainViewModel
         {
             var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
             if (_humanEquipmentSlots is not null && ReferenceEquals(human, _equipmentPlayer)) return _humanEquipmentSlots;
-            var slots = Enum.GetValues<EquipmentSlot>().SelectMany(slot =>
+            var slots = Enum.GetValues<EquipmentSlot>().OrderBy(EquipmentSlotViewModel.DisplayOrder).SelectMany(slot =>
             {
                 var cards = human?.Equipment.Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).ToArray() ?? [];
                 var count = Math.Max(human?.EquipmentSlotCapacities?.GetValueOrDefault(slot, 1) ?? 1, cards.Length);
@@ -73,6 +74,18 @@ public sealed partial class MainViewModel
 
 public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Card)
 {
+    public static int DisplayOrder(EquipmentSlot slot) => slot switch
+    {
+        EquipmentSlot.Weapon => 0, EquipmentSlot.Armor => 1, EquipmentSlot.DefensiveHorse => 2,
+        EquipmentSlot.OffensiveHorse => 3, _ => 4
+    };
+    public string CompactSlotName => Slot switch
+    {
+        EquipmentSlot.Weapon => "武", EquipmentSlot.Armor => "防",
+        EquipmentSlot.DefensiveHorse => "+1", EquipmentSlot.OffensiveHorse => "−1", _ => "宝"
+    };
+    public string CardMark => Card is { } card ? $"{Suit}{card.RankText}" : string.Empty;
+    public Brush CardMarkBrush => Card?.Suit is CardGame.Core.Suit.Heart or CardGame.Core.Suit.Diamond ? Brushes.DarkRed : Brushes.Black;
     public string SlotName => EquipmentCatalog.GetSlotName(Slot);
     public bool IsOccupied => Card is not null;
     public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Card?.Kind);

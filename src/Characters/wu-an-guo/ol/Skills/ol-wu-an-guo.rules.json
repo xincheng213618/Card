@@ -1,0 +1,6 @@
+{"schemaVersion":62,"skills":[{"id":"ol:liyong","revision":1,
+ "states":[{"id":"yin","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],
+ "viewAs":[{"id":"yang-unused-suit","inputKinds":[],"inputSuits":[],"inputCount":1,"sourceZones":["hand","equipment"],"outputKind":"duel","forPlay":true,"forResponse":false,"allowSameKind":true,"singleCardTrickUse":true}],
+ "activations":[{"id":"yin-obtain-and-incoming-duel","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerPhase":null,"usesPerTurn":null,
+   "condition":{"kind":"booleanState","stateId":"yin","expectedValue":true},"effects":[{"op":"resolveLiyongUsedSuitDeckAndDuel","target":"owner"}]}]
+}]}

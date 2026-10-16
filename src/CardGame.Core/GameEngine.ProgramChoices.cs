@@ -130,6 +130,7 @@ public sealed partial class GameEngine
     private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) => target switch
     {
         SkillProgramEffectTarget.Owner => frame.OwnerSeat,
+        SkillProgramEffectTarget.Activator => frame.ActivatingSeat ?? frame.OwnerSeat,
         SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
         SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
             throw new InvalidOperationException("A program option lost its card-action actor."),

@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:sun-ru",
+  "officialGid": 632,
+  "officialPage": "https://www.sanguosha.com/hero/632",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=632",
+  "officialAnnouncement": "https://www.sanguosha.com/news/20240806_9333_3613",
+  "announcementDate": "2024-08-06",
+  "factionId": "wu",
+  "hp": 3,
+  "gender": "Female",
+  "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63200.png",
+  "pageUtf8Sha256": "730a8b667edba6982a6f8773dccbb97d4840717338d8aed759bc62fd68e0ca76",
+  "apiUtf8Sha256": "93b3a62754114892ad0b76e9ebc30ce2335bf90e78dd7cc48fda0c785bba7a5c",
+  "verification": "Live hero632 and official API confirm Sun Ru, Wu, 3HP and Chishi/Weimian; the 2024-08-06 official announcement independently gives the same complete skill wording. The existing mobile Yingjian/Shixin version is a separate ruleset and is preserved.",
+  "skills": [
+    {
+      "id": "ol:chishi",
+      "name": "持室",
+      "text": "每回合限一次，当前回合角色失去其一个区域内的最后一张牌后，你可以令其摸两张牌且本回合手牌上限+2。"
+    },
+    {
+      "id": "ol:weimian",
+      "name": "慰勉",
+      "text": "出牌阶段限一次，你可以废除至多三个装备栏，令一名角色选择等量项：1.恢复一个被废除的装备栏；2.回复1点体力；3.弃置所有手牌，摸四张牌。"
+    }
+  ],
+  "interpretation": [
+    "Chishi observes the actual native TurnStarted owner, including outside that owner's Play phase. A movement batch freezes the actual turn token and positive-before/zero-after loss of Hand, Equipment or Judgment. Empty pre-existing areas and atomic exchanges whose settled areas stay nonempty do not qualify. A single batch clearing several regions produces one opportunity, and an actual activation consumes one owner-wide use for that actual game turn.",
+    "Wooden Ox grain is not a separate region; the equipped Treasure belongs to the Equipment region. Native equipment movement keeps its normal child and attached-card semantics.",
+    "Weimian offers one, two or three distinct currently available native equipment categories. Choosing zero would produce zero benefits and is represented by declining to activate rather than a separate zero-payment action. Selected available slots are frozen and paid once before any recipient project; the received project count equals the actual paid slot count.",
+    "The recipient selects distinct projects as a set; selected projects resolve in their printed 1/2/3 order. No separate official FAQ was found. A full-HP recipient or a recipient with no abolished slot remains a legal target; selecting its unavailable restore/heal project naturally has no effect. Selecting hand refresh with an empty hand still draws four.",
+    "Restoring one category after whole Equipment-area abolition normalizes all five native capacities to zero, clears the whole-area flag, and restores only the chosen category to one. It never silently restores the other four categories.",
+    "Paid projects survive the source's later loss of Weimian or death. The recipient is frozen before payment; a deceased recipient cannot receive further effects. Native movement, Silver Lion removal recovery, recovery replacement and HP children drain before the next project and never repeat paid slot costs after cold recovery. Chishi caused by the refresh discard may resolve before the separate four-card draw."
+  ],
+  "content": "src/Characters/sun-ru/ol/Content/ol-sun-ru.character.json",
+  "runtime": "src/Characters/sun-ru/ol/Runtime",
+  "validation": "SunRuOlChecks covers actual current-turn last-region loss and the different skill holder, native hand-limit attribution, one turn quota, cold child returns, distinct equipment-slot payments, recipient privacy, native recovery replacement, single-slot restoration from whole-area abolition, and naturally ineffective project choices."
+}

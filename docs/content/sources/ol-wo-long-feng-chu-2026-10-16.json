@@ -1,0 +1,233 @@
+{
+  "characterId": "character:wo-long-feng-chu",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T09:17:46.241986+08:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/475",
+      "sha256": "fbe90ed6dc013ca980cc276a50f779123d9c2826b7e2306cf7777f7a36881e68",
+      "byteCount": 25496,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=475",
+      "sha256": "46914cf050580132e93ad9e35bf771d3954cc2563bfae2649a26a76743474267",
+      "byteCount": 1055,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "f609f7cdae49f8494b16355c3ffa1e7585d891a7e4c31e8d183f0115e487161e",
+      "byteCount": 4153323,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "reply": {
+      "url": "https://bug.sanguosha.com/api/replyAndOperate?a=replyAndOperate&id=76687&page=1",
+      "sha256": "3d18168a87ef6885a499da74c51e2e7ea9976d2975c6144cd226ff82703cfabb",
+      "byteCount": 991,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 475,
+          "name": "卧龙凤雏",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/475.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47500.png",
+          "label": [
+            "困难",
+            "保核能力",
+            "转化大师"
+          ],
+          "figure": "蜀",
+          "figure_py": "shu",
+          "quality": "限定",
+          "biography": "诸葛亮，字孔明，号卧龙居士，琅琊阳都人。刘备曾“三顾茅庐”得见卧龙。卧龙以一篇《隆中对》分析天下形势，提出先取荆州，再取益州成鼎足之势的说法。庞统，字士元，襄阳[治今湖北襄阳]人。三国时刘备帐下谋士，官拜军师中郎将。才智与诸葛亮齐名，人称“凤雏”。",
+          "characteristic": "需要特别注意回合内爆发及回合外防御之间的平衡",
+          "hp": 4,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [
+        {
+          "name": "地主",
+          "value": 9
+        },
+        {
+          "name": "农民",
+          "value": 10
+        },
+        {
+          "name": "主公",
+          "value": 10
+        },
+        {
+          "name": "忠臣",
+          "value": 10
+        },
+        {
+          "name": "反贼",
+          "value": 10
+        }
+      ],
+      "deeds": []
+    }
+  },
+  "decoder": "Public current client InitOfb AES-CFB128 then gzip; decoded in memory, no downloaded client archive retained.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "records": [
+        {
+          "a": 475,
+          "b": "卧龙凤雏",
+          "d": "WoLongFengChu",
+          "e": 46,
+          "f": "25",
+          "g": 2,
+          "h": 1,
+          "i": 4,
+          "j": 968,
+          "k": 969,
+          "p": 4,
+          "q": "1",
+          "r": "9047501",
+          "y": "诸葛亮，字孔明，号卧龙居士，琅琊阳都人。刘备曾“三顾茅庐”得见卧龙。卧龙以一篇《隆中对》分析天下形势，提出先取荆州，再取益州成鼎足之势的说法。庞统，字士元，襄阳[治今湖北襄阳]人。三国时刘备帐下谋士，官拜军师中郎将。才智与诸葛亮齐名，人称“凤雏”。",
+          "z": "需要特别注意回合内爆发及回合外防御之间的平衡",
+          "aa": 288,
+          "ab": "817,818",
+          "ad": "画师:铁杵文化",
+          "x": "龙吟凤哕，####计出万全！",
+          "al": 4135,
+          "am": "true",
+          "ap": 1500,
+          "aq": 450,
+          "bx": 500000,
+          "LordCardRate1": 46,
+          "LordCardRate2": 72,
+          "cc": 47501,
+          "starMax": 4
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "records": [
+        {
+          "a": 968,
+          "b": "3,13",
+          "c": "游龙",
+          "d": "YouLong",
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "o": "转换技，每轮各限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的：<br>&nbsp;阳：普通锦囊牌；<br>&nbsp;阴：基本牌。###转换技，<br>&nbsp;<font  color=\"#fff000\">阳，每轮限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的普通锦囊牌；</font><br>&nbsp;阴，每轮限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的基本牌。###转换技，<br>&nbsp;阳，每轮限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的普通锦囊牌。<br>&nbsp;<font color=\"#fff000\"> 阴，每轮限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的基本牌。</font>",
+          "v": "请选择要废除的装备栏",
+          "u": "请选择要视为使用的牌"
+        },
+        {
+          "a": 969,
+          "b": "3,6",
+          "c": "鸾凤",
+          "d": "LuanFeng",
+          "i": 2,
+          "l": "wolongfengchuluanfeng",
+          "o": "限定技，当一名角色进入濒死状态时，若其体力上限大于等于你，你可以令其回复至3点体力，复原其装备栏，令其将手牌摸至6-X张（X为以此法复原的装备栏数）。若其是你，你复原“游龙”使用过的牌名。"
+        }
+      ]
+    }
+  },
+  "nameSemanticsEvidence": {
+    "page": "https://bug.sanguosha.com/view?id=76687&mod=view",
+    "replyApi": "https://bug.sanguosha.com/api/replyAndOperate?a=replyAndOperate&id=76687&page=1",
+    "response": {
+      "code": 1,
+      "reply": {
+        "list": [
+          {
+            "rid": "74623",
+            "fid": "76687",
+            "uid": "35280",
+            "author": "路人35280号",
+            "content": "你好，该问题已反馈，感谢支持。",
+            "attachment": "",
+            "replytime": "2026-04-09 21:36",
+            "hidden": "0",
+            "blocked": "0",
+            "cansee": 1,
+            "floor": 2,
+            "admin": 0
+          },
+          {
+            "rid": "74609",
+            "fid": "76687",
+            "uid": "94429",
+            "author": "二次元刀酱",
+            "content": "简而言之，（未以此法使用过的）基本牌，意味着基本牌可以同名异构，也就是说杀属性杀应当分开算，这个在卧龙凤雏技能中就是这样的。",
+            "attachment": "",
+            "replytime": "2026-04-04 12:29",
+            "hidden": "0",
+            "blocked": "0",
+            "cansee": 1,
+            "floor": 1,
+            "admin": 0
+          }
+        ],
+        "pageInfo": {
+          "total_page": 1,
+          "current_page": "1"
+        },
+        "code": 1
+      },
+      "operate": {
+        "list": [
+          {
+            "operator": "二次元刀酱",
+            "action": "104",
+            "operatetime": "2026-04-04 12:23"
+          },
+          {
+            "operator": "",
+            "action": "11",
+            "operatetime": "2026-04-09 21:36"
+          },
+          {
+            "operator": "",
+            "action": "12",
+            "operatetime": "2026-04-09 21:36"
+          },
+          {
+            "operator": "",
+            "action": "11",
+            "operatetime": "2026-04-09 21:36"
+          }
+        ],
+        "code": 1
+      }
+    },
+    "assessment": "Official platform player observation describes elemental Slash outputs separately. Its reply only acknowledges feedback, not an official ruling. This module retains exact effective CardKind per once-used output instead of importing unrelated name normalization."
+  },
+  "implementationNotes": [
+    "Every face is limited once per actual Round; extra turns do not reset either face. The initial face is Yang.",
+    "Only actual Use is allowed: native Dodge/Nullification/dying recovery uses are supported; plain Response-only Slash or Dodge is not.",
+    "A paid native slot abolition owns its original frozen use target/source invoice. Its actual cost movement/recovery children complete before the native zero-material use; a paid cost is not repeated after replay or skill loss.",
+    "Post-abolition Slash distance and use-count checks exclude every entity of the selected native equipment category.",
+    "Luanfeng observes the actual DyingEntering window and checks maximum HP locally, restores all native abolished slots after recovery children, and draws up to 6 minus the number truly restored. Self rescue clears only lifetime used output kinds, not the current face or either Round quota.",
+    "Whole-area legacy abolition restores five distinct categories and therefore draws up to one hand card.",
+    "A formerly paid rescue whose native equipment-removal recovery already saves its dying victim finishes that original Dying without issuing a no-longer-needed card. Its real cost and face quota remain paid, and an unissued output never enters the lifetime used-kind ledger.",
+    "Exact paid sources remain eligible for their frozen needed native use after skill loss, without reopening unowned conversion choices outside that one unconsumed paid invoice.",
+    "Private original response-menu integrity proofs stay in trusted internal event fields with JsonIgnore and safe text projection; public event members do not expose the private menu or its digest."
+  ],
+  "implementationStatus": "root-verified"
+}

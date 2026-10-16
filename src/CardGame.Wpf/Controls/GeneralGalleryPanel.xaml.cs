@@ -61,9 +61,6 @@ public partial class GeneralGalleryPanel : UserControl
                 QueueDetailsFocus(viewModel, showingDetails: false, previous);
             }
         }
-        if (e.PropertyName is nameof(MainViewModel.SelectedGeneralGallerySeries) or
-            nameof(MainViewModel.SelectedGeneralGalleryGroup) or nameof(MainViewModel.SelectedGeneralGalleryFaction) or
-            nameof(MainViewModel.GeneralGallerySearchText)) GalleryScroller.ScrollToTop();
     }
 
     private void QueueDetailsFocus(MainViewModel viewModel, bool showingDetails, IInputElement? previous)

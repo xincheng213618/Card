@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:taohuai",
+      "revision": 1,
+      "states": [
+        {
+          "id": "yin",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "extreme-hand-use-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            { "op": "toggleBooleanState", "target": "owner", "stateId": "yin" },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "non-extreme-hand-use-discard",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "effects": [
+            { "op": "toggleBooleanState", "target": "owner", "stateId": "yin" },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

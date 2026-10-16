@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-ru",
+  "skills": [
+    { "registrationOrder": 1310, "programBundle": "ol-sun-ru", "includeProgramPresentation": true,
+      "definition": { "id": "ol:chishi", "name": "持室", "description": "每回合限一次，当前回合角色失去其一个区域内的最后一张牌后，你可以令其摸两张牌且本回合手牌上限+2。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1311, "programBundle": "ol-sun-ru", "includeProgramPresentation": true,
+      "definition": { "id": "ol:weimian", "name": "慰勉", "description": "出牌阶段限一次，你可以废除至多三个装备栏，令一名角色选择等量项：1.恢复一个被废除的装备栏；2.回复1点体力；3.弃置所有手牌，摸四张牌。", "actionForms": "Active" } }
+  ],
+  "generals": [ { "registrationOrder": 1312, "pools": { "current": 409 }, "definition": {
+    "id": "ol:sun-ru", "name": "孙茹", "portraitKey": "ol-sun-ru", "skillId": "ol:chishi", "additionalSkillIds": ["ol:weimian"],
+    "factionId": "wu", "baseHp": 3, "gender": "Female", "characterId": "character:sun-ru", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } } ]
+}

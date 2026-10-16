@@ -13,9 +13,13 @@ internal static class BoundaryZhangFeiChecks
         Driver(g, "draw"); Settle(g);
         Slash(g, [1]); Settle(g); Replay(g, r);
         Require(Reserved(g).Count() == 1 && !Consumed(g).Any(), "Real fully satisfied Dodge issues one reserve.");
+        Require(g.CreateSnapshot(0).Players[0].ActiveEffects?.Single(e => e.SkillId == "boundary:paoxiao") is
+            { RemainingUses: 1, Expiry: ActivePlayerEffectExpiry.ConsumedOrTurnEnd }, "A real next-Slash reserve must expose one outstanding use.");
         Slash(g, [1]);
         var use = g.ResolutionStack.OfType<CardUseFrame>().Single();
         Require(use.NextSlashDamage == 1 && Consumed(g).Count() == 1, "Next accepted real Use freezes and consumes once before response.");
+        Require(g.CreateSnapshot(0).Players[0].ActiveEffects?.All(e => e.SkillId != "boundary:paoxiao") != false,
+            "A consumed next-Slash reserve must disappear before its response window resolves.");
         Settle(g); Replay(g, r);
         Require(Reserved(g).Count() == 2, "Canceled boosted Use consumes its old reserve and creates a fresh one.");
         for (var i = 0; i < 3; i++) { Slash(g, [1]); Settle(g); }

@@ -1,0 +1,290 @@
+{
+  "date": "2026-10-16",
+  "status": "implemented-and-root-verified",
+  "generalId": "ol:wu-an-guo",
+  "characterId": "character:wu-an-guo",
+  "product": "三国杀OL",
+  "officialGid": 650,
+  "officialPage": "https://www.sanguosha.com/hero/650",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=650",
+  "identity": {
+    "name": "武安国",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Searched current character manifests, skill rules, module runtime and permanent OL source documents for 武安国/WuAnGuo/wu-an-guo/历勇/ol:liyong before implementation. No registered same identity or skill. The 十周年/一将成名 武安国 with 叠嶂/断腕 is a distinct ruleset and supplies no rule text to this module.",
+  "skills": [
+    {
+      "id": "ol:liyong",
+      "name": "历勇",
+      "clientSkillId": 3537,
+      "clientName": "LiYong",
+      "text": "转换技，出牌阶段，阳：你可以将一张本回合你未使用过的花色的牌当【决斗】使用；阴：你可以从牌堆中获得一张你本回合使用过的花色的牌，令一名角色视为对你使用一张【决斗】。"
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20250311_7717_3716",
+      "title": "3.16-3.23 春分祈福武安国、界韩当来袭 传说动皮箭扫荆棘*孙尚香上新",
+      "published": "2025-03-14",
+      "checked": "2026-10-16",
+      "level": "Official OL release",
+      "supports": "Explicitly identifies Qun, male, four HP and the complete current two-sided skill; it agrees with the current hero page and current client. It is not the older 十周年 release."
+    },
+    {
+      "url": "https://wiki.biligame.com/sgsol/%E6%AD%A6%E5%AE%89%E5%9B%BD",
+      "checked": "2026-10-16",
+      "level": "Same-product OL secondary historical cross-check, not current authority",
+      "supports": "Distinguishes the test-server discarded-card Yin from the released deck-acquisition Yin. Its added other-role wording is not substituted for the current primary text. No current character FAQ or explicit random-card procedure was found there."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Actual current-turn used suits",
+      "basis": "Current primary says used, rather than played out, and uses current actual turn rather than Play phase.",
+      "implementation": "Record the frozen effective suit of every genuine native declared Use by its actual actor, whether its material originated in Hand or Equipment, and actual response-uses of Nullification or Dodge defending Slash. A Slash played during Duel or an ordinary played response contributes no used suit. A suitless native use adds no suit. Four actual suits reset at the next real TurnStarted by their actual turn/owner identity; extra Play in the same actual turn does not clear them."
+    },
+    {
+      "rule": "Yang native material and conversion side",
+      "basis": "Current primary one-card view-as Duel and conversion-skill timing; native rule implementation inference for child boundaries.",
+      "implementation": "One currently owned HE entity with an effective actual suit not yet used this turn becomes a real native Duel. The material is not discarded as a skill cost or replaced by direct damage. Native legality, effective suit/rank, target policies, Processing, Nullification, response-use versus played response, damage/dying and equipment-removal children remain native. Its exact source generation changes to Yin upon the native declared use, before target/response children; an unrelated native Duel never changes it. A new issued skill instance starts at Yang while the same source instance keeps its current side across turns."
+    },
+    {
+      "rule": "Yin acquisition selection",
+      "basis": "Current client spell3537 v asks only for a role and shows possible acquisition; primary supplies no suit-choice or card-choice instruction. No stronger current FAQ found. This is explicitly an implementation inference.",
+      "implementation": "Freeze the union of actual suits used by the owner this turn, select uniformly one matching physical entity from the current draw pile using replay RNG, and move it into the owner hand. There is no extra suit-selection or hidden deck-card-selection prompt. Deck cards use their printed deck suit, not a receiver hand-suit rewrite. The gained entity is private to its hand owner."
+    },
+    {
+      "rule": "Yin no match and ordered native Duel",
+      "basis": "Primary has no if-so or successful-acquisition condition. Current client asks to choose a role in the same activation. This is a literal effect-order inference rather than a claimed FAQ.",
+      "implementation": "Choose and freeze a native legal incoming Duel actor when accepting Yin, change the exact source to Yang, try the physical deck acquisition, then drain every real gain child before issuing the selected actor native colorless zero-entity Duel against the owner. No matching deck card, an empty deck, or an empty used-suit set obtains zero but does not disable Yin or skip its remaining Duel. A deck search does not reshuffle or count as a normal Draw."
+    },
+    {
+      "rule": "Paid continuation and source lifetime",
+      "basis": "Issued effect and native typed-return boundaries; engine interaction inference.",
+      "implementation": "The paid gain, original source/hash/actual turn/Play identity and selected actor are retained only in ProgramSkillFrame.WuAnGuoLiyong. Source loss after acceptance preserves the already paid effect. Owner or frozen-actor death during actual gain children stops Duel issuance without selecting another actor or paying again. Native Nullification cancellation, physical Slash responses, damage and dying return to the exact original program frame once."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveLiyongUsedSuitDeckAndDuel"
+    ],
+    "pendingOwnership": "Yin receipt is frame-owned and contains immutable scalar source, original actor, current-turn suit mask, physical gain ID/span and typed Duel origin. Yang pending state remains in its actual native CardUseFrame. No mutable pending sidecar or use-ID ledger is introduced.",
+    "events": "New use-suit, Yang-consumption, Yin-start, gain-payment, Duel-issued and completed facts contain only scalars or immutable scalar records. They use AdvanceEventRulesAndQueueFact; no new collection event projection is required. All new observers and filters are capability guarded, so old content without this operation emits no new facts.",
+    "contracts": "Strict composition binds the one public per-source conversion boolean, one complete unlimited Yin activation and exact native HE Yang view-as definition. Selection collection and command validation reuse the native legal incoming-Duel query. The native origin is null-omitted on absent CardUseFrames."
+  },
+  "focusedChecks": [
+    "FourSuitsRealYangAndYinNativeResponsesCold",
+    "TurnBoundaryEmptySuitSetDeckMissAndEffectiveEquipmentCold",
+    "ActualUsedDodgeCounterspellAndPlayedSlashSeparationCold",
+    "PaidYinGainChildrenLossDeathAndFrozenActorCold"
+  ],
+  "verification": "Root focused, related and measured routine checks passed; see rootVerification.",
+  "officialEvidence": {
+    "capturedAtUtc": "2026-10-16T18:49:24.469326+08:00",
+    "generalId": 650,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/650",
+      "byteCount": 23661,
+      "sha256": "492cc8052e2021bfef28793a957cc295bfc989025e2587ea03f25104946401b9",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=650",
+      "byteCount": 785,
+      "sha256": "f266735cfb77fc1f8af547e9bd3ada6fa79fd8f4b409b0feada63ade753498f3",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 650,
+            "name": "武安国",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/650.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65000.png",
+            "label": [
+              "进攻",
+              "爆发",
+              "花色爱好者"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "传说",
+            "biography": "小说《三国演义》中北海太守孔融部将，使长柄铁锤。虎牢关时搦斗吕布，被吕布斩下手腕。",
+            "characteristic": "计算好使用的牌来转化决斗。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 8
+          },
+          {
+            "name": "排位后手",
+            "value": 8
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 9
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/65000.png",
+      "byteCount": 998635,
+      "sha256": "7c5cb7bd11f4adce483375a3231f3787a381f3be3ceb2d4489a762a964a1e74c",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-wu-an-guo.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T18:49:24.766667+08:00",
+    "product": "sanguosha-ol",
+    "resources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "character": {
+      "path": "GameCharacters.character[1350]",
+      "row": {
+        "a": 650,
+        "b": "武安国",
+        "d": "WuAnGuo",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3537,
+        "p": 3,
+        "q": "1",
+        "r": "9065001",
+        "y": "小说《三国演义》中北海太守孔融部将，使长柄铁锤。虎牢关时搦斗吕布，被吕布斩下手腕。",
+        "z": "计算好使用的牌来转化决斗。",
+        "aa": 1,
+        "ab": "1223,1224",
+        "al": 1740,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "ar": "20250416T000000",
+        "LordCardRate1": 42,
+        "LordCardRate2": 55,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2566]",
+          "row": {
+            "a": 3537,
+            "b": "3,13",
+            "c": "历勇",
+            "d": "LiYong",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "n": 0,
+            "o": "转换技，出牌阶段，<br>&nbsp;阳：你可以将一张本回合你未使用过的花色的牌当【决斗】使用；<br>&nbsp;阴：你可以从牌堆中获得一张你本回合使用过的花色的牌，令一名角色视为对你使用一张【决斗】。###转换技，出牌阶段，<br>&nbsp;<font color=\"#fff000\">阳：你可以将一张本回合你未使用过的花色的牌当【决斗】使用。</font><br>&nbsp;阴：你可以从牌堆中获得一张你本回合使用过的花色的牌，令一名角色视为对你使用一张【决斗】。###转换技，出牌阶段，<br>&nbsp;阳：你可以将一张本回合你未使用过的花色的牌当【决斗】使用。<br>&nbsp;<font color=\"#fff000\">阴：你可以从牌堆中获得一张你本回合使用过的花色的牌，令一名角色视为对你使用一张【决斗】。</font>",
+            "v": "请选择一张未使用过花色的牌，并选择一名角色;请选择一名角色（可能获得：{0}）"
+          }
+        }
+      ]
+    }
+  },
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 35930,
+      "steps": {
+        "Build selected scope": 23030,
+        "Core selected checks (5 filters, union)": 7477,
+        "WPF selected checks (2 filters, union)": 12535
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Zhang Yan:', 'Wu An Guo:', 'Han Fu:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program paid choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 27,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 14644,
+      "steps": {
+        "Build selected scope": 2533,
+        "Core selected checks (10 filters, union)": 11829
+      },
+      "scope": "He Jin and selected-actor Duel native returns; Qian Zhao and Ma Wan extra targets; Lu Yu Sheng and Du Fu Ren chain/phase receipts; original-target addition; legacy Benxi and Fu Wan virtual Slash; Pang De physical-material claims."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32446,
+      "steps": {
+        "Build selected scope": 2836,
+        "Core selected checks (140 filters, union)": 11369,
+        "WPF selected checks (20 filters, union)": 29229
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Zhang Yan gallery",
+      "OL Wu An Guo gallery",
+      "OL Han Fu gallery",
+      "generic private paid choices"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. Nullable new frame fields are omitted when absent; native bridges require exact issued receipts or the new compiled capabilities.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; original native Space press/release guard passed.",
+    "verifiedAtUtc": "2026-10-16T11:18:23.586286+00:00"
+  }
+}

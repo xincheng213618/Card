@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         var dodges=shown.Where(m=>AdvancedEffectiveHandKind(_players[m.From.OwnerSeat!.Value],GetAdvancedCard(m.CardId))==CardKind.Dodge && !IsForeignEquipmentDiscardPrevented(f.OwnerSeat,GetAdvancedCard(m.CardId),m.From,OwnedCardMoveIntent.Discard)).ToArray();
         if(dodges.Length==0){FinishHeQi(f);return;}
         r=r with{Stage=HeQiStage.DiscardChildren,Paid=dodges,Before=_movementSequence,After=_movementSequence};ReplaceRuntimeTop(f with{HeQi=r,PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
-        MoveProgramCardsFromMultipleSources(dodges.Select(m=>m.CardId).ToArray(),CardLocation.DiscardPile,new(HeQiReason(r.Stage)),(_,records)=>{var active=GetActiveProgramFrame(f.Id);var paid=r with{After=_movementSequence};ReplaceRuntimeTop(active with{HeQi=paid});IssueHeQiSegment(f.Id,paid);});AdvanceRuntimeProgram(f.Id);
+        MoveProgramCardsFromMultipleSources(dodges.Select(m=>m.CardId).ToArray(),CardLocation.DiscardPile,new(HeQiReason(r.Stage)),(_,records)=>{foreach(var movement in records)RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);var active=GetActiveProgramFrame(f.Id);var paid=r with{After=_movementSequence};ReplaceRuntimeTop(active with{HeQi=paid});IssueHeQiSegment(f.Id,paid);});AdvanceRuntimeProgram(f.Id);
     }
     private void IssueHeQiSegment(long id,HeQiReceipt r)=>AdvanceEventRulesAndQueueFact(new HeQiSegmentPaidEvent(id,r.Source,r.GameplayHash,r.Stage,r.Before,r.After,r.Paid.Count));
     private void FinishHeQi(ProgramSkillFrame f){ReplaceRuntimeTop(f=f with{HeQi=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}

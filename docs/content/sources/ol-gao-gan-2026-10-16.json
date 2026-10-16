@@ -1,0 +1,142 @@
+{
+  "characterId": "character:gao-gan",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T01:51:33.738150+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/482",
+      "sha256": "346b6a65bc5e02949889db7d0b330c9be9e5af141e840dbde49331ea7840807f",
+      "byteCount": 23561,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=482",
+      "sha256": "6a462cf0ec3aa758ab34b7fadc154a94e1febef28dcad15f8ef1fd61b4db0447",
+      "byteCount": 679,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b27375358c4d4a149fb19d93beae039575bab4af57e44e3a94169002fec4178f",
+      "byteCount": 4153323,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 482,
+          "name": "高干",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/482.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48200.png",
+          "label": [
+            "进攻",
+            "过牌",
+            "转化大师"
+          ],
+          "figure": "群",
+          "figure_py": "qun",
+          "quality": "史诗",
+          "biography": "东汉末年并州割据将领，蜀郡太守高躬之子、大将军袁绍外甥。出身陈留高氏，才志弘邈，文武秀出。",
+          "characteristic": "选择合适的技能对象，可以让自己的优势如滚雪球般扩大。",
+          "hp": 4,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [],
+      "deeds": []
+    }
+  },
+  "decoder": "Public current client InitOfb AES-CFB128 then gzip; decoded in memory, no downloaded client archive retained.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "records": [
+        {
+          "a": 482,
+          "b": "高干",
+          "d": "GaoGan",
+          "e": 44,
+          "f": "43",
+          "g": 4,
+          "h": 1,
+          "i": 4,
+          "j": 9000,
+          "p": 2,
+          "q": "1",
+          "r": "9048201",
+          "y": "东汉末年并州割据将领，蜀郡太守高躬之子、大将军袁绍外甥。出身陈留高氏，才志弘邈，文武秀出。",
+          "z": "选择合适的技能对象，可以让自己的优势如滚雪球般扩大。",
+          "aa": 133,
+          "ab": "845,846",
+          "ad": "画师:猎枭",
+          "x": "袁军的大旗，还得我来扛起！ ",
+          "al": 3070,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "bx": 75000,
+          "LordCardRate1": 12,
+          "LordCardRate2": 50,
+          "cc": 48201,
+          "starMax": 4,
+          "freetitle": "0,过牌强将"
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "records": [
+        {
+          "a": 9000,
+          "b": "3",
+          "c": "拒关",
+          "d": "JuGuan",
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你可将一张手牌当【杀】或【决斗】使用。若受到此牌伤害的角色未在你的下回合开始前对你造成过伤害，你的下个摸牌阶段摸牌数+2。",
+          "v": "请选择一张手牌和要使用的牌"
+        }
+      ]
+    }
+  },
+  "supplementarySources": [
+    {
+      "url": "https://my.4399.com/yxsgs/ziliao/36830/",
+      "publisher": "4399 三国杀OL 运营资料页",
+      "evidenceRole": "Supplementary operator article and its reported tests; not labelled an official developer FAQ.",
+      "sha256": "d75bd86132445e91cc83d6d8581eb09806376b6f85e11354d5158e55839c5a65",
+      "byteCount": 56812,
+      "findings": [
+        "A Slash output is ordinary, uses the material suit and counts toward the native Slash allowance.",
+        "A victim dying after the actual Juguan damage does not remove the possible +2 reward.",
+        "The Juguan Duel can hurt Gao Gan himself and still qualify unless he later deals damage to himself.",
+        "Skipping the next actual turn Draw loses this reward instead of delaying it to a later turn.",
+        "Additional Play phases and additional victims never stack the draw beyond +2. Any one actual damaged victim not retaliating suffices; every recorded victim retaliating means no +2."
+      ]
+    }
+  ],
+  "implementationNotes": [
+    "Each accepted native Use freezes its own actual CardUseFrameId, ActionId, exact conversion source and one real Hand cost. A physical card merely shown or another use of the same material cannot arm this benefit.",
+    "Victims come from real positive applied damage whose native producer is that issued CardUseFrameId. Self damage in its Duel and linked multiple victims are retained; prevented damage and unrelated skill/card damage do not fabricate victims.",
+    "Retaliation is real sourced applied damage from a recorded victim to the exact original skill owner after that victim has actually received the Juguan card damage, up to the next actual owner TurnStarted boundary. A mere loss of HP, prevention, or damage from another seat does not qualify.",
+    "The initial damaging receipt itself is never also its own retaliation. Immediate after-damage retaliation is counted according to the primary wording; no added exclusion waits for CardUseFinished.",
+    "A supplementary fan rules rewrite at https://moegirl.uk/三国杀:高干 introduces after-card-resolution timing absent from the official text, current client and operator FAQ. This module does not silently import that extra timing condition; the selected timing is a clearly identified literal-text inference.",
+    "The next actual own turn freezes at most +2 independently of later source skill loss. Its first real Draw phase token owns the modifier; additional Draw phases do not copy it, and a skipped phase expires it. The pure draw-count query never consumes pending state.",
+    "Extra actual turns are real next-owner-turn deadlines. A face-down skipped turn never carries the old reward to a later turn. All rule facts are scalar or immutable scalar records and replay is rebuilt from accepted commands."
+  ],
+  "status": "root-verified",
+  "behaviorChecks": "tests/CardGame.Core.Tests/GaoGanChecks.cs"
+}

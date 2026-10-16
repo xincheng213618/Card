@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:lianju", "revision": 1, "triggers": [
+      { "id": "same-color-gift", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "offerLianjuSameColorGift", "target": "owner" }] },
+      { "id": "issued-opposite-color", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "resolveLianjuOppositeColorReturn", "target": "owner" }] }
+    ] },
+    { "id": "ol:silv", "revision": 1, "triggers": [
+      { "id": "damage-marked-draw", "window": "afterDamageApplied", "subject": "owner", "optional": false, "damageOccurrence": "perDamage",
+        "effects": [{ "op": "drawSilvMarkedCardAfterDamage", "target": "owner" }] },
+      { "id": "issued-entity-refund", "window": "discardPileReceived", "subject": "owner", "optional": false, "movementDiscardOnly": true, "movementOccurrence": "perCard",
+        "effects": [{ "op": "returnDiscardedSilvEntity", "target": "owner" }] }
+    ] }
+  ]
+}

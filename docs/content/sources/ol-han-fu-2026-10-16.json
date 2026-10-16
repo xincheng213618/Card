@@ -1,0 +1,282 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:han-fu",
+  "identity": {
+    "gid": 651,
+    "name": "韩馥",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "genderEvidence": "Current OL character h=1 and the official 2024-11-22 release explicitly identifies male Qun 4 HP."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1351]",
+      "row": {
+        "a": 651,
+        "b": "韩馥",
+        "d": "HanFu",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3538,
+        "k": 3539,
+        "p": 3,
+        "q": "1",
+        "r": "9065101",
+        "y": "字文节，颍川人，为汝南袁氏门生故吏。董卓掌权后，拜韩馥为冀州牧。诸侯伐董时，韩馥对袁绍同盟心存疑虑，常减扣军粮。韩馥还曾与袁绍想另立刘虞为帝，没有成功。韩馥部将麴义反叛，心怀恐惧，被高干、荀谌、郭图等人劝说，将冀州牧之位让于袁绍。",
+        "z": "防御和辅助能力都很强，但是害怕群体伤害。",
+        "aa": 70,
+        "ab": "1225,1226",
+        "al": 1740,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "ar": "20241222T235959",
+        "LordCardRate1": 48,
+        "LordCardRate2": 53,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2567]",
+          "row": {
+            "a": 3538,
+            "b": "3",
+            "c": "束辎",
+            "d": "ShuZi",
+            "e": 0,
+            "g": 7,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可以交给一名角色两张牌，然后其交给你一张手牌。若此牌牌名与你交给其的牌中牌名相同，你可以选择一项：<br>&nbsp;1.对其造成1点伤害；<br>&nbsp;2.将场上一张牌移动至其对应的区域。",
+            "w": "请选择一张手牌交给{0}",
+            "v": "请选择两张牌交给一名角色"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2568]",
+          "row": {
+            "a": 3539,
+            "b": "3,4,5",
+            "c": "恇守",
+            "d": "KuangShou",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "o": "锁定技，当你受到伤害后，你摸三张牌，然后弃置X张牌（X为本回合受到过伤害的角色数）。",
+            "v": "请选择{0}张牌弃置"
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySource": {
+    "capturedAtUtc": "2026-10-16T18:49:24.469349+08:00",
+    "generalId": 651,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/651",
+      "byteCount": 24103,
+      "sha256": "fd696483e024209c2d222bfd1ccc861c797826318433e2b1a4ea3c7f3145c8a7",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=651",
+      "byteCount": 1016,
+      "sha256": "bedb02ccff4b90e1bf52745e564fff273b6997e6197737a7652f9e40872a7cb4",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 651,
+            "name": "韩馥",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/651.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65100.png",
+            "label": [
+              "防御",
+              "过牌",
+              "发育"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "传说",
+            "biography": "字文节，颍川人，为汝南袁氏门生故吏。董卓掌权后，拜韩馥为冀州牧。诸侯伐董时，韩馥对袁绍同盟心存疑虑，常减扣军粮。韩馥还曾与袁绍想另立刘虞为帝，没有成功。韩馥部将麴义反叛，心怀恐惧，被高干、荀谌、郭图等人劝说，将冀州牧之位让于袁绍。",
+            "characteristic": "防御和辅助能力都很强，但是害怕群体伤害。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 8
+          },
+          {
+            "name": "地主",
+            "value": 8
+          },
+          {
+            "name": "农民",
+            "value": 8
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/65100.png",
+      "byteCount": 977875,
+      "sha256": "c56e243f9fa29bd471b6432e479f931b24a3bb60d1afcc0252f08f26ed8fe60c",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-han-fu.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "supportingSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20241120_1412_4413",
+      "kind": "official OL release announcement",
+      "published": "2024-11-22",
+      "supports": "Ordinary OL Han Fu, Qun male 4 HP. Complete Shuzi and Kuangshou match the current official hero page and client."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/606304315325287127",
+      "originalUrl": "https://club.sanguosha.com/thread-1420863-1-2.html",
+      "kind": "Same-product official-account repost of an attributed original strategy guide",
+      "author": "梦醉良缘",
+      "published": "2024-11-14",
+      "supports": "The two given cards may be hand cards or equipment, including Silver Lion. The recipient returns a hand card. The board move must enter the original recipient corresponding area and obey area legality; it cannot remove a delayed card already on that same recipient."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/712496210933452775",
+      "originalUrl": "https://club.sanguosha.com/thread-1420863-1-23.html",
+      "kind": "Same-product repost of the same attributed guide",
+      "published": "2025-09-03",
+      "supports": "Confirms the current complete HE transfer, hand-only return and fixed-recipient board-movement mechanics."
+    }
+  ],
+  "rules": {
+    "shuzi": "One activation per actual Play phase, two actual owned HE entities and one living person. The recipient privately returns one current hand entity after all genuine gift children finish. Matching at least one of the originally given names permits declining, one native sourced damage, or moving an actual equipment/judgment entity from another person field into the recipient corresponding area. The destination may replace native equipment but cannot violate a judgment/area restriction.",
+    "selfTarget": {
+      "status": "implementation inference from current primary text",
+      "explanation": "The official hero, release and current client say one person rather than another person. Therefore self remains legal. Own Hand to the same Hand satisfies the hand transfer without any physical movement, loss or gain event. Own equipment to own Hand is a genuine native movement. The subsequent own-hand return is likewise a no-op, followed by the same name-matching and optional bonus rules. No same-zone movement is fabricated."
+    },
+    "names": {
+      "status": "native current-entity identity interpretation",
+      "explanation": "Freeze each entity name at its own transfer payment. Actual hand cardIdentities count; optional viewAs choices do not change a name. Normalize the native Slash family. Preserve original printed-kind movement proof independently so leaving hand or losing a source cannot change an already accepted match."
+    },
+    "kuangshou": {
+      "damageOccurrence": "One invocation for each actual positive whole damage instance, not once per point; source-less damage also qualifies.",
+      "count": "Distinct actual DamageApplied targets since the current actual TurnStarted, including the owner and people who have since died; prevented damage and HP loss are excluded.",
+      "freezePoint": "After the actual native Draw3 and all of its children, immediately before the first discard choice. Freeze the complete history prefix length and distinct target seats, then discard min(X, eligible HE count) through a single real native batch.",
+      "freezeStatus": "implementation inference: the variable is evaluated where the discard consumes it, rather than before an earlier draw child can cause new real damage."
+    },
+    "generalWeapon": "Kuangshou permits a native self-discardable GeneralWeapon in the owner's equipment area. Its genuine movement ends OutsideGame under the existing generated-equipment contract, rather than fabricating entry into DiscardPile. Shuzi gift and board movement retain the existing nontransferable GeneralWeapon restriction.",
+    "continuations": "All pending drafts, original entity receipts, private returned-card choices, history cutoff and selected discard IDs remain on the owning frame with defensive collection copies. Costs and native child cursors survive source loss; death drains paid children and cancels unperformed benefits. Equipment removal, Silver Lion recovery/replacement, Wooden Ox grains, damage/prevention/dying and real card movement retain native boundaries."
+  },
+  "validation": {
+    "status": "implemented-and-root-verified",
+    "focusedChecks": [
+      "ShuziHandExchangePrivateChooserAndNamesCold",
+      "ShuziEquipmentSelfAndPublicCorrespondingZonesCold",
+      "KuangshouActualDamageDistinctCutoffAndDiscardCold",
+      "HanFuPaidLossDeathLionOxAndNativeChildrenCold"
+    ]
+  },
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 35930,
+      "steps": {
+        "Build selected scope": 23030,
+        "Core selected checks (5 filters, union)": 7477,
+        "WPF selected checks (2 filters, union)": 12535
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Zhang Yan:', 'Wu An Guo:', 'Han Fu:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program paid choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 27,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 14644,
+      "steps": {
+        "Build selected scope": 2533,
+        "Core selected checks (10 filters, union)": 11829
+      },
+      "scope": "He Jin and selected-actor Duel native returns; Qian Zhao and Ma Wan extra targets; Lu Yu Sheng and Du Fu Ren chain/phase receipts; original-target addition; legacy Benxi and Fu Wan virtual Slash; Pang De physical-material claims."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32446,
+      "steps": {
+        "Build selected scope": 2836,
+        "Core selected checks (140 filters, union)": 11369,
+        "WPF selected checks (20 filters, union)": 29229
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Zhang Yan gallery",
+      "OL Wu An Guo gallery",
+      "OL Han Fu gallery",
+      "generic private paid choices"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. Nullable new frame fields are omitted when absent; native bridges require exact issued receipts or the new compiled capabilities.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; original native Space press/release guard passed.",
+    "verifiedAtUtc": "2026-10-16T11:18:23.586286+00:00"
+  }
+}

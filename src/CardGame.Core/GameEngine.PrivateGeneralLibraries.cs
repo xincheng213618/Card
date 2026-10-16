@@ -162,13 +162,17 @@ public sealed partial class GameEngine
         var d=f.GeneralLibraryDraft!;var library=_privateGeneralLibraries.GetValueOrDefault(d.Source);if(library is null||!LibrarySourceQualified(d.Source))return [];
         var e=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
         PromptChoice Choice(string value,string label)=>new(new($"general-library.{f.Id}.{d.Step}.{value}"),label,[],[],new Dictionary<string,string>{{"program-action","private-general-library"},{"frame-id",f.Id.ToString()},{"value",value}});
-        return d.Step switch
+        var choices = d.Step switch
         {
             GeneralLibraryStep.SelectGeneral=>library.GeneralIds.Where(id=>PrivateGeneralDeclarableSkills(id,e.GeneralLibraryPolicy!).Count>0).Order(StringComparer.Ordinal).Select(id=>Choice(id,"展示【"+_contentRegistry.Generals[id].Name+"】")).ToArray(),
             GeneralLibraryStep.SelectSkill=>PrivateGeneralDeclarableSkills(d.SelectedGeneralId!,e.GeneralLibraryPolicy!).Select(id=>Choice(id,"获得【"+_contentRegistry.Skills[id].Name+"】")).ToArray(),
             GeneralLibraryStep.SelectFaction=>new[]{"wei","shu","wu","qun"}.Select(id=>Choice(id,"选择势力 "+id)).ToArray(),
             _=>throw new InvalidOperationException("Invalid private library selection stage.")
         };
+        if (d.Step != GeneralLibraryStep.SelectGeneral || !d.InitialDrawCommitted)
+            choices = [.. choices, new(new($"general-library.{f.Id}.{d.Step}.back"), "返回", [], [],
+                new Dictionary<string, string> { ["program-action"] = "private-general-library", ["frame-id"] = f.Id.ToString(), ["navigation"] = "back" })];
+        return choices;
     }
     private void PublishPrivateGeneralLibraryChoice(ProgramSkillFrame f)
     {
@@ -182,7 +186,18 @@ public sealed partial class GameEngine
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Private library selection lost its owning frame.");
         if(choice.Parameters.GetValueOrDefault("frame-id")!=f.Id.ToString()||!PrivateGeneralLibraryChoices(f).Any(c=>c.Id==choice.Id))throw new InvalidOperationException("Stale private library choice.");
-        ClearPendingDecision();var d=f.GeneralLibraryDraft!;var value=choice.Parameters["value"];
+        ClearPendingDecision();var d=f.GeneralLibraryDraft!;
+        if (choice.Parameters.GetValueOrDefault("navigation") == "back")
+        {
+            if (d.Step == GeneralLibraryStep.SelectGeneral) { FinishPrivateGeneralLibrarySelection(f); return; }
+            d = d.Step == GeneralLibraryStep.SelectFaction
+                ? d with { Step = GeneralLibraryStep.SelectSkill, SelectedSkillId = null, SelectedFactionId = null }
+                : d with { Step = GeneralLibraryStep.SelectGeneral, SelectedGeneralId = null, SelectedSkillId = null, SelectedFactionId = null };
+            ReplaceRuntimeTop(f = f with { GeneralLibraryDraft = d });
+            PublishPrivateGeneralLibraryChoice(f);
+            return;
+        }
+        var value=choice.Parameters["value"];
         if(d.Step==GeneralLibraryStep.SelectGeneral){ReplaceRuntimeTop(f=f with{GeneralLibraryDraft=d with{Step=GeneralLibraryStep.SelectSkill,SelectedGeneralId=value}});PublishPrivateGeneralLibraryChoice(f);return;}
         if(d.Step==GeneralLibraryStep.SelectSkill)
         {
@@ -191,12 +206,14 @@ public sealed partial class GameEngine
         }
         else d=d with{SelectedFactionId=value};
         var library=_privateGeneralLibraries[d.Source];var owner=_players[f.OwnerSeat];
+        var nativeFactionBeforeDeclaration = CaptureNativeAvatarFactionBeforeDeclaration(owner);
         var id=$"general-library:{f.OwnerSeat}:{d.Source.CapabilityGrantId.Length}:{d.Source.CapabilityGrantId}:{d.Source.CapabilitySkillInstanceId.Length}:{d.Source.CapabilitySkillInstanceId}:{d.SelectedGeneralId}:{d.SelectedSkillId}";
         foreach(var old in owner.SkillGrants.Grants.Where(g=>g.GeneralLibraryProjection?.LibrarySource==d.Source&&g.GrantId!=id).ToArray())owner.SkillGrants.RemoveGrant(old.GrantId);
         if(!owner.SkillGrants.Grants.Any(g=>g.GrantId==id))owner.SkillGrants.Grant(new(id,d.SelectedSkillId!,id,"general-library:"+d.Source.CapabilityGrantId,GeneralLibraryProjection:new(d.Source,d.SelectedGeneralId!,d.SelectedSkillId!)));
         RegisterTaggedConversionSkill(owner,d.SelectedSkillId!);
         library=library with{RevealedGeneralId=d.SelectedGeneralId,DeclaredSkillId=d.SelectedSkillId,SelectedFactionId=d.SelectedFactionId,Revision=library.Revision+1};
         _privateGeneralLibraries[d.Source]=library;_privateGeneralLibraryRevision++;
+        CompleteNativeAvatarFactionDeclaration(f, owner, nativeFactionBeforeDeclaration);
         var general=_contentRegistry.Generals[d.SelectedGeneralId!];
         AdvanceEventRulesAndQueueFact(new PrivateGeneralLibraryDeclaredEvent(d.Source,d.SelectedGeneralId!,d.SelectedSkillId!,general.Gender,d.SelectedFactionId??general.FactionId));FinishPrivateGeneralLibrarySelection(f);
     }

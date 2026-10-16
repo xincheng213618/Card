@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:han-fu",
+  "skills": [
+    { "registrationOrder": 1590, "programBundle": "ol-han-fu", "includeProgramPresentation": true,
+      "definition": { "id": "ol:shuzi", "name": "束辎", "description": "出牌阶段限一次，你可以交给一名角色两张牌，然后其交给你一张手牌。若此牌牌名与你交给其的牌中牌名相同，你可以选择一项：1.对其造成1点伤害；2.将场上一张牌移动至其对应的区域。", "actionForms": "Active" } },
+    { "registrationOrder": 1591, "programBundle": "ol-han-fu", "includeProgramPresentation": true,
+      "definition": { "id": "ol:kuangshou", "name": "恇守", "description": "锁定技，当你受到伤害后，你摸三张牌，然后弃置X张牌（X为本回合受到过伤害的角色数）。", "executionForms": "Trigger", "tags": "Locked" } }
+  ],
+  "generals": [{ "registrationOrder": 1592, "pools": { "current": 437 },
+    "definition": { "id": "ol:han-fu", "name": "韩馥", "portraitKey": "ol-han-fu", "skillId": "ol:shuzi", "additionalSkillIds": ["ol:kuangshou"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:han-fu", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

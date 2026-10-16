@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:quxi", "revision": 1, "triggers": [
+      { "id": "limited-play-ending", "window": "playEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "usageScope": "game", "usageLimit": 1, "effects": [{ "op": "resolveQuxiAtPlayEnding", "target": "owner" }] },
+      { "id": "round-transfer", "window": "roundStarting", "subject": "owner", "optional": true,
+        "effects": [{ "op": "transferQuxiAtRoundOrDeath", "target": "owner" }] },
+      { "id": "dead-holder-transfer", "window": "characterDied", "subject": "owner", "optional": true,
+        "effects": [{ "op": "transferQuxiAtRoundOrDeath", "target": "owner" }] }
+    ] },
+    { "id": "ol:bixiong", "revision": 1, "triggers": [
+      { "id": "actual-discarded-hand-suits", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand"],
+        "movementOccurrence": "perOwnerBatch", "movementDiscardOnly": true, "optional": false,
+        "effects": [{ "op": "recordBixiongActualDiscard", "target": "owner" }] }
+    ] }
+  ]
+}

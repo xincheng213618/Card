@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:cuorui",
+      "revision": 1,
+      "states": [
+        {
+          "id": "skip-next-judgment",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "opening-hand-population",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "drawToHandCount", "target": "owner", "numberExpression": "livingPlayerCount" }
+          ]
+        },
+        {
+          "id": "delayed-target-arms-skip",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": ["indulgence", "supplyShortage", "lightning"],
+          "optional": false,
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "skip-next-judgment", "value": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:liewei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "killer-draw-three",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": true,
+          "condition": { "kind": "deathKillerIsOwner" },
+          "effects": [ { "op": "draw", "target": "owner", "amount": 3 } ]
+        }
+      ]
+    }
+  ]
+}

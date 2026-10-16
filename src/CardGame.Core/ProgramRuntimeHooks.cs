@@ -12,7 +12,10 @@ internal enum ProgramRuntimePhase
     BeforeResponseHealth,
     AfterResponseHealth,
     AfterOwnerDeath,
-    AfterSkillLoss
+    AfterSkillLoss,
+    BeforeJudgmentPhase,
+    BeforeRecoveryApply,
+    BeforeDamageApply
 }
 
 internal enum ProgramFrameInvariantPhase { BeforeSelectionState, AfterSelectionState }

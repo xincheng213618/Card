@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:huantu", "revision": 1, "triggers": [
+      { "id": "give-before-other-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "effects": [{ "op": "giveCardSkipDrawForEnding", "target": "owner" }] },
+      { "id": "settle-actual-ending", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false, "effects": [{ "op": "resolveHuantuEnding", "target": "owner" }] }
+    ] },
+    { "id": "ol:bihuo-yan-pu", "revision": 1, "triggers": [
+      { "id": "protect-survived-dying", "window": "dyingExited", "subject": "any", "optional": true, "usageScope": "game", "usageLimit": 1, "effects": [{ "op": "drawDyingExitRoundDistance", "target": "owner" }] }
+    ] }
+  ]
+}

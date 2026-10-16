@@ -215,6 +215,7 @@ public sealed partial class GameEngine
             PendingMovementContinuation = new(draft.SourceSeat, 0, null) });
         MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(LiejieDiscardReason(frame)), (batch, records) =>
         {
+            foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id);
             var active = GetActiveProgramFrame(frame.Id);
             ReplaceRuntimeTop(active with { LiejieDiscardPending = active.LiejieDiscardPending! with { BatchId = batch, After = LiejieMoveSequence } });
             AdvanceEventRulesAndQueueFact(new ProgramLiejieSourceDiscardEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame),

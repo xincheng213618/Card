@@ -1,0 +1,410 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:youlong",
+      "revision": 1,
+      "states": [
+        {
+          "id": "yin",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "named-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yin"
+          }
+        },
+        {
+          "id": "named-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          }
+        },
+        {
+          "id": "named-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "named-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
+        }
+      ],
+      "activations": [
+        {
+          "id": "equipment-slot-payment",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "payEquipmentSlotForNamedUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:luanfeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "restore-dying-victim",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveLuanfengDyingRecovery",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

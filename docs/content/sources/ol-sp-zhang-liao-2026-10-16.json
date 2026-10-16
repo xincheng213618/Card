@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:sp-zhang-liao",
+  "characterId": "character:zhang-liao",
+  "product": "三国杀OL",
+  "officialGid": 474,
+  "officialPage": "https://www.sanguosha.com/hero/474",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=474",
+  "apiInfo": {
+    "gid": 474,
+    "name": "SP张辽",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/474.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47400.png",
+    "label": [
+      "过牌",
+      "辅助",
+      "数学家"
+    ],
+    "figure": "群",
+    "figure_py": "qun",
+    "quality": "史诗",
+    "biography": "字文远，魏雁门马邑人。官至前将军、征东将军、晋阳侯。武功高强，又谋略过人，多次建立奇功，以八百人突袭孙权十万大军，皆望风披靡。",
+    "characteristic": "张辽需要尽量多获得一些点数大的手牌。",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "gender": "Male",
+  "genderEvidence": "Current client474 h=1, same official identity",
+  "clientPreflight": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+  "skills": [
+    {
+      "id": "ol:mubing",
+      "clientId": 965,
+      "name": "募兵",
+      "text": "出牌阶段开始时，你可以亮出牌堆顶三张牌，然后你可以弃置任意张手牌，获得任意张亮出的牌（你弃置牌的点数之和不得小于你获得牌的点数之和）。",
+      "upgradedText": "出牌阶段开始时，你可以亮出牌堆顶四张牌，然后你可以弃置任意张手牌，获得任意张亮出的牌（你弃置牌的点数之和不得小于你获得牌的点数之和），然后你可以将以此法获得的牌以任意方式交给其他角色。 "
+    },
+    {
+      "id": "ol:ziqu",
+      "clientId": 966,
+      "name": "资取",
+      "text": "每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，令其交给你一张点数最大的牌。"
+    },
+    {
+      "id": "ol:diaoling",
+      "clientId": 967,
+      "name": "调令",
+      "text": "觉醒技，准备阶段，若你以“募兵”累计获得了至少六张【杀】、伤害锦囊牌和武器牌，你回复1点体力或摸两张牌，并修改“募兵”。"
+    }
+  ],
+  "pageUtf8Sha256": "c163078c34fdc4281077153ad3ca171616a33aef339f501499cb84ed8064ef1e",
+  "apiUtf8Sha256": "c54d120b19cd6b9e263eaeebb7729c27fb969f12f1c269b6787029f76a8a2404",
+  "interpretation": [
+    "Current official text permits any number of discarded hand cards with paid rank sum >= obtained rank sum. Semantic inference: zero-card exchanges are allowed and unclaimed reveals go to discard under the existing reveal-cleanup convention.",
+    "Diaoling counts actual qualifying acquisitions, not currently held cards. Semantic inference: reacquiring the same physical entity in a later activation counts again and later transfers do not subtract acquisitions. Slash variants, damage tricks including UnexpectedAssault and weapons each count once. No maximum HP reduction is printed.",
+    "Upgraded Mubing is current-client spell965.ap: reveal four, first obtain the cards, then optionally distribute any of those still-owned cards among other living players, keeping any remainder. Semantic inference: each acquired entity can be distributed at most once during that activation, even if a nested skill later returns it.",
+    "Semantic inference from the current text: Ziqu considers hand and equipment, excludes judgment-zone cards; the actual victim chooses ties privately. No explicit having-cards condition is printed, so an empty victim may still have the damage prevented. These are interpretations, not a separate official FAQ.",
+    "Ziqu is once per victim for the owner across skill reacquisition, prevents the entire native damage occurrence, and cannot trigger for source-less or self damage."
+  ],
+  "artwork": {
+    "portraitKey": "ol-sp-zhang-liao",
+    "officialCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47400.png"
+  },
+  "content": "src/Characters/zhang-liao/ol-sp/Content/ol-sp-zhang-liao.character.json",
+  "runtime": "src/Characters/zhang-liao/ol-sp/Runtime",
+  "validation": "Root integrated focused verification passes all four native behavior checks in formal classic identity mode: equal and zero rank exchange, six actual acquisitions and upgraded distribution with no repeated returned entity, actual-source per-victim Ziqu and private tied highest HE choice, actual Silver Lion transfer/recovery with cold native parent return."
+}

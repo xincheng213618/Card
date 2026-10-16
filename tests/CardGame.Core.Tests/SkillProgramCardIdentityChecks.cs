@@ -34,6 +34,12 @@ internal static class SkillProgramCardIdentityChecks
             "The card-identity owner could not be selected.");
         AdvanceToHumanPlay(game);
 
+        var privateHand = game.CreateSnapshot(0).Players[0].Hand;
+        Require(privateHand.Count > 0 && privateHand.All(card => card.IdentityKind == CardKind.Slash &&
+                card.Kind == CardKind.OffensiveHorse && card.IdentitySkillName == "武神测试") &&
+                game.CreateSnapshot(1).Players[0].Hand.Count == 0,
+            "Private hand projection must carry the mandatory identity while preserving the physical face and viewer privacy.");
+
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("Play prompt was not exposed.");
         var slashChoices = prompt.Choices.Where(choice =>
             choice.Parameters.GetValueOrDefault("action") == "slash").ToArray();
@@ -68,6 +74,8 @@ internal static class SkillProgramCardIdentityChecks
         Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } next &&
                 !next.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "slash"),
             "The mandatory identity may ignore distance but must not bypass the normal once-per-play-phase Slash limit.");
+        Require(game.CreateSnapshot(0).Players[0].Hand.All(card => card.IdentityKind == CardKind.Slash),
+            "A mandatory identity must remain projected after the Slash quota is spent.");
         Require(SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(restoredAtPrompt.CreateSnapshot(0, revealAll: true)) &&
                 game.Events.Select(item => item.Payload.GetType().Name)
@@ -134,6 +142,8 @@ internal static class SkillProgramCardIdentityChecks
         owner.SkillGrants.SetEnabled("fixture:distinct", false);
         Require(Sources().Length == 0,
             "Disabling the last grant must withdraw the mandatory identity action.");
+        Require(game.CreateSnapshot(0).Players[0].Hand.All(card => card.IdentityKind is null && card.IdentitySkillName is null),
+            "Disabling the last identity instance must immediately clear its hand projection.");
     }
 
     private static void AdvanceToHumanPlay(GameEngine game)

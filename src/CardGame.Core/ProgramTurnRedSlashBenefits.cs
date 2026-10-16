@@ -21,6 +21,7 @@ public sealed record TurnRedSlashPolicyGrantedEvent(TurnRedSlashPolicy Policy) :
 internal sealed partial class TurnCardUseEffectStore
 {
     private readonly List<TurnRedSlashPolicy> _redSlashPolicies = [];
+    internal IReadOnlyList<TurnRedSlashPolicy> RedSlashPolicies => _redSlashPolicies;
     internal TurnRedSlashPolicy GrantRedSlashPolicy(int turn, int seat, long parent, int effect, CardUseEffectSource source)
     {
         var existing = _redSlashPolicies.SingleOrDefault(p=>p.ParentFrameId==parent && p.EffectIndex==effect);

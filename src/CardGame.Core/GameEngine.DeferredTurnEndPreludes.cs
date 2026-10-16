@@ -74,8 +74,12 @@ public sealed partial class GameEngine
         var candidate = window.Candidates[window.CandidateIndex];
         var context = CreateCardsMovedProgramContext(window, candidate);
         if (_resolutionStack.Count == 2 && window.Step == ResolutionFrameStep.AwaitingResponse && GetProgramTrigger(candidate).Optional &&
-            _pendingDecision is { Kind: DecisionKind.ProgramTrigger } decision && decision.PlayerSeat == candidate.OwnerSeat &&
-            decision.SourceSeat == context.SourceSeat && decision.TargetSeat == context.TargetSeat && decision.Choices.Count == 2 &&
+            _pendingDecision is { Kind: DecisionKind.ProgramTrigger } decision &&
+            decision.PlayerSeat == (context.OptionalChooserSeat ?? candidate.OwnerSeat) &&
+            decision.SourceSeat == (context.OptionalChooserSeat is not null ? candidate.OwnerSeat : context.SourceSeat) &&
+            // Optional prompts use the owner when the movement context has no explicit target.
+            // Keep this boundary aligned with ExposeProgramTriggerDecision.
+            decision.TargetSeat == (context.OptionalChooserSeat ?? context.TargetSeat ?? candidate.OwnerSeat) && decision.Choices.Count == 2 &&
             decision.Choices.All(c => c.Parameters.GetValueOrDefault("skill-id") == candidate.SkillId &&
                 c.Parameters.GetValueOrDefault("binding-id") == candidate.BindingId && c.Parameters.GetValueOrDefault("skill-instance-id") == candidate.SkillInstanceId) &&
             decision.Choices.Select(c => c.Parameters.GetValueOrDefault("program-action")).Order(StringComparer.Ordinal).SequenceEqual(["activate", "skip"])) return true;

@@ -1,0 +1,263 @@
+{
+  "date": "2026-10-16",
+  "status": "verified",
+  "generalId": "ol:xiang-chong",
+  "characterId": "character:xiang-chong",
+  "product": "三国杀OL",
+  "officialGid": 591,
+  "officialPage": "https://www.sanguosha.com/hero/591",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=591",
+  "identity": {
+    "name": "向宠",
+    "faction": "shu",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Searched current character manifests, ids and skill bundles for 向宠/XiangChong/xiang-chong/固营/睦阵 before implementation; no same-product ordinary identity was registered.",
+  "skills": [
+    {
+      "id": "ol:guying",
+      "name": "固营",
+      "clientSkillId": 3567,
+      "clientName": "GuYing1",
+      "text": "锁定技，每回合限一次，当你于回合外失去一张牌后，当前回合角色选择一项：1.随机交给你一张牌；2.你获得此牌，若为装备牌则改为使用之。准备阶段，你弃置X张牌（X为此前此技能发动过的次数），并重置此技能发动次数。",
+      "linkedSkills": []
+    },
+    {
+      "id": "ol:muzhen",
+      "name": "睦阵",
+      "clientSkillId": 3568,
+      "clientName": "MuZhen1",
+      "text": "出牌阶段限一次，你可以将两张牌交给一名有装备牌的其他角色，然后获得其装备区里的一张牌；出牌阶段限一次，你可以将一张装备牌置入其他角色的装备区，然后获得其一张手牌。",
+      "linkedSkills": []
+    }
+  ],
+  "primaryEvidence": {
+    "capturedAtUtc": "2026-10-16T22:48:22.01297+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1292]",
+      "row": {
+        "a": 591,
+        "b": "向宠",
+        "d": "XiangChong",
+        "e": 44,
+        "f": "46",
+        "g": 2,
+        "h": 1,
+        "i": 4,
+        "j": 3567,
+        "k": 3568,
+        "p": 2,
+        "q": "1",
+        "r": "9059101",
+        "y": "向宠，左将军向朗之侄，蜀汉重要将领。具有谦和公允的性格品行，对军事通晓畅达，被汉昭烈帝刘备称赞。刘备时，历任牙门将，诸葛亮北伐时，以向宠为中领军，封都亭侯。诸葛亮北行汉中前，特意在《出师表》中向刘禅推荐向宠。延熙三年，南征汉嘉（今四川省雅安市）蛮夷时，遇害，尸体被其部下夺回，送回成都安葬。",
+        "z": "能调整团队手牌结构。",
+        "aa": 160,
+        "ab": "1247,1248",
+        "x": "“能。”——先帝",
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250531T235959",
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2592]",
+          "row": {
+            "a": 3567,
+            "b": "3,4,5",
+            "c": "固营",
+            "d": "GuYing1",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，每回合限一次，当你于回合外失去一张牌后，当前回合角色选择一项：<br>&nbsp;1.随机交给你一张牌；<br>&nbsp;2.你获得此牌，若为装备牌则改为使用之。<br>准备阶段，你弃置X张牌（X为此前此技能发动过的次数），并重置此技能发动次数。",
+            "w": "请选择{0}张牌弃置"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2593]",
+          "row": {
+            "a": 3568,
+            "b": "3",
+            "c": "睦阵",
+            "d": "MuZhen1",
+            "e": 0,
+            "g": 4,
+            "h": 1,
+            "i": 2,
+            "n": 1,
+            "o": "出牌阶段限一次，你可以将两张牌交给一名有装备牌的其他角色，然后获得其装备区里的一张牌；出牌阶段限一次，你可以将一张装备牌置入其他角色的装备区，然后获得其一张手牌。"
+          }
+        }
+      ]
+    },
+    "selectedPrimary": {
+      "capturedAtUtc": "2026-10-16T22:48:22.01297+08:00",
+      "generalId": "ol:xiang-chong",
+      "hero": {
+        "url": "https://www.sanguosha.com/hero/591",
+        "byteCount": 24471,
+        "sha256": "3af9564fa87f8f12211d46b4a519f3775662530d0c6da16ac29d4de69769dd29",
+        "hashScope": "HTTP response body bytes"
+      },
+      "heroSkillRegion": "武将技能介绍 var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?fb3e47332f1c41f3e8dd1961d001377f\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?741c1946c0ae40c84a3db0b843e0b944\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 您的位置： 官网首页 > 武将介绍 > 武将详情 --> 向宠 向宠 向宠 拆迁办 装备大师 随机性拉满 武将生平： 向宠，左将军向朗之侄，蜀汉重要将领。具有谦和公允的性格品行，对军事通晓畅达，被汉昭烈帝刘备称赞。刘备时，历任牙门将，诸葛亮北伐时，以向宠为中领军，封都亭侯。诸葛亮北行汉中前，特意在《出师表》中向刘禅推荐向宠。延熙三年，南征汉嘉（今四川省雅安市）蛮夷时，遇害，尸体被其部下夺回，送回成都安葬。 武将特点： 能调整团队手牌结构。 武将技能： 固营 睦阵 锁定技，每回合限一次，当你于回合外失去一张牌后，当前回合角色选择一项：1.随机交给你一张牌；2.你获得此牌，若为装备牌则改为使用之。准备阶段，你弃置X张牌（X为此前此技能发动过的次数），并重置此技能发动次数。 出牌阶段限一次，你可以将两张牌交给一名有装备牌的其他角色，然后获得其装备区里的一张牌；出牌阶段限一次，你可以将一张装备牌置入其他角色的装备区，然后获得其一张手牌。 ",
+      "api": {
+        "url": "https://www.sanguosha.com/api/v1/hero/info?gid=591",
+        "byteCount": 1082,
+        "sha256": "beffc61baea4fcb7bbe109c16b597d6ba09be4a7a4b681d6f553a834f1a2d13e",
+        "hashScope": "HTTP response body bytes"
+      },
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 591,
+              "name": "向宠",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/591.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59100.png",
+              "label": [
+                "拆迁办",
+                "装备大师",
+                "随机性拉满"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "史诗",
+              "biography": "向宠，左将军向朗之侄，蜀汉重要将领。具有谦和公允的性格品行，对军事通晓畅达，被汉昭烈帝刘备称赞。刘备时，历任牙门将，诸葛亮北伐时，以向宠为中领军，封都亭侯。诸葛亮北行汉中前，特意在《出师表》中向刘禅推荐向宠。延熙三年，南征汉嘉（今四川省雅安市）蛮夷时，遇害，尸体被其部下夺回，送回成都安葬。",
+              "characteristic": "能调整团队手牌结构。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 4
+            },
+            {
+              "name": "农民",
+              "value": 5
+            },
+            {
+              "name": "主公",
+              "value": 3
+            },
+            {
+              "name": "忠臣",
+              "value": 3
+            },
+            {
+              "name": "反贼",
+              "value": 3
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "portrait": {
+        "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59100.png",
+        "byteCount": 936420,
+        "sha256": "59e135295e7e3fb3db2bd6bcd8236d99c803e1b0b9cba22dadde597f364ec5b9",
+        "hashScope": "HTTP response body bytes",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-xiang-chong.png",
+        "width": 750,
+        "height": 950
+      }
+    }
+  },
+  "supplementaryEvidence": [
+    {
+      "url": "https://my.4399.com/yxsgs/xinwen/67338/",
+      "title": "三国杀OL 27日 4-9时 3.7.7版本更新维护公告",
+      "published": "2025-03-27 09:31",
+      "scope": "Same OL product release identity corroboration only: 酒馆招募史诗武将向宠上新. This announcement does not explain individual rule edge cases."
+    }
+  ],
+  "ruleDecisions": [
+    {
+      "kind": "primary",
+      "decision": "Use current hero and fresh OL spell3567/3568 verbatim. No extra requirement that loss be only use, response or discard, and no added prohibition against replacing existing equipment."
+    },
+    {
+      "kind": "inference",
+      "decision": "One card is one actual atomic owner loss batch across HE zones, not per-card iteration of a multi-card payment. HE is the ordinary owned-card scope; judgment/public-pile movements are not silently promoted to owned HE losses."
+    },
+    {
+      "kind": "inference",
+      "decision": "Each actual turn permits one Guying invocation for this owner even if the source generation changes. Outstanding true invocation debt survives source loss/regrant; the next actual preparation freezes and consumes the existing owner debt once. An entirely skipped turned-over turn has no preparation."
+    },
+    {
+      "kind": "inference",
+      "decision": "Random compensation samples actual transferable HE entities. Exact original-card return requires the original loss destination and uninterrupted movement sequence; an unavailable or permanently destroyed entity is never recreated. GeneralWeapon payment/placement restrictions and native destruction are retained."
+    },
+    {
+      "kind": "native-contract",
+      "decision": "Equipment return issues a genuine native equipment Use with a typed owning return. Muzhen equipment placement is direct placement, permits ordinary slot replacement, and retains abolished areas, slot capacities, SilverLion recovery and WoodenOx native side effects."
+    },
+    {
+      "kind": "native-contract",
+      "decision": "A genuine native finalized equipment actor replacement changes the actual equipment recipient, replacement entity and WoodenOx grain owner. The final native result is frozen from the exact use's actor-change chain, equipment-change event and actual movements, while its typed return still resumes the original Guying frame and original invocation debt."
+    },
+    {
+      "kind": "native-contract",
+      "decision": "A printed equipment entity paid as another live use's material can be returned from Processing through a distinct genuine equipment Use. The owning Guying receipt binds the exact original action, loss batch and sequence to the new native use before issuing it. No artificial Processing-to-Processing movement is recorded. Completion requires the new use's actual equipment entry/change/return facts, or its exact first terminal discard with native use-finished and once-return facts when the finalized slot has been abolished or its actual user has died; arbitrary discards and later movements cannot establish a claim."
+    },
+    {
+      "kind": "inference",
+      "decision": "Both Muzhen alternatives are independent once per actual Play phase. Two-card gift sources and one-equipment placement sources are HE; a paid branch completes its native children after source loss, and stops later acquisition if its owner or recipient actually dies."
+    },
+    {
+      "kind": "privacy",
+      "decision": "Own materials remain in the owning receipt until actual payment. Foreign hand acquisition exposes opaque slots to its true chooser, and other seats cannot inspect or answer its private prompt."
+    }
+  ],
+  "excludedVariants": [
+    "The older wording restricted loss to use/response/discard; that restriction is absent from current OL hero and client.",
+    "Mobile/other-product no-replacement wording is not adopted.",
+    "The x.sanguosha.com hero1119 version has different Guying/Muzhen and is not this ordinary OL identity."
+  ],
+  "focusedChecks": [
+    "GuyingAtomicLossChoiceDebtAndCold",
+    "MuzhenIndependentPlayBranchesAndNativePlacementCold",
+    "GuyingOriginalEquipmentUseAndProvenanceCold",
+    "PaidChildrenSourceLossDeathAndPrivacyCold"
+  ],
+  "verification": {
+    "owner": "root",
+    "status": "passed-focused-related-routine-core-and-wpf",
+    "agentDidNotRunBuildOrTests": true
+  }
+}

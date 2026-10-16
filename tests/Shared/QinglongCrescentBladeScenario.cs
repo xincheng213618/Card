@@ -11,7 +11,7 @@ internal sealed record QinglongCrescentBladeBoundary(
 
 internal static class QinglongCrescentBladeScenario
 {
-    public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireFactionSlash = false)
+    public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireFactionSlash = false, int? verifiedSeed = null)
     {
         var registry = requireFactionSlash
             ? ContentRegistry.Build(new StandardContentPackage(),
@@ -19,8 +19,8 @@ internal static class QinglongCrescentBladeScenario
                 new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
                 new FactionFollowupScenarioPackage())
             : StandardContentRegistry.CreateWithClassicGenerals();
-        var maxSeeds = requireFactionSlash ? 128 : 32_768;
-        for (var seed = 1; seed <= maxSeeds; seed++)
+        var maxSeeds = verifiedSeed ?? (requireFactionSlash ? 128 : 32_768);
+        for (var seed = verifiedSeed ?? 1; seed <= maxSeeds; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {

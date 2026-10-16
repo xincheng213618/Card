@@ -5,12 +5,28 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShiluDrawRevealIdentity) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.PlaceBoundHandAsCategoryTalisman) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveSaoguConversionSweep) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMuzhenExchange) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmJingzhongNextActualPlay) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustKuangxiangHandToFour) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimLiubingUndamagingSlash) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestoreActualDiscardBatch) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AwakenZhanyuanAndOfferXili) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ObserveJuguanDrawObligation) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecordBixiongActualDiscard) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveForNextActualPhases) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmHongjiNextPhase) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferLianjuSameColorGift) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLianjuOppositeColorReturn) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGangshuAttributeIncrement) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase);
 
     private ActualDiscardRecoveryPhaseKey? CurrentActualDiscardRecoveryPhase()
     {
@@ -51,7 +67,7 @@ public sealed partial class GameEngine
         if (phase.Kind != ActualDiscardRecoveryPhaseKind.Preparation ||
             phase.TurnNumber != _turnNumber || phase.ActualTurnOwnerSeat != _turnProgression.OwnerSeat ||
             !IsRecordedActualDiscardRecoveryPhase(phase) ||
-            schedule.ParentFrame.OwnerSeat != phase.ActorSeat)
+            schedule.ParentFrame?.OwnerSeat != phase.ActorSeat)
             throw new InvalidOperationException("An inserted phase lost its exact original actual-phase return token.");
         AdvanceEventRulesAndQueueFact(new ActualDiscardRecoveryPhaseRestoredEvent(schedule.Frame.Id, phase));
     }

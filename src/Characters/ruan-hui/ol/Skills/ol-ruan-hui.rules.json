@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:mingcha","revision":1,"triggers":[{"id":"public-three-then-draw-choice","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"resolveMingchaRevealDrawChoice","target":"owner"}]}]},
+ {"id":"ol:jingzhong","revision":1,"triggers":[
+  {"id":"arm-next-actual-play","window":"discardPhaseEnded","subject":"owner","allowOwnDiscardPhaseEnded":true,"optional":true,"effects":[{"op":"armJingzhongNextActualPlay","target":"owner"}]},
+  {"id":"claim-issued-native-use","window":"discardPileReceived","subject":"owner","optional":false,"effects":[{"op":"obtainJingzhongUsedEntities","target":"owner"}]}
+ ]}
+]}

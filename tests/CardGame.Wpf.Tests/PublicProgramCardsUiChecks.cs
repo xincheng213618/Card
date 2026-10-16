@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -65,6 +66,10 @@ internal static class PublicProgramCardsUiChecks
         try
         {
             Program.Render(root, 1120, 740, Path.Combine(output, $"{renderName}.png"));
+            var decisionPanel = (Border)window.FindName("DecisionPanel");
+            Program.Assert(decisionPanel.Background is System.Windows.Media.SolidColorBrush { Color.A: 0 } &&
+                           decisionPanel.BorderThickness == new Thickness(0),
+                "Public faces must appear directly on the table without a large shaded decision backdrop.");
             var panel = Program.Find<ItemsControl>(root).Single(control => control.Name == "PublicRevealedCards");
             var buttons = FaceButtons();
             Program.Assert(buttons.Length == expectedFaces && buttons.All(button => button.IsEnabled && button.ActualWidth > 0 &&
@@ -217,21 +222,44 @@ internal static class PublicProgramCardsUiChecks
         try
         {
             var projected = snapshot with { PublicRevealedCards = snapshot.PublicRevealedCards.Select(face => face.Id == card.Id
-                ? face with { DisplayName = "投影公开牌", RankText = "Q" } : face).ToArray() };
+                ? face with { DisplayName = "投影公开牌", RankText = "Q", SkillMarkLabel = "闾" } : face).ToArray(),
+                Players = snapshot.Players.Select(player => player.Seat == snapshot.HumanSeat
+                    ? player with { Hand = player.Hand.Select(face => face with { SkillMarkLabel = "闾" }).ToArray() } : player).ToArray() };
             refresh.Invoke(model, [projected]);
             Program.Render(root, 1120, 740, Path.Combine(output, "238-public-face-projection.png"));
             var changed = model.PublicRevealedCards.Single(face => face.Id == card.Id);
             var button = FaceButton();
             Program.Assert(!ReferenceEquals(original, changed) && changed.Name == "投影公开牌" && changed.Rank == "Q" &&
+                           changed.OriginalHandTag == "闾" && changed.CardHint.Contains("闾") &&
+                           Program.Find<TextBlock>(button).Any(text => text.Text == "闾" && text.Visibility == Visibility.Visible && text.ActualWidth > 0) &&
+                           Program.Find<TextBlock>(root).Any(text => text.Name == "ChoiceSkillMark" && text.Text == "闾" &&
+                               text.Visibility == Visibility.Visible && text.ActualWidth > 0 &&
+                               text.DataContext is PromptCardChoicePresentation { Face: { } choiceFace } && choiceFace.Id == card.Id) &&
+                           model.Hand.Count > 0 && model.Hand.All(face => face.OriginalHandTag.Contains("闾") && face.CardHint.Contains("闾")) &&
                            AutomationProperties.GetName(button).Contains("投影公开牌") && AutomationProperties.GetName(button).Contains("Q") &&
                            !model.SelectRevealedCardCommand.CanExecute(original) && button.IsEnabled,
-                "Changing public face metadata at the same revision must replace its parameter and update the rendered card's accessible text.");
+                "Changing visible face metadata at the same revision must update public and own-hand marks, hints and accessible text.");
             refresh.Invoke(model, [projected with { PendingDecision = null }]);
             Program.Render(root, 1120, 740, Path.Combine(output, "238-public-face-readonly.png"));
             var readOnly = model.PublicRevealedCards.Single(face => face.Id == card.Id);
             Program.Assert(!ReferenceEquals(changed, readOnly) && !readOnly.IsPublicChoice && readOnly.PublicCardLabel == "公开牌" &&
                            !FaceButton().IsEnabled && !model.SelectRevealedCardCommand.CanExecute(changed),
                 "Withdrawing the public choice while retaining its physical cards must replace the faces and disable the real button.");
+            var owner = snapshot.Players.Single(player => player.Seat == 1);
+            var handReveal = projected with { PendingDecision = null, PublicRevealedCards = projected.PublicRevealedCards
+                .Select(face => face.Id == card.Id ? face with { PublicHandOwnerSeat = owner.Seat } : face).ToArray() };
+            refresh.Invoke(model, [handReveal]);
+            Program.Render(root, 1120, 740, Path.Combine(output, "238-public-hand-owner.png"));
+            var handFace = model.PublicRevealedCards.Single(face => face.Id == card.Id);
+            var handButton = FaceButton();
+            Program.Assert(!ReferenceEquals(readOnly, handFace) && handFace.PublicHandOwnerLabel == owner.Name &&
+                           handFace.PublicCardLabel == owner.Name + "·展示手牌" && handFace.CardHint.Contains(owner.Name + "的展示手牌") &&
+                           AutomationProperties.GetName(handButton).Contains(owner.Name + "的展示手牌") &&
+                           !handButton.IsEnabled && !model.SelectRevealedCardCommand.CanExecute(handFace),
+                "A persistent public hand face must identify its actual owner visually and accessibly without acquiring choice authority.");
+            refresh.Invoke(model, [handReveal with { PublicRevealedCards = handReveal.PublicRevealedCards.Where(face => face.Id != card.Id).ToArray() }]);
+            Program.Assert(model.PublicRevealedCards.All(face => face.Id != card.Id) && !model.SelectRevealedCardCommand.CanExecute(handFace),
+                "Removing the current hand-residency face must remove its owner-labelled view and leave old parameters inert.");
             refresh.Invoke(model, [snapshot]);
             Program.Render(root, 1120, 740, Path.Combine(output, "238-public-face-projection-restored.png"));
             var restored = model.PublicRevealedCards.Single(face => face.Id == card.Id);

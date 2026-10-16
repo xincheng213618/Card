@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:he-jin",
+  "skills": [
+    { "registrationOrder": 1490, "programBundle": "ol-he-jin", "includeProgramPresentation": true,
+      "definition": { "id": "ol:mouzhu", "name": "谋诛", "description": "出牌阶段限一次，你可以令一名其他角色交给你一张手牌，若其手牌数小于你，其视为对你使用一张【杀】或【决斗】。", "actionForms": "Active" } },
+    { "registrationOrder": 1491, "programBundle": "ol-he-jin", "includeProgramPresentation": true,
+      "definition": { "id": "ol:yanhuo", "name": "延祸", "description": "当你死亡时，你可以弃置杀死你的角色至多X张牌（X为你的牌数）。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 1492, "pools": { "current": 427 },
+    "definition": { "id": "ol:he-jin", "name": "何进", "portraitKey": "ol-he-jin", "skillId": "ol:mouzhu", "additionalSkillIds": ["ol:yanhuo"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:he-jin", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

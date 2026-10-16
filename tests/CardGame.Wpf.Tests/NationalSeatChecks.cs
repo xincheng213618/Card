@@ -103,18 +103,19 @@ internal static class NationalSeatChecks
                     var shade = Program.Find<Border>(button).Single(border => border.Name == "DeathShade");
                     var names = Program.Find<TextBlock>(button).Where(text => text.Name == "SlotGeneralName").ToArray();
                     var states = Program.Find<TextBlock>(button).Where(text => text.Name == "SlotRevealState").ToArray();
-                    var meter = Program.Find<HealthMeter>(button).Single(control => control.Name == "SeatHealthMeter");
+                    var icons = Program.Find<ItemsControl>(button).Single(control => control.Name == "SeatHealthIcons");
                     var role = Program.Find<TextBlock>(button).Single(text => BindingOperations.GetBinding(text, TextBlock.TextProperty)?.Path?.Path == "RoleBadgeText");
                     Require(button.ActualWidth == 154 && button.ActualHeight == 204 &&
                         shade.Visibility == Visibility.Visible && !shade.IsHitTestVisible && names.Length == 2 && states.Length == 2,
                         "The national dead-state component must use both real slots and the actual passive 154x204 seat template.");
                     var badge = Bounds(shade);
-                    var readouts = names.Concat(states).Cast<FrameworkElement>().Concat(new FrameworkElement[] { meter, role });
+                    var readouts = names.Concat(states).Cast<FrameworkElement>().Concat(new FrameworkElement[] { icons, role });
                     Require(badge.Width > 0 && badge.Height > 0 && Bounds(button).Contains(badge) &&
                         readouts.All(element => element.Visibility == Visibility.Visible && element.ActualWidth > 0 && element.ActualHeight > 0 &&
                             Bounds(button).Contains(Bounds(element)) && !badge.IntersectsWith(Bounds(element))),
-                        "The national death badge overlapped/cropped a public slot name, reveal state, HP meter or relationship badge.");
-                    Require(meter.Value == 0 && meter.Maximum == seat.MaxHp && role.Text == seat.RoleBadgeText &&
+                        "The national death badge overlapped/cropped a public slot name, reveal state, HP icons or relationship badge.");
+                    Require(icons.Items.Count == Math.Clamp(seat.MaxHp, 0, 8) &&
+                        icons.Items.Cast<string>().All(path => path.EndsWith("gallery-hp-empty.png", StringComparison.Ordinal)) && role.Text == seat.RoleBadgeText &&
                         names.All(text => text.Text == ((GeneralSlotViewModel)text.DataContext).Name) &&
                         states.All(text => text.Text == ((GeneralSlotViewModel)text.DataContext).SlotState),
                         "Dead-state presentation changed a published national slot or detached its public HP/relationship readout.");

@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     private IEnumerable<LegalAction> BuildRoundDistinctBasicPlayActions(CharacterState owner)
     {
         if (!_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse || !owner.IsAlive ||
-            _winner != Winner.None || _phase != TurnPhase.Play || owner.Seat != _currentSeat) yield break;
+            _winner != Winner.None || (_phase != TurnPhase.Play || owner.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(owner)) yield break;
         var selections = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.Peach, CardKind.Alcohol }
             .SelectMany(kind => GetProgramMultiCardViewAsSelections(owner, kind, false))
             .Where(s => ViewAsRule(s.Source)?.RoundDistinctBasicUse is not null)
@@ -54,7 +54,7 @@ public sealed partial class GameEngine
 
     private bool CanUseRoundDistinctBasicAlcohol(CharacterState owner, IReadOnlyList<Card> cards) =>
         !owner.HasAlcoholEffect && !HasSelfCardTargetProhibition(owner.Seat) &&
-        (!owner.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(owner.Seat, owner.Seat) ||
+        (CanUseJianjiOrdinaryAlcohol(owner, null) || HasTargetCardQuotaAllowance(owner.Seat, owner.Seat) ||
             (HasNextUnlimitedCard(owner) || HasMouWujingAllowance(owner) || HasFriendQihuiAllowance(owner)) || HasCardPolicy(owner, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) ||
             HasRoundGainedBasicBonus(owner, CardKind.Alcohol, cards.Select(c => c.Id).ToArray())) &&
         !IsCardTargetProhibited(owner, CardKind.Alcohol, PhysicalGroupSuit(owner, cards), PhysicalGroupColor(owner, cards)) &&

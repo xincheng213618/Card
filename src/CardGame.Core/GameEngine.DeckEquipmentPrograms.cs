@@ -21,11 +21,12 @@ public sealed partial class GameEngine
             selection.Cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray() is [var suit] ? suit : null);
 
     private bool HasBeneficiarySuitShield(int actor, int target, Suit? suit) => actor != target && suit is { } actual &&
-        _beneficiarySuitShields.Any(s => s.BeneficiarySeat == target && s.Suit == actual);
+        (_beneficiarySuitShields.Any(s => s.BeneficiarySeat == target && s.Suit == actual) ||
+         IsDuXiSuitTargetProhibited(actor, target, actual));
 
     private IReadOnlyList<LegalAction> FilterBeneficiarySuitShieldActions(CharacterState actor, IReadOnlyList<LegalAction> actions)
     {
-        if (_beneficiarySuitShields.Count == 0) return actions;
+        if (_beneficiarySuitShields.Count == 0 && !HasAnyDuXiSuitProhibition()) return actions;
         return actions.Where(action =>
         {
             if (action.Kind is LegalActionKind.Recast || action.CardId is not { } id) return true;
@@ -85,6 +86,8 @@ public sealed partial class GameEngine
 
     private bool RandomEquipmentFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath)
     {
+        if (IsXiangChongGuyingEquipmentRide(ride, beneath)) return true;
+        if (IsHuoJunFenruiNativeEquipment(ride, beneath)) return true;
         if (FriendXuanjianFrameRidesOn(ride, beneath)) return true;
         if (ride is ProgramSkillFrame { WindowContext: { } observer } && observer.ParentFrameId == beneath.Id &&
             beneath is HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame)

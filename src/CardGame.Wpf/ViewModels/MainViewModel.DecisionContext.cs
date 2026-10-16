@@ -7,6 +7,9 @@ public sealed partial class MainViewModel
 {
     public DecisionContext? CurrentDecisionContext { get; private set; }
     public bool HasDecisionContext => CurrentDecisionContext is not null;
+    public bool IsGeneralLibrarySelectionPending => _snapshot?.PendingDecision is { } prompt &&
+        prompt.PlayerSeat == _snapshot.HumanSeat &&
+        prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "private-general-library");
     public string TableDecisionTitle => CurrentDecisionContext?.Title ?? TurnHeadline;
 
     private static string ResponseStatusFor(GameSnapshot? snapshot, int seat)
@@ -37,6 +40,7 @@ public sealed partial class MainViewModel
         CurrentDecisionContext = DecisionContext.From(_snapshot);
         RaisePropertyChanged(nameof(CurrentDecisionContext));
         RaisePropertyChanged(nameof(HasDecisionContext));
+        RaisePropertyChanged(nameof(IsGeneralLibrarySelectionPending));
         RaisePropertyChanged(nameof(TableDecisionTitle));
     }
 }

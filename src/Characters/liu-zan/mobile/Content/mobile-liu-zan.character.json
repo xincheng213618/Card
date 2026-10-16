@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-zan",
+  "skills": [
+    {
+      "registrationOrder": 1210,
+      "programBundle": "mobile-liu-zan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:fenyin",
+        "name": "奋音",
+        "description": "你的回合内，每当你使用了一张与上一张颜色不同的牌时，你摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1211,
+      "pools": { "current": 399 },
+      "definition": {
+        "id": "mobile:liu-zan",
+        "name": "留赞·移动版",
+        "portraitKey": "mobile-liu-zan",
+        "skillId": "mobile:fenyin",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:liu-zan",
+        "variantId": "mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

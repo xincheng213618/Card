@@ -1,0 +1,225 @@
+{
+  "capturedAtUtc": "2026-10-15T21:53:40.624818+00:00",
+  "scope": "Ordinary OL Zhang Ling464, Cao Shuang469 and SP Zhang Liao474",
+  "status": "root-verified",
+  "currentClientReference": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+  "candidates": [
+    {
+      "officialId": 464,
+      "pageUrl": "https://www.sanguosha.com/hero/464",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=464",
+      "httpStatus": 200,
+      "pageUtf8Sha256": "6b9d2dc13c12cf6f5e11c0f4f3f10693b5835a6abef14b2965667060e35488fe",
+      "apiUtf8Sha256": "b8a4c3cf8a6fec471c07b54b71c84235154ac390a9f7735cd7f67bebb8411979",
+      "apiIdentity": {
+        "gid": 464,
+        "name": "张陵",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/464.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46400.png",
+        "label": [
+          "进攻",
+          "防御",
+          "控制"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "传说",
+        "biography": "张鲁的祖父，东汉丰县（今江苏徐州丰县）人。道教创始人。因其最初创立的五斗米道又称天师道，故又称张天师。",
+        "characteristic": "回合外防御力较强，可以封印关键角色的手牌。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "printedClientRecord": {
+        "heroId": 464,
+        "name": "张陵",
+        "clientClass": "ZhangLing",
+        "factionRaw": 4,
+        "genderRaw": 1,
+        "hp": 3,
+        "printedSkills": [
+          {
+            "id": 941,
+            "class": "HuJi",
+            "name": "虎骑",
+            "text": "锁定技，你计算与其他角色的距离-1。当你于回合外受到伤害后，你判定，若结果为红色，你视为对伤害来源使用一张【杀】。"
+          },
+          {
+            "id": 942,
+            "class": "ShouFu",
+            "name": "授符",
+            "text": "出牌阶段限一次，你可以摸一张牌，然后将一张手牌置于一名没有“箓”的其他角色的武将牌上，称为“箓”，其不能使用和打出与“箓”类型相同的牌。当其受到伤害或于弃牌阶段弃置至少两张与“箓”类型相同的牌后，将“箓”置入弃牌堆。"
+          }
+        ],
+        "rosterMatches": [],
+        "samePrintedSkillSetAndFactionHpMatches": [],
+        "classification": "Potential missing exact current identity."
+      }
+    },
+    {
+      "officialId": 469,
+      "pageUrl": "https://www.sanguosha.com/hero/469",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=469",
+      "httpStatus": 200,
+      "pageUtf8Sha256": "509f02ed5aae9a8b3f3a3f7a268787ed9e87f20a96af831b1d03dc4e4a21bf81",
+      "apiUtf8Sha256": "0b8293704c200285eb451bf5e617c7df7ca8960edd9b30bdc0bc9f969b5677bb",
+      "apiIdentity": {
+        "gid": 469,
+        "name": "曹爽",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/469.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46900.png",
+        "label": [
+          "进攻",
+          "控制",
+          "过牌"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "限定",
+        "biography": "（?－249年2月9日]，字昭伯，沛国谯县（今安徽亳州）人。三国时期曹魏权臣，大司马曹真长子。\n曹爽自少以宗室身份出入宫廷，谨慎持重，曹叡即位后任散骑侍郎，累迁城门校尉，加散骑常侍，转任武卫将军，公元231年[太和五年），其父曹真逝世，曹爽袭封邵陵侯爵位，公元239年[景初三年），明帝曹叡病危，拜曹爽为大将军，假节钺[yuè]。与司马懿并为托孤大臣。少帝曹芳即位之后加侍中，改封武安侯。从此，势倾四海，声震天下。",
+        "characteristic": "曹爽需要一些可以强制造成伤害的牌，如贯石斧等",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "printedClientRecord": {
+        "heroId": 469,
+        "name": "曹爽",
+        "clientClass": "CaoShuang",
+        "factionRaw": 1,
+        "genderRaw": 1,
+        "hp": 4,
+        "printedSkills": [
+          {
+            "id": 955,
+            "class": "TuoGu",
+            "name": "托孤",
+            "text": "当一名角色死亡时，你可以令其选择其武将牌上的一个技能（限定技、觉醒技、主公技和包含隐匿的技能除外），你失去上次以此法获得的技能，然后获得此技能。"
+          },
+          {
+            "id": 956,
+            "class": "ShanZhuan",
+            "name": "擅专",
+            "text": "当你对一名其他角色造成伤害后，若其判定区没有牌，你可以将其一张牌置于其判定区，若此牌不是延时锦囊牌，则红色牌视为【乐不思蜀】，黑色牌视为【兵粮寸断】。<br>结束阶段，若你本回合未造成伤害，你可以摸一张牌。"
+          }
+        ],
+        "rosterMatches": [],
+        "samePrintedSkillSetAndFactionHpMatches": [],
+        "classification": "Potential missing exact current identity."
+      }
+    },
+    {
+      "officialId": 474,
+      "pageUrl": "https://www.sanguosha.com/hero/474",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=474",
+      "httpStatus": 200,
+      "pageUtf8Sha256": "c163078c34fdc4281077153ad3ca171616a33aef339f501499cb84ed8064ef1e",
+      "apiUtf8Sha256": "c54d120b19cd6b9e263eaeebb7729c27fb969f12f1c269b6787029f76a8a2404",
+      "apiIdentity": {
+        "gid": 474,
+        "name": "SP张辽",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/474.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47400.png",
+        "label": [
+          "过牌",
+          "辅助",
+          "数学家"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "史诗",
+        "biography": "字文远，魏雁门马邑人。官至前将军、征东将军、晋阳侯。武功高强，又谋略过人，多次建立奇功，以八百人突袭孙权十万大军，皆望风披靡。",
+        "characteristic": "张辽需要尽量多获得一些点数大的手牌。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "printedClientRecord": {
+        "heroId": 474,
+        "name": "张辽",
+        "clientClass": "ZhangLiaoSP",
+        "factionRaw": 4,
+        "genderRaw": 1,
+        "hp": 4,
+        "printedSkills": [
+          {
+            "id": 966,
+            "class": "ZiQu",
+            "name": "资取",
+            "text": "每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，令其交给你一张点数最大的牌。"
+          },
+          {
+            "id": 965,
+            "class": "MuBing",
+            "name": "募兵",
+            "text": "出牌阶段开始时，你可以亮出牌堆顶三张牌，然后你可以弃置任意张手牌，获得任意张亮出的牌（你弃置牌的点数之和不得小于你获得牌的点数之和）。"
+          },
+          {
+            "id": 967,
+            "class": "DiaoLing",
+            "name": "调令",
+            "text": "觉醒技，准备阶段，若你以“募兵”累计获得了至少六张【杀】、伤害锦囊牌和武器牌，你回复1点体力或摸两张牌，并修改“募兵”。"
+          }
+        ],
+        "rosterMatches": [
+          {
+            "Id": "boundary:zhang-liao",
+            "Name": "界张辽",
+            "PortraitKey": "boundary_zhang_liao",
+            "SkillId": "boundary:tuxi",
+            "FactionId": "wei",
+            "BaseHp": 4,
+            "AdditionalSkillIds": null,
+            "Gender": 0,
+            "CharacterId": null,
+            "VariantId": null,
+            "RulesetId": null,
+            "InitialHp": null,
+            "SkillIds": [
+              "boundary:tuxi"
+            ]
+          },
+          {
+            "Id": "classic:zhang-liao",
+            "Name": "张辽",
+            "PortraitKey": "zhang_liao",
+            "SkillId": "classic:tuxi",
+            "FactionId": "wei",
+            "BaseHp": 4,
+            "AdditionalSkillIds": null,
+            "Gender": 0,
+            "CharacterId": null,
+            "VariantId": null,
+            "RulesetId": null,
+            "InitialHp": null,
+            "SkillIds": [
+              "classic:tuxi"
+            ]
+          },
+          {
+            "Id": "ol:shen-zhang-liao",
+            "Name": "神张辽",
+            "PortraitKey": "ol_shen_zhang_liao",
+            "SkillId": "ol:duorui",
+            "FactionId": "god",
+            "BaseHp": 4,
+            "AdditionalSkillIds": [
+              "ol:zhiti"
+            ],
+            "Gender": 0,
+            "CharacterId": "character:zhang-liao",
+            "VariantId": "ol-god",
+            "RulesetId": "sanguosha-ol",
+            "InitialHp": null,
+            "SkillIds": [
+              "ol:duorui",
+              "ol:zhiti"
+            ]
+          }
+        ],
+        "samePrintedSkillSetAndFactionHpMatches": [],
+        "classification": "Existing identity but different printed skills or faction/HP: possible distinct current variant, do not merge."
+      }
+    }
+  ]
+}

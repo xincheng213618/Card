@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-yu-sheng",
+  "skills": [
+    {
+      "registrationOrder": 1540,
+      "programBundle": "ol-lu-yu-sheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:cangxin",
+        "name": "藏心",
+        "description": "锁定技，摸牌阶段开始时，你展示牌堆底三张牌并摸与其中红桃牌数量等量张牌。当你每回合首次受到伤害时，你展示牌堆底三张牌并弃置其中任意张牌，此伤害-X（X为以此法弃置的红桃牌数）。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1541,
+      "programBundle": "ol-lu-yu-sheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:runwei",
+        "name": "润微",
+        "description": "已受伤角色的弃牌阶段开始时，你可以令其摸/弃置一张牌并于此阶段手牌上限-1/+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1542,
+      "pools": {
+        "current": 432
+      },
+      "definition": {
+        "id": "ol:lu-yu-sheng",
+        "name": "陆郁生",
+        "portraitKey": "ol-lu-yu-sheng",
+        "skillId": "ol:cangxin",
+        "additionalSkillIds": [
+          "ol:runwei"
+        ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:lu-yu-sheng",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

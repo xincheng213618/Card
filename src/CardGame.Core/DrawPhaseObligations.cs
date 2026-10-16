@@ -59,7 +59,8 @@ public sealed partial class GameEngine
         var skipped = delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase);
         if (_resolutionStack.Count != 0 || _pendingDecision is not null || !owner.IsAlive || _winner != Winner.None ||
             !(skipped && _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.DrawPhaseSkipped) ||
-              !skipped && HasIssuedExtraDrawMarker(owner.Seat))) return false;
+              !skipped && (HasIssuedExtraDrawMarker(owner.Seat) ||
+                  _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGangshuAttributeIncrement)))) return false;
         var inherited = Array.AsReadOnly(_pendingCardsMovedBatches.Where(batch => batch.ParentFrameId is null &&
             batch.TurnNumber == _turnNumber && batch.Movements.Count > 0 && batch.Movements.All(m =>
                 m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(owner.Seat) && m.Reason == CardMoveReasons.Draw))
@@ -92,7 +93,10 @@ public sealed partial class GameEngine
                 case DrawPhaseObligationStage.Drawing:
                     if (frame.Skipped)
                     { ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.SkipObservers }); break; }
-                    var count = frame.NormalDrawReplaced ? 0 : Math.Max(0, checked((frame.FrozenBaseDrawCount ?? GetTurnDrawCount(_players[frame.OwnerSeat])) + frame.DrawAdjustment));
+                    ConsumeDuFuRenPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
+                    ConsumeChengGongYingDraw(frame.OwnerSeat);
+                    var baseDrawCount = frame.FrozenBaseDrawCount ?? FreezeAndCaptureCaoXiNativeDrawBase(_players[frame.OwnerSeat], frame.NormalDrawReplaced);
+                    var count = frame.NormalDrawReplaced ? 0 : Math.Max(0, checked(baseDrawCount + frame.DrawAdjustment));
                     ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.DrawChildren, DrawCount = 0 });
                     if (!frame.NormalDrawReplaced)
                     {
@@ -162,8 +166,16 @@ public sealed partial class GameEngine
             if (window == SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations())
                 facts = facts with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind, int>(owner.Markers) };
             candidates = CollectEligibleProgramTriggerCandidates(owner, window, facts);
-            if (window == SkillProgramTriggerWindow.DrawPhaseStarting) candidates = IncludeAttributedDrawObservers(owner, candidates);
-            if (window == SkillProgramTriggerWindow.DrawPhaseEnded) candidates = IncludeRecipientCategoryGiftObservers(owner, candidates);
+            if (window == SkillProgramTriggerWindow.DrawPhaseStarting)
+            {
+                candidates = IncludeAttributedDrawObservers(owner, candidates);
+                candidates = IncludeYanPuDrawObservers(owner, candidates);
+            }
+            if (window == SkillProgramTriggerWindow.DrawPhaseEnded)
+            {
+                candidates = IncludeRecipientCategoryGiftObservers(owner, candidates);
+                candidates = IncludeHongjiPhaseCandidates(owner, window, candidates);
+            }
         }
         if (candidates.Count == 0) return false;
         var continuation = window switch

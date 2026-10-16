@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[{"id":"ol:fulue","revision":1,"triggers":[
+ {"id":"single-final-target","window":"cardUseTargetsFinalized","ownerRelation":"actor","priority":-999,"optional":false,"effects":[{"op":"offerFulueSingleTargetOption","target":"owner"}]},
+ {"id":"zero-damage-counter","window":"cardUseCompleted","ownerRelation":"actor","singleActionInstance":true,"optional":false,"effects":[{"op":"requestFulueZeroDamageCounterSlash","target":"owner"},{"op":"requestSlashAgainstChosenTarget","target":"selectedTarget","chooserRef":{"kind":"selectedTarget"},"resultBind":"fulue-counter"}]},
+ {"id":"counter-other-option","window":"cardUseTargetsFinalized","ownerRelation":"observer","priority":-1000,"optional":false,"effects":[{"op":"resolveFulueCounterOption","target":"owner"}]}
+]}]}

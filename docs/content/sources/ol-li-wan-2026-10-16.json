@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "characterId": "character:li-wan",
+  "generalId": "ol:li-wan",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T16:36:34.996839+08:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/577",
+      "byteCount": 25235,
+      "sha256": "86d2ef7be769e0ebabafedd76f3ed34148246e47a3ca07e1a5dc952b0bd46708",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=577",
+      "byteCount": 737,
+      "sha256": "d8505c66c06128c354fc4c787d864cb7c00705d6921f025a268ccde157eb5285",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "byteCount": 5385831,
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "byteCount": 4153909,
+      "sha256": "22745509c006706f93b69bfa90a20113a3922adcc78be178a0b163cecc7f0ece",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "decoder": "Public client InitOfb AES-CFB128 then gzip; full resources decoded in memory only."
+  },
+  "officialHeroApi": {
+    "gid": 577,
+    "name": "李婉",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/577.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57700.png",
+    "label": [
+      "防御",
+      "控制",
+      "辅助"
+    ],
+    "figure": "魏",
+    "figure_py": "wei",
+    "quality": "传说",
+    "biography": "贾充之妻，中书令李丰之女。因李丰被夷三族，贾充与其离异，娶郭槐。",
+    "characteristic": "可以与队友玩转同色牌",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "currentClient": {
+    "character": {
+      "path": "GameCharacters.character[1277]",
+      "record": {
+        "a": 577,
+        "b": "李婉",
+        "d": "LiWan",
+        "e": 44,
+        "f": "44",
+        "g": 1,
+        "h": 2,
+        "i": 3,
+        "j": 3511,
+        "k": 3512,
+        "p": 3,
+        "q": "1",
+        "r": "9057701",
+        "y": "贾充之妻，中书令李丰之女。因李丰被夷三族，贾充与其离异，娶郭槐。",
+        "z": "可以与队友玩转同色牌",
+        "aa": 1178,
+        "ab": "1089,1090",
+        "ad": "画师:游卡",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "ar": "20240716T235959",
+        "LordCardRate1": 0,
+        "LordCardRate2": 45,
+        "starMax": 4,
+        "freetitle": "0,辅助强将"
+      },
+      "memberMetadata": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      }
+    },
+    "skills": [
+      {
+        "path": "GameSpells.spell[2542]",
+        "row": {
+          "a": 3511,
+          "b": "3,5",
+          "c": "联句",
+          "d": "LianJu2",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 1,
+          "o": "结束阶段，你可以令一名其他角色获得弃牌堆中本回合你使用的至多两张颜色相同的牌，然后其下个结束阶段，你可获得弃牌堆中该回合其使用的至多两张另一种颜色的牌。",
+          "v": "请选择至多2张颜色相同的牌，交给一名角色|请选择一张{0}牌交给{1}| 请选择至多2张{0}牌"
+        }
+      },
+      {
+        "path": "GameSpells.spell[2543]",
+        "row": {
+          "a": 3512,
+          "b": "3,4,5",
+          "c": "思闾",
+          "d": "SiLv2",
+          "e": 0,
+          "g": 6,
+          "i": 2,
+          "o": "锁定技，因“联句”获得的牌称为“闾”；当你受到伤害后，你摸一张牌并称为“闾”。<br>“闾”因弃置进入弃牌堆后，失去此牌的角色获得之。"
+        }
+      }
+    ],
+    "spellMemberMetadata": {
+      "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+      "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+    }
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57700.png",
+    "sha256": "4e1ac71221354247176e5e656baa3569706ec534fdf76c47eefb55666a64eb4d",
+    "byteCount": 1071652,
+    "hashScope": "raw HTTP response bytes",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-li-wan.png",
+    "size": [
+      750,
+      950
+    ]
+  },
+  "additionalPrimarySources": [
+    {
+      "url": "https://www.sanguosha.com/news/20240612_8503_3514",
+      "date": "2024-06-14",
+      "supports": "Official OL release announcement expressly identifies Wei, Female, 3 HP and both current 2024 skills."
+    }
+  ],
+  "duplicateAudit": {
+    "result": "No existing Li Wan, Lianju or Silv character/skill manifest at preflight; ordinary current OL gid577, not the 2023 test versions or mobile/anniversary versions."
+  },
+  "implementationDecisions": [
+    {
+      "status": "native-contract inference; no current character FAQ located",
+      "topic": "Actual uses and colors",
+      "rule": "Record physical materials of actual declared uses, used Slash-defense Dodge and Nullification. Exclude played-out Duel/AOE Slash and AOE Dodge, and zero-material virtual uses. Equipment and delayed-trick material is eligible if the entity is actually in the discard pile at selection. Select actual discard-pile entity color; owner-local suit transformations do not persist outside their zone. Native actor replacements rebase the final actual user through the exact owning use/action and typed producer event chain. The initial used-material invoice and physical provider remain unchanged; distinct response action IDs do not inherit parent actor replacement."
+    },
+    {
+      "status": "literal up-to-two inference; no current FAQ located",
+      "topic": "Zero cards",
+      "rule": "The user expressly selects red or black before choosing zero, one or two cards. Zero is legal and issues the opposite-color promise. The later optional return may also select zero. The 2023 last-used-card rule is not consulted."
+    },
+    {
+      "status": "native timing contract",
+      "topic": "Next Ending",
+      "rule": "Bind the promise to the first subsequent actual native Ending phase token of its recipient. Face-down skipped turns do not enter Ending and do not consume it. Extra Draw/Play and phase restoration do not manufacture an Ending. Outstanding source-instance/hash promises survive skill loss; an already-paid gain drains real children. A dead beneficiary cannot choose or gain."
+    },
+    {
+      "status": "literal no-expiration inference, agreed implementation",
+      "topic": "Persistent entity labels",
+      "rule": "An actual Lianju gain is marked only while the issuer has Silv; an actual Silv draw is marked at payment before children. A mark follows the exact physical card across transfers, uses, reshuffles, issuer skill loss and issuer death. Duplicate marking cannot create multiple refunds. No unrelated new damage draw is offered after source loss."
+    },
+    {
+      "status": "native discard provenance contract",
+      "topic": "Native discard refund",
+      "rule": "Only a native classified discard whose completion enters the discard pile refunds to the actual losing owner, including two-stage Processing discard provenance. Ordinary use cleanup, recast, equipment replacement, judgment finish, death cleanup, transfer and arbitrary discard-pile moves do not qualify. The exact still-available entity and latest discard receipt are required. Each entity per native movement sequence refunds once, and gain children finish before the original parent resumes."
+    },
+    {
+      "status": "native snapshot contract",
+      "topic": "Visibility",
+      "rule": "Mark lookup is pure. Only cards already visible in a viewer-safe native snapshot receive the skill label. Hidden drawn-card mark facts remain trusted audit data and never disclose foreign hand IDs."
+    }
+  ],
+  "validation": {
+    "status": "Root-owned new focused, related regression, and exact no-argument routine verification passed; see rootVerification.",
+    "focusedChecks": [
+      "LianjuActualUsesSameColorGiftAndZeroReturnCold",
+      "LianjuZeroGiftSkippedTurnAndLostSourceReturnCold",
+      "SilvActualDamageDrawMarksAndResponsePrivacyCold",
+      "SilvNativeDiscardRefundsCrossHolderLossAndDeathCold"
+    ]
+  },
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Ding Shang Wan:', 'He Jin:', 'Li Wan:') -WpfFilter @('Program public card choices', 'Edition general gallery')",
+      "corePassed": 12,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 39906,
+      "steps": {
+        "Build selected scope": 26140,
+        "Core selected checks (3 filters, union)": 7184,
+        "WPF selected checks (2 filters, union)": 13390
+      }
+    },
+    "relatedRegression": {
+      "corePassed": 28,
+      "failed": 0,
+      "durationMs": 13812,
+      "scope": "Fei Yi, Zhang Shi Ping, Qian Zhao, Hao Pu, actual turn end, exact discard classification, native use, catalog dependencies and runtime registrations"
+    },
+    "routine": {
+      "command": "tools/Test-Changed.ps1",
+      "status": "passed",
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 35678,
+      "steps": {
+        "Build selected scope": 3538,
+        "Core selected checks (140 filters, union)": 15094,
+        "WPF selected checks (20 filters, union)": 31695
+      },
+      "priorEnvironmentInterference": "The first routine and isolated retry rejected external AsyncLeftDown=true. After the user released the mouse, the unchanged native input check passed in isolation and this complete routine rerun passed. No input guard was weakened."
+    },
+    "renderedUiInspected": [
+      "OL Ding Shang Wan gallery",
+      "OL He Jin gallery",
+      "OL Li Wan gallery",
+      "visible public prompt and own-hand entity mark"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "No global rules epoch, rules JSON schema, or package release version was changed. New central bridges are enabled only by the newly registered operation capabilities or exact native issued receipts.",
+    "verifiedAtUtc": "2026-10-16T09:23:09.313362+00:00"
+  }
+}

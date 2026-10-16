@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 62, "skills": [
+    { "id": "ol:gangshu", "revision": 1, "triggers": [{ "id": "increase-after-nonbasic-use", "window": "cardUseCompleted", "ownerRelation": "actor", "cardCategories": ["trick", "equipment"], "includeResponseUses": true, "optional": true,
+      "effects": [{ "op": "resolveGangshuAttributeIncrement", "target": "owner" }] }] },
+    { "id": "ol:jianxuan", "revision": 1, "triggers": [{ "id": "draw-after-owner-damage", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": true,
+      "effects": [{ "op": "resolveJianxuanRepeatedDraw", "target": "owner" }] }] }
+  ]
+}

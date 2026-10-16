@@ -1,0 +1,275 @@
+{
+  "date": "2026-10-16",
+  "status": "implemented-and-root-verified",
+  "generalId": "ol:ke-bi-neng",
+  "characterId": "character:ke-bi-neng",
+  "product": "三国杀OL",
+  "officialGid": 638,
+  "officialPage": "https://www.sanguosha.com/hero/638",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=638",
+  "identity": {
+    "name": "轲比能",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation searched all current character manifests, rules and runtime for 轲比能/KeBiNeng/ke-bi-neng/平端/ol:pingduan. No prior same-product ordinary identity was registered.",
+  "skills": [
+    {
+      "id": "ol:pingduan",
+      "name": "平端",
+      "clientSkillId": 3503,
+      "clientName": "PingDuan",
+      "text": "出牌阶段限一次，你可以令一名角色依次执行：1.使用一张基本牌；2.重铸一张锦囊牌；3.可令你获得其装备区一张牌。其每执行一项便摸一张牌。"
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20240828_4520_2513",
+      "title": "8.31-9.7 开学季界曹冲、轲比能上新",
+      "published": "2024-08-30 17:01:20",
+      "checked": "2026-10-16",
+      "level": "Official same-product OL release",
+      "supports": "Explicitly supplies Qun, male, four HP and the full current Pingduan, matching hero/API/current client."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/592682681163055964",
+      "title": "【武将攻略】瀚海鲸波的“鲜卑大人”—轲比能",
+      "checked": "2026-10-16",
+      "level": "Same-product OL互通版 official account repost of a player guide, subordinate to current primary text",
+      "supports": "Skill analysis says every preceding item must execute before the next can occur; declining or lacking a trick ends the sequence before equipment. Slash requires current range and available use allowance, but this request does not debit Slash. Supports virtual/converted Slash."
+    },
+    {
+      "url": "https://game.xiaomi.com/viewpoint/1624366642_1731394879301_13",
+      "title": "轲比能武将攻略】轲比称之曰能",
+      "published": "2024-11-12",
+      "author": "三国杀小乔，原文作者爱多i",
+      "checked": "2026-10-16",
+      "level": "Same-product OL互通版 operational guide, not primary rule text",
+      "supports": "Includes self; each step can be declined. Basic uses include virtual and converted cards; recast includes persistent trick identities. The affected actor chooses equipment. Every successful item immediately draws one separately, so recast additionally supplies its native draw. Slash checks but does not spend its allowance; Alcohol spends its own allowance."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Ordered continuation and actual success",
+      "basis": "Current primary says 依次; same-product operational guides explicitly describe stopping when an item is not executed.",
+      "implementation": "The recipient privately chooses a genuinely legal Basic use. No legal use, refusal, or a failed declaration before an actual Use ends every later item with no reward for that item. A complete native Use counts even if its effect is prevented or countered. Each completed item drains its native children then issues its own one-card draw; no final bulk draw substitutes for these boundaries."
+    },
+    {
+      "rule": "Request legality and all current native Basic producers",
+      "basis": "Same-product guides distinguish Slash eligibility from its quota debit and explicitly include skill-created basics.",
+      "implementation": "Native physical cards, persistent identities, ordinary and multi-material conversions, equipment Slash, round-once zero-entity, tiered zero-entity, draw-funded and chained-state basics retain their true sources and costs. Current distance, use prohibitions, target policies, wounded-Peach and Alcohol eligibility remain native. Slash checks its current allowance but does not consume it. Alcohol pays the ordinary allowance of the actual enclosing turn: an earlier recipient-own-turn use cannot block a later foreign-turn request, and Xiaosi's explicitly unlimited discarded-card Alcohol keeps its exemption instead of consuming an ordinary allowance. This does not turn a separate Play-only active skill into an unrestricted request conversion. A native foreign Alcohol effect is joined by its exact Pingduan native use ID to AlcoholAppliedEvent and expires for its actual effect recipient at the enclosing real turn end, including native actor replacement; original recipient identity still owns the reward and later items."
+    },
+    {
+      "rule": "Recast and equipment",
+      "basis": "Current primary and same-product identity/chooser explanations.",
+      "implementation": "Select a currently owned hand/equipment entity whose actual native identity query (AdvancedEffectiveHandKind) is a Trick, including delayed tricks. Optional view-as output alone never changes a Basic or equipment entity into a recastable trick. The current shared cardIdentities producer supports only Slash/Dodge in Hand (and grain); no Caozhao true Trick-identity producer exists, and this module neither forges one nor loosens its parser. Recast moves the exact original trick material, executes its ordinary native draw, then the separate item reward. The affected actor personally chooses one actual equipped card for transfer to the source hand. Native SilverLion recovery, WoodenOx grain disposal and equipment source changes apply."
+    },
+    {
+      "rule": "Issued lifetime and children",
+      "basis": "Engine typed return and issued effect inference; no stronger current FAQ found.",
+      "implementation": "An accepted effect freezes source/hash/instruction/actual turn/Play/recipient in its owning ProgramSkillFrame. Loss of the source skill does not erase paid continuation. Actual recipient death or game end stops further items after draining native children; a dead equipment receiver cannot receive a later gift. Every private response, declaration, native payment, damage/dying, movement and HP child returns to its original owning receipt. No use-ID pending sidecar or synthetic whole turn is created."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolvePingduanOrderedBasicRecastEquipment"
+    ],
+    "pendingOwnership": "ProgramSkillFrame.KeBiNengPingduan owns all frozen private options, accepted materials/source, exact native use origin, payment spans/batch and step/reward cursors. CardUseFrame.KeBiNengPingduanUse retains its typed parent. Collection-bearing menus defensively copy all nested target/material/conversion lists; new committed events are scalar records.",
+    "focusedChecks": [
+      "OrderedItemsAndPerItemDrawsRecastEquipmentCold",
+      "NativeBasicKindsConversionsAndQuotaCold",
+      "ForeignRecipientPrivacyDeclinesAndOrderedStopsCold",
+      "PaidChildrenSourceLossDeathLionAndOxCold"
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T19:22:59.222602+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": [
+      {
+        "path": "GameCharacters.character[1339]",
+        "row": {
+          "a": 638,
+          "b": "轲比能",
+          "d": "KeBiNeng",
+          "e": 44,
+          "f": "43",
+          "g": 4,
+          "h": 1,
+          "i": 4,
+          "j": 3503,
+          "p": 2,
+          "q": "1",
+          "r": "9063801",
+          "y": "因勇敢公平被推举为鲜卑大人，汉魏两朝曾多次向朝廷进贡。后来因曹魏干预鲜卑的内部矛盾，轲比能屡次反叛，并联合诸葛亮作为其北伐的助应。",
+          "z": "可以辅助队友额外输出并换取收益。",
+          "aa": 144,
+          "ab": "1197,1198",
+          "al": 1740,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "ar": "20240930T235959",
+          "LordCardRate1": 37,
+          "LordCardRate2": 47,
+          "starMax": 4,
+          "freetitle": "0,辅助强将"
+        },
+        "spells": [
+          {
+            "path": "GameSpells.spell[2534]",
+            "row": {
+              "a": 3503,
+              "b": "3",
+              "c": "平端",
+              "d": "PingDuan",
+              "e": 0,
+              "g": 5,
+              "h": 1,
+              "i": 2,
+              "n": 1,
+              "o": "出牌阶段限一次，你可以令一名角色依次执行：<br>&nbsp;1.使用一张基本牌；<br>&nbsp;2.重铸一张锦囊牌；<br>&nbsp;3.可令你获得其装备区一张牌。<br>其每执行一项便摸一张牌。",
+              "w": "请选择一张基本牌使用|请选择一张锦囊牌重铸|是否令{0}获得你装备区的一张牌",
+              "v": "请选择一名角色，对其发动<font color='#FFD800'>平端</font>"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T11:25:39.618962+00:00",
+    "generalId": 638,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/638",
+      "byteCount": 23676,
+      "sha256": "8236abef26bf663cc9501e1bcc75d95ccb147e13c4ad4aab5dd5f99fa51bbe3f",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=638",
+      "byteCount": 863,
+      "sha256": "5f0697e76eecad713421271e75ea37f7744b6c09509852bc3edddaadb29b145e",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 638,
+            "name": "轲比能",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/638.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63800.png",
+            "label": [
+              "辅助",
+              "配合神将",
+              "讨饭"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "因勇敢公平被推举为鲜卑大人，汉魏两朝曾多次向朝廷进贡。后来因曹魏干预鲜卑的内部矛盾，轲比能屡次反叛，并联合诸葛亮作为其北伐的助应。",
+            "characteristic": "可以辅助队友额外输出并换取收益。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/63800.png",
+      "byteCount": 1410452,
+      "sha256": "aee8a904cbf8288fc95d26e3642fb9edbfdc94c179f546bc2d85f72a2ddc2f2f",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-ke-bi-neng.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "officialReleaseSource": [
+    {
+      "url": "https://www.sanguosha.com/news/20240828_4520_2513",
+      "byteCount": 374588,
+      "sha256": "66fdb5ed372dde397981c0bf3f316b423ab3ff230aa5df07d1749bfb88ecd11e",
+      "hashScope": "raw HTTP response bytes"
+    }
+  ],
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-16T12:24:06.742965+00:00",
+    "status": "passed",
+    "focusedBehaviorChecksForThisGeneral": 4,
+    "batchFocusedScope": {
+      "newGeneralBehaviorChecks": 12,
+      "sharedCoreChecks": 2,
+      "wpfChecks": 2,
+      "durationMs": 17477
+    },
+    "relatedRegression": {
+      "coreChecks": 41,
+      "durationMs": 21864
+    },
+    "routineScope": {
+      "command": "tools/Test-Changed.ps1",
+      "coreChecks": 140,
+      "wpfChecks": 20,
+      "durationMs": 32611
+    },
+    "portraitAndRenderedGalleryInspected": true,
+    "fullVerificationRun": false,
+    "versions": "Rules epoch, rules JSON schema and package versions remain unchanged at their authoritative source declarations."
+  }
+}

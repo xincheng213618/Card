@@ -18,7 +18,8 @@
           "minTargets": 1,
           "maxTargets": 1,
           "targetKind": "otherLivingWithHand",
-          "usesPerTurn": 1,
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
           "condition": {
             "kind": "always"
           },

@@ -13,8 +13,7 @@ internal static class PublicPileSkillUiChecks
 {
     public static void ForeignPublicPileCostsUseSharedDraft(string output)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture());
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
         var game = ReachForeignPileAction(registry);
         // The fixture grants the public adjustment directly; this checks UI contract binding,
         // while Core behavior checks cover Qiaoshui's real Pindian win.
@@ -24,12 +23,18 @@ internal static class PublicPileSkillUiChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var model = new MainViewModel(autoAdvance: false, seed: game.Seed, showSetup: true,
-            saveStore: store, useExpandedContent: true, contentRegistry: registry) { IsMotionEnabled = false };
+            saveStore: store, contentRegistry: registry) { IsMotionEnabled = false };
         model.LoadManualGameCommand.Execute(null);
         Program.Assert(!model.HasSaveError, model.SaveStatus);
         game = Program.Engine(model);
         var action = model.HumanActiveSkillActions.First(item => item.ProgramSkillOwnerSeat is not null && item.ProgramSkillId == "classic:xiansi" && item.TargetSeats.Count == 2);
         var ownerSeat = action.ProgramSkillOwnerSeat!.Value;
+        var sharedSkill = model.HumanSkillCards.Single(skill =>
+            skill.ContentId == "classic:xiansi" && skill.SkillOwnerSeat == ownerSeat);
+        Program.Assert(sharedSkill.IsAvailable && sharedSkill.Name == "陷嗣" &&
+            sharedSkill.SourceText.Contains($"{ownerSeat + 1:00} 号位", StringComparison.Ordinal) &&
+            model.HumanSkillCards.Count(skill => skill.ContentId == "classic:xiansi") == 3,
+            "Every public Xiansi owner must provide a separate skill-rail entry to the acting player.");
         Program.Assert(model.HumanActiveSkillActions.Any(item => item.ProgramSkillId == action.ProgramSkillId &&
             item.ProgramActivationId == action.ProgramActivationId && item.ProgramSkillOwnerSeat == ownerSeat &&
             item.TargetSeats.SequenceEqual([ownerSeat])),
@@ -48,6 +53,11 @@ internal static class PublicPileSkillUiChecks
             Program.Render(actionRoot, 1120, 740, Path.Combine(output, "233-public-pile-action-before-reload.png"));
             var actionButton = Program.Find<Button>(actionRoot).Single(button =>
                 ReferenceEquals(button.Command, model.SelectActiveSkillCommand) && ReferenceEquals(button.CommandParameter, action));
+            var rail = (ItemsControl)actionWindow.FindName("HumanSkillCards");
+            Program.Assert(Program.Find<Button>(rail).Any(button =>
+                ReferenceEquals(button.Command, model.ActivateHumanSkillCommand) &&
+                ReferenceEquals(button.CommandParameter, sharedSkill) && button.IsEnabled),
+                "The actual recipient skill rail must contain the enabled foreign Xiansi button.");
             actionCommand = actionButton.Command!;
             retiredAction = (LegalAction)actionButton.CommandParameter;
         }
@@ -60,6 +70,10 @@ internal static class PublicPileSkillUiChecks
         Program.Assert(!model.HasSaveError && !ReferenceEquals(game, Program.Engine(model)) && !model.IsActiveSkillSelectionPending,
             "Manual reload must replace the public-pile game and clear its active draft.");
         game = Program.Engine(model);
+        var reloadedRevision = game.Revision;
+        model.ActivateHumanSkillCommand.Execute(sharedSkill);
+        Program.Assert(!model.IsActiveSkillSelectionPending && game.Revision == reloadedRevision,
+            "A pre-reload Xiansi rail item must not select the reloaded public pile.");
         action = model.HumanActiveSkillActions.Single(item => item.ProgramSkillId == retiredAction.ProgramSkillId &&
             item.ProgramActivationId == retiredAction.ProgramActivationId && item.ProgramSkillOwnerSeat == ownerSeat &&
             item.TargetSeats.SequenceEqual(retiredAction.TargetSeats));
@@ -89,7 +103,8 @@ internal static class PublicPileSkillUiChecks
                 .SetEquals(foreignActions.Select(item => item.ProgramSkillOwnerSeat)),
             "Actions with the same skill and activation must preserve every public pile owner.");
         var otherAction = foreignActions.First(item => item.ProgramSkillOwnerSeat != ownerSeat);
-        model.SelectActiveSkillCommand.Execute(otherAction);
+        model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill =>
+            skill.ContentId == otherAction.ProgramSkillId && skill.SkillOwnerSeat == otherAction.ProgramSkillOwnerSeat));
         Program.Assert(model.ActiveSkillEquipmentChoices.SelectMany(choice => choice.Cards).ToHashSet().SetEquals(otherAction.SelectableCardIds),
             "Selecting another owner must display that owner's legal public costs.");
         Program.Assert(!otherAction.SelectableCardIds.ToHashSet().SetEquals(model.HumanActiveSkillActions.First().SelectableCardIds),
@@ -177,6 +192,9 @@ internal static class PublicPileSkillUiChecks
                 move.From == CardLocation.Authority(ownerSeat) && move.To == CardLocation.DiscardPile) == 2 &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand!.Select(card => card.Id).SequenceEqual(before.Players[0].Hand!.Select(card => card.Id)),
                 "The shared UI must spend only the two foreign public cards and preserve the actor's private hand.");
+            Program.Assert(model.HumanSkillCards.Single(skill =>
+                skill.ContentId == "classic:xiansi" && skill.SkillOwnerSeat == ownerSeat) is { IsAvailable: false },
+                "Xiansi must remain in the recipient rail as a disabled entry after its Slash is submitted.");
             var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
             Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) &&
                 JsonSerializer.Serialize(game.AcceptedCommands) == JsonSerializer.Serialize(restored.AcceptedCommands) &&
@@ -252,6 +270,7 @@ internal static class PublicPileSkillUiChecks
         public PackageManifest Manifest { get; } = new("fixture-ui-public-pile", new Version(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
+            CharacterFixtureContent.Register(builder, "classic:liu-feng");
             var rules = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:ui-adjustment","revision":1,"activations":[{"id":"grant","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"grantNextCardTargetAdjustment","target":"owner"}]}]}]}""";
             var catalog = SkillProgramCatalog.Load(rules, """{"schemaVersion":3,"skills":{"fixture:ui-adjustment":{"name":"测试目标调整","description":"界面契约检查"}}}""");
             builder.AddSkill(new ContentSkillDefinition("fixture:ui-adjustment", "测试目标调整", "界面契约检查")

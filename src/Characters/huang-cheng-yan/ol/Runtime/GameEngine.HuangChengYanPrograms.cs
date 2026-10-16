@@ -125,7 +125,8 @@ public sealed partial class GameEngine
         if (candidates.Length == 0) return -1;
         var pick = candidates[_random.Next(candidates.Length)];
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.jiezhen-take");
-        MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason);
+        MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason,
+            movement => RecordBianFuRenOwnedTransferProducer(movement,frame.OwnerSeat,frame.Id));
         if (!MoveProcessingCardUnlessDestroyed(pick.Card, CardLocation.Hand(frame.OwnerSeat), reason)) return -1;
         AddLog("CardGained",
             $"{_players[frame.OwnerSeat].Name} 获得 {target.Name} 区域里的【{pick.Card.DisplayName}】。",

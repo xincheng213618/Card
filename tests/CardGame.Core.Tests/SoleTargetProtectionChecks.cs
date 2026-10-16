@@ -7,6 +7,7 @@ internal static partial class SoleTargetProtectionChecks
 {
     private const string Skill = "ol:zhenwei", Driver = "fixture:sole-driver", TargetPause = "fixture:sole-target-pause";
     private const string GainPause = "fixture:sole-return-pause", SourceLoss = "fixture:sole-cost-loss", Replacement = "fixture:sole-replacement";
+    private const string ReturnHealth = "fixture:sole-return-health", AfterDianjun = "fixture:sole-after-dianjun";
     private const string Mode = "identity:classic-sole-protection";
 
     public static void SubstitutionChangesActualSlashAndBlackTrickTarget()
@@ -167,6 +168,76 @@ internal static partial class SoleTargetProtectionChecks
         Require(pair.All(id => multi.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.OutsideGame && m.To == CardLocation.Hand(0)) == 1),
             "Both exact Zhangba materials return once through one actual end gain batch."); Cold(multi, multiRegistry);
     }
+    public static void DianjunLateQuarantineReturnsThroughOriginalEndCursorCold()
+    {
+        foreach (var oldQuarantine in new[] { false, true })
+        {
+            var (g, registry) = Start(CardKind.Slash, dianjun: true);
+            var turn = g.State.TurnNumber;
+            if (oldQuarantine)
+            {
+                Play(g, FindAction(g, CardKind.Slash, Protector(g))); Reach(g, IsPlay); End(g);
+                Reach(g, p => p?.SkillPrompt?.SkillId == GainPause);
+                var old = g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
+                Require(old.AfterTurnEnded is null && old.SoleTargetQuarantineReturns is { Index: 1, MovementChildFrameId: not null },
+                    "The original actual-end cursor first returns its earlier native quarantine before after-end programs begin.");
+                g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+            }
+            else End(g);
+            Reach(g, IsPlay);
+            var started = Facts<ZhangYiResolutionStartedEvent>(g).Single(e => e.Source.SkillId == "ol:dianjun");
+            Require(g.State.TurnNumber == turn && Facts<TurnEndedEvent>(g).Count(e => e.TurnNumber == turn && e.ActorSeat == 0) == 1 &&
+                Facts<PhaseChangedEvent>(g).Count(e => e.ActorSeat == 0 && e.Phase == TurnPhase.Play) == 2,
+                "The same actual turn executes one genuine Dianjun Play after the single original TurnEnded.");
+            g = Cold(g, registry); Play(g, FindAction(g, CardKind.Slash, Protector(g))); Reach(g, IsPlay);
+            var late = Facts<SoleTargetQuarantineIssuedEvent>(g).Last().Receipt;
+            Require(late.ActualTurnNumber == turn && late.ActualTurnOwnerSeat == 0 &&
+                late.Materials.All(m => g.CreateCardZoneDiagnostics().Single(z => z.CardId == m.CardId).Location == CardLocation.OutsideGame),
+                "A real Slash used in the extra Play establishes a new native same-turn quarantine after the original end list was frozen.");
+            g = Cold(g, registry); End(g); Reach(g, p => p?.SkillPrompt?.SkillId == GainPause);
+            var parent = g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
+            var window = parent.AfterTurnEnded!; var cursor = parent.SoleTargetQuarantineReturns!;
+            var index = window.ItemIndex;
+            Require(parent.Id == started.ParentWindowId && window.CurrentChild is null && index > 0 && index < window.Items.Count &&
+                cursor.Index == (oldQuarantine ? 2 : 1) && cursor.Receipts.Count == cursor.Index && cursor.MovementChildFrameId is not null &&
+                cursor.CurrentBatch?.ParentFrameId == parent.Id &&
+                Facts<SoleTargetQuarantineSettledEvent>(g).Count(e => e.CardUseFrameId == late.CardUseFrameId) == 1 &&
+                !Facts<ProgramBindingStartedEvent>(g).Any(e => e.SkillId == AfterDianjun),
+                "Late return appends to the exact original typed cursor and owns its genuine gain child before the saved after-end sibling advances.");
+            Frozen(cursor.Receipts); Frozen(window.Items);
+            g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+            Reach(g, p => p?.SkillPrompt?.SkillId == ReturnHealth);
+            parent = g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
+            Require(parent.Id == started.ParentWindowId && parent.AfterTurnEnded!.ItemIndex == index && parent.AfterTurnEnded.CurrentChild is null &&
+                parent.SoleTargetQuarantineReturns!.MovementChildFrameId == cursor.MovementChildFrameId &&
+                g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == GainPause) &&
+                !Facts<ProgramBindingStartedEvent>(g).Any(e => e.SkillId == AfterDianjun),
+                "A real HP child inside the returned-card gain retains the owning movement cursor and cannot advance the frozen after-end sibling.");
+            g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+            Reach(g, p => p?.SkillPrompt?.SkillId == AfterDianjun);
+            parent = g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
+            var returned = JsonSerializer.Serialize(new { oldQuarantine, ExpectedParent = started.ParentWindowId, ExpectedIndex = index,
+                Parent = parent, Bindings = Facts<ProgramBindingResolvedEvent>(g).Where(e => e.SkillId is "ol:dianjun" or AfterDianjun) });
+            Require(parent.Id == started.ParentWindowId,
+                "Native return must retain the original actual-end parent identity: " + returned);
+            Require(parent.AfterTurnEnded!.ItemIndex == index && parent.AfterTurnEnded.CurrentChild is not null,
+                "Native return must start exactly the original saved after-end sibling: " + returned);
+            Require(JsonSerializer.Serialize(parent.AfterTurnEnded.Items) == JsonSerializer.Serialize(window.Items),
+                "Cold native return must retain every frozen after-end item and fact value: " + returned);
+            Require(parent.SoleTargetQuarantineReturns is { MovementChildFrameId: null } finished && finished.Index == finished.Receipts.Count,
+                "Native return must consume each issued quarantine and finish its original movement cursor: " + returned);
+            g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Reach(g, _ => g.State.TurnNumber > turn);
+            Require(Facts<TurnEndedEvent>(g).Count(e => e.TurnNumber == turn && e.ActorSeat == 0) == 1 &&
+                Facts<SoleTargetQuarantineSettledEvent>(g).Length == (oldQuarantine ? 2 : 1) &&
+                Facts<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == AfterDianjun && e.Completed) == 1 &&
+                Facts<SoleTargetQuarantineIssuedEvent>(g).All(e => e.Receipt.Materials.All(m =>
+                    g.CardMovements.Count(move => move.CardId == m.CardId && move.From == CardLocation.OutsideGame && move.To == CardLocation.Hand(0)) ==
+                    Facts<SoleTargetQuarantineIssuedEvent>(g).Count(q => q.Receipt.Materials.Any(material => material.CardId == m.CardId)))),
+                "Old and late exact entities return once per issuance, followed by one sibling completion and one actual turn progression.");
+            _ = Cold(g, registry);
+        }
+    }
+
     public static void LegacyCurrentEnhancementDuplicateTailUsesActualCursor() => LegacyCurrentEnhancementRedirectReturns(3);
 
     private static void LegacyCurrentEnhancementRedirectReturns(int redirectCase)
@@ -309,9 +380,9 @@ internal static partial class SoleTargetProtectionChecks
         }
     }
 
-    private static (GameEngine, ContentRegistry) Start(CardKind kind, bool substitute = false, bool sourceLoss = false, bool red = false, bool ownSkill = false, bool multi = false, bool chain = false, bool foreignActor = false, bool zero = false, bool liuli = false, bool fullBenxi = false, int benxiRedirectCase = 0, bool liuliLoop = false)
+    private static (GameEngine, ContentRegistry) Start(CardKind kind, bool substitute = false, bool sourceLoss = false, bool red = false, bool ownSkill = false, bool multi = false, bool chain = false, bool foreignActor = false, bool zero = false, bool liuli = false, bool fullBenxi = false, int benxiRedirectCase = 0, bool liuliLoop = false, bool dianjun = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(kind, substitute, sourceLoss, red, ownSkill, multi, chain, foreignActor, zero, liuli, fullBenxi, benxiRedirectCase, liuliLoop));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(kind, substitute, sourceLoss, red, ownSkill, multi, chain, foreignActor, zero, liuli, fullBenxi, benxiRedirectCase, liuliLoop, dianjun));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 4 }, registry);
         Accept(g, new StartGameCommand()); Reach(g, p => p is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 });
@@ -376,7 +447,7 @@ internal static partial class SoleTargetProtectionChecks
     private static string Resource(string bundle, string kind)
     { var asm = typeof(StandardContentPackage).Assembly; using var r = new StreamReader(asm.GetManifestResourceStream(asm.GetManifestResourceNames().Single(n => n.EndsWith(bundle + "." + kind + ".json", StringComparison.Ordinal)))!); return r.ReadToEnd(); }
 
-    private sealed class Fixture(CardKind kind, bool substitute, bool sourceLoss, bool red, bool ownSkill, bool multi, bool chain, bool foreignActor, bool zero, bool liuli, bool fullBenxi, int benxiRedirectCase, bool liuliLoop) : IGameContentPackage
+    private sealed class Fixture(CardKind kind, bool substitute, bool sourceLoss, bool red, bool ownSkill, bool multi, bool chain, bool foreignActor, bool zero, bool liuli, bool fullBenxi, int benxiRedirectCase, bool liuliLoop, bool dianjun) : IGameContentPackage
     {
         private static readonly Lazy<SkillProgramCatalog> WenPin = new(() => LoadCatalog("ol-wen-pin"));
         private static readonly Lazy<SkillProgramCatalog> TrimmedBenxi = new(() => LoadBenxi(trim: true));
@@ -410,6 +481,7 @@ internal static partial class SoleTargetProtectionChecks
         public PackageManifest Manifest { get; } = new("fixture-sole-protection", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
+            if (dianjun) CharacterFixtureContent.Register(b, "ol:zhang-yi");
             foreach (var c in new[] { WenPin.Value, fullBenxi ? FullBenxi.Value : TrimmedBenxi.Value })
             {
                 foreach (var (id, p) in c.Programs) b.AddSkill(new(id, c.Presentations[id].Name, c.Presentations[id].Description) { Program = p, ProgramPresentation = c.Presentations[id] });
@@ -436,7 +508,7 @@ internal static partial class SoleTargetProtectionChecks
             {
                 lock (FixturePrograms)
                 {
-                    var key = (id, body, id == TargetPause || id == GainPause || id == "fixture:sole-legacy" && fullBenxi);
+                    var key = (id, body, id == TargetPause || id == GainPause || id == ReturnHealth || id == AfterDianjun || id == "fixture:sole-legacy" && fullBenxi);
                     if (FixturePrograms.TryGetValue(key, out var existing))
                     {
                         b.AddSkill(new(id, id, id) { Program = existing.Programs[id], ProgramPresentation = existing.Presentations[id] });
@@ -444,7 +516,7 @@ internal static partial class SoleTargetProtectionChecks
                     }
                     var c = SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{id}}","revision":1,{{body}}}]}""",
                         JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = new Dictionary<string, object>
-                        { [id] = new { name = id, description = id, optionLabels = id != TargetPause && id != GainPause && (id != "fixture:sole-legacy" || !fullBenxi)
+                        { [id] = new { name = id, description = id, optionLabels = id != TargetPause && id != GainPause && id != ReturnHealth && id != AfterDianjun && (id != "fixture:sole-legacy" || !fullBenxi)
                             ? new Dictionary<string, string>()
                             : new Dictionary<string, string> { ["continue"] = "继续" } } } }));
                     b.AddSkill(new(id, id, id) { Program = c.Programs[id], ProgramPresentation = c.Presentations[id] });
@@ -462,9 +534,20 @@ internal static partial class SoleTargetProtectionChecks
             Add(TargetPause, """
             "triggers":[{"id":"actual-new-target","window":"cardUseTargetsFinalized","ownerRelation":"target","priority":-100,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]}]}]
             """);
-            Add(GainPause, """
+            Add(GainPause, dianjun ? """
+            "triggers":[{"id":"real-return-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.sole-target-protection.return"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]},{"op":"loseHp","target":"owner","amount":1}]}]
+            """ : """
             "triggers":[{"id":"real-return-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.sole-target-protection.return"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]}]}]
             """);
+            if (dianjun)
+            {
+                Add(ReturnHealth, """
+                "triggers":[{"id":"native-return-health-child","window":"afterHealthChanged","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]}]}]
+                """);
+                Add(AfterDianjun, """
+                "triggers":[{"id":"original-after-end-sibling","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","priority":-100,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]}]}]
+                """);
+            }
             if (multi) b.AddCard(StandardContentRegistry.CreateWithClassicGenerals().Cards["classic:zhangba-serpent-spear"]);
             if (chain) Add("fixture:sole-high", """
             "triggers":[{"id":"high-protection","window":"cardUseTargetsFinalized","ownerRelation":"observer","priority":-50,"optional":true,"effects":[{"op":"protectOtherSoleCardTarget","target":"owner"}]}]
@@ -490,9 +573,10 @@ internal static partial class SoleTargetProtectionChecks
                 b.AddSkill(new("fixture:sole-spent", "Spent", "Actual source removed after cost."));
             }
             b.AddSkill(new("fixture:sole-peer", "Peer", "Fixed remaining generals") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, r => r == Role.Lord ? -10000d : 10000d) });
-            b.AddGeneral(new("fixture:sole-owner", "Actual user", "supporter", Driver, "wei", 1, [GainPause, "classic:benxi",
+            b.AddGeneral(new("fixture:sole-owner", "Actual user", "supporter", Driver, "wei", dianjun ? 8 : 1, [GainPause, "classic:benxi",
                 .. (liuli ? new[] { "boundary:lihuo" } : []), .. (liuliLoop ? new[] { "fixture:sole-redirect-range" } : []), .. (ownSkill ? new[] { Skill } : []),
-                .. (foreignActor ? new[] { "fixture:sole-actor-swap" } : []), .. (zero ? new[] { "fixture:sole-legacy" } : [])]));
+                .. (foreignActor ? new[] { "fixture:sole-actor-swap" } : []), .. (zero ? new[] { "fixture:sole-legacy" } : []),
+                .. (dianjun ? new[] { "ol:dianjun", ReturnHealth, AfterDianjun } : [])]));
             b.AddGeneral(new("fixture:sole-protector", "Actual protector", "supporter", "fixture:sole-peer", "wei", substitute ? 12 : 3,
                 [.. (ownSkill ? Array.Empty<string>() : new[] { Skill }), TargetPause, GainPause,
                     .. (liuli ? new[] { "classic:liuli" } : []), .. (liuliLoop ? new[] { "fixture:sole-redirect-range" } : []), .. (sourceLoss ? new[] { SourceLoss, Replacement } : [])]));

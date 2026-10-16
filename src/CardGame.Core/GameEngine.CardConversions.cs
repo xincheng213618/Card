@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         var identityGrain = identityLocation == CardLocation.WoodenOxGrain(owner.Seat);
         if (!identityHand && !identityGrain && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
+        if (identityHand && ShiluIdentity(owner, card) is { } shilu) return [shilu];
         if (identityHand && WeilinIdentity(owner, card) is { } weilin) return [weilin];
 
         var bindings = GetSkillBindingShard(owner);
@@ -258,9 +259,10 @@ public sealed partial class GameEngine
                 .Where(item =>
                 {
                     var (instance, rule) = item;
-                    return rule.InputCount == 1 &&
+                    return rule.KenshangUse != true && rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
+                               MatchesZhongshenRoundGain(owner, card, rule) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
                                (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
@@ -283,7 +285,7 @@ public sealed partial class GameEngine
                     item.Rule.Id,
                     owner.Seat,
                     item.Source.SkillInstanceId))
-            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse))
+            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse) && IsWuAnGuoYangConversionAvailable(owner, card, source, forResponse))
             .ToArray();
         var turnScoped = !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
@@ -434,7 +436,7 @@ public sealed partial class GameEngine
         var rule = instance.Program.ViewAs.FirstOrDefault(item =>
             item.Id == source.BindingId && item.VariableInputCount &&
             item.OutputKind == outputKind && (forResponse ? item.ForResponse : item.ForPlay));
-        if (rule is null || !rule.Condition.Evaluate(CreateSkillContext(owner))) return null;
+        if (rule is null || rule.KenshangUse == true && orderedCardIds.Length < 2 || !rule.Condition.Evaluate(CreateSkillContext(owner))) return null;
         var cards = new List<Card>();
         foreach (var cardId in orderedCardIds)
         {
@@ -622,7 +624,7 @@ public sealed partial class GameEngine
         cards = cards.Concat(GetEquipment(owner).Where(card =>
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
-        return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,card))).DistinctBy(card => card.Id).ToArray();
+        return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,WuJingLiubingUseCard(owner,card,card.Kind)))).DistinctBy(card => card.Id).ToArray();
     }
 
     private static bool IsFactionSlashUse(FactionCardRequestHandle pending) =>

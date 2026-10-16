@@ -1,0 +1,248 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:ma-mi-di",
+  "product": "sanguosha-ol",
+  "verificationStatus": "implemented-and-root-verified",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T12:33:23.873495+00:00",
+    "generalId": "ol:ma-mi-di",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/520",
+      "byteCount": 24363,
+      "sha256": "740014e8495cd17da0be2926d4c29e5285ef1f1cd9c2483527ae588dc89fdd93",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=520",
+      "byteCount": 973,
+      "sha256": "a617b5940c00bde397e2eaf7141d1b904ef0e6309af6f154b85aebdf6069b1b3",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 520,
+            "name": "马日磾",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/520.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52000.png",
+            "label": [
+              "防御",
+              "控制",
+              "简单"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "马日磾[mì dī],东汉中后期大臣，与蔡邕[yōng]、卢植等人东观典校官藏的《五经》记传，到寿春袁术处后，对其多有所求，遭袁术轻鄙，袁术遂夺其符节，来随意征辟将士，并企图强迫马日磾任其军师，马日磾求去不能，忧愤发病，卒于寿春。",
+            "characteristic": "可用体力上限换取全场性的控制能力。",
+            "hp": 6,
+            "initial_hp": 4,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 5
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 4
+          },
+          {
+            "name": "内奸",
+            "value": 4
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/52000.png",
+      "byteCount": 921832,
+      "sha256": "9493153d620f339da85d8b85aef14ba7b555079481c675371e21a0c2ad531aa8",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-mi-di.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentOfficialClient": {
+    "capturedAtUtc": "2026-10-16T12:28:16.180507+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1219]",
+      "row": {
+        "a": 520,
+        "b": "马日磾",
+        "d": "MaMiDi",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 6,
+        "j": 3162,
+        "k": 3163,
+        "p": 1,
+        "q": "1",
+        "r": "9052001",
+        "af": 4,
+        "y": "马日磾[mì dī],东汉中后期大臣，与蔡邕[yōng]、卢植等人东观典校官藏的《五经》记传，到寿春袁术处后，对其多有所求，遭袁术轻鄙，袁术遂夺其符节，来随意征辟将士，并企图强迫马日磾任其军师，马日磾求去不能，忧愤发病，卒于寿春。",
+        "z": "可用体力上限换取全场性的控制能力。",
+        "aa": 74,
+        "ab": "963,964",
+        "ad": "画师:MUMU",
+        "x": "俗儒穿凿，####今当正定！ ",
+        "al": 1730,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ar": "20230201T235959",
+        "LordCardRate1": 26,
+        "LordCardRate2": 39,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,控制强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1546]",
+          "row": {
+            "a": 3162,
+            "b": "3,5",
+            "c": "秉节",
+            "d": "BingJie",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "n": 0,
+            "o": "出牌阶段开始时，你可以减少1点体力上限，然后当你本回合使用【杀】或普通锦囊牌指定目标后，除你以外的每名目标角色各弃置一张牌。",
+            "w": "请弃置一张牌"
+          }
+        },
+        {
+          "path": "GameSpells.spell[1547]",
+          "row": {
+            "a": 3163,
+            "b": "3,4,5",
+            "c": "正订",
+            "d": "ZhengDing",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，当你于回合外使用或打出牌响应其他角色的牌时，若两者颜色相同，你增加1点体力上限。"
+          }
+        }
+      ]
+    }
+  },
+  "sameProductExplanation": [
+    {
+      "url": "https://my.4399.com/yxtouch/ziliao/47989/",
+      "title": "4399三国杀OL 四弼系列武将：马日磾攻略！",
+      "kind": "same-product player guide; not an official FAQ",
+      "published": "2022-11-10",
+      "supports": [
+        "被跳过出牌阶段时不能发动秉节；先减体力上限，后获得回合内效果。",
+        "多目标各自弃牌，由各目标本人选择，强制发动。",
+        "正订同时包括使用及打出，比较颜色而非花色，增加体力上限不回复体力。"
+      ]
+    }
+  ],
+  "implementedRuleBoundaries": [
+    "官方API hp=6、initial_hp=4，客户端i=6、af=4，以baseHp6+initialHp4初始化；主公沿原生规则加1，不能伪造游戏开始失血。",
+    "秉节每个实际出牌阶段开始提供一次支付；被跳过阶段没有该窗口。每次已支付的回合效果独立留存至实际回合结束，失去原技能后不撤销。多次实际Play的叠加属于依本引擎独立issued效果合同的实现推论，未发现专属官方FAQ。",
+    "指定目标后使用原生当前指定目标集合：排除自己、去重，借刀按原生每对中的主目标处理，逐目标本人私密弃HE；装备原生移除引发银狮回复、木牛粮溢出等真实子树。额外效果轮不是再次使用/指定。",
+    "正订依据真实CardResponseCompleted窗口和原生provider投影冻结响应者。原牌为原生真实use，决斗打出响应比较原决斗，连续无懈比较同一链直接前一张无懈；此直接响应配对沿引擎已存在的同色响应合同，属于实现推论，非本将官方FAQ。",
+    "有效颜色取被接受牌动作的冻结颜色；无实体无花色虚拟牌无色，两个无色不匹配，不从CardlessDamage伪造牌。自己实际回合内不发动；加上限不回复HP。",
+    "秉节允许体力上限1继续真实支付为0，沿既有夷算的原生专属支付/DeathReturnKind.ProgramSkill合同直接死亡，不进入可救援濒死。新op的零上限分支直接发真实MaximumHpChangedEvent及own支付凭据，再调用原生BeginPlayerDeath；不修改历史ChangeProgramMaximumHp的clamp、共享版本或旧内容行为。",
+    "使用者和目标以指定目标触发真正执行时的当前原生Action为准。collector仅保存真实Use声明之前已付的本回合效果和可能候选；合法替换使用者后，原使用者不再借用其效果，新使用者若正是本回合已付效果者则允许。真正绑定后的支付子树不因后续失源或死亡退款/重付。该次序沿本引擎current-action actor合同，非额外官方裁定。",
+    "秉节本回合效果按来源实例分别处理，同一来源多个实际Play支付在一个候选内逐份结算；不同live实例保留原生逐实例语义。绑定后的额外效果轮不再次指定/用牌，所以不再弃牌。",
+    "目标结算trigger使用既有schema合法的priority=-1000，晚于当前原生角色/目标调整候选，然后冻结实际目标；未放宽共享优先级范围。",
+    "先支付再获本回合效果：支付子树中仅失技仍兑现；若在真正颁发之前已死亡（包括上限降0或原生HP child死亡），只保留已付成本/完成事实，不给死者新增可用entitlement。已经进入目标弃牌receipt的来源死亡仍不重付、继续已冻结目标，胜负已定则收口。"
+  ],
+  "verification": {
+    "status": "implemented-and-root-verified",
+    "behaviorChecks": [
+      {
+        "path": "tests/CardGame.Core.Tests/MaMiDiChecks.cs",
+        "method": "BingjieNativeTargetsPrivatePaymentsBorrowedSwordAndRepeatCold",
+        "coverage": [
+          "initial4/6 with native Lord adjustment",
+          "three actual AOE recipients choose privately",
+          "native BorrowedSword main-target roles",
+          "genuine native target addition before freezing",
+          "Fengzi repeat uses one Bingjie designation invoice"
+        ]
+      },
+      {
+        "path": "tests/CardGame.Core.Tests/MaMiDiChecks.cs",
+        "method": "BingjieActualPlayStackingSourceLossSkippedPhaseAndExpiryCold",
+        "coverage": [
+          "inserted then normal actual Play create independent grants",
+          "real skill loss retains both already-paid grants",
+          "native actor replacement excludes the previous user",
+          "actual skipped Play and true next-turn expiry"
+        ]
+      },
+      {
+        "path": "tests/CardGame.Core.Tests/MaMiDiChecks.cs",
+        "method": "ZhengdingActualDodgePureResponsesEffectiveColorsAndCounterspellCold",
+        "coverage": [
+          "true off-turn red/black Dodge uses",
+          "pure Duel/group Slash responses",
+          "effective Hongyan suit/color rather than printed suit",
+          "direct previous native counterspell pair",
+          "own-turn and colorless/cardless negative boundaries"
+        ]
+      },
+      {
+        "path": "tests/CardGame.Core.Tests/MaMiDiChecks.cs",
+        "method": "BingjieNativeMaximumHealthLionOxDeathAndPaidColdReturns",
+        "coverage": [
+          "two genuine actual Play payments take native 2→1→0 maximum HP, direct DeathFrame without any PlayerDyingEvent, cold owner-death child and exact once-return",
+          "max-HP native health child and actual conditional-source loss",
+          "paid non-Lord source death and cold native dying return",
+          "foreign SilverLion recovery child",
+          "real target death does not replay payment",
+          "real human WoodenOx stored grain spilled by foreign Bingjie equipment discard"
+        ]
+      }
+    ]
+  }
+}

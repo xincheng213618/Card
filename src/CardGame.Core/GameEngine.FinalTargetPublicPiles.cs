@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ReplaceRuntimeTop(frame with {PendingMovementContinuation=new(frame.OwnerSeat,0,null)});
         var reason=new CardMoveReason(e.Op==SkillProgramEffectOp.CollectFinalTargetCardInPublicPile?"skill-program.public-pile.collect-final-target":e.Op==SkillProgramEffectOp.ObtainPublicPileCard?"skill-program.public-pile.obtain":"skill-program.public-pile.field-discard");
-        MoveCard(card,from,to,reason);
+        MoveCard(card,from,to,reason, movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
         if(actionId is {} id && _cardZones.GetLocation(card.Id)==to) AdvanceEventRulesAndQueueFact(new FinalTargetCardStoredEvent(id,frame.OwnerSeat,target!.Value,card.Id));
         if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(frame.Id);
     }

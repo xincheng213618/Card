@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-yi",
+  "skills": [
+    { "registrationOrder": 1390, "programBundle": "ol-zhang-yi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:dianjun", "name": "殿军", "description": "锁定技，回合结束时，你受到1点伤害并执行一个额外的出牌阶段。", "executionForms": "Trigger", "tags": "Locked" } },
+    { "registrationOrder": 1391, "programBundle": "ol-zhang-yi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:kangrui", "name": "亢锐", "description": "当一名角色于其回合内首次受到伤害后，你可以摸一张牌并选择一项：1.令其回复1点体力；2.令其此回合下次造成的伤害+1。然后当其此回合造成伤害时，其此回合手牌上限改为0。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1392, "pools": { "current": 417 },
+      "definition": { "id": "ol:zhang-yi", "name": "张翼", "portraitKey": "ol-zhang-yi", "skillId": "ol:dianjun", "additionalSkillIds": ["ol:kangrui"], "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:zhang-yi", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

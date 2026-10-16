@@ -10,7 +10,21 @@ public sealed partial class MainViewModel
         DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.RescueDying or
         DecisionKind.Nullification or DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard;
 
-    public bool IsHandResponsePending => SupportsHandResponse(_snapshot?.PendingDecision?.Kind);
+    private static bool IsHandResponsePrompt(GameSnapshot? snapshot)
+    {
+        if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat)
+            return false;
+        if (SupportsHandResponse(prompt.Kind)) return true;
+        if (prompt.SkillPrompt is null || prompt.Choices.Any(choice => choice.Targets.Count > 0 || choice.ContentIds.Count > 0))
+            return false;
+        var handIds = snapshot.Players.Single(player => player.Seat == snapshot.HumanSeat).Hand
+            .Select(card => card.Id).ToHashSet();
+        // Only unambiguous, published choices may be answered from the player's own hand.
+        return prompt.Choices.Where(choice => choice.Cards.Count == 1 && handIds.Contains(choice.Cards[0]))
+            .GroupBy(choice => choice.Cards[0]).Any(group => group.Count() == 1);
+    }
+
+    public bool IsHandResponsePending => IsHandResponsePrompt(_snapshot);
 
     private IEnumerable<CardSnapshot> HandResponseMaterials => _snapshot.Players
         .Where(player => player.IsHuman)
@@ -83,6 +97,7 @@ public sealed partial class MainViewModel
         DecisionKind.Nullification => "确认无懈",
         DecisionKind.FireAttackReveal => "展示此牌",
         DecisionKind.FireAttackDiscard => "弃牌火攻",
+        _ when _snapshot.PendingDecision?.SkillPrompt is not null => "确 定",
         _ => "确认响应"
     };
 

@@ -1,0 +1,234 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:zhu-jun",
+  "product": "sanguosha-ol",
+  "verificationStatus": "implemented-and-root-verified",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T11:25:39.965611+00:00",
+    "generalId": 527,
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/527",
+      "byteCount": 24573,
+      "sha256": "d5d1caa7923998f417729e94da9f9468a29496a5e5eba197c0509a5854d68667",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=527",
+      "byteCount": 911,
+      "sha256": "91ad3984e450381c4cb14aaf40605b89750a91f0df20eddf1f788152220d22ee",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 527,
+            "name": "朱儁",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/527.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52700.png",
+            "label": [
+              "进攻",
+              "简单",
+              "加伤"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "传说",
+            "biography": "朱儁[jùn]，东汉末年名将。早年以家兵五千大破交州叛军，持节平三郡，讨平黄巾，“威声满天下”，后又击退张燕。董卓秉政时拒绝任其副手。李傕[jué]郭汜相互攻杀时，郭汜扣留朱儁为人质，发病而死。",
+            "characteristic": "规划好牌序以享受加伤效果。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/52700.png",
+      "byteCount": 1000773,
+      "sha256": "c89eeddf3717aa2108f45717a07da2b95833a1d7e47bf07d31e4edc5ede6eccd",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-zhu-jun.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "officialClient": {
+    "capturedAtUtc": "2026-10-16T11:22:59.222602+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1226]",
+      "row": {
+        "a": 527,
+        "b": "朱儁",
+        "d": "ZhuJun",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3188,
+        "p": 3,
+        "q": "1",
+        "r": "9052701",
+        "y": "朱儁[jùn]，东汉末年名将。早年以家兵五千大破交州叛军，持节平三郡，讨平黄巾，“威声满天下”，后又击退张燕。董卓秉政时拒绝任其副手。李傕[jué]郭汜相互攻杀时，郭汜扣留朱儁为人质，发病而死。",
+        "z": "规划好牌序以享受加伤效果。",
+        "aa": 65,
+        "ab": "977,978",
+        "x": "敌叛已平，###朝堂威威！",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "ar": "20230901T235959",
+        "LordCardRate1": 26,
+        "LordCardRate2": 44,
+        "cc": 0,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1574]",
+          "row": {
+            "a": 3188,
+            "b": "3,4,5",
+            "c": "摧破",
+            "d": "CuiPo",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "锁定技，当你每回合使用第X张牌时（X为此牌牌名字数），若为【杀】或伤害锦囊牌，此牌伤害+1，否则你摸一张牌。"
+          }
+        }
+      ]
+    }
+  },
+  "skills": [
+    {
+      "id": "ol:cuipo",
+      "officialSkillId": 3188,
+      "name": "摧破",
+      "text": "锁定技，当你每回合使用第X张牌时（X为此牌牌名字数），若为【杀】或伤害锦囊牌，此牌伤害+1，否则你摸一张牌。"
+    }
+  ],
+  "sameProductExplanations": [
+    {
+      "url": "https://www.taptap.cn/moment/641106988066932723",
+      "originalUrl": "https://club.sanguosha.com/thread-1250087-1-1.html",
+      "title": "【武将攻略】朴实无华的小菜刀~朱儁",
+      "classification": "同产品玩家攻略，非官方FAQ",
+      "supports": [
+        "每个回合独立使用序号；纯打出不计；属性杀牌名为杀，按一字。",
+        "当前OL借刀为两字；转化按最终有效牌名。",
+        "决斗即使砸脚、伤害来源变为另一角色，仍是同一张被增强的决斗。"
+      ]
+    },
+    {
+      "url": "https://www.taptap.cn/moment/454960190693836964",
+      "originalUrl": "https://club.sanguosha.com/thread-1253861-1-1.html",
+      "title": "【武将攻略】朱儁：我真的不如沙摩柯吗？",
+      "classification": "三国杀OL撰稿组同产品攻略，非官方FAQ",
+      "supports": [
+        "按杀一字/借刀两字列牌名。",
+        "输出关键牌列杀、决斗、火攻、南蛮入侵、万箭齐发；军争牌堆的闪电列两字但未列入输出关键牌。"
+      ]
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20180906_8699_5918",
+      "title": "[萌新引导]三国杀小技巧系列之锦囊牌篇",
+      "classification": "官网刊载的玩家引导，非专属裁定",
+      "supports": [
+        "将伤害类非延时锦囊列为南蛮入侵、万箭齐发、决斗、火攻，将闪电另列延时类。"
+      ]
+    }
+  ],
+  "implementationInferences": [
+    "全catalog opt-in既有实际使用序号账本；无技能时期的真实使用也占据此回合序号。响应杀的闪和无懈可击为响应使用；决斗/南蛮的杀、万箭的闪等纯打出不计。",
+    "每次使用以声明/接受时冻结的原始actor、有效牌名和实际序号判定；已发给该use的加伤不因后续失技、死亡或合法actor替换撤销。新获得技能不追溯增强之前接受的use。",
+    "现有卡牌类型中，出其不意本身可造成伤害，按伤害锦囊处理；借刀产生的杀是独立用牌。闪电沿同品分类走非伤害锦囊摸牌分支；此为现有资料和原生延时判定无来源合同的实现推论，尚未取得朱儁专属官方FAQ。未声称攻略纯文本保留了原文红色分类。",
+    "伤害增强进入该use每次原始伤害；连环传导继承首伤已修正基数，不能每个后继再加一次。决斗反噬、多个AOE目标及额外效果轮各维持原生伤害实例语义。",
+    "真实legacy零实体杀在声明时绑定加伤。真实legacy濒死酒在恢复之前通过专属typed return执行一次摧破摸牌，随后回到同一酒恢复，不借通用callback或补发第二次支付。",
+    "摸牌事件区间只计实际DrawPile至ownerHand的实体，允许该同一原生Draw调用中的真实洗牌。已发出Draw1的移动/HP/伤害/濒死子树暂停不重付。",
+    "遵循现有原生技能实例模型：conditional恢复与acquired同时有效时，各活技能实例分别触发。一个native Use仅持有一份owning state，其中冻结所有原始来源receipt；不覆盖前来源、不把多来源当异常，不更改其它技能的去重策略。",
+    "零实体酒的恢复前旧濒死证明适用于真实失去体力与真实有来源伤害两类入口；原SourceSeat和DamageFrameId逐项等于该原生Dying的CreateDyingProgramContext，不以无来源为前提。"
+  ],
+  "behaviorChecks": [
+    "ZhuJunChecks.CuipoNativeSlashEffectiveNamesDuelAndChainCold",
+    "ZhuJunChecks.CuipoResponseUsesExcludePureResponsesAndResetPerActualTurnCold",
+    "ZhuJunChecks.CuipoTrickClassificationShortNameAndSkillAbsentHistoryCold",
+    "ZhuJunChecks.CuipoPaidDrawChildrenLossDeathReshuffleAndLegacyAlcoholCold"
+  ],
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-16T12:24:06.742965+00:00",
+    "status": "passed",
+    "focusedBehaviorChecksForThisGeneral": 4,
+    "batchFocusedScope": {
+      "newGeneralBehaviorChecks": 12,
+      "sharedCoreChecks": 2,
+      "wpfChecks": 2,
+      "durationMs": 17477
+    },
+    "relatedRegression": {
+      "coreChecks": 41,
+      "durationMs": 21864
+    },
+    "routineScope": {
+      "command": "tools/Test-Changed.ps1",
+      "coreChecks": 140,
+      "wpfChecks": 20,
+      "durationMs": 32611
+    },
+    "portraitAndRenderedGalleryInspected": true,
+    "fullVerificationRun": false,
+    "versions": "Rules epoch, rules JSON schema and package versions remain unchanged at their authoritative source declarations."
+  }
+}

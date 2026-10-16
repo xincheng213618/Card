@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-wan",
+  "skills": [
+    { "registrationOrder": 1430, "programBundle": "ol-ma-wan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:hunjiang", "name": "浑疆", "description": "出牌阶段限一次，你可以令攻击范围内任意名其他角色同时选择一项：1.令你本阶段使用【杀】可以指定其为额外目标；2.令你摸一张牌。若这些角色皆选择了同一项，也须执行另一项。", "executionForms": "Trigger", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1431, "pools": { "current": 421 },
+      "definition": { "id": "ol:ma-wan", "name": "马玩", "portraitKey": "ol-ma-wan", "skillId": "classic:mashu", "additionalSkillIds": ["ol:hunjiang"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:ma-wan", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

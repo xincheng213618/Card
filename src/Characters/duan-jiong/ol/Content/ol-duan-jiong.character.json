@@ -1,0 +1,3 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:duan-jiong","skills":[
+ {"registrationOrder":1630,"programBundle":"ol-duan-jiong","includeProgramPresentation":true,"definition":{"id":"ol:saogu","name":"扫谷","description":"转换技，出牌阶段，阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；阴：你可以摸一张牌。结束阶段，你可以弃置一张牌令一名其他角色执行当前项。","actionForms":"Active","executionForms":"Trigger, State","tags":"Conversion"}}
+],"generals":[{"registrationOrder":1631,"pools":{"current":441},"definition":{"id":"ol:duan-jiong","name":"段颎","portraitKey":"ol-duan-jiong","skillId":"ol:saogu","factionId":"qun","baseHp":4,"gender":"Male","characterId":"character:duan-jiong","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

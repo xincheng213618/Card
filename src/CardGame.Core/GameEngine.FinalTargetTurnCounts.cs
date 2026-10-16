@@ -98,7 +98,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(frame);
             AdvanceEventRulesAndQueueFact(new NamedTurnSkillChoiceCommittedEvent(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, frame.TriggerId!, _turnNumber,
                 use.Action.ActionId, frame.WindowContext!.ParentFrameId, seat));
-            MoveCard(card, from, CardLocation.DiscardPile, new("skill-program.non-final-target.discard"));
+            MoveCard(card, from, CardLocation.DiscardPile, new("skill-program.non-final-target.discard"), movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
             if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
             return;
         }

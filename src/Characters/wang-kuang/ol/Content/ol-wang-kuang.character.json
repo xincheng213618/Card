@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:wang-kuang",
+  "skills": [{ "registrationOrder": 1550, "programBundle": "ol-wang-kuang", "includeProgramPresentation": true,
+    "definition": { "id": "ol:renxia", "name": "任侠", "description": "出牌阶段限一次，你可以执行一项，并于此阶段结束时执行另一项：1.弃置两张牌，重复至手牌中没有【杀】或伤害锦囊；2.摸两张牌，重复至手牌中有【杀】或伤害锦囊。", "actionForms": "Active", "executionForms": "Trigger" } }],
+  "generals": [{ "registrationOrder": 1551, "pools": { "current": 433 }, "definition": { "id": "ol:wang-kuang", "name": "王匡", "portraitKey": "ol-wang-kuang", "skillId": "ol:renxia", "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:wang-kuang", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

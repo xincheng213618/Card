@@ -19,6 +19,7 @@ internal static class ProgramCompositionValidator
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
         IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
     {
+        ZhangYiComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
             throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
@@ -588,7 +589,7 @@ internal static class ProgramCompositionValidator
                         reserveSet.Root.Consumed.UnionWith(reserveSet.Atoms);
                         break;
                     case RequirePrecedingOwnerDraw:
-                        if(index==0 || effects[index-1] is not {Op:SkillProgramEffectOp.Draw,Target:SkillProgramEffectTarget.Owner,TargetReference:null,Condition.Kind:SkillProgramConditionKind.Always}) Fail("await movement requires a preceding unconditional own draw");
+                        if(index==0 || effects[index-1] is not {Op:SkillProgramEffectOp.Draw or SkillProgramEffectOp.WanweiObtainMatchingLostCard or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard,Target:SkillProgramEffectTarget.Owner,TargetReference:null,Condition.Kind:SkillProgramConditionKind.Always}) Fail("await movement requires a preceding unconditional own card gain");
                         break;
                     case RequirePublicPileColorActivation:
                         if(window is not null || effects.Count!=1 || selectedCardCount!=0 || initialSelectedTarget || initialTargetSetCount!=0) Fail("public-pile color damage requires a standalone zero-card zero-target activation");

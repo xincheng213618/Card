@@ -61,6 +61,10 @@ internal static class CompiledSkillMetadataChecks
                     (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
                     (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category))),
                     "Card-kind/category correlations must remain on the same finalized-target trigger.");
+            Require(dependencies.UsesRoundGainedRedHandOnly == programs.Any(program => program.ViewAs.Any(rule => rule.RoundGainedRedHandOnly == true)),
+                "Round-gained red material capability must be compiled across the complete catalog, with no live-owner narrowing.");
+            Require(!dependencies.UsesRoundGainedRedHandOnly || dependencies.UsesRoundTracking,
+                "Round-gained material rules must opt into the native actual-round boundary ledger.");
             Require(dependencies.CapturesCompletedResponseSuit == triggers.Any(trigger =>
                 trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
                 ContainsCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)),
@@ -96,6 +100,22 @@ internal static class CompiledSkillMetadataChecks
         ConditionalCatalogCapabilitiesIncludeUnownedPrograms();
         HpCatalogFactsAndRulesGateRemainIndependent();
         EndingMarkerRequiresSyntheticTriggerValue();
+        var roundTransfer = BuildUnownedCatalogRegistry("""
+            "triggers":[{"id":"round","window":"roundStarting","subject":"owner","optional":true,"effects":[{"op":"transferQuxiAtRoundOrDeath","target":"owner"}]}]
+            """).ProgramDependencies;
+        Require(roundTransfer.UsesRoundTracking && !StandardContentRegistry.Create().ProgramDependencies.UsesRoundTracking,
+            "An unowned round-transfer capability must bootstrap the actual round ledger without enabling it in a separate plain registry.");
+        var roundGift = BuildUnownedCatalogRegistry("""
+            "triggers":[
+              {"id":"gift","window":"drawPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"giveCardSkipDrawForEnding","target":"owner"}]},
+              {"id":"ending","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"resolveHuantuEnding","target":"owner"}]}]
+            """).ProgramDependencies;
+        var roundProtection = BuildUnownedCatalogRegistry("""
+            "triggers":[{"id":"exit","window":"dyingExited","subject":"any","optional":true,"usageScope":"game","usageLimit":1,
+              "effects":[{"op":"drawDyingExitRoundDistance","target":"owner"}]}]
+            """).ProgramDependencies;
+        Require(roundGift.UsesRoundTracking && roundProtection.UsesRoundTracking,
+            "Both unowned round-limited gifts and survived-Dying protection must independently bootstrap the actual round ledger.");
     }
 
     private static void EndingMarkerRequiresSyntheticTriggerValue()

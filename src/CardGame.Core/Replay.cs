@@ -84,7 +84,9 @@ public sealed record GameCheckpoint(
     // resolution event instead of reading a stale duplicate collection.
     // 215: Returning from a turn-start inserted phase restores the normal-flow
     // phase, so the subsequent real draw can open its after-draw programs.
-    public const int CurrentRulesVersion = 219;
+    // 220: Qinglong suspends the dodged Slash until its inserted use and all
+    // children finish; every target can trigger it without a distance check.
+    public const int CurrentRulesVersion = 220;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

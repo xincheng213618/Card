@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:li-wan",
+  "skills": [
+    { "registrationOrder": 1500, "programBundle": "ol-li-wan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:lianju", "name": "联句", "description": "结束阶段，你可以令一名其他角色获得弃牌堆中本回合你使用的至多两张颜色相同的牌，然后其下个结束阶段，你可获得弃牌堆中该回合其使用的至多两张另一种颜色的牌。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1501, "programBundle": "ol-li-wan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:silv", "name": "思闾", "description": "锁定技，因“联句”获得的牌称为“闾”；当你受到伤害后，你摸一张牌并称为“闾”。“闾”因弃置进入弃牌堆后，失去此牌的角色获得之。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 1502, "pools": { "current": 428 },
+    "definition": { "id": "ol:li-wan", "name": "李婉", "portraitKey": "ol-li-wan", "skillId": "ol:lianju", "additionalSkillIds": ["ol:silv"], "factionId": "wei", "baseHp": 3, "gender": "Female", "characterId": "character:li-wan", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

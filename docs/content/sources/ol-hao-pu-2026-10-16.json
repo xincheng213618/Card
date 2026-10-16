@@ -1,0 +1,154 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "characterId": "character:hao-pu",
+  "generalId": "ol:hao-pu",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T05:44:53.065635+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/557",
+      "sha256": "6ae14c47b0f6fe2d0e65619ec23da1d84489b5ec01e69c74a87f02950a4af6eb",
+      "byteCount": 24065
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=557",
+      "sha256": "3bdb708b6b0c703ac7867d46add9785f7fb4a5e440a591f92acfdda7b6009941",
+      "byteCount": 1081
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "byteCount": 4153477
+    },
+    "hashScope": "Raw HTTP response bytes. Current public-client AES-CFB128/gzip resources were decoded in memory; no full resource was written to disk."
+  },
+  "officialHeroApi": {
+    "gid": 557,
+    "name": "郝普",
+    "figure_py": "shu",
+    "hp": 4,
+    "initial_hp": 0,
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55700.png",
+    "note": "initial_hp zero denotes ordinary full starting HP; live API and client independently give four HP."
+  },
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "path": "GameCharacters.character[1257]",
+      "record": {
+        "a": 557,
+        "b": "郝普",
+        "d": "HaoPu",
+        "g": 2,
+        "h": 1,
+        "i": 4,
+        "j": 3301,
+        "ad": "画师:君桓文化"
+      },
+      "interpretation": "g=2 Shu, h=1 Male, i=4 HP, j=3301 sole skill."
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "path": "GameSpells.spell[1686]",
+      "record": {
+        "a": 3301,
+        "c": "镇荧",
+        "d": "ZhenYing",
+        "o": "出牌阶段限两次，你可以与一名手牌数小于等于你的其他角色同时将手牌数调整至至多两张，然后其中手牌数较少的角色视为对另一名角色使用一张【决斗】。"
+      }
+    }
+  },
+  "skills": [
+    {
+      "id": "ol:zhenying",
+      "name": "镇荧",
+      "currentClientSkillId": 3301,
+      "exactOfficialHeroText": "出牌阶段限两次，你可以与一名手牌数不大于你的其他角色同时将手牌数调整至至多两张，然后其中手牌数较少的角色视为对另一名角色使用一张〖决斗〗。",
+      "tags": [],
+      "actionForms": [
+        "Active"
+      ],
+      "textDifference": "The hero page uses 不大于 and decorative card brackets; current client uses 小于等于 and 【】. These are equivalent."
+    }
+  ],
+  "identityAudit": {
+    "existingIdentityOrSkillMatch": false,
+    "terms": [
+      "郝普",
+      "hao-pu",
+      "HaoPu",
+      "镇荧",
+      "zhenying"
+    ],
+    "excludedBiographyMention": "A historical Lv Meng biography mentions Hao Pu; it is not a general or skill identity."
+  },
+  "versionSeparation": "Current OL gid557, not another product or a prior hypothetical fixed-two-card adjustment. No skill from another version is combined.",
+  "officialCommunityStrategy": {
+    "url": "https://www.taptap.cn/moment/455296715046519983",
+    "originalUrl": "https://club.sanguosha.com/thread-1269778-1-1.html",
+    "publisher": "三国杀OL撰稿组",
+    "originalAuthor": "国服第一杨彪",
+    "date": "2023-09-25",
+    "title": "〖武将攻略〗会低配镇骨的郝兄弟=-=",
+    "authority": "Official OL writing-team publication of an attributed player strategy article, not formal rules FAQ.",
+    "points": [
+      "Each participant chooses a final hand amount in 0–2 independently.",
+      "Adjustment can draw or discard; two empty hands may each draw two.",
+      "If the two resulting hand counts are equal there is no Duel; otherwise the fewer-hand participant uses Duel on the other."
+    ]
+  },
+  "engineMappingsExplicitlyNotOfficialFAQ": {
+    "simultaneousChoices": "The exact text requires simultaneous adjustment. The engine collects each participant's count and retained entities privately on the owning frame, including AI choices. Every participant submits exactly three answers: one count plus two retained slots, with empty private confirmations for unused slots. Frozen SlotIndex and constant command cardinality prevent public revision increments from disclosing the first commitment's size. Neither committed count, retained faces nor any hand movement becomes public before both are committed.",
+    "simultaneousPayment": "After both commitments, original discards for both and actual draws for both are paid before opening any movement, health or skill-change observer. Original hand residency and every movement interval are frozen. Existing native batch boundaries are preserved; no artificial early child is inserted between the two payments.",
+    "nativeDiscardRestrictions": "The native prohibition against discarding a protected hand entity remains authoritative. Such entities are frozen into the retained set and an impossible requested lower count is reduced only as far as those native restrictions permit; this exceptional interaction is an engine mapping, not an official Hao Pu FAQ.",
+    "comparison": "After the simultaneous adjustment's genuine observers return, current actual hand counts are compared. Any observer-created change is included. Initial actor/target and both comparison counts are frozen at Duel issuance; source loss cannot repeat payment or redirect that issued use. No formal FAQ specifying this observer ordering was located.",
+    "nativeDuel": "The smaller hand uses one real cardless Duel through commitment, nullification, alternating Slash response, native damage and dying. Equal counts, a dead participant or native use/target prohibition yield no Duel. The selected actor may be Hao Pu or the other participant.",
+    "sourceLoss": "Already paid adjustment children and the issued Duel retain their exact owning frame, source instance, actual turn and Play phase after source loss. An actual participant death is resolved by the native child before deciding whether a Duel remains possible."
+  },
+  "newCapability": {
+    "operation": "resolveZhenyingSimultaneousHands",
+    "operationEnumValue": 26500,
+    "contract": "HaoPuContract.Activation and Trigger",
+    "centralIntegrationOwner": "batch root"
+  },
+  "behaviorCheckMethods": [
+    "HaoPuChecks.SealedFixedAnswerPrivacyAdjustmentAndPhaseQuotaCold",
+    "HaoPuChecks.NativeDuelBothActorsAndAlternatingSlashResponsesCold",
+    "HaoPuChecks.PaidAdjustmentSurvivesSourceLossAfterBothHandsMoveCold",
+    "HaoPuChecks.NativeDuelDyingAndDeathReturnCold",
+    "HaoPuChecks.ActualDrawGainRecoveryChildPreservesBothPaidHandsCold"
+  ],
+  "acceptanceAtAuthoring": {
+    "sourceTextVerified": true,
+    "contentAndRuntimeWritten": true,
+    "focusedChecksWritten": true,
+    "focusedChecksRun": false,
+    "routineRun": false,
+    "fullVerificationRun": false,
+    "note": "Batch root exclusively owns actual build/test and art/WPF integration. No task-owned temporary output was created."
+  },
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T06:58:08.203262+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 5,
+    "combinedFocusedScope": {
+      "corePassed": 31,
+      "wpfPassed": 1,
+      "durationMs": 16026
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 28588
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Native command, checkpoint replay, privacy, paid continuation and card movement boundaries passed; no rules epoch, schema or package release version was raised."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:niu-jin",
+  "skills": [
+    {
+      "registrationOrder": 1230,
+      "programBundle": "ol-niu-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:cuorui",
+        "name": "挫锐",
+        "description": "锁定技，游戏开始时，你将手牌数摸至X张（X为场上角色数）。当你成为延时锦囊牌的目标后，你跳过下个判定阶段。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1231,
+      "programBundle": "ol-niu-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:liewei",
+        "name": "裂围",
+        "description": "当你杀死一名角色时，你可以摸三张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1232,
+      "pools": { "current": 401 },
+      "definition": {
+        "id": "ol:niu-jin",
+        "name": "牛金·OL",
+        "portraitKey": "ol-niu-jin",
+        "skillId": "ol:cuorui",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": ["ol:liewei"],
+        "gender": "Male",
+        "characterId": "character:niu-jin",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

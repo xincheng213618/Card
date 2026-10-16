@@ -1,0 +1,86 @@
+{
+  "capturedAtUtc": "2026-10-15T21:21:23.0358517+00:00",
+  "status": "root-verified",
+  "officialId": 439,
+  "generalId": "ol:bian-fu-ren",
+  "characterId": "character:bian-fu-ren",
+  "rulesetId": "sanguosha-ol",
+  "variantId": "ordinary",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/439",
+      "httpStatus": 200,
+      "pageSha256": "abf96558a0259147421e39290febef1f98ef5f1ce092ba04b19426fe061d7107"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=439",
+      "httpStatus": 200,
+      "responseSha256": "44b8ae6e93d8628c4253f354a2925b551f0f488ab4e74b58063ba093049fbf45",
+      "info": {
+        "gid": 439,
+        "name": "卞夫人",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/439.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43900.png",
+        "label": [
+          "防御",
+          "辅助",
+          "捡垃圾的"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "稀有",
+        "biography": "卞[biàn]夫人，魏武帝曹操的第二任妻子，魏文帝曹丕、任城威王曹彰、陈思王曹植、萧怀王曹熊的母亲。原本是倡家，后来与曹操成婚，原配丁夫人被废后成为曹操的正妻。曹丕继位后尊其为皇太后，曹叡继位后尊其为太皇太后。卞后在太和四年去世，与魏武帝曹操合葬高陵。",
+        "characteristic": "可以回收敌人对你用的牌，注意调整手牌结构。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      }
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240125_9079_2315",
+      "title": "[十周年]2月1日5.6.2版本停服更新公告",
+      "published": "2024-01-31 17:48:01",
+      "httpStatus": 200,
+      "role": "Supplementary official minimum-one-hand-card clarification, not the identity authority for the OL variant."
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:wanwei",
+      "name": "挽危",
+      "text": "每回合限一次，当你的牌被其他角色弃置或获得后，你可以从牌堆获得一张同名牌（无同名牌则改为摸一张牌）。"
+    },
+    {
+      "id": "ol:yuejian",
+      "name": "约俭",
+      "text": "每回合限两次，当其他角色对你使用的牌置入弃牌堆时，你可以展示所有手牌，若花色与此牌均不同，你获得此牌。"
+    }
+  ],
+  "currentClientComparison": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "7273d6290e4bd2aff55dd1f9cfd80b3e0b4e516d6d5e841ee5c211f0b6317d52",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "skillKeys": [
+      "j3028",
+      "k3029"
+    ],
+    "result": "The frozen current-client skill pair agrees with live hero439. The older hand/equipment substitution version is not implemented."
+  },
+  "interpretation": [
+    "The current official OL identity is Wei female with 3 HP; use current hero439, not the older replacement-card Wanwei.",
+    "Wanwei observes actual other actors discarding owned HE or actually obtaining owned HE; an effect asking the card owner to discard their own card is a self-discard and does not qualify. Wooden Ox stored hand entities retain owned-hand semantics. Judgment cards are area cards, not owned HE.",
+    "Same-name lookup normalizes the Slash family and acquires one matching draw-pile entity. Only when none exists does it draw one card, preserving native reshuffle and draw provenance.",
+    "Yuejian requires at least one hand card as expressly stated in the supplementary official announcement, reveals the entire actual hand and compares effective suits against the original accepted use. Activating with a shared suit still consumes one of two actual-turn uses.",
+    "Physical used materials require their original accepted use, target relation, payment sequence and exact native finish sequence. A claimed entity that leaves and returns to discard cannot reuse an older invoice.",
+    "Delayed-trick placement freezes the native use identity; an uninterrupted judgment stay or delayed transfer retains it until final discard. Obtaining or reusing that entity breaks the old lineage.",
+    "Both skills use the existing actual-turn usage service and ordinary awaited movement children; no parallel pending state or use-ID sidecar.",
+    "Successful declaration uses adopt the original declaration-frame payment into the actual native CardUseFrame; ordinary native payments are bound by exact action, cost, source location and movement sequence, including dedicated native reason names."
+  ],
+  "verification": {
+    "subagentBuildRun": false,
+    "subagentTestsRun": false,
+    "committed": false,
+    "pushed": false
+  }
+}

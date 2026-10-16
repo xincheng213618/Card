@@ -1,0 +1,219 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:ruan-hui",
+  "identity": {
+    "gid": 657,
+    "name": "阮慧",
+    "variant": "ordinary",
+    "faction": "wei",
+    "gender": "Female",
+    "baseHp": 3,
+    "genderEvidence": "Current OL character h=2 and the official biography identify Xu Yun's wife; hero/info confirms Wei 3 HP."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1357]",
+      "row": {
+        "a": 657,
+        "b": "阮慧",
+        "d": "RuanHui",
+        "e": 44,
+        "f": "44",
+        "g": 1,
+        "h": 2,
+        "i": 3,
+        "j": 3558,
+        "k": 3559,
+        "p": 1,
+        "q": "1",
+        "r": "9065701",
+        "y": "陈留尉氏人，曹魏名士许允之妻。中国古代四大丑女之一，貌丑而见识非凡。",
+        "z": "能够偷取他人手牌，丢弃黑色牌还可以获取他人使用完成的牌",
+        "aa": 72,
+        "ab": "1237,1238",
+        "al": 1740,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ar": "20240801T235959",
+        "LordCardRate1": 22,
+        "LordCardRate2": 40,
+        "starMax": 4,
+        "freetitle": "0,过牌强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2583]",
+          "row": {
+            "a": 3558,
+            "b": "3,5",
+            "c": "明察",
+            "d": "MingCha4",
+            "e": 0,
+            "g": 3,
+            "i": 2,
+            "n": 0,
+            "o": "摸牌阶段开始时，你亮出牌堆顶三张牌，然后你可改为获得其中点数小于等于8的牌，若如此做，你可获得一名其他角色随机一张牌。",
+            "v": "是否获得{0}|请选择一名角色，获得其随机一张牌",
+            "ac": "是否发动<font color='#FFD800'>明察</font>亮出牌堆顶三张牌"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2584]",
+          "row": {
+            "a": 3559,
+            "b": "3,5",
+            "c": "敬重",
+            "d": "JingZhong",
+            "e": 0,
+            "g": 5,
+            "i": 2,
+            "n": 1,
+            "o": "弃牌阶段结束时，若你于此阶段内弃置过至少两张黑色牌，你可以选择一名其他角色，其下个出牌阶段使用的牌进入弃牌堆后，你获得之（每阶段限获得三次）。",
+            "v": "请选择一名角色，对其发动<font color='#FFD800'>敬重</font>"
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySource": {
+    "capturedAtUtc": "2026-10-16T20:33:23.873429+08:00",
+    "generalId": "ol:ruan-hui",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/657",
+      "byteCount": 23985,
+      "sha256": "e9ef2fd201fcb67a4d74aa0c33f57111313ec649ef10a488a69c95d1eb4586c4",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=657",
+      "byteCount": 722,
+      "sha256": "2dcd4513d9dc3bf8639199399d9a50b1e40d740f2048f6f8eef11c357eaa0e05",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 657,
+            "name": "阮慧",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/657.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65700.png",
+            "label": [
+              "控制",
+              "简单",
+              "颜色爱好者"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "稀有",
+            "biography": "陈留尉氏人，曹魏名士许允之妻。中国古代四大丑女之一，貌丑而见识非凡。",
+            "characteristic": "",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 5
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 5
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/65700.png",
+      "byteCount": 1061342,
+      "sha256": "758413f481ce2671734f6e3f813a16a1f21a5ef1ecd8e3c1880df21517300c1b",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-ruan-hui.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/657",
+      "supports": "Current complete two-skill text, with no linked granted skills."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=657",
+      "supports": "Current ordinary OL identity, Wei 3 HP and official portrait."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/560776298788555732",
+      "published": "2024-07-12",
+      "publisher": "三国杀OL大乔, OL product account; guide credited to wp2008",
+      "supports": "Reveal first, then optional normal-draw replacement; all-high reveal example draws two subsequent cards. Random acquisition includes hand and equipment. Pure discard and recast are not used-card claims."
+    }
+  ],
+  "rules": {
+    "mingcha": "Mandatory native public reveal of up to three top entities precedes the owner's optional replacement. The chosen replacement obtains the original <=8 entities, disposes all original remaining Processing entities through native movement, and cancels only the original actual normal-draw parent. Declining settles the revealed entities to discard and leaves native subsequent normal draw and order intact. The original reveal receipt freezes all physical entities and movement ranges across children and replay.",
+    "zeroMatch": {
+      "status": "Current OL wording inference",
+      "explanation": "The current text says if choosing this replacement, and does not require gaining at least one card. A zero-match replacement therefore gains zero reveal cards but retains the optional random HE acquisition. This does not import an older mobile requirement to have gained a card."
+    },
+    "randomHE": "Choose another living role, then use the native seeded random source over its actual current Hand and Equipment entities. Judgment is excluded. The target menu carries no hidden card IDs and does not bias toward Hand. Native Silver Lion, Wooden Ox and GeneralWeapon destination normalization apply; actual paid movement is never rerolled after a child.",
+    "jingzhong": "Freeze actual own Discard-phase token and genuine black discard movements. The chosen other role receives a lease for its first subsequently entered actual Play phase; a skipped phase is not an entered Play and an extra Play is eligible. The owner/skill-instance has a shared three-Use acquisition limit in that phase even if multiple leases apply. One actual Use action is one opportunity and may contain multiple physical entities. True used Slash-defense Dodge and Nullification responses count; played-out Slash/AOE Dodge, recast and an unlinked discard do not.",
+    "residency": {
+      "status": "Implementation inference from current OL text, which does not restrict acquisition to immediate use completion",
+      "explanation": "Each physical invoice starts at the exact native accepted Use/payment. Actual native Processing cleanup is eligible. Equipment or delayed cards genuinely placed on the board retain that invoice while they remain in that same board residency, and may be obtained if they enter discard later within the leased Play. Transfer, acquisition into Hand, leaving and reentering the board, a different native Use, phase expiry or a stale discard sequence terminates the old invoice. An orphaned Processing discard is rejected. Native abolished-slot equipment cleanup additionally requires the exact still-live Equipment Use frame, action and physical material."
+    },
+    "actorOwnership": "Declared physical-use facts follow the exact native same-Use actor replacement chain. Response facts retain the actual responder and are never reassigned with their parent attack actor. The original physical provider does not become the final actual user.",
+    "sourceLifetime": "A granted lease is event-derived and remains effective after issuer skill loss while that issuer is alive. Issuer death does not fabricate a recipient; already-paid movements drain their real child windows. Pending reveal, choice, random selection and claims live only on their owning nullable ProgramSkillFrame receipt. Collections defensively copy both construction and init values."
+  },
+  "validation": {
+    "status": "implemented-and-root-verified",
+    "focusedChecks": [
+      "MingchaPublicRevealNormalReplacementZeroAndReshuffleCold",
+      "MingchaRandomEquipmentPaidLossDeathLionOxChildrenCold",
+      "JingzhongActualDiscardNextPlayWholeUseQuotaAndLossCold",
+      "JingzhongResponseUseBoardResidencyAndActorOwnershipCold"
+    ]
+  }
+}

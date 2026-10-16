@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:qiao-zhou",
+  "skills": [
+    { "registrationOrder": 1350, "programBundle": "ol-qiao-zhou", "includeProgramPresentation": true,
+      "definition": { "id": "ol:zhiming", "name": "知命", "description": "准备阶段与弃牌阶段结束时，你摸一张牌，然后你可以将一张牌置于牌堆顶。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1351, "programBundle": "ol-qiao-zhou", "includeProgramPresentation": true,
+      "definition": { "id": "ol:xingbu", "name": "星卜", "description": "结束阶段，你可以亮出牌堆顶三张牌，然后你可以根据其中红色牌数令一名其他角色于其下回合获得以下效果：3，摸牌阶段额外摸两张牌、出牌阶段使用【杀】的限制次数+1；2，出牌阶段使用【杀】的限制次数-1、跳过弃牌阶段；1或0，准备阶段弃置一张手牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1352, "pools": { "current": 413 },
+      "definition": { "id": "ol:qiao-zhou", "name": "谯周", "portraitKey": "ol-qiao-zhou", "skillId": "ol:zhiming", "additionalSkillIds": ["ol:xingbu"], "factionId": "shu", "baseHp": 3, "gender": "Male", "characterId": "character:qiao-zhou", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

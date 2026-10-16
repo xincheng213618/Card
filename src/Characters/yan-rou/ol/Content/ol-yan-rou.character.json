@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:yan-rou","skills":[
+ {"registrationOrder":1510,"programBundle":"ol-yan-rou","includeProgramPresentation":true,"definition":{"id":"ol:choutao","name":"仇讨","description":"当你使用【杀】指定目标后或成为【杀】的目标后，你可以弃置使用者一张牌令此【杀】不能被抵消，若你是使用者，此【杀】无次数限制。","executionForms":"Trigger"}},
+ {"registrationOrder":1511,"programBundle":"ol-yan-rou","includeProgramPresentation":true,"definition":{"id":"ol:xiangshu","name":"襄戍","description":"限定技，结束阶段，你可以令一名已受伤角色回复X点体力并摸X张牌（X为你本回合造成的伤害值且至多为5）。","executionForms":"Trigger","tags":"Limited"}}
+],"generals":[{"registrationOrder":1512,"pools":{"current":429},"definition":{"id":"ol:yan-rou","name":"阎柔","portraitKey":"ol-yan-rou","skillId":"ol:choutao","additionalSkillIds":["ol:xiangshu"],"factionId":"wei","baseHp":4,"gender":"Male","characterId":"character:yan-rou","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

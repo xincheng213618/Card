@@ -1,0 +1,11 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:fudao","revision":1,"triggers":[
+   {"id":"opening-draw-gift-discard-record","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"initializeFudaoHandRecord","target":"owner"}]},
+   {"id":"own-actual-turn-matching-record","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[{"op":"drawFudaoRecordedPair","target":"owner"}]},
+   {"id":"other-actual-turn-matching-record","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"drawFudaoRecordedPair","target":"owner"}]}
+ ]},
+ {"id":"ol:fengyan","revision":1,"triggers":[
+   {"id":"actual-foreign-damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","requireDamageSource":true,"optional":false,"effects":[{"op":"resolveFengyanCounterpart","target":"owner"}]},
+   {"id":"actual-foreign-response-completed","window":"cardResponseCompleted","ownerRelation":"actor","optional":false,"effects":[{"op":"resolveFengyanCounterpart","target":"owner"}]}
+ ]}
+]}

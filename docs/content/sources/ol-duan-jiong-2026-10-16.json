@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-16",
+  "status": "implemented-and-root-verified",
+  "generalId": "ol:duan-jiong",
+  "characterId": "character:duan-jiong",
+  "product": "三国杀OL",
+  "officialGid": 560,
+  "officialPage": "https://www.sanguosha.com/hero/560",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=560",
+  "identity": {
+    "name": "段颎",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation compared all character manifests and searched 段颎/DuanJiong/duan-jiong/扫谷/ol:saogu. No existing same-product same-variant identity or skill was registered.",
+  "skills": [
+    {
+      "id": "ol:saogu",
+      "name": "扫谷",
+      "clientSkillId": 3312,
+      "clientName": "SaoGu",
+      "text": "转换技，出牌阶段，阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；阴：你可以摸一张牌。结束阶段，你可以弃置一张牌令一名其他角色执行当前项。",
+      "linkedSkills": []
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20230822_4295_3615",
+      "title": "8.27-9.1 占星秘宝吾彦返场 史诗将孟达、段颎来袭 忠勇助关*周仓传动上新",
+      "published": "2023-08-25 17:02:33",
+      "checked": "2026-10-16",
+      "level": "Official OL release; subordinate to current hero/API/client if changed",
+      "supports": "Explicit Qun/male/four HP and complete current Saogu text."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/455635812495657598",
+      "title": "【武将攻略】小张飞还是小顾雍~段颎",
+      "author": "三国杀OL撰稿组，原创作者灼炎丶FLAME",
+      "original": "https://club.sanguosha.com/thread-1269660-1-1.html",
+      "checked": "2026-10-16",
+      "level": "Same-product OL writers-group repost, operational explanation rather than a new primary rule",
+      "supports": "HE payment, forced use of available original discarded Slashes with distance but no count limit; delegated current item does not convert the source; delegated Yang cannot discard the source-fee suit.",
+      "caveat": "One example omits the negative word for the source-fee suit. Its explanation and later summary both forbid that suit; implementation follows the consistent explanation, not the contradictory example."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Actual phase and all real discard causes",
+      "basis": "Current primary says 本阶段弃置过的花色, without limiting it to this skill.",
+      "implementation": "A capability-gated capture records scalar immutable actual-phase token, owned source, original card, exact native discard movement sequence and suit for every classified actual discard, including another skill payment and Processing-completed discard origins. Use/response cleanup, recast, equipment replacement, WoodenOx grain disposal and death cleanup are excluded. Real inserted phases have their own native tokens; restored outer phases keep their original token. Suit eligibility uses the native effective-suit query at discard completion, consistent with the existing actual-discard mechanism; no separate FAQ on transient suit transformations was found."
+    },
+    {
+      "rule": "Alternation and original entities",
+      "basis": "Primary conversion rule and same-product explicit forced Slash/no count/distance explanation.",
+      "implementation": "Own Play Yang requires two currently legal HE payment entities of suits not previously discarded this actual phase; both may share an as-yet-unused suit. It converts only after the exact pair is committed. Original paid physical Slashes still in Discard must be used against currently legal targets until none remains usable; current range and prohibitions apply, ordinary Slash quota is neither required nor spent. Claimed original cards cannot be replaced or reused. Yin converts before its one real native draw and drains its gain children. Native responses, damage, dying and actor replacement retain exact use identity."
+    },
+    {
+      "rule": "Ending delegation",
+      "basis": "Primary specifies another character; same-product explanation says execute current state without conversion and forbids the initial fee suit for delegated Yang.",
+      "implementation": "The original owner privately chooses one real legal fee and one other living executor. The recipient personally makes its own private HE choice, retains the frozen current Yang/Yin, and additionally excludes the fee suit. This uses the current actual Ending token and creates no extra turn. Source fee and recipient payment are distinct actual movements. Yang forced-payment shortage follows ordinary forced-discard inference: discard as many legal cards as possible up to two; if none can be paid, finish without a fabricated use. No primary text explicitly elaborates that shortage case."
+    },
+    {
+      "rule": "Paid continuation and native equipment children",
+      "basis": "Engine issued-effect continuation inference, separately distinguished from primary rule wording.",
+      "implementation": "The owning ProgramSkillFrame stores source generation/hash/instruction/actual phase, original executor, fee, frozen payment entities, used set and native receipt. Paid source loss does not erase a surviving executor effect. A dead self executor stops after children, while an already paid delegated surviving actor keeps its own effect when the source dies. Native SilverLion recovery and WoodenOx grain disposal, HP/movement/skill changes and nested damage/dying drain before the next instruction; cold recovery never repays. No mutable pending sidecar or logical-card substitution is used."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveSaoguConversionSweep"
+    ],
+    "pendingOwnership": "ProgramSkillFrame.DuanJiongSaogu and CardUseFrame.DuanJiongSaoguUse; frozen nested collections, nullable omitted frame fields; new committed facts contain only scalars and the existing immutable scalar phase key.",
+    "focusedChecks": [
+      "YangYinOriginalSlashesForcedQuotaAndCold",
+      "AllActualDiscardsSuitEligibilityAndPhaseResetCold",
+      "EndingDelegationForeignPayerBothSidesAndPrivacyCold",
+      "PaidLossDeathLionOxAndDelegatedSourceDeathCold"
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T20:28:16.180507+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": [
+      {
+        "path": "GameCharacters.character[1260]",
+        "row": {
+          "a": 560,
+          "b": "段颎",
+          "d": "DuanJiong",
+          "e": 44,
+          "f": "46",
+          "g": 4,
+          "h": 1,
+          "i": 4,
+          "j": 3312,
+          "p": 2,
+          "q": "1",
+          "r": "9056001",
+          "y": "东汉名将，凉州三明之一。少学骑射，破鲜卑，平东郭窦、公孙举。戍边征战十余年，百战羌人，前后斩东西羌六万余级。被征入朝后，党附宦官、捕杀太学生，因而得保富贵，两度出任太尉。后权宦王甫罪行被揭发，段颎受牵连下狱，在狱中饮鸩而死。",
+          "z": "能多次出杀，也能辅助队友，控制敌人。",
+          "aa": 81,
+          "ab": "1047,1048",
+          "ad": "画师:黯荧岛",
+          "x": "将军百战，####身名裂。",
+          "al": 1730,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "ar": "20230927T235959",
+          "starMax": 4,
+          "freetitle": "0,攻击强将"
+        },
+        "spells": [
+          {
+            "path": "GameSpells.spell[1695]",
+            "row": {
+              "a": 3312,
+              "b": "3,13",
+              "c": "扫谷",
+              "d": "SaoGu",
+              "e": 0,
+              "g": 1,
+              "h": 1,
+              "i": 2,
+              "o": "转换技，出牌阶段，<br>&nbsp;阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；<br>&nbsp;阴：你可以摸一张牌。<br>结束阶段，你可以弃置一张牌令一名其他角色执行当前项。###转换技，出牌阶段，<br>&nbsp;<font color=\"#fff000\">阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；</font><br>&nbsp;阴：你可以摸一张牌。<br>结束阶段，你可以弃置一张牌令一名其他角色执行当前项。###转换技，出牌阶段，<br>&nbsp;阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；<br>&nbsp;<font color=\"#fff000\">阴：你可以摸一张牌。</font><br>结束阶段，你可以弃置一张牌令一名其他角色执行当前项。",
+              "v": "请选择两张牌弃置|请选择一张<font color='#FFD800'>杀</font>使用|请弃置一张牌并选择一名其他角色|是否发动<font color='#FFD800'>扫谷</font>摸一张牌"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T20:33:23.932338+08:00",
+    "generalId": "ol:duan-jiong",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/560",
+      "byteCount": 24126,
+      "sha256": "36bcf026f3856025ee59855d893865fe252baae19e05fdfd3a066bca2f914d03",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=560",
+      "byteCount": 961,
+      "sha256": "09fb61caf0fe2185a76c5e7374fdd813cc3a12f5d33d8f5e8ceb9aea34b464be",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 560,
+            "name": "段颎",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/560.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56000.png",
+            "label": [
+              "进攻",
+              "辅助",
+              "简单"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "东汉名将，凉州三明之一。少学骑射，破鲜卑，平东郭窦、公孙举。戍边征战十余年，百战羌人，前后斩东西羌六万余级。被征入朝后，党附宦官、捕杀太学生，因而得保富贵，两度出任太尉。后权宦王甫罪行被揭发，段颎受牵连下狱，在狱中饮鸩而死。",
+            "characteristic": "能多次出杀，也能辅助队友，控制敌人。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 4
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/56000.png",
+      "byteCount": 1062019,
+      "sha256": "dade6fec7470f36ac835020a7b0ab208a1a0729b3a88ceb8b76214e75bd1974e",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-duan-jiong.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "officialReleaseSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20230822_4295_3615",
+      "byteCount": 304508,
+      "sha256": "7240d61a5ad7eafd7c048da486c2772e912b2904042f781a0fa083dbafd2d706",
+      "hashScope": "raw HTTP response bytes"
+    }
+  ]
+}

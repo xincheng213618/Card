@@ -13,7 +13,7 @@ public sealed record CardDeclarationParentReturn(CardDeclarationPurpose Purpose,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CardKind? FinalEffectiveKind = null);
 
 /// <summary>Trusted paid-cost receipt owned by the actual continuation frame.</summary>
-public sealed record DeclaredCardPayment(long DeclarationId, long OwnerFrameId, int ProviderSeat,
+public sealed partial record DeclaredCardPayment(long DeclarationId, long OwnerFrameId, int ProviderSeat,
     CardActionCost Cost, CardConversionSource Source, CardKind DeclaredKind, bool Claimed = false, bool IsRevealed = false, int? ActorSeat = null, Suit? FrozenSuit = null);
 
 public sealed record CardDeclarationFrame(long Id, int OwnerSeat, int TurnNumber,

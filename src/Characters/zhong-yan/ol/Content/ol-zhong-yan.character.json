@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:zhong-yan",
+  "skills": [
+    { "registrationOrder": 1780, "programBundle": "ol-zhong-yan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:bolan", "name": "博览", "description": "出牌阶段开始时，你可以从随机三个“出牌阶段限一次”的技能中选择一个获得直到本阶段结束；其他角色的出牌阶段限一次，其可以失去1点体力，令你从随机三个“出牌阶段限一次”的技能中选择一个，其获得之直到此阶段结束。", "executionForms": "Trigger", "actionForms": "Active" } },
+    { "registrationOrder": 1781, "programBundle": "ol-zhong-yan", "includeProgramPresentation": true,
+      "definition": { "id": "ol:yifa", "name": "仪法", "description": "锁定技，当其他角色使用【杀】或黑色普通锦囊牌指定你为目标后，其手牌上限-1直到其回合结束。", "tags": "Locked", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 1782, "pools": { "current": 453 },
+    "definition": { "id": "ol:zhong-yan", "name": "钟琰", "portraitKey": "ol-zhong-yan", "skillId": "ol:bolan", "additionalSkillIds": ["ol:yifa"], "factionId": "jin", "baseHp": 3, "gender": "Female", "characterId": "character:zhong-yan", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

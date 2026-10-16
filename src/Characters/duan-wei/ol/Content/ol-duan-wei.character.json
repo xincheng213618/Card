@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:duan-wei",
+  "skills": [
+    {
+      "registrationOrder": 1220,
+      "programBundle": "ol-duan-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:taohuai",
+        "name": "讨怀",
+        "description": "转换技，你使用手牌中点数：阳：最大的牌；阴：最小的牌。摸一张牌。否则你可弃置一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1221,
+      "pools": { "current": 400 },
+      "definition": {
+        "id": "ol:duan-wei",
+        "name": "段煨",
+        "portraitKey": "ol-duan-wei",
+        "skillId": "ol:taohuai",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:duan-wei",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

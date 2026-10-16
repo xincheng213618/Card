@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-jun",
+  "skills": [
+    { "registrationOrder": 1600, "programBundle": "ol-zhu-jun", "includeProgramPresentation": true,
+      "definition": { "id": "ol:cuipo", "name": "摧破", "description": "锁定技，当你每回合使用第X张牌时（X为此牌牌名字数），若为【杀】或伤害锦囊牌，此牌伤害+1，否则你摸一张牌。", "executionForms": "Trigger", "tags": "Locked" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1601, "pools": { "current": 438 },
+      "definition": { "id": "ol:zhu-jun", "name": "朱儁", "portraitKey": "ol-zhu-jun", "skillId": "ol:cuipo", "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:zhu-jun", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

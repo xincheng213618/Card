@@ -277,7 +277,7 @@ public enum BeforeDamageProgramContinuation
 /// Frozen, ordered program opportunities before one pending damage application.
 /// The continuation names engine mechanisms rather than any character or skill.
 /// </summary>
-public sealed record BeforeDamageProgramWindowFrame(
+public sealed partial record BeforeDamageProgramWindowFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,
@@ -311,12 +311,14 @@ public sealed record ProgramDamagePreventedEvent(
 /// </summary>
 public sealed record ProgramPhaseSchedule(
     ProgramSkillFrame Frame,
-    ProgramLifecycleTriggerWindowFrame ParentFrame,
+    ProgramLifecycleTriggerWindowFrame? ParentFrame,
     TurnPhase Phase,
     SkillProgramPhaseContinuation Continuation)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ActualDiscardRecoveryPhaseKey? DiscardRecoveryReturnPhase { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DeferredTurnEndFrame? AfterTurnEndedReturn { get; init; }
 }
 
 public enum ProgramLifecycleContinuation
@@ -331,7 +333,8 @@ public enum ProgramLifecycleContinuation
     ResumeIdentityAppearance = 22203,
     BeiMiHuPreludeRound = 23200,
     BeiMiHuPreludeOwn = 23201,
-    CompleteWeiluForcedPlayEnd = 24900
+    CompleteWeiluForcedPlayEnd = 24900,
+    ResumeYanPuDyingExit = 26410
 }
 
 public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }

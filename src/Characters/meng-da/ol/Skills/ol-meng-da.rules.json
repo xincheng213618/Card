@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:goude",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-actual-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGoudeActualTurnEnd",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "foreign-actual-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGoudeActualTurnEnd",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

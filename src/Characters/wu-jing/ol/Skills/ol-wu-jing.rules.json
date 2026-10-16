@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:heji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-single-target-followup",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel"
+          ],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "useHejiAtCompletedSingleTarget",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "issued-followup-red-reward",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel"
+          ],
+          "optional": false,
+          "priority": 1000,
+          "effects": [
+            {
+              "op": "rewardHejiUnconvertedUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:liubing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "claim-native-undamaging-slash",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "claimLiubingUndamagingSlash",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

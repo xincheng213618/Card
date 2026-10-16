@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:hongji", "revision": 1, "triggers": [
+      { "id": "own-preparation-promise", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "armHongjiNextPhase", "target": "owner" }] },
+      { "id": "foreign-preparation-promise", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "armHongjiNextPhase", "target": "owner" }] },
+      { "id": "issued-draw-phase", "window": "drawPhaseEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false,
+        "effects": [{ "op": "resolveHongjiGrantedPhase", "target": "owner" }] },
+      { "id": "issued-play-phase", "window": "playEnding", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false,
+        "effects": [{ "op": "resolveHongjiGrantedPhase", "target": "owner" }] }
+    ] },
+    { "id": "ol:xinggu", "revision": 1, "triggers": [
+      { "id": "initial-three-mounts", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "initializeXingGuMountPile", "target": "owner" }] },
+      { "id": "ending-mount-placement", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "placeXingGuMountAndObtainDiamond", "target": "owner" }] }
+    ] }
+  ]
+}

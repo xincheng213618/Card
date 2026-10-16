@@ -52,18 +52,18 @@ public sealed partial class GameEngine
         return result;
     }
 
-    private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target, int? excludedEquipmentId = null)
+    private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
-        if (_actionQuery is not { } query) return CalculateDistance(source, target, excludedEquipmentId);
+        if (excludedEquipmentSlot is not null || _actionQuery is not { } query) return CalculateDistance(source, target, excludedEquipmentId, excludedEquipmentSlot);
         var key = (source.Seat, target.Seat, excludedEquipmentId);
         if (!query.Distances.TryGetValue(key, out var result))
             query.Distances[key] = result = CalculateDistance(source, target, excludedEquipmentId);
         return result;
     }
 
-    private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
+    private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
-        if (_actionQuery is not { } query) return CalculateAttackRange(player, excludedEquipmentId);
+        if (excludedEquipmentSlot is not null || _actionQuery is not { } query) return CalculateAttackRange(player, excludedEquipmentId, excludedEquipmentSlot);
         var key = (player.Seat, excludedEquipmentId);
         if (!query.AttackRanges.TryGetValue(key, out var result))
             query.AttackRanges[key] = result = CalculateAttackRange(player, excludedEquipmentId);

@@ -410,7 +410,7 @@ public sealed partial class GameEngine
     private bool ContinueDesignatedVirtualBasicEffect(long id, ProgramSimpleCardContinuation continuation)
     {
         var use = LifecycleCardUse(id);
-        if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: not null } || !(HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
+        if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: not null } || !(HasWeifuTargetTail(use) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
         if (continuation.CardId != 0 || use.CardId != 0 || use.PhysicalCardIds is not { Count: 0 } ||
             use.CardKind is not (CardKind.Peach or CardKind.Alcohol) || use.VirtualBasicEffectApplied == true ||
             use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
@@ -451,7 +451,7 @@ public sealed partial class GameEngine
     {
         var use = LifecycleCardUse(id);
         if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: { } continuation } ||
-            !(HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
+            !(HasWeifuTargetTail(use) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
         var next = use.TargetIndex + 1;
         while (next < use.TargetSeats.Count && !_players[use.TargetSeats[next]].IsAlive) next++;
         if (_winner != Winner.None || next >= use.TargetSeats.Count)

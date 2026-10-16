@@ -46,7 +46,7 @@ public sealed partial class GameEngine
             SetCardUseStep(original.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(original.ResolutionId, actor.Seat, p.TargetSeat!.Value,
                 Used: true, SlashCardIds: [], EffectiveSlashKind: kind));
-            CompleteAttack(original); SuspendContinuationForQinglongFollowup(original.ResolutionId);
+            SuspendContinuationForQinglongFollowup(original.ResolutionId);
             BeginDrawFundedDistinctBasicSlash(actor, frame.TargetSeats, p, null, false, null); return;
         }
         var parent = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A paid program Slash lost its original request.");
@@ -54,6 +54,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A paid program Slash moved its original instruction cursor.");
         if (IsQigongRequest(parent))
         { PrepareQigongDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
+        if (IsWuJingHejiRequest(parent))
+        { PrepareWuJingDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         if (IsCaoChunInitialRequest(parent))
         { PrepareCaoChunDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;

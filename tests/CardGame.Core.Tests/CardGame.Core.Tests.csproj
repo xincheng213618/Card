@@ -8,7 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\SharedPhaseSkillScenario.cs" Link="SharedPhaseSkillScenario.cs" />
     <Compile Include="..\Shared\CharacterFixtureContent.cs" Link="CharacterFixtureContent.cs" />
+    <Compile Include="..\Shared\ActiveEffectScenario.cs" Link="ActiveEffectScenario.cs" />
+    <Compile Include="..\Shared\PrivateReserveScenario.cs" Link="PrivateReserveScenario.cs" />
     <Compile Include="..\Shared\DelayedTrickScenario.cs" Link="DelayedTrickScenario.cs" />
     <Compile Include="..\Shared\LastZoneConversionScenario.cs" Link="LastZoneConversionScenario.cs" />
     <Compile Include="..\Shared\PopulationTopReorderScenario.cs" Link="PopulationTopReorderScenario.cs" />

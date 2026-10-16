@@ -76,6 +76,7 @@ public sealed partial class GameEngine
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
+                if (activation.OtherCharactersOnly) continue;
                 var plan = ProgramInstructionResolver.Default.Resolve(program,
                     ProgramInstructionSourceKind.Activation, activation.Id);
                 var features = plan.Features;
@@ -423,6 +424,7 @@ public sealed partial class GameEngine
     private void ExecuteValidatedProgramSkill(CharacterState owner, LegalAction action,
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {
+        if (TryExecuteSharedProgramActivation(owner, action, cards, targets)) return;
         if (action.ProgramSkillOwnerSeat is { } skillOwnerSeat)
         {
             if (ProgramActions.TryContribute(owner, _players[skillOwnerSeat], action, cards[0])) return;
@@ -493,7 +495,7 @@ public sealed partial class GameEngine
         _programContributionUses[key] = _programContributionUses.GetValueOrDefault(key) + 1;
         var actionId = ++_resolutionSequence;
         var reason = new CardMoveReason($"skill-program.{program.Id}.{contribution.Id}.contribute");
-        MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason);
+        MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason, movement => RecordBianFuRenOwnedTransferProducer(movement,skillOwner.Seat,actionId));
         MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason);
         AdvanceEventRulesAndQueueFact(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
             program.Id, contribution.Id, card.Id, card.Kind, card.Suit, projectedInstanceId));
@@ -644,7 +646,48 @@ public sealed partial class GameEngine
             !AllowsActualHandGainNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsOldHandDispositionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsFrozenHandRosterNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            !AllowsPlacedEquipmentBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+            !AllowsPlacedEquipmentBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoSongLiluNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoShuangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSpZhangLiaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSunRuOlNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLiuPiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWoLongFengChuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHuoJunFenruiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsQiaoZhouNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsXunyiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDuXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsFuRongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDailiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhenyingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsMaWanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDuFuRenNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhangShiPingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsFeiYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsQianZhaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDingShangWanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLiWanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHeJinNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsYanRouNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLuYuShengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWangKuangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsYuanHuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHanFuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWuAnGuoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhangYanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhuJunNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsNiuFuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsRuanHuiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsMaMiDiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDuanJiongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsTianChouNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsChengGongYingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !(AllowsKenshangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsFulueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsYangFengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsAHuiNanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWangGuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsQinLangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWuJingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsXiangChongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess)) &&
+            !AllowsKeBiNengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHuJinDingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsYanPuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhangYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -1118,6 +1161,30 @@ public sealed partial class GameEngine
                     !IsRiceMovement(frame, paidEffect, pendingMovement) &&
                     !IsDamageAcquisitionMovement(frame, paidEffect, pendingMovement) &&
                     !IsSimultaneousPindianMovement(frame,paidEffect,pendingMovement) &&
+                    !IsCategoryTalismanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsEquipmentSlotNamedUseMovement(frame, paidEffect, pendingMovement) &&
+                    !IsFuRongAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsXunyiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsDailiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsZhenyingMovement(frame, paidEffect, pendingMovement) &&
+                    !IsDuFuRenAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsFeiYiAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsQianZhaoMovement(frame, paidEffect, pendingMovement) &&
+                    !IsDingShangWanAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsLiWanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsYanRouAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsHuJinDingMovement(frame, paidEffect, pendingMovement) &&
+                    !IsLuYuShengAwaitedMovement(frame, paidEffect, pendingMovement) &&
+                    !IsYuanHuanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsHanFuMovement(frame, paidEffect, pendingMovement) &&
+                    !IsZhangYanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsZhuJunMovement(frame, paidEffect, pendingMovement) &&
+                    !IsNiuFuMovement(frame, paidEffect, pendingMovement) &&
+                    !IsRuanHuiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsChengGongYingMovement(frame, paidEffect, pendingMovement) &&
+                    !IsKenshangMovement(frame, paidEffect, pendingMovement) && !IsFulueMovement(frame, paidEffect, pendingMovement) && !IsYangFengMovement(frame, paidEffect, pendingMovement) && !IsWangGuanMovement(frame, paidEffect, pendingMovement) && !IsWuJingMovement(frame, paidEffect, pendingMovement) &&
+                    !IsMaMiDiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsYanPuAwaitedMovement(frame, paidEffect, pendingMovement) &&
                     !IsDrawAdviceAwaitedMovement(frame, paidEffect, pendingMovement))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
@@ -1145,7 +1212,7 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift or
                     SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash or
                     SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.SelectEquipmentPairAndPayment or
-                    SkillProgramEffectOp.SelectDyingOwnedCard));
+                    SkillProgramEffectOp.SelectDyingOwnedCard or SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash));
             var awaitingCurrentSelection = executedSelection is not null &&
                 ReferenceEquals(executedSelection, plan.Instructions[frame.InstructionIndex - 1]) &&
                 ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
@@ -1163,6 +1230,7 @@ public sealed partial class GameEngine
                             executedSelection.Op == SkillProgramEffectOp.DamageFarthestCharacter ? "advanced-lifecycle" : "strategic-choice"));
             var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
             {
+                SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash => HasIssuedFulueRequest(frame),
                 SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash =>
                     IsValidNearestSlashProgramSelection(frame, executedSelection, plan.Instructions),
                 SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn =>
@@ -1339,7 +1407,7 @@ public sealed partial class GameEngine
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||
-                frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
+                frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && !HasPaidWeifuInitialSelection(frame) && !HasPaidShuziInitialSelection(frame) && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), frame.OwnerSeat, frame.SkillId)) ||
                 activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||

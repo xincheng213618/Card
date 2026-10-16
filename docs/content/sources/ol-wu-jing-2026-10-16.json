@@ -1,0 +1,212 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:wu-jing",
+  "product": "sanguosha-ol",
+  "verificationStatus": "verified-focused-related-routine-core-and-wpf",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T14:48:22.012970+00:00",
+    "generalId": "ol:wu-jing",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/668",
+      "byteCount": 23768,
+      "sha256": "ad6699a6ec8a290b52af31e61c1acfeb16c8078cb36b308dbb9b215d29c3f9e9",
+      "hashScope": "HTTP response body bytes"
+    },
+    "heroSkillRegion": "武将技能介绍 var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?fb3e47332f1c41f3e8dd1961d001377f\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?741c1946c0ae40c84a3db0b843e0b944\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 您的位置： 官网首页 > 武将介绍 > 武将详情 --> 吴景 吴景 吴景 进攻 简单 多刀 武将生平： 吴郡人，吴国太之弟。早期跟随孙坚征战，后依附于袁术。孙策早期创业时，为其提供诸多帮助，并在孙策脱离袁术中率先相应孙策，是东吴开国元勋。 武将特点： 可以收集他人的非黑色杀，红色杀和决斗对吴景的收益很高 武将技能： 合击 流兵 一名角色使用仅指定唯一目标的【决斗】或红色【杀】后，你可对同目标使用一张【杀】或【决斗】，若你以此法使用的牌不为转化牌，你随机获得一张红色牌。 锁定技，你每回合使用的第一张实体【杀】的花色视为方块。若其他角色于其出牌阶段内使用的非黑色【杀】未造成伤害，此牌进入弃牌堆后，你获得之。 ",
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=668",
+      "byteCount": 883,
+      "sha256": "75168083cc706b5f90751c4914b2aeaeb92c4d422d8cd9d7840e54adfbec473b",
+      "hashScope": "HTTP response body bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 668,
+            "name": "吴景",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/668.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66800.png",
+            "label": [
+              "进攻",
+              "简单",
+              "多刀"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "吴郡人，吴国太之弟。早期跟随孙坚征战，后依附于袁术。孙策早期创业时，为其提供诸多帮助，并在孙策脱离袁术中率先相应孙策，是东吴开国元勋。",
+            "characteristic": "可以收集他人的非黑色杀，红色杀和决斗对吴景的收益很高",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66800.png",
+      "byteCount": 915543,
+      "sha256": "913e9db195ad58eece539379b10d3074f789427baeed735f41588eab09ed567f",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-wu-jing.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T14:48:22.012970+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1368]",
+      "row": {
+        "a": 668,
+        "b": "吴景",
+        "d": "WuJing",
+        "e": 44,
+        "f": "43",
+        "g": 3,
+        "h": 1,
+        "i": 4,
+        "j": 3586,
+        "k": 3587,
+        "p": 2,
+        "q": "1",
+        "r": "9066801",
+        "y": "吴郡人，吴国太之弟。早期跟随孙坚征战，后依附于袁术。孙策早期创业时，为其提供诸多帮助，并在孙策脱离袁术中率先响应孙策，是东吴开国元勋。",
+        "z": "可以收集他人的非黑色杀，红色杀和决斗对吴景的收益很高",
+        "aa": 65,
+        "ab": "1261,1262",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250314T000000",
+        "LordCardRate1": 19,
+        "LordCardRate2": 45,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2609]",
+          "row": {
+            "a": 3586,
+            "b": "3,5",
+            "c": "合击",
+            "d": "HeJi",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "一名角色使用仅指定唯一目标的【决斗】或红色【杀】后，你可对同目标使用一张【杀】或【决斗】，若你以此法使用的牌不为转化牌，你随机获得一张红色牌。",
+            "w": "请选择一张<font color='#FFD800'>杀</font>或<font color='#FFD800'>决斗</font>对{0}使用",
+            "AutoAI": 1
+          }
+        },
+        {
+          "path": "GameSpells.spell[2610]",
+          "row": {
+            "a": 3587,
+            "b": "3,4,5",
+            "c": "流兵",
+            "d": "LiuBing",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "锁定技，你每回合使用的第一张实体【杀】的花色视为方块。若其他角色于其出牌阶段内使用的非黑色【杀】未造成伤害，此牌进入弃牌堆后，你获得之。"
+          }
+        }
+      ]
+    }
+  },
+  "additionalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20250207_5809_0714",
+      "kind": "official-release",
+      "publishedAt": "2025-02-13 17:00:39",
+      "supports": [
+        "Wu faction, male, 4 HP",
+        "Current complete Heji/Liubing text"
+      ]
+    },
+    {
+      "url": "https://www.taptap.cn/moment/646152152237998322",
+      "kind": "same-product-guide-reposted-by-official-account",
+      "account": "三国杀OL大乔",
+      "author": "紫云西来",
+      "publishedAt": "2025-03-04",
+      "originalUrl": "https://club.sanguosha.com/thread-1614923-1-1.html",
+      "supports": [
+        "Heji runs after the original card resolves and may follow the owner’s own use.",
+        "Heji follow-up ignores attack range and can recursively trigger itself; gained red cards can pay the next follow-up.",
+        "Conversions from Choufa, Weilin, Bianyu and Caoshao do not earn the red card.",
+        "Liubing includes colorless multi-material Slashes and excludes skill-cost discards."
+      ],
+      "authorityBoundary": "Product-specific player strategy repost; not a dedicated official rules FAQ."
+    }
+  ],
+  "implementationInferences": [
+    "Current native completed Use has exactly one effective/designated target; legitimate native target changes, armor, nullification, response uses and all extra-effect rounds retain their native rules. Mere played responses do not count as Use.",
+    "An entity Slash means a singleton printed Slash used with its printed kind and no identity/view-as conversion, as distinct from converted/virtual Slash. Its first-use Diamond appearance is frozen only for the real Use and target queries, never for an unplayed card’s discard/gain color. Actual-turn use history is recorded even while the actor lacks the skill.",
+    "Heji reward applies to a singleton genuinely nonconverted native Slash/Duel. A converted identity/view-as, multi-material virtual Slash or Fan conversion does not impersonate a printed original card. This follows the guide’s distinction; no separate dedicated Fan FAQ was located.",
+    "Random red acquisition uses the real seeded native DrawPile pool (printed red physical cards), not a virtual draw or manufactured card. When no red remains, the native reward obtains zero and the completed Use is still settled once.",
+    "Liubing considers the complete native Use’s actual damage, including added targets and repeated effects. It claims only the same physical use entities still in Discard with uninterrupted native Hand/HE→Processing→UseFinished provenance; previous claims, unrelated re-discards, response payments and costs do not qualify.",
+    "An already issued native follow-up/reward/claim continues draining its exact movement, HP, recovery, dying and skill-change children after source loss; a dead owner receives no newly offered follow-up or reward.",
+    "Heji also accepts independently payable zero-entity round-quota, DrawFundedDistinctBasic and chained-state Slash sources, together with variable-count Kenshang HE conversion and faction supply. Each source retains its existing native payment, name/quota, state-change, material and typed-return contract. Such transformed/logical uses do not earn the original-card reward or spend Liubing’s physical-Slash ordinal. An already-paid draw/state cost can finish its exact original need after Heji source loss; target/actor death cancels through the native paid-attempt contract without refund or duplicate cost.",
+    "An actual committed-use child may apply the existing CurrentSlashFirePolicy to the same issued Heji Slash. Its exact native policy and change event prove the final FireSlash and target history; the Heji invoice continues to prove the original accepted kind, material entities and conversion chain. Reward qualification additionally examines the completed current conversion chain, so a printed Slash genuinely converted to FireSlash after issuance earns no nonconverted reward. This is an implementation inference from the current skill text and the existing native conversion contract, not a separate official Wu Jing FAQ."
+  ],
+  "behaviorChecks": [
+    "WuJingChecks.HejiSelfForeignRecursivePhysicalConversionAndCold",
+    "WuJingChecks.LiubingFirstPhysicalSlashActualTurnSuitAndFrozenAppearanceCold",
+    "WuJingChecks.LiubingWholeUseNoDamageExactDiscardClaimsAndPrivacyCold",
+    "WuJingChecks.HejiPaidLossDeathRandomRedAndNativeChildrenCold"
+  ]
+}

@@ -2,6 +2,23 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramWindowReturn(SkillProgramTriggerWindow.DyingExited)]
+    private void ReturnSurvivedDyingProgramWindow(ProgramSkillFrame frame, bool completed)
+    {
+        var context = frame.WindowContext!;
+        if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame
+                { Window: SkillProgramTriggerWindow.DyingExited, Continuation: ProgramLifecycleContinuation.ResumeYanPuDyingExit,
+                  YanPuDyingExit: { } receipt } parent || parent.Id != context.ParentFrameId ||
+            context.SourceSeat != receipt.VictimSeat || context.TargetSeat != receipt.VictimSeat ||
+            !IsYanPuDyingExitEdge(_resolutionStack.Count - 1) ||
+            parent.CandidateIndex < 0 || parent.CandidateIndex >= parent.Candidates.Count ||
+            !MountObserverCandidateMatches(frame, parent.Candidates[parent.CandidateIndex]) ||
+            GetProgramTrigger(frame).Effects is not [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance }])
+            throw new InvalidOperationException("A survived-Dying binding lost its exact completed-Dying parent and current candidate.");
+        AdvanceProgramLifecycleCursor(parent);
+        AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
+    }
+
     [ProgramWindowReturn(SkillProgramTriggerWindow.PindianCardsRevealed)]
     private void ReturnPindianCardsRevealedProgramWindow(ProgramSkillFrame frame, bool completed)
     {
@@ -107,8 +124,10 @@ public sealed partial class GameEngine
             drawPhase.Continuation != ProgramLifecycleContinuation.CompleteDrawPhase)
             throw new InvalidOperationException("The draw-phase program lost its parent window.");
         var drawTrigger = GetProgramTrigger(frame);
-        if (completed && drawTrigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Replacement &&
-            !drawTrigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GuessRanksForDrawReplacement))
+        if (completed &&
+            (drawTrigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Replacement &&
+             !drawTrigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GuessRanksForDrawReplacement) ||
+             IsMingchaNormalDrawReplacement(frame)))
         {
             ReplaceRuntimeTop(drawPhase with
             {
@@ -357,6 +376,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not ProgramCardTriggerWindowFrame cardAction ||
             cardAction.Id != context.ParentFrameId)
             throw new InvalidOperationException("The card-action program lost its parent cursor.");
+        RestoreCompletedUseAttackAfterIssuedChild(frame, cardAction);
         AdvanceProgramCardCandidate(cardAction);
         AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>();
     }

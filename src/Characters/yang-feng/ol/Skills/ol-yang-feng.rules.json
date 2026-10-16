@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:jiawei","revision":1,"activations":[{"id":"discard-reveal-partition","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveJiaweiDiscardReveal","target":"owner"}]}]},
+ {"id":"ol:qujia","revision":1,"triggers":[{"id":"limited-actual-turn-end","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":true,"usageScope":"game","usageLimit":1,"condition":{"kind":"not","children":[{"kind":"ownerKilledThisTurn"}]},"effects":[{"op":"resolveQujiaLimitedTurnEnd","target":"owner"}]}]}
+]}

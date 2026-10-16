@@ -1,0 +1,254 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:ding-shang-wan",
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T08:36:34.996839+00:00",
+    "generalId": "ol:ding-shang-wan",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/569",
+      "byteCount": 25963,
+      "sha256": "89f68d969d650b8a12f6889aeadc4395cb402ce37926fa1c880ecbf7cf105158",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=569",
+      "byteCount": 1106,
+      "sha256": "bcb5479d33945aadeafe7f409df903c4dfbce00e7e7f5fc349958cf614bc10ed",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 569,
+            "name": "丁尚涴",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/569.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56900.png",
+            "label": [
+              "辅助",
+              "配合神将",
+              "丁妈"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "传说",
+            "biography": "曹操原配夫人，曹昂养母。曹昂战死后悲痛欲绝，口出怨言数落曹操。曹操恼羞成怒将其打发，后心生悔意，但丁尚涴却只是闷头织布。曹操手抚其背，说：“顾我共载归乎！”丁尚涴依旧不理不睬。于是与之和离。曹操临终前叹道：“我前后行意，于心未曾有所负也。假令死而有灵，子修若问‘我母所在’，我将何辞以答！”",
+            "characteristic": "通过调整初始手牌数来调节辅助门槛。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 9
+          },
+          {
+            "name": "排位后手",
+            "value": 8
+          },
+          {
+            "name": "农民",
+            "value": 8
+          },
+          {
+            "name": "忠臣",
+            "value": 8
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56900.png",
+      "sha256": "3aa27ab120066ad5e6d319a32c6241f3ff7c71e7ea15a6cee7f03f63b05ce19c",
+      "byteCount": 1128355,
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-ding-shang-wan.png",
+      "size": [
+        750,
+        950
+      ]
+    }
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153909,
+        "sha256": "22745509c006706f93b69bfa90a20113a3922adcc78be178a0b163cecc7f0ece",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "Public client InitOfb AES-CFB128 then gzip; full resources decoded in memory only.",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "characterPath": "GameCharacters.character[1269]",
+    "character": {
+      "a": 569,
+      "b": "丁尚涴",
+      "d": "DingShangWan",
+      "e": 44,
+      "f": "44",
+      "g": 1,
+      "h": 2,
+      "i": 3,
+      "j": 3330,
+      "k": 3331,
+      "p": 3,
+      "q": "1",
+      "r": "9056901",
+      "y": "曹操原配夫人，曹昂养母。曹昂战死后悲痛欲绝，口出怨言数落曹操。曹操恼羞成怒将其打发，后心生悔意，但丁尚涴却只是闷头织布。曹操手抚其背，说：“顾我共载归乎！”丁尚涴依旧不理不睬。于是与之和离。曹操临终前叹道：“我前后行意，于心未曾有所负也。假令死而有灵，子修若问‘我母所在’，我将何辞以答！”",
+      "z": "通过调整初始手牌数来调节辅助门槛。",
+      "aa": 144,
+      "ab": "1065,1066",
+      "ad": "画师:匠人绘",
+      "x": "东风恶，####错、错、错！",
+      "al": 1730,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "ar": "20240220T235959",
+      "LordCardRate1": 18,
+      "LordCardRate2": 52,
+      "cb": "2;3",
+      "starMax": 4
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[2365]",
+        "row": {
+          "a": 3330,
+          "b": "3,5",
+          "c": "抚悼",
+          "d": "FuDao",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 1,
+          "o": "游戏开始时，你摸三张牌，交给一名其他角色至多三张手牌，弃置任意张手牌，然后记录你的手牌数。每回合结束时，若当前回合角色手牌数等于此数值，你可以与其各摸一张牌。",
+          "v": "请选择至多三张手牌交给一名角色;弃置任意张手牌，记录当前手牌数",
+          "ac": "是否发动{0}，与{1}各摸一张牌"
+        }
+      },
+      {
+        "path": "GameSpells.spell[2366]",
+        "row": {
+          "a": 3331,
+          "b": "3,4,5",
+          "c": "讽言",
+          "d": "FengYan",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "o": "锁定技，当你受到其他角色的伤害，或响应其他角色的牌后，你选择一项:<br>&nbsp;1.摸一张牌并交给其一张牌;<br>&nbsp;2.其摸一张牌并弃置两张牌。",
+          "w": "请选择两张牌弃置",
+          "v": "请选择一项;请选择一张牌交给{0}"
+        }
+      }
+    ]
+  },
+  "sameProductCommunityExplanation": [
+    {
+      "url": "https://club.sanguosha.com/thread-1306646-1-1.html",
+      "title": "【武将攻略】泪咽无声的“刚烈女”—丁尚涴",
+      "verifiedLive": true,
+      "authority": "same-product community player guide, not an official FAQ",
+      "claims": [
+        "不给牌仍可弃牌和记录；不交也不弃可记录7。",
+        "当前回合角色自己的回合结束技能先完成，之后按实际手牌数判定；自己符合则共摸2。",
+        "讽言为锁定发动，两种选项由本人选择；交出的牌可以是装备区的牌。"
+      ],
+      "shortQuote": "如果你没有给出一张手牌且不丢的话，最后的记录手牌数就变为7张手牌。"
+    },
+    {
+      "url": "https://club.sanguosha.com/thread-1303125-1-1.html",
+      "title": "斗地主强将全析——丁尚涴：美貌也可以是一种武器",
+      "verifiedLive": true,
+      "authority": "2024-01-15 test-version player guide; conflicting zero-gift claim superseded by current hero/client text and later same-product guide",
+      "claims": [
+        "每次响应决斗打出杀均可发动讽言；闪响应杀、AOE响应、无懈也在响应范围。",
+        "该测试版攻略称不交牌停止后续，但作者明确以正式上线版本为主；当前实现不采用此旧零边界。"
+      ]
+    }
+  ],
+  "implementationInferences": [
+    "抚悼开局段在真实GameStarting完成，摸3及原生子树先返回，再选0至3真实手牌交同一其他存活角色；0张不构造转移也不要求空目标，继续弃0至全部合法手牌，最后记录真正手牌数。",
+    "记录由原开局收据和实际事件派生，保持整局不变；真实AfterTurnEnded在此前原生回合结束效果完成后冻结当前回合人的手牌数，所有抚悼候选共用这一边界数，避免较早候选摸牌使较后候选失去已经发生的资格。失去并重新获得原技能不会重置记录或伪造开局。",
+    "自身匹配的双方各一合并为真实一次Draw2，总数2；这是引擎对同一参与者重叠的实现解释，社区只证明总摸2，不声称其证明两个独立Draw1。不同参与者按本人再回合人分别Draw1并保留各自原生子树。",
+    "讽言每次实际正伤害事件触发一次，不按点数拆；仅其他真实来源，失去体力、无来源和自己伤害不触发。响应沿现有CardResponseCompleted原生完成协议，真实Dodge、每张DuelSlash、GroupResponse和Nullification完成均覆盖实体及虚拟牌；CardSupply和一般主动CardUse不冒作响应。没有当前官方FAQ证明无懈应改变既有完成协议，因此保留原生完成时机。",
+    "讽言的自己摸牌后交1和对方摸牌后弃2使用HE；强制弃牌若不足则弃尽当时可合法弃置实体，武将牌武器依既有不可转移/弃置边界排除。原生移除白银狮子回复、获得/失去牌、HP、死亡、失技子窗口均先返回再继续。",
+    "已进入的mandatory/accepted效果保持原来源、窗口、回合和对方快照，不因技能失去重发或重复成本；参与者死亡只停止不能向其执行的后续原生操作，胜负结束时收口。对方已死仍可选本人摸1而不给死者牌；此为依据正文无存活前提及原生死亡边界的实现解释。",
+    "讽言移除装备区木牛流马时，在付款前冻结该payer当时真实粮实体；原生WoodenOxGrainDiscard附带弃粮保留在同付款子树，只认可对应所选木牛、实际原粮区、弃牌去向与已发行movement区间，不将粮误当作额外选择的交牌或两张弃牌。",
+    "技能原生摸牌耗尽牌堆时保留EnsureDrawPile的真实弃牌堆洗回摸牌堆。专属帧从真实待处理batch冻结相同parent/awaiting程序/source/回合且从非空弃牌堆到空摸牌堆的整批收据，并以标量事件证明原batch区间；摸牌数只计drawReason的DrawPile到payerHand实体，不把原生洗牌实体计作摸牌。"
+  ],
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Ding Shang Wan:', 'He Jin:', 'Li Wan:') -WpfFilter @('Program public card choices', 'Edition general gallery')",
+      "corePassed": 12,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 39906,
+      "steps": {
+        "Build selected scope": 26140,
+        "Core selected checks (3 filters, union)": 7184,
+        "WPF selected checks (2 filters, union)": 13390
+      }
+    },
+    "relatedRegression": {
+      "corePassed": 28,
+      "failed": 0,
+      "durationMs": 13812,
+      "scope": "Fei Yi, Zhang Shi Ping, Qian Zhao, Hao Pu, actual turn end, exact discard classification, native use, catalog dependencies and runtime registrations"
+    },
+    "routine": {
+      "command": "tools/Test-Changed.ps1",
+      "status": "passed",
+      "corePassed": 140,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 35678,
+      "steps": {
+        "Build selected scope": 3538,
+        "Core selected checks (140 filters, union)": 15094,
+        "WPF selected checks (20 filters, union)": 31695
+      },
+      "priorEnvironmentInterference": "The first routine and isolated retry rejected external AsyncLeftDown=true. After the user released the mouse, the unchanged native input check passed in isolation and this complete routine rerun passed. No input guard was weakened."
+    },
+    "renderedUiInspected": [
+      "OL Ding Shang Wan gallery",
+      "OL He Jin gallery",
+      "OL Li Wan gallery",
+      "visible public prompt and own-hand entity mark"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "No global rules epoch, rules JSON schema, or package release version was changed. New central bridges are enabled only by the newly registered operation capabilities or exact native issued receipts.",
+    "verifiedAtUtc": "2026-10-16T09:23:09.311505+00:00"
+  }
+}

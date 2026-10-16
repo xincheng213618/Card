@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-16",
+  "status": "verified",
+  "generalId": "ol:zhang-shi-ping",
+  "characterId": "character:zhang-shi-ping",
+  "product": "三国杀OL",
+  "officialGid": 559,
+  "officialPage": "https://www.sanguosha.com/hero/559",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=559",
+  "identity": {
+    "name": "张世平",
+    "faction": "shu",
+    "gender": "Male",
+    "baseHp": 3,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Checked existing character manifests and rules for 张世平/張世平/ZhangShiPing/ZhangShiping, 鸿济/鴻濟 and 行贾/行賈 before implementation. No existing general or these skills was found.",
+  "officialEvidence": {
+    "capturedAt": "2026-10-16T07:08:24.146235+00:00",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/559",
+      "sha256": "7015f52fb919a289499b327a299976a9afd97f2e4d99e0da150787a5267cb21f",
+      "byteCount": 24241,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=559",
+      "sha256": "9d1e49394d33fcd8426ef24ab2ad24c5291a5ff23b0221966d91644eb3c22502",
+      "byteCount": 929,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiInfo": {
+      "gid": 559,
+      "name": "张世平",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/559.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55900.png",
+      "label": [
+        "辅助",
+        "配合神将",
+        "花色爱好者"
+      ],
+      "figure": "蜀",
+      "figure_py": "shu",
+      "quality": "传说",
+      "biography": "东汉末年中山贩马商人，刘关张桃园三结义时资助刘备良马五十匹，金银五百两，镔铁一千斤，三人的武器雌雄双股剑、青龙偃月刀、丈八蛇矛皆由这一千斤上好镔铁打造而成。",
+      "characteristic": "能让手牌多的角色多出牌，手牌少的角色多摸牌。",
+      "hp": 3,
+      "initial_hp": 0,
+      "score": 0
+    }
+  },
+  "currentClient": {
+    "checkedAtUtc": "2026-10-16T07:04:34.112885+00:00",
+    "product": "sanguosha-ol",
+    "resources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153477,
+        "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "36bd0f9a80dc3d83be4b7e1099228e0131516032f4cba7bb338c37e2a074e5ac",
+        "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57"
+      }
+    },
+    "decoder": "Public client InitOfb AES-CFB128 then gzip; full resources decoded in memory only.",
+    "characterPath": "GameCharacters.character[1259]",
+    "characterRow": {
+      "a": 559,
+      "b": "张世平",
+      "d": "ZhangShiPing",
+      "e": 44,
+      "f": "47",
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 3303,
+      "k": 3304,
+      "p": 3,
+      "q": "1",
+      "r": "9055901",
+      "y": "东汉末年中山贩马商人，刘关张桃园三结义时资助刘备良马五十匹，金银五百两，镔铁一千斤，三人的武器雌雄双股剑、青龙偃月刀、丈八蛇矛皆由这一千斤上好镔铁打造而成。",
+      "z": "能让手牌多的角色多出牌，手牌少的角色多摸牌。",
+      "aa": 144,
+      "ab": "1045,1046",
+      "ad": "画师:匠人绘",
+      "x": "祝君一马平川！",
+      "al": 1732,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "ar": "20230717T235958",
+      "LordCardRate1": 20,
+      "LordCardRate2": 42,
+      "starMax": 4,
+      "freetitle": "0,辅助强将"
+    },
+    "spellRows": [
+      {
+        "path": "GameSpells.spell[1688]",
+        "row": {
+          "a": 3303,
+          "b": "3,5",
+          "c": "鸿济",
+          "d": "HongJi",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "o": "每轮各限一次，每名角色的准备阶段，若其手牌数为全场最少/最多，你可以令其于本回合下个摸牌/出牌阶段结束后执行一个额外的摸牌/出牌阶段。"
+        }
+      },
+      {
+        "path": "GameSpells.spell[1689]",
+        "row": {
+          "a": 3304,
+          "b": "3,5",
+          "c": "行贾",
+          "d": "XingGu",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 1,
+          "o": "游戏开始时，你将随机三张坐骑牌置于你的武将牌上。结束阶段，你可以将其中一张牌置于一名其他角色的装备区，然后你获得牌堆中一张方片牌。"
+        }
+      }
+    ],
+    "fieldInterpretation": "Character g=2 Shu, h=1 male, i=3 HP; j=3303 HongJi and k=3304 XingGu. The canonical 行贾 skill id uses current client spelling XingGu (ol:xinggu). Only this target character and its two spells are retained here; complete resources were decoded in memory."
+  },
+  "currentSkillText": {
+    "鸿济": "每轮各限一次，每名角色的准备阶段，若其手牌数为全场最少/最多，你可以令其于本回合下个摸牌/出牌阶段结束后执行一个额外的摸牌/出牌阶段。",
+    "行贾": "游戏开始时，你将随机三张坐骑牌置于你的武将牌上。结束阶段，你可以将其中一张牌置于一名其他角色的装备区，然后你获得牌堆中一张方片牌。"
+  },
+  "evidenceHierarchy": [
+    "The live official hero page and current OL client agree on the complete two skill texts; the live official API independently confirms identity, faction and 3 HP.",
+    "The same-product OL distributor 4399 guide dated 2023-06-30 explains tied minimum/maximum, self inclusion, only one branch per preparation when both qualify, actual-phase skips and physical pile movements. It is an explanatory product guide, not an official FAQ or a replacement for current official text."
+  ],
+  "sameProductExplanation": {
+    "url": "https://my.4399.com/yxxsgs/gonglue/53125/",
+    "title": "三国杀OL张世平武将攻略",
+    "published": "2023-06-30",
+    "author": "游戏小助手",
+    "observations": [
+      "Minimum and maximum hand counts need not be unique; the current preparation owner may be Zhang Shiping himself.",
+      "When both the minimum and maximum conditions hold and neither branch has been used this round, choose one branch in that preparation. The two branch quotas remain separate for the round.",
+      "Skipping the matching Draw or Play phase does not create its extra phase. A real first Play phase can be followed by an extra Play phase even if that later phase is itself skipped.",
+      "The three opening mounts are placed on the general outside any actual turn. Moving one from that pile into equipment at ending is a genuine pile/equipment movement."
+    ]
+  },
+  "ruleInterpretations": [
+    "One source chooses at most one branch at each actual preparation. A tied recipient qualifies. The same recipient can receive both phase types from different preparations/sources when each independent source and round quota permits; one preparation does not execute both choices.",
+    "Next Draw/Play means the next matching phase actually executed in this same actual turn, including a phase already inserted by another native phase schedule. No matching actual phase means no grant execution; promises cannot carry across actual turns.",
+    "The inserted phase is a genuine Draw/Play phase, resetting only native phase quotas. It has no new preparation, extra whole turn or invented Discard stage. Its return restores the original ending cursor, actual phase key and any suspended outer phase schedule.",
+    "Once granted, source loss or source death does not revoke a promised phase: the text binds the recipient and this turn, not continued possession. A dead beneficiary takes no further phases. These continuation details are explicit implementation inferences from issued skill effects.",
+    "XingGu selects up to three distinct physical mounts randomly without replacement from the current draw pile at game start, then stores them publicly. No entity is fabricated if the available mount count is smaller.",
+    "An accepted ending placement directly moves a real stored mount into another living character equipment area, inheriting native slot capacity, abolition and replacement rules. It is not a card use. After placement children finish, a still-living source obtains one random physical Diamond from the current draw pile; no matching Diamond means no card and no reshuffle. Completed placement survives source loss; death prevents a dead owner obtaining cards.",
+    "No current official FAQ was found overriding these timing/continuation details; explanatory product rulings and remaining implementation inferences are distinguished above."
+  ],
+  "runtimeBoundaries": [
+    "All pending branch choices, public-pile placement and native child receipts live on their owning ProgramSkillFrame. Promises and quota provenance are immutable scalar facts.",
+    "A single native ProgramPhaseSchedule runs each inserted phase; the original phase schedule is immutable typed parent data on that owning Hongji receipt, without a second mutable pending object.",
+    "All card movement, equipment replacement, movement/health/damage/rescue children, checkpoint restoration and per-view prompt projection use native boundaries.",
+    "Multiple Hongji promises frozen in one native phase-ending window remain reserved on that exact typed parent while an earlier sibling inserts a phase. A nested child ending cannot consume the original later sibling; no use-ID or pending reservation sidecar is added."
+  ],
+  "behaviorChecks": "tests/CardGame.Core.Tests/ZhangShiPingChecks.cs",
+  "behaviorCheckMethods": [
+    "TiedSelfDrawForeignPlayTwoRoundBranchesActualPhasesAndCold",
+    "NestedActualPlayPaidSourceLossQuotasAndSkippedNoCarryCold",
+    "PhysicalMountReplacementDisabledSlotDiamondNoMatchAndPaidLossCold",
+    "DeadSourcePromiseAndInsertedBeneficiaryDeathNativeReturnCold",
+    "RealIssuedExtraDrawMarkerAndHongjiOwnedDrawParentsCold"
+  ],
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T08:29:17.993580+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 5,
+    "combinedFocusedScope": {
+      "corePassed": 45,
+      "wpfPassed": 1,
+      "durationMs": 39129
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 33450
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Actual command, checkpoint replay, privacy, paid continuation and card movement checks passed; no global rules epoch, schema or content package release version was raised."
+  }
+}

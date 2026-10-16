@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:bolan", "revision": 1,
+      "activations": [{
+        "id": "other-play-phase", "otherCharactersOnly": true,
+        "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "loseHp", "target": "activator", "amount": 1 },
+          { "op": "offerRandomPlayPhaseSkill", "target": "activator", "amount": 3,
+            "skillIds": ["classic:qingnang", "classic:lijian", "boundary:quhu-current", "classic:tianyi", "ol:lihun", "ol:qiangwu", "classic:gongxin", "classic:mingce", "classic:qice", "ol:mizhao", "boundary:guose", "boundary:zhiheng", "boundary:jieyin-current", "classic:qiangxi", "boundary:tiaoxin-current", "ol:sanchen", "boundary:chuli", "ol:daoshu"] }
+        ]
+      }],
+      "triggers": [{
+        "id": "own-play-start", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "offerRandomPlayPhaseSkill", "target": "owner", "amount": 3,
+          "skillIds": ["classic:qingnang", "classic:lijian", "boundary:quhu-current", "classic:tianyi", "ol:lihun", "ol:qiangwu", "classic:gongxin", "classic:mingce", "classic:qice", "ol:mizhao", "boundary:guose", "boundary:zhiheng", "boundary:jieyin-current", "classic:qiangxi", "boundary:tiaoxin-current", "ol:sanchen", "boundary:chuli", "ol:daoshu"] }]
+      }]
+    },
+    {
+      "id": "ol:yifa", "revision": 1,
+      "triggers": [
+        { "id": "slash-targeted", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false, "singleActionInstance": true, "onlyDesignatedCardTargets": true,
+          "effects": [{ "op": "grantActorHandLimitPenalty", "target": "owner", "amount": 1 }] },
+        { "id": "black-trick-targeted", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "cardCategories": ["instantTrick"], "condition": { "kind": "cardActionCardIsBlack" }, "optional": false, "singleActionInstance": true, "onlyDesignatedCardTargets": true,
+          "effects": [{ "op": "grantActorHandLimitPenalty", "target": "owner", "amount": 1 }] }
+      ]
+    }
+  ]
+}

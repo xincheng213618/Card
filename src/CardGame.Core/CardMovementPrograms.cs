@@ -35,7 +35,7 @@ public sealed record CardMovementSourceCount(
     int CountBefore,
     int CountAfter);
 
-/// <summary>The physical payment batch actually issued by one accepted Slash use.</summary>
+/// <summary>The exact physical payment batch issued by a native use with a typed payment return.</summary>
 public sealed record CardUsePaymentMovementReceipt(long OwnerFrameId, long ActionId,
     int SequenceBefore, int SequenceAfter)
 {

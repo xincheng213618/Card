@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:suji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-wounded-play",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "useBlackCardAtWoundedPlayStart",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "foreign-wounded-play",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "turnOwnerScope": "otherLiving",
+          "effects": [
+            {
+              "op": "useBlackCardAtWoundedPlayStart",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "same-use-phase-owner-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "obtainSujiDamagedPhaseOwnerCard",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:langdao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "sole-slash-sealed-choices",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveLangdaoSimultaneousSlash",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

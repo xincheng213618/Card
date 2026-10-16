@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "ol:xiaosi", "revision": 1,
+    "activations": [{ "id": "paired-basic-discard", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+      "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [{ "op": "discardBasicPairAndReuse", "target": "selectedTarget" }]
+    }]
+  }]
+}

@@ -10,7 +10,9 @@ public sealed record HumanSkillViewModel(
     bool IsDisabled)
 {
     public string? ContentId { get; init; }
+    public int? SkillOwnerSeat { get; init; }
     public bool IsLocked => TypeText.Contains("锁定", StringComparison.Ordinal);
+    public bool IsConversion => TypeText.Contains("转换", StringComparison.Ordinal);
     public string ButtonArtwork => GetButtonArtwork(IsAvailable && !IsDisabled);
     public string DisabledButtonArtwork => GetButtonArtwork(false);
     private string GetButtonArtwork(bool available) => "pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__skill" +

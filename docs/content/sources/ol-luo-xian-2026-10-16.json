@@ -1,0 +1,126 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "characterId": "character:luo-xian",
+  "generalId": "ol:luo-xian",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T04:50:06.623338+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/545",
+      "sha256": "991688fc471bb9e6842ccba8f014b1f909a1116a348f2cd89b92bf90e6df97df",
+      "byteCount": 23808
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=545",
+      "sha256": "3f5114c101ea0523b8088169af77c19b226446e8eff590109d34c65810dc1af9",
+      "byteCount": 929
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "byteCount": 4153477
+    },
+    "hashScope": "raw HTTP response bytes; decoded current-client configuration was inspected in memory and only this character's rows are retained"
+  },
+  "officialHeroApi": {
+    "gid": 545,
+    "name": "罗宪",
+    "figure_py": "shu",
+    "hp": 4,
+    "initial_hp": 0,
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54500.png",
+    "note": "The HTML og:description incorrectly says zero HP; live API and current-client character row both independently give four. initial_hp zero is the API sentinel for ordinary full starting HP."
+  },
+  "decoder": "Public current-client InitOfb AES-CFB128 then gzip, in memory; no full bundle or configuration file was written to disk.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "path": "GameCharacters.character[1245]",
+      "record": {
+        "a": 545,
+        "b": "罗宪",
+        "d": "LuoXian",
+        "g": 2,
+        "h": 1,
+        "i": 4,
+        "j": 3254,
+        "ad": "画师:匠人绘"
+      },
+      "interpretation": "g=2 is Shu, h=1 male, i=4 HP, j=3254 sole skill. The selected official hero page independently confirms faction and single assigned skill."
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "path": "GameSpells.spell[1640]",
+      "record": {
+        "a": 3254,
+        "c": "带砺",
+        "d": "DaiLi",
+        "o": "每回合结束时，若你有偶数张展示过的手牌，你可以翻面，摸三张牌并展示之。"
+      }
+    }
+  },
+  "skills": [
+    {
+      "id": "ol:daili",
+      "name": "带砺",
+      "currentClientSkillId": 3254,
+      "exactOfficialText": "每回合结束时，若你有偶数张展示过的手牌，你可以翻面，摸三张牌并展示之。",
+      "tags": [],
+      "executionForms": [
+        "Trigger"
+      ]
+    }
+  ],
+  "versionSeparation": "This is current OL gid545 with DaiLi, not a mobile/testing Luo Xian with 析势 and 倾守 or a national-war version.",
+  "identityAudit": {
+    "existingIdentityOrSkillMatch": false,
+    "terms": [
+      "罗宪",
+      "luo-xian",
+      "LuoXian",
+      "带砺",
+      "daili"
+    ]
+  },
+  "corroboratingInterpretation": {
+    "url": "https://my.4399.com/yxxxtjd/ziliao/53010/",
+    "title": "4399三国杀OL 虎贲系列武将：罗宪攻略！",
+    "date": "2023-06-23",
+    "authority": "A secondary strategy guide, not official FAQ; used only to corroborate interpretations already consistent with selected official text.",
+    "points": [
+      "Zero counts as even and other players' actual turn ends qualify.",
+      "Explicit reveals from other skills and Fire Attack count; knowledge from a private view is different from a public reveal.",
+      "Revealing before transferring to Luo Xian does not grant a revealed-hand state in Luo Xian's new hand.",
+      "Public knowledge does not reveal the concealed hand slot when another player chooses a hand card."
+    ]
+  },
+  "engineMappingsExplicitlyNotOfficialFAQ": {
+    "actualEnd": "Two AfterTurnEnded bindings cover own and other turn-owner scopes. The engine's OtherLiving scope has a Daili-specific completed-turn exception: the surviving Luo Xian can trigger after the actual turn owner dies, because the selected text says every turn end and does not require that actor to remain alive. They run after the actual turn, including a native face-down skipped actual turn, rather than at the beginning of the ending phase.",
+    "shownHand": "Only explicit CardsRevealedEvent, ProgramCardsRevealedEvent, FireAttackCardRevealedEvent and both public HandComparison reveal events establish a shown entity. The actual hand owner is read from its physical location at that boundary, not from an unrelated skill owner field. Public uses, discards, acquisitions and private inspections do not implicitly count.",
+    "residency": "A reveal is scoped to owner plus entity plus latest location-changing hand-entry movement sequence. Same-hand reordering keeps the state. Actual departure, change of owner and departure followed by reacquisition create a new residency and require a fresh explicit reveal. No authoritative return-to-hand FAQ was located; this precise reset is an engine mapping supported by the guide's reveal-before-transfer example, not a claim of an official FAQ.",
+    "publicView": "Current shown faces persist in PublicRevealedCards with PublicHandOwnerSeat, while real concealed hand-slot choices retain their existing hidden identities. A moved-away entity ceases to appear in this persistent public hand view.",
+    "paidFlip": "The owning ProgramSkillFrame freezes exact completed turn, source instance, hash, original even shown count and flip state. Native flip observers finish before the real draw starts. Losing the skill during the already paid flip does not cancel its remaining draw.",
+    "drawnEntities": "Actual draw count and movement sequences are frozen as scalar receipts. Gain children finish before revelation; only those original drawn entities still in their original hand residency are revealed. A child that removes a drawn card cannot substitute a newly drawn or reacquired card. No hidden card face is included in pre-reveal Daili invoices.",
+    "death": "If the owner dies during a flip or draw child, the paid native child returns and the operation completes without drawing for or revealing cards from a dead owner. Existing game-over completion remains authoritative."
+  },
+  "newCapability": {
+    "operation": "resolveDailiTurnEnd",
+    "operationEnumValue": 26420,
+    "contract": "LuoXianContract.Activation and Trigger",
+    "centralIntegrationOwner": "batch root"
+  },
+  "behaviorCheckMethods": [
+    "ZeroEvenOwnOtherEndsAndSkippedFaceDownTurnCold",
+    "NativePublicHandResidencyAndPrivateInspectionCold",
+    "PaidFlipAndDrawChildrenKeepOriginalEntitiesAfterSourceLoss",
+    "DrawChildOwnerDeathCompletesWithoutRevealOrReplacement"
+  ],
+  "status": "root-verified",
+  "behaviorChecks": "tests/CardGame.Core.Tests/LuoXianChecks.cs",
+  "publicHandUiChecks": "tests/CardGame.Wpf.Tests/PublicProgramCardsUiChecks.cs"
+}

@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:yanru","revision":1,"activations":[{"id":"parity-draw-discard","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"yanruParityDrawDiscard","target":"owner"}]}]},
+ {"id":"ol:hezhong","revision":1,"triggers":[{"id":"singleton-rank-effect","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","optional":true,"effects":[{"op":"revealSingletonAndArmRankEffects","target":"owner"}]}]}
+]}

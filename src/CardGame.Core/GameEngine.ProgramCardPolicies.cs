@@ -32,10 +32,13 @@ public sealed partial class GameEngine
         GetSkillBindingShard(owner).GetCardPolicies(kind).Count != 0 &&
         CardPolicies(owner, kind, effectiveKind).Any();
 
-    private bool HasOutsideAttackRangeSlashQuota(CharacterState owner, CharacterState target, CardKind kind) =>
+    private bool HasOutsideAttackRangeSlashQuota(CharacterState owner, CharacterState target, CardKind kind, EquipmentSlot? excludedEquipmentSlot = null) =>
         owner.IsAlive && target.IsAlive && owner.Seat != target.Seat && IsSlashCard(kind) &&
         HasCardPolicy(owner, SkillProgramCardPolicyKind.BypassSlashLimitAgainstOutsideAttackRange, kind) &&
-        GetCombatDistance(owner.Seat, target.Seat) > GetAttackRange(owner.Seat);
+        (excludedEquipmentSlot is null
+            ? GetCombatDistance(owner.Seat, target.Seat) > GetAttackRange(owner.Seat)
+            : ConvertRuleValue(EvaluateDistance(owner, target, excludedEquipmentSlot: excludedEquipmentSlot)) >
+              ConvertRuleValue(EvaluateAttackRange(owner, excludedEquipmentSlot: excludedEquipmentSlot)));
 
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)

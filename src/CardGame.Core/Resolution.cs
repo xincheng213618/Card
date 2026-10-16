@@ -56,7 +56,8 @@ public enum ResolutionFrameKind
     FirstSlashDuelLegacyWindow = 21100,
     PindianRevealWindow = 21500,
     IdentityAppearance = 22200,
-    BeiMiHuTurnPrelude = 23200
+    BeiMiHuTurnPrelude = 23200,
+    QiaoZhouPreparation = 26220
 }
 
 public enum ResolutionFrameStep
@@ -73,6 +74,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(QiaoZhouPreparationFrame), "qiao-zhou-preparation")]
 [JsonDerivedType(typeof(BeiMiHuTurnPreludeFrame), "bei-mi-hu-turn-prelude")]
 [JsonDerivedType(typeof(IdentityAppearanceFrame), "identity-appearance")]
 [JsonDerivedType(typeof(FriendDuelResponseFrame), "friend-duel-response")]
@@ -802,7 +804,7 @@ public enum DeathReturnKind
     ProgramSkill
 }
 
-public sealed record DeathFrame(
+public sealed partial record DeathFrame(
     long Id,
     long ParentFrameId,
     int VictimSeat,

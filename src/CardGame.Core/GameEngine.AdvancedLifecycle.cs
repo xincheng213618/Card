@@ -122,6 +122,21 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Equipment(player.Seat), CardLocation.DiscardPile, new("equipment.slot-abolished"));
         AdvanceEventRulesAndQueueFact(new EquipmentSlotCapacityChangedEvent(player.Seat, slot, capacity));
     }
+    private bool RestoreEquipmentSlot(CharacterState player, EquipmentSlot slot)
+    {
+        if (player.EquipmentSlotCapacity(slot) > 0) return false;
+        if (player.EquipmentAreaAbolished)
+        {
+            // Preserve the other disabled slots when converting the legacy whole-area
+            // flag into the native per-slot representation.
+            foreach (var equipmentSlot in Enum.GetValues<EquipmentSlot>())
+                player.EquipmentSlotCapacities[equipmentSlot] = 0;
+            player.EquipmentAreaAbolished = false;
+            AdvanceEventRulesAndQueueFact(new PlayerAreasAbolishedEvent(player.Seat, false, player.JudgmentAreaAbolished));
+        }
+        SetEquipmentSlotCapacity(player, slot, 1);
+        return true;
+    }
     private bool IsFarthestInRange(CharacterState owner, CharacterState target)
     {
         var range = GetAttackRange(owner.Seat);

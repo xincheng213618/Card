@@ -566,6 +566,8 @@ public sealed class ContentRegistry
                         throw new InvalidOperationException("A declaration validation references an unknown challenge grant skill.");
                 foreach (var trigger in skill.Program!.Triggers.Where(t=>t.IncludeResponseUses && t.Window==SkillProgramTriggerWindow.CardUseCommitted || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan)))
                 {
+                    if (trigger.Window == SkillProgramTriggerWindow.CardUseCommitted &&
+                        ProgramCommittedUseContracts.TryValidate(skill.Id, trigger)) continue;
                     if (trigger.Effects is [{ Op: SkillProgramEffectOp.HoldUsedSuitHandAndDraw }])
                     { FriendEventComposition.ValidateTrigger(skill.Id, trigger); continue; }
                     if (trigger.Effects is [{ Op: SkillProgramEffectOp.NullifyMatchingHandUse }])
@@ -646,13 +648,17 @@ public sealed class ContentRegistry
                         throw new InvalidOperationException($"Skill '{skill.Id}' requires a known leaf with exactly its phase use restriction policy.");
                 }
                 Bao2025Contract.ValidateReferences(skill, _skills);
+                foreach (var offeredSkill in skill.Program!.Triggers.SelectMany(trigger => trigger.Effects)
+                             .Where(effect => effect.Op == SkillProgramEffectOp.OfferRandomPlayPhaseSkill).SelectMany(effect => effect.SkillIds))
+                    if (!_skills.ContainsKey(offeredSkill))
+                        throw new InvalidOperationException($"Skill '{skill.Id}' offers unknown skill '{offeredSkill}'.");
                 CaoYingContract.ValidateReferences(skill, _skills);
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
                              .Where(effect => effect.Op is SkillProgramEffectOp.DyingRecipientChooseReplaceOrGrantThenRecover or SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill or SkillProgramEffectOp.DeathRecipientChooseSkill or SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds)
                              .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
-                                 .Where(effect => effect.Op is SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.GrantPlayPhaseSkills)
+                                 .Where(effect => effect.Op is SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.OfferRandomPlayPhaseSkill)
                                  .SelectMany(effect => effect.SkillIds)))
                 {
                     if (!_skills.ContainsKey(grantedSkillId))

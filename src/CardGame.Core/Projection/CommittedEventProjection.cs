@@ -327,6 +327,8 @@ internal static class CommittedEventProjection
         { CardIds = FreezeList(value.CardIds) },
         CharacterSkillsLostEvent value => value with
         { SkillIds = FreezeList(value.SkillIds) },
+        ProgramRandomPhaseSkillsOfferedEvent value => value with
+        { SkillIds = FreezeList(value.SkillIds) },
         ProgramHandDraftRevealedEvent value => value with
         { RecipientSeats = FreezeList(value.RecipientSeats), CardIds = FreezeList(value.CardIds) },
         ProgramResponseEntityClaimedEvent value => value with

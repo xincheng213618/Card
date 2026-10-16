@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         // discarded-card and owned-card conversion producers. Their paid
         // movement children and committed-use observers have drained before
         // entering this method, including when protection will end the use.
-        if (!(HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
+        if (!(HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
             LifecycleCardUse(frameId) is not { } use || !IsDelayedCard(use.CardKind) ||
             use.FinalizedTrickProgramsStarted) return false;
         if (_resolutionStack.LastOrDefault()?.Id != frameId ||
@@ -40,7 +40,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsExactFinalizedDelayedPlacementWindow(ProgramCardTriggerWindowFrame window) =>
-        (HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
+        (HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
         window.TrickContinuation is { TargetCardId: null, RequiredCardKind: null } continuation &&
         window.SimpleContinuation is null && window.CompletedResponseReturn is null && window.AttackOwnerFrameId is null &&
         LifecycleCardUse(window.ParentFrameId) is

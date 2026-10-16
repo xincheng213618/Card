@@ -132,7 +132,9 @@ public sealed partial class MainViewModel
         catch (Exception exception) when (IsSaveException(exception))
         {
             HasSaveError = true;
-            SaveStatus = $"保存失败：{ReadableSaveError(exception)} 当前牌局仍可继续，可稍后重试。";
+            SaveStatus = _game.IsFaulted
+                ? "保存已暂停：牌局因结算异常停止，已有存档未被覆盖。请读取此前存档恢复。"
+                : $"保存失败：{ReadableSaveError(exception)} 当前牌局仍可继续，可稍后重试。";
             return false;
         }
     }

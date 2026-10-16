@@ -1,0 +1,208 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:pei-yuan-shao",
+  "identity": {
+    "gid": 682,
+    "name": "裴元绍",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "identityEvidence": "Official April 2025 release explicitly lists Qun, male and 4 HP; fresh current hero/info and client h=1/i=4 agree."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1377]",
+      "row": {
+        "a": 682,
+        "b": "裴元绍",
+        "d": "PeiYuanShao",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3624,
+        "p": 2,
+        "q": "1",
+        "r": "9068201",
+        "y": "《三国演义》中的人物，原是黄巾军将领，黄巾起义失败之后，在辉县西平罗卧牛山聚众占山为王。本欲夺取关羽的赤兔马，在得知对方是关羽后归顺。将朋友周仓介绍给关羽。在赵云路过山前时欲夺其马匹，被赵云刺死。",
+        "z": "使用伤害牌可以加伤或偷牌，使用不慎可能被效果反噬。",
+        "aa": 65,
+        "ab": "1289,1290",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20250519T000000",
+        "LordCardRate1": 28,
+        "LordCardRate2": 42,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2637]",
+          "row": {
+            "a": 3624,
+            "b": "3,5",
+            "c": "复掠",
+            "d": "FuLue",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "你使用【杀】或伤害锦囊牌仅指定唯一目标后，你可选择本回合未执行过的一项：<br>&nbsp;1.此牌造成伤害+1；<br>&nbsp;2.获得目标角色一张牌。<br>然后若此牌结算完成后，未造成伤害，其可对你使用一张【杀】，并执行“复掠”的另一项。",
+            "w": "是否对{0}使用一张<font color='#FFD800'>杀</font>",
+            "ac": "请选择一项执行|伤害+1|获得其一张牌"
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T22:48:22.01297+08:00",
+    "generalId": "ol:pei-yuan-shao",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/682",
+      "byteCount": 23755,
+      "sha256": "869fc1af3ca57e8486eeb3ea362c909d8bdcf234aaa322a5f75d9f782a40c984",
+      "hashScope": "HTTP response body bytes"
+    },
+    "heroSkillRegion": "武将技能介绍 var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?fb3e47332f1c41f3e8dd1961d001377f\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); var _hmt = _hmt || []; (function () { var hm = document.createElement(\"script\"); hm.src = \"https://hm.baidu.com/hm.js?741c1946c0ae40c84a3db0b843e0b944\"; var s = document.getElementsByTagName(\"script\")[0]; s.parentNode.insertBefore(hm, s); })(); 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 您的位置： 官网首页 > 武将介绍 > 武将详情 --> 裴元绍 裴元绍 裴元绍 进攻 控制 过牌 武将生平： 《三国演义》中的人物，原是黄巾军将领，黄巾起义失败之后，在辉县西平罗卧牛山聚众占山为王。本欲夺取关羽的赤兔马，在得知对方是关羽后归顺。将朋友周仓介绍给关羽。在赵云路过山前时欲夺其马匹，被赵云刺死。 武将特点： 使用伤害牌可以加伤或偷牌，使用不慎可能被效果反噬。 武将技能： 复掠 你使用【杀】或伤害锦囊牌仅指定唯一目标后，你可选择本回合未执行过的一项：此牌造成伤害+1；获得目标角色一张牌。然后若此牌结算完成后，未造成伤害，其可对你使用一张【杀】，并执行“复掠”的另一项。 ",
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=682",
+      "byteCount": 983,
+      "sha256": "30d6bbfb4d7961ba32581fde80eebcfa68cda910db10ae7a0bc1e5ed43241790",
+      "hashScope": "HTTP response body bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 682,
+            "name": "裴元绍",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/682.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68200.png",
+            "label": [
+              "进攻",
+              "控制",
+              "过牌"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "《三国演义》中的人物，原是黄巾军将领，黄巾起义失败之后，在辉县西平罗卧牛山聚众占山为王。本欲夺取关羽的赤兔马，在得知对方是关羽后归顺。将朋友周仓介绍给关羽。在赵云路过山前时欲夺其马匹，被赵云刺死。",
+            "characteristic": "使用伤害牌可以加伤或偷牌，使用不慎可能被效果反噬。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "排位后手",
+            "value": 4
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68200.png",
+      "byteCount": 1059252,
+      "sha256": "648526813cd95cb7d8c9b6c0a9a6483c83844af2b8ad352790ca974888e3cf4c",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-pei-yuan-shao.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/682",
+      "supports": "Current complete Fu Lue text and ordinary OL identity."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=682",
+      "supports": "Current identity, biography, HP and official portrait."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250416_1697_2417",
+      "published": "2025-04-18",
+      "supports": "Official released ordinary OL Pei Yuan Shao, Qun male 4 HP and the same complete Fu Lue wording."
+    },
+    {
+      "url": "https://game.xiaomi.com/viewpoint/1624366642_1742977715748_13",
+      "published": "2025-03-26",
+      "publisher": "三国杀小乔, official OL product account; original author 紫云西来",
+      "supports": "Pre-release same-wording product explanation: genuine single-target AOE can qualify; additional targets prevent qualification. Obtain precedes card effects. Both options share the original owner turn quota. Counter requires normal range and a usable Slash, including weapon/view-as/faction requests. If the other option was already used, only that extra benefit is suppressed; the native counter Slash remains available."
+    }
+  ],
+  "rules": {
+    "identity": "This implementation uses current client FuLue 3624 and the matching released OL text. Earlier MeiYu variants and other products are excluded.",
+    "qualification": "A genuine native Use of Slash-family or a native immediate damage trick qualifies only with exactly one actual finalized designated other target. AOE is eligible only when its real target frontier has exactly one target. Pure responses, targetless cards and non-damage tricks are excluded. Actual current target-finalization is checked after earlier target-adding programs.",
+    "options": "The original owner may decline or execute an option not yet executed in the current actual turn. Each option is shared across that owner/skill identity for the turn, so losing and regaining a skill instance does not refresh it. Card-wide damage +1 affects all native damage caused by that card, including the opposing source in a Duel; elemental propagation inherits the already increased amount rather than receiving the bonus twice. Actual armor prevention and reduction remain native.",
+    "obtain": "Obtain one currently legal target Hand, Equipment or Judgment entity before the original card resolves. Foreign Hand choices use opaque slots and contain no hidden card IDs. Freeze the selected real entity, original location and exact actual movement before draining native Silver Lion, Wooden Ox, equipment/skill-loss, recovery and gained-card children. Pending payment and continuation belong to the owning ProgramSkillFrame.",
+    "wholeUse": "The post-use condition reads the native whole-Use positive applied damage ledger, including chain propagation, extra effects and reversed Duel damage. Unrelated program damage children are not damage caused by their ancestral Use. No counter consequence follows if this actual original card caused any positive damage.",
+    "counter": "Only after an activated original card completes with zero actual whole-Use damage may its original sole target really use a Slash against the original user. Reuse the existing assisted normal-range native request with its exact frozen target and typed native return. Genuine physical cards, single and multi-card conversions, Zhangba, faction supply and existing zero-entity/basic-request capabilities retain their own payment, legality, quota and provenance contracts. No virtual Slash is fabricated and no turn or phase is changed.",
+    "otherOption": "The reverse card executes the opposite option for its actual user before its native effects, using the original Pei Yuan Shao turn quota. If that option was already executed, the target can still use the reverse Slash but gets no additional option. The reverse benefit is issued by the original skill receipt, rather than granting the target an independent copy or new quota. A counter receipt alone does not recursively trigger another counter consequence.",
+    "lifetime": {
+      "status": "Implementation inference from a previously activated effect and the complete current rule",
+      "explanation": "Activated native card benefits, genuine obtained-card payments and the original zero-damage consequence retain exact source-instance/hash receipts through source loss. A dead original user cannot be targeted by a new counter Slash. Already paid movement and child returns continue through native death handling. No independent global pending objects or use-ID sidecars are introduced."
+    },
+    "provenance": "New events carry scalar values or immutable scalar records. The optional CardUseFrame benefit list clones construction/init payloads. Nullable owning frame state is omitted from checkpoint JSON when absent."
+  },
+  "validation": {
+    "status": "verified",
+    "focusedChecks": [
+      "FulueSingleFinalTargetOptionsWholeDamageAndCold",
+      "FulueOpaqueObtainEquipmentPaidChildrenAndLossCold",
+      "FulueZeroDamageCounterSlashOppositeQuotaAndNativeReturnCold",
+      "FulueCounterConversionsRangeDeathAndPrivacyCold"
+    ],
+    "execution": "Centralized focused behavior, related native mechanism regressions and routine Core/WPF verification passed. Official portrait and gallery rendering were inspected."
+  }
+}

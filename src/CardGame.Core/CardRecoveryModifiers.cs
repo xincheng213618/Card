@@ -42,6 +42,7 @@ public sealed partial record CardUseFrame
 internal sealed partial class TurnCardUseEffectStore
 {
     private readonly List<TurnCardRecoveryModifier> _recoveryModifiers = [];
+    internal IReadOnlyList<TurnCardRecoveryModifier> RecoveryModifiers => _recoveryModifiers;
 
     internal TurnCardRecoveryModifier GrantRecoveryModifier(int turnNumber, int turnSeat, long parentFrameId,
         int effectIndex, CardUseEffectSource source, IReadOnlyList<CardKind> cardKinds, int amount,

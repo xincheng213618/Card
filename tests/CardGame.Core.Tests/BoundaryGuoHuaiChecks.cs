@@ -113,8 +113,13 @@ internal static class BoundaryGuoHuaiChecks
     private static (GameEngine, ContentRegistry) Create(bool extraPlay = false, bool observers = false,
         bool conversion = false, bool legacyVirtual = false, bool legacyAlcohol = false, bool native = false, bool classic = false, bool foreignPlay = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(extraPlay, observers, conversion, legacyVirtual, legacyAlcohol, native, classic, foreignPlay));
+        var packages = new List<IGameContentPackage> { new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage() };
+        // These cases exercise the original Action-null producers. A whole
+        // catalog can opt them into unrelated actual-use action observers.
+        if (!legacyVirtual && !legacyAlcohol) packages.Add(new StandardClassicGeneralPackage());
+        packages.Add(new Fixture(extraPlay, observers, conversion, legacyVirtual, legacyAlcohol, native, classic, foreignPlay));
+        var registry = ContentRegistry.Build(packages.ToArray());
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = native ? -1 : 0,
             HumanRole = native ? null : Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
             AdvanceAfterHumanCommands = false, MaxTurns = native ? 2 : 8 }, registry);
@@ -177,6 +182,8 @@ internal static class BoundaryGuoHuaiChecks
         public PackageManifest Manifest { get; } = new("fixture-boundary-guo-huai", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
+            if (legacyVirtual || legacyAlcohol)
+                CharacterFixtureContent.Register(builder, "boundary:guo-huai", legacyVirtual ? "boundary:xiahou-yuan" : "classic:cao-zhi");
             var catalog = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
                  {"id":"{{Driver}}","revision":1,"activations":[

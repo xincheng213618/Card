@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:yicheng": { "name": "易城", "description": "展示与体力上限等量的牌堆顶牌，以任意等量手牌交换；展示牌点数和增加后，可再以全部手牌交换全部展示牌。未取的展示牌按顺序放回牌堆顶。", "activationLabels": { "exchange": "易城" } }
+  }
+}

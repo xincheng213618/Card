@@ -7,6 +7,7 @@
                 <StackPanel x:Name="ChoiceCard" Visibility="Collapsed">
                     <Grid Width="84" Height="116">
                         <ContentControl x:Name="ChoiceFace" Content="{Binding Face}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                        <TextBlock x:Name="ChoiceSkillMark" Text="{Binding Face.OriginalHandTag}" Foreground="#F9EAC5" Background="#D074562A" FontSize="10" Padding="3,1" MaxWidth="52" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Visibility="{Binding Face.HasOriginalHandTag, Converter={StaticResource BoolToVisibility}}" />
                         <Border x:Name="ChoiceBack" Visibility="Collapsed" Background="#432C23" BorderBrush="#D7B571" BorderThickness="2" CornerRadius="5" Padding="5">
                             <Border BorderBrush="#987F50" BorderThickness="1" CornerRadius="2">
                                 <Grid>
@@ -28,6 +29,29 @@
                 <DataTrigger Binding="{Binding IsCard}" Value="True"><Setter TargetName="ChoiceDescription" Property="Visibility" Value="Collapsed" /><Setter TargetName="ChoiceCard" Property="Visibility" Value="Visible" /></DataTrigger>
                 <DataTrigger Binding="{Binding IsHidden}" Value="True"><Setter TargetName="ChoiceFace" Property="Visibility" Value="Collapsed" /><Setter TargetName="ChoiceBack" Property="Visibility" Value="Visible" /></DataTrigger>
             </DataTemplate.Triggers>
+        </DataTemplate>
+        <DataTemplate x:Key="ReserveDialogCardTemplate">
+            <Button Command="{Binding DataContext.MoveReserveCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource BareButton}" Margin="3" ToolTip="{Binding Card.Description}" AutomationProperties.Name="{Binding Card.Name}" PreviewMouseLeftButtonDown="ReserveCard_PreviewMouseLeftButtonDown" PreviewMouseMove="ReserveCard_PreviewMouseMove">
+                <Border Width="94" Height="130" Background="#D8C9A5" BorderBrush="#8B754A" BorderThickness="2" CornerRadius="4">
+                    <ContentControl Content="{Binding Card}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                </Border>
+            </Button>
+        </DataTemplate>
+        <DataTemplate x:Key="PrivatePileBackTemplate">
+            <Border x:Name="PrivatePileCardBack" Width="94" Height="130" Margin="3" Background="#432C23" BorderBrush="#D7B571" BorderThickness="2" CornerRadius="4" Padding="5" AutomationProperties.Name="{Binding Label}">
+                <Border BorderBrush="#987F50" BorderThickness="1" CornerRadius="2">
+                    <Grid>
+                        <Grid.Background>
+                            <DrawingBrush TileMode="Tile" Viewport="0,0,18,18" ViewportUnits="Absolute">
+                                <DrawingBrush.Drawing><GeometryDrawing Brush="#53392B"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,18,18" /></GeometryDrawing.Geometry><GeometryDrawing.Pen><Pen Brush="#817044" Thickness="0.6" /></GeometryDrawing.Pen></GeometryDrawing></DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </Grid.Background>
+                        <Border Width="58" Height="80" Background="#D92C221B" BorderBrush="#BD9A5A" BorderThickness="1" CornerRadius="24">
+                            <TextBlock Text="群雄&#xA;逐鹿" FontFamily="KaiTi" FontSize="20" Foreground="#E3C58A" TextAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="RingSeatTemplate">
             <Viewbox Stretch="Uniform" StretchDirection="Both" MaxWidth="{DynamicResource RingSeatMaxWidth}" Margin="5,3">
@@ -51,7 +75,9 @@
         </DataTemplate>
         <DataTemplate x:Key="HandResponseChoiceTemplate">
             <Button Command="{Binding DataContext.SelectHandResponseChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
-                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
+                <ContentControl ContentTemplate="{StaticResource PromptCardChoiceContentTemplate}">
+                    <ContentControl.Content><MultiBinding Converter="{StaticResource PromptCardChoiceConverter}"><Binding /><Binding Path="DataContext.ChoiceSnapshot" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></ContentControl.Content>
+                </ContentControl>
             </Button>
         </DataTemplate>
         <DataTemplate x:Key="SkillChoiceTemplate">
@@ -365,13 +391,17 @@
                                 </TextBlock>
                             </StackPanel>
                             </Viewbox>
-                            <Border x:Name="DecisionPanel" Background="#E2231E19" BorderBrush="#8F7B58" BorderThickness="1" CornerRadius="4" Padding="8" Visibility="{Binding HasCenterChoices, Converter={StaticResource BoolToVisibility}}">
+                            <Border x:Name="DecisionPanel" BorderBrush="#8F7B58" CornerRadius="4" Padding="8" Visibility="{Binding HasCenterChoices, Converter={StaticResource BoolToVisibility}}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Grid.Row" Value="2" />
+                                        <Setter Property="Background" Value="#E2231E19" />
+                                        <Setter Property="BorderThickness" Value="1" />
                                         <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasPublicRevealedCards}" Value="True"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /></DataTrigger>
                                             <DataTrigger Binding="{Binding IsHandResponsePending}" Value="True"><Setter Property="VerticalAlignment" Value="Top" /></DataTrigger>
                                             <DataTrigger Binding="{Binding AreTablePlaysVisible}" Value="True"><Setter Property="Grid.Row" Value="1" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="Height" Value="150" /></DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
@@ -381,9 +411,25 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
-                                    <TextBlock x:Name="DecisionDescriptionText" Text="{Binding CurrentDecisionContext.Description}" Visibility="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" FontSize="12" Foreground="#D1DCCB" Margin="6,1,6,8" />
+                                    <TextBlock x:Name="DecisionDescriptionText" Text="{Binding CurrentDecisionContext.Description}" TextWrapping="Wrap" FontSize="12" Foreground="#D1DCCB" Margin="6,1,6,8">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <StackPanel x:Name="GodFactionPanel" Grid.RowSpan="3" Background="#ED231E19" Panel.ZIndex="2" Margin="0,0,0,2" HorizontalAlignment="Stretch" Visibility="{Binding IsGodFactionSelectionPending, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle">
+                                        <TextBlock Text="请决定神武将的所属势力（本局内不可更改）" Foreground="#FFF2D8" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="12,10,12,18" />
+                                        <ItemsControl x:Name="GodFactionButtons" ItemsSource="{Binding GodFactionChoices}" HorizontalAlignment="Center">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.SelectSkillChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Choice}" Style="{StaticResource TableSecondaryButton}" Width="62" Height="64" Margin="10,0,10,10" Padding="5" ToolTip="{Binding Choice.Description}" AutomationProperties.Name="{Binding Choice.Description}">
+                                                        <Image Source="{Binding Artwork}" Stretch="Uniform" />
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                     <ItemsControl Grid.Row="1" x:Name="PinnedPublicModuleChoices" ItemsSource="{Binding CenterSkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" Margin="0,0,0,6" Visibility="{Binding HasPinnedPublicModuleChoices, Converter={StaticResource BoolToVisibility}}" />
                                     <ScrollViewer Grid.Row="2" x:Name="ResponseViewport" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxWidth="760">
+                                        <ScrollViewer.Style><Style TargetType="ScrollViewer"><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
                                         <StackPanel>
                                             <ItemsControl x:Name="DeclaredCards" ItemsSource="{Binding DeclaredCards}">
                                                 <ItemsControl.ItemTemplate>
@@ -616,6 +662,14 @@
                             <StackPanel>
                                 <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding IsTutorialActive}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
                                 <TextBlock x:Name="ActionDockHint" Text="{Binding ActionHint}" ToolTip="{Binding ActionHint}" Foreground="#FFF7E7" FontSize="15" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                <DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
                                     <TextBlock.Effect><DropShadowEffect Color="#1A130D" BlurRadius="3" ShadowDepth="1" /></TextBlock.Effect>
                                 </TextBlock>
                             </StackPanel>
@@ -651,7 +705,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition x:Name="EquipmentRailColumn" Width="154" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition x:Name="HumanSkillColumn" Width="228" />
+                            <ColumnDefinition x:Name="HumanSkillColumn" Width="Auto" />
                             <ColumnDefinition x:Name="HumanPortraitColumn" Width="142" />
                         </Grid.ColumnDefinitions>
 
@@ -711,22 +765,27 @@
                         </Grid>
 
                         <Border x:Name="HumanSkillPanel" Grid.Column="2" Margin="3,0,5,0" AutomationProperties.Name="本方技能区">
-                            <Grid>
-                                <TextBlock Text="{Binding HandCountText}" Foreground="#D9C9A8" FontSize="12" HorizontalAlignment="Right" ToolTip="{Binding IdentityObjective}" />
                                 <StackPanel VerticalAlignment="Bottom">
-                                    <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="96" HorizontalAlignment="Left" Margin="0,0,0,6" />
-                                    <ScrollViewer MaxHeight="152" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
+                                    <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="88" Height="28" HorizontalAlignment="Right" Margin="0,0,4,10" />
+                                    <ScrollViewer x:Name="HumanSkillViewport" MaxHeight="144" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
                                         <ScrollViewer.LayoutTransform><ScaleTransform ScaleX="{DynamicResource SkillControlScale}" ScaleY="{DynamicResource SkillControlScale}" /></ScrollViewer.LayoutTransform>
                                         <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}">
                                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding HumanSkillColumns}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                         </ItemsControl>
                                     </ScrollViewer>
                                 </StackPanel>
-                            </Grid>
                         </Border>
                         <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
                     </Grid>
                 </Border>
+                <ItemsControl x:Name="HumanJudgmentStatuses" Grid.Row="2" Panel.ZIndex="2" ItemsSource="{Binding HumanPlayer.JudgmentStatuses}" ItemTemplate="{StaticResource JudgmentStatusTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Margin="8,-36,0,0" Visibility="{Binding HumanPlayer.HasJudgment, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方判定区">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl x:Name="HumanStatusBadges" Grid.Row="2" Panel.ZIndex="2" ItemsSource="{Binding HumanPlayer.VisibleStatusBadges}" ItemTemplate="{StaticResource SeatStatusTemplate}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="33" Visibility="{Binding HumanPlayer.HasStatusBadges, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方状态标记">
+                    <ItemsControl.Style><Style TargetType="ItemsControl"><Setter Property="Margin" Value="0,-36,2,0" /></Style></ItemsControl.Style>
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle><Style TargetType="ContentPresenter"><Setter Property="Margin" Value="2,0,0,0" /></Style></ItemsControl.ItemContainerStyle>
+                </ItemsControl>
                 <Border Grid.Row="3" Grid.ColumnSpan="2" Background="#1B1814" BorderBrush="#34423F" BorderThickness="0,1,0,0" Padding="25,0">
                     <DockPanel>
                         <TextBlock Text="{Binding SessionSaveStatus}" DockPanel.Dock="Right" Foreground="#697F78" FontSize="10" VerticalAlignment="Center" Margin="18,0,0,0" ToolTip="{Binding SessionSaveStatus}" TextTrimming="CharacterEllipsis" MaxWidth="430" />
@@ -756,6 +815,46 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
                                 <Button x:Name="RerollOpeningHandButton" Content="重新随机手牌" Command="{Binding RerollOpeningHandCommand}" Visibility="{Binding CanRerollOpeningHand, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="18,9" Margin="0,0,14,0" />
                                 <Button x:Name="DismissOpeningDealButton" Content="进 入 牌 局" Command="{Binding DismissOpeningDealCommand}" Style="{StaticResource PrimaryButton}" MinWidth="160" Padding="18,9" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Border>
+                <Border x:Name="PrivateReserveOverlay" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#5A110E0B" Visibility="{Binding IsReserveDialogOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="TableOverlay_IsVisibleChanged">
+                    <Border MaxWidth="1030" Margin="26,18" Background="#FA201C18" BorderBrush="#A38B5F" BorderThickness="2" Padding="22,16" HorizontalAlignment="Stretch" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle">
+                        <StackPanel>
+                            <TextBlock Text="{Binding ReserveDialogTitle}" Foreground="#F0D58D" FontFamily="KaiTi" FontSize="25" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding ReserveDialogHint}" Foreground="#CABB98" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" Margin="0,7,0,15" />
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding ReservePileLabel}" Foreground="#D4B979" FontFamily="KaiTi" FontSize="17" VerticalAlignment="Center" TextAlignment="Center" />
+                                <Border Grid.Column="1" Background="#AA0C0B09" BorderBrush="#594D37" BorderThickness="1" Padding="5" AllowDrop="True" Tag="stars" DragOver="ReserveRow_DragOver" Drop="ReserveRow_Drop">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                        <StackPanel Orientation="Horizontal">
+                                        <ItemsControl x:Name="ReserveStarsRow" ItemsSource="{Binding ReserveDialogStars}" ItemTemplate="{StaticResource ReserveDialogCardTemplate}" MinHeight="138">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        <ItemsControl x:Name="ReserveBacksRow" ItemsSource="{Binding ReserveDialogBacks}" ItemTemplate="{StaticResource PrivatePileBackTemplate}">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                            <Grid Visibility="{Binding IsReserveExchange, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                <TextBlock Text="手&#xA;牌" Foreground="#D4B979" FontFamily="KaiTi" FontSize="17" VerticalAlignment="Center" TextAlignment="Center" />
+                                <Border Grid.Column="1" Background="#AA0C0B09" BorderBrush="#594D37" BorderThickness="1" Padding="5" AllowDrop="True" Tag="hand" DragOver="ReserveRow_DragOver" Drop="ReserveRow_Drop">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                        <ItemsControl x:Name="ReserveHandRow" ItemsSource="{Binding ReserveDialogHand}" ItemTemplate="{StaticResource ReserveDialogCardTemplate}" MinHeight="138">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{Binding ReserveExchangeSummary}" Foreground="#D4B979" FontSize="13" HorizontalAlignment="Center" Margin="0,14,0,0" Visibility="{Binding IsReserveExchange, Converter={StaticResource BoolToVisibility}}" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
+                                <Button x:Name="ConfirmReserveExchangeButton" Content="确定" Command="{Binding ConfirmReserveExchangeCommand}" Style="{StaticResource PrimaryButton}" MinWidth="110" Margin="0,0,16,0" Visibility="{Binding IsReserveExchange, Converter={StaticResource BoolToVisibility}}" />
+                                <Button x:Name="CloseReserveDialogButton" Content="{Binding ReserveCancelText}" Command="{Binding CloseReserveDialogCommand}" Style="{StaticResource ToolbarButton}" MinWidth="110" />
                             </StackPanel>
                         </StackPanel>
                     </Border>

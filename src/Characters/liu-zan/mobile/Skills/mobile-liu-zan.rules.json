@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:fenyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "alternate-own-actual-use-color",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "condition": { "kind": "ownerIsTurnPlayer" },
+          "effects": [
+            { "op": "grantAlternateActualUseColorDraw", "target": "owner" },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

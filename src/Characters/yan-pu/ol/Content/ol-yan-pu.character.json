@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yan-pu",
+  "skills": [
+    { "registrationOrder": 1400, "programBundle": "ol-yan-pu", "includeProgramPresentation": true, "definition": { "id": "ol:huantu", "name": "缓图", "description": "每轮限一次，你攻击范围内其他角色的摸牌阶段开始前，你可以交给其一张牌令其跳过摸牌阶段，若如此做，本回合结束阶段你选择一项：1.令其回复1点体力并摸两张牌；2.你摸三张牌并交给其两张手牌。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1401, "programBundle": "ol-yan-pu", "includeProgramPresentation": true, "definition": { "id": "ol:bihuo-yan-pu", "name": "避祸", "description": "限定技，当一名角色脱离濒死状态后，你可以令其摸三张牌，本轮其他角色计算与其的距离时+X（X为存活角色数）。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 1402, "pools": { "current": 418 }, "definition": { "id": "ol:yan-pu", "name": "阎圃", "portraitKey": "ol-yan-pu", "skillId": "ol:huantu", "additionalSkillIds": ["ol:bihuo-yan-pu"], "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:yan-pu", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

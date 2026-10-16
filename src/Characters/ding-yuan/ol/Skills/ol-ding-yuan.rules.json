@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:cixiao", "revision": 1, "triggers": [
+      { "id": "appoint-child", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "usageScope": "phase", "usageLimit": 1, "namedUsageGroup": "cixiao-preparation", "effects": [
+        { "op": "prepareAdoptedChildAppointment", "target": "owner" },
+        { "op": "selectTarget", "target": "owner", "targetKind": "adoptedChildSuccessor" },
+        { "op": "assignAdoptedChild", "target": "owner" }
+      ] },
+      { "id": "transfer-child", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "usageScope": "phase", "usageLimit": 1, "namedUsageGroup": "cixiao-preparation", "effects": [
+        { "op": "prepareAdoptedChildTransfer", "target": "owner" },
+        { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" }, "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "awaitMovementTriggers": true },
+        { "op": "selectTarget", "target": "owner", "targetKind": "adoptedChildSuccessor" },
+        { "op": "assignAdoptedChild", "target": "owner" }
+      ] }
+    ] },
+    { "id": "ol:xianshuai", "revision": 1, "triggers": [
+      { "id": "first-round-other-damage-draw", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "priority": 1000, "optional": false,
+        "condition": { "kind": "not", "children": [{ "kind": "damageSourceIsOwner" }] }, "effects": [
+        { "op": "qualifyFirstRoundDamage", "target": "owner" },
+        { "op": "draw", "target": "owner", "amount": 1 }
+      ] },
+      { "id": "first-round-own-damage", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "priority": 1000, "optional": false, "effects": [
+        { "op": "qualifyFirstRoundDamage", "target": "owner" },
+        { "op": "draw", "target": "owner", "amount": 1 },
+        { "op": "damage", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": 1 }
+      ] }
+    ] },
+    { "id": "ol:panshi", "revision": 1, "triggers": [
+      { "id": "preparation-tribute", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "effects": [
+        { "op": "selectTarget", "target": "owner", "targetKind": "livingCixiaoOwner" },
+        { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" }, "zones": ["hand"], "count": 1, "destination": "selectedTargetHand", "targetRef": { "kind": "selectedTarget" }, "awaitMovementTriggers": true }
+      ] }
+    ] }
+  ]
+}

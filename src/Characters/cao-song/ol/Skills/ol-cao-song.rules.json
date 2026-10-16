@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:lilu", "revision": 1, "triggers": [
+      { "id": "replace-draw-with-actual-gift", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "drawPhaseMode": "replacement", "effects": [ { "op": "replaceDrawWithLiluGift", "target": "owner" } ] }
+    ] },
+    { "id": "ol:yizheng-cao-song", "revision": 1, "triggers": [
+      { "id": "ending-issue-support", "window": "turnEnding", "subject": "owner", "optional": true, "effects": [
+        { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+        { "op": "grantYizhengSupport", "target": "owner" }
+      ] }
+    ] }
+  ]
+}

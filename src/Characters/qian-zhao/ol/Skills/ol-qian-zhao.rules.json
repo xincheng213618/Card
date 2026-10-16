@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:weifu", "revision": 1,
+      "activations": [{ "id": "discard-and-judge", "minCards": 1, "maxCards": 1, "sourceZones": ["hand", "equipment"], "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null,
+        "effects": [{ "op": "resolveWeifuJudgment", "target": "owner" }] }],
+      "triggers": [{ "id": "issued-category-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "priority": 1000, "optional": false,
+        "effects": [{ "op": "offerWeifuCategoryTargets", "target": "owner" }] }] },
+    { "id": "ol:kuansai", "revision": 1,
+      "triggers": [{ "id": "actual-target-choice", "window": "cardUseTargetsFinalized", "ownerRelation": "observer", "priority": -1000, "optional": true, "usageScope": "turn", "usageLimit": 1,
+        "effects": [{ "op": "resolveKuansaiTargetChoice", "target": "owner" }] }] }
+  ]
+}

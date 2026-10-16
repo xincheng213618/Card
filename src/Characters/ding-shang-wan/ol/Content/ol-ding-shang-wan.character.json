@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ding-shang-wan","skills":[
+ {"registrationOrder":1480,"programBundle":"ol-ding-shang-wan","includeProgramPresentation":true,"definition":{"id":"ol:fudao","name":"抚悼","description":"游戏开始时，你摸三张牌，交给一名其他角色至多三张手牌，弃置任意张手牌，然后记录你的手牌数。每回合结束时，若当前回合角色手牌数等于此数值，你可以与其各摸一张牌。","executionForms":"Trigger"}},
+ {"registrationOrder":1481,"programBundle":"ol-ding-shang-wan","includeProgramPresentation":true,"definition":{"id":"ol:fengyan","name":"讽言","description":"锁定技，当你受到其他角色的伤害，或响应其他角色的牌后，你选择一项：1.摸一张牌并交给其一张牌；2.其摸一张牌并弃置两张牌。","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":1482,"pools":{"current":426},"definition":{"id":"ol:ding-shang-wan","name":"丁尚涴","portraitKey":"ol-ding-shang-wan","skillId":"ol:fudao","additionalSkillIds":["ol:fengyan"],"factionId":"wei","baseHp":3,"gender":"Female","characterId":"character:ding-shang-wan","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

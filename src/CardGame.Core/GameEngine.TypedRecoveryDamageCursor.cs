@@ -147,6 +147,11 @@ public sealed partial class GameEngine
             }
             if (parent is ProgramSkillFrame producer && child is RecoveryReplacementFrame nestedRecovery)
             {
+                if (IsCaoSongLiluRecoveryParent(producer, nestedRecovery) || IsSunRuOlRecoveryParent(producer, nestedRecovery) || IsHuoJunFenruiRecoveryParent(producer, nestedRecovery) || IsDuXiRecoveryParent(producer, nestedRecovery) || IsXunyiRecoveryParent(producer, nestedRecovery) || IsYanPuRecoveryParent(producer, nestedRecovery) || IsDuFuRenRecoveryParent(producer, nestedRecovery) || IsQianZhaoRecoveryParent(producer, nestedRecovery) || IsDingShangWanRecoveryParent(producer, nestedRecovery) || IsLiWanRecoveryParent(producer, nestedRecovery) || IsHeJinRecoveryParent(producer, nestedRecovery) || IsYanRouRecoveryParent(producer, nestedRecovery) || IsLuYuShengRecoveryParent(producer, nestedRecovery) || IsWangKuangRecoveryParent(producer, nestedRecovery) || IsYuanHuanRecoveryParent(producer, nestedRecovery) || IsHanFuRecoveryParent(producer, nestedRecovery) || IsZhangYanRecoveryParent(producer, nestedRecovery) || IsNiuFuRecoveryParent(producer, nestedRecovery) || IsRuanHuiRecoveryParent(producer, nestedRecovery) || IsMaMiDiRecoveryParent(producer, nestedRecovery) || IsDuanJiongRecoveryParent(producer, nestedRecovery) || IsTianChouRecoveryParent(producer, nestedRecovery) || (IsKenshangRecoveryParent(producer, nestedRecovery) || IsFulueRecoveryParent(producer, nestedRecovery) || IsYangFengRecoveryParent(producer, nestedRecovery) || IsQinLangRecoveryParent(producer, nestedRecovery) || IsXiangChongRecoveryParent(producer, nestedRecovery)) || IsKeBiNengRecoveryParent(producer, nestedRecovery) || IsHuJinDingRecoveryParent(producer, nestedRecovery) || IsZhangYiRecoveryParent(producer, nestedRecovery) || IsLuanfengRecoveryParent(producer, nestedRecovery))
+                {
+                    if (!TypedRecoveryApplicationBoundsMatch(nestedRecovery, history())) return new(IsMalformed: true);
+                    continue;
+                }
                 var paused = TypedRecoveryPausedEffect(producer);
                 if (paused?.CompiledInstruction is not RecoverProgramInstruction instruction)
                     return paused is null || IsRecoveryCursorPrimitive(paused.CompiledInstruction) ? new(IsMalformed: true) : default;
@@ -273,7 +278,7 @@ public sealed partial class GameEngine
         recovery.Id == recovery.Attempt.Id && Enum.IsDefined(recovery.Stage) &&
         recovery.Attempt.Completion == new RecoveryAttemptCompletion(RecoveryAttemptProducer.SilverLion,
             MoveReason: recovery.Attempt.Completion.MoveReason) &&
-        recovery.OriginalRecovered >= 0 && recovery.OriginalRecovered <= recovery.Attempt.Amount &&
+        recovery.OriginalRecovered >= 0 && recovery.OriginalRecovered <= SupportedRecoveryAmount(recovery, recovery.Attempt.Amount) &&
         (recovery.CandidateIndex is not { } index
             ? recovery.Stage != RecoveryReplacementStage.Choosing || recovery.OriginalRecovered == 0
             : recovery.Stage != RecoveryReplacementStage.Choosing && index >= 0 && index < recovery.Attempt.Candidates.Count &&
@@ -297,6 +302,12 @@ public sealed partial class GameEngine
             if (TypedDamagePostEventEdge(parent, child)) continue;
             if (parent is ProgramSkillFrame producer && child is RecoveryReplacementFrame recovery)
             {
+                if (IsCaoSongLiluRecoveryParent(producer, recovery) || IsSunRuOlRecoveryParent(producer, recovery) || IsHuoJunFenruiRecoveryParent(producer, recovery) || IsDuXiRecoveryParent(producer, recovery) || IsXunyiRecoveryParent(producer, recovery) || IsYanPuRecoveryParent(producer, recovery) || IsDuFuRenRecoveryParent(producer, recovery) || IsQianZhaoRecoveryParent(producer, recovery) || IsDingShangWanRecoveryParent(producer, recovery) || IsLiWanRecoveryParent(producer, recovery) || IsHeJinRecoveryParent(producer, recovery) || IsYanRouRecoveryParent(producer, recovery) || IsLuYuShengRecoveryParent(producer, recovery) || IsWangKuangRecoveryParent(producer, recovery) || IsYuanHuanRecoveryParent(producer, recovery) || IsHanFuRecoveryParent(producer, recovery) || IsZhangYanRecoveryParent(producer, recovery) || IsNiuFuRecoveryParent(producer, recovery) || IsRuanHuiRecoveryParent(producer, recovery) || IsMaMiDiRecoveryParent(producer, recovery) || IsDuanJiongRecoveryParent(producer, recovery) || IsTianChouRecoveryParent(producer, recovery) || (IsKenshangRecoveryParent(producer, recovery) || IsFulueRecoveryParent(producer, recovery) || IsYangFengRecoveryParent(producer, recovery) || IsQinLangRecoveryParent(producer, recovery) || IsXiangChongRecoveryParent(producer, recovery)) || IsKeBiNengRecoveryParent(producer, recovery) || IsHuJinDingRecoveryParent(producer, recovery) || IsZhangYiRecoveryParent(producer, recovery) || IsLuanfengRecoveryParent(producer, recovery))
+                {
+                    if (!TypedRecoveryApplicationBoundsMatch(recovery, History())) return new(null, IsMalformed: true);
+                    hasRecovery = true;
+                    continue;
+                }
                 var paused = TypedRecoveryPausedEffect(producer);
                 if (paused is null || recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.Program &&
                     recovery.Attempt.Completion.InstructionIndex != producer.InstructionIndex) return new(null, IsMalformed: true);
@@ -353,6 +364,14 @@ public sealed partial class GameEngine
         return new(root, ownedDyingId);
     }
 
+    private bool TypedRecoveryApplicationBoundsMatch(RecoveryReplacementFrame recovery, IReadOnlyList<IGameEvent> history) =>
+        recovery.Id == recovery.Attempt.Id && Enum.IsDefined(recovery.Stage) &&
+        recovery.OriginalRecovered >= 0 && recovery.OriginalRecovered <= SupportedRecoveryAmount(recovery, recovery.Attempt.Amount) &&
+        (recovery.CandidateIndex is not { } index
+            ? recovery.Stage != RecoveryReplacementStage.Choosing || recovery.OriginalRecovered == 0
+            : recovery.Stage != RecoveryReplacementStage.Choosing && index >= 0 && index < recovery.Attempt.Candidates.Count &&
+              recovery.OriginalRecovered == 0 && TypedRecoveryChosenCandidateMatches(recovery, history));
+
     private static bool IsRecoveryCursorPrimitive(ProgramSkillInstruction? instruction) => instruction is
         DrawProgramInstruction or RecoverProgramInstruction or LoseHpProgramInstruction or DamageProgramInstruction or
         ChangeMaximumHpProgramInstruction or GrowMaximumHpAndHpProgramInstruction;
@@ -376,7 +395,7 @@ public sealed partial class GameEngine
             !Enum.IsDefined(recovery.Stage) || recovery.CandidateIndex is { } selected &&
                 (selected < 0 || selected >= attempt.Candidates.Count) ||
             recovery.Stage == RecoveryReplacementStage.Choosing && (recovery.CandidateIndex is not null || recovery.OriginalRecovered != 0)) return false;
-        if (recovery.OriginalRecovered < 0 || recovery.OriginalRecovered > attempt.Amount ||
+        if (recovery.OriginalRecovered < 0 || recovery.OriginalRecovered > SupportedRecoveryAmount(recovery, attempt.Amount) ||
             recovery.CandidateIndex is not null && recovery.OriginalRecovered != 0) return false;
         var requested = instruction.Amount switch
         {
@@ -396,17 +415,21 @@ public sealed partial class GameEngine
         IReadOnlyList<IGameEvent> history)
     {
         var attempt = recovery.Attempt; var change = hp.Change;
+        if (hp.Continuation == PostEventContinuation.AmountSupport)
+            return recovery.Stage == RecoveryReplacementStage.Choosing && recovery.PendingApplication is not null &&
+                IsAmountSupportHealthChild(recovery, hp);
         if (recovery.Stage != RecoveryReplacementStage.RecoveryApplied || hp.Id != change.Id ||
             change.ParentFrameId != recovery.Id || hp.ResumeFrameId != recovery.Id ||
             hp.Continuation != PostEventContinuation.RecoveryReplacement || hp.CardId is not null || hp.CardKind is not null ||
             change.Kind != HpChangeKind.Recovery || change.Amount <= 0 || change.HpAfter != change.HpBefore + change.Amount) return false;
         if (recovery.CandidateIndex is not { } index)
             return change.SourceSeat == attempt.SourceSeat && change.TargetSeat == attempt.TargetSeat &&
-                change.HpBefore == attempt.HpBefore && change.Amount == recovery.OriginalRecovered && change.Amount <= attempt.Amount;
+                change.HpBefore == SupportedRecoveryHpBefore(recovery, attempt.HpBefore) && change.Amount == recovery.OriginalRecovered &&
+                change.Amount <= SupportedRecoveryAmount(recovery, attempt.Amount);
         if (!TypedRecoveryChosenCandidateMatches(recovery, history)) return false;
         var candidate = attempt.Candidates[index];
         return recovery.OriginalRecovered == 0 && change.SourceSeat == attempt.TargetSeat &&
-            change.TargetSeat == candidate.OwnerSeat && change.Amount <= candidate.RecoveryAmount;
+            change.TargetSeat == candidate.OwnerSeat && change.Amount <= SupportedRecoveryAmount(recovery, candidate.RecoveryAmount);
     }
 
     private bool TypedRecoveryChosenCandidateMatches(RecoveryReplacementFrame recovery, IReadOnlyList<IGameEvent> history)

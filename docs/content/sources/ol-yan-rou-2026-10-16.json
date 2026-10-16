@@ -1,0 +1,276 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:yan-rou",
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T17:27:24.814106+08:00",
+    "generalId": "ol:yan-rou",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/521",
+      "byteCount": 25209,
+      "sha256": "c72117b64a5ace390069c4940374b7b5f97c7c31a99348db19466cd8cead17d6",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=521",
+      "byteCount": 1142,
+      "sha256": "51d68dd3cd3eb381014f8a4f2739675797f63f3c57a26672f1dde726a1a7693e",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 521,
+            "name": "阎柔",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/521.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52100.png",
+            "label": [
+              "进攻",
+              "防御",
+              "控制"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "年少时曾被乌丸、鲜卑俘虏，后来却得到他们的信任。刘虞死后，阎柔被鲜于辅等推举为乌丸司马，联系鲜卑为刘虞报仇，和公孙瓒[zàn]对抗。在官渡之战时归曹操，拜护乌丸校尉，对曹操讨伐乌丸有功，赐爵关内侯。曹操待其如子，曹丕也视其如亲兄弟，阎柔坐镇北方，统帅幽州兵马，抗击胡人的入侵。曹丕即位后，阎柔被拜为度辽将军。",
+            "characteristic": "可强命多刀，并通过造成的伤害值带来一次性的辅助效果。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 9
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/52100.png",
+      "byteCount": 975838,
+      "sha256": "4c37662e269f4968cd96cb359e612908fe293b396582565863411a0a44813624",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-yan-rou.png",
+      "width": 750,
+      "height": 950,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialRelease": {
+    "authority": "官方OL首发，现行身份及两技与current hero/client一致",
+    "publishedAt": "2022-11-18 17:42:36",
+    "title": "11.19-11.25 新品武将阎柔上线 寒原奋军*吴懿夺宝上新",
+    "url": "https://www.sanguosha.com/news/20221115_4384_5213",
+    "identity": "魏，男，4体力"
+  },
+  "officialClient": {
+    "skills": [
+      {
+        "path": "GameSpells.spell[1548]",
+        "row": {
+          "a": 3164,
+          "b": "3,5",
+          "c": "仇讨",
+          "d": "ChouTao",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "ab": 1,
+          "o": "当你使用【杀】指定目标后或成为【杀】的目标后，你可以弃置使用者一张牌令此【杀】不能被抵消，若你是使用者，此【杀】无次数限制。",
+          "v": "请弃置{0}的一张牌令此<font color='#FFD800'>杀</font>不能被抵消"
+        }
+      },
+      {
+        "path": "GameSpells.spell[1549]",
+        "row": {
+          "a": 3165,
+          "b": "3,5,6",
+          "c": "襄戍",
+          "d": "XiangShu",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "l": "YanRouXiangShu",
+          "ab": 1,
+          "n": 1,
+          "o": "限定技，结束阶段，你可以令一名已受伤角色回复X点体力并摸X张牌（X为你本回合造成的伤害值且至多为5）。",
+          "v": "请选择一名已受伤角色，令其回复{0}点体力并摸{0}张牌"
+        }
+      }
+    ],
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "capturedAtUtc": "2026-10-16T17:25:48.054315+08:00",
+    "character": {
+      "row": {
+        "a": 521,
+        "b": "阎柔",
+        "d": "YanRou",
+        "e": 44,
+        "f": "46",
+        "g": 1,
+        "h": 1,
+        "i": 4,
+        "j": 3164,
+        "k": 3165,
+        "p": 2,
+        "q": "1",
+        "r": "9052101",
+        "y": "年少时曾被乌丸、鲜卑俘虏，后来却得到他们的信任。刘虞死后，阎柔被鲜于辅等推举为乌丸司马，联系鲜卑为刘虞报仇，和公孙瓒[zàn]对抗。在官渡之战时归曹操，拜护乌丸校尉，对曹操讨伐乌丸有功，赐爵关内侯。曹操待其如子，曹丕也视其如亲兄弟，阎柔坐镇北方，统帅幽州兵马，抗击胡人的入侵。曹丕即位后，阎柔被拜为度辽将军。",
+        "z": "可强命多刀，并通过造成的伤害值带来一次性的辅助效果。",
+        "aa": 27,
+        "ab": "965,966",
+        "ad": "画师:凝聚永恒",
+        "x": "登白狼山，####餐胡虏肉！",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20221219T235959",
+        "LordCardRate1": 18,
+        "LordCardRate2": 54,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,攻击强将"
+      },
+      "path": "GameCharacters.character[1220]"
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153909,
+        "sha256": "22745509c006706f93b69bfa90a20113a3922adcc78be178a0b163cecc7f0ece",
+        "hashScope": "raw HTTP response bytes"
+      }
+    }
+  },
+  "sameProductCommentary": [
+    {
+      "summary": "同样描述双方时机弃使用者牌、不能抵消及多刀，襄戍既可给自己也可给受伤队友；AOE造成的伤害亦可提高X。未给出quota先用尽再仇讨、X=0或取消回应的专属裁定。",
+      "publishedAt": "2022-11-18 17:21",
+      "title": "4399三国杀OL 虎贲系列武将：阎柔攻略！",
+      "url": "https://my.4399.com/yxsgqyz/ziliao/48159/",
+      "authority": "同产品运营平台玩家攻略，非官方FAQ"
+    }
+  ],
+  "implementationInterpretations": [
+    "依当前官方正文和当前客户端3164/3165，不混用其他产品的不能响应、不计次数重写或X=3。仇讨增强整张原杀；仍允许真实出闪和八卦响应，响应本身不能抵消这张杀，不改变防伤、无效、伤害减少等其他原生过程。",
+    "仇讨发生在杀已使用且目标确定之后。弃置真实使用者HE一牌成功后，本次使用者为本人时只退回该action的实际Slash debit；不预先借尚未决定/尚未支付的可选技绕过普通使用资格。普通quota已花且此前未获豁免时不能先宣告第二张再决定是否付费，这是触发顺序及现有原生quota合同的实现推论，未发现该顺序的当前官方专属FAQ。",
+    "使用方向按一次实际accepted Slash最终指定窗口发动一次；成为目标方向每个真实目标owner一次。包含火杀、雷杀和合法虚拟杀，不把决斗响应中打出的杀当使用。弃置第三方手牌使用私密不透出实体的HE原生槽位；武将牌武器离装备依原生规则移出游戏。",
+    "仇讨成本的SilverLion回复和木牛粮区spill均是原生装备移除副作用，不增算所选成本；移动/回复/HP/濒死子树完全排空后原use增强、精确refund一次，付费后失源或死亡不重付也不取消已经支付的修改。",
+    "襄戍在本人实际Ending取本实际TurnStarted后全部正数DamageApplied，实际SourceSeat为本人且非SourceLess，含准备阶段、锦囊、连环与自伤，排除HP loss、防止及其他人的伤害，冻结min(5,总量)。",
+    "当前官方正文/client未写造成过伤害的先决条件，故X=0仍可选择一个受伤活角色并消耗限定，但无0点回复或0张摸牌的伪事件。这是按当前文字的实现推论，非旧wiki额外条件或当前官方FAQ。",
+    "可选择自己或其他受伤角色。选定后以owner/skill/gameplay hash的永久spent fact支付，再按原生先回复X再摸X；回复实得受最大体力与原生回复替代影响，摸牌仍为原冻结X。失技再授不返还限定，目标死亡时停止后续向其摸牌；摸牌中的实际洗牌、装备回复/HP/移动与濒死死亡子树均保留。",
+    "新pending仅挂ProgramSkillFrame.YanRou，receipt包含准确current candidate、window、actual turn、actor/debit/action、移动区间及真实reshuffle/Ox附属证据。所有集合防御性冻结；没有额外sidecar、全局规则版本或schema版本提升。"
+  ],
+  "behaviorChecks": [
+    "YanRouChecks.PaidOwnSlashRefundAndUnpaidQuotaRemainExactCold",
+    "YanRouChecks.TargetedOpaqueDiscardRealDodgeLionAndOxChildrenCold",
+    "YanRouChecks.ActualTurnDamageCappedAidSelfZeroAndPermanentLimitedCold",
+    "YanRouChecks.PaidCostSourceLossDeathAndNativeDrawReshuffleCold"
+  ],
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 19936,
+      "steps": {
+        "Build selected scope": 6991,
+        "Core selected checks (5 filters, union)": 10627,
+        "WPF selected checks (2 filters, union)": 12623
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Yan Rou:', 'Hu Jin Ding:', 'Cao Xi:', 'content registry compiles whole catalog dependencies', 'ordinary card snapshot reuse preserves appearance privacy and replay') -WpfFilter @('Edition general gallery', 'Program public card choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 32,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 13279,
+      "steps": {
+        "Build selected scope": 2277,
+        "Core selected checks (9 filters, union)": 10730
+      },
+      "scope": "Li Wan, Zhang Shi Ping, Du Fu Ren, Du Xi, native response-use completion, rank-guess draw replacement, default-stat allocation, delayed Nullification and named ambush"
+    },
+    "drawBridgeRegression": {
+      "status": "passed",
+      "corePassed": 8,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 25915,
+      "steps": {
+        "Build selected scope": 20958,
+        "Core selected checks (2 filters, union)": 4651
+      },
+      "scope": "Zhang Shi Ping and Cao Song native normal/inserted Draw and early frozen replacement producers; overlaps five checks in relatedRegression"
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32912,
+      "steps": {
+        "Build selected scope": 2745,
+        "Core selected checks (140 filters, union)": 11031,
+        "WPF selected checks (20 filters, union)": 29811
+      },
+      "command": "tools/Test-Changed.ps1",
+      "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; native Space press/release check passed without changing the input guard."
+    },
+    "renderedUiInspected": [
+      "OL Yan Rou gallery",
+      "OL Cao Xi gallery",
+      "OL Hu Jin Ding gallery",
+      "public-card choice and hand skill-label projection checks"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. New native bridges opt in through the new compiled capabilities or exact issued native receipts.",
+    "fixedSharedRegression": "Round-gain skill labels inspect actual registered hands only. Unknown host-only and virtual card appearances remain safely projectable with the capability both present and absent; existing snapshot reuse/privacy/replay coverage was extended.",
+    "verifiedAtUtc": "2026-10-16T10:18:34.291131+00:00"
+  }
+}

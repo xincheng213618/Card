@@ -119,7 +119,28 @@ internal static class ProgramPaidChoiceUiChecks
         var window = new MainWindow(model);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        model.SelectSkillChoiceCommand.Execute(ownChoice);
+        Program.Assert(model.IsHandResponsePending && model.CanActFromHand && !model.HasCenterChoices &&
+                       model.Hand.Where(card => model.SkillChoices.Any(choice => choice.Cards.Contains(card.Id))).All(card => card.IsPlayable),
+            "Own payment choices must light the actual hand and omit duplicate central cards.");
+        var ownCard = model.Hand.Single(card => card.Id == ownCardId);
+        var paymentRevision = game.Revision;
+        var paymentMoves = game.CardMovements.Count;
+        model.SelectCardCommand.Execute(ownCard);
+        Program.Assert(model.CanConfirmSelected && ownCard.IsSelected && game.Revision == paymentRevision &&
+                       game.CardMovements.Count == paymentMoves,
+            "Selecting an own payment card must wait for the bottom confirmation without paying it.");
+        model.ClearSelectionCommand.Execute(null);
+        Program.Assert(!model.CanConfirmSelected && !ownCard.IsSelected && game.Revision == paymentRevision,
+            "Cancelling a mandatory payment draft must clear selection without declining or paying.");
+        model.SelectCardCommand.Execute(ownCard);
+        Program.Render(root, 1120, 740, Path.Combine(output, "264-program-own-hand-payment.png"));
+        Program.Assert(((Border)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed &&
+                       ((Button)window.FindName("PlayCardButton")).IsEnabled,
+            "Own payment must expose the actual bottom confirm control with no central duplicate panel.");
+        model.ConfirmSelectedCommand.Execute(null);
+        Program.Assert(game.Revision == paymentRevision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
+                       answer.Choice == ownChoice.Id && !model.HasSelection,
+            "The bottom control must submit the exact published payment once and retire the draft.");
         Program.AdvanceToDecision(model);
         var prompt = game.CreateSnapshot(0).PendingDecision!;
         Program.Assert(prompt.SkillPrompt?.SkillId == "boundary:chuli" && model.IsSkillSelectionPending &&
@@ -251,16 +272,17 @@ internal static class ProgramPaidChoiceUiChecks
                 "The fresh actual Finish button must submit exactly once and match independent native continuation in all safe views and journals.");
             Pump();
             var paymentChoices = model.CenterSkillChoices;
-            var paymentButtons = Program.Find<Button>(panel()).Where(candidate =>
-                ReferenceEquals(candidate.Command, model.SelectSkillChoiceCommand) &&
-                paymentChoices.Any(current => ReferenceEquals(candidate.CommandParameter, current))).ToArray();
+            var paymentButtons = Program.Find<Button>(root).Where(candidate =>
+                ReferenceEquals(candidate.Command, model.SelectCardCommand) && candidate.CommandParameter is CardViewModel card &&
+                paymentChoices.Any(current => current.Cards.Contains(card.Id))).ToArray();
             Program.Assert(!model.IsSkillTargetSelectionPending && model.IsSkillSelectionPending && paymentChoices.Count > 0 &&
                 paymentChoices.All(current => current.Cards.Count == 1) &&
                 paymentChoices.SequenceEqual(model.SkillChoices, ReferenceEqualityComparer.Instance) &&
+                model.IsHandResponsePending && !model.HasCenterChoices && panel().Visibility == Visibility.Collapsed &&
                 !Program.Find<Button>(panel()).Contains(button) && paymentButtons.Length == paymentChoices.Count &&
                 paymentButtons.All(candidate => candidate.IsVisible && candidate.IsEnabled && candidate.ActualHeight > 0 &&
                     candidate.Command!.CanExecute(candidate.CommandParameter)),
-                "The same loaded window must retire Finish and expose the current owner's actual payment controls after leaving the target draft.");
+                "The same loaded window must retire Finish and expose the owner's actual hand controls without duplicate central payment cards.");
             model.SelectSkillChoiceCommand.Execute(choice);
             Program.Assert(ChoiceBoundary(reloaded) == ChoiceBoundary(reference),
                 "The completed Finish parameter must not answer or pay the newly published owner-cost prompt a second time.");

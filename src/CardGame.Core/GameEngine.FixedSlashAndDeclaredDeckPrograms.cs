@@ -93,10 +93,10 @@ public sealed partial class GameEngine
             var p = Parameters("faction"); p["skill"] = policy.SkillId;
             choices.Add(new(new($"fixed-slash.{frame.Id}.faction"), "发动技能请求其他角色提供【杀】", [], [target.Seat], p));
         }
-        if (!d.Issued) choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, actor.Seat, [target.Seat]));
+        if (!d.Issued) choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, actor.Seat, [target.Seat]).Concat(KenshangProgramSlashChoices(frame, actor.Seat, [target.Seat])));
         choices.Add(new(new($"fixed-slash.{frame.Id}.decline"), "不使用【杀】", [], [], Parameters("decline")));
         return choices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") != "use" ||
-            !IsTurnPhysicalUseForbidden(actor.Seat, choice.Cards)).ToArray();
+            !IsTurnSlashChoiceUseForbidden(actor.Seat, choice)).ToArray();
     }
 
     private void ResolveFixedTargetSlashChoice(ProgramSkillFrame frame, PromptChoice selected)
@@ -357,7 +357,7 @@ public sealed partial class GameEngine
             frame.DeckCriterion is { Stage: "declare" } ? DeclaredDeckCriterionChoices(frame) :
             frame.DeckCriterion is { Stage: "recipient" } ? DeclaredDeckRecipientChoices(frame) : null;
         if (expected is not null && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p ||
-            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(p.Choices, expected)))
+            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(KenshangProgramNativeDecision(p).Choices, expected)))
             throw new InvalidOperationException("Fixed Slash or declared deck lost its canonical private prompt.");
     }
 }

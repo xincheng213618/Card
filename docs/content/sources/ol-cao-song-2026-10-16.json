@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:cao-song",
+  "characterId": "character:cao-song",
+  "product": "三国杀OL",
+  "officialGid": 438,
+  "officialPage": "https://www.sanguosha.com/hero/438",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=438",
+  "apiInfo": {
+    "gid": 438,
+    "name": "曹嵩",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/438.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43800.png",
+    "label": [
+      "防御",
+      "辅助",
+      "回复"
+    ],
+    "figure": "魏",
+    "figure_py": "wei",
+    "quality": "传说",
+    "biography": "字巨高，沛郡谯县（今安徽省亳州市）人。东汉大臣，大长秋曹腾的养子，曹操之父亲。门荫入仕，历任司隶校尉、鸿胪卿、大司农，位列九卿，位高权重。中平四年（187年），靠着贿赂中官，出任太尉，位列三公。中平五年（188年），受累于黄巾之乱，坐罪免官。兴平元年（194年），投奔兖[yǎn]州牧曹操，遇害于徐州。",
+    "characteristic": "控制自己的体力上限以发挥曹嵩的最强实力。",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "gender": "Male",
+  "genderEvidence": "Current-client hero438 genderRaw=1; same official named identity",
+  "clientPreflight": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+  "clientPreflightComparison": "The exact printed skill set LiLu9017/YiZheng9018, Wei faction and 4 HP agree with the current official hero/API. No skill text discrepancy was found.",
+  "skills": [
+    {
+      "id": "ol:lilu",
+      "clientId": 9017,
+      "name": "礼赂",
+      "text": "摸牌阶段，你可以改为将手牌摸至体力上限（至多摸至五张），然后交给一名其他角色至少一张手牌，若你首次以此法交出牌或交出的牌数大于上次以此法交出的牌数，你增加1点体力上限并回复1点体力。"
+    },
+    {
+      "id": "ol:yizheng-cao-song",
+      "clientId": 9018,
+      "name": "翊正",
+      "text": "结束阶段，你可以选择一名其他角色，然后直到你的下回合开始，当其造成伤害或回复体力时，若其体力上限小于你，你减少1点体力上限，然后此伤害值或回复值+1。"
+    }
+  ],
+  "pageUtf8Sha256": "0f4046aa42b599b473939ba4b4baae0df5814d1a1f7ea058765fe044b7dc8e04",
+  "apiUtf8Sha256": "142d725b34659eca6480f88d3ae1602f0927b12e36920e3f8013bf910e479f57",
+  "artwork": {
+    "portraitKey": "ol-cao-song",
+    "officialCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43800.png",
+    "integration": "Parent task owns artwork download and catalog"
+  },
+  "interpretation": [
+    "Lilu replaces the entire native normal draw; it draws only up to min(MaxHp,5), never discarding surplus hand cards. At least one current physical hand card must be given to one other living recipient.",
+    "Every actual Lilu gift records its count, including equal and smaller gifts. The first actual gift, or a gift strictly greater than the immediately previous actual gift, grants exactly one maximum HP followed by one real recovery. The owner-wide history survives later skill loss and reacquisition.",
+    "A paid gift owns its movement and subsequent benefits in its ProgramSkillFrame; recipient death or source skill loss during a paid movement child cannot repay the gift or erase its earned benefit. A dead owner cannot gain maximum HP/recover.",
+    "Yizheng grants a duration ending at the next actual donor turn start, including an extra or face-down skipped turn. Losing the source skill does not revoke an already issued grant; dead donors cannot make new maximum-HP payments. A payment already made still increases its original amount after child returns.",
+    "Damage support is applied once per distinct native before-damage window, including a new chained target if the donor still satisfies the strict maximum-HP comparison. It never reapplies a paid invoice when the same pending window resumes.",
+    "Recovery support applies to the final prepared recipient after redirect choice and before HP delta. Positive requests with a living wounded recipient are eligible. The donor maximum HP is reduced before health-change children, then the same frozen requested recovery amount increases once.",
+    "The official texts contain no separate death/skill-loss or chain FAQ; the duration and issued-effect handling above follow the existing engine convention and the unqualified official damage/recovery trigger."
+  ],
+  "content": "src/Characters/cao-song/ol/Content/ol-cao-song.character.json",
+  "runtime": "src/Characters/cao-song/ol/Runtime",
+  "validation": "Native gifts compare every immediately previous actual gift count. Issued support survives source loss, pays maximum-HP children once, expires at the next own turn, and follows the final recovery recipient after replacement."
+}

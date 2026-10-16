@@ -1,0 +1,9 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:choutao","revision":1,"triggers":[
+  {"id":"using-slash","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[{"op":"discardSlashUserForUncancelable","target":"owner"}]},
+  {"id":"targeted-slash","window":"cardUseTargetsFinalized","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[{"op":"discardSlashUserForUncancelable","target":"owner"}]}
+ ]},
+ {"id":"ol:xiangshu","revision":1,"triggers":[
+  {"id":"actual-ending-aid","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"recoverAndDrawByTurnDamage","target":"owner"}]}
+ ]}
+]}

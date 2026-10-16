@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:juguan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "hand-as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand"],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "usesPerPhase": 1,
+          "usageGroup": "juguan"
+        },
+        {
+          "id": "hand-as-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand"],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "juguan"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "observe-skipped-draw",
+          "window": "drawPhaseSkipped",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "observeJuguanDrawObligation", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

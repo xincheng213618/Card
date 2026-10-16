@@ -1,0 +1,227 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:fei-yi",
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T15:08:24.144992+08:00",
+    "generalId": "ol:fei-yi",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/568",
+      "sha256": "1dee462807b3c8582feb791a64d1e99e143fa24f69716234249fd759951ba1ba",
+      "byteCount": 26225,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=568",
+      "sha256": "7e33d3894791b17eba68d41e17d98706ee1b73bfbcae9e0d24d33d8336cda392",
+      "byteCount": 1333,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 568,
+            "name": "费祎",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/568.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56800.png",
+            "label": [
+              "过牌",
+              "发育",
+              "困难"
+            ],
+            "figure": "蜀",
+            "figure_py": "shu",
+            "quality": "限定",
+            "biography": "字文伟，江夏人，三国时期蜀汉名臣，与诸葛亮、蒋琬、董允并称为蜀汉四相。深得诸葛亮器重，屡次出使东吴，孙权、诸葛恪、羊茞等人以辞锋刁难，而费祎据理以答，辞义兼备，始终不为所屈。孙权非常惊异于他的才能，加以礼遇。北伐时魏延与杨仪不和，经常争论，费祎常为二人谏喻，两相匡护，以尽其用。诸葛亮死后官至大将军。费祎主政时，与姜维北伐的主张相左，执行休养生息的政策，为蜀汉的发展尽心竭力。费祎性格谦恭真诚，颇为廉洁，家无余财。后为魏降将郭循（一作郭修）行刺身死。",
+            "characteristic": "能大量过牌，并让折中的锦囊牌多次结算。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 10
+          },
+          {
+            "name": "农民",
+            "value": 9
+          },
+          {
+            "name": "主公",
+            "value": 9
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          },
+          {
+            "name": "内奸",
+            "value": 10
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56800.png",
+      "sha256": "d4114699a930f240a6ae61a25c8a4bd9ab6b6b67fa46dfdb1cdf2a0d5035daf7",
+      "byteCount": 469337,
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-fei-yi.png",
+      "size": [
+        750,
+        950
+      ]
+    }
+  },
+  "clientSources": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "byteCount": 5385831,
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "byteCount": 4153477,
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "clientMembers": {
+    "character.sgs": {
+      "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+    },
+    "cha_spell.sgs": {
+      "encryptedSha256": "36bd0f9a80dc3d83be4b7e1099228e0131516032f4cba7bb338c37e2a074e5ac",
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57"
+    }
+  },
+  "targetCharacter": {
+    "path": "GameCharacters.character[1268]",
+    "row": {
+      "a": 568,
+      "b": "费祎",
+      "d": "FeiYi",
+      "e": 46,
+      "f": "25",
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 3328,
+      "k": 3329,
+      "p": 4,
+      "q": "1",
+      "r": "9056801",
+      "y": "字文伟，江夏人，三国时期蜀汉名臣，与诸葛亮、蒋琬、董允并称为蜀汉四相。深得诸葛亮器重，屡次出使东吴，孙权、诸葛恪、羊茞等人以辞锋刁难，而费祎据理以答，辞义兼备，始终不为所屈。孙权非常惊异于他的才能，加以礼遇。北伐时魏延与杨仪不和，经常争论，费祎常为二人谏喻，两相匡护，以尽其用。诸葛亮死后官至大将军。费祎主政时，与姜维北伐的主张相左，执行休养生息的政策，为蜀汉的发展尽心竭力。费祎性格谦恭真诚，颇为廉洁，家无余财。后为魏降将郭循（一作郭修）行刺身死。",
+      "z": "能大量过牌，并让折中的锦囊牌多次结算。",
+      "aa": 260,
+      "ab": "1063,1064",
+      "ac": "蒋琬,董允",
+      "ad": "画师:君桓文化",
+      "x": "水善利万物而不争。",
+      "al": 1730,
+      "am": "true",
+      "ap": 1500,
+      "aq": 450,
+      "ar": "20240116T235958",
+      "LordCardRate1": 61,
+      "LordCardRate2": 53,
+      "cb": "2;3",
+      "starMax": 4
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[2363]",
+        "row": {
+          "a": 3328,
+          "b": "3",
+          "c": "晏如",
+          "d": "YanRu",
+          "e": 0,
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段各限一次，若你的手牌数为：<br>•奇数，你可以摸三张牌并弃置至少半数手牌（向下取整）；<br>•偶数，你可以弃置至少半数手牌并摸三张牌（向下取整）。",
+          "v": "请选择至少{0}张牌弃置"
+        }
+      },
+      {
+        "path": "GameSpells.spell[2364]",
+        "row": {
+          "a": 3329,
+          "b": "3,5",
+          "c": "和衷",
+          "d": "HeZhong",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "o": "每回合各限一次，当你的手牌数变为1后，你可以展示之并摸一张牌，然后令你本回合下次使用点数大于/小于此牌点数的锦囊牌各多结算一次。",
+          "v": "请选择令你本回合使用点数大于或小于{0}的锦囊牌多结算一次",
+          "j": 1
+        }
+      }
+    ]
+  },
+  "officialLaunch": {
+    "identity": "蜀，男，3体力；晏如、和衷。",
+    "textMatchesCurrentHero": true,
+    "published": "2023-12-15",
+    "url": "https://www.sanguosha.com/news/20231211_5073_3519"
+  },
+  "sameProductCommunityExplanation": {
+    "claims": [
+      "和衷回合内外可发动，0至1和2至1均可。",
+      "大于、小于两个方向每回合各一次；重叠满足的同一锦囊可结算三次。",
+      "付款后剩一手牌可由和衷增强正在使用的该张锦囊。",
+      "无懈可击和延时锦囊不享受、也不消耗额外结算增益。",
+      "晏如弃牌没有上限，可多于半数；先弃再摸可先触发和衷。"
+    ],
+    "verifiedLive": true,
+    "authority": "same-product community explanation, not an official rules ruling",
+    "title": "【紫云出品】过牌如流水！-武将费祎攻略",
+    "url": "https://club.sanguosha.com/thread-1298606-1-1.html"
+  },
+  "implementationInferences": [
+    "晏如各奇偶分支按实际出牌阶段独立消费；激活和偶数付款前重验当前奇偶，后续已经付款的原生子树不因技能失去而重复付款或取消。",
+    "晏如摸后弃的至少半数在真实摸牌及其子事件完成后按当时手牌数向下取整。",
+    "和衷由真实原生手牌batch前后数量变化确定，冻结当时唯一的原实体和点数，展示时该原实体仍须在手牌；不因仅重排同一张手牌重复触发。",
+    "和衷方向在展示时消费，摸一张及所有原生子树返回后才发出阈值；未命中阈值的普通锦囊保留增益，两个阈值分别等待下一张符合者。",
+    "已发出阈值绑定本回合真实普通锦囊的有效点数，响应型使用的普通锦囊同样适用；无懈可击是明确排除项。",
+    "额外结算保留同一已付款Use/原目标序列，完整重开原生无懈窗口；不重付牌、不重验距离或普通次数；不能以另使用一张虚拟牌近似。",
+    "原有丰姿额外结算先完成，再按和衷两个独立grant各继续一次；原生冻结伤害来源和已获取使用实体记录传入后续轮，避免取回实体被重复获取。",
+    "技能丢失或来源死亡不撤回已发出的本回合增益；本回合结束自然失效。",
+    "没有找到同品官方无点数FAQ；显式原生EffectiveRank=0按现有数值比较合同可满足小于阈值，null点数不回退原实体点数、不绑定。此为engine inference，不冒充官方裁定。",
+    "多轮出其不意分别保留原生公开展示及私密暗牌位选择，同一不移动手牌可在各轮再次展示；每轮实际ordinal区分完全相同的展示事实。旧单轮内容仍保留0/1形状，和衷增量才扩展为2/3。",
+    "无同品FAQ明确同批优先级子事件改变手牌数的情形；沿用现引擎event-derived资格：原生batch真实变为1已冻结后，独立Draw1子事件不撤销资格，只展示仍在手牌的原实体；原卡离手则不冒用替换牌。原生一次多张DrawCards的内部逐张movement须按真实NativeDrawInvocationRecordedEvent的同owner/parent/reason/sequence interval排除，不将中间0到1误当独立摸牌触发。",
+    "和衷阈值锚定本次CardUseDeclared原接受使用者，而不是其后替换的实际使用者。已绑定增益随同一付款Use继续；合法ProgramCardUseActorReplacedEvent链与原provider证明实际角色替换，但不会撤回旧grant或将新角色未消费的阈值附到这次旧Use。即使初次没有匹配，也通过原声明恢复原接受actor，不以当时新actor补绑。此为结合既有native使用者替换协议的实现推断。",
+    "同次锦囊付款令实际手牌变为1时，只有付款当时仍持有可发动和衷且有未使用方向的真实provider才建立该Use已有的PaymentMovementReceipt并等待原生付款子树；其后摸牌和阈值发出完成才继续原Use首轮效果。收据后续证明不因方向已付或技能失去而失效。材料去向严格使用原生实际付款合同（通常Processing、替代成本DrawPile、装备中的武将牌武器OutsideGame），不得伪造Processing或再次付款。"
+  ],
+  "status": "verified",
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T08:29:17.993580+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 4,
+    "combinedFocusedScope": {
+      "corePassed": 45,
+      "wpfPassed": 1,
+      "durationMs": 39129
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 33450
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Actual command, checkpoint replay, privacy, paid continuation and card movement checks passed; no global rules epoch, schema or content package release version was raised."
+  }
+}

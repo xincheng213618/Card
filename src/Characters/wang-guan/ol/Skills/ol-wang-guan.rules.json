@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:miuyan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "black-fire-attack",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true,
+          "allowSameKind": true,
+          "useEffectiveInputSuit": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "completed-fire-attack",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMiuyanCompletedUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shilu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-draw-reveal-identity",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShiluDrawRevealIdentity",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

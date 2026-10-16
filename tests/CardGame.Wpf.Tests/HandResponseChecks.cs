@@ -82,6 +82,12 @@ internal static class HandResponseChecks
             ReferenceEquals(engine, Program.Engine(vm)) && SnapshotJson.Serialize(engine.CreateSnapshot(0, true)) == state,
             $"{label}: tutorial lost response selection or changed the match.");
         Program.Render(root, 1120, 740, Path.Combine(output, $"40-response-{label}.png"));
+        if (prompt.Kind == DecisionKind.Nullification)
+            Program.Assert(((TextBlock)window.FindName("DecisionDescriptionText")).Visibility == Visibility.Collapsed &&
+                ((TextBlock)window.FindName("ActionDockHint")).Visibility == Visibility.Collapsed &&
+                ((Border)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed &&
+                ((Border)window.FindName("ResponseStatusBanner")).Visibility == Visibility.Visible && card.IsSelected,
+                "Nullification must use its live response status, hand selection and buttons without explanatory text or an empty prompt panel.");
         Program.Assert(((TextBlock)window.FindName("DecisionTitleText")).Text == vm.CurrentDecisionContext!.Title &&
             ((TextBlock)window.FindName("DecisionDescriptionText")).Text == vm.CurrentDecisionContext.Description,
             "Actual response context controls did not bind to the current prompt.");

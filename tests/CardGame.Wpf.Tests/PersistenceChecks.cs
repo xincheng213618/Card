@@ -146,6 +146,34 @@ internal static class PersistenceChecks
         }
     }
 
+    public static void FaultedSessionPreservesSavesAndExplainsRecovery()
+    {
+        var store = new MemorySaveStore();
+        using var vm = Create(store);
+        vm.StartNewGameCommand.Execute(null);
+        Step(vm);
+        vm.SaveGameCommand.Execute(null);
+        Require(!vm.HasSaveError && vm.FlushPendingSave(), vm.SaveStatus);
+        var saved = store.Read(GameSaveSlot.Manual);
+        var writes = store.WriteCount;
+        var engine = Engine(vm);
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        Action fail = () => typeof(GameEngine).GetMethod("ExecuteExclusive", flags)!.Invoke(engine,
+            [new Action(() => throw new InvalidOperationException("fixture internal rule failure"))]);
+        typeof(MainViewModel).GetMethod("ExecuteSafely", flags)!.Invoke(vm, [fail]);
+        Require(engine.IsFaulted && engine.LastTrustedCheckpoint is not null && !vm.IsAutoAdvance && !vm.CanStepAi &&
+            !vm.StepAiCommand.CanExecute(null) && vm.PromptText.Contains("已停止推进") && vm.ActionHint.Contains("读取此前存档"),
+            "A rules failure must stop advancement and expose a readable recovery path.");
+        vm.SaveGameCommand.Execute(null);
+        Require(vm.HasSaveError && vm.SaveStatus.Contains("结算异常") && vm.SaveStatus.Contains("已有存档未被覆盖") &&
+            !vm.SaveStatus.Contains("不兼容") && !vm.SaveStatus.Contains("仍可继续") && store.WriteCount == writes &&
+            ReferenceEquals(saved, store.Read(GameSaveSlot.Manual)),
+            "A faulted session must preserve saves and must not be described as incompatible or still playable.");
+        vm.LoadManualGameCommand.Execute(null);
+        Require(!vm.HasSaveError && !Engine(vm).IsFaulted && !ReferenceEquals(engine, Engine(vm)),
+            "An existing valid save must recover the UI with a separate healthy engine.");
+    }
+
     public static void AutomaticAndExit()
     {
         var store = new MemorySaveStore();

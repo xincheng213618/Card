@@ -27,6 +27,7 @@ public sealed record QinglongCrescentBladeState
 {
     public bool Active { get; init; } = true;
     public bool FactionSlashAttempted { get; init; }
+    public long? SuspendedFactionRequestOwnerId { get; init; }
 }
 
 public sealed record IceSwordState
@@ -164,7 +165,9 @@ public sealed record FactionResponsePolicySource(string SkillId, string SkillIns
         string PolicyId, string FactionId, CardKind RequiredKind, int DiscardCost = 0, int ProviderDrawCount = 0);
 
 public sealed record QinglongFollowupState(long? NextAttackOwnerId, SuspendedDecisionState? Decision,
-    long? FangtianOwnerId, EngineStatus Status, bool Active = true);
+    long? FangtianOwnerId, EngineStatus Status, bool Active = true,
+    long? FollowupUseId = null, long? BorrowedSwordOwnerId = null,
+    long? FactionRequestOwnerId = null, bool ChildCompleted = false);
 public sealed record SuspendedDecisionState(DecisionKind Kind, int PlayerSeat, string Prompt,
     IReadOnlyList<int> ValidCardIds, IReadOnlyList<int> ValidTargetSeats, int? SourceSeat, CardKind? IncomingCard,
     SkillPromptPresentation? SkillPrompt, PromptId PromptId, long Revision, int RequiredCardCount,

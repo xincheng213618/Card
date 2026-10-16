@@ -59,7 +59,7 @@ public sealed partial class GameEngine
             }
             else if (!action.PhysicalCards.Select(cost => cost.CardId).SequenceEqual(actual.PhysicalCardIds ?? [actual.CardId]) ||
                 action.PhysicalCards.Where(cost => !IsCurrentUsePhysicalCardClaim(actual.Id, cost.CardId) &&
-                    !IsSelectedForeignCardSlashRemovedMaterial(actual.Id, cost.CardId) &&
+                    !(IsSelectedForeignCardSlashRemovedMaterial(actual.Id, cost.CardId) || IsZhangYanSujiRemovedMaterial(actual.Id, cost.CardId) || (IsKenshangRemovedMaterial(actual.Id, cost.CardId) || IsWuJingHejiRemovedMaterial(actual.Id, cost.CardId))) &&
                     !IsExchangedCardClaim(action.ActionId, cost.CardId)).Any(cost => IsProgramAlternativeCost(action, cost.CardId)
                         ? _cardZones.GetLocation(cost.CardId) == CardLocation.Processing
                         : _cardZones.GetLocation(cost.CardId) != CardLocation.Processing)) return false;

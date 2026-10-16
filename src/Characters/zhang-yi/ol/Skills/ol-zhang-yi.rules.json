@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:dianjun", "revision": 1, "triggers": [
+      { "id": "actual-turn-end-damage-and-play", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+        "effects": [{ "op": "resolveDianjunActualTurnEnd", "target": "owner" }] }
+    ] },
+    { "id": "ol:kangrui", "revision": 1, "triggers": [
+      { "id": "first-own-turn-damage", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true,
+        "effects": [{ "op": "resolveKangruiFirstOwnTurnDamage", "target": "owner" }] }
+    ] }
+  ]
+}

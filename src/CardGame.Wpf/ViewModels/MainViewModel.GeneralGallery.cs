@@ -15,7 +15,7 @@ public sealed partial class MainViewModel
     private GeneralGalleryEntryViewModel? _selectedGeneralGalleryEntry;
 
     public ObservableCollection<GeneralGalleryEntryViewModel> GeneralGalleryEntries { get; } = [];
-    public ObservableCollection<GeneralGalleryGroupViewModel> GeneralGalleryGroups { get; } = [];
+    public IReadOnlyList<GeneralGalleryGroupViewModel> GeneralGalleryGroups { get; private set; } = [];
     public ObservableCollection<GeneralGalleryFactionOption> GeneralGallerySubgroups { get; } = [];
 
     public IReadOnlyList<GeneralGalleryFactionOption> GeneralGalleryFactions { get; } =
@@ -36,7 +36,8 @@ public sealed partial class MainViewModel
             else
             {
                 GeneralGalleryEntries.Clear();
-                GeneralGalleryGroups.Clear();
+                GeneralGalleryGroups = [];
+                RaisePropertyChanged(nameof(GeneralGalleryGroups));
                 SelectedGeneralGalleryEntry = null;
                 RaisePropertyChanged(nameof(GeneralGalleryCountText));
             }
@@ -198,14 +199,17 @@ public sealed partial class MainViewModel
             .ThenBy(entry => entry.Name, StringComparer.Ordinal).ToArray();
 
         GeneralGalleryEntries.Clear();
-        GeneralGalleryGroups.Clear();
+        var groups = new List<GeneralGalleryGroupViewModel>();
         foreach (var group in seriesGroups.Where(group => SelectedGeneralGalleryGroup == "all" || group.Id == SelectedGeneralGalleryGroup))
         {
             var members = entries.Where(entry => entry.GroupId == group.Id).ToArray();
             if (members.Length == 0 && (SelectedGeneralGallerySeries == "all" || filtered)) continue;
             foreach (var member in members) GeneralGalleryEntries.Add(member);
-            GeneralGalleryGroups.Add(new(group.Id, group.Title, members, "当前版本暂无此分组武将"));
+            groups.Add(new(group.Id, group.Title, members, "当前版本暂无此分组武将"));
         }
+        // Publish one complete browse result, rather than rebuilding the visual rows per group.
+        GeneralGalleryGroups = groups.ToArray();
+        RaisePropertyChanged(nameof(GeneralGalleryGroups));
         if (SelectedGeneralGalleryEntry is not null && !entries.Contains(SelectedGeneralGalleryEntry))
             SelectedGeneralGalleryEntry = null;
         foreach (var name in new[] { nameof(GeneralGalleryCountText), nameof(HasGeneralGallerySubgroups), nameof(HasNoGeneralGalleryResults) })

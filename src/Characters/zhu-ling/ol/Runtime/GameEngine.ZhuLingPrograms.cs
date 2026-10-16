@@ -326,7 +326,8 @@ public sealed partial class GameEngine
             }
             card = _cardZones.CardsAt(CardLocation.Equipment(target)).Single(item => item.Id == cardId);
         }
-        MoveCards([card], _cardZones.GetLocation(card.Id), CardLocation.DiscardPile, reason);
+        MoveCards([card], _cardZones.GetLocation(card.Id), CardLocation.DiscardPile, reason,
+            movement => RecordBianFuRenForeignDiscardProducer(movement,active.OwnerSeat,active.Id));
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry.GetSkill(active.SkillId).Name}】，弃置 {_players[target].Name} 的【{card.DisplayName}】。",
             active.OwnerSeat, target);

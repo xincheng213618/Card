@@ -115,6 +115,26 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        if (TryBeginZhuJunLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
+        ResumeProgramVirtualDyingAlcoholRecovery(resolutionId, active.Id, dying.FrameId);
+    }
+
+    private void ResumeProgramVirtualDyingAlcoholRecovery(long resolutionId, long programParentId, long dyingId)
+    {
+        var useIndex = _resolutionStack.FindIndex(item => item.Id == resolutionId);
+        if (useIndex < 1 || useIndex != _resolutionStack.Count - 1 ||
+            _resolutionStack[useIndex] is not CardUseFrame { CardId: 0, CardKind: CardKind.Alcohol, PhysicalCardIds.Count: 0 } use ||
+            _resolutionStack[useIndex - 1] is not ProgramSkillFrame active || active.Id != programParentId ||
+            ActiveDying is not { } dying || dying.FrameId != dyingId || dying.VictimSeat != use.SourceSeat ||
+            active.OwnerSeat != use.SourceSeat || active.WindowContext is not { Window: SkillProgramTriggerWindow.SelfDyingResponse } context ||
+            context.ParentFrameId != dyingId || context.TargetSeat != use.SourceSeat)
+            throw new InvalidOperationException("Legacy virtual Alcohol recovery lost its exact accepted use and dying producer.");
+        var victim = _players[use.SourceSeat];
+        if (!victim.IsAlive)
+        {
+            if (!FinishActualTurnLegacyDyingAlcohol(resolutionId, active.Id)) PopFinishedCardUse(resolutionId);
+            return;
+        }
         var recoveryAmount = ApplyIssuedCardRecoveryModifiers(resolutionId, victim.Seat, victim.Seat, 1);
         if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, recoveryAmount,
             new(RecoveryAttemptProducer.DyingVirtualAlcohol, CardId: 0, CardKind: CardKind.Alcohol,

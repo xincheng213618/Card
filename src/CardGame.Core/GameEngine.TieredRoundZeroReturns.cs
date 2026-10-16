@@ -30,6 +30,12 @@ public sealed partial class GameEngine
         _resolutionStack.LastOrDefault() is ProgramSkillFrame && HasTieredRoundZeroDyingRide(dying.FrameId);
 
     private Card ReadTieredRoundUseAppearance(long ownerId, CardAppearanceReference appearance) =>
+        appearance.Id == 0 && IsAHuiNanJuemanUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
+        appearance.Id == 0 && IsQinLangXianyingUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
+        appearance.Id == 0 && IsTianChouShandaoUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
         appearance.Id == 0 && IsRoundOnceCardlessBasicUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? RoundOnceCardlessNativeRepresentation(ownerId) :
         appearance.Id == 0 && IsChosenAssaultUse(ownerId) && appearance.Kind == CardKind.BarbarianAssault && appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0,CardKind.BarbarianAssault,Suit.None,0) :
@@ -137,7 +143,7 @@ public sealed partial class GameEngine
 
     private bool SkipTieredRoundZeroFinishedMovement(long id, Card card)
     {
-        if (card.Id != 0 || !IsTieredRoundZeroUse(id)) return false;
+        if (card.Id != 0 || !IsTieredRoundZeroUse(id) && !IsQinLangXianyingUse(id) && !IsAHuiNanJuemanUse(id)) return false;
         if (card.Kind != LifecycleCardUse(id)!.CardKind) throw new InvalidOperationException("The logical completed card changed its issued card name.");
         return true; // No physical entity was issued; there is no cleanup move.
     }

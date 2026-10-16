@@ -78,6 +78,7 @@ public sealed partial class GameEngine
     private bool TryBeginCompletedResponseUsePrograms(CardAttackHandle? attack, CardActionContext action,
         ProgramCardContinuation continuation)
     {
+        CompleteCaoXiNativeCounterspellBeforeUseCompleted(action, continuation);
         if (_winner != Winner.None || !HasResponseUseCompletionObserver(action, continuation)) return false;
         // Arrow Barrage Dodge and supplied faction cards are response-only. A Dodge use
         // must be the responder's own defense against the actual Slash parent.
@@ -92,8 +93,8 @@ public sealed partial class GameEngine
 
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)
     {
-        if (kind is not (CardKind.Dodge or CardKind.Nullification) ||
-            !(_contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
+        if (!HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
+            !(HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||
               TracksCurrentTurnUseKinds && kind == CardKind.Nullification || TracksActualTurnUseOrdinal && kind == CardKind.Dodge)) return null;
         var suits = cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray();

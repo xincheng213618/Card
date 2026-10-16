@@ -125,17 +125,28 @@ internal static class HealthFeedbackChecks
             var views = Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
             clock.Advance(.2); layer.InvalidateVisual();
             Render(root, 1120, 740, Path.Combine(output, "health-native-recovery.png"));
-            var control = Find<HealthMeter>(root).Single(m => BattleFeedbackLayer.GetHealthAnchor(m) == 0);
-            Assert(control.Value == recovered.Hp && control.Maximum == recovered.MaxHp && control.ActualWidth > 80,
-                "The real portrait track is missing, unreadable or detached from current public HP.");
+            var portrait = Find<Button>(root).Single(button => BattleFeedbackLayer.GetSeatAnchor(button) == 0);
+            var control = Find<ItemsControl>(portrait).Single(items => items.Name == "SeatHealthIcons");
+            var healthRail = Find<Border>(portrait).Single(border => border.Name == "SeatHealthRail");
+            Assert(control.Visibility == Visibility.Visible && control.ActualWidth > 0 && control.Items.Count == Math.Clamp(recovered.MaxHp, 0, 8) &&
+                control.Items.Cast<string>().Count(path => path.EndsWith("gallery-hp-wu.png", StringComparison.Ordinal)) == Math.Clamp(recovered.Hp, 0, 8) &&
+                healthRail.Visibility == Visibility.Visible && healthRail.ActualHeight > 0 &&
+                System.Windows.Automation.AutomationProperties.GetName(healthRail) == $"{recovered.Hp}/{recovered.MaxHp}",
+                $"The real portrait icons are missing or detached from current committed public HP: icons={control.Visibility}/{control.ActualWidth}/{control.Items.Count}, " +
+                $"rail={healthRail.Visibility}/{healthRail.ActualHeight}/{System.Windows.Automation.AutomationProperties.GetName(healthRail)}, HP={recovered.Hp}/{recovered.MaxHp}.");
             vm.SaveGameCommand.Execute(null); vm.LoadManualGameCommand.Execute(null);
             Render(root, 1120, 740, Path.Combine(output, "health-native-recovery-loaded.png"));
             var loaded = Engine(vm);
             Assert(layer.ActiveEffectCount == 0 && !vm.HasSaveError && loaded.AcceptedCommands.Count == accepted &&
                    Enumerable.Range(0, 4).All(seat => views[seat] == SnapshotJson.Serialize(loaded.CreateSnapshot(seat))),
                 "Saving/loading HP feedback replayed an animation or changed a player-safe snapshot.");
-            Assert(control.Value == recovered.Hp && control.Maximum == recovered.MaxHp,
-                "A real load reverted the current portrait's HP track.");
+            var loadedPortrait = Find<Button>(root).Single(button => BattleFeedbackLayer.GetSeatAnchor(button) == 0);
+            var loadedIcons = Find<ItemsControl>(loadedPortrait).Single(items => items.Name == "SeatHealthIcons");
+            var loadedRail = Find<Border>(loadedPortrait).Single(border => border.Name == "SeatHealthRail");
+            Assert(loadedIcons.Items.Cast<string>().SequenceEqual(control.Items.Cast<string>()) &&
+                loadedRail.Visibility == Visibility.Visible && loadedRail.ActualHeight > 0 &&
+                System.Windows.Automation.AutomationProperties.GetName(loadedRail) == $"{recovered.Hp}/{recovered.MaxHp}",
+                "A real load reverted the current portrait's HP icons.");
             Console.WriteLine($"Native health recovery: HP {human.Hp} -> {recovered.Hp}/{recovered.MaxHp}; public delta {fact.Amount}; 4 cold-loaded views unchanged.");
         }
         finally { window.Content = null; window.Close(); }

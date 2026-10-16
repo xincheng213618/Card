@@ -36,6 +36,8 @@ public sealed partial class GameEngine
     private bool CanUseTieredRoundConversion(CharacterState actor, IndexedSkillProgramInstance instance,
         SkillProgramViewAs rule, bool responseUse, bool dyingUse)
     {
+        if (TryGetEquipmentSlotNamedConversionAvailability(actor, instance, rule, responseUse, dyingUse, out var equipmentAvailable))
+            return equipmentAvailable;
         if (rule.TieredRoundConversion is not { } policy) return true;
         var tier = TieredRoundTier(actor.Seat, policy.StateId);
         if (_winner != Winner.None || !actor.IsAlive || _roundNumber < 1 || !IsTieredRoundOutput(rule.OutputKind) ||
@@ -51,6 +53,7 @@ public sealed partial class GameEngine
 
     private void ConsumeTieredRoundConversion(CardConversionSource source)
     {
+        if (TryConsumePaidEquipmentSlotNamedConversion(source)) return;
         if (ViewAsRule(source) is not { TieredRoundConversion: { } policy } rule) return;
         var actor = _players[source.OwnerSeat];
         var instance = GetSkillBindingShard(actor).ProgramInstances.SingleOrDefault(i =>

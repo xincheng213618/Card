@@ -29,7 +29,7 @@ public sealed partial class GameEngine
 
         if (_turnProgression.TurnNumber != _turnNumber || _turnProgression.OwnerSeat != _currentSeat ||
             _phase is TurnPhase.NotStarted or TurnPhase.Finished ||
-            CompleteProgramEventHistory().OfType<TurnEndedEvent>().Any(ended =>
+            !IsEndOwnedExtraPlayPhase() && CompleteProgramEventHistory().OfType<TurnEndedEvent>().Any(ended =>
                 ended.TurnNumber == _turnNumber && ended.ActorSeat == _currentSeat))
             throw new InvalidOperationException("A turn skill grant requires an actual ongoing turn.");
 

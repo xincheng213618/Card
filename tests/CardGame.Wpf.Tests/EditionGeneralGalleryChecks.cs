@@ -20,7 +20,7 @@ internal static class EditionGeneralGalleryChecks
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
                 "ol:wen-pin" or "ol:dong-yun" or "ol:shen-pei" or "ol:sun-lu-yu" or "ol:cheng-yu" or
                 "ol:zhang-lu" or "ol:wang-rong" or "ol:shi-xie" or "ol:ma-yun-lu" or "ol:ta-dun" or "ol:yan-bai-hu" or
-                "ol:guan-suo" or "ol:wang-lang" or "ol:bao-san-niang" or "ol:deng-zhi" or "ol:cao-ying" or "ol:dong-zhao" or "ol:wu-yan" or "ol:sp-zhang-he" or "ol:xuan-gong-zhu" or "ol:huang-yueying-sp" or "ol:bu-zhi" or "ol:dong-bai" or "ol:zhao-xiang" or "ol:he-qi" or "ol:kan-ze" or "ol:wang-yun" or "ol:zhuge-guo" or "ol:xi-zhi-cai" or "ol:bei-mi-hu" or "ol:liu-qi" or "ol:lu-zhi-wei" or "ol:sima-hui" or "ol:xu-rong" or "ol:li-jue" or "ol:zhang-ji" or "ol:su-fei" or "ol:huang-quan" or "ol:tang-zi" or "ol:fan-chou" or "ol:guo-si" or "ol:zhang-qi-ying" or "ol:cao-chun" or "ol:wang-can" or "ol:pang-tong-sp" or "ol:yuan-tan-yuan-shang" or "ol:lv-qian" or "ol:lv-kuang-lv-xiang" or "ol:xin-pi" or "ol:hua-man").ToArray();
+                "ol:guan-suo" or "ol:wang-lang" or "ol:bao-san-niang" or "ol:deng-zhi" or "ol:cao-ying" or "ol:dong-zhao" or "ol:wu-yan" or "ol:sp-zhang-he" or "ol:xuan-gong-zhu" or "ol:huang-yueying-sp" or "ol:bu-zhi" or "ol:dong-bai" or "ol:zhao-xiang" or "ol:he-qi" or "ol:kan-ze" or "ol:wang-yun" or "ol:zhuge-guo" or "ol:xi-zhi-cai" or "ol:bei-mi-hu" or "ol:liu-qi" or "ol:lu-zhi-wei" or "ol:sima-hui" or "ol:xu-rong" or "ol:li-jue" or "ol:zhang-ji" or "ol:su-fei" or "ol:huang-quan" or "ol:tang-zi" or "ol:fan-chou" or "ol:guo-si" or "ol:zhang-qi-ying" or "ol:cao-chun" or "ol:wang-can" or "ol:pang-tong-sp" or "ol:yuan-tan-yuan-shang" or "ol:lv-qian" or "ol:lv-kuang-lv-xiang" or "ol:xin-pi" or "ol:hua-man" or "ol:niu-jin" or "ol:duan-wei" or "mobile:liu-zan" or "ol:ding-yuan" or "ol:cao-song" or "ol:bian-fu-ren" or "ol:zhang-ling" or "ol:cao-shuang" or "ol:sp-zhang-liao" or "ol:wo-long-feng-chu" or "ol:sun-ru" or "ol:liu-pi" or "ol:gao-gan" or "ol:huo-jun" or "ol:qiao-zhou" or "ol:du-xi" or "ol:fu-rong" or "ol:zhang-yi" or "ol:yan-pu" or "ol:luo-xian" or "ol:hao-pu" or "ol:ma-wan" or "ol:du-fu-ren" or "ol:fei-yi" or "ol:zhang-shi-ping" or "ol:qian-zhao" or "ol:ding-shang-wan" or "ol:he-jin" or "ol:li-wan" or "ol:yan-rou" or "ol:cao-xi" or "ol:hu-jin-ding" or "ol:lu-yu-sheng" or "ol:wang-kuang" or "ol:yuan-huan" or "ol:zhang-yan" or "ol:wu-an-guo" or "ol:han-fu" or "ol:zhu-jun" or "ol:ke-bi-neng" or "ol:niu-fu" or "ol:duan-jiong" or "ol:ma-mi-di" or "ol:ruan-hui" or "ol:tian-chou" or "ol:cheng-gong-ying" or "ol:ma-xiu-ma-tie" or "ol:pei-yuan-shao" or "ol:wu-jing" or "ol:xiang-chong" or "ol:yang-feng" or "ol:qin-lang" or "ol:a-hui-nan" or "ol:wang-guan").ToArray();
         Program.Assert(entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
             entries.Any(entry => entry.GeneralId == "ol:xiahou-ba") &&
@@ -75,7 +75,62 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "ol:lv-qian") &&
             entries.Any(entry => entry.GeneralId == "ol:lv-kuang-lv-xiang") &&
             entries.Any(entry => entry.GeneralId == "ol:xin-pi") &&
-            entries.Any(entry => entry.GeneralId == "ol:hua-man"),
+            entries.Any(entry => entry.GeneralId == "ol:hua-man") &&
+            entries.Any(entry => entry.GeneralId == "ol:niu-jin") &&
+            entries.Any(entry => entry.GeneralId == "ol:duan-wei") &&
+            entries.Any(entry => entry.GeneralId == "mobile:liu-zan") &&
+            entries.Any(entry => entry.GeneralId == "ol:ding-yuan") &&
+            entries.Any(entry => entry.GeneralId == "ol:cao-song") &&
+            entries.Any(entry => entry.GeneralId == "ol:bian-fu-ren") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhang-ling") &&
+            entries.Any(entry => entry.GeneralId == "ol:cao-shuang") &&
+            entries.Any(entry => entry.GeneralId == "ol:sp-zhang-liao") &&
+            entries.Any(entry => entry.GeneralId == "ol:wo-long-feng-chu") &&
+            entries.Any(entry => entry.GeneralId == "ol:sun-ru") &&
+            entries.Any(entry => entry.GeneralId == "ol:liu-pi") &&
+            entries.Any(entry => entry.GeneralId == "ol:gao-gan") &&
+            entries.Any(entry => entry.GeneralId == "ol:huo-jun") &&
+            entries.Any(entry => entry.GeneralId == "ol:qiao-zhou") &&
+            entries.Any(entry => entry.GeneralId == "ol:du-xi") &&
+            entries.Any(entry => entry.GeneralId == "ol:fu-rong") &&
+            entries.Any(entry => entry.GeneralId == "mobile:wang-fu-zhao-lei") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhang-yi") &&
+            entries.Any(entry => entry.GeneralId == "ol:yan-pu") &&
+            entries.Any(entry => entry.GeneralId == "ol:luo-xian") &&
+            entries.Any(entry => entry.GeneralId == "ol:hao-pu") &&
+            entries.Any(entry => entry.GeneralId == "ol:ma-wan") &&
+            entries.Any(entry => entry.GeneralId == "ol:du-fu-ren") &&
+            entries.Any(entry => entry.GeneralId == "ol:fei-yi") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhang-shi-ping") &&
+            entries.Any(entry => entry.GeneralId == "ol:qian-zhao") &&
+            entries.Any(entry => entry.GeneralId == "ol:ding-shang-wan") &&
+            entries.Any(entry => entry.GeneralId == "ol:he-jin") &&
+            entries.Any(entry => entry.GeneralId == "ol:yan-rou") &&
+            entries.Any(entry => entry.GeneralId == "ol:cao-xi") &&
+            entries.Any(entry => entry.GeneralId == "ol:hu-jin-ding") &&
+            entries.Any(entry => entry.GeneralId == "ol:lu-yu-sheng") &&
+            entries.Any(entry => entry.GeneralId == "ol:wang-kuang") &&
+            entries.Any(entry => entry.GeneralId == "ol:yuan-huan") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhang-yan") &&
+            entries.Any(entry => entry.GeneralId == "ol:wu-an-guo") &&
+            entries.Any(entry => entry.GeneralId == "ol:han-fu") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhu-jun") &&
+            entries.Any(entry => entry.GeneralId == "ol:ke-bi-neng") &&
+            entries.Any(entry => entry.GeneralId == "ol:niu-fu") &&
+            entries.Any(entry => entry.GeneralId == "ol:duan-jiong") &&
+            entries.Any(entry => entry.GeneralId == "ol:ma-mi-di") &&
+            entries.Any(entry => entry.GeneralId == "ol:ruan-hui") &&
+            entries.Any(entry => entry.GeneralId == "ol:tian-chou") &&
+            entries.Any(entry => entry.GeneralId == "ol:cheng-gong-ying") &&
+            entries.Any(entry => entry.GeneralId == "ol:ma-xiu-ma-tie") &&
+            entries.Any(entry => entry.GeneralId == "ol:pei-yuan-shao") &&
+            entries.Any(entry => entry.GeneralId == "ol:wu-jing") &&
+            entries.Any(entry => entry.GeneralId == "ol:xiang-chong") &&
+            entries.Any(entry => entry.GeneralId == "ol:yang-feng") &&
+            entries.Any(entry => entry.GeneralId == "ol:qin-lang") &&
+            entries.Any(entry => entry.GeneralId == "ol:a-hui-nan") &&
+            entries.Any(entry => entry.GeneralId == "ol:wang-guan") &&
+            entries.Any(entry => entry.GeneralId == "ol:li-wan"),
             "The real catalogue must expose the added mobile and OL editions.");
         var panel = new GeneralGalleryPanel { DataContext = model };
         try

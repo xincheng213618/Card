@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         var parent = _resolutionStack.Single(frame => frame.Id == payment.OwnerFrameId);
         if (parent.AcceptedDeclarationPayment != payment) throw new InvalidOperationException("A declaration payment lost its actual continuation owner.");
         ReplaceRuntimeFrame(parent.Id, parent with { AcceptedDeclarationPayment = payment with { Claimed = true } });
+        CaptureBianFuRenClaimedDeclarationPayment(parent.Id);
         return true;
     }
 
@@ -319,6 +320,7 @@ public sealed partial class GameEngine
         PopResolutionFrame(frame.Id, ResolutionFrameKind.CardDeclaration);
         if (TryReturnQigongDeclaration(frame, success)) return;
         if (TryReturnJianjiDeclaration(frame, success)) return;
+        if (TryReturnKeBiNengPingduanDeclaration(frame, success)) return;
         if (cancelled) return;
         if (success)
         {

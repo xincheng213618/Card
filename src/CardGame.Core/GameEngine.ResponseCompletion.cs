@@ -41,7 +41,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A response cannot finish twice or change its native cursor.");
         AdvanceEventRulesAndQueueFact(new CardResponseCompletionStartedEvent(id, action.ActionId, parent.Id,
             completionActor, action.ProviderSeat, action.EffectiveKind, originalContinuation, _turnNumber, _currentSeat, action.ActorSeat));
-        PushRuntimeFrame(window); CapturePairedColorResponseLink(window); AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>(); return true;
+        PushRuntimeFrame(window); CapturePairedColorResponseLink(window); CaptureMaMiDiResponseLink(window); AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>(); return true;
     }
 
     private CardMovementRecord[] CaptureResponseCompletionCosts(CardActionContext a, ProgramCardContinuation continuation, long parentFrameId)

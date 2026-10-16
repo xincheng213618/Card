@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private void CaptureExtraEffectMaterialClaims(ProgramSkillFrame producer, IDamageAttempt attack, IReadOnlyList<Card> cards, long before, CardMoveReason reason)
     {
-        if (LifecycleCardUse(attack.ResolutionId) is not { ExtraCardEffect: { } extra, Action: { } action } use) return;
+        if (LifecycleCardUse(attack.ResolutionId) is not { Action: { } action } use || NativeExtraEffectState(use) is not { } extra) return;
         if (producer.WindowContext is not { Window: SkillProgramTriggerWindow.AfterDamageApplied, ParentFrameId: var windowId, DamageFrameId: { } damageId } ||
             ActiveDamageTrigger is not { } window || window.Id != windowId || window.ParentFrameId != damageId ||
             GetDamageTriggerAttack(window).ResolutionId != use.Id || producer.OwnerSeat != attack.TargetSeat ||
@@ -18,12 +18,11 @@ public sealed partial class GameEngine
         var receipts = moves.Select(m => new ExtraEffectMaterialClaim(use.Id, action.ActionId, m.CardId, producer.Id,
             producer.SkillId, producer.TriggerId!, producer.SkillInstanceId, producer.GameplayHash, producer.InstructionIndex - 1,
             producer.OwnerSeat, window.Id, damageId, m.Sequence, reason.Value));
-        UpdateLifecycleCardUse(use.Id, current => current with { ExtraCardEffect = current.ExtraCardEffect! with {
-            MaterialClaims = extra.MaterialClaims.Concat(receipts).ToArray() } });
+        UpdateNativeExtraEffectState(use.Id, current => current with { MaterialClaims = extra.MaterialClaims.Concat(receipts).ToArray() });
     }
     private bool HasExtraEffectMaterialClaim(long useId, int cardId)
     {
-        if (LifecycleCardUse(useId) is not { ExtraCardEffect: { } extra, Action: { } action } use ||
+        if (LifecycleCardUse(useId) is not { Action: { } action } use || NativeExtraEffectState(use) is not { } extra ||
             extra.MaterialClaims.SingleOrDefault(c => c.CardId == cardId) is not { } claim) return false;
         var trigger = _contentRegistry.Skills.GetValueOrDefault(claim.SkillId)?.Program is { } program && program.GameplayHash == claim.GameplayHash
             ? ProgramInstructionResolver.Default.FindTrigger(program, claim.BindingId) : null;
@@ -46,7 +45,7 @@ public sealed partial class GameEngine
     }
     private void RestoreExtraEffectGroupMaterialClaims(GroupCardHandle group)
     {
-        var ids = LifecycleCardUse(group.ResolutionId)?.ExtraCardEffect?.MaterialClaims.Select(c => c.CardId)
+        var ids = (LifecycleCardUse(group.ResolutionId) is { } use ? NativeExtraEffectState(use) : null)?.MaterialClaims.Select(c => c.CardId)
             .Where(id => HasExtraEffectMaterialClaim(group.ResolutionId, id)).ToArray();
         if (ids is { Length: > 0 }) group.SetClaimedPhysicalCards(group.DamageClaimedPhysicalCardIds.Concat(ids).Distinct().ToArray());
     }

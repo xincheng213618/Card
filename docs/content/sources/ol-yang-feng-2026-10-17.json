@@ -1,0 +1,192 @@
+{
+  "capturedOn": "2026-10-17",
+  "product": "sanguosha-ol",
+  "generalId": "ol:yang-feng",
+  "identity": {
+    "gid": 660,
+    "name": "杨奉",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "identityEvidence": "Current official public OL client a660/YangFeng g4 h1 i4, corroborated by the official OL account September 2025 profile. This is not the mobile Xuetu/Weiming character and not a Mou/Zu variant."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "fetchedAtUtc": "2026-10-17T00:13:34.080096+08:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "fetchedAtUtc": "2026-10-17T00:13:34.081096+08:00"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1360]",
+      "row": {
+        "a": 660,
+        "b": "杨奉",
+        "d": "YangFeng",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3799,
+        "k": 3778,
+        "q": "2",
+        "r": "9066001",
+        "y": "东汉末年军阀，曾为白波军首领。李傕郭汜掌权期间，在其二人手下任职的杨奉与士人集团联合，逐渐掌握汉献帝刘协的控制权，跟随汉献帝东归洛阳。杨奉在护送刘协东归的途中日益骄傲，麻痹大意下，刘协被曹操集团掌握，杨奉也随之失势。",
+        "z": "可控制可发育，驱驾执行额外回合",
+        "aa": 65,
+        "ab": "1243,1244",
+        "al": 1740,
+        "am": "true",
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2781]",
+          "row": {
+            "a": 3778,
+            "b": "3,5,6",
+            "c": "驱驾",
+            "d": "QuJia",
+            "e": 0,
+            "g": 3,
+            "i": 2,
+            "o": "限定技，你的回合结束后，若你本回合没有杀死过角色，你选择一项：<br>&nbsp;1.执行一个额外回合；<br>&nbsp;2.本局使用【杀】的次数+1并获得一张【杀】。",
+            "v": "请选择一项执行"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2796]",
+          "row": {
+            "a": 3799,
+            "b": "3",
+            "c": "假威",
+            "d": "JiaWei1",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可弃置一名角色X张牌（X为你执行过的回合数且不超过你的体力上限），并亮出牌堆顶X+1张牌，你获得其中的伤害牌，其获得其中的非伤害牌。若如此做，本回合你使用牌无距离限制。",
+            "v": "请选择一名角色"
+          }
+        }
+      ]
+    }
+  },
+  "currentOfficialEndpoints": {
+    "heroRequestedUrl": "https://www.sanguosha.com/hero/660",
+    "hero": {
+      "url": "https://www.sanguosha.com/404",
+      "finalUrl": "https://www.sanguosha.com/404",
+      "httpStatus": 200,
+      "byteCount": 14566,
+      "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+      "hashScope": "HTTP response body bytes",
+      "canonicalUrl": "https://www.sanguosha.com/404",
+      "availability": "unavailable-current-official-page"
+    },
+    "apiRequestedUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=660",
+    "api": {
+      "url": "https://www.sanguosha.com/404",
+      "finalUrl": "https://www.sanguosha.com/404",
+      "httpStatus": 200,
+      "byteCount": 14566,
+      "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+      "hashScope": "HTTP response body bytes",
+      "canonicalUrl": "https://www.sanguosha.com/404",
+      "availability": "unavailable-current-official-page"
+    },
+    "status": "Both requested routes currently redirect to canonical /404 HTML, HTTP 200. They do not currently provide a character page or JSON hero payload. They are not claimed as current skill-text evidence."
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/66000.png",
+    "byteCount": 976056,
+    "sha256": "3e43cb9189ba4d4842e99e56c6c385a6504ace2d857aa50ffeaaef2a5c460d23",
+    "hashScope": "HTTP response body bytes",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-feng.png",
+    "width": 750,
+    "height": 950,
+    "sourceStatus": "Official public client CDN portrait; the current hero/API routes return canonical 404. The asset path is independently fetched and verified as a PNG, not inferred from an unavailable API payload."
+  },
+  "officialSameProductGuide": {
+    "url": "https://game.xiaomi.com/viewpoint/1624366642_1758607326599_13",
+    "title": "【观虚】蓄势待发，一鸣惊人——杨奉技能前瞻",
+    "publisher": "三国杀小乔",
+    "author": "如梦虚幻",
+    "publishedOn": "2025-09-23",
+    "scope": "Official OL account publishing the contributor guide. Its Jiawei details agree with the present client; its old locked repeatable Qujia and failure compensation were superseded and are excluded from implementation.",
+    "corroboratedDetails": [
+      "Qun, male, four HP.",
+      "Jiawei X is zero on the first turn and counts completed own turns.",
+      "When fewer than X cards can be discarded, discard the available cards; the reveal remains X+1.",
+      "Jiawei can choose oneself and can remove equipment or delayed cards from another character.",
+      "Jiawei use-distance benefit applies to Slash, Snatch and Supply Shortage."
+    ],
+    "excludedSupersededDetails": [
+      "Qujia as a compulsory locked repeatable choice.",
+      "Losing Qujia and drawing compensation after an unsuccessful extra turn.",
+      "Repeatedly increasing Slash quota on multiple turns."
+    ],
+    "copyrightNote": "Rule facts are recorded as implementation paraphrases. No guide article body or illustrative screenshots are copied."
+  },
+  "currentRules": [
+    {
+      "skillId": 3778,
+      "clientName": "QuJia",
+      "name": "驱驾",
+      "text": "限定技，你的回合结束后，若你本回合没有杀死过角色，你选择一项：  1.执行一个额外回合；  2.本局使用【杀】的次数+1并获得一张【杀】。"
+    },
+    {
+      "skillId": 3799,
+      "clientName": "JiaWei1",
+      "name": "假威",
+      "text": "出牌阶段限一次，你可弃置一名角色X张牌（X为你执行过的回合数且不超过你的体力上限），并亮出牌堆顶X+1张牌，你获得其中的伤害牌，其获得其中的非伤害牌。若如此做，本回合你使用牌无距离限制。"
+    }
+  ],
+  "implementationDecisions": [
+    "Current official client QuJia 3778 is the limited once-per-game version, while JiaWei1 3799 remains the current active skill. The unavailable hero/API and the superseded guide do not override those current rows.",
+    "Jiawei selects any living role, including self and an empty role when no payment is possible. This follows 一名角色 plus the explicit first-turn X=0 and insufficient-card guide details; no artificial other-target or minimum-card restriction is added.",
+    "X is frozen before selection as min(number of genuine completed own TurnEnded receipts, current maximum HP). Extra turns and the engine actual face-up skipped turn count because they produce genuine own start/end receipts. The current uncompleted turn does not count.",
+    "The available HEJ discard set and exact required count are frozen. Foreign hand choices use opaque zone/slot choices. All choices finish before one native primary discard batch, preserving GeneralWeapon OutsideGame normalization and real Silver Lion/Wooden Ox children.",
+    "Jiawei reveals actual X+1 top entities through the existing native public reveal operation, including native exhaustion and reshuffle. No missing entity is manufactured. Damage-card classification includes actual Slash-family, Duel, Fire Attack, both AOEs, Lightning and the existing Unexpected Assault card; optional view-as abilities do not change a revealed deck entity.",
+    "Each revealed entity has a frozen original Processing residency and partition. It can only be claimed from that original residency; children that move an entity away do not allow its replacement or a later reacquisition. Original damage entities go to Yang Feng, other entities go to the frozen target. A dead recipient gains nothing, and remaining original entities settle to discard.",
+    "Native gained/lost-card, recovery/replacement, HP, skill-change and dying children resume their exact owning ProgramSkillFrame without repaying completed discard/reveal/gain stages. Paid skill loss retains the issued resolution.",
+    "The distance grant uses the existing actual-turn CardUseDistanceLimit unlimited modifier after Jiawei settles, applying to all distance-restricted card uses. It grants no Slash quota, no arbitrary target permission and no physical-distance change.",
+    "Qujia uses the actual AfterTurnEnded parent, an optional game-limited activation, a frozen no-kill fact and the existing typed PendingBeneficiarySeat extra-turn progression. A real owner-attributed PlayerDied killer record anywhere in that actual turn blocks the offer.",
+    "The once-per-game Qujia consumption is additionally event-derived by actual owner and skill identity, so a new runtime skill instance cannot refresh it after genuine loss/regrant. The permanent Slash quota is a separately issued, proven scalar event and survives source loss.",
+    "The obtain branch selects one actual Slash-family card from the real draw pile, using the native empty-pile reshuffle contract. If no Slash exists, it gains no card while retaining its selected permanent +1 Slash quota. This exact name search and the enduring grant after loss are stated-text/native-contract inferences; no current product FAQ specifies a different fallback."
+  ],
+  "validation": {
+    "status": "verified",
+    "methodNames": [
+      "JiaweiCompletedTurnQuotaPartitionAndDistanceCold",
+      "JiaweiOpaqueHeJPaymentsNativeChildrenAndSourceLossCold",
+      "QujiaLimitedNativeExtraTurnAndKillGateCold",
+      "QujiaPermanentSlashBonusDeckGainAndDeathCold"
+    ],
+    "scope": "Real public and private commands, native actual turns and card movements, paid recovery/grain/dying children, source loss and genuine new-instance regrant, cold checkpoint/replay and atomic invalid-command rejection. No duplicate character definition snapshot.",
+    "result": "Focused native behavior, relevant shared regressions, real WPF gallery and measured routine verification passed."
+  }
+}

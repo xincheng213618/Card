@@ -48,9 +48,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    // Qinglong finishes the dodged use before its new Slash. That completion can
-    // open Zhongyong's first, still-unselected gift prompt. The existing typed
-    // Qinglong continuation saves precisely that prompt on the original use.
+    // Legacy completed-use suspension validation. A true Qinglong insertion
+    // retains an unfinished original use and never qualifies for this ride.
     // This is not a recipient Slash, and cannot qualify an arbitrary child use.
     private bool IsUnselectedCompletedGiftQinglongRide(ProgramSkillFrame frame)
     {

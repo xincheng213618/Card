@@ -7,10 +7,12 @@ public sealed partial class GameEngine
     private const string CompletedUndamagedRevealBind = "completed-undamaged-target-reveal";
     private long CompletedUndamagedMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private bool TracksCompletedUndamagedUseDamage => _contentRegistry.ProgramDependencies
-        .HasTriggerOperation(SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor) ||
+        .HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash);
     // Native immediate damage tricks. A separate program Damage child is not damage caused by its ancestral Use.
     private static bool IsCompletedUndamagedDamageUse(CardKind kind) => IsSlashCard(kind) || kind is
         CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault;
@@ -280,6 +282,7 @@ public sealed partial class GameEngine
         MoveProgramCardsFromMultipleSources(paid.Select(m => m.CardId).ToArray(), CardLocation.DiscardPile,
             new(CompletedUndamagedDiscardReason(f)), (batch, records) =>
             {
+                foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
                 if (records.Count != paid.Length || !records.Select(m => m.CardId).SequenceEqual(paid.Select(m => m.CardId)) ||
                     records.Any(m => m.From != from || m.To != CardLocation.DiscardPile ||
                         paid.Single(c => c.CardId == m.CardId).PrintedKind != m.CardKind))

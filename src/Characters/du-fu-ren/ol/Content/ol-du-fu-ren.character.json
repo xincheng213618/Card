@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:du-fu-ren",
+  "skills": [
+    {
+      "registrationOrder": 1440,
+      "programBundle": "ol-du-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yise",
+        "name": "异色",
+        "description": "当其他角色获得你的牌后，若包含：红色牌，你可以令其回复1点体力；黑色牌，其下次受到【杀】的伤害+1。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1441,
+      "programBundle": "ol-du-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shunshi",
+        "name": "顺世",
+        "description": "准备阶段或当你于回合外受到伤害后，你可以交给除伤害来源之外的一名其他角色一张牌，令你下个摸牌阶段摸牌数、下个出牌阶段使用【杀】的限制次数、下个弃牌阶段的手牌上限+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1442,
+      "pools": {
+        "current": 422
+      },
+      "definition": {
+        "id": "ol:du-fu-ren",
+        "name": "杜夫人",
+        "portraitKey": "ol-du-fu-ren",
+        "skillId": "ol:yise",
+        "additionalSkillIds": [
+          "ol:shunshi"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:du-fu-ren",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

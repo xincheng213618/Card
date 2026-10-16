@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:liu-pi",
+  "characterId": "character:liu-pi",
+  "product": "三国杀OL",
+  "officialGid": 612,
+  "officialPage": "https://www.sanguosha.com/hero/612",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=612",
+  "identity": {
+    "name": "刘辟",
+    "faction": "qun",
+    "hp": 4,
+    "gender": "Male",
+    "clientClass": "LiuPi",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "deduplication": "Read all 446 current general definitions before adding this manifest. No LiuPi identity, liu-pi manifest or ol:yicheng skill was registered; the similarly named Yicheng of other characters is a different skill.",
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T00:52:35.156806+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "f609f7cdae49f8494b16355c3ffa1e7585d891a7e4c31e8d183f0115e487161e",
+    "decoder": "Fetched public bundle ZIP in memory, read its actual InitOfb IV/key, decoded Config character.sgs and cha_spell.sgs using that AES-CFB128 implementation followed by gzip. No guessed key, no persisted runtime/config files.",
+    "characterRow": {
+      "a": 612,
+      "b": "刘辟",
+      "d": "LiuPi",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 3440
+    },
+    "spellRow": {
+      "a": 3440,
+      "c": "易城",
+      "d": "YiCheng",
+      "o": "出牌阶段限一次，你可以展示牌堆顶X张牌（X为你的体力上限），然后可以用任意张手牌交换其中等量张牌，若展示牌点数之和因此增加，你可以用所有手牌交换展示牌。"
+    }
+  },
+  "primarySemantics": [
+    "Reveal count is current maximum HP at activation, not current HP. The initial exchange pays and obtains exactly the same number of physical cards.",
+    "The second optional exchange requires a strict increase of the displayed cards' actual rank sum caused by that first exchange; equality and decline do not qualify.",
+    "The second exchange exchanges the entire current hand and entire displayed set; these two set sizes need not be equal. Neither exchange is a discard cost."
+  ],
+  "secondaryOperationalEvidence": {
+    "url": "https://www.taptap.cn/moment/592877591724033094",
+    "title": "武将攻略 刘辟：舍本逐末造就平庸胜率？",
+    "status": "Secondary gameplay guide; not an independent official FAQ or quote of server rules.",
+    "observations": [
+      "Displayed cards return to the draw-pile top after resolution, rather than following Mubing's reveal-to-discard disposition.",
+      "The first exchange preserves displayed positions and replaces selected positions with selected hand cards in their existing hand arrival order.",
+      "The optional second all-hand exchange permits arranging the outgoing hand order on top. The local UI exposes an explicit private order selection without enumerating permutations."
+    ]
+  },
+  "implementation": [
+    "Pending choices and immutable table/payment/order receipts live on the owning ProgramSkillFrame, with exact last movement ordinals rejecting an entity that left and returned to Processing.",
+    "Both physical exchange directions use one native atomic movement batch, preserving receipts, movement triggers and final hand counts. Each public table update uses the existing deep-frozen ProgramCardsRevealedEvent.",
+    "The first rank comparison freezes at the committed exchange, before nested observers can change hand/table state. The second exchange captures the actual whole hand after first-exchange children finish.",
+    "Semantic inference for nested intervention: cards removed by a real observer are no longer available merely because the same entity later returns to Processing; only uninterrupted displayed receipts participate in cleanup or subsequent exchange."
+  ],
+  "artwork": {
+    "portraitKey": "ol-liu-pi",
+    "officialCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61200.png"
+  },
+  "content": "src/Characters/liu-pi/ol/Content/ol-liu-pi.character.json",
+  "runtime": "src/Characters/liu-pi/ol/Runtime"
+}

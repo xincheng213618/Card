@@ -47,6 +47,7 @@ public sealed class PromptCardChoiceConverter : IMultiValueConverter
             SuitGlyph = visible.Suit switch { Suit.Heart => "♥", Suit.Diamond => "♦", Suit.Spade => "♠", Suit.Club => "♣", _ => string.Empty },
             Rank = visible.RankText,
             Description = CardCatalog.Get(visible.Kind).Description,
+            OriginalHandTag = visible.SkillMarkLabel ?? string.Empty,
             IsPlayable = false,
             IsSelected = false
         };

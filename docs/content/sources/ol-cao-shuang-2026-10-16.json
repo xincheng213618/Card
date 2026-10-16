@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:cao-shuang",
+  "officialGid": 469,
+  "officialPage": "https://www.sanguosha.com/hero/469",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=469",
+  "factionId": "wei",
+  "hp": 4,
+  "gender": "Male",
+  "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46900.png",
+  "pageUtf8Sha256": "509f02ed5aae9a8b3f3a3f7a268787ed9e87f20a96af831b1d03dc4e4a21bf81",
+  "apiUtf8Sha256": "0b8293704c200285eb451bf5e617c7df7ca8960edd9b30bdc0bc9f969b5677bb",
+  "clientPreflight": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+  "clientPreflightComparison": "Current official hero469 and API confirm the same CaoShuang identity, Wei/4HP, client genderRaw1; client TuoGu955/ShanZhuan956 agree verbatim apart from bracket and HTML formatting.",
+  "skills": [
+    {
+      "id": "ol:tuogu",
+      "clientId": 955,
+      "name": "托孤",
+      "text": "当一名角色死亡时，你可以令其选择其武将牌上的一个技能（限定技、觉醒技、主公技和包含隐匿的技能除外），你失去上次以此法获得的技能，然后获得此技能。"
+    },
+    {
+      "id": "ol:shanzhuan",
+      "clientId": 956,
+      "name": "擅专",
+      "text": "当你对一名其他角色造成伤害后，若其判定区没有牌，你可以将其一张牌置于其判定区，若此牌不是延时锦囊牌，则红色牌视为【乐不思蜀】，黑色牌视为【兵粮寸断】。结束阶段，若你本回合未造成伤害，你可以摸一张牌。"
+    }
+  ],
+  "interpretation": [
+    "Tuogu uses the deceased general printed skill definitions, including both printed cards where applicable, never all acquired runtime skills; Limited/Awakening/Lord and any skill name/description containing 隐匿 are excluded. The deceased is the actual private chooser even though dead.",
+    "Each Tuogu inheritance owns a separate grant, replacing only the exact prior Tuogu grant. An original or separately granted same-name skill remains intact; existing effective skill instances are shared to preserve quotas.",
+    "Shanzhuan moves one eligible owned physical hand/equipment card into an entirely empty, available judgment area. It is a placement, not a Use or a delayed-trick targeting event. A printed delayed trick retains its original kind; otherwise its actual owner-effective suit determines red Indulgence or black SupplyShortage.",
+    "Native judgment-effective-kind storage follows the physical entity when transferred within Judgment and is cleared when it leaves Judgment; later re-entry requires a new placement or Use.",
+    "The ending draw checks actual damage dealt during the current actual turn, not declarations or prevented damage."
+  ],
+  "content": "src/Characters/cao-shuang/ol/Content/ol-cao-shuang.character.json",
+  "runtime": "src/Characters/cao-shuang/ol/Runtime",
+  "validation": "Root integrated focused verification passes all four native behavior checks: deceased private printed-skill choice, exact prior inherited-grant replacement and source-pile cleanup; actual red/black/printed delayed placement and Judgment transfer/later leave; native Silver Lion recovery replacement cold returns; actual dealt-damage ending draw."
+}

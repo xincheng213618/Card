@@ -318,17 +318,20 @@ internal static class NativeLifeOutcomeFeedbackChecks
         Assert(shade.IsVisible && !shade.IsHitTestVisible, "The actual dead seat did not show its passive static death shade.");
         var grid = (Grid)VisualTreeHelper.GetParent(shade);
         var name = Find<TextBlock>(grid).Single(text => text.Name == "SeatVerticalName");
-        var meter = Find<HealthMeter>(grid).Single(control => control.Name == "SeatHealthMeter");
-        var title = Find<Grid>(grid).Single(control => control.Name == "SingleGeneralTitle");
+        var icons = Find<ItemsControl>(grid).Single(control => control.Name == "SeatHealthIcons");
+        var metadata = Find<StackPanel>(grid).Single(control => control.Name == "SeatNameRail");
+        var publicHand = Find<TextBlock>(metadata).Single(control => control.Name == "SeatHandCountText");
         var seat = (SeatViewModel)portrait.DataContext;
-        var publicHealth = Find<TextBlock>(title).Single(text => text.Text == seat.HealthValue);
+        var publicHealth = Find<Border>(grid).Single(control => control.Name == "SeatHealthRail");
+        Assert(System.Windows.Automation.AutomationProperties.GetName(publicHealth) == seat.HealthValue,
+            "The public HP value must remain available on the health rail after death.");
         var publicRole = Find<TextBlock>(grid).Single(text => text.Text == seat.RoleBadgeText);
-        var titleBranch = DirectChild(title);
-        Assert(grid.Children.IndexOf(shade) < grid.Children.IndexOf(name) && grid.Children.IndexOf(shade) < grid.Children.IndexOf(meter) &&
+        var titleBranch = DirectChild(metadata);
+        Assert(grid.Children.IndexOf(shade) < grid.Children.IndexOf(DirectChild(name)) && grid.Children.IndexOf(shade) < grid.Children.IndexOf(DirectChild(icons)) &&
             grid.Children.IndexOf(shade) < grid.Children.IndexOf(titleBranch),
             "Static death shading covered the later name/HP/readout instead of staying behind the metadata.");
         var output = new Rect(host.Root.RenderSize);
-        foreach (var element in new FrameworkElement[] { meter, title, publicHealth, publicRole, shade }.Concat(name.IsVisible ? new[] { name } : []))
+        foreach (var element in new FrameworkElement[] { icons, metadata, publicHand, publicHealth, publicRole, shade }.Concat(name.IsVisible ? new[] { name } : []))
         {
             var bounds = element.TransformToVisual(host.Root).TransformBounds(new Rect(element.RenderSize));
             Assert(element.IsVisible && element.ActualWidth > 0 && element.ActualHeight > 0 &&
@@ -336,7 +339,9 @@ internal static class NativeLifeOutcomeFeedbackChecks
                 $"The native dead-seat metadata was hidden/cropped: element={element.Name}/{element.GetType().Name}, " +
                 $"visibility={element.Visibility}, isVisible={element.IsVisible}, bounds={bounds}, output={output}.");
         }
-        Assert(meter.Value == 0 && meter.Maximum == seat.MaxHp && publicHealth.Text == $"0/{seat.MaxHp}" &&
+        Assert(icons.Items.Count == Math.Clamp(seat.MaxHp, 0, 8) &&
+            icons.Items.Cast<string>().All(path => path.EndsWith("gallery-hp-empty.png", StringComparison.Ordinal)) &&
+            System.Windows.Automation.AutomationProperties.GetName(publicHealth) == $"0/{seat.MaxHp}" &&
             publicRole.Text.Length > 0 && shade.Child is TextBlock { Text: "阵 亡" },
             "The dead portrait lost its exact zero-HP title, revealed public role or actual static death badge.");
         // Fixture generals deliberately have no bundled portrait artwork. The

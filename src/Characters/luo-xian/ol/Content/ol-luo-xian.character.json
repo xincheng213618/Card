@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:luo-xian",
+  "skills": [
+    { "registrationOrder": 1410, "programBundle": "ol-luo-xian", "includeProgramPresentation": true,
+      "definition": { "id": "ol:daili", "name": "带砺", "description": "每回合结束时，若你有偶数张展示过的手牌，你可以翻面，摸三张牌并展示之。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1411, "pools": { "current": 419 },
+      "definition": { "id": "ol:luo-xian", "name": "罗宪", "portraitKey": "ol-luo-xian", "skillId": "ol:daili", "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:luo-xian", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

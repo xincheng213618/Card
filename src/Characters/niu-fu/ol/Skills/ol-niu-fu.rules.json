@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:shisuan", "revision": 1, "triggers": [
+      { "id": "recast-source-choice", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "resolveShisuanRecastSourceChoice", "target": "owner" }] }
+    ] },
+    { "id": "ol:zonglue", "revision": 1,
+      "viewAs": [{ "id": "one-as-slash", "inputKinds": [], "inputSuits": [], "sourceZones": ["hand", "equipment"], "outputKind": "slash", "forPlay": true, "forResponse": false, "usesPerPhase": 1, "allowSameKind": true }],
+      "triggers": [
+        { "id": "actual-converted-slash-zones", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true,
+          "effects": [{ "op": "obtainZonglueDamageTargetZones", "target": "owner" }] }
+      ]
+    }
+  ]
+}

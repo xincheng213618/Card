@@ -1,0 +1,3 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ke-bi-neng","skills":[
+ {"registrationOrder":1610,"programBundle":"ol-ke-bi-neng","includeProgramPresentation":true,"definition":{"id":"ol:pingduan","name":"平端","description":"出牌阶段限一次，你可以令一名角色依次执行：1.使用一张基本牌；2.重铸一张锦囊牌；3.可令你获得其装备区一张牌。其每执行一项便摸一张牌。","actionForms":"Active"}}
+],"generals":[{"registrationOrder":1611,"pools":{"current":439},"definition":{"id":"ol:ke-bi-neng","name":"轲比能","portraitKey":"ol-ke-bi-neng","skillId":"ol:pingduan","factionId":"qun","baseHp":4,"gender":"Male","characterId":"character:ke-bi-neng","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

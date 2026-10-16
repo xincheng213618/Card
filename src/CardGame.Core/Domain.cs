@@ -151,13 +151,23 @@ public enum PlayerMarkerKind
     Houtu = 24401,
     Yuqing = 24402,
     Gouchen = 24403,
-    ShanjiaLoss = 24500
+    ShanjiaLoss = 24500,
+    AdoptedChild = 26020,
+    QuxiFeng = 26300,
+    QuxiQian = 26301,
+    XunyiYi = 26320,
+    QingyuanPartner = 26820
 }
 
 public static class PlayerMarkerCatalog
 {
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
+        PlayerMarkerKind.AdoptedChild => "义子",
+        PlayerMarkerKind.QuxiFeng => "丰",
+        PlayerMarkerKind.QuxiQian => "歉",
+        PlayerMarkerKind.XunyiYi => "义",
+        PlayerMarkerKind.QingyuanPartner => "轻缘",
         PlayerMarkerKind.LuanZhan => "乱战",
         PlayerMarkerKind.RaoShe => "饶舌",
         PlayerMarkerKind.MeiYing => "梅影",
@@ -530,7 +540,17 @@ public sealed record CardSnapshot(
     Suit Suit,
     int Rank,
     string DisplayName,
-    string RankText);
+    string RankText)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? PublicHandOwnerSeat { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SkillMarkLabel { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CardKind? IdentityKind { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? IdentitySkillName { get; init; }
+}
 
 public sealed record PlayerMarkerSnapshot(
     PlayerMarkerKind Kind,
@@ -560,6 +580,8 @@ public sealed partial record PlayerSnapshot
     public bool IdentityConcealed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool HpUndefined { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? HandLimit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AlcoholDamageBonus { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:cao-xi",
+  "skills": [
+    { "registrationOrder": 1520, "programBundle": "ol-cao-xi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:gangshu", "name": "刚述", "description": "当你使用非基本牌后，你可以令你以下一项数值+1直到你抵消牌（至多增加至5）：1.攻击范围；2.下个摸牌阶段摸牌数；3.出牌阶段使用【杀】的限制次数。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1521, "programBundle": "ol-cao-xi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:jianxuan", "name": "谏旋", "description": "当你受到伤害后，你可以令一名角色摸一张牌，若其手牌数等于你“刚述”中的任意项，其重复此流程。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 1522, "pools": { "current": 430 },
+    "definition": { "id": "ol:cao-xi", "name": "曹羲", "portraitKey": "ol-cao-xi", "skillId": "ol:gangshu", "additionalSkillIds": ["ol:jianxuan"], "factionId": "wei", "baseHp": 3, "gender": "Male", "characterId": "character:cao-xi", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }]
+}

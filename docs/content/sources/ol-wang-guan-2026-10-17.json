@@ -1,0 +1,271 @@
+{
+  "capturedOn": "2026-10-17",
+  "product": "sanguosha-ol",
+  "generalId": "ol:wang-guan",
+  "identity": {
+    "gid": 553,
+    "name": "王瓘",
+    "variant": "ordinary",
+    "faction": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "identityEvidence": "Current official OL hero/API and public client a553/WangGuan; the official 2023-06-25 release table explicitly identifies Wei, male and three HP. No repository manifest for this same product/variant existed before this implementation."
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-17T01:07:39.051007+08:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1253]",
+      "row": {
+        "a": 553,
+        "b": "王瓘",
+        "d": "WangGuan",
+        "e": 44,
+        "f": "42",
+        "g": 1,
+        "h": 1,
+        "i": 3,
+        "j": 3274,
+        "k": 3275,
+        "p": 2,
+        "q": "1",
+        "r": "9055301",
+        "y": "《三国演义》中邓艾手下参谋，献反间计与邓艾，被姜维识破，焚粮夺路奔走，被围杀自投江而死。",
+        "z": "使用虚实相生的火攻，有时故意不命中和火攻自己也是一种策略。",
+        "aa": 1293,
+        "ab": "1033,1034",
+        "ad": "画师:匠人绘",
+        "x": "柳暗花明又一村！",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20230726T235959",
+        "LordCardRate1": 54,
+        "LordCardRate2": 50,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,爆发强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1678]",
+          "row": {
+            "a": 3274,
+            "b": "3,13",
+            "c": "谬焰",
+            "d": "MiuYan",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "o": "转换技，<br>&nbsp;阳：你可以将一张黑色牌当【火攻】使用，若此牌造成伤害，你获得本阶段展示过的所有手牌；<br>&nbsp;阴：你可以将一张黑色牌当【火攻】使用，若此牌未造成伤害，本轮本技能失效。###转换技，<br>&nbsp;<font color=\"#fff000\">阳：你可以将一张黑色牌当【火攻】使用，若造成伤害，你获得本阶段展示过的所有手牌；</font><br>&nbsp;阴：你可以将一张黑色牌当【火攻】使用，若未造成伤害，本轮本技能失效。###转换技，<br>&nbsp;阳：你可以将一张黑色牌当【火攻】使用，若造成伤害，你获得本阶段展示过的所有手牌；<br>&nbsp;<font color=\"#fff000\">阴：你可以将一张黑色牌当【火攻】使用，若未造成伤害，本轮本技能失效。</font>",
+            "v": "请选择一张黑色牌当<font color='#FFD800'>火攻</font>使用",
+            "ae": "{Source}发动了{UseSkill}，将{Card}当<font color='#FFD800'>火攻</font>使用，目标是{Target}",
+            "elementDamage": 2
+          }
+        },
+        {
+          "path": "GameSpells.spell[1679]",
+          "row": {
+            "a": 3275,
+            "b": "3,4,5",
+            "c": "失路",
+            "d": "ShiLu",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "n": 0,
+            "o": "锁定技，当你受到伤害后，你摸与你体力值等量张牌并展示攻击范围内一名其他角色一张手牌，令此牌视为【杀】。",
+            "w": "请选择一名角色"
+          }
+        }
+      ]
+    }
+  },
+  "officialPrimary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/553",
+      "finalUrl": "https://www.sanguosha.com/hero/553",
+      "status": 200,
+      "sha256": "d5fe184cf533a97092c853b5a6f31c62efcd6ab5b1f33715337231d3a382735d",
+      "byteCount": 23956,
+      "skillRegionHtml": null
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=553",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=553",
+      "status": 200,
+      "sha256": "d26b8e4a481078ceafcf87560b40b368a3900546df0d3d4adc4ee08f7d2bbf44",
+      "byteCount": 830,
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 553,
+              "name": "王瓘",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/553.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55300.png",
+              "label": [
+                "进攻",
+                "控制",
+                "过牌"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "《三国演义》中邓艾手下参谋，献反间计与邓艾，被姜维识破，焚粮夺路奔走，被围杀自投江而死。",
+              "characteristic": "使用虚实相生的火攻，有时故意不命中和火攻自己也是一种策略。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 9
+            },
+            {
+              "name": "农民",
+              "value": 8
+            },
+            {
+              "name": "主公",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55300.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55300.png",
+      "status": 200,
+      "byteCount": 927362,
+      "sha256": "3814e0977d7b92f23afcb47c13e14a6ebf9461a7d13a8be7fd7eb66d08461f67",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-wang-guan.png",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  },
+  "officialRelease": {
+    "url": "https://www.sanguosha.com/news/20230619_3517_0917",
+    "publishedOn": "2023-06-25",
+    "releasedOn": "2023-06-26",
+    "scope": "Official ordinary-OL release identity and both complete skills; current official hero and current client agree."
+  },
+  "sameProductGuide": {
+    "url": "https://my.4399.com/yxsgs/gonglue/55287/",
+    "publishedOn": "2023-07-21",
+    "classification": "Same-product contributor guide, not an official FAQ",
+    "corroboratedFacts": [
+      "Equipment can supply the black Fire Attack conversion.",
+      "Yang checks actual Hand entities shown publicly during this phase across all participants. A deck/Processing reveal followed by obtaining is not a Hand-show instruction.",
+      "Cards already in the original user hand create no extra gain. Cards outside Hand at settlement cannot be obtained.",
+      "Self Fire Attack can trigger Shilu and then obtain the newly Shilu-shown foreign Hand card with that same Yang."
+    ],
+    "copyrightNote": "Only brief rule facts are paraphrased; the guide article and illustrations are not copied."
+  },
+  "currentClientImplementationEvidence": {
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "miuyan": "MiuYan class YLi extends Qjt permits black Spade/Club NORMAL | EQUIP | MUNIULIUMA material and outputs HUOGONG. This directly includes real Wooden Ox storage materials, beyond the guide equipment example.",
+    "shilu": "ShiLu VLi handles DATA_STATE_SHILU=3275 Targets as entity IDs; state pC sets AvatarSkill=SHA for that seat and its target list, with the same structural pattern as the client DATA_FUMAN state. The server controls target-list updates; no client-only lifetime claim is presented as a complete server ruling."
+  },
+  "currentRules": [
+    {
+      "skillId": 3274,
+      "clientName": "MiuYan",
+      "name": "谬焰",
+      "text": "转换技，阳：你可以将一张黑色牌当【火攻】使用，若此牌造成伤害，你获得本阶段展示过的所有手牌；阴：你可以将一张黑色牌当【火攻】使用，若此牌未造成伤害，本轮本技能失效。"
+    },
+    {
+      "skillId": 3275,
+      "clientName": "ShiLu",
+      "name": "失路",
+      "text": "锁定技，当你受到伤害后，你摸与你体力值等量张牌并展示攻击范围内一名其他角色一张手牌，令此牌视为【杀】。"
+    }
+  ],
+  "implementationDecisions": [
+    "Miuyan delegates declaration, black material eligibility, payment, normal target legality, Nullification, actual Fire Attack reveal/same-suit discard and all damage children to the native single-card ordinary-trick conversion. Real Hand, Equipment and WoodenOxGrain materials retain exact physical provenance. Other conversions and pure played responses do not issue Miuyan.",
+    "A scalar invoice belongs to the native CardUseFrame, freezing accepted actor/provider, original skill instance/hash, actual turn, actual round, actual phase, physical cost and polarity. The existing conversion state toggles once on the real accepted Use declaration, independent of later damage. Actor replacement does not create a new entitlement.",
+    "Both Yang benefit and Yin failure are decided after the entire genuine native Fire Attack Use completes. The positive whole-Use damage ledger is authoritative; FireAttackResolved.CausedDamage is emitted before actual damage and is not proof. This whole-Use timing follows rule wording and the native return order, and ensures the complete self-damage Shilu subtree precedes Yang. No official specialized first-damage/whole-Use FAQ was found.",
+    "Phase Hand-show history is event-derived even while no player currently owns Miuyan. Explicit native public reveal producers are classified at emission, and only exact entities currently in Hand qualify. Private inspection, Processing/deck reveals, exact Shandao top-placement movement exposure and exact Zhaosong face-up gift movement exposure are excluded. Public Hand comparison, actual public hand drafts and Qingliang use their original native entities or original public binding. Classic Kangkai and Fanjian retain their explicit current content instruction to show the actual Hand card; the contributor guide example does not override a different implemented product/variant text. The older native Juanxia Fire Attack public Hand display is recovered from its exact scalar trick event while the owning native program still retains the original Fire-stage target/entity; it qualifies regardless of whether the optional same-color damage payment was made.",
+    "A qualifying phase-history entity may change holder, leave Hand and return, and still qualify if it is physically in some living character Hand when Yang freezes its gain set. This deliberately differs from Shilu continuous Hand identity. These transfer/reentry details follow the current wording and guide Hand-at-check rule; they are recorded as implementation inferences rather than official specialized FAQ. Own Hand entities create no synthetic movement or gain.",
+    "Yang freezes current foreign Hand entities once and moves exactly those entities in a native multi-source gain batch. Native gain/HP/skill/dying children return through the owning ProgramSkillFrame without replacing cards or repaying a completed gain. The issued native Use survives subsequent source loss; a dead owner performs no new gain.",
+    "An undamaging Yin issues a scalar suppression for the original owner and skill for the current actual round, independent of runtime instance. Qualification remains blocked after loss and regrant, and releases at a genuine next RoundStarted boundary. Shilu is unaffected.",
+    "Shilu observes PerDamage, not PerDamagePoint. At instruction execution it freezes max(0,current HP), performs that actual native draw and drains its native gain children before selecting a currently in-range living other participant with Hand cards. All private Hand choices use opaque frozen slots; only the chosen original entity is publicly revealed.",
+    "Shilu actual entity name is Slash through the canonical Hand identity query, including native card uses and response producers. Its original issuer/source/hash and real public reveal are retained in scalar facts after skill loss or issuer death. The identity lasts one continuous target Hand residency and ends on the first true departure; same Hand reordering is not a departure and later return does not revive it. This lifetime is an explicit rule/client-structure inference because the public client does not expose the server target-list removal rule.",
+    "All pending resolution state belongs to its actual native Use or ProgramSkillFrame. Exposed receipt collections clone on construction and init, new events carry only scalars or immutable scalar records, and private choices are projected through CreateSnapshot(viewerSeat). No use-ID sidecar, forged Use, fake phase or hand injection is used."
+  ],
+  "validation": {
+    "status": "verified",
+    "checkedAtUtc": "2026-10-16T17:40:15.099989+00:00",
+    "focused": {
+      "ownCoreChecks": 8,
+      "wpfChecks": 2,
+      "durationMs": 65953,
+      "finalHandRevealProducerRegression": {
+        "checks": 1,
+        "durationMs": 33506
+      }
+    },
+    "sharedRelated": {
+      "coreChecks": 14,
+      "wpfChecks": 1
+    },
+    "routine": {
+      "coreChecks": 141,
+      "wpfChecks": 21,
+      "durationMs": 89695,
+      "buildMs": 39145,
+      "coreMs": 18475,
+      "wpfMs": 49956,
+      "scope": "Configured routine scope, no name filters. Full verification was not run."
+    },
+    "visualInspection": "Actual native WPF gallery screenshots inspected for both official portraits and full registered skill text; no clipping.",
+    "parallelWorkspaceBoundary": "Independent tasks changed shared Core/WPF sources during and after verification. Only unchanged source hashes are sealed as validated; later changes are excluded.",
+    "versionPolicy": "No per-character rules/schema/package version change introduced by this batch."
+  },
+  "status": "verified"
+}

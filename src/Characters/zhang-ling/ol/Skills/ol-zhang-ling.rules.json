@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:huqi", "revision": 1,
+      "modifiers": [{ "id": "outgoing-distance", "query": "outgoingDistance", "operation": "add", "value": -1, "priority": 0 }],
+      "triggers": [{ "id": "off-turn-red-counterattack", "window": "afterDamageApplied", "subject": "owner", "optional": false, "damageOccurrence": "perDamage",
+        "condition": { "kind": "not", "children": [{ "kind": "ownerIsTurnPlayer" }] },
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "huqi", "resultBind": "huqi-judgment", "visibility": "public" },
+          { "op": "useRedJudgmentSlashAtDamageSource", "target": "owner", "sourceBind": "huqi-judgment" }
+        ] }]
+    },
+    { "id": "ol:shoufu", "revision": 1,
+      "activations": [{ "id": "draw-and-place-talisman", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "draw", "target": "owner", "amount": 1 },
+          { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": 1, "zones": ["hand"], "resultBind": "talisman" },
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingWithoutCategoryTalisman" },
+          { "op": "placeBoundHandAsCategoryTalisman", "target": "owner", "sourceBind": "talisman" }
+        ] }]
+    },
+    { "id": "ol:shoufu-talisman", "revision": 1, "triggers": [
+      { "id": "received-damage-release", "window": "afterDamageApplied", "subject": "owner", "optional": false, "damageOccurrence": "perDamage", "priority": 1000,
+        "effects": [{ "op": "releaseCategoryTalisman", "target": "owner" }] },
+      { "id": "actual-discard-category-release", "window": "cardsMoved", "subject": "owner", "optional": false, "movementOccurrence": "perOwnerBatch", "movementDiscardOnly": true, "sourceZones": ["hand", "equipment", "judgment"],
+        "effects": [{ "op": "releaseCategoryTalisman", "target": "owner" }] }
+    ] }
+  ]
+}

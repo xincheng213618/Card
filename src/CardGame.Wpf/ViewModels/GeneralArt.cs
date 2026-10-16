@@ -470,10 +470,10 @@ public static class GeneralArt
 
     public static bool HasPortrait(string id) => GetSkin(id) is not null;
 
-    public static Brush GetPortrait(string id, string? skinId = null)
+    public static Brush GetPortrait(string id, string? skinId = null, int decodeWidth = 0)
     {
         if (GetSkin(id, skinId) is not { } skin) return Brushes.Transparent;
-        var brush = new ImageBrush(LoadImage(skin.LocalPath))
+        var brush = new ImageBrush(LoadImage(skin.LocalPath, decodeWidth))
         {
             Stretch = Stretch.UniformToFill,
             AlignmentY = AlignmentY.Top

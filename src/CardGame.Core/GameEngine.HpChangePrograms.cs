@@ -131,6 +131,11 @@ public sealed partial class GameEngine
             case PostEventContinuation.RecoveryReplacement:
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
                 break;
+            case PostEventContinuation.AmountSupport:
+                if (!IsAmountSupportHealthChild(_resolutionStack.LastOrDefault(), frame))
+                    throw new InvalidOperationException("Amount support lost its exact health-change return.");
+                AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                break;
             case PostEventContinuation.RecoveryPaidCardUse:
                 ContinueRecoveryPaidCardUse(frame.ResumeFrameId!.Value);
                 break;
@@ -209,6 +214,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
+                PostEventContinuation.AmountSupport => IsAmountSupportHealthChild(parent, hp),
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
                 PostEventContinuation.DenglouCardUse => parent is CardUseFrame { DenglouNative: not null, DenglouCostDrained: false } denglou && denglou.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == denglou.Id,
                 PostEventContinuation.GuoSiCardUse => parent is CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSi && guoSi.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == guoSi.Id,

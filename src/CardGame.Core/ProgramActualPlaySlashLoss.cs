@@ -17,7 +17,9 @@ public sealed partial class GameEngine
         if (!TracksActualPlaySlashLoss || _turnNumber < 1 || _phase != TurnPhase.Play || _cardUseDebitPhaseInstanceId < 1 ||
             !IsSlashCard(card.Kind) || from.OwnerSeat is not { } owner || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment) ||
             to.OwnerSeat == owner) return null;
-        var actor = _programPhaseSchedule is { Phase: TurnPhase.Play } schedule ? schedule.Frame.OwnerSeat : _currentSeat;
+        var actor = _programPhaseSchedule is { Phase: TurnPhase.Play } schedule
+            ? schedule.Frame.ZhangShiPingHongji is { Stage: HongjiStage.ExtraPhase } hongji ? hongji.RecipientSeat : schedule.Frame.OwnerSeat
+            : _currentSeat;
         return actor == owner ? new(_turnNumber, _turnProgression.OwnerSeat, actor, _cardUseDebitPhaseInstanceId, _resolutionStack.LastOrDefault()?.Id) : null;
     }
     private int CurrentActualPlaySlashLossCount(int owner) => !TracksActualPlaySlashLoss || _phase != TurnPhase.Play || owner != _currentSeat ? 0 :

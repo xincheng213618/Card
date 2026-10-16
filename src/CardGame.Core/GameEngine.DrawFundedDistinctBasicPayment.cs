@@ -143,7 +143,7 @@ public sealed partial class GameEngine
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat];
         if (!actor.IsAlive || _winner != Winner.None || p.ActualTurnNumber != _turnNumber || p.ActualTurnOwnerSeat != _turnProgression.OwnerSeat) return false;
         if (p.Intent == DrawFundedDistinctBasicIntent.Play)
-            return _resolutionStack.Count == 1 && _phase == TurnPhase.Play && _currentSeat == actor.Seat &&
+            return (_resolutionStack.Count == 1 && _phase == TurnPhase.Play && _currentSeat == actor.Seat || IsKeBiNengPingduanPaymentFrame(frame)) &&
                 DrawFundedDistinctBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
         var request = _resolutionStack.SingleOrDefault(f => f.Id == p.RequestFrameId);
         if (request is null || _resolutionStack.Count < 2 || _resolutionStack[_resolutionStack.Count - 2].Id != request.Id ||
@@ -163,6 +163,7 @@ public sealed partial class GameEngine
         var p = frame.Payment;
         AdvanceEventRulesAndQueueFact(new DrawFundedDistinctBasicCancelledEvent(p.PaymentFrameId, p.Source.OwnerSeat, p.Intent, p.EffectiveKind));
         ClearPendingDecision(); _status = EngineStatus.Running;
+        if (p.ParentFrameId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return;
         if (_winner != Winner.None) return;
         if (p.Intent == DrawFundedDistinctBasicIntent.BorrowedSword && ActiveBorrowedSword is { } b && b.ResolutionId == p.ParentFrameId && b.ActiveAttack is null)
         { CompleteBorrowedSwordWithoutSlash(b, transferWeapon: _players[b.WeaponOwnerSeat].IsAlive && _players[b.SlashTargetSeat].IsAlive); return; }
@@ -181,6 +182,6 @@ public sealed partial class GameEngine
         { ApplyDyingResponse(_players[d.ResponderSeat], false, null, false, null); return; }
         if (p.Intent is DrawFundedDistinctBasicIntent.ProgramSlash or DrawFundedDistinctBasicIntent.ProgramNearestSlash or DrawFundedDistinctBasicIntent.AssistedSlash or DrawFundedDistinctBasicIntent.NearestLegalSlash &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame program && program.Id == p.ParentFrameId && program.InstructionIndex == p.Cursor)
-        { if(IsQigongRequest(program)){FinishLvKuangLvXiang(program);return;} if(IsCaoChunInitialRequest(program)){FinishCaoChun(program);return;} CancelProgramBindingAndCleanup(program, "原用牌对象或请求已失效，已支付摸牌尝试取消。"); }
+        { if(FinishWuJingPaidAdapter(program))return; if(IsQigongRequest(program)){FinishLvKuangLvXiang(program);return;} if(IsCaoChunInitialRequest(program)){FinishCaoChun(program);return;} CancelProgramBindingAndCleanup(program, "原用牌对象或请求已失效，已支付摸牌尝试取消。"); }
     }
 }

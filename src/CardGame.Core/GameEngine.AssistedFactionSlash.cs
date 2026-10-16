@@ -141,7 +141,7 @@ public sealed partial class GameEngine
 
     private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
-        (HasQigongFactionDistance(actorSeat, targetSeat) ? true : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
+        (HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat) ? true : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == fixedFrameId) is { FixedTargetSlash: { } fixedDraft } fixedFrame &&
          fixedFrame.OwnerSeat == actorSeat && fixedDraft.TargetSeat == targetSeat
             ? IsFixedTargetFactionSlashLegal(fixedFrame, kind, effectiveRank, allowPotentialRank)
@@ -151,7 +151,7 @@ public sealed partial class GameEngine
             : IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
         CanSpendSlashUse(_players[actorSeat], _players[targetSeat], ignoresCount: true, kind) &&
         !IsSlashProhibited(_players[targetSeat]) &&
-        (!HasQigongFactionDistance(actorSeat, targetSeat) ||
+        (!(HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat)) ||
          !IsDirectedCardTargetProhibited(actorSeat, targetSeat, kind) && !IsCardUseForbidden(actorSeat, kind, CardActionType.Use));
 
     private void BeginAssistedProgramFactionSlashRequest(ProgramSkillFrame frame, int actorSeat, int targetSeat, string resultBind)
@@ -182,6 +182,7 @@ public sealed partial class GameEngine
     {
         if (ValidateQigongFactionSlashParent(pending,frame)) return;
         if (ValidateCaoChunFactionSlashParent(pending,frame)) return;
+        if (ValidateWuJingFactionParent(pending,frame)) return;
         if (ValidateFixedTargetFactionSlashParent(pending, frame)) return;
         if (ValidateNearestLegalFactionParent(pending, frame)) return;
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;

@@ -168,7 +168,8 @@ public sealed partial class GameEngine
             {
                 var taken = chooserHand[_random.Next(chooserHand.Count)];
                 MoveCard(taken, CardLocation.Hand(chooserSeat), CardLocation.Processing,
-                    new($"skill-program.{frame.SkillId}.youdi-take"));
+                    new($"skill-program.{frame.SkillId}.youdi-take"),
+                    movement => RecordBianFuRenOwnedTransferProducer(movement,owner.Seat,frame.Id));
                 MoveCard(taken, CardLocation.Processing, CardLocation.Hand(owner.Seat),
                     new($"skill-program.{frame.SkillId}.youdi-take"));
                 took = true;

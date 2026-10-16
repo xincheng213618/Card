@@ -2,9 +2,9 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    // Both producers prove their own issuance before sharing native zero-entity
-    // processing boundaries. The tiered producer's receipt is not fabricated.
-    private bool IsZeroEntityUse(long id) => IsTieredRoundZeroUse(id) || IsMouZhijueZeroUse(id) || IsChosenAssaultUse(id);
+    // Each producer proves its own issuance before sharing native zero-entity
+    // processing boundaries. A different producer cannot lend it a receipt.
+    private bool IsZeroEntityUse(long id) => IsTianChouShandaoUse(id) || IsTieredRoundZeroUse(id) || IsMouZhijueZeroUse(id) || IsChosenAssaultUse(id) || IsQinLangXianyingUse(id) || IsAHuiNanJuemanUse(id);
     private bool IsZeroEntityProcessingParent(long id, int cardId) => cardId == 0 && IsZeroEntityUse(id);
     private bool MatchesMouZhijueUseAction(long id, CardActionContext action, int cardId) =>
         cardId == 0 && IsMouZhijueZeroUse(id) && LifecycleCardUse(id)?.Action is { } issued &&

@@ -112,6 +112,7 @@ public sealed partial class GameEngine
         pending = ReplaceNullificationWindowFrame(pending with { NamedAmbushResponse = null,
             EffectNullified = r.Invalidated is null ? !r.PreviousEffectNullified : r.PreviousEffectNullified,
             ChainDepth = r.PreviousChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(r.ResponderSeat), CandidateIndex = 0 });
+        CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: r.Invalidated is not null);
         AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
             r.ResponderSeat, r.CardId, pending.EffectNullified, pending.ChainDepth));
         AddLog("NullificationResponded", r.Invalidated is not null ? $"{_players[r.ResponderSeat].Name} 使用的【无懈可击】无效。" :

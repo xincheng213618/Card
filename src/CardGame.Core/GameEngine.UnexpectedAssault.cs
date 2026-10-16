@@ -70,7 +70,7 @@ public sealed partial class GameEngine
 
         var receipt = new UnexpectedAssaultRevealReceipt(use.Id, action.ActionId, use.TargetIndex,
             sourceSeat, targetSeat, targetCard.Id, targetCard.Kind, targetCard.Suit, targetCard.Rank,
-            useSuit, EffectiveSuit(_players[targetSeat], targetCard), IsExtraCardEffectRound(use.Id) ? 1 : 0);
+            useSuit, EffectiveSuit(_players[targetSeat], targetCard), NativeExtraEffectRoundOrdinal(use.Id));
         ReplaceRuntimeTop(use with { UnexpectedAssaultReveal = receipt });
         AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(use.Id, Array.AsReadOnly(new[] { ToSnapshot(targetCard) })));
         AdvanceEventRulesAndQueueFact(new UnexpectedAssaultRevealedEvent(receipt));

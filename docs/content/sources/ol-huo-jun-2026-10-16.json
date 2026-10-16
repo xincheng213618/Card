@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:huo-jun",
+  "officialGid": 513,
+  "officialPage": "https://www.sanguosha.com/hero/513",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=513",
+  "factionId": "shu",
+  "hp": 4,
+  "gender": "Male",
+  "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51300.png",
+  "pageUtf8Sha256": "b38e0972dcf7d46413bbd34dc4f3510891a4a03e7c499f7e75ca90fccd19820b",
+  "apiUtf8Sha256": "d5379c14114e13ffa090c0f14383fa750c440fa95bebd846253e7bccfbddc81b",
+  "deduplication": "Searched all current character manifests and rule resources before adding this module; no HuoJun identity, huo-jun module, ol:qiongshou or ol:fenrui skill was registered among the current 449 generals.",
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T01:43:50.585467+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "b27375358c4d4a149fb19d93beae039575bab4af57e44e3a94169002fec4178f",
+    "decoder": "Parallel audit fetched the live bundle ZIP and decoded character.sgs/cha_spell.sgs in memory with the bundle's actual InitOfb AES-CFB128 implementation followed by gzip. No runtime/config snapshot files were persisted. The Config hash changed from the previous batch, while the HuoJun wording remained identical.",
+    "characterRow": {
+      "a": 513,
+      "b": "霍峻",
+      "d": "HuoJun",
+      "g": 2,
+      "h": 1,
+      "i": 4,
+      "j": 3121,
+      "k": 3122
+    },
+    "fenruiPrompts": {
+      "v": "请选择一张牌弃置;请选择一个装备栏恢复",
+      "w": "请选择一名角色，对其发动奋锐造成伤害"
+    }
+  },
+  "skills": [
+    {
+      "id": "ol:qiongshou",
+      "clientId": 3121,
+      "name": "穷守",
+      "text": "锁定技，游戏开始时，你废除所有装备栏并摸四张牌。你的手牌上限+4。"
+    },
+    {
+      "id": "ol:fenrui",
+      "clientId": 3122,
+      "name": "奋锐",
+      "text": "结束阶段，你可以：弃置一张牌并复原一个装备栏，随机使用一张对应装备牌，然后你可以对一名装备区里牌数小于你的角色造成X点伤害（X为你与其装备区里牌数之差），若如此做，你不能再以此法造成伤害。"
+    }
+  ],
+  "interpretation": [
+    "Qiongshou uses the existing native whole Equipment-area abolition at game start and actually draws four cards. Its native permanent HandLimit modifier adds four only while the skill is effective. Each later single-category restoration uses RestoreEquipmentSlot so the four unchosen abolished categories stay unavailable.",
+    "Fenrui belongs to the actual ending phase after the real discard phase. It first discards one legal actual Hand/Equipment entity, drains its native children, then privately selects and actually restores one presently abolished category. The paid invocation continues after later source-skill loss; dead owners cannot issue further native uses or damage.",
+    "Matching equipment is selected randomly from currently legal actual DrawPile entities of the restored category, ordered by physical ID before using the seeded RNG. This follows the repository's existing UseRandomDeckEquipment contract; the official text and current client do not explicitly name another source zone. The card goes through BeginCardUse, actual DrawPile-to-Processing payment, equipment-target/use windows and native completion rather than a direct equipment placement. No matching legal entity means no synthetic use; the restored category remains restored.",
+    "After the actual equipment use and its children finish, current living targets with fewer actual equipped entities can be selected. The damage amount freezes the actual equipment-count difference at that selection, not the number of restored slots.",
+    "The official and current-client phrase 若如此做 is interpreted as consuming the game-long damage branch when the owner accepts and issues the native damage attempt. Declining preserves it; prevention and redirection do not refund it. The quota is owner/skill-wide across source loss and reacquisition, and does not suppress later restoration/equipment benefits. No official product-specific FAQ for prevention or redirection was located."
+  ],
+  "secondaryDiscrepancy": {
+    "url": "https://moegirl.uk/index.php?title=三国杀:霍峻&variant=zh-hans",
+    "status": "Secondary rewritten OL2022 rules summary, not an official FAQ; it cannot override the live primary wording.",
+    "differences": [
+      "Describes the random equipment pool as draw or discard pile, while the primary text does not name zones and the existing native capability uses DrawPile only.",
+      "Rephrases the damage condition as no earlier actual damage, while the live official/client text states 若如此做. The implementation follows the primary attempt-consumption wording."
+    ],
+    "decision": "The implementation retains the existing DrawPile native contract and the primary-wording attempt-consumption interpretation. Revisit these boundaries if an official product-specific ruling becomes available."
+  },
+  "content": "src/Characters/huo-jun/ol/Content/ol-huo-jun.character.json",
+  "runtime": "src/Characters/huo-jun/ol/Runtime",
+  "behaviorChecks": "tests/CardGame.Core.Tests/HuoJunChecks.cs"
+}

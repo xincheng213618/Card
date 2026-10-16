@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:wanwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "foreign-owned-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand", "equipment"],
+          "movementOccurrence": "perCard",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "wanweiObtainMatchingLostCard", "target": "owner" },
+            { "op": "awaitOwnedCardMovement", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yuejian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "foreign-target-used-card-discard",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perCard",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 2,
+          "effects": [
+            { "op": "yuejianRevealAndClaimUsedCard", "target": "owner" },
+            { "op": "awaitOwnedCardMovement", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

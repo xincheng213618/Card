@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[{"id":"ol:saogu","revision":1,
+ "states":[{"id":"yin","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],
+ "activations":[{"id":"sweep","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerPhase":null,"usesPerTurn":null,
+   "effects":[{"op":"resolveSaoguConversionSweep","target":"owner"}]}],
+ "triggers":[{"id":"delegate-current","window":"turnEnding","subject":"owner","optional":true,
+   "effects":[{"op":"resolveSaoguConversionSweep","target":"owner"}]}]
+}]}

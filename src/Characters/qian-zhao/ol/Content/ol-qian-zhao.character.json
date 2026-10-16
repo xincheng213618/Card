@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:qian-zhao",
+  "skills": [
+    { "registrationOrder": 1470, "programBundle": "ol-qian-zhao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:weifu", "name": "威抚", "description": "出牌阶段，你可以弃置一张牌并判定，你本回合下次使用与判定牌类型相同的牌无距离限制且可以多指定一个目标，若弃置牌与判定牌类型相同，你摸一张牌。", "actionForms": "Active" } },
+    { "registrationOrder": 1471, "programBundle": "ol-qian-zhao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:kuansai", "name": "款塞", "description": "每回合限一次，当一张牌指定目标后，若目标数大于等于你的体力值，你可以令其中一个目标选择一项：1.交给你一张牌；2.令你回复1点体力。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1472, "pools": { "current": 425 },
+      "definition": { "id": "ol:qian-zhao", "name": "牵招", "portraitKey": "ol-qian-zhao", "skillId": "ol:weifu", "additionalSkillIds": ["ol:kuansai"], "factionId": "wei", "baseHp": 4, "gender": "Male", "characterId": "character:qian-zhao", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

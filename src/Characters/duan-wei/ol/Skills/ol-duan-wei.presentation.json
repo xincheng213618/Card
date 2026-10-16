@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:taohuai": {
+      "name": "讨怀",
+      "description": "转换技，你使用手牌中点数：阳：最大的牌；阴：最小的牌。摸一张牌。否则你可弃置一张牌。",
+      "booleanStates": { "yin": { "trueText": "阴：使用点数最小的手牌摸一张牌", "falseText": "阳：使用点数最大的手牌摸一张牌" } }
+    }
+  }
+}

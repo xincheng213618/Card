@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private IReadOnlyList<LegalAction> BuildDenglouNativeBasicUseOptions(ProgramSkillFrame f)
@@ -14,10 +14,10 @@ public sealed partial class GameEngine
      if(ViewAsRule(conversion)is{DeclarationValidation:null}rule&&rule.InputCount==1&&rule.SourceZones.Contains(lease.Zone))variants.Add((kind,conversion));
    foreach(var(kind,conversion)in variants.Distinct())
    {
-    var suit=GetProgramEffectiveSuit(actor,card);var color=SuitColor(suit);if(IsCardUseForbidden(actor.Seat,kind,CardActionType.Use))continue;
+    var appearance=WuJingLiubingUseCard(actor,card,kind,conversion,[id]);var suit=GetProgramEffectiveSuit(actor,appearance);var color=SuitColor(suit);if(IsCardUseForbidden(actor.Seat,kind,CardActionType.Use))continue;
     if(IsSlashCard(kind))
     {
-     var targets=_players.Where(t=>CanUseVirtualSlashTarget(actor,t,kind,suit,color,card.Rank,[id])&&!IsDirectedCardTargetProhibited(actor.Seat,t.Seat,kind)&&!IsCardTargetProhibited(t,kind,suit,color)&&!HasBeneficiarySuitShield(actor.Seat,t.Seat,suit)).ToArray();
+     var targets=_players.Where(t=>CanUseVirtualSlashTarget(actor,t,kind,suit,color,card.Rank,[id],conversionSource:conversion,actualUnconvertedPhysical:conversion is null)&&!IsDirectedCardTargetProhibited(actor.Seat,t.Seat,kind)&&!IsCardTargetProhibited(t,kind,suit,color)&&!HasBeneficiarySuitShield(actor.Seat,t.Seat,suit)).ToArray();
      foreach(var target in targets)result.Add(new(LegalActionKind.Slash,id,target.Seat,$"登楼：将【{card.DisplayName}】对{target.Name}使用",kind,TargetSeats:[target.Seat]){ConversionSource=conversion});
      var multiple=new List<LegalAction>();AddProgramTargetCountSlashActions(multiple,actor,card,targets,CardCatalog.Get(kind).DisplayName,kind);result.AddRange(multiple.Select(a=>a with{ConversionSource=conversion}));
     }

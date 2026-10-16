@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:hunjiang", "revision": 1,
+      "activations": [
+        { "id": "simultaneous-range-choices", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 16,
+          "targetKind": "otherLivingInAttackRange", "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [{ "op": "resolveHunjiangSimultaneousChoices", "target": "owner" }] }
+      ],
+      "triggers": [
+        { "id": "issued-phase-slash-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false,
+          "effects": [{ "op": "offerHunjiangPhaseSlashTargets", "target": "owner" }] }
+      ]
+    }
+  ]
+}

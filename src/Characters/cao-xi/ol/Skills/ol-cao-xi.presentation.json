@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3, "skills": {
+    "ol:gangshu": { "name": "刚述", "description": "当你使用非基本牌后，你可以令你以下一项数值+1直到你抵消牌（至多增加至5）：1.攻击范围；2.下个摸牌阶段摸牌数；3.出牌阶段使用【杀】的限制次数。", "triggerLabels": { "increase-after-nonbasic-use": "刚述：增加一项数值" } },
+    "ol:jianxuan": { "name": "谏旋", "description": "当你受到伤害后，你可以令一名角色摸一张牌，若其手牌数等于你“刚述”中的任意项，其重复此流程。", "triggerLabels": { "draw-after-owner-damage": "谏旋：令一名角色连续摸牌" } }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-pi",
+  "skills": [
+    { "registrationOrder": 1320, "programBundle": "ol-liu-pi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:yicheng", "name": "易城", "description": "出牌阶段限一次，你可以展示牌堆顶X张牌（X为你的体力上限），然后可以用任意张手牌交换其中等量张牌，若展示牌点数之和因此增加，你可以用所有手牌交换展示牌。", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1321, "pools": { "current": 410 },
+      "definition": { "id": "ol:liu-pi", "name": "刘辟", "portraitKey": "ol-liu-pi", "skillId": "ol:yicheng", "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:liu-pi", "variantId": "ordinary", "rulesetId": "sanguosha-ol" } }
+  ]
+}

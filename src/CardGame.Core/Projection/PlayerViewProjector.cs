@@ -23,7 +23,7 @@ public sealed partial class GameEngine
                               player.Seat == viewerSeat);
             var canSeeHand = revealAll || player.Seat == viewerSeat;
             var hand = canSeeHand
-                ? playerHand.Select(ToSnapshot).ToArray()
+                ? playerHand.Select(card => ProjectHandCard(player, card)).ToArray()
                 : [];
             var playerEquipment = GetEquipment(player);
             var equipment = playerEquipment
@@ -54,7 +54,7 @@ public sealed partial class GameEngine
             var canSeeFaction = effectiveFactionId is not null &&
                                 (IsNationalWarMode
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
-                                    : (hasIdentityGodFaction || GetPrivateGeneralLibraryFaction(player) is not null) &&
+                                    : (hasIdentityGodFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             var primarySkills = canSeeGeneral
                 ? player.IdentityConcealed ? general.Skills.ToArray()
@@ -84,8 +84,11 @@ public sealed partial class GameEngine
             {
                 IdentityConcealed = player.IdentityConcealed,
                 HpUndefined = !player.HasHpValue,
+                HandLimit = _setupComplete && player.Seat == _currentSeat && player.HasHpValue
+                    ? GetHandLimit(player) : null,
                 AlcoholDamageBonus = player.AlcoholDamageBonus >= 2 ? player.AlcoholDamageBonus : null,
                 IsFaceDown = player.IsFaceDown,
+                ActiveEffects = ProjectActivePlayerEffects(player, primarySkills, secondarySkills),
                 OriginalHandEntities = ProjectOriginalHandEntities(player.Seat, viewerSeat, revealAll),
                 TeamId = IsTeamMode && player.TeamRevealed ? player.TeamId : null,
                 IsTeamRevealed = IsTeamMode && player.TeamRevealed,
@@ -165,7 +168,7 @@ public sealed partial class GameEngine
                 FactionId = canSeeFaction ? effectiveFactionId : null,
                 IsFactionRevealed = IsNationalWarMode
                     ? player.FactionRevealed
-                    : (hasIdentityGodFaction || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
+                    : (hasIdentityGodFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
@@ -247,7 +250,7 @@ public sealed partial class GameEngine
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = publicRevealedCards.Concat(FriendPangTongPublicCards())
+            PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(publicRevealedCards).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards())
                 .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
                 .DistinctBy(card => card.Id).ToArray(),
             PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat))
@@ -256,6 +259,17 @@ public sealed partial class GameEngine
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),
             TurnProhibitedPhysicalCards = GetResponseEntityRestrictionSnapshots()
         });
+    }
+
+    private CardSnapshot ProjectHandCard(CharacterState owner, Card card)
+    {
+        var snapshot = ToSnapshot(card);
+        var identity = GetProgramCardIdentityMatches(owner, card).FirstOrDefault();
+        return identity is null ? snapshot : snapshot with
+        {
+            IdentityKind = identity.Identity.OutputKind,
+            IdentitySkillName = _contentRegistry.GetSkill(identity.Source.SkillId).Name
+        };
     }
 
     private string? ProjectAuthorityName(IReadOnlyList<GeneralSkillDefinition>? skills)
@@ -312,6 +326,7 @@ public sealed partial class GameEngine
         PrivateWhirlPiles = player.PrivateWhirlPiles is { } whirls
             ? Array.AsReadOnly(whirls.Select(p => p with { Cards = FreezeViewList(p.Cards) }).ToArray()) : null,
         Markers = FreezeViewList(player.Markers),
+        ActiveEffects = FreezeViewList(player.ActiveEffects),
         WoodenOxGrain = FreezeViewList(player.WoodenOxGrain),
         BuquWounds = FreezeViewList(player.BuquWounds),
         AuthorityCards = FreezeViewList(player.AuthorityCards),

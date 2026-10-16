@@ -167,6 +167,7 @@ public sealed partial class GameEngine
         foreach (var player in _players) _observedSkillGrantRevisions.TryAdd(player.Seat, player.SkillGrants.Revision);
         MoveProgramCardsFromMultipleSources([card.Id], to, new(r.Obtain ? PairedColorObtainReason : PairedColorDiscardReason), (batch, records) =>
         {
+            if (!r.Obtain) foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
             if (records is not [var paid] || paid.CardId != card.Id || paid.CardKind != card.Kind || paid.From != from || paid.To != to)
                 throw new InvalidOperationException("Paired-color disposition changed its original real card payment.");
             var current = GetActiveProgramFrame(f.Id); var receipt = current.PairedColorDisposition!;

@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:pingduan":{"name":"平端","description":"出牌阶段限一次，你可以令一名角色依次执行：1.使用一张基本牌；2.重铸一张锦囊牌；3.可令你获得其装备区一张牌。其每执行一项便摸一张牌。","activationLabels":{"ordered-three-items":"平端"}}}}

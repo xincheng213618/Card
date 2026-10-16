@@ -23,6 +23,54 @@ internal static class FengLinZuoCiChecks
         Replay(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));Require(Library(g).Count==2&&g.Events.Count(e=>e.Payload is PrivateGeneralLibraryCountChangedEvent x&&x.Source.OwnerSeat==0)==1,"Paused resume cannot repay RNG.");
         Declare(g,"standard:wusheng");Require(Enabled(g).Contains("standard:wusheng"),"Structured view-as skill participates in actual binding.");Require(Owner(g).Gender==GeneralGender.Female&&g.CreateSnapshot(0).Players[0].FactionId=="wu","Gender/faction are true effective queries.");Replay(g,r);
     }
+    public static void SelectionBackPreservesDrawsAndDeclarations()
+    {
+        var (game, registry) = Start(god: true);
+        Reach(game, prompt => prompt.PlayerSeat == 0 && prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "private-general-library"));
+        var initial = JsonSerializer.Serialize(Library(game));
+        var general = P(game).Choices[0].Parameters["value"];
+        Require(P(game).Choices.All(choice => choice.Parameters.GetValueOrDefault("navigation") != "back"),
+            "The mandatory initial declaration must not be skipped.");
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
+        var staleSkillPrompt = P(game);
+        var staleSkill = staleSkillPrompt.Choices.First(choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
+        Replay(game, registry);
+        Answer(game, IsBack);
+        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == general) &&
+            JsonSerializer.Serialize(Library(game)) == initial, "Returning to avatars must retain the original private draw without declaring a skill.");
+        var revision = game.Revision;
+        Require(!game.Submit(new AnswerPromptCommand(0, staleSkillPrompt.PromptId, staleSkill.Id, revision)).Accepted && game.Revision == revision,
+            "A skill choice retired by Back must not answer the current avatar prompt.");
+        Replay(game, registry);
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
+        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == "wu"), "A god avatar must reach faction selection.");
+        Replay(game, registry);
+        Answer(game, IsBack);
+        Require(P(game).Choices.Any(choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng") &&
+            JsonSerializer.Serialize(Library(game)) == initial, "Faction Back must return to skills without changing the public declaration.");
+        Replay(game, registry);
+        Answer(game, IsBack);
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == general);
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "standard:wusheng");
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("value") == "wu");
+        var declared = JsonSerializer.Serialize(Library(game));
+        Require(game.Events.Count(item => item.Payload is PrivateGeneralLibraryCountChangedEvent) == 1 &&
+            game.Events.Count(item => item.Payload is PrivateGeneralLibraryDeclaredEvent) == 1,
+            "Navigating Back must neither draw more avatars nor publish intermediate declarations.");
+        Reach(game, prompt => prompt.PlayerSeat == 0 && prompt.SkillPrompt?.SkillId == "classic:huashen" &&
+            prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        Answer(game, IsBack);
+        Require(JsonSerializer.Serialize(Library(game)) == declared && Enabled(game).Contains("standard:wusheng") &&
+            game.Events.Count(item => item.Payload is PrivateGeneralLibraryDeclaredEvent) == 1,
+            "Returning from an optional replacement must preserve the existing avatar, skill and faction.");
+        Replay(game, registry);
+
+        static bool IsBack(PromptChoice choice) => choice.Parameters.GetValueOrDefault("navigation") == "back";
+    }
+
     public static void LayeredSuppressionAndLocalDisable()
     {
         // Fixed direct HP/grant fixture mutations; this method does not claim command replay.

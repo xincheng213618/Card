@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:kuangxiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-adjust-hand",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "adjustKuangxiangHandToFour",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,6 +16,12 @@ internal static class SnapshotProjectionReuseChecks
         var host = Create(interactive: true);
         var game = Create(interactive: false);
         var baseCard = new Card(1_000_000, CardKind.Slash, Suit.Spade, 7);
+        var markedCatalogueHost = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 5, ModeId = "identity:standard-5" },
+            StandardContentRegistry.CreateWithClassicGenerals());
+        foreach (var hostAppearance in new[] { baseCard, baseCard with { Suit = Suit.Heart }, baseCard with { Id = 0 }, baseCard with { Id = -1 } })
+            Require(Project(markedCatalogueHost, hostAppearance) == Expected(hostAppearance) &&
+                    ProjectJudgment(markedCatalogueHost, hostAppearance).SkillMarkLabel is null,
+                "Host-only and virtual appearances remain projectable with the round-gain capability present and cannot acquire a physical hand entitlement.");
         var baseline = Project(host, baseCard);
         Require(ReferenceEquals(baseline, Project(host, baseCard)),
             "An unchanged positive physical identity must reuse its ordinary projection.");

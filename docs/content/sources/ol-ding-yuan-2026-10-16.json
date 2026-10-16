@@ -1,0 +1,175 @@
+{
+  "characterId": "ol:ding-yuan",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-15T21:15:35.051852+00:00",
+  "primarySources": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "f609f7cdae49f8494b16355c3ffa1e7585d891a7e4c31e8d183f0115e487161e",
+      "byteCount": 4153323,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=437",
+      "sha256": "2c87aa3a2f160c7466aaea9ee66e06e98786ea844baf1db0e4b27b368a216517",
+      "byteCount": 965,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/437",
+      "sha256": "9472df2a43f344ec7599ee66f44ef81f6e7de898e447352ec68c484d7fee1af5",
+      "byteCount": 24418,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 437,
+          "name": "丁原",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/437.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43700.png",
+          "label": [
+            "进攻",
+            "控制",
+            "辅助"
+          ],
+          "figure": "群",
+          "figure_py": "qun",
+          "quality": "传说",
+          "biography": "字建阳，泰山郡南城县人。东汉末年军阀、权臣。丁原出任并州刺史时，屯兵于河内郡。在策划谋杀十常侍不成导致宦官被谋杀后，与西凉军阀董卓在皇帝废立问题上产生矛盾，于是董卓利诱吕布将其杀害，其地盘势力亦被董卓兼并。",
+          "characteristic": "义子标记兼具辅助与控制效果，要灵活运用",
+          "hp": 4,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [
+        {
+          "name": "地主",
+          "value": 7
+        },
+        {
+          "name": "农民",
+          "value": 8
+        },
+        {
+          "name": "主公",
+          "value": 6
+        },
+        {
+          "name": "反贼",
+          "value": 6
+        },
+        {
+          "name": "内奸",
+          "value": 7
+        }
+      ],
+      "deeds": []
+    }
+  },
+  "decoder": "Public client pR.WorkParse / aCt.InitOfb, AES-CFB128 then gzip; resources decoded in memory without retaining bundle or config.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "records": [
+        {
+          "a": 437,
+          "b": "丁原",
+          "d": "DingYuan",
+          "e": 44,
+          "f": "43",
+          "g": 4,
+          "h": 1,
+          "i": 4,
+          "j": 9015,
+          "k": 9014,
+          "p": 3,
+          "q": "1",
+          "r": "9043701",
+          "y": "字建阳，泰山郡南城县人。东汉末年军阀、权臣。丁原出任并州刺史时，屯兵于河内郡。在策划谋杀十常侍不成导致宦官被谋杀后，与西凉军阀董卓在皇帝废立问题上产生矛盾，于是董卓利诱吕布将其杀害，其地盘势力亦被董卓兼并。",
+          "z": "义子标记兼具辅助与控制效果，要灵活运用",
+          "aa": 153,
+          "ab": "857,858",
+          "ad": "画师:秋呆呆",
+          "x": "董卓老贼，####你的计谋也不过如此。",
+          "al": 1730,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "bx": 80000,
+          "LordCardRate1": 43,
+          "LordCardRate2": 51,
+          "cc": 0,
+          "starMax": 4
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "records": [
+        {
+          "a": 9014,
+          "b": "3,5",
+          "c": "慈孝",
+          "d": "CiXiao",
+          "g": 5,
+          "i": 2,
+          "m": "9016",
+          "n": 0,
+          "o": "准备阶段，若没有角色有“义子”标记，你可以令一名其他角色获得1枚“义子”标记，否则你可以弃置一张牌转移“义子”标记。有“义子”标记的角色视为拥有“<font href='9016'>叛弑</font>”。",
+          "v": "请选择一名角色，令其获得“义子”标记|请选择一张牌弃置，转移“义子”标记"
+        },
+        {
+          "a": 9015,
+          "b": "3,4,5",
+          "c": "先率",
+          "d": "XianShuai",
+          "g": 5,
+          "i": 2,
+          "o": "锁定技，当一名角色造成伤害后，若此伤害是本轮首次造成伤害，你摸一张牌，若其为你，你对受到伤害的角色造成1点伤害。"
+        },
+        {
+          "a": 9016,
+          "b": "3,4,5",
+          "c": "叛弑",
+          "d": "PanShi",
+          "g": 7,
+          "i": 2,
+          "o": "锁定技，准备阶段，你交给有“慈孝”的角色一张手牌。你于出牌阶段使用的【杀】对其造成的伤害+1且使用【杀】对其造成伤害后结束出牌阶段。",
+          "w": "请选择一张手牌，交给{0}"
+        }
+      ]
+    }
+  },
+  "rulesMapping": {
+    "cixiao": "One global adopted-child marker. Initial appointment excludes the owner; transfer excludes the current holder and permits the owner because the transfer clause does not say other. Transfer pays one ordinary HE discard before choosing its successor. Marker-derived Panshi persists if the Cixiao skill is lost; independent Panshi grants survive marker transfer.",
+    "panshi": "Mandatory own preparation hand gift to one currently living other Cixiao holder. The Slash is stamped at actual own Play use. Its +1 enters ordinary damage before caps. Issued native damage and its phase-end consequence survive subsequent marker/skill loss; no end is issued if damage is prevented. Multiple Cixiao holders are selected from current living holders. The historical OL operator FAQ requires a direct Slash target: a chained father receives propagated damage without a Panshi trigger; a directly increased elemental Slash propagates its finalized amount normally.",
+    "xianshuai": "Only the first actual positive sourced damage globally in an actual round qualifies. One draw per owner; if that owner was the source, a separate ordinary one-point damage follows to the same target. Source-less HP/damage does not claim this caused-damage timing. The issued trigger uses high native after-damage priority so its inserted damage resolves before ordinary after-damage benefits and propagation.",
+    "interpretationBoundary": "No additional current official FAQ found for multiple Cixiao or transfer-to-owner. Those mappings follow current client wording. Historical OL operator FAQ is separately labeled for loss, chain damage and insertion order."
+  },
+  "operatorFaqSupplement": {
+    "url": "https://my.4399.com/yxsgkd/ziliao/37669/",
+    "operator": "4399 Sanguosha OL service",
+    "publishedDate": "2022-10-21",
+    "capturedAtUtc": "2026-10-15T21:23:47.384715+00:00",
+    "sha256": "42e2e75eb3bed1ca31a9ac13f121d02db791a4fbe31f7e3000e407af02ddd6e1",
+    "scope": "Historical operator gameplay FAQ supplements the current official client skill text; it is not presented as a current official FAQ revision.",
+    "findings": {
+      "panshiChain": "The operator FAQ explicitly requires Ding Yuan to be the direct Slash target. The increased direct elemental damage propagates normally, while damaging Ding Yuan only by elemental propagation cannot trigger Panshi.",
+      "cixiaoLoss": "The adopted-child marker and granted Panshi persist after Cixiao is lost; Panshi has no effective recipient when no Cixiao holder remains.",
+      "xianshuaiOrder": "After original dying handling, the separate Xianshuai damage is inserted before elemental propagation and ordinary after-damage benefit skills."
+    }
+  },
+  "status": "root-verified"
+}

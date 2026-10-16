@@ -77,6 +77,8 @@ public sealed partial class GameEngine
                 if(ContinueSoleTargetQuarantineReturns(parent))return;
                 parent=(DeferredTurnEndFrame)_resolutionStack[^1];
                 if(ContinueAfterTurnEndedPrograms(parent))return;
+                ExpireQinLangXianyingTurnEndWine();
+                ExpireAHuiNanJuemanTurnEndWine();
                 PopResolutionFrame(parent.Id,ResolutionFrameKind.DeferredTurnEnd);AdvanceAfterDeferredTurnEnd(_players[parent.OwnerSeat],parent.Skipped);return;
             }
             var due=_deferredHandAlignments.SingleOrDefault(d=>d.Id==parent.DueIds[parent.ItemIndex]);

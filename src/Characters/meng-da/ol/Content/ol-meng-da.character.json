@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:meng-da",
+  "skills": [
+    {
+      "registrationOrder": 1830,
+      "programBundle": "ol-meng-da",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:goude",
+        "name": "苟得",
+        "description": "每回合结束时，若与你势力相同的角色此回合执行过以下项，你可以执行另一项：1.摸一张牌；2.弃置一名角色一张手牌；3.视为使用一张【杀】；4.变更势力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1831,
+      "pools": {
+        "current": 457
+      },
+      "definition": {
+        "id": "ol:meng-da",
+        "name": "孟达",
+        "portraitKey": "ol-meng-da",
+        "skillId": "ol:goude",
+        "additionalSkillIds": [],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:meng-da",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

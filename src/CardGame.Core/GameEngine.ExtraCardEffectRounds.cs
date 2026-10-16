@@ -9,16 +9,18 @@ public sealed partial class GameEngine
     }
     private bool RestoreExtraGroupDamageSource(GroupCardHandle group)
     {
-        if (LifecycleCardUse(group.ResolutionId) is not { ExtraCardEffect: { WholeGroupRepeated: true, FrozenGroupDamageSourceSeat: { } source } }) return false;
+        if (LifecycleCardUse(group.ResolutionId) is not { } use ||
+            NativeExtraEffectState(use) is not { WholeGroupRepeated: true, FrozenGroupDamageSourceSeat: { } source }) return false;
         group.DamageSourceSeat = source; return true;
     }
     private void CaptureExtraGroupDamageSource(GroupCardHandle group)
     {
-        if (LifecycleCardUse(group.ResolutionId) is not { ExtraCardEffect: { WholeGroupRepeated: false } r }) return;
-        UpdateLifecycleCardUse(group.ResolutionId, use => use with { ExtraCardEffect = r with { FrozenGroupDamageSourceSeat = group.DamageSourceSeat } });
+        if (LifecycleCardUse(group.ResolutionId) is not { } use ||
+            NativeExtraEffectState(use) is not { WholeGroupRepeated: false }) return;
+        UpdateNativeExtraEffectState(group.ResolutionId, r => r with { FrozenGroupDamageSourceSeat = group.DamageSourceSeat });
     }
-    private bool IsExtraCardEffectRound(long id) => LifecycleCardUse(id)?.ExtraCardEffect?.WholeGroupRepeated == true;
-    private bool HasUnstartedExtraCardEffect(long id) => LifecycleCardUse(id) is { ExtraCardEffect: { WholeGroupRepeated: false } } use &&
+    private bool IsExtraCardEffectRound(long id) => IsFeiYiExtraEffectRound(id) || LifecycleCardUse(id)?.ExtraCardEffect?.WholeGroupRepeated == true;
+    private bool HasUnstartedExtraCardEffect(long id) => HasUnstartedFeiYiExtraEffect(id) || LifecycleCardUse(id) is { ExtraCardEffect: { WholeGroupRepeated: false } } use &&
         use.Action is { } action && use.ExtraCardEffect.ActionId == action.ActionId && !IsNamedAmbushUseIneffective(use) && _winner == Winner.None;
     private void CaptureExtraCardEffectAttack(CardAttackHandle attack)
     {
@@ -30,6 +32,7 @@ public sealed partial class GameEngine
     }
     private bool TryBeginExtraCardEffectRound(long id, bool afterAttack = false)
     {
+        if (TryBeginFeiYiExtraEffectRound(id, afterAttack)) return true;
         if (!HasUnstartedExtraCardEffect(id) || LifecycleCardUse(id) is not { ExtraCardEffect: { } r, Action: { } action } use) return false;
         if (_resolutionStack.LastOrDefault()?.Id != id) throw new InvalidOperationException("An extra effect cannot pass an unfinished child.");
         if (r.Trick is not null && HasRemainingSequentialTrickTargets(id) || r.Simple is not null && HasRemainingAdjustedSimpleTargets(id)) return false;

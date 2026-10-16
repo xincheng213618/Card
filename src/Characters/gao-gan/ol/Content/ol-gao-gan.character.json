@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gao-gan",
+  "skills": [
+    {
+      "registrationOrder": 1330,
+      "programBundle": "ol-gao-gan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:juguan",
+        "name": "拒关",
+        "description": "出牌阶段限一次，你可将一张手牌当【杀】或【决斗】使用。若受到此牌伤害的角色未在你的下回合开始前对你造成过伤害，你的下个摸牌阶段摸牌数+2。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active",
+        "tags": "Conversion"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1331,
+      "pools": { "current": 411 },
+      "definition": {
+        "id": "ol:gao-gan",
+        "name": "高干",
+        "portraitKey": "ol-gao-gan",
+        "skillId": "ol:juguan",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:gao-gan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

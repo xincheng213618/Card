@@ -307,12 +307,15 @@ internal static class BattleFeedbackTimelineChecks
             clock.Advance(.28);
             Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, "battle-beat-live-damage.png"));
             Assert(layer.ActiveEffectCount > 0, "The native committed result did not reach the real table layer.");
-            var meter = Find<HealthMeter>((FrameworkElement)window.Content).Single(m => BattleFeedbackLayer.GetHealthAnchor(m) == 0);
+            var portrait = Find<Button>((FrameworkElement)window.Content).Single(button => BattleFeedbackLayer.GetSeatAnchor(button) == 0);
+            var icons = Find<ItemsControl>(portrait).Single(items => items.Name == "SeatHealthIcons");
+            var seat = (SeatViewModel)portrait.DataContext;
             var damage = game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Last(e => e.TargetSeat == 0);
             var cue = vm.BattleCues.Last(e => e.Kind == BattleCueKind.Damage && e.TargetSeats.Contains(0));
-            Assert(meter.Value == damage.RemainingHp && meter.Maximum == game.CreateSnapshot(0).Players[0].MaxHp &&
-                   cue.HpDelta == -damage.Amount && cue.RemainingHp == meter.Value && cue.MaximumHp == meter.Maximum,
-                "The real damage track lost the actual public HP amount or remaining value.");
+            Assert(seat.Hp == damage.RemainingHp && seat.MaxHp == game.CreateSnapshot(0).Players[0].MaxHp &&
+                   icons.Items.Cast<string>().Count(path => path.EndsWith("gallery-hp-wu.png", StringComparison.Ordinal)) == Math.Clamp(seat.Hp, 0, 8) &&
+                   cue.HpDelta == -damage.Amount && cue.RemainingHp == seat.Hp && cue.MaximumHp == seat.MaxHp,
+                "The real portrait icons lost the actual public HP amount or remaining value.");
             clock.Advance(3);
             layer.InvalidateVisual();
             Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, "battle-beat-live-retired.png"));

@@ -39,7 +39,8 @@ internal sealed record ProgramAiPublicContext(
     int EquipmentCardCount = 0,
     Func<string, bool?>? PindianOutcome = null,
     double PairedColorDispositionScore = 0d,
-    int? ActualTurnDeathBenefits = null, double TargetedTrickHandHpScore = 0d, double EndRefillNextTurnScore = 0d);
+    int? ActualTurnDeathBenefits = null, double TargetedTrickHandHpScore = 0d, double EndRefillNextTurnScore = 0d,
+    int LivingPlayerCount = 0);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -323,9 +324,11 @@ internal sealed partial class ProgramAiEstimateContext
     }
     internal void DrawToHandCount(SkillProgramEffect effect)
     {
+        var limit = effect.NumberExpression == SkillProgramNumberExpression.LivingPlayerCount
+            ? _publicContext.LivingPlayerCount : effect.Amount;
         if (TargetsOwner(effect))
-        { var count=Math.Max(0,effect.Amount-_estimatedHandCount); _ownerDraw+=count; _estimatedHandCount+=count; }
-        else _targetDraw += Math.Max(0,effect.Amount-(_publicContext.SelectedTarget?.HandCount ?? effect.Amount));
+        { var count=Math.Max(0,limit-_estimatedHandCount); _ownerDraw+=count; _estimatedHandCount+=count; }
+        else _targetDraw += Math.Max(0,limit-(_publicContext.SelectedTarget?.HandCount ?? limit));
     }
     internal void DeferredHandAlignment()
     {

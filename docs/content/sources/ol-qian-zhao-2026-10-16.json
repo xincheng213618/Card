@@ -1,0 +1,178 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "characterId": "character:qian-zhao",
+  "generalId": "ol:qian-zhao",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T15:08:24.147527+08:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/580",
+      "sha256": "f83a14b50a758cf55751b0b7479ddd14fd6e91f58a76bd1f145caa95d023a737",
+      "byteCount": 24513,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=580",
+      "sha256": "e7ad757d02cb4dac1559ca9d7032302df728ed21361e94cb2b784a686868f8df",
+      "byteCount": 1004,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "byteCount": 5385831,
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "byteCount": 4153477,
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "decoder": "Public client InitOfb AES-CFB128 then gzip; full resources decoded in memory only."
+  },
+  "officialHeroApi": {
+    "gid": 580,
+    "name": "牵招",
+    "figure_py": "wei",
+    "hp": 4,
+    "initial_hp": 0,
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58000.png"
+  },
+  "currentClient": {
+    "character.sgs": {
+      "path": "GameCharacters.character[1281]",
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "record": {
+        "a": 580,
+        "b": "牵招",
+        "d": "QianZhao",
+        "g": 1,
+        "h": 1,
+        "i": 4,
+        "j": 3365,
+        "k": 3366,
+        "ad": "画师:匠人绘"
+      },
+      "interpretation": "g=1 Wei; h=1 Male; i=4 HP. j/k identify both current skills."
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "skills": [
+        {
+          "id": "ol:weifu",
+          "path": "GameSpells.spell[2400]",
+          "record": {
+            "a": 3365,
+            "c": "威抚",
+            "d": "WeiFu",
+            "o": "出牌阶段，你可以弃置一张牌并判定，你本回合下次使用与判定牌类型相同的牌无距离限制且可以多指定一个目标，若弃置牌与判定牌类型相同，你摸一张牌。"
+          }
+        },
+        {
+          "id": "ol:kuansai",
+          "path": "GameSpells.spell[2401]",
+          "record": {
+            "a": 3366,
+            "c": "款塞",
+            "d": "KuanSai",
+            "o": "每回合限一次，当一张牌指定目标后，若目标数大于等于你的体力值，你可以令其中一个目标选择一项：1.交给你一张牌；2.令你回复1点体力。"
+          }
+        }
+      ]
+    }
+  },
+  "sameProductInterpretationSources": [
+    {
+      "url": "https://www.taptap.cn/moment/482097263359820401",
+      "publisher": "sanguosha-ol official writing group",
+      "date": "2023-12-08",
+      "originalAuthor": "Zi Yun Xi Lai",
+      "originalUrl": "https://club.sanguosha.com/thread-1287249-1-1.html",
+      "supports": [
+        "HE costs include Equipment. Basic and Trick marks stack independently until the next actual matching use or actual-turn expiration. Equipment judgment creates no target grant. Delayed-trick use consumes the Trick grant but cannot add targets. Equipment use does not trigger Kuansai. A full-health owner cannot offer the recovery alternative."
+      ]
+    },
+    {
+      "url": "https://www.taptap.cn/moment/483900739966470124",
+      "publisher": "sanguosha-ol official writing group",
+      "date": "2023-12-12",
+      "originalAuthor": "Luo Nai",
+      "originalUrl": "https://club.sanguosha.com/thread-1287345-1-1.html",
+      "supports": [
+        "Independent Basic/Trick stacking and unconditional consumption on the next corresponding use, including when no target is added. Kuansai may select any actual target and the selected role chooses the payment."
+      ]
+    }
+  ],
+  "identityAudit": {
+    "searchedBeforeCreation": [
+      "qian-zhao",
+      "QianZhao",
+      "ol:weifu",
+      "ol:kuansai",
+      "牵招",
+      "威抚",
+      "款塞"
+    ],
+    "existingIdentityOrSkillMatch": false,
+    "edition": "Ordinary OL character, not the distinct mobile ShiXia/ZhenFu rules or a clan/Mou edition.",
+    "rejectedDuplicate": {
+      "gid": 585,
+      "generalId": "ol:han-sui",
+      "reason": "The same OL NiLuan2/XiaoXi2 pair already exists."
+    }
+  },
+  "implementationDecisions": [
+    {
+      "topic": "actual category and use",
+      "rule": "Next-category qualification reads the accepted effective CardKind. Delayed tricks share Trick. A native Slash-defense Dodge use and a true Nullification use consume their matching category; played-out Slash or group-response Dodge do not. Responses add no character targets.",
+      "evidence": "Primary wording says use. No character-specific official response FAQ was found in the two OL strategy articles. Native IsProgramResponseCardUse explicitly classifies only a Dodge against an active Slash as a response use; native counterspell use has its own exact accepted-action parent. The implementation follows these existing use contracts, rather than treating every Response action as use.",
+      "kind": "Explicit primary text plus clearly marked native-use-contract inference."
+    },
+    {
+      "topic": "paid source and lifetime",
+      "rule": "Each judgment grant is event-derived and keyed by actual turn/owner, original skill instance and native judgment. Paid children survive loss of the issuing skill; owner death still drains paid native children. Explicit native actual-turn cleanup expires outstanding grants, including a later inserted Play.",
+      "kind": "Implementation of delayed effect ownership; no additional immediate skill is inferred."
+    },
+    {
+      "topic": "target selection",
+      "rule": "Use the existing native distance-free designated-target predicate, including Borrowed Sword pairs and Peach/Alcohol actual effects. Added target choices are a native finalized-use child and do not substitute direct damage.",
+      "kind": "Existing engine capability."
+    },
+    {
+      "topic": "self and impossible Kuansai alternatives",
+      "rule": "A target can transfer an actual HE card only to another owner, and recovery is offered only to a living wounded owner. Thus self-target is eligible only for recovery; an empty target with a full-health owner is ineligible.",
+      "kind": "Primary full-health restriction plus native transfer/recovery legality inference."
+    }
+  ],
+  "validation": {
+    "status": "focused-and-routine-passed",
+    "focusedChecks": [
+      "QianZhaoChecks.WeifuNativeJudgmentCategoryStacksAndExpiryCold",
+      "QianZhaoChecks.WeifuEffectiveCategoryDelayedUseAndSeparateStacksCold",
+      "QianZhaoChecks.WeifuReplacementClaimAndPaidSourceLossCold",
+      "QianZhaoChecks.KuansaiActualTargetChooserGiftPrivacyAndQuotaCold",
+      "QianZhaoChecks.KuansaiRecoveryAndSilverLionNativeChildrenCold"
+    ]
+  },
+  "status": "verified",
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T08:29:17.993580+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 5,
+    "combinedFocusedScope": {
+      "corePassed": 45,
+      "wpfPassed": 1,
+      "durationMs": 39129
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 33450
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Actual command, checkpoint replay, privacy, paid continuation and card movement checks passed; no global rules epoch, schema or content package release version was raised."
+  }
+}

@@ -1,0 +1,276 @@
+{
+  "date": "2026-10-17",
+  "status": "verified",
+  "generalId": "ol:a-hui-nan",
+  "characterId": "character:a-hui-nan",
+  "product": "三国杀OL",
+  "officialGid": 531,
+  "officialPage": "https://www.sanguosha.com/hero/531",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=531",
+  "identity": {
+    "name": "阿会喃",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Searched current character manifests and runtime for 阿会喃/AHuiNan/a-hui-nan/蟨蛮/ol:jueman before implementation; no same-product same-variant identity or skill was registered. An unrelated biography mention is not a registered general. The ordinary released OL identity is independently confirmed by the official launch announcement, current hero/API and public client.",
+  "skills": [
+    {
+      "id": "ol:jueman",
+      "name": "蟨蛮",
+      "clientSkillId": 3207,
+      "clientName": "JueMan",
+      "text": "锁定技，每回合结束时，若本回合前两张基本牌的使用者：均不为你，你视为使用本回合第三张使用的基本牌；仅其中之一为你，你摸一张牌。",
+      "linkedSkills": []
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20230131_1932_3914",
+      "title": "2.1-2.28 2023排位赛S2赛季 送新武将阿会喃",
+      "published": "2023-01-31 17:07:59",
+      "availableFrom": "2023-02-01",
+      "checked": "2026-10-17",
+      "level": "Official OL release announcement, independently read live",
+      "supports": "Confirms released ordinary Qun male four-HP A Hui Nan, the complete unchanged Jueman wording, and monkey as the classic artwork illustrator."
+    },
+    {
+      "url": "https://wiki.biligame.com/sgsol/%E9%98%BF%E4%BC%9A%E5%96%83",
+      "title": "阿会喃 - 三国杀OL百科",
+      "checked": "2026-10-17",
+      "level": "Same-product community encyclopedia; supplementary, not an official FAQ",
+      "supports": "Identifies the OL-exclusive released general and reproduces the same complete skill."
+    },
+    {
+      "url": "https://moegirl.uk/index.php?title=%E4%B8%89%E5%9B%BD%E6%9D%80%3A%E9%98%BF%E4%BC%9A%E5%96%83&variant=zh",
+      "title": "三国杀:阿会喃",
+      "checked": "2026-10-17",
+      "level": "Community rules formalization explicitly based on testing; not official rulebook text",
+      "supports": "Corroborates the first-two existence requirement, a third basic Use for the copy branch, zero physical material, and preservation of the actual elemental Slash kind. Current primary text remains authoritative."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "First-three actual uses and current-turn history",
+      "basis": "Current primary uses 使用 rather than 打出; actual-use classification follows the native same-product card semantics. No dedicated current official FAQ was found.",
+      "implementation": "Capture at declaration, across all actors in the actual turn, before completion order can be changed by nested effects. Record exactly the first three basic uses, including a genuine self-provided Dodge used against Slash and a genuine self-rescue use. Exclude played Slash in Duel/BarbarianAssault, played Dodge in ArrowBarrage, supplied cards, and non-basic uses. A whole use occupies one slot even if it has repeated effects or extra targets. History exists while this skill is absent and resets with each actual turn; after-turn-ended printed cards do not alter the already-frozen turn."
+    },
+    {
+      "rule": "Two independent locked conditions",
+      "basis": "Current full primary wording plus same-product supplementary explanation",
+      "implementation": "With fewer than two basic uses there is no reward. If both first users are the owner there is no reward. If exactly one is the owner, draw one actual deck entity regardless of whether a third exists. If both first users are other actors and a third exists, require a currently legal proactive use of that exact third effective basic kind. An unplayable Dodge or a full-HP Peach cannot be manufactured; no voluntary decline is offered when a legal copied use exists."
+    },
+    {
+      "rule": "Exact third effective basic kind and native legality",
+      "basis": "Primary says 此本回合第三张使用的基本牌; preserving elemental Slash is also corroborated by the explicitly testing-based community formalization. Ordinary skill-use quota handling and last-known native transformation tracking are engine rule interpretations.",
+      "implementation": "Retain normal, fire, or thunder Slash separately. A genuine current-Slash-fire transformation is tied to its original use/action and freezes the resulting kind. The new own producer uses zero entities, no suit/rank/color, current distance and target prohibitions, native responses, damage, Peach recovery and Alcohol effect. It does not spend ordinary Slash or Alcohol allowances. It grants no distance bypass and cannot actively print Dodge. Optional view-as availability does not change the already-used card kind."
+    },
+    {
+      "rule": "Started rights, source loss and typed actual ending",
+      "basis": "Engine issued-effect continuation inference, not an additional published FAQ",
+      "implementation": "A collected candidate alone retains no lost-source rights. Original live-source checks remain in force until a real binding has started. Exact ProgramBindingStartedEvent plus the actual DeferredTurnEnd current child proves that start. The owning ProgramSkillFrame freezes source generation, gameplay hash, actual turn, first-three snapshot, paid draw movement and current native origin. Paid draw/native children drain through genuine movement, health, dying and skill windows after source loss or death without paying twice; dead actors make no new choices. The original actual AfterTurnEnded cursor resumes once, including foreign turns whose turn owner died, without an extra phase or turn."
+    },
+    {
+      "rule": "Ending-tail Alcohol",
+      "basis": "Native Alcohol duration inference",
+      "implementation": "An actual Alcohol effect applied by this same ending copy expires after all actual-ending children, before the next actual turn. The beneficiary is taken from the native AlcoholApplied fact, so legal actor/target changes are respected and an unrelated later Alcohol application is not erased."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveJuemanFirstBasicTurnEnd"
+    ],
+    "pendingOwnership": "ProgramSkillFrame.AHuiNanJueman and nullable CardUseFrame.AHuiNanJueman, exact DeferredTurnEnd current child and native basic-use typed return; no global pending object or use-ID sidecar. All new event payloads contain scalars or scalar-only immutable origin records; the frame history is defensively copied.",
+    "focusedChecks": [
+      "FirstTwoUsersDrawAndActualTurnLedgerCold",
+      "ThirdBasicForcedNativeKindsLegalityAndCold",
+      "DodgeUsePlayedResponsesAndHistoricalSourceCold",
+      "PaidDrawNativeChildrenLossDeathAndTailCold"
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-17T01:07:39.051007+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1230]",
+      "row": {
+        "a": 531,
+        "b": "阿会喃",
+        "d": "AHuiNan",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3207,
+        "p": 1,
+        "q": "1",
+        "r": "9053101",
+        "y": "南蛮第三洞元帅，与董荼那等任孟获的援军，但被俘虏，又被诸葛亮释放，孟获怀疑其叛变，将其杀死。",
+        "z": "能力与每回合前两张基本牌的使用者有关。能跟踪全场基本牌的使用情况出牌。",
+        "aa": 69,
+        "ab": "985,986",
+        "ac": "金环三结",
+        "ad": "画师:monkey",
+        "x": "这点小事，不值一提！",
+        "al": 1730,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ar": "20230501T235959",
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,回复强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1597]",
+          "row": {
+            "a": 3207,
+            "b": "3,4,5",
+            "c": "蟨蛮",
+            "d": "JueMan",
+            "e": 0,
+            "g": 7,
+            "i": 2,
+            "o": "锁定技，每回合结束时，若本回合前两张基本牌的使用者：<br>•均不为你，你视为使用本回合第三张使用的基本牌；<br>•仅其中之一为你，你摸一张牌。",
+            "v": "请选择一张牌使用"
+          }
+        }
+      ]
+    }
+  },
+  "primaryEvidence": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/531",
+      "finalUrl": "https://www.sanguosha.com/hero/531",
+      "status": 200,
+      "sha256": "0ae4acfe6015778a8e514b9924dc1d8b87ca7844419dc470b4547c28d8580f18",
+      "byteCount": 23282,
+      "skillRegionHtml": null
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=531",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=531",
+      "status": 200,
+      "sha256": "f726f1e58d054ab6ee1bd0914c7523303d7c6bd1a5a248b9a320903474b9a62e",
+      "byteCount": 817,
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 531,
+              "name": "阿会喃",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/531.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53100.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "回复"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "稀有",
+              "biography": "南蛮第三洞元帅，与董荼那等任孟获的援军，但被俘虏，又被诸葛亮释放，孟获怀疑其叛变，将其杀死。",
+              "characteristic": "能力与每回合前两张基本牌的使用者有关。能跟踪全场基本牌的使用情况出牌。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 4
+            },
+            {
+              "name": "忠臣",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 5
+            },
+            {
+              "name": "内奸",
+              "value": 5
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53100.png",
+      "status": 200,
+      "byteCount": 987866,
+      "sha256": "6ff4a0ce2562f6a767abe6a6d80ec31ff73220cf042ef9e3e0a9d192c4a7b4e7",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-a-hui-nan.png",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  },
+  "validation": {
+    "status": "verified",
+    "checkedAtUtc": "2026-10-16T17:40:15.099989+00:00",
+    "focused": {
+      "ownCoreChecks": 8,
+      "wpfChecks": 2,
+      "durationMs": 65953,
+      "finalHandRevealProducerRegression": {
+        "checks": 1,
+        "durationMs": 33506
+      }
+    },
+    "sharedRelated": {
+      "coreChecks": 14,
+      "wpfChecks": 1
+    },
+    "routine": {
+      "coreChecks": 141,
+      "wpfChecks": 21,
+      "durationMs": 89695,
+      "buildMs": 39145,
+      "coreMs": 18475,
+      "wpfMs": 49956,
+      "scope": "Configured routine scope, no name filters. Full verification was not run."
+    },
+    "visualInspection": "Actual native WPF gallery screenshots inspected for both official portraits and full registered skill text; no clipping.",
+    "parallelWorkspaceBoundary": "Independent tasks changed shared Core/WPF sources during and after verification. Only unchanged source hashes are sealed as validated; later changes are excluded.",
+    "versionPolicy": "No per-character rules/schema/package version change introduced by this batch."
+  }
+}

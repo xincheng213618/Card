@@ -185,7 +185,7 @@ public sealed partial class GameEngine
         if (r.CurrentStat == TurnDefaultStatKind.DrawCount && _resolutionStack[^2] is ProgramLifecycleTriggerWindowFrame
                 { Window: SkillProgramTriggerWindow.DrawPhaseStarting, FrozenBaseDrawCount: not null } draw &&
             draw.Id == r.Origin.ParentFrameId && draw.OwnerSeat == f.OwnerSeat)
-            ReplaceRuntimeFrame(draw.Id, draw with { FrozenBaseDrawCount = GetTurnDrawCount(_players[f.OwnerSeat]) });
+            ReplaceRuntimeFrame(draw.Id, draw with { FrozenBaseDrawCount = FreezeAndCaptureCaoXiNativeDrawBase(_players[f.OwnerSeat]) });
         if (r.CurrentStat == TurnDefaultStatKind.AttackRange)
         {
             ReplaceRuntimeTop(f = f with { TurnDefaultStatAllocation = r with { CurrentStat = TurnDefaultStatKind.SlashLimit, UsedSlotMask = mask } });

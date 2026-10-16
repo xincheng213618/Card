@@ -1,0 +1,234 @@
+{
+  "date": "2026-10-16",
+  "status": "verified-focused-related-and-routine",
+  "generalId": "ol:tian-chou",
+  "characterId": "character:tian-chou",
+  "product": "三国杀OL",
+  "officialGid": 592,
+  "officialPage": "https://www.sanguosha.com/hero/592",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=592",
+  "identity": {
+    "name": "田畴",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Compared all current character manifests and searched 田畴/TianChou/tian-chou/善刀/ol:shandao before implementation; no same-product same-variant identity was registered.",
+  "skills": [
+    {
+      "id": "ol:shandao",
+      "name": "善刀",
+      "clientSkillId": 3401,
+      "clientName": "ShanDao",
+      "text": "出牌阶段限一次，你可以将任意角色各一张牌置于牌堆顶，视为对其使用一张【五谷丰登】，然后视为对除其外的其他角色使用一张【万箭齐发】。",
+      "linkedSkills": []
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://my.4399.com/yxsgs/gonglue/60650/",
+      "title": "4399三国杀OL 天柱系列武将：田畴攻略！",
+      "published": "2024-03-08 14:45",
+      "checked": "2026-10-16",
+      "level": "Same-product operator guide; primary hero and current client govern wording",
+      "supports": "Choosing only the source is allowed. ArrowBarrage always excludes its user, even if that user was not a FiveGrains beneficiary. Both virtual tricks are used by Tian Chou, who is their damage source."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/525301242134528567",
+      "title": "〖武将攻略〗田畴：从我者可免，拒我者难容",
+      "author": "三国杀OL大乔，原创作者洛奈",
+      "original": "https://club.sanguosha.com/thread-1321810-1-3.html",
+      "published": "2024-04-05",
+      "checked": "2026-10-16",
+      "level": "Official same-product account repost of OL writers-group operational guide; forum original was unavailable to this reader",
+      "supports": "Select hand or equipment, with blind foreign hand slots; at least one beneficiary must have an available card. Move directly and visibly to DrawPile in action order, resolving movement children immediately. FiveGrains is colorless and rankless; ArrowBarrage excludes all original beneficiaries and the original user. No ArrowBarrage is used for an empty complement."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Frozen participants and real sequential placement",
+      "basis": "Current primary full text, plus same-product detailed movement explanation",
+      "implementation": "The source chooses a nonempty set including itself if desired. The action-order set freezes once. For each participant it personally selects one current HE card: self hand identities are known, foreign hand slots remain opaque until the selected entity is publicly revealed. That real card moves directly to the real draw pile top, and all native equipment, movement, HP and skill children drain before the next participant. Judgment and private piles are not selectable. The subsequent native FiveGrains reveals actual current top cards, so intervening draws and judgments can consume earlier placed cards."
+    },
+    {
+      "rule": "Two complete native uses",
+      "basis": "Primary says use FiveGrains, then use ArrowBarrage; operator guide explicitly excludes the user from the latter",
+      "implementation": "The original beneficiary set supplies FiveGrains candidates and defines the later complementary set even if an intervening child changes cards or kills a participant. Current living, target, self-target, immunity and card-use prohibitions still apply at each actual issuance. Both native zero-entity uses retain no suit or rank; normal target effects, Nullification, public harvest selection, Dodge responses, damage, armor, dying and completion run through their original native paths. If no legal target exists, that use is skipped."
+    },
+    {
+      "rule": "Paid source loss and death",
+      "basis": "Engine issued-effect continuation inference, not separately stated by primary text",
+      "implementation": "The frame stores source generation, gameplay hash, instruction, actual turn and Play identity, immutable participant order, each actual movement invoice and current native use. Losing the source after the first actual placement does not repay or cancel a surviving actor effect. If the actor dies, drain the already paid child then stop additional choices and new uses. Already issued native uses return through their exact typed parent. A selected participant that dies is filtered from later legal effects while remaining part of the original complement calculation."
+    },
+    {
+      "rule": "Native exceptional card and pile boundaries",
+      "basis": "Engine-native card movement and no-fabricated-entity inference",
+      "implementation": "GeneralWeapon leaving Equipment keeps its intrinsic OutsideGame destination; it is never faked into the deck. Removing SilverLion preserves its actual recovery and removing WoodenOx spills only its real grain. Card shortage never truncates declared legal FiveGrains targets or creates cards: reveal only available entities and finish when the shared public pool is exhausted. Existing physical FiveGrains behavior is unchanged; the shortage continuation is gated by this new exact issuance."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveShandaoTopAndGlobalTricks"
+    ],
+    "pendingOwnership": "ProgramSkillFrame.TianChouShandao plus CardUseFrame.TianChouShandao, typed native return and defensively frozen nested collections; nullable frame fields omitted. All new facts are scalar; public reveal uses the existing frozen CardsRevealedEvent projection.",
+    "focusedChecks": [
+      "SequentialTopFiveGrainsComplementAndExhaustionCold",
+      "NativeNullificationDodgeAndTargetGatesCold",
+      "PaidLossDeathAndFrozenParticipantContinuationCold",
+      "SilverLionWoodenOxAndPrivateSelectionCold"
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T21:39:28.444075+08:00",
+    "product": "sanguosha-ol",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1293]",
+      "row": {
+        "a": 592,
+        "b": "田畴",
+        "d": "TianChou",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3401,
+        "p": 2,
+        "q": "1",
+        "r": "9059201",
+        "y": "东汉末年隐士。年少喜爱读书，善于击剑，初为幽州（刘虞）从事。率领全族隐居，不受袁绍征辟。建安十二年（207年），曹操北征乌桓时，进入麾下，担任司空户曹掾。参与平定乌丸、攻打荆州，颇有功勋，授议郎。",
+        "z": "能在全面辅助队友的同时全面打击敌人。",
+        "aa": 96,
+        "ab": "1113,1114",
+        "x": "邦有道则仕，###邦无道则卷而怀之。",
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20240324T235959",
+        "LordCardRate1": 25,
+        "LordCardRate2": 45,
+        "starMax": 4,
+        "freetitle": "0,过牌强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2436]",
+          "row": {
+            "a": 3401,
+            "b": "3",
+            "c": "善刀",
+            "d": "ShanDao",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可以将任意角色各一张牌置于牌堆顶，视为对其使用一张【五谷丰登】，然后视为对除其外的其他角色使用一张【万箭齐发】。",
+            "v": "请选择任意目标"
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T21:39:28.444075+08:00",
+    "generalId": "ol:tian-chou",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/592",
+      "byteCount": 23940,
+      "sha256": "837a2fde4be30975f942f1c45fcb16f63862c64b4ad3e3575eab78d2be2966d7",
+      "hashScope": "HTTP response body bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=592",
+      "byteCount": 959,
+      "sha256": "ccc6f6c6da632bb8b3ad4d208df48523e62f03694b3bbf1507224252fcb84708",
+      "hashScope": "HTTP response body bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 592,
+            "name": "田畴",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/592.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59200.png",
+            "label": [
+              "进攻",
+              "简单",
+              "锦囊大师"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "东汉末年隐士。年少喜爱读书，善于击剑，初为幽州（刘虞）从事。率领全族隐居，不受袁绍征辟。建安十二年（207年），曹操北征乌桓时，进入麾下，担任司空户曹掾。参与平定乌丸、攻打荆州，颇有功勋，授议郎。",
+            "characteristic": "能在全面辅助队友的同时全面打击敌人。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 8
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59200.png",
+      "byteCount": 1021075,
+      "sha256": "c5d9c0207dc8ffdc468892265dc0a45606468737fef1f0b17d2fc72665504c91",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-tian-chou.png",
+      "width": 750,
+      "height": 950
+    }
+  }
+}

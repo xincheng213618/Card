@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:saogu":{"name":"扫谷","description":"转换技，出牌阶段，阳：你可以弃置两张牌（不能包含你本阶段弃置过的花色），使用其中的【杀】；阴：你可以摸一张牌。结束阶段，你可以弃置一张牌令一名其他角色执行当前项。","activationLabels":{"sweep":"扫谷：执行当前阳/阴项"},"booleanStates":{"yin":{"trueText":"扫谷·阴","falseText":"扫谷·阳"}}}}}

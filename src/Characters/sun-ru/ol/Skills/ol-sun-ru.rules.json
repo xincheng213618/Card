@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:chishi", "revision": 1, "triggers": [ {
+      "id": "actual-turn-last-zone-loss", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand", "equipment", "judgment"],
+      "movementOccurrence": "perOwnerBatch", "usageScope": "turn", "usageLimit": 1, "optional": true,
+      "effects": [ { "op": "rewardCurrentTurnLastZoneLoss", "target": "owner" } ]
+    } ] },
+    { "id": "ol:weimian", "revision": 1, "activations": [ {
+      "id": "abolish-for-distinct-benefits", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "anyLiving",
+      "usesPerTurn": null, "usesPerPhase": 1, "effects": [ { "op": "abolishEquipmentSlotsForDistinctBenefits", "target": "owner" } ]
+    } ] }
+  ]
+}

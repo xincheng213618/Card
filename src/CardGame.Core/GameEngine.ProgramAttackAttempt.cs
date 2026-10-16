@@ -2,6 +2,18 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
+    {
+        PrepareLuYuShengChainAdvance(attack);
+        PrepareDuFuRenChainAdvance(attack);
+        PrepareZhangYiChainAdvance(attack);
+        if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
+                UsesFormalTengjia || UsesFormalSilverLion, out fromSeat)) return false;
+        ApplyZhangYiChainedDamageBonus(attack);
+        ApplyDuFuRenChainedDamageBonus(attack);
+        return true;
+    }
+
     // This interface joins the existing card attack to the damage pipeline. A
     // program handle stores only an owner ID; all of its mutable data lives in
     // ProgramSkillFrame.AttackAttempt.
@@ -224,8 +236,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramDamageTransferCardsDrawnEvent(
                 attack.ResolutionId, transfer.SkillId, transfer.OwnerSeat, transfer.TargetSeat, count));
         }
-        if (_winner == Winner.None && attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
-                UsesFormalTengjia || UsesFormalSilverLion, out var fromSeat))
+        if (_winner == Winner.None && TryAdvanceChainedDamageTarget(attack, out var fromSeat))
         {
             AdvanceEventRulesAndQueueFact(new ChainedDamagePropagatedEvent(attack.ResolutionId,
                 attack.SourceSeat, fromSeat, attack.TargetSeat, attack.DamageAmount, GetDamageNature(attack)));

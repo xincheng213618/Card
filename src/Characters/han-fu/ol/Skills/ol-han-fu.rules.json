@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:shuzi", "revision": 1, "activations": [
+      { "id": "gift-two-return-one", "minCards": 2, "maxCards": 2, "sourceZones": ["hand", "equipment"], "minTargets": 1, "maxTargets": 1, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "resolveShuziExchange", "target": "owner" }] }
+    ] },
+    { "id": "ol:kuangshou", "revision": 1, "triggers": [
+      { "id": "actual-damage-draw-discard", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "resolveKuangshouDamageDrawDiscard", "target": "owner" }] }
+    ] }
+  ]
+}

@@ -13,19 +13,35 @@ public sealed partial class MainViewModel
 
     public bool IsSkillTargetSelectionPending => _skillTargetChoices.Count > 0;
 
-    // Only unambiguous, cardless target choices can use the portrait draft.
-    // Keep other effects explicit and submit the original published choice.
+    private bool IsSkillCardTargetSelectionPending =>
+        IsSkillTargetSelectionPending && _skillTargetChoices.All(choice => choice.Cards.Count == 1);
+
+    // Cardless choices use the confirmation draft. Exact owned-card/target pairs
+    // first select a recipient, then expose that recipient's original card choices.
     private void SyncSkillTargetSelection()
     {
         var prompt = _snapshot.PendingDecision;
         _skillTargetChoices = prompt is { SkillPrompt: not null } && prompt.PlayerSeat == _snapshot.HumanSeat &&
-            !SupportsHandResponse(prompt.Kind)
+            !IsHandResponsePrompt(_snapshot)
             ? prompt.Choices.Where(choice => choice.Cards.Count == 0 && choice.ContentIds.Count == 0 &&
                   choice.Targets.Count > 0 && choice.Targets.Distinct().Count() == choice.Targets.Count &&
                   choice.Targets.All(seat => _snapshot.Players.Any(player => player.Seat == seat)))
                 .GroupBy(choice => string.Join(",", choice.Targets))
                 .Where(group => group.Count() == 1).Select(group => group.Single()).ToArray()
             : [];
+        if (prompt is { SkillPrompt: not null, Choices.Count: > 0 } &&
+            prompt.PlayerSeat == _snapshot.HumanSeat && !IsHandResponsePrompt(_snapshot))
+        {
+            var owner = _snapshot.Players.Single(player => player.Seat == prompt.PlayerSeat);
+            var ownedCards = owner.Hand.Concat(owner.Equipment).Select(card => card.Id).ToHashSet();
+            if (prompt.Choices.All(choice => choice.Parameters.GetValueOrDefault("program-action") == "final-target-gift" &&
+                    choice.Cards.Count == 1 && ownedCards.Contains(choice.Cards[0]) &&
+                    choice.ContentIds.Count == 0 && choice.Targets.Count == 1 &&
+                    _snapshot.Players.Any(player => player.Seat == choice.Targets[0]) &&
+                    choice.Parameters.GetValueOrDefault("source-zone") is nameof(CardZoneKind.Hand) or nameof(CardZoneKind.Equipment)) &&
+                prompt.Choices.Select(choice => (choice.Cards[0], choice.Targets[0])).Distinct().Count() == prompt.Choices.Count)
+                _skillTargetChoices = prompt.Choices;
+        }
         _skillTargetChoiceIds = _skillTargetChoices.Select(choice => choice.Id).ToHashSet();
         // A published pair may distinguish the first and second targets.
         _orderedSkillTargetChoiceIds = _skillTargetChoices.GroupBy(choice => string.Join(",", choice.Targets.Order()))
@@ -62,8 +78,11 @@ public sealed partial class MainViewModel
                 return SkillChoices;
             }
             var declineId = SkillTargetDeclineChoice?.Id;
-            var choices = SkillChoices.Where(choice => !_skillTargetChoiceIds.Contains(choice.Id) &&
-                choice.Id != declineId).ToArray();
+            var choices = IsSkillCardTargetSelectionPending
+                ? SkillChoices.Where(choice => _selectedSkillTargetSeats.Count == 1 &&
+                    choice.Targets.SequenceEqual(_selectedSkillTargetSeats)).ToArray()
+                : SkillChoices.Where(choice => !_skillTargetChoiceIds.Contains(choice.Id) &&
+                    choice.Id != declineId).ToArray();
             // Hint-only refreshes keep the same native choices and controls.
             // A new player view still retires every previous choice reference.
             if (!_centerSkillChoices.SequenceEqual(choices, ReferenceEqualityComparer.Instance))
@@ -81,7 +100,8 @@ public sealed partial class MainViewModel
     {
         get
         {
-            var matches = _skillTargetChoices.Where(choice => choice.Targets.Count == _selectedSkillTargetSeats.Count &&
+            var matches = _skillTargetChoices.Where(choice => choice.Cards.Count == 0 &&
+                choice.Targets.Count == _selectedSkillTargetSeats.Count &&
                 CanExtendSkillTargets(choice, _selectedSkillTargetSeats)).Take(2).ToArray();
             return matches.Length == 1 ? matches[0] : null;
         }
@@ -119,6 +139,10 @@ public sealed partial class MainViewModel
     {
         get
         {
+            if (IsSkillCardTargetSelectionPending)
+                return _selectedSkillTargetSeats.Count == 0
+                    ? $"{_snapshot.PendingDecision!.Prompt} 先点选亮起的武将确定接收对象，再点选要交出的牌。"
+                    : $"交给：{Seats.Single(seat => seat.Seat == _selectedSkillTargetSeats[0]).GeneralName} · 点选中央的一张牌即交出；可改选武将，Esc 取消当前选择。";
             var declineHint = SkillTargetDeclineChoice is not null
                 ? $"点击「{ActionDockCancelText}」放弃本次技能选择；Esc 只取消当前选择。" : string.Empty;
             if (_selectedSkillTargetSeats.Count == 0)

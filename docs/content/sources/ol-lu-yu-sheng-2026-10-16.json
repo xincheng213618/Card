@@ -1,0 +1,264 @@
+{
+  "formatVersion": 1,
+  "generalId": "ol:lu-yu-sheng",
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16",
+  "officialPrimary": {
+    "capturedAtUtc": "2026-10-16T10:24:24.537713+00:00",
+    "generalId": "ol:lu-yu-sheng",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/562",
+      "byteCount": 25271,
+      "sha256": "ccadd118af24cc1d7ea17cfdab0015412818fe22206fe3989046bef64c30f91c",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=562",
+      "byteCount": 1012,
+      "sha256": "509e0bfaa258af662a0f489911078e08c2a3df0643147b595d1eb86ad0f21798",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 562,
+            "name": "陆郁生",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/562.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56200.png",
+            "label": [
+              "防御",
+              "控制",
+              "过牌"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "传说",
+            "biography": "三国时期吴国官员陆绩之女。13岁嫁同郡张白，3月后，张白因兄张温一族的案件连坐，处以流刑，死于流放地。陆郁生言不再改嫁，困难于生计但拒绝了所有提亲，在艰苦中从未停止服侍、照顾张白的姐妹。事情传到朝廷，皇帝褒奖陆郁生，号其为“义姑”。",
+            "characteristic": "考验对牌堆底的控制力及敌友的留牌方案。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/56200.png",
+      "byteCount": 1046910,
+      "sha256": "fdefc93be004508970c2be5c92ae0eb769888c054e1a2568c9cd3b06e3c8108e",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-lu-yu-sheng.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T10:22:10.844796+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153941,
+        "sha256": "dd4d1cacb8035935fe17bff5e3bf39191cfee06e97759a03b4c40ccd5cc4ec45",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1262]",
+      "row": {
+        "a": 562,
+        "b": "陆郁生",
+        "d": "LuYuSheng",
+        "e": 44,
+        "f": "44",
+        "g": 3,
+        "h": 2,
+        "i": 3,
+        "j": 3314,
+        "k": 3315,
+        "p": 3,
+        "q": "1",
+        "r": "9056201",
+        "y": "三国时期吴国官员陆绩之女。13岁嫁同郡张白，3月后，张白因兄张温一族的案件连坐，处以流刑，死于流放地。陆郁生言不再改嫁，困难于生计但拒绝了所有提亲，在艰苦中从未停止服侍、照顾张白的姐妹。事情传到朝廷，皇帝褒奖陆郁生，号其为“义姑”。",
+        "z": "考验对牌堆底的控制力及敌友的留牌方案。",
+        "aa": 78,
+        "ab": "1051,1052",
+        "ad": "画师:土豆",
+        "x": "涧底束荆薪，####归来煮白石。",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "ar": "20240708T235958",
+        "LordCardRate1": 38,
+        "LordCardRate2": 44,
+        "cb": "2;3",
+        "starMax": 4,
+        "freetitle": "0,控制强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1697]",
+          "row": {
+            "a": 3314,
+            "b": "3,4,5",
+            "c": "藏心",
+            "d": "CangXin",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "o": "锁定技，摸牌阶段开始时，你展示牌堆底三张牌并摸与其中红桃牌数量等量张牌。<br>当你每回合首次受到伤害时，你展示牌堆底三张牌并弃置其中任意张牌，此伤害-X（X为以此法弃置的红桃牌数）。",
+            "v": "请选择任意张牌弃置"
+          }
+        },
+        {
+          "path": "GameSpells.spell[1698]",
+          "row": {
+            "a": 3315,
+            "b": "3,5",
+            "c": "润微",
+            "d": "RunWei",
+            "e": 0,
+            "g": 4,
+            "i": 2,
+            "o": "已受伤角色的弃牌阶段开始时，你可以令其摸/弃置一张牌并于此阶段手牌上限-1/+1。",
+            "w": "请选择一张牌弃置",
+            "v": "令其摸一张牌，手牌上限-1|令其弃一张牌，手牌上限+1"
+          }
+        }
+      ]
+    }
+  },
+  "additionalOfficial": [
+    {
+      "url": "https://www.sanguosha.com/news/20240604_8494_3613",
+      "title": "6.8-6.15 端午祈愿陆郁生、蔡瑁来袭 携粽濯荷*界吕蒙琳琅绘卷上新",
+      "publishedAt": "2024-06-07 17:01:04",
+      "role": "Official OL launch article confirms Wu, female, three HP and the current first-damage/reduce-X wording."
+    }
+  ],
+  "rules": {
+    "ol:cangxin": "锁定技，摸牌阶段开始时，你展示牌堆底三张牌并摸与其中红桃牌数量等量张牌。当你每回合首次受到伤害时，你展示牌堆底三张牌并弃置其中任意张牌，此伤害-X（X为以此法弃置的红桃牌数）。",
+    "ol:runwei": "已受伤角色的弃牌阶段开始时，你可以令其摸/弃置一张牌并于此阶段手牌上限-1/+1。"
+  },
+  "implementationInferences": [
+    {
+      "topic": "first actual-turn damage opportunity",
+      "explanation": "The locked before-damage opportunity is spent by its first accepted attempt in the actual turn, including an attempt fully reduced to zero; actual earlier positive damage and the issued opportunity fact survive skill loss/regrant. This is an engine timing interpretation, not a dedicated official FAQ."
+    },
+    {
+      "topic": "bottom reveal and native payment",
+      "explanation": "Reveal up to the three entities actually present at the bottom without drawing, shuffling, or repositioning them. Drawing uses the native top. The reduction counts only actually discarded original Hearts; zero or non-Heart discards are legal. Paid native movement/HP/recovery/death children complete without paying twice after source loss."
+    },
+    {
+      "topic": "Runwei phase-scoped independent consequence",
+      "explanation": "The wounded participant is the actual Discard owner. The skill owner chooses draw or discard; the participant privately chooses an actual HE discard if possible. The phase adjustment is not conditional on obtaining one card or being able to discard one card: an empty deck draws zero but still gives -1, and empty/un-discardable HE forces zero discard but still gives +1. The text contains no 若如此做 condition. The issued adjustment lasts only for that exact actual Discard phase and survives subsequent source loss or recovery to full HP."
+    },
+    {
+      "topic": "elemental propagation",
+      "explanation": "The initial reduced final damage naturally becomes the native propagated base. A reduction applied locally to a later chained recipient is restored before advancing to the next living recipient, including a native redirected current recipient. This follows the engine recipient-scoped damage contract, not a dedicated official FAQ."
+    }
+  ],
+  "behaviorChecks": [
+    "LuYuShengChecks.BottomRevealNativeDrawAndZeroHeartsCold",
+    "LuYuShengChecks.FirstDamageAnySubsetZeroAndChainRecipientsCold",
+    "LuYuShengChecks.RunweiOwnForeignPhaseLionAndOxCold",
+    "LuYuShengChecks.PaidSourceLossDeathAndSmallDeckReshuffleCold"
+  ],
+  "status": "implemented-and-root-verified",
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 36136,
+      "steps": {
+        "Build selected scope": 23003,
+        "Core selected checks (5 filters, union)": 6318,
+        "WPF selected checks (2 filters, union)": 12769
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Lu Yu Sheng:', 'Wang Kuang:', 'Yuan Huan:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program public card choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 21,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 12353,
+      "steps": {
+        "Build selected scope": 2509,
+        "Core selected checks (8 filters, union)": 9562
+      },
+      "scope": "Li Wan discard refunds; Du Fu Ren and Zhang Yi chain restoration and actual phases; Yan Pu native recovery; Qingzhong issued PlayEnding; actor hand limits; phase prediction; Lu Zhi actual Discard entry."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32005,
+      "steps": {
+        "Build selected scope": 2915,
+        "Core selected checks (140 filters, union)": 10910,
+        "WPF selected checks (20 filters, union)": 28736
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Lu Yu Sheng gallery",
+      "OL Wang Kuang gallery",
+      "OL Yuan Huan gallery",
+      "public-card choice projection"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. New receipts omit null fields, and native bridges require the new capabilities or exact issued receipts.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; native Space press/release check passed with the original input guard.",
+    "verifiedAtUtc": "2026-10-16T10:46:31.681742+00:00"
+  }
+}

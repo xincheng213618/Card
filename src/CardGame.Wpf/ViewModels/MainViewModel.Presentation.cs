@@ -16,6 +16,7 @@ public sealed partial class MainViewModel
     private string _actionHint = "选择一位武将，加入对局";
     private string _recentEventText = "八人入席，静候开局";
     private GameSnapshot? _humanSkillSnapshot;
+    private GameEngine? _humanSkillGame;
     private IReadOnlyList<HumanSkillViewModel> _humanSkillCards = [];
 
     public ObservableCollection<SeatViewModel> TopSeats { get; } = [];
@@ -37,25 +38,26 @@ public sealed partial class MainViewModel
     {
         get
         {
-            if (!ReferenceEquals(_humanSkillSnapshot, _snapshot))
+            if (!ReferenceEquals(_humanSkillSnapshot, _snapshot) || !ReferenceEquals(_humanSkillGame, _game))
             {
                 var skills = BuildHumanSkillCards();
                 // Keep skill controls and their tooltips alive across unrelated
                 // table updates, while still refreshing every changed skill state.
-                if (!_humanSkillCards.SequenceEqual(skills)) _humanSkillCards = skills;
+                if (!ReferenceEquals(_humanSkillGame, _game) || !_humanSkillCards.SequenceEqual(skills)) _humanSkillCards = skills;
                 _humanSkillSnapshot = _snapshot;
+                _humanSkillGame = _game;
             }
             return _humanSkillCards;
         }
     }
 
-    private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards()
+    private IReadOnlyList<HumanSkillViewModel> BuildOwnedHumanSkillCards()
     {
         if (_snapshot is null || _snapshot.Players.SingleOrDefault(player => player.IsHuman) is not { } human)
             return [];
 
         var availablePrograms = HumanActiveSkillActions
-            .Where(action => action.ProgramSkillId is not null)
+            .Where(action => action.ProgramSkillId is not null && action.ProgramSkillOwnerSeat is null)
             .Select(action => action.ProgramSkillId!)
             .ToHashSet(StringComparer.Ordinal);
         availablePrograms.UnionWith(GetViewLegalActions()
@@ -74,14 +76,15 @@ public sealed partial class MainViewModel
                 {
                     var definition = _contentRegistry.Generals[slot.Id];
                     var ownedIds = slot.Skills?.Select(skill => skill.ContentId)
-                        .OfType<string>().ToHashSet(StringComparer.Ordinal);
-                    return definition.SkillIds
-                        .Where(id => ownedIds is null || ownedIds.Contains(id))
+                        .OfType<string>().Distinct(StringComparer.Ordinal).ToArray() ?? definition.SkillIds;
+                    return ownedIds
                         .Select(_contentRegistry.GetSkill)
                         .Where(skill => skill.Name != "无")
                         .Select(skill =>
                         {
-                            var enabled = (slot.Revealed );
+                            var acquired = !definition.SkillIds.Contains(skill.Id, StringComparer.Ordinal);
+                            var enabled = slot.Revealed || acquired;
+                            var runtimeState = human.SkillRuntimeStates?.SingleOrDefault(state => state.SkillId == skill.Id);
                             var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
                                          skill.Program?.Activations.Count > 0;
                             var isAvailable = availablePrograms.Contains(skill.Id);
@@ -91,8 +94,9 @@ public sealed partial class MainViewModel
                                 GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                                 !enabled
                                     ? "暗置中 · 尚未启用"
-                                    : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
-                                $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
+                                    : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用", skill.Tags, runtimeState),
+                                acquired ? $"{human.GeneralName} · 获得技能"
+                                    : $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
                                 enabled && isAvailable,
                                 !enabled) { ContentId = skill.Id };
                         });
@@ -142,7 +146,7 @@ public sealed partial class MainViewModel
                         runtimeState?.IsAcquired == true
                             ? isFuhunGranted
                                 ? $"{human.GeneralName} · 父魂获得"
-                                : $"{human.GeneralName} · 觉醒获得"
+                                : $"{human.GeneralName} · 获得技能"
                             : human.GeneralName,
                         isAvailable,
                         false) { ContentId = skill.Id };
@@ -209,6 +213,13 @@ public sealed partial class MainViewModel
     {
         if (runtimeState?.SkillId == "friend:yance" && HumanFriendPredictionState() is { Length: > 0 } forecast)
             return forecast;
+        if (runtimeState?.SkillId == "ol:longnu")
+        {
+            var states = runtimeState.BooleanStates ?? [];
+            if (states.Any(state => state.StateId == "longnu-yang-phase" && state.Value)) return "阳 · 红牌视为火杀";
+            if (states.Any(state => state.StateId == "longnu-yin-phase" && state.Value)) return "阴 · 锦囊视为雷杀";
+            return states.Any(state => state.StateId == "longnu-yang" && state.Value) ? "下次：阳" : "下次：阴";
+        }
         var polarityText = runtimeState?.Polarity switch
         {
             SkillPolarity.Yang => "当前：阳",
@@ -494,7 +505,8 @@ public sealed partial class MainViewModel
         : "转换使用";
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
-    public bool HasCenterChoices => HasChoicePrompt && (!IsSkillTargetSelectionPending || CenterSkillChoices.Count > 0) || HasPublicTargetChoices || HasTargetCombinationChoices ||
+    public bool HasCenterChoices => HasChoicePrompt && (IsHandResponsePending ? HandResponseExtraChoices.Count > 0
+        : !IsSkillTargetSelectionPending || CenterSkillChoices.Count > 0) || HasPublicTargetChoices || HasTargetCombinationChoices ||
         HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeferredPublicPiles || HasDeclaredCards ||
         ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool HasPinnedPublicModuleChoices =>
@@ -637,10 +649,11 @@ public sealed partial class MainViewModel
 
     private bool CanAutomaticallyAdvance => IsAutoAdvance && CanStepAi &&
         !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen &&
-        !IsSettingsOpen && !IsLogOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible;
+        !IsSettingsOpen && !IsLogOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible && !IsReserveDialogOpen;
 
     private void ResetPresentation()
     {
+        foreach (var seat in Seats) seat.ResetIdentityMark();
         ResetBattleFeedback();
         RecentPlays.Clear();
         RecentEventText = "八人入席，静候开局";
@@ -657,11 +670,14 @@ public sealed partial class MainViewModel
         SyncSeats(RightSeats, opponents.Take(sideCount).Reverse());
         SyncSeats(TopSeats, opponents.Skip(sideCount).Take(Math.Max(0, opponents.Length - sideCount * 2)).Reverse());
         SyncSeats(LeftSeats, opponents.TakeLast(sideCount));
+        foreach (var seat in Seats) seat.StatusBadgesOnLeft = RightSeats.Contains(seat);
         RefreshBattleLogSeatOptions();
         RaisePropertyChanged(nameof(HumanEquipmentSlots));
         foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();
+        RaisePropertyChanged(nameof(IsGodFactionSelectionPending));
+        RaisePropertyChanged(nameof(GodFactionChoices));
         RefreshGameSetupPresentation();
         RefreshDiscardPresentation();
         ((RelayCommand<CardViewModel>)SelectRevealedCardCommand).NotifyCanExecuteChanged();
@@ -713,6 +729,7 @@ public sealed partial class MainViewModel
                 ? $"选择一张手牌，或发动 {ActiveSkillButtonText}"
                 : $"可发动 {ActiveSkillButtonText}"
             : CanEndTurn ? Hand.Any(item => item.IsPlayable) ? "选择一张手牌，再选择目标" : "当前没有可使用的手牌 · 可以结束出牌"
+            : IsGeneralLibrarySelectionPending ? string.Empty
             : HasChoicePrompt ? _snapshot.PendingDecision!.Prompt
             : CanStepAi ? IsAutoAdvance ? "其他武将正在行动，请稍候…" : "自动推进已暂停 · 可在右侧继续推进"
             : PromptText;

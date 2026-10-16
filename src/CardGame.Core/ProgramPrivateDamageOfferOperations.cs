@@ -98,7 +98,8 @@ public sealed partial class GameEngine
         var zone=Enum.Parse<CardZoneKind>(choice.Parameters["zone"]);var slot=int.Parse(choice.Parameters["slot"]);var from=new CardLocation(zone,draft.TargetSeat);var card=_cardZones.CardsAt(from)[slot];
         if(IsForeignEquipmentDiscardPrevented(frame.OwnerSeat,card,from,OwnedCardMoveIntent.Discard))throw new InvalidOperationException("Participant discard is no longer available.");
         ClearPendingDecision();ReplaceRuntimeTop(frame with {SelectedParticipantDiscard=null,ReexecuteParticipantInstruction=true});
-        MoveCard(card,from,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"));
+        MoveCard(card,from,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"),
+            movement => RecordBianFuRenForeignDiscardProducer(movement, frame.OwnerSeat, frame.Id));
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
     private static string DamageOfferPairKey(int source)=>"successful-damage-offer:source:"+source;

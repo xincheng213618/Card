@@ -1,0 +1,234 @@
+{
+  "capturedOn": "2026-10-16",
+  "product": "sanguosha-ol",
+  "generalId": "ol:ma-xiu-ma-tie",
+  "identity": {
+    "gid": 538,
+    "name": "马休马铁",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "genderEvidence": "Current OL character h=1 and the official biography identify the two sons of Ma Teng; hero/info confirms Qun 4 HP."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "HTTP response body bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153996,
+        "sha256": "f7e45313a8c4b8c9cd358c7a014b55692fd6453cc25394811799f4afef996257",
+        "hashScope": "HTTP response body bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1237]",
+      "row": {
+        "a": 538,
+        "b": "马休马铁",
+        "d": "MaXiuMaTie",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 70,
+        "k": 3229,
+        "p": 1,
+        "q": "1",
+        "r": "9053801",
+        "y": "扶风茂陵人，马腾之子，马超之弟。马腾遭韩遂进攻，乃携马休马铁等入京受职。因兄马超反，被曹操夷灭。",
+        "z": "能多目标出杀，有少量过牌。",
+        "aa": 65,
+        "ab": "999,1000",
+        "ad": "画师:alien",
+        "x": "以父之名，####纵贯西凉！",
+        "aj": "马休马铁",
+        "al": 1730,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ar": "20231231T235959",
+        "LordCardRate1": 13,
+        "LordCardRate2": 42,
+        "cc": 0,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[69]",
+          "row": {
+            "a": 70,
+            "b": "3,4,5",
+            "c": "马术",
+            "d": "MaShu",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "锁定技，你计算与其他角色的距离-1。",
+            "bb": "锁定技，你计算与其他角色的距离-1。",
+            "aa": "锁定技，你计算与其他角色的距离-1。",
+            "p": "你与别人距离-1。"
+          }
+        },
+        {
+          "path": "GameSpells.spell[1615]",
+          "row": {
+            "a": 3229,
+            "b": "3",
+            "c": "垦伤",
+            "d": "KenShang",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "o": "你可以将至少两张牌当【杀】使用，然后可以将目标改为等量名角色。若这些牌数大于此牌造成的伤害，你摸一张牌。",
+            "v": "请选择至少两张牌当<font color='#FFD800'>杀</font>使用|请选择{0}名角色",
+            "ac": "是否将目标改为{0}名角色",
+            "ae": "{0}将<font color='#FFD800'>杀</font>的目标改为{1}",
+            "fastChooseCard": 1,
+            "autoChooseCard": 1
+          }
+        }
+      ]
+    }
+  },
+  "selectedPrimarySources": {
+    "capturedAtUtc": "2026-10-16T21:39:28.444075+08:00",
+    "generalId": "ol:ma-xiu-ma-tie",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/538",
+      "byteCount": 23345,
+      "sha256": "005a1c44da9303c8a6794d89dd152c78bf5d3916c5027106b64645a7bf8c99ec",
+      "hashScope": "HTTP response body bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=538",
+      "byteCount": 763,
+      "sha256": "21f238d5a78119e09677cd67a103725ed925f80f0ed09245caa351ff9200434c",
+      "hashScope": "HTTP response body bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 538,
+            "name": "马休马铁",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/538.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53800.png",
+            "label": [
+              "进攻",
+              "简单",
+              "减目标"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "扶风茂陵人，马腾之子，马超之弟。马腾遭韩遂进攻，乃携马休马铁等入京受职。因兄马超反，被曹操夷灭。",
+            "characteristic": "能多目标出杀，有少量过牌。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 3
+          },
+          {
+            "name": "农民",
+            "value": 4
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 2
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53800.png",
+      "byteCount": 1186749,
+      "sha256": "56f44699fcc2b672a0b361c84bcf878e2ced288f6914bfa3063e309c144a78d4",
+      "hashScope": "HTTP response body bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-xiu-ma-tie.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/538",
+      "supports": "Current complete Ma Shu and Ken Shang texts; ordinary OL variant."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=538",
+      "supports": "Current ordinary OL identity, Qun 4 HP, biography and official portrait."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/479586871156933285",
+      "published": "2023-12-01",
+      "publisher": "三国杀OL撰稿组; guide credited to 国服第一杨彪",
+      "originalUrl": "https://club.sanguosha.com/thread-1288189-1-1.html",
+      "supports": "Equipment is valid material. Borrowed Sword is actual Use; Duel and Barbarian Assault only play out Slash. Optional replacement uses exactly the material count and may omit the original target. Total damage includes increases and elemental chain propagation."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/497309707057237344",
+      "published": "2024-01",
+      "publisher": "Current OL product guide",
+      "supports": "Current >=2 material version; prior test versions with different targeting or post-use skill-loss rules are distinguished and are not imported."
+    }
+  ],
+  "rules": {
+    "mashu": "Reuse the existing standard:mashu locked distance capability with no new movement or targeting exceptions.",
+    "kenshang": "The original actual card Use selects at least two owned Hand/Equipment entities, one legal Slash target and a current exact conversion source. It pays the native materials and ordinary Slash debit before resolving its native target frontier. It then optionally replaces the whole target set with exactly the original material count of distinct currently legal other roles. Declining keeps the original designated set. An unfillable exact replacement is unavailable; partial selections never commit.",
+    "nativeUseRequests": "The same original issued conversion is available on genuine native Borrowed Sword, Qinglong follow-up and supported skill-request Slash Use parents, including Ke Bi Neng basic Use requests. Pure played-out Slash for Duel/AOE is excluded. Faction-supplied Slash is not attributed to a different provider as that provider using Kenshang. Variable HE conversions are excluded from the single-card native converter enumeration.",
+    "damage": "At the exact original CardUseCompleted parent, sum positive actual applied damage of this entire native Slash, including elemental chain propagation. Damage increases, armor reductions and prevented damage use native resolved amounts. Draw exactly one actual card only if the frozen original material count exceeds that total; zero damage can qualify. The draw and all real gained-card/health/movement children resume once from the owning typed frame.",
+    "sourceLifetime": "An issued native Use retains its original skill-instance/hash/material invoice through real skill loss and actor replacement. A paid card-use cost is not revalidated as an unspent owned card. A living source can finish its issued benefit after skill loss; a dead source does not draw. Native movement, dying, equipment-loss and response children continue through their actual parents.",
+    "privateSelection": "Native request material selection stays private to its actual requested user, with scalar ordered selection receipts on the original owning frame. Cancel is unpaid and restores the original native choice with a fresh PromptId, so reopening has a separate exact invoice. Finish restores the exact accepted original decision and invokes that original native issuer. No fake turn/phase or general global quota exemption is introduced.",
+    "equipment": "Hand and Equipment materials use actual native card-use payment, including Silver Lion recovery, Wooden Ox grain cleanup and GeneralWeapon normalization to OutsideGame. Cleanup entities are not extra Kenshang materials.",
+    "interpretations": {
+      "status": "Implementation inference where no current product-specific FAQ supplies a more specific instruction",
+      "details": [
+        "Whole-set replacement still obeys current Slash target prohibitions and distance, because the current rule supplies no distance exemption.",
+        "The original material count is frozen before native equipment-loss and card-movement children; source loss never changes that already-paid invoice.",
+        "True actor replacement changes the native current user while preserving the original physical provider and conversion entitlement; it does not create another conversion grant.",
+        "No old testing-version arbitrary material count, outside-range targeting or automatic post-use skill loss is imported."
+      ]
+    }
+  },
+  "validation": {
+    "status": "verified-focused-related-and-routine",
+    "focusedChecks": [
+      "KenshangWholeTargetReplacementActualDamageAndCold",
+      "KenshangEquipmentPaymentsLionOxSourceLossDeathCold",
+      "KenshangBorrowedSwordQinglongUseAndPureResponseCold",
+      "KenshangActualProgramRequestsCancelPrivacyAndKeNativeCold"
+    ],
+    "execution": "Centralized focused, related mechanism and routine verification passed; native request checks include actual Borrowed Sword and inherited Qinglong GeneralWeapon payments, cold restoration and complete typed returns."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ruan-hui",
+  "skills":[
+    {"registrationOrder":1650,"programBundle":"ol-ruan-hui","includeProgramPresentation":true,"definition":{"id":"ol:mingcha","name":"明察","description":"摸牌阶段开始时，你亮出牌堆顶三张牌，然后你可改为获得其中点数不大于8的牌，若如此做，你可获得一名其他角色随机一张牌。","executionForms":"Trigger"}},
+    {"registrationOrder":1651,"programBundle":"ol-ruan-hui","includeProgramPresentation":true,"definition":{"id":"ol:jingzhong","name":"敬重","description":"弃牌阶段结束时，若你于此阶段内弃置过至少两张黑色牌，你可以选择一名其他角色，其下个出牌阶段使用的牌进入弃牌堆后，你获得之（每阶段限获得三次）。","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":1652,"pools":{"current":443},"definition":{"id":"ol:ruan-hui","name":"阮慧","portraitKey":"ol-ruan-hui","skillId":"ol:mingcha","additionalSkillIds":["ol:jingzhong"],"factionId":"wei","baseHp":3,"gender":"Female","characterId":"character:ruan-hui","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]
+}

@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-liao",
+  "skills": [
+    { "registrationOrder": 1290, "programBundle": "ol-sp-zhang-liao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:mubing", "name": "募兵", "description": "出牌阶段开始时，你可以亮出牌堆顶三张牌，然后你可以弃置任意张手牌，获得任意张亮出的牌（你弃置牌的点数之和不得小于你获得牌的点数之和）。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1291, "programBundle": "ol-sp-zhang-liao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:ziqu", "name": "资取", "description": "每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，令其交给你一张点数最大的牌。", "executionForms": "Trigger" } },
+    { "registrationOrder": 1292, "programBundle": "ol-sp-zhang-liao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:diaoling", "name": "调令", "description": "觉醒技，准备阶段，若你以“募兵”累计获得了至少六张【杀】、伤害锦囊牌和武器牌，你回复1点体力或摸两张牌，并修改“募兵”。", "executionForms": "Trigger", "tags": "Awakening" } }
+  ],
+  "generals": [
+    { "registrationOrder": 1293, "pools": { "current": 407 },
+      "definition": { "id": "ol:sp-zhang-liao", "name": "SP张辽", "portraitKey": "ol-sp-zhang-liao", "skillId": "ol:mubing", "additionalSkillIds": ["ol:ziqu", "ol:diaoling"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:zhang-liao", "variantId": "sp", "rulesetId": "sanguosha-ol" } }
+  ]
+}

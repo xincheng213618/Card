@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     }
     private bool TracksNativeDrawInvocations =>
+        HasFeiYiHezhong ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ||
@@ -248,6 +249,7 @@ public sealed partial class GameEngine
             var paid = material!;
             MoveProgramCardsFromMultipleSources([paid.CardId], CardLocation.DiscardPile, new(OutsidePhaseMovementReason(f, false)), (batch, records) =>
             {
+                foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
                 if (records is not [var move] || move.CardId != paid.CardId || move.CardKind != paid.PrintedKind || move.From != paid.From ||
                     move.To != (paid.IsGeneralWeapon && paid.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile))
                     throw new InvalidOperationException("Outside-phase discard did not pay its single real frozen foreign card.");

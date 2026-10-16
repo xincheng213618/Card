@@ -6,6 +6,7 @@ public sealed partial class GameEngine
     {
         if (use.CardKind != CardKind.DrawTwo || use.TargetSeats.Count != 0 || use.Action is not { } old ||
             !HasCaoChunCapability && !HasNeifaCapability && !HasSuFeiCapability && !HasJianjiNativeUseCapability && !HasFanChouCapability && !HasGuoSiCapability &&
+            !HasWeifuCapability && !HasKuansaiCapability &&
             !HasTargetedOrdinaryTrickAdjustment && !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget) &&
             !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget) &&
             !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets)) return use;

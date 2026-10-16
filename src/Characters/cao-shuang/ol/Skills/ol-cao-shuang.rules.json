@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:tuogu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "dead-general-chooses-inheritance",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "inheritDeadGeneralChosenSkill",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shanzhuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-other-damage-place-card",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "placeDamagedCardAsDelayedTrick",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "ending-without-actual-damage",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "turnOwnerDamageDealtThisTurn"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

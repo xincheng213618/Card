@@ -117,7 +117,8 @@ public sealed partial class GameEngine
         var hand = GetHand(targetState);
         var taken = hand[_random.Next(hand.Count)];
         MoveCard(taken, CardLocation.Hand(target), CardLocation.Processing,
-            new($"skill-program.{frame.SkillId}.daoshu-take"));
+            new($"skill-program.{frame.SkillId}.daoshu-take"),
+            movement => RecordBianFuRenOwnedTransferProducer(movement,owner.Seat,frame.Id));
         MoveCard(taken, CardLocation.Processing, CardLocation.Hand(owner.Seat),
             new($"skill-program.{frame.SkillId}.daoshu-take"));
         var takenSuit = GetProgramEffectiveSuit(owner, taken);
@@ -126,13 +127,15 @@ public sealed partial class GameEngine
             owner.Seat, target);
         if (takenSuit == chosenSuit)
         {
-            // Correct guess: the per-turn activation is refunded so the skill may
+            // Correct guess: the activation is refunded so the skill may
             // fire again this phase, then the damage settles through the program
             // damage pipeline which resumes and completes this frame afterwards.
             var plan = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!);
             var usageKey = (frame.OwnerSeat, frame.SkillId, plan.Activation?.UsageGroup ?? frame.ActivationId);
             if (_programUses.TryGetValue(usageKey, out var used) && used > 0)
                 _programUses[usageKey] = used - 1;
+            if (_programPhaseUses.TryGetValue(usageKey, out var phaseUsed) && phaseUsed > 0)
+                _programPhaseUses[usageKey] = phaseUsed - 1;
             AddLog("SkillEffect",
                 $"{owner.Name} 的【盗书】猜中花色，对 {targetState.Name} 造成1点伤害，此技能视为未发动过。",
                 owner.Seat, target);

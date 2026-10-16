@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-16",
+  "status": "implementation-in-progress",
+  "generalId": "ol:ma-wan",
+  "characterId": "character:ma-wan",
+  "product": "三国杀OL",
+  "officialGid": 561,
+  "officialPage": "https://www.sanguosha.com/hero/561",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=561",
+  "identity": {
+    "name": "马玩",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation, all existing character manifests were checked for 马玩/馬玩/MaWan, 浑疆/渾疆/HunJiang and the OL general identity. No character or Hunjiang implementation was present. Existing canonical classic:mashu is reused, without a duplicate distance skill.",
+  "currentClient": {
+    "checkedAtUtc": "2026-10-16T05:44:14.471461+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configSha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+    "method": "Fetched and decoded in memory; only the target character and its two spell rows were extracted. No full client/config snapshot was saved.",
+    "characterRow": {
+      "a": 561,
+      "b": "马玩",
+      "d": "MaWan",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 70,
+      "k": 3313
+    },
+    "fieldInterpretation": "Current OL character table: g=4 Qun, h=1 male, i=4 HP; j/k identify the two spell rows.",
+    "spellRows": [
+      {
+        "a": 70,
+        "c": "马术",
+        "d": "MaShu",
+        "o": "锁定技，你计算与其他角色的距离-1。"
+      },
+      {
+        "a": 3313,
+        "c": "浑疆",
+        "d": "HunJiang",
+        "o": "出牌阶段限一次，你可以令攻击范围内任意名其他角色同时选择一项：1.令你本阶段使用【杀】可以指定其为额外目标；2.令你摸一张牌。若这些角色皆选择了同一项，也须执行另一项。",
+        "v": "请选择攻击范围内任意名其他角色"
+      }
+    ]
+  },
+  "officialEvidence": [
+    "The live hero page and info API identify 马玩, 4 HP and Qun; the page presents 马术 and 浑疆 and the same complete text as current client spell 70/3313 (HTML formatting normalized).",
+    "Official characteristic: 可威吓多名角色，需要高攻击范围。 No text grants unlimited distance for a subsequent Slash."
+  ],
+  "ruleInterpretations": [
+    "Simultaneously means each selected participant commits privately without seeing earlier choices. Participant membership and its original in-range qualification freeze at the accepted activation. No draw, entitlement or revealed vote is published until all commitments exist.",
+    "Each option-2 participant causes one actual owner draw. An option-1 participant may be selected as an extra target for each Slash during this actual Play phase. If all participants agree, each also executes the other option: owner draws their number of cards and every participant receives extra-target eligibility. The one-participant case is therefore unanimous.",
+    "The text grants an extra target, without an unlimited-distance clause. This implementation infers that ordinary current Slash target requirements still apply when appending: current range, directed/suit/card prohibition, living state, exclusion of the user and existing targets. Initial in-range membership does not permanently bypass distance after a weapon or distance change.",
+    "The text says 本阶段 rather than while the skill is present. Issued eligibility persists after source loss through that actual Play phase, then expires; an accepted Slash freezes its issued grants before its native payment children. An owner death does not undo a completed draw or already-issued fact, but offers no further dead-player choices.",
+    "No official FAQ was found establishing a different simultaneous tie, later range, or source-loss rule. These temporal and continuation details are explicit implementation inferences, not separately quoted official rulings."
+  ],
+  "runtimeBoundaries": [
+    "Private votes, participant order, draw receipt and target draft live on the original ProgramSkillFrame. The native CardUseFrame owns its immutable phase-grant receipt before payment.",
+    "Persistent phase grants and provenance use scalar facts, without a mutable pending sidecar. Native draw movements and all their real observer/damage/rescue children drain once through typed returns.",
+    "Native Slash target cursor, responses, damage and producer returns are preserved; additional targets never rewrite a zero-entity producer's original single primary selection."
+  ],
+  "behaviorChecks": "tests/CardGame.Core.Tests/MaWanChecks.cs",
+  "behaviorCheckMethods": [
+    "SimultaneousPrivateCommitmentsUnanimousSupplementActualDrawAndCold",
+    "NativeAndZeroEntitySlashMultipleTargetsResponsesProducerReturnAndPhaseExpiryCold",
+    "CurrentRangeDeathProhibitionAndAlreadyTargetAreRecheckedCold",
+    "HumanRecipientPrivateAnswerAiSourceAndPaidOwnerDeathCold"
+  ],
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T06:58:08.203262+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 4,
+    "combinedFocusedScope": {
+      "corePassed": 31,
+      "wpfPassed": 1,
+      "durationMs": 16026
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 28588
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Native command, checkpoint replay, privacy, paid continuation and card movement boundaries passed; no rules epoch, schema or package release version was raised."
+  }
+}

@@ -110,8 +110,49 @@ internal static class RuleInformationUiChecks
         VerifyTurnHandHoldViews(model, root, original, output);
         Program.Assert(JsonSerializer.Serialize(game.CreateCheckpoint()) == before,
             "Reading private turn holds must leave the command checkpoint unchanged.");
+        VerifyGeneralLibrarySelection(model, window, root, projected, output);
+        Refresh(model, original);
         window.Content = null;
         window.Close();
+    }
+
+    private static void VerifyGeneralLibrarySelection(MainViewModel model, MainWindow window, FrameworkElement root,
+        GameSnapshot snapshot, string output)
+    {
+        const string description = "游戏开始时，你随机获得两张未加入游戏的武将牌，选一张展示并获得其一项技能。";
+        var back = new PromptChoice(new("fixture:avatar-back"), "返回", [], [],
+            new Dictionary<string, string> { ["program-action"] = "private-general-library", ["navigation"] = "back" });
+        foreach (var label in new[] { "展示【黄月英】", "获得【集智】", "选择势力 蜀" })
+        {
+            var choice = new PromptChoice(new("fixture:avatar-choice"), label, [], [],
+                new Dictionary<string, string> { ["program-action"] = "private-general-library", ["value"] = "fixture:avatar" });
+            Refresh(model, snapshot with
+            {
+                CardDeclarations = null,
+                PendingDecision = new(DecisionKind.ProgramTrigger, 0, description, [], [], 0)
+                { Choices = [choice, back], IsPrivate = true, SkillPrompt = new("classic:huashen", "化身", "化身", description) }
+            });
+            Program.Render(root, 1120, 740, null);
+            var choices = (ItemsControl)window.FindName("ScrollingSkillChoices");
+            Program.Assert(model.IsGeneralLibrarySelectionPending && model.ActionHint.Length == 0 && model.TableDecisionTitle == "化身" &&
+                ((TextBlock)window.FindName("DecisionDescriptionText")).Visibility == Visibility.Collapsed &&
+                ((TextBlock)window.FindName("ActionDockHint")).Visibility == Visibility.Collapsed &&
+                Program.Find<Button>(choices).Any(button => ReferenceEquals(button.Command, model.SelectSkillChoiceCommand) &&
+                    ReferenceEquals(button.CommandParameter, back) && button.Visibility == Visibility.Visible),
+                "Avatar, skill and faction choices must show the wired Back action and title without either duplicate rule explanation.");
+        }
+        Program.Render(root, 1120, 740, Path.Combine(output, "avatar-selection-back.png"));
+        Refresh(model, snapshot with
+        {
+            CardDeclarations = null,
+            PendingDecision = new(DecisionKind.ProgramTrigger, 0, "其他技能说明", [], [], 0)
+            { Choices = [new(new("fixture:other-choice"), "发动", [], [], new Dictionary<string, string>())] }
+        });
+        Program.Render(root, 1120, 740, null);
+        Program.Assert(!model.IsGeneralLibrarySelectionPending &&
+            ((TextBlock)window.FindName("DecisionDescriptionText")).Visibility == Visibility.Visible &&
+            ((TextBlock)window.FindName("ActionDockHint")).Visibility == Visibility.Visible && model.ActionHint == "其他技能说明",
+            "Leaving avatar selection must restore unrelated decision explanations and action hints.");
     }
 
     private static void VerifyTurnHandHoldViews(MainViewModel model, FrameworkElement root,

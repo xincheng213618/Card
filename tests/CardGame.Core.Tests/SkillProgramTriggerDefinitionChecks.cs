@@ -1,4 +1,5 @@
 using CardGame.Core;
+using System.Text.Json.Nodes;
 
 internal static class SkillProgramTriggerDefinitionChecks
 {
@@ -41,6 +42,15 @@ internal static class SkillProgramTriggerDefinitionChecks
         AssertReject(CurrentRules.Replace("\"amount\":2,\"condition\"", "\"amount\":21,\"condition\"", StringComparison.Ordinal), Presentation, "between 1 and 20");
         AssertReject(CurrentRules.Replace("\"effects\":[", "\"mystery\":true,\"effects\":[", StringComparison.Ordinal), Presentation, "mystery");
         AssertReject(CurrentRules.Replace("\"draw\"", "\"stealDeck\"", StringComparison.Ordinal), Presentation, "stealDeck");
+        var ending = JsonNode.Parse(CurrentRules)!;
+        ending["skills"]![1]!["triggers"]![0] = JsonNode.Parse("""
+            {"id":"ending-kill","window":"turnEnding","subject":"owner","turnOwnerScope":"own","optional":false,
+             "condition":{"kind":"ownerKilledThisTurn"},"effects":[{"op":"draw","target":"owner","amount":1}]}
+            """);
+        Require(SkillProgramCatalog.Load(ending.ToJsonString(), Presentation).Programs["test:trigger"].Triggers.Single()
+            .Window == SkillProgramTriggerWindow.TurnEnding, "Existing ending kill-history producers remain valid.");
+        ending["skills"]![1]!["triggers"]![0]!["window"] = "afterTurnEnded";
+        AssertReject(ending.ToJsonString(), Presentation, "after-turn kill history");
     }
 
     private static void AssertReject(string rules, string presentation, string expected)

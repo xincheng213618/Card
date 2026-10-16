@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:du-xi",
+  "characterId": "character:du-xi",
+  "product": "三国杀OL",
+  "officialGid": 483,
+  "officialPage": "https://www.sanguosha.com/hero/483",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=483",
+  "officialAnnouncement": "https://www.sanguosha.com/news/20211002_7998_1115",
+  "identity": {
+    "name": "杜袭",
+    "faction": "wei",
+    "hp": 3,
+    "gender": "Male",
+    "clientClass": "DuXi",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation, searched the 452 retained character definitions by 杜袭/杜襲, du-xi/DuXi, 驱徙/QuXi and 避凶/BiXiong; no identity, variant, alias or printed skill-set duplicate was present. This is OL gid483, not 杜畿 or the other product's hero413.",
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T04:15:57.768344+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+    "decoder": "Fetched both public ZIP resources in memory. Extracted the live InitOfb AES-CFB128 implementation's IV/key and decoded character.sgs and cha_spell.sgs through that cipher and gzip. Persisted only the selected DuXi metadata below; no complete client bundle/config or temporary snapshot was written.",
+    "characterRow": {
+      "a": 483,
+      "b": "杜袭",
+      "d": "DuXi",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 9002,
+      "k": 9001
+    },
+    "spellRows": [
+      {
+        "a": 9001,
+        "c": "驱徙",
+        "d": "QuXi",
+        "o": "限定技，出牌阶段结束时，你可以跳过弃牌阶段并翻至背面，选择两名手牌数不同的其他角色，其中手牌少的角色获得另一名角色一张牌并获得“丰”，另一名角色获得“歉”。有“丰”的角色摸牌阶段摸牌数+1，有“歉”的角色摸牌阶段摸牌数-1。当有“丰”或“歉”的角色死亡时，或每轮开始时，你可以转移“丰”“歉”。",
+        "v": "请选择两名手牌数不同的目标;请选择将“丰”交给谁;请选择将“歉”交给谁"
+      },
+      {
+        "a": 9002,
+        "c": "避凶",
+        "d": "BiXiong",
+        "o": "锁定技，若你于弃牌阶段弃置了手牌，直到你的下回合开始，其他角色不能使用与这些牌花色相同的牌指定你为目标。"
+      }
+    ],
+    "comparison": "The current client's two complete descriptions agree with the current official hero483 page and the same-product October 2021 launch announcement. Client g1/h1/i3 directly confirms Wei/male/3 HP; API separately confirms Wei/3 and has no gender field. Client HTML br separators were normalized to sentence boundaries above."
+  },
+  "primarySemantics": [
+    "Only the initial own Play-ending branch is limited. Later round-start and marked-holder-death transfers do not repeat its acquisition, face-state change or discard skip.",
+    "Initial targets are two other living characters with unequal current hand counts. Their lesser/greater relationship is frozen before the lesser-hand participant obtains one actual card.",
+    "Feng contributes +1 and Qian -1 to an actual holder's normal Draw query; neither schedules an independent compensating draw when that phase does not occur.",
+    "Bixiong requires an actual Discard phase and an actual hand-card discard. Its issued protection ends at that character's next actual TurnStarted, including a face-down skipped turn."
+  ],
+  "semanticInferences": [
+    "The transfer clause says no other-character or distinct-recipient restriction. Each source's Feng and Qian may therefore be moved independently, to the DuXi owner or to the same living recipient. Moving a mark excludes its current holder; declining a move preserves that mark.",
+    "The death clause's trigger is a holder of either mark dying; its effect says transfer Feng/Qian rather than only the mark on the deceased. The opportunity therefore offers both of that source's issued marks independently.",
+    "Each source/skill-instance owns one Feng and one Qian. Multiple sources' marks coexist and contribute independently; one source cannot clear another source's marker. Issued marker effects have no printed expiry on source death or skill loss; a dead or skill-less source cannot open new transfer prompts.",
+    "The recipient who obtains another character's card selects an opaque hand slot or visible equipment using the existing native obtain-card contract. Foreign hand identities are never disclosed to the selecting recipient before movement.",
+    "The initial face instruction means put the general face down, preserving an already face-down general, rather than toggling an already face-down general upward.",
+    "Bixiong includes the owner's own skill hand-discard when it genuinely occurs inside that owner's actual Discard phase, but excludes skill discards in other phases, foreign hand cards, recasting and card-use/response/death cleanup. A foreign program discarding the owner's cards is not treated as the owner's self discard.",
+    "The discarded hand card's effective suit as considered for its owner is recorded, and incoming target uses are checked against their effective suit. This suit interaction is an engineering inference from current suit semantics; no DuXi-specific official FAQ for Hongyan or another suit rewrite was found."
+  ],
+  "secondaryOperationalEvidence": [
+    {
+      "url": "https://my.4399.com/yxsgs/ziliao/54800/",
+      "title": "4399三国杀OL 四弼系列武将：谯周攻略！",
+      "publishedDate": "2023-07-12",
+      "observation": "The same-product guide explicitly lists DuXi Bixiong among skills unavailable when Xingbu2 skips the actual Discard phase. It supports retaining the actual phase boundary requirement, and is not an official DuXi FAQ."
+    }
+  ],
+  "runtimeContract": [
+    "Quxi pending pair, opaque card choice, paid movement and transfer cursor live on ProgramSkillFrame.DuXiQuxi. Persistent source-attributed marker locations are rebuilt from scalar DuXiQuxiMarkerMovedEvent facts and mirrored to the existing public marker counters.",
+    "Native Silver Lion removal uses its exact queued RecoveryReplacementReturn and paid acquisition receipt. Recovery/movement/HP observers return to the same owning frame without reacquiring the paid entity or reassigning markers early.",
+    "Bixiong captures native completed movement batches immediately, with their frozen ActualDiscardRecoveryPhaseKey, before the queued movement observers. A later cardsMoved binding invokes the same idempotent capture. Target protection uses the shared effective-suit gate, including Slash, ordinary/delayed tricks, global effects and additional targets; the user's self target remains exempt.",
+    "The suit lookup cache is derived only from rule facts and invalidated by both event count and last-fact reference identity; it is not checkpoint data or parallel pending resolution state."
+  ],
+  "focusedCheckNames": [
+    "ActualUnequalPairDrawModifiersRoundTransferAndSameHolderCold",
+    "NativeEquipmentAcquisitionAndSilverLionReplacementChildrenCold",
+    "ActualDiscardSuitShieldEffectiveTargetsAndFaceDownStartExpiry",
+    "TwoIssuedSourcesAndActualHolderDeathTransferOnlyOwnedMarks"
+  ],
+  "behaviorChecks": "tests/CardGame.Core.Tests/DuXiChecks.cs"
+}

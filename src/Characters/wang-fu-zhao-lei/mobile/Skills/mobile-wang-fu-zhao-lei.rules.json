@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:xunyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "assign-yi",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "armXunyiRelation", "target": "owner" }
+          ]
+        },
+        {
+          "id": "actual-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [ { "op": "settleXunyiDamagePoint", "target": "owner" } ]
+        },
+        {
+          "id": "move-yi-after-death",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "moveXunyiAfterPartnerDeath", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         if (effect.Op == SkillProgramEffectOp.GuessRanksForDrawReplacement)
         {
             var parent = _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(w => w.Id == context.ParentFrameId);
-            var frozen = parent.FrozenBaseDrawCount ?? GetTurnDrawCount(_players[f.OwnerSeat]);
+            var frozen = parent.FrozenBaseDrawCount ?? FreezeAndCaptureCaoXiNativeDrawBase(_players[f.OwnerSeat]);
             AdvanceEventRulesAndQueueFact(new RankGuessNormalDrawResetEvent(f.Id, parent.Id, frozen, Math.Max(0, frozen + parent.NormalDrawAdjustment)));
             ReplaceRuntimeFrame(parent.Id, parent with { FrozenBaseDrawCount = frozen, NormalDrawAdjustment = -frozen });
             RevealNextRankGuessCard(f, guessedGreater: null); return SkillProgramStepOutcome.AwaitChild;

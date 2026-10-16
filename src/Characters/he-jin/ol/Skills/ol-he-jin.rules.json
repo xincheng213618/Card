@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:mouzhu", "revision": 1, "activations": [{ "id": "demand-hand-and-assault", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+      "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "resolveMouzhuHandDemandAndAssault", "target": "owner" }] }] },
+    { "id": "ol:yanhuo", "revision": 1, "triggers": [{ "id": "discard-killer-on-death", "window": "ownerDied", "subject": "owner", "optional": true,
+      "effects": [{ "op": "resolveYanhuoKillerDiscard", "target": "owner" }] }] }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-fu-zhao-lei",
+  "skills": [
+    {
+      "registrationOrder": 1380,
+      "programBundle": "mobile-wang-fu-zhao-lei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:xunyi",
+        "name": "殉义",
+        "description": "游戏开始时，你选择一名其他角色，令其获得“义”标记。当你/其受到1点伤害后（伤害来源不为其/你），其/你弃置1张牌；当你/其对除其/你以外的角色造成1点伤害后，其/你摸1张牌。当拥有“义”标记的角色死亡时，你可移动此标记。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1381,
+      "pools": { "current": 416 },
+      "definition": {
+        "id": "mobile:wang-fu-zhao-lei",
+        "name": "王甫赵累·移动版",
+        "portraitKey": "mobile-wang-fu-zhao-lei",
+        "skillId": "mobile:xunyi",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wang-fu-zhao-lei",
+        "variantId": "mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

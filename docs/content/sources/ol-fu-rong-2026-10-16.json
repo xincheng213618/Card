@@ -1,0 +1,165 @@
+{
+  "characterId": "character:fu-rong",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-16T04:22:05.846594+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/533",
+      "sha256": "63d196c5bb7980dbe61e86ff1ade2688a1d5ac1a0fa5075cb6156ec663ca6b2f",
+      "byteCount": 23595,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=533",
+      "sha256": "b6aa0dac16fa6000e9133d635423e034661c57530f6948b10ec03202341281a8",
+      "byteCount": 796,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "byteCount": 4153477,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 533,
+          "name": "傅肜",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/533.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53300.png",
+          "label": [
+            "进攻",
+            "简单",
+            "多刀"
+          ],
+          "figure": "蜀",
+          "figure_py": "shu",
+          "quality": "史诗",
+          "biography": "三国时蜀汉将领。刘备攻伐吴国时，傅肜为别督。后刘备被陆逊击败，傅肜率部断后，奋战至死。死前怒斥道：“吴狗！何有汉将军降者！”",
+          "characteristic": "能拆除并使用敌人的基本牌。",
+          "hp": 4,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [
+        {
+          "name": "地主",
+          "value": 6
+        },
+        {
+          "name": "农民",
+          "value": 6
+        },
+        {
+          "name": "忠臣",
+          "value": 5
+        },
+        {
+          "name": "反贼",
+          "value": 7
+        }
+      ],
+      "deeds": []
+    }
+  },
+  "decoder": "Public current client InitOfb AES-CFB128 then gzip, decoded in memory. Only the target general and skill rows are retained.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "records": [
+        {
+          "a": 533,
+          "b": "傅肜",
+          "d": "FuRong",
+          "e": 44,
+          "f": "46",
+          "g": 2,
+          "h": 1,
+          "i": 4,
+          "j": 3209,
+          "p": 2,
+          "q": "1",
+          "r": "9053301",
+          "y": "三国时蜀汉将领。刘备攻伐吴国时，傅肜为别督。后刘备被陆逊击败，傅肜率部断后，奋战至死。死前怒斥道：“吴狗！何有汉将军降者！”",
+          "z": "能拆除并使用敌人的基本牌。",
+          "aa": 65,
+          "ab": "989,990",
+          "ad": "画师:君桓文化",
+          "x": "宁死，####马革裹尸而还！",
+          "al": 1730,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "ar": "20230304T235959",
+          "LordCardRate1": 25,
+          "LordCardRate2": 53,
+          "cc": 0,
+          "starMax": 4,
+          "freetitle": "0,攻击强将"
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "records": [
+        {
+          "a": 3209,
+          "b": "3",
+          "c": "效死",
+          "d": "XiaoSi",
+          "e": 0,
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你可以与一名有手牌的其他角色各弃置一张基本牌（若其不能弃置则你摸一张牌），然后你可以使用其中任意张牌（无距离和次数限制）。",
+          "w": "请选择一张基本牌弃置",
+          "v": "请选择一张基本牌，并选择一名有手牌的角色|请选择要使用的牌"
+        }
+      ]
+    }
+  },
+  "supplementarySources": [
+    {
+      "url": "https://www.taptap.cn/moment/647963083653775460",
+      "publisher": "TapTap 三国杀OL互通版官方账号转发玩家攻略",
+      "originalUrl": "https://club.sanguosha.com/thread-1198448-1-1.html",
+      "evidenceRole": "Community gameplay explanation reposted by an operator account; not a developer rules FAQ."
+    },
+    {
+      "url": "https://www.sohu.com/a/684473077_121124836",
+      "publisher": "Community article mirror, 2023-06-11",
+      "evidenceRole": "Supplementary reported interaction tests, not primary authority.",
+      "findings": [
+        "Costs use the card identity while owned; a card treated as Slash can be discarded as basic and then used with its printed identity after leaving the hand.",
+        "Native discard observers resolve first. Cards diverted by Luoying, Zongxuan, Shenduan or another child are unavailable unless still in the discard pile.",
+        "Each card can be used at most once, in either order; after the first use returns, legality is checked again. A full-HP Peach can become usable after damage from the first use.",
+        "The article reports consecutive Alcohol uses without the normal number limit. Native prohibitions, live targets and physical movement boundaries still apply."
+      ]
+    }
+  ],
+  "implementationNotes": [
+    "The current official wording and current client identify the OL skill as Xiaosi, not the mobile Xuewei/Liechi version or a later physical-card variant.",
+    "Owner pays first and its movement children drain. The other participant must pay a legal effective-basic card if available, otherwise the owner draws one before any reuse, matching current official text.",
+    "A community article enumerates the compensation draw after reuse; this older timing conflicts with current official text. The implementation follows the current primary sequence.",
+    "The only authority to reuse a material is its paid physical discard receipt owned by the active program frame. It never first moves to the owner hand.",
+    "Each native use freezes a typed return on the CardUse and owning program. Later loss of Xiaosi cannot undo a completed cost or replay a native child. Death or a completed match stops remaining optional uses.",
+    "The number exemption does not consume ordinary Slash or Alcohol allowance; native target, use, suit, recovery, response and equipment rules still apply.",
+    "Query permissions require the current owning program and an original paid physical card still in Discard. Issued permissions bind the exact native CardUse, action, original Discard cost and immediate parent return; another use cannot inherit them after the entity is taken back to hand or discarded again. Zero-material and unknown physical identities do not enter this lookup."
+  ],
+  "status": "root-verified",
+  "behaviorChecks": "tests/CardGame.Core.Tests/FuRongChecks.cs",
+  "generalId": "ol:fu-rong"
+}

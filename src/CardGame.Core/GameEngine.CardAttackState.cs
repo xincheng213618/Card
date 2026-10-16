@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         long? ProgramFrameId, int? DelayedTurnSeat,
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
         SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,
-        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null, EndingHistoricalUseReturn? EndingHistoricalUseReturn = null, InspectedHandSlashReturn? InspectedHandSlashReturn = null, KuangfuSlashReturn? KuangfuSlashReturn = null, ForeignSelectedCardSlashReturn? ForeignSelectedCardSlashReturn = null, FriendRecastDuelOrigin? FriendRecastDuelReturn = null, CaoChunNativeSlash? CaoChunSlash = null, WangCanNativeReceipt? DenglouNative = null, QigongNativeReceipt? Qigong = null);
+        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null, EndingHistoricalUseReturn? EndingHistoricalUseReturn = null, InspectedHandSlashReturn? InspectedHandSlashReturn = null, KuangfuSlashReturn? KuangfuSlashReturn = null, ForeignSelectedCardSlashReturn? ForeignSelectedCardSlashReturn = null, FriendRecastDuelOrigin? FriendRecastDuelReturn = null, CaoChunNativeSlash? CaoChunSlash = null, WangCanNativeReceipt? DenglouNative = null, QigongNativeReceipt? Qigong = null, ZhenyingDuelOrigin? ZhenyingDuel = null, HeJinMouzhuUseOrigin? HeJinMouzhu = null, WuAnGuoLiyongDuelOrigin? WuAnGuoLiyong = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
             attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack) ?? HpLossMaterialSlashParent(attack),
@@ -59,7 +59,10 @@ public sealed partial class GameEngine
             LifecycleCardUse(attack.ResolutionId)?.FriendRecastDuel,
             LifecycleCardUse(attack.ResolutionId)?.CaoChunSlash,
             LifecycleCardUse(attack.ResolutionId)?.DenglouNative,
-            LifecycleCardUse(attack.ResolutionId)?.Qigong);
+            LifecycleCardUse(attack.ResolutionId)?.Qigong,
+            LifecycleCardUse(attack.ResolutionId)?.ZhenyingDuel,
+            LifecycleCardUse(attack.ResolutionId)?.HeJinMouzhu,
+            LifecycleCardUse(attack.ResolutionId)?.WuAnGuoLiyong);
     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
     private CardResolutionContinuations GetCardContinuations(long id) =>

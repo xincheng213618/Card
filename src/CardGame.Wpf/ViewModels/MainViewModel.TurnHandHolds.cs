@@ -26,7 +26,7 @@ public sealed partial class MainViewModel
                 var hold = holds[index];
                 var skillName = _game.ContentRegistry?.Skills.GetValueOrDefault(hold.SkillId)?.Name ?? "暂存";
                 var suffix = holds.Count > 1 ? $" · 第{index + 1}组" : string.Empty;
-                var canReadPrivate = player.Seat == _snapshot.HumanSeat && hold.OwnerSeat == _snapshot.HumanSeat || IsDeveloperView;
+                var canReadPrivate = player.Seat == _snapshot.HumanSeat && hold.OwnerSeat == _snapshot.HumanSeat;
                 var cards = canReadPrivate && hold.Cards is { } faces
                     ? faces.Select(card => CreateViewedCard(card, privateView: true)).ToArray()
                     : Array.Empty<CardViewModel>();

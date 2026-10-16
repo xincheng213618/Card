@@ -95,9 +95,11 @@ public sealed partial class GameEngine
     private bool HasWeaponAbility(CharacterState player, CardKind kind) =>
         GetEquipment(player).Any(card => !card.IsGeneralWeapon && GetWeaponAbilityKinds(card).Contains(kind)) ||
         (_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Contains(kind);
-    private IReadOnlyList<Card> GetEquipmentRuleCards(CharacterState player)
+    private IReadOnlyList<Card> GetEquipmentRuleCards(CharacterState player, EquipmentSlot? excludedEquipmentSlot = null)
     {
-        var physical = GetEquipment(player);
+        IReadOnlyList<Card> physical = GetEquipment(player);
+        if (excludedEquipmentSlot is not null)
+            physical = physical.Where(card => EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot).ToArray();
         var kinds = physical.Where(card => !card.IsGeneralWeapon).SelectMany(GetWeaponAbilityKinds)
             .Concat(_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Distinct().ToArray();
         return physical.Where(card => !card.IsGeneralWeapon).Concat(kinds.Where(kind => !physical.Any(card => card.Kind == kind))

@@ -58,7 +58,7 @@ public sealed partial class GameEngine
     private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsXinPiPhysicalClaim(frameId, cardId) || IsHuaManClaimedEntity(frameId, cardId) || IsXuRongCausalEntityClaim(frameId, cardId) || IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId) || HasExtraEffectMaterialClaim(frameId, cardId);
 
     private bool IsCurrentUsePhysicalCardClaim(long frameId, int cardId) =>
-        IsOverflowTargetCancellationPhysicalClaim(frameId, cardId) ||
+        IsXiangChongClaimedUseMaterial(frameId, cardId) || IsOverflowTargetCancellationPhysicalClaim(frameId, cardId) ||
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == frameId) is
             { Action: { } action, CurrentUsePhysicalClaims: { } claims } &&
         claims.Any(claim => claim.ActionId == action.ActionId && claim.CardUseFrameId == frameId && claim.CardIds.Contains(cardId));

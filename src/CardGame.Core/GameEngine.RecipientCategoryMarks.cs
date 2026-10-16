@@ -239,6 +239,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { RecipientCategoryMark = r with { Stage = RecipientCategoryMarkStage.DiscardChildren, SequenceBefore = before, SequenceAfter = before }, PendingMovementContinuation = new(r.TargetSeat!.Value, 0, null) });
         MoveProgramCardsFromMultipleSources(r.SelectedCardIds, CardLocation.DiscardPile, new(RecipientMarkReason(f, "discard")), (batch, records) =>
         {
+            foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
             var active = GetActiveProgramFrame(f.Id); var after = records.Max(m => m.Sequence);
             ReplaceRuntimeTop(active with { RecipientCategoryMark = active.RecipientCategoryMark! with { SequenceAfter = after, BatchId = batch } });
             AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkMovementPaidEvent(f.Id, r.TargetSeat!.Value, records.Count, before, after, batch));

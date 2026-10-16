@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -18,13 +18,13 @@ public sealed partial class GameEngine
             .Min();
 
     private RuleQueryEvaluation CalculateDistance(CharacterState source, CharacterState target,
-        int? excludedEquipmentId = null)
+        int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>
         {
             new($"mode:{_modeDefinition.Id}:alive-seat-distance", GetAliveSeatDistance(source.Seat, target.Seat))
         };
-        baseTerms.AddRange(GetEquipment(source).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
+        baseTerms.AddRange(GetEquipment(source).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot)).Select(card => new RuleQueryBaseTerm(
             $"equipment:{card.Id}:outgoing-distance",
             EquipmentCatalog.Get(card.Kind).OutgoingDistanceModifier)));
         baseTerms.AddRange(GetEquipment(target).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
@@ -36,17 +36,21 @@ public sealed partial class GameEngine
             .Select(item => new FiniteRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
         var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance).ToList();
-        if (source.Seat != target.Seat) incoming.AddRange(IncomingDistanceCourtesyContributions(target.Seat));
+        if (source.Seat != target.Seat)
+        {
+            incoming.AddRange(IncomingDistanceCourtesyContributions(target.Seat));
+            incoming.AddRange(YanPuIncomingDistanceContributions(target.Seat));
+        }
         return ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
             ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))))));
     }
 
-    private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null)
+    private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>();
         var minimumRange = 1;
         {
-            var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId)
+            var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot))
                 .Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
                 .MaxBy(card => GetWeaponAttackRange(player, card));
             if (weapon is { Kind: CardKind.RedBloodBlade } && GetWeaponAttackRange(player, weapon) == 0)
@@ -63,6 +67,7 @@ public sealed partial class GameEngine
                 Math.Max(0, assignedRange - baseTerms[0].Value)));
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
+        AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:attack-range", CaoXiGangshuBonus(player, SkillRuleQuery.AttackRange));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:attack-range", GetOriginalHandAttackRangeBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         contributions.AddRange(_turnCardUseEffects
@@ -90,8 +95,13 @@ public sealed partial class GameEngine
                 $"equipment:{card.Id}:draw-count",
                 EquipmentCatalog.Get(card.Kind).DrawCountBonus)));
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.DrawCount).ToList();
+        AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:draw", CaoXiGangshuBonus(player, SkillRuleQuery.DrawCount));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:draw", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.DrawCount));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:kuangxiang:draw", -ChengGongYingDrawPenalty(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:draw-count", GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.DrawCount));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:juguan:draw", JuguanActualDrawAdjustment(player));
+        AddFiniteContribution(contributions, $"state:{player.Seat}:quxi:draw", DuXiDrawAdjustment(player));
         if (TracksFengjiRoundLedger)
             AddFiniteContribution(contributions, $"state:{player.Seat}:olfengji:round-draw",
                 GetFengjiRoundAdjustment(player.Seat, SkillRuleQuery.DrawCount));
@@ -102,7 +112,7 @@ public sealed partial class GameEngine
             contributions);
     }
 
-    private RuleQueryEvaluation EvaluateSlashUseLimit(CharacterState player, int? excludedEquipmentId = null)
+    private RuleQueryEvaluation EvaluateSlashUseLimit(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
         var baseTerms = new[]
         {
@@ -110,13 +120,16 @@ public sealed partial class GameEngine
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.SlashLimit) ?? 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:yang-feng:qujia:slash-limit", QujiaPermanentSlashBonus(player.Seat));
+        AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:slash-limit", CaoXiGangshuBonus(player, SkillRuleQuery.SlashLimit));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:slash-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.SlashLimit));
         if (NeifaSlashLimitBonus(player.Seat) is > 0 and var neifaBonus)
             AddFiniteContribution(contributions, $"turn:{player.Seat}:neifa:slash-limit", neifaBonus);
         if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));
         if (HasFriendQihuiAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-qihui"));
         if (HasMouWujingAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:mou-wujing"));
         if (HasFriendYangmingQuota(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-yangming"));
-        foreach (var card in GetEquipmentRuleCards(player).Where(card => card.Id != excludedEquipmentId))
+        foreach (var card in GetEquipmentRuleCards(player, excludedEquipmentSlot).Where(card => card.Id != excludedEquipmentId))
         {
             var bonus = EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
             if (bonus == int.MaxValue)
@@ -150,6 +163,8 @@ public sealed partial class GameEngine
                     GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.HandLimit) ?? Math.Max(0, player.Hp))
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:lu-yu-sheng:runwei:hand-limit", LuYuShengRunweiHandLimitBonus(player.Seat));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:hand-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.HandLimit));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:hand-limit", GetOriginalHandHandLimitBonus(player.Seat));
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));
@@ -167,11 +182,11 @@ public sealed partial class GameEngine
                 checked(allies * policy.Value));
         }
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
-        return ApplyEquipmentSuitHandLimit(player, RuleQueryService.Evaluate(
+        return ApplyZhangYiKangruiHandLimit(player, ApplyEquipmentSuitHandLimit(player, RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
-            contributions));
+            contributions)));
     }
 
     private RuleQueryEvaluation EvaluateCardTargetCount(CharacterState player, CardKind effectiveCardKind)
@@ -245,18 +260,20 @@ public sealed partial class GameEngine
             ? int.MaxValue
             : ((FiniteRuleQueryValue)evaluation.Value).Value;
 
-    private int GetSlashUseLimit(CharacterState player, int? excludedEquipmentId = null) =>
-        ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId));
+    private int GetSlashUseLimit(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
+        ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null, EquipmentSlot? excludedEquipmentSlot = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
-         _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsQinLangXianyingSlashQuery(player) ||
+         IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
+         _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||
+         HasFuRongDiscardDistance(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
          HasRoundGainedBasicBonus(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
-         HasOutsideAttackRangeSlashQuota(player, target, effectiveKind) ||
+         HasOutsideAttackRangeSlashQuota(player, target, effectiveKind, excludedEquipmentSlot) ||
          GuanFocusAllowsSlash(player.Seat, target.Seat) || GuanFirstBasicAvailable(player, effectiveKind) ||
          HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
              (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||

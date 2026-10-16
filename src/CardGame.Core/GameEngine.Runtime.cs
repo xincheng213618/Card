@@ -29,6 +29,7 @@ public sealed partial class GameEngine
         switch (_resolutionStack[index])
         {
             case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
+            case QiaoZhouPreparationFrame: ContinueQiaoZhouPreparation(frameId); break;
             case IdentityAppearanceFrame appearance: AdvanceIdentityAppearance(appearance); break;
             case FriendDuelResponseFrame: ContinueFriendDuelResponse(frameId); break;
             case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
@@ -108,7 +109,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A runtime child cannot outlive its owning frame.");
         _resolutionStack.Push(frame);
         if (frame is CardUseFrame use && use.Action is { Type: CardActionType.Use } action)
+        {
+            BindQinglongInsertedUse(use);
             IssueOriginalTargetAdditionPolicy(use.Id, action);
+            IssueMaWanHunjiangUse(use.Id, action);
+            IssueWeifuUse(use.Id, action);
+        }
     }
 
     private void ReplaceRuntimeFrame(long expectedFrameId, ResolutionFrame next)

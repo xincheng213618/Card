@@ -1,0 +1,172 @@
+{
+  "generalId": "ol:du-fu-ren",
+  "officialGid": 554,
+  "product": "sanguosha-ol",
+  "verifiedAt": "2026-10-16T05:51:36.429720+00:00",
+  "verificationStatus": "live-official-source-verified",
+  "sources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/554",
+      "sha256": "4e089362c0f8904e4f90183c6088fc47116ef55bc90d2ed73c4fae29560e6f88",
+      "byteCount": 24535,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=554",
+      "sha256": "17864f5969597551fd48fff57a2bc1e6f3f09ca4bb79d1fe1ad4cec28e4e8b0d",
+      "byteCount": 879,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "launch": {
+      "url": "https://sanguosha.com/news/20230423_6804_4114",
+      "sha256": "ca9f66ad12a1f9af03cbf3108ba42a5cd79654d4678b997163df2c75bf5a0053",
+      "byteCount": 783534,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+      "byteCount": 4153477,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "identity": {
+    "name": "杜夫人",
+    "factionId": "wei",
+    "baseHp": 3,
+    "gender": "Female",
+    "clientSkillIds": [
+      3276,
+      3277
+    ]
+  },
+  "currentClientTargetExtracts": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "targetRows": [
+        {
+          "a": 554,
+          "b": "杜夫人",
+          "d": "DuFuRen",
+          "e": 44,
+          "f": "41",
+          "g": 1,
+          "h": 2,
+          "i": 3,
+          "j": 3276,
+          "k": 3277,
+          "p": 3,
+          "q": "1",
+          "r": "9055401",
+          "y": "东汉末年至三国时人。有异色，原为吕布将秦宜禄之妻，生子秦朗。后为曹操纳为妾，又生曹林、曹衮[gǔn]、金乡公主。曹操甚爱继子秦朗，曾言\"世有人爱假子如孤者乎\"。",
+          "z": "通过给牌控场并获得可叠加的增益。",
+          "aa": 1048,
+          "ab": "1035,1036",
+          "ad": "画师:匠人绘",
+          "x": "其一也一，####其不一也一。",
+          "al": 1730,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "ar": "20230529T235959",
+          "LordCardRate1": 4,
+          "LordCardRate2": 45,
+          "cc": 55401,
+          "starMax": 4,
+          "freetitle": "0,卖血强将"
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "targetRows": [
+        {
+          "a": 3276,
+          "b": "3,5",
+          "c": "异色",
+          "d": "YiSe",
+          "e": 0,
+          "g": 7,
+          "i": 2,
+          "o": "当其他角色获得你的牌后，若包含：<br>•红色牌，你可以令其回复1点体力；<br>•黑色牌，其下次受到【杀】的伤害+1。",
+          "ac": "是否发动<font color='#FFD800'>异色</font>，令{0}回复1点体力"
+        },
+        {
+          "a": 3277,
+          "b": "3,5",
+          "c": "顺世",
+          "d": "ShunShi",
+          "e": 0,
+          "g": 6,
+          "i": 2,
+          "o": "准备阶段或当你于回合外受到伤害后，你可以交给除伤害来源之外的一名其他角色一张牌，令你下个摸牌阶段摸牌数、下个出牌阶段使用【杀】的限制次数、下个弃牌阶段的手牌上限+1。",
+          "v": "请选择一张牌交给一名角色"
+        }
+      ]
+    }
+  },
+  "officialText": {
+    "ol:yise": "当其他角色获得你的牌后，若包含：红色牌，你可以令其回复1点体力；黑色牌，其下次受到【杀】的伤害+1。",
+    "ol:shunshi": "准备阶段或当你于回合外受到伤害后，你可以交给除伤害来源之外的一名其他角色一张牌，令你下个摸牌阶段摸牌数、下个出牌阶段使用【杀】的限制次数、下个弃牌阶段的手牌上限+1。"
+  },
+  "interpretation": [
+    {
+      "authority": "official-primary",
+      "source": "https://sanguosha.com/news/20230423_6804_4114",
+      "claim": "OL首发资料与现行官网/client一致；顺世增益可叠加。"
+    },
+    {
+      "authority": "engine-inference",
+      "claim": "异色按同次真实获牌batch、同原持有人和同获牌者合并判断颜色；红黑混合分别处理，黑色为强制后续效果，红色回复可选择。正常获得进入手牌，原归属包括手牌、装备及依法视为手牌的木牛流马存牌；使用/响应后的无主实体不会仅因历史曾为其所有而误触发。"
+    },
+    {
+      "authority": "engine-inference",
+      "claim": "异色黑色标记在技能失去或来源死亡后仍按已发出的效果存在；未命中、被防止或数值为零不视为受到伤害，不消耗；多份增量叠加。首个元素伤害的最终数值按原生规则进入传导基数，后续链伤角色自身新获得的增量只作用于该角色，不再传给下一链伤角色。"
+    },
+    {
+      "authority": "engine-inference",
+      "claim": "顺世交牌付款成功即发出三份相互独立的下一实际阶段增益；跳过阶段不消费，额外实际阶段可消费，已发出效果不因失技被删除。当前已进入的阶段不回溯承接新发出的增益。"
+    },
+    {
+      "authority": "engine-inference",
+      "claim": "当前可达原生摸牌阶段的阶段角色与实际回合主人相同；顺世收益只发给自己，因此同一次摸牌阶段开始前已冻结基数后，本人受到伤害不属于回合外，不能再发顺世增益。没有虚构跨回合摸牌状态或额外冻结字段。"
+    },
+    {
+      "authority": "engine-inference",
+      "claim": "没有查得同品官方FAQ对伤害转移作出额外裁定。按本引擎原生已定值伤害转移合同：A的黑色增量已进入本次定值伤害，真实转移到B并最终造成正数伤害时，消费该同一原A标记；B的新标记不重复加入已定值伤害。若整个原生attempt被防止或为零则不消费。该解释以原生转移事件、原目标/新目标及同一伤害实体的typed receipt证明，禁止下一次重复消费。"
+    },
+    {
+      "authority": "existing-engine-boundary",
+      "claim": "原生武将牌武器离开装备区会移出游戏，不能实际交给其他角色；顺世沿用CurrentTurnHandExchange既有Transfer实体资格排除此类牌，不伪造获得或奖励。正常实体装备仍可付款，并完整结算白银狮子移除回复等子事件。"
+    },
+    {
+      "authority": "existing-engine-boundary",
+      "claim": "顺世准备阶段已付交牌后，原生移动/回复/伤害子树可使当前实际回合主人死亡。仅新技能的精确Started+GiftIssued+Completed及原准备窗口候选证明允许专属返回：游戏已有胜负时停止续开阶段；非终局死亡复用原生FinalizeEndTurn完成效果到期、实际TurnEnded及后续存活角色推进，不伪造死者摸牌、出牌、弃牌或结束阶段。"
+    }
+  ],
+  "rootVerification": {
+    "verifiedAt": "2026-10-16T06:58:08.203262+00:00",
+    "status": "focused-and-routine-passed",
+    "ownBehaviorChecksPassed": 3,
+    "combinedFocusedScope": {
+      "corePassed": 31,
+      "wpfPassed": 1,
+      "durationMs": 16026
+    },
+    "routineScope": {
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "durationMs": 28588
+    },
+    "fullVerificationRun": false,
+    "galleryRenderVisuallyInspected": true,
+    "uiVerificationScope": "Native WPF harness gallery rendering; no foreground desktop acceptance claimed.",
+    "verificationNote": "The batch root built and ran the existing name-filter runner and the exact no-argument routine scope. Native command, checkpoint replay, privacy, paid continuation and card movement boundaries passed; no rules epoch, schema or package release version was raised."
+  }
+}

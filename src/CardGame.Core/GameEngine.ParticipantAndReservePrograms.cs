@@ -140,7 +140,7 @@ public sealed partial class GameEngine
         {
             MoveCards(GetEquipment(_players[seatNow]).Where(card => !IsForeignEquipmentDiscardPrevented(
                 frame.OwnerSeat, card, CardLocation.Equipment(seatNow), OwnedCardMoveIntent.Discard)).ToArray(), CardLocation.Equipment(seatNow), CardLocation.DiscardPile,
-                new CardMoveReason("program.participants.discard-equipment"));
+                new CardMoveReason("program.participants.discard-equipment"), movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
             return SkillProgramStepOutcome.Continue;
         }
         var required = Math.Min(amount, GetSelfDiscardableOwnedHand(_players[seatNow]).Count);
@@ -158,13 +158,27 @@ public sealed partial class GameEngine
         var starPhase = draft.Mode == "exchange-stars";
         var location = starPhase ? new CardLocation(CardZoneKind.PrivateReserve, draft.ChooserSeat) : CardLocation.Hand(draft.ChooserSeat);
         var selected = starPhase ? draft.SelectedReserveIds : draft.SelectedHandIds;
+        Dictionary<string, string> Parameters(int? cardId = null)
+        {
+            var values = new Dictionary<string, string>
+            {
+                ["program-action"] = "private-reserve-choice",
+                ["reserve-mode"] = draft.Mode,
+                ["reserve-required"] = draft.RequiredCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["reserve-selected-hand"] = string.Join(',', draft.SelectedHandIds),
+                ["reserve-selected-stars"] = string.Join(',', draft.SelectedReserveIds)
+            };
+            if (cardId is { } id) values["card-id"] = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            else values["finish"] = "true";
+            return values;
+        }
         var choices = _cardZones.CardsAt(location).Where(card => !selected.Contains(card.Id) &&
             (draft.Mode != "discard-hand" || !IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, location, OwnedCardMoveIntent.Discard))).Select(card =>
             new PromptChoice(new ChoiceId("private-reserve." + card.Id), card.DisplayName, [card.Id], [],
-                new Dictionary<string, string> { ["program-action"] = "private-reserve-choice", ["card-id"] = card.Id.ToString() })).ToList();
+                Parameters(card.Id))).ToList();
         if (draft.Mode == "exchange-hand" && selected.Count > 0)
             choices.Add(new(new ChoiceId("private-reserve.finish"), "完成手牌选择", [], [],
-                new Dictionary<string, string> { ["program-action"] = "private-reserve-choice", ["finish"] = "true" }));
+                Parameters()));
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         _pendingDecision = new(DecisionKind.ProgramTrigger, draft.ChooserSeat,
             $"【{skill.Name}】选择{(starPhase ? "等量星" : "手牌")}", [], [], frame.OwnerSeat)

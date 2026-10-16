@@ -24,7 +24,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> ChainedStateBasicNativePlayActions(CharacterState actor, CardConversionSource source, CardKind kind)
     {
-        if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != actor.Seat ||
+        if (!actor.IsAlive || _winner != Winner.None || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) ||
             !IsSlashCard(kind) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return [];
         var card = new Card(0, kind, Suit.None, 0);
         var targets = GetFangtianOrderedSlashTargets(actor, card, source, effectiveKind: kind);
@@ -37,7 +37,7 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<LegalAction> ChainedStateBasicPlayActions(CharacterState actor)
     {
-        if (_resolutionStack.Count != 0 || _phase != TurnPhase.Play || _currentSeat != actor.Seat) return [];
+        if ((_resolutionStack.Count != 0 || _phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor)) return [];
         return Array.AsReadOnly(ChainedStateBasicRules(actor).SelectMany(r => ChainedStateBasicNativePlayActions(actor, r.Source, r.Rule.OutputKind)).ToArray());
     }
     private bool TrySubmitChainedStateBasicPlay(PlayCardCommand command, out CommandResult result)
@@ -85,6 +85,7 @@ public sealed partial class GameEngine
         if (prompt.Kind != DecisionKind.ProgramTrigger || top is not ProgramSkillFrame program) return null;
         if (IsQigongRequest(program) && prompt.PlayerSeat == program.LvKuangLvXiang!.Actor)
             return new(ChainedStateBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, program.LvKuangLvXiang.Target);
+        if(IsWuJingHejiRequest(program)&&prompt.PlayerSeat==program.OwnerSeat)return new(ChainedStateBasicIntent.AssistedSlash,program.Id,program.Id,null,program.InstructionIndex,program.WuJing!.TargetSeat);
         if(IsCaoChunInitialRequest(program)&&prompt.PlayerSeat==program.OwnerSeat)return new(ChainedStateBasicIntent.AssistedSlash,program.Id,program.Id,null,program.InstructionIndex,null);
         var paused = ProgramInstructionResolver.Default.Resolve(program, _contentRegistry.GetSkill(program.SkillId).Program!).GetPausedInstruction(program.InstructionIndex).Effect;
         if (paused.Op == SkillProgramEffectOp.RequestSlashByTarget && program.SelectedTargetSeats.SequenceEqual([prompt.PlayerSeat]) &&
@@ -113,10 +114,13 @@ public sealed partial class GameEngine
             return ActiveQinglongCrescentBlade is { } q && q.Attack.ResolutionId == need.ParentFrameId && q.Attack.SourceSeat == actor.Seat &&
                 q.Attack.TargetSeat == seat && SameAttackOwner(ActiveCardAttack, q.Attack) && CanUseQinglongCrescentBladeTarget(actor, _players[seat], kind, null, false, Suit.None, 0);
         if (_resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is not ProgramSkillFrame program || program.InstructionIndex != need.Cursor) return false;
+        if (IsWuJingHejiRequest(program))
+            return WuJingHejiAdapterActor(program, actor.Seat, seat, need.Cursor, need.ParentFrameId, need.RequestFrameId) &&
+                CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: [], ignoreDistance: true);
         if (IsQigongRequest(program))
             return QigongAdapterActor(program, actor.Seat, seat, need.Cursor, need.ParentFrameId, need.RequestFrameId) &&
                 CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: [], ignoreDistance: true);
-        if (!_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId) && !IsCaoChunInitialRequest(program)) return false;
+        if (!_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId) && !IsCaoChunInitialRequest(program) && !HasIssuedFulueRequest(program)) return false;
         if (need.FixedTargetSeat is { } fixedTarget && fixedTarget != seat ||
             need.Intent is ChainedStateBasicIntent.ProgramNearestSlash or ChainedStateBasicIntent.NearestLegalSlash && !GetNearestLivingCharacterSeats(actor.Seat).Contains(seat)) return false;
         return CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: []);
@@ -266,7 +270,7 @@ public sealed partial class GameEngine
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat];
         if (!actor.IsAlive || _winner != Winner.None || p.ActualTurnNumber != _turnNumber || p.ActualTurnOwnerSeat != _turnProgression.OwnerSeat) return false;
         if (p.Intent == ChainedStateBasicIntent.Play)
-            return _resolutionStack.Count == 1 && ChainedStateBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
+            return (_resolutionStack.Count == 1 || IsKeBiNengPingduanPaymentFrame(frame)) && ChainedStateBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
         var request = _resolutionStack.SingleOrDefault(f => f.Id == p.RequestFrameId);
         if (request is null || _resolutionStack.Count < 2 || _resolutionStack[^2].Id != request.Id ||
             ChainedStateBasicContext(frame.OriginalDecision, request) is not { } current || current.Intent != p.Intent || current.ParentFrameId != p.ParentFrameId ||
@@ -281,6 +285,7 @@ public sealed partial class GameEngine
     private void CancelChainedStateBasic(ChainedStateBasicFrame frame)
     {
         var p = frame.Payment; AdvanceEventRulesAndQueueFact(new ChainedStateBasicCancelledEvent(p)); ClearPendingDecision(); _status = EngineStatus.Running;
+        if (p.ParentFrameId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return;
         if (_winner != Winner.None) return;
         if (p.Intent == ChainedStateBasicIntent.BorrowedSword && ActiveBorrowedSword is { ActiveAttack: null } b && b.ResolutionId == p.ParentFrameId)
         { CompleteBorrowedSwordWithoutSlash(b, transferWeapon: _players[b.WeaponOwnerSeat].IsAlive && _players[b.SlashTargetSeat].IsAlive); return; }
@@ -294,7 +299,7 @@ public sealed partial class GameEngine
         }
         if (p.Intent is ChainedStateBasicIntent.ProgramSlash or ChainedStateBasicIntent.ProgramNearestSlash or ChainedStateBasicIntent.AssistedSlash or ChainedStateBasicIntent.NearestLegalSlash &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame program && program.Id == p.ParentFrameId && program.InstructionIndex == p.Cursor)
-        { if(IsQigongRequest(program)){FinishLvKuangLvXiang(program);return;} if(IsCaoChunInitialRequest(program)){FinishCaoChun(program);return;} CancelProgramBindingAndCleanup(program, "原生用牌请求已失效；已支付的连环状态费用不重复支付。"); }
+        { if(FinishWuJingPaidAdapter(program))return; if(IsQigongRequest(program)){FinishLvKuangLvXiang(program);return;} if(IsCaoChunInitialRequest(program)){FinishCaoChun(program);return;} CancelProgramBindingAndCleanup(program, "原生用牌请求已失效；已支付的连环状态费用不重复支付。"); }
     }
 
     private bool TryAdvanceChainedStateBasicAi()

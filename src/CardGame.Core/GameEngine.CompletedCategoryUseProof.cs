@@ -256,7 +256,8 @@ public sealed partial class GameEngine
             }
             else if (fact is SlashTargetsReplacedEvent replaced && replaced.CardUseFrameId == use.Id)
             {
-                if (!actual.SequenceEqual(replaced.PreviousTargets) || !ActualHandGainMutationBinding(replaced.FrameId, replaced.SkillId,
+                if (!actual.SequenceEqual(replaced.PreviousTargets) ||
+                    !IsKenshangTargetsReplacedFact(use, replaced) && !ActualHandGainMutationBinding(replaced.FrameId, replaced.SkillId,
                         replaced.OwnerSeat, SkillProgramTriggerWindow.CardUseCommitted, SkillProgramEffectOp.ReplaceAllSlashTargets)) return false;
                 designated = replaced.Targets.ToList(); actual = replaced.Targets.ToList();
             }

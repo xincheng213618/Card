@@ -11,6 +11,8 @@ public sealed class CardViewModel : ObservableObject
     private string _kindLabel = string.Empty;
     private string _originalHandTag = string.Empty;
     private bool _isWushengConversion;
+    private CardKind? _identityKind;
+    private string? _identitySkillName;
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
@@ -18,6 +20,31 @@ public sealed class CardViewModel : ObservableObject
     public bool HasArtwork => Artwork is not null;
     public bool HasDynamicWeaponName => !IsWushengConversion && CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
+    public CardKind? IdentityKind
+    {
+        get => _identityKind;
+        set
+        {
+            if (!SetProperty(ref _identityKind, value)) return;
+            RaisePropertyChanged(nameof(HasIdentity));
+            RaisePropertyChanged(nameof(IdentityLabel));
+            RaisePropertyChanged(nameof(IdentityBrush));
+            RaisePropertyChanged(nameof(CardHint));
+        }
+    }
+    public string? IdentitySkillName
+    {
+        get => _identitySkillName;
+        set { if (SetProperty(ref _identitySkillName, value)) RaisePropertyChanged(nameof(CardHint)); }
+    }
+    public bool HasIdentity => IdentityKind is not null;
+    public string IdentityLabel => IdentityKind is { } kind ? CardCatalog.Get(kind).DisplayName : string.Empty;
+    public Brush IdentityBrush => IdentityKind switch
+    {
+        CardKind.FireSlash => Brushes.Firebrick,
+        CardKind.ThunderSlash => Brushes.DarkSlateBlue,
+        _ => Brushes.Maroon
+    };
     public bool IsWushengConversion
     {
         get => _isWushengConversion;
@@ -62,7 +89,9 @@ public sealed class CardViewModel : ObservableObject
     public required bool IsPlayable { get => _isPlayable; set => SetProperty(ref _isPlayable, value); }
     public bool IsPublicChoice { get; init; }
     public bool IsPrivateReveal { get; init; }
-    public string PublicCardLabel => IsPrivateReveal ? "仅你可见" : IsPublicChoice ? "点击选取" : "公开牌";
+    public string PublicHandOwnerLabel { get; init; } = string.Empty;
+    public string PublicCardLabel => IsPrivateReveal ? "仅你可见" : IsPublicChoice ? "点击选取" :
+        string.IsNullOrWhiteSpace(PublicHandOwnerLabel) ? "公开牌" : PublicHandOwnerLabel + "·展示手牌";
     public string VerticalName => string.Join("\n", DisplayName.ToCharArray());
     public double NameFontSize => DisplayName.Length > 3 ? 23 : DisplayName.Length == 1 ? 38 : 30;
     public double NameLineHeight => DisplayName.Length > 3 ? 27 : 34;
@@ -72,6 +101,8 @@ public sealed class CardViewModel : ObservableObject
         set { if (SetProperty(ref _availabilityText, value)) RaisePropertyChanged(nameof(CardHint)); }
     }
     public string CardHint => $"{Name} · {SuitGlyph}{Rank}\n{KindLabel}\n\n{Description}" +
+        (HasIdentity ? $"\n\n{IdentitySkillName}：此牌视为【{IdentityLabel}】" : string.Empty) +
+        (string.IsNullOrWhiteSpace(PublicHandOwnerLabel) ? string.Empty : $"\n\n{PublicHandOwnerLabel}的展示手牌") +
         (HasOriginalHandTag ? $"\n\n标记：{OriginalHandTag}" : string.Empty) +
         (string.IsNullOrWhiteSpace(AvailabilityText) ? string.Empty : $"\n\n当前：{AvailabilityText}");
 

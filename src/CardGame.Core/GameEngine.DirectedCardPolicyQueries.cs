@@ -6,6 +6,7 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null) =>
+        HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
         HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||
         HasIssuedKuangfuDistance(cardUseFrameId, actor.Seat) || (cardUseFrameId is { } id && HasPhaseSuitAllowance(actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit)) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.CardUseDistanceLimit, kind) || HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
 

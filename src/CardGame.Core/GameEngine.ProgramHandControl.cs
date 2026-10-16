@@ -331,7 +331,8 @@ public sealed partial class GameEngine
             if (IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, source, OwnedCardMoveIntent.Discard))
                 throw new InvalidOperationException("Response discard is no longer available.");
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "response-complete", CardOwnerSeat = null }, ReexecuteParticipantInstruction = true });
-            MoveCard(card, source, CardLocation.DiscardPile, new CardMoveReason("program.maximum-hand-dodge.discard"));
+            MoveCard(card, source, CardLocation.DiscardPile, new CardMoveReason("program.maximum-hand-dodge.discard"),
+                movement => RecordBianFuRenForeignDiscardProducer(movement, frame.OwnerSeat, frame.Id));
             AdvanceEventRulesAndQueueFact(new ProgramHandCountInterventionEvent(frame.Id, frame.SkillId, frame.OwnerSeat, cardOwner, "response-discard"));
         }
         else

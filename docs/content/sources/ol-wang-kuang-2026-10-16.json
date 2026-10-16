@@ -1,0 +1,298 @@
+{
+  "date": "2026-10-16",
+  "status": "implemented-and-root-verified",
+  "generalId": "ol:wang-kuang",
+  "characterId": "character:wang-kuang",
+  "product": "三国杀OL",
+  "officialGid": 636,
+  "officialPage": "https://www.sanguosha.com/hero/636",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=636",
+  "identity": {
+    "name": "王匡",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol"
+  },
+  "deduplication": "Before implementation searched existing manifests, skill rules and runtime for 王匡/WangKuang/wang-kuang and 任侠/RenXia. No same character identity or skill was registered. Clan Wu Kuang is a distinct person and is not an identity substitute.",
+  "skills": [
+    {
+      "id": "ol:renxia",
+      "name": "任侠",
+      "clientSkillId": 3501,
+      "clientName": "RenXia",
+      "text": "出牌阶段限一次，你可以执行一项，并于此阶段结束时执行另一项：1.弃置两张牌，重复至手牌中没有【杀】或伤害锦囊；2.摸两张牌，重复至手牌中有【杀】或伤害锦囊。"
+    }
+  ],
+  "supplementaryEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20241011_2383_0414",
+      "title": "10.17-10.25 奇珍翻翻乐王匡来袭 刚言直谏*陆凯夺宝上新",
+      "published": "2024-10-16",
+      "checked": "2026-10-16",
+      "level": "Official OL release announcement. Its identity and complete skill match the present hero page and current client.",
+      "supports": "Explicitly records Qun, four HP, male, and both ordered repeated branches including the opposite actual phase ending."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/585791931523532413",
+      "title": "〖武将前瞻〗任侠而为——王匡",
+      "published": "2024-09-19",
+      "checked": "2026-10-16",
+      "author": "三国杀OL大乔；原创作者妙才丶念奴娇",
+      "originalClubUrl": "https://club.sanguosha.com/thread-1371271-1-1.html",
+      "level": "Same-product OL guide repost with an original official-club link. Original club was not independently accessible; primary current wording remains authoritative.",
+      "supports": "Discard may use owned Hand or Equipment and is chosen by the player. Both branches perform one pair before their stopping test. Voluntarily choosing discard requires two payable cards; the compulsory ending discard instead pays all remaining cards when fewer than two. Military-standard damaging tricks are Duel, FireAttack, BarbarianAssault and ArrowBarrage."
+    },
+    {
+      "url": "https://www.taptap.cn/moment/600124897116554303",
+      "title": "〖武将攻略〗摸还是弃？这是个问题。",
+      "published": "2024-10-28",
+      "checked": "2026-10-16",
+      "author": "三国杀OL大乔；原创作者爱多i",
+      "originalClubUrl": "https://club.sanguosha.com/thread-1414383-1-1.html",
+      "level": "Independent later same-product guide, matching the current full rule text.",
+      "supports": "The opposite branch is mandatory at Play ending, before Discard. Real extra Play phases each have their own use. Confirms HE eligibility, initial two-card qualification and drawing exactly one pair when a damaging hand card already exists."
+    }
+  ],
+  "interpretations": [
+    {
+      "rule": "Do-while and actual payment",
+      "basis": "Primary ordering plus the explicit same-product clarification.",
+      "implementation": "Choose one first branch once in the actual Play phase. Draw two or privately select an entire two-card HE discard set, commit the real pair, drain native children, then test the current effective hand. No pre-test bypass and no fixed number of iterations. The initial voluntary discard is unavailable with fewer than two legally discardable cards. Mandatory later payments discard up to the remaining legal count, including zero or one."
+    },
+    {
+      "rule": "Stopping conditions",
+      "basis": "Primary hand condition and same-product standard damaging-card list; interactions with card identity rules use the engine's native effective hand kind.",
+      "implementation": "Discard repeats while at least one Slash or damaging trick remains in hand; draw repeats while none remains. The four military-standard damaging tricks listed in the guide are examples of the current broad primary category: native UnexpectedAssault (出其不意) also qualifies because its ordinary-trick effect can cause damage. This additional-card classification is an engine-category inference, not a claimed character FAQ. Equipment presence is not part of the stop test. Optional view-as possibilities do not change a card's hand identity. Each comparison occurs after native movement, HP, skills, damage and rescue children. No actual draw or no legal discard terminates an otherwise impossible further payment rather than fabricating cards or looping forever."
+    },
+    {
+      "rule": "Exact Play-ending obligation",
+      "basis": "Primary says this phase ending, and the later guide confirms separate actual extra Plays.",
+      "implementation": "The first real payment issues an immutable attributable obligation with the original skill instance, gameplay hash, actual turn and native Play instance. Only that same native PlayEnding can consume it once. The actual parent window freezes its phase identity before an earlier trigger can insert another Play. An inserted Play may create and consume its own separate opposite branch before the original ending resumes. No extra turn or extra Discard is introduced."
+    },
+    {
+      "rule": "Source lifetime and native equipment effects",
+      "basis": "Issued effect continuation and the existing native card-movement contract; these edge cases are engine-rule inferences rather than a claimed current character FAQ.",
+      "implementation": "Losing the skill after a paid first branch preserves its exact later obligation and paid loop. Death drains the paid native subtree and stops new payments; a skipped or nonexistent phase ending never migrates an old obligation to another phase. Atomic HE discard records every selected physical entity before native SilverLion recovery, WoodenOx grain disposal and skill-source changes. Ongoing choices and movement tails remain on their owning ProgramSkillFrame and use typed native returns."
+    }
+  ],
+  "runtime": {
+    "operations": [
+      "ResolveRenxiaRepeatedBranch",
+      "ResolveRenxiaOppositeAtPlayEnding"
+    ],
+    "pendingOwnership": "Original branch, exact Play key, frozen legal candidates, selected HE entities, required count, iteration, primary movement span and native side-effect tail are on ProgramSkillFrame.WangKuangRenxia. Collection init setters defensively copy into read-only collections. There is no mutable pending sidecar.",
+    "events": "New events contain only scalars or immutable scalar records, including one discard-entity fact per actual entity. All rule facts use AdvanceEventRulesAndQueueFact. Private prompts use actual player snapshots and reveal no foreign hand identities.",
+    "contracts": "Strict composition requires one original zero-input once-per-Play activation and its one mandatory issued own PlayEnding trigger. Issued candidates after source loss require the exact parent candidate cursor and an attributable paid obligation. Native movement, recovery, damage and dying observers accept only the exact paid receipt subtree."
+  },
+  "focusedChecks": [
+    "BothDoWhileOrdersPrivateDiscardAndNativeExhaustionCold",
+    "InitialDiscardQualificationAndForcedPartialPaymentCold",
+    "ActualExtraPlayParentsAndLostSourceEndingCold",
+    "NativePaymentChildrenLionRecoveryLossAndDeathCold"
+  ],
+  "verification": "Root focused, related and measured routine checks passed; see rootVerification.",
+  "officialEvidence": {
+    "capturedAtUtc": "2026-10-16T18:24:24.75939+08:00",
+    "generalId": "ol:wang-kuang",
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/636",
+      "byteCount": 23379,
+      "sha256": "f39b3d31ce7515d7d8188176c863d4a030c96bbadd73a2ad5abf4b18995f561a",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=636",
+      "byteCount": 884,
+      "sha256": "eb8b0b3e8200ecb23a1d9f2d8d95cff9c72ba87790a649985d8aac9588bfc1f6",
+      "hashScope": "raw HTTP response bytes"
+    },
+    "apiPayload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 636,
+            "name": "王匡",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/636.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63600.png",
+            "label": [
+              "过牌",
+              "困难",
+              "永不断杀"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "字公节，泰山人。轻财好施，以侠气闻名。在诛宦和伐董之后，逐渐成为袁绍的重要盟友。在袁绍的授意下杀死了妹夫胡母班，后来在曹操和愤怒的胡母家族的合力攻杀下败亡。",
+            "characteristic": "把握好手牌中的伤害牌资源。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/63600.png",
+      "byteCount": 1000381,
+      "sha256": "7db67ac00c621769c70feabec7aee330ba507c4898485f6cb4f34c49a1ea99b1",
+      "hashScope": "raw HTTP response bytes",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-wang-kuang.png",
+      "width": 750,
+      "height": 950
+    }
+  },
+  "currentClient": {
+    "checkedAtUtc": "2026-10-16T18:22:10.844796+08:00",
+    "product": "sanguosha-ol",
+    "resources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5385831,
+        "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+        "hashScope": "raw HTTP response bytes"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4153941,
+        "sha256": "dd4d1cacb8035935fe17bff5e3bf39191cfee06e97759a03b4c40ccd5cc4ec45",
+        "hashScope": "raw HTTP response bytes"
+      }
+    },
+    "decoder": "sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "77ae5d4e0c1899761ab58fb83340e4c073ddd7df1c647718ec4c5a9d993e77c6",
+        "decodedSha256": "704f25107cd2079e18559dc80d05535f0c55ad5a8baa85b094b5c82bd8029fda"
+      }
+    },
+    "character": {
+      "path": "GameCharacters.character[1337]",
+      "row": {
+        "a": 636,
+        "b": "王匡",
+        "d": "WangKuang",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3501,
+        "p": 2,
+        "q": "1",
+        "r": "9063601",
+        "y": "字公节，泰山人。轻财好施，以侠气闻名。在诛宦和伐董之后，逐渐成为袁绍的重要盟友。在袁绍的授意下杀死了妹夫胡母班，后来在曹操和愤怒的胡母家族的合力攻杀下败亡。",
+        "z": "把握好手牌中的伤害牌资源。",
+        "aa": 260,
+        "ab": "1193,1194",
+        "al": 1740,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20241114T235959",
+        "LordCardRate1": 21,
+        "LordCardRate2": 45,
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2532]",
+          "row": {
+            "a": 3501,
+            "b": "3",
+            "c": "任侠",
+            "d": "RenXia",
+            "e": 0,
+            "g": 3,
+            "h": 1,
+            "i": 2,
+            "o": "出牌阶段限一次，你可以执行一项，并于此阶段结束时执行另一项：<br>&nbsp;1.弃置两张牌，重复至手牌中没有【杀】或伤害锦囊；<br>&nbsp;2.摸两张牌，重复至手牌中有【杀】或伤害锦囊。"
+          }
+        }
+      ]
+    }
+  },
+  "rootVerification": {
+    "status": "passed",
+    "newFocused": {
+      "status": "passed",
+      "corePassed": 14,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 36136,
+      "steps": {
+        "Build selected scope": 23003,
+        "Core selected checks (5 filters, union)": 6318,
+        "WPF selected checks (2 filters, union)": 12769
+      },
+      "newGeneralBehaviorChecks": 12,
+      "sharedBoundaryChecks": 2,
+      "command": "tools/Test-Changed.ps1 -CoreFilter @('Lu Yu Sheng:', 'Wang Kuang:', 'Yuan Huan:', 'content registry compiles whole catalog dependencies', 'Native discard classification') -WpfFilter @('Edition general gallery', 'Program public card choices')"
+    },
+    "relatedRegression": {
+      "status": "passed",
+      "corePassed": 21,
+      "wpfPassed": 0,
+      "failed": 0,
+      "durationMs": 12353,
+      "steps": {
+        "Build selected scope": 2509,
+        "Core selected checks (8 filters, union)": 9562
+      },
+      "scope": "Li Wan discard refunds; Du Fu Ren and Zhang Yi chain restoration and actual phases; Yan Pu native recovery; Qingzhong issued PlayEnding; actor hand limits; phase prediction; Lu Zhi actual Discard entry."
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 140,
+      "wpfPassed": 20,
+      "failed": 0,
+      "durationMs": 32005,
+      "steps": {
+        "Build selected scope": 2915,
+        "Core selected checks (140 filters, union)": 10910,
+        "WPF selected checks (20 filters, union)": 28736
+      },
+      "command": "tools/Test-Changed.ps1"
+    },
+    "renderedUiInspected": [
+      "OL Lu Yu Sheng gallery",
+      "OL Wang Kuang gallery",
+      "OL Yuan Huan gallery",
+      "public-card choice projection"
+    ],
+    "fullVerificationRun": false,
+    "compatibility": "Rules epoch, rules JSON schema and package versions remain unchanged. New receipts omit null fields, and native bridges require the new capabilities or exact issued receipts.",
+    "nativeMouseInput": "LeftButton Released; AsyncLeftDown false; native Space press/release check passed with the original input guard.",
+    "verifiedAtUtc": "2026-10-16T10:46:31.681742+00:00"
+  }
+}

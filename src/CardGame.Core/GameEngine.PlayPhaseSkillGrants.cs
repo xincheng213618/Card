@@ -4,7 +4,9 @@ public sealed partial class GameEngine
 {
     private bool HasPlayPhaseSkillGrantCapability =>
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.GrantPlayPhaseSkills) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantPlayPhaseSkills);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantPlayPhaseSkills) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.OfferRandomPlayPhaseSkill) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferRandomPlayPhaseSkill);
 
     [ProgramCapability]
     private sealed class PlayPhaseSkillGrantCapability(GameEngine engine) : IPlayPhaseSkillGrantHost
@@ -71,10 +73,17 @@ public sealed partial class GameEngine
         }
 
         var expiry = new SkillGrantPhaseExpiry(_turnNumber, _currentSeat, _cardUseDebitPhaseInstanceId);
-        if (history.OfType<TurnEndedEvent>().Any(ended => ended.TurnNumber == _turnNumber) ||
+        if (!IsEndOwnedExtraPlayPhase() && history.OfType<TurnEndedEvent>().Any(ended => ended.TurnNumber == _turnNumber) ||
             history.OfType<ProgramPlayPhaseSkillBoundaryClosedEvent>().Any(closed => closed.Expiry == expiry))
             throw new InvalidOperationException("A closed Play phase cannot issue another skill grant.");
 
+        IssueProgramPhaseSkillGrants(frame, frame.OwnerSeat, skillIds, expiry);
+    }
+
+    private void IssueProgramPhaseSkillGrants(ProgramSkillFrame frame, int recipientSeat,
+        IReadOnlyList<string> skillIds, SkillGrantPhaseExpiry expiry)
+    {
+        var history = CompleteProgramEventHistory();
         var bindingId = GetProgramBindingId(frame);
         var source = new CardConversionSource(frame.SkillId, bindingId, frame.OwnerSeat, frame.SkillInstanceId);
         var sourceId = $"phase:{expiry.TurnNumber}:{expiry.PhaseActorSeat}:{expiry.PhaseInstanceId}:" +
@@ -84,7 +93,7 @@ public sealed partial class GameEngine
                 issued.FrameId == frame.Id && issued.Grants.Any(grant => grant.SourceId == sourceId)))
             throw new InvalidOperationException("A play-phase skill instruction cannot issue its grant twice.");
 
-        var owner = _players[frame.OwnerSeat];
+        var owner = _players[recipientSeat];
         foreach (var skillId in skillIds) _ = _contentRegistry.GetSkill(skillId);
         var grants = skillIds.Select(skillId =>
         {

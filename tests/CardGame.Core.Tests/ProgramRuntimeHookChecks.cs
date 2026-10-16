@@ -72,6 +72,9 @@ internal static class ProgramRuntimeHookChecks
         internal ProgramRuntimeHooks Hooks { get; }
         internal Fixture(ProgramRuntimeHookCatalog catalog) => Hooks = new(catalog, (m, t) => m.IsStatic ? m.CreateDelegate(t) : m.CreateDelegate(t, this));
         [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 10)]
+        [ProgramRuntimeHook(ProgramRuntimePhase.BeforeJudgmentPhase, 10)]
+        [ProgramRuntimeHook(ProgramRuntimePhase.BeforeRecoveryApply, 10)]
+        [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDamageApply, 10)]
         [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 10)]
         [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 10)]
         private bool First() { Trace.Add("first"); if (Reenter) { Reenter = false; Hooks.TryAdvance(ProgramRuntimePhase.BeforeResponseHealth); } return false; }

@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-16",
+  "status": "root-verified",
+  "generalId": "ol:zhang-yi",
+  "characterId": "character:zhang-yi",
+  "product": "三国杀OL",
+  "officialGid": 541,
+  "officialPage": "https://www.sanguosha.com/hero/541",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=541",
+  "identity": {
+    "name": "张翼",
+    "faction": "shu",
+    "hp": 4,
+    "gender": "Male",
+    "clientClass": "ZhangYi",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "deduplication": "Searched the retained character modules before implementation for 张翼/張翼, zhang-yi/ZhangYi, 殿军/DianJun and 亢锐/KangRui. No identity, alias, variant or printed-skill duplicate was present. This addition is current OL gid541.",
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T04:50:02.196943+00:00",
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleSha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "b1116641cfac7c8d3bf6f14c1e97235fd75a1bb5b8e1f21d12d52a4ca143678a",
+    "decoder": "Fetched the public ZIP resources in memory; extracted the current InitOfb AES-CFB128 IV/key and decoded character.sgs and cha_spell.sgs through that cipher and gzip. Only the selected target rows are retained here; no full client/config snapshot or temporary output was written.",
+    "characterRow": {
+      "a": 541,
+      "b": "张翼",
+      "d": "ZhangYi",
+      "g": 2,
+      "h": 1,
+      "i": 4,
+      "j": 3234,
+      "k": 3235
+    },
+    "spellRows": [
+      {
+        "a": 3234,
+        "c": "殿军",
+        "d": "DianJun",
+        "o": "锁定技，回合结束时，你受到1点伤害并执行一个额外的出牌阶段。"
+      },
+      {
+        "a": 3235,
+        "c": "亢锐",
+        "d": "KangRui",
+        "o": "当一名角色于其回合内首次受到伤害后，你可以摸一张牌并选择一项：1.令其回复1点体力；2.令其此回合下次造成的伤害+1。然后当其此回合造成伤害时，其此回合手牌上限改为0。"
+      }
+    ],
+    "comparison": "Both complete descriptions match the current official page verbatim after normalizing HTML br/nbsp separators. The current API separately confirms Shu/4 HP; it does not supply gender. Current character row g2/h1/i4 confirms Shu/male/4 HP."
+  },
+  "sameProductExplanation": {
+    "url": "https://my.4399.com/yxtouch/gonglue/51487/",
+    "title": "4399三国杀OL 虎贲系列武将：张翼攻略！",
+    "published": "2023-05-19",
+    "role": "Same-product explanatory evidence, subordinate to today's official page/client wording.",
+    "supportedDetails": [
+      "Dianjun's one damage is genuine damage: at one HP it first opens dying/rescue; Kangrui resolves only after surviving that dying sequence.",
+      "The inserted flow is one additional Play phase, without Preparation, Discard or Ending. The guide explicitly illustrates retaining three cards after an end-of-turn recovery at two HP.",
+      "Kangrui's damage option affects the next damage instance, not every damage instance of the next card. The guide's Savage Assault example increases only the first damaged target.",
+      "Dianjun can still provide Play after the normal Play was skipped by Indulgence."
+    ]
+  },
+  "primarySemantics": [
+    "Dianjun is mandatory at the owner's actual turn end. It requests one source-less native damage, then inserts a single Play phase after all resulting damage, rescue and after-damage children return.",
+    "Kangrui triggers only after the first positive actual damage received by the actual turn owner in that same turn. HP loss and prevented attempts do not count; source-less actual damage does count.",
+    "The drawer and decision maker is the Kangrui owner; the recovery/next-damage recipient is the frozen injured turn owner.",
+    "Both choices are followed by the same issued conditional effect: after that recipient actually deals damage in the issued turn, their hand limit is set to zero for that turn.",
+    "The bonus expires with the actual turn, consumes once per recipient's next damage instance, and is independent of whether that damage came from a card or a pure skill."
+  ],
+  "implementationInferences": [
+    "Dianjun supplies no source in its text, so its damage uses the native source-less path rather than inventing Zhang Yi as damage source.",
+    "The current official/client '然后' clause is outside both numbered options; hand-limit arming therefore follows either option. The 2023 guide emphasizes option two's practical danger but does not override the current full text.",
+    "An issued Kangrui resolution freezes recipient and actual turn before its real owner draw. Later source skill loss does not undo that paid draw or retarget its recovery/conditional effects.",
+    "Conditional hand-limit setting requires actual positive sourced damage; a prevented attempt cannot set the hand limit to zero.",
+    "No client server implementation or authoritative FAQ about prevention consuming an already applied next-damage increment was exposed by these sources; the increment follows the engine's native damage-amount modification timing.",
+    "A Kangrui increment armed between actual chained recipients affects only the next damage instance. Its recipient-local increment is removed before another propagation step, while an increment already included in the original elemental damage remains in the inherited chain base. Both the formal-armor recalculation path and the legacy finalized propagation path retain the native attack owner and use scalar instance provenance."
+  ],
+  "runtimeBoundaries": [
+    "Pending selection, draw/recovery receipt and end damage/extra-Play return remain on the owning ProgramSkillFrame and typed end parent.",
+    "Durable first-damage, issued effect, consumed increment and zero-hand-limit facts are scalar events, without an out-of-frame mutable pending ledger.",
+    "Native movement, HP/recovery, replacement, damage, rescue and source-loss child returns must complete exactly once across checkpoints.",
+    "The inserted phase's return performs native actual-turn cleanup once under the original end program, including newly used Alcohol and native held-card returns. A cleanup movement child finishes before the frozen original end parent advances; no second TurnEnded/Ending/Discard is emitted."
+  ],
+  "behaviorChecks": "tests/CardGame.Core.Tests/ZhangYiChecks.cs",
+  "behaviorCheckMethods": [
+    "ActualEndDamageDrawRecoveryExtraPlayQuotasAndPaidSourceLossCold",
+    "FirstActualOwnTurnDamagePreventionNextInstanceAndHandLimitExpiryCold",
+    "SourceLessDianjunNativeDyingSavedAndDeathReturnsCold",
+    "OtherTurnOwnerRecipientAndOwnerDrawRecoveryStayFrozenCold",
+    "MidChainNewBonusOnlyNextInstanceAndOriginalBonusPropagationCold"
+  ],
+  "sharedBoundaryRegression": "tests/CardGame.Core.Tests/SoleTargetProtectionChecks.cs#DianjunLateQuarantineReturnsThroughOriginalEndCursorCold"
+}

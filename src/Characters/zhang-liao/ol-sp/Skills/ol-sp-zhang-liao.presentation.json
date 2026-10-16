@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:mubing": { "name": "募兵", "description": "出牌阶段开始时亮出三张牌，弃置手牌并按点数之和换取亮出的牌。调令后改为四张，并可分配本次获得的牌。" },
+    "ol:ziqu": { "name": "资取", "description": "每名角色限一次，防止对其造成的伤害，令其交给你一张点数最大的牌。" },
+    "ol:diaoling": { "name": "调令", "description": "准备阶段，募兵累计实得六张杀、伤害锦囊牌和武器牌后觉醒，回复1点体力或摸两张牌并修改募兵。", "optionLabels": { "recover": "回复1点体力", "draw-two": "摸两张牌" } }
+  }
+}

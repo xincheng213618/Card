@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:daili", "revision": 1, "triggers": [
+      { "id": "own-actual-turn-end", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [ { "op": "resolveDailiTurnEnd", "target": "owner" } ] },
+      { "id": "other-actual-turn-end", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [ { "op": "resolveDailiTurnEnd", "target": "owner" } ] }
+    ] }
+  ]
+}

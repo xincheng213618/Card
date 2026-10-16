@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cheng-gong-ying",
+  "skills": [
+    {
+      "registrationOrder": 1670,
+      "programBundle": "ol-cheng-gong-ying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kuangxiang",
+        "name": "匡襄",
+        "description": "准备阶段，你可令一名角色将手牌调整为4，其以此法获得的黑色牌造成的伤害+1，其以此法每获得一张红色牌，其下个摸牌阶段摸牌数-1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1671,
+      "pools": {
+        "current": 445
+      },
+      "definition": {
+        "id": "ol:cheng-gong-ying",
+        "name": "成公英",
+        "portraitKey": "ol-cheng-gong-ying",
+        "skillId": "ol:kuangxiang",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cheng-gong-ying",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

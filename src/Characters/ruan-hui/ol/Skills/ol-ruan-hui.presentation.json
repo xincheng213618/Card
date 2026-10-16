@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "ol:mingcha":{"name":"明察","description":"先公开亮出三张牌，再选择替代正常摸牌并可随机获得其他角色一张手牌或装备牌。"},
+ "ol:jingzhong":{"name":"敬重","description":"真实弃牌阶段弃置至少两张黑色牌后，选择另一角色，取得其下个实际出牌阶段使用后进入弃牌堆的牌，至多三次。"}
+}}

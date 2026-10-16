@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yise",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "owned-gain-colors",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "resolveYiseOwnedGain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shunshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-gift",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "giveForNextActualPhases",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "offturn-damage-gift",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "giveForNextActualPhases",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    }
+  ]
+}

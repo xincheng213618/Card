@@ -113,6 +113,50 @@ internal static class AfterTurnEndedChecks
         Replay(old, oldRegistry);
     }
 
+    public static void OptionalDiscardPreludeUsesPromptTargetFallback()
+    {
+        foreach (var action in new[] { "activate", "skip" })
+        {
+            var (g, registry) = Create("discard-claim");
+            Use(g, "grow", [1]);
+            End(g);
+            Reach(g, p => p.SkillPrompt?.SkillId == "fixture:discard-claim");
+            var parent = (DeferredTurnEndFrame)g.ResolutionStack[0];
+            var window = (CardsMovedTriggerWindowFrame)g.ResolutionStack[1];
+            var candidate = window.Candidates[window.CandidateIndex];
+            var context = window.Contexts![window.CandidateIndex];
+            var prompt = Prompt(g)!;
+            Require(parent.OwnerSeat == 1 && parent.AfterTurnEnded is null && parent.Prelude is { Completed: false } &&
+                g.ResolutionStack.Count == 2 && context.TargetSeat is null && context.SourceSeat == 1 &&
+                prompt.PlayerSeat == candidate.OwnerSeat && prompt.TargetSeat == candidate.OwnerSeat && prompt.SourceSeat == context.SourceSeat,
+                "An optional discard observer keeps its null context target while the published prompt defaults to its owner.");
+            CheckPreludeReceipt(g);
+            Replay(g, registry);
+            Reject(g);
+            Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == action);
+            if (action == "activate")
+            {
+                Require(g.ResolutionStack[2] is ProgramSkillFrame child && child.WindowContext == context &&
+                    child.OwnerSeat == candidate.OwnerSeat && child.SkillInstanceId == candidate.SkillInstanceId,
+                    "Activation retains the exact frozen movement context and skill instance.");
+                Replay(g, registry);
+                Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+                Reach(g, p => p.SkillPrompt?.SkillId == "fixture:gain");
+                Require(g.ResolutionStack[0] is DeferredTurnEndFrame { AfterTurnEnded: null },
+                    "A real nested draw observer must finish before the turn-end prelude returns.");
+                Replay(g, registry);
+                Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+            }
+            Require(g.CreateSnapshot(0).CurrentSeat == 2 && g.CreateSnapshot(0).Phase == TurnPhase.NotStarted &&
+                !g.ResolutionStack.OfType<DeferredTurnEndFrame>().Any(),
+                "The completed prelude returns directly to the next actual turn.");
+            Require(g.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Count(e => e.SkillId == "fixture:discard-claim") ==
+                (action == "activate" ? 1 : 0) && g.CardMovements.Count(m => m.Reason.Value == "skill-program.fixture:discard-claim.Draw") ==
+                (action == "activate" ? 1 : 0), "Each optional answer resumes the next turn once, with no repeated draw.");
+            Replay(g, registry);
+        }
+    }
+
     private static void CheckPreludeReceipt(GameEngine g)
     {
         var parent = (DeferredTurnEndFrame)g.ResolutionStack[0];
@@ -237,7 +281,7 @@ internal static class AfterTurnEndedChecks
                 ,{"id":"fixture:after-own","revision":1,"triggers":[{"id":"own","window":"afterTurnEnded","subject":"owner","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
                 ,{"id":"fixture:after-other","revision":1,"triggers":[{"id":"other","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
                 """;
-            var presentation = System.Text.Json.Nodes.JsonNode.Parse("""{"schemaVersion":3,"skills":{"fixture:driver":{"name":"真实驱动","description":"抽牌翻面和额外回合"},"fixture:due":{"name":"旧due","description":"真实对齐"},"fixture:movement":{"name":"移动暂停","description":"子链","optionLabels":{"continue":"继续"}},"fixture:gain":{"name":"获得暂停","description":"子链","optionLabels":{"continue":"继续"}},"fixture:after-own":{"name":"结束后","description":"真实抽牌"},"fixture:after-other":{"name":"他人结束后","description":"真实抽牌"},"fixture:return-gain":{"name":"返还观察","description":"实际返还和抽牌","optionLabels":{"continue":"继续"}},"fixture:return-nested":{"name":"返还抽牌子链","description":"暂停","optionLabels":{"continue":"继续"}}}}""")!;
+            var presentation = System.Text.Json.Nodes.JsonNode.Parse("""{"schemaVersion":3,"skills":{"fixture:driver":{"name":"真实驱动","description":"抽牌翻面和额外回合"},"fixture:due":{"name":"旧due","description":"真实对齐"},"fixture:movement":{"name":"移动暂停","description":"子链","optionLabels":{"continue":"继续"}},"fixture:gain":{"name":"获得暂停","description":"子链","optionLabels":{"continue":"继续"}},"fixture:after-own":{"name":"结束后","description":"真实抽牌"},"fixture:after-other":{"name":"他人结束后","description":"真实抽牌"},"fixture:return-gain":{"name":"返还观察","description":"实际返还和抽牌","optionLabels":{"continue":"继续"}},"fixture:return-nested":{"name":"返还抽牌子链","description":"暂停","optionLabels":{"continue":"继续"}},"fixture:discard-claim":{"name":"弃牌观察","description":"可选回合结束观察","optionLabels":{"continue":"继续"}}}}""")!;
             if (mode is "old" or "return-old") { presentation["skills"]!.AsObject().Remove("fixture:after-own"); presentation["skills"]!.AsObject().Remove("fixture:after-other"); }
             var catalog = SkillProgramCatalog.Load($$$"""
                 {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
@@ -251,12 +295,14 @@ internal static class AfterTurnEndedChecks
                 {"id":"fixture:gain","revision":1,"triggers":[{"id":"pause","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"choice","options":[{"id":"continue"}]}]}]}
                 ,{"id":"fixture:return-gain","revision":1,"triggers":[{"id":"pause","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill.pojun.return"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"choice","options":[{"id":"continue"}]},{"op":"draw","target":"owner","amount":1}]}]}
                 ,{"id":"fixture:return-nested","revision":1,"triggers":[{"id":"pause","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.fixture:return-gain.Draw"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"choice","options":[{"id":"continue"}]}]}]}
+                ,{"id":"fixture:discard-claim","revision":1,"triggers":[{"id":"claim","window":"discardPileReceived","subject":"owner","movementReasons":["rule.hand-limit-discard"],"movementOccurrence":"perBatch","optional":true,"effects":[{"op":"chooseOption","target":"owner","resultBind":"choice","options":[{"id":"continue"}]},{"op":"draw","target":"owner","amount":1}]}]}
                 {{{after}}}]}
                 """, presentation.ToJsonString());
             foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, pair.Key) { Program = pair.Value });
             b.AddGeneral(new("fixture:owner", "边界", "supporter", "fixture:driver", "wei", 12,
                 mode is "due" or "old" ? mode == "old" ? ["fixture:due", "fixture:movement"] : ["fixture:due", "fixture:movement", "fixture:gain", "fixture:after-own"] :
-                mode == "skipped" ? ["fixture:after-other"] : mode == "return-old" ? [] : ["fixture:after-own"]));
+                mode == "skipped" ? ["fixture:after-other"] : mode == "return-old" ? [] :
+                mode == "discard-claim" ? ["fixture:after-own", "fixture:discard-claim", "fixture:gain"] : ["fixture:after-own"]));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:target-{i}", "目标", "supporter", "standard:none", "wei", 12, i == 1 && mode is "return" or "return-old" ? ["fixture:return-gain", "fixture:return-nested"] : []));
             b.AddDeck(new("fixture:after-end-deck", "实体", 3, 2, []) { PhysicalCards = Enumerable.Range(0, 120).Select(i => new ContentDeckPhysicalCard("standard:dodge", Suit.Heart, i % 13 + 1)).ToArray() });
             b.AddMode(new("identity:classic-after-end-fixture", "边界", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 },

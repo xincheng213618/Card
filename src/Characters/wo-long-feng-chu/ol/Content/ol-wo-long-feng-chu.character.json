@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wo-long-feng-chu",
+  "skills": [
+    {
+      "registrationOrder": 1300,
+      "programBundle": "ol-wo-long-feng-chu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:youlong",
+        "name": "游龙",
+        "description": "转换技，每轮各限一次，你可以废除你装备区里的一个装备栏，视为使用一张未以此法使用过的：阳：普通锦囊牌；阴：基本牌。",
+        "executionForms": "State",
+        "actionForms": "Active",
+        "tags": "Conversion"
+      }
+    },
+    {
+      "registrationOrder": 1301,
+      "programBundle": "ol-wo-long-feng-chu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:luanfeng",
+        "name": "鸾凤",
+        "description": "限定技，当一名角色进入濒死状态时，若其体力上限不小于你，你可以令其回复至3点体力，复原其装备栏，令其将手牌摸至6-X张（X为以此法复原的装备栏数）。若其是你，你复原“游龙”使用过的牌名。",
+        "executionForms": "Trigger",
+        "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1302,
+      "pools": {
+        "current": 408
+      },
+      "definition": {
+        "id": "ol:wo-long-feng-chu",
+        "name": "卧龙凤雏",
+        "portraitKey": "ol-wo-long-feng-chu",
+        "skillId": "ol:youlong",
+        "additionalSkillIds": [
+          "ol:luanfeng"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wo-long-feng-chu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

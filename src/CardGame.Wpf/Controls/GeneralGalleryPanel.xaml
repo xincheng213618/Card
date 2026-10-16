@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:CardGame.Wpf.Controls"
+             xmlns:vm="clr-namespace:CardGame.Wpf.ViewModels"
              controls:InteractionMotion.MotionEnabled="{Binding IsMotionEnabled, FallbackValue=False}"
              Loaded="Panel_Loaded" Unloaded="Panel_Unloaded" DataContextChanged="Panel_DataContextChanged"
              KeyboardNavigation.TabNavigation="Cycle" Focusable="False">
@@ -51,7 +52,7 @@
         <DataTemplate x:Key="GalleryCardTemplate">
             <Button Style="{StaticResource GeneralPortraitCard}" Command="{Binding DataContext.SelectGeneralGalleryEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding AccessibilityText}" ToolTip="{Binding SkillDescription}">
                 <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="GeneralId" /><Binding Path="DataContext.SelectedGeneralGalleryEntry.GeneralId" RelativeSource="{RelativeSource AncestorType=UserControl}" /></MultiBinding></Button.Tag>
-                <Grid ClipToBounds="True" Background="{Binding Portrait.Brush}">
+                <Grid ClipToBounds="True" Background="{Binding Portrait.ThumbnailBrush}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="26,0,0,0">
                         <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasPortrait}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
                         <TextBlock Text="将" FontFamily="KaiTi" FontSize="48" Foreground="#766346" TextAlignment="Center" />
@@ -65,6 +66,22 @@
                     <Border Background="#DC24201B" VerticalAlignment="Bottom" Padding="4,4"><TextBlock Text="{Binding SkillName}" FontSize="10" Foreground="#E0C89F" TextTrimming="CharacterEllipsis" TextAlignment="Center" /></Border>
                 </Grid>
             </Button>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GeneralGalleryGroupViewModel}">
+            <StackPanel Margin="0,8,0,0">
+                <Grid Margin="8,7,18,10">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="0,0,20,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding Title}" Foreground="#ECD3A0" FontFamily="KaiTi" FontSize="24" />
+                    <Grid Grid.Column="2"><Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="20,0,100,0" /><TextBlock Text="{Binding CountText}" Foreground="#B89C64" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Center" /></Grid>
+                </Grid>
+                <TextBlock Text="{Binding EmptyMessage}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" Foreground="#938772" FontSize="12" Margin="0,12,0,24" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type controls:GeneralGalleryPortraitRow}">
+            <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource GalleryCardTemplate}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            </ItemsControl>
         </DataTemplate>
     </UserControl.Resources>
     <Grid>
@@ -108,24 +125,18 @@
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <Border Background="#6E161718" BorderBrush="#554D3D" BorderThickness="1">
                         <Grid>
-                            <ScrollViewer x:Name="GalleryScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="8,0,0,10">
-                                <ItemsControl x:Name="GeneralGalleryCards" ItemsSource="{Binding GeneralGalleryGroups}">
-                                    <ItemsControl.ItemTemplate><DataTemplate>
-                                        <StackPanel Margin="0,8,0,8">
-                                            <Grid Margin="8,7,18,10">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                                <Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="0,0,20,0" />
-                                                <TextBlock Grid.Column="1" Text="{Binding Title}" Foreground="#ECD3A0" FontFamily="KaiTi" FontSize="24" />
-                                                <Grid Grid.Column="2"><Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="20,0,100,0" /><TextBlock Text="{Binding CountText}" Foreground="#B89C64" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Center" /></Grid>
-                                            </Grid>
-                                            <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource GalleryCardTemplate}">
-                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            </ItemsControl>
-                                            <TextBlock Text="{Binding EmptyMessage}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" Foreground="#938772" FontSize="12" Margin="0,12,0,24" />
-                                        </StackPanel>
-                                    </DataTemplate></ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
+                            <controls:GeneralGalleryItemsControl x:Name="GeneralGalleryCards" Groups="{Binding GeneralGalleryGroups}"
+                                VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.CacheLength="0.5,0.5"
+                                VirtualizingPanel.CacheLengthUnit="Page" KeyboardNavigation.TabNavigation="Continue">
+                                <ItemsControl.Template><ControlTemplate TargetType="{x:Type controls:GeneralGalleryItemsControl}">
+                                    <ScrollViewer x:Name="PART_ScrollViewer" CanContentScroll="True" VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="8,0,0,10">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </ControlTemplate></ItemsControl.Template>
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            </controls:GeneralGalleryItemsControl>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasNoGeneralGalleryResults, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="没有符合筛选条件的武将" FontFamily="KaiTi" FontSize="24" Foreground="#D7C7A4" />
                                 <Button Content="清除搜索与势力筛选" Command="{Binding ClearGeneralGalleryFiltersCommand}" Style="{StaticResource ToolbarButton}" Margin="0,18,0,0" HorizontalAlignment="Center" />

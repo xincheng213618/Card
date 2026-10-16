@@ -8,7 +8,9 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome GiveSelectedOwnedCardAndDamage(ProgramSkillFrame f,int limit)=>engine.BeginConvertingGiftDamage(f,limit);
         public SkillProgramStepOutcome ObserveDamageSourceHandAndGive(ProgramSkillFrame f,int limit)=>engine.BeginDamageSourceObservationGift(f,limit);
-        public SkillProgramStepOutcome DrawToHandCount(ProgramSkillFrame f,int seat,int limit)=>engine.DrawProgramToHandCount(f,seat,limit);
+        public SkillProgramStepOutcome DrawToHandCount(ProgramSkillFrame f,int seat,int limit,
+            SkillProgramNumberExpression? expression = null)=>engine.DrawProgramToHandCount(f,seat,
+                expression == SkillProgramNumberExpression.LivingPlayerCount ? engine._players.Count(p=>p.IsAlive) : limit);
     }
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 110)]
     private bool CanActivateConvertingGift(CharacterState owner,string skillId,ProgramInstructionFeatures features) =>

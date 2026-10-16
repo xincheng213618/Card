@@ -1,0 +1,158 @@
+{
+  "characterId": "character:zhang-ling",
+  "product": "sanguosha-ol",
+  "capturedAtUtc": "2026-10-15T22:00:54.938001+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/464",
+      "sha256": "6b9d2dc13c12cf6f5e11c0f4f3f10693b5835a6abef14b2965667060e35488fe",
+      "byteCount": 24424,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=464",
+      "sha256": "b8a4c3cf8a6fec471c07b54b71c84235154ac390a9f7735cd7f67bebb8411979",
+      "byteCount": 815,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "aae0193af048abeff45af635cfe0531b5d51f2fb877ff5aea404862a00ec57f9",
+      "byteCount": 5385831,
+      "hashScope": "raw HTTP response bytes"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "f609f7cdae49f8494b16355c3ffa1e7585d891a7e4c31e8d183f0115e487161e",
+      "byteCount": 4153323,
+      "hashScope": "raw HTTP response bytes"
+    }
+  },
+  "officialHeroApi": {
+    "code": 0,
+    "message": "OK",
+    "data": {
+      "info": [
+        {
+          "gid": 464,
+          "name": "张陵",
+          "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/464.png",
+          "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46400.png",
+          "label": [
+            "进攻",
+            "防御",
+            "控制"
+          ],
+          "figure": "群",
+          "figure_py": "qun",
+          "quality": "传说",
+          "biography": "张鲁的祖父，东汉丰县（今江苏徐州丰县）人。道教创始人。因其最初创立的五斗米道又称天师道，故又称张天师。",
+          "characteristic": "回合外防御力较强，可以封印关键角色的手牌。",
+          "hp": 3,
+          "initial_hp": 0,
+          "score": 0
+        }
+      ],
+      "radar": [
+        {
+          "name": "地主",
+          "value": 7
+        },
+        {
+          "name": "农民",
+          "value": 9
+        },
+        {
+          "name": "忠臣",
+          "value": 5
+        },
+        {
+          "name": "反贼",
+          "value": 5
+        },
+        {
+          "name": "内奸",
+          "value": 6
+        }
+      ],
+      "deeds": []
+    }
+  },
+  "decoder": "Public current client InitOfb AES-CFB128 then gzip; decoded in memory, no downloaded client archive retained.",
+  "currentClient": {
+    "character.sgs": {
+      "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+      "records": [
+        {
+          "a": 464,
+          "b": "张陵",
+          "d": "ZhangLing",
+          "e": 44,
+          "f": "45",
+          "g": 4,
+          "h": 1,
+          "i": 3,
+          "j": 941,
+          "k": 942,
+          "p": 3,
+          "q": "1",
+          "r": "9046401",
+          "y": "张鲁的祖父，东汉丰县（今江苏徐州丰县）人。道教创始人。因其最初创立的五斗米道又称天师道，故又称张天师。",
+          "z": "回合外防御力较强，可以封印关键角色的手牌。",
+          "aa": 139,
+          "ab": "779,780",
+          "ad": "画师:匠人绘",
+          "x": "清静寡欲，无为而治，####天下自然大定。",
+          "al": 3440,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "bx": 80000,
+          "LordCardRate1": 37,
+          "LordCardRate2": 54,
+          "cc": 0,
+          "starMax": 4,
+          "freetitle": "0,控制强将"
+        }
+      ]
+    },
+    "cha_spell.sgs": {
+      "decodedSha256": "46e394257b189e6cd50982e5e912430939108f3702a8434886626ec757cc3e57",
+      "records": [
+        {
+          "a": 941,
+          "b": "3,4,5",
+          "c": "虎骑",
+          "d": "HuJi",
+          "e": 0,
+          "g": 2,
+          "i": 2,
+          "o": "锁定技，你计算与其他角色的距离-1。当你于回合外受到伤害后，你判定，若结果为红色，你视为对伤害来源使用一张【杀】。",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 942,
+          "b": "3",
+          "c": "授符",
+          "d": "ShouFu",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你可以摸一张牌，然后将一张手牌置于一名没有“箓”的其他角色的武将牌上，称为“箓”，其不能使用和打出与“箓”类型相同的牌。当其受到伤害或于弃牌阶段弃置至少两张与“箓”类型相同的牌后，将“箓”置入弃牌堆。",
+          "ay": "系统提示→点“确定”"
+        }
+      ]
+    }
+  },
+  "rulesMapping": {
+    "huqi": "Locked outgoing distance -1. Each actual positive received damage outside its owner turn issues one native judgment; only its final frozen red result can issue one native virtual Slash to that actual damage source. Source-less damage still judges but has no Slash target. Dead or illegal targets are skipped. An issued judgment/Slash opportunity survives source skill loss; native child returns restore suspended parent attacks and Duel continuations.",
+    "shoufu": "One activation per actual Play phase draws one first, then selects one entity from the current hand and another living globally talisman-free recipient. Store it in a public source-aware general pile. Restrict Use and Response by final effective Basic/Trick/Equipment kind, not physical payment category; delayed tricks are Trick. Pile and restriction survive the issuing Shoufu source losing skills or dying. Actual received damage releases after native dying handling. Two true same-category discard receipts during the same actual Discard phase release, summed across batches by movement sequence and actual phase token, never by card IDs or current discard-pile contents.",
+    "interpretationBoundary": "Current official hero and public client texts agree. No separate current official FAQ was found. Timing, final effective category and source lifetime follow native rule semantics; no claim of a separate FAQ revision.",
+    "claimedJudgment": "Huqi retains the native final frozen judgment suit even when Tiandu or another genuine final-judgment effect has already claimed the entity. Its local cleanup only moves a still-Processing judgment card; an entity in the claimant hand stays there. An exhausted no-card judgment skips the counterattack without fabricating a face."
+  },
+  "status": "root-verified",
+  "generalId": "ol:zhang-ling",
+  "validation": "Root integrated focused verification passes all three native behavior checks: actual talisman entity/source lifetime, effective Use/Response category ban and true discard phase receipts; red/black native counter-Slash, source loss, cold replay and actual Tiandu claim without stealing the judgment entity back."
+}

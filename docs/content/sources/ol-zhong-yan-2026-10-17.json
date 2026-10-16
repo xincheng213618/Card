@@ -1,0 +1,39 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "characterName": "钟琰",
+  "generalId": "ol:zhong-yan",
+  "verifiedOn": "2026-10-17",
+  "sourcePage": "https://www.sanguosha.com/hero/7014",
+  "poolSource": "https://www.sanguosha.com/news/20210903_6756_2218",
+  "poolBasis": "The 18 named entries in the official 2021-09-15 pool announcement. The complete current server pool is not publicly verifiable; this content binds those names to explicit registered editions.",
+  "poolSkillIds": [
+    "classic:qingnang",
+    "classic:lijian",
+    "boundary:quhu-current",
+    "classic:tianyi",
+    "ol:lihun",
+    "ol:qiangwu",
+    "classic:gongxin",
+    "classic:mingce",
+    "classic:qice",
+    "ol:mizhao",
+    "boundary:guose",
+    "boundary:zhiheng",
+    "boundary:jieyin-current",
+    "classic:qiangxi",
+    "boundary:tiaoxin-current",
+    "ol:sanchen",
+    "boundary:chuli",
+    "ol:daoshu"
+  ],
+  "engineContracts": [
+    "The owner chooses from three distinct sampled IDs; no query resamples them.",
+    "Each actor-owner-skill-binding has one use per exact Play phase.",
+    "HP loss is paid before choice and survives dying children without repetition.",
+    "A dead recipient or a departed originating phase receives no grant.",
+    "Permanent and other-source copies survive independent phase-source expiry.",
+    "Already owned skills remain in the declared pool; acquiring another source shares the existing runtime instance and quota.",
+    "A lost or dead skill owner cancels unpaid remaining instructions through the shared program continuation policy."
+  ],
+  "portraitSha256": "317aa03846a3a13a78ced66c0a52c7f2124564cba628f704fbfba27a0d6f44d0"
+}

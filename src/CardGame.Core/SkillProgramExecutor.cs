@@ -1515,6 +1515,7 @@ public sealed class SkillProgramExecutor
                 : effect.Target switch
                 {
                     SkillProgramEffectTarget.Owner => frame.OwnerSeat,
+                    SkillProgramEffectTarget.Activator => frame.ActivatingSeat ?? frame.OwnerSeat,
                     SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
                         throw new InvalidOperationException(
                             $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
@@ -1544,7 +1545,7 @@ public sealed class SkillProgramExecutor
             if (!target.IsAlive && !(allowsDeadOwner && (effect.Op is
                     (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                      SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient or
-                     SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp) ||
+                     SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp or SkillProgramEffectOp.ResolveHongjiGrantedPhase or SkillProgramEffectOp.ResolveYanhuoKillerDiscard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveFulueCounterOption or SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
                     effect.Op is (SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill) &&
                     frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied)))
             {

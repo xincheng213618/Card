@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bian-fu-ren",
+  "skills": [
+    {
+      "registrationOrder": 1260,
+      "programBundle": "ol-bian-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:wanwei",
+        "name": "挽危",
+        "description": "每回合限一次，当你的牌被其他角色弃置或获得后，你可以从牌堆获得一张同名牌（无同名牌则改为摸一张牌）。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1261,
+      "programBundle": "ol-bian-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yuejian",
+        "name": "约俭",
+        "description": "每回合限两次，当其他角色对你使用的牌置入弃牌堆时，你可以展示所有手牌（至少一张），若花色与此牌均不同，你获得此牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1262,
+      "pools": { "current": 404 },
+      "definition": {
+        "id": "ol:bian-fu-ren",
+        "name": "卞夫人·OL",
+        "portraitKey": "ol-bian-fu-ren",
+        "skillId": "ol:wanwei",
+        "additionalSkillIds": ["ol:yuejian"],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:bian-fu-ren",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

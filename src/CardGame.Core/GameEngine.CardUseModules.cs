@@ -29,7 +29,8 @@ public sealed partial class GameEngine
             effectiveKind,
             actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType) ||
-        IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType);
+        IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType) ||
+        IsCategoryTalismanUseForbidden(actorSeat, effectiveKind, actionType);
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,

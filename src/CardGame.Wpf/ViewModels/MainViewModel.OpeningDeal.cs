@@ -97,7 +97,7 @@ public sealed partial class MainViewModel
 
     private bool IsOpeningDealCovered => IsSettingsOpen || IsHistoryOpen || IsGeneralGalleryOpen ||
         IsHelpOpen || IsNewGameSetupOpen || IsIdentityRevealOpen || IsLogOpen ||
-        IsGeneralSelectionPending || HasGameOver;
+        IsGeneralSelectionPending || HasGameOver || IsReserveDialogOpen;
 
     private void RefreshOpeningDealTimer()
     {
@@ -113,7 +113,7 @@ public sealed partial class MainViewModel
         }
         else if (args.PropertyName is nameof(IsSettingsOpen) or nameof(IsHistoryOpen) or
                  nameof(IsGeneralGalleryOpen) or nameof(IsHelpOpen) or nameof(IsNewGameSetupOpen) or
-                 nameof(IsIdentityRevealOpen) or nameof(IsLogOpen) or nameof(IsGeneralSelectionPending) or nameof(HasGameOver))
+                 nameof(IsIdentityRevealOpen) or nameof(IsLogOpen) or nameof(IsGeneralSelectionPending) or nameof(HasGameOver) or nameof(IsReserveDialogOpen))
         {
             // A covering panel pauses the countdown. Give the player the full
             // reading interval when the opening cards are exposed again.

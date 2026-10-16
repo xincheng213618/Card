@@ -42,7 +42,7 @@ internal static class InitialHandModifierChecks
         Accept(game, new SelectGeneralCommand(0, Owner, game.Revision, Prompt(game)!.PromptId));
         ReachPlay(game);
         AssertInitialDeal(game, enabled: true, team: false);
-        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 4, Hp: 4, HandCount: 6 } &&
+        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 4, Hp: 4, HandCount: 6, HandLimit: 8 } &&
                 game.CreateSnapshot(0).Players.Skip(1).All(player => player.MaxHp == 3 && player.HandCount == 5) &&
                 !Facts<ProgramBindingStartedEvent>(game).Any(fact => fact.SkillId == Observer) &&
                 !Facts<ProgramSkillStartedEvent>(game).Any() &&
@@ -52,13 +52,13 @@ internal static class InitialHandModifierChecks
 
         Use(game, "shrink");
         ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 3, Hp: 3, HandCount: 6 } &&
+        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 3, Hp: 3, HandCount: 6, HandLimit: 6 } &&
                 Facts<MaximumHpChangedEvent>(game).Count(fact => fact.SkillId == Driver && fact.Delta == -1 && fact.MaximumHp == 3) == 1,
             "A real command changes the owner's public maximum HP after the already-completed initial deal.");
         game = Cold(game, registry);
         Use(game, "hurt");
         ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 3, Hp: 2, HandCount: 6 } &&
+        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 3, Hp: 2, HandCount: 6, HandLimit: 5 } &&
                 Facts<ProgramSkillHpLostEvent>(game).Count(fact => fact.SkillId == Driver && fact.Amount == 1 && fact.RemainingHp == 2) == 1,
             "The second real command loses exactly one HP without reissuing any initial entities.");
         Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
@@ -107,8 +107,12 @@ internal static class InitialHandModifierChecks
     private static void AssertPrivacy(GameEngine game)
     {
         foreach (var viewer in Enumerable.Range(0, 4))
-            Require(game.CreateSnapshot(viewer).Players.All(player => player.Seat == viewer || player.Hand.Count == 0),
+        {
+            var snapshot = game.CreateSnapshot(viewer);
+            Require(snapshot.Players.All(player =>
+                (player.Seat == viewer || player.Hand.Count == 0) && (player.Seat == snapshot.CurrentSeat || player.HandLimit is null)),
                 "An initial-hand modifier changes public hand counts without exposing other participants' private entity identities.");
+        }
     }
 
     private static IEnumerable<T> Facts<T>(GameEngine game) where T : IGameEvent => game.Events.Select(item => item.Payload).OfType<T>();

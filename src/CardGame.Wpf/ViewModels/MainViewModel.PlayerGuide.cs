@@ -202,7 +202,7 @@ public sealed partial class MainViewModel
         {
             if (IsMultiTargetCardSelected)
             {
-                CurrentGuideTitle = CanConfirmSelected ? "确认铁索连环的目标" : "选择铁索连环的目标";
+                CurrentGuideTitle = CanConfirmSelected ? $"确认{MultiTargetCardName}的目标" : $"选择{MultiTargetCardName}的目标";
                 CurrentGuideBody = MultiTargetSelectionHint;
                 steps = MultiTargetGuideSteps();
             }

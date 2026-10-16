@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:bingjie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "pay-at-actual-play-start",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "payBingjieTurnMaximumHp",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "issued-turn-target-discards",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "priority": -1000,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveBingjieIssuedTargetDiscards",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhengding",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "same-color-foreign-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "growZhengdingMatchingResponse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
