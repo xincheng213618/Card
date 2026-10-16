@@ -237,7 +237,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Category discard cannot substitute a stale selected entity.");
         var before = RecipientMarkSequence;
         ReplaceRuntimeTop(f = f with { RecipientCategoryMark = r with { Stage = RecipientCategoryMarkStage.DiscardChildren, SequenceBefore = before, SequenceAfter = before }, PendingMovementContinuation = new(r.TargetSeat!.Value, 0, null) });
-        MoveProgramCardsFromMultipleSources(r.SelectedCardIds, CardLocation.DiscardPile, new(RecipientMarkReason(f, "discard")), (batch, records) =>
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, r.SelectedCardIds, new(RecipientMarkReason(f, "discard")), (batch, records) =>
         {
             foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
             var active = GetActiveProgramFrame(f.Id); var after = records.Max(m => m.Sequence);

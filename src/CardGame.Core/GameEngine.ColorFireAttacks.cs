@@ -76,7 +76,7 @@ public sealed partial class GameEngine
         receipt = receipt with { PaidCardId = cost.Id, PaidFrom = from, PaidIsRed = color,
             PaymentStartSequence = _cardMovements.LastOrDefault()?.Sequence ?? 0 };
         ReplaceRuntimeTop(pending with { ColorFireAttack = receipt });
-        MoveCard(cost, from, CardLocation.DiscardPile, CardMoveReasons.FireAttackDiscard);
+        MoveLogicalDiscard(source.Seat, source.Seat, cost, from, CardMoveReasons.FireAttackDiscard);
         pending = (CardUseFrame)_resolutionStack.Single(frame => frame.Id == pending.Id);
         ReplaceRuntimeTop(pending with { ColorFireAttack = receipt with { PaymentEndSequence = _cardMovements.LastOrDefault()?.Sequence ?? 0 } });
         AdvanceEventRulesAndQueueFact(new ColorFireAttackPaidEvent(pending.Id, source.Seat,

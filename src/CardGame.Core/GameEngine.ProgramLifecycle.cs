@@ -183,6 +183,7 @@ public sealed partial class GameEngine
 
     private void CompletePlayPhaseAfterProgramWindow()
     {
+        if (TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Play, ActualPhaseEndContinuation.Play)) return;
         CloseCurrentPlayPhaseSkillGrants("play-phase-ended");
         _programPhaseColorRestrictions.Clear();
         ResetPlayPhaseProgramStates(_currentSeat);
@@ -235,7 +236,7 @@ public sealed partial class GameEngine
                     Array.AsReadOnly(ids),
                     visibility,
                     Array.AsReadOnly(locations))
-                { FrozenRevealedSuit = frozenRevealedSuit, SelectionActorSeat = HasForeignDiscardCapability ? selectionActorSeat : null })
+                { FrozenRevealedSuit = frozenRevealedSuit, SelectionActorSeat = HasForeignDiscardCapability || TracksNativeLogicalDiscards ? selectionActorSeat : null })
                 .ToArray())
         });
     }
@@ -440,6 +441,9 @@ public sealed partial class GameEngine
 
         var owner = _players[frame.OwnerSeat];
         var nativeDiscard = CaptureNativeBuZhiDiscardInvocation(active, zones, reason);
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+            zones.SelectMany(zone => _cardZones.CardsAt(new(zone, owner.Seat))).Select(card => card.Id).ToArray(),
+            reason, frame.Id);
         List<int>? actualDiscardIds = nativeDiscard is null ? null : [];
         var discarded = 0;
         foreach (var zone in zones)
@@ -461,6 +465,7 @@ public sealed partial class GameEngine
         }
 
         CompleteNativeBuZhiDiscardInvocation(nativeDiscard, actualDiscardIds ?? []);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AdvanceEventRulesAndQueueFact(new ProgramOwnedZoneCardsDiscardedEvent(
             frame.Id,
             frame.SkillId,
@@ -1827,12 +1832,26 @@ public sealed partial class GameEngine
             ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
                 .GetPausedInstruction(frame.InstructionIndex).Effect.AwaitMovementTriggers)
             return BeginBoundParticipantGift(frame, sourceBind, selected.Select(item => item.CardId).ToArray(), target, reason);
+        NativeLogicalDiscardInvocationDraft? logicalDiscard = null;
+        if (TracksNativeLogicalDiscards && destination == SkillProgramCardDestination.DiscardPile)
+        {
+            // Discarding owned materials is distinct from disposing of revealed
+            // draw-pile cards or cleaning up a use's Processing materials.
+            var primaryIds = selected.Where(item => IsOwnedDiscardSource(item.Location) ||
+                item.Location == CardLocation.Processing && _cardMovements.LastOrDefault(move =>
+                    move.CardId == item.CardId) is { To: var to } entry && to == CardLocation.Processing &&
+                IsOwnedDiscardSource(entry.From) && IsProgramDiscardOriginReason(entry.Reason))
+                .Select(item => item.CardId).ToArray();
+            logicalDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
+                source.SelectionActorSeat ?? ownerSeat, primaryIds, reason, frame.Id);
+        }
         if (destination == SkillProgramCardDestination.DiscardPile && selected.Select(item => item.Location).Distinct().Count() > 1 &&
             (ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
                 .GetPausedInstruction(frame.InstructionIndex).Effect.AwaitMovementTriggers ||
              IsAtomicLiejieCostMove(frame, sourceBind)))
         {
             MoveProgramCardsFromMultipleSources(selected.Select(item => item.CardId).ToArray(), target, reason);
+            CompleteNativeLogicalDiscardInvocation(logicalDiscard);
             return SkillProgramStepOutcome.Continue;
         }
         foreach (var group in selected.GroupBy(item => item.Location))
@@ -1855,6 +1874,7 @@ public sealed partial class GameEngine
                     break;
             }
         }
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         CommitLostHpChainedPayment(frameId);
         CommitPhaseAlcoholPayment(frameId);
         return SkillProgramStepOutcome.Continue;
@@ -2103,7 +2123,7 @@ public sealed partial class GameEngine
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive && !HasIssuedWeiluDebtCandidate(candidate, context) ||
-            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedMaWanHunjiangCandidate(candidate, context) && !IsIssuedBingjieCandidate(candidate, context) && !HasIssuedZhangYanSujiRewardCandidate(candidate, context) && !HasIssuedWeifuCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) ||
+            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedMaWanHunjiangCandidate(candidate, context) && !IsIssuedBingjieCandidate(candidate, context) && !HasIssuedZhangYanSujiRewardCandidate(candidate, context) && !HasIssuedWeifuCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) && !IsIssuedQingyaCandidate(candidate, context) ||
             _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
@@ -2192,6 +2212,7 @@ public sealed partial class GameEngine
         if (features.ForOperation(SkillProgramEffectOp.SelectTargets).Any(effect => effect.TargetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord && GetProgramTargetSeats(owner.Seat, effect.TargetKind.Value, context).Count < effect.MinimumTargets)) return false;
         return context.Window switch
         {
+            SkillProgramTriggerWindow.ActualPhaseEnded => IsExactActualPhaseEndCandidate(candidate, context),
             SkillProgramTriggerWindow.PindianCardsRevealed => true,
             SkillProgramTriggerWindow.OtherActualUseTargeted => CanRunActualUseTarget(candidate, context),
             SkillProgramTriggerWindow.SkillsChanged => true,
@@ -3022,6 +3043,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginDiscardPhaseEndedProgramWindow(CharacterState phaseOwner)
     {
+        ConfirmActualDiscardPhaseExecution();
         if (!phaseOwner.IsAlive || phaseOwner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
@@ -3291,6 +3313,8 @@ public sealed partial class GameEngine
         { ReturnDrawPhaseObligationWindow(frame); return; }
         switch (frame.Continuation)
         {
+            case ProgramLifecycleContinuation.ResumeActualPhaseEnd:
+                ReturnActualPhaseEndWindow(frame); break;
             case ProgramLifecycleContinuation.ResumeYanPuDyingExit:
                 ReturnYanPuDyingExit(frame);
                 break;
@@ -3381,7 +3405,7 @@ public sealed partial class GameEngine
         context = CreateZhuijiEndingContext(frame, candidate, context);
         context = AttachPhaseNamePredictionContext(candidate, context);
         if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
-        return context;
+        return context with { ActualPhaseEnd = frame.ActualPhaseEnd };
     }
 
     private ProgramSkillWindowContext CreateLifecyclePendingProgramContext(ProgramLifecycleTriggerWindowFrame lifecycle, ProgramTriggerCandidate candidate)
@@ -3397,7 +3421,7 @@ public sealed partial class GameEngine
         context = CreateQingzhongEndingContext(lifecycle, candidate, context);
         context = CreateWeiluEndingContext(lifecycle, candidate, context);
         context = CreateXuRongDyingContext(context);
-        return CreateZhuijiEndingContext(lifecycle, candidate, context);
+        return CreateZhuijiEndingContext(lifecycle, candidate, context) with { ActualPhaseEnd = lifecycle.ActualPhaseEnd };
     }
 
     private void AdvanceProgramLifecycleCandidate(

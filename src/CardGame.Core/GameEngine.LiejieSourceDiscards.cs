@@ -213,7 +213,7 @@ public sealed partial class GameEngine
         var before = LiejieMoveSequence;
         ReplaceRuntimeTop(frame with { LiejieDiscardPending = draft with { Paid = true, Before = before, After = before },
             PendingMovementContinuation = new(draft.SourceSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(LiejieDiscardReason(frame)), (batch, records) =>
+        MoveProgramLogicalDiscard(frame, frame.OwnerSeat, ids, new(LiejieDiscardReason(frame)), (batch, records) =>
         {
             foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id);
             var active = GetActiveProgramFrame(frame.Id);

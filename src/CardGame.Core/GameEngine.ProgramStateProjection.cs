@@ -56,7 +56,7 @@ public sealed partial class GameEngine
         }
         return snapshot with
         {
-            PublicRuleStates = GetHandComparisonPublicRuleStates(owner, skillId),
+            PublicRuleStates = GetSkillPublicRuleStates(owner, skillId),
             BooleanStates = states is null ? EmptyProgramBooleanStateSnapshots : Array.AsReadOnly(states.ToArray()),
             DirectedPolicies = _directedTurnCardPolicies.Count == 0
                 ? EmptyDirectedPolicySnapshots : CreateNonemptyDirectedPolicySnapshots(owner, skillId),

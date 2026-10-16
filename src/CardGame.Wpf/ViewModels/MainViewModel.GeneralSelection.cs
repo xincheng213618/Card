@@ -42,6 +42,7 @@ public sealed partial class MainViewModel
 
     public bool CanConfirmGeneralChoice => IsGeneralSelectionPending && SelectedGeneralChoice is not null;
     public int GeneralChoiceColumns => GeneralChoices.Count > 3 ? (GeneralChoices.Count + 1) / 2 : Math.Max(1, GeneralChoices.Count);
+    public IReadOnlyList<GeneralChoiceViewModel> CandidateGeneralChoices => IsCustomGeneralSelectionOpen ? [] : GeneralChoices;
     public IReadOnlyList<GeneralChoiceViewModel> SelectedGeneralVariants => _selectedGeneralVariants;
     public bool HasGeneralVariants => SelectedGeneralVariants.Count > 1;
     public ICommand PreviewGeneralChoiceCommand { get; private set; } = null!;

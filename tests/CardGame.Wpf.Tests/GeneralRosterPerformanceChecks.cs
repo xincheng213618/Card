@@ -1,0 +1,106 @@
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using CardGame.Content.Standard;
+using CardGame.Core;
+using CardGame.Wpf;
+using CardGame.Wpf.Persistence;
+using CardGame.Wpf.ViewModels;
+
+internal static class GeneralRosterPerformanceChecks
+{
+    public static void OpenSearchAndPreview(string output)
+    {
+        using var model = new MainViewModel(false, 31, true, new MemorySaveStore(), useExpandedContent: true,
+            historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore(),
+            contentRegistry: StandardContentRegistry.CreateWithClassicGenerals())
+        { IsMotionEnabled = false, IsMusicEnabled = false, IsSoundEnabled = false };
+        model.SelectedStartingRole = model.StartingRoles.Single(role => role.Role == Role.Rebel);
+        model.StartNewGameCommand.Execute(null);
+        model.ContinueFromIdentityRevealCommand.Execute(null);
+        var window = new MainWindow(model);
+        var root = (FrameworkElement)window.Content;
+        try
+        {
+            Program.Render(root, 1440, 900, null);
+            var bytes = GC.GetAllocatedBytesForCurrentThread();
+            var timer = Stopwatch.StartNew();
+            model.ToggleGeneralRosterCommand.Execute(null);
+            var commandMs = timer.Elapsed.TotalMilliseconds;
+            Program.Render(root, 1440, 900, null);
+            timer.Stop();
+            var openMs = timer.Elapsed.TotalMilliseconds;
+            bytes = GC.GetAllocatedBytesForCurrentThread() - bytes;
+            var roster = (ListBox)window.FindName("CustomGeneralRoster");
+            var candidates = (ItemsControl)window.FindName("GeneralCandidateCards");
+            var rows = Program.Find<ListBoxItem>(roster).Count();
+            var hiddenCards = Program.Find<Button>(candidates).Count();
+            var total = model.CustomGeneralChoices.Count;
+            Console.WriteLine($"Custom roster: command {commandMs:F1} ms, open/render {openMs:F1} ms, {rows}/{model.CustomGeneralChoices.Count} rows, {hiddenCards} hidden cards, {bytes:N0} bytes.");
+            Program.Assert(total > 300 && rows is > 0 and <= 24 && hiddenCards == 0 && bytes < 12_000_000,
+                "A full roster must realize only its visible rows and must not generate the hidden candidate cards.");
+            Program.Render(root, 1440, 900, Path.Combine(output, "custom-general-roster.png"));
+
+            var target = model.CustomGeneralChoices.First();
+            var revision = Program.Engine(model).Revision;
+            var searchNotifications = 0;
+            model.CustomGeneralChoices.CollectionChanged += (_, _) => searchNotifications++;
+            timer.Restart();
+            model.CustomGeneralSearch = target.Name;
+            Program.Render(root, 1440, 900, null);
+            timer.Stop();
+            var searchMs = timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
+            model.PreviewGeneralChoiceCommand.Execute(target);
+            Program.Render(root, 1440, 900, null);
+            timer.Stop();
+            var previewMs = timer.Elapsed.TotalMilliseconds;
+            Console.WriteLine($"Custom roster search {searchMs:F1} ms ({searchNotifications} collection events), preview {previewMs:F1} ms.");
+            Program.Assert(searchNotifications == 1, "Search must publish one complete result instead of one event per row.");
+            Program.Assert(model.IsCustomGeneralSelectionOpen && model.SelectedGeneralChoice == target &&
+                Program.Engine(model).Revision == revision, "Search and preview must preserve the published private selection.");
+            model.CustomGeneralSearch = target.SkillName.Split('/')[0].Trim();
+            Program.Assert(model.CustomGeneralChoices.Contains(target), "The roster must search registered skill names.");
+            model.CustomGeneralSearch = "__missing_general_roster__";
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(model.HasNoCustomGeneralChoices && roster.Items.Count == 0,
+                "An empty search must show its empty state and retire previous rows.");
+            model.CustomGeneralSearch = string.Empty;
+            foreach (var (width, height) in new[] { (1120, 740), (1920, 1080), (1440, 900) })
+            {
+                Program.Render(root, width, height, Path.Combine(output, $"custom-general-roster-{width}.png"));
+                var panel = (FrameworkElement)window.FindName("GeneralSelectionPanel");
+                var preview = (FrameworkElement)window.FindName("GeneralSelectionPreviewPortrait");
+                var skills = (ScrollViewer)window.FindName("GeneralSelectionSkillsScroller");
+                var confirm = (FrameworkElement)window.FindName("ConfirmGeneralChoiceButton");
+                Rect Bounds(FrameworkElement control) => control.TransformToAncestor(panel).TransformBounds(new Rect(control.RenderSize));
+                Program.Assert(roster.ActualWidth > 350 && skills.ActualWidth > 265 && skills.ActualHeight > 50 &&
+                    new Rect(panel.RenderSize).Contains(Bounds(preview)) && new Rect(panel.RenderSize).Contains(Bounds(confirm)) &&
+                    Program.Find<ListBoxItem>(roster).Count() is > 0 and <= 24,
+                    "The real compact and wide layouts must retain usable skills, portrait and confirmation without expanding the full roster.");
+            }
+            roster.ScrollIntoView(model.CustomGeneralChoices.Last());
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(Program.Find<ListBoxItem>(roster).Any(row => ReferenceEquals(row.DataContext, model.CustomGeneralChoices.Last())) &&
+                Program.Find<ListBoxItem>(roster).Count() <= 24, "The final general must remain reachable through virtualized scrolling.");
+            var retired = model.CustomGeneralChoices.First();
+            model.ToggleGeneralRosterCommand.Execute(null);
+            Program.Render(root, 1440, 900, null);
+            var previewBeforeStaleInput = model.SelectedGeneralChoice;
+            model.PreviewGeneralChoiceCommand.Execute(retired);
+            Program.Assert(ReferenceEquals(model.SelectedGeneralChoice, previewBeforeStaleInput) &&
+                candidates.Items.Count is > 0 and < 20, "Returning to candidates must retire the roster's old input objects.");
+            timer.Restart();
+            model.ToggleGeneralRosterCommand.Execute(null);
+            Program.Render(root, 1440, 900, null);
+            timer.Stop();
+            var reopenMs = timer.Elapsed.TotalMilliseconds;
+            Console.WriteLine($"Custom roster reopen {reopenMs:F1} ms.");
+            File.WriteAllText(Path.Combine(output, "custom-general-performance.json"),
+                System.Text.Json.JsonSerializer.Serialize(new { commandMs, openMs, searchMs, previewMs, reopenMs, rows,
+                    total, hiddenCards, managedBytes = bytes }));
+        }
+        finally { window.Content = null; window.Close(); }
+    }
+}

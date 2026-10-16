@@ -58,7 +58,7 @@ public sealed partial class MainViewModel
             _selectedTieredRoundZeroAction = action;
             _selectedCardId = null;
             _selectedConversionSource = null;
-            _isSelectingWusheng = false;
+            _playConversionSelection = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             _selectedActiveSkillCardIds.Clear();

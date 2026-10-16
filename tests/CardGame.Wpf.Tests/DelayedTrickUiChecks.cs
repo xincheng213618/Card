@@ -40,16 +40,14 @@ internal static class DelayedTrickUiChecks
                 var card = model.Hand.Single(c => c.Id == action.CardId);
                 var before = game.Revision;
                 var commands = game.AcceptedCommands.Count;
-                model.SelectCardCommand.Execute(card);
                 if (action.ConversionSource is { } source)
                 {
-                    var choice = model.EquipmentPlayChoices.Single(c => c.Cards.SequenceEqual([card.Id]) &&
-                        c.Parameters.GetValueOrDefault("conversion-skill-id") == source.SkillId &&
-                        c.Parameters.GetValueOrDefault("conversion-binding-id") == source.BindingId);
-                    model.SelectEquipmentPlayChoiceCommand.Execute(choice);
+                    model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == source.SkillId));
+                    model.SelectCardCommand.Execute(card);
                     Program.Assert(!model.HasTargetCombinationChoices,
                         "Duanliang's single target must use portraits without a separate AI-seat choice.");
                 }
+                else model.SelectCardCommand.Execute(card);
                 Program.Render(root, 1440, 860, System.IO.Path.Combine(output, $"target-{kind}-before.png"));
                 var target = model.Seats.Single(s => s.Seat == action.TargetSeats.Single());
                 if (kind == CardKind.Lightning)

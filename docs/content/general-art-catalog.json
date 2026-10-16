@@ -14532,6 +14532,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-cai-mao",
+      "characterName": "蔡瑁·OL",
+      "defaultSkinId": "63100",
+      "skins": [
+        {
+          "id": "63100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/631",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cai-mao.png",
+          "sha256": "f39d0ed4dbfa405acc3153b900e1477f3ec099d7a8e9b8f7986f0485b75c2f2b",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-ya-dan",
+      "characterName": "雅丹·OL",
+      "defaultSkinId": "57900",
+      "skins": [
+        {
+          "id": "57900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/579",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ya-dan.png",
+          "sha256": "a7ebbc40d572c8babb47871edc16b543df3b2c1b601e6091f225d4de95f93e6f",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

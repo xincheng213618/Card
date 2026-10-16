@@ -87,7 +87,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { DamageSourceHandChoice = r with { Draw = draw, Stage = DamageSourceHandChoiceStage.MovementChildren,
             MovementBefore = before, Choices = [] }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         var actual = draw ? DrawCards(_players[f.OwnerSeat], Math.Max(0, Math.Min(5, r.SourceHandCount) - GetHand(_players[f.OwnerSeat]).Count), true, new(DamageSourceHandDrawReason)).Count : 0;
-        if (!draw) MoveProgramCardsFromMultipleSources(r.SelectedCards, CardLocation.DiscardPile, new(DamageSourceHandDiscardReason));
+        if (!draw) MoveProgramLogicalDiscard(f, f.OwnerSeat, r.SelectedCards, new(DamageSourceHandDiscardReason));
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { DamageSourceHandChoice = f.DamageSourceHandChoice! with { MovementAfter = _movementSequence, DrawActual = actual } });
         AdvanceEventRulesAndQueueFact(new DamageSourceHandChoicePaidEvent(f.Id, f.DamageSourceHandChoice!));
         if (!DrainNamedHandChoiceChildren(f)) ReturnDamageSourceHandMovement(f);

@@ -197,7 +197,9 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(frame with { SequentialDiscard = d with { Stage = ProgramSequentialDiscardStage.AwaitingMovement,
             SelectedCardIds = [], SelectedLocations = [], Payment = payment }, ReexecuteParticipantInstruction = true,
             PendingMovementContinuation = new(d.ChooserSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(SequentialDiscardReason(frame)), (_, records) =>
+        var reason = new CardMoveReason(SequentialDiscardReason(frame));
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, d.ChooserSeat, ids, reason, frame.Id);
+        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, reason, (_, records) =>
         {
             var actual = records.Count(m => m.From.OwnerSeat == d.ChooserSeat &&
                 m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
@@ -210,6 +212,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramSequentialDiscardPaidEvent(frame.Id, d.Cursor, d.ChooserSeat,
                 paid.SequenceBefore, paid.SequenceAfter, ids.Count, actual, remaining));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 

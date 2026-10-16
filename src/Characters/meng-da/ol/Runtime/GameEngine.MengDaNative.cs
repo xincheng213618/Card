@@ -4,7 +4,9 @@ public sealed partial class GameEngine
     private void IssueGoudeSlashUse(long useId,ProgramSkillFrame parent,CardActionContext action)
     {
         if(parent.Goude is not{Stage:GoudeStage.NativeSlash,Option:GoudeOption.Slash,NativeOrigin:null,TargetSeat:{}target}r)return;
-        var f=GetActiveProgramFrame(parent.Id);
+        var useIndex=_resolutionStack.FindIndex(frame=>frame.Id==useId);
+        if(useIndex<1||useIndex!=_resolutionStack.Count-1||_resolutionStack[useIndex-1]is not ProgramSkillFrame f||f!=parent)
+            throw new InvalidOperationException("Goude must issue its native Slash from the exact immediate original program parent.");
         if(f.Goude!=r||f.InstructionIndex!=1||GetPausedPrivateOfferEffect(f)?.Op!=SkillProgramEffectOp.ResolveGoudeActualTurnEnd||
             LifecycleCardUse(useId)is not{CardId:0,CardKind:CardKind.Slash,PhysicalCardIds.Count:0}use||use.Action?.ActionId!=action.ActionId||
             action.Type!=CardActionType.Use||action.ActorSeat!=f.OwnerSeat||action.ProviderSeat!=f.OwnerSeat||action.PhysicalCards.Count!=0||

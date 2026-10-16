@@ -86,6 +86,8 @@ public sealed partial class GameEngine
         }
         var judgment = EntityAtCurrentLocation(choice.Cards.Single()); var from = _cardZones.GetLocation(judgment.Id);
         ReplaceRuntimeTop(frame = frame with { DiamondDelayed = d with { Stage = ProgramDiamondDelayedStage.Moving, TargetSeat = choice.Targets.Single(), JudgmentCardId = judgment.Id } });
+        var discardInvocation = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+            [card.Id, judgment.Id], new("skill-program.diamond-delayed.discard"), frame.Id);
         var batch = BeginCardMovementBatch([d.Source, from], [CardLocation.DiscardPile]);
         var movements = new List<CardMovementRecord>(); var committed = false;
         try
@@ -103,6 +105,7 @@ public sealed partial class GameEngine
             committed = true;
         }
         finally { CompleteCardMovementBatch(batch, movements, committed); }
+        CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
 

@@ -19,7 +19,7 @@ public sealed partial class GameEngine
                 return moved.Batch.ParentFrameId is{}parent&&(parent==f.Id||parent==origin.CardUseFrameId)&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&
                     (m.CardId==origin.CardId&&m.CardKind==origin.PrintedKind&&(m.From==origin.From&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use||
                         m.From==CardLocation.Processing&&(m.To==CardLocation.Judgment(origin.ActorSeat)&&m.Reason==CardMoveReasons.DelayedCardPlace||m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.UseFinished))||
-                     origin.PrintedKind==CardKind.WoodenOx&&origin.From==CardLocation.Equipment(origin.ActorSeat)&&m.From==CardLocation.WoodenOxGrain(origin.ActorSeat)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard));
+                     origin.PrintedKind==CardKind.WoodenOx&&origin.From==CardLocation.Equipment(origin.ActorSeat)&&r.Auxiliaries.Any(c=>c.CardId==m.CardId&&c.Kind==m.CardKind&&c.From==m.From)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard));
             return false;
         }
         if(child is HpChangedTriggerWindowFrame hp)return r.Stage==LiuYanStage.LimuRecoveryChildren&&r.RecoveryIssued&&hp.ResumeFrameId==f.Id&&hp.Continuation==PostEventContinuation.Program&&hp.Change.ParentFrameId==f.Id&&
@@ -29,7 +29,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? LiuYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasLiuYanDamageObserver(long id)=>LiuYanObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasLiuYanBeforeDamageObserver(long id)=>HasLiuYanDamageObserver(id);
-    private bool IsLiuYanDying()=>ActiveDying is{}d&&LiuYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    private bool IsLiuYanDying()=>IsLiuYanOriginalDyingRide()||ActiveDying is{}d&&LiuYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool AllowsLiuYanNestedDamage(ProgramSkillFrame f,int targetSeat,int amount,ProgramParticipantReference? sourceReference,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||LiuYanObserverRoot()is not{}root||root.Id==f.Id)return false;

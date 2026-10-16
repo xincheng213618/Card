@@ -283,6 +283,10 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:qin-lang", "other");
         groups.Add("ol:a-hui-nan", "other");
         groups.Add("ol:wang-guan", "other");
+        groups.Add("ol:liu-yan", "other");
+        groups.Add("ol:meng-da", "other");
+        groups.Add("ol:cai-mao", "other");
+        groups.Add("ol:ya-dan", "other");
         groups.Add("ol:zhong-yan", "other");
         groups.Add("ol:han-sui", "other");
         groups.Add("ol:xiahou-ba", "other");

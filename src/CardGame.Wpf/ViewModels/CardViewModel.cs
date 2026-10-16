@@ -10,15 +10,14 @@ public sealed class CardViewModel : ObservableObject
     private string _availabilityText = string.Empty;
     private string _kindLabel = string.Empty;
     private string _originalHandTag = string.Empty;
-    private bool _isWushengConversion;
     private CardKind? _identityKind;
     private string? _identitySkillName;
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
-    public ImageSource? Artwork => CardArt.Get(IsWushengConversion ? CardKind.Slash : Kind);
+    public ImageSource? Artwork => CardArt.Get(Kind);
     public bool HasArtwork => Artwork is not null;
-    public bool HasDynamicWeaponName => !IsWushengConversion && CardArt.NeedsRuntimeNameOverlay(Kind);
+    public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
     public CardKind? IdentityKind
     {
@@ -45,18 +44,7 @@ public sealed class CardViewModel : ObservableObject
         CardKind.ThunderSlash => Brushes.DarkSlateBlue,
         _ => Brushes.Maroon
     };
-    public bool IsWushengConversion
-    {
-        get => _isWushengConversion;
-        set
-        {
-            if (!SetProperty(ref _isWushengConversion, value)) return;
-            foreach (var property in new[] { nameof(Artwork), nameof(HasArtwork), nameof(HasDynamicWeaponName),
-                nameof(VerticalName), nameof(NameFontSize), nameof(NameLineHeight), nameof(AccentBrush) })
-                RaisePropertyChanged(property);
-        }
-    }
-    private string DisplayName => IsWushengConversion ? "杀" : Name;
+    private string DisplayName => Name;
     public required string KindLabel
     {
         get => _kindLabel;

@@ -106,10 +106,13 @@ public sealed partial class GameEngine
         var reason = new CardMoveReason($"skill-program.{active.SkillId}.launch");
         var handDiscards = discarded.Where(card => _cardZones.GetLocation(card.Id).Zone == CardZoneKind.Hand).ToArray();
         var equipmentDiscards = discarded.Except(handDiscards).ToArray();
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(active.OwnerSeat, active.OwnerSeat,
+            discarded.Select(card => card.Id).ToArray(), reason, active.Id);
         if (handDiscards.Length > 0)
             MoveCards(handDiscards, CardLocation.Hand(active.OwnerSeat), CardLocation.DiscardPile, reason);
         if (equipmentDiscards.Length > 0)
             MoveCards(equipmentDiscards, CardLocation.Equipment(active.OwnerSeat), CardLocation.DiscardPile, reason);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if (category != SkillProgramCardCategory.Basic)
         {
             GrantProgramTurnCardDamageModifier(active,
@@ -326,8 +329,11 @@ public sealed partial class GameEngine
             }
             card = _cardZones.CardsAt(CardLocation.Equipment(target)).Single(item => item.Id == cardId);
         }
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(active.OwnerSeat, active.OwnerSeat,
+            [card.Id], reason, active.Id);
         MoveCards([card], _cardZones.GetLocation(card.Id), CardLocation.DiscardPile, reason,
             movement => RecordBianFuRenForeignDiscardProducer(movement,active.OwnerSeat,active.Id));
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry.GetSkill(active.SkillId).Name}】，弃置 {_players[target].Name} 的【{card.DisplayName}】。",
             active.OwnerSeat, target);

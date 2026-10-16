@@ -335,6 +335,8 @@ public sealed partial class GameEngine
             });
         }
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        var discardInvocation = destination == CardLocation.DiscardPile
+            ? CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, chooserSeat, [card.Id], reason, frame.Id) : null;
         if (effect.RevealBeforeMove)
             AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
                 GetProgramBindingId(frame), frame.OwnerSeat, effect.ResultBind!,
@@ -345,6 +347,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, destination, reason);
         }
         else MoveCard(card, source, destination, reason);
+        CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
         {
             // Mirror CompleteEquipmentUse's public entry trio (move + event + log);

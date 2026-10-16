@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    ActualPhaseEnd = 27269,
     FriendDuelResponse = 20300,
     RequestedDeckBasic = 7600,
     DrawPhaseObligation = 3800,
@@ -74,6 +75,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(ActualPhaseEndFrame), "actual-phase-end")]
 [JsonDerivedType(typeof(QiaoZhouPreparationFrame), "qiao-zhou-preparation")]
 [JsonDerivedType(typeof(BeiMiHuTurnPreludeFrame), "bei-mi-hu-turn-prelude")]
 [JsonDerivedType(typeof(IdentityAppearanceFrame), "identity-appearance")]

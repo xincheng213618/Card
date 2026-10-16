@@ -112,7 +112,12 @@ public sealed partial class GameEngine
         var grain=r.Selected.Any(id=>_cardZones.GetLocation(id)==CardLocation.Equipment(r.Payer)&&GetAdvancedCard(id).Kind==CardKind.WoodenOx)
             ?GetWoodenOxGrain(_players[r.Payer]).Select(c=>c.Id).ToArray():[];
         var before=_movementSequence;ReplaceRuntimeTop(f=f with{DingShangWan=r with{Stage=stage,Before=before,After=before,Recipient=recipient,WoodenOxGrainIds=grain,Reshuffles=[]},PendingMovementContinuation=new(r.Payer,0,null)});
-        if(r.Selected.Count>0)MoveProgramCardsFromMultipleSources(r.Selected,gift?CardLocation.Hand(recipient!.Value):CardLocation.DiscardPile,new(stage switch{DingShangWanStage.OpeningGiftChildren=>FudaoGiftReason,DingShangWanStage.OpeningDiscardChildren=>FudaoDiscardReason,DingShangWanStage.FengGiftChildren=>FengyanGiftReason,_=>FengyanDiscardReason}));
+        if(r.Selected.Count>0)
+        {
+            var reason=new CardMoveReason(stage switch{DingShangWanStage.OpeningGiftChildren=>FudaoGiftReason,DingShangWanStage.OpeningDiscardChildren=>FudaoDiscardReason,DingShangWanStage.FengGiftChildren=>FengyanGiftReason,_=>FengyanDiscardReason});
+            if(gift)MoveProgramCardsFromMultipleSources(r.Selected,CardLocation.Hand(recipient!.Value),reason);
+            else MoveProgramLogicalDiscard(f,r.Payer,r.Selected,reason);
+        }
         RecordDingShangWanMovement(f.Id);ContinueDingShangWan(f.Id);
     }
     private void BeginDingShangWanDraw(ProgramSkillFrame f,int seat,int count,DingShangWanStage stage)

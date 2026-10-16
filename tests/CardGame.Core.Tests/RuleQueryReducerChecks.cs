@@ -3,6 +3,25 @@ using CardGame.Core;
 internal static class RuleQueryReducerChecks
 {
 
+    public static void ActualRoundUseDistanceRequiresCapturedCountAndOutgoingAddition()
+    {
+        var json = $$"""
+            {"id":"fixture:round-distance","revision":1,"minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},
+             "modifiers":[{"id":"round","query":"outgoingDistance","operation":"add",
+               "valueExpression":"negatedCurrentRoundActualUseCount","priority":0}],
+             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
+            """;
+        var modifier = LoadPrograms(json).Single().Modifiers.Single();
+        var context = new SkillProgramRuleContext(new(0, 4, 4, 0, TurnPhase.Play), 1);
+        Throws<InvalidOperationException>(() => modifier.EvaluateValue(context));
+        Throws<InvalidOperationException>(() => modifier.EvaluateValue(context with { CurrentRoundActualUseCount = -1 }));
+        Require(modifier.EvaluateValue(context with { CurrentRoundActualUseCount = 0 }) == 0 &&
+                modifier.EvaluateValue(context with { CurrentRoundActualUseCount = int.MaxValue }) == -int.MaxValue,
+            "A round-distance contribution must use the captured nonnegative count without an arbitrary cap.");
+        Throws<InvalidOperationException>(() => LoadPrograms(json.Replace("outgoingDistance", "handLimit", StringComparison.Ordinal)));
+        Throws<InvalidOperationException>(() => LoadPrograms(json.Replace("\"operation\":\"add\"", "\"operation\":\"set\"", StringComparison.Ordinal)));
+    }
+
     public static void DirectionalDistanceRunsBothStagesBeforeClamping()
     {
         var extreme = RuleQueryService.EvaluateDirectionalDistance(

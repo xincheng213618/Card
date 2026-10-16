@@ -64,7 +64,8 @@ public sealed partial class GameEngine
   var to=payment&&branch=="discard"?CardLocation.DiscardPile:CardLocation.Hand(f.OwnerSeat);var reason=actualBranch switch{"field"=>new CardMoveReason(FanChouFieldReason),"deck"=>new CardMoveReason(FanChouDeckReason),"other-give"=>new CardMoveReason(FanChouGiftReason),_=>new CardMoveReason(FanChouDiscardReason)};
   if((payment&&(from.OwnerSeat!=seat||from.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)))||r.Stage==FanChouStage.Field&&!FanChouFieldCards(f.OwnerSeat).Any(c=>c.Id==id)||r.Stage==FanChouStage.Deck&&(!r.DeckCandidates.Contains(id)||from!=CardLocation.DrawPile))throw new InvalidOperationException("Xingluan cannot substitute an owned zone or private deck entity.");
   r=r with{Branch=actualBranch,Stage=FanChouStage.MovementChildren,SelectedId=id,SelectedRank=from.OwnerSeat is{}originalOwner?EffectiveOwnedCardRank(_players[originalOwner],GetAdvancedCard(id)):GetAdvancedCard(id).Rank,From=from,Before=_movementSequence,After=_movementSequence,ActualCount=1};ReplaceRuntimeTop(f with{FanChou=r,PendingMovementContinuation=new(subject,0,null),Step=ResolutionFrameStep.ResolvingEffect});
-  MoveProgramCardsFromMultipleSources([id],to,reason,(batchId,moves)=>{var paid=r with{After=moves.Single().Sequence,PaidBatchId=batchId};ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{FanChou=paid});IssueFanChouPaid(f.Id,paid,subject);});AdvanceRuntimeProgram(f.Id);
+   var logicalDiscard=payment&&branch=="discard"?CaptureNativeLogicalDiscardInvocation(f.OwnerSeat,seat,[id],reason,f.Id):null;
+   MoveProgramCardsFromMultipleSources([id],to,reason,(batchId,moves)=>{var paid=r with{After=moves.Single().Sequence,PaidBatchId=batchId};ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{FanChou=paid});IssueFanChouPaid(f.Id,paid,subject);});CompleteNativeLogicalDiscardInvocation(logicalDiscard);AdvanceRuntimeProgram(f.Id);
  }
  private void PayFanChouDraw(ProgramSkillFrame f)
  {

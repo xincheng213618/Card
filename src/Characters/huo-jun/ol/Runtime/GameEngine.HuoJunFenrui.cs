@@ -82,7 +82,7 @@ public sealed partial class GameEngine
             var id = choice.Cards.Single(); var from = _cardZones.GetLocation(id); var before = _movementSequence;
             ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.ResolvingEffect, HuoJunFenrui = r with {
                 Stage = HuoJunFenruiStage.CostChildren, CostCardId = id, CostFrom = from, SequenceBefore = before, SequenceAfter = before } });
-            MoveProgramCardsFromMultipleSources([id], CardLocation.DiscardPile, new(HuoJunDiscardReason));
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, [id], new(HuoJunDiscardReason));
             f = GetActiveProgramFrame(f.Id); r = f.HuoJunFenrui! with { SequenceAfter = _movementSequence };
             ReplaceRuntimeTop(f with { HuoJunFenrui = r });
             AdvanceEventRulesAndQueueFact(new HuoJunFenruiCostPaidEvent(f.Id, r.Source, id, from, before, r.SequenceAfter));

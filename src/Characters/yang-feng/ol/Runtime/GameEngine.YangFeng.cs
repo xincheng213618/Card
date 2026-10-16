@@ -113,7 +113,11 @@ public sealed partial class GameEngine
     }
     private void MoveYangFengEntities(ProgramSkillFrame f,IReadOnlyList<YangFengMaterial> materials,CardLocation to,string reason,YangFengStage stage,long before)
     {
-        if(materials.Count>0) MoveProgramCardsFromMultipleSources(materials.Select(m=>m.CardId).ToArray(),to,new(reason));
+        if(materials.Count>0)
+        {
+            if(stage==YangFengStage.DiscardChildren)MoveProgramLogicalDiscard(f,f.OwnerSeat,materials.Select(m=>m.CardId).ToArray(),new(reason));
+            else MoveProgramCardsFromMultipleSources(materials.Select(m=>m.CardId).ToArray(),to,new(reason));
+        }
         for(var i=0;i<materials.Count;i++)
         {
             var m=materials[i];var move=_cardMovements.Single(v=>v.Sequence>before&&v.CardId==m.CardId&&v.Reason.Value==reason);

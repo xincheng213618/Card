@@ -109,7 +109,7 @@ public sealed partial class GameEngine
         }
         ReplaceRuntimeTop(f = f with { SimultaneousPindian = r = r with { Stage = SimultaneousPindianStage.MovementChildren, PaymentSeat = seat,
             PaidCardId = paidCard, PaidFrom = from, PaymentKind = branch, MovementBefore = beforePayment, MovementAfter = beforePayment }, PendingMovementContinuation = new(seat,0,null) });
-        if (paidCard is { } discard) MoveCard(GetAdvancedCard(discard), from!.Value, CardLocation.DiscardPile, new(SimultaneousDiscardReason));
+        if (paidCard is { } discard) MoveLogicalDiscard(f.OwnerSeat, seat, GetAdvancedCard(discard), from!.Value, new(SimultaneousDiscardReason));
         else if (_players[f.OwnerSeat].IsAlive) DrawCards(_players[f.OwnerSeat],1,true,new(SimultaneousDrawReason));
         f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian! with { MovementAfter = _movementSequence };
         ReplaceRuntimeTop(f = f with { SimultaneousPindian = r });

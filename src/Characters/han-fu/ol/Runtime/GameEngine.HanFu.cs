@@ -66,7 +66,11 @@ public sealed partial class GameEngine
     {
         var before = _movementSequence; ReplaceRuntimeTop(f = f with { HanFu = f.HanFu! with { Stage = stage }, PendingMovementContinuation = new(f.OwnerSeat,0,null) });
         var ids = cards.Where(m => m.From != destination).Select(m => m.CardId).ToArray();
-        if (ids.Length > 0) MoveProgramCardsFromMultipleSources(ids,destination,new(reason));
+        if (ids.Length > 0)
+        {
+            if(stage==HanFuStage.DiscardChildren)MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(reason));
+            else MoveProgramCardsFromMultipleSources(ids,destination,new(reason));
+        }
         for (var i = 0; i < cards.Count; i++)
         {
             var m = cards[i]; var move = _cardMovements.SingleOrDefault(move => move.Sequence > before && move.CardId == m.CardId && move.Reason.Value == reason);

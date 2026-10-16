@@ -94,7 +94,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(f = f with { Kuangfu = r with { Stage = KuangfuStage.EquipmentChildren,
                 EquipmentOwnerSeat = entity.Owner, EquipmentCardId = entity.Card.Id, EquipmentKind = entity.Card.Kind,
                 PaymentBefore = before, PaymentAfter = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveProgramCardsFromMultipleSources([entity.Card.Id], CardLocation.DiscardPile, new(KuangfuEquipmentReason), (_,records) => { foreach(var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id); });
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, [entity.Card.Id], new(KuangfuEquipmentReason), (_,records) => { foreach(var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id); });
             f = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(f = f with { Kuangfu = f.Kuangfu! with { PaymentAfter = _movementSequence } });
             AdvanceEventRulesAndQueueFact(new KuangfuEquipmentPaidEvent(f.Id, entity.Owner, entity.Card.Id, entity.Card.Kind, before, _movementSequence));
@@ -107,7 +107,7 @@ public sealed partial class GameEngine
         var costBefore = _movementSequence;
         ReplaceRuntimeTop(f = f with { Kuangfu = f.Kuangfu! with { Stage = KuangfuStage.OutcomeChildren, SelectedHandIds = [],
             DiscardedHandIds = ids, OutcomeBefore = costBefore, OutcomeAfter = costBefore }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(KuangfuHandReason));
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, ids, new(KuangfuHandReason));
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { Kuangfu = f.Kuangfu! with { OutcomeAfter = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new KuangfuHandDiscardPaidEvent(f.Id, ids, costBefore, _movementSequence));
         AdvanceRuntimeProgram(f.Id);

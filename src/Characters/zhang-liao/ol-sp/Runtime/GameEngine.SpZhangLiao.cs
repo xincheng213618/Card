@@ -209,7 +209,9 @@ public sealed partial class GameEngine
     {
         var f = GetActiveProgramFrame(id);
         ReplaceRuntimeTop(f with { SpZhangLiao = f.SpZhangLiao! with { SequenceBefore = _movementSequence, SequenceAfter = _movementSequence } });
-        MoveProgramCardsFromMultipleSources(cards, destination, new(reason));
+        if (destination == CardLocation.DiscardPile && reason == "skill-program.ol:mubing.DiscardSelected")
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, cards, new(reason));
+        else MoveProgramCardsFromMultipleSources(cards, destination, new(reason));
         f = GetActiveProgramFrame(id);
         ReplaceRuntimeTop(f with { SpZhangLiao = f.SpZhangLiao! with { SequenceAfter = _movementSequence } });
     }

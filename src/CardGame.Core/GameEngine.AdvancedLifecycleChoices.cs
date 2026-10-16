@@ -100,11 +100,16 @@ public sealed partial class GameEngine
         {
             case SkillProgramEffectOp.BalanceHandAttackTricks:
                 if (draft.Selected.Count != draft.RequiredRankSum) throw new InvalidOperationException("Hand category balancing requires the entire difference.");
+                var balanceDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+                    draft.Selected.Select(int.Parse).ToArray(), new("skill.hand-category-balance.discard"), frame.Id);
                 foreach (var id in draft.Selected.Select(int.Parse))
                     MoveCard(GetAdvancedCard(id), CardLocation.Hand(frame.OwnerSeat), CardLocation.DiscardPile, new("skill.hand-category-balance.discard"));
+                CompleteNativeLogicalDiscardInvocation(balanceDiscard);
                 DrawCards(_players[frame.OwnerSeat], 1, true);
                 break;
             case SkillProgramEffectOp.SampleFactionSkills:
+                var samplingDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+                    draft.Selected.Select(int.Parse).ToArray(), new("skill.faction-sampling.discard"), frame.Id);
                 foreach (var id in draft.Selected.Select(int.Parse))
                 {
                     var card = GetAdvancedCard(id); var from = _cardZones.GetLocation(id);
@@ -112,6 +117,7 @@ public sealed partial class GameEngine
                         throw new InvalidOperationException("Sampled skill payment changed owner.");
                     MoveCard(card, from, CardLocation.DiscardPile, new("skill.faction-sampling.discard"));
                 }
+                CompleteNativeLogicalDiscardInvocation(samplingDiscard);
                 var pool = _contentRegistry.Generals.Values.Where(general => general.FactionId == effect.ProviderFactionId)
                     .SelectMany(general => general.SkillIds).Distinct(StringComparer.Ordinal)
                     .Where(id => !EnabledContentSkillIds(_players[frame.OwnerSeat]).Contains(id, StringComparer.Ordinal)).Order(StringComparer.Ordinal).ToList();

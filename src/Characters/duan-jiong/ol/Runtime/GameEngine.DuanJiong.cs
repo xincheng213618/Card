@@ -121,7 +121,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { DuanJiongSaogu = r with { Stage = fee ? DuanJiongSaoguStage.DelegateChildren : DuanJiongSaoguStage.DiscardChildren,
             Paid = true, Before = _movementSequence, After = _movementSequence, WoodenOxGrainIds = grain, Payments = fee ? r.Payments : r.Selected } });
         if (!fee && !r.Ending) SetProgramBooleanState(f, "yin", true);
-        MoveProgramCardsFromMultipleSources(r.Selected.Select(c => c.CardId).ToArray(), CardLocation.DiscardPile, new(SaoguDiscardReason), (_, movements) =>
+        MoveProgramLogicalDiscard(f, actor, r.Selected.Select(c => c.CardId).ToArray(), new(SaoguDiscardReason), (_, movements) =>
         {
             var active = GetActiveProgramFrame(f.Id); var receipt = active.DuanJiongSaogu!;
             ReplaceRuntimeTop(active with { DuanJiongSaogu = receipt with { After = _movementSequence, PaidBatchId = _activeCardMovementBatchIds.Peek() } });

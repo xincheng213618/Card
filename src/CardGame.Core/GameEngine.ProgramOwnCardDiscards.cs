@@ -128,8 +128,10 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (IsSelfHandCategoryDiscardForbidden(chooserSeat, card, source, OwnedCardMoveIntent.Discard))
         { CancelProgramBindingAndCleanup(frame, "当前手牌不能自行弃置，费用未支付。"); return; }
-        MoveCard(card, source, CardLocation.DiscardPile,
-            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, chooserSeat, [card.Id], reason, frame.Id);
+        MoveCard(card, source, CardLocation.DiscardPile, reason);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AdvanceRuntimeProgram(frame.Id);
     }
 

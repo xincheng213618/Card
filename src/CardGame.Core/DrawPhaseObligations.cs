@@ -59,7 +59,7 @@ public sealed partial class GameEngine
         var skipped = delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase);
         if (_resolutionStack.Count != 0 || _pendingDecision is not null || !owner.IsAlive || _winner != Winner.None ||
             !(skipped && _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.DrawPhaseSkipped) ||
-              !skipped && (HasIssuedExtraDrawMarker(owner.Seat) ||
+              !skipped && (TracksActualPhaseEnds || HasIssuedExtraDrawMarker(owner.Seat) ||
                   _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGangshuAttributeIncrement)))) return false;
         var inherited = Array.AsReadOnly(_pendingCardsMovedBatches.Where(batch => batch.ParentFrameId is null &&
             batch.TurnNumber == _turnNumber && batch.Movements.Count > 0 && batch.Movements.All(m =>
@@ -122,6 +122,8 @@ public sealed partial class GameEngine
                     }
                     break;
                 case DrawPhaseObligationStage.ConsumeMarker:
+                    if (TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Draw, ActualPhaseEndContinuation.OwnedDraw,
+                            parentFrameId: frame.Id)) return;
                     var policy = ConsumeIssuedExtraDrawMarker(frame);
                     if (policy is null)
                     { ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.Finished }); break; }

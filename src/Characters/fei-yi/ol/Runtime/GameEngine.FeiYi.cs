@@ -104,7 +104,7 @@ public sealed partial class GameEngine
         var r=f.FeiYi!;if(!r.Paid){PayFeiYiYanru(f);f=GetActiveProgramFrame(f.Id);r=f.FeiYi!;}
         if(GetHand(_players[f.OwnerSeat]).Count!=r.HandCount||r.Selected.Distinct().Count()!=r.Selected.Count||r.Selected.Any(id=>!r.Candidates.Contains(id)||!_cardZones.Contains(CardLocation.Hand(f.OwnerSeat),id)||!FeiYiCanDiscard(f.OwnerSeat,GetAdvancedCard(id)))||r.Selected.Count<Math.Min(r.Minimum,r.Candidates.Count))throw new InvalidOperationException("Yanru lost its genuine minimum-half hand discard.");
         var before=_movementSequence;ReplaceRuntimeTop(f=f with{FeiYi=r with{Stage=FeiYiStage.DiscardChildren,Before=before,After=before},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        if(r.Selected.Count>0)MoveProgramCardsFromMultipleSources(r.Selected,CardLocation.DiscardPile,new(FeiYiDiscardReason));
+        if(r.Selected.Count>0)MoveProgramLogicalDiscard(f,f.OwnerSeat,r.Selected,new(FeiYiDiscardReason));
         RecordFeiYiMovement(f.Id,before,FeiYiStage.DiscardChildren,r.Minimum);ContinueFeiYi(f.Id);
     }
     private void BeginFeiYiDraw(ProgramSkillFrame f,bool hezhong)

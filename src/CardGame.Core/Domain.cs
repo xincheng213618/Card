@@ -506,7 +506,7 @@ public sealed record SkillRuntimeStateSnapshot(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ProgramPublicRuleStateSnapshot>? PublicRuleStates { get; init; }
 }
-public enum ProgramPublicRuleStateKind { ActivationLimit = 1160, PersistentHandLimit = 1161, SelfTargetProhibition = 1162 }
+public enum ProgramPublicRuleStateKind { ActivationLimit = 1160, PersistentHandLimit = 1161, SelfTargetProhibition = 1162, GameActivationProgress = 1163 }
 public sealed record ProgramPublicRuleStateSnapshot(string SkillInstanceId,string StateId,ProgramPublicRuleStateKind Kind,int Value,int? Used = null,SkillUsageScope? Scope = null);
 
 public sealed record ProgramAlternatingChoiceStateSnapshot(string SkillId, string StateId, string SkillInstanceId,
@@ -777,8 +777,17 @@ public sealed partial record PendingDecision
     /// <summary>
     /// For DiscardCards, choose exactly this many distinct cards from ValidCardIds.
     /// Submit DiscardCardsCommand; Choices is empty to avoid enumerating every subset.
+    /// For a projected exact owned-card draft, this is the remaining count;
+    /// answer its current published choices in order through AnswerPromptCommand.
     /// </summary>
     public int RequiredCardCount { get; init; }
+
+    /// <summary>
+    /// Viewer-only lower bound for a program's local owned-card selection.
+    /// RequiredCardCount is its remaining upper bound. Null retains exact-count semantics.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinimumCardCount { get; init; }
 
     /// <summary>
     /// Complete choices for K2 callers. The old card/target collections remain

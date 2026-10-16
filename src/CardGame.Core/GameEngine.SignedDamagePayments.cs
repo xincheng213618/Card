@@ -89,7 +89,7 @@ public sealed partial class GameEngine
         var from = _cardZones.GetLocation(card.Id); var suit = EffectiveSuit(_players[f.OwnerSeat], card);
         ClearPendingDecision(); ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null),
             SignedDamagePayment = r with { Stage = SignedDamagePaymentStage.Paid, CostCardId = card.Id, CostFrom = from, CostEffectiveSuit = suit } });
-        MoveCard(card, from, CardLocation.DiscardPile, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage}"), moved =>
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, from, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage}"), moved =>
         {
             var active = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(active with { SignedDamagePayment = active.SignedDamagePayment! with { CostMovementSequence = moved.Sequence } });

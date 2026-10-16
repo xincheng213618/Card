@@ -225,17 +225,26 @@
         "Limu accepts diamond entities from hand, equipment or accessible Wooden Ox grain. An abolished judgment zone prevents activation, and removing the placed Indulgence permits another use.",
         "Limu recovery uses the native recovery pipeline and can receive Yizheng support."
       ]
+    },
+    {
+      "authority": "Official OL publisher FAQ for the native delayed-trick timing, independently consistent with the existing engine placement/judgment contract.",
+      "title": "三国杀OL-爱奇艺三国杀-游戏FAQ集合-锦囊牌",
+      "supportedRules": [
+        "Indulgence cannot be counterspelled immediately during placement; the counterspell window occurs before revealing its judgment card during the holder actual Judgment phase."
+      ],
+      "url": "https://g.iqiyi.com/sanguosha/news/321006.html"
     }
   ],
   "implementation": {
     "tushe": "Reads the live native use Action after the real cost and current target adjustments, freezes its distinct designated role targets, and draws one real entity per target. Only current effective Hand identities count as basic; stored Ox grain and optional viewAs conversions do not alter hand identity.",
-    "limu": "Pays one exact diamond entity from its original zone into native Processing; uses that real entity as self Indulgence with a dedicated immutable origin, native nullification and delayed placement. Native completion returns to the original owning frame, drains paid children, then issues one standard recovery if its owner is alive.",
+    "limu": "Pays one exact diamond entity from its original zone into native Processing and uses that real entity as self Indulgence. Placement is the completed use; its native completion drains paid children and issues one standard recovery if its owner is alive. The separate delayed Nullification window occurs before judgment on a future actual turn, after this recovery has already completed.",
     "allowance": "A live Limu source and an actual card in judgment grant per-other-target distance/quota allowance only while that target is currently within actual attack range. Material equipment exclusions are preserved; no global unlimited marker is created.",
-    "boundaries": "Pending work is owned by ProgramSkillFrame.LiuYan. Source generation, native Use/Action and physical payment movement are bound exactly. A paid source may finish after skill loss or death; an unpaid unavailable target cannot start. Collections on receipts are defensively frozen; new events contain only scalar values or immutable scalar origins."
+    "boundaries": "Pending work is owned by ProgramSkillFrame.LiuYan. Source generation, native Use/Action and physical payment movement are bound exactly. A paid source may finish after skill loss or death; an unpaid unavailable target cannot start. Collections on receipts are defensively frozen; new events contain only scalar values or immutable scalar origins.",
+    "legacyBasicTargets": "With this new capability loaded, genuine old cardless phase-substitution Slash uses receive their actual Use/target window. Genuine virtual self-dying Wine keeps a dedicated frame-owned Program/Dying/source/action return through Targets, Committed and native recovery; this does not turn Dodge/Nullification into character-targeted uses."
   },
   "inferences": [
     "The official phrase no basic cards follows current effective identities of hand cards. Native continuous hand identity such as Fuman is included; optional viewAs eligibility is not a persistent identity.",
-    "The stated then-recover step follows a genuine paid use even if its effect is counterspelled; death prevents a new recovery. A delayed target invalidated after payment terminates through the exact native use return rather than duplicating payment.",
+    "The then-recover step follows the genuine paid placement use. A future judgment Nullification cancels the held delayed effect and never reissues Limu recovery; an actor who died in paid children cannot receive a new recovery. A delayed target invalidated after payment terminates through the exact native use return without duplicating payment.",
     "The scope of no distance and number limits is per use against current in-range other characters. Removing judgment, losing Limu or paying an equipped range source removes the live allowance immediately.",
     "The guide explicitly excludes Dodge and Nullification because neither has designated character targets; the implementation therefore serves genuine Use target windows, including off-turn Peach, rather than counting arbitrary responses."
   ],

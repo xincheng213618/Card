@@ -122,9 +122,11 @@ public sealed partial class GameEngine
         var suits=d.Mode=="alternating"?ids.Select(id=>EffectiveSuit(_players[f.OwnerSeat],_cardZones.CardsAt(CardLocation.Hand(f.OwnerSeat)).Single(c=>c.Id==id))).Where(s=>s!=Suit.None).Distinct().ToArray():[];
         f=f with{AlternatingSuitTop=d with{Stage=d.Mode=="alternating"?"discard-movement":"top-movement",PaidSuits=suits}};ReplaceRuntimeTop(f);
         var moves=ids.Select(id=>{var at=_cardZones.GetLocation(id);return (Card:_cardZones.CardsAt(at).Single(c=>c.Id==id),From:at);}).ToArray();
+        var discardInvocation=d.Mode=="alternating"?CaptureNativeLogicalDiscardInvocation(f.OwnerSeat,f.OwnerSeat,ids,new("skill-program.alternating-suit.discard"),f.Id):null;
         var batch=BeginCardMovementBatch(moves.Select(m=>m.From),[destination]);var records=new List<CardMovementRecord>();var committed=false;
         try{foreach(var m in moves)_cardZones.Move(m.Card.Id,m.From,destination);if(d.Mode=="completed")_cardZones.PlaceDrawPileCardsAtTop(ids);foreach(var m in moves)records.Add(RecordMovement(m.Card,m.From,destination,new(d.Mode=="alternating"?"skill-program.alternating-suit.discard":"skill-program.completed-top.place")));committed=true;}
         finally{CompleteCardMovementBatch(batch,records,committed);}
+        CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if(d.Mode=="alternating")
             AdvanceEventRulesAndQueueFact(new PlayPhaseSuitAllowanceGrantedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,_turnNumber,_cardUseDebitPhaseInstanceId,suits,ids));
         if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);

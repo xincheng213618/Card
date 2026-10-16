@@ -165,6 +165,8 @@ public sealed partial class GameEngine
             PaidCardId = card.Id, PaidKind = card.Kind, PaidFrom = from, PaidGeneralWeapon = card.IsGeneralWeapon,
             SequenceBefore = PairedColorSequence, SequenceAfter = PairedColorSequence }, PendingMovementContinuation = new(r.CounterpartSeat, 0, null) });
         foreach (var player in _players) _observedSkillGrantRevisions.TryAdd(player.Seat, player.SkillGrants.Revision);
+        var logicalDiscard = r.Obtain ? null : CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
+            [card.Id], new(PairedColorDiscardReason), f.Id);
         MoveProgramCardsFromMultipleSources([card.Id], to, new(r.Obtain ? PairedColorObtainReason : PairedColorDiscardReason), (batch, records) =>
         {
             if (!r.Obtain) foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
@@ -175,6 +177,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new PairedColorDispositionPaidEvent(f.Id, card.Id, card.Kind, from, to, card.IsGeneralWeapon,
                 receipt.SequenceBefore, paid.Sequence, batch));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AdvanceRuntimeProgram(f.Id);
     }
 

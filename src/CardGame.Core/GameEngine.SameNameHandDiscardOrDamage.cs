@@ -115,7 +115,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The same-name payment must remain its exact legal hand entity.");
         ReplaceRuntimeTop(f = f with { SameNameHandDiscardOrDamage = r with { Stage = SameNameHandStage.DiscardChildren,
             PaidMaterial = material, SequenceBefore = _movementSequence, SequenceAfter = _movementSequence }, PendingMovementContinuation = new(seat, 0, null) });
-        MoveProgramCardsFromMultipleSources([material.CardId], CardLocation.DiscardPile, new(SameNameHandDiscardReason(f)), (batch, records) =>
+        MoveProgramLogicalDiscard(f, seat, [material.CardId], new(SameNameHandDiscardReason(f)), (batch, records) =>
         {
             if (records is not [var paid] || paid.CardId != material.CardId || paid.CardKind != material.PrintedKind ||
                 paid.From != material.From || paid.To != CardLocation.DiscardPile)

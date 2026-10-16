@@ -102,7 +102,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A prediction cost moved before its one physical batch.");
             ReplaceRuntimeTop(f = f with { PhaseNamePrediction = r with { Stage = PhaseNamePredictionStage.CostChildren,
                 SequenceBefore = _movementSequence, SequenceAfter = _movementSequence }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveProgramCardsFromMultipleSources(selected, CardLocation.DiscardPile, new(PhasePredictionCostReason), (_, records) =>
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, selected, new(PhasePredictionCostReason), (_, records) =>
             { var active = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(active with { PhaseNamePrediction = active.PhaseNamePrediction! with { SequenceAfter = _movementSequence } }); });
             f = GetActiveProgramFrame(f.Id); r = f.PhaseNamePrediction!;
             AdvanceEventRulesAndQueueFact(new PhaseNamePredictionCostPaidEvent(f.Id, r.Origin.RequiredDiscardCount, selected.Length, r.SequenceBefore, r.SequenceAfter));

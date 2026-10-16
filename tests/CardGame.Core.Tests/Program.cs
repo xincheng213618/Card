@@ -39,6 +39,21 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("native logical discard invocations preserve whole mixed and cross-prompt costs", NativeLogicalDiscardChecks.WholeLogicalDiscardsKeepCrossPromptAndMixedMaterialInvoicesCold),
+    ("native effective faction changes preserve avatar declarations and setup boundaries", NativeFactionChecks.AvatarAcquisitionRedeclarationSourceLossAndSetupCold),
+    ("Meng Da: GoudeWholeInvocationHistoryAndOptionMasksCold", MengDaChecks.GoudeWholeInvocationHistoryAndOptionMasksCold),
+    ("Meng Da: GoudeOpaqueHandDiscardAndPaidSourceLossCold", MengDaChecks.GoudeOpaqueHandDiscardAndPaidSourceLossCold),
+    ("Meng Da: GoudeNativeZeroSlashRangeResponseAndDeathCold", MengDaChecks.GoudeNativeZeroSlashRangeResponseAndDeathCold),
+    ("Meng Da: GoudeActualFactionChangeAndCompletedTurnTimingCold", MengDaChecks.GoudeActualFactionChangeAndCompletedTurnTimingCold),
+    ("Cai Mao: whole reveal decline HP privacy and Miuyan replay", CaiMaoChecks.WholeRevealDeclineHpLimitPrivacyAndMiuyanCold),
+    ("Cai Mao: real exchange stock priority partial and exhaustion replay", CaiMaoChecks.RealExchangeStockPriorityPartialAndExhaustionCold),
+    ("Cai Mao: before damage HP budget initial chain and propagation replay", CaiMaoChecks.BeforeDamageHpBudgetInitialChainAndPropagationCold),
+    ("Cai Mao: paid exchange and toggle children loss death replay", CaiMaoChecks.PaidExchangeAndToggleChildrenSourceLossDeathCold),
+    ("actual phase end: six actual phases typed cold returns skip and restoration", ActualPhaseEndChecks.SixActualPhaseEndsKeepTypedColdReturnsAndSkipRestorationBoundaries),
+    ("Ya Dan: shortest living arc tie opaque and native discards replay", YaDanChecks.QingyaShortestLivingArcTieOpaqueAndNativeDiscardsCold),
+    ("Ya Dan: next actual phase original card native uses and expiry replay", YaDanChecks.QingyaNextActualPhaseOriginalCardNativeUsesAndExpiryCold),
+    ("Ya Dan: paid children loss death and recursive Slash replay", YaDanChecks.QingyaPaidChildrenLossDeathAndRecursiveSlashCold),
+    ("Ya Dan: whole round true uses actor replacement and reset replay", YaDanChecks.TielunWholeRoundTrueUsesActorReplacementAndResetCold),
     ("Pei Yuan Shao: FulueSingleFinalTargetOptionsWholeDamageAndCold", PeiYuanShaoChecks.FulueSingleFinalTargetOptionsWholeDamageAndCold),
     ("Pei Yuan Shao: FulueOpaqueObtainEquipmentPaidChildrenAndLossCold", PeiYuanShaoChecks.FulueOpaqueObtainEquipmentPaidChildrenAndLossCold),
     ("Pei Yuan Shao: FulueZeroDamageCounterSlashOppositeQuotaAndNativeReturnCold", PeiYuanShaoChecks.FulueZeroDamageCounterSlashOppositeQuotaAndNativeReturnCold),
@@ -301,6 +316,10 @@ var tests = new (string Name, Action Body)[]
     ("Hua Man: ActualMansiEightActualGainsAwakensMaleStableXiliCold", HuaManChecks.ActualMansiEightActualGainsAwakensMaleStableXiliCold),
     ("Hua Man: ActualZhanyuanDeclinedMaleStillLosesMansiCold", HuaManChecks.ActualZhanyuanDeclinedMaleStillLosesMansiCold),
     ("Hua Man: ActualSouyingOutgoingClaimsExactUseAndPaidLossDeathCold", HuaManChecks.ActualSouyingOutgoingClaimsExactUseAndPaidLossDeathCold),
+    ("Hua Man: claimed trick resolves after Souying acquisition and cold replay", HuaManChecks.ActualSouyingClaimedTrickContinuesAndKeepsItsEntityCold),
+    ("claimed Borrowed Sword retains native owner choice and cold replay", HuaManChecks.ClaimedBorrowedSwordKeepsItsRealOwnerChoiceCold),
+    ("claimed sole-target group retains source ownership and cold replay", HuaManChecks.ClaimedSoleTargetGroupKeepsDamageAndSourceOwnershipCold),
+    ("claimed recovery and public draft retain native material and cold replay", HuaManChecks.ClaimedSoleTargetRecoveryAndDraftKeepTheirNativeMaterialCold),
     ("Hua Man: ActualSouyingIncomingDirectionIndependentCancellationCold", HuaManChecks.ActualSouyingIncomingDirectionIndependentCancellationCold),
     ("Hua Man: ActualXiliNativeDamageBothDrawsAndPaidLossDeathCold", HuaManChecks.ActualXiliNativeDamageBothDrawsAndPaidLossDeathCold),
     ("Zhang Qi Ying: ActualFourTokensDiscardSuitsAndSourceLifetimeCold", ZhangQiYingChecks.ActualFourTokensDiscardSuitsAndSourceLifetimeCold),
@@ -472,6 +491,7 @@ var tests = new (string Name, Action Body)[]
     ("Friend events recast Duel shared discard budget and cold replay", FriendEventChecks.RecastDuelSharesDiscardBudgetAndColdReplay),
     ("Friend events minimum suit private hold and actual return", FriendEventChecks.MinimumSuitHoldStaysPrivateAndReturnsAtActualTurnEnd),
     ("Mou Zhuge Liang private top yang payment and cold replay", MouZhugeLiangChecks.PrivateTopYangPaymentAndColdReplay),
+    ("Mou Zhuge Liang AI FireAttack uses published private top cards", MouZhugeLiangChecks.AiFireAttackUsesPublishedPrivateTopCards),
     ("Friend Pang Tong manjuan ordered current gain cold replay", FriendPangTongChecks.ManjuanOrdersOnlyCurrentGainAndReplays),
     ("Friend Pang Tong yangming real held use unique suits", FriendPangTongChecks.YangmingUsesRealHeldCardsAndUniqueSuits),
     ("Mou Zhuge Liang undamaged copy draw and color limit", MouZhugeLiangChecks.UndamagedCopyDrawAndColorLimit),
@@ -824,6 +844,7 @@ var tests = new (string Name, Action Body)[]
     ("Feng Lin Wang Ping paid hand frozen qualification", FengLinWangPingChecks.PaidHandDemandAndFrozenQualification),
     ("Feng Lin Wang Ping first target history independent reward", FengLinWangPingChecks.FirstTargetHistoryAcrossSkillLossAndIndependentReward),
     ("Fame 2017 Xue Zong real response entity exchange", Fame2017XueZongChecks.SlashDuelAndCounterspellEntityExchange),
+    ("claimed multi-target trick retains response exchange and cold next target", Fame2017XueZongChecks.ClaimedMultiTargetTrickKeepsItsNextTargetAndColdReplay),
     ("Fame 2017 Xue Zong escalating discard upgrade", Fame2017XueZongChecks.EscalatingDiscardZeroAndUpgrade),
     ("Fame 2017 Ji Kang real equipment nested replay", Fame2017JiKangChecks.RealRandomEquipReplacementNestedReplay),
     ("Fame 2017 Ji Kang native death bequest shield expiry", Fame2017JiKangChecks.NativeDeathBequestShieldAndExpiry),
@@ -931,6 +952,7 @@ var tests = new (string Name, Action Body)[]
     ("boundary Sima Yi Feedback takes source cards per damage point", BoundarySimaYiChecks.FeedbackPerPointAndSourceZones),
     ("phase exchange mixed zones atomicity and replay", ProgramActivationLimitChecks.MixedZonesAtomicityAndReplay),
     ("owned-card set private draft movement and replay", ProgramOwnedCardsChecks.PrivateDraftBatchMovementAndReplay),
+    ("owned-card selection bounds remain private and replay", ProgramOwnedCardsChecks.VariableBoundsStayPrivateAndReplay),
     ("owned-card set shortfall empty sources and invalidation", ProgramOwnedCardsChecks.ShortfallEmptyAndInvalidatedDraft),
     ("Program choice definitions validate choices, payments and presentation hashes", ProgramChoiceChecks.DefinitionsValidateChoicesPaymentsAndPresentationHash),
     ("Program choice selected target conditional effects and replay", ProgramChoiceChecks.SelectedTargetChoosesConditionalEffectsAndReplays),
@@ -947,6 +969,7 @@ var tests = new (string Name, Action Body)[]
     ("rule query reduction is input-order independent", RuleQueryReducerChecks.IsIndependentOfInputOrderAndRejectsOnlyWinningSetConflicts),
     ("rule query reduction rejects invalid mutable inputs", RuleQueryReducerChecks.RejectsInvalidInputsAndFreezesOutput),
     ("rule query distance runs both directions before clamping", RuleQueryReducerChecks.DirectionalDistanceRunsBothStagesBeforeClamping),
+    ("rule query actual-round use distance requires captured outgoing count", RuleQueryReducerChecks.ActualRoundUseDistanceRequiresCapturedCountAndOutgoingAddition),
     ("rule query registry rejects future Set conflicts", RuleQueryReducerChecks.StaticSetConflictsAreRejectedBeforePlay),
     ("character skills retain separate sources and stable ownership", CharacterSkillSetChecks.GrantsRetainSourcesAndStableOwnership),
     ("character skills reject conflicting grants without partial state", CharacterSkillSetChecks.InvalidGrantsAndConflictsLeaveStateUnchanged),
@@ -1063,6 +1086,13 @@ var tests = new (string Name, Action Body)[]
     ("Opening customization: nonzero team and national human before private AI", OpeningCustomizationChecks.TeamAndNationalHumanChooseBeforePrivateAi),
     ("identity role general candidates freeze private choices and replay", IdentitySetupChecks.RoleCandidatesPrivacyAndReplay),
     ("identity general variants keep candidate families private and replay exact editions", IdentitySetupChecks.GeneralVariantsPrivacyAndReplay),
+    ("weighted identity draft validates immutable fingerprinted preferences", WeightedGeneralDraftChecks.RegistryContracts),
+    ("weighted identity draft preserves private diverse families and exact replay", WeightedGeneralDraftChecks.PrivacyDiversityAndReplay),
+    ("weighted identity draft increases strong offers and AI preferences", WeightedGeneralDraftChecks.SamplingAndAiPreferences),
+    ("Liu Yan: actual targets post-payment and effective hand replay", LiuYanChecks.ActualTargetsPostPaymentAndEffectiveHandCold),
+    ("Liu Yan: Limu hand equipment grain native recovery replay", LiuYanChecks.LimuHandEquipmentGrainNativeRecoveryCold),
+    ("Liu Yan: live judgment range and per-target quota replay", LiuYanChecks.LiveJudgmentRangeAndPerTargetQuotaCold),
+    ("Liu Yan: counterspell paid children loss death and privacy replay", LiuYanChecks.CounterspellPaidChildrenLossDeathAndPrivateCold),
     ("identity Rebel kill reward draws exactly three cards and replays once", IdentitySetupChecks.RebelKillDrawsThree),
     ("AI policy versions validate and replay deterministically", TacticalAiChecks.PolicyReplay),
     ("targeted tricks finish when the target spends its last card on Nullification", TargetLossChecks.LastNullification),
@@ -1891,12 +1921,14 @@ static void CheckpointRestore()
     ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
         decoded with { ContentHash = "00BAD-CONTENT-HASH" },
         StandardContentRegistry.Create()), "a mismatched content hash");
-    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
-        decoded with { RulesVersion = GameCheckpoint.CurrentRulesVersion + 1 },
-        StandardContentRegistry.Create()), "a future rules version");
-    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
-        decoded with { RulesVersion = GameCheckpoint.CurrentRulesVersion - 1 },
-        StandardContentRegistry.Create()), "an earlier rules version");
+    foreach (var rulesVersion in new[] { 0, GameCheckpoint.CurrentRulesVersion - 1, GameCheckpoint.CurrentRulesVersion + 1 })
+    {
+        var differentMarker = GameReplay.Restore(decoded with { RulesVersion = rulesVersion }, StandardContentRegistry.Create());
+        Equal(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)),
+            SnapshotJson.Serialize(differentMarker.CreateSnapshot(0, revealAll: true)));
+        TrueWithMessage(original.Events.Select(EventSignature).SequenceEqual(differentMarker.Events.Select(EventSignature)),
+            "a different or missing rules marker still replays validated commands under current rules");
+    }
 
     var selectedGeneralId = pending.ValidContentIds.First();
     var originalSelection = original.Submit(new SelectGeneralCommand(

@@ -158,7 +158,10 @@ public sealed partial class GameEngine
             ? draft with { Stage = ProgramDamageJudgmentPaymentStage.SourceDiscardChildren, SourceDiscardsRemaining = draft.SourceDiscardsRemaining - 1 }
             : draft with { Stage = ProgramDamageJudgmentPaymentStage.PaymentChildren, PaidCardId = card.Id, PaidCardKind = card.Kind,
                 PaidFrom = from, PaidSuit = paidSuit, PaidRank = card.Rank }, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(sourceDiscard ? DamageJudgmentSourceDiscardReason : DamageJudgmentPaymentReason), movement =>
+        var logicalReason = new CardMoveReason(sourceDiscard ? DamageJudgmentSourceDiscardReason : DamageJudgmentPaymentReason);
+        if (sourceDiscard) frame = AppendFrameNativeLogicalDiscard(frame, actor, [card.Id], logicalReason);
+        var logicalDiscard = sourceDiscard ? null : CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, actor, [card.Id], logicalReason, frame.Id);
+        MoveCard(card, from, CardLocation.DiscardPile, logicalReason, movement =>
         {
             var current = GetActiveProgramFrame(frame.Id);
             if (sourceDiscard)
@@ -175,6 +178,9 @@ public sealed partial class GameEngine
                 draft.JudgmentSuit == paidSuit, draft.JudgmentRank == card.Rank,
                 draft.JudgmentSuit!.Value, draft.JudgmentRank!.Value, paidSuit, card.Rank));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
+        if (sourceDiscard && GetActiveProgramFrame(frame.Id).DamageJudgmentSuitPayment!.SourceDiscardsRemaining == 0)
+            CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
@@ -218,6 +224,7 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(frame with { DamageJudgmentSuitPayment = draft with { Stage = ProgramDamageJudgmentPaymentStage.ChoosingSourceDiscard } });
                 PublishDamageJudgmentPayment(GetActiveProgramFrame(frame.Id), true); return true;
             }
+            frame = CompleteFrameNativeLogicalDiscard(frame);
             ReplaceRuntimeTop(frame with { DamageJudgmentSuitPayment = draft with { Stage = ProgramDamageJudgmentPaymentStage.MatchingClaims } });
             AdvanceRuntimeProgram(frame.Id); return true;
         }

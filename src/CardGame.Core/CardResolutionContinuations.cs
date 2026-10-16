@@ -36,6 +36,8 @@ public sealed record IceSwordState
     public int PreventedDamageAmount { get; init; }
     public bool Activated { get; init; }
     public IReadOnlyList<int> DiscardedCardIds { get; init; } = [];
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public NativeLogicalDiscardInvocationDraft? LogicalDiscardInvocation { get; init; }
 }
 
 public sealed record QilinBowState

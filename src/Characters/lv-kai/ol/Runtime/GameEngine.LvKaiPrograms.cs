@@ -341,6 +341,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Bijing punish card is no longer in hand.");
         ClearPendingDecision();
         var active = GetActiveProgramFrame(frame.Id);
+        active = AppendFrameNativeLogicalDiscard(active, state.TurnOwnerSeat, [cardId],
+            new($"skill-program.{active.SkillId}.bijing-punish"));
         MoveCards([_cardZones.CardsAt(CardLocation.Hand(state.TurnOwnerSeat)).Single(card => card.Id == cardId)],
             CardLocation.Hand(state.TurnOwnerSeat), CardLocation.DiscardPile,
             new($"skill-program.{active.SkillId}.bijing-punish"));
@@ -358,7 +360,8 @@ public sealed partial class GameEngine
             PresentBijingPunishCardPrompt(GetActiveProgramFrame(frame.Id));
             return;
         }
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { BijingPunish = null });
+        active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
+        ReplaceRuntimeTop(active with { BijingPunish = null });
         AdvanceEventRulesAndQueueFact(new ProgramBijingPunishEvent(active.Id, active.SkillId,
             state.OwnerSeat, state.TurnOwnerSeat, state.LostCardIds, discarded));
         if (!TryBeginCardsMovedProgramWindow())

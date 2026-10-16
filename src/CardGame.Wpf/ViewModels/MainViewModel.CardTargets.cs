@@ -14,7 +14,7 @@ public sealed partial class MainViewModel
     private LegalAction? SelectedRecastAction() => _selectedCardId is { } cardId
         ? GetViewLegalActions().SingleOrDefault(action =>
             action.Kind == LegalActionKind.Recast && action.CardId == cardId &&
-            action.ConversionSource == _selectedConversionSource)
+            MatchesSelectedPlayConversion(action))
         : null;
 
     private void RecastSelected()
@@ -35,14 +35,14 @@ public sealed partial class MainViewModel
     public bool IsMultiTargetCardSelected => !IsActiveSkillSelectionPending &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
         GetViewLegalActions().Any(action => action.CardId == _selectedCardId &&
-            action.ConversionSource == _selectedConversionSource &&
+            MatchesSelectedPlayConversion(action) &&
             (action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast ||
              action.Kind != LegalActionKind.BorrowedSword && action.TargetSeats.Count > 1 &&
              action.ProgramActivationId is "next-card-target-adjustment" or "next-actual-use-target-adjustment"));
 
     private LegalAction[] MultiTargetCardActions => IsMultiTargetCardSelected
         ? GetViewLegalActions().Where(action => action.CardId == _selectedCardId &&
-            action.ConversionSource == _selectedConversionSource &&
+            MatchesSelectedPlayConversion(action) &&
             action.Kind is not (LegalActionKind.Recast or LegalActionKind.BorrowedSword)).ToArray()
         : [];
 

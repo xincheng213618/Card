@@ -162,7 +162,7 @@ public sealed partial class GameEngine
             SelectedCardIds = [], SelectedFrom = [], TargetPayment = ownerCost ? d.TargetPayment : payment,
             OwnerPayment = ownerCost ? payment : d.OwnerPayment }, PendingMovementContinuation = new(payer, 0, null), ReexecuteParticipantInstruction = true });
         var reason = ownerCost ? PrepDiscardOwnerReason : PrepDiscardTargetReason;
-        MoveProgramCardsFromMultipleSources(payment.CardIds, CardLocation.DiscardPile, new(reason), (_, records) =>
+        MoveProgramLogicalDiscard(f, payer, payment.CardIds, new(reason), (_, records) =>
         {
             var paidRecords = records.Where(m => payment.CardIds.Contains(m.CardId) && m.From.OwnerSeat == payer &&
                 m.To == CardLocation.DiscardPile && m.Reason.Value == reason).ToArray();

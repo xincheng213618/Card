@@ -150,7 +150,7 @@ public sealed partial class GameEngine
                     {
                         ReplaceRuntimeTop(f = f with { SunRuOlWeimian = r with { Stage = SunRuOlWeimianStage.DiscardChildren, NextBenefit = 4, SequenceBefore = before, SequenceAfter = before } });
                         var ids = GetHand(_players[r.RecipientSeat]).Select(c => c.Id).ToArray();
-                        if (ids.Length > 0) MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(SunRuOlRefreshDiscardReason));
+                        if (ids.Length > 0) MoveProgramLogicalDiscard(f, r.RecipientSeat, ids, new(SunRuOlRefreshDiscardReason));
                         f = GetActiveProgramFrame(id); ReplaceRuntimeTop(f with { SunRuOlWeimian = f.SunRuOlWeimian! with { SequenceAfter = _movementSequence } });
                         AdvanceEventRulesAndQueueFact(new SunRuOlWeimianBenefitIssuedEvent(id, r.RecipientSeat, 3, null, before, _movementSequence));
                     }

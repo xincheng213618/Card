@@ -279,7 +279,7 @@ public sealed partial class GameEngine
                     Suit = revealed.Single(m => m.CardId == c.Id).EffectiveSuit }).ToArray())));
         if (paid.Length == 0)
         { CompleteCompletedUndamagedTargetReveal(f); return; }
-        MoveProgramCardsFromMultipleSources(paid.Select(m => m.CardId).ToArray(), CardLocation.DiscardPile,
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, paid.Select(m => m.CardId).ToArray(),
             new(CompletedUndamagedDiscardReason(f)), (batch, records) =>
             {
                 foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);

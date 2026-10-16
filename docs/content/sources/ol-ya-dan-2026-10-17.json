@@ -1,0 +1,250 @@
+{
+  "capturedOn": "2026-10-17",
+  "product": "sanguosha-ol",
+  "generalId": "ol:ya-dan",
+  "identity": {
+    "gid": 579,
+    "name": "雅丹",
+    "variant": "ordinary",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "identityEvidence": "Current official OL hero/API and public character row a579/YaDan agree on Qun and four HP; current client h1 identifies male. Official OL sale availability confirms ordinary released product identity. Repository manifest audit found no same-product ordinary identity."
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-16T18:40:08.603504+00:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    },
+    "decoder": "Public sgsGame_a.sgs InitOfb pR.WorkParse: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1280]",
+      "row": {
+        "a": 579,
+        "b": "雅丹",
+        "d": "YaDan",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3364,
+        "k": 3363,
+        "p": 1,
+        "q": "1",
+        "r": "9057901",
+        "y": "西羌丞相，诸葛亮伐魏时，魏大都督曹真驰书赴羌，西羌国王彻里吉任命雅丹与元帅越吉起兵15万前去增援，中了诸葛亮之计，被伏兵所困。",
+        "z": "武将弃牌效果对敌我无差别，位置比较关键。",
+        "aa": 136,
+        "ab": "1081,1082",
+        "ad": "画师:匠人绘",
+        "al": 1730,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ar": "20240801T235959",
+        "cb": "2;3",
+        "starMax": 4
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[2399]",
+          "row": {
+            "a": 3364,
+            "b": "3,4,5",
+            "c": "铁轮",
+            "d": "TieLun",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，你计算与其他角色的距离-X（X为你本轮使用的牌数）。"
+          }
+        },
+        {
+          "path": "GameSpells.spell[2398]",
+          "row": {
+            "a": 3363,
+            "b": "3,5",
+            "c": "倾轧",
+            "d": "QingYa",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "当你使用【杀】指定唯一目标后，你可以弃置你与其之间的角色各一张手牌，然后可以于本回合下个阶段结束时使用其中一张牌。",
+            "u": "请选择一张牌使用"
+          }
+        }
+      ]
+    }
+  },
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/579",
+      "status": 200,
+      "scope": "Current official OL hero full Tielun/Qingya text agrees with current public client."
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=579",
+      "status": 200,
+      "byteCount": 865,
+      "sha256": "4a910fe4f72d22647b5ff41b7460d3a66efd5e2cb866eef4c7f5d98222469198",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 579,
+              "name": "雅丹",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/579.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57900.png",
+              "label": [
+                "控制",
+                "持久",
+                "距离掌控者"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "稀有",
+              "biography": "西羌丞相，诸葛亮伐魏时，魏大都督曹真驰书赴羌，西羌国王彻里吉任命雅丹与元帅越吉起兵15万前去增援，中了诸葛亮之计，被伏兵所困。",
+              "characteristic": "武将弃牌效果对敌我无差别，位置比较关键。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 3
+            },
+            {
+              "name": "排位后手",
+              "value": 4
+            },
+            {
+              "name": "主公",
+              "value": 4
+            },
+            {
+              "name": "忠臣",
+              "value": 5
+            },
+            {
+              "name": "反贼",
+              "value": 5
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "formalAvailability": {
+      "url": "https://www.sanguosha.com/news/20260209_6055_1314",
+      "proof": "Official OL event explicitly sells YaDan on 2026-02-15; also official 2024-08 ranking pool includes him."
+    }
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-ya-dan.png",
+    "width": 750,
+    "height": 950,
+    "byteCount": 940258,
+    "sha256": "a7ebbc40d572c8babb47871edc16b543df3b2c1b601e6091f225d4de95f93e6f",
+    "hashScope": "Original official PNG bytes"
+  },
+  "sameProductCommentary": {
+    "url": "https://www.taptap.cn/moment/554313842289541512",
+    "author": "国服第一杨彪; reposted by 三国杀OL大乔",
+    "classification": "same-product guide, not official FAQ",
+    "date": "2024-06-24",
+    "observations": [
+      "Between uses the shorter living-seat arc. Equal lengths allow the skill owner to choose one side; both arcs are not united.",
+      "The later action may use any legally usable original discarded card, including equipment and Iron Chain, rather than only Slash.",
+      "A Slash used by Qingya may issue a separate Qingya sweep and new next-phase opportunity.",
+      "Tielun counts uses throughout the round, including other players' turns."
+    ]
+  },
+  "rules": [
+    {
+      "skillId": "ol:tielun",
+      "clientSkillId": 3364,
+      "text": "锁定技，你计算与其他角色的距离-X（X为你本轮使用的牌数）。",
+      "implementation": "An additive outgoing-distance modifier reads all true native uses since the current real RoundStarted boundary. Declaration facts are retained even before skill acquisition. Genuine Slash-defense Dodge and Nullification uses count; pure played Slash/Dodge responses to Duel or mass attacks, recasts and discards do not."
+    },
+    {
+      "skillId": "ol:qingya",
+      "clientSkillId": 3363,
+      "text": "当你使用【杀】指定唯一目标后，你可以弃置你与其之间的角色各一张手牌，然后可以于本回合下个阶段结束时使用其中一张牌。",
+      "implementation": "The exact genuinely designated unique Slash target starts one optional sweep. At the actual instruction, living-seat geometry is frozen and one shortest arc is chosen. Each eligible participant's original opaque Hand entity is discarded through a separate semantic native invocation with the skill owner as both initiator and executor. The optional later action uses one of these original entities directly from Discard through normal native legality and complete native child returns."
+    }
+  ],
+  "implementationInferences": [
+    {
+      "topic": "Empty between set",
+      "classification": "Official text plus native-resolution inference",
+      "detail": "A zero-person shortest side can resolve empty without creating movement or a future material. The guide's practical statement that adjacent positions cannot produce benefit is not used to invent a rule excluding the official zero edge."
+    },
+    {
+      "topic": "Frozen geometry and payment children",
+      "classification": "Native owning-frame implementation inference",
+      "detail": "The live roster, original unique target, chosen side and actual phase baseline freeze at the initial instruction before paying. Subsequent native children cannot recompute an already chosen side or repay a processed participant; dead or actually empty later participants are skipped."
+    },
+    {
+      "topic": "Next actual phase",
+      "classification": "Official wording plus engine phase-model inference; not a dedicated official FAQ",
+      "detail": "The future opportunity is tied to the same actual turn and the first genuinely executed new phase whose Started fact follows the initial trigger cutoff. A raw phase token later skipped has no phase end and does not consume the right. Restoring an older token is not a new phase. Inserted new phase tokens may qualify. The original phase itself does not qualify."
+    },
+    {
+      "topic": "Turn tail and expiry",
+      "classification": "Engine actual-turn inference; not a dedicated official FAQ",
+      "detail": "Raw TurnEnded does not expire the right because a genuine Dianjun tail may insert a new Play within that actual turn. ActualTurnCursorReturned, or leaving the originating actual turn, expires the unused right. Obligations never cross actual turns."
+    },
+    {
+      "topic": "Original discarded entity",
+      "classification": "Exact-entity continuity inference",
+      "detail": "Eligibility preserves the paid original discard entry. A card leaving Discard becomes unavailable even if the same ID later reenters. The operation never gains that card into Hand before using it and never substitutes an identically named entity. It does not grant blanket distance or use-count exceptions; native current-kind, range, targets, ordinary Slash and Alcohol contracts apply."
+    },
+    {
+      "topic": "Issued source loss and death",
+      "classification": "Paid native-resolution inference",
+      "detail": "A paid sweep and its real child subtree finish after source loss or death without paying twice. An issued next-phase opportunity survives source loss using its original skill-instance receipt; a dead owner cannot start a later card use. Each actual phase item resolves or skips the immutable entitlement once."
+    },
+    {
+      "topic": "Tielun actual actor",
+      "classification": "Native actor-replacement inference requested for current behavior",
+      "detail": "One native declaration is one round-use fact. The query follows that same Use's actual replacement chain to its final actor, retaining the physical provider. A replacement adds no extra use. Response-use facts remain attributed to the actual responder and cannot be reassigned via their parent attack's actor chain."
+    },
+    {
+      "topic": "Alcohol",
+      "classification": "Native actual-turn quota and expiry inference",
+      "detail": "A Qingya Alcohol uses the ordinary actual-turn quota invoice. Its applied effect is cleared by the genuine actual-turn return if still the actor's latest applied native Alcohol from that Qingya turn, including out-of-turn or post-TurnEnded tail usage, without clearing a different turn's unrelated effect."
+    }
+  ],
+  "verification": {
+    "status": "implementation-ready; focused and routine validation are performed centrally"
+  }
+}

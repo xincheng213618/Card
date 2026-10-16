@@ -190,6 +190,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Changji discard card is no longer in hand.");
         ClearPendingDecision();
         var active = GetActiveProgramFrame(frame.Id);
+        active = AppendFrameNativeLogicalDiscard(active, state.EndingSeat, [cardId],
+            new($"skill-program.{active.SkillId}.changji-discard"));
         MoveCards([_cardZones.CardsAt(CardLocation.Hand(state.EndingSeat)).Single(card => card.Id == cardId)],
             CardLocation.Hand(state.EndingSeat), CardLocation.DiscardPile,
             new($"skill-program.{active.SkillId}.changji-discard"));
@@ -207,7 +209,8 @@ public sealed partial class GameEngine
             PresentChangjiDiscardPrompt(GetActiveProgramFrame(frame.Id));
             return;
         }
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { ChangjiDiscard = null });
+        active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
+        ReplaceRuntimeTop(active with { ChangjiDiscard = null });
         AddLog("SkillEffect",
             $"{_players[active.OwnerSeat].Name} 发动【长姬】：{_players[state.EndingSeat].Name} 弃置 {discarded.Length} 张手牌。",
             active.OwnerSeat, state.EndingSeat);
@@ -328,7 +331,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The Zengou cost card is no longer available.");
             paidCardId = parsedCardId;
             var paidCard = NonBasicOwnedCards(active.OwnerSeat).Single(card => card.Id == parsedCardId);
-            MoveCards([paidCard], _cardZones.GetLocation(paidCard.Id), CardLocation.DiscardPile,
+            MoveLogicalDiscardCards(active.OwnerSeat, active.OwnerSeat, [paidCard], _cardZones.GetLocation(paidCard.Id),
                 new($"skill-program.{active.SkillId}.zengou-cost"));
         }
         else if (cost == "loseHp")

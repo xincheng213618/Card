@@ -106,7 +106,7 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f with { InspectedHandSlash = d with { Stage = InspectedHandSlashStage.DiscardChildren,
             DiscardedCardId = cardId, SequenceBefore = before, SequenceAfter = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(GetAttackCard(cardId), CardLocation.Hand(d.TargetSeat), CardLocation.DiscardPile, new(InspectedHandDiscardReason), movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, GetAttackCard(cardId), CardLocation.Hand(d.TargetSeat), new(InspectedHandDiscardReason), movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
         f = GetActiveProgramFrame(f.Id);
         ReplaceRuntimeTop(f with { InspectedHandSlash = f.InspectedHandSlash! with { SequenceAfter = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new InspectedHandDiscardPaidEvent(f.Id, d.TargetSeat, before, _movementSequence));

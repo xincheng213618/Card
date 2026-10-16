@@ -138,7 +138,7 @@ public sealed partial class GameEngine
         { ReplaceRuntimeTop(f with { FixedDistanceDebtPayment = null }); AdvanceRuntimeProgram(f.Id); return; }
         ReplaceRuntimeTop(f = f with { FixedDistanceDebtPayment = r with { CardId = id, From = from, SequenceBefore = _movementSequence, SequenceAfter = _movementSequence },
             PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([id], CardLocation.DiscardPile, new(FixedDistanceDebtReason), (_, records) =>
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, [id], new(FixedDistanceDebtReason), (_, records) =>
         {
             var current = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(current with { FixedDistanceDebtPayment = current.FixedDistanceDebtPayment! with { SequenceAfter = records.Single().Sequence } });

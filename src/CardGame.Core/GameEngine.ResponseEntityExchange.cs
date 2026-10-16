@@ -141,7 +141,9 @@ public sealed partial class GameEngine
         ClearPendingDecision();var selected=draft.SelectedIds!.Append(id).ToArray();
         if(selected.Length<draft.Required){ReplaceRuntimeTop(frame with {PublicSuitDiscard=draft with {SelectedIds=selected}});PublishPublicSuitDiscard((ProgramSkillFrame)_resolutionStack[^1]);return;}
         ReplaceRuntimeTop(frame=frame with {PublicSuitDiscard=draft with {Stage=3,SelectedIds=selected,Exhausted=selected.Length>0&&selected.Length==available.Length}});
+        var logicalDiscard=CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,draft.TargetSeat,selected,new("skill-program.public-suit-escalating-discard"),frame.Id);
         foreach(var cardId in selected) MoveCard(EntityAtCurrentLocation(cardId),_cardZones.GetLocation(cardId),CardLocation.DiscardPile,new CardMoveReason("skill-program.public-suit-escalating-discard"));
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
     private bool TryGetResponseExchangeMovementDyingCosts(ProgramCardTriggerWindowFrame? window,out int[] costs)

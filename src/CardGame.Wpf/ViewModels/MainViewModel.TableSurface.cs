@@ -8,12 +8,12 @@ public sealed partial class MainViewModel
 {
     private IReadOnlyList<LegalAction> _supplementalActiveSkillActions = [];
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
-    public string ActionDockCancelText => HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
+    public string ActionDockCancelText => IsStoneAxeSelectionPending ? "否" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
         ? "放 弃" : "取 消";
     public int HumanSkillColumns => HumanSkillCards.Count > 4 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
 
-    // Equipment and multiple activations still need their exact legal-action choices.
+    // Equipment activates from its slot. Keep explicit alternatives for other activations.
     public IReadOnlyList<LegalAction> SupplementalActiveSkillActions
     {
         get
@@ -21,7 +21,9 @@ public sealed partial class MainViewModel
             if (!ShowActiveSkillEntry) return _supplementalActiveSkillActions = [];
             var skills = HumanSkillCards;
             var actions = HumanActiveSkillActions;
-            var supplemental = actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
+            var equipment = _snapshot.Players.Single(player => player.IsHuman).Equipment;
+            var supplemental = actions.Where(action => action.EquipmentKind is null ||
+                !equipment.Any(card => card.Kind == action.EquipmentKind)).Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
                 actions.Count(other => other.ProgramSkillId == action.ProgramSkillId &&
                     other.EquipmentKind == action.EquipmentKind &&
                     other.ProgramSkillOwnerSeat == action.ProgramSkillOwnerSeat) > 1).ToArray();
@@ -48,8 +50,15 @@ public sealed partial class MainViewModel
             {
                 var cards = human?.Equipment.Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).ToArray() ?? [];
                 var count = Math.Max(human?.EquipmentSlotCapacities?.GetValueOrDefault(slot, 1) ?? 1, cards.Length);
-                return Enumerable.Range(0, count).Select(index => new EquipmentSlotViewModel(slot,
-                    index < cards.Length ? cards[index] : null));
+                return Enumerable.Range(0, count).Select(index =>
+                {
+                    var card = index < cards.Length ? cards[index] : null;
+                    return new EquipmentSlotViewModel(slot, card,
+                        card is not null && (IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) :
+                            IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) :
+                            _selectedActiveSkillCardIds.Contains(card.Id) || IsSelectedEquipmentActivation(card)),
+                        IsOwnedSelectionMaterial(card?.Id) || IsCardPaymentMaterial(card?.Id) || CanSelectActiveEquipment(card));
+                });
             }).ToArray();
             _equipmentPlayer = human;
             // A new committed snapshot need not replace unchanged equipment controls.
@@ -65,14 +74,14 @@ public sealed partial class MainViewModel
         // Drafts commit only through the primary confirmation; re-clicking a chip must not pay its cost.
         if (IsActiveSkillSelectionPending ||
             !HumanSkillCards.Any(current => ReferenceEquals(current, skill))) return;
-        if (skill.IsAvailable && !skill.IsDisabled && TrySelectWusheng(skill)) return;
+        if (skill.IsAvailable && !skill.IsDisabled && TrySelectPlayConversion(skill)) return;
         // Resolve the published rail chip against the current legal actions.
         var action = HumanActiveSkillActions.FirstOrDefault(action => MatchesSkill(action, skill));
         if (skill.IsAvailable && !skill.IsDisabled && action is not null) SelectActiveSkillCommand.Execute(action);
     });
 }
 
-public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Card)
+public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Card, bool IsSelected = false, bool IsSelectable = false)
 {
     public static int DisplayOrder(EquipmentSlot slot) => slot switch
     {

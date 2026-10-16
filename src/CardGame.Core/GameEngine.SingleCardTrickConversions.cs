@@ -35,17 +35,19 @@ public sealed partial class GameEngine
         if (action.PlayedCardKind != rule.OutputKind ||
             !GetProgramViewAsConversions(actor, card, rule.OutputKind, false).Contains(source))
             throw new InvalidOperationException("The physical trick conversion is no longer available.");
+        // ExecuteAction captured the exact published adjustment before this
+        // conversion rechecks its ordinary base option. BeginCardUse consumes it.
+        var adjustedTargets = IsTargetAdjustmentAction(actor, action) &&
+            _selectedNextCardTargetSeats?.SequenceEqual(action.TargetSeats) == true;
         var option = BuildProgramOrdinaryTrickUseOptions(actor, rule.OutputKind,
             EffectiveSuit(actor, card), rule.ExcludeOwnerEffects, enforceUsePermission: true, beneficiaryShieldSuit: EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source)), actualEffectiveColor: SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source))), hasActualColor: true, physicalCardIds:[card.Id]).Where(option =>
                 option.ActionKind == action.Kind && option.TargetCardId == action.TargetCardId &&
-                (option.TargetSeats.SequenceEqual(action.TargetSeats) ||
-                 action.ProgramActivationId == "red-additional-targets" && HasRedAdditionalTargets(actor) &&
-                 option.TargetSeats.SequenceEqual(action.TargetSeats.Take(option.TargetSeats.Count)))).OrderByDescending(option=>option.TargetSeats.Count).FirstOrDefault() ??
+                (option.TargetSeats.SequenceEqual(action.TargetSeats) || adjustedTargets)).OrderByDescending(option=>option.TargetSeats.Count).FirstOrDefault() ??
             throw new InvalidOperationException("The converted ordinary trick lost its legal targets.");
         var id = BeginCardUse(card, actor.Seat, option.TargetSeats, rule.OutputKind,
             conversionSource: source,
             designatedTargetSeats: rule.OutputKind == CardKind.BorrowedSword &&
-                action.ProgramActivationId == "red-additional-targets" && HasRedAdditionalTargets(actor) && action.TargetSeats.Count >= 4
+                adjustedTargets && action.TargetSeats.Count >= 4
                 ? action.TargetSeats.Where((_,index)=>index%2==0).ToArray() : null);
         var actualTargets = _resolutionStack.OfType<CardUseFrame>().Single(frame=>frame.Id==id).TargetSeats;
         MoveCard(card, FindOwnedCardLocation(actor, card), CardLocation.Processing, CardMoveReasons.Use);

@@ -273,7 +273,7 @@ public sealed partial class GameEngine
             if (cards.Any(card => IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, card, CardLocation.Hand(frame.OwnerSeat), OwnedCardMoveIntent.Discard)))
             { CancelProgramBindingAndCleanup(frame, "完整颜色费用包含不可自弃手牌，未支付。"); return; }
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "take-targets", Maximum = cards.Length }, ReexecuteParticipantInstruction = true });
-            MoveCards(cards, CardLocation.Hand(frame.OwnerSeat), CardLocation.DiscardPile, new CardMoveReason("program.hand-color.discard"));
+            MoveLogicalDiscardCards(frame.OwnerSeat, frame.OwnerSeat, cards, CardLocation.Hand(frame.OwnerSeat), new CardMoveReason("program.hand-color.discard"));
             AdvanceEventRulesAndQueueFact(new ProgramHandColorDiscardEvent(frame.Id, frame.SkillId, frame.OwnerSeat, red, cards.Select(card => card.Id).ToArray()));
             AdvanceRuntimeProgram(frame.Id); return;
         }
@@ -331,14 +331,14 @@ public sealed partial class GameEngine
             if (IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, source, OwnedCardMoveIntent.Discard))
                 throw new InvalidOperationException("Response discard is no longer available.");
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "response-complete", CardOwnerSeat = null }, ReexecuteParticipantInstruction = true });
-            MoveCard(card, source, CardLocation.DiscardPile, new CardMoveReason("program.maximum-hand-dodge.discard"),
+            MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, source, new CardMoveReason("program.maximum-hand-dodge.discard"),
                 movement => RecordBianFuRenForeignDiscardProducer(movement, frame.OwnerSeat, frame.Id));
             AdvanceEventRulesAndQueueFact(new ProgramHandCountInterventionEvent(frame.Id, frame.SkillId, frame.OwnerSeat, cardOwner, "response-discard"));
         }
         else
         {
             ReplaceRuntimeTop(frame with { HandControlDraft = null });
-            MoveCard(card, source, CardLocation.DiscardPile, reason);
+            MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, source, reason);
             AdvanceEventRulesAndQueueFact(new ProgramHandCountInterventionEvent(frame.Id, frame.SkillId, frame.OwnerSeat, cardOwner, "discard"));
         }
         AdvanceRuntimeProgram(frame.Id);

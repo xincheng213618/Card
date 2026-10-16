@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.IO;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Windows;
@@ -14,6 +15,81 @@ using CardGame.Wpf.ViewModels;
 
 internal static class CardConversionTargetUiChecks
 {
+    public static void HuojiSelectsSkillThenRedCard(string output)
+    {
+        foreach (var skillId in new[] { "classic:huoji", "boundary:huoji-current", "ol:huoji-jianjie", "standard:wusheng" })
+        {
+            var (model, registry) = Create(guhuo: false, wusheng: skillId);
+            using (model)
+            {
+                var window = new MainWindow(model);
+                var root = (FrameworkElement)window.Content;
+                try
+                {
+                    var game = Program.Engine(model);
+                    var skill = model.HumanSkillCards.Single(item => item.ContentId == skillId);
+                    var commands = game.AcceptedCommands.Count;
+                    var moves = game.CardMovements.Count;
+                    var revision = game.Revision;
+                    var prompt = game.CreateSnapshot(0).PendingDecision!.PromptId;
+                    var originalArtwork = model.Hand.ToDictionary(card => card.Id, card => card.Artwork);
+                    Program.Assert(skill.IsAvailable && !skill.IsDisabled,
+                        $"{skillId} must be available on the skill rail before selecting a card.");
+                    model.SelectCardCommand.Execute(model.Hand.First(card => card.IsPlayable));
+                    Program.Assert(model.EquipmentPlayChoices.Count == 0,
+                        "Ordinary card selection must not offer any card-first conversion buttons in the table center.");
+                    Layout(root);
+                    Click(BoundButton(root, model.ActivateHumanSkillCommand, skill));
+                    Layout(root);
+                    var actions = game.GetHumanLegalActions().Where(action => action.ConversionSource?.SkillId == skillId).ToArray();
+                    var materials = actions.Select(action => action.CardId!.Value).ToHashSet();
+                    Program.Assert(model.HasSelection && !model.CanConfirmSelected && model.EquipmentPlayChoices.Count == 0 &&
+                        model.Hand.All(card => card.IsPlayable == materials.Contains(card.Id)) &&
+                        model.Hand.Any(card => !card.IsPlayable) && model.Hand.All(card => !card.IsSelected) &&
+                        model.SelectedCardText.Contains(skill.Name, StringComparison.Ordinal) &&
+                        model.Hand.All(card => ReferenceEquals(card.Artwork, originalArtwork[card.Id]) &&
+                            card.VerticalName == string.Join("\n", card.Name.ToCharArray())),
+                        "Selecting the rail skill must preserve all printed card faces and names without a card-first conversion button.");
+                    model.ClearSelectionCommand.Execute(null);
+                    Program.Assert(!model.HasSelection && model.Hand.All(card => ReferenceEquals(card.Artwork, originalArtwork[card.Id])),
+                        "Cancel must restore every physical card face without committing a command.");
+                    skill = model.HumanSkillCards.Single(item => item.ContentId == skillId);
+                    model.ActivateHumanSkillCommand.Execute(skill);
+                    model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(item => item.ContentId == skillId));
+                    Program.Assert(!model.HasSelection, "Pressing the selected skill again must cancel its draft.");
+                    model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(item => item.ContentId == skillId));
+                    var black = model.Hand.First(card => !card.IsPlayable);
+                    model.SelectCardCommand.Execute(black);
+                    Program.Assert(model.Hand.All(card => !card.IsSelected) && !model.CanConfirmSelected,
+                        "A black card must not be selected while the red-card skill is active.");
+                    var action = actions.First(item => item.TargetSeats.Count == 1 && item.TargetSeats[0] != 0);
+                    var card = model.Hand.Single(item => item.Id == action.CardId);
+                    Layout(root);
+                    Click(BoundButton(root, model.SelectCardCommand, card));
+                    Layout(root);
+                    var capture = typeof(MainViewModel).GetMethod("CapturePlayCardAimDraft", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                    var restore = typeof(MainViewModel).GetMethod("RestorePlayCardAimDraft", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                    var aim = capture.Invoke(model, [card]);
+                    model.SelectCardCommand.Execute(card);
+                    Program.Assert(aim is not null && restore.Invoke(model, [aim]) is true && card.IsSelected &&
+                        model.EquipmentPlayChoices.Count == 0 && !model.ShowRecastAction,
+                        "A card press and aim recovery must preserve the selected skill and its exact conversion mode.");
+                    Click(BoundButton(root, model.SelectTargetCommand,
+                        model.Seats.Single(seat => seat.Seat == action.TargetSeats[0])));
+                    Layout(root);
+                    Program.Assert(model.CanConfirmSelected && game.AcceptedCommands.Count == commands &&
+                        game.CardMovements.Count == moves && game.Revision == revision,
+                        "Skill, red-card and target selection must stay reversible until confirmation.");
+                    if (skillId == "classic:huoji") Program.Render(root, 1440, 860, Path.Combine(output, "huoji-skill-first.png"));
+                    var reference = GameReplay.Restore(game.CreateCheckpoint(), registry);
+                    Accept(reference, Command(reference, action));
+                    model.ConfirmSelectedCommand.Execute(null);
+                    VerifyCommit(model, game, registry, reference, action, commands, moves, revision, prompt, skillId);
+                }
+                finally { window.Content = null; window.Close(); }
+            }
+        }
+    }
 
     public static void RedIronChainUsesSelectedSlashMode()
     {
@@ -79,9 +155,13 @@ internal static class CardConversionTargetUiChecks
                     Layout(root);
                     Program.Assert(model.IsMultiTargetCardSelected && model.ShowRecastAction,
                         "The physical Iron Chain must begin in its genuine reversible native chain mode.");
-                    var retired = SourceChoice(model, card.Id, slash.ConversionSource!);
-                    var sourceButton = BoundButton(root, model.SelectEquipmentPlayChoiceCommand, retired);
+                    Program.Assert(model.EquipmentPlayChoices.Count == 0,
+                        "Selecting a printed Iron Chain must not expose the removed conversion shortcut.");
+                    var retired = model.HumanSkillCards.Single(skill => skill.ContentId == slash.ConversionSource!.SkillId);
+                    var sourceButton = BoundButton(root, model.ActivateHumanSkillCommand, retired);
                     Click(sourceButton);
+                    Layout(root);
+                    Click(BoundButton(root, model.SelectCardCommand, card));
                     Layout(root);
                     var targets = native.Where(action => action.Kind == LegalActionKind.Slash &&
                             action.ConversionSource == slash.ConversionSource)
@@ -107,7 +187,7 @@ internal static class CardConversionTargetUiChecks
                     // press. Drag-threshold recovery must preserve its already
                     // selected conversion rather than selecting native chain.
                     model.SelectCardCommand.Execute(card);
-                    Program.Assert(!card.IsSelected && !model.HasSelection && model.Seats.All(seat => !seat.IsSelectedTarget) &&
+                    Program.Assert(!card.IsSelected && model.HasSelection && model.Seats.All(seat => !seat.IsSelectedTarget) &&
                         aimContext.Invoke(model, [card]) is true && captureAim.Invoke(model, [card]) is null,
                         "The existing press must toggle the draft off while leaving its current physical card eligible for aim recovery.");
                     Program.Assert(restoreAim.Invoke(model, [aim!]) is true, "The current converted card draft did not restore after its ordinary press.");
@@ -125,8 +205,9 @@ internal static class CardConversionTargetUiChecks
                     retiredAim = aim; retiredGame = game; retiredCard = card; retiredRevision = revision;
                     Reject(model, sourceButton.Command!, retired,
                         "A retired conversion button must not toggle or erase the prepared Slash draft.");
-                    Reject(model, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, slash.ConversionSource!) with { },
-                        "An equal copied source choice must not toggle or erase the prepared Slash draft.");
+                    Reject(model, model.ActivateHumanSkillCommand,
+                        model.HumanSkillCards.Single(skill => skill.ContentId == slash.ConversionSource!.SkillId) with { },
+                        "An equal copied skill chip must not toggle or erase the prepared Slash draft.");
                     Program.Assert(!model.ActionHint.Contains("铁索连环 · 已选", StringComparison.Ordinal),
                         "The Slash hint may name its physical Iron Chain, but must not retain chain-target instructions.");
                     model.OpenContextGuideCommand.Execute(null);
@@ -180,10 +261,13 @@ internal static class CardConversionTargetUiChecks
                     "The native Guhuo fixture must publish a targetless printed AOE, a no-Recast declared chain and an exact three-target declared AOE.");
                 Layout(root);
                 Click(BoundButton(root, model.SelectCardCommand, card));
+                model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == "classic:guhuo"));
                 Layout(root);
                 var retiredChainSource = SourceChoice(model, card.Id, chain.ConversionSource!);
                 var oldSourceButton = BoundButton(root, model.SelectEquipmentPlayChoiceCommand, retiredChainSource);
                 Click(oldSourceButton);
+                Layout(root);
+                Click(BoundButton(root, model.SelectCardCommand, card));
                 Layout(root);
                 var emptyChainHint = model.ActionHint;
                 foreach (var seat in chain.TargetSeats)
@@ -197,7 +281,7 @@ internal static class CardConversionTargetUiChecks
                 var chainGuideSteps = model.CurrentGuideSteps.Select(step => step.Text).ToArray();
                 model.ToggleHelpCommand.Execute(null);
                 Layout(root);
-                Click(BoundButton(root, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, aoe.ConversionSource!)));
+                SelectConversion(root, model, card, aoe.ConversionSource!);
                 Layout(root);
                 Console.WriteLine($"Guhuo AOE: source={aoe.ConversionSource}, multi={model.IsMultiTargetCardSelected}, " +
                     $"combos={model.TargetCombinationChoices.Count}, native targets={string.Join(',', aoe.TargetSeats)}, " +
@@ -217,8 +301,9 @@ internal static class CardConversionTargetUiChecks
                     action.Kind == LegalActionKind.BarbarianAssault && action.ConversionSource?.SkillId == "classic:guhuo");
                 Layout(root);
                 Click(BoundButton(root, model.SelectCardCommand, card));
+                model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == "classic:guhuo"));
                 Layout(root);
-                Click(BoundButton(root, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, aoe.ConversionSource!)));
+                SelectConversion(root, model, card, aoe.ConversionSource!);
                 Layout(root);
                 AssertAoeChoices(model, card.Id, aoe);
                 Program.Assert(!model.HasSaveError && !model.TargetCombinationChoices.Any(choice => ReferenceEquals(choice, retiredCombo)),
@@ -229,11 +314,12 @@ internal static class CardConversionTargetUiChecks
                     "A pre-reload whole-target button must not submit the current AOE or lose its draft.");
                 Reject(model, model.SelectTargetCombinationChoiceCommand, AoeChoice(model, card.Id, aoe) with { },
                     "An equal copied whole-target choice must not submit or lose the current AOE draft.");
-                Reject(model, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, aoe.ConversionSource!) with { },
+                Reject(model, model.SelectEquipmentPlayChoiceCommand, retiredChainSource with { },
                     "An equal copied AOE source must not switch or lose the current draft.");
 
                 var withdrawnCombo = AoeChoice(model, card.Id, aoe);
-                Click(BoundButton(root, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, aoe.ConversionSource!)));
+                model.ClearSelectionCommand.Execute(null);
+                model.SelectCardCommand.Execute(card);
                 Layout(root);
                 Program.Assert(!model.IsMultiTargetCardSelected && !model.ShowRecastAction && model.CanConfirmSelected &&
                     model.TargetCombinationChoices.Count == 0 && model.Seats.All(seat => !seat.IsSelectedTarget) &&
@@ -246,7 +332,9 @@ internal static class CardConversionTargetUiChecks
                 Layout(root);
                 Reject(model, model.SelectTargetCombinationChoiceCommand, withdrawnCombo,
                     "A withdrawn declared AOE combination must not bypass the currently selected printed source.");
-                Click(BoundButton(root, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, aoe.ConversionSource!)));
+                model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == "classic:guhuo"));
+                Layout(root);
+                SelectConversion(root, model, card, aoe.ConversionSource!);
                 Layout(root);
                 AssertAoeChoices(model, card.Id, aoe);
                 var combo = AoeChoice(model, card.Id, aoe);
@@ -285,7 +373,22 @@ internal static class CardConversionTargetUiChecks
             MatchesSource(choice, action.ConversionSource!) && choice.Targets.SequenceEqual(action.TargetSeats));
 
     private static PromptChoice SourceChoice(MainViewModel model, int cardId, CardConversionSource source) =>
-        model.EquipmentPlayChoices.Single(choice => choice.Cards.SequenceEqual([cardId]) && MatchesSource(choice, source));
+        model.EquipmentPlayChoices.Single(choice => choice.Parameters.GetValueOrDefault("played-kind") ==
+            Program.Engine(model).GetHumanLegalActions().First(action => action.CardId == cardId &&
+                action.ConversionSource == source).PlayedCardKind.ToString());
+
+    private static void SelectConversion(FrameworkElement root, MainViewModel model, CardViewModel card, CardConversionSource source)
+    {
+        if (!model.EquipmentPlayChoices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "select-play-conversion-mode"))
+        {
+            model.ClearSelectionCommand.Execute(null);
+            model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == source.SkillId));
+            Layout(root);
+        }
+        Click(BoundButton(root, model.SelectEquipmentPlayChoiceCommand, SourceChoice(model, card.Id, source)));
+        Layout(root);
+        Click(BoundButton(root, model.SelectCardCommand, card));
+    }
 
     private static bool MatchesSource(PromptChoice choice, CardConversionSource source) =>
         choice.Parameters.GetValueOrDefault("conversion-skill-id") == source.SkillId &&
@@ -293,10 +396,11 @@ internal static class CardConversionTargetUiChecks
         choice.Parameters.GetValueOrDefault("conversion-owner-seat") == source.OwnerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
         choice.Parameters.GetValueOrDefault("conversion-instance-id") == source.SkillInstanceId;
 
-    private static void Reject(MainViewModel model, ICommand command, PromptChoice parameter, string message)
+    private static void Reject(MainViewModel model, ICommand command, object parameter, string message)
     {
         Program.Assert(!model.EquipmentPlayChoices.Any(choice => ReferenceEquals(choice, parameter)) &&
-            !model.TargetCombinationChoices.Any(choice => ReferenceEquals(choice, parameter)),
+            !model.TargetCombinationChoices.Any(choice => ReferenceEquals(choice, parameter)) &&
+            !model.HumanSkillCards.Any(skill => ReferenceEquals(skill, parameter)),
             "The rejected button parameter must actually be retired, withdrawn or copied outside both published choice lists.");
         var game = Program.Engine(model);
         var revision = game.Revision;
@@ -368,8 +472,10 @@ internal static class CardConversionTargetUiChecks
 
     private static (MainViewModel, ContentRegistry) Create(bool guhuo,string? wusheng=null)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(guhuo,wusheng));
+        var registry = wusheng is not null
+            ? ContentRegistry.Build(new StandardContentPackage(), new Fixture(guhuo, wusheng))
+            : ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(guhuo, wusheng));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Fixture.Mode,
@@ -410,13 +516,18 @@ internal static class CardConversionTargetUiChecks
         public PackageManifest Manifest { get; } = new("fixture-conversion-target-ui", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
+            if (wusheng == "classic:huoji") CharacterFixtureContent.Register(builder, "classic:wolong-zhuge-liang");
+            if (wusheng == "boundary:huoji-current") CharacterFixtureContent.Register(builder,
+                "classic:wolong-zhuge-liang", "boundary:wolong-zhuge-liang");
+            if (wusheng == "ol:huoji-jianjie") CharacterFixtureContent.Register(builder, "ol:sima-hui");
             builder.AddGeneral(new(Owner, "原生转换入口", "supporter", wusheng??(guhuo ? "classic:guhuo" : "standard:wusheng"), "qun", 6));
             var peers = Enumerable.Range(1, 3).Select(seat => $"fixture:conversion-target-{seat}").ToArray();
             foreach (var peer in peers) builder.AddGeneral(new(peer, "当前合法目标", "supporter", "standard:none", "wei", 6));
             builder.AddDeck(new("fixture:conversion-target-deck", "固定真实转换实体", wusheng is null?2:8, 0, [])
             {
                 PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(
-                    guhuo ? "standard:barbarian_assault" : "standard:iron_chain",
+                    guhuo ? "standard:barbarian_assault" : wusheng is "classic:huoji" or "boundary:huoji-current" or "ol:huoji-jianjie"
+                        ? index % 2 == 0 ? "standard:five_grains" : "standard:peach" : "standard:iron_chain",
                     wusheng is null?Suit.Heart:index%3==0?Suit.Spade:index%3==1?Suit.Heart:Suit.Diamond, index % 13 + 1)).ToArray()
             });
             builder.AddMode(new(Mode, "转换目标输入", 4, 4, new Dictionary<string, int>

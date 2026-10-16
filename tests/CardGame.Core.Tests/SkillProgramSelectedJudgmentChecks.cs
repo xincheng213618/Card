@@ -80,8 +80,10 @@ internal static class SkillProgramSelectedJudgmentChecks
                 replay.Events.Select(item => item.Payload).OfType<ProgramJudgmentDamageRequestedEvent>()
                     .Count(item => item.SkillId == ProgramId && item.TargetSeat == targetSeat) == 1,
             "The selected subject, final-result cursor, damage and resumed Dodge response must replay exactly.");
-        RequireThrows<InvalidOperationException>(() => GameReplay.Restore(
-            RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry));
+        var olderMarker = GameReplay.Restore(RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry);
+        Require(SnapshotJson.Serialize(olderMarker.CreateSnapshot(0, revealAll: true)) ==
+            SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)),
+            "An older diagnostic rules marker does not block the validated judgment journal.");
     }
 
 
@@ -276,13 +278,6 @@ internal static class SkillProgramSelectedJudgmentChecks
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
-
-    private static void RequireThrows<TException>(Action action) where TException : Exception
-    {
-        try { action(); }
-        catch (TException) { return; }
-        throw new InvalidOperationException($"Expected {typeof(TException).Name}.");
-    }
 
     private static void Require(bool condition, string message)
     {

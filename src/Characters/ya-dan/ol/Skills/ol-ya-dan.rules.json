@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:tielun",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "round-use-distance",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "priority": 0,
+          "valueExpression": "negatedCurrentRoundActualUseCount"
+        }
+      ]
+    },
+    {
+      "id": "ol:qingya",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-between",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveQingyaBetweenHandDiscards",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "use-next-actual-phase",
+          "window": "actualPhaseEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveQingyaNextActualPhaseUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

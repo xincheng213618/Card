@@ -141,7 +141,7 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { ExtraEffectsAndRankGuess = r with { Stage = ExtraEffectsAndRankGuessStage.MovementChildren,
             PaidCardId = card.Id, MovementBefore = before, MovementAfter = before, Choices = [] }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, CardLocation.Hand(f.OwnerSeat), CardLocation.DiscardPile, new(ExtraEffectCostReason));
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, CardLocation.Hand(f.OwnerSeat), new(ExtraEffectCostReason));
         ConsumeProgramTriggerUsage(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, 0));
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { ExtraEffectsAndRankGuess = f.ExtraEffectsAndRankGuess! with { MovementAfter = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new ExtraEffectsAndRankGuessPaidEvent(f.Id, f.ExtraEffectsAndRankGuess!));

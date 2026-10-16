@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         var from = _cardZones.GetLocation(discard.Id);
         ClearPendingDecision(); ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null),
             MatchedJudgmentPlacement = r with { Stage = MatchedJudgmentPlacementStage.SelfDiscarded, SelfDiscardCardId = discard.Id, SelfDiscardFrom = from } });
-        MoveCard(discard, from, CardLocation.DiscardPile, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.PlaceMatchedJudgmentCard}"), moved =>
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, discard, from, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.PlaceMatchedJudgmentCard}"), moved =>
         {
             var active = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(active with { MatchedJudgmentPlacement = active.MatchedJudgmentPlacement! with { SelfDiscardMovementSequence = moved.Sequence } });

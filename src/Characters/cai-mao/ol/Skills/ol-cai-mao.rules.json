@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zuolian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "whole-exchange",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveZuolianWholeRevealExchange",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jingzhou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "before-own-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveJingzhouBeforeDamageToggles",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

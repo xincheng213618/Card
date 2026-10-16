@@ -444,7 +444,7 @@ public sealed partial class GameEngine
         }
         var discarded = GetHand(owner).Where(card => card.Suit == suit).ToArray();
         if (discarded.Length > 0)
-            MoveCards(discarded, CardLocation.Hand(active.OwnerSeat), CardLocation.DiscardPile,
+            MoveLogicalDiscardCards(active.OwnerSeat, active.OwnerSeat, discarded, CardLocation.Hand(active.OwnerSeat),
                 new($"skill-program.{active.SkillId}.qingliang-discard"));
         MarkCardEffectIneffective(parent.Id, active.OwnerSeat);
         AdvanceEventRulesAndQueueFact(new CardEffectSkippedEvent(parent.Id, state.ActorSeat, active.OwnerSeat,

@@ -122,7 +122,7 @@ public sealed partial class GameEngine
     {
         var frame=GetActiveProgramFrame(frameId);var due=RequireDeferredAlignmentParent(frame);var draft=frame.DeferredHandAlignmentResolution!;
         if(ids.Count!=draft.DiscardCount||ids.Distinct().Count()!=ids.Count||locations.Any(l=>l!=CardLocation.Hand(due.TargetSeat))||ids.Any(id=>_cardZones.GetLocation(id)!=CardLocation.Hand(due.TargetSeat)))throw new InvalidOperationException("Deferred discard requires its exact frozen private hand entities.");
-        MoveCards(ids.Select(id=>GetHand(_players[due.TargetSeat]).Single(c=>c.Id==id)).ToArray(),CardLocation.Hand(due.TargetSeat),CardLocation.DiscardPile,new("skill-program.deferred-hand.discard"));BeginDeferredAlignmentMovement(frameId);
+        MoveLogicalDiscardCards(frame.OwnerSeat,due.TargetSeat,ids.Select(id=>GetHand(_players[due.TargetSeat]).Single(c=>c.Id==id)).ToArray(),CardLocation.Hand(due.TargetSeat),new("skill-program.deferred-hand.discard"));BeginDeferredAlignmentMovement(frameId);
     }
     private void BeginDeferredAlignmentMovement(long frameId)
     {

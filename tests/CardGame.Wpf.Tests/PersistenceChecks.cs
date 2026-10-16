@@ -85,19 +85,26 @@ internal static class PersistenceChecks
         oldJson["Checkpoint"]!.AsObject().Remove("RulesVersion");
         File.WriteAllText(legacyPath, oldJson.ToJsonString());
         using var resumedLegacy = Create(store, showSetup: true);
-        var stateBeforeRejectedLoad = State(resumedLegacy);
         var oldFileText = File.ReadAllText(legacyPath);
         resumedLegacy.LoadManualGameCommand.Execute(null);
-        Require(resumedLegacy.HasSaveError &&
+        Require(!resumedLegacy.HasSaveError &&
                 Engine(resumedLegacy).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
-                State(resumedLegacy) == stateBeforeRejectedLoad &&
+                State(resumedLegacy) == SnapshotJson.Serialize(legacy.CreateSnapshot(0, true)) &&
                 File.ReadAllText(legacyPath) == oldFileText,
-            "The exact-rules loader accepted a JSON save without a rules marker, changed the active game, or rewrote the protected file.");
+            "A JSON save without a rules marker replays under current rules without rewriting its source file.");
+        foreach (var marker in new[] { GameCheckpoint.CurrentRulesVersion - 1, GameCheckpoint.CurrentRulesVersion + 1 })
+        {
+            store.Write(GameSaveSlot.Manual, store.Read(GameSaveSlot.Manual) with
+                { Checkpoint = legacy.CreateCheckpoint() with { RulesVersion = marker } });
+            resumedLegacy.LoadManualGameCommand.Execute(null);
+            Require(!resumedLegacy.HasSaveError && State(resumedLegacy) == SnapshotJson.Serialize(legacy.CreateSnapshot(0, true)),
+                "Earlier and later rules markers do not block restoring a valid save through the real UI command.");
+        }
         resumedLegacy.StartNewGameCommand.Execute(null);
         Require(Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "Starting another game should opt into the current public-evidence AI.");
     }
 
-    public static void FailedFilesPreserveGame(string output)
+    public static void FailedWritesPreserveSavesAndFailedLoadsInitializeGame(string output)
     {
         var store = FileStore(output, "failure");
         using var vm = Create(store);
@@ -119,37 +126,85 @@ internal static class PersistenceChecks
         var goodSave = store.Read(GameSaveSlot.Manual);
         vm.SelectedTableMode = vm.TableModes.Single(mode => mode.PlayerCount == 5);
         vm.StartNewGameCommand.Execute(null);
-        var currentEngine = Engine(vm);
-        var currentState = State(vm);
-        var currentLog = vm.GameLog.ToArray();
         var automatic = File.ReadAllText(store.GetPath(GameSaveSlot.Automatic));
 
         File.WriteAllText(manualPath, "{ incomplete json");
-        CheckRejectedLoad();
+        CheckInitializedGame();
         store.Write(GameSaveSlot.Manual, goodSave with { Checkpoint = goodSave.Checkpoint with { SchemaVersion = 999 } });
-        CheckRejectedLoad();
+        CheckInitializedGame();
         store.Write(GameSaveSlot.Manual, goodSave with { Checkpoint = goodSave.Checkpoint with { Options = goodSave.Checkpoint.Options with { ModeId = "missing:mode" } } });
-        CheckRejectedLoad();
+        CheckInitializedGame();
         store.Write(GameSaveSlot.Manual, goodSave with { Checkpoint = goodSave.Checkpoint with { Options = goodSave.Checkpoint.Options with { AiPolicyVersion = 99 } } });
-        CheckRejectedLoad();
+        CheckInitializedGame();
+        store.Write(GameSaveSlot.Manual, goodSave with { Checkpoint = goodSave.Checkpoint with { ContentHash = "invalid-content" } });
+        CheckInitializedGame();
+        store.Write(GameSaveSlot.Manual, goodSave with { Checkpoint = goodSave.Checkpoint with
+        {
+            Commands = goodSave.Checkpoint.Commands.Select((command, index) =>
+                index == 0 ? new AdvanceOneStepCommand(999) : command).ToArray()
+        } });
+        CheckInitializedGame();
         File.Delete(manualPath);
-        CheckRejectedLoad();
+        CheckInitializedGame();
         Require(File.ReadAllText(store.GetPath(GameSaveSlot.Automatic)) == automatic, "A failed manual load changed the automatic slot.");
         var errorText = vm.SaveStatus;
-        Require(vm.FlushPendingSave() && vm.HasSaveError && vm.SaveStatus == errorText, "Background autosave should not erase a failed-load explanation.");
+        Require(vm.FlushPendingSave() && vm.HasSaveError && vm.SaveStatus == errorText,
+            "Initializing after failed load must not queue an autosave or erase its explanation.");
 
-        void CheckRejectedLoad()
+        var automaticPath = store.GetPath(GameSaveSlot.Automatic);
+        File.WriteAllText(automaticPath, "{ invalid automatic save");
+        using (var startup = Create(store, showSetup: true))
         {
-            vm.LoadManualGameCommand.Execute(null);
-            Require(vm.HasSaveError && ReferenceEquals(Engine(vm), currentEngine) && State(vm) == currentState && vm.GameLog.SequenceEqual(currentLog),
-                "A damaged or incompatible save replaced the active game.");
+            var previous = Engine(startup);
+            startup.ContinueGameCommand.Execute(null);
+            Require(startup.HasSaveError && !ReferenceEquals(previous, Engine(startup)) &&
+                !Engine(startup).IsFaulted && !startup.IsNewGameSetupOpen && !startup.IsAutoAdvance &&
+                Engine(startup).AcceptedCommands is [StartGameCommand] && startup.FlushPendingSave(),
+                "A failed continue from startup initializes a healthy fresh match without starting autosave.");
         }
+        Require(File.ReadAllText(automaticPath) == "{ invalid automatic save",
+            "Initializing and closing after a failed continue must preserve the unreadable autosave.");
+        using (var unexpected = Create(new ThrowingReadSaveStore(store), showSetup: true))
+        {
+            var previous = Engine(unexpected);
+            unexpected.ContinueGameCommand.Execute(null);
+            Require(unexpected.HasSaveError && !ReferenceEquals(previous, Engine(unexpected)) &&
+                !Engine(unexpected).IsFaulted && unexpected.SaveStatus.Contains("已初始化新牌局"),
+                "Unexpected exceptions during loading also initialize a healthy game.");
+        }
+        Step(vm);
+        Require(Engine(vm).AcceptedCommands.Count > 1 && vm.FlushPendingSave() &&
+            File.ReadAllText(automaticPath + ".previous") == "{ invalid automatic save",
+            "The initialized match can advance and autosave normally after a real user action, retaining the previous file.");
+
+        void CheckInitializedGame()
+        {
+            var previous = Engine(vm);
+            var originalFile = File.Exists(manualPath) ? File.ReadAllText(manualPath) : null;
+            vm.IsAutoAdvance = true;
+            vm.LoadManualGameCommand.Execute(null);
+            Require(vm.HasSaveError && !ReferenceEquals(Engine(vm), previous) && !Engine(vm).IsFaulted &&
+                Engine(vm).AcceptedCommands is [StartGameCommand] && !vm.IsAutoAdvance && !vm.IsNewGameSetupOpen &&
+                vm.SaveStatus.Contains("已初始化新牌局") && vm.FlushPendingSave(),
+                "A damaged, incompatible or unreplayable save initializes a fresh paused match.");
+            Require((File.Exists(manualPath) ? File.ReadAllText(manualPath) : null) == originalFile &&
+                File.ReadAllText(store.GetPath(GameSaveSlot.Automatic)) == automatic,
+                "Initializing a new match must preserve the failed source file and automatic slot.");
+        }
+    }
+
+    private sealed class ThrowingReadSaveStore(IGameSaveStore inner) : IGameSaveStore
+    {
+        public DateTimeOffset? GetSavedAt(GameSaveSlot slot) => inner.GetSavedAt(slot);
+        public GameSaveFile Read(GameSaveSlot slot) => throw new ArithmeticException("fixture unexpected restore failure");
+        public void Write(GameSaveSlot slot, GameSaveFile save) => inner.Write(slot, save);
     }
 
     public static void FaultedSessionPreservesSavesAndExplainsRecovery()
     {
         var store = new MemorySaveStore();
-        using var vm = Create(store);
+        using var vm = new MainViewModel(false, 721019, false, store,
+            exceptionReportStore: new ExceptionReportChecks.IgnoredReports());
         vm.StartNewGameCommand.Execute(null);
         Step(vm);
         vm.SaveGameCommand.Execute(null);

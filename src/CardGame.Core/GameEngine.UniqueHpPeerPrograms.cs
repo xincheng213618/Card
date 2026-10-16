@@ -129,7 +129,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new UniqueHpPeerCostPaidEvent(f.Id, r.ChooserSeat, r.RequiredCount, paid.CostBefore, paid.CostAfter));
         }
         if (r.RequiredCount == 0) Commit(RecipientContestSequence);
-        else MoveProgramCardsFromMultipleSources(invoice.CardIds, CardLocation.DiscardPile, new(UniqueHpPeerCostReason(f)), (_, records) => Commit(records.Max(m => m.Sequence)));
+        else MoveProgramLogicalDiscard(f, r.ChooserSeat, invoice.CardIds, new(UniqueHpPeerCostReason(f)), (_, records) => Commit(records.Max(m => m.Sequence)));
         AdvanceRuntimeProgram(f.Id);
     }
     [ProgramContinuation(ProgramContinuationKind.Resume, 370)]

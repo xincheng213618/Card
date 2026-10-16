@@ -75,8 +75,10 @@ internal static class SkillProgramContributionChecks
                     .Count(item => item.ProviderSeat == 0 && item.SkillId == BoundarySkillId) == 1,
             "A completed contribution and its phase ledger must rebuild exactly from the accepted command journal.");
 
-        RequireThrows<InvalidOperationException>(() => GameReplay.Restore(
-            RoundTrip(game.CreateCheckpoint()) with { RulesVersion = 84 }, registry));
+        var olderMarker = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()) with { RulesVersion = 84 }, registry);
+        Require(SnapshotJson.Serialize(olderMarker.CreateSnapshot(0, revealAll: true)) ==
+            SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)),
+            "An older diagnostic rules marker does not block the validated contribution journal.");
 
         var lordProvider = CreateGame(registry, game.Seed, Role.Lord);
         Require(lordProvider.Submit(new StartGameCommand()).Accepted &&
@@ -171,13 +173,6 @@ internal static class SkillProgramContributionChecks
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
-
-    private static void RequireThrows<TException>(Action action) where TException : Exception
-    {
-        try { action(); }
-        catch (TException) { return; }
-        throw new InvalidOperationException($"Expected {typeof(TException).Name}.");
-    }
 
     private static void Require(bool condition, string message)
     {

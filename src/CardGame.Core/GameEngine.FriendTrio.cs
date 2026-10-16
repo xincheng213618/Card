@@ -222,7 +222,7 @@ public sealed partial class GameEngine
                 var cards = r.Cards.Append(choice.Cards.Single()).ToArray();
                 f = f with { FriendTrio = r with { Cards = cards } };
                 if (cards.Length < r.Count && FriendTrioChoices(f).Count > 0) { PublishFriendTrioChoice(f); return; }
-                FriendTrioMutation(f, FriendTrioStage.Complete, () => MoveProgramCardsFromMultipleSources(cards, CardLocation.DiscardPile, new("friend.yance.discard"))); return;
+                FriendTrioMutation(f, FriendTrioStage.Complete, () => MoveProgramLogicalDiscard(f, f.OwnerSeat, cards, new("friend.yance.discard"))); return;
             case FriendTrioStage.RemoveMarks:
                 var marker = Enum.Parse<PlayerMarkerKind>(value); SetStrategicMarker(f.OwnerSeat, marker, f.OwnerSeat, 0, f);
                 if (r.Count > 1) { PublishFriendTrioChoice(f with { FriendTrio = r with { Count = r.Count - 1 } }); return; }

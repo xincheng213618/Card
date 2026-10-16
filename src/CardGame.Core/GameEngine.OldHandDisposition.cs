@@ -107,6 +107,8 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { OldHandDisposition = r with { Stage = "movement", ReturnStage = next,
             TargetSeat = target, PaidIds = ids, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat,0,null) });
+        var logicalDiscard = destination == CardLocation.DiscardPile
+            ? CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat, ids, new(OldHandDispositionReason), f.Id) : null;
         MoveProgramCardsFromMultipleSources(ids, destination, new(OldHandDispositionReason), (_,records) =>
         {
             var active = GetActiveProgramFrame(f.Id); var paid = active.OldHandDisposition!;
@@ -119,6 +121,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new OldHandDispositionPaymentEvent(f.Id,paid.Source,paid.GameplayHash,paid.ActualTurn,next,target,
                 ids,before,paid.After,actual));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if (!TryBeginCardsMovedProgramWindow(f.Id)) ReturnRuntimeProgramMovement(f.Id);
     }
     private SkillProgramEffect? OldHandPausedEffect(ProgramSkillFrame f) => f.InstructionIndex < 1 ? null :

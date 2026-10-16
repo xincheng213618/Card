@@ -103,7 +103,7 @@ public sealed partial class GameEngine
             ids.Any(card => !DyingSuitsDiscardCandidates(f,payer).Any(c => c.Id == card))) { FinishProgramSkill(f,true); return; }
         var suits = ids.Select(card => GetProgramEffectiveSuit(_players[payer], GetAttackCard(card))).ToArray(); var costBefore = RecipientContestSequence;
         ReplaceRuntimeTop(f = f with { DyingSuits=r with { Stage=DyingSuitsStage.Discarding, DiscardSuits=suits, DiscardBefore=costBefore, DiscardAfter=costBefore }, PendingMovementContinuation=new(payer,0,null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(DyingSuitsDiscardReason(f)), (_, records) =>
+        MoveProgramLogicalDiscard(f, payer, ids, new(DyingSuitsDiscardReason(f)), (_, records) =>
         {
             var root = GetActiveProgramFrame(f.Id); var paid = root.DyingSuits! with { DiscardAfter=records.Max(m => m.Sequence) };
             ReplaceRuntimeTop(root with { DyingSuits=paid });

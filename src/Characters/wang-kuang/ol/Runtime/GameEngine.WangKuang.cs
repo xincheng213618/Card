@@ -142,7 +142,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { WangKuangRenxia = r with { Stage = WangKuangRenxiaStage.MovementChildren, Cursor = r.Cursor + 1, Before = _movementSequence,
             After = _movementSequence, ActualCount = r.Selected.Count, WoodenOxGrainIds = grain } });
         if (r.Selected.Count == 0) { RecordWangKuangPayment(f); return; }
-        MoveProgramCardsFromMultipleSources(r.Selected.Select(c => c.CardId).ToArray(), CardLocation.DiscardPile, new(RenxiaDiscardReason), (_, movements) =>
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, r.Selected.Select(c => c.CardId).ToArray(), new(RenxiaDiscardReason), (_, movements) =>
         {
             var active = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(active = active with { WangKuangRenxia = active.WangKuangRenxia! with { After = _movementSequence } });
             foreach (var m in movements) AdvanceEventRulesAndQueueFact(new WangKuangRenxiaDiscardEntityEvent(active.Id, active.WangKuangRenxia!.Cursor, m.CardId, m.From, m.Sequence));

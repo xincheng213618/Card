@@ -252,10 +252,13 @@ public sealed partial class GameEngine
                     paid.ActualTurn, paid.ActualTurnOwner, paid.OriginalCardUseFrameId, paid.OriginalActionId, paid.Category!.Value,
                     paid.RecipientSeat, paid.PaidIds.Count, before, paid.After));
             }
+            var logicalDiscard = r.Operation == SkillProgramEffectOp.DiscardForeignTurnHandGains
+                ? CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat, ids, new(ForeignHandCleanupReason), f.Id) : null;
             if (ids.Length == 0) Paid();
             else MoveProgramCardsFromMultipleSources(ids, r.Operation == SkillProgramEffectOp.DiscardForeignTurnHandGains ?
                 CardLocation.DiscardPile : CardLocation.Hand(r.RecipientSeat), new(r.Operation == SkillProgramEffectOp.DiscardForeignTurnHandGains ?
                     ForeignHandCleanupReason : SameCategoryDeckGiftReason), (_, _) => Paid());
+            CompleteNativeLogicalDiscardInvocation(logicalDiscard);
             f = GetActiveProgramFrame(f.Id);
         }
         if (!TryDrainFireTargetMovement(f)) ReturnActualHandGainMovement(f);

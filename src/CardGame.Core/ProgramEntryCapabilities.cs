@@ -27,6 +27,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.ActualPhaseEnded or
         SkillProgramTriggerWindow.IdentityGeneralAppeared or
         SkillProgramTriggerWindow.PindianCardsRevealed or
         SkillProgramTriggerWindow.OtherActualTurnStarted or
@@ -89,6 +90,10 @@ internal static class ProgramEntryCapabilities
 
     private static ProgramContextCapability ExistingCapabilities(SkillProgramTriggerWindow? window) => window switch
     {
+        // The owning ActualPhaseEndFrame supplies the completed phase actor and
+        // turn context. It supplies neither a draw plan nor a phase insertion or
+        // substitution window: the native phase has already completed.
+        SkillProgramTriggerWindow.ActualPhaseEnded => Common | ProgramContextCapability.PhaseOwner,
         SkillProgramTriggerWindow.OtherActualTurnStarted => Common | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.OtherActualUseTargeted => Common | ProgramContextCapability.ActualUseSource,
         SkillProgramTriggerWindow.CardEffectBeforeApply => Common | ProgramContextCapability.CardAction,

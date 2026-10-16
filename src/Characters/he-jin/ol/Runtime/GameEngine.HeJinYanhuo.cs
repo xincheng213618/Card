@@ -76,8 +76,11 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { HeJinYanhuo = r with { Stage = HeJinYanhuoStage.DiscardChildren, Discarded = r.SelectedCards.Count, Before = before, After = before } });
         // Freeze the whole operation before paying either zone; newly gained cards cannot enter this discard.
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
+            r.SelectedCards.Select(card => card.CardId).ToArray(), new(HeJinDiscardReason), f.Id);
         foreach (var group in r.SelectedCards.GroupBy(s => (s.From, Outside: s.From.Zone == CardZoneKind.Equipment && GetAttackCard(s.CardId).IsGeneralWeapon)))
             MoveCards(group.Select(s => GetAttackCard(s.CardId)).ToArray(), group.Key.From, group.Key.Outside ? CardLocation.OutsideGame : CardLocation.DiscardPile, new(HeJinDiscardReason));
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         f = GetActiveProgramFrame(f.Id);
         ReplaceRuntimeTop(f = f with { HeJinYanhuo = f.HeJinYanhuo! with { After = _movementSequence } });
         foreach (var (selected, index) in r.SelectedCards.Select((s, index) => (s, index)))

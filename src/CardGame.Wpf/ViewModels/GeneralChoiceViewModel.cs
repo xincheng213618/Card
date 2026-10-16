@@ -15,6 +15,10 @@ public sealed class GeneralChoiceViewModel : ObservableObject
     public string Name { get; init; } = string.Empty;
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public string Kingdom { get; init; } = string.Empty;
+    public string EditionText => GeneralId.StartsWith("national:", StringComparison.Ordinal) ? "国战" :
+        (GeneralId.StartsWith("ol:", StringComparison.Ordinal) ? "OL · " :
+         GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " : string.Empty) +
+        Presentation.GeneralGalleryCatalog.Classify(GeneralId).Title;
     public string SkillName { get; init; } = string.Empty;
     public string SkillDescription { get; init; } = string.Empty;
     public string HealthText { get; init; } = string.Empty;

@@ -160,7 +160,7 @@ public sealed partial class GameEngine
             var cost = new SoleTargetProtectionMaterial(id, card.Kind, _cardZones.GetLocation(id));
             ClearPendingDecision(); ReplaceRuntimeTop(f = f with { SoleTargetProtection = r with { Cost = cost, Stage = SoleTargetProtectionStage.CostChildren,
                 CostSequenceBefore = _movementSequence, CostSequenceAfter = _movementSequence }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveProgramCardsFromMultipleSources([id], CardLocation.DiscardPile, new(SoleProtectionCostReason));
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, [id], new(SoleProtectionCostReason));
             f = GetActiveProgramFrame(f.Id); r = f.SoleTargetProtection! with { CostSequenceAfter = _movementSequence };
             ReplaceRuntimeTop(f = f with { SoleTargetProtection = r });
             AdvanceEventRulesAndQueueFact(new SoleTargetProtectionPaidEvent(r));

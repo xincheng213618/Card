@@ -80,7 +80,7 @@ public sealed partial class GameEngine
             {
                 var seat=d.ParticipantIndex==0?f.OwnerSeat:d.OtherSeat;var id=choice.Cards.Single();
                 ReplaceRuntimeTop(f=f with{DomainCrossing=d with{Stage="participants",ParticipantIndex=d.ParticipantIndex+1},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-                MoveProgramCardsFromMultipleSources([id],CardLocation.DiscardPile,new("skill-program.game-domain.discard"));
+                MoveProgramLogicalDiscard(f,seat,[id],new("skill-program.game-domain.discard"));
                 if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(f.Id);return;
             }
             if(action=="heal"||action=="skip-heal")

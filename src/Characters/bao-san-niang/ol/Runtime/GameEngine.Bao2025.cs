@@ -179,7 +179,7 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { Bao2025 = r with { Stage = ProgramBao2025Stage.AssaultCostChildren, MovementBefore = before, MovementAfter = before, Choices = [] },
             PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(r.Cards, CardLocation.DiscardPile, BaoCostReason);
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, r.Cards, BaoCostReason);
         ConsumeProgramTriggerUsage(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, 0));
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { Bao2025 = f.Bao2025! with { MovementAfter = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new ProgramBao2025MovementIssuedEvent(f.Id, f.Bao2025!)); AdvanceRuntimeProgram(f.Id);
@@ -274,7 +274,7 @@ public sealed partial class GameEngine
             {
                 var cards = GetHand(_players[target]).Concat(GetEquipment(_players[target])).Where(c => !c.IsGeneralWeapon).ToArray();
                 if (cards.Length > 0) { var card = cards[_random.Next(cards.Length)]; discarded = card.Id;
-                    MoveCard(card, _cardZones.GetLocation(card.Id), CardLocation.DiscardPile, BaoOutcomeReason); }
+                    MoveLogicalDiscard(f.OwnerSeat, target, card, _cardZones.GetLocation(card.Id), BaoOutcomeReason); }
             }
             else if (!damaged && _players[f.OwnerSeat].IsAlive && _players[target].IsAlive)
             {

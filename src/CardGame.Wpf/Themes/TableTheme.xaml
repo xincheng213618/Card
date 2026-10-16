@@ -275,9 +275,16 @@
                 <Image Source="{Binding RankArtwork}" Width="14" Height="16" Stretch="Uniform" />
                 <Image Source="{Binding SuitArtwork}" Width="14" Height="16" Stretch="Uniform" />
             </StackPanel>
+            <Button x:Name="StoneAxeEquipmentButton" Background="Transparent" BorderBrush="#D4B979" BorderThickness="1" Cursor="Hand"
+                Command="{Binding DataContext.SelectEquipmentMaterialCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                CommandParameter="{Binding}" Visibility="{Binding IsSelectable, Converter={StaticResource BoolToVisibility}}"
+                ToolTip="选择此装备" AutomationProperties.Name="{Binding Tooltip}">
+                <Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" /></ControlTemplate></Button.Template>
+            </Button>
         </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsOccupied}" Value="True"><Setter TargetName="EmptySlotText" Property="Visibility" Value="Collapsed" /></DataTrigger>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter TargetName="StoneAxeEquipmentButton" Property="Background" Value="#665EA78A" /><Setter TargetName="StoneAxeEquipmentButton" Property="BorderBrush" Value="#B5FFD7" /><Setter TargetName="StoneAxeEquipmentButton" Property="BorderThickness" Value="2" /></DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
     <DataTemplate x:Key="PortraitEquipmentSlotTemplate">
@@ -307,6 +314,11 @@
                                     <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="1" /></TextBlock.Effect>
                                 </TextBlock>
                                 <Border x:Name="SkillFocusRing" BorderBrush="#FFE3A4" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                                <Border Background="#F02A2419" BorderBrush="#D8B86B" BorderThickness="1" CornerRadius="7" Padding="4,0"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-2,0" IsHitTestVisible="False"
+                                    Visibility="{Binding HasProgress, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="{Binding ProgressText}" Foreground="#FFE5A0" FontSize="10" FontWeight="Bold" />
+                                </Border>
                             </Grid>
                             </Grid>
                             <ControlTemplate.Triggers>
@@ -714,6 +726,31 @@
             </Border>
         </Button>
     </DataTemplate>
+    <DataTemplate x:Key="HarvestCardTemplate">
+        <Button Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="5" Cursor="Hand" ToolTip="{Binding CardHint}" AutomationProperties.Name="{Binding CardHint}" AutomationProperties.HelpText="点击此牌，获得到手牌中">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ChoiceFrame" Background="#3B443E" BorderBrush="#B99A61" BorderThickness="2" CornerRadius="4" Padding="3">
+                        <StackPanel>
+                            <Grid Width="96" Height="134">
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                                <TextBlock Text="{Binding OriginalHandTag}" Foreground="#F9EAC5" Background="#D074562A" FontSize="10" Padding="3,1" MaxWidth="64" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Visibility="{Binding HasOriginalHandTag, Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                            <Border x:Name="ChoiceCaption" Background="#314D43" CornerRadius="2" Margin="0,4,0,0" Padding="0,4">
+                                <TextBlock Text="点击选取" Foreground="#FFF1CB" FontSize="12" TextAlignment="Center" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#FFF0BA" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#527663" /></Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#FFF0BA" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#527663" /></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="ChoiceFrame" Property="Background" Value="#61775D" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#284337" /></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ChoiceFrame" Property="Opacity" Value="0.5" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </DataTemplate>
     <DataTemplate x:Key="TablePlayTemplate">
         <StackPanel Margin="5,0">
             <StackPanel.Style>
@@ -750,11 +787,48 @@
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
+    <Style x:Key="GeneralRosterButton" TargetType="Button">
+        <Setter Property="Background" Value="#29251F" /><Setter Property="BorderBrush" Value="#514735" />
+        <Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="8,5" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Border x:Name="RosterRowBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RosterRowBorder" Property="Background" Value="#383125" /><Setter TargetName="RosterRowBorder" Property="BorderBrush" Value="#B79B65" /></Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="RosterRowBorder" Property="BorderBrush" Value="#FFE0A2" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="RosterRowBorder" Property="Opacity" Value="0.8" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+        <Style.Triggers><DataTrigger Binding="{Binding IsPreviewSelected}" Value="True"><Setter Property="Background" Value="#4A3D28" /><Setter Property="BorderBrush" Value="#E2BE77" /></DataTrigger></Style.Triggers>
+    </Style>
+    <DataTemplate x:Key="GeneralRosterTemplate">
+        <Button Style="{StaticResource GeneralRosterButton}" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                CommandParameter="{Binding}" Margin="0,0,0,5" AutomationProperties.Name="{Binding Text}" ToolTip="{Binding SkillDescription}" ToolTipService.InitialShowDelay="650">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="58" /><ColumnDefinition Width="*" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions>
+                <Border Width="46" Height="62" HorizontalAlignment="Left" BorderBrush="#86734E" BorderThickness="1" Background="{Binding Portrait.ThumbnailBrush}" />
+                <Grid Grid.Column="1" Margin="2,3,10,3">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding EditionText}" Foreground="#B3A17D" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <TextBlock Text="{Binding Name}" Foreground="#F2D59A" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+                    <TextBlock Grid.Row="1" Text="{Binding SkillName}" Foreground="#CBBF9F" FontSize="12" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
+                </Grid>
+                <Border Grid.Column="2" Background="#201D18" BorderBrush="#64573E" BorderThickness="1" Padding="7,3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Kingdom}" Foreground="#C9CEA1" FontFamily="KaiTi" FontSize="18" />
+                </Border>
+            </Grid>
+        </Button>
+    </DataTemplate>
     <DataTemplate x:Key="GeneralChoiceTemplate">
         <Button Style="{StaticResource BareButton}" Width="142" Height="211" Margin="5,4" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}" ToolTip="{Binding SkillDescription}" ToolTipService.InitialShowDelay="650">
             <Border x:Name="GeneralFrame" BorderBrush="#6E6046" BorderThickness="2" Padding="2" Background="#211B16">
                 <Grid>
-                    <Rectangle Fill="{Binding Portrait.Brush}" />
+                    <Rectangle Fill="{Binding Portrait.ThumbnailBrush}" />
                     <Rectangle Fill="{StaticResource PortraitShade}" />
                     <Image Source="/CardGame.Wpf;component/Assets/gallery-portrait-frame.png" Stretch="Fill" IsHitTestVisible="False" />
                     <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#D13C3528" Padding="6,2" Margin="7,7,0,0">

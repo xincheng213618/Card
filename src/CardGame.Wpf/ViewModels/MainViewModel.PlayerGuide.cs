@@ -22,7 +22,7 @@ public sealed partial class MainViewModel
         new("cards", "卡牌图鉴", "查找牌面规则"),
         new("keys", "操作与存档", "快捷键与继续游戏")];
     public IReadOnlyList<string> GuideCategories { get; } = ["全部", "基本牌", "锦囊牌", "装备牌"];
-    public ObservableCollection<GuideCardEntry> FilteredGuideCards { get; } = [];
+    public ObservableRangeCollection<GuideCardEntry> FilteredGuideCards { get; } = [];
     public ObservableCollection<GuideStep> CurrentGuideSteps { get; } = [];
     public ObservableCollection<GuideHandEntry> GuideHand { get; } = [];
     public bool HasGuideHand => GuideHand.Count > 0;
@@ -85,12 +85,13 @@ public sealed partial class MainViewModel
 
     private void FilterGuideCards()
     {
+        var selected = SelectedGuideCard;
         var term = GuideSearchText.Trim();
         var matches = _guideCards.Where(card => (SelectedGuideCategory == "全部" || card.Category == SelectedGuideCategory) &&
             (term.Length == 0 || card.Name.Contains(term, StringComparison.OrdinalIgnoreCase) || card.Description.Contains(term, StringComparison.OrdinalIgnoreCase)));
-        FilteredGuideCards.Clear();
-        foreach (var card in matches) FilteredGuideCards.Add(card);
-        if (SelectedGuideCard is null || !FilteredGuideCards.Contains(SelectedGuideCard)) SelectedGuideCard = FilteredGuideCards.FirstOrDefault();
+        FilteredGuideCards.ReplaceAll(matches);
+        SelectedGuideCard = selected is not null && FilteredGuideCards.Contains(selected)
+            ? selected : FilteredGuideCards.FirstOrDefault();
         RaisePropertyChanged(nameof(GuideCardCountText));
         RaisePropertyChanged(nameof(HasNoGuideCards));
     }
@@ -270,7 +271,7 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
 
 
                 DecisionKind.Yingbo => ("决定英博交牌", new[] { "本轮首次使用的同名伤害牌不能被响应。", "这张实体牌结算后仍在处理区时，你可以将它交给一名其他角色；选择不交则正常进入弃牌堆。" }),
-                DecisionKind.StoneAxe => ("决定是否发动贯石斧", new[] { "目标已用足够的闪抵消此杀；中央每个候选都是一组精确的两牌代价。", "代价可来自你的手牌或装备区，也可包含贯石斧本身；支付后沿原杀继续造成伤害。" }),
+                DecisionKind.StoneAxe => ("决定是否发动贯石斧", new[] { "目标已用足够的闪抵消此杀；点选两张牌后点击下方「是」，未选满两张时不能确认。", "代价可来自你的手牌或装备区，也可包含贯石斧本身；点击「否」放弃发动，Esc 只取消选牌。" }),
                 DecisionKind.CixiongDoubleSwords => ("处理雌雄双股剑", new[] { "使用者以杀指定异性目标后，可选择发动雌雄双股剑。", "发动后目标从自己的手牌中精确弃一张，或令使用者摸一张牌；随后继续原杀响应。" }),
 
                 DecisionKind.QinglongCrescentBlade => ("决定是否发动青龙偃月刀", new[] { "目标已经用足够的闪抵消此杀；中央列出你当前可以使用的每一张精确杀，刘备也可选择激将。", "发动后只对同一目标开启一张新杀，不受本回合普通出杀次数和距离限制；激将提供者支付实体牌，新杀被闪抵消时仍可再次发动。" }),
@@ -285,7 +286,13 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
                 };
             }
             CurrentGuideBody = prompt.Prompt;
-            if (IsHandResponsePending)
+            if (IsOwnedCardSelectionPending)
+                steps = [OwnedCardSelectionHint, "可以同时选中多张牌；再次点击可取消该牌，确认前不会交出或消耗所选牌。", .. steps];
+            else if (HasDockSkillChoices)
+                steps = ["在下方操作区选择发动方式或不发动。", .. steps];
+            else if (IsCardPaymentSelectionPending)
+                steps = [HandResponseHint, "直接点选合法手牌或装备；未选够时确认按钮置灰。再次点击或按 Esc 可取消选牌，确认前不消耗牌。"];
+            else if (IsHandResponsePending)
                 steps = [HandResponseHint, "点选手牌不会立即消耗；再次点击或按 Esc 可取消选牌，关闭指南会保留选择。", .. steps];
         }
         else

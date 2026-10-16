@@ -1,8 +1,8 @@
 # 开发门禁边界
 
-当前规则 epoch 以 [GameCheckpoint](../src/CardGame.Core/Replay.cs) 的 `CurrentRulesVersion` 为准；技能 JSON 格式以 [SkillProgramCatalog](../src/CardGame.Core/SkillPrograms.cs) 的 `RulesSchemaVersion` 为准；内容包发布版本以对应包的 `CurrentVersion` 为准。不要在开发指南或逐人物测试里复制“当前”数值。
+规则能力和诊断标记以 [GameCheckpoint](../src/CardGame.Core/Replay.cs) 的 `CurrentRulesVersion` 为准，存档中的 `RulesVersion` 不作为加载门禁；技能 JSON 格式以 [SkillProgramCatalog](../src/CardGame.Core/SkillPrograms.cs) 的 `RulesSchemaVersion` 为准；内容包发布版本以对应包的 `CurrentVersion` 为准。不要在开发指南或逐人物测试里复制“当前”数值。
 
-开发期 Checkpoint 同时精确检查 schema、rules epoch、内容包签名和内容哈希。新增普通武将、技能、卡牌或素材时，内容哈希已经能隔离旧存档；不逐人物提升全局 rules/schema 或内容包版本。只有同一内容指纹下既有命令的结算、事件顺序、随机数消费或暂停恢复语义改变，才提升 rules epoch。只有规则 JSON 出现不兼容格式变化，才提升 rules schema；已有节点的新组合和向后兼容的可选能力不提升 schema。内容包版本用于明确的发布批次。Checkpoint 自身结构变化才提升 Checkpoint schema。
+Checkpoint 检查 schema、内容包签名、内容哈希和逐条命令合法性；规则标记较早、较新或缺失均按当前实现尝试回放，不因标记不同直接拒绝。桌面读取、校验或回放失败时初始化新牌局并停止自动推进，不立即覆盖原存档。普通规则修复不再提升规则标记。只有规则 JSON 出现不兼容格式变化，才提升 rules schema；已有节点的新组合和向后兼容的可选能力不提升 schema。内容包版本用于明确的发布批次。Checkpoint 自身结构变化才提升 Checkpoint schema。
 
 ## 内容开发
 

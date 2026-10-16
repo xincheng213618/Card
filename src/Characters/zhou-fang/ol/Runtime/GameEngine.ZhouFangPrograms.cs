@@ -53,7 +53,7 @@ public sealed partial class GameEngine
         var cards = binding.CardIds
             .Select(cardId => _cardZones.CardsAt(CardLocation.Hand(owner.Seat)).Single(card => card.Id == cardId))
             .ToArray();
-        MoveCards(cards, CardLocation.Hand(owner.Seat), CardLocation.DiscardPile,
+        MoveLogicalDiscardCards(active.OwnerSeat, active.OwnerSeat, cards, CardLocation.Hand(owner.Seat),
             new($"skill-program.{active.SkillId}.duanfa-discard"));
         DrawCards(owner, cards.Length, true, new($"skill-program.{active.SkillId}.duanfa-draw"));
         AdvanceEventRulesAndQueueFact(new ProgramDuanfaRecycledEvent(active.Id, active.SkillId,
@@ -157,7 +157,7 @@ public sealed partial class GameEngine
         }
         var card = hand[slot];
         ClearPendingDecision();
-        MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.DiscardPile,
+        MoveLogicalDiscard(frame.OwnerSeat, chooserSeat, card, CardLocation.Hand(owner.Seat),
             new($"skill-program.{frame.SkillId}.youdi-discard"));
         var took = false;
         var chooser = _players[chooserSeat];

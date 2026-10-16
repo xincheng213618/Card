@@ -5,7 +5,7 @@ using CardGame.Core;
 
 internal static class LiuYanChecks
 {
-    private const string Owner="fixture:ly-owner",Driver="fixture:ly-driver",Quiet="fixture:ly-quiet",Health="fixture:ly-health",Watch="fixture:ly-watch",Source="fixture:ly-source",Mode="identity:classic-liu-yan-fixture";
+    private const string Owner="fixture:ly-owner",Driver="fixture:ly-driver",Quiet="fixture:ly-quiet",Health="fixture:ly-health",Watch="fixture:ly-watch",Source="fixture:ly-source",Legacy="fixture:ly-legacy",Rescue="fixture:ly-rescue",Mode="identity:classic-liu-yan-fixture";
     public static void ActualTargetsPostPaymentAndEffectiveHandCold()
     {
         foreach(var scenario in new[]{"draw","barrage"})
@@ -71,12 +71,25 @@ internal static class LiuYanChecks
     public static void CounterspellPaidChildrenLossDeathAndPrivateCold()
     {
         {
-            var(g,r)=Start("counterspell");Limu(g,V(g).Hand.First().Id);
-            Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.Nullification}p&&p.Choices.Any(c=>c.Cards.Count==1));
+            var(g,r)=Start("legacy-slash");Activate(g);Reach(g,()=>P(g)is{Kind:DecisionKind.ProgramTrigger}p&&p.Choices.Any(c=>c.Targets.SequenceEqual([1])));Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,()=>Optional(g));
+            var use=g.ResolutionStack.OfType<CardUseFrame>().Single();Need(use.CardId==0&&use.Action is{Type:CardActionType.Use,PhysicalCards.Count:0}&&use.CardKind==CardKind.Slash,"A genuine old phase-substitution cardless Slash now has its actual designation window under the new capability.");
+            g=Cold(g,r);Activate(g);Play(g);Need(E<LiuYanTusheDrawnEvent>(g).Single().Count==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1,"The real zero-entity Slash draws once, resolves native damage and returns to its original phase substitution once.");_=Cold(g,r);
+        }
+        {
+            var(g,r)=Start("legacy-wine");Use(g,"fatal");Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.RescueDying}p&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue));
+            Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="program-trigger"&&c.Parameters.GetValueOrDefault("skill-id")==Rescue);Reach(g,()=>Optional(g));
+            var use=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.LiuYanLegacyAlcohol is not null);Need(V(g).Hp==0&&use.CardKind==CardKind.Alcohol,"The real self-rescue Wine offers its genuine self target before native recovery.");g=Cold(g,r);Activate(g);Play(g);
+            Need(V(g).Hp==1&&E<LiuYanTusheDrawnEvent>(g).Single().Count==1&&E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id)==1&&E<LiuYanLegacyAlcoholStageEvent>(g).Count(e=>e.UseId==use.Id&&e.Stage==LiuYanLegacyAlcoholStage.Recovery)==1,"The old self-dying zero-material Wine draws through Tushe, recovers and resumes its exact paid rescue producer once.");_=Cold(g,r);
+        }
+        {
+            var(g,r)=Start("counterspell");var card=V(g).Hand.First().Id;var turn=g.State.TurnNumber;Limu(g,card);Play(g);
+            Need(V(g).Judgment.Any(c=>c.Id==card)&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1&&E<NullificationRequestedEvent>(g).Length==0,"Native delayed placement completes and issues Limu's recovery before any future judgment counterspell window.");
+            Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
+            Reach(g,()=>g.State.TurnNumber>turn&&P(g)is{PlayerSeat:0,Kind:DecisionKind.Nullification}p&&p.Choices.Any(c=>c.Cards.Count==1)&&g.ResolutionStack.OfType<NullificationWindowFrame>().Any(w=>w.DelayedReturn?.CardId==card));
             var p=P(g)!;Need(g.CreateSnapshot(1).PendingDecision is null,"A real responder's counterspell cards remain private to that responder.");
             var state=State(g);var wrong=g.Submit(new AnswerPromptCommand(1,p.PromptId,p.Choices.First(c=>c.Cards.Count==1).Id,g.Revision));Need(!wrong.Accepted&&State(g)==state,"A foreign seat cannot answer the current private native counterspell prompt.");
             g=Cold(g,r);Answer(g,c=>c.Cards.Count==1);Play(g);
-            Need(E<NullificationRespondedEvent>(g).Any()&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1,"Native counterspell processing and all response descendants still return to Limu's independent then-recover step once.");_=Cold(g,r);
+            Need(E<NullificationRespondedEvent>(g).Any()&&E<LiuYanLimuReturnedEvent>(g).Length==1&&E<LiuYanLimuRecoveryIssuedEvent>(g).Length==1&&g.CardMovements.Any(m=>m.CardId==card&&m.From==CardLocation.Judgment(0)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.DelayedCardFinish),"The real later judgment counterspell and all response descendants settle the original delayed entity without reusing Limu or issuing a second recovery.");_=Cold(g,r);
         }
         foreach(var scenario in new[]{"loss","death"})
         {
@@ -125,7 +138,7 @@ internal static class LiuYanChecks
     private static(GameEngine,ContentRegistry)Start(string scenario)
     {
         var r=ContentRegistry.Build(new StandardContentPackage(),new Fixture(scenario));var g=GameEngine.CreateStandard(new GameOptions{Seed=7,PlayerCount=4,HumanSeat=0,HumanRole=scenario=="death"?Role.Renegade:Role.Lord,ModeId=Mode,UseInteractiveSetup=true,UseInteractiveDiscard=false,AdvanceAfterHumanCommands=false,MaxTurns=10},r);
-        Accept(g,new StartGameCommand());Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.SelectGeneral});Accept(g,new SelectGeneralCommand(0,Owner,g.Revision,P(g)!.PromptId));Play(g);return(g,r);
+        Accept(g,new StartGameCommand());Reach(g,()=>P(g)is{PlayerSeat:0,Kind:DecisionKind.SelectGeneral});Accept(g,new SelectGeneralCommand(0,Owner,g.Revision,P(g)!.PromptId));if(scenario=="legacy-slash")Reach(g,()=>P(g)?.SkillPrompt?.SkillId==Legacy);else Play(g);return(g,r);
     }
     private sealed class Fixture(string scenario):IGameContentPackage
     {
@@ -139,6 +152,7 @@ internal static class LiuYanChecks
                 {"id":"{{{Driver}}}","revision":1,"modifiers":[{"id":"keep","query":"handLimit","operation":"add","value":100,"priority":0}],"activations":[
                 {"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20}]},
                 {"id":"lose","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":1}]},
+                {"id":"fatal","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":9}]},
                 {"id":"drop","minCards":1,"maxCards":1,"sourceZones":["hand","equipment"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]},
                 {"id":"clear-judgment","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardOwnedZoneCards","target":"owner","zones":["judgment"]}]}]}
                 """,
@@ -146,6 +160,8 @@ internal static class LiuYanChecks
                 $$"""{"id":"{{Health}}","revision":1,"triggers":[{"id":"actual-hp","window":"afterHpRecovered","subject":"owner","hpChangeOccurrence":"perEvent","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"health","options":[{"id":"continue"}]}]}]}"""
             };
             var skills=new List<string>{Driver,Health,"ol:tushe"};
+            if(scenario=="legacy-slash"){defs.Add($$"""{"id":"{{Legacy}}","revision":1,"triggers":[{"id":"phase-substitution","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"skipTurnPhases","target":"owner","phases":["judgment","draw"]},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}""");skills.Add(Legacy);}
+            if(scenario=="legacy-wine"){defs.Add($$"""{"id":"{{Rescue}}","revision":1,"triggers":[{"id":"self-wine","window":"selfDyingResponse","subject":"owner","optional":true,"usageScope":"game","usageLimit":1,"effects":[{"op":"useVirtualDyingAlcohol","target":"owner"}]}]}""");skills.Add(Rescue);}
             if(scenario=="loss"){defs.Add($$"""{"id":"{{Source}}","revision":1,"hpSkillGrants":[{"id":"full","skillId":"ol:limu","minimumHp":9}]}""");skills.Add(Source);}else skills.Add("ol:limu");
             if(scenario is"loss"or"death")
             {
@@ -159,7 +175,7 @@ internal static class LiuYanChecks
             var peers=Enumerable.Range(0,3).Select(i=>"fixture:ly-peer-"+i).ToArray();foreach(var(peer,i)in peers.Select((peer,i)=>(peer,i)))
             {var pick="fixture:ly-pick-"+i;b.AddSkill(new(pick,"其他角色","固定公开选将"){SelectionWeights=Enum.GetValues<Role>().ToDictionary(x=>x,_=>1000000d*(3-i))});b.AddGeneral(new(peer,"实际其他角色","supporter",pick,"wei",12,[Quiet]));}
             foreach(var(id,kind)in new[]{("barrage",CardKind.ArrowBarrage),("lion",CardKind.SilverLion),("ox",CardKind.WoodenOx),("crossbow",CardKind.Crossbow),("sword",CardKind.QinggangSword),("nullification",CardKind.Nullification),("snatch",CardKind.Snatch)})b.AddCard(new("fixture:ly-"+id,id,"真实牌","原生实体",kind));
-            var ids=scenario switch{"draw"=>new[]{"standard:draw_two"},"barrage"=>["fixture:ly-barrage"],"equipment"=>["fixture:ly-crossbow"],"lion"=>["fixture:ly-lion"],"ox"or"grain"=>["fixture:ly-ox"],"range"=>["standard:slash","standard:dodge"],"distance"=>["fixture:ly-sword","standard:dodge","fixture:ly-snatch"],"counterspell"=>["fixture:ly-nullification"],_=>["standard:dodge"]};
+            var ids=scenario switch{"draw"or"legacy-slash"or"legacy-wine"=>new[]{"standard:draw_two"},"barrage"=>["fixture:ly-barrage"],"equipment"=>["fixture:ly-crossbow"],"lion"=>["fixture:ly-lion"],"ox"or"grain"=>["fixture:ly-ox"],"range"=>["standard:slash","standard:dodge"],"distance"=>["fixture:ly-sword","standard:dodge","fixture:ly-snatch"],"counterspell"=>["fixture:ly-nullification"],_=>["standard:dodge"]};
             b.AddDeck(new("fixture:ly-deck","固定真实牌堆",4,2,[]){PhysicalCards=Enumerable.Range(0,160).Select(i=>new ContentDeckPhysicalCard(ids[i%ids.Length],Suit.Diamond,i%13+1)).ToArray()});
             b.AddMode(new(Mode,"真实图射立牧",4,4,scenario=="death"?new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Rebel)]=2,[nameof(Role.Renegade)]=1}:new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Renegade)]=3},"fixture:ly-deck",GeneralCandidateCount:4,GeneralPoolIds:[Owner,..peers]));
         }

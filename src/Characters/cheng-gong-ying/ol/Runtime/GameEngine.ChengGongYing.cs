@@ -87,7 +87,7 @@ public sealed partial class GameEngine
     {
         var r = f.ChengGongYing!; var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { ChengGongYing = r with { Stage = ChengGongYingStage.DiscardChildren, Before = before, After = before }, PendingMovementContinuation = new(r.Recipient!.Value, 0, null) });
-        if (r.Selected.Count > 0) MoveProgramCardsFromMultipleSources(r.Selected, CardLocation.DiscardPile, new(KuangxiangDiscardReason));
+        if (r.Selected.Count > 0) MoveProgramLogicalDiscard(f, r.Recipient!.Value, r.Selected, new(KuangxiangDiscardReason));
         RecordChengGongYingMovement(f.Id); ContinueChengGongYing(f.Id);
     }
     private void RecordChengGongYingMovement(long id)

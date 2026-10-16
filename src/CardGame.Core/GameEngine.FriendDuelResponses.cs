@@ -53,7 +53,7 @@ public sealed partial class GameEngine
             id, card.Kind, from, use.FriendRecastDuelResponses, use.FriendRecastDuel!);
         PushRuntimeFrame(frame);
         UpdateLifecycleCardUse(use.Id, parent => parent with { FriendRecastDuelResponses = parent.FriendRecastDuelResponses + 1 });
-        MoveCard(card, from, CardLocation.DiscardPile, new("skill.friend-qinying.response-cost"));
+        MoveLogicalDiscard(frame.Origin.OwnerSeat, responder.Seat, card, from, new("skill.friend-qinying.response-cost"));
         AdvanceEventRulesAndQueueFact(new FriendDuelDiscardPaidEvent(use.Id, responder.Seat, id, from, frame.PreviousResponses + 1));
         ContinueFriendDuelResponse(frame.Id);
     }

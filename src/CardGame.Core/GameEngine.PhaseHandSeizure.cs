@@ -102,7 +102,7 @@ public sealed partial class GameEngine
         var receipt = new ProgramPhaseHandSeizureReceipt(1, target, continuation, _turnNumber, _cardUseDebitPhaseInstanceId,
             cardId, _cardZones.GetLocation(cardId), _players[frame.OwnerSeat].IsFaceDown, PhaseHandSeizureStage.PaymentChildren, before, before, []);
         ReplaceRuntimeTop(frame = frame with { PhaseHandSeizure = receipt, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([cardId], CardLocation.DiscardPile, new(PhaseHandSeizureReason(frame, "payment")), (_, records) =>
+        MoveProgramLogicalDiscard(frame, frame.OwnerSeat, [cardId], new(PhaseHandSeizureReason(frame, "payment")), (_, records) =>
         {
             var current = GetActiveProgramFrame(frame.Id); var after = records.Max(m => m.Sequence);
             ReplaceRuntimeTop(current with { PhaseHandSeizure = receipt with { CostAfter = after } });

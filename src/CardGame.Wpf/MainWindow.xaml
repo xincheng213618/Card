@@ -314,7 +314,15 @@
                         <ItemsControl x:Name="RightSeatRing" Grid.RowSpan="2" Grid.Column="2" ItemsSource="{Binding RightSeats}" ItemTemplate="{StaticResource RingSeatTemplate}" Margin="0,62,0,0">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
-                        <Grid Grid.Row="1" Grid.Column="1" Margin="16,4" x:Name="FeedbackCenter">
+                        <Grid Grid.Column="1" Margin="16,4" x:Name="FeedbackCenter">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Grid.Row" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Grid.Row" Value="0" /><Setter Property="Grid.RowSpan" Value="2" /></DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -391,14 +399,25 @@
                                 </TextBlock>
                             </StackPanel>
                             </Viewbox>
-                            <Border x:Name="DecisionPanel" BorderBrush="#8F7B58" CornerRadius="4" Padding="8" Visibility="{Binding HasCenterChoices, Converter={StaticResource BoolToVisibility}}">
+                            <Border x:Name="DecisionPanel" CornerRadius="4" Visibility="{Binding HasCenterChoices, Converter={StaticResource BoolToVisibility}}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Grid.Row" Value="2" />
                                         <Setter Property="Background" Value="#E2231E19" />
+                                        <Setter Property="BorderBrush" Value="#8F7B58" />
                                         <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="Padding" Value="8" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasPublicRevealedCards}" Value="True"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True">
+                                                <Setter Property="Background" Value="#F2232927" />
+                                                <Setter Property="BorderBrush" Value="#D8B778" />
+                                                <Setter Property="BorderThickness" Value="2" />
+                                                <Setter Property="Padding" Value="12" />
+                                                <Setter Property="VerticalAlignment" Value="Center" />
+                                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                                <Setter Property="MaxWidth" Value="560" />
+                                            </DataTrigger>
                                             <DataTrigger Binding="{Binding IsHandResponsePending}" Value="True"><Setter Property="VerticalAlignment" Value="Top" /></DataTrigger>
                                             <DataTrigger Binding="{Binding AreTablePlaysVisible}" Value="True"><Setter Property="Grid.Row" Value="1" /></DataTrigger>
                                             <DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="Height" Value="150" /></DataTrigger>
@@ -412,8 +431,16 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="DecisionDescriptionText" Text="{Binding CurrentDecisionContext.Description}" TextWrapping="Wrap" FontSize="12" Foreground="#D1DCCB" Margin="6,1,6,8">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
+                                    <StackPanel x:Name="HarvestSelectionHeader" Visibility="{Binding IsHarvestSelectionPending, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,10">
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="五谷丰登 · 选牌区" Foreground="{StaticResource GoldBrush}" FontSize="17" FontWeight="SemiBold" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding PublicRevealedCards.Count, StringFormat=剩余 {0} 张}" Foreground="#C8D4CD" FontSize="12" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <TextBlock Text="轮到你选牌：点击一张牌，获得到手牌中" Foreground="#EFF3E7" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                        <Border Height="1" Background="#6E9F8F72" Margin="0,10,0,0" />
+                                    </StackPanel>
                                     <StackPanel x:Name="GodFactionPanel" Grid.RowSpan="3" Background="#ED231E19" Panel.ZIndex="2" Margin="0,0,0,2" HorizontalAlignment="Stretch" Visibility="{Binding IsGodFactionSelectionPending, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle">
                                         <TextBlock Text="请决定神武将的所属势力（本局内不可更改）" Foreground="#FFF2D8" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="12,10,12,18" />
                                         <ItemsControl x:Name="GodFactionButtons" ItemsSource="{Binding GodFactionChoices}" HorizontalAlignment="Center">
@@ -449,8 +476,17 @@
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
-                                            <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" />
-                                            <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                            <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5">
+                                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                            </TextBlock>
+                                            <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemsPanel="{StaticResource ChoicePanel}">
+                                                <ItemsControl.Style>
+                                                    <Style TargetType="ItemsControl">
+                                                        <Setter Property="ItemTemplate" Value="{StaticResource RevealedCardTemplate}" />
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="ItemTemplate" Value="{StaticResource HarvestCardTemplate}" /></DataTrigger></Style.Triggers>
+                                                    </Style>
+                                                </ItemsControl.Style>
+                                            </ItemsControl>
                                             <TextBlock Text="{Binding PrivateRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPrivatelyViewedCards, Converter={StaticResource BoolToVisibility}}" />
                                             <ItemsControl x:Name="PrivatelyViewedCards" ItemsSource="{Binding PrivatelyViewedCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl x:Name="TargetCardChoiceCards" ItemsSource="{Binding TargetCardChoices}" ItemTemplate="{StaticResource TargetCardChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" PreviewGotKeyboardFocus="TargetCardChoiceCards_PreviewGotKeyboardFocus" IsKeyboardFocusWithinChanged="TargetCardChoiceCards_IsKeyboardFocusWithinChanged" />
@@ -691,11 +727,20 @@
                             </Grid>
                         </Grid>
                         <Grid x:Name="PrimaryActionButtons" Grid.Row="2" Width="450" HorizontalAlignment="Center" IsEnabled="{Binding IsTutorialBoardEnabled}">
+                            <Grid.Style><Style TargetType="Grid"><Style.Triggers><DataTrigger Binding="{Binding HasDockSkillChoices}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></Grid.Style>
                             <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
                             <Button x:Name="PlayCardButton" Content="{Binding ActionDockConfirmText}" Command="{Binding ConfirmSelectedCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="104" HorizontalAlignment="Center" Visibility="{Binding CanActFromHand, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding PlayButtonText}" AutomationProperties.Name="{Binding PlayButtonText}" />
                             <Button x:Name="CancelActionButton" Grid.Column="1" Content="{Binding ActionDockCancelText}" Command="{Binding CancelActionCommand}" Style="{StaticResource TableSecondaryButton}" Width="104" HorizontalAlignment="Center" Visibility="{Binding CanActFromHand, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding CancelActionHint}" AutomationProperties.Name="{Binding ActionDockCancelText}" />
                             <Button x:Name="EndTurnButton" Grid.Column="2" Content="结 束" Command="{Binding EndTurnCommand}" Style="{StaticResource TableSecondaryButton}" Width="84" HorizontalAlignment="Center" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" ToolTip="结束出牌 · Ctrl + Enter" AutomationProperties.Name="结束出牌" />
                         </Grid>
+                        <Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" Visibility="{Binding HasDockSkillChoices, Converter={StaticResource BoolToVisibility}}">
+                            <ItemsControl x:Name="DockSkillChoices" ItemsSource="{Binding DockSkillChoices}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate><DataTemplate>
+                                    <Button Content="{Binding Description}" Command="{Binding DataContext.SelectSkillChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource TableSecondaryButton}" Margin="5,0" Padding="16,5" FontSize="14" ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}" />
+                                </DataTemplate></ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Viewbox>
                         <Image x:Name="PlayPhaseMarker" Grid.Row="3" Source="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seat__SeatRoundState_4.png" Width="140" Height="14" HorizontalAlignment="Left" Margin="146,0,0,0" Stretch="Fill" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False" />
                     </Grid>
                 </Border>
@@ -859,8 +904,8 @@
                         </StackPanel>
                     </Border>
                 </Border>
-                <Border x:Name="GeneralSelectionOverlay" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#46110E0B" Visibility="{Binding IsGeneralSelectionPending, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="TableOverlay_IsVisibleChanged">
-                    <Border x:Name="GeneralSelectionPanel" MaxWidth="1280" MaxHeight="640" Margin="24,12" Background="#F51C1916" BorderBrush="#9B8761" BorderThickness="2" Padding="22,15" HorizontalAlignment="Stretch" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle" IsKeyboardFocusWithinChanged="GeneralSelectionPanel_IsKeyboardFocusWithinChanged">
+                <Border x:Name="GeneralSelectionOverlay" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="#B8110E0B" Visibility="{Binding IsGeneralSelectionPending, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="TableOverlay_IsVisibleChanged">
+                    <Border x:Name="GeneralSelectionPanel" MaxWidth="1360" MaxHeight="740" Margin="24,12" Background="#FF201D19" BorderBrush="#9B8761" BorderThickness="2" Padding="22,15" HorizontalAlignment="Stretch" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle" IsKeyboardFocusWithinChanged="GeneralSelectionPanel_IsKeyboardFocusWithinChanged">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                             <StackPanel Margin="0,0,0,14">
@@ -882,36 +927,50 @@
                                 </DockPanel>
                             </StackPanel>
                             <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="438" VerticalAlignment="Top">
                                     <Viewbox.Style><Style TargetType="Viewbox"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></Viewbox.Style>
-                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding GeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
+                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding CandidateGeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
                                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DataContext.GeneralChoiceColumns, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     </ItemsControl>
                                 </Viewbox>
                                 <Grid Visibility="{Binding IsCustomGeneralSelectionOpen, Converter={StaticResource BoolToVisibility}}">
                                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                                    <TextBox x:Name="CustomGeneralSearchBox" Text="{Binding CustomGeneralSearch, UpdateSourceTrigger=PropertyChanged}" Background="#171F20" Foreground="#F1D298" BorderBrush="#867247" Padding="9,6" Margin="0,0,0,6" ToolTip="搜索武将姓名、版本或势力" />
-                                    <TextBlock Grid.Row="1" Text="{Binding CustomGeneralCountText}" Foreground="#C6B895" FontSize="11" Margin="0,0,0,6" />
-                                    <ListBox x:Name="CustomGeneralRoster" Grid.Row="2" ItemsSource="{Binding CustomGeneralChoices}" MaxHeight="350" Background="#251F18" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
-                                        <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /></Style></ListBox.ItemContainerStyle>
-                                        <ListBox.ItemTemplate><DataTemplate>
-                                            <Button Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" Padding="10,8" Margin="0,1" ToolTip="{Binding SkillDescription}">
-                                                <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}"><Style.Triggers><DataTrigger Binding="{Binding IsPreviewSelected}" Value="True"><Setter Property="BorderBrush" Value="#E2BE77" /><Setter Property="Background" Value="#53442B" /></DataTrigger></Style.Triggers></Style></Button.Style>
-                                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{Binding Name}" FontSize="16" Foreground="#F1D298" />
-                                                    <TextBlock Grid.Column="1" Text="{Binding Kingdom}" Foreground="#A8BD86" />
-                                                    <TextBlock Grid.Column="2" Text="{Binding SkillName}" TextTrimming="CharacterEllipsis" Foreground="#D3C3A5" />
-                                                </Grid>
-                                            </Button>
-                                        </DataTemplate></ListBox.ItemTemplate>
+                                    <Grid Margin="0,0,0,9">
+                                        <TextBox x:Name="CustomGeneralSearchBox" Text="{Binding CustomGeneralSearch, UpdateSourceTrigger=PropertyChanged}" Background="#171511" Foreground="#F1D298" BorderBrush="#867247" Padding="34,9,10,9" ToolTip="搜索武将姓名、技能、版本或势力" AutomationProperties.Name="搜索自选武将" />
+                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#B39A68" Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                        <TextBlock Text="搜索姓名、技能、版本或势力" Foreground="#9D927C" Margin="36,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                                            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding CustomGeneralSearch}" Value=""><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <DockPanel Grid.Row="1" Margin="1,0,5,9">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding CustomGeneralCountText}" Foreground="#C6B895" FontSize="11" />
+                                        <TextBlock Text="全部可选武将" Foreground="#A89B80" FontSize="11" />
+                                    </DockPanel>
+                                    <ListBox x:Name="CustomGeneralRoster" Grid.Row="2" ItemsSource="{Binding CustomGeneralChoices}" ItemTemplate="{StaticResource GeneralRosterTemplate}" Background="Transparent" BorderThickness="0"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                             VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.CacheLength="0.5,0.5" AutomationProperties.Name="自选武将列表" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
+                                        <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" />
+                                            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter HorizontalAlignment="Stretch" /></ControlTemplate></Setter.Value></Setter>
+                                        </Style></ListBox.ItemContainerStyle>
                                     </ListBox>
+                                    <TextBlock Grid.Row="2" Text="没有匹配的武将，请调整搜索内容" Visibility="{Binding HasNoCustomGeneralChoices, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#C6B895" FontSize="14" />
                                 </Grid>
-                                <Border Grid.Column="1" BorderBrush="#67573E" BorderThickness="1,0,0,0" Margin="14,0,0,0" Padding="16,4,0,0">
+                                <Border Grid.Column="1" Background="#191713" BorderBrush="#67573E" BorderThickness="1" Margin="18,0,0,0" Padding="14">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                                        <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="26" Foreground="#F7D898" />
-                                        <TextBlock Grid.Row="1" Text="{Binding SelectedGeneralChoice.HealthText}" Foreground="#A8BD86" FontSize="12" Margin="0,5,0,12" />
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="100" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Border x:Name="GeneralSelectionPreviewPortrait" Width="90" Height="122" HorizontalAlignment="Left" BorderBrush="#967F54" BorderThickness="1" Background="{Binding SelectedGeneralChoice.Portrait.ThumbnailBrush}" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                                <TextBlock Text="当前预选" Foreground="#B7A17B" FontSize="11" Margin="0,0,0,8" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="27" Foreground="#F7D898" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.Kingdom}" Foreground="#BFC898" FontSize="12" Margin="0,7,0,0" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.EditionText}" Foreground="#AD9A76" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock Grid.Row="1" Text="{Binding SelectedGeneralChoice.HealthText}" Foreground="#BDCCA0" FontSize="12" Margin="0,0,0,10" />
                                         <StackPanel Grid.Row="2" Margin="0,0,0,8" Visibility="{Binding HasGeneralVariants, Converter={StaticResource BoolToVisibility}}">
                                             <TextBlock Text="同人物版本" Foreground="#A8BD86" FontSize="11" Margin="0,0,0,4" />
                                             <ItemsControl x:Name="GeneralVariantChoices" ItemsSource="{Binding SelectedGeneralVariants}" ItemsPanel="{StaticResource ChoicePanel}">
@@ -922,8 +981,8 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </StackPanel>
-                                        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="200">
-                                            <TextBlock Text="{Binding SelectedGeneralChoice.SkillDescription}" Foreground="#DFD1B5" FontSize="12" LineHeight="21" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <ScrollViewer x:Name="GeneralSelectionSkillsScroller" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                            <TextBlock Text="{Binding SelectedGeneralChoice.SkillDescription}" Foreground="#E2D7BF" FontSize="13" LineHeight="23" TextWrapping="Wrap" Margin="0,0,8,0" />
                                         </ScrollViewer>
                                     </Grid>
                                 </Border>

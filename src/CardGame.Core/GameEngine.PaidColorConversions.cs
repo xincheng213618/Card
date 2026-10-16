@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             cardId, card.Kind, from, EffectiveSuit(owner, card), sequence, sequence, card.IsGeneralWeapon);
         ReplaceRuntimeTop(frame with { PaidColorConversion = new(frame.InstructionIndex, bind, origin),
             PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(PaidColorDiscardReason));
+        MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, from, new(PaidColorDiscardReason));
         frame = GetActiveProgramFrame(frame.Id);
         origin = origin with { SequenceAfter = _cardMovements[^1].Sequence };
         ReplaceRuntimeTop(frame with { PaidColorConversion = frame.PaidColorConversion! with { Origin = origin } });

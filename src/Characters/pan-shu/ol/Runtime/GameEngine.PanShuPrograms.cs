@@ -126,6 +126,7 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome ContinueZhirenTiers(ProgramSkillFrame active, int length, bool skippedDiscards)
     {
+        active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(active.Id));
         ReplaceRuntimeTop(GetActiveProgramFrame(active.Id) with { PanShuZhirenField = null });
         active = GetActiveProgramFrame(active.Id);
         if (length >= 3)
@@ -227,6 +228,8 @@ public sealed partial class GameEngine
             if (location.Zone != expectedZone || location.OwnerSeat is null)
                 throw new InvalidOperationException("The zhiren field card left its field zone.");
             var card = _cardZones.CardsAt(location).Single(item => item.Id == cardId);
+            active = AppendFrameNativeLogicalDiscard(active, active.OwnerSeat,
+                [card.Id], new($"skill-program.{active.SkillId}.zhiren-field"));
             MoveCards([card], location, CardLocation.DiscardPile,
                 new($"skill-program.{active.SkillId}.zhiren-field"),
                 movement => RecordBianFuRenForeignDiscardProducer(movement,active.OwnerSeat,active.Id));
@@ -236,7 +239,8 @@ public sealed partial class GameEngine
             ContinueZhirenFieldAfterEquipment(active);
             return;
         }
-        ReplaceRuntimeTop(GetActiveProgramFrame(active.Id) with { PanShuZhirenField = null });
+        active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(active.Id));
+        ReplaceRuntimeTop(active with { PanShuZhirenField = null });
         active = GetActiveProgramFrame(active.Id);
         var length = state.NameLength;
         if (length >= 3)

@@ -46,6 +46,75 @@ internal static class HuaManChecks
    var paid=E<SouyingNativeMutationEvent>(g).Single();Need(paid.ClaimedCount==1&&V(g,0).Equipment.Single(c=>c.Kind==CardKind.WoodenOx).Id==ox&&V(g,0).WoodenOxGrainCount==0&&V(g,0).Hand.Any(c=>c.Id==slash.CardId)&&g.CardMovements.Count(m=>m.CardId==grain&&m.From==CardLocation.WoodenOxGrain(0)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.huaman.discard"&&m.Sequence>paid.PaymentBefore&&m.Sequence<=paid.PaymentAfter)==1&&E<ProgramBindingResolvedEvent>(g).Count(e=>e.FrameId==paid.FrameId&&e.Completed)==1,"The chosen grain pays a genuine discard once, the Ox survives and the exact processing Slash is claimed through one successful cold-restored binding.");
   }
  }
+ public static void ActualSouyingClaimedTrickContinuesAndKeepsItsEntityCold()
+ {
+  foreach(var (scenario,kind) in new[]{("souying-trick",LegalActionKind.Duel),("souying-fire",LegalActionKind.FireAttack),("souying-snatch",LegalActionKind.Snatch),("souying-dismantlement",LegalActionKind.Dismantlement)})
+  {
+  var(g,r)=Start(scenario);Play(g);
+  var targetHandBefore=V(g,1).Hand.Count;
+  PlayNative(g,g.GetHumanLegalActions().First(a=>a.Kind==kind&&a.TargetSeats.SequenceEqual([1])));
+  if(kind==LegalActionKind.FireAttack){Reach(g,()=>P(g)?.Kind==DecisionKind.FireAttackDiscard);Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="fire-attack-skip");}
+  if(kind is LegalActionKind.Snatch or LegalActionKind.Dismantlement){Reach(g,()=>P(g)?.Kind==DecisionKind.SelectTargetCard);Answer(g,_=>true);}
+  Play(g);
+  var second=g.GetHumanLegalActions().First(a=>a.Kind==kind&&a.TargetSeats.SequenceEqual([1]));var cardId=second.CardId!.Value;
+  PlayNative(g,second);Offer(g,"ol:souying");g=Cold(g,r);Activate(g);
+  Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="discard")==true);g=Cold(g,r);Answer(g,c=>c.Cards.Single()!=cardId);
+  Reach(g,()=>E<SouyingNativeMutationEvent>(g).Any());var mutation=E<SouyingNativeMutationEvent>(g).Single();g=Cold(g,r);
+  if(kind==LegalActionKind.FireAttack){Reach(g,()=>P(g)?.Kind==DecisionKind.FireAttackDiscard);g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="fire-attack-discard"&&!c.Cards.Contains(cardId));}
+  if(kind is LegalActionKind.Snatch or LegalActionKind.Dismantlement){Reach(g,()=>P(g)?.Kind==DecisionKind.SelectTargetCard);g=Cold(g,r);Need(P(g)!.Choices.All(c=>c.Cards.Count==0)&&g.CreateSnapshot(2).PendingDecision is null,"A claimed trick keeps its actual private opaque hand-slot selection.");Answer(g,_=>true);}
+  Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==mutation.NativeUseId));g=Cold(g,r);
+  Need(!g.IsFaulted&&mutation.ClaimedCount==1&&V(g,0).Hand.Any(c=>c.Id==cardId)&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==0&&e.TargetSeat==1)==(kind==LegalActionKind.FireAttack?1:kind==LegalActionKind.Duel?2:0),"A paid Souying acquisition retains the exact trick entity while its original native effect resolves once and cold-replays.");
+  if(kind is LegalActionKind.Snatch or LegalActionKind.Dismantlement)Need(V(g,1).Hand.Count==targetHandBefore-2,"Each real use removes precisely one selected foreign hand entity.");
+  Need(g.CardMovements.Count(m=>m.CardId==cardId&&m.From==CardLocation.Processing&&m.To==CardLocation.Hand(0))==1&&!g.CardMovements.Any(m=>m.CardId==cardId&&m.Reason==CardMoveReasons.UseFinished),"Finishing the claimed trick cannot discard or acquire the same entity a second time.");
+  }
+ }
+ public static void ClaimedBorrowedSwordKeepsItsRealOwnerChoiceCold()
+ {
+  foreach(var slash in new[]{false,true})
+  {
+  var(g,r)=Start("souying-borrowed");Play(g);
+  Accept(g,new UseProgramSkillCommand(0,Driver,"wake",[],[1],g.Revision,P(g)!.PromptId));Play(g);
+  Accept(g,new UseProgramSkillCommand(0,Driver,"gear",[],[1],g.Revision,P(g)!.PromptId));Play(g);
+  if(slash){Accept(g,new UseProgramSkillCommand(0,Driver,"stock",[],[1],g.Revision,P(g)!.PromptId));Play(g);}
+  Need(V(g,1).Equipment.Any(c=>c.Kind==CardKind.Crossbow),"The real weapon owner must equip a real deck weapon before Borrowed Sword.");
+  var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual([1,0]));var cardId=action.CardId!.Value;
+  PlayNative(g,action);Offer(g,"ol:souying");Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="discard")==true);g=Cold(g,r);Answer(g,c=>c.Cards.Single()!=cardId);
+  Reach(g,()=>E<SouyingNativeMutationEvent>(g).Any());var mutation=E<SouyingNativeMutationEvent>(g).Single();g=Cold(g,r);
+  if(slash)Need(P(g) is{Kind:DecisionKind.RespondSlash,PlayerSeat:1},"The paid parent must actually suspend for its weapon owner's real response.");
+  Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==mutation.NativeUseId));g=Cold(g,r);
+  Need(!g.IsFaulted&&mutation.ClaimedCount==1&&V(g,0).Hand.Any(c=>c.Id==cardId),"Borrowed Sword must finish once and preserve its legitimately claimed original entity.");
+  Need(slash?V(g,1).Equipment.Any(c=>c.Kind==CardKind.Crossbow)&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==1&&e.TargetSeat==0)==1:!V(g,1).Equipment.Any(c=>c.Kind==CardKind.Crossbow)&&V(g,0).Hand.Any(c=>c.Kind==CardKind.Crossbow),"The weapon owner must either use the actual converted Slash once or surrender the actual weapon once.");
+  Need(!g.CardMovements.Any(m=>m.CardId==cardId&&m.Reason==CardMoveReasons.UseFinished),"Borrowed Sword cleanup cannot discard its already claimed entity.");
+  }
+ }
+ public static void ClaimedSoleTargetGroupKeepsDamageAndSourceOwnershipCold()
+ {
+  var(g,r)=Start("souying-group");Play(g);var target=Enumerable.Range(1,3).Single(s=>V(g,s).GeneralId=="fixture:huaman-peer-2");
+  Accept(g,new UseProgramSkillCommand(0,Driver,"wake",[],[target],g.Revision,P(g)!.PromptId));Play(g);
+  var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.BarbarianAssault);var cardId=action.CardId!.Value;
+  PlayNative(g,action);Offer(g,"ol:souying");Need(g.ResolutionStack.OfType<CardUseFrame>().Last().Action!.EffectiveDesignatedTargetSeats.SequenceEqual([target]),"Actual Manyi immunity must leave precisely one real designated group target.");Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="discard")==true);g=Cold(g,r);Answer(g,c=>c.Cards.Single()!=cardId);
+  Reach(g,()=>E<SouyingNativeMutationEvent>(g).Any());var mutation=E<SouyingNativeMutationEvent>(g).Single();g=Cold(g,r);
+  Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==mutation.NativeUseId));g=Cold(g,r);
+  Need(!g.IsFaulted&&mutation.ClaimedCount==1&&V(g,0).Hand.Any(c=>c.Id==cardId)&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==0&&e.TargetSeat==target)==2,"A group card with one actual target keeps its real damage and legitimate source-owned material after Souying.");
+  Need(!g.CardMovements.Any(m=>m.CardId==cardId&&m.Reason==CardMoveReasons.UseFinished),"Group cleanup cannot move the already claimed source-owned material again.");
+ }
+ public static void ClaimedSoleTargetRecoveryAndDraftKeepTheirNativeMaterialCold()
+ {
+  foreach(var (scenario,kind) in new[]{("souying-recovery",LegalActionKind.PeachGarden),("souying-draft",LegalActionKind.FiveGrains)})
+  {
+   var(g,r)=Start(scenario);Play(g);var target=Enumerable.Range(1,3).Single(s=>V(g,s).GeneralId=="fixture:huaman-peer-2");
+   Accept(g,new UseProgramSkillCommand(0,Driver,"wake",[],[target],g.Revision,P(g)!.PromptId));Play(g);
+   var hand=V(g,target).HandCount;var hp=V(g,target).Hp;
+   var action=g.GetHumanLegalActions().First(a=>a.Kind==kind&&a.ConversionSource is not null&&a.TargetSeats.SequenceEqual([target]));var cardId=action.CardId!.Value;
+   Accept(g,new PlayCardCommand(0,cardId,action.TargetSeats,g.Revision,P(g)!.PromptId,action.PlayedCardKind){ConversionSource=action.ConversionSource});
+   Offer(g,"ol:souying");Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="discard")==true);g=Cold(g,r);Answer(g,c=>c.Cards.Single()!=cardId);
+   Reach(g,()=>E<SouyingNativeMutationEvent>(g).Any());var mutation=E<SouyingNativeMutationEvent>(g).Single();g=Cold(g,r);
+   Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==mutation.NativeUseId));g=Cold(g,r);
+   Need(!g.IsFaulted&&mutation.ClaimedCount==1&&V(g,0).Hand.Any(c=>c.Id==cardId)&&g.State.ProcessingCardCount==0,"A claimed group recovery or draft preserves its original physical invoice and drains Processing after its real effect.");
+   Need(kind==LegalActionKind.PeachGarden?V(g,target).Hp==hp+1:V(g,target).HandCount==hand+1&&E<CardsRevealedEvent>(g).Single(e=>e.ResolutionId==mutation.NativeUseId).Cards.Count==1,"The exact remaining target receives one real recovery or one real revealed card.");
+   Need(!g.CardMovements.Any(m=>m.CardId==cardId&&m.Reason==CardMoveReasons.UseFinished),"Recovery and public-draft cleanup cannot discard their already claimed material.");
+  }
+ }
  public static void ActualSouyingIncomingDirectionIndependentCancellationCold()
  {
   var(g,r)=Start("incoming");Play(g);PlayNative(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1])));Play(g);End(g);Offer(g,"ol:souying");var use=g.ResolutionStack.OfType<CardUseFrame>().Last();var q=use.HuaManSouyingQualification!;Need(q.ActorSeat!=0&&q.TargetSeat==0&&q.DirectionOrdinal==2&&E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==q.ActorSeat&&e.TargetSeat==0)==1,"An opposite-direction use does not make the first incoming use count as the second; the actual first incoming Slash resolves normally.");g=Cold(g,r);Activate(g);Reach(g,()=>P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="discard")==true);Answer(g,_=>true);Reach(g,()=>E<SouyingNativeMutationEvent>(g).Any(e=>e.Cancelled));g=Cold(g,r);var cancelled=E<SouyingNativeMutationEvent>(g).Single(e=>e.Cancelled);Reach(g,()=>E<CardUseFinishedEvent>(g).Any(e=>e.ResolutionId==cancelled.NativeUseId));Need(E<DamageAppliedEvent>(g).Count(e=>e.SourceSeat==q.ActorSeat&&e.TargetSeat==0)==1&&cancelled.ClaimedCount==0,"The paid incoming use is invalid only for its sole actual target, with no fabricated claim or second damage.");
@@ -82,9 +151,19 @@ internal static class HuaManChecks
    void Add(SkillProgramCatalog c){foreach(var(id,p)in c.Programs)b.AddSkill(new(id,c.Presentations[id].Name,c.Presentations[id].Description){Program=p,ProgramPresentation=c.Presentations[id],SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,_=>id==Incoming?100000d:id=="ol:manyi"?50000d:id==Quiet?10000d:-10000d)});}Add(SkillProgramCatalog.Load(Read("rules.json"),Read("presentation.json")));
    var node=JsonNode.Parse("""{"skills":[]} """)!;node["schemaVersion"]=SkillProgramCatalog.RulesSchemaVersion;var skills=node["skills"]!.AsArray();skills.Add(JsonNode.Parse("""{"id":"fixture:huaman-driver","revision":1,"modifiers":[{"id":"actual-slash-limit","query":"slashLimit","operation":"add","value":4,"priority":0}]}"""));skills.Add(JsonNode.Parse("""{"id":"fixture:huaman-quiet","revision":1,"triggers":[{"id":"empty-original-hand","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"discardOwnedZoneCards","target":"owner","zones":["hand"]}]},{"id":"skip-play","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}"""));
    if(scenario=="mansi-wide")skills[0]!["modifiers"]!.AsArray().Add(JsonNode.Parse("""{"id":"actual-wide-initial-hand","query":"initialHandSize","operation":"add","value":61,"priority":0}"""));
+   if(scenario is "souying-fire" or "souying-snatch" or "souying-dismantlement")skills[1]!["triggers"]!.AsArray().RemoveAt(0);
    if(scenario=="souying-grain")skills[0]!["activations"]=JsonNode.Parse("""[{"id":"gear","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]}]""");
+   if(scenario is "souying-borrowed" or "souying-group")skills[0]!["activations"]=JsonNode.Parse("""[{"id":"wake","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"useVirtualSlash","target":"selectedTarget"}]},{"id":"gear","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},{"id":"stock","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"draw","target":"selectedTarget","amount":2}]}]""");
+   if(scenario=="souying-borrowed")skills[1]!["viewAs"]=JsonNode.Parse("""[{"id":"slash","inputKinds":[],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":true}]""");
    var labels=new Dictionary<string,object>{{Driver,new{name="真实驱动",description="native"}},{Quiet,new{name="静默",description="native"}}};
    var incoming=scenario=="incoming";var xili=scenario.StartsWith("xili",StringComparison.Ordinal);var watched=scenario.Contains("loss",StringComparison.Ordinal)||scenario.Contains("death",StringComparison.Ordinal);
+   var soleGroup=scenario is "souying-recovery" or "souying-draft";
+   if(soleGroup)
+   {
+    skills[0]!["activations"]=JsonNode.Parse("""[{"id":"wake","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"useVirtualSlash","target":"selectedTarget"}]}]""");
+    skills[0]!["viewAs"]=JsonNode.Parse($$"""[{"id":"group","inputKinds":[],"inputSuits":[],"outputKind":"{{(scenario=="souying-recovery"?"peachGarden":"fiveGrains")}}","forPlay":true,"forResponse":false,"useOnly":true,"singleCardTrickUse":true,"excludeOwnerEffects":true}]""");
+    skills.Add(JsonNode.Parse("""{"id":"fixture:huaman-global-immune","revision":1,"cardPolicies":[{"id":"immune-groups","kind":"prohibitTargetBySuit","inputSuit":"heart","cardKinds":["peachGarden","fiveGrains"]}]}"""));labels["fixture:huaman-global-immune"]=new{name="真实群体目标免疫",description="native"};
+   }
    if(incoming||xili)
    {
     var effects=incoming?"""[{"op":"selectTarget","target":"owner","targetKind":"anyLivingHighestHp"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget","useCardActionWindows":true},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget","useCardActionWindows":true}]""":"""[{"op":"damage","target":"owner","amount":1},{"op":"selectTarget","target":"owner","targetKind":"anyLivingHighestHp"},{"op":"damage","target":"selectedTarget","amount":1},{"op":"damage","target":"selectedTarget","amount":1}]""";
@@ -97,10 +176,23 @@ internal static class HuaManChecks
    Add(SkillProgramCatalog.Load(node.ToJsonString(),JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=labels})));
    var extras=new List<string>{"ol:manyi","ol:mansi","ol:souying","ol:zhanyuan"};if(xili)extras.Add("ol:xili");if(watched)extras.Add(Watch);b.AddGeneral(new(Owner,"真实花鬘","supporter",Driver,"shu",incoming?14:3,extras,GeneralGender.Female));var peers=new List<string>();
    if(incoming||xili){peers.Add("fixture:huaman-native-peer");b.AddGeneral(new(peers.Last(),"真实其他来源","supporter",Incoming,"wei",12,xili?[Quiet,"ol:xili"]:[Quiet],GeneralGender.Male));}
-   else{peers.Add("fixture:huaman-manyi-peer");b.AddGeneral(new(peers.Last(),"真实蛮裔对照","supporter","ol:manyi","shu",12,[Quiet],GeneralGender.Male));}
-   for(var i=peers.Count;i<3;i++){var id="fixture:huaman-peer-"+i;peers.Add(id);b.AddGeneral(new(id,"真实其他角色","supporter",Quiet,"wei",xili&&i==1?16:12,[],GeneralGender.Male));}
+   else{peers.Add("fixture:huaman-manyi-peer");b.AddGeneral(new(peers.Last(),"真实蛮裔对照","supporter","ol:manyi","shu",12,soleGroup?[Quiet,"fixture:huaman-global-immune"]:[Quiet],GeneralGender.Male));}
+   for(var i=peers.Count;i<3;i++){var id="fixture:huaman-peer-"+i;peers.Add(id);b.AddGeneral(new(id,"真实其他角色","supporter",Quiet,"wei",xili&&i==1?16:12,scenario=="souying-group"&&i==1?["ol:manyi"]:soleGroup&&i==1?["fixture:huaman-global-immune"]:[],GeneralGender.Male));}
    if(scenario=="souying-grain")b.AddCard(new("fixture:huaman-ox","木牛流马","装备牌","真实原生木牛",CardKind.WoodenOx));
-   b.AddDeck(new("fixture:huaman-deck","small",4,0,[]){PhysicalCards=Enumerable.Range(0,80).Select(index=>new ContentDeckPhysicalCard(scenario=="souying-grain"&&index==48?"fixture:huaman-ox":scenario=="awakening"?"standard:barbarian_assault":"standard:slash",Suit.Heart,7)).ToArray()});b.AddMode(new(Mode,"真实花鬘",4,4,new Dictionary<string,int>{{nameof(Role.Lord),1},{nameof(Role.Rebel),3}},"fixture:huaman-deck",GeneralCandidateCount:4,GeneralPoolIds:[Owner,..peers]));
+   if(scenario=="souying-borrowed")b.AddCard(new("fixture:huaman-borrowed","借刀杀人","锦囊牌","真实原生借刀",CardKind.BorrowedSword));
+   string DeckCard(int index)=>scenario switch
+   {
+    "souying-grain" when index==48=>"fixture:huaman-ox",
+    "souying-borrowed" when index is >=48 and <=50=>"standard:crossbow",
+    "souying-borrowed"=>"fixture:huaman-borrowed",
+    "awakening" or "souying-group"=>"standard:barbarian_assault",
+    "souying-trick"=>"standard:duel",
+    "souying-fire"=>"standard:fire_attack",
+    "souying-snatch"=>"standard:snatch",
+    "souying-dismantlement"=>"standard:dismantlement",
+    _=>"standard:slash"
+   };
+   b.AddDeck(new("fixture:huaman-deck","small",4,0,[]){PhysicalCards=Enumerable.Range(0,80).Select(index=>new ContentDeckPhysicalCard(DeckCard(index),Suit.Heart,7)).ToArray()});b.AddMode(new(Mode,"真实花鬘",4,4,new Dictionary<string,int>{{nameof(Role.Lord),1},{nameof(Role.Rebel),3}},"fixture:huaman-deck",GeneralCandidateCount:4,GeneralPoolIds:[Owner,..peers]));
   }
  }
 }

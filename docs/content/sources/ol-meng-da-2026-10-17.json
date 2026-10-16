@@ -1,0 +1,235 @@
+{
+  "capturedOn": "2026-10-17",
+  "product": "sanguosha-ol",
+  "generalId": "ol:meng-da",
+  "identity": {
+    "gid": 558,
+    "name": "孟达",
+    "variant": "ordinary",
+    "faction": "shu",
+    "gender": "Male",
+    "baseHp": 4,
+    "identityEvidence": "Current official OL hero/API, official 2023-08-25 release table and current public client a558/MengDa agree on Shu, male, four HP. No pre-existing repository manifest for this same product and ordinary variant was found."
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-17T01:43:46.57667+08:00",
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    },
+    "decoder": "Public sgsGame_a.sgs InitOfb pR.WorkParse: AES-CFB128 then gzip",
+    "members": {
+      "character.sgs": {
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "target": {
+      "path": "GameCharacters.character[1258]",
+      "row": {
+        "a": 558,
+        "b": "孟达",
+        "d": "MengDa",
+        "e": 44,
+        "f": "46",
+        "g": 2,
+        "h": 1,
+        "i": 4,
+        "j": 3302,
+        "p": 2,
+        "q": "1",
+        "r": "9055801",
+        "y": "初仕刘璋，与张松、法正为腹契友，与李严曾结生死之交。与刘封一同在樊城之战中未出援兵救关羽，在魏劝降刘封未果，受曹丕重用，与桓阶、夏侯尚亲善。后与诸葛亮密通归蜀，被司马懿伐杀。",
+        "z": "能灵活调整势力，根据同势力角色的行为随机应变。",
+        "aa": 160,
+        "ab": "1043,1044",
+        "ac": "张松,法正,李严,桓阶,夏侯尚",
+        "ad": "画师:匠人绘",
+        "x": "望时而待之，####孰与应时而使之！",
+        "al": 1731,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20230927T235959",
+        "LordCardRate1": 15,
+        "LordCardRate2": 44,
+        "starMax": 4,
+        "freetitle": "0,攻击强将"
+      },
+      "spells": [
+        {
+          "path": "GameSpells.spell[1687]",
+          "row": {
+            "a": 3302,
+            "b": "3,5",
+            "c": "苟得",
+            "d": "GouDe",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "n": 0,
+            "o": "每回合结束时，若与你势力相同的角色此回合执行过以下项，你可以执行另一项：<br>&nbsp;1.摸一张牌；<br>&nbsp;2.弃置一名角色一张手牌；<br>&nbsp;3.视为使用一张【杀】；<br>&nbsp;4.变更势力。",
+            "w": "请选择弃置牌的目标|请选择使用<font color='#FFD800'>杀</font>的目标|请选择要变更的势力|请弃置{0}一张手牌",
+            "v": "摸一张牌|弃置牌|使用杀|变更势力"
+          }
+        }
+      ]
+    }
+  },
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/558",
+      "finalUrl": "https://www.sanguosha.com/hero/558",
+      "status": 200,
+      "byteCount": 23918,
+      "sha256": "967edc16f39902a67c73324f7187b15f19a390d4cb31bb0c3eae2b524a421969"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=558",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=558",
+      "status": 200,
+      "byteCount": 947,
+      "sha256": "7fc1912c2a786fcf7528713f794173a01334b4ea10a632e956db598d3f613a56",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 558,
+              "name": "孟达",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/558.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55800.png",
+              "label": [
+                "多刀",
+                "配合神将",
+                "持久"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "史诗",
+              "biography": "初仕刘璋，与张松、法正为腹契友，与李严曾结生死之交。与刘封一同在樊城之战中未出援兵救关羽，在魏劝降刘封未果，受曹丕重用，与桓阶、夏侯尚亲善。后与诸葛亮密通归蜀，被司马懿伐杀。",
+              "characteristic": "能灵活调整势力，根据同势力角色的行为随机应变。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "release": {
+      "url": "https://www.sanguosha.com/news/20230822_4295_3615",
+      "finalUrl": "https://www.sanguosha.com/news/20230822_4295_3615",
+      "status": 200,
+      "byteCount": 304508,
+      "sha256": "7240d61a5ad7eafd7c048da486c2772e912b2904042f781a0fa083dbafd2d706",
+      "title": " 8.27-9.1 占星秘宝吾彦返场 史诗将孟达、段颎来袭 忠勇助关*周仓传动上新 - 三国杀OL官网",
+      "publishedTimes": [
+        "2023-08-25 17:02:33",
+        "2023-08-25 17:02:33",
+        "2023-08-25 17:02:33"
+      ]
+    },
+    "portrait": {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55800.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55800.png",
+      "status": 200,
+      "byteCount": 914312,
+      "sha256": "06e318903f7df16e09901d32cca978dda013cf8c2ac786904b408908b39e2dc3",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-meng-da.png",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  },
+  "skills": [
+    {
+      "id": "ol:goude",
+      "clientSkillId": 3302,
+      "clientName": "GouDe",
+      "name": "苟得",
+      "text": "每回合结束时，若与你势力相同的角色此回合执行过以下项，你可以执行另一项：1.摸一张牌；2.弃置一名角色一张手牌；3.视为使用一张【杀】；4.变更势力。"
+    }
+  ],
+  "interpretationSources": [
+    {
+      "url": "https://www.taptap.cn/moment/452028909320406580",
+      "author": "灼炎丶FLAME / 三国杀OL撰稿组",
+      "publishedOn": "2023-09-16",
+      "authority": "Same-product contributor analysis and actual play observations, not an official FAQ.",
+      "supports": [
+        "The trigger is true whole-turn end, later than the Ending phase.",
+        "Same-faction includes the owner, independently of the actual turn owner's faction.",
+        "Whole Draw1 qualifies; ordinary whole Draw2/3 does not. Iron Chain recast's Draw1 qualifies.",
+        "The entire discard invocation must discard exactly one Hand card; either its initiator or actual executor can provide the faction match. The Hand loser alone is insufficient.",
+        "Only a genuine zero-entity Slash Use qualifies, with normal target distance. A printed or material-converted Slash does not.",
+        "Choose an item not already performed by the same-faction group; with all four present, there is no remaining option."
+      ]
+    },
+    {
+      "url": "https://www.taptap.cn/moment/454235821747208810",
+      "authority": "Same-product contributor practical analysis, not an official FAQ.",
+      "supports": [
+        "Goude's trigger follows Ending-phase effects such as Biyue and Changji."
+      ]
+    }
+  ],
+  "implementationInferences": [
+    "For each actual AfterTurnEnded binding, freeze the history cutoff, the owner's then-current effective faction, all seats currently sharing that faction, and the resulting four-bit executed mask at the binding's actual Begin. The official text and server-client mask do not specify historical faction sampling. Earlier Goude resolutions in this same window may therefore change eligibility for a later binding; no paid child recomputes its own frozen mask.",
+    "The text does not require a historical actor or the completed actual turn owner to remain alive. Whole-turn facts from dead actors are retained, and the living owner's current same-faction seat set includes such seats.",
+    "Draw qualification uses one genuine native whole invocation with actual count exactly one. Requested Draw2 with actual one because of card shortage follows that actual-count contract; no dedicated product FAQ was found for this shortage edge.",
+    "Discard qualification requires whole primary actual count one and Hand count one. Multi-card HE payments containing only one Hand card do not qualify. Native GeneralWeapon OutsideGame normalization counts as a primary equipment discard; Wood Ox spill, use/response costs, recast and death cleanup are excluded from logical discard invocations.",
+    "Zero-entity Slash history follows a real CardUseDeclared Use and the exact same-use native actor-replacement chain. Conversion activation costs alone do not establish material count. True response uses are determined by native Use; pure played Slash responses do not qualify.",
+    "Changing faction offers the current ordinary OL client domain Wei, Shu, Wu, Qun and Jin except the current effective faction. Initial setup SelectFaction is not a turn action. A later real Huashen declaration or invalidation replaces older effective-faction choices through the shared native faction mechanism; this interaction is an engine integration inference rather than a MengDa-specific FAQ.",
+    "The optional chosen action is fully native: Draw1, one actual opaque Hand discard including self, one normal-range zero-entity Slash Use, or one actual effective-faction mutation. Original frames, materials, history masks, payment and typed child returns are retained across source loss, death and cold replay."
+  ],
+  "verification": {
+    "status": "implemented-awaiting-root-focused-verification",
+    "focusedChecks": [
+      "GoudeWholeInvocationHistoryAndOptionMasksCold",
+      "GoudeOpaqueHandDiscardAndPaidSourceLossCold",
+      "GoudeNativeZeroSlashRangeResponseAndDeathCold",
+      "GoudeActualFactionChangeAndCompletedTurnTimingCold"
+    ]
+  }
+}
+

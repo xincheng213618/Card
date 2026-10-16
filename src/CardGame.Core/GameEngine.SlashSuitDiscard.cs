@@ -152,7 +152,7 @@ public sealed partial class GameEngine
         frame = frame with { SlashSuitDiscard = draft with
         { Stage = ProgramSlashSuitDiscardStage.PaymentMovement, PaidCardId = cardId, PaidFrom = from } };
         ReplaceRuntimeTop(frame);
-        MoveCard(card, from, CardLocation.DiscardPile, new("skill-program.slash-suit-discard.payment"));
+        MoveLogicalDiscard(frame.OwnerSeat, draft.TargetSeat, card, from, new("skill-program.slash-suit-discard.payment"));
         var sequence = _cardMovements.LastOrDefault(move => move.CardId == cardId && move.From == from &&
             move.To == CardLocation.DiscardPile && move.Reason.Value == "skill-program.slash-suit-discard.payment")?.Sequence;
         frame = GetActiveProgramFrame(frame.Id);

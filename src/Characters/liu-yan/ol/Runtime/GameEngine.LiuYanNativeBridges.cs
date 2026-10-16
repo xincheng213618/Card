@@ -17,8 +17,15 @@ public sealed partial class GameEngine
         });
         var current=_resolutionStack.OfType<ProgramSkillFrame>().Single(x=>x.Id==f.Id);
         ReplaceRuntimeFrame(current.Id,current with{LiuYan=current.LiuYan! with{After=_movementSequence}});
+        if(!IsLiuYanLimuUse(id))
+        {
+            var actual=LifecycleCardUse(id)!;var a=actual.Action!;var p=_resolutionStack.OfType<ProgramSkillFrame>().Single(x=>x.Id==f.Id);
+            throw new InvalidOperationException($"Limu issue proof failed: receipt={ValidLiuYan(p)},origin={actual.LiuYanLimu==o},kind={actual.CardKind}/{a.EffectiveKind},suit={a.EffectiveSuit},rank={a.EffectiveRank}/{o.Rank},red={a.EffectiveIsRed},provider={a.ProviderSeat}/{o.ActorSeat},declared={ProgramEventHistory<CardUseDeclaredEvent>().Count(e=>e.ResolutionId==id)},actor={ShownEntityUseActorMatches(actual,o.ActorSeat,o.ActorSeat)},cost={a.PhysicalCards.Count},conversion={a.ConversionChain.SequenceEqual([o.Source])},from={(a.PhysicalCards.Count==1?a.PhysicalCards[0].From.ToString():"none")},expected={o.From}");
+        }
         BeginJizhiOrNullificationWindow(id,card,o.ActorSeat,[o.ActorSeat],LegalActionKind.Indulgence,playedCardKind:CardKind.Indulgence);
     }
+    private bool HasPaidLiuYanInitialSelection(ProgramSkillFrame f)=>f.LiuYan is{Operation:SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover,PaymentSequence:not null,Use:{}o}&&
+        f.SelectedCardIds.SequenceEqual([o.CardId])&&ValidLiuYan(f);
     private bool IsLiuYanLimuUse(long id)
     {
         if(LifecycleCardUse(id)is not{LiuYanLimu:{}o,CardKind:CardKind.Indulgence,Action:{Type:CardActionType.Use}a}use||use.CardId!=o.CardId||id!=o.CardUseFrameId||a.ActionId!=o.ActionId||a.EffectiveKind!=CardKind.Indulgence||

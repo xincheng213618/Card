@@ -85,6 +85,8 @@ internal static class Program
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("table modal focus keeps opening log and result navigation inside their panels", () => TableOverlayNavigationChecks.OpeningLogAndResults(output));
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
+            Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
+            Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("Identity concealment UI: ActualProjectedConcealmentAndAppearanceBridge", () => IdentityConcealmentViewChecks.ActualProjectedConcealmentAndAppearanceBridge(output));
@@ -107,6 +109,10 @@ internal static class Program
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("next-card target adjustment uses portrait drafts and exact public cards", () => NextCardTargetUiChecks.PortraitDraftAndPublicCardChoices(output));
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
+            Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
+            Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));
+            Check("Pozhu selects its skill before materials without duplicate prompts or replacing printed faces", () => ConversionSkillSelectionChecks.PozhuKeepsPrintedFaces(output));
+            Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("shared and acquired skills use the recipient rail with exact owners and expiry", () => SkillRailUiChecks.SharedAndAcquiredSkills(output));
             Check("Bolan shared phase skill UI preserves owner choice and recipient expiry", () => SharedPhaseSkillUiChecks.BolanOwnerChoiceAndRecipientRail(output));
@@ -118,8 +124,14 @@ internal static class Program
             Check("Draw-funded zero Use exact source private draw child and stale action", () => TieredRoundZeroUseUiChecks.DrawFundedZeroUseSubmitsExactSourceAndPrivateDrawChild(output));
             Check("Program public card choices restore exact faces and submit current choices", () => PublicProgramCardsUiChecks.RevealedChoicesRestoreAndSubmit(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
+            Check("Xiantu choices use the bottom dock and confirm two cards together", () => ProgramOwnedCardsUiChecks.XiantuDockAndBatch(output));
             Check("public pile costs use the named foreign pile and shared confirmation draft", () => PublicPileSkillUiChecks.ForeignPublicPileCostsUseSharedDraft(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
+            Check("Stone Axe selects two owned cards before native yes or no confirmation", () => StoneAxeSelectionChecks.TwoCardsThenConfirmation(output));
+            Check("card payments select equipment and bounded sets before confirmation", () => CardPaymentSelectionChecks.SharedPayments(output));
+            Check("Spear starts from its equipment slot and confirms exact materials", () => EquipmentSkillInteractionChecks.SpearStartsFromEquipment(output));
+            Check("Sanchen and Zhiheng confirm mixed equipment sets with visible progress", () => EquipmentSkillInteractionChecks.SanchenAndZhihengMixZones(output));
+            Check("Taoluan gift declines through the bottom action before or after selection", () => TaoluanDeclineUiChecks.BottomDecline(output));
             Check("hand responses label actual decline and retain native press feedback", () => NativeActionFeedbackChecks.ResponseSemantics(output));
             Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
             Check("device preferences persist before play and survive legacy loads and tutorials", () => PreferencesChecks.StartupAndMigration(output));
@@ -128,8 +140,11 @@ internal static class Program
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", () => NationalSeatChecks.PrivacyAndReveal(output));
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));
-            Check("failed writes and incompatible reads preserve the active game", () => PersistenceChecks.FailedFilesPreserveGame(output));
+            Check("failed writes preserve saves and failed reads initialize a new game", () => PersistenceChecks.FailedWritesPreserveSavesAndFailedLoadsInitializeGame(output));
             Check("faulted sessions preserve saves and explain recovery", PersistenceChecks.FaultedSessionPreservesSavesAndExplainsRecovery);
+            Check("exception reports preserve failed commands and survive new matches", () => ExceptionReportChecks.FaultReportsSurviveNewMatches(output));
+            Check("exception reports keep recovery when log writes fail", () => ExceptionReportChecks.DiagnosticWriteFailurePreservesFaultHandling(output));
+            Check("exception reports retain stacks when recovery capture fails", () => ExceptionReportChecks.MissingRecoveryPrefixStillPreservesStack(output));
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
             Check("battle feedback skill effects use public committed identities once", () => BattleEffectsChecks.PublicSkills(output));

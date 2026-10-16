@@ -62,7 +62,16 @@ public sealed partial class MainViewModel
                 new EngineRunResult(current.Status, current.Winner, current, current.PendingDecision, _game.Revision));
         }
         var firstEvent = _game.Events.Count;
-        var result = _game.Submit(command);
+        var previousRevision = _game.Revision;
+        CommandResult result;
+        try { result = _game.Submit(command); }
+        catch (Exception exception)
+        {
+            var committed = _game.Revision > previousRevision;
+            RecordExceptionReport(exception, committed ? "SubmitCommand committed delivery" : "SubmitCommand",
+                committed ? null : command);
+            throw;
+        }
         if (result.Accepted)
         {
             try
@@ -191,11 +200,28 @@ public sealed partial class MainViewModel
             _saveTimer?.Start();
             CaptureCompletedHistory();
         }
-        catch (Exception exception) when (IsSaveException(exception))
+        catch (Exception exception)
         {
+            // Start clean without autosaving over the file that failed to load.
+            _saveTimer?.Stop();
+            _autoSavePending = false;
+            _sessionActivated = false;
+            IsAutoAdvance = false;
+            var wasInitializing = _initializing;
+            try
+            {
+                _initializing = true;
+                if (!_contentRegistry.Modes.ContainsKey(SelectedTableMode.ModeId))
+                    SelectedTableMode = TableModes.First(mode => _contentRegistry.Modes.ContainsKey(mode.ModeId));
+                NewGame();
+            }
+            finally { _initializing = wasInitializing; }
+            IsNewGameSetupOpen = false;
+            IsHelpOpen = false;
+            IsLogOpen = false;
             _loadFailed = true;
             HasSaveError = true;
-            SaveStatus = $"读取失败：{ReadableSaveError(exception)} 当前牌局保持不变。";
+            SaveStatus = $"读取失败：{ReadableSaveError(exception)} 已初始化新牌局，原存档未被覆盖。";
         }
     }
 

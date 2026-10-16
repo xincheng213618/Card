@@ -113,7 +113,7 @@ public sealed partial class GameEngine
         var invoice = new BlackGiftContestDiscard(winner, selected, locations, before, before);
         ReplaceRuntimeTop(f with { BlackGiftContest = r with { Stage = BlackGiftContestStage.DiscardPaid, SelectedDiscardIds = [], Discard = invoice },
             PendingMovementContinuation = new(winner, 0, null) });
-        MoveProgramCardsFromMultipleSources(selected, CardLocation.DiscardPile, new(BlackGiftDiscardReason(f)), (_, records) =>
+        MoveProgramLogicalDiscard(f, winner, selected, new(BlackGiftDiscardReason(f)), (_, records) =>
         {
             var active = GetActiveProgramFrame(f.Id); var paid = invoice with { After = records.Max(m => m.Sequence) };
             ReplaceRuntimeTop(active with { BlackGiftContest = active.BlackGiftContest! with { Discard = paid } });

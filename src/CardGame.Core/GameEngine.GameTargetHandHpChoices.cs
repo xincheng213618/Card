@@ -67,7 +67,7 @@ public sealed partial class GameEngine
         var before = PrivateOfferSequence;
         ReplaceRuntimeTop(f = f with { GameTargetHandHp = r with { Stage = "children", CardIds = ids, Locations = locations,
             ActualCount = ids.Length, SequenceBefore = before, SequenceAfter = before }, PendingMovementContinuation = new(r.TargetSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(GameHandHpReason(f)));
+        MoveProgramLogicalDiscard(f, r.TargetSeat, ids, new(GameHandHpReason(f)));
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { GameTargetHandHp = f.GameTargetHandHp! with { SequenceAfter = PrivateOfferSequence } });
         AdvanceEventRulesAndQueueFact(new GameTargetHandHpMovementIssuedEvent(f.Id, r.TargetSeat, false, ids.Length, before, PrivateOfferSequence));
         if (!TryDrainFireTargetMovement(f)) ReturnGameTargetHandHpMovement(f);

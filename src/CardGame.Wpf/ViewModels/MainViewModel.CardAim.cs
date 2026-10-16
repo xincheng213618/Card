@@ -15,7 +15,7 @@ public sealed partial class MainViewModel
         private readonly int _humanSeat;
         private readonly PromptId _promptId;
         private readonly CardConversionSource? _conversion;
-        private readonly bool _wusheng;
+        private readonly PlayConversionDraft? _playConversion;
         private readonly int? _target;
         private readonly int[] _targets;
         private readonly string _text;
@@ -29,7 +29,7 @@ public sealed partial class MainViewModel
             _humanSeat = owner._snapshot.HumanSeat;
             _promptId = owner._snapshot.PendingDecision!.PromptId;
             _conversion = owner._selectedConversionSource;
-            _wusheng = owner.IsWushengSelectionPending;
+            _playConversion = owner._playConversionSelection;
             _target = owner._selectedTargetSeat;
             _targets = owner._selectedCardTargetSeats.ToArray();
             _text = owner.SelectedCardText;
@@ -48,22 +48,22 @@ public sealed partial class MainViewModel
             // An incomplete physical-card draft can legitimately have no
             // source selected yet, so it need not already be confirmable.
             var actions = owner.GetViewLegalActions().Where(action => action.CardId == _card.Id &&
-                action.ConversionSource == _conversion).ToArray();
+                action.ConversionSource == _conversion && (_playConversion is null || _playConversion.Mode?.Matches(action) == true)).ToArray();
             if (_conversion is not null && actions.Length == 0 ||
                 _target is { } target && !actions.Any(action => action.TargetSeats.Contains(target)) ||
                 _targets.Length > 0 && !actions.Any(action => _targets.All(action.TargetSeats.Contains)))
                 return false;
 
             owner._selectedCardId = _card.Id;
-            var changedWushengMode = owner.IsWushengSelectionPending != _wusheng;
+            var changedPlayConversionMode = owner._playConversionSelection != _playConversion;
             owner._selectedConversionSource = _conversion;
-            owner._isSelectingWusheng = _wusheng;
+            owner._playConversionSelection = _playConversion;
             owner._selectedTargetSeat = _target;
             owner._selectedCardTargetSeats.Clear();
             owner._selectedCardTargetSeats.UnionWith(_targets);
             foreach (var card in owner.Hand) card.IsSelected = ReferenceEquals(card, _card);
             owner.SelectedCardText = _text;
-            if (changedWushengMode)
+            if (changedPlayConversionMode)
             {
                 owner._humanSkillSnapshot = null;
                 owner.RefreshCurrentView();
@@ -110,7 +110,7 @@ public sealed partial class MainViewModel
         // branch and its exact unique-action selection, including provenance.
         var converted = !CanPlaySelected && CanPlaySelectedAsSlash;
         if (!CanPlaySelected && !converted) return false;
-        var action = SelectPlayAction(GetViewLegalActions(), card.Id, [], card.Kind!.Value,
+        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), card.Id, [], card.Kind!.Value,
             converted, _selectedConversionSource);
         return action is { TargetCardId: null } && action.Kind != LegalActionKind.Recast && action.TargetSeats.Count == 0;
     }

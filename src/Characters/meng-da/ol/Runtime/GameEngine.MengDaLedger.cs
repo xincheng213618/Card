@@ -58,10 +58,16 @@ public sealed partial class GameEngine
         return mask is>0 and<15&&GoudeAvailableOptions(candidate.OwnerSeat,mask).Count>0;
     }
     private IReadOnlyList<int> GoudeDiscardTargets(int owner)=>Array.AsReadOnly(_players.Where(p=>p.IsAlive&&GoudeDiscardMaterials(owner,p.Seat).Count>0).Select(p=>p.Seat).ToArray());
-    private IReadOnlyList<GoudeHandMaterial> GoudeDiscardMaterials(int owner,int target)=>Array.AsReadOnly(
-        BuildOwnedCardPaymentChoices(0,owner,target,[CardZoneKind.Hand],OwnedCardMoveIntent.Discard,
-            canSelect:(zone,c)=>!IsSelfHandCategoryDiscardForbidden(owner,c,new(zone,target),OwnedCardMoveIntent.Discard))
-        .Select(c=>{var slot=int.Parse(c.Parameters["slot-index"],System.Globalization.CultureInfo.InvariantCulture);var card=GetHand(_players[target])[slot];return new GoudeHandMaterial(card.Id,card.Kind,target,slot,CurrentHandEntry(target,card.Id)!.Value);}).ToArray());
+    private IReadOnlyList<GoudeHandMaterial> GoudeDiscardMaterials(int owner,int target)
+    {
+        if(!IsValidPlayerSeat(owner)||!IsValidPlayerSeat(target))return [];
+        var location=CardLocation.Hand(target);
+        return Array.AsReadOnly(GetHand(_players[target]).Select((card,slot)=>(Card:card,Slot:slot))
+            .Where(item=>!IsForeignEquipmentDiscardPrevented(owner,item.Card,location,OwnedCardMoveIntent.Discard)&&
+                !IsSelfHandCategoryDiscardForbidden(owner,item.Card,location,OwnedCardMoveIntent.Discard))
+            .Select(item=>new GoudeHandMaterial(item.Card.Id,item.Card.Kind,target,item.Slot,
+                CurrentHandEntry(target,item.Card.Id)??throw new InvalidOperationException("Goude's actual Hand entity lost its native residency entry."))).ToArray());
+    }
     private IReadOnlyList<int> GoudeSlashTargets(int owner)=>Array.AsReadOnly(_players.Where(p=>p.IsAlive&&CanUseVirtualSlashTarget(_players[owner],p)).Select(p=>p.Seat).ToArray());
     private IReadOnlyList<string> GoudeFactionChoices(int owner)=>Array.AsReadOnly(AvailableEffectiveFactionIds().Where(f=>f!=GetEffectiveFactionId(_players[owner])).ToArray());
     private IReadOnlyList<GoudeOption> GoudeAvailableOptions(int owner,int mask)=>Array.AsReadOnly(Enum.GetValues<GoudeOption>().Where(o=>(mask&(int)o)==0&&

@@ -78,7 +78,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { FuRongPair = r with { Stage = owner ? FuRongPairStage.OwnerChildren : FuRongPairStage.TargetChildren,
             OwnerPayment = owner ? paid : r.OwnerPayment, TargetPayment = owner ? r.TargetPayment : paid },
             PendingMovementContinuation = new(payer, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(FuRongCostReason), beforeFact: move =>
+        MoveLogicalDiscard(f.OwnerSeat, payer, card, from, new(FuRongCostReason), beforeFact: move =>
         {
             var active = GetActiveProgramFrame(f.Id); var receipt = active.FuRongPair!; var actual = paid with { Sequence = move.Sequence };
             ReplaceRuntimeTop(active with { FuRongPair = receipt with { OwnerPayment = owner ? actual : receipt.OwnerPayment,

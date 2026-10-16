@@ -14,6 +14,7 @@ public sealed partial class GameEngine
     }
     private bool TracksNativeDrawInvocations =>
         HasFeiYiHezhong ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ||
@@ -247,7 +248,7 @@ public sealed partial class GameEngine
         else
         {
             var paid = material!;
-            MoveProgramCardsFromMultipleSources([paid.CardId], CardLocation.DiscardPile, new(OutsidePhaseMovementReason(f, false)), (batch, records) =>
+            MoveProgramLogicalDiscard(f, f.OwnerSeat, [paid.CardId], new(OutsidePhaseMovementReason(f, false)), (batch, records) =>
             {
                 foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
                 if (records is not [var move] || move.CardId != paid.CardId || move.CardKind != paid.PrintedKind || move.From != paid.From ||

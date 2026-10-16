@@ -100,7 +100,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { ConditionalDiscardDuel = d with { Stage = ownerCost ? ConditionalDiscardDuelStage.OwnerChildren : ConditionalDiscardDuelStage.TargetChildren,
             OwnerPayment = ownerCost ? paid : d.OwnerPayment, TargetPayment = ownerCost ? null : paid },
             PendingMovementContinuation = new(payer, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(ownerCost ? ConditionalDuelOwnerReason : ConditionalDuelTargetReason));
+        MoveLogicalDiscard(f.OwnerSeat, payer, card, from, new(ownerCost ? ConditionalDuelOwnerReason : ConditionalDuelTargetReason));
         f = GetActiveProgramFrame(f.Id); // Preserve queued SilverLion recovery/replacement fields on this actual owner.
         paid = paid with { SequenceAfter = _movementSequence };
         ReplaceRuntimeTop(f = f with { ConditionalDiscardDuel = f.ConditionalDiscardDuel! with {

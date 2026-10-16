@@ -3,14 +3,17 @@ namespace CardGame.Core;
 
 public enum LiuYanStage { TusheDrawChildren, LimuNative, LimuReturnedChildren, LimuRecoveryChildren }
 public sealed record LiuYanLimuUseOrigin(long ProgramFrameId,long CardUseFrameId,long ActionId,CardConversionSource Source,string GameplayHash,int ActualTurn,int PhaseInstance,int ActorSeat,int CardId,CardKind PrintedKind,CardLocation From,Suit Suit,int Rank);
+public sealed record LiuYanMaterial(int CardId,CardKind Kind,CardLocation From);
 public sealed record LiuYanReceipt(CardConversionSource Source,string GameplayHash,int InstructionIndex,int ActualTurn,int TurnOwner,SkillProgramEffectOp Operation,LiuYanStage Stage)
 {
     public long Before {get;init;} public long After {get;init;} public int DrawCount {get;init;}
     public long ParentWindowId {get;init;} public long OriginalUseId {get;init;} public long ActionId {get;init;}
-    public long? PaymentSequence {get;init;} public bool RecoveryIssued {get;init;}
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public long? PaymentSequence {get;init;} public bool RecoveryIssued {get;init;}
     [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public LiuYanLimuUseOrigin? Use {get;init;}
     private IReadOnlyList<int> _targets=Array.AsReadOnly(Array.Empty<int>());
     public IReadOnlyList<int> Targets {get=>_targets;init=>_targets=Array.AsReadOnly(value.ToArray());}
+    private IReadOnlyList<LiuYanMaterial> _aux=Array.AsReadOnly(Array.Empty<LiuYanMaterial>());
+    public IReadOnlyList<LiuYanMaterial> Auxiliaries {get=>_aux;init=>_aux=Array.AsReadOnly(value.ToArray());}
 }
 public sealed partial record ProgramSkillFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public LiuYanReceipt? LiuYan {get;init;}}

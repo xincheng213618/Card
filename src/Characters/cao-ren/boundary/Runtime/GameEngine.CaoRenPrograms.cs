@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             return;
         }
         ReplaceRuntimeTop(active with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCards([card], location, CardLocation.DiscardPile,
+        MoveLogicalDiscardCards(frame.OwnerSeat, frame.OwnerSeat, [card], location,
             new CardMoveReason($"skill-program.{frame.SkillId}.jushou-discard"));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }

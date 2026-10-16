@@ -81,7 +81,7 @@ public sealed partial class GameEngine
         var from=new CardLocation(zone,r.Payer);var cards=_cardZones.CardsAt(from);if(slot<0||slot>=cards.Count)throw new InvalidOperationException("Runwei payer slot is absent.");var card=cards[slot];
         var grain=from.Zone==CardZoneKind.Equipment&&card.Kind==CardKind.WoodenOx?GetWoodenOxGrain(_players[r.Payer]).Select(c=>c.Id).ToArray():[];
         ReplaceRuntimeTop(f=f with{LuYuSheng=r with{Stage=LuYuShengStage.RunweiDiscardChildren,CardId=card.Id,From=from,Before=_movementSequence,After=_movementSequence,WoodenOxGrainIds=grain},PendingMovementContinuation=new(r.Payer,0,null)});
-        MoveProgramCardsFromMultipleSources([card.Id],CardLocation.DiscardPile,new(LuYuShengRunweiDiscardReason));RecordLuYuShengMovement(f.Id);IssueLuYuShengRunwei(GetActiveProgramFrame(f.Id),1);ContinueLuYuSheng(f.Id);
+        MoveProgramLogicalDiscard(f,r.Payer,[card.Id],new(LuYuShengRunweiDiscardReason));RecordLuYuShengMovement(f.Id);IssueLuYuShengRunwei(GetActiveProgramFrame(f.Id),1);ContinueLuYuSheng(f.Id);
     }
     private void IssueLuYuShengRunwei(ProgramSkillFrame f,int delta)
     {

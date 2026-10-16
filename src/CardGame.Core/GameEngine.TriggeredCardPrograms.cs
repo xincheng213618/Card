@@ -34,6 +34,7 @@ public sealed partial class GameEngine
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, source.Seat, source.Seat, null, null, null, CardKind.Slash, [targetSeat], [], [provenance], effectiveSuit: Suit.None, effectiveRank: 0));
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, CardKind.Slash, [targetSeat], PhysicalCardIds: []) { Action = action });
+        IssueGoudeSlashUse(resolutionId, active, action);
         if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, source.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
@@ -134,7 +135,7 @@ public sealed partial class GameEngine
         var location = _cardZones.GetLocation(card.Id);
         ClearPendingDecision();
         SetProgramCardSet(frame.Id, effect.ResultBind!, [card.Id], SkillProgramCardSetVisibility.Public, [location], EffectiveSuit(_players[frame.OwnerSeat], card));
-        MoveCard(card, location, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, location, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         if (!TryBeginCardsMovedProgramWindow()) AdvanceRuntimeProgram(frame.Id);
     }
 

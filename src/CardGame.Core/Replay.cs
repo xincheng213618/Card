@@ -27,9 +27,9 @@ public sealed record GameCheckpoint(
     string ContentHash)
 {
     public const int CurrentSchemaVersion = 3;
-    // Development save compatibility epoch. This project is not released yet,
-    // so checkpoints from any other rules version are rejected instead of
-    // migrated. Adding content is versioned by its package and content hash.
+    // Runtime capability and diagnostic marker. Saved rules versions do not
+    // gate restoration: replay uses the current implementation and validates
+    // the checkpoint structure, content fingerprint and each recorded command.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
     // 186: Dong Zhuo (jiuchi/roulin/benghuai/baonve) with the shared
     // livingPlayersMinHp fact, participant gender card-policy conditions and the
@@ -86,7 +86,15 @@ public sealed record GameCheckpoint(
     // phase, so the subsequent real draw can open its after-draw programs.
     // 220: Qinglong suspends the dodged Slash until its inserted use and all
     // children finish; every target can trigger it without a distance check.
-    public const int CurrentRulesVersion = 220;
+    // 222: Trick continuations retain the original entity after a validated
+    // native claim, including Hua Man's paid outgoing Souying acquisition.
+    // 223: FireAttack AI resolves published Zhitian costs from its private
+    // deck-top view as well as its hand, allowing the payment to complete.
+    // 224: Native claims survive hidden selections, later trick targets,
+    // Borrowed Sword children and group cleanup. Single-card trick conversions
+    // consume their published target grant; response exchanges retain their
+    // original accepted Use even without another finalized-target subscriber.
+    public const int CurrentRulesVersion = 224;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }
@@ -183,13 +191,6 @@ public static class GameReplay
             throw new InvalidOperationException(
                 $"Checkpoint schema {checkpoint.SchemaVersion} is not supported; " +
                 $"expected {GameCheckpoint.CurrentSchemaVersion}.");
-        }
-
-        if (checkpoint.RulesVersion != GameCheckpoint.CurrentRulesVersion)
-        {
-            throw new InvalidOperationException(
-                $"Checkpoint rules version {checkpoint.RulesVersion} is not supported; " +
-                $"this development build requires exactly {GameCheckpoint.CurrentRulesVersion}.");
         }
 
         if (checkpoint.Options is null ||

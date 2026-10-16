@@ -169,7 +169,7 @@ public sealed partial class GameEngine
                 var card = _cardZones.CardsAt(from).Single(card => card.Id == id);
                 if (ProgramBasicCardName(card.Kind) != defense.Name) throw new InvalidOperationException("The real cost has another name.");
                 ClearPendingDecision(); ReplaceRuntimeTop(frame = frame with { NamedTargetDefense = defense with { Stage = 2 } });
-                MoveCard(card, from, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.named-cost"));
+                MoveLogicalDiscard(frame.OwnerSeat, actor, card, from, new CardMoveReason($"skill-program.{frame.SkillId}.named-cost"));
                 if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
                 return;
             }

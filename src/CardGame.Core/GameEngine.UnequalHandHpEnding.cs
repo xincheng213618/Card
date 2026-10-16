@@ -109,8 +109,11 @@ public sealed partial class GameEngine
         var from = cardId is { } id ? _cardZones.GetLocation(id) : (CardLocation?)null;
         ReplaceRuntimeTop(f = f with { UnequalHandHp = f.UnequalHandHp! with { Stage = stage, Choices = [] }, PendingMovementContinuation = new(subject, 0, null) });
         var reason = new CardMoveReason(UnequalHandHpReason(f, step));
+        var logicalDiscard = cardId is { } cost && to == CardLocation.DiscardPile
+            ? CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat, [cost], reason, f.Id) : null;
         var count = cardId is null ? DrawCards(_players[subject], 1, true, reason).Count : 1;
         if (cardId is { } paid) MoveProgramCardsFromMultipleSources([paid], to, reason);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         var payment = new UnequalHandHpPayment(step, subject, before, _movementSequence, count, cardId, from, to);
         f = GetActiveProgramFrame(f.Id);
         ReplaceRuntimeTop(f = f with { UnequalHandHp = f.UnequalHandHp! with { Payments = f.UnequalHandHp.Payments.Append(payment).ToArray() } });

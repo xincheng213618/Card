@@ -72,7 +72,7 @@ public sealed partial class GameEngine
             draft = draft with { Cursor = cursor, ChooserSeat = (frame.OwnerSeat + cursor + 1) % _playerCount };
         }
         else if (draft.Remaining == 0 || !_players[draft.ChooserSeat].IsAlive)
-        { ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }
+        { frame = CompleteFrameNativeLogicalDiscard(frame); ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }
         ReplaceRuntimeTop(frame with { DiscardChallenge = draft });
         PublishDiscardChallenge(GetActiveProgramFrame(frame.Id), effect);
         return SkillProgramStepOutcome.AwaitChoice;
@@ -100,6 +100,7 @@ public sealed partial class GameEngine
         }
         else if (choices.Count == 0)
         {
+            frame = CompleteFrameNativeLogicalDiscard(frame);
             ReplaceRuntimeTop(frame with { DiscardChallenge = null });
             AdvanceRuntimeProgram(frame.Id);
             return;
@@ -143,7 +144,10 @@ public sealed partial class GameEngine
                 ReexecuteParticipantInstruction = true, PendingMovementContinuation = new(draft.ChooserSeat, 0, null) });
             if (IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, location, OwnedCardMoveIntent.Discard))
             { CancelProgramBindingAndCleanup(frame, "当前手牌不能自行弃置，费用未支付。"); return; }
-            MoveCard(card, location, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+            var logicalReason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+            frame = AppendFrameNativeLogicalDiscard(frame, draft.ChooserSeat, [card.Id], logicalReason);
+            MoveCard(card, location, CardLocation.DiscardPile, logicalReason);
+            if (remaining == 0) CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
             if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
             return;
         }
@@ -164,7 +168,7 @@ public sealed partial class GameEngine
                 AdvanceRuntimeProgram(frame.Id);
             return;
         }
-        MoveProgramCardsFromMultipleSources(physical.Select(item => item.Id).ToArray(), CardLocation.DiscardPile,
+        MoveProgramLogicalDiscard(frame, draft.ChooserSeat, physical.Select(item => item.Id).ToArray(),
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }

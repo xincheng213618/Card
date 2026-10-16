@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:zuolian": {
+      "name": "佐练",
+      "description": "出牌阶段限一次，你选择至多X名有手牌的角色（X为你的体力值），随机展示其各一张手牌，然后你可将这些牌与牌堆或弃牌堆中的火【杀】或雷【杀】交换。",
+      "activationLabels": {
+        "whole-exchange": "佐练"
+      }
+    },
+    "ol:jingzhou": {
+      "name": "精舟",
+      "description": "当你受到伤害时，你可选择至多X名角色（X为你的体力值），令其中未连环的角色进入连环状态，已连环的角色解除连环状态。"
+    }
+  }
+}

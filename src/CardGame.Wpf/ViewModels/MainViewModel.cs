@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Windows.Input;
 using CardGame.Content.Standard;
 using CardGame.Core;
+using CardGame.Wpf.Diagnostics;
 using CardGame.Wpf.Persistence;
 
 namespace CardGame.Wpf.ViewModels;
@@ -64,7 +65,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IMatchHistoryStore? historyStore = null,
         IPlayerPreferencesStore? preferencesStore = null,
         ContentRegistry? contentRegistry = null,
-        bool confirmOpeningHand = false)
+        bool confirmOpeningHand = false,
+        IGameExceptionReportStore? exceptionReportStore = null)
     {
         NewGameCommand = new RelayCommand(() => { if (!IsTutorialActive) OpenGameSetup(); }, () => !IsTutorialActive);
         StepAiCommand = new RelayCommand(StepAi, () => CanStepAi);
@@ -92,6 +94,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         DeclineResponseCommand = new RelayCommand(() => RespondToSlash(false), () => CanDeclineResponse);
 
         _seedOverride = seed;
+        _exceptionReportStore = exceptionReportStore ?? new FileGameExceptionReportStore();
         _confirmOpeningHand = confirmOpeningHand;
         _contentRegistry = contentRegistry ??
             (useExpandedContent
@@ -140,7 +143,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<string> GameLog { get; } = [];
     public ObservableCollection<string> AiThoughts { get; } = [];
     public ObservableCollection<string> EventStack { get; } = [];
-    public ObservableCollection<GeneralChoiceViewModel> GeneralChoices { get; } = [];
+    public ObservableRangeCollection<GeneralChoiceViewModel> GeneralChoices { get; } = [];
     public ObservableCollection<PromptChoice> DyingChoices { get; } = [];
     public ObservableCollection<PromptChoice> HarvestChoices { get; } = [];
     public ObservableCollection<PromptChoice> TargetCardChoices { get; } = [];
@@ -393,14 +396,20 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void ReplaceEngine(GameEngine game)
     {
+        _reportedFaultedGame = null;
+        _reportedException = null;
         ResetStartupPresentation();
         DetachEngine();
         _game = game;
         ResetPresentation();
         Hand.Clear();
+        _paymentCardIds.Clear();
+        _paymentChoiceId = null;
+        _equipmentPlayer = null;
+        _humanEquipmentSlots = null;
         _selectedCardId = null;
         _selectedConversionSource = null;
-        _isSelectingWusheng = false;
+        _playConversionSelection = null;
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillIdentity = null;
@@ -509,9 +518,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _automaticTableSnapshot = null;
         if (_snapshot?.PendingDecision?.PromptId != snapshot.PendingDecision?.PromptId)
         {
+            _paymentCardIds.Clear();
+            _paymentChoiceId = null;
             _selectedCardTargetSeats.Clear();
             _selectedConversionSource = null;
-            _isSelectingWusheng = false;
+            _playConversionSelection = null;
         }
         if (_snapshot?.PendingDecision?.PromptId != snapshot.PendingDecision?.PromptId &&
             (IsHandResponsePrompt(_snapshot) || IsHandResponsePrompt(snapshot)))
@@ -529,11 +540,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SyncDiscardSelection();
         SyncActiveSkillSelection();
         SyncSkillTargetSelection();
+        SyncOwnedCardSelection();
         RefreshDecisionContext();
 
         var previousGeneralChoices = GeneralChoices.ToArray();
         var previousGeneralVariants = _generalSelectionChoices.Values.ToArray();
-        GeneralChoices.Clear();
+        var generalChoices = new List<GeneralChoiceViewModel>();
         _generalSelectionChoices.Clear();
         DyingChoices.Clear();
         HarvestChoices.Clear();
@@ -576,10 +588,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         $"{skill.Name}：{GetVisibleSkillDescription(skill)}"))
                 };
                 _generalSelectionChoices.Add(generalChoice.GeneralId, generalChoice);
-                if (generalChoice.CandidateGeneralId == generalChoice.GeneralId) GeneralChoices.Add(generalChoice);
+                if (generalChoice.CandidateGeneralId == generalChoice.GeneralId) generalChoices.Add(generalChoice);
             }
         }
         IsGeneralSelectionPending = _snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral;
+        // Detach the hidden candidate cards before publishing a full roster.
+        if (IsCustomGeneralSelectionOpen) RaisePropertyChanged(nameof(CandidateGeneralChoices));
+        GeneralChoices.ReplaceAll(generalChoices);
+        if (!IsCustomGeneralSelectionOpen) RaisePropertyChanged(nameof(CandidateGeneralChoices));
         RaisePropertyChanged(nameof(GeneralChoiceColumns));
         SyncGeneralChoicePreview(_snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral
             ? _snapshot.PendingDecision.PromptId
@@ -692,15 +708,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
         var legalActions = GetViewLegalActions();
-        if (IsWushengSelectionPending && !legalActions.Any(action => action.ConversionSource == _selectedConversionSource))
+        if (IsPlayConversionSelectionPending && !PlayConversionModes(_playConversionSelection!.SkillId).Any(mode =>
+                _playConversionSelection.Mode is null || _playConversionSelection.Mode.MatchesMode(mode)))
         {
-            _isSelectingWusheng = false;
+            _playConversionSelection = null;
             _selectedConversionSource = null;
             _humanSkillSnapshot = null;
         }
         var playableCardIds = legalActions
             .Where(action => action.CardId.HasValue &&
-                (!IsWushengSelectionPending || action.ConversionSource == _selectedConversionSource))
+                (!IsPlayConversionSelectionPending || MatchesSelectedPlayConversion(action)))
             .Select(action => action.CardId!.Value)
             .ToHashSet();
         if (IsDiscardSelectionPending) playableCardIds.UnionWith(_snapshot.PendingDecision!.ValidCardIds);
@@ -712,7 +729,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _selectedCardId = null;
             _selectedConversionSource = null;
-            _isSelectingWusheng = false;
+            _playConversionSelection = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
@@ -850,16 +867,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 var activeSkillSelectable = activeSkillCardIds.Contains(card.Id);
                 var responseChoice = HandResponseChoice(card.Id);
-                var normallyPlayable = playableCardIds.Contains(card.Id) || responseChoice is not null;
+                var normallyPlayable = playableCardIds.Contains(card.Id) || responseChoice is not null || IsOwnedSelectionMaterial(card.Id) || IsCardPaymentMaterial(card.Id);
                 var normallySelectable = TutorialAllowsHandCard(card, normallyPlayable);
                 var availability = IsActiveSkillSelectionPending
                     ? activeSkillSelectable ? $"可用于{HumanActiveSkillAction?.Description ?? "主动技能"}" : "本次技能不能选择这张牌；可按 Esc 退出技能选择。"
+                    : IsCardPaymentSelectionPending ? IsCardPaymentMaterial(card.Id)
+                        ? "选择此牌；选齐合法费用后点击「确定」。" : "这张牌不能用于本次支付。"
                     : TutorialHandAvailability(card, normallyPlayable, IsHandResponsePending
                         ? responseChoice is not null ? $"{responseChoice.Description}；选中后按 Enter 确认。" : HandResponseUnavailableHint(card.Id)
                         : handGuidance.GetValueOrDefault(card.Id)?.Message ?? string.Empty);
-                if (IsWushengSelectionPending)
-                    availability = normallyPlayable ? "武圣：当作【杀】使用；选牌后选择目标。"
-                        : "这张牌当前不能用于武圣；可按 Esc 退出技能选择。";
+                if (IsPlayConversionSelectionPending)
+                    availability = normallyPlayable ? $"{PlayConversionSkillName}：当作【{PlayConversionCardName}】使用；选牌后选择目标。"
+                        : $"这张牌当前不能用于{PlayConversionSkillName}；可按 Esc 退出技能选择。";
                 if (IsPhysicalCardRestricted(human.Seat, card.Id))
                     availability = string.IsNullOrEmpty(availability) ? "本回合不能使用或打出"
                         : availability + "；本回合不能使用或打出";
@@ -867,7 +886,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 var kindLabel = grainIds.Contains(card.Id)
                     ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"
                     : CardCatalog.Get(card.Kind).CategoryName;
-                if (IsWushengSelectionPending && normallyPlayable) kindLabel += " · 武圣当杀";
+                if (IsPlayConversionSelectionPending && normallyPlayable) kindLabel += $" · {PlayConversionSkillName}当{PlayConversionCardName}";
                 var originalHandTag = string.Join(" / ", (human.OriginalHandEntities ?? [])
                     .Where(item => item.CardIds?.Contains(card.Id) == true).Select(item => item.Name)
                     .Concat(card.SkillMarkLabel is { } skillMark ? new[] { skillMark } : []).Distinct());
@@ -878,9 +897,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     displayed.IdentityKind = card.IdentityKind;
                     displayed.IdentitySkillName = card.IdentitySkillName;
                     displayed.IsPlayable = selectable;
-                    displayed.IsWushengConversion = IsWushengSelectionPending && normallyPlayable;
                     displayed.AvailabilityText = availability;
-                    displayed.IsSelected = IsDiscardSelectionPending
+                    displayed.IsSelected = IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) : IsDiscardSelectionPending
                         ? _discardCardIds.Contains(card.Id)
                         : IsActiveSkillCardSelectionPending
                             ? _selectedActiveSkillCardIds.Contains(card.Id)
@@ -901,8 +919,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Description = GetCardDescription(card.Kind),
                     AvailabilityText = availability,
                     IsPlayable = selectable,
-                    IsWushengConversion = IsWushengSelectionPending && normallyPlayable,
-                    IsSelected = IsDiscardSelectionPending
+                    IsSelected = IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) : IsDiscardSelectionPending
                         ? _discardCardIds.Contains(card.Id)
                         : IsActiveSkillCardSelectionPending
                             ? _selectedActiveSkillCardIds.Contains(card.Id)
@@ -986,6 +1003,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (!Hand.Contains(card)) return;
 
+        if (IsOwnedCardSelectionPending)
+        {
+            ToggleOwnedSelectionCard(card.Id);
+            return;
+        }
         if (IsHandResponsePending)
         {
             SelectHandResponse(card);
@@ -1008,12 +1030,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         ClearTieredRoundZeroSelection();
         _selectedCardId = _selectedCardId == card.Id ? null : card.Id;
-        if (!IsWushengSelectionPending) _selectedConversionSource = null;
+        if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
 
         var matching = GetViewLegalActions()
-            .Where(action => action.CardId == _selectedCardId)
+            .Where(action => action.CardId == _selectedCardId && MatchesSelectedPlayConversion(action))
             .ToArray();
         if (matching.Length == 1 &&
             matching[0].TargetSeats.Count == 1 &&
@@ -1028,8 +1050,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         SelectedCardText = _selectedCardId is null
-            ? IsWushengSelectionPending ? "已选择【武圣】· 请选择红色牌当【杀】使用" : "未选择手牌"
-            : IsWushengSelectionPending ? $"武圣：将【{card.Name}】当【杀】使用" : $"已选择：{card.Name}";
+            ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌"
+            : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{card.Name}】当【{PlayConversionCardName}】使用" : $"已选择：{card.Name}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
@@ -1074,6 +1096,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SelectedCardText = _selectedActiveSkillCardIds.Count == 0
             ? $"未选择用于【{skillName}】的牌"
             : $"已选择 {_selectedActiveSkillCardIds.Count} 张牌用于【{skillName}】";
+        RefreshEquipmentMaterialSelection();
         RefreshTargetHighlights();
     }
 
@@ -1090,50 +1113,33 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void SelectEquipmentPlayChoice(PromptChoice choice)
     {
         if (!EquipmentPlayChoices.Any(current => ReferenceEquals(current, choice)) ||
-            choice.Cards.Count != 1 || _snapshot.PendingDecision?.Kind != DecisionKind.PlayCard)
+            _snapshot.PendingDecision?.Kind != DecisionKind.PlayCard)
         {
             return;
         }
 
+        if (TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
         var cardId = choice.Cards[0];
-        if (TryReadConversionSource(choice.Parameters, out var conversionSource))
-        {
-            _isSelectingWusheng = false;
-            _selectedCardId = cardId;
-            _selectedConversionSource = _selectedConversionSource == conversionSource ? null : conversionSource;
-            _selectedTargetSeat = null;
-            _selectedCardTargetSeats.Clear();
-            foreach (var item in Hand) item.IsSelected = item.Id == cardId;
-            SelectedCardText = _selectedConversionSource is null
-                ? $"已选择：{Hand.FirstOrDefault(card => card.Id == cardId)?.Name ?? "牌"}"
-                : choice.Description;
-            RebuildEquipmentPlayChoices(
-                _snapshot.Players.Single(player => player.IsHuman),
-                GetViewLegalActions());
-            RebuildPublicTargetChoices();
-            RebuildTargetCombinationChoices();
-            RefreshTargetHighlights();
-            return;
-        }
-
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var regionalCard = human.Equipment.Concat(human.Judgment).SingleOrDefault(card => card.Id == cardId);
+        var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).SingleOrDefault(card => card.Id == cardId);
         if (regionalCard is null)
         {
             return;
         }
 
         _selectedCardId = _selectedCardId == cardId ? null : cardId;
-        if (!IsWushengSelectionPending) _selectedConversionSource = null;
+        if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
         SelectedCardText = _selectedCardId is null
-            ? "未选择手牌、装备或判定牌"
-            : $"已选择{(human.Judgment.Any(card => card.Id == cardId) ? "判定牌" : "装备")}：{regionalCard.DisplayName}";
+            ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌、装备或判定牌"
+            : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{regionalCard.DisplayName}】当【{PlayConversionCardName}】使用"
+                : $"已选择：{regionalCard.DisplayName}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
         RebuildPublicTargetChoices();
+        RebuildTargetCombinationChoices();
         RefreshTargetHighlights();
     }
 
@@ -1142,20 +1148,23 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IReadOnlyList<LegalAction> legalActions)
     {
         EquipmentPlayChoices.Clear();
-        if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending)
+        if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending ||
+            !IsPlayConversionSelectionPending)
         {
             return;
         }
 
+        AddPlayConversionModeChoices();
         var playableEquipmentIds = legalActions
             .Where(action => action.CardId.HasValue && action.PlayedCardKind is not null &&
-                (!IsWushengSelectionPending || action.ConversionSource == _selectedConversionSource))
+                (!IsPlayConversionSelectionPending || MatchesSelectedPlayConversion(action)))
             .Select(action => action.CardId!.Value)
             .ToHashSet();
-        foreach (var equipment in human.Equipment.Concat(human.Judgment).Where(card => playableEquipmentIds.Contains(card.Id)))
+        foreach (var equipment in human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Where(card => playableEquipmentIds.Contains(card.Id)))
         {
             var isJudgment = human.Judgment.Any(card => card.Id == equipment.Id);
-            var zoneName = isJudgment ? "判定牌" : "装备";
+            var zoneName = isJudgment ? "判定牌" : human.AuthorityCards?.Any(card => card.Id == equipment.Id) == true
+                ? human.AuthorityName ?? "牌堆牌" : "装备";
             var selected = _selectedCardId == equipment.Id;
             EquipmentPlayChoices.Add(new PromptChoice(
                 new ChoiceId($"{(isJudgment ? "judgment" : "equipment")}-play.card-{equipment.Id}"),
@@ -1170,34 +1179,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 }));
         }
 
-        if (IsWushengSelectionPending || _selectedCardId is not { } selectedCardId)
-        {
-            return;
-        }
-
-        foreach (var action in legalActions
-                     .Where(action => action.CardId == selectedCardId && action.ConversionSource is not null)
-                     .GroupBy(action => (action.ConversionSource, action.PlayedCardKind))
-                     .Select(group => group.First()))
-        {
-            var source = action.ConversionSource!;
-            var selected = _selectedConversionSource == source;
-            var skillName = _contentRegistry.Skills[source.SkillId].Name;
-            var label = $"【{skillName}】当作【{CardCatalog.Get(action.PlayedCardKind ?? CardKind.Slash).DisplayName}】使用";
-            EquipmentPlayChoices.Add(new PromptChoice(
-                new ChoiceId($"conversion.{source.SkillId}.{source.BindingId}.{source.OwnerSeat}.{source.SkillInstanceId}"),
-                selected ? $"✓ {label}" : label,
-                [selectedCardId],
-                [],
-                new Dictionary<string, string>
-                {
-                    ["action"] = "select-card-conversion",
-                    ["conversion-skill-id"] = source.SkillId,
-                    ["conversion-binding-id"] = source.BindingId,
-                    ["conversion-owner-seat"] = source.OwnerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    ["conversion-instance-id"] = source.SkillInstanceId
-                }));
-        }
     }
 
     private static bool TryReadConversionSource(
@@ -1370,6 +1351,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void SelectSkillChoice(PromptChoice choice)
     {
+        if (IsOwnedCardSelectionPending && IsCurrentPromptChoice(choice) && choice.Cards is [var cardId])
+        {
+            ToggleOwnedSelectionCard(cardId);
+            return;
+        }
         if (IsSkillCardTargetSelectionPending &&
             !CenterSkillChoices.Any(current => ReferenceEquals(current, choice))) return;
         SubmitPublishedPromptChoice(choice, IsSkillSelectionPending, "技能触发未执行");
@@ -1421,6 +1407,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
+            MatchesSelectedPlayConversion(candidate) &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
             candidate.TargetCardId == targetCardId &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
@@ -1451,6 +1438,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
+            MatchesSelectedPlayConversion(candidate) &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
             AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters));
@@ -1482,6 +1470,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                          ? _selectedCardTargetSeats.Count > 0 && choice.Targets.SequenceEqual(SelectedPlayTargets())
                          : choice.Targets.Count == 1 && (!_selectedTargetSeat.HasValue || choice.Targets[0] == _selectedTargetSeat)) &&
                      ConversionSourceMatchesChoice(_selectedConversionSource, choice.Parameters) &&
+                     MatchesSelectedPlayChoice(choice) &&
                      choice.Parameters.ContainsKey("target-card-id")))
         {
             PublicTargetChoices.Add(choice);
@@ -1504,7 +1493,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                      choice.Cards.Count == 1 &&
                      choice.Cards[0] == selectedCardId &&
                      choice.Targets.Count > 1 &&
-                     ConversionSourceMatchesChoice(_selectedConversionSource, choice.Parameters)))
+                     ConversionSourceMatchesChoice(_selectedConversionSource, choice.Parameters) && MatchesSelectedPlayChoice(choice)))
         {
             TargetCombinationChoices.Add(choice);
         }
@@ -1541,7 +1530,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             : [];
         var selectedActions = _selectedCardId is { } cardId
             ? legalActions.Where(action => action.CardId == cardId && action.Kind != LegalActionKind.Recast &&
-                action.ConversionSource == _selectedConversionSource).ToArray()
+                MatchesSelectedPlayConversion(action)).ToArray()
             : [];
         if (selectedActions.Length > 0 && selectedActions.All(action =>
             action.Kind == LegalActionKind.Lightning && action.TargetSeats.SequenceEqual([_snapshot.HumanSeat])))
@@ -1563,7 +1552,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
-        var physicalCard = human?.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Concat(human.Judgment).FirstOrDefault(card => card.Id == _selectedCardId);
+        var physicalCard = human is null ? null : PlayMaterials(human).FirstOrDefault(card => card.Id == _selectedCardId);
         CanPlaySelected = selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
             && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
         var conversionActions = selectedActions.Where(action =>
@@ -1581,9 +1570,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_selectedCardId is not { } cardId || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Concat(human.Judgment).Single(card => card.Id == cardId).Kind;
+        var physicalKind = PlayMaterials(human).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
-        var action = SelectPlayAction(GetViewLegalActions(), cardId, targets, physicalKind,
+        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), cardId, targets, physicalKind,
             asSlash, _selectedConversionSource);
         if (action is null) return;
 
@@ -1592,7 +1581,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void SubmitSelectedPlayAction(int cardId, LegalAction action, PromptId promptId, string? rejectionPrefix = null)
     {
-        var wasSelectingWusheng = IsWushengSelectionPending;
+        var wasSelectingPlayConversion = IsPlayConversionSelectionPending;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(CreatePlayCommand(_snapshot.HumanSeat, cardId, action,
@@ -1606,7 +1595,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ResetPlayCardSelection();
             _humanSkillSnapshot = null;
             SelectedCardText = "未选择手牌";
-            if (wasSelectingWusheng) RefreshCurrentView();
+            if (wasSelectingPlayConversion) RefreshCurrentView();
             RefreshCommandResult(result.State);
         });
     }
@@ -1617,7 +1606,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         _selectedCardId = null;
         _selectedConversionSource = null;
-        _isSelectingWusheng = false;
+        _playConversionSelection = null;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
     }
@@ -2089,13 +2078,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception exception)
         {
-            FlushAutomaticTableRefresh();
+            RecordExceptionReport(exception, "Table action");
+            try { FlushAutomaticTableRefresh(); }
+            catch (Exception refreshFailure) { RecordExceptionReport(refreshFailure, "Failure presentation refresh"); }
             IsAutoAdvance = false;
             if (_game.IsFaulted) CanStepAi = false;
             PromptText = _game.IsFaulted
                 ? "牌局结算异常，已停止推进。请读取此前存档恢复。"
                 : $"操作未执行：{exception.Message}";
-            ActionHint = PromptText;
+            ActionHint = $"{PromptText} {_exceptionReportStatus}";
         }
     }
 

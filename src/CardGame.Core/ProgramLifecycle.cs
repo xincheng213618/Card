@@ -323,6 +323,7 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation
 {
+    ResumeActualPhaseEnd = 27269,
     ResumeAfterDeferredPrivateOffers = 7700,
     NormalTurnStart = 0, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,

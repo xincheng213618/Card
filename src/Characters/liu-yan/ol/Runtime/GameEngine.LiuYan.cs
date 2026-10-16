@@ -33,6 +33,15 @@ public sealed partial class GameEngine
     private bool HasLiuYanLimuTargetAllowance(CharacterState actor,CharacterState target,int? excludedEquipmentId=null,EquipmentSlot? excludedEquipmentSlot=null)=>
         HasLiuYanCapability&&actor.IsAlive&&target.IsAlive&&actor.Seat!=target.Seat&&HasRuntimeSkill(actor,"ol:limu")&&GetJudgment(actor).Count>0&&
         (IsGameFactionAttackRangeTarget(actor.Seat,target.Seat)||ConvertRuleValue(EvaluateDistance(actor,target,excludedEquipmentId,excludedEquipmentSlot))<=ConvertRuleValue(EvaluateAttackRange(actor,excludedEquipmentId,excludedEquipmentSlot)));
+    private bool HasLiuYanLimuQuotaAllowance(CharacterState actor,CharacterState target,Card? physical,IReadOnlyList<int>? ids,int? excludedId,EquipmentSlot? excludedSlot)
+    {
+        if(!HasLiuYanCapability)return false;
+        var materials=(ids??(physical is {Id:>0}?[physical.Id]:[])).ToHashSet();
+        var equipment=GetEquipment(actor).Where(c=>materials.Contains(c.Id)).ToArray();
+        excludedId??=equipment.FirstOrDefault(c=>EquipmentCatalog.Get(c.Kind).Slot==EquipmentSlot.Weapon)?.Id;
+        if(excludedSlot is null&&equipment.Any(c=>EquipmentCatalog.Get(c.Kind).Slot==EquipmentSlot.OffensiveHorse))excludedSlot=EquipmentSlot.OffensiveHorse;
+        return HasLiuYanLimuTargetAllowance(actor,target,excludedId,excludedSlot);
+    }
     [ProgramCapability]private sealed class LiuYanCapability(GameEngine e):ILiuYanHost,ILiuYanSelectionQuery
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginLiuYan(f,op);public bool CanUse(int owner,Card card,string skill)=>e.LiuYanLimuMaterialLegal(e._players[owner],card,skill);}
     private SkillProgramStepOutcome BeginLiuYan(ProgramSkillFrame supplied,SkillProgramEffectOp op)
@@ -51,7 +60,7 @@ public sealed partial class GameEngine
         if(f.SkillId!="ol:limu"||f.TriggerId is not null||f.ActivationId!="self-indulgence"||f.WindowContext is not null||f.OwnerSeat!=_currentSeat||_phase!=TurnPhase.Play||f.SelectedCardIds is not[var id]||f.SelectedTargetSeats.Count!=0)throw new InvalidOperationException("Limu requires one real diamond entity in the owner's actual Play.");
         var card=EntityAtCurrentLocation(id);var actor=_players[f.OwnerSeat];if(!LiuYanLimuMaterialLegal(actor,card,f.SkillId,f.SkillInstanceId))throw new InvalidOperationException("Limu's original diamond entity or self delayed target is illegal.");
         var origin=new LiuYanLimuUseOrigin(f.Id,_resolutionSequence+1,_cardActionSequence+1,LiuYanSource(f),f.GameplayHash,_turnNumber,_cardUseDebitPhaseInstanceId,f.OwnerSeat,id,card.Kind,_cardZones.GetLocation(id),EffectiveSuit(actor,card),card.Rank);
-        var receipt=new LiuYanReceipt(origin.Source,f.GameplayHash,1,_turnNumber,_currentSeat,op,LiuYanStage.LimuNative){Before=_movementSequence,After=_movementSequence,Use=origin,OriginalUseId=origin.CardUseFrameId,ActionId=origin.ActionId,Targets=[f.OwnerSeat]};
+        var receipt=new LiuYanReceipt(origin.Source,f.GameplayHash,1,_turnNumber,_currentSeat,op,LiuYanStage.LimuNative){Before=_movementSequence,After=_movementSequence,Use=origin,OriginalUseId=origin.CardUseFrameId,ActionId=origin.ActionId,Targets=[f.OwnerSeat],Auxiliaries=card.Kind==CardKind.WoodenOx&&origin.From==CardLocation.Equipment(f.OwnerSeat)?GetWoodenOxGrain(actor).Select(c=>new LiuYanMaterial(c.Id,c.Kind,CardLocation.WoodenOxGrain(f.OwnerSeat))).ToArray():[]};
         ReplaceRuntimeTop(f=f with{LiuYan=receipt});RecordLiuYanStart(f);AdvanceEventRulesAndQueueFact(new LiuYanLimuIssuedEvent(origin));BeginLiuYanLimu(f,origin,card);return SkillProgramStepOutcome.AwaitChild;
     }
     private void RecordLiuYanStart(ProgramSkillFrame f)

@@ -53,7 +53,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Completion payment cannot discard its active source equipment.");
             ClearPendingDecision();
             ReplaceRuntimeTop(f with { CompletedUsePayment = r with { Stage = CompletedUsePaymentStage.Paid, CardId = card.Id, From = from } });
-            MoveCard(card, from, CardLocation.DiscardPile, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp}"), move =>
+            MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, from, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp}"), move =>
             {
                 var active = GetActiveProgramFrame(f.Id);
                 ReplaceRuntimeTop(active with { CompletedUsePayment = active.CompletedUsePayment! with { MovementSequence = move.Sequence } });

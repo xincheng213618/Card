@@ -23,6 +23,8 @@ internal static class ProgramOwnedCardsChecks
         var beforeSnapshot = State(game);
         Require(first is { IsPrivate: true, PlayerSeat: 0 } && game.CreateSnapshot(1).PendingDecision is null,
             "Only the card holder may see the exact candidate identities.");
+        Require(game.CreateSnapshot(0).PendingDecision!.RequiredCardCount == 2,
+            "The private player view must project the remaining exact count without exposing the runtime draft.");
         var wrong = game.Submit(new AnswerPromptCommand(1, first.PromptId, first.Choices[0].Id, game.Revision));
         var forged = game.Submit(new AnswerPromptCommand(0, first.PromptId, new ChoiceId("forged"), game.Revision));
         Require(!wrong.Accepted && !forged.Accepted && State(game) == beforeSnapshot && game.CardMovements.Count == before,
@@ -36,6 +38,9 @@ internal static class ProgramOwnedCardsChecks
         Require(JsonSerializer.Deserialize<ResolutionFrame>(json) is ProgramSkillFrame
                 { OwnedCardSelection.SelectedCardIds.Count: 1 }, "The partial draft must remain typed serializable data.");
         var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Require(game.CreateSnapshot(0).PendingDecision!.RequiredCardCount == 1 &&
+                replay.CreateSnapshot(0).PendingDecision!.RequiredCardCount == 1 && replay.CreateSnapshot(1).PendingDecision is null,
+            "A partial or restored owned-card draft must project only its responder's remaining count.");
         Require(State(replay) == State(game) &&
                 JsonSerializer.Serialize(replay.ResolutionStack.OfType<ProgramSkillFrame>().Single().OwnedCardSelection) ==
                 JsonSerializer.Serialize(frame.OwnedCardSelection), "A partial private draft must rebuild from its command prefix.");
@@ -68,6 +73,33 @@ internal static class ProgramOwnedCardsChecks
                     { SkillId: SkillId, Completed: true }) == 1 &&
                 State(replay) == State(game) && replay.CardMovements.SequenceEqual(game.CardMovements),
             "The suspended equipment-loss trigger must finish the owned-card program once and replay exactly.");
+    }
+
+    public static void VariableBoundsStayPrivateAndReplay()
+    {
+        var (game, registry) = Create(3, variable: true);
+        StartSelection(game);
+        Require(game.CreateSnapshot(0).PendingDecision is { RequiredCardCount: 3, MinimumCardCount: 2 } &&
+                game.CreateSnapshot(1).PendingDecision is null && game.PendingDecision!.MinimumCardCount is null,
+            "Only the responding view receives selection bounds; the stored rules prompt remains unchanged.");
+        var moves = game.CardMovements.Count;
+        Answer(game, game.PendingDecision!.Choices.First(choice => choice.Cards.Count == 1));
+        var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Require(game.CreateSnapshot(0).PendingDecision is { RequiredCardCount: 2, MinimumCardCount: 1 } &&
+                restored.CreateSnapshot(0).PendingDecision is { RequiredCardCount: 2, MinimumCardCount: 1 } &&
+                restored.CreateSnapshot(1).PendingDecision is null && game.CardMovements.Count == moves,
+            "Cold restoration must publish remaining bounds without paying a partial variable draft.");
+        var second = game.PendingDecision!.Choices.First(choice => choice.Cards.Count == 1);
+        Answer(game, second);
+        Answer(restored, restored.PendingDecision!.Choices.Single(choice => choice.Id == second.Id));
+        Require(game.CreateSnapshot(0).PendingDecision is { RequiredCardCount: 1, MinimumCardCount: 0 },
+            "Reaching the lower bound must allow finishing without forcing the maximum count.");
+        var finish = game.PendingDecision!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");
+        Answer(game, finish);
+        Answer(restored, restored.PendingDecision!.Choices.Single(choice => choice.Id == finish.Id));
+        Require(game.CardMovements.Count(move => move.Reason.Value == $"skill-program.{SkillId}.MoveBoundCards") == 2 &&
+                State(game) == State(restored) && game.CardMovements.SequenceEqual(restored.CardMovements),
+            "Variable Finish must move exactly the two selected cards once and replay identically.");
     }
 
     public static void ShortfallEmptyAndInvalidatedDraft()
@@ -124,10 +156,12 @@ internal static class ProgramOwnedCardsChecks
     });
     private static SkillProgram Load(int count, bool other = false) => SkillProgramCatalog.Load(Rules(count, other), Presentation).Programs[SkillId];
 
-    private static (GameEngine Game, ContentRegistry Registry) Create(int count, bool equipmentOnly = false)
+    private static (GameEngine Game, ContentRegistry Registry) Create(int count, bool equipmentOnly = false, bool variable = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(count, equipmentOnly));
+        var registry = variable
+            ? ContentRegistry.Build(new StandardContentPackage(), new Fixture(count, equipmentOnly, true))
+            : ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(count, equipmentOnly, false));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 17, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4, ModeId = ModeId,
@@ -149,16 +183,22 @@ internal static class ProgramOwnedCardsChecks
     private static void Accept(CommandResult result) => Require(result.Accepted, result.Error?.Message ?? "Rejected fixture command.");
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(int count, bool equipmentOnly) : IGameContentPackage
+    private sealed class Fixture(int count, bool equipmentOnly, bool variable) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-owned-cards", new Version(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            var catalog = SkillProgramCatalog.Load(Rules(count, equipmentOnly: equipmentOnly), Presentation);
+            var rules = System.Text.Json.Nodes.JsonNode.Parse(Rules(count, equipmentOnly: equipmentOnly))!;
+            if (variable)
+            {
+                var effect = rules["skills"]![0]!["activations"]![0]!["effects"]![0]!.AsObject();
+                effect.Remove("amount"); effect["minimumCards"] = 2; effect["maximumCards"] = count;
+            }
+            var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), Presentation);
             builder.AddSkill(new ContentSkillDefinition(SkillId, "区域牌集合", "选择自己的牌，再统一移动。")
             { Program = catalog.Programs[SkillId], ProgramPresentation = catalog.Presentations[SkillId] });
             builder.AddGeneral(new ContentGeneralDefinition("fixture:owned-cards-owner", "牌主", "supporter", SkillId,
-                "wu", BaseHp: 4, AdditionalSkillIds: ["classic:xiaoji"]));
+                "wu", BaseHp: 4, AdditionalSkillIds: variable ? [] : ["classic:xiaoji"]));
             for (var index = 1; index < 4; index++)
                 builder.AddGeneral(new ContentGeneralDefinition($"fixture:owned-cards-{index}", $"目标{index}", "supporter", "standard:none", "wei", BaseHp: 4));
             builder.AddDeck(new ContentDeckRecipe("fixture:owned-cards-deck", "区域牌测试", 4, 0,

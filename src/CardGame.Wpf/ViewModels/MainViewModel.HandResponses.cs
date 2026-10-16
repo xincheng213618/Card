@@ -8,13 +8,14 @@ public sealed partial class MainViewModel
 
     private static bool SupportsHandResponse(DecisionKind? kind) => kind is
         DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.RescueDying or
-        DecisionKind.Nullification or DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard;
+        DecisionKind.Nullification or DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard or DecisionKind.StoneAxe;
 
     private static bool IsHandResponsePrompt(GameSnapshot? snapshot)
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat)
             return false;
         if (SupportsHandResponse(prompt.Kind)) return true;
+        if (IsCardPaymentPrompt(snapshot)) return true;
         if (prompt.SkillPrompt is null || prompt.Choices.Any(choice => choice.Targets.Count > 0 || choice.ContentIds.Count > 0))
             return false;
         var handIds = snapshot.Players.Single(player => player.Seat == snapshot.HumanSeat).Hand
@@ -35,6 +36,7 @@ public sealed partial class MainViewModel
         get
         {
             if (!IsHandResponsePending) return null;
+            if (IsCardPaymentSelectionPending && CardPaymentDeclineChoice is { } paymentDecline) return paymentDecline;
             var choices = _snapshot.PendingDecision!.Choices.Where(choice => choice.Cards.Count == 0 &&
                 (_snapshot.PendingDecision.Kind switch
                 {
@@ -43,6 +45,7 @@ public sealed partial class MainViewModel
                     DecisionKind.RescueDying => choice.Parameters.GetValueOrDefault("response") == "let-die",
                     DecisionKind.Nullification => choice.Parameters.GetValueOrDefault("response") == "pass",
                     DecisionKind.FireAttackDiscard => choice.Parameters.GetValueOrDefault("response") == "fire-attack-skip",
+                    DecisionKind.StoneAxe => choice.Parameters.GetValueOrDefault("action") == "stone-axe-skip",
                     _ => false
                 })).Take(2).ToArray();
             return choices.Length == 1 ? choices[0] : null;
@@ -56,7 +59,19 @@ public sealed partial class MainViewModel
         get
         {
             if (!IsHandResponsePending) return _handResponseExtraChoices = [];
+            if (IsStoneAxeSelectionPending || IsOwnedCardSelectionPending) return _handResponseExtraChoices = [];
             var choices = _snapshot.PendingDecision!.Choices;
+            if (IsCardPaymentSelectionPending)
+            {
+                var payments = CardPaymentChoices.Select(choice => choice.Id).ToHashSet();
+                var declineId = HandResponseDeclineChoice?.Id;
+                var variants = CardPaymentChoices.Where(IsPaymentVariant).ToArray();
+                var extras = choices.Where(choice => !payments.Contains(choice.Id) && choice.Id != declineId ||
+                    variants.Length > 1 && variants.Any(variant => ReferenceEquals(variant, choice))).ToArray();
+                if (!_handResponseExtraChoices.SequenceEqual(extras, ReferenceEqualityComparer.Instance))
+                    _handResponseExtraChoices = Array.AsReadOnly(extras);
+                return _handResponseExtraChoices;
+            }
             var handIds = HandResponseMaterials.Select(card => card.Id).ToHashSet();
             var handChoices = choices.Where(choice => choice.Cards.Count == 1 && handIds.Contains(choice.Cards[0]))
                 .GroupBy(choice => choice.Cards[0]).Where(group => group.Count() == 1)
@@ -71,14 +86,14 @@ public sealed partial class MainViewModel
         }
     }
 
-    public bool CanCancelAction => HasSelection || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null;
-    public string CancelActionHint => HandResponseDeclineChoice is { } choice
+    public bool CanCancelAction => HasSelection || OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null;
+    public string CancelActionHint => OwnedCardDeclineChoice is not null ? "放弃本次选牌；Esc 仅取消当前选牌。" : HandResponseDeclineChoice is { } choice
         ? $"{choice.Description} · Esc 仅取消选牌。"
         : SkillTargetDeclineChoice is { } decline ? $"{decline.Description} · Esc 仅取消选择。"
         : "取消当前选牌和目标 · Esc";
 
     // A card is selectable only if it identifies one complete, currently published choice.
-    // Ambiguous effects and multi-card choices continue to use the explicit central candidates.
+    // Ambiguous effects continue to use the explicit central candidates.
     private PromptChoice? HandResponseChoice(int? cardId)
     {
         if (!IsHandResponsePending || cardId is null ||
@@ -88,8 +103,8 @@ public sealed partial class MainViewModel
         return choices.Length == 1 ? choices[0] : null;
     }
 
-    private PromptChoice? SelectedHandResponse => HandResponseChoice(_selectedCardId);
-    private string HandResponseButtonText => _snapshot.PendingDecision?.Kind switch
+    private PromptChoice? SelectedHandResponse => IsCardPaymentSelectionPending ? SelectedCardPaymentChoice : HandResponseChoice(_selectedCardId);
+    private string HandResponseButtonText => IsStoneAxeSelectionPending ? "是" : IsCardPaymentSelectionPending ? "确 定" : _snapshot.PendingDecision?.Kind switch
     {
         DecisionKind.RespondDodge => IsSelectedResponseConversion(CardKind.Dodge) ? "当作闪打出" : "打出闪",
         DecisionKind.RespondSlash => IsSelectedResponseConversion(CardKind.Slash) ? "当作杀打出" : "打出杀",
@@ -97,6 +112,7 @@ public sealed partial class MainViewModel
         DecisionKind.Nullification => "确认无懈",
         DecisionKind.FireAttackReveal => "展示此牌",
         DecisionKind.FireAttackDiscard => "弃牌火攻",
+        DecisionKind.StoneAxe => "是",
         _ when _snapshot.PendingDecision?.SkillPrompt is not null => "确 定",
         _ => "确认响应"
     };
@@ -105,7 +121,11 @@ public sealed partial class MainViewModel
         HandResponseMaterials.Single(card => card.Id == choice.Cards[0]).Kind is { } physical &&
         (required == CardKind.Slash ? physical is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : physical != required);
 
-    private string HandResponseHint => (SelectedHandResponse is { } choice
+    private string HandResponseHint => IsStoneAxeSelectionPending
+        ? $"贯石斧 · 选择两张手牌或装备（已选 {_paymentCardIds.Count}/2）· 点击「是」弃牌发动，点击「否」放弃；Esc 取消选牌。"
+        : IsCardPaymentSelectionPending ? CardPaymentSelectionHint +
+            (CardPaymentDeclineChoice is not null ? $"点击「{ActionDockCancelText}」放弃本次支付。" : string.Empty)
+        : (SelectedHandResponse is { } choice
         ? $"{choice.Description} · 点击「{HandResponseButtonText}」或按 Enter 确认；Esc 取消选择。"
         : (Hand.Any(card => card.IsPlayable)
             ? $"选择一张亮起的手牌，再点击「{HandResponseButtonText}」。"
@@ -120,6 +140,11 @@ public sealed partial class MainViewModel
 
     private void SelectHandResponse(CardViewModel card)
     {
+        if (IsCardPaymentSelectionPending)
+        {
+            if (card.IsPlayable) TogglePaymentCard(card.Id);
+            return;
+        }
         if (!card.IsPlayable || HandResponseChoice(card.Id) is null) return;
         _selectedCardId = _selectedCardId == card.Id ? null : card.Id;
         _selectedTargetSeat = null;
@@ -135,7 +160,8 @@ public sealed partial class MainViewModel
 
     private void CancelAction()
     {
-        if (HandResponseDeclineChoice is { } choice) SubmitHandResponse(choice);
+        if (OwnedCardDeclineChoice is { } finish) SubmitPublishedPromptChoice(finish, IsOwnedCardSelectionPending, "选牌未执行");
+        else if (HandResponseDeclineChoice is { } choice) SubmitHandResponse(choice);
         else if (SkillTargetDeclineChoice is { } decline) SelectSkillChoice(decline);
         else ClearSelection();
     }

@@ -90,7 +90,7 @@ public sealed partial class GameEngine
         var paidReason=new CardMoveReason("skill-program."+f.SkillId+".participant-discard");ClearPendingDecision();
         ReplaceRuntimeTop(f with{DistinctFactionDiscards=d with{Stage="discard-children",ParticipantIndex=d.ParticipantIndex+1},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
         var beforeMovement=_cardMovements.Count;
-        MoveCard(card,source,CardLocation.DiscardPile,paidReason, movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
+        MoveLogicalDiscard(f.OwnerSeat,f.OwnerSeat,card,source,paidReason, movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
         var movement=_cardMovements.Skip(beforeMovement).Single(m=>m.CardId==card.Id&&m.From==source&&m.To==paidDestination&&m.Reason==paidReason);
         if(movement.CardId!=card.Id||movement.From!=source||movement.To!=paidDestination||movement.Reason!=paidReason)throw new InvalidOperationException("A discard receipt requires its actual movement.");
         f=GetActiveProgramFrame(f.Id);d=f.DistinctFactionDiscards!;

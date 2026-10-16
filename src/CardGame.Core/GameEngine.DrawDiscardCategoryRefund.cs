@@ -113,7 +113,7 @@ public sealed partial class GameEngine
                 invoice.Length, distinct, batch, before, paid.PaymentAfter));
         }
         if (r.RequiredCount == 0) Commit(null, []);
-        else MoveProgramCardsFromMultipleSources(r.SelectedCardIds, CardLocation.DiscardPile,
+        else MoveProgramLogicalDiscard(f, r.TargetSeat, r.SelectedCardIds,
             new(DrawDiscardCategoryReason(f, "discard")), (batch, records) => Commit(batch, records));
         AdvanceRuntimeProgram(f.Id);
     }

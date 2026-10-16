@@ -189,6 +189,17 @@ public sealed partial class GameEngine
         var visibleDecision = _pendingDecision?.PlayerSeat == viewerSeat
             ? _pendingDecision
             : null;
+        // Publish only the responder's remaining selection bounds, including restored
+        // older prompts. The private runtime draft stays on its owning frame.
+        if (visibleDecision is { Kind: DecisionKind.ProgramTrigger } &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame { OwnedCardSelection: { } owned } &&
+            visibleDecision.Choices.All(choice => choice.Parameters.GetValueOrDefault("program-action") is "select-owned-cards" or "finish-owned-cards"))
+            visibleDecision = visibleDecision with
+            {
+                RequiredCardCount = owned.RequiredCount - owned.SelectedCardIds.Count,
+                MinimumCardCount = owned.AllowEarlyFinish ? Math.Max(0, owned.MinimumCount - owned.SelectedCardIds.Count) : null
+            };
+        if (visibleDecision is not null) visibleDecision = ProjectCardPaymentCount(visibleDecision);
         ProgramSkillFrame? lastProgram = null;
         for (var index = _resolutionStack.Count - 1; index >= 0; index--)
             if (_resolutionStack[index] is ProgramSkillFrame program) { lastProgram = program; break; }

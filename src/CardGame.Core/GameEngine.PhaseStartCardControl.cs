@@ -102,6 +102,8 @@ public sealed partial class GameEngine
             _movementSequence, _movementSequence);
         ReplaceRuntimeTop(f = f with { PhaseStartCardControl = r with { Stage = PhaseStartCardControlStage.MovementChildren,
             Payment = payment, ArmorAcquired = obtain }, PendingMovementContinuation = new(from.OwnerSeat.Value, 0, null) });
+        var logicalDiscard = obtain ? null : CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
+            [card.Id], new(PhaseStartControlReason(r.Kind)), f.Id);
         MoveProgramCardsFromMultipleSources([card.Id], to, new(PhaseStartControlReason(r.Kind)), (_, moves) =>
         {
             foreach (var movement in moves) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
@@ -110,6 +112,7 @@ public sealed partial class GameEngine
                 { Payment = payment with { SequenceAfter = moves.Max(m => m.Sequence) } } });
             AdvanceEventRulesAndQueueFact(new PhaseStartCardControlPaidEvent(GetActiveProgramFrame(f.Id).PhaseStartCardControl!));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AdvanceRuntimeProgram(f.Id);
     }
     private bool HasExactPhaseStartCardControl(ProgramSkillFrame f)

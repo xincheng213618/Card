@@ -16,9 +16,10 @@ public sealed partial class GameEngine
             "装备牌" => SkillProgramCardCategory.Equipment,
             _ => SkillProgramCardCategory.Trick
         };
-        // Paired responses need the original trick's accepted Use identity even
-        // when no target-changing skill subscribes to its finalized window.
+        // Response exchanges and paired responses need the original trick's
+        // accepted Use identity even without a target-changing subscriber.
         return HasHuaManCapability || HasXinPiCapability || HasCaoChunCapability || HasNeifaCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability || HasYisuanCapability && category == SkillProgramCardCategory.Trick ||
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeRespondedCardEntities) && IsOrdinaryTrick(kind) ||
             _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
             (category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind)) ||
             _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardSameCategoryForExtraEffect) && ExtraEffectCardKind(kind) ||

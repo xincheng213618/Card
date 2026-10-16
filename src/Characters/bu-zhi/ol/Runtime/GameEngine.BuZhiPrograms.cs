@@ -121,12 +121,14 @@ public sealed partial class GameEngine
     private void PayBuZhiEquipment(ProgramSkillFrame f,IReadOnlyList<int> ids,CardLocation destination,string next)
     {
         var before=_movementSequence;ReplaceRuntimeTop(f=f with{BuZhi=f.BuZhi! with{Stage="movement",ReturnStage=next,Before=before,After=before,Actual=0,PaidIds=ids},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
+        var logicalDiscard=destination==CardLocation.DiscardPile?CaptureNativeLogicalDiscardInvocation(f.OwnerSeat,f.OwnerSeat,ids,new(BuZhiMoveReason),f.Id):null;
         MoveProgramCardsFromMultipleSources(ids,destination,new(BuZhiMoveReason),(_,records)=>
         {
             var active=GetActiveProgramFrame(f.Id);var actual=records.Count(m=>m.To==destination || destination==CardLocation.DiscardPile && m.To==CardLocation.OutsideGame);
             ReplaceRuntimeTop(active with{BuZhi=active.BuZhi! with{After=_movementSequence,Actual=actual}});
             AdvanceEventRulesAndQueueFact(new BuZhiMovementPaidEvent(f.Id,next,active.BuZhi!.Target!.Value,before,_movementSequence,actual,ids));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if(!TryBeginCardsMovedProgramWindow(f.Id))ReturnRuntimeProgramMovement(f.Id);
     }
     private void IssueBuZhiDamage(ProgramSkillFrame f)

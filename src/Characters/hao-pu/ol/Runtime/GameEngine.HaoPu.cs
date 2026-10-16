@@ -108,7 +108,7 @@ public sealed partial class GameEngine
         foreach (var p in new[] { r.OwnerPlan, r.OtherPlan })
         {
             var discarded = p.OriginalIds.Except(p.KeptIds!).Select(GetAttackCard).ToArray();
-            if (discarded.Length > 0) MoveCards(discarded, CardLocation.Hand(p.Seat), CardLocation.DiscardPile, new(ZhenyingDiscardReason));
+            if (discarded.Length > 0) MoveLogicalDiscardCards(f.OwnerSeat, p.Seat, discarded, CardLocation.Hand(p.Seat), new(ZhenyingDiscardReason));
         }
         var ownerDraw = Math.Max(0, r.OwnerPlan.DesiredCount!.Value - r.OwnerPlan.OriginalIds.Count);
         var otherDraw = Math.Max(0, r.OtherPlan.DesiredCount!.Value - r.OtherPlan.OriginalIds.Count);

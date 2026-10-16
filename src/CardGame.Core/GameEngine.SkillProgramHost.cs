@@ -260,8 +260,11 @@ public sealed partial class GameEngine
                 SelectedCardPaymentResult = null
             });
             var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
+            var discardInvocation = toDiscard ? engine.CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
+                frame.OwnerSeat, cardIds, reason, frame.Id) : null;
             foreach (var group in selected.GroupBy(item => item.Location))
                 engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason);
+            engine.CompleteNativeLogicalDiscardInvocation(discardInvocation);
             active = engine.GetActiveProgramFrame(frame.Id);
             engine.ReplaceRuntimeTop(active with
             {
@@ -331,7 +334,7 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome UseVirtualDyingAlcoholWithCompletion(ProgramSkillFrame frame)
         {
             engine.UseProgramVirtualDyingAlcohol(frame);
-            return engine.TracksActualTurnUseOrdinal ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
+            return engine.TracksActualTurnUseOrdinal || engine.HasLiuYanCapability ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
         }
 
         public void ClaimMovedCards(ProgramSkillFrame frame) =>

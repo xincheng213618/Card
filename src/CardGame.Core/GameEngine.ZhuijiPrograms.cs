@@ -98,7 +98,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f=f with{ZhuijiDebt=r with{Stage=ZhuijiDebtStage.DiscardChildren,Before=before,After=before,ActualCount=choice.Cards.Count},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
         AdvanceEventRulesAndQueueFact(new ZhuijiPlayDebtConsumedEvent(f.Id,r.Grant,true));
         _players[f.OwnerSeat].ZhuijiPlayDebts.Remove(r.Grant);
-        MoveProgramCardsFromMultipleSources(choice.Cards,CardLocation.DiscardPile,new("program.zhuiji.ending-discard"));
+        MoveProgramLogicalDiscard(f,f.OwnerSeat,choice.Cards,new("program.zhuiji.ending-discard"));
         ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id)with{ZhuijiDebt=f.ZhuijiDebt!with{After=_movementSequence}});
         AdvanceEventRulesAndQueueFact(new ZhuijiDiscardPaidEvent(f.Id,r.Grant,before,_movementSequence,choice.Cards.Count));AdvanceRuntimeProgram(f.Id);
     }

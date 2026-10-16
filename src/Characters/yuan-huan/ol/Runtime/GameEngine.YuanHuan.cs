@@ -94,7 +94,7 @@ public sealed partial class GameEngine
         }
         var card = GetAdvancedCard(choice.Cards.Single()); var sequence = _movementSequence;
         ReplaceRuntimeTop(f = f with { YuanHuan = r with { Stage = YuanHuanStage.DiscardChildren, DiscardedKind = AdvancedEffectiveHandKind(_players[r.TargetSeat], card), DiscardedPrintedKind = card.Kind }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, CardLocation.Hand(r.TargetSeat), CardLocation.DiscardPile, new(LinjieDiscardReason));
+        MoveLogicalDiscard(f.OwnerSeat, r.TargetSeat, card, CardLocation.Hand(r.TargetSeat), new(LinjieDiscardReason));
         RecordYuanHuanStep(f.Id, LinjieDiscardReason, sequence, 1, r.TargetSeat, card.Id, CardLocation.Hand(r.TargetSeat), CardLocation.DiscardPile);
         ContinueYuanHuan(f.Id);
     }

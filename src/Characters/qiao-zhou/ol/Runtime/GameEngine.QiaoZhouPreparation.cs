@@ -71,12 +71,15 @@ public sealed partial class GameEngine
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { Stage = QiaoZhouPreparationStage.MovementChildren, Step = ResolutionFrameStep.ResolvingEffect,
             PaidCardId = cardId, SequenceBefore = before, SequenceAfter = before });
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(f.Grant.Source.OwnerSeat, f.OwnerSeat,
+            [cardId], new(QiaoZhouPreparationReason), f.Id);
         MoveProgramCardsFromMultipleSources([cardId], CardLocation.DiscardPile, new(QiaoZhouPreparationReason), (_, _) =>
         {
             var actual = (QiaoZhouPreparationFrame)_resolutionStack.Last();
             ReplaceRuntimeTop(actual with { SequenceAfter = _movementSequence });
             AdvanceEventRulesAndQueueFact(new QiaoZhouPreparationDiscardedEvent(f.Id, f.Grant.GrantId, f.OwnerSeat, cardId, before, _movementSequence));
         });
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         ContinueQiaoZhouPreparation(f.Id);
     }
     private bool TryBeginQiaoZhouPreparationMovement(QiaoZhouPreparationFrame f)

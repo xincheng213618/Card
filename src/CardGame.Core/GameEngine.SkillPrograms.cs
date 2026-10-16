@@ -513,6 +513,7 @@ public sealed partial class GameEngine
 
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
     {
+        frame = CompleteFrameNativeLogicalDiscard(frame);
         CleanupProgramBoundCards(frame, completed);
         // Completion must wait for a quiet boundary: a program skill finishing inside
         // an unwind (death triggers, chained attacks) can coincide with another
@@ -682,7 +683,10 @@ public sealed partial class GameEngine
             !AllowsDuanJiongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsTianChouNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsChengGongYingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            !(AllowsKenshangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsFulueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsYangFengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsAHuiNanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWangGuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsQinLangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWuJingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsXiangChongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess)) &&
+            !AllowsMengDaNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaiMaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsYaDanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !(AllowsKenshangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsFulueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsYangFengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsAHuiNanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsLiuYanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWangGuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsQinLangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWuJingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsXiangChongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess)) &&
             !AllowsKeBiNengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsCaoXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsHuJinDingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
@@ -946,6 +950,7 @@ public sealed partial class GameEngine
 
     private void AssertProgramSkillState()
     {
+        HasActualPhaseEndBoundaryFrame();
         AssertOriginalHandEntityState();
         AssertTurnDefaultStatState();
         AssertOffTurnUsedCardGiftObservers();
@@ -998,7 +1003,7 @@ public sealed partial class GameEngine
                     frame.CardSetBindings.Count ||
                 frame.CardSetBindings.Any(binding =>
                     binding.SelectionActorSeat is { } selectionActor &&
-                    (!HasForeignDiscardCapability || !IsValidPlayerSeat(selectionActor) ||
+                    (!HasForeignDiscardCapability && !TracksNativeLogicalDiscards || !IsValidPlayerSeat(selectionActor) ||
                      !plan.Instructions.Take(frame.InstructionIndex).Any(e => e.ResultBind == binding.Name &&
                         (e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectOwnedHandRankSum or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectEquipmentPairAndPayment or SkillProgramEffectOp.SelectDyingOwnedCard ||
                          e.Op == SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment &&
@@ -1182,6 +1187,8 @@ public sealed partial class GameEngine
                     !IsNiuFuMovement(frame, paidEffect, pendingMovement) &&
                     !IsRuanHuiMovement(frame, paidEffect, pendingMovement) &&
                     !IsChengGongYingMovement(frame, paidEffect, pendingMovement) &&
+                    !IsMengDaMovement(frame, paidEffect, pendingMovement) &&
+                    !IsYaDanMovement(frame, paidEffect, pendingMovement) &&
                     !IsKenshangMovement(frame, paidEffect, pendingMovement) && !IsFulueMovement(frame, paidEffect, pendingMovement) && !IsYangFengMovement(frame, paidEffect, pendingMovement) && !IsWangGuanMovement(frame, paidEffect, pendingMovement) && !IsWuJingMovement(frame, paidEffect, pendingMovement) &&
                     !IsMaMiDiMovement(frame, paidEffect, pendingMovement) &&
                     !IsYanPuAwaitedMovement(frame, paidEffect, pendingMovement) &&
@@ -1407,7 +1414,7 @@ public sealed partial class GameEngine
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||
-                frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && !HasPaidWeifuInitialSelection(frame) && !HasPaidShuziInitialSelection(frame) && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
+                frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && !HasPaidWeifuInitialSelection(frame) && !HasPaidShuziInitialSelection(frame) && !HasPaidLiuYanInitialSelection(frame) && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), frame.OwnerSeat, frame.SkillId)) ||
                 activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||

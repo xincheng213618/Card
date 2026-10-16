@@ -336,11 +336,15 @@ public sealed partial class GameEngine
             }
         }
         var destination = kind == CardKind.Snatch ? CardLocation.Hand(owner.Seat) : CardLocation.DiscardPile;
+        var logicalDiscard = kind == CardKind.Dismantlement
+            ? CaptureNativeLogicalDiscardInvocation(active.OwnerSeat, active.OwnerSeat, [card.Id],
+                new($"skill-program.{active.SkillId}.dismantle"), active.Id) : null;
         MoveCard(card, from, destination, new($"skill-program.{active.SkillId}.{kind switch
         {
             CardKind.Snatch => "snatch",
             _ => "dismantle"
         }}"));
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，视为对 {target.Name} 使用【{CardCatalog.Get(kind).DisplayName}】。",
             active.OwnerSeat, target.Seat);
@@ -471,7 +475,7 @@ public sealed partial class GameEngine
                 costFrom.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) ||
                 IsRedSuit(cost.Suit) != IsRedSuit(revealedCard.Suit))
                 throw new InvalidOperationException("The Juanxia fire payment is no longer a legal same-color card.");
-            MoveCard(cost, costFrom, CardLocation.DiscardPile, CardMoveReasons.FireAttackDiscard);
+            MoveLogicalDiscard(active.OwnerSeat, active.OwnerSeat, cost, costFrom, CardMoveReasons.FireAttackDiscard);
         }
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，视为对 {_players[state.TargetSeat].Name} 使用【火攻】{(paid ? "，造成1点火焰伤害。" : "，未造成伤害。")}",

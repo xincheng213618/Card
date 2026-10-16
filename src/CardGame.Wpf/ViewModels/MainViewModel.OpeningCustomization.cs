@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CardGame.Core;
 
@@ -7,7 +6,8 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private string _customGeneralSearch = string.Empty;
-    public ObservableCollection<GeneralChoiceViewModel> CustomGeneralChoices { get; } = [];
+    private GeneralChoiceViewModel[] _orderedCustomGeneralChoices = [];
+    public ObservableRangeCollection<GeneralChoiceViewModel> CustomGeneralChoices { get; } = [];
     public string CustomGeneralSearch
     {
         get => _customGeneralSearch;
@@ -16,7 +16,8 @@ public sealed partial class MainViewModel
     public bool IsCustomGeneralSelectionOpen => IsGeneralSelectionPending &&
         _snapshot.PendingDecision!.Choices.Any(choice => choice.Parameters.ContainsKey("full-roster"));
     public string GeneralSelectionSourceText => IsCustomGeneralSelectionOpen ? "返回候选" : "自选武将";
-    public string CustomGeneralCountText => $"可选 {CustomGeneralChoices.Count} 名武将 · 搜索姓名、版本或势力";
+    public string CustomGeneralCountText => $"{CustomGeneralChoices.Count} / {_orderedCustomGeneralChoices.Length} 名武将";
+    public bool HasNoCustomGeneralChoices => IsCustomGeneralSelectionOpen && CustomGeneralChoices.Count == 0;
     public bool CanCustomizeStartingIdentity => !IsTutorialActive && _snapshot?.ModeKind == ContentModeKind.Identity &&
         _snapshot.TurnNumber == 0 && _snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral;
     public ICommand ToggleGeneralRosterCommand { get; private set; } = null!;
@@ -58,6 +59,9 @@ public sealed partial class MainViewModel
 
     private void RefreshOpeningCustomization()
     {
+        _orderedCustomGeneralChoices = IsCustomGeneralSelectionOpen
+            ? _generalSelectionChoices.Values.OrderBy(choice => choice.Kingdom).ThenBy(choice => choice.Name).ToArray()
+            : [];
         RefreshCustomGeneralChoices();
         RaisePropertyChanged(nameof(IsCustomGeneralSelectionOpen));
         RaisePropertyChanged(nameof(GeneralSelectionSourceText));
@@ -68,16 +72,15 @@ public sealed partial class MainViewModel
 
     private void RefreshCustomGeneralChoices()
     {
-        CustomGeneralChoices.Clear();
-        if (IsCustomGeneralSelectionOpen)
-        {
-            var search = CustomGeneralSearch.Trim();
-            foreach (var choice in _generalSelectionChoices.Values.OrderBy(choice => choice.Kingdom).ThenBy(choice => choice.Name))
-                if (search.Length == 0 || choice.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    choice.GeneralId.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    choice.Kingdom.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    CustomGeneralChoices.Add(choice);
-        }
+        var search = CustomGeneralSearch.Trim();
+        CustomGeneralChoices.ReplaceAll(!IsCustomGeneralSelectionOpen ? [] :
+            _orderedCustomGeneralChoices.Where(choice => search.Length == 0 ||
+                choice.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                choice.GeneralId.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                choice.Kingdom.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                choice.EditionText.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                choice.SkillName.Contains(search, StringComparison.OrdinalIgnoreCase)));
         RaisePropertyChanged(nameof(CustomGeneralCountText));
+        RaisePropertyChanged(nameof(HasNoCustomGeneralChoices));
     }
 }

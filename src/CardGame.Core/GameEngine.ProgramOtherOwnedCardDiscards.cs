@@ -166,8 +166,10 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(frame, "目标装备已不能被他人弃置，技能结算已取消。");
             return;
         }
-        MoveCard(card, source, CardLocation.DiscardPile,
-            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, chooserSeat, [card.Id], reason, frame.Id);
+        MoveCard(card, source, CardLocation.DiscardPile, reason);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         AdvanceRuntimeProgram(frame.Id);
     }
 

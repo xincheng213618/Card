@@ -162,7 +162,7 @@ public sealed partial class GameEngine
         var before = DrawAdviceSequence;
         receipt = receipt with { Stage = DrawAdviceStage.Discarding, LastDiscardBefore = before, LastDiscardAfter = before };
         ReplaceRuntimeTop(frame with { DrawAdviceReceipt = receipt, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, new(DrawAdviceReason(frame.SkillId, "discard")), (batchId, records) =>
+        MoveProgramLogicalDiscard(frame, seat, ids, new(DrawAdviceReason(frame.SkillId, "discard")), (batchId, records) =>
         {
             var active = GetActiveProgramFrame(frame.Id); var paid = active.DrawAdviceReceipt!;
             paid = paid with { LastDiscardBatchId = batchId, LastDiscardAfter = DrawAdviceSequence,

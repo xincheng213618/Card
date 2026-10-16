@@ -50,7 +50,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { LianZhu = r }); if (selected.Length < 2) { PublishLianZhuChoice(f); return; }
         r = r with { Stage = LianZhuStage.DiscardChildren, Locations = selected.Select(_cardZones.GetLocation).ToArray(), Before = _movementSequence, After = _movementSequence, Count = 2 };
         ReplaceRuntimeTop(f with { LianZhu = r, PendingMovementContinuation = new(r.RecipientSeat, 0, null), Step = ResolutionFrameStep.ResolvingEffect });
-        MoveProgramCardsFromMultipleSources(selected, CardLocation.DiscardPile, new(LianZhuReason(r.Stage)), (_, records) => { var active = GetActiveProgramFrame(f.Id); var paid = r with { After = records.Max(m => m.Sequence) }; ReplaceRuntimeTop(active with { LianZhu = paid }); IssueLianZhuSegment(f.Id, paid, r.RecipientSeat); }); AdvanceRuntimeProgram(f.Id);
+        MoveProgramLogicalDiscard(f, r.RecipientSeat, selected, new(LianZhuReason(r.Stage)), (_, records) => { var active = GetActiveProgramFrame(f.Id); var paid = r with { After = records.Max(m => m.Sequence) }; ReplaceRuntimeTop(active with { LianZhu = paid }); IssueLianZhuSegment(f.Id, paid, r.RecipientSeat); }); AdvanceRuntimeProgram(f.Id);
     }
     private void PayLianZhuDraw(ProgramSkillFrame f)
     {

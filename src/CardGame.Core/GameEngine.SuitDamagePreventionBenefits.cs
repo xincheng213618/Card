@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         var cost = _cardZones.CardsAt(from).Single(c => c.Id == id);
         ClearPendingDecision(); ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null),
             SuitPreventionBenefit = r with { RecipientSeat = recipient, Branch = branch, Stage = SuitPreventionBenefitStage.CostPaid } });
-        MoveCard(cost, from, CardLocation.DiscardPile, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit}"), moved =>
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, cost, from, new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit}"), moved =>
         {
             var active = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(active with { SuitPreventionBenefit = active.SuitPreventionBenefit! with { CostMovementSequence = moved.Sequence } });

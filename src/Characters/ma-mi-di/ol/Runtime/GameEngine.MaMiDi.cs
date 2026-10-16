@@ -96,7 +96,7 @@ public sealed partial class GameEngine
         var grain = from == CardLocation.Equipment(pair.Target) && card.Kind == CardKind.WoodenOx ? GetWoodenOxGrain(_players[pair.Target]).Select(c => c.Id).ToArray() : [];
         var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { MaMiDi = r with { Stage = MaMiDiStage.TargetChildren }, PendingMovementContinuation = new(pair.Target, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(MaMiDiDiscardReason));
+        MoveLogicalDiscard(f.OwnerSeat, pair.Target, card, from, new(MaMiDiDiscardReason));
         var after = _movementSequence; var moved = _cardMovements.Single(m => m.Sequence > before && m.Sequence <= after && m.CardId == id && m.Reason.Value == MaMiDiDiscardReason);
         var step = new MaMiDiDiscardStep(r.Cursor, pair.Grant.FrameId, pair.Target, id, card.Kind, from, moved.To, before, after) { WoodenOxGrain = grain };
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { MaMiDi = f.MaMiDi! with { Steps = r.Steps.Append(step).ToArray() } });

@@ -15,6 +15,8 @@ public sealed record SkillProgramRuleContext(
     public int? PublicLivingFactionCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? LivingFemaleCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? CurrentRoundActualUseCount { get; init; }
 }
 
 public sealed record SkillProgramRuleSource(

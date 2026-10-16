@@ -116,7 +116,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Weapon benefit lost its current directed-distance or discard eligibility.");
             var before = _movementSequence;
             ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveCard(card, from, CardLocation.DiscardPile, new(PlacedEquipmentDiscardReason), movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
+            MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, from, new(PlacedEquipmentDiscardReason), movement => RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id));
             f = GetActiveProgramFrame(f.Id);
             var payment = new PlacedEquipmentDiscard(owner, card.Id, card.Kind, from, card.IsGeneralWeapon, before, _movementSequence);
             ReplaceRuntimeTop(f = f with { PlacedEquipmentBenefit = r with { Discard = payment, Stage = PlacedEquipmentBenefitStage.DiscardChildren } });

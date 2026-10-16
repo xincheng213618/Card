@@ -78,7 +78,7 @@ public sealed partial class GameEngine
         var from=new CardLocation(zone,r.Payer);var cards=_cardZones.CardsAt(from);if(slot<0||slot>=cards.Count)throw new InvalidOperationException("Choutao source slot is absent.");var card=cards[slot];
         var grain=zone==CardZoneKind.Equipment&&card.Kind==CardKind.WoodenOx?GetWoodenOxGrain(_players[r.Payer]).Select(c=>c.Id).ToArray():[];
         ReplaceRuntimeTop(f=f with{YanRou=r with{Stage=YanRouStage.DiscardChildren,CardId=card.Id,From=from,Before=_movementSequence,After=_movementSequence,WoodenOxGrainIds=grain},PendingMovementContinuation=new(r.Payer,0,null)});
-        MoveProgramCardsFromMultipleSources([card.Id],CardLocation.DiscardPile,new(YanRouDiscardReason));RecordYanRouMovement(f.Id);ContinueYanRou(f.Id);
+        MoveProgramLogicalDiscard(f,r.Payer,[card.Id],new(YanRouDiscardReason));RecordYanRouMovement(f.Id);ContinueYanRou(f.Id);
     }
     private void RecordYanRouMovement(long id)
     {

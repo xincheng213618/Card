@@ -78,7 +78,7 @@ public sealed partial class GameEngine
         var before=_cardMovements.LastOrDefault()?.Sequence??0;
         ClearPendingDecision();ReplaceRuntimeTop(f with {DynamicDiscardDamage=r with {Stage=DynamicDiscardDamageStage.Paid,
             CardIds=ids,OriginalLocations=locations,PaymentSequenceBefore=before}});
-        MoveProgramCardsFromMultipleSources(ids,CardLocation.DiscardPile,new(DynamicDiscardDamageReason));
+        MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(DynamicDiscardDamageReason));
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeFrame(f.Id,f=f with {DynamicDiscardDamage=f.DynamicDiscardDamage! with {PaymentSequenceAfter=_cardMovements.LastOrDefault()?.Sequence??before}});
         AdvanceEventRulesAndQueueFact(new DynamicDiscardDamagePaidEvent(f.Id,f.OwnerSeat,r.TargetSeat,r.FrozenTargetHp,r.ActualTurn,ids));
         if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);

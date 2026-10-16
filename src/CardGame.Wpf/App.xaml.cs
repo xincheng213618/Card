@@ -4,6 +4,27 @@ namespace CardGame.Wpf;
 
 public partial class App : Application
 {
+    public App()
+    {
+        DispatcherUnhandledException += (_, args) =>
+        {
+            if (MainWindow?.DataContext is ViewModels.MainViewModel model)
+                model.RecordExceptionReport(args.Exception, "DispatcherUnhandledException");
+            else WriteUnhandledReport(args.Exception, "DispatcherUnhandledException");
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            WriteUnhandledReport(args.ExceptionObject as Exception ??
+                new InvalidOperationException(args.ExceptionObject?.ToString()), "AppDomain.UnhandledException");
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+            WriteUnhandledReport(args.Exception, "TaskScheduler.UnobservedTaskException");
+    }
+
+    private static void WriteUnhandledReport(Exception exception, string operation)
+    {
+        try { new Diagnostics.FileGameExceptionReportStore().Write(exception, operation); }
+        catch { /* Preserve the original unhandled exception and process behavior. */ }
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         if (e.Args.Length > 0 && e.Args[0] == "--verify-package")

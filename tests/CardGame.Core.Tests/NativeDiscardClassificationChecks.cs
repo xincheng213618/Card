@@ -7,6 +7,8 @@ internal static class NativeDiscardClassificationChecks
         foreach (var reason in new[]
         {
             "skill-program.huaman.discard",
+            "skill-program.meng-da.goude.discard",
+            "skill-program.ya-dan.qingya.discard",
             "skill-program.hao-pu.zhenying.discard",
             "skill-program.qian-zhao.weifu.discard",
             "skill-program.fei-yi.yanru.discard",
@@ -37,6 +39,10 @@ internal static class NativeDiscardClassificationChecks
         foreach (var reason in new[]
         {
             "skill-program.huaman.draw",
+            "skill-program.meng-da.goude.draw",
+            "skill-program.ya-dan.qingya.discard-finished",
+            "skill-program.cai-mao.zuolian.exchange",
+            "skill-program.meng-da.goude.discard-finished",
             "skill-program.hao-pu.zhenying.draw",
             "skill-program.qian-zhao.weifu.draw",
             "skill-program.fei-yi.draw",

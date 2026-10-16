@@ -228,7 +228,7 @@ public sealed partial class GameEngine
                     pool.Remove(card);
                     picked.Add(card);
                 }
-                MoveCards(picked, CardLocation.Hand(damagerSeat), CardLocation.DiscardPile,
+                MoveLogicalDiscardCards(active.OwnerSeat, damagerSeat, picked, CardLocation.Hand(damagerSeat),
                     new($"skill-program.{active.SkillId}.zhuihuan-discard"));
             }
             AddLog("SkillEffect", count > 0

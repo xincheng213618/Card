@@ -175,7 +175,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { LastDamageSourceReciprocity = r with { Stage = LastDamageSourceReciprocityStage.MovementChildren,
             MovementIssued = true, SequenceBefore = before, SequenceAfter = before, PaidMaterial = material },
             PendingMovementContinuation = new(r.ParticipantSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([id], CardLocation.DiscardPile, new(LastDamageSourceReason(f, false)), (batch, records) =>
+        MoveProgramLogicalDiscard(f, r.ParticipantSeat, [id], new(LastDamageSourceReason(f, false)), (batch, records) =>
         {
             if (records is not [var paid] || paid.CardId != material.CardId || paid.CardKind != material.PrintedKind ||
                 paid.From != material.From || paid.To != (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment

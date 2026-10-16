@@ -26,7 +26,7 @@ public sealed partial class GameEngine
         var suit = GetProgramEffectiveSuit(_players[frame.OwnerSeat], card);
         var expectedSequence = _cardMovements.Count == 0 ? 1 : _cardMovements[^1].Sequence + 1;
         ReplaceRuntimeTop(frame with { BoundDiscardSlashBenefits = new(frame.InstructionIndex, bind, card.Id, card.Kind, from, suit, expectedSequence) });
-        MoveCard(card, from, CardLocation.DiscardPile, new("skill-program.bound-discard-slash.cost"));
+        MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, from, new("skill-program.bound-discard-slash.cost"));
         AdvanceRuntimeProgram(id);
         return SkillProgramStepOutcome.AwaitChild;
     }

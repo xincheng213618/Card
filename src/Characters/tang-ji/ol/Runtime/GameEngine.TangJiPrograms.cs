@@ -260,9 +260,12 @@ public sealed partial class GameEngine
         var equipment = GetEquipment(owner).ToArray();
         var judgment = _cardZones.CardsAt(CardLocation.Judgment(owner.Seat)).ToArray();
         var reason = new CardMoveReason($"skill-program.{active.SkillId}.kangge-death-price");
+        var logicalDiscard = CaptureNativeLogicalDiscardInvocation(active.OwnerSeat, owner.Seat,
+            hand.Concat(equipment).Concat(judgment).Select(card => card.Id).ToArray(), reason, active.Id);
         foreach (var card in hand) MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.DiscardPile, reason);
         foreach (var card in equipment) MoveCard(card, _cardZones.GetLocation(card.Id), CardLocation.DiscardPile, reason);
         foreach (var card in judgment) MoveCard(card, CardLocation.Judgment(owner.Seat), CardLocation.DiscardPile, reason);
+        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         var discarded = hand.Length + equipment.Length + judgment.Length;
         AddLog("SkillEffect",
             $"{owner.Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】:{_players[victim].Name} 死亡，{owner.Name} 弃置所有牌（{discarded} 张）并失去1点体力。",

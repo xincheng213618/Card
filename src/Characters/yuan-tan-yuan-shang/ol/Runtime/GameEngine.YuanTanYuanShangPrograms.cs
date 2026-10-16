@@ -60,7 +60,9 @@ public sealed partial class GameEngine
   if(discard?(from.OwnerSeat!=f.OwnerSeat||from.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)):!NeifaFieldCards(f.OwnerSeat).Any(c=>c.Id==id))throw new InvalidOperationException("Neifa cannot replace its exact legal field/payment entity.");
   var category=discard?GetProgramCardCategory(GetAdvancedCard(id).Kind):(SkillProgramCardCategory?)null;var name=discard?"discard":"field";var before=_movementSequence;
   ReplaceRuntimeTop(f with{Neifa=r with{Stage=discard?NeifaStage.DiscardChildren:NeifaStage.GainChildren,DiscardCategory=category},PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
-  MoveProgramCardsFromMultipleSources([id],discard?CardLocation.DiscardPile:CardLocation.Hand(f.OwnerSeat),new(discard?NeifaDiscardReason:NeifaFieldReason),(batch,moves)=>RecordNeifaSegment(f.Id,new(name,before,moves[^1].Sequence,1,1,batch,id,from)));AdvanceRuntimeProgram(f.Id);
+   var logicalDiscard=discard?CaptureNativeLogicalDiscardInvocation(f.OwnerSeat,f.OwnerSeat,[id],new(NeifaDiscardReason),f.Id):null;
+   MoveProgramCardsFromMultipleSources([id],discard?CardLocation.DiscardPile:CardLocation.Hand(f.OwnerSeat),new(discard?NeifaDiscardReason:NeifaFieldReason),(batch,moves)=>RecordNeifaSegment(f.Id,new(name,before,moves[^1].Sequence,1,1,batch,id,from)));
+   CompleteNativeLogicalDiscardInvocation(logicalDiscard);AdvanceRuntimeProgram(f.Id);
  }
  private void PayNeifaDraw(ProgramSkillFrame f,int requested,bool equipment)
  {

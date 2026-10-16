@@ -98,7 +98,7 @@ public sealed partial class GameEngine
         var zone=Enum.Parse<CardZoneKind>(choice.Parameters["zone"]);var slot=int.Parse(choice.Parameters["slot"]);var from=new CardLocation(zone,draft.TargetSeat);var card=_cardZones.CardsAt(from)[slot];
         if(IsForeignEquipmentDiscardPrevented(frame.OwnerSeat,card,from,OwnedCardMoveIntent.Discard))throw new InvalidOperationException("Participant discard is no longer available.");
         ClearPendingDecision();ReplaceRuntimeTop(frame with {SelectedParticipantDiscard=null,ReexecuteParticipantInstruction=true});
-        MoveCard(card,from,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"),
+        MoveLogicalDiscard(frame.OwnerSeat,frame.OwnerSeat,card,from,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"),
             movement => RecordBianFuRenForeignDiscardProducer(movement, frame.OwnerSeat, frame.Id));
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
@@ -169,7 +169,7 @@ public sealed partial class GameEngine
         if(ids.Length<draft.RequiredDiscardCount){frame=frame with {DamageCardOffer=draft with {SelectedDiscardIds=ids}};ReplaceRuntimeTop(frame);ClearPendingDecision();PublishDamageCardOffer(frame);return;}
         if(ids.Length!=draft.RequiredDiscardCount || ids.Distinct().Count()!=ids.Length || ids.Any(id=>_cardZones.GetLocation(id) is not {OwnerSeat:{ } seat,Zone:CardZoneKind.Hand or CardZoneKind.Equipment} || seat!=draft.SourceSeat)) throw new InvalidOperationException("Private refusal cost changed.");
         ClearPendingDecision();ReplaceRuntimeTop(frame with {DamageCardOffer=null});
-        MoveProgramCardsFromMultipleSources(ids,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.DiscardSelected"));
+        MoveProgramLogicalDiscard(frame,draft.SourceSeat,ids,new CardMoveReason($"skill-program.{frame.SkillId}.DiscardSelected"));
         AdvanceEventRulesAndQueueFact(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,false,false));
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }

@@ -52,7 +52,7 @@ public sealed partial class GameEngine
             IsProgramVirtualOrdinaryTrickUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
-            : HasExtraEffectMaterialClaim(use.Id, use.CardId) ? EntityAtCurrentLocation(use.CardId)
+            : IsClaimedUseCardEntity(use.Id, use.CardId) ? EntityAtCurrentLocation(use.CardId)
             : _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
         if (afterAttack)
@@ -78,7 +78,7 @@ public sealed partial class GameEngine
                 !IsProgramVirtualOrdinaryTrickUse(use.Id) &&
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&
-                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !HasExtraEffectMaterialClaim(use.Id, use.CardId))
+                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId))
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }
     }

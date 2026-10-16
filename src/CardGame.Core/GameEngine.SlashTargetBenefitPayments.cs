@@ -177,7 +177,7 @@ public sealed partial class GameEngine
         var d = f.SlashTargetBenefitDraft!; var before = SlashBenefitSequence;
         ReplaceRuntimeTop(f with { SlashTargetBenefitDraft = d with { Stage = SlashTargetBenefitDraftStage.PaidChildren,
             PaidCardId = card.Id, PaidFrom = from, SequenceBefore = before }, PendingMovementContinuation = new(from.OwnerSeat!.Value, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(d.Settlement ? SlashBenefitSettlementReason : SlashBenefitDiscardReason));
+        MoveLogicalDiscard(f.OwnerSeat, d.Settlement ? d.Receipt.Use.TargetSeat : f.OwnerSeat, card, from, new(d.Settlement ? SlashBenefitSettlementReason : SlashBenefitDiscardReason));
         var after = SlashBenefitSequence;
         f = GetActiveProgramFrame(f.Id); // SilverLion may have queued a replacement on this very frame.
         var paid = SlashTargetBenefitCurrent(d.Receipt)!;

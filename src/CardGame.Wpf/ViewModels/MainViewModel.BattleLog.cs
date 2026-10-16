@@ -26,7 +26,7 @@ public sealed partial class MainViewModel
     private string _selectedBattleLogSeat = "all";
     private string _battleLogSeatSignature = string.Empty;
 
-    public ObservableCollection<BattleLogEntryViewModel> FilteredBattleLog { get; } = [];
+    public ObservableRangeCollection<BattleLogEntryViewModel> FilteredBattleLog { get; } = [];
     public ObservableCollection<BattleLogFilterOption> BattleLogSeats { get; } = [];
     public IReadOnlyList<BattleLogFilterOption> BattleLogCategories { get; } =
     [
@@ -105,8 +105,7 @@ public sealed partial class MainViewModel
 
     private void RefreshBattleLog()
     {
-        FilteredBattleLog.Clear();
-        foreach (var entry in _allBattleLogEntries.Where(MatchesBattleLogFilter)) FilteredBattleLog.Add(entry);
+        FilteredBattleLog.ReplaceAll(_allBattleLogEntries.Where(MatchesBattleLogFilter));
         RaisePropertyChanged(nameof(BattleLogFilterSummary));
     }
 

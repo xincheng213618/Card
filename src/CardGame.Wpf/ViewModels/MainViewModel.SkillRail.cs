@@ -5,7 +5,19 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards() =>
-        BuildOwnedHumanSkillCards().Concat(BuildForeignHumanSkillCards()).ToArray();
+        BuildOwnedHumanSkillCards().Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
+            .Concat(BuildForeignHumanSkillCards()).ToArray();
+
+    private string SkillActivationProgressText(string? skillId)
+    {
+        var states = _snapshot?.Players.Single(player => player.IsHuman).SkillRuntimeStates?
+            .SingleOrDefault(state => state.SkillId == skillId)?.PublicRuleStates ?? [];
+        var progress = states.FirstOrDefault(state => state.Kind == ProgramPublicRuleStateKind.GameActivationProgress) ??
+            states.FirstOrDefault(state => state.Kind == ProgramPublicRuleStateKind.ActivationLimit);
+        if (progress is not null) return $"{progress.Used ?? 0}/{progress.Value}";
+        var handLimit = states.Where(state => state.Kind == ProgramPublicRuleStateKind.PersistentHandLimit).Sum(state => state.Value);
+        return handLimit == 0 ? string.Empty : $"{handLimit:+0;-0}";
+    }
 
     private IEnumerable<HumanSkillViewModel> BuildForeignHumanSkillCards()
     {

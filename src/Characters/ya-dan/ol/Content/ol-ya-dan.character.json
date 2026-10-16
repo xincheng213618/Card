@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ya-dan",
+  "skills": [
+    {
+      "registrationOrder": 1850,
+      "programBundle": "ol-ya-dan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tielun",
+        "name": "铁轮",
+        "description": "锁定技，你计算与其他角色的距离-X（X为你本轮使用的牌数）。",
+        "executionForms": "State",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1851,
+      "programBundle": "ol-ya-dan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qingya",
+        "name": "倾轧",
+        "description": "当你使用【杀】指定唯一目标后，你可以弃置你与其之间的角色各一张手牌，然后可以于本回合下个阶段结束时使用其中一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1852,
+      "pools": {
+        "current": 459
+      },
+      "definition": {
+        "id": "ol:ya-dan",
+        "name": "雅丹",
+        "portraitKey": "ol-ya-dan",
+        "skillId": "ol:qingya",
+        "additionalSkillIds": [
+          "ol:tielun"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:ya-dan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}
+

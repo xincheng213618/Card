@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
@@ -38,22 +39,21 @@ internal static class ProgramOwnedCardsUiChecks
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "231-program-owned-card-set-first.png"));
         model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == firstCardId));
-        Program.Assert(model.CanConfirmSelected && game.PendingDecision!.PromptId == firstPrompt.PromptId &&
+        Program.Assert(!model.CanConfirmSelected && game.PendingDecision!.PromptId == firstPrompt.PromptId &&
                        game.CardMovements.Count == beforeMoves,
             "Choosing from the real hand must not submit or consume the first private draft card.");
         model.ConfirmSelectedCommand.Execute(null);
-        var secondPrompt = game.PendingDecision!;
-        Program.Assert(secondPrompt.SkillPrompt?.SkillId == SkillId &&
-                       secondPrompt.Choices.All(choice => !choice.Cards.Contains(firstCardId)) &&
-                       game.CardMovements.Count == beforeMoves &&
+        Program.Assert(game.PendingDecision!.PromptId == firstPrompt.PromptId &&
                        game.ResolutionStack.OfType<ProgramSkillFrame>().Single().OwnedCardSelection is
-                           { SelectedCardIds.Count: 1 } && !model.HasSelection && !model.CanConfirmSelected,
-            "The first shared UI choice must update only the private draft and must not move a card.");
+                           { SelectedCardIds.Count: 0 } && model.HasSelection,
+            "An incomplete local draft must not answer even the first private engine choice.");
+        var secondCardId = model.SkillChoices.First(choice => choice.Cards[0] != firstCardId).Cards.Single();
+        model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == secondCardId));
+        Program.Assert(model.Hand.Count(card => card.IsSelected) == 2 && model.CanConfirmSelected &&
+                       !model.HasCenterChoices && game.CardMovements.Count == beforeMoves,
+            "Both cards must remain selected together with one enabled confirmation and no central candidates.");
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "232-program-owned-card-set-second.png"));
-
-        var secondCardId = model.SkillChoices[0].Cards.Single();
-        model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == secondCardId));
         model.ConfirmSelectedCommand.Execute(null);
         var moved = game.CardMovements.Skip(beforeMoves)
             .Where(move => move.Reason.Value == $"skill-program.{SkillId}.MoveBoundCards").ToArray();
@@ -62,9 +62,153 @@ internal static class ProgramOwnedCardsUiChecks
                        game.Events.Count(item => item.Payload is ProgramSkillResolvedEvent
                            { SkillId: SkillId, Completed: true }) == 1 &&
                        !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(),
-            "The second shared UI choice must commit the exact set once through ordinary card movement.");
+            "One UI confirmation must commit the exact set once through ordinary card movement.");
         window.Content = null;
         window.Close();
+    }
+
+    public static void XiantuDockAndBatch(string output)
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new XiantuPackage());
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 17, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4, ModeId = XiantuPackage.ModeId,
+            UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 8
+        }, registry);
+        Accept(game.Submit(new StartGameCommand()));
+        Accept(game.Submit(new SelectGeneralCommand(0, "boundary:zhang-song", game.Revision, game.PendingDecision!.PromptId)));
+        Reach(DecisionKind.PlayCard);
+        var equipment = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Equip);
+        Accept(game.Submit(new PlayCardCommand(0, equipment.CardId!.Value, [], game.Revision, game.PendingDecision!.PromptId)));
+        Reach(DecisionKind.PlayCard);
+        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
+        Reach(DecisionKind.ProgramTrigger, "boundary:xiantu");
+        var store = new MemorySaveStore();
+        Save();
+        using var model = new MainViewModel(false, game.Seed, true, store, useExpandedContent: true, contentRegistry: registry)
+            { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
+        model.LoadManualGameCommand.Execute(null);
+        game = Program.Engine(model);
+        var window = new MainWindow(model);
+        try
+        {
+            var root = (FrameworkElement)window.Content;
+            Program.Render(root, 1120, 740, Path.Combine(output, "xiantu-activation-dock.png"));
+            var dock = (ItemsControl)window.FindName("DockSkillChoices");
+            Program.Assert(model.HasDockSkillChoices && model.DockSkillChoices.Count == 3 && !model.HasCenterChoices &&
+                dock.Visibility == Visibility.Visible && ((Border)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed,
+                "The real boundary Xiantu offer must put both activation modes and declining below the battlefield.");
+            var buttons = Program.Find<Button>(dock).ToArray();
+            Program.Assert(buttons.Length == 3 && buttons.All(button => button.IsEnabled &&
+                button.TranslatePoint(new Point(), root).Y > root.ActualHeight / 2),
+                "All three real Xiantu choices must be enabled in the bottom action dock.");
+            var skip = model.DockSkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
+            var revision = game.Revision;
+            model.SelectSkillChoiceCommand.Execute(skip);
+            Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand skipped &&
+                skipped.Choice == skip.Id, "The bottom decline must answer its exact published prompt once.");
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            var before = game.Revision;
+            model.SelectSkillChoiceCommand.Execute(skip);
+            Program.Assert(game.Revision == before, "A retired dock choice must not answer a reloaded Xiantu offer.");
+            var one = model.DockSkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                choice.Parameters.GetValueOrDefault("binding-id") == "gift-one-card");
+            model.SelectSkillChoiceCommand.Execute(one);
+            Program.Assert(model.IsOwnedCardSelectionPending && model.ChoiceSnapshot.PendingDecision!.RequiredCardCount == 1,
+                "The one-card Xiantu mode must retain its one-card requirement.");
+            model.SelectCardCommand.Execute(model.Hand.First());
+            model.ConfirmSelectedCommand.Execute(null);
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            var two = model.DockSkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("binding-id") == "gift-two-cards");
+            model.SelectSkillChoiceCommand.Execute(two);
+            Program.Assert(model.IsOwnedCardSelectionPending && model.ChoiceSnapshot.PendingDecision!.RequiredCardCount == 2,
+                "Choosing two-card Xiantu must expose the private remaining count.");
+            Save();
+            var first = model.Hand.First();
+            var second = model.Hand.Skip(1).First();
+            var boundary = GameCheckpointJson.Serialize(game.CreateCheckpoint());
+            model.SelectCardCommand.Execute(first);
+            Program.Assert(!model.CanConfirmSelected && first.IsSelected, "One Xiantu card cannot confirm a two-card gift.");
+            model.SelectCardCommand.Execute(second);
+            model.SelectedPlaybackSpeed = CardGame.Wpf.Presentation.PlaybackSpeed.Fast;
+            model.SelectCardCommand.Execute(model.Hand.Skip(2).First());
+            Program.Assert(model.CanConfirmSelected && model.Hand.Count(card => card.IsSelected) == 2 &&
+                GameCheckpointJson.Serialize(game.CreateCheckpoint()) == boundary,
+                "Xiantu must keep two local selections without accepting a third or changing the command boundary.");
+            model.ClearSelectionCommand.Execute(null);
+            Program.Assert(!model.HasSelection && !model.CanConfirmSelected && GameCheckpointJson.Serialize(game.CreateCheckpoint()) == boundary,
+                "Cancel must clear the entire unpaid Xiantu draft.");
+            model.SelectCardCommand.Execute(first);
+            model.SelectCardCommand.Execute(second);
+            Program.Render(root, 1120, 740, Path.Combine(output, "xiantu-two-cards-selected.png"));
+            var recipient = game.State.CurrentSeat;
+            var moves = game.CardMovements.Count;
+            model.ConfirmSelectedCommand.Execute(null);
+            var given = game.CardMovements.Skip(moves).Where(move => move.Reason.Value == "skill-program.boundary:xiantu.MoveBoundCards").ToArray();
+            Program.Assert(given.Length == 2 && given.Select(move => move.CardId).ToHashSet().SetEquals([first.Id, second.Id]) &&
+                given.All(move => move.To == CardLocation.Hand(recipient)) && !model.HasSelection,
+                "One Xiantu confirmation must give both selected physical cards to the current phase owner.");
+            var after = game.Revision;
+            model.ConfirmSelectedCommand.Execute(null);
+            Program.Assert(game.Revision == after, "Repeated Xiantu confirmation must not pay again.");
+            var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+            Program.Assert(GameCheckpointJson.Serialize(replay.CreateCheckpoint()) == GameCheckpointJson.Serialize(game.CreateCheckpoint()),
+                "The combined UI gesture must retain exact command replay.");
+
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            model.SelectCardCommand.Execute(first);
+            Program.Assert(!model.HasSelection, "Reload must retire prior hand controls and their local selections.");
+            var slot = model.HumanEquipmentSlots.Single(item => item.Card?.Id == equipment.CardId);
+            root.UpdateLayout();
+            var equipmentButton = Program.Find<Button>((ItemsControl)window.FindName("HumanEquipmentSlots"))
+                .Single(button => ReferenceEquals(button.CommandParameter, slot) && button.Command == model.SelectOwnedCardEquipmentCommand);
+            Program.Assert(equipmentButton.IsEnabled, "The real equipped-card control must route to the owned-card draft.");
+            model.SelectOwnedCardEquipmentCommand.Execute(slot);
+            model.SelectCardCommand.Execute(model.Hand.First());
+            Program.Assert(model.CanConfirmSelected && model.HumanEquipmentSlots.Single(item => item.Card?.Id == equipment.CardId).IsSelected,
+                "Xiantu must also accept a mixed hand and equipped-card selection.");
+            model.ConfirmSelectedCommand.Execute(null);
+            Program.Assert(!game.CreateSnapshot(0).Players[0].Equipment.Any(card => card.Id == equipment.CardId),
+                "The equipped card must be given only after confirming the complete Xiantu selection.");
+        }
+        finally { window.Content = null; window.Close(); }
+
+        void Save() => store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+        void Reach(DecisionKind kind, string? skill = null)
+        {
+            for (var step = 0; step < 128; step++)
+            {
+                if (game.PendingDecision is { } prompt)
+                {
+                    if (prompt.Kind == kind && (skill is null || prompt.SkillPrompt?.SkillId == skill)) return;
+                    var decline = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
+                    Accept(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, decline.Id, game.Revision)));
+                }
+                else Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
+            }
+            throw new InvalidOperationException("The fixed Xiantu UI fixture did not reach its boundary.");
+        }
+    }
+
+    private sealed class XiantuPackage : IGameContentPackage
+    {
+        internal const string ModeId = "identity:classic-xiantu-ui";
+        public PackageManifest Manifest { get; } = new("fixture:xiantu-ui", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            for (var index = 1; index < 4; index++)
+                builder.AddGeneral(new($"fixture:xiantu-target-{index}", "固定目标", "supporter", "standard:none", "shu", 4));
+            builder.AddDeck(new("fixture:xiantu-ui-deck", "固定献图牌库", 4, 2,
+                [new ContentDeckCardCount("standard:crossbow", 80)]));
+            builder.AddMode(new(ModeId, "献图界面", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
+                "fixture:xiantu-ui-deck", GeneralCandidateCount: 4,
+                GeneralPoolIds: ["boundary:zhang-song", "fixture:xiantu-target-1", "fixture:xiantu-target-2", "fixture:xiantu-target-3"]));
+        }
     }
 
     private static GameEngine ReachSelection(ContentRegistry registry)

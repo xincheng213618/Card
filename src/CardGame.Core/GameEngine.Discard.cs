@@ -48,8 +48,11 @@ public sealed partial class GameEngine
         var cards = hand.Where(card => selected.Contains(card.Id)).OrderBy(card => card.Id).ToArray();
         return Accept(() =>
         {
+            var discardInvocation = CaptureNativeLogicalDiscardInvocation(actor.Seat, actor.Seat,
+                cards.Select(card => card.Id).ToArray(), CardMoveReasons.HandLimitDiscard);
             MoveCards(cards, CardLocation.Hand(actor.Seat), CardLocation.DiscardPile,
                 CardMoveReasons.HandLimitDiscard);
+            CompleteNativeLogicalDiscardInvocation(discardInvocation);
             ClearPendingDecision();
             AddLog("CardsDiscarded", $"{actor.Name} 弃置 {cards.Length} 张手牌。", actor.Seat);
             AdvanceEventRulesAndQueueFact(new HandLimitDiscardedEvent(actor.Seat,

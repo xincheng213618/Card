@@ -85,7 +85,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Maximum hand payment must be the unique maximum physical hand card.");
             ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.MaximumCost, Rank: card.Rank, TargetSeat: target),
                 PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveCard(card, CardLocation.Hand(f.OwnerSeat), CardLocation.DiscardPile, new("skill.friend-biwei.cost"));
+            MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, CardLocation.Hand(f.OwnerSeat), new("skill.friend-biwei.cost"));
         }
         else if (operation == SkillProgramEffectOp.DiscardAscendingMaximumAndDraw)
         {
@@ -93,7 +93,7 @@ public sealed partial class GameEngine
                 !FriendHandDiscardAllowed(f.OwnerSeat, card)) return SkillProgramStepOutcome.Continue;
             ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.AscendingCost, Rank: card.Rank),
                 PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveCard(card, CardLocation.Hand(f.OwnerSeat), CardLocation.DiscardPile, new("skill.friend-lunxiong.cost"));
+            MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, CardLocation.Hand(f.OwnerSeat), new("skill.friend-lunxiong.cost"));
             AdvanceEventRulesAndQueueFact(new AscendingHandRankPaidEvent(f.OwnerSeat, f.SkillId, card.Id, card.Rank));
         }
         else if (operation == SkillProgramEffectOp.HoldUsedSuitHandAndDraw)
@@ -169,7 +169,7 @@ public sealed partial class GameEngine
         {
             var cards = _players[flow.TargetSeat].IsAlive ? GetHand(_players[flow.TargetSeat]).Where(c => c.Rank >= flow.Rank && FriendHandDiscardAllowed(flow.TargetSeat, c)).ToArray() : [];
             ReplaceRuntimeTop(f = f with { FriendEventFlow = flow with { Stage = FriendEventFlowStage.TargetDiscard, Count = cards.Length }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveCards(cards, CardLocation.Hand(flow.TargetSeat), CardLocation.DiscardPile, new("skill.friend-biwei.target"));
+            MoveLogicalDiscardCards(f.OwnerSeat, flow.TargetSeat, cards, CardLocation.Hand(flow.TargetSeat), new("skill.friend-biwei.target"));
             if (cards.Length == 0)
             {
                 var activation = ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).Activation!;

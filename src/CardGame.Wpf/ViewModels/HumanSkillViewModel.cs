@@ -11,6 +11,8 @@ public sealed record HumanSkillViewModel(
 {
     public string? ContentId { get; init; }
     public int? SkillOwnerSeat { get; init; }
+    public string ProgressText { get; init; } = string.Empty;
+    public bool HasProgress => ProgressText.Length > 0;
     public bool IsLocked => TypeText.Contains("锁定", StringComparison.Ordinal);
     public bool IsConversion => TypeText.Contains("转换", StringComparison.Ordinal);
     public string ButtonArtwork => GetButtonArtwork(IsAvailable && !IsDisabled);

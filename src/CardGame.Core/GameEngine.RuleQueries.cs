@@ -237,7 +237,9 @@ public sealed partial class GameEngine
             LivingFemaleCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedLivingFemaleCount)
                 ? _players.Count(p => p.IsAlive && p.Gender == GeneralGender.Female) : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
-                ? CurrentTurnUseKinds(player.Seat).HandSuits : null
+                ? CurrentTurnUseKinds(player.Seat).HandSuits : null,
+            CurrentRoundActualUseCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedCurrentRoundActualUseCount)
+                ? CurrentRoundActualUseCount(player.Seat) : null
         };
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
@@ -268,7 +270,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsQinLangXianyingSlashQuery(player) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
          IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||
          HasFuRongDiscardDistance(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||

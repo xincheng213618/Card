@@ -88,6 +88,16 @@ internal static class GameActivationAwakeningChecks
 
     private static void AssertCountAndRefunds(GameEngine g, int count)
     {
+        var owner = g.CreateSnapshot(0).Players[0];
+        if (owner.Skills!.Any(skill => skill.Id == Counted) && owner.Skills!.Any(skill => skill.Id == Awake))
+        {
+            var states = owner.SkillRuntimeStates!.Single(state => state.SkillId == Counted).PublicRuleStates!;
+            var progress = states.Single(state => state.Kind == ProgramPublicRuleStateKind.GameActivationProgress);
+            Require(progress.Used == count && progress.Value == 3 && progress.Scope == SkillUsageScope.Game &&
+                states.Single(state => state.Kind == ProgramPublicRuleStateKind.ActivationLimit && state.Scope == SkillUsageScope.Phase).Used == 0,
+                "Public progress retains actual game activations while the separate phase quota is refunded.");
+            Frozen(states);
+        }
         var started = E<ProgramSkillStartedEvent>(g).Where(e => e.OwnerSeat == 0 && e.SkillId == Counted && e.ActivationId == Activation).ToArray();
         Require(started.Length == count && started.Select(e => e.FrameId).Distinct().Count() == count &&
             E<DrawDiscardCategoryRefundedEvent>(g).Count(e => e.SkillId == Counted && e.BeforeUsage == 1 && e.AfterUsage == 0) == count &&

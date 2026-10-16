@@ -73,7 +73,7 @@ public sealed partial class GameEngine
             Recast = recast, SequenceBefore = before, PaidCardIds = cards.Select(c => c.Id).ToArray(), PaidFrom = from },
             PendingMovementContinuation = new(d.Identity.TargetSeat, 0, null) });
         if (recast) MoveCards(cards, CardLocation.Equipment(d.Identity.TargetSeat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
-        else MoveCard(cards[0], from[0], CardLocation.DiscardPile, new(SlashTargetPenaltyCostReason(f, false)));
+        else MoveLogicalDiscard(f.OwnerSeat, d.Identity.TargetSeat, cards[0], from[0], new(SlashTargetPenaltyCostReason(f, false)));
         f = GetActiveProgramFrame(f.Id); var after = SlashTargetPenaltySequence;
         ReplaceRuntimeTop(f = f with { SlashTargetPenaltyDraft = f.SlashTargetPenaltyDraft! with { SequenceAfter = after } });
         AdvanceEventRulesAndQueueFact(new SlashTargetPenaltyPaidEvent(f.Id, d.Identity.CardUseFrameId, d.Identity.ActorSeat,

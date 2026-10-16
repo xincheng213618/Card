@@ -59,6 +59,7 @@ public sealed partial class GameEngine
             case RecoveryReplacementFrame: ContinueRecoveryReplacement(); break;
             case EquipmentRecastFrame: ContinueEquipmentRecast(frameId); break;
             case DrawPhaseObligationFrame: ContinueDrawPhaseObligation(frameId); break;
+            case ActualPhaseEndFrame: ContinueActualPhaseEnd(frameId); break;
             case DrawFundedDistinctBasicFrame: ContinueDrawFundedDistinctBasic(frameId); break;
             case ChainedStateBasicFrame: ContinueChainedStateBasic(frameId); break;
             case CardsMovedTriggerWindowFrame: ContinueCardsMovedProgramWindowCore(); break;
@@ -99,6 +100,7 @@ public sealed partial class GameEngine
             RecoveryFrame child => child.ParentFrameId,
             RecoveryReplacementFrame child => child.ParentFrameId,
             DrawPhaseObligationFrame child => child.ParentFrameId ?? 0,
+            ActualPhaseEndFrame child => child.ParentFrameId ?? 0,
             DyingFrame child => child.ParentFrameId,
             DeathFrame child => child.ParentFrameId,
             NullificationWindowFrame child => child.ParentFrameId,
@@ -251,6 +253,8 @@ public sealed partial class GameEngine
         { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
         { AdvanceRuntimeFrame(paidFire.Id); AdvanceRulesAndPublishState(); return; }
+        if (_resolutionStack.LastOrDefault() is ActualPhaseEndFrame phaseEnd && _pendingDecision is null)
+        { AdvanceRuntimeFrame(phaseEnd.Id); AdvanceRulesAndPublishState(); return; }
         if (_resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw)
         { AdvanceRuntimeFrame(draw.Id); AdvanceRulesAndPublishState(); return; }
         if (_resolutionStack.LastOrDefault() is EquipmentRecastFrame recast)

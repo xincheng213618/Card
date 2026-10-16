@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(from).Single(item => item.Id == cardId);
         ClearPendingDecision();
         pending.CostPaid = true;
-        MoveCard(card, from, CardLocation.DiscardPile, new CardMoveReason("program.faction-request.cost"));
+        MoveLogicalDiscard(pending.OwnerSeat, pending.OwnerSeat, card, from, new CardMoveReason("program.faction-request.cost"));
         if (TryPausePaidFactionRequestCost(pending, card, from))
         {
             AdvanceRulesAndPublishState();

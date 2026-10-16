@@ -110,8 +110,11 @@ public sealed partial class GameEngine
             var to = card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile;
             var movement = new IncomingDistanceCourtesyMovement(0, f.OwnerSeat, 1, 1, _movementSequence, _movementSequence, card.Id, from, to);
             ReplaceRuntimeTop(f = f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
+            var logicalDiscard = CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
+                [card.Id], new(IncomingDistanceCourtesyReason(f, 0)), f.Id);
             MoveProgramCardsFromMultipleSources([card.Id], to, new(IncomingDistanceCourtesyReason(f, 0)), (_, moves) =>
                 CommitIncomingDistanceCourtesyMovement(f.Id, movement with { After = moves.Max(m => m.Sequence) }));
+            CompleteNativeLogicalDiscardInvocation(logicalDiscard);
             AdvanceRuntimeProgram(f.Id); return;
         }
         IssueNextEndingCourtesyBenefit(f);

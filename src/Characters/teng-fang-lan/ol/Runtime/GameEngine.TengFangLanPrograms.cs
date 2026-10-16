@@ -330,6 +330,8 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         var active = GetActiveProgramFrame(frame.Id);
         var entry = LuochongDiscardPool(pending.TargetSeat).Single(item => item.Card.Id == cardId);
+        active = AppendFrameNativeLogicalDiscard(active, pending.TargetSeat, [cardId],
+            new($"skill-program.{active.SkillId}.luochong-discard"));
         MoveCard(entry.Card, entry.Location, CardLocation.DiscardPile,
             new($"skill-program.{active.SkillId}.luochong-discard"));
         AddLog("CardDiscarded",
@@ -360,7 +362,7 @@ public sealed partial class GameEngine
     {
         var pending = frame.LuochongPending ??
             throw new InvalidOperationException("The Luochong discard stage lost its pending state.");
-        var active = GetActiveProgramFrame(frame.Id);
+        var active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { LuochongPending = null });
         AdvanceEventRulesAndQueueFact(LuochongResolvedEvent(active, pending));
         if (!TryBeginCardsMovedProgramWindow())

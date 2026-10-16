@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         var r = new WeifuReceipt(QianZhaoSource(f), f.GameplayHash, f.InstructionIndex, _turnNumber, _turnProgression.OwnerSeat,
             id, from, GetProgramCardCategory(card.Kind), _movementSequence, _movementSequence);
         ReplaceRuntimeTop(f = f with { Weifu = r, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.DiscardPile, new(WeifuDiscardReason));
+        MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, from, new(WeifuDiscardReason));
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { Weifu = f.Weifu! with { After = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new WeifuPaidEvent(f.Id, r.Source, r.GameplayHash, r.ActualTurn, r.TurnOwnerSeat, id, from, r.CostCategory, r.Before, _movementSequence));
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;

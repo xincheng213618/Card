@@ -164,8 +164,11 @@ public sealed partial class GameEngine
                     EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ??
                     throw new InvalidOperationException("The selected aid-response weapon is no longer equipped.");
                 discardedWeaponCardId = weapon.Id;
+                var discardInvocation = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
+                    responderSeat, [weapon.Id], expectedReason, frame.Id);
                 MoveCard(weapon, CardLocation.Equipment(responderSeat), CardLocation.Processing, expectedReason);
                 MoveCard(weapon, CardLocation.Processing, CardLocation.DiscardPile, expectedReason);
+                CompleteNativeLogicalDiscardInvocation(discardInvocation);
                 AddLog(
                     "SkillTriggered",
                     $"{responder.Name} 响应【{_contentRegistry!.GetSkill(frame.SkillId).Name}】，弃置武器【{weapon.DisplayName}】。",

@@ -167,7 +167,7 @@ public sealed partial class GameEngine
             if (draw) count = DrawCards(_players[seat], 1, true, new("skill-program.xunyi.draw")).Count;
             else if (card is not null && from is not null)
             {
-                MoveCard(card, from.Value, CardLocation.DiscardPile, new("skill-program.xunyi.discard"));
+                MoveLogicalDiscard(frame.OwnerSeat, seat, card, from.Value, new("skill-program.xunyi.discard"));
                 count = 1;
             }
         }

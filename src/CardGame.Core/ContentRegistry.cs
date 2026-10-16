@@ -152,6 +152,8 @@ public sealed record ContentModeDefinition(
     public IReadOnlyDictionary<string, int>? RoleGeneralCandidateCounts { get; init; }
     /// <summary>Optional identity candidate families; every listed version remains a distinct legal general.</summary>
     public IReadOnlyDictionary<string, IReadOnlyList<string>>? GeneralVariantGroups { get; init; }
+    /// <summary>Opt-in weighted family drafting and AI preferences; omitted generals have weight 1.</summary>
+    public IReadOnlyDictionary<string, int>? GeneralSelectionWeights { get; init; }
 }
 
 /// <summary>
@@ -454,6 +456,9 @@ public sealed class ContentRegistry
             if (mode.GeneralVariantGroups is { } variants)
                 fingerprint[nameof(mode.GeneralVariantGroups)] = variants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                     .Select(entry => new { entry.Key, Value = entry.Value.Order(StringComparer.Ordinal).ToArray() }).ToArray();
+            if (mode.GeneralSelectionWeights is { } weights)
+                fingerprint[nameof(mode.GeneralSelectionWeights)] = weights.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, entry.Value }).ToArray();
             return fingerprint;
         }
 
@@ -881,6 +886,19 @@ public sealed class ContentRegistry
                      variants.Values.Sum(ids => ids.Count)))
                     throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general variant groups.");
 
+                if (mode.GeneralSelectionWeights is { } weights)
+                {
+                    if (mode.ModeKind != ContentModeKind.Identity || mode.GeneralPoolIds is null ||
+                        weights.Any(entry => entry.Value is < 1 or > 1000 ||
+                            !mode.GeneralPoolIds.Contains(entry.Key, StringComparer.Ordinal)))
+                        throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general selection weights.");
+                    var familyKeys = mode.GeneralVariantGroups?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
+                        .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
+                    if (mode.GeneralPoolIds.DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
+                            StringComparer.Ordinal).Count() < mode.MaxPlayers)
+                        throw new InvalidOperationException($"Mode '{mode.Id}' needs a distinct general family for every seat.");
+                }
+
                 if (mode.GeneralPoolIds is not null)
                 {
                     var minimumGeneralCount = mode.ModeKind == ContentModeKind.NationalWarLite
@@ -1060,6 +1078,9 @@ public sealed class ContentRegistry
                 RoleGeneralCandidateCounts = definition.RoleGeneralCandidateCounts is null
                     ? null
                     : FreezeDictionary(definition.RoleGeneralCandidateCounts),
+                GeneralSelectionWeights = definition.GeneralSelectionWeights is null
+                    ? null
+                    : FreezeDictionary(definition.GeneralSelectionWeights),
                 GeneralVariantGroups = definition.GeneralVariantGroups is null ? null : FreezeDictionary(
                     definition.GeneralVariantGroups.ToDictionary(entry => entry.Key,
                         entry => (IReadOnlyList<string>)Array.AsReadOnly(entry.Value.ToArray()), StringComparer.Ordinal)),

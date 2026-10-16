@@ -42,7 +42,7 @@ public sealed partial class GameEngine
             context.OccurrenceIndex == candidate.OccurrenceIndex && context.Facts == parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts &&
             (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
                 candidate.OwnerSeat != parent.OwnerSeat && (_players[parent.OwnerSeat].IsAlive || IsAHuiNanJuemanEndingCandidate(candidate, context) || IsIssuedQinLangXianyingCandidate(candidate, context) ||
-                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd ||
+                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd ||
                         e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits)));
     }
 

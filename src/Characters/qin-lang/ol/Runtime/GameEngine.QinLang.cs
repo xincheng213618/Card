@@ -117,7 +117,7 @@ public sealed partial class GameEngine
         if(r.Stage!=QinLangXianyingStage.DiscardChoice||QinLangCountUsed(f.OwnerSeat,r.RoundNumber,selected.Count)||selected.Any(c=>!QinLangDiscardable(f).Contains(c)))throw new InvalidOperationException("Xianying cannot reuse a round count or substitute a paid HE entity.");
         var grain=selected.Where(c=>c.Kind==CardKind.WoodenOx&&c.From.Zone==CardZoneKind.Equipment).SelectMany(c=>GetWoodenOxGrain(_players[f.OwnerSeat]).Select(x=>new QinLangXianyingCard(x.Id,x.Kind,CardLocation.WoodenOxGrain(f.OwnerSeat)))).ToArray();
         ReplaceRuntimeTop(f=f with{QinLangXianying=r with{Stage=QinLangXianyingStage.DiscardChildren,Paid=true,Before=_movementSequence,After=_movementSequence,Auxiliaries=grain}});
-        if(selected.Count>0)MoveProgramCardsFromMultipleSources(selected.Select(c=>c.CardId).ToArray(),CardLocation.DiscardPile,new(QinLangDiscardReason),(_,moves)=>
+        if(selected.Count>0)MoveProgramLogicalDiscard(f,f.OwnerSeat,selected.Select(c=>c.CardId).ToArray(),new(QinLangDiscardReason),(_,moves)=>
         {var current=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(current with{QinLangXianying=current.QinLangXianying! with{After=_movementSequence,PaidBatchId=_activeCardMovementBatchIds.Peek()}});
          foreach(var m in moves)AdvanceEventRulesAndQueueFact(new QinLangXianyingEntityDiscardedEvent(f.Id,m.CardId,m.CardKind,m.From,m.Sequence,selected.Single(c=>c.CardId==m.CardId).EffectiveName!.Value));});
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{QinLangXianying=f.QinLangXianying! with{After=_movementSequence}});

@@ -90,6 +90,8 @@ public sealed partial class GameEngine
         var destination = card.IsGeneralWeapon && source.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile;
         var reason = new CardMoveReason("skill-program.damage-target-mount.discard");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat,0,null) });
+        var discardInvocation = CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
+            [card.Id], reason, f.Id);
         var batch = BeginCardMovementBatch([source],[destination]);
         var records = new List<CardMovementRecord>(1); var committed = false;
         try
@@ -109,6 +111,7 @@ public sealed partial class GameEngine
             committed = true;
         }
         finally { CompleteCardMovementBatch(batch,records,committed); }
+        CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if (!TryBeginCardsMovedProgramWindow())
         { var current=GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(current with { PendingMovementContinuation=null }); AdvanceRuntimeProgram(f.Id); }
     }

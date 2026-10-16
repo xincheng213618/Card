@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "generalId": "ol:cai-mao",
+  "officialGid": 631,
+  "identity": {
+    "baseHp": 4,
+    "rulesetId": "sanguosha-ol",
+    "name": "蔡瑁",
+    "variantId": "ordinary",
+    "gender": "Male",
+    "factionId": "wei"
+  },
+  "capturedAtUtc": "2026-10-17T02:40:08.603504+08:00",
+  "primary": {
+    "hero": {
+      "verified": "Live skill text and characteristic matched the current client and release notice on 2026-10-17.",
+      "url": "https://www.sanguosha.com/hero/631"
+    },
+    "portrait": {
+      "sha256": "f39d0ed4dbfa405acc3153b900e1477f3ec099d7a8e9b8f7986f0485b75c2f2b",
+      "repositoryAsset": "src/CardGame.Wpf/Assets/official-ol-cai-mao.png",
+      "height": 950,
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63100.png",
+      "width": 750,
+      "byteCount": 1172431
+    },
+    "officialRelease": {
+      "status": "Formal OL wishing/treasure release; both original skills match the current client.",
+      "published": "2024-06-07 17:01:04",
+      "identity": "魏、4体力、男",
+      "url": "https://www.sanguosha.com/news/20240604_8494_3613",
+      "availableFrom": "2024-06-08 00:15:00",
+      "title": "6.8-6.15 端午祈愿陆郁生、蔡瑁来袭 携粽濯荷*界吕蒙琳琅绘卷上新"
+    },
+    "client": {
+      "decoder": "Public sgsGame_a.sgs InitOfb pR.WorkParse: AES-CFB128 then gzip",
+      "currentRawHashVerified": true,
+      "extract": {
+        "path": "GameCharacters.character[1332]",
+        "row": {
+          "a": 631,
+          "b": "蔡瑁",
+          "d": "CaiMao",
+          "e": 44,
+          "f": "46",
+          "g": 1,
+          "h": 1,
+          "i": 4,
+          "j": 3488,
+          "k": 3489,
+          "p": 2,
+          "q": "1",
+          "r": "9063101",
+          "y": "字德珪，襄阳郡襄阳县蔡州人，蔡夫人之弟。为刘表主政荆州做出了重要贡献。此后历任江夏、南郡、章陵等诸郡太守。刘表病亡后，拥护刘琮继位，并随刘琮一并降曹。小说《三国演义》中，蔡瑁和张允被设定为曹军水军都督，因周瑜反间计被杀。",
+          "z": "可以帮助队友补充属性【杀】。受伤可以改变场上的连环状态。",
+          "aa": 1025,
+          "ab": "1183,1184",
+          "al": 1740,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "ar": "20240708T235959",
+          "LordCardRate1": 30,
+          "LordCardRate2": 40,
+          "starMax": 4,
+          "freetitle": "0,攻击强将"
+        },
+        "spells": [
+          {
+            "path": "GameSpells.spell[2519]",
+            "row": {
+              "a": 3488,
+              "b": "3",
+              "c": "佐练",
+              "d": "ZuoLian",
+              "e": 0,
+              "g": 5,
+              "h": 1,
+              "i": 2,
+              "o": "出牌阶段限一次，你选择至多X名有手牌的角色（X为你的体力值），随机展示其各一张手牌，然后你可将这些牌与牌堆或弃牌堆中的火【杀】或雷【杀】交换。",
+              "v": "请选择至多{0}名角色",
+              "u": "是否将展示牌与火<font color='#FFD800'>杀</font>或雷<font color='#FFD800'>杀</font>交换"
+            }
+          },
+          {
+            "path": "GameSpells.spell[2520]",
+            "row": {
+              "a": 3489,
+              "b": "3,5",
+              "c": "精舟",
+              "d": "JingZhou",
+              "e": 0,
+              "g": 6,
+              "i": 2,
+              "ab": 1,
+              "o": "当你受到伤害时，你可选择至多X名角色（X为你的体力值），令其中未连环的角色进入连环状态，已连环的角色解除连环状态。",
+              "v": "请选择至多{0}名角色"
+            }
+          }
+        ]
+      },
+      "members": {
+        "character.sgs": {
+          "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "sources": {
+        "bundle": {
+          "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "status": 200,
+          "byteCount": 5386466,
+          "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+        },
+        "config": {
+          "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "status": 200,
+          "byteCount": 4154044,
+          "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+        }
+      }
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=631",
+      "status": 200,
+      "byteCount": 1031,
+      "sha256": "4f62669b06460d06a22d37e83105c08f9b73dc4316be3cae733a6ee7625bc215",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 631,
+              "name": "蔡瑁",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/631.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/63100.png",
+              "label": [
+                "进攻",
+                "卖血",
+                "连环状态"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "字德珪，襄阳郡襄阳县蔡州人，蔡夫人之弟。为刘表主政荆州做出了重要贡献。此后历任江夏、南郡、章陵等诸郡太守。刘表病亡后，拥护刘琮继位，并随刘琮一并降曹。小说《三国演义》中，蔡瑁和张允被设定为曹军水军都督，因周瑜反间计被杀。",
+              "characteristic": "可以帮助队友补充属性【杀】。受伤可以改变场上的连环状态。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 8
+            },
+            {
+              "name": "反贼",
+              "value": 8
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "supplementary": [
+    {
+      "supports": [
+        "One global exchange-or-decline decision for the entire revealed group; no participant-by-participant choice.",
+        "Self may be selected for both skills. Discard supply is preferred; Fire Slash is given before Thunder Slash is exhausted.",
+        "Jingzhou uses current HP before damage is applied; chain prevention policies apply. Newly chained actors during later propagation do not retroactively join the original propagation set."
+      ],
+      "author": "5888, reposted by 三国杀OL大乔",
+      "published": "2024-12-19",
+      "url": "https://www.taptap.cn/moment/619006355180618926?group_id=5009",
+      "authority": "Same-product OL guide, not an official FAQ.",
+      "title": "武将攻略 蛟海腾云的水军提督—蔡瑁"
+    },
+    {
+      "supports": [
+        "Participants reveal sequentially, and obtaining Fire Slash precedes Thunder Slash when Fire stock is gone.",
+        "Jingzhou operates before HP deduction; a 4-HP source can choose four targets before incoming damage."
+      ],
+      "author": "国服第一杨彪, reposted by 三国杀OL大乔",
+      "published": "2024-07-17",
+      "url": "https://www.taptap.cn/moment/562589156526524761",
+      "authority": "Same-product OL guide, supplementary rather than normative FAQ.",
+      "title": "武将攻略 没人比我更懂铁索"
+    }
+  ],
+  "implementation": {
+    "jingzhou": "Exact BeforeDamageApplied parent/current candidate proof with pre-damage HP budget. Each frozen living role toggles through SetProgramChainedState, honoring forced/prevented chaining and draining real CharacterEnteredChain children before the next role. Completion returns to the original pending native damage. Initial elemental propagation is captured afterward; existing propagation cursors are preserved.",
+    "continuation": "Only genuinely committed toggle children or an actually paid exchange continue after source loss/death. Unpaid selection/exchange choices retain normal live-source eligibility. All pending work is on ProgramSkillFrame.CaiMao; receipt collections are copied into read-only arrays. New events contain scalars or immutable scalar entity records.",
+    "zuolian": "Frame-owned source/hash/current-HP target selection; targets are frozen in actual-turn action order. CommitProgramHandReveal publishes each real Hand entity and exact residency binding, naturally observed by generic reveal ledgers. One private yes/no applies to the entire group. A single native atomic batch moves every frozen pair in both directions; the shown card returns to the new card original pile, and actual gains/losses run afterward. It is neither a draw nor a discard."
+  },
+  "inferences": [
+    "The guide states two preference observations but gives no explicit cross-example for Discard Thunder versus Draw Fire. This implementation resolves zone preference first (Discard then Draw), then Fire before Thunder within that zone. This precedence is an engine inference, not a claimed FAQ.",
+    "Within the same pile and same printed Slash kind, choose a genuine remaining physical entity with deterministic seeded RNG; no player chooses or views the hidden deck inventory.",
+    "Resolve the chosen group in actual-turn action order. If there are fewer matching supply entities than selected roles, exchange the available original pairs and keep unpaired shown Hands unchanged, after one group-level yes. Newly returned Slash entities cannot become fresh supply during this same frozen exchange.",
+    "The word exchange is implemented as replacing the selected supply entity at its original draw-pile position; no top-deck placement or shuffle is stated. This positional preservation is an implementation inference. Discard replacements remain in the discard pile.",
+    "After the first committed toggle or real exchange batch has executed, native children may remove the skill/source; finish the already-issued original frozen operation once. Before commitment/payment, ordinary live-source cancellation remains in force."
+  ],
+  "focusedChecks": [
+    "CaiMaoChecks.WholeRevealDeclineHpLimitPrivacyAndMiuyanCold",
+    "CaiMaoChecks.RealExchangeStockPriorityPartialAndExhaustionCold",
+    "CaiMaoChecks.BeforeDamageHpBudgetInitialChainAndPropagationCold",
+    "CaiMaoChecks.PaidExchangeAndToggleChildrenSourceLossDeathCold"
+  ],
+  "verification": {
+    "status": "pending",
+    "performedBy": "root",
+    "agentBuildOrTestRuns": 0
+  }
+}

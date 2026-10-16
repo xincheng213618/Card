@@ -297,7 +297,7 @@ public sealed partial class GameEngine
                     .Single(item => item.Id == cardId).Kind)).ToHashSet();
             if (excluded.Any(category => MatchesSkillProgramCardCategory(card.Kind, category)))
                 throw new InvalidOperationException("The selected response card now matches a forbidden category.");
-            MoveCard(card, source, CardLocation.DiscardPile,
+            MoveLogicalDiscard(frame.OwnerSeat, ownerSeat, card, source,
                 new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
             discardedCardId = card.Id;
         }

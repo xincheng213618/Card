@@ -62,10 +62,13 @@ public sealed partial class MainViewModel
             _isSelectingActiveSkillCards, _activeSkillPromptId, _selectedActiveSkillCardIds.ToArray(), _selectedActiveSkillTargetSeats.ToArray(), _selectedCardTargetSeats.ToArray())
         {
             ConversionSource = _selectedConversionSource,
-            SelectingWusheng = IsWushengSelectionPending,
+            PlayConversionSelection = _playConversionSelection,
             ActiveSkillIdentity = _selectedActiveSkillIdentity,
             SkillTargetPromptId = _skillTargetPromptId,
             SkillTargetSeats = _selectedSkillTargetSeats.ToArray(),
+            PaymentCardIds = _paymentCardIds.ToArray(),
+            PaymentChoiceId = _paymentChoiceId,
+            OwnedCardIds = _selectedOwnedCardIds.ToArray(),
             TieredRoundZeroAction = SelectedTieredRoundZeroAction(),
             GeneralPreviewPromptId = _previewGeneralPromptId,
             GeneralChoiceIds = GeneralChoices.Select(choice => choice.GeneralId).ToArray(),
@@ -133,11 +136,14 @@ public sealed partial class MainViewModel
         }
         _selectedCardId = original.CardId;
         _selectedConversionSource = original.ConversionSource;
-        _isSelectingWusheng = original.SelectingWusheng;
+        _playConversionSelection = original.PlayConversionSelection;
         _humanSkillSnapshot = null;
         _selectedTargetSeat = original.TargetSeat;
         _selectedCardTargetSeats.UnionWith(original.CardTargets);
         _discardCardIds.UnionWith(original.DiscardIds);
+        _paymentCardIds.UnionWith(original.PaymentCardIds);
+        _paymentChoiceId = original.PaymentChoiceId;
+        _selectedOwnedCardIds.AddRange(original.OwnedCardIds);
         _isSelectingActiveSkillCards = original.SelectingActiveSkill;
         _activeSkillPromptId = original.ActiveSkillPromptId;
         _selectedActiveSkillIdentity = original.ActiveSkillIdentity;
@@ -264,10 +270,13 @@ public sealed partial class MainViewModel
         bool SelectingActiveSkill, PromptId? ActiveSkillPromptId, int[] ActiveSkillCardIds, int[] ActiveSkillTargets, int[] CardTargets)
     {
         public CardConversionSource? ConversionSource { get; init; }
-        public bool SelectingWusheng { get; init; }
+        public PlayConversionDraft? PlayConversionSelection { get; init; }
         public ActiveSkillSelectionIdentity? ActiveSkillIdentity { get; init; }
         public PromptId? SkillTargetPromptId { get; init; }
         public int[] SkillTargetSeats { get; init; } = [];
+        public int[] PaymentCardIds { get; init; } = [];
+        public ChoiceId? PaymentChoiceId { get; init; }
+        public int[] OwnedCardIds { get; init; } = [];
         public LegalAction? TieredRoundZeroAction { get; init; }
         public PromptId? GeneralPreviewPromptId { get; init; }
         public string[] GeneralChoiceIds { get; init; } = [];

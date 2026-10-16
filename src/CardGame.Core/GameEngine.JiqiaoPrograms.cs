@@ -23,7 +23,7 @@ public sealed partial class GameEngine
         var before=_movementSequence;
         var invoice=new JiqiaoPaidInvoice(new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId),f.GameplayHash,w.ParentFrameId,_turnNumber,_cardUseDebitPhaseInstanceId,f.InstructionIndex,effect.SourceBind!,effect.ResultBind!,ids.Count,before,before);
         ReplaceRuntimeTop(f=f with{JiqiaoPaid=new(invoice,JiqiaoPaidStage.CostChildren,before,before,ids.Count),PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        MoveProgramCardsFromMultipleSources(ids,CardLocation.DiscardPile,new(JiqiaoCostReason));
+        MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(JiqiaoCostReason));
         invoice=invoice with{CostAfter=_movementSequence};
         ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id) with{JiqiaoPaid=f.JiqiaoPaid! with{Invoice=invoice,After=_movementSequence}});
         AdvanceEventRulesAndQueueFact(new JiqiaoCostPaidEvent(f.Id,invoice));IssueJiqiaoStage(f);AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;

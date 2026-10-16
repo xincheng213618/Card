@@ -486,7 +486,8 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         Role role,
         IReadOnlyList<GeneralDefinition> candidates,
-        int thoughtSequence)
+        int thoughtSequence,
+        IReadOnlyDictionary<string, int>? selectionWeights = null)
     {
         if (candidates.Count == 0)
         {
@@ -497,6 +498,11 @@ public sealed partial class SimpleAiBrain
             .Select(candidate =>
             {
                 var (baseScore, reason) = ScoreGeneral(role, candidate);
+                if (selectionWeights?.GetValueOrDefault(candidate.Id, 1) is > 1 and var weight)
+                {
+                    baseScore += 12d * Math.Log2(weight);
+                    reason += $"；本模式强度偏好权重 {weight}。";
+                }
                 var score = Math.Round(baseScore + _random.NextDouble() * 0.001d, 3);
                 return new AiGeneralCandidateScore(
                     candidate.Id,
@@ -1663,8 +1669,13 @@ public sealed partial class SimpleAiBrain
         var selfRole = self.Role ?? Role.Renegade;
         var hostility = GetHostility(view, selfRole, target);
         var useBase = 54d + hostility + (target.Hp <= 1 ? 18d : 0d);
+        // Zhitian can publish deck-top replacements alongside ordinary hand costs.
+        // Resolve only those published ids, using the actor's own filtered view.
+        var visibleCards = self.Hand.Concat(view.PrivateRevealedCards ?? [])
+            .DistinctBy(card => card.Id)
+            .ToArray();
         var candidates = matchingCardIds
-            .Select(cardId => self.Hand.Single(card => card.Id == cardId))
+            .Select(cardId => visibleCards.Single(card => card.Id == cardId))
             .Select(card =>
             {
                 var profile = CardCatalog.Get(card.Kind);

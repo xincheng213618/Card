@@ -295,7 +295,7 @@ public sealed partial class GameEngine
             after = checked(window.Amount + effect.Amount);
             ReplaceRuntimeFrame(_resolutionStack[^2].Id, window with { Amount = after });
         }
-        else MoveProgramCardsFromMultipleSources(draft.SelectedIds.Append(draft.WeaponCardId).ToArray(), CardLocation.DiscardPile,
+        else MoveProgramLogicalDiscard(frame, draft.TargetSeat, draft.SelectedIds.Append(draft.WeaponCardId).ToArray(),
             new CardMoveReason("skill-program.weapon-discard-cost"));
         AdvanceEventRulesAndQueueFact(new ProgramWeaponDamageChoiceEvent(frame.Id, frame.SkillId, frame.OwnerSeat, draft.TargetSeat,
             draft.WeaponCardId, branch == "finish", branch == "finish" ? draft.SelectedIds : [], window.Amount, after));

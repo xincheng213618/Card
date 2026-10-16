@@ -137,10 +137,16 @@ public sealed partial class GameEngine
                 _strategicEndPlayTurn = _turnNumber;
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.DiscardTargetEquipment:
+                var equipmentDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+                    frame.SelectedTargetSeats.SelectMany(seat => GetEquipment(seat)
+                        .Where(card => !IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card,
+                            CardLocation.Equipment(seat), OwnedCardMoveIntent.Discard)).Select(card => card.Id)).ToArray(),
+                    reason, frame.Id);
                 foreach (var seat in frame.SelectedTargetSeats) MoveCards(GetEquipment(seat)
                     .Where(card => !IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card,
                         CardLocation.Equipment(seat), OwnedCardMoveIntent.Discard)).ToArray(),
                     CardLocation.Equipment(seat), CardLocation.DiscardPile, reason, movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
+                CompleteNativeLogicalDiscardInvocation(equipmentDiscard);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.DamageOtherLiving:
                 var batch = frame.StrategicDamageBatch;
@@ -174,8 +180,11 @@ public sealed partial class GameEngine
                 var binding = GetProgramCardSet(frame, effect.SourceBind!);
                 if (binding.CardIds.Count != 4 || binding.CardIds.Select((id, i) => IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, _cardZones.CardsAt(binding.SourceLocations[i]).Single(card => card.Id == id), binding.SourceLocations[i], OwnedCardMoveIntent.Discard)).Any(blocked => blocked)) return SkillProgramStepOutcome.Continue;
                 var mine = binding.SourceLocations.Count(location => location.OwnerSeat == frame.OwnerSeat);
+                var sharedDiscard = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, frame.OwnerSeat,
+                    binding.CardIds, reason, frame.Id);
                 foreach (var group in binding.CardIds.Select((id, index) => (id, Location: binding.SourceLocations[index])).GroupBy(item => item.Location))
                     MoveCards(group.Select(item => _cardZones.CardsAt(item.Location).Single(card => card.Id == item.id)).ToArray(), group.Key, CardLocation.DiscardPile, reason, movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
+                CompleteNativeLogicalDiscardInvocation(sharedDiscard);
                 if (mine == 0) host.ChangeMaximumHp(frame, -1);
                 if (mine == 1) { _strategicHandLimitPenaltyTurns[owner.Seat] = _turnNumber; _strategicEndPlayTurn = _turnNumber; }
                 if (mine == 3) host.Recover(frame.Id, owner.Seat, owner.Seat, 1, null, null);

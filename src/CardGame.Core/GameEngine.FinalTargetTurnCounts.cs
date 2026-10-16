@@ -98,7 +98,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(frame);
             AdvanceEventRulesAndQueueFact(new NamedTurnSkillChoiceCommittedEvent(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, frame.TriggerId!, _turnNumber,
                 use.Action.ActionId, frame.WindowContext!.ParentFrameId, seat));
-            MoveCard(card, from, CardLocation.DiscardPile, new("skill-program.non-final-target.discard"), movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
+            MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card, from, new("skill-program.non-final-target.discard"), movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
             if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
             return;
         }
@@ -110,7 +110,7 @@ public sealed partial class GameEngine
         if (draft.SelectedIds.Count < draft.Required) { PublishNamedTurnHandDiscard(frame); return; }
         if (draft.SelectedIds.Any(cardId => _cardZones.GetLocation(cardId) != CardLocation.Hand(frame.OwnerSeat))) throw new InvalidOperationException("Named-count hand cost moved before commit.");
         ReplaceRuntimeTop(frame with { NamedTurnCountFlow = draft with { Stage = "hand-movement" }, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCards(GetHand(_players[frame.OwnerSeat]).Where(c => draft.SelectedIds.Contains(c.Id)).ToArray(), CardLocation.Hand(frame.OwnerSeat), CardLocation.DiscardPile, new("skill-program.named-turn-count.discard"));
+        MoveLogicalDiscardCards(frame.OwnerSeat, frame.OwnerSeat, GetHand(_players[frame.OwnerSeat]).Where(c => draft.SelectedIds.Contains(c.Id)).ToArray(), CardLocation.Hand(frame.OwnerSeat), new("skill-program.named-turn-count.discard"));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
     [ProgramContinuation(ProgramContinuationKind.Resume, 900)]

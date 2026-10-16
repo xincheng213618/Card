@@ -351,7 +351,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             },
             DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
-            GeneralPoolIds: generalPoolIds) { RoleGeneralCandidateCounts = roleGeneralCandidateCounts, GeneralVariantGroups = generalVariantGroups });
+            GeneralPoolIds: generalPoolIds)
+        {
+            RoleGeneralCandidateCounts = roleGeneralCandidateCounts,
+            GeneralVariantGroups = generalVariantGroups,
+            GeneralSelectionWeights = IdentityGeneralSelectionWeights.EightPlayer
+        });
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-5",
             Name: "五人经典身份（正式武将首批）",

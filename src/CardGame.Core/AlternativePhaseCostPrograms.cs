@@ -190,7 +190,7 @@ public sealed partial class GameEngine
             marker, card?.Id, from);
         ReplaceRuntimeTop(frame with { AlternativePhaseCost = receipt });
         if (markerPayment) PayProgramMarkerCost(_players[frame.OwnerSeat], new(marker, 1), frame.SkillId, GetProgramBindingId(frame));
-        else MoveCard(card!, from!.Value, CardLocation.DiscardPile, new($"skill-program.{frame.SkillId}.{effect.Op}"));
+        else MoveLogicalDiscard(frame.OwnerSeat, frame.OwnerSeat, card!, from!.Value, new($"skill-program.{frame.SkillId}.{effect.Op}"));
         AdvanceEventRulesAndQueueFact(new ProgramAlternativePhaseCostPaidEvent(frame.Id, frame.SkillId,
             GetProgramBindingId(frame), frame.SkillInstanceId, frame.OwnerSeat, receipt.Kind, marker, card?.Id, from));
         AdvanceRuntimeProgram(frame.Id);
@@ -257,7 +257,7 @@ public sealed partial class GameEngine
     {
         var current = _players[frame.OwnerSeat];
         if (frame.ActualPhaseSubstitution is { SkippedPhase: SkillProgramTurnPhase.Judgment } receipt && receipt.ParentFrameId == frame.Id)
-            CompleteTurnStart(current, _pendingTurnDelayedEffects);
+            CompleteTurnStart(current, _pendingTurnDelayedEffects, skippedActualJudgment: true);
         else BeginDelayedJudgmentOrTurnStart(current);
     }
 
