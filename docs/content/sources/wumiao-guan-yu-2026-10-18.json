@@ -1,0 +1,86 @@
+{
+  "checkedAtUtc": "2026-10-17T18:16:52.484402+00:00",
+  "status": "implemented-and-verified",
+  "name": "武关羽",
+  "generalId": "wumiao:guan-yu",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "officialHero": "https://x.sanguosha.com/hero/232.html",
+  "officialHeroSha256": "67bfd60e179e48d9d330a45420b3ca22b4d1afb91fab7f3bcc9fb3ce7eead7ce",
+  "officialLaunch": "https://sanguosha.com/news/20240429_4330_1515",
+  "officialLaunchSha256": "5feadcb8fcab41fc7dd7fc76aec0c331c2245167418489fcb8e2dbde9e2535b2",
+  "launchPublished": "2024-04-29",
+  "firstAvailable": "2024-04-30",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123201.png",
+    "sourcePage": "https://x.sanguosha.com/hero/232.html",
+    "id": "123201",
+    "name": "经典形象",
+    "sha256": "14c613a9e903e48d24c36e7a6865d7ba9d7f51766ffa7b6520daaf7d594fa7e9",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-wumiao-guan-yu.png",
+    "bytes": 700211,
+    "status": 200
+  },
+  "validation": {
+    "status": "passed",
+    "verifiedAtUtc": "2026-10-17T19:33:57.995819+00:00",
+    "focused": {
+      "corePassed": 46,
+      "wpfPassed": 3,
+      "durationMs": 33517
+    },
+    "routine": {
+      "corePassed": 161,
+      "wpfPassed": 36,
+      "durationMs": 69688
+    },
+    "manualFullRun": false,
+    "nativeInput": "Routine native WPF Space feedback checks passed after the user released the left button; the actual input prerequisites required AsyncLeftDown=false, idle modifiers and no foreground ownership.",
+    "visualInspection": "Actual WPF gallery and detail renders inspected for the official original portrait, Wumiao series and all three full skill descriptions. Actual Flood reverse-order target and foreign-issuer Wuyou contribution renders inspected.",
+    "coveredBoundaries": [
+      "All eight Juewu damage outputs with original HE and Wooden Ox entities, actual-turn allowances, foreign Hand rank residency, player views, native Pindian, true forced Use and pure Played exclusions.",
+      "Native payment children finish before Juewu effects, including Silver Lion recovery, original Wooden Ox grain batches and source loss; accepted original material is paid once.",
+      "Foreign Hand effective ranks compose with existing Pindian policies, Zhangba and actual faction-provider range, current Hand maximum/comparison and private exact-rank-sum selection. Accepted gifts freeze original entities and their paid effective ranks before source loss.",
+      "Anniversary Flood retains selected first/second target order, actual per-target Nullification, Thunder damage, discard and draw children, self-targeting, generated General Weapon destruction and native draw replacement.",
+      "Wuyou private five-name sampling, self and foreign original-entity contributions, once-per-issuer/donor/actual-Play ledger, original returned Hand identity and accepted-use rights after source loss.",
+      "Wuyou native named-card use, response and delayed-card handling, true physical material payments, ordinary counters, range/count privilege and identity expiry; focused scene details remain in the retained behavior checks.",
+      "Prospective foreign Wuyou supply uses only public invocation and Hand counts; private sampled names, return decisions and original-entity residency are checked only at actual material admission and cannot leak through caller target availability.",
+      "Yixian whole field or DiscardPile equipment obtains, original field-owner counts, empty and limited branches, native Silver Lion and Wooden Ox children, private inputs, source loss, owner/recipient death and cold replay.",
+      "WPF ordered target selection, cancellation and same-revision aim restoration; exact native command submission and physical payment; foreign skill owner selection and private return choices."
+    ],
+    "scope": "Development focused and routine verification only. No manual full run, packaging, release, push or complete manual foreground match was performed. Dedicated unresolved client FAQ interpretations are recorded above."
+  },
+  "operatorGuide": {
+    "url": "https://my.4399.com/yxsgs/gonglue/70122/",
+    "sha256": "cf27beaa25201948a4a97a81731de86b14f4663ddf75d2424ae1d1c3547717e3",
+    "published": "2025-08-27",
+    "authority": "First-party 4399 operation portal guide for its anniversary game service. Supplementary client-specific derived-card and interaction evidence; the developer hero and release remain the identity authority."
+  },
+  "officialEquipmentFix": {
+    "url": "https://x.sanguosha.com/club/2142315.html",
+    "sha256": "51334630593a93a7433d94129c67a301c43224e8979977099a752be6d11204aa",
+    "published": "2025-10-29",
+    "effective": "2025-10-30",
+    "summary": "Fixes equipment cards sometimes being unavailable for Juewu conversion; printed rank-two owned equipment remains an eligible source."
+  },
+  "engineeringInterpretations": [
+    "Juewu's foreign rank applies only during the current uninterrupted Hand residency whose actual gain source is another character's owned zone. Leaving Hand ends that identity; reacquiring the same entity from DrawPile or DiscardPile does not revive it.",
+    "Juewu retains each original rank-two Hand, Equipment or formal Wooden Ox grain entity and uses native true-Use payment, targets, counters and child resolutions. Pure Played/response-only provision cannot consume a Juewu output allowance. Accepted native uses retain their issued payment rights after source loss.",
+    "The damage output family is the three existing Slash kinds, Duel, Barbarian Assault, Arrow Barrage, Fire Attack and the anniversary Wumiao Flood. The existing CardKind output-name convention gives each conversion its own actual-turn allowance. The retrieved first-party text does not separately adjudicate whether the three Slash variants share a name allowance; this remains an explicit interpretation without a dedicated client FAQ.",
+    "Wuyou samples five distinct names from the ordinary non-equipment anniversary family, independently of the remaining physical deck. Activity-only and skill-derived names are excluded unless explicitly part of the named family. Contributions are once per actual Play phase, donor and issuer owner; regrants do not reset that owner's phase allowance, while different issuers remain independent.",
+    "Wuyou may accept a self-contribution and a self-return through explicit gift facts without fabricating a Hand-to-same-Hand movement. The recipient's original returned Hand entity holds its named identity only for that uninterrupted residency. Leaving Hand ends future eligibility; an already accepted native use or declaration retains its exact signed material privilege.",
+    "Wuyou removes native distance and use-count gates only for the named original entity. Ordinary counters are still recorded, intrinsic Alcohol non-stacking and target prohibitions remain, and unrelated cards cannot borrow the privilege. A Wuyou entity can also be converted by Juewu when it independently meets Juewu's rank-two and true-Use requirements.",
+    "Yixian obtains all actual Equipment on the field including the user's, or all actual Equipment in DiscardPile. Compensation counts only original entities actually obtained in Hand from each field owner; destroyed General Weapons do not count as obtains. The DiscardPile branch has no field-owner compensation. Each accepted recipient uses native Draw and then Recovery; accepted child resolution survives source loss while a dead issuer opens no new optional menu.",
+    "Yixian's limited use is an ordinary game-scoped skill usage state, so future supported usage reset effects can clear it. No currently implemented Zhu Peilan reset producer was claimed or tested. Confirming an empty equipment branch spends the limited use; cancelling before branch confirmation does not."
+  ],
+  "derivedCard": {
+    "id": "wumiao:flood",
+    "kind": "WumiaoFlood",
+    "name": "水淹七军",
+    "product": "sanguosha-anniversary",
+    "rule": "出牌阶段，对至多两名角色使用。按所选顺序：第一名受到1点雷电伤害并弃置一张牌，第二名受到1点雷电伤害并摸一张牌。",
+    "identityBoundary": "Distinct from the national-war equipment-or-thunder card with the same name. Juewu explicitly supplies this anniversary derived card; no extra physical cards are added to ordinary decks."
+  }
+}

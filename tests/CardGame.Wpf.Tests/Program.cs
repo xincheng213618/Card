@@ -80,6 +80,8 @@ internal static class Program
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
+            Check("Wumiao Flood UI: ordered portraits undo aim and native commit", () => WumiaoFloodUiChecks.OrderedPortraitTargetsUndoAimAndCommit(output));
+            Check("Wu Guan Yu Wuyou UI: foreign contribution issuer and private return", () => WuGuanYuWuyouUiChecks.ForeignContributionUsesIssuerAndKeepsPrivateReturn(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("Native public pile UI: original grain play rail and response faces", NativePublicPileUiChecks.OriginalGrainPlayRailAndResponseFaces);
             Check("Mou Cao Pi UI: portrait skills and timed Fangzhu status", () => MouCaoPiUiChecks.PortraitSkillsAndFangzhuState(output));

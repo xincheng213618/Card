@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "wumiao-guan-yu",
+      "characterName": "武关羽",
+      "defaultSkinId": "123201",
+      "skins": [
+        {
+          "id": "123201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/232.html",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-guan-yu.png",
+          "sha256": "14c613a9e903e48d24c36e7a6865d7ba9d7f51766ffa7b6520daaf7d594fa7e9",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123201.png"
+        }
+      ]
+    },
+    {
       "key": "boundary-bu-lian-shi",
       "characterName": "界步练师",
       "defaultSkinId": "77500",

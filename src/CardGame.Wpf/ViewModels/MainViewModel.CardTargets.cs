@@ -5,7 +5,7 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
-    private readonly HashSet<int> _selectedCardTargetSeats = [];
+    private readonly OrderedCardTargets _selectedCardTargetSeats = [];
     public ICommand RecastSelectedCommand { get; private set; } = null!;
     public bool ShowRecastAction => IsMultiTargetCardSelected && SelectedRecastAction() is not null;
     public bool CanRecastSelected => ShowRecastAction && _selectedCardTargetSeats.Count == 0 &&
@@ -36,7 +36,7 @@ public sealed partial class MainViewModel
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
         GetViewLegalActions().Any(action => action.CardId == _selectedCardId &&
             MatchesSelectedPlayConversion(action) &&
-            (action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast or LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort ||
+            (action.Kind is LegalActionKind.WumiaoFlood or LegalActionKind.IronChain or LegalActionKind.Recast or LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort ||
              action.Kind != LegalActionKind.BorrowedSword && action.TargetSeats.Count > 1 &&
              action.ProgramActivationId is "next-card-target-adjustment" or "next-actual-use-target-adjustment"));
 
@@ -56,7 +56,8 @@ public sealed partial class MainViewModel
     {
         if (SelectedHellReturnSoulAction() is { } soul) return soul.TargetSeats;
         if (!IsMultiTargetCardSelected) return _selectedTargetSeat is { } seat ? [seat] : [];
-        // Seat clicks are unordered; submit the canonical order supplied by Core.
+        if (IsOrderedFloodSelected) return _selectedCardTargetSeats.ToArray();
+        // Other cards submit the canonical order supplied by Core.
         return MultiTargetCardActions.FirstOrDefault(action => _selectedCardTargetSeats.SetEquals(action.TargetSeats))?.TargetSeats
             ?? _selectedCardTargetSeats.Order().ToArray();
     }
@@ -90,6 +91,11 @@ public sealed partial class MainViewModel
             if (actions.Length == 0) return $"{MultiTargetCardName}当前没有合法目标。";
             if (IsWholeArmyCardSelected)
                 return $"{MultiTargetCardName} · 点击一名角色选择其整军；已选 {_selectedCardTargetSeats.Count} 人，再次点击取消。未选目标时可重铸。";
+            if (IsOrderedFloodSelected)
+                return _selectedCardTargetSeats.Count == 0
+                    ? $"{MultiTargetCardName} · 依次点选1至2名角色：第一名雷伤后弃牌，第二名雷伤后摸牌。"
+                    : $"{MultiTargetCardName} · " + string.Join(" → ", _selectedCardTargetSeats.Select((id, index) =>
+                        $"{Seats.Single(seat => seat.Seat == id).DisplaySeatNumber:00}号位（雷伤后{(index == 0 ? "弃牌" : "摸牌")}）")) + "；再次点击取消，重新点选排到末尾。";
             var range = FormatSelectionRange(actions.Min(action => action.TargetSeats.Count), actions.Max(action => action.TargetSeats.Count));
             return $"{MultiTargetCardName} · 已选 {_selectedCardTargetSeats.Count} / {range} 个目标 · " +
                 (_selectedCardTargetSeats.Count == 0 ? CanRecastSelected
@@ -102,6 +108,10 @@ public sealed partial class MainViewModel
 
     private string[] MultiTargetGuideSteps()
     {
+        if (IsOrderedFloodSelected)
+            return ["依次点选至多两名角色，按点选顺序结算。第一名雷伤后弃置一张牌，第二名雷伤后摸一张牌。",
+                $"当前顺序：{string.Join(" → ", _selectedCardTargetSeats.Select(id => Seats.Single(seat => seat.Seat == id).GeneralName))}。再次点选取消，重新点选会排在末尾。",
+                "点击确定或按 Enter 提交，确认前不会用牌。Esc 取消选择。"];
         if (IsWholeArmyCardSelected)
             return ["点击己方或敌方任一角色，选择该方完整合法目标；切换阵营或再次点击取消。", "选择后确认，按各目标依次结算无懈与效果；己方仅已横置者摸牌，敌方进入横置。", "不选目标可点击重铸，弃置此牌并摸一张牌；重铸不触发无懈。"];
         if (MultiTargetCardActions.All(action => action.Kind != LegalActionKind.IronChain))
