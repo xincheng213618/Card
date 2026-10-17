@@ -1564,6 +1564,8 @@ public sealed class SkillProgramExecutor
                     effect.Op == SkillProgramEffectOp.ResolveWuyouContributionAndNamedReturn && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op == SkillProgramEffectOp.ResolvePingluInRangeRandomHands && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.InitializeGuYinInitialEntities or SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveYixianAllEquipmentObtainAndCompensate && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeLingkongInitialEntities or SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain or SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeShuangjiaInitialEntities or SkillProgramEffectOp.ResolveBeifenLostMarkedSuitGains) && state.CanContinueAfterOwnerDeath(frame) ||

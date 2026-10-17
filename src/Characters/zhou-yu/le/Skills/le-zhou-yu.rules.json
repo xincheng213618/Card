@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:guyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeGuYinInitialEntities",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "initial-entity-discard-draw",
+          "window": "cardsMoved",
+          "subject": "any",
+          "optional": false,
+          "destinationZones": [
+            "discardPile"
+          ],
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "resolveGuYinInitialEntityDiscardDraw",
+              "target": "owner"
+            }
+          ],
+          "sourceZones": []
+        }
+      ]
+    },
+    {
+      "id": "le:pinglu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "all-in-range-random-hand",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolvePingluInRangeRandomHands",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

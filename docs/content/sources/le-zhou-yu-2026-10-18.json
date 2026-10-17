@@ -1,0 +1,104 @@
+{
+  "checkedAtUtc": "2026-10-17T21:04:53.226315+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐周瑜",
+  "generalId": "le:zhou-yu",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "title": "顾曲周郎",
+  "published": "2025-01-03",
+  "firstObtainable": "2025-01-04T00:00:00+08:00",
+  "sources": [
+    {
+      "label": "zhouHero",
+      "url": "https://x.sanguosha.com/hero/1339.html",
+      "fetchedAtUtc": "2026-10-17T21:03:52.297340+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 21597,
+      "sha256": "cd8efcf53c895d3bdee4da93299bd39b83e2d324f80b6c0673be1fa9f9e03545"
+    },
+    {
+      "label": "zhouLaunch",
+      "url": "https://x.sanguosha.com/news/20250102_7050_2216.html",
+      "fetchedAtUtc": "2026-10-17T21:03:52.345040+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 416947,
+      "sha256": "2ada82129e6bb9cdedf7164c789c6b4d6599de6290498a5328190bca62758715"
+    }
+  ],
+  "officialHero": "https://x.sanguosha.com/hero/1339.html",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133901.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1339.html",
+    "id": "1133901",
+    "name": "经典形象",
+    "sha256": "07c4077956e50ce7dea91daff08dd525595f1bf16ce203094f92997c46fa43fb",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "httpStatus": 200,
+    "bytes": 643235,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-zhou-yu.png"
+  },
+  "sourceAgreement": {
+    "currentHeroAndLaunch": "All current hero skins have the complete Guyin and Pinglu text of the dated formal launch. No conflicting later official text was found in the bounded targeted audit.",
+    "notServerFaq": "No dedicated official FAQ or current client selector was captured. Native boundary interpretations below are explicit engineering readings, not claimed server rulings."
+  },
+  "skills": [
+    {
+      "id": "le:guyin",
+      "name": "顾音",
+      "text": "锁定技，你没有初始手牌，其他角色的初始手牌+1。其他角色的初始手牌被使用或弃置进入弃牌堆后，你摸一张牌。",
+      "currentHeroExactTextVerified": true
+    },
+    {
+      "id": "le:pinglu",
+      "name": "平虏",
+      "text": "出牌阶段，你可以获得攻击范围内每名其他角色各一张随机手牌。你此阶段不能再发动该技能直到这些牌离开你的手牌。",
+      "currentHeroExactTextVerified": true
+    }
+  ],
+  "engineeringInterpretations": {
+    "initialDeal": "Freeze every actual initial deal count before the first card: a current GuYin holder receives zero even with another holder or other positive initial modifiers; each other current source instance adds one to the native initial count of non-holders. Capture actual final opening Hand entities after interactive replacement, before any GameStarting child.",
+    "initialIdentity": "The permanent original entity identity belongs to the physical card and its original participant. Capture one global final-opening scalar registry before GameStarting children even if nobody currently holds Guyin, so later legitimate skill acquisition can inspect the same identities. Transfer, reacquisition or reshuffle does not change the original identity. Do not add public Qin-style labels or private initial-hand faces to viewer snapshots or AI.",
+    "discardArrival": "Each original eligible entity reaching the native Discard destination due to proven true Use or proven logical discard qualifies one Draw1. Pure Played, transfer, recast and destruction do not qualify. A later judgment cleanup is not invented as a new true-Use payment.",
+    "drawChildren": "For a batch of N eligible entities, resolve N native Draw1 attempts with their real replacements and children rather than a synthetic DrawN or direct gain.",
+    "pinglu": "Freeze every current living other participant with nonempty Hand in the actual attack range; choose one hidden physical Hand card per participant using engine RNG and obtain the selected batch through native movement. No player-selected subset or fixed once-per-phase quota.",
+    "cohortDeparture": "The exact issued Hand residency of each obtained entity locks this actual Play until every member has first left that Hand. Reacquiring a departed entity does not resurrect its old residency. A different actual Play token starts independently. Regranting the same skill does not clear an existing owner-and-Play cohort.",
+    "sourceCopies": "Existing runtime source identities remain separate for the pre-deal count. At a movement opportunity each owning character receives one canonical Guyin observer, following the existing same-owner initial-entity observer convention; multiple copies do not duplicate the same owner benefit for one arrival."
+  },
+  "validation": {
+    "status": "passed",
+    "manualFullRun": false,
+    "verifiedAtUtc": "2026-10-17T21:24:54.551170+00:00",
+    "focused": {
+      "corePassed": 28,
+      "wpfPassed": 1,
+      "durationMs": 32755
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 77417
+    },
+    "visualInspection": "Actual WPF general detail render inspected for the official portrait, three HP, Le series and both full skill descriptions.",
+    "scope": "Development focused and bounded routine checks only. No manual full run, packaging, release, push or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Actual zero opening Hand, other-participant additional initial cards, separate holders and original post-replacement physical identities.",
+      "Proven true Use or logical discard arrivals yield separate native Draw1 attempts; pure Played, transfers and unrelated cleanup do not.",
+      "Frozen canonical source qualification, exact native draw receipts, paid source loss, death, immutable collections, input privacy and cold replay.",
+      "All actual in-range other participants, deterministic hidden Hand sampling, one original-entity obtain batch and native gain children.",
+      "Actual-Play cohort Hand residency, first-departure release, reentry, different Play boundaries and paid continuation.",
+      "The generic WPF gallery exercises the new Le entry, official portrait and registered complete skill text."
+    ]
+  },
+  "verificationNotes": {
+    "initialRoutineAttempt": "Core 165 passed and WPF 36/37 passed. The existing related-general keyboard route failed its original focus prerequisite once. Its isolated unchanged-source recheck passed; the final bounded routine run below uses the same semantic inputs. No assertion or input prerequisite was weakened.",
+    "focusRecheck": {
+      "status": "passed",
+      "durationMs": 18356
+    },
+    "inputGuard": "Real native input checks retain their original idle-input and focus prerequisites."
+  }
+}

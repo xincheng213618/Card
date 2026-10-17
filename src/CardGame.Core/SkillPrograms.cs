@@ -1000,6 +1000,9 @@ public enum SkillProgramEffectOp
     ResolveWeiwanQinDiscardAndSuitObtain = 28620,
     ResolveZixiQinJudgmentPlacement = 28710,
     ResolveZixiUniqueTargetJudgmentEffects = 28720,
+    InitializeGuYinInitialEntities = 28810,
+    ResolveGuYinInitialEntityDiscardDraw = 28811,
+    ResolvePingluInRangeRandomHands = 28820,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -4010,13 +4013,19 @@ public sealed class SkillProgramCatalog
             yuandiEffects.GetArrayLength() == 1 && yuandiEffects[0].ValueKind == JsonValueKind.Object &&
             yuandiEffects[0].TryGetProperty("op", out var yuandiOp) && yuandiOp.ValueKind == JsonValueKind.String &&
             string.Equals(yuandiOp.GetString(), "resolveYuandiDiscardNames", StringComparison.OrdinalIgnoreCase);
+        var isGuYinMovement = skillId == "le:guyin" && id == "initial-entity-discard-draw" &&
+            window == SkillProgramTriggerWindow.CardsMoved &&
+            node.TryGetProperty("effects", out var guYinEffects) && guYinEffects.ValueKind == JsonValueKind.Array &&
+            guYinEffects.GetArrayLength() == 1 && guYinEffects[0].ValueKind == JsonValueKind.Object &&
+            guYinEffects[0].TryGetProperty("op", out var guYinOp) && guYinOp.ValueKind == JsonValueKind.String &&
+            string.Equals(guYinOp.GetString(), "resolveGuYinInitialEntityDiscardDraw", StringComparison.OrdinalIgnoreCase);
         var isHpWindow = window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged;
         foreach (var field in new[] { "movementOccurrence", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements" })
             if (!isMovementWindow && node.TryGetProperty(field, out _))
                 Fail(path + "." + field, "supported only by cardsMoved or cardsGained");
         if (!isHpWindow && node.TryGetProperty("hpChangeOccurrence", out _))
             Fail(path + ".hpChangeOccurrence", "requires afterHpLost or afterHpRecovered");
-        if (window != SkillProgramTriggerWindow.CardsGained && !isYisuanMovement && !isYuandiMovement && node.TryGetProperty("destinationZones", out _))
+        if (window != SkillProgramTriggerWindow.CardsGained && !isYisuanMovement && !isYuandiMovement && !isGuYinMovement && node.TryGetProperty("destinationZones", out _))
             Fail(path + ".destinationZones", "requires cardsGained");
         var movementReasons = node.TryGetProperty("movementReasons", out _) ? StringArray(node, "movementReasons", path) : [];
         var excludedMovementReasons = node.TryGetProperty("excludedMovementReasons", out _) ? StringArray(node, "excludedMovementReasons", path) : [];
@@ -4175,7 +4184,7 @@ public sealed class SkillProgramCatalog
             else
             {
                 if (subject != SkillProgramTriggerSubject.Owner &&
-                    !(isYuandiMovement && subject == SkillProgramTriggerSubject.Any) &&
+                    !((isYuandiMovement || isGuYinMovement) && subject == SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.DyingEntering && subject == SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.DyingExited && subject == SkillProgramTriggerSubject.Any &&
                       node.TryGetProperty("effects", out var exitEffects) && exitEffects.ValueKind == JsonValueKind.Array &&
@@ -4237,7 +4246,7 @@ public sealed class SkillProgramCatalog
             }
             if (window == SkillProgramTriggerWindow.CardsMoved)
             {
-                if (isYisuanMovement || isYuandiMovement)
+                if (isYisuanMovement || isYuandiMovement || isGuYinMovement)
                 {
                     destinationZones = EnumArray<CardZoneKind>(node, "destinationZones", path);
                     if (!destinationZones.SequenceEqual([CardZoneKind.DiscardPile]))
@@ -4245,7 +4254,7 @@ public sealed class SkillProgramCatalog
                 }
                 sourceZones = EnumArray<CardZoneKind>(node, "sourceZones", path);
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
-                if (isYuandiMovement
+                if (isYuandiMovement || isGuYinMovement
                     ? sourceZones.Count != 0 || movementOccurrence != SkillProgramMovementOccurrence.PerBatch || subject != SkillProgramTriggerSubject.Any
                     : sourceZones.Count == 0 || sourceZones.Distinct().Count() != sourceZones.Count ||
                     movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch && sourceZones.Count != 1 &&
@@ -5221,6 +5230,8 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) WuYixianComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WeiwanComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ZixiEffectsComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) GuYinComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) PingluComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuyouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) XianshuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) SiruiComposition.ValidateProgram(program.Id, program);
