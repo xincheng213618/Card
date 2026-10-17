@@ -18909,7 +18909,8 @@ public sealed partial class GameEngine
                 cardUse.SourceSeat != cixiongAttack.SourceSeat ||
                 cardUse.CardKind != cixiongAttack.EffectiveCardKind ||
                 cardUse.Step != ResolutionFrameStep.Declared ||
-                !cardUse.TargetSeats.SequenceEqual([cixiongAttack.TargetSeat]) ||
+                cardUse.TargetIndex < 0 || cardUse.TargetIndex >= cardUse.TargetSeats.Count ||
+                cardUse.TargetSeats[cardUse.TargetIndex] != cixiongAttack.TargetSeat ||
                 decision is not { Kind: DecisionKind.CixiongDoubleSwords, IsPrivate: true } ||
                 decision.SourceSeat != cixiongAttack.SourceSeat ||
                 decision.TargetSeat != cixiongAttack.TargetSeat ||

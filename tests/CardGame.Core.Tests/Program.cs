@@ -148,6 +148,7 @@ var tests = new (string Name, Action Body)[]
     ("Activity ordinary tricks: tiered one zero materials native receipts and quota", ActivityOrdinaryTrickChecks.TieredOneAndZeroMaterialUsesKeepNativeReceiptsAndQuota),
     ("Activity ordinary tricks: Zhenlie static filter actual activity target", ActivityOrdinaryTrickChecks.ZhenlieStaticOrdinaryFilterCancelsActualActivityTarget),
     ("Activity ordinary tricks: declared entity private declarer native cost", ActivityOrdinaryTrickChecks.ClassicDeclaredEntityKeepsActivityNamePrivateDeclarerAndNativeCost),
+    ("Cixiong multi target: staged choices current Slash cursor private cold", CixiongMultiTargetChecks.StagedChoicesKeepTheCurrentNativeSlashTargetAndColdReplay),
     ("Hulao special equipment: native effects and setup entities", HulaoCardChecks.EquipmentGrantsRespectNativeEffectsAndSetupEntities),
     ("Hulao rules: armor prevents whole large damage and coalition death supply", HulaoRuleChecks.AozhanPreventsWholeLargeDamageAndUnitedSuppliesSurvivors),
     ("Hulao rules: real tier five compatible setup and ordinary skill replay", HulaoRuleChecks.RealHulaoSetupTierFiveCompatibleRosterAndKurouColdReplay),
