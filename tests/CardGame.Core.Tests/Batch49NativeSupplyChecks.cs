@@ -11,7 +11,7 @@ internal static class Batch49NativeSupplyChecks
 
     public static void SayingZeroSuppliersKeepForeignActorAndNativeReturnsCold()
     {
-        foreach (var scene in new[] { "round", "tiered", "slot" })
+        foreach (var scene in new[] { "round", "tiered", "slot", "huanpei" })
         {
             Scene = scene;
             var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(scene));
@@ -33,7 +33,7 @@ internal static class Batch49NativeSupplyChecks
             Need(prepared.ActorSeat == 1 && prepared.ProviderSeat == 1 && prepared.TargetSeat == 0 &&
                 f.SunYuan is { Stage: SunYuanStage.NativeUse, Selection.Materials.Count: 0 } &&
                 use.Action is { Type: CardActionType.Use, ActorSeat: 1, ProviderSeat: 1, PhysicalCards.Count: 0 } action &&
-                action.ConversionChain is [var source] && source.SkillId == Supplier &&
+                action.ConversionChain is [var source] && source.SkillId == (scene == "huanpei" ? "ol:huanpei" : Supplier) &&
                 !E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0),
                 "The actual AI donor supplies one genuinely paid zero-entity Slash to the different Saying owner before its real damage child.");
             Need(E<CardUseDebitRecordedEvent>(g).All(e => e.Debit.CardActionId != issued.ActionId),
@@ -41,6 +41,21 @@ internal static class Batch49NativeSupplyChecks
             if (scene == "round")
                 Need(E<RoundOnceCardlessBasicQuotaPaidEvent>(g).Count(e => e.Receipt.Source.OwnerSeat == 1 && e.Receipt.Source.SkillId == Supplier) == 1,
                     "The independent zero supplier really spends its once-per-round quota once.");
+            else if (scene == "huanpei")
+            {
+                var paid = E<HuanpeiAdjustmentAcceptedEvent>(g).Single(e => e.OwnerSeat == 1);
+                var adjustment = E<HuanpeiAdjustmentCompletedEvent>(g).Single(e => e.FrameId == paid.FrameId);
+                var drawn = E<HuanShuJunDrawReturnedEvent>(g).Single(e => e.FrameId == paid.FrameId);
+                var output = E<HuanpeiIssuedEvent>(g).Single(e => e.PaymentFrameId == paid.FrameId);
+                Need(paid.Hp > paid.HandCount && paid.RequestedCount == paid.Hp - paid.HandCount &&
+                    adjustment.Before == paid.Before && adjustment.ActualDrawCount == paid.RequestedCount && adjustment.ReplacementCount == 0 &&
+                    drawn.RequestedCount == paid.RequestedCount && drawn.ActualCount == paid.RequestedCount && drawn.ReplacementCount == 0 &&
+                    output.UseId == issued.UseId && output.ActionId == issued.ActionId && output.ActorSeat == 1 && output.Intent == HuanpeiIntent.AssistedSlash &&
+                    use.HuanpeiUse?.Payment.ProgramFrameId == paid.FrameId && use.Action is { EffectiveSuit: Suit.None, EffectiveRank: 0, EffectiveIsRed: null } &&
+                    f.HuanpeiReturn is { Returned: false } lease && lease.Payment.ProgramFrameId == paid.FrameId && lease.UseId == issued.UseId && lease.ActionId == issued.ActionId &&
+                    !E<HuanpeiReturnedEvent>(g).Any(e => e.PaymentFrameId == paid.FrameId),
+                    "The foreign Huanpei actor really adjusts Hand to current HP, spends one round allowance and binds its neutral zero Slash to the exact unfinished Saying native child.");
+            }
             else
             {
                 var tiered = E<TieredRoundConversionUseIssuedEvent>(g).Single(e => e.Receipt.OwnerFrameId == issued.UseId).Receipt;
@@ -72,6 +87,15 @@ internal static class Batch49NativeSupplyChecks
                 "Cold recovery completes the real foreign zero Slash, damage and original Saying parent exactly once, without a fabricated physical cost.");
             if (scene == "round") Need(E<RoundOnceCardlessProgramRequestReturnedEvent>(g).Count(e => e.Receipt.ProgramFrameId == frameId) == 1,
                 "The independent supplier's typed return precedes the completed original Saying request.");
+            else if (scene == "huanpei")
+            {
+                var paid = E<HuanpeiAdjustmentAcceptedEvent>(g).Single(e => e.OwnerSeat == 1);
+                Need(E<HuanpeiAdjustmentAcceptedEvent>(g).Count(e => e.OwnerSeat == 1 && e.Round == paid.Round) == 1 &&
+                    E<HuanpeiReturnedEvent>(g).Count(e => e.PaymentFrameId == paid.FrameId && e.UseId == issued.UseId && e.ActionId == issued.ActionId) == 1 &&
+                    E<HuanShuJunCompletedEvent>(g).Count(e => e.FrameId == paid.FrameId && e.Paid) == 1 &&
+                    !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(p => p.Id == frameId || p.HuanpeiReturn?.Payment.ProgramFrameId == paid.FrameId),
+                    "Cold recovery records Huanpei's exact native return once, drains Saying's paid children and never recharges the foreign actor's same-round adjustment.");
+            }
             _ = Cold(g, registry);
         }
         SayingConvertedFactionSupplyCold();
@@ -166,12 +190,14 @@ internal static class Batch49NativeSupplyChecks
         public void Register(IContentRegistryBuilder b)
         {
             CharacterFixtureContent.Register(b, "ol:sun-yuan");
+            if (scene == "huanpei") CharacterFixtureContent.Register(b, "ol:huan-shu-jun");
             static JsonNode N(string text) => JsonNode.Parse(text)!;
             var supplier = N($$"""
                 {"id":"{{Supplier}}","revision":1,"viewAs":[{"id":"native-zero","inputKinds":[],"inputSuits":[],"inputCount":0,"sourceZones":[],"outputKind":"slash","forPlay":true,"forResponse":false}]}
                 """);
             var rule = supplier["viewAs"]![0]!;
-            if (scene == "faction-converted")
+            if (scene == "huanpei") supplier["viewAs"] = new JsonArray();
+            else if (scene == "faction-converted")
             {
                 supplier["viewAs"] = new JsonArray();
                 supplier["cardPolicies"] = N("""[{"id":"actual-request","kind":"factionResponseRequest","requiredCardKinds":["slash"],"factionId":"shu"}]""");
@@ -193,6 +219,7 @@ internal static class Batch49NativeSupplyChecks
             var defs = new JsonArray(supplier,
                 N($$"""{"id":"{{Watch}}","revision":1,"triggers":[{"id":"true-damage-child","window":"beforeDamageApplied","subject":"damageTarget","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]}]}]}"""),
                 N($$"""{"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}"""));
+            if (scene == "huanpei") defs.RemoveAt(0);
             if (scene == "faction-converted")
             {
                 defs.Add(N($$"""{"id":"{{Provider}}","revision":1,"viewAs":[{"id":"crossbow-slash","inputKinds":["crossbow"],"inputSuits":[],"sourceZones":["hand"],"outputKind":"slash","forPlay":true,"forResponse":false}]}"""));
@@ -206,7 +233,7 @@ internal static class Batch49NativeSupplyChecks
             b.AddGeneral(new(Owner, "真实飒影本人", "supporter", pick, "wu", 12, ["ol:saying", Watch], GeneralGender.Female));
             var peers = Enumerable.Range(1, 3).Select(i => "fixture:b49-peer-" + i).ToArray();
             foreach (var peer in peers) b.AddGeneral(new(peer, "真实供给角色", "supporter", Quiet, scene == "faction-converted" ? "shu" : "wei", 12,
-                [scene == "faction-converted" && peer != peers[0] ? Provider : Supplier], GeneralGender.Male));
+                [scene == "huanpei" ? "ol:huanpei" : scene == "faction-converted" && peer != peers[0] ? Provider : Supplier], GeneralGender.Male));
             b.AddCard(new("fixture:b49-card", "诸葛连弩", "装备牌", "未转换的真实实体", CardKind.Crossbow));
             b.AddDeck(new("fixture:b49-deck", "固定同质真实牌堆", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 72).Select(i => new ContentDeckPhysicalCard("fixture:b49-card", Suit.Club, i % 13 + 1)).ToArray() });
             b.AddMode(new(Mode, "真实供应共享机制", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [scene == "faction-converted" ? nameof(Role.Renegade) : nameof(Role.Rebel)] = 3 }, "fixture:b49-deck", GeneralCandidateCount: 4, GeneralPoolIds: [Owner, .. peers]));

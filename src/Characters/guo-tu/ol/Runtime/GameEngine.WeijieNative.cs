@@ -22,6 +22,7 @@ public sealed partial class GameEngine
  {
   if(!ValidWeijiePayment(p)||!_players[p.Need.ActorSeat].IsAlive||!_players[p.Need.ProviderSeat].IsAlive)throw new InvalidOperationException("Weijie cannot issue for a dead actor/provider.");
   ClearPendingDecision();var n=p.Need;
+  if(n.Intent==WeijieIntent.WenyiPeach){ExecuteWenyiWeijiePeach(p);return;}
   if(n.Intent is WeijieIntent.Dodge or WeijieIntent.Duel or WeijieIntent.Group or WeijieIntent.FactionDodge or WeijieIntent.FactionSlashPlayed){DispatchWeijieResponse(p);return;}
   if(n.Intent==WeijieIntent.Dying){DispatchWeijieRecovery(p,true);return;}
   if(n.Intent==WeijieIntent.Qinglong){var old=ActiveQinglongCrescentBlade!.Attack;ActiveQinglongCrescentBlade=null;SetCardUseStep(old.ResolutionId,ResolutionFrameStep.ResolvingEffect);AdvanceEventRulesAndQueueFact(new QinglongCrescentBladeResolvedEvent(old.ResolutionId,n.ActorSeat,p.TargetSeat,true,[],p.OutputKind));SuspendContinuationForQinglongFollowup(old.ResolutionId);BeginWeijieSlash(p,null,false,null);return;}

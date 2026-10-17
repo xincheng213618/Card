@@ -422,7 +422,7 @@ public sealed partial class GameEngine
             var child = _resolutionStack[i]; var parent = _resolutionStack[i - 1];
             if (parent is DyingFrame dying && (IsPaidHandRepaymentRescueRide(i - 1, dying) || IsPaidHandRepaymentProgramAlcoholRide(i - 1, dying) ||
                 PolicyCounterspellVirtualAlcoholRide(i - 1, dying) || PaidObserverDamageVirtualAlcoholRide(i - 1, dying) ||
-                TieredRoundZeroDyingRescueRide(i - 1, dying) || DrawFundedDistinctBasicDyingRescueRide(i - 1, dying))) return true;
+                TieredRoundZeroDyingRescueRide(i - 1, dying) || (DrawFundedDistinctBasicDyingRescueRide(i - 1, dying) || HuanpeiDyingRescueRide(i - 1, dying)))) return true;
             if (ChainedStateBasicStructuralEdge(parent, child) || HalfHandPaidDamageObserverEdge(i) || DamageFrameRidesOn(child, parent) ||
                 DamageObserverRidesOn(child, parent) || RecoveryReplacementFrameRidesOn(child, parent) || ParticipantHandDyingRide(child, parent) ||
                 parent is DyingFrame entry && ParticipantHandDyingEntryRide(child, parent, entry) ||

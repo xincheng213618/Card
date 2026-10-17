@@ -41,6 +41,7 @@ public sealed partial class GameEngine
     {
         if(f.SunYuan is not{Paid:true}r)return false;AssertSunYuan(f);
         if(SayingEquipmentSlotPaymentRidesOn(f,child))return true;
+        if(child is ProgramSkillFrame{HuanShuJun:not null} huanpei)return HuanpeiDraftRidesOn(huanpei,f);
         if(child is CardUseFrame use)return r.Stage==SunYuanStage.NativeUse&&use.SayingSlash==r.Native&&IsIssuedSayingUse(use);
         if(child is DrawFundedDistinctBasicFrame funded)return IsSayingSlashRequest(f)&&TryGetSayingSlashRequest(f,out var actor,out var targets)&&funded.Payment.ParentFrameId==f.Id&&funded.Payment.RequestFrameId==f.Id&&funded.Payment.Cursor==f.InstructionIndex&&funded.Payment.Source.OwnerSeat==actor&&funded.Payment.TargetSeat is{}target&&targets.Contains(target)&&ValidDrawFundedDistinctBasicPayment(funded.Payment);
         if(child is ChainedStateBasicFrame chained)return IsSayingSlashRequest(f)&&TryGetSayingSlashRequest(f,out var actor,out var targets)&&chained.Payment.ParentFrameId==f.Id&&chained.Payment.RequestFrameId==f.Id&&chained.Payment.Cursor==f.InstructionIndex&&chained.Payment.Source.OwnerSeat==actor&&chained.Payment.TargetSeat is{}target&&targets.Contains(target)&&ValidChainedStateBasicPayment(chained.Payment);

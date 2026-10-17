@@ -124,8 +124,9 @@ public sealed partial class GameEngine
     private void FinishSunYuan(ProgramSkillFrame f,bool applied)
     {
         if(f.WeijieReturn is{}wj&&f.SunYuan is{Native:{}o}r&&(!wj.Returned||!r.NativeReturned||wj.UseId!=o.UseId))throw new InvalidOperationException("Saying cannot clear a supplied native lease before its whole child returns.");
+        if(f.HuanpeiReturn is{}huanpei&&(!huanpei.Returned||f.SunYuan is not{NativeReturned:true,Native:{}huanpeiNative}||huanpei.UseId!=huanpeiNative.UseId))throw new InvalidOperationException("Saying cannot release Huanpei before all native children returned.");
         if(f.ZonghuReturn is not null&&!HasSayingZonghuPayment(f))throw new InvalidOperationException("Saying cannot clear its paid Zonghu lease before the exact native child and all settlement children return.");
-        AdvanceEventRulesAndQueueFact(new SunYuanCompletedEvent(f.Id,applied));ReplaceRuntimeTop(f=f with{SunYuan=null,PendingMovementContinuation=null,WeijieReturn=null,ZonghuReturn=null});FinishProgramSkill(f,applied);
+        AdvanceEventRulesAndQueueFact(new SunYuanCompletedEvent(f.Id,applied));ReplaceRuntimeTop(f=f with{SunYuan=null,PendingMovementContinuation=null,WeijieReturn=null,ZonghuReturn=null,HuanpeiReturn=null});FinishProgramSkill(f,applied);
     }
     [ProgramContinuation(ProgramContinuationKind.Resume,27490)]private bool ResumeSunYuan(long id){if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{SunYuan:not null}f||f.Id!=id)return false;ContinueSunYuan(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,27490)]private bool ReturnSunYuanMovement(ProgramSkillFrame f){if(f.SunYuan is null)return false;ContinueSunYuan(f.Id);return true;}

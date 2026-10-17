@@ -45,6 +45,7 @@ public sealed partial class GameEngine
  private bool LiYiFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
   if(f.Chanshuang is not{}r)return false;AssertLiYi(f);
+  if(child is ProgramSkillFrame{HuanShuJun:not null} huanpei)return HuanpeiDraftRidesOn(huanpei,f);
   if(child is CardUseFrame use)return r.Stage==ChanshuangStage.NativeUse&&use.ChanshuangSlash==r.Native&&IsIssuedChanshuangUse(use);
   if(child is DrawFundedDistinctBasicFrame funded)return IsChanshuangSlashRequest(f)&&TryGetChanshuangSlashRequest(f,out var actor,out var targets)&&funded.Payment.ParentFrameId==f.Id&&funded.Payment.RequestFrameId==f.Id&&funded.Payment.Cursor==f.InstructionIndex&&funded.Payment.Source.OwnerSeat==actor&&funded.Payment.TargetSeat is{}t&&targets.Contains(t)&&ValidDrawFundedDistinctBasicPayment(funded.Payment);
   if(child is ChainedStateBasicFrame chained)return IsChanshuangSlashRequest(f)&&TryGetChanshuangSlashRequest(f,out var actor,out var targets)&&chained.Payment.ParentFrameId==f.Id&&chained.Payment.RequestFrameId==f.Id&&chained.Payment.Cursor==f.InstructionIndex&&chained.Payment.Source.OwnerSeat==actor&&chained.Payment.TargetSeat is{}t&&targets.Contains(t)&&ValidChainedStateBasicPayment(chained.Payment);

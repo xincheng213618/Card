@@ -1558,6 +1558,7 @@ public sealed class SkillProgramExecutor
                     LiFengComposition.Handles(effect.Op) && frame.LiFeng is { Paid: true } ||
                     effect.Op is (SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse or SkillProgramEffectOp.ResolveWenyiHealthOneAid or SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.ResolveChenshuoRepeatedReveal or SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant or
                         SkillProgramEffectOp.ResolveLieshuEndingLoss or SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment or
                         SkillProgramEffectOp.ResolveZhouyuThunderNeighbors or SkillProgramEffectOp.ResolveYanshuangEndingLoss) && frame.ZhouQun is { Paid: true } ||

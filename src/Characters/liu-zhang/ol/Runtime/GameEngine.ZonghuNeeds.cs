@@ -104,5 +104,6 @@ public sealed partial class GameEngine
         if(p is null||!HasZonghuCapability||p.Choices.Any(c=>c.Parameters.ContainsKey(ZonghuOpen))||CaptureZonghuNeed(p)is not{}n||!ZonghuSources(_players[p.PlayerSeat]).Any()||!ZonghuVictims(p.PlayerSeat).Any()||!ZonghuOutputs(n).Any())return p;
         if(p.PromptId==default)p=p with{PromptId=CreatePromptId()};var choices=p.Choices.ToList();foreach(var(source,_)in ZonghuSources(_players[p.PlayerSeat])){var args=new Dictionary<string,string>{{ZonghuOpen,"open"}};AddConversionParameters(args,source);choices.Add(new(new($"zonghu.{n.RequestFrameId}.{source.SkillInstanceId}"),"发动【宗护】：交给他人牌，视为本人使用杀或闪",[],[],args));}return p with{Choices=Array.AsReadOnly(choices.ToArray())};
     }
-    private static PendingDecision ZonghuNativeDecision(PendingDecision p)=>p.Choices.Any(c=>c.Parameters.ContainsKey(ZonghuOpen))?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey(ZonghuOpen)).ToArray())}:p;
+    private static PendingDecision ZonghuNativeDecision(PendingDecision p)
+    { p=HuanpeiNativeDecision(p);return p.Choices.Any(c=>c.Parameters.ContainsKey(ZonghuOpen))?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey(ZonghuOpen)).ToArray())}:p; }
 }

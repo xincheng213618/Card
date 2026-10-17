@@ -219,6 +219,7 @@ public sealed partial class GameEngine
         if (draft.Payment is not { } paid) throw new InvalidOperationException("The paid slot stage lost its own invoice.");
         if (DrainEquipmentSlotNamedChildren(frame.Id)) return true;
         FinishProgramSkill(frame with { PendingMovementContinuation = null }, true);
+        if (ResumeWenyiEquipmentSlotPeach(draft)) return true;
         var actor = _players[frame.OwnerSeat];
         if (!actor.IsAlive || _winner != Winner.None)
         {

@@ -231,8 +231,10 @@ public sealed partial class GameEngine
         CharacterState owner,
         Card card,
         CardKind outputKind,
-        bool forResponse, bool dyingUse = false)
+        bool forResponse, bool dyingUse = false, int? requestedUseTarget = null)
     {
+        if (requestedUseTarget is { } requested && (forResponse || dyingUse || outputKind != CardKind.Peach ||
+            !IsWenyiPeachSupplyQuery(owner, requested))) return [];
         if (UnclaimedDeclarationPayment(owner.Seat, card.Id) is { } paid &&
             (paid.DeclaredKind == outputKind || forResponse && outputKind == CardKind.Slash && IsSlashCard(paid.DeclaredKind))) return [paid.Source];
         var registered = GetSkillBindingShard(owner).GetSingleCardConversions(outputKind);
@@ -266,12 +268,12 @@ public sealed partial class GameEngine
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
-                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) && GuanConversionAvailable(owner.Seat, instance.SkillId) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
-                               IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
+                               IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
@@ -325,9 +327,10 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetProgramMultiCardViewAsSelections(
         CharacterState owner,
         CardKind outputKind,
-        bool forResponse, bool ignoreSuitUseProhibition = false)
+        bool forResponse, bool ignoreSuitUseProhibition = false, int? requestedUseTarget = null)
     {
-        if (!owner.IsAlive) return [];
+        if (!owner.IsAlive || requestedUseTarget is { } requested && (forResponse || outputKind != CardKind.Peach ||
+            !IsWenyiPeachSupplyQuery(owner, requested))) return [];
 
         var bindings = GetSkillBindingShard(owner).ProgramInstances;
         var leiluan = LeiluanSelections(owner, outputKind, forResponse, ignoreSuitUseProhibition);
@@ -347,7 +350,7 @@ public sealed partial class GameEngine
                      rule.InputCount > 1 && !rule.VariableInputCount &&
                      (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash ||
                          !forResponse && rule.RoundDistinctBasicUse is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
-                     (forResponse ? rule.ForResponse || rule.RoundDistinctBasicUse is not null && dyingUse && rule.ForPlay : rule.ForPlay) &&
+                     (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : forResponse ? rule.ForResponse || rule.RoundDistinctBasicUse is not null && dyingUse && rule.ForPlay : rule.ForPlay) &&
                      (rule.RoundDistinctBasicUse is not null || !IsCardUseForbidden(owner.Seat, outputKind,
                          forResponse ? CardActionType.Response : CardActionType.Use)) &&
                      (rule.XieweiBaitBasicUse is null || XieweiNativeDirection(owner, outputKind, forResponse)) &&

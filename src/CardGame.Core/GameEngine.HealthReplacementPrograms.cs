@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         };
         if (!_setupComplete || changed.Item1 < 0 || changed.Item3 <= 0 || _winner != Winner.None ||
             (CollectProgramTriggerCandidates(_players[changed.Item1], SkillProgramTriggerWindow.AfterHealthChanged).Count == 0 &&
-             !HasQimeiHealthSubject(changed.Item1))) return;
+             !HasQimeiHealthSubject(changed.Item1) && !HasWenyiHealthSubject(changed.Item1))) return;
         var owner = _players[changed.Item1];
         var healthOwner = GrantedEntityTrailerHealthOwner(payload) ?? _resolutionStack.LastOrDefault()?.Id;
         var before = payload is DamageAppliedEvent ? owner.Hp + changed.Item3 :

@@ -700,7 +700,7 @@ public sealed partial class GameEngine
 
     private void ContinueCommittedSlashAfterPrograms(CardAttackHandle attack)
     {
-        if (_winner != Winner.None && (IsWeijieUse(attack.ResolutionId) || IsYouqueUse(attack.ResolutionId) || IsZonghuUse(attack.ResolutionId) || IsRoundOnceCardlessBasicUse(attack.ResolutionId)))
+        if (_winner != Winner.None && (IsHuanpeiUse(attack.ResolutionId) || IsWeijieUse(attack.ResolutionId) || IsYouqueUse(attack.ResolutionId) || IsZonghuUse(attack.ResolutionId) || IsRoundOnceCardlessBasicUse(attack.ResolutionId)))
         {
             CompleteAttack(attack);
             return;

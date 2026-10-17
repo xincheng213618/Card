@@ -115,6 +115,7 @@ public sealed partial class GameEngine
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
+        if (ContinueHuanpeiSimpleUse(frameId, continuation)) return;
         if (ContinueWeijieSimpleUse(frameId, continuation)) return;
         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;
         if (ContinueMouZhijueSimpleUse(frameId, continuation)) return;

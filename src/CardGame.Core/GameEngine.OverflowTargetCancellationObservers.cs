@@ -148,7 +148,7 @@ public sealed partial class GameEngine
         static (host, index) => host.HasObserverSuffix(index,
             static (engine, child) => engine.OverflowTargetCancellationObserverEdge(child),
             static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying) ||
-                engine.TieredRoundZeroDyingRescueRide(child, dying) || engine.DrawFundedDistinctBasicDyingRescueRide(child, dying)));
+                engine.TieredRoundZeroDyingRescueRide(child, dying) || (engine.DrawFundedDistinctBasicDyingRescueRide(child, dying) || engine.HuanpeiDyingRescueRide(child, dying))));
 
     private bool OverflowTargetCancellationObserverEdge(int child)
     {

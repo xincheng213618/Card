@@ -150,11 +150,14 @@ public sealed partial class GameEngine
     }
     private void FinishWuJing(ProgramSkillFrame f, bool applied)
     {
+        if (f.HuanpeiReturn is { } huanpei && (f.WuJing is not { Stage: WuJingStage.NativeChildren, NativeCompleted: true, NativeOrigin: { } huanpeiNative } ||
+            huanpeiNative.UseId != huanpei.UseId || !huanpei.Returned))
+            throw new InvalidOperationException("Heji cannot release Huanpei before all native children returned.");
         if (f.ZonghuReturn is { } zonghu && (f.WuJing is not { Stage: WuJingStage.NativeChildren, NativeCompleted: true, NativeOrigin: { } origin } ||
             origin.UseId != zonghu.UseId || !zonghu.Returned))
             throw new InvalidOperationException("Heji cannot release its exact paid Zonghu lease before all native children returned.");
         AdvanceEventRulesAndQueueFact(new WuJingCompletedEvent(f.Id, applied));
-        ReplaceRuntimeTop(f = f with { WuJing = null, ZonghuReturn = null, PendingMovementContinuation = null });
+        ReplaceRuntimeTop(f = f with { WuJing = null, ZonghuReturn = null, HuanpeiReturn = null, PendingMovementContinuation = null });
         FinishProgramSkill(f, applied);
     }
     [ProgramContinuation(ProgramContinuationKind.Resume, 27130)] private bool ResumeWuJing(long id) { if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { WuJing: not null } f || f.Id != id) return false; ContinueWuJing(id); return true; }

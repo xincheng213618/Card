@@ -39,6 +39,8 @@ public sealed partial class GameEngine
             return(RequestedDeckBasicIntent.Qinglong,owner,top.Id,0);
         if(p.Kind==DecisionKind.ProgramTrigger && top is ProgramSkillFrame program)
         {
+            if(IsWenyiPeachRequest(program) && TryGetWenyiPeachRequest(program,out var wenyiActor,out _) && p.PlayerSeat==wenyiActor)
+                return(RequestedDeckBasicIntent.WenyiPeach,program.Id,program.Id,program.InstructionIndex);
             if(IsSayingSlashRequest(program)&&TryGetSayingSlashRequest(program,out var sayingActor,out _)&&p.PlayerSeat==sayingActor)return(RequestedDeckBasicIntent.AssistedSlash,program.Id,program.Id,program.InstructionIndex);
             if(IsChanshuangSlashRequest(program)&&TryGetChanshuangSlashRequest(program,out var requestedActor,out _)&&p.PlayerSeat==requestedActor)return(RequestedDeckBasicIntent.AssistedSlash,program.Id,program.Id,program.InstructionIndex);
             if(IsQigongRequest(program)&&p.PlayerSeat==program.LvKuangLvXiang!.Actor)return(RequestedDeckBasicIntent.AssistedSlash,program.Id,program.Id,program.InstructionIndex);
@@ -55,7 +57,7 @@ public sealed partial class GameEngine
     }
     private CardKind RequestedDeckBasicKind(PendingDecision p,RequestedDeckBasicIntent intent) => intent switch
     {
-        RequestedDeckBasicIntent.Dying=>CardKind.Peach,
+        RequestedDeckBasicIntent.Dying or RequestedDeckBasicIntent.WenyiPeach=>CardKind.Peach,
         RequestedDeckBasicIntent.Dodge or RequestedDeckBasicIntent.FactionDodge=>CardKind.Dodge,
         RequestedDeckBasicIntent.Group=>ActiveGroupCard!.RequiredCardKind!.Value,
         _=>CardKind.Slash
@@ -140,6 +142,7 @@ public sealed partial class GameEngine
     private int[] RequestedDeckBasicTargets(RequestedDeckBasicFrame view,Card card)
     {
         var r=view.Receipt;var actor=_players[r.ActorSeat];
+        if(r.Intent==RequestedDeckBasicIntent.WenyiPeach) return WenyiRequestedDeckPeachTargets(view,card);
         var targets=r.Intent switch
         {
             RequestedDeckBasicIntent.BorrowedSword=>new[]{ActiveBorrowedSword!.SlashTargetSeat},
@@ -159,6 +162,7 @@ public sealed partial class GameEngine
     private bool RequestedDeckBasicCardMatches(RequestedDeckBasicFrame view,Card card)
     {
         var r=view.Receipt;var actor=_players[r.ActorSeat];
+        if(r.Intent==RequestedDeckBasicIntent.WenyiPeach) return WenyiRequestedDeckPeachTargets(view,card).Length==1;
         if(r.Intent==RequestedDeckBasicIntent.Dying)
         {
             var dying=_resolutionStack.OfType<DyingFrame>().Single(d=>d.Id==r.OwnerFrameId);
@@ -219,6 +223,8 @@ public sealed partial class GameEngine
         var actor=_players[_pendingDecision!.PlayerSeat];
         switch(intent)
         {
+            case RequestedDeckBasicIntent.WenyiPeach:
+                ExecuteWenyiRequestedDeckPeach(card,targets);break;
             case RequestedDeckBasicIntent.Dodge:
                 var attack=ActiveCardAttack!;PopResponseWindow(attack.ResolutionId);SetCardUseStep(attack.ResolutionId,ResolutionFrameStep.ResolvingEffect);ClearPendingDecision();ResolveDodgeResponse(attack,actor,card);break;
             case RequestedDeckBasicIntent.Group:

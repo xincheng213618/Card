@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
+        cardId==0 && IsHuanpeiUse(frameId) ? HuanpeiRepresentation(frameId) :
         cardId==0 && IsZonghuUse(frameId) ? ZonghuRepresentation(frameId) :
         cardId==0 && IsWeijieUse(frameId) ? WeijieRepresentation(frameId) :
         cardId==0 && IsYouqueUse(frameId) ? YouqueRepresentation(frameId) :

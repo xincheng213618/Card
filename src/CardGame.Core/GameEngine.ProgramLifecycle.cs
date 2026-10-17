@@ -2381,7 +2381,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change &&
-                (IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
+                (IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,

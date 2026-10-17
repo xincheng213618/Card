@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:huanpei": {
+      "name": "环佩",
+      "description": "每轮限一次，你可将手牌数调整至与体力值相同，视为使用一张基本牌。",
+      "activationLabels": {
+        "adjust-and-use-basic": "调整手牌数，并视为使用一张基本牌"
+      }
+    },
+    "ol:wenyi": {
+      "name": "温宜",
+      "description": "每局游戏限一次，一名角色于一个回合内体力值变为1后，你可对其使用一张【桃】，或交给其一张装备牌令其使用。然后其复原武将牌。",
+      "triggerChoices": {
+        "health-becomes-one": "对其使用桃，或交给其装备牌令其使用，然后复原武将牌"
+      }
+    },
+    "ol:miaoxin": {
+      "name": "妙心",
+      "description": "锁定技，当你受到1点伤害后，摸两张牌。若“温宜”可发动次数为零，改为：摸一张牌，令“温宜”可发动次数加一。"
+    }
+  }
+}

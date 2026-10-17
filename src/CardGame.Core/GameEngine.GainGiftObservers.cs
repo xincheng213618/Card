@@ -129,7 +129,7 @@ public sealed partial class GameEngine
                 if (_resolutionStack[j] is DyingFrame dying && j + 1 < _resolutionStack.Count &&
                     (IsPaidHandRepaymentProgramAlcoholRide(j, dying) || IsPaidHandRepaymentRescueRide(j, dying) ||
                      PolicyCounterspellVirtualAlcoholRide(j, dying) || PaidObserverDamageVirtualAlcoholRide(j, dying) ||
-                     (TieredRoundZeroDyingRescueRide(j, dying) || DrawFundedDistinctBasicDyingRescueRide(j, dying)))) break;
+                     (TieredRoundZeroDyingRescueRide(j, dying) || (DrawFundedDistinctBasicDyingRescueRide(j, dying) || HuanpeiDyingRescueRide(j, dying))))) break;
             }
             if (exact) return root;
         }

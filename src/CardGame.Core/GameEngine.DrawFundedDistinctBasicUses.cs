@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private void ExecuteDrawFundedDistinctBasicPaid(DrawFundedDistinctBasicFrame frame)
     {
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat]; var kind = p.EffectiveKind; var card = new Card(0, kind, Suit.None, 0);
+        if (p.Intent == DrawFundedDistinctBasicIntent.WenyiPeach) { ExecuteWenyiDrawFundedPeach(frame); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.OwnSlashDodge) { ResolveDrawFundedDistinctBasicDodge(p); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.Dying)
         {

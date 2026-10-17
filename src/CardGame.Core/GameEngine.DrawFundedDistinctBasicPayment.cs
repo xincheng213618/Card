@@ -41,6 +41,7 @@ public sealed partial class GameEngine
         var payment = new DrawFundedDistinctBasicPayment(id, source, accepted.Hash, accepted.Rule.DrawFundedDistinctBasic!.MethodLedgerId,
             _turnNumber, _turnProgression.OwnerSeat, need.Intent, kind, ProgramBasicCardName(kind), need.ParentFrameId, need.RequestFrameId,
             need.ParentActionId, targets.Count == 1 ? targets[0] : need.FixedTargetSeat, need.Cursor, original.PromptId, original.Revision, 0, 0, 0);
+        if (need.Intent == DrawFundedDistinctBasicIntent.WenyiPeach) ReserveWenyiDrawFundedPeach(original, need, source, kind);
         ClearPendingDecision();
         PushRuntimeFrame(new DrawFundedDistinctBasicFrame(id, payment, original, targets));
         AdvanceEventRulesAndQueueFact(new DrawFundedDistinctBasicStartedEvent(id, actor.Seat, source, accepted.Hash, payment.MethodLedgerId,
@@ -150,6 +151,7 @@ public sealed partial class GameEngine
             DrawFundedDistinctBasicContext(frame.OriginalDecision, request) is not { } current || current.Intent != p.Intent ||
             current.ParentFrameId != p.ParentFrameId || current.RequestFrameId != p.RequestFrameId || current.ParentActionId != p.ParentActionId || current.Cursor != p.Cursor)
             return false;
+        if (p.Intent == DrawFundedDistinctBasicIntent.WenyiPeach) return WenyiDrawFundedNeedStillLegal(frame);
         if (request is ProgramSkillFrame program)
         {
             var effect = ProgramInstructionResolver.Default.Resolve(program, _contentRegistry.GetSkill(program.SkillId).Program!).GetPausedInstruction(program.InstructionIndex).Effect;
@@ -163,6 +165,7 @@ public sealed partial class GameEngine
         var p = frame.Payment;
         AdvanceEventRulesAndQueueFact(new DrawFundedDistinctBasicCancelledEvent(p.PaymentFrameId, p.Source.OwnerSeat, p.Intent, p.EffectiveKind));
         ClearPendingDecision(); _status = EngineStatus.Running;
+        if (p.Intent == DrawFundedDistinctBasicIntent.WenyiPeach && TryCancelWenyiPeachSupply(p.ParentFrameId)) return;
         if (p.ParentFrameId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return;
         if (_winner != Winner.None) return;
         if (p.Intent == DrawFundedDistinctBasicIntent.BorrowedSword && ActiveBorrowedSword is { } b && b.ResolutionId == p.ParentFrameId && b.ActiveAttack is null)

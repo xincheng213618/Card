@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     {
         RequestedDeckBasicIntent.Dying or RequestedDeckBasicIntent.BorrowedSword or RequestedDeckBasicIntent.Qinglong or
             RequestedDeckBasicIntent.ProgramSlash or RequestedDeckBasicIntent.ProgramNearestSlash or RequestedDeckBasicIntent.AssistedSlash or
-            RequestedDeckBasicIntent.NearestLegalSlash => CardActionType.Use,
+            RequestedDeckBasicIntent.NearestLegalSlash or RequestedDeckBasicIntent.WenyiPeach => CardActionType.Use,
         RequestedDeckBasicIntent.FactionSlash => ActiveFactionCardRequest is { } faction && IsFactionSlashUse(faction) ? CardActionType.Use : CardActionType.Response,
         _ => CardActionType.Response
     };

@@ -5,7 +5,7 @@ namespace CardGame.Core;
 public enum DrawFundedDistinctBasicIntent
 {
     Play = 0, BorrowedSword = 1, Qinglong = 2, OwnSlashDodge = 3, Dying = 4,
-    ProgramSlash = 5, ProgramNearestSlash = 6, AssistedSlash = 7, NearestLegalSlash = 8
+    ProgramSlash = 5, ProgramNearestSlash = 6, AssistedSlash = 7, NearestLegalSlash = 8, WenyiPeach = 28101
 }
 public enum DrawFundedDistinctBasicStage { Drawing = 0, DrawChildren = 1 }
 

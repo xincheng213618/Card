@@ -67,6 +67,7 @@ public sealed partial class GameEngine
   if(n.Intent==WeijieIntent.Duel){var d=ActiveDuel!;PopResponseWindow(d.ResolutionId);BeginDuelResponse(d,keepCurrentRequest:keepCurrentRequest);return;}
   if(n.Intent is WeijieIntent.Dodge or WeijieIntent.Group)
   {var attack=n.Intent==WeijieIntent.Group?ActiveGroupCard!.CurrentAttack!:ActiveCardAttack!;var required=n.Intent==WeijieIntent.Dodge?CardKind.Dodge:ActiveGroupCard!.RequiredCardKind!.Value;var cards=GetResponseCards(actor,required);var choices=CreateResponseChoices(cards,required,attack.EffectiveCardKind,card=>GetEffectiveResponseKind(actor,card,required),includeBagua:required==CardKind.Dodge&&!attack.IgnoresArmor&&HasBagua(actor),includeFactionDefense:required==CardKind.Dodge&&CanRequestFactionDefense(actor,attack),includeFactionSlash:required==CardKind.Slash&&CanRequestFactionSlashResponse(actor,attack),responder:actor);_pendingDecision=WeijieNativeDecision(r.OriginalDecision) with{PromptId=CreatePromptId(),ValidCardIds=choices.SelectMany(c=>c.Cards).Distinct().ToArray(),Choices=choices};_status=actor.IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;return;}
+  if(n.Intent==WeijieIntent.WenyiPeach){RepublishWenyiAfterWeijie(r);return;}
   var f=GetActiveProgramFrame(n.OwnerFrameId);var effect=GetPausedPrivateOfferEffect(f)!;
   if(!actor.IsAlive&&n.Intent==WeijieIntent.NearestLegalSlash)
   {

@@ -68,6 +68,7 @@ public sealed partial class GameEngine
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;
         if (SkipDrawFundedDistinctBasicFinishedMovement(use.Id, card)) return;
+        if (SkipHuanpeiFinishedMovement(use.Id, card)) return;
         if (IsProgramAlternativeCost(use.Action, card.Id))
         {
             if (_cardZones.GetLocation(card.Id) == CardLocation.Processing)

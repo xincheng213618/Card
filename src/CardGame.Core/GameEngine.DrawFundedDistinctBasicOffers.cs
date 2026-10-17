@@ -123,6 +123,9 @@ public sealed partial class GameEngine
             blade.Attack.SourceSeat == prompt.PlayerSeat && SameAttackOwner(ActiveCardAttack, blade.Attack) && blade.Attack.ResolutionId == ownerId)
             return new(DrawFundedDistinctBasicIntent.Qinglong, ownerId, top.Id, parentAction, 0, blade.Attack.TargetSeat);
         if (prompt.Kind != DecisionKind.ProgramTrigger || top is not ProgramSkillFrame program) return null;
+        if (TryGetWenyiPeachRequest(program, out var wenyiActor, out var wenyiTarget) && prompt.PlayerSeat == wenyiActor &&
+            program.HuanShuJun is { Stage: HuanShuJunStage.WenyiPeachRequest or HuanShuJunStage.NativeIssuing })
+            return new(DrawFundedDistinctBasicIntent.WenyiPeach, program.Id, program.Id, null, program.InstructionIndex, wenyiTarget);
         if (IsSayingSlashRequest(program) && TryGetSayingSlashRequest(program, out var sayingActor, out var sayingTargets) && prompt.PlayerSeat == sayingActor)
             return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, sayingTargets.Single());
         if (IsChanshuangSlashRequest(program) && TryGetChanshuangSlashRequest(program, out var requestedActor, out var requestedTargets) && prompt.PlayerSeat == requestedActor)
@@ -153,6 +156,11 @@ public sealed partial class GameEngine
             return kind == CardKind.Dodge && IsProgramResponseCardUse(actor, kind) && ActiveCardAttack is { } a && a.ResolutionId == need.ParentFrameId &&
                 a.SuccessfulDodgeResponses == need.Cursor && a.SourceSeat == targetSeat && ActiveFactionDefense is null;
         if (targetSeat is not { } seat || !IsValidPlayerSeat(seat) || !_players[seat].IsAlive || HasBeneficiarySuitShield(actor.Seat, seat, Suit.None)) return false;
+        if (need.Intent == DrawFundedDistinctBasicIntent.WenyiPeach)
+            return kind == CardKind.Peach && _resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is ProgramSkillFrame wenyi &&
+                need.RequestFrameId == wenyi.Id && wenyi.InstructionIndex == need.Cursor &&
+                TryGetWenyiPeachRequest(wenyi, out var wenyiActor, out var wenyiTarget) && wenyiActor == actor.Seat && wenyiTarget == seat &&
+                WenyiPeachUseLegal(actor.Seat, seat, []);
         if (need.Intent == DrawFundedDistinctBasicIntent.Dying)
             return ActiveDying is { } d && d.FrameId == need.ParentFrameId && d.ResponderIndex == need.Cursor && d.ResponderSeat == actor.Seat &&
                 d.VictimSeat == seat && _players[seat].Hp <= 0 && (kind == CardKind.Peach && CanUsePeachToRescue(actor.Seat, seat) ||

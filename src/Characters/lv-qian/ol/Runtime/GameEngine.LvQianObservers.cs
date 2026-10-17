@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool HasLvQianCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecordWeiluActualDamageSource);
@@ -90,7 +90,7 @@ public sealed partial class GameEngine
   if(child is HpChangedTriggerWindowFrame hp)return hp.Change.ParentFrameId==root.Id&&hp.ResumeFrameId==root.Id&&hp.Continuation==PostEventContinuation.AwaitedProgramMovement&&r.HpProof is{}proof&&hp.Change.TargetSeat==proof.TargetSeat&&hp.Change.Kind==proof.Kind&&hp.Change.HpBefore==proof.HpBefore&&hp.Change.Amount<=proof.Amount;
   return child is RecoveryReplacementFrame recovery&&recovery.ParentFrameId==root.Id&&recovery.Return.ResumeFrameId==root.Id&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&IsLvQianRecoveryCompletion(root,recovery.Attempt);
  }
- private ProgramSkillFrame? LvQianObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.LvQianFirstChild(r,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsSameNameHandObserverEdge(n),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)||x.TieredRoundZeroDyingRescueRide(n,d)||x.DrawFundedDistinctBasicDyingRescueRide(n,d)));
+ private ProgramSkillFrame? LvQianObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.LvQianFirstChild(r,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsSameNameHandObserverEdge(n),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)||x.TieredRoundZeroDyingRescueRide(n,d)||(x.DrawFundedDistinctBasicDyingRescueRide(n,d) || x.HuanpeiDyingRescueRide(n,d))));
  private bool HasLvQianDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasLvQianBeforeDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsLvQianDying()=>ActiveDying is{}d&&LvQianObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);

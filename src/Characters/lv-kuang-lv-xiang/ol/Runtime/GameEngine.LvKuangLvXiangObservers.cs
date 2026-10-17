@@ -55,7 +55,7 @@ public sealed partial class GameEngine
  {
   if(index+1<_resolutionStack.Count&&_resolutionStack[index+1]is DrawFundedDistinctBasicFrame)return DrawFundedDistinctBasicPaidSuffix(index+1);
   if(index+1<_resolutionStack.Count&&_resolutionStack[index+1]is ChainedStateBasicFrame)return ChainedStateBasicPaidSuffix(index+1);
-  return HasObserverSuffix(index,static(e,i)=>e.IsSameNameHandObserverEdge(i)||e.QigongDeclarationObserverEdge(i),static(e,i,d)=>e.IsSuspendedOrPaidRescueObserverSuffix(i,d)||e.DrawFundedDistinctBasicDyingRescueRide(i,d)||e.TieredRoundZeroDyingRescueRide(i,d));
+  return HasObserverSuffix(index,static(e,i)=>e.IsSameNameHandObserverEdge(i)||e.QigongDeclarationObserverEdge(i),static(e,i,d)=>e.IsSuspendedOrPaidRescueObserverSuffix(i,d)||(e.DrawFundedDistinctBasicDyingRescueRide(i,d) || e.HuanpeiDyingRescueRide(i,d))||e.TieredRoundZeroDyingRescueRide(i,d));
  }
  private ProgramSkillFrame? LvKuangLvXiangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LvKuangLvXiangFirstChild(f,c),static(e,i)=>e.LvKuangLvXiangObserverSuffix(i));
  private bool HasLvKuangLvXiangCardObserver(long originalUseId)

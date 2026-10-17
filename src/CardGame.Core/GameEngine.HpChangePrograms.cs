@@ -39,9 +39,9 @@ public sealed partial class GameEngine
             };
             var registered = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
-                .Where(candidate => !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
+                .Where(candidate => !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
                     !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)))
-                .Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
+                .Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
             if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
@@ -57,7 +57,9 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
+            var contexts = candidates.Select(candidate => IsWenyiHpTrigger(GetProgramTrigger(candidate))
+                ? CreateWenyiHpContext(change, candidate)
+                : IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
                 ? CreateQimeiHpContext(change, candidate)
                 : IsXianfuEchoTrigger(GetProgramTrigger(candidate)) ? CreateXianfuHpContext(change, candidate)
                 : IsDianhuDrawTrigger(GetProgramTrigger(candidate)) ? CreateDianhuHpContext(change, candidate)
@@ -113,6 +115,9 @@ public sealed partial class GameEngine
         if (TryBeginHpChangedProgramWindow(frame.ResumeFrameId, frame.Continuation, frame.CardId, frame.CardKind)) return;
         switch (frame.Continuation)
         {
+            case PostEventContinuation.WenyiDamageHealth:
+                ReturnWenyiDamageHealth(frame);
+                break;
             case PostEventContinuation.Program:
                 AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
                 break;
@@ -206,6 +211,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An HP-change window lost its frozen event or cursor.");
             var parentMatches = hp.Continuation switch
             {
+                PostEventContinuation.WenyiDamageHealth => parent is DamageFrame damage && IsWenyiDamageHealthReturn(damage, hp),
                 PostEventContinuation.Boundary => parent is null,
                 PostEventContinuation.FriendDuelResponse => parent is FriendDuelResponseFrame friend && friend.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == friend.Id && IsFriendResponseParent(friend),
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,
