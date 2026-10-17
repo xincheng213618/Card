@@ -5,6 +5,8 @@ public sealed partial class GameEngine
     private void ResolveEquipmentSkillGrant(Card card, CardLocation from, CardLocation to)
     {
         ResolveDynamicEquipmentSkillGrants(card, from, to);
+        if (ResolveHulaoEquipmentSkillGrant(card, from, to)) return;
+        if (ResolveShenwuEquipmentSkillGrant(card, from, to)) return;
         if (card.Kind != CardKind.XingtianAxe ||
             !_contentRegistry!.Skills.ContainsKey("special:xingtian-axe-effect"))
             return;
@@ -20,7 +22,7 @@ public sealed partial class GameEngine
     private static string? EquipmentSkillGrantId(Card card) => card.Kind switch
     {
         CardKind.XingtianAxe => $"equipment:xingtian:{card.Id}",
-        _ => null
+        _ => HulaoEquipmentSkillGrantId(card) ?? ShenwuEquipmentSkillGrantId(card)
     };
 
     private bool IsActiveProgramSourceEquipmentCard(

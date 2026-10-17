@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         int before, int after, HpChangeKind kind)
     {
         ObserveDongBaiHpDecreased(targetSeat,before,after);
-        var amount = kind == HpChangeKind.Loss ? before - after : after - before;
+        var amount = kind == HpChangeKind.Setting ? Math.Abs(after - before) : kind == HpChangeKind.Loss ? before - after : after - before;
         if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return;
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
             kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
@@ -41,8 +41,10 @@ public sealed partial class GameEngine
             var registered = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
                 .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
-                    !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)))
-                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
+                    !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) &&
+                    !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)))
+                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change))
+                .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).ToArray();
             if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
@@ -66,6 +68,8 @@ public sealed partial class GameEngine
                 ? CreateQimeiHpContext(change, candidate)
                 : IsXianfuEchoTrigger(GetProgramTrigger(candidate)) ? CreateXianfuHpContext(change, candidate)
                 : IsDianhuDrawTrigger(GetProgramTrigger(candidate)) ? CreateDianhuHpContext(change, candidate)
+                : IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) ? CreateShenwuRecoveryContext(change, candidate)
+                : IsNianRecoveryTrigger(GetProgramTrigger(candidate)) ? CreateNianRecoveryContext(change, candidate)
                 : new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
                 owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
                 OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
@@ -144,6 +148,11 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("Amount support lost its exact health-change return.");
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
                 break;
+            case PostEventContinuation.WenhePoison:
+                if (!IsWenhePoisonHealthChild(_resolutionStack.LastOrDefault(), frame))
+                    throw new InvalidOperationException("Poison lost its exact health-change return.");
+                AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                break;
             case PostEventContinuation.RecoveryPaidCardUse:
                 ContinueRecoveryPaidCardUse(frame.ResumeFrameId!.Value);
                 break;
@@ -164,6 +173,14 @@ public sealed partial class GameEngine
                 break;
             case PostEventContinuation.NativeCardEffectDraw:
                 ContinueNativeDrawTwo(frame.ResumeFrameId!.Value); break;
+            case PostEventContinuation.WenheCardEffect:
+                if (_resolutionStack.LastOrDefault() is not CardUseFrame wenhe || !IsWenheCardEffectHpReturn(wenhe, frame))
+                    throw new InvalidOperationException("A Wenhe trick lost its exact HP-child return.");
+                ContinueWenheCardEffect(wenhe.Id); break;
+            case PostEventContinuation.DragonBoatCardEffect:
+                if (_resolutionStack.LastOrDefault() is not CardUseFrame dragon || !IsDragonBoatCardEffectHpReturn(dragon, frame))
+                    throw new InvalidOperationException("Dragon boat HP changes lost their exact card return.");
+                ContinueDragonBoatCardEffect(dragon.Id); break;
             case PostEventContinuation.ColorFireAttackPayment:
                 ContinueColorFireAttackPayment(frame.ResumeFrameId!.Value);
                 break;
@@ -188,19 +205,25 @@ public sealed partial class GameEngine
         for (var index = 0; index < _resolutionStack.Count; index++)
         {
             var parent = index > 0 ? _resolutionStack[index - 1] : null;
+            if (_resolutionStack[index] is CardUseFrame { WenhePoisonFireAttackPayment: not null } poisonPaid)
+                AssertWenhePoisonFireAttackPayment(poisonPaid);
             if (_resolutionStack[index] is CardsMovedTriggerWindowFrame movement)
             {
                 if (movement.Contexts is not { } contexts || contexts.Count != movement.Candidates.Count ||
-                    movement.CandidateIndex < 0 || movement.CandidateIndex >= contexts.Count ||
+                    movement.CandidateIndex < 0 || movement.CandidateIndex >= contexts.Count && !IsPendingWenhePoisonWindow(movement) ||
                     contexts.Any(context => context.ParentFrameId != movement.Id || context.MovementBatch != movement.Batch))
                     throw new InvalidOperationException("A movement window lost its frozen contexts.");
+                AssertWenhePoisonMovementWindow(movement);
+                if (movement.WenhePoisonFireAttackReturn is not null &&
+                    (parent is not CardUseFrame poisonFire || !IsWenhePoisonFireAttackMovement(poisonFire, movement)))
+                    throw new InvalidOperationException("Poison Fire Attack lost its exact paid movement return.");
                 if (movement.ResumeProgramFrameId is { } resume && (parent is not ProgramSkillFrame || parent.Id != resume))
                     throw new InvalidOperationException("A movement window lost its instruction continuation.");
             }
             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
                  parent is not DyingFrame originalDying || parent.Id != dyingId ||
-                 (ActiveDying?.FrameId != dyingId && !(IsOriginalDyingSuspendedByDyingSuits(originalDying) || IsOriginalDyingSuspendedByRecipientCategoryMark(originalDying))) ||
+                 (ActiveDying?.FrameId != dyingId && !(IsOriginalDyingSuspendedByDyingSuits(originalDying) || IsOriginalDyingSuspendedByRecipientCategoryMark(originalDying) || IsOriginalDyingSuspendedByWenhePoison(originalDying))) ||
                  entry.OwnerSeat != originalDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
@@ -226,12 +249,15 @@ public sealed partial class GameEngine
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.AmountSupport => IsAmountSupportHealthChild(parent, hp),
+                PostEventContinuation.WenhePoison => IsWenhePoisonHealthChild(parent, hp),
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
                 PostEventContinuation.DenglouCardUse => parent is CardUseFrame { DenglouNative: not null, DenglouCostDrained: false } denglou && denglou.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == denglou.Id,
                 PostEventContinuation.GuoSiCardUse => parent is CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSi && guoSi.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == guoSi.Id,
                 PostEventContinuation.HistoricalEndingCardUse => parent is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == history.Id,
                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
                 PostEventContinuation.NativeCardEffectDraw => parent is CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.DrawingChildren } nativeDraw && nativeDraw.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == nativeDraw.Id,
+                PostEventContinuation.WenheCardEffect => parent is CardUseFrame wenhe && IsWenheCardEffectHpReturn(wenhe, hp),
+                PostEventContinuation.DragonBoatCardEffect => parent is CardUseFrame dragon && IsDragonBoatCardEffectHpReturn(dragon, hp),
                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
                 PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,
                 PostEventContinuation.DrawPhaseObligation => parent is DrawPhaseObligationFrame draw && draw.Id == hp.ResumeFrameId,

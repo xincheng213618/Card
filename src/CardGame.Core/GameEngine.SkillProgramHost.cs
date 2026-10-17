@@ -262,8 +262,12 @@ public sealed partial class GameEngine
             var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
             var discardInvocation = toDiscard ? engine.CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
                 frame.OwnerSeat, cardIds, reason, frame.Id) : null;
-            foreach (var group in selected.GroupBy(item => item.Location))
-                engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason);
+            if (toDiscard && engine.HasHellShiyouCapability)
+                engine.MoveProgramCardsFromMultipleSources(cardIds, destination, reason,
+                    disclosure: CardMovementDisclosure.FaceUp);
+            else foreach (var group in selected.GroupBy(item => item.Location))
+                engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason,
+                    disclosure: toDiscard ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown);
             engine.CompleteNativeLogicalDiscardInvocation(discardInvocation);
             active = engine.GetActiveProgramFrame(frame.Id);
             engine.ReplaceRuntimeTop(active with

@@ -43,6 +43,7 @@ public sealed partial class GameEngine
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {
+        if (MouCaoPiCannotRespondTo(responderSeat, sourceSeat)) return true;
         if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
             sourceSeat == responderSeat || !targetSeats.Contains(responderSeat) ||
             !_players[sourceSeat].IsAlive || !_players[responderSeat].IsAlive)

@@ -65,7 +65,7 @@ internal static class OpeningCustomizationUiChecks
             var modeDefinition = game.ContentRegistry.Modes[game.ModeId];
             var lordFamily = modeDefinition.GeneralVariantGroups?.Values.FirstOrDefault(ids =>
                 ids.Contains(lord.GeneralId, StringComparer.Ordinal)) ?? [lord.GeneralId];
-            var expectedRoster = modeDefinition.GeneralPoolIds!
+            var expectedRoster = (modeDefinition.GeneralSelectionPoolIds ?? modeDefinition.GeneralPoolIds!)
                 .Except(lordFamily, StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
             Program.Assert(vm.IsCustomGeneralSelectionOpen &&
                 vm.CustomGeneralChoices.Select(choice => choice.GeneralId).ToHashSet(StringComparer.Ordinal).SetEquals(expectedRoster) &&

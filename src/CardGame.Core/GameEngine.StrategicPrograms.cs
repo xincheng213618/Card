@@ -255,7 +255,7 @@ public sealed partial class GameEngine
         {
             var target = _players[draft.TargetSeat];
             foreach (var skill in target.General.Skills.Concat(target.SecondaryGeneral?.Skills ?? []).Where(skill => skill.ContentId is not null).DistinctBy(skill => skill.ContentId))
-                if (target.SkillGrants.Grants.Any(grant => grant.SkillId == skill.ContentId && grant.IsEnabled)) choices.Add(Choice(skill.ContentId!, $"令【{skill.Name}】失效", [], [target.Seat]));
+                if (target.SkillGrants.Grants.Any(grant => grant.SkillId == skill.ContentId && grant.IsEnabled && !grant.IsModeRule)) choices.Add(Choice(skill.ContentId!, $"令【{skill.Name}】失效", [], [target.Seat]));
             if (choices.Count == 0) { ReplaceRuntimeTop(frame with { StrategicDraft = null }); return; }
         }
         else
@@ -309,7 +309,7 @@ public sealed partial class GameEngine
         else if (draft.Op == SkillProgramEffectOp.SuppressGeneralSkill)
         {
             var target = _players[draft.TargetSeat];
-            var grants = target.SkillGrants.Grants.Where(grant => grant.IsEnabled && grant.SkillId == id).Select(grant => grant.GrantId).ToArray();
+            var grants = target.SkillGrants.Grants.Where(grant => grant.IsEnabled && !grant.IsModeRule && grant.SkillId == id).Select(grant => grant.GrantId).ToArray();
             if (grants.Length == 0) throw new InvalidOperationException("Suppressed skill is no longer owned.");
             foreach (var grant in grants) target.SkillGrants.SetEnabled(grant, false);
             _programSuppressions.Add(new(frame.OwnerSeat, target.Seat, id, _turnNumber, grants));

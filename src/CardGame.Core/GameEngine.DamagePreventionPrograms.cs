@@ -4,6 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasRangePreventionPrograms =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventHulaoArmoredLargeDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayXiliActualOtherOwnerDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) ||
@@ -93,7 +95,7 @@ public sealed partial class GameEngine
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
                     .Where(candidate => !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover))
-                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles or SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction))
+                    .Where(candidate => !rangeChainOnly || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventHulaoArmoredLargeDamage or SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles or SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&

@@ -15,7 +15,7 @@ public sealed class CardViewModel : ObservableObject
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
-    public ImageSource? Artwork => CardArt.Get(Kind);
+    public ImageSource? Artwork => CardArt.Get(IdentityKind == CardKind.Poison ? CardKind.Poison : Kind);
     public bool HasArtwork => Artwork is not null;
     public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
@@ -29,6 +29,8 @@ public sealed class CardViewModel : ObservableObject
             RaisePropertyChanged(nameof(IdentityLabel));
             RaisePropertyChanged(nameof(IdentityBrush));
             RaisePropertyChanged(nameof(CardHint));
+            RaisePropertyChanged(nameof(Artwork));
+            RaisePropertyChanged(nameof(HasArtwork));
         }
     }
     public string? IdentitySkillName

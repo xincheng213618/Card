@@ -364,6 +364,21 @@ internal sealed class CardZoneStore
         }
     }
 
+    internal void RebuildPristineDrawPile(IReadOnlyList<Card> cards)
+    {
+        ArgumentNullException.ThrowIfNull(cards);
+        if (_zones.Any(pair => pair.Key != CardLocation.DrawPile && pair.Value.Count != 0) ||
+            _locations.Count != Count(CardLocation.DrawPile))
+            throw new InvalidOperationException("A setup deck can be rebuilt only while every registered entity remains in the draw pile.");
+        if (cards.Any(card => card.Id <= 0) || cards.Select(card => card.Id).Distinct().Count() != cards.Count)
+            throw new InvalidOperationException("A setup deck needs distinct positive physical card identities.");
+        // Validate the replacement before mutating either index. This internal
+        // setup-only boundary is never used to rewrite a paid or exposed entity.
+        GetZone(CardLocation.DrawPile).Clear();
+        _locations.Clear();
+        LoadInitialDeck(cards);
+    }
+
     public Card Move(int cardId, CardLocation from, CardLocation to)
     {
         return MoveBatch([new CardTransfer(cardId, from, to)])[0];

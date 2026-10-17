@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool IsExactZhenyiBeforeResultProgramChild(ProgramJudgmentTriggerWindowFrame window, ProgramSkillFrame child)
     {
+        if (IsExactHellDayuanBeforeResultProgramChild(window, child)) return true;
         if (window.ZhenyiBeforeResult != true || !window.Activated ||
             window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count ||
             child.WindowContext is not { Window: SkillProgramTriggerWindow.JudgmentBeforeResult, Judgment: { } result } context ||
@@ -47,11 +48,14 @@ public sealed partial class GameEngine
     private bool TryBeginZhenyiBeforeResultWindow(JudgmentFrame pending, Card card, Suit suit)
     {
         if (pending.ZhenyiBeforeResultCompleted == true ||
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei)) return false;
-        var candidates = _players.Where(p => p.IsAlive && p.Markers.GetValueOrDefault(PlayerMarkerKind.Ziwei) == 1)
+            !(_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseHellDayuanJudgment))) return false;
+        var candidates = _players.Where(p => p.IsAlive)
             .OrderBy(p => p.Seat)
             .SelectMany(owner => EnabledUniqueProgramTriggers(owner, SkillProgramTriggerWindow.JudgmentBeforeResult)
-                .Where(b => ProgramInstructionResolver.Default.Features(b.Trigger).HasOperation(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei))
+                .Where(b => ProgramInstructionResolver.Default.Features(b.Trigger).HasOperation(SkillProgramEffectOp.ChooseHellDayuanJudgment) ||
+                    owner.Markers.GetValueOrDefault(PlayerMarkerKind.Ziwei) == 1 &&
+                    ProgramInstructionResolver.Default.Features(b.Trigger).HasOperation(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei))
                 .OrderByDescending(b => b.Trigger.Priority).ThenBy(b => b.SkillId, StringComparer.Ordinal)
                 .ThenBy(b => b.Trigger.Id, StringComparer.Ordinal)
                 .Select(b => new ProgramJudgmentTriggerCandidate(owner.Seat, b.SkillId, b.Trigger.Id,

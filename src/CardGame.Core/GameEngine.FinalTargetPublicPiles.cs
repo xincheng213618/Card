@@ -93,7 +93,7 @@ public sealed partial class GameEngine
         var reason=new CardMoveReason(e.Op==SkillProgramEffectOp.CollectFinalTargetCardInPublicPile?"skill-program.public-pile.collect-final-target":e.Op==SkillProgramEffectOp.ObtainPublicPileCard?"skill-program.public-pile.obtain":"skill-program.public-pile.field-discard");
         var discardInvocation=e.Op==SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment
             ?CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,frame.OwnerSeat,[card.Id],reason,frame.Id):null;
-        MoveCard(card,from,to,reason, movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id));
+        MoveCard(card,from,to,reason, movement => RecordBianFuRenForeignDiscardProducer(movement,frame.OwnerSeat,frame.Id), disclosure: CardMovementDisclosure.FaceUp);
         CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if(actionId is {} id && _cardZones.GetLocation(card.Id)==to) AdvanceEventRulesAndQueueFact(new FinalTargetCardStoredEvent(id,frame.OwnerSeat,target!.Value,card.Id));
         if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(frame.Id);

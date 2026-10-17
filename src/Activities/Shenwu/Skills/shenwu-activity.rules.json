@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shenwu:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "recover", "target": "owner", "amount": 3 },
+            { "op": "draw", "target": "owner", "amount": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

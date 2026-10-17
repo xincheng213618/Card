@@ -96,6 +96,7 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
 [JsonDerivedType(typeof(UseProgramSkillCommand), "use-program-skill")]
+[JsonDerivedType(typeof(TickNianClockCommand), "nian-clock")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>

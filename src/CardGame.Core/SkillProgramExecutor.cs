@@ -1545,7 +1545,10 @@ public sealed class SkillProgramExecutor
                 return;
             }
             if (!target.IsAlive && !(allowsDeadOwner && (effect.Op is
-                    (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
+                    (SkillProgramEffectOp.ResolveHellWanghunLoss or SkillProgramEffectOp.BindHellRandomOther or SkillProgramEffectOp.BindHellOtherDamageSource or
+                     SkillProgramEffectOp.ChooseHellLowestHpOther or SkillProgramEffectOp.ChooseHellHighestHpOther or SkillProgramEffectOp.ChooseHellNextHighestHpOther or
+                     SkillProgramEffectOp.RollHellElement or SkillProgramEffectOp.SetHellAllLivingChained or SkillProgramEffectOp.TurnHellFaceUpKiller or
+                     SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                      SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient or
                      SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp or SkillProgramEffectOp.ResolveHongjiGrantedPhase or SkillProgramEffectOp.ResolveYanhuoKillerDiscard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveFulueCounterOption or SkillProgramEffectOp.ResolveMiuyanCompletedUse or SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice or SkillProgramEffectOp.ResolveQushiIssuedHolderEnding) ||
                     effect.Op is (SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply or SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim) && frame.SunYuan is { Paid: true } ||
@@ -1564,7 +1567,8 @@ public sealed class SkillProgramExecutor
                     effect.Op is (SkillProgramEffectOp.ResolveChenshuoRepeatedReveal or SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant or
                         SkillProgramEffectOp.ResolveLieshuEndingLoss or SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment or
                         SkillProgramEffectOp.ResolveZhouyuThunderNeighbors or SkillProgramEffectOp.ResolveYanshuangEndingLoss) && frame.ZhouQun is { Paid: true } ||
-                    effect.Op is (SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill) &&
+                    effect.Op is (SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill or
+                        SkillProgramEffectOp.DiscardDeathSourceCards or SkillProgramEffectOp.DiscardParticipantCards) &&
                     frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied)))
             {
                 if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectOwnedHandRankSum)

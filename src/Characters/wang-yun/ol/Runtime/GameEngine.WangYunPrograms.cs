@@ -166,7 +166,7 @@ public sealed partial class GameEngine
             usesZhuqueFan:kind==CardKind.FireSlash && cards[0].Kind==CardKind.Slash && HasZhuqueFan(actor),conversionSource:conversion,programSkillCardUseFrameId:f.Id);
     }
     private CardKind[] WangYunRandomTrickPool()=>_contentRegistry.Cards.Values.Where(c=>c.LegacyKind is{}kind && CardCatalog.Get(kind).CategoryName=="锦囊牌" && kind!=CardKind.Nullification &&
-        (kind==CardKind.Lightning || _contentRegistry.GetSkill("ol:jingong").Program!.ViewAs.Any(r=>r.OutputKind==kind))).Select(c=>c.LegacyKind!.Value).Distinct().Order().ToArray();
+        (kind==CardKind.Lightning || ActivityRuntimeProgram(_contentRegistry.GetSkill("ol:jingong").Program!).ViewAs.Any(r=>r.OutputKind==kind))).Select(c=>c.LegacyKind!.Value).Distinct().Order().ToArray();
     private bool IsWangYunRandomConversionAvailable(CharacterState owner,Card card,CardConversionSource source,bool forResponse)
     {
         if(!HasWangYunTrickCapability || !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.UseThreeRandomTricksFromSelectedMaterial) ||
@@ -175,7 +175,7 @@ public sealed partial class GameEngine
         return !forResponse && source.OwnerSeat==owner.Seat && WangYunMaterial(card) &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame{WangYunTrick:{Stage:"choice" or "issuing-trick"}r}f && f.OwnerSeat==owner.Seat && f.SkillId==source.SkillId &&
             f.SkillInstanceId==source.SkillInstanceId && r.CardId==card.Id && r.From==_cardZones.GetLocation(card.Id) &&
-            p.ViewAs.SingleOrDefault(v=>v.Id==source.BindingId) is{}rule && r.Samples.Contains(rule.OutputKind);
+            ActivityRuntimeProgram(p).ViewAs.SingleOrDefault(v=>v.Id==source.BindingId) is{}rule && r.Samples.Contains(rule.OutputKind);
     }
     private static string WangYunSamplesFingerprint(IReadOnlyList<CardKind> samples)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join(',',samples.Select(k=>(int)k)))));
     private SkillProgramStepOutcome UseThreeRandomTricksFromSelectedMaterial(ProgramSkillFrame supplied)

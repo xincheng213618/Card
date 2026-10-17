@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "hulao:wushuang",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "slash-two-dodges",
+          "kind": "minimumResponseCount",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "requiredCardKinds": [
+            "dodge"
+          ],
+          "value": 2
+        },
+        {
+          "id": "duel-two-slashes",
+          "kind": "minimumResponseCount",
+          "cardKinds": [
+            "duel"
+          ],
+          "requiredCardKinds": [
+            "slash"
+          ],
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "hulao:mashu",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "mounted-distance",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "hulao:aozhan",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "armed-extra-slash",
+          "query": "slashLimit",
+          "operation": "add",
+          "value": 1,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "noWeapon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "mounted-extra-draw",
+          "query": "drawCount",
+          "operation": "add",
+          "value": 1,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "noMounts"
+              }
+            ]
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "armor-prevents-large-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventHulaoArmoredLargeDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "treasure-skips-judgment",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "skipHulaoTreasureJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:xiuluo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "repeat-matching-judgment-discard",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveHulaoXiuluo",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:shenwei",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "enemies-extra-draw",
+          "query": "drawCount",
+          "operation": "add",
+          "valueExpression": "publicTeamEnemyCount",
+          "priority": 0
+        },
+        {
+          "id": "enemies-extra-hand",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "publicTeamEnemyCount",
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "hulao:shenji",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "two-extra-slash-targets",
+          "query": "cardTargetCount",
+          "operation": "add",
+          "value": 2,
+          "priority": 0,
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        },
+        {
+          "id": "extra-slash",
+          "query": "slashLimit",
+          "operation": "add",
+          "value": 1,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "hulao:shenqu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-at-any-turn-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "turnOwnerScope": "anyLiving",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCount"
+            },
+            "operator": "lessThanOrEqual",
+            "right": {
+              "kind": "currentMaxHp"
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "use-peach-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "offerHulaoDamagePeach",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:jiwu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "acquire-qiangxi",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": [
+                "hulao:qiangxi"
+              ],
+              "expiry": "actualTurnEnd"
+            }
+          ]
+        },
+        {
+          "id": "acquire-tieqi",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": [
+                "boundary:tieqi"
+              ],
+              "expiry": "actualTurnEnd"
+            }
+          ]
+        },
+        {
+          "id": "acquire-xuanfeng",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:xuanfeng"
+              ],
+              "expiry": "actualTurnEnd"
+            }
+          ]
+        },
+        {
+          "id": "acquire-wansha",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:wansha"
+              ],
+              "expiry": "actualTurnEnd"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:qiangxi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "lose-hp-and-damage",
+          "usageGroup": "qiangxi",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "condition": {
+            "kind": "hpAtLeast",
+            "value": 1
+          },
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "discard-weapon-and-damage",
+          "usageGroup": "qiangxi",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "equipmentSlots": [
+            "weapon"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hulao:united",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fallen-public-ally-supplies-survivors",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindPublicAllyDeath",
+              "target": "owner",
+              "resultBind": "fallen-ally"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "fallen-ally",
+                "optionId": "ally"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "fallen-ally",
+                "optionId": "ally"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -42,6 +42,8 @@ public sealed partial class GameEngine
         // and prohibitions still apply; BorrowedSword always needs a whole pair.
         return use.CardKind switch
         {
+            CardKind.StarShift or CardKind.HandRedistribution => CanBeWenheAdditionalTarget(use, target),
+            CardKind.SameBoat or CardKind.AgainstCurrent or CardKind.Zong => CanBeDragonBoatAdditionalTarget(use, target),
             CardKind.FireAttack => GetHand(target).Count > 0,
             CardKind.Snatch or CardKind.Dismantlement => HasTargetCard(target),
             CardKind.BorrowedSword => GetWeapon(target) is not null && _players.Any(p => IsLegalBorrowedSwordSlashTarget(target, p)),

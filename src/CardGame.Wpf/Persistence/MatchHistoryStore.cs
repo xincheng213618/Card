@@ -11,10 +11,10 @@ public sealed record MatchHistoryEntry(int FormatVersion, string Id, DateTimeOff
     string Mode, MatchOutcome Outcome, MatchSummary Summary)
 {
     [JsonIgnore] public string DateLabel => RecordedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
-    [JsonIgnore] public string OutcomeLabel => Outcome switch { MatchOutcome.Win => "胜利", MatchOutcome.Loss => "败北", _ => "平局" };
+    [JsonIgnore] public string OutcomeLabel => Human.TeamRank is { } teamRank ? $"同船第{teamRank}名" : Summary.IsSurvival && Human.SurvivalRank is { } rank ? $"第{rank}名" : Outcome switch { MatchOutcome.Win => "胜利", MatchOutcome.Loss => "败北", _ => "平局" };
     [JsonIgnore] public string OutcomeColor => Outcome switch { MatchOutcome.Win => "#DCC17C", MatchOutcome.Loss => "#C58C84", _ => "#96B6AC" };
     [JsonIgnore] public PlayerMatchResult Human => Summary.Players.Single(player => player.IsHuman);
-    [JsonIgnore] public string Title => $"{Human.GeneralName}{(Human.SecondaryGeneralName is null ? "" : $" / {Human.SecondaryGeneralName}")} · {Human.Camp}";
+    [JsonIgnore] public string Title => $"{Human.GeneralName}{(Human.SecondaryGeneralName is null ? "" : $" / {Human.SecondaryGeneralName}")} · {Human.RankOrCamp}";
 }
 
 public sealed record MatchHistoryLoad(IReadOnlyList<MatchHistoryEntry> Entries, int UnreadableCount = 0);
@@ -96,11 +96,28 @@ public sealed class FileMatchHistoryStore : IMatchHistoryStore
             entry.Summary is not { TurnCount: >= 0, Players.Count: > 0 and <= 16 } ||
             entry.Summary.Players.Any(player => player is null) || entry.Summary.Players.Count(player => player.IsHuman) != 1 ||
             entry.Summary.Players.Select(player => player.Seat).Distinct().Count() != entry.Summary.Players.Count ||
+            entry.Summary.Players.Where(player => player.SurvivalRank is not null).Select(player => player.SurvivalRank).Distinct().Count() !=
+                entry.Summary.Players.Count(player => player.SurvivalRank is not null) ||
             entry.Summary.Players.Any(player => player.Seat < 0 || string.IsNullOrWhiteSpace(player.GeneralName) || player.GeneralName.Length > 80 ||
                 player.SecondaryGeneralName is { Length: > 80 } ||
+                player.SurvivalRank is { } rank && (rank < 1 || rank > entry.Summary.Players.Count) ||
                 string.IsNullOrWhiteSpace(player.Camp) || player.Camp.Length > 30 ||
-                new[] { player.CardsUsed, player.Responses, player.DamageDealt, player.DamageTaken, player.Recovery, player.RescueCards, player.Defeats }.Any(value => value < 0)))
+                new[] { player.CardsUsed, player.Responses, player.DamageDealt, player.DamageTaken, player.Recovery, player.RescueCards, player.Defeats }.Any(value => value < 0)) ||
+            !ValidDragonBoatReport(entry.Summary))
             throw new InvalidDataException("战绩格式无效或版本不受支持。");
+    }
+
+    private static bool ValidDragonBoatReport(MatchSummary summary)
+    {
+        if (summary.DragonBoatTeams is not { } teams)
+            return summary.DragonBoatRounds is null && summary.Players.All(player => player.TeamRank is null && player.TeamTreasures is null);
+        if (summary.IsSurvival || summary.DragonBoatRounds is not (>= 1 and <= 2) || summary.Players.Count != 8 ||
+            teams.Count != 4 || teams.Any(team => team is null || team.Treasures is < 0 or > 12 || team.ReachedSequence < 0) ||
+            !teams.Select(team => team.TeamId).Order(StringComparer.Ordinal).SequenceEqual(new[] { "team:qun", "team:shu", "team:wei", "team:wu" }) ||
+            !teams.Select(team => team.Rank).Order().SequenceEqual(Enumerable.Range(1, 4))) return false;
+        return teams.All(team => summary.Players.Count(player => player.TeamRank == team.Rank) == 2) &&
+            summary.Players.All(player => player.SurvivalRank is null &&
+                teams.Any(team => player.TeamRank == team.Rank && player.TeamTreasures == team.Treasures));
     }
 
     public static bool IsHistoryError(Exception error) => error is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or NotSupportedException or ArgumentException;

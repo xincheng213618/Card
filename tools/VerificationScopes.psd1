@@ -3,6 +3,17 @@
     # Character work uses focused name filters; new content does not expand this lane.
     # All retained registrations remain available for an explicitly requested manual full run.
     Core = @(
+        'Dragon boat activity: opt in team only fixed draft and cold restore',
+        'Dragon boat cards: post damage tied ranking discard then draw',
+        'Wenhe activity: real eight seats private draft and cold restore',
+        'Wenhe mode grants: native suppression death curse and cold rules',
+        'Wenhe AI: four published tricks score survival views without self target crash',
+        'Hell activity: five tiers dormant auxiliary private draft checkpoint',
+        'Nian activity: real package rotated draft tier five death children and replay',
+        'Shenwu activity: real shared draft private rotated seats and replay',
+        'Activity ordinary tricks: tiered one zero materials native receipts and quota',
+        'Hulao transition: real reshuffle interrupts and second waits for turn end',
+        'Boss activity: one advance sees pending stage facts and closes dead boss turn',
         'program selection transforms requery facts without mutating sources',
         'program selection relations preserve ordered pairs and card targets',
         'program selection ordering reads current ranks and preserves source order',
@@ -153,6 +164,13 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'Dragon boat activity UI: four teams private draft and cross configuration',
+        'Wenhe activity UI: private goal eight seats and cross-configuration restore',
+        'Hell activity UI: five tiers real five seats dormant auxiliary and restore',
+        'Nian activity UI: four seats clock and cross-configuration restore',
+        'Shenwu activity UI: shared god draft six seats and restore',
+        'Boss activity UI: real coalition setup stage and cross-mode restore',
+        'Hulao activity UI: forms shuffle counters and cross-mode restore',
         'table shortcuts execute once per key press and preserve modal drafts',
         'stale prompt choices cannot answer reloaded or consecutive decisions',
         'Edition general gallery: namespaced portraits and real details',

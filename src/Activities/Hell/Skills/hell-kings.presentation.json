@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "hell:panguan": {
+      "name": "判官",
+      "description": "锁定技，你不能成为延时类锦囊的目标。"
+    },
+    "hell:juhun": {
+      "name": "拘魂",
+      "description": "锁定技，结束阶段，你随机选择一名其他角色，然后令其翻面或横置（必须选择一项）。",
+      "optionLabels": { "turn-over": "令其翻面", "chain": "令其横置" }
+    },
+    "hell:wangxiang": {
+      "name": "望乡",
+      "description": "锁定技，当你死亡时，所有其他角色弃置其装备区内的所有牌。"
+    },
+    "hell:weimu": {
+      "name": "帷幕",
+      "description": "锁定技，你不能成为黑色锦囊牌的目标。"
+    },
+    "hell:fankui": {
+      "name": "反馈",
+      "description": "当你受到1点伤害后，你可以获得伤害来源的一张手牌或装备牌。"
+    },
+    "hell:bingfeng": {
+      "name": "冰封",
+      "description": "锁定技，你死亡时，若杀死你的角色武将牌正面朝上，你令其翻面。"
+    },
+    "hell:heisheng": {
+      "name": "黑绳",
+      "description": "锁定技，你死亡时，横置所有场上角色。"
+    },
+    "hell:shengfu": {
+      "name": "绳缚",
+      "description": "锁定技，你的实际回合结束时，随机弃置一张场上其他角色的坐骑牌。"
+    },
+    "hell:enyuan": {
+      "name": "恩怨",
+      "description": "锁定技，其他角色每令你回复1点体力，该角色摸一张牌；其他角色每对你造成一次伤害，须给你一张红桃手牌，否则该角色失去1点体力。"
+    },
+    "hell:zhiwang": {
+      "name": "治妄",
+      "description": "锁定技，其他角色于非摸牌阶段获得手牌后，你随机弃置其一张手牌。同一获得批次对同一角色仅结算一次。"
+    },
+    "hell:gongzheng": {
+      "name": "公正",
+      "description": "锁定技，准备阶段，若你判定区有牌，你随机弃置其中一张。"
+    },
+    "hell:xuechi": {
+      "name": "血池",
+      "description": "锁定技，你的实际回合结束时，随机一名其他角色失去2点体力。"
+    },
+    "hell:tiemian": {
+      "name": "铁面",
+      "description": "锁定技，你的防具区没有牌时，视为你装备仁王盾。"
+    },
+    "hell:zhadao": {
+      "name": "铡刀",
+      "description": "锁定技，你使用杀指定目标后，其防具对此杀无效。"
+    },
+    "hell:zhuxin": {
+      "name": "诛心",
+      "description": "锁定技，你死亡时，你令体力最少的一名其他角色受到2点伤害；并列时由你选择。"
+    },
+    "hell:leizhou": {
+      "name": "雷咒",
+      "description": "锁定技，准备阶段，你对随机一名其他角色造成1点雷属性伤害。"
+    },
+    "hell:leifu": {
+      "name": "雷缚",
+      "description": "锁定技，你的实际回合结束时，随机横置一名其他角色。"
+    },
+    "hell:leizhu": {
+      "name": "雷诛",
+      "description": "锁定技，你死亡时，依次对所有其他角色造成1点雷属性伤害。"
+    },
+    "hell:fudu": {
+      "name": "服毒",
+      "description": "锁定技，其他角色使用桃时，你令随机另一名其他角色失去1点体力。"
+    },
+    "hell:kujiu": {
+      "name": "苦酒",
+      "description": "锁定技，其他角色准备阶段，你令其失去1点体力，然后该角色视为使用一张酒。"
+    },
+    "hell:renao": {
+      "name": "热恼",
+      "description": "锁定技，你死亡时，你令随机一名其他角色受到3点火属性伤害。"
+    },
+    "hell:remen": {
+      "name": "热闷",
+      "description": "锁定技，若你的装备区没有防具牌，则南蛮入侵、万箭齐发和普通杀对你无效；不会额外增加火焰伤害。"
+    },
+    "hell:zhifen": {
+      "name": "炙焚",
+      "description": "锁定技，准备阶段，你随机选择一名其他角色，获得其一张手牌（无手牌则不获得），然后对其造成1点火属性伤害。"
+    },
+    "hell:huoxing": {
+      "name": "火刑",
+      "description": "锁定技，你死亡时，依次对所有其他角色造成1点火属性伤害。"
+    },
+    "hell:suozu": {
+      "name": "锁足",
+      "description": "锁定技，准备阶段，你令所有其他角色横置。"
+    },
+    "hell:abi": {
+      "name": "阿鼻",
+      "description": "锁定技，你受到伤害后，对伤害来源造成1点随机雷或火属性伤害。官网原文存在语病，本地按反伤来源解释。"
+    },
+    "hell:pingdeng": {
+      "name": "平等",
+      "description": "锁定技，你死亡时，对体力最多的一名其他角色造成2点随机雷或火属性伤害，然后重新确定体力最多的其他角色并对其中一名造成1点随机雷或火属性伤害。并列时由你选择；官网语病按两次伤害解释。"
+    },
+    "hell:modao": {
+      "name": "魔道",
+      "description": "锁定技，准备阶段，你摸两张牌。"
+    },
+    "hell:lunhui": {
+      "name": "轮回",
+      "description": "锁定技，准备阶段，若你体力不大于2，与体力最高且大于2的一名其他角色交换当前体力值，双方分别不超过其体力上限。交换不视为回复或失去体力；并列由你选择为本地补全。"
+    },
+    "hell:wangsheng": {
+      "name": "往生",
+      "description": "锁定技，出牌阶段开始时，你随机视为使用一张南蛮入侵或万箭齐发，按真实锦囊使用结算。"
+    },
+    "hell:fanshi": {
+      "name": "反噬",
+      "description": "锁定技，每个实际回合你首次受到伤害后，再次受到伤害时，对随机一名其他角色造成1点伤害；按伤害次数而非伤害点数计。"
+    }
+  }
+}

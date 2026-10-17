@@ -72,6 +72,10 @@ public sealed partial class GameEngine
 
     private IEnumerable<RuleQueryContribution> ActivityRuleContributions(CharacterState player, SkillRuleQuery query)
     {
+        foreach (var contribution in WenheActivityRuleContributions(player, query)) yield return contribution;
+        foreach (var contribution in DragonBoatRuleContributions(player, query)) yield return contribution;
+        foreach (var contribution in ShenwuActivityRuleContributions(player, query)) yield return contribution;
+        foreach (var contribution in BossActivityRuleContributions(player, query)) yield return contribution;
         if (_modeDefinition.TeamActivity is null) yield break;
         var tier = ActivityTier(player.Seat);
         var regular = IsActivityPlayerSlot(player.Seat);

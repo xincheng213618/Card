@@ -40,7 +40,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
             GetProgramBindingId(frame), frame.OwnerSeat, resultBind,
             Array.AsReadOnly(new[] { snapshot })));
-        MoveCard(card, CardLocation.Hand(frame.OwnerSeat), CardLocation.Processing, reason);
+        MoveCard(card, CardLocation.Hand(frame.OwnerSeat), CardLocation.Processing, reason,
+            disclosure: CardMovementDisclosure.FaceUp);
         MoveCard(card, CardLocation.Processing, CardLocation.Hand(targetSeat), reason);
         SetProgramCardSet(frame.Id, resultBind, [card.Id], SkillProgramCardSetVisibility.Public,
             [CardLocation.Hand(targetSeat)], card.Suit);

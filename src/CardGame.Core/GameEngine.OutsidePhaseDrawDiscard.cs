@@ -15,6 +15,7 @@ public sealed partial class GameEngine
     private bool TracksNativeDrawInvocations =>
         HasTaoQianCapability ||
         HasZhaoZhongCapability ||
+        HasHellZhiwangHolder ||
         HasFengweiCapability ||
         HasFeiYiHezhong ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||

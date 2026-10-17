@@ -32,9 +32,9 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome RequestLegalSlashByNearestActor(ProgramSkillFrame frame, int actorSeat, int hpAmount)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.NearestLegalSlashRequest is not null || active.AssistedSlashRequest is not null || actorSeat == active.OwnerSeat)
+        if (active.NearestLegalSlashRequest is not null || active.AssistedSlashRequest is not null || actorSeat == active.OwnerSeat && !IsExactWenheChaos(active))
             throw new InvalidOperationException("A nearest legal Slash requires one clean other actor.");
-        if (!_players[active.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[active.OwnerSeat], active.SkillId, active.SkillInstanceId))
+        if ((!_players[active.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[active.OwnerSeat], active.SkillId, active.SkillInstanceId)) && !IsExactWenheChaos(active))
         { CancelProgramBindingAndCleanup(active, "技能来源已失效，剩余结算取消。"); return SkillProgramStepOutcome.AwaitChild; }
         var nearest = GetNearestLivingCharacterSeats(actorSeat);
         active = active with
@@ -278,7 +278,7 @@ public sealed partial class GameEngine
         if (frame.NearestLegalSlashRequest is { } draft)
         {
             if (paused.Op != SkillProgramEffectOp.RequestLegalSlashByNearest || !frame.ReexecuteParticipantInstruction ||
-                !IsValidPlayerSeat(draft.ActorSeat) || draft.ActorSeat == frame.OwnerSeat ||
+                !IsValidPlayerSeat(draft.ActorSeat) || draft.ActorSeat == frame.OwnerSeat && !IsExactWenheChaos(frame) ||
                 !frame.SelectedTargetSeats.SequenceEqual([draft.ActorSeat]) || draft.NearestSeats.Distinct().Count() != draft.NearestSeats.Count ||
                 draft.NearestSeats.Any(seat => !IsValidPlayerSeat(seat) || seat == draft.ActorSeat) ||
                 draft.AwaitingFaction != (draft.TargetSeat is not null) || draft.TargetSeat is { } target && !draft.NearestSeats.Contains(target))
@@ -304,8 +304,9 @@ public sealed partial class GameEngine
             var instructionIndex = Enumerable.Range(0, Math.Min(frame.InstructionIndex, instructions.Count))
                 .Single(index => ReferenceEquals(instructions[index], effect));
             var cursor = frame.NumberBindings.SingleOrDefault(binding => binding.Name == "participant-cursor-" + instructionIndex)?.Value ?? 0;
-            if (cursor < 1 || cursor >= _playerCount || !frame.ReexecuteParticipantInstruction ||
-                frame.SelectedTargetSeats is not [var actor] || actor != (frame.OwnerSeat + cursor) % _playerCount)
+            var wenhe = frame.WenheChaos is not null && IsExactWenheChaos(frame) ? frame.WenheChaos : null;
+            if (cursor < 1 || cursor > (wenhe?.ActorSeats.Count ?? _playerCount - 1) || !frame.ReexecuteParticipantInstruction ||
+                frame.SelectedTargetSeats is not [var actor] || actor != (wenhe is null ? (frame.OwnerSeat + cursor) % _playerCount : wenhe.ActorSeats[cursor - 1]))
                 return false;
             if (frame.NearestLegalSlashRequest is { } draft) return draft.ActorSeat == actor;
             return child switch

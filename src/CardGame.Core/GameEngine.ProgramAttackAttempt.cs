@@ -11,7 +11,7 @@ public sealed partial class GameEngine
         PrepareYintianChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
-                UsesFormalTengjia || UsesFormalSilverLion, out fromSeat)) return false;
+                UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers, out fromSeat)) return false;
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
         ApplyYintianChainedDamageBonus(attack);

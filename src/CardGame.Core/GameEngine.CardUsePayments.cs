@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         if (cards.Count == 1)
         {
             MoveCard(cards[0], sourceLocation ?? FindOwnedCardLocation(_players[providerSeat], cards[0]),
-                CardLocation.Processing, CardMoveReasons.Use);
+                CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
             return;
         }
         // One accepted action pays its physical materials together, including HE
@@ -24,7 +24,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A card-use payment lost its original physical source.");
         MoveProgramCardsFromMultipleSources(cards.Select(card => card.Id).ToArray(), CardLocation.Processing,
             CardMoveReasons.Use, destinationForCard: (card, from) =>
-                NormalizeProgramViewAsCostDestination(card, from, CardLocation.Processing, CardMoveReasons.Use));
+                NormalizeProgramViewAsCostDestination(card, from, CardLocation.Processing, CardMoveReasons.Use),
+            disclosure: CardMovementDisclosure.FaceUp);
     }
 
     private void CaptureSlashUsePaymentBatch(CardMovementBatchContext batch)
@@ -46,7 +47,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUsePaymentBatch(CardUseFrame use, CardMovementBatchContext batch) =>
-        IsNativePublicPileEquipmentBatch(use, batch) || IsXieweiPaymentBatch(use, batch) || IsFeiYiTrickPaymentBatch(use, batch) || IsWuJingHejiTrickPaymentBatch(use, batch) || IsHuiyunTrickPaymentBatch(use, batch) || IsQiejianUsePaymentBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
+        IsNativePublicPileEquipmentBatch(use, batch) || IsWenhePoisonUsePaymentBatch(use, batch) && CardUsePaymentBatchMatchesReceipt(use, batch) || IsXieweiPaymentBatch(use, batch) || IsFeiYiTrickPaymentBatch(use, batch) || IsWuJingHejiTrickPaymentBatch(use, batch) || IsHuiyunTrickPaymentBatch(use, batch) || IsQiejianUsePaymentBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
 
     private static bool CardUsePaymentBatchMatchesReceipt(CardUseFrame use, CardMovementBatchContext batch,
         CardUsePaymentMovementReceipt? issuedReceipt = null)
@@ -96,12 +97,13 @@ public sealed partial class GameEngine
 
     private bool IsPaidCardUseMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame movement) =>
         use.RecoveryPaidContinuation is { } continuation &&
-        (HasNativePublicPileEquipmentTail(use, continuation) || continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)))) &&
+        (HasNativePublicPileEquipmentTail(use, continuation) || HasWenhePoisonUsePaymentTail(use, continuation) || continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)))) &&
         continuation.SourceSeat == use.SourceSeat && use.Step == ResolutionFrameStep.ResolvingEffect &&
         movement.Id == movement.Batch.Id && movement.ResumePaidCardUseFrameId == use.Id &&
         movement.ResumeProgramFrameId is null && movement.ResumeDeclarationFrameId is null &&
         movement.ResumeRecoveryReplacementFrameId is null && movement.ResumeDrawFundedDistinctBasicFrameId is null &&
         movement.ResumeNativeCardEffectDrawFrameId is null &&
+        movement.ResumeDragonBoatCardEffectFrameId is null &&
         movement.ResumeEquipmentRecastFrameId is null && movement.ResumeColorFireAttackFrameId is null &&
         movement.ResumeCounterspellPaymentFrameId is null && movement.ResumeHistoricalEndingUseFrameId is null && movement.ResumeGuoSiUseFrameId is null && movement.ResumeDenglouUseFrameId is null &&
         movement.ResumeRoundPileAlcoholUseFrameId is null && movement.ResumeDrawPhaseObligationFrameId is null &&

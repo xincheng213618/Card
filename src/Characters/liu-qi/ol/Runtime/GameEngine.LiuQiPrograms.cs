@@ -7,7 +7,7 @@ public sealed partial class GameEngine
  private bool CanOfferLiuQi(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {
   if(ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.DrawForUnskippedUntargetedPlay))return HasUntargetedUnskippedLiuQiPlay(candidate.OwnerSeat);
-  if(ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ReceiveWenjiGiftAndArmTurnName))return _players.Any(p=>p.IsAlive&&p.Seat!=candidate.OwnerSeat&&WenjiPayableCards(p.Seat).Count>0);
+  if(ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ReceiveWenjiGiftAndArmTurnName))return WenjiEligibleGiftRecipients(candidate.OwnerSeat,candidate.SkillId).Any();
   return true;
  }
  private IReadOnlyList<Card> WenjiPayableCards(int seat)=>_cardZones.CardsAt(CardLocation.Hand(seat)).Concat(_cardZones.CardsAt(CardLocation.Equipment(seat))).Where(c=>!c.IsGeneralWeapon).ToArray();
@@ -24,7 +24,7 @@ public sealed partial class GameEngine
  private IReadOnlyList<PromptChoice> LiuQiChoices(ProgramSkillFrame f)
  {
   var r=f.LiuQi!;
-  if(r.Stage==LiuQiStage.ChooseRecipient)return Array.AsReadOnly(_players.Where(p=>p.IsAlive&&p.Seat!=f.OwnerSeat&&WenjiPayableCards(p.Seat).Count>0).Select(p=>new PromptChoice(new($"wenji.{f.Id}.recipient.{p.Seat}"),p.Name,[],[p.Seat],new Dictionary<string,string>{{"program-action","wenji"},{"step","recipient"}})).ToArray());
+  if(r.Stage==LiuQiStage.ChooseRecipient)return Array.AsReadOnly(WenjiEligibleGiftRecipients(f.OwnerSeat,f.SkillId).Select(p=>new PromptChoice(new($"wenji.{f.Id}.recipient.{p.Seat}"),p.Name,[],[p.Seat],new Dictionary<string,string>{{"program-action","wenji"},{"step","recipient"}})).ToArray());
   if(r.Stage!=LiuQiStage.ChooseGift||r.RecipientSeat is not{}seat)return [];
   return Array.AsReadOnly(BuildOwnedCardPaymentChoices(f.Id,seat,seat,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Transfer,canSelect:(_,c)=>!c.IsGeneralWeapon).Select(c=>new PromptChoice(new($"wenji.{f.Id}.gift.{c.Cards.Single()}"),c.Label,c.Cards,[],new Dictionary<string,string>{{"program-action","wenji"},{"step","gift"}})).ToArray());
  }
@@ -41,7 +41,7 @@ public sealed partial class GameEngine
   var f=(ProgramSkillFrame)_resolutionStack.Last();RequireLiuQi(f);var r=f.LiuQi!;var seat=r.Stage==LiuQiStage.ChooseRecipient?f.OwnerSeat:r.RecipientSeat!.Value;
   if(_pendingDecision?.PlayerSeat!=seat||!AssistedChoicesEqual([choice],LiuQiChoices(f).Where(c=>c.Id==choice.Id).ToArray()))throw new InvalidOperationException("Wenji lost its exact independent recipient authority.");ClearPendingDecision();
   if(!_players[f.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)||!_players[seat].IsAlive){FinishLiuQi(f);return;}
-  if(r.Stage==LiuQiStage.ChooseRecipient){r=r with{RecipientSeat=choice.Targets.Single(),Stage=LiuQiStage.ChooseGift};ReplaceRuntimeTop(f=f with{LiuQi=r});PublishWenjiChoice(f);return;}
+  if(r.Stage==LiuQiStage.ChooseRecipient){if(!WenjiEligibleGiftRecipients(f.OwnerSeat,f.SkillId).Any(p=>p.Seat==choice.Targets.Single()))throw new InvalidOperationException("Wenji lost its legal gift recipient.");r=r with{RecipientSeat=choice.Targets.Single(),Stage=LiuQiStage.ChooseGift};ReplaceRuntimeTop(f=f with{LiuQi=r});PublishWenjiChoice(f);return;}
   var id=choice.Cards.Single();var card=GetAdvancedCard(id);r=r with{CardId=id,From=_cardZones.GetLocation(id),Name=card.Kind,Before=_movementSequence,After=_movementSequence,Stage=LiuQiStage.GiftChildren};ReplaceRuntimeTop(f with{LiuQi=r,PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
   MoveProgramCardsFromMultipleSources([id],CardLocation.Hand(f.OwnerSeat),new(WenjiGiftReason),(_,records)=>
   {

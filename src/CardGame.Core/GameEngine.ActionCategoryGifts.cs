@@ -5,6 +5,16 @@ public sealed record ProgramActionCategoryGiftResolvedEvent(long FrameId, string
 
 public sealed partial class GameEngine
 {
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseDifferentActionCategoryGift)]
+    private PromptChoice SelectAiDifferentActionCategoryGift(PendingDecision decision, ProgramSkillFrame frame)
+    {
+        if (_options.AiPolicyVersion < AiDecisionPolicy.CooperativeCategoryGiftVersion)
+            return decision.Choices[0];
+        var choice = _aiBrains[decision.PlayerSeat].ChooseActionCategoryGift(
+            CreateSnapshot(decision.PlayerSeat), frame.OwnerSeat, decision.Choices);
+        return decision.Choices.Single(item => item.Id == choice);
+    }
+
     private SkillProgramStepOutcome BeginDifferentActionCategoryGift(ProgramSkillFrame frame, int provider,
         string resultBind, IReadOnlyList<CardZoneKind> zones)
     {

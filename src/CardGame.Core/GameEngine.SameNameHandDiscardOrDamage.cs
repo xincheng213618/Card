@@ -118,7 +118,7 @@ public sealed partial class GameEngine
         MoveProgramLogicalDiscard(f, seat, [material.CardId], new(SameNameHandDiscardReason(f)), (batch, records) =>
         {
             if (records is not [var paid] || paid.CardId != material.CardId || paid.CardKind != material.PrintedKind ||
-                paid.From != material.From || paid.To != CardLocation.DiscardPile)
+                paid.From != material.From || paid.To != CardLocation.DiscardPile && !IsHellShiyouPaidDiscardMovement(paid, material.From, new(SameNameHandDiscardReason(f))))
                 throw new InvalidOperationException("The same-name demand did not commit exactly its selected hand payment.");
             var active = GetActiveProgramFrame(f.Id); var receipt = active.SameNameHandDiscardOrDamage!;
             ReplaceRuntimeTop(active = active with { SameNameHandDiscardOrDamage = receipt with { SequenceAfter = paid.Sequence, BatchId = batch } });

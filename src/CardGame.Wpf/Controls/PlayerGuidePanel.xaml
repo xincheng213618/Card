@@ -116,6 +116,21 @@
                     </ScrollViewer>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsGuideBasics, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel Margin="0,0,12,0">
+                            <StackPanel x:Name="WenheBasics" Visibility="{Binding IsWenheGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="八人各自求生，按存活名次排名" Style="{StaticResource GuideHeading}" />
+                                <TextBlock Text="{Binding WenheBasicsText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="每轮规则" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="{Binding WenheRulesOverview}" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
+                            <StackPanel x:Name="DragonBoatBasics" Visibility="{Binding IsDragonBoatGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="四船竞分，两轮定名次" Style="{StaticResource GuideHeading}" />
+                                <TextBlock Text="{Binding DragonBoatBasicsText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="至宝与同分先后" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="{Binding DragonBoatStandingRuleText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="唐咨满12枚，只在终局将本船排第一，不会立即终止牌局。所有存活角色的实际行动轮次完成后才进入下一轮，额外回合不等于新的一轮。" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="专属牌" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="{Binding DragonBoatCardsOverview}" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
                             <StackPanel x:Name="TeamBasics" Visibility="{Binding IsTeamGuide, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="与队友并肩，击败另一队" Style="{StaticResource GuideHeading}" />
                                 <TextBlock Text="青队与赤队各两人，阵营从开局起公开。武将的魏、蜀、吴等势力不决定队伍；请看头像上的队伍名称，以及座位下的队友、对手标识。" Style="{StaticResource GuideBody}" />

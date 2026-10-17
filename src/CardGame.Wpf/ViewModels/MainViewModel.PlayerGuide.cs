@@ -32,9 +32,9 @@ public sealed partial class MainViewModel
     public bool IsGuideBasics => SelectedGuideSection?.Key == "basics";
     public bool IsGuideCards => SelectedGuideSection?.Key == "cards";
     public bool IsGuideKeys => SelectedGuideSection?.Key == "keys";
-    public bool IsTeamGuide => IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot;
+    public bool IsTeamGuide => (IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot) && !IsDragonBoatGuide;
     public bool IsNationalGuide => IsNewGameSetupOpen ? IsNationalModeSelection : IsNationalSnapshot;
-    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide;
+    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide && !IsWenheGuide && !IsDragonBoatGuide;
     public string CurrentGuideTitle { get => _currentGuideTitle; private set => SetProperty(ref _currentGuideTitle, value); }
     public string CurrentGuideBody { get => _currentGuideBody; private set => SetProperty(ref _currentGuideBody, value); }
     public string GuideIdentity { get => _guideIdentity; private set => SetProperty(ref _guideIdentity, value); }
@@ -112,18 +112,56 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(NationalSetupText));
         RaisePropertyChanged(nameof(NationalScopeText));
         RaisePropertyChanged(nameof(IsIdentityGuide));
+        RaisePropertyChanged(nameof(IsWenheGuide));
+        RaisePropertyChanged(nameof(IsDragonBoatGuide));
         GuideIdentity = IsNewGameSetupOpen
-            ? $"开局选择：{SelectedTableMode.Name} · {(IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
+            ? $"开局选择：{SelectedTableMode.Name} · {(IsWenheActivityModeSelection ? "各自求生" : IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
               (IsClassicIdentityModeSelection && SelectedDeck is not null ? $" · {SelectedDeck.Name}" : string.Empty)
             : IdentityObjective;
         string[] steps;
-        if (IsNationalGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        if (IsDragonBoatGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        {
+            CurrentGuideTitle = "龙舟争渡 · 八人四船竞分";
+            CurrentGuideBody = IsNewGameSetupOpen ? TeamModeSetupText : GeneralSelectionSubtitle;
+            steps = DragonBoatActivityGuideSteps;
+        }
+        else if (IsWenheGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        {
+            CurrentGuideTitle = "文和乱武 · 八人各自求生";
+            CurrentGuideBody = IsNewGameSetupOpen ? TeamModeSetupText : GeneralSelectionSubtitle;
+            steps = WenheActivityGuideSteps;
+        }
+        else if (IsNationalGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
         {
             CurrentGuideTitle = IsNewGameSetupOpen ? "同势力双将，暗置入场" : "依次选择两名同势力武将";
             CurrentGuideBody = IsNewGameSetupOpen ? NationalSetupText : GeneralSelectionSubtitle;
             steps = IsAmbitiousNationalMode
                 ? ["系统分配魏 3 人、蜀 2 人和野心家 1 人；你的候选和暗将只对自己可见。", "依次选择主将、副将；出牌时点击各自的明置按钮，启用对应技能并公开势力。", "消灭其他势力即可获胜；这是六人独立势力试验，完整野心家规则、阵法和明置奖励仍未开放。"]
                 : ["系统分配魏或蜀势力，每个势力两人。你的候选和暗将只对自己可见。", "依次选择主将、副将；出牌时点击各自的明置按钮，启用对应技能并公开势力。", "消灭另一势力即可获胜；本模式为四人简化国战，没有野心家、阵法或明置奖励。"];
+        }
+        else if (IsNewGameSetupOpen && IsHellActivityModeSelection)
+        {
+            CurrentGuideTitle = "十殿阎罗 · 五阶联合军";
+            CurrentGuideBody = TeamModeSetupText;
+            steps = HellActivityGuideSteps;
+        }
+        else if (IsNewGameSetupOpen && IsNianActivityModeSelection)
+        {
+            CurrentGuideTitle = "挑战年兽 · 五阶联合军";
+            CurrentGuideBody = TeamModeSetupText;
+            steps = NianActivityGuideSteps;
+        }
+        else if (IsNewGameSetupOpen && IsShenwuActivityModeSelection)
+        {
+            CurrentGuideTitle = "神武再世 · 五阶联合军";
+            CurrentGuideBody = TeamModeSetupText;
+            steps = ShenwuActivityGuideSteps;
+        }
+        else if (IsNewGameSetupOpen && IsBossActivityModeSelection)
+        {
+            CurrentGuideTitle = BossActivityGuideTitle;
+            CurrentGuideBody = TeamModeSetupText;
+            steps = BossActivityGuideSteps;
         }
         else if (IsNewGameSetupOpen && IsActivityModeSelection)
         {
@@ -156,9 +194,11 @@ public sealed partial class MainViewModel
         else if (human is { IsAlive: false } && prompt?.PlayerSeat != human.Seat)
         {
             CurrentGuideTitle = "你已阵亡，仍可观战";
-            CurrentGuideBody = IsNationalSnapshot ? "双将与势力已公开，同势力角色仍可争取胜利。保持自动推进，观看剩余角色行动直到势力胜负确定。" :
+            CurrentGuideBody = IsWenheActivitySnapshot ? WenheSpectatorHint : IsNianActivitySnapshot ? $"存活队友可以在出牌阶段发动「复活队友」；全队共享三次机会。保持自动推进让人机队友继续行动，暂停自动推进仍会消耗挑战时间。当前{NianActivityStageText}。" : IsNationalSnapshot ? "双将与势力已公开，同势力角色仍可争取胜利。保持自动推进，观看剩余角色行动直到势力胜负确定。" :
                 IsTeamSnapshot ? "队友仍可争取胜利。保持自动推进，观看剩余角色行动直到队伍胜负确定。" : "身份已公开。保持自动推进可观看剩余角色行动，直到阵营胜负确定。";
-            steps = ["点击「快速观战」开启快速自动推进；取消「自动推进」可随时暂停。右下角可选择从容、标准或快速节奏。", "关闭指南后，牌局会按你原来的自动推进设置继续；本局结束后按你的阵营显示结果。"];
+            steps = ["点击「快速观战」开启快速自动推进；取消「自动推进」可随时暂停。右下角可选择从容、标准或快速节奏。", IsWenheActivitySnapshot
+                ? "你的名次已经确定。继续观战至最后存活者产生后，战报会按个人名次排列。"
+                : "关闭指南后，牌局会按你原来的自动推进设置继续；本局结束后按你的阵营显示结果。"];
         }
         else if (CanRerollOpeningHand)
         {
@@ -170,7 +210,7 @@ public sealed partial class MainViewModel
         {
             CurrentGuideTitle = "选择一位武将出征";
             CurrentGuideBody = GeneralSelectionSubtitle;
-            steps = ["查看候选的体力和技能说明，也可点击「自选武将」搜索当前模式的完整可用武将库。", "预览一位武将后确认出征；身份场还可在确认前改选身份。", IsTeamSnapshot ? "魏、蜀、吴等武将势力不决定队伍；请看青队、赤队和队友标识。" : "武将技能与身份目标是两件事；始终按你的身份决定胜利目标。"];
+            steps = IsHellActivitySnapshot ? HellActivityGuideSteps : IsNianActivitySnapshot ? NianActivityGuideSteps : IsShenwuActivitySnapshot ? ShenwuActivityGuideSteps : ["查看候选的体力和技能说明，也可点击「自选武将」搜索当前模式的完整可用武将库。", "预览一位武将后确认出征；身份场还可在确认前改选身份。", IsBossActivitySnapshot ? "联合军的两名队友由人机操控；所选武将的魏蜀吴群势力不改变联合军归属。" : IsActivitySnapshot ? "选择本阵营的普通武将，与人机搭档和两具器械合作击败两名敌方英灵。" : IsTeamSnapshot ? "魏、蜀、吴等武将势力不决定队伍；请看青队、赤队和队友标识。" : "武将技能与身份目标是两件事；始终按你的身份决定胜利目标。"];
         }
         else if (IsDiscardSelectionPending)
         {
@@ -192,7 +232,15 @@ public sealed partial class MainViewModel
         }
         else if (CanEndTurn)
         {
-            if (IsMultiTargetCardSelected)
+            if (SelectedHellReturnSoulAction() is not null)
+            {
+                CurrentGuideTitle = "确认使用回魂";
+                CurrentGuideBody = ActionHint;
+                steps = ["牌桌已标明全部存活且仍有忘魂技能待恢复的合法角色，无须逐个选择目标。",
+                    "点击「确定」或按 Enter，依次结算各对象的无懈响应与技能恢复。",
+                    "确认前可取消或换牌；使用后这张回魂牌会销毁。"];
+            }
+            else if (IsMultiTargetCardSelected)
             {
                 CurrentGuideTitle = CanConfirmSelected ? $"确认{MultiTargetCardName}的目标" : $"选择{MultiTargetCardName}的目标";
                 CurrentGuideBody = MultiTargetSelectionHint;
@@ -221,7 +269,7 @@ public sealed partial class MainViewModel
             else
             {
                 CurrentGuideTitle = CanUseActiveSkill ? "轮到你行动，可出牌或发动技能" : Hand.Any(card => card.IsPlayable) ? "轮到你出牌" : "当前没有可以主动使用的牌";
-                CurrentGuideBody = CanUseActiveSkill ? $"{VisibleSkillNames(human?.Skills)}：{VisibleSkillDescriptions(human?.Skills)}\n点击对应的【{HumanActiveSkillName}】技能或装备按钮发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
+                CurrentGuideBody = CanUseActiveSkill ? $"{VisibleSkillNames(WenheDisplaySkills(human))}：{VisibleSkillDescriptions(WenheDisplaySkills(human))}\n点击对应的【{HumanActiveSkillName}】技能或装备按钮发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
                 steps = ["杀通常每回合限一次，目标须在攻击范围内；部分技能和装备会改变限制。", "灰色手牌悬停可查看当前不可用的原因，也可在下面查阅图鉴。", "想保留资源时，可直接结束出牌；超出体力的手牌会进入弃牌选择。"];
             }
         }

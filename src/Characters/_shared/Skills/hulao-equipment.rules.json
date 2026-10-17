@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "hulao:wushuang-halberd", "revision": 1,
+      "triggers": [{
+        "id": "slash-damage-reward", "window": "afterDamageApplied", "subject": "damageSource",
+        "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+        "damageOccurrence": "perDamage", "optional": true, "priority": 0,
+        "effects": [
+          { "op": "chooseOption", "target": "owner", "resultBind": "reward",
+            "options": [{ "id": "draw", "condition": { "kind": "always" } },
+              { "id": "discard", "condition": { "kind": "always" } }] },
+          { "op": "draw", "target": "owner", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "reward", "optionId": "draw" } },
+          { "op": "selectAndMoveOwnedCard", "target": "owner",
+            "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" },
+            "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "skipIfNoCards": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "reward", "optionId": "discard" } }
+        ]
+      }]
+    },
+    {
+      "id": "hulao:purple-gold-crown", "revision": 1,
+      "triggers": [{
+        "id": "preparation-damage", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+        "optional": true, "priority": 0,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+          { "op": "damage", "target": "selectedTarget", "amount": 1, "nature": "normal" }
+        ]
+      }]
+    },
+    {
+      "id": "hulao:red-cotton-robe", "revision": 1,
+      "triggers": [{
+        "id": "prevent-elemental-damage", "window": "beforeDamageApplied", "subject": "damageTarget",
+        "optional": false, "priority": 0,
+        "condition": { "kind": "any", "children": [
+          { "kind": "damageNatureIs", "damageNature": "fire" },
+          { "kind": "damageNatureIs", "damageNature": "thunder" }
+        ] },
+        "effects": [{ "op": "preventCurrentDamage", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "hulao:lion-belt", "revision": 1,
+      "triggers": [{
+        "id": "sole-target-heart-judgment", "window": "cardUseBeforeTargetEffects", "ownerRelation": "target",
+        "optional": true, "priority": 0,
+        "condition": { "kind": "all", "children": [
+          { "kind": "not", "children": [{ "kind": "cardActionActorIsOwner" }] },
+          { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" },
+            "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } }
+        ] },
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "equipment.hulao-lion-belt",
+            "resultBind": "judgment", "visibility": "public" },
+          { "op": "nullifyCurrentCardEffect", "target": "owner",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "judgment", "suits": ["heart"] } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "judgment", "destination": "discardPile" }
+        ]
+      }]
+    }
+  ]
+}

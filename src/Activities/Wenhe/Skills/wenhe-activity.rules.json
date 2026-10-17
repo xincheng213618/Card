@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wenhe:rules", "revision": 1,
+      "triggers": [
+        { "id": "round-rule", "window": "roundStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveWenheRoundStart", "target": "owner" }] },
+        { "id": "turn-start-rule", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveWenheTurnStart", "target": "owner" }] },
+        { "id": "turn-end-rule", "window": "turnEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveWenheTurnEnd", "target": "owner" }] },
+        { "id": "round-end-rule", "window": "roundEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveWenheRoundEnd", "target": "owner" }] },
+        { "id": "kill-reward", "window": "characterDied", "subject": "owner", "optional": false,
+          "effects": [{ "op": "rewardWenheKiller", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "wenhe:champion-mark", "revision": 1,
+      "activations": [
+        { "id": "draw-two", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+          "targetKind": "otherLiving", "usesPerTurn": null,
+          "effects": [{ "op": "useWenheChampionMark", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "wenhe:niepan", "revision": 1,
+      "triggers": [
+        { "id": "limited-dying-rescue", "window": "selfDyingResponse", "subject": "owner", "optional": true,
+          "usageScope": "game", "usageLimit": 1,
+          "effects": [{ "op": "recover", "target": "owner", "amount": 3 }, { "op": "draw", "target": "owner", "amount": 3 }] }
+      ]
+    },
+    {
+      "id": "wenhe:chaos-resolution", "revision": 1,
+      "activations": [
+        { "id": "card-effect", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+          "targetKind": "otherLiving", "usesPerTurn": null,
+          "effects": [{ "op": "requestLegalSlashByNearest", "target": "owner", "targetKind": "otherLiving", "amount": 1 }] }
+      ]
+    }
+  ]
+}

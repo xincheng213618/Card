@@ -21,6 +21,10 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>
+        effectiveKind == CardKind.Poison ||
+        IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
+        MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
+        ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(
             _turnNumber,
@@ -48,6 +52,8 @@ public sealed partial class GameEngine
                     return false;
             }
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind, nativeOriginalCard)) return true;
+            if (action.Kind != LegalActionKind.Recast && MouCaoPiHandUseForbidden(actor.Seat, effectiveKind,
+                action.CardId is { } material && material != 0 ? [material] : [])) return false;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
                     ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
             // Zero identifies a genuine material-free action, so only real entities have a physical color.
@@ -96,7 +102,9 @@ public sealed partial class GameEngine
                 LegalActionKind.Dismantlement or LegalActionKind.Snatch or LegalActionKind.FireAttack or LegalActionKind.UnexpectedAssault or
                 LegalActionKind.Alcohol or LegalActionKind.Equip or LegalActionKind.IronChain or
                 LegalActionKind.Indulgence or LegalActionKind.SupplyShortage or LegalActionKind.Lightning or
-                LegalActionKind.BorrowedSword))
+                LegalActionKind.BorrowedSword or LegalActionKind.StarShift or LegalActionKind.BeamSwap or
+                LegalActionKind.HandRedistribution or LegalActionKind.WenheChaos or LegalActionKind.Zong or
+                LegalActionKind.RealgarWine or LegalActionKind.SameBoat or LegalActionKind.StriveUpstream or LegalActionKind.AgainstCurrent))
         {
             return false;
         }

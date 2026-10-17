@@ -74,10 +74,11 @@ public sealed partial class GameEngine
  private SkillProgramStepOutcome DrawForDianhuActualOccurrence(ProgramSkillFrame supplied)
  {var f=GetActiveProgramFrame(supplied.Id);var r=f.WindowContext?.Dianhu??throw new InvalidOperationException("Dianhu lost its native occurrence.");if(DianhuConsumed(r))throw new InvalidOperationException("Dianhu cannot draw twice for the same actual event.");return IssueHuangQuanDraw(f,f.OwnerSeat,"dianhu",r);}
  private SkillProgramStepOutcome DrawAndOfferJianjiExactCard(ProgramSkillFrame supplied,int target)
- {var f=GetActiveProgramFrame(supplied.Id);if(f.SelectedTargetSeats is not[var selected]||target!=selected||target==f.OwnerSeat||!_players[target].IsAlive||_phase!=TurnPhase.Play||f.OwnerSeat!=_currentSeat||f.TriggerId is not null)throw new InvalidOperationException("Jianji requires its accepted actual own-Play other-living target.");return IssueHuangQuanDraw(f,target,"jianji",null);}
+ {var f=GetActiveProgramFrame(supplied.Id);if(f.SelectedTargetSeats is not[var selected]||target!=selected||target==f.OwnerSeat||!_players[target].IsAlive||_phase!=TurnPhase.Play||f.OwnerSeat!=_currentSeat||f.TriggerId is not null||f.SkillId=="dragonboat:jianji"&&!DragonBoatAllies(f.OwnerSeat,target))throw new InvalidOperationException("Jianji requires its accepted actual own-Play other-living target.");return IssueHuangQuanDraw(f,target,"jianji",null);}
  private SkillProgramStepOutcome IssueHuangQuanDraw(ProgramSkillFrame f,int target,string kind,DianhuOccurrence? occurrence)
  {
   if(f.HuangQuan is not null)throw new InvalidOperationException("Huang Quan cannot repay an issued native draw.");var before=_movementSequence;var pending=new HuangQuanPending(HuangQuanSource(f),f.GameplayHash,f.InstructionIndex,kind,target,_turnNumber,_currentSeat,_cardUseDebitPhaseInstanceId,before,before,Array.AsReadOnly(Array.Empty<int>()),occurrence,"drawing");ReplaceRuntimeTop(f=f with{HuangQuan=pending,PendingMovementContinuation=new(target,0,null)});
+  if(f.SkillId=="dragonboat:jianji"){ReplaceRuntimeTop(f=f with{PendingMovementContinuation=null});return BeginOperationProgramDraw(f,target,1,new("program.jianji.draw"));}
   DrawProgramCards(f.Id,target,1,null,null,SkillProgramCardSetVisibility.Private,new("program."+kind+".draw"));
   var ids=_cardMovements.Where(m=>m.Sequence>before&&m.Reason.Value=="program."+kind+".draw"&&m.To==CardLocation.Hand(target)).Select(m=>m.CardId).ToArray();var after=_movementSequence;f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{HuangQuan=f.HuangQuan! with{After=after,CardIds=Array.AsReadOnly(ids),Stage="draw-paid"}});AdvanceEventRulesAndQueueFact(new HuangQuanDrawPaidEvent(f.Id,pending.Source,f.GameplayHash,kind,target,pending.ActualTurn,pending.TurnOwner,pending.ActualPhase,before,after,ids.Length,occurrence));AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
  }
@@ -127,6 +128,7 @@ public sealed partial class GameEngine
   var a=r.Action;var actor=_players[r.ActorSeat];var card=ApplyProgramUseAppearance(actor,GetAttackCard(r.CardId),a.ConversionSource);
   if(a.ConversionSource is{}source&&ViewAsRule(source)is{SingleCardTrickUse:true}rule)
    return BuildProgramOrdinaryTrickUseOptions(actor,rule.OutputKind,EffectiveSuit(actor,GetAttackCard(r.CardId)),rule.ExcludeOwnerEffects,enforceUsePermission:true,beneficiaryShieldSuit:EffectiveSuit(actor,card),actualEffectiveColor:SuitColor(EffectiveSuit(actor,card)),hasActualColor:true,physicalCardIds:[r.CardId]).Where(o=>o.ActionKind==a.Kind&&o.TargetCardId==a.TargetCardId&&(o.TargetSeats.SequenceEqual(a.TargetSeats)||a.ProgramActivationId=="red-additional-targets"&&o.TargetSeats.SequenceEqual(a.TargetSeats.Take(o.TargetSeats.Count)))).OrderByDescending(o=>o.TargetSeats.Count).Select(o=>o.TargetSeats).First();
+  if(DragonBoatExpectedNativeTargets(actor,card,a)is{}dragonTargets)return dragonTargets;
   var effectiveKind=a.PlayedCardKind??card.Kind;
   if(a.Kind==LegalActionKind.Peach)return [actor.Seat];
   if(a.Kind is not(LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage or LegalActionKind.PeachGarden or LegalActionKind.FiveGrains))return GetImplicitSelfCardUseTargets(a.PlayedCardKind??card.Kind,actor.Seat,a.TargetSeats);
@@ -180,7 +182,8 @@ public sealed partial class GameEngine
  {
   if(!_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard)&&!HasKeBiNengCapability&&!HasWeijieCapability&&!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards)&&!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack))return;
   var use=LifecycleCardUse(id)??throw new InvalidOperationException("Ordinary alcohol requires its native use owner.");
-  if(use.CardKind!=CardKind.Alcohol||use.DyingResponse is not null||use.Action is not{Type:CardActionType.Use,EffectiveKind:CardKind.Alcohol}action)throw new InvalidOperationException("Jianji ordinary alcohol quota cannot consume a dying recovery or unrelated card.");
+  if(use.DyingResponse is not null||use.Action is not{Type:CardActionType.Use}action||
+      !(use.CardKind==CardKind.Alcohol&&action.EffectiveKind==CardKind.Alcohol||IsDragonBoatRealgarWineQuotaUse(use,action)))throw new InvalidOperationException("Jianji ordinary alcohol quota cannot consume a dying recovery or unrelated card.");
   if(CompleteProgramEventHistory().OfType<JianjiOrdinaryAlcoholPaidEvent>().Any(e=>e.NativeUseId==id))return;
   AdvanceEventRulesAndQueueFact(new JianjiOrdinaryAlcoholPaidEvent(id,action.ActionId,_turnNumber,action.ActorSeat,!HasIssuedRoundGainedBasicBonus(id,action.ActorSeat)&&(!HasKeBiNengCapability||!HasIssuedFuRongUnlimitedUse(id,action.ActorSeat)),use.JianjiUse?.ProgramFrameId));
  }

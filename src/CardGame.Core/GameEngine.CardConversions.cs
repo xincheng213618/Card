@@ -145,6 +145,7 @@ public sealed partial class GameEngine
 
         var bindings = GetSkillBindingShard(owner);
         if (bindings.CardIdentityPrograms.Count == 0) return [];
+        var inputKind = EffectiveConversionInputKind(owner, card);
         var context = CreateSkillContext(owner);
         return bindings.ProgramInstances
             .Where(instance => instance.Program.CardIdentities.Count != 0)
@@ -152,7 +153,7 @@ public sealed partial class GameEngine
                 .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
                                     identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash && identity.Zones.Contains(CardZoneKind.Hand)) &&
                                    identity.Condition.Evaluate(context) &&
-                                   (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(card.Kind)) &&
+                                   (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(inputKind)) &&
                                    (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
                 .Select(identity => new ProgramCardIdentityMatch(
                     instance.Program,
@@ -257,7 +258,8 @@ public sealed partial class GameEngine
                     : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment
                     : location.Zone == CardZoneKind.PublicPersistentPile && location.OwnerSeat == owner.Seat
                         ? CardZoneKind.PublicPersistentPile : (CardZoneKind?)null;
-        if (zone is null) return [];
+        if (zone is null || MouCaoPiHandUseForbidden(owner.Seat, outputKind, [card.Id], forResponse && !dyingUse)) return [];
+        var inputKind = EffectiveConversionInputKind(owner, card);
         PlayerSkillContext? context = null;
         var configured = registered.Count == 0 ? Array.Empty<CardConversionSource>() : registered
                 .Where(item =>
@@ -275,13 +277,13 @@ public sealed partial class GameEngine
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
-                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
+                               (inputKind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                 CanUseActualTurnLimitedViewAs(instance, rule, owner) &&
                                (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
-                               (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+                               (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
-                                rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category))) &&
+                                rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(inputKind, category))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit));
                 })
                 .Select(item => new CardConversionSource(
@@ -360,7 +362,7 @@ public sealed partial class GameEngine
             var candidates = eligibleHand.Where(card =>
                 (rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) ||
                     rule.RoundDistinctBasicUse is not null && IsRoundDistinctBasicMaterial(owner, card)) &&
-                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card))) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
             if (candidates.Length < rule.InputCount) continue;
             var source = new CardConversionSource(
@@ -375,6 +377,7 @@ public sealed partial class GameEngine
         }
         return selections.Concat(leiluan)
             .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
+            .Where(item => !MouCaoPiHandUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
             .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
@@ -455,13 +458,14 @@ public sealed partial class GameEngine
             if (card is null ||
                 !rule.SourceZones.Contains(location.Zone) ||
                 IsTurnHandCardRestricted(owner, card) || HasProgramCardIdentity(owner, card) ||
-                rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(card.Kind) ||
+                rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card)) ||
                 rule.InputSuits.Count != 0 && !rule.InputSuits.Contains(
                     rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner, card) : card.Suit))
                 return null;
             cards.Add(card);
         }
         if (forResponse ? IsTurnPhysicalUseForbiddenByExistingPolicies(owner.Seat, orderedCardIds) || IsCuiYanNativeResponseForbidden(owner, outputKind, cards) : IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
+        if (MouCaoPiHandUseForbidden(owner.Seat, outputKind, orderedCardIds, forResponse)) return null;
         if (rule.AllHandCardsOfSelectedSuit && !ValidWholeHandSuitConversion(owner, cards, source)) return null;
         return new(cards, source, outputKind);
     }
@@ -529,11 +533,11 @@ public sealed partial class GameEngine
         var leiluanAtomicPayment = ViewAsRule(current.Source)?.LeiluanBasicUse is not null;
         if (leiluanAtomicPayment && !xieweiPayment)
             MoveProgramCardsFromMultipleSources(current.Cards.Select(c => c.Id).ToArray(), CardLocation.Processing,
-                CardMoveReasons.Respond);
+                CardMoveReasons.Respond, disclosure: CardMovementDisclosure.FaceUp);
         foreach (var card in current.Cards)
         {
             if (!leiluanAtomicPayment && !xieweiPayment) MoveCard(card, FindOwnedCardLocation(responder, card),
-                CardLocation.Processing, CardMoveReasons.Respond);
+                CardLocation.Processing, CardMoveReasons.Respond, disclosure: CardMovementDisclosure.FaceUp);
             AdvanceEventRulesAndQueueFact(new CardRespondedEvent(
                 card.Id,
                 responder.Seat,
@@ -707,7 +711,7 @@ public sealed partial class GameEngine
         if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
             programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
         var originalPile = IsNativePublicPileOriginalChoice(owner, card, effectiveKind, forResponse);
-        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
+        var includeUnspecified = !IsWenhePhysicalPoison(owner, card) && !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
             (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
@@ -801,7 +805,7 @@ public sealed partial class GameEngine
         _hasSelectedResponseConversionChoice = false;
         if (selectedChoice)
         {
-            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
+            if (selected is null && !IsWenhePhysicalPoison(provider, responseCard) && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
                 (!IsOwnPublicPileCard(provider, responseCard) || IsNativePublicPileOriginalChoice(provider, responseCard, effectiveKind, true)) &&
                 IsNativeResponseCard(responseCard, effectiveKind))
                 return null;
@@ -852,7 +856,7 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
+        if (!IsWenhePhysicalPoison(provider, card) && !hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
             (!IsOwnPublicPileCard(provider, card) || IsNativePublicPileOriginalChoice(provider, card, effectiveKind, false)) &&
             (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
             (selectedChoice || candidates.Length == 0)) return null;

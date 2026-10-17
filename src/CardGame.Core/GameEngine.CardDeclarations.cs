@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         var parent = _resolutionStack.Single(frame => frame.Id == payment.OwnerFrameId);
         if (parent.AcceptedDeclarationPayment != payment) throw new InvalidOperationException("A declaration payment lost its actual continuation owner.");
         ReplaceRuntimeFrame(parent.Id, parent with { AcceptedDeclarationPayment = payment with { Claimed = true } });
+        CaptureClaimedDeclarationTrueUse(payment);
         CaptureBianFuRenClaimedDeclarationPayment(parent.Id);
         return true;
     }

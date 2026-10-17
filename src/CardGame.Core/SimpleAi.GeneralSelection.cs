@@ -21,8 +21,10 @@ public sealed partial class SimpleAiBrain
             case Role.Lord:
                 Add((health - 3) * 3 + traits.Defense * 6 + traits.Sustain * 3,
                     "主公重视初始生存、回合外防御与续航");
-                if (health <= 3 && traits.Defense == 0 && traits.Recovery == 0)
+                if (_policyVersion >= AiDecisionPolicy.RuleBasedGeneralSelectionVersion &&
+                    health <= 3 && traits.Defense < .5 && traits.Recovery < .75)
                     Add(-8 - (3 - health) * 4, "低体力且缺少独立回合外防御，当主公有集火风险");
+                Add(-traits.Attrition * 8, "强制失血或减上限削弱主公的持续生存");
                 break;
             case Role.Loyalist:
                 Add(traits.Support * 7 + traits.Offense * 2, "忠臣重视支援主公与协助清反");
@@ -33,6 +35,7 @@ public sealed partial class SimpleAiBrain
             case Role.Renegade:
                 Add((health - 3) * 2 + traits.Defense * 6 + traits.Sustain * 4,
                     "内奸重视独立生存、续航与后期能力");
+                Add(-traits.Attrition * 6, "强制损耗不利于内奸独立存活");
                 break;
         }
 
@@ -112,54 +115,64 @@ public sealed partial class SimpleAiBrain
                 effect.CardSource == SkillProgramCardSource.DamageSource) &&
             trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.MoveBoundCards &&
                 effect.Destination == SkillProgramCardDestination.OwnerHand)).ToArray();
-        if (feedback.Length == 0) return false;
-        var perPoint = feedback.Any(trigger => trigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamagePoint);
-        score = perPoint ? 19 : 16;
-        reason = $"【{skill.Name}】受伤后获得来源牌，" + (perPoint ? "按每点伤害触发。" : "按每次伤害触发。") +
-            "这是受伤收益，不等同于防止伤害。";
+        if (feedback.Length > 0)
+        {
+            var perPoint = feedback.Any(trigger => trigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamagePoint);
+            score = perPoint ? 19 : 16;
+            reason = $"【{skill.Name}】受伤后获得来源牌，" + (perPoint ? "按每点伤害触发。" : "按每次伤害触发。") +
+                "这是受伤收益，不等同于防止伤害。";
+            return true;
+        }
+
+        var benefit = ReadDraftSkillBenefits(program, registry);
+        var active = program.Activations.Count > 0;
+        var activationValue = active ? program.Activations.Max(activation =>
+            (14d - Math.Min(4, DraftActivationCardCost(activation)) * 1.5) * (activation.UsesPerGame is not null ? .45 : 1)) : 0;
+        var conversion = program.ViewAs.Count > 0 || program.CardIdentities.Count > 0;
+        score = 12 + Math.Max(activationValue, conversion ? 15 : 0) + Math.Min(20,
+            benefit.Draw * 8 + benefit.Recovery * 8 + benefit.Defense * 6 + benefit.Support * 4 +
+            benefit.Offense * (role == Role.Rebel ? 7 : 4) + benefit.Control * 3 + benefit.Reach * 2 + benefit.Growth * 8) -
+            benefit.PaidHp * (role == Role.Lord ? 6 : 3) - benefit.Attrition * 3;
+        var evidence = new List<string>();
+        if (active) evidence.Add("按规则中的主动入口、费用与次数评估");
+        if (conversion) evidence.Add("牌型转换");
+        if (benefit.Draw > 0) evidence.Add("可供自己的补牌或牌质收益");
+        if (benefit.Defense > 0) evidence.Add("有条件的防伤或响应能力");
+        if (benefit.Recovery > 0) evidence.Add("可供自己的回复");
+        if (benefit.Support > 0) evidence.Add("支援其他角色");
+        if (benefit.Growth > 0) evidence.Add("条件满足后获得后续技能");
+        if (benefit.Offense + benefit.Control > 0) evidence.Add("输出或控制收益");
+        if (benefit.PaidHp > 0) evidence.Add("主动收益需要支付体力");
+        if (benefit.Attrition > 0) evidence.Add("存在强制体力损耗");
+        reason = $"【{skill.Name}】" + (evidence.Count == 0 ? skill.Description : string.Join("，", evidence) + "。");
         return true;
     }
 
     private sealed record GeneralDraftTraits(double Offense, double Defense, double Sustain,
         double Support, double Recovery, double Reach, bool HandLock, bool SkillSuppression,
-        bool FactionResponse, IReadOnlyList<SkillProgram> Programs);
+        bool FactionResponse, double Attrition, IReadOnlyList<SkillProgram> Programs);
 
-    private static GeneralDraftTraits ReadGeneralDraftTraits(IReadOnlyList<GeneralSkillDefinition> skills,
+    private GeneralDraftTraits ReadGeneralDraftTraits(IReadOnlyList<GeneralSkillDefinition> skills,
         Role role, ContentRegistry registry)
     {
+        if (_policyVersion < AiDecisionPolicy.RuleBasedGeneralSelectionVersion)
+            return ReadHistoricalGeneralDraftTraits(skills, role, registry);
         var enabled = skills.Where(skill => !skill.Tags.HasFlag(SkillTag.Lord) || role == Role.Lord).ToArray();
         var programs = enabled.Select(skill => skill.ContentId is { } id && registry.Skills.TryGetValue(id, out var definition)
             ? definition.Program : null).OfType<SkillProgram>().ToArray();
         var effects = programs.SelectMany(program => program.Activations.SelectMany(activation => activation.Effects)
             .Concat(program.Triggers.SelectMany(trigger => trigger.Effects))).ToArray();
         var policies = programs.SelectMany(program => program.CardPolicies).ToArray();
-        var offense = enabled.Count(skill => skill.ViewAsOpportunities?.Any(conversion => conversion.ForPlay &&
-            conversion.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == true);
-        offense += programs.Count(program => program.Modifiers.Any(modifier => modifier.Query == SkillRuleQuery.SlashLimit) ||
-            program.DamageModifiers.Count > 0 || program.Triggers.Any(trigger => trigger.Window == SkillProgramTriggerWindow.SlashBeforeResponse));
-        offense += effects.Any(effect => effect.Op is SkillProgramEffectOp.Damage or SkillProgramEffectOp.StartVirtualDuel &&
-            effect.Target != SkillProgramEffectTarget.Owner) ? 1 : 0;
-        var defense = policies.Count(policy => policy.Kind is SkillProgramCardPolicyKind.VirtualEquipment or
-            SkillProgramCardPolicyKind.FactionResponseRequest or SkillProgramCardPolicyKind.NullifyBlackSlashWithoutArmor or
-            SkillProgramCardPolicyKind.PreventIncomingTrickDamage or SkillProgramCardPolicyKind.PreventTrickDamage or
-            SkillProgramCardPolicyKind.ProhibitTarget);
-        defense += programs.Count(program => program.Triggers.Any(trigger =>
-            trigger.Window == SkillProgramTriggerWindow.SlashTargetRedirecting ||
-            trigger.Window == SkillProgramTriggerWindow.BeforeDamageApplied && trigger.Effects.Any(effect =>
-                effect.Op == SkillProgramEffectOp.PreventCurrentDamage)));
-        var recovery = effects.Any(effect => effect.Op is SkillProgramEffectOp.Recover or SkillProgramEffectOp.RecoverTo or
-            SkillProgramEffectOp.RecoverToMaximum) ? 1 : 0;
-        var sustain = recovery + programs.Count(program => program.Modifiers.Any(modifier => modifier.Query == SkillRuleQuery.DrawCount) ||
-            program.Triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.Draw &&
-                effect.Target == SkillProgramEffectTarget.Owner)));
-        var support = effects.Any(effect => effect.Target != SkillProgramEffectTarget.Owner && effect.Op is
-            SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover or SkillProgramEffectOp.RecoverTo or
-            SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.GiveBoundCard or SkillProgramEffectOp.DistributeOwnedCards) ? 1 : 0;
-        var reach = programs.Any(program => program.Modifiers.Any(modifier => modifier.Query is
-            SkillRuleQuery.OutgoingDistance or SkillRuleQuery.SlashDistanceLimit)) ? 1 : 0;
-        return new(offense, defense, sustain, support, recovery, reach,
+        var benefits = programs.Select(program => ReadDraftSkillBenefits(program, registry)).ToArray();
+        return new(Math.Min(3, benefits.Sum(benefit => benefit.Offense)),
+            Math.Min(2, benefits.Sum(benefit => benefit.Defense)),
+            Math.Min(3, benefits.Sum(benefit => benefit.Draw + benefit.Recovery)),
+            Math.Min(2, benefits.Sum(benefit => benefit.Support)),
+            Math.Min(2, benefits.Sum(benefit => benefit.Recovery)),
+            Math.Min(2, benefits.Sum(benefit => benefit.Reach)),
             effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantTurnHandCardProhibition),
             effects.Any(effect => effect.Op == SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard),
-            policies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.FactionResponseRequest), programs);
+            policies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.FactionResponseRequest),
+            benefits.Sum(benefit => benefit.Attrition), programs);
     }
 }

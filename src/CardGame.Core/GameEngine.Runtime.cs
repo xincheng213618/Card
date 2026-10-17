@@ -30,6 +30,7 @@ public sealed partial class GameEngine
         {
             case NativeDrawAttemptFrame: ContinueNativeDrawAttempt(frameId); break;
             case CardUseFrame { NativeCardEffectDraw: not null }: ContinueNativeDrawTwo(frameId); break;
+            case CardUseFrame { DragonBoatCardEffect: not null }: ContinueDragonBoatCardEffect(frameId); break;
             case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
             case QiaoZhouPreparationFrame: ContinueQiaoZhouPreparation(frameId); break;
             case IdentityAppearanceFrame appearance: AdvanceIdentityAppearance(appearance); break;
@@ -373,6 +374,17 @@ public sealed partial class GameEngine
             return;
         }
         if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.AfterResponseHealth)) return;
+
+        if (IsCurrentWenhePoisonDying() && ActiveDying is { } poisonDying &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } poisonContext } poisonResponse &&
+            poisonContext.ParentFrameId == poisonDying.Id && poisonContext.TargetSeat == poisonDying.VictimSeat &&
+            (poisonContext.Window == SkillProgramTriggerWindow.DyingResponse && poisonResponse.OwnerSeat == poisonDying.ResponderSeat ||
+             poisonContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && poisonResponse.OwnerSeat == poisonDying.VictimSeat))
+        {
+            AdvanceRuntimeProgram(poisonResponse.Id);
+            AdvanceRulesAndPublishState();
+            return;
+        }
 
         // The direct recovery family has already proved every producer/return
         // edge and the exact owned Dying. Advance its response without scanning

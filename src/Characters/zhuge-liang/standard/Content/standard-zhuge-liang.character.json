@@ -11,12 +11,6 @@
         "id": "standard:kongcheng",
         "name": "空城",
         "description": "锁定技，若你没有手牌，你不能成为【杀】的目标。",
-        "selectionWeights": {
-          "Lord": 25.0,
-          "Loyalist": 34.0,
-          "Rebel": 25.0,
-          "Renegade": 25.0
-        },
         "revealWeights": {
           "base": 4,
           "wounded": 0,

@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi) ||
         HasXieLingYuCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian) ||
+        HasHellShiyouCapability ||
         HasNativeDrawAttemptCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveZexingShownCardChain) ||
         TracksActualPhaseEnds ||

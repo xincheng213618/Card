@@ -69,6 +69,7 @@ public sealed partial class GameEngine
             var result = new EngineRunResult(_status, _winner, snapshot,
                 snapshot.PendingDecision, nextRevision)
             {
+                WinnerSeat = _winnerSeat,
                 WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
                 WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null
             };

@@ -18,8 +18,8 @@ public sealed partial class GameEngine
   if(prior.Length!=0||sources is not[var source]||source.OwnerSeat!=action.ProviderSeat||action.ActorSeat!=action.ProviderSeat||action.Type!=CardActionType.Use||action.EffectiveKind!=CardKind.Peach||action.PhysicalCards is not[var material]||material.From.OwnerSeat!=action.ProviderSeat||material.From.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain)||!CanPayZhenyiHoutu(_players[action.ProviderSeat],source)||ActiveDying is not{}dying||!action.TargetSeats.SequenceEqual([dying.VictimSeat]))throw new InvalidOperationException("Houtu requires one exact out-of-turn native rescue Peach and its real HE/approved grain material.");
   var owner=_players[action.ProviderSeat];owner.Markers.Remove(PlayerMarkerKind.Houtu);AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(action.ActionId,owner.Seat,PlayerMarkerKind.Houtu,-1,0,owner.Seat,"zhenyi.houtu"));AdvanceEventRulesAndQueueFact(new ZhenyiHoutuPaidEvent(action.ActionId,source,_contentRegistry.GetSkill(source.SkillId).Program!.GameplayHash,_turnNumber,action.ActorSeat,action.ProviderSeat,material));
  }
- private Suit EffectiveZhenyiJudgmentSuit(JudgmentFrame frame,Suit fallback){AssertZhenyiJudgment(frame);return frame.ZhenyiOverride?.Suit??fallback;}
- private int EffectiveZhenyiJudgmentRank(JudgmentFrame frame,int fallback){AssertZhenyiJudgment(frame);return frame.ZhenyiOverride?.Rank??fallback;}
+ private Suit EffectiveZhenyiJudgmentSuit(JudgmentFrame frame,Suit fallback){AssertZhenyiJudgment(frame);return EffectiveHellDayuanSuit(frame,frame.ZhenyiOverride?.Suit??fallback);}
+ private int EffectiveZhenyiJudgmentRank(JudgmentFrame frame,int fallback){AssertZhenyiJudgment(frame);return EffectiveHellDayuanRank(frame,frame.ZhenyiOverride?.Rank??fallback);}
  private void AssertZhenyiJudgment(JudgmentFrame frame)
  {
   if(frame.ZhenyiOverride is not{}r)return;

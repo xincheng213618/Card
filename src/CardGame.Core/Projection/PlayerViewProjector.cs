@@ -51,14 +51,17 @@ public sealed partial class GameEngine
             var hasIdentityGodFaction = SupportsGodFactionSelection &&
                                         string.Equals(player.General.FactionId, "god", StringComparison.Ordinal) &&
                                         player.ChosenFactionId is not null;
+            var hasActivityFaction = _modeDefinition.ShenwuActivity is not null || _modeDefinition.NianActivity is not null || IsDragonBoatActivity;
             var canSeeFaction = effectiveFactionId is not null &&
                                 (IsNationalWarMode
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
-                                    : (hasIdentityGodFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) &&
+                                    : (hasIdentityGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             var primarySkills = canSeeGeneral
                 ? player.IdentityConcealed ? general.Skills.ToArray()
                     : OwnedRuntimeSkills(player, general, includeAcquired: true).ToArray() : null;
+            if (_modeDefinition.WenheActivity is not null)
+                primarySkills = primarySkills?.Where(skill => IsWenhePlayerSkillVisible(player, skill, viewerSeat, revealAll)).ToArray();
             var secondarySkills = secondaryGeneral is not null
                 ? OwnedRuntimeSkills(player, secondaryGeneral, includeAcquired: false).ToArray() : null;
             var publicPile = SinglePublicPileSource(player.Seat);
@@ -83,6 +86,8 @@ public sealed partial class GameEngine
                 player.HasAlcoholEffect)
             {
                 IdentityConcealed = player.IdentityConcealed,
+                SurvivalRank = WenheSurvivalRank(player.Seat),
+                WenheChampionMarkUsed = IsSurvivalMode && WenheChampionMarkUsed(player.Seat) ? true : null,
                 HpUndefined = !player.HasHpValue,
                 HandLimit = _setupComplete && player.Seat == _currentSeat && player.HasHpValue
                     ? GetHandLimit(player) : null,
@@ -103,6 +108,7 @@ public sealed partial class GameEngine
                 DeferredHandAlignments = _deferredHandAlignments.Count > 0 &&
                     _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
                 TurnHandCategoryRestrictions = GetTurnHandCategoryRestrictionSnapshot(player.Seat),
+                MouCaoPiControls = MouCaoPiControlsSnapshot(player.Seat),
                 TurnHandLimitCardKindExemptions = GetTurnHandLimitCardKindExemptionsSnapshot(player.Seat),
                 TurnSlashSuitAllowances = GetTurnSlashSuitAllowancesSnapshot(player.Seat),
                 FirstRoundGameUsageRefunds = GetFirstRoundGameUsageRefundsSnapshot(player.Seat),
@@ -168,7 +174,7 @@ public sealed partial class GameEngine
                 FactionId = canSeeFaction ? effectiveFactionId : null,
                 IsFactionRevealed = IsNationalWarMode
                     ? player.FactionRevealed
-                    : (hasIdentityGodFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
+                    : (hasIdentityGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
@@ -258,6 +264,11 @@ public sealed partial class GameEngine
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
+            WinnerSeat = _winnerSeat,
+            WenheRule = GetWenheRuleSnapshot(),
+            WenheAspiration = GetWenheAspirationSnapshot(viewerSeat),
+            DragonBoatStandings = GetDragonBoatStandings(),
+            DragonBoatDraft = GetDragonBoatDraft(viewerSeat),
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
@@ -277,11 +288,12 @@ public sealed partial class GameEngine
     {
         var snapshot = ToSnapshot(card);
         var identity = GetProgramCardIdentityMatches(owner, card).FirstOrDefault();
-        return identity is null ? snapshot : snapshot with
+        snapshot = identity is null ? snapshot : snapshot with
         {
             IdentityKind = identity.Identity.OutputKind,
             IdentitySkillName = _contentRegistry.GetSkill(identity.Source.SkillId).Name
         };
+        return ProjectWenhePoisonHandCard(owner, card, snapshot);
     }
 
     private string? ProjectAuthorityName(IReadOnlyList<GeneralSkillDefinition>? skills)

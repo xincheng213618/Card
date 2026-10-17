@@ -7,6 +7,8 @@ public sealed partial class MainViewModel
     private static IReadOnlyList<SeatStatusViewModel> ProjectSeatStatuses(PlayerSnapshot player)
     {
         var statuses = new List<SeatStatusViewModel>();
+        if (player.WenheChampionMarkUsed == true)
+            statuses.Add(new("志", "已使用「志在必得」。该使用状态已公开。"));
         foreach (var group in (player.ActiveEffects ?? []).GroupBy(effect => effect.SkillId))
         {
             var descriptions = group.Select(effect => $"{effect.Description}\n{ActiveEffectExpiryText(effect)}")

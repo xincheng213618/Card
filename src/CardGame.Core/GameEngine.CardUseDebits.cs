@@ -23,7 +23,7 @@ public sealed partial class GameEngine
 
     private void RecordSlashUseDebit(long cardUseFrameId, int actorSeat)
     {
-        if (IsJianjiOffTurnNativeUse(cardUseFrameId, actorSeat) || HasIssuedKeBiNengPingduanUse(cardUseFrameId, actorSeat) ||
+        if (HasIssuedDongxinEntitySlashQuota(cardUseFrameId, actorSeat) || IsJianjiOffTurnNativeUse(cardUseFrameId, actorSeat) || HasIssuedKeBiNengPingduanUse(cardUseFrameId, actorSeat) ||
             HasIssuedDuanJiongSaoguUnlimitedUse(cardUseFrameId, actorSeat)) return;
         var action = _resolutionStack.OfType<CardUseFrame>()
             .Single(frame => frame.Id == cardUseFrameId).Action ??

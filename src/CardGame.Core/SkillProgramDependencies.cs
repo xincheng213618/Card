@@ -37,6 +37,8 @@ internal sealed class SkillProgramDependencies
             .Select(skill => skill.Id).ToFrozenSet(StringComparer.Ordinal);
         UsesLordSkillProjection = programs.Any(program => program.LordSkillProjection);
         UsesGainPhaseQualification = triggers.Any(trigger => trigger.GainPhaseQualification is not null);
+        UsesAnyLivingTurnStart = triggers.Any(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
+            trigger.TurnOwnerScope is SkillProgramTurnOwnerScope.AnyLiving or SkillProgramTurnOwnerScope.OtherLiving);
         UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
@@ -106,6 +108,7 @@ internal sealed class SkillProgramDependencies
     internal IReadOnlySet<string> HpConditionalCapabilitySkillIds { get; }
     internal bool UsesLordSkillProjection { get; }
     internal bool UsesGainPhaseQualification { get; }
+    internal bool UsesAnyLivingTurnStart { get; }
     internal bool UsesActualTurnDeathBenefits { get; }
     internal bool UsesActualPlayPhaseUseLedger { get; }
     internal bool TracksCurrentTurnUseKinds { get; }

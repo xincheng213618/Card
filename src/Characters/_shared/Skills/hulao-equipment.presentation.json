@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "hulao:wushuang-halberd": {
+      "name": "无双方天戟",
+      "description": "你使用【杀】对目标角色造成伤害后，可以摸一张牌或弃置目标角色一张牌。",
+      "optionLabels": { "draw": "摸一张牌", "discard": "弃置目标角色一张牌" }
+    },
+    "hulao:purple-gold-crown": {
+      "name": "束发紫金冠",
+      "description": "准备阶段，你可以对一名其他角色造成1点伤害。"
+    },
+    "hulao:red-cotton-robe": {
+      "name": "红棉百花袍",
+      "description": "锁定技，防止你受到的属性伤害。"
+    },
+    "hulao:lion-belt": {
+      "name": "玲珑狮蛮带",
+      "description": "当其他角色使用牌指定你为唯一目标后，你可以进行一次判定，若结果为红桃，则此牌对你无效。"
+    }
+  }
+}

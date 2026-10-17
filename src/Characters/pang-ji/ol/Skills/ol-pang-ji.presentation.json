@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:biguo": {
+      "name": "愎果",
+      "description": "摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。",
+      "triggerChoices": { "draw-end-category-gain": "弃置一张牌，展示并获得每种类型各一张牌", "armed-target-pindian": "与一名合法其他角色拼点，限制没赢角色的用牌和打出" }
+    },
+    "ol:douyu": {
+      "name": "斗誉",
+      "description": "你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。",
+      "triggerChoices": { "pre-reveal": "交换双方尚未亮出的拼点牌" }
+    }
+  }
+}

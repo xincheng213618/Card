@@ -91,7 +91,7 @@ internal static class StalePromptChoiceChecks
     private static void ReloadedPlayChoice(string output)
     {
         var game = BorrowedSwordScenario.FindHumanSourcePlay();
-        var registry = BorrowedSwordScenario.CreateFixtureRegistry();
+        var registry = BorrowedSwordScenario.CreateSourcePlayFixtureRegistry();
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry) { IsMotionEnabled = false };

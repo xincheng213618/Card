@@ -92,7 +92,7 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(id, use => use with { HpLossMaterialSlashReturn = receipt, TargetsAdjusted = true });
         if (parent is not null) ReplaceRuntimeFrame(parent.Id, parent with { HpLossSlashSelection = parent.HpLossSlashSelection! with { CardUseFrameId = id } });
         var nuzhan = GetNuzhanModifiers(id, owner);
-        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use);
+        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         receipt = receipt with { PaidLast = SlashTargetPenaltySequence };
         UpdateLifecycleCardUse(id, use => use with { HpLossMaterialSlashReturn = receipt });
         AdvanceEventRulesAndQueueFact(new HpLossMaterialSlashIssuedEvent(id, action.ActionId, policy.Source, policy.Hash, receipt.FrozenMaximum, parent?.Id, parent is null));

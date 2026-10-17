@@ -3,6 +3,7 @@ public sealed partial class GameEngine
 {
  private bool ValidHuangQuanDraw(ProgramSkillFrame f)
  {
+  if(f.SkillId=="dragonboat:jianji"&&f.HuangQuan is{Stage:"drawing"}waiting)return IsDragonBoatActivity&&waiting.Source==HuangQuanSource(f)&&waiting.GameplayHash==f.GameplayHash&&waiting.InstructionIndex==f.InstructionIndex&&f.InstructionIndex==1&&waiting.Kind=="jianji"&&waiting.Before==waiting.After&&waiting.CardIds.Count==0&&waiting.Occurrence is null&&f.PendingMovementContinuation is null&&f.NativeDraw is{ReturnKind:NativeDrawAttemptReturnKind.ProgramOperation,Operation:SkillProgramEffectOp.DrawAndOfferJianjiExactCard,RequestedCount:1}draw&&draw.Recipients.SequenceEqual([waiting.RecipientSeat]);
   if(f.HuangQuan is not{}p||p.Source!=HuangQuanSource(f)||p.GameplayHash!=f.GameplayHash||p.InstructionIndex!=f.InstructionIndex||f.InstructionIndex!=1||p.Kind is not("jianji" or "dianhu")||p.Stage is not("draw-paid" or "offer" or "issuing" or "native-use" or "returned")||p.Before<0||p.After<p.Before||p.After>_movementSequence||p.CardIds.Count>1||p.CardIds.Distinct().Count()!=p.CardIds.Count||_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash!=f.GameplayHash)return false;
   if(GetPausedPrivateOfferEffect(f)?.Op!=(p.Kind=="jianji"?SkillProgramEffectOp.DrawAndOfferJianjiExactCard:SkillProgramEffectOp.DrawForDianhuActualOccurrence))return false;
   if(p.Kind=="jianji"&&(f.TriggerId is not null||p.RecipientSeat==f.OwnerSeat||f.SelectedTargetSeats is not[var target]||target!=p.RecipientSeat))return false;

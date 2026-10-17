@@ -17,7 +17,7 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
 {
     internal static bool IsGroupOutput(CardKind? kind) => kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage;
     internal static bool AllowsWindow(CardKind? kind, SkillProgramTriggerWindow window) => IsGroupOutput(kind)
-        ? window is SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded
+        ? window is SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.GameStarting
         : window == SkillProgramTriggerWindow.PlayEnding;
 
     internal static bool HasValidReferences(CardKind? kind, ProgramParticipantRef? actor, ProgramParticipantRef? recipient) =>
@@ -42,7 +42,7 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
         if (target != SkillProgramEffectTarget.Owner || !HasValidReferences(kind, actor.Kind, recipient.Kind))
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual ordinary trick requires an owner placeholder and valid references for self DrawTwo, distinct-participant Dismantlement, or owner-origin global assault.");
         var condition = reader.Condition();
-        if (IsGroupOutput(kind) ? condition.Kind != SkillProgramConditionKind.Always :
+        if (IsGroupOutput(kind) ? condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs) :
             condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon))
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.condition: virtual ordinary trick accepts always or a named Pindian branch.");
         return new SkillProgramEffect(Op, target, 0, condition, outputKind: kind,
@@ -53,6 +53,6 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
         Array.AsReadOnly(ParticipantResources(effect.ActorReference, effect.TargetReference)
             .Concat(IsGroupOutput(effect.OutputKind)
                 ? new ProgramResourceOperation[] { new RequireTriggerWindows([SkillProgramTriggerWindow.PlayPhaseStarting,
-                    SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.AfterTurnEnded]) }
+                    SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.AfterTurnEnded, SkillProgramTriggerWindow.GameStarting]) }
                 : [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)]).ToArray());
 }

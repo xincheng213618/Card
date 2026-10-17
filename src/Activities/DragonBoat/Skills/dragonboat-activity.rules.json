@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "dragonboat:lianpian", "revision": 1,
+      "triggers": [{ "id": "consecutive-team-use", "window": "cardUseTargetsFinalized", "ownerRelation": "observer", "optional": true,
+        "effects": [{ "op": "drawDragonBoatConsecutiveTarget", "target": "owner" }] }]
+    },
+    {
+      "id": "dragonboat:dianhu", "revision": 1,
+      "triggers": [
+        { "id": "game-start-other-target", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "armDragonBoatDianhu", "target": "selectedTarget" }] },
+        { "id": "team-damage-each-point", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamagePoint", "optional": false,
+          "effects": [{ "op": "drawDragonBoatDianhu", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "dragonboat:jianji", "revision": 1,
+      "activations": [{ "id": "draw-and-offer-exact-card", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "drawAndOfferJianjiExactCard", "target": "selectedTarget" }] }]
+    },
+    {
+      "id": "dragonboat:xingzhao", "revision": 1,
+      "triggers": [
+        { "id": "team-four-equipment", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardCategories": ["equipment"], "optional": false,
+          "effects": [{ "op": "draw", "target": "owner", "amount": 1 }] },
+        { "id": "team-six-skip-discard", "window": "discardPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+          "effects": [{ "op": "skipTurnPhases", "target": "owner", "phases": ["discard"] }] }
+      ]
+    },
+    {
+      "id": "dragonboat:xingzhao-benefit", "revision": 1,
+      "triggers": [
+        { "id": "team-four-equipment", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardCategories": ["equipment"], "optional": false,
+          "effects": [{ "op": "draw", "target": "owner", "amount": 1 }] },
+        { "id": "team-six-skip-discard", "window": "discardPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+          "effects": [{ "op": "skipTurnPhases", "target": "owner", "phases": ["discard"] }] }
+      ]
+    },
+    {
+      "id": "dragonboat:xunxun", "revision": 1,
+      "triggers": [{ "id": "exact-top-four", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "drawPhaseMode": "additive",
+        "effects": [{ "op": "reorderTopCards", "target": "owner", "amount": 4, "exactTopCount": 2 }] }]
+    },
+    {
+      "id": "dragonboat:wenji", "revision": 1,
+      "triggers": [{ "id": "actual-play-team-gift", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "receiveWenjiGiftAndArmTurnName", "target": "owner" }] }]
+    },
+    {
+      "id": "dragonboat:tunjiang", "revision": 1,
+      "triggers": [
+        { "id": "own-undamaging-turn", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+          "effects": [{ "op": "drawDragonBoatTunjiang", "target": "owner" }] },
+        { "id": "team-undamaging-turn", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+          "effects": [{ "op": "drawDragonBoatTunjiang", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "dragonboat:aiye", "revision": 1,
+      "triggers": [{ "id": "permanent-dying-guard", "window": "selfDyingResponse", "subject": "owner", "optional": false, "priority": 1000,
+        "effects": [{ "op": "recover", "target": "owner", "amount": 1 }] }]
+    },
+    {
+      "id": "dragonboat:niepan", "revision": 1,
+      "triggers": [{ "id": "limited-dying-rescue", "window": "selfDyingResponse", "subject": "owner", "optional": true,
+        "usageScope": "game", "usageLimit": 1,
+        "effects": [{ "op": "recover", "target": "owner", "amount": 3 }, { "op": "draw", "target": "owner", "amount": 3 }] }]
+    }
+  ]
+}

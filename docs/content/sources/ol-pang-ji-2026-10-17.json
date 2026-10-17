@@ -1,0 +1,265 @@
+{
+  "generalId": "ol:pang-ji",
+  "officialHeroId": 679,
+  "capturedAtUtc": "2026-10-17T13:59:42.493014+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary-current",
+  "status": "pending-root-validation",
+  "identity": {
+    "name": "逢纪",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/679",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=679",
+  "officialAvailability": {
+    "announcementUrl": "https://sanguosha.com/news/20260917_4651_4609",
+    "publishedAtLocal": "2026-09-24T17:00:23+08:00",
+    "formalAcquisitionFromLocal": "2026-09-25T00:15:00+08:00",
+    "formalAcquisitionUntilText": "2026-9-30 24:00:00",
+    "evidence": "Formal ordinary OL release and current identity hero/client agree on both skills."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=679",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=679",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 934,
+      "sha256": "e02a8a03c390cb77635a12b9605a626e7ae65b40beaacafad22696a811a89209",
+      "capturedAtUtc": "2026-10-17T13:59:42.300066+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "identityPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 679,
+              "name": "逢纪",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/679.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67900.png",
+              "label": [
+                "进攻",
+                "控制",
+                "过牌"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "传说",
+              "biography": "字元图，南阳人。逢纪初到冀州时，因自身聪慧有计谋，颇受袁绍信任。逢纪提议袁绍应连结公孙瓒威压韩馥，谋求一州自立。逢纪自恃聪慧，刚愎自用，因忌惮田丰刚直而屡次构陷田丰。袁绍死后，与审配共同伪造袁绍遗命立少子袁谭继位。后来受袁尚命跟随袁谭，因袁尚与袁谭军资不足被杀。",
+              "characteristic": "可以通过拼点限制他人出牌，拼点时可以与对手的拼点牌交换",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/679",
+      "finalUrl": "https://www.sanguosha.com/hero/679",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 24279,
+      "sha256": "4a518aadb8b39e25546101d8bc04dc4c05ba0fd777d737f9f70005cc7b6afab9",
+      "capturedAtUtc": "2026-10-17T13:59:42.324241+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "relevantExcerpt": "三国杀逢纪 - 三国杀OL-三国杀官网-武将技能介绍 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 您的位置： 官网首页 > 武将介绍 > 武将详情 --> 逢纪 逢纪 逢纪 进攻 控制 过牌 武将生平： 字元图，南阳人。逢纪初到冀州时，因自身聪慧有计谋，颇受袁绍信任。逢纪提议袁绍应连结公孙瓒威压韩馥，谋求一州自立。逢纪自恃聪慧，刚愎自用，因忌惮田丰刚直而屡次构陷田丰。袁绍死后，与审配共同伪造袁绍遗命立少子袁谭继位。后来受袁尚命跟随袁谭，因袁尚与袁谭军资不足被杀。 武将特点： 可以通过拼点限制他人出牌，拼点时可以与对手的拼点牌交换 武将技能： 愎果 斗誉 摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。 你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。 武将寻迹 历史时间 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 著作权人：杭州游卡网络技术有限公司 出版服务单位：北京科海电子出版社 出版物号：ISBN 978-7-89487-899-1 文网游备字〔2010〕C-CBG009 号 浙公网安备 33010502005081 ICP证号： 浙B2-20160108 京新出音[2010] 235号 批准文号：科技与数字[2010]284号 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 著作权人：杭州游卡网络技术有限公司 出版服务单位：上海科学技术文献出版社有限公司 出版物号：ISBN 978-7-89988-640-3 文网游备字〔2016〕M-CSG 2524 号 浙公网安备 33010502005081 号 ICP证号： 浙B2-20160108 批准文号：新广出审[2016]547号"
+    },
+    {
+      "url": "https://sanguosha.com/news/20260917_4651_4609",
+      "finalUrl": "https://sanguosha.com/news/20260917_4651_4609",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 349140,
+      "sha256": "97ee0969db95488a2f1d06ba8c70e18f3d0bcc179e140650fb2d6b9868aea72f",
+      "capturedAtUtc": "2026-10-17T13:59:42.409366+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "relevantExcerpt": "9.25-9.30 中秋祈福逢纪&族荀灌来袭 擎天柱石 拂花渡世*谋黄月英琳琅绘卷上新 - 三国杀OL官网 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 - 多端互通 - - 免费送神曹操 - --> --> 您的位置： 官网首页 > 游戏资讯 > 公告详情 - 扫码下载送神曹操 - 武将介绍 模式介绍 官方微博 官方社区 官方B站 客服中心 --> 9.25-9.30 中秋祈福逢纪&族荀灌来袭 擎天柱石 拂花渡世*谋黄月英琳琅绘卷上新 2026-09-24 17:00:23 新品武将 逢纪 (查看原图) 势力 体力 性别 武将特点 群 3 男 可以通过拼点限制他人出牌，拼点时可以与对手的拼点牌交换。 技能 【愎果】：摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。 【斗誉】：你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。 获取 2026-9-25 00:15:00~2026-9-30 24:00:00，祈福活动获取， 或传世玉玺兑换获得。 族荀灌 (查看原图) 势力 体力 性别 武将特点 群 4 女 技能发动较灵活，要关注全场黑色牌流向。 技能 【遁迹】：锁定技，当你每回合首次使用黑色牌后，你令一名角色用一张手牌交换此牌。 【云影】：锁定技，每个结束阶段，上次“遁迹”目标角色每满足一项，你便执行一项：1.本回合扣减过体力，你将所有黑色手牌当无距离限制的【杀】使用；2.本回合失去过手牌，你将手牌摸至X张（X为本回合弃牌堆中黑色牌数且至多为5）。 【蹈节】：宗族技，锁定技，当你每回合首次使用非伤害锦囊牌后，你失去1点体力或一个锁定技令一名同族角色获得此牌。 获取 2026-9-25 00:15:00~2026-9-30 24:00:00，祈福活动获取， 或传世玉玺兑换获得。 武将福利 活动时间： 2026-9-25 00:00:00~2026-9-30 24:00:00 ，拥有武将 并完成相应任务，即可获得奖励，累计限完成1次。 任务 奖励 限制条件 拥有逢纪 经典版逢纪 累计限完成1次 使用逢纪完成3局游戏 功勋*100 使用逢纪获胜5局游戏 功勋*100 使用逢纪完成9局游戏 功勋*200 使用逢纪升阶为5阶 功勋*1000 任务 奖励 限制条件 拥有族荀灌 经典版族荀灌 累计限完成1次 使用族荀灌完成3局游戏 功勋*100 使用族荀灌获胜5局游戏 功勋*100 使用族荀灌完成9局游戏 功勋*200 使用族荀灌升阶为5阶 功勋*1000 新品皮肤 活动时间： 2026-9-25 00:00:00~2026-9-30 24:00:00 品质 皮肤名称 获得方式 限定(动态) 拂花渡世*谋黄月英 琳琅绘卷获取 限定(动态) 浮光掠影*吕玲绮 琳琅绘卷获取 传说(动态) 昨宵良梦*环淑君 寻宝阁获取 *新品皮肤详情见 中秋新品皮肤一览 ； 擎天柱石 活动时间： 2026-9-25 00:15:00~2026-10-9 24:00:00 *玩家于活动期间达到指定官阶等级，即可领取对应的官阶任务并获得相应奖励。 官阶等级 奖励 限制条件 国护军-左护军 招募令*10、夺宝券*40、校尉将印*18、功勋*1400、皮肤包*4 累计限完成1次 国护军-右护军 夜华抒情*界蔡文姬(重复返还传世玉玺*1)、动态 碎片*6、传世玉玺*1 国都护-左都护 同辉日月*神孙权(重复返还传世玉玺*1)、 圣魂玄晶*1、传世玉玺*1 国都护-右都护 招募令*10、传世玉玺*2 统帅-车骑将军 传世玉玺*8 中秋特惠签到 活动时间： 9月24日20点 逐步开启 ~9月30日24点 *6元直购即可开启中秋特惠签到，不计入充值进度，本期活动累计限参加1次； 签到天数 签到奖励 1 元宝*666 2 元宝*666 3 元宝*666 4 元宝*666 5 元宝*666 6 元宝*666 7 元宝*666 中秋祈福 活动时间： 2026-9-25 00:15:00~2026-10-2 24:00:00 祈福积分 祈福积分 奖励 限制条件 50 如意结*1、逢纪(次卡)*1 累计限完成1次 120 如意结*1、逢纪(次卡)*1 200 如意结*2、逢纪(次卡)*2 300 如意结*3、逢纪(次卡)*2 *累计抽取 中秋祈福600次 可领取 中秋祈福武将宝箱*1， 累计限完成1次 。 中秋祈福武将宝箱 武将 概率 重复返还 逢纪 8.00% 如意结*20 族荀灌 10.00% 如意结*10 张琪瑛 3.00% 如意结*40 吕玲绮 3.00% 如意结*40 族荀彧 3.00% 如意结*40 卧龙凤雏 3.00% 如意结*40 周处 3.00% 如意结*40 曹婴 3.00% 如意结*40 谋姜维 5.00% 如意结*30 环淑君 5.00% 如意结*30 胡金定 5.00% 如意结*30 李婉 7.00% 如意结*20 谋黄月英 7.00% 如意结*20 谋文丑 7.00% 如意结*20 滕芳兰 7.00% 如意结*20 罗宪 7.00% 如意结*20 卢氏 7.00% 如意结*20 芮姬 7.00% 如意结*20 如意结兑换 活动时间： 2026-9-25 00:15:00~2026-10-4 24:00:00 1、如意结可在中秋祈福中兑换奖励，若兑换奖励是在此次活动前已拥有的永久武将、皮肤、三国秀，则无法重复兑换。 2、活动期间，如意结可兑换等量同心结；如意结 2026-10-5 00:00:00 到期，到期后自动替换成等量同心结。 道具 如意结 道具 如"
+    }
+  ],
+  "currentRules": [
+    {
+      "clientSkillId": 3618,
+      "name": "愎果",
+      "clientClass": "BiGuo",
+      "text": "摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。",
+      "authority": "current official hero + formal ordinary OL release + shipped public client"
+    },
+    {
+      "clientSkillId": 3619,
+      "name": "斗誉",
+      "clientClass": "DouYu",
+      "text": "你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。",
+      "authority": "current official hero + formal ordinary OL release + shipped public client"
+    }
+  ],
+  "officialAndCurrentClientTextMatches": {
+    "hero": true,
+    "formal": true
+  },
+  "publicClient": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "contentType": "application/octet-stream",
+      "bytes": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "capturedAtUtc": "2026-10-17T13:59:42.360534+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "sameAsRetainedSameDayInput": true
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "contentType": "application/octet-stream",
+      "bytes": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "capturedAtUtc": "2026-10-17T13:59:42.393035+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "sameAsRetainedSameDayInput": true
+    },
+    "members": {
+      "character.sgs": {
+        "encryptedBytes": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedBytes": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "rawCharacter": {
+      "a": 679,
+      "b": "逢纪",
+      "d": "PangJi",
+      "e": 44,
+      "f": "42",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 3618,
+      "k": 3619,
+      "p": 3,
+      "q": "20260924T180000",
+      "r": "9067901",
+      "y": "字元图，南阳人。逢纪初到冀州时，因自身聪慧有计谋，颇受袁绍信任。逢纪提议袁绍应连结公孙瓒威压韩馥，谋求一州自立。逢纪自恃聪慧，刚愎自用，因忌惮田丰刚直而屡次构陷田丰。袁绍死后，与审配共同伪造袁绍遗命立少子袁谭继位。后来受袁尚命跟随袁谭，因袁尚与袁谭军资不足被杀。",
+      "z": "可以通过拼点限制他人出牌，拼点时可以与对手的拼点牌交换",
+      "aa": 268,
+      "ab": "1283,1284",
+      "al": 1740,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "ar": "20261025T000000",
+      "starMax": 4
+    },
+    "rawSkills": [
+      {
+        "a": 3618,
+        "b": "3,5",
+        "c": "愎果",
+        "d": "BiGuo",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "n": 0,
+        "o": "摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。",
+        "v": "是否发动<font color='#FFD800'>愎果</font>，弃置一张牌|请选择一名其他角色拼点",
+        "t": "没赢的角色：本回合不能使用或打出与双方拼点牌类型相同的牌|"
+      },
+      {
+        "a": 3619,
+        "b": "3,5",
+        "c": "斗誉",
+        "d": "DouYu",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "o": "你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。",
+        "ac": "是否发动<font color='#FFD800'>斗誉</font>，与对方交换拼点牌"
+      }
+    ],
+    "frontendClasses": [
+      {
+        "skill": "BiGuo",
+        "class": "WIi",
+        "sha256": "705e47e43d1bb53ec7828bb211a0b944afd4d1995f250d69aa5bd619197c256e",
+        "chars": 976,
+        "exactFragment": "class WIi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.touchSkillWhenApplyActive=!0,this.needConfrimBeforeUse=!0,this.isPinDian=!0,this.targetCanBeSelf=!1,this.targetSelector=new Iy(this),this.requestCardType=Lmt.NORMAL|Lmt.EQUIP,this.cardUseType=Dmt.DISCARD}get CardUseType(){return D2t.LastTriggerSpellID==this.ID?Dmt.DISCARD:Dmt.SHOW}set CardUseType(t){this.cardUseType=t}get TargetCountMax(){return this.TargetCountMin}get TargetCountMin(){return 1==this.LastUseParamsFromServer[0]?0:1}get CardCountMin(){return this.CardCountMax}get CardCountMax(){return 1==this.LastUseParamsFromServer[0]?1:0}getServerTargetSeatIds(){return this.LastUseTargetFromServer}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),!t.IsSpell)if(s)i.UpdateState(zf.DATA_BIGUO,0);else if(i){if(t.data_count<=2)return;i.UpdateState(zf.DATA_BIGUO,t.Datas[2])}}get ActiveTip(){let t=this.activeTip.split(\"|\");return 1==this.LastUseParamsFromServer[0]?t[0]:t[1]}}"
+      },
+      {
+        "skill": "DouYu",
+        "class": "HIi",
+        "sha256": "7eded54b630037155b76a6854ea4d089719719f6e4c5fa96fb2fbe0d8fa78802",
+        "chars": 69,
+        "exactFragment": "class HIi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK}}"
+      }
+    ],
+    "decoder": "Current bundle InitOfb AES CFB128 segment16 then gzip; decoded in memory; retained raw files reused without new large copies.",
+    "notAuthenticatedServerAdjudication": true
+  },
+  "implementationInterpretations": [
+    {
+      "topic": "Biguo legal opponent",
+      "adoptedContract": "A targeted owner may choose any currently legal other Pindian participant independently of the triggering card user. Primary wording does not restrict the opponent; shipped BiGuo uses a one-target non-self selector supplied by server. No authenticated server selection list is claimed.",
+      "status": "adopted-engine-interpretation-pending-root-validation"
+    },
+    {
+      "topic": "Simultaneous Douyu opportunity and reward",
+      "adoptedContract": "Each participant has one before-reveal opportunity for its single real shared Pindian card. The initiator may choose one real opponent, each opponent may choose only the initiator; choices follow current-turn-owner action order and keep one unique current physical-card assignment. Each committed swap rewards Draw2 only if its actually selected pair is won in the final native comparison. A skipped exchange earns no reward.",
+      "authority": "Explicit engineering interpretation of a single physical reveal per participant; no dedicated simultaneous Douyu FAQ verified.",
+      "status": "adopted-engine-interpretation-pending-root-validation"
+    }
+  ],
+  "art": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67900.png",
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67900.png",
+    "httpStatus": 200,
+    "contentType": "image/png",
+    "bytes": 941835,
+    "sha256": "1a0c6d34f44fe0891b0fa3af3d032e0d1d7fe8915242b32f24b5542b53c8c3ca",
+    "capturedAtUtc": "2026-10-17T13:59:42.338182+00:00",
+    "rawCopyCreated": false,
+    "authority": "official-primary",
+    "portraitKey": "ol-pang-ji",
+    "skinId": 67900,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-pang-ji.png",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "imageType": "PNG",
+    "derivation": "Unmodified current official identity API cover response; no re-encoding, crop or redraw.",
+    "originalImageVisuallyInspected": true,
+    "validationStatus": "pending-root-validation",
+    "inspectionDetail": "Original-resolution 750x950 PNG inspected: black-bearded adviser in a gold-trimmed ceremonial crown, pale fur-collared cloak and green bead ornaments, leaning to whisper toward another person above a strategy table in a dark tent. Complete official portrait retained without local edits."
+  },
+  "verification": {
+    "sourceAndIdentityFreshHttpVerified": true,
+    "officialAvailabilityVerified": true,
+    "currentClientBothSkillsVerified": true,
+    "originalPortraitVisuallyInspected": true,
+    "runtimeImplemented": false,
+    "registered": false,
+    "galleryRegistered": false,
+    "focusedCorePassed": false,
+    "focusedWpfPassed": false,
+    "routinePassed": false,
+    "noDedicatedOfficialFaqClaimed": true
+  }
+}

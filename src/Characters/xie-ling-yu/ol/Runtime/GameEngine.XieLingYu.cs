@@ -95,7 +95,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(paidFrame with { XieLingYu = paidFrame.XieLingYu! with { After = _movementSequence } });
             for (var i = 0; i < materials.Length; i++)
             {
-                var m = movements.Single(m => m.CardId == materials[i].CardId && m.From == materials[i].From && m.To == CardLocation.DiscardPile && m.Reason.Value == XinyouDiscardReason);
+                var m = movements.Single(m => m.CardId == materials[i].CardId && m.From == materials[i].From && (m.To == CardLocation.DiscardPile || IsHellShiyouPaidDiscardMovement(m, materials[i].From, new(XinyouDiscardReason))) && m.Reason.Value == XinyouDiscardReason);
                 AdvanceEventRulesAndQueueFact(new XinyouMaterialDiscardedEvent(f.Id, i, m.CardId, m.Sequence));
             }
             AdvanceEventRulesAndQueueFact(new XinyouPaidEvent(f.Id, f.OwnerSeat, r.ActualTurn, r.TurnOwner, phase.Token, mask, materials.Length, beforeSequence, _movementSequence));

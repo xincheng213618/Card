@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "hulao:wushuang": {
+      "name": "无双",
+      "description": "锁定技，你使用【杀】须两张【闪】抵消；与你【决斗】的角色每次须打出两张【杀】。"
+    },
+    "hulao:mashu": {
+      "name": "马术",
+      "description": "锁定技，你计算与其他角色的距离-1。"
+    },
+    "hulao:aozhan": {
+      "name": "鏖战",
+      "description": "锁定技，你装备区内有武器牌时，出杀次数+1；有防具牌时，防止你受到的大于1的伤害；有坐骑牌时，摸牌阶段摸牌数+1；有宝物牌时，跳过判定阶段。"
+    },
+    "hulao:xiuluo": {
+      "name": "修罗",
+      "description": "准备阶段，若你的判定区内有牌，你可以弃置一张牌，然后弃置一张同花色的判定区内的牌。你可以重复此流程。"
+    },
+    "hulao:shenwei": {
+      "name": "神威",
+      "description": "锁定技，摸牌阶段，你多摸X张牌；你的手牌上限+X。（X为存活的敌方角色数）"
+    },
+    "hulao:shenji": {
+      "name": "神戟",
+      "description": "你使用【杀】可以额外指定两个目标，出杀次数+1。"
+    },
+    "hulao:shenqu": {
+      "name": "神躯",
+      "description": "每名角色的回合开始时，若你的手牌数不大于体力上限，你可以摸两张牌；当你受到伤害后，你可以使用一张【桃】。"
+    },
+    "hulao:jiwu": {
+      "name": "极武",
+      "description": "出牌阶段，你可以弃置一张牌，获得下列技能之一直到本回合结束：强袭、铁骑、旋风、完杀。",
+      "activationLabels": {
+        "acquire-qiangxi": "弃牌获得强袭",
+        "acquire-tieqi": "弃牌获得铁骑",
+        "acquire-xuanfeng": "弃牌获得旋风",
+        "acquire-wansha": "弃牌获得完杀"
+      }
+    },
+    "hulao:qiangxi": {
+      "name": "强袭",
+      "description": "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，对攻击范围内一名其他角色造成1点伤害。",
+      "activationLabels": {
+        "lose-hp-and-damage": "失去体力强袭",
+        "discard-weapon-and-damage": "弃置武器强袭"
+      }
+    },
+    "hulao:niepan": {
+      "name": "涅槃",
+      "description": "限定技，当你处于濒死状态时，你可以回复3点体力并摸三张牌。（本地活动场五阶规则）"
+    },
+    "hulao:united": {
+      "name": "联军补给",
+      "description": "联军中一名角色阵亡后，其余存活的联军角色各回复1点体力并摸两张牌。"
+    }
+  }
+}

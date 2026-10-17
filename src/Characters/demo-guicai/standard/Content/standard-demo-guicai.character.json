@@ -11,12 +11,6 @@
         "id": "standard:guicai",
         "name": "鬼才",
         "description": "一名角色的判定牌生效前，你可以打出一张手牌代替之。",
-        "selectionWeights": {
-          "Lord": 41.0,
-          "Loyalist": 41.0,
-          "Rebel": 36.0,
-          "Renegade": 36.0
-        },
         "revealWeights": {
           "base": 16,
           "wounded": 0,

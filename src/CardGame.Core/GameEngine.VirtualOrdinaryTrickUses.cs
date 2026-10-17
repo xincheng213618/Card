@@ -40,6 +40,7 @@ public sealed partial class GameEngine
     // boundary. A matching context name without that parent is insufficient.
     private bool IsExactOwnVirtualOrdinaryTrickProgram(ProgramSkillFrame frame)
     {
+        if (frame.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting) return IsExactHellArrivalProgram(frame);
         if (frame.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding)
             return IsExactOwnPlayEndingProgram(frame);
         if (frame.WindowContext?.Window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded)
@@ -74,12 +75,12 @@ public sealed partial class GameEngine
             !UseVirtualOrdinaryTrickProgramOperationDescriptor.HasValidReferences(effect.OutputKind,
                 effect.ActorReference?.Kind, effect.TargetReference?.Kind) ||
             !UseVirtualOrdinaryTrickProgramOperationDescriptor.AllowsWindow(effect.OutputKind, frame.WindowContext!.Window) ||
-            UseVirtualOrdinaryTrickProgramOperationDescriptor.IsGroupOutput(effect.OutputKind) && effect.Condition.Kind != SkillProgramConditionKind.Always ||
-            effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) ||
+            UseVirtualOrdinaryTrickProgramOperationDescriptor.IsGroupOutput(effect.OutputKind) && effect.Condition.Kind != SkillProgramConditionKind.Always && !IsHellRandomAssaultBranch(frame, effect) ||
+            effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) && !IsHellRandomAssaultBranch(frame, effect) ||
             (effect.ActorReference?.Kind == ProgramParticipantRef.SelectedTarget ||
              effect.TargetReference?.Kind == ProgramParticipantRef.SelectedTarget) && frame.SelectedTargetSeats.Count != 1)
             throw new InvalidOperationException("A virtual ordinary trick lost its exact references or output instruction.");
-        if (effect.Condition.Kind != SkillProgramConditionKind.Always)
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always && !IsHellRandomAssaultBranch(frame, effect))
         {
             var result = frame.PindianResultBindings.SingleOrDefault(item => item.Name == effect.Condition.SourceBind);
             if (result is null || result.SourceSeat != frame.OwnerSeat ||
@@ -194,7 +195,7 @@ public sealed partial class GameEngine
     {
         var actorSeat = ResolveProgramParticipant(frame, effect.ActorReference!);
         var targetSeat = ResolveProgramParticipant(frame, effect.TargetReference!);
-        var frozen = effect.Condition.Kind == SkillProgramConditionKind.Always ? (bool?)null :
+        var frozen = effect.Condition.Kind is SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs ? (bool?)null :
             frame.PindianResultBindings.Single(item => item.Name == effect.Condition.SourceBind).SourceWon;
         var origin = new ProgramVirtualOrdinaryTrickOrigin(frame.Id, frame.InstructionIndex,
             frame.WindowContext!.ParentFrameId, frame.OwnerSeat, actorSeat, targetSeat, frame.SkillId,
@@ -244,7 +245,7 @@ public sealed partial class GameEngine
             effect.Condition.SourceBind != origin.PindianBind ||
             ResolveProgramParticipant(frame, effect.ActorReference!) != origin.InitialActorSeat ||
             ResolveProgramParticipant(frame, effect.TargetReference!) != origin.InitialTargetSeat ||
-            (origin.ConditionKind == SkillProgramConditionKind.Always ? origin.FrozenSourceWon is not null :
+            (origin.ConditionKind is SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs ? origin.FrozenSourceWon is not null :
                 frame.PindianResultBindings.Single(item => item.Name == origin.PindianBind).SourceWon != origin.FrozenSourceWon)) return false;
         // Provider and issuance remain frozen. The actual source may only move
         // along the existing typed, accepted actor-replacement producer chain.

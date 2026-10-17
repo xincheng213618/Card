@@ -11,12 +11,6 @@
         "id": "standard:yuanhu",
         "name": "援护",
         "description": "其他角色受到伤害后，你可以弃置一张手牌，令其回复1点体力。",
-        "selectionWeights": {
-          "Lord": 38.0,
-          "Loyalist": 38.0,
-          "Rebel": 33.0,
-          "Renegade": 33.0
-        },
         "revealWeights": {
           "base": 4,
           "wounded": 31,

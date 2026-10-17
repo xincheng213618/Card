@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "nian:yingzi", "revision": 1,
+      "modifiers": [{ "id": "extra-normal-draw", "query": "drawCount", "operation": "add", "value": 2, "priority": 0 }] },
+    { "id": "nian:mengtai", "revision": 1,
+      "triggers": [
+        { "id": "actual-play-skip-protects-hand", "window": "discardPhaseStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "applyNianMengtaiDiscard", "target": "owner" }] },
+        { "id": "actual-draw-skip-ending-draw", "window": "turnEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "drawNianMengtaiEnding", "target": "owner" }] }
+      ] },
+    { "id": "nian:ruizhi", "revision": 1,
+      "triggers": [{ "id": "other-preparation-keeps-two-zones", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false,
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "targetRef": { "kind": "eventTarget" }, "zones": ["hand"], "amount": 1, "resultBind": "ruizhi-hand" },
+          { "op": "selectOwnedCards", "target": "owner", "targetRef": { "kind": "eventTarget" }, "zones": ["equipment"], "amount": 1, "resultBind": "ruizhi-equipment" },
+          { "op": "discardNianRuizhiRemainder", "target": "owner" }
+        ] }] },
+    { "id": "nian:jingjue", "revision": 1,
+      "triggers": [
+        { "id": "actual-owned-discard-or-acquisition", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand", "equipment"], "movementOccurrence": "perOwnerBatch", "optional": false,
+          "effects": [{ "op": "recoverNianJingjueLoss", "target": "owner" }] }
+      ] },
+    { "id": "nian:renxing", "revision": 1,
+      "triggers": [
+        { "id": "each-real-damage-point", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamagePoint", "optional": false,
+          "effects": [{ "op": "drawNianRenxingDamage", "target": "owner" }] },
+        { "id": "each-real-recovered-point", "window": "afterHpRecovered", "subject": "owner", "hpChangeOccurrence": "perPoint", "optional": false,
+          "effects": [{ "op": "drawNianRenxingRecovery", "target": "owner" }] }
+      ] },
+    { "id": "nian:baonu", "revision": 1,
+      "modifiers": [{ "id": "low-hp-unlimited-slash", "query": "slashLimit", "operation": "unlimited", "value": 0, "priority": 0,
+        "condition": { "kind": "not", "children": [{ "kind": "hpAtLeast", "value": 5 }] } }],
+      "triggers": [{ "id": "random-replaces-entire-normal-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "drawPhaseMode": "replacement",
+        "effects": [{ "op": "drawNianBaonuReplacement", "target": "owner" }] }] },
+    { "id": "nian:shouyi", "revision": 1,
+      "modifiers": [
+        { "id": "unlimited-slash-distance", "query": "slashDistanceLimit", "operation": "unlimited", "value": 0, "priority": 0 }
+      ] }
+  ]
+}

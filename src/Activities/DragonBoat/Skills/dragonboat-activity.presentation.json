@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "dragonboat:lianpian": { "name": "联翩", "description": "你或队友于出牌阶段使用牌连续指定同一名角色为目标后，你可以令该角色摸一张牌。" },
+    "dragonboat:dianhu": { "name": "点虎", "description": "锁定技，游戏开始时，你指定一名其他角色；当你或队友对该角色每造成1点伤害后，你摸一张牌。" },
+    "dragonboat:jianji": { "name": "谏计", "description": "出牌阶段限一次，你可以令队友摸一张牌，然后其可以使用该牌。" },
+    "dragonboat:xingzhao": { "name": "兴棹", "description": "锁定技，若本队龙船至宝合计至少2个，你和队友拥有恂恂；至少4个，你和队友使用装备牌时摸一张牌；至少6个，你和队友跳过弃牌阶段；达到12个，游戏结束时本队成为第一名。达到12个不会提前结束游戏。" },
+    "dragonboat:xingzhao-benefit": { "name": "兴棹", "description": "来自队友唐咨的兴棹：本队龙船至宝至少4个时，你使用装备牌摸一张牌；至少6个时，你跳过弃牌阶段。" },
+    "dragonboat:xunxun": { "name": "恂恂", "description": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，将其中两张牌以任意顺序置于牌堆底，其余牌以任意顺序置于牌堆顶。" },
+    "dragonboat:wenji": { "name": "问计", "description": "出牌阶段开始时，你可以令队友交给你一张手牌或装备牌。你于本回合内使用与该牌名称相同的牌不能被其他角色响应。" },
+    "dragonboat:tunjiang": { "name": "屯江", "description": "一名友方角色的回合结束时，若其于本回合内未造成过伤害，则你可以令其或你摸两张牌。" },
+    "dragonboat:aiye": { "name": "艾叶守护", "description": "锁定技，当你进入濒死状态时，将体力值回复至1。此模式规则永久有效。" },
+    "dragonboat:niepan": { "name": "涅槃", "description": "本地五阶补充：限定技，濒死时回复3点体力并摸三张牌，保留原有区域牌和状态。艾叶守护优先结算，通常不会消耗涅槃。" }
+  }
+}

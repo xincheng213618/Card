@@ -2011,7 +2011,8 @@ public sealed partial class SimpleAiBrain
     {
         var skills = candidate.Skills
             .Where(skill => !skill.Tags.HasFlag(SkillTag.Lord) || role == Role.Lord)
-            .Select(skill => ScoreGeneralSkill(role, skill, registry))
+            .Select(skill => _policyVersion < AiDecisionPolicy.RuleBasedGeneralSelectionVersion
+                ? ScoreHistoricalGeneralSkill(role, skill) : ScoreGeneralSkill(role, skill, registry))
             .OrderByDescending(item => item.Score)
             .ToArray();
         if (skills.Length == 0) return (12d, "没有可用的印刷技能，按基础候选评估。");
@@ -2022,8 +2023,12 @@ public sealed partial class SimpleAiBrain
     private static (double Score, string Reason) ScoreGeneralSkill(Role role, GeneralSkillDefinition skill,
         ContentRegistry? registry)
     {
+        if (skill.SelectionWeights?.TryGetValue(role, out var declaredScore) == true)
+            return (declaredScore, $"【{skill.Name}】使用内容包显式声明的身份评分。");
+        if (TryScoreDraftRuleSkill(role, skill, registry, out var ruleScore, out var ruleReason))
+            return (ruleScore, ruleReason);
         if (skill.ActionForms.HasFlag(SkillActionForm.Active))
-            return (32d, $"【{skill.Name}】提供主动行动，实战收益由其发布的 Program 效果摘要评估。");
+            return (32d, $"【{skill.Name}】提供主动行动；未提供可检查的规则，使用基础评价。");
         if (skill.ViewAsOpportunities is { Count: > 0 } conversions)
         {
             var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
@@ -2031,11 +2036,8 @@ public sealed partial class SimpleAiBrain
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
         }
-        if (TryScoreDraftRuleSkill(role, skill, registry, out var ruleScore, out var ruleReason))
-            return (ruleScore, ruleReason);
-        var score = skill.SelectionWeights?.GetValueOrDefault(role) ?? 12d;
         var reason = $"【{skill.Name}】{skill.Description}";
-        return (score, reason);
+        return (12d, reason);
     }
 
     private static double ScoreDyingResponse(
@@ -2164,6 +2166,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
+        if (TryScoreDragonBoatCard(view, self, selfRole, action, out var dragonBoatScore)) return dragonBoatScore;
         if (action.TieredRoundZeroUse is not null) return ScoreTieredRoundZeroAction(view, self, selfRole, action);
         if (action.ChainedStateBasicUse.HasValue) return ScoreChainedStateBasicAction(view, self, selfRole, action);
         if (action.DrawFundedDistinctBasicUse is not null) return ScoreDrawFundedDistinctBasicAction(view, self, selfRole, action);
@@ -2222,6 +2225,7 @@ public sealed partial class SimpleAiBrain
         var card = AiActionPhysicalCard(self, action);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
+        if (TryScoreWenheCard(view, self, selfRole, action, cardProfile, out var wenheScore)) return wenheScore;
 
         if (action.Kind == LegalActionKind.Slash && action.TargetSeats.Count > 1)
         {
@@ -2246,6 +2250,40 @@ public sealed partial class SimpleAiBrain
             var missingHp = self.MaxHp - self.Hp;
             var score = missingHp * cardProfile.AiPlayValue + (self.Hp <= 1 ? 50d : 0d);
             return (score, $"回复体力；当前已损失 {missingHp} 点体力。");
+        }
+
+        if (action.Kind == LegalActionKind.AllianceFeast)
+        {
+            var alive = view.Players.Where(player => player.IsAlive).ToArray();
+            var score = cardProfile.AiPlayValue + alive.Length * 4d + alive
+                .Where(player => player.Seat != self.Seat).Sum(player => -GetHostility(view, selfRole, player) * 0.08d);
+            return (score, "按存活人数评估自己的摸牌及其他角色收益；只使用公开队伍、体力和牌堆数量。");
+        }
+
+        if (action.Kind == LegalActionKind.SowBeans)
+        {
+            var afterPayment = Math.Max(0, self.HandCount - (self.Hand.Any(owned => owned.Id == card.Id) ? 1 : 0));
+            var limit = Math.Min(5, self.MaxHp);
+            var amount = self.FactionId == "god" ? limit : Math.Max(0, limit - afterPayment);
+            amount = Math.Min(amount, view.DrawPileCount + view.DiscardPileCount);
+            return (amount == 0 ? -25d : cardProfile.AiPlayValue + amount * 7d,
+                $"撒豆成兵按公开势力、体力上限和自己的手牌预计摸 {amount} 张牌。");
+        }
+
+        if (action.Kind == LegalActionKind.ReturnSoul)
+        {
+            var benefit = action.TargetSeats.Sum(seat =>
+                seat == self.Seat ? 80d : -GetHostility(view, selfRole, view.Players.Single(player => player.Seat == seat)));
+            return (benefit > 0 ? cardProfile.AiPlayValue + benefit * .4d : -20d,
+                "按公开合法恢复目标的队伍评估回魂，不读取隐藏手牌或牌堆。");
+        }
+
+        if (action.Kind == LegalActionKind.TransplantWood && action.TargetSeat is { } transplantSeat)
+        {
+            var transplantTarget = view.Players.Single(player => player.Seat == transplantSeat);
+            return (cardProfile.AiPlayValue + GetHostility(view, selfRole, transplantTarget) +
+                Math.Min(2, transplantTarget.HandCount + transplantTarget.Equipment.Count) * 5d,
+                "要求公开目标出杀或交牌；按公开队伍和牌数评估，不读取对方隐藏手牌。");
         }
 
         if (action.Kind == LegalActionKind.DrawTwo)
@@ -2575,8 +2613,14 @@ public sealed partial class SimpleAiBrain
         PlayerSnapshot? target,
         CardKind effectCardKind)
     {
+        if (effectCardKind is CardKind.SameBoat or CardKind.StriveUpstream && target is not null)
+            return target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
+        if (effectCardKind == CardKind.AgainstCurrent && target is not null)
+            return target.Seat == Seat ? -95 : GetHostility(view, selfRole, target);
         if (_policyVersion >= 2)
         {
+            if (effectCardKind == CardKind.AllianceFeast && target is not null)
+                return target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
             if (source.Seat == Seat) return 80;
             if (effectCardKind == CardKind.PeachGarden && target is not null)
                 return target.Hp >= target.MaxHp ? 0 : target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
@@ -2626,6 +2670,7 @@ public sealed partial class SimpleAiBrain
 
     private double GetHostility(GameSnapshot view, Role selfRole, PlayerSnapshot target)
     {
+        if (view.ModeKind == ContentModeKind.Survival) return target.Seat == Seat ? -1000d : 100d;
         var self = view.Players.Single(player => player.Seat == Seat);
         if (view.ModeKind == ContentModeKind.NationalWarLite)
         {

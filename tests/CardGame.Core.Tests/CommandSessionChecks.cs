@@ -11,8 +11,11 @@ internal static class CommandSessionChecks
         // no new character definition, deck, or seed search is needed here.
         var factory = typeof(Fame2016TaoluanChecks).GetMethod("Create",
             BindingFlags.NonPublic | BindingFlags.Static)!;
+        var defaults = factory.GetParameters().Select(parameter => parameter.HasDefaultValue
+            ? parameter.DefaultValue
+            : throw new InvalidOperationException("The reused conversion fixture must declare its default setup.")).ToArray();
         var (game, registry) = ((GameEngine, ContentRegistry))factory.Invoke(null,
-            [false, false, false, false])!;
+            defaults)!;
         var first = new List<string>();
         var second = new List<string>();
         var attempts = 0;

@@ -20,6 +20,7 @@ public sealed partial class GameEngine
                 _resolutionStack.FindIndex(f => f.Id == owner.Id) + 1 == _resolutionStack.FindIndex(f => f.Id == damage.Id) && DyingSuitsCursorHash<ResolutionFrame>(owner) == old.AttackOwnerHash;
         return old.AttackOwnerFrameId is null && old.AttackOwnerHash is null &&
             (dying.Continuation == DyingContinuationKind.ProgramSkill && parent is ProgramSkillFrame ||
+             IsWenhePoisonDyingChild(parent, dying) ||
              dying.Continuation == DyingContinuationKind.AttackHpLoss && parent is ProgramSkillFrame or CardUseFrame or JudgmentFrame);
     }
     private bool RecipientCategoryObserverSuffix(int rootIndex) => HasObserverSuffix(rootIndex,

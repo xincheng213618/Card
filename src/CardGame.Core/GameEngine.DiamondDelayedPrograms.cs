@@ -80,7 +80,7 @@ public sealed partial class GameEngine
             var id = BeginCardUse(card, frame.OwnerSeat, [target], CardKind.Indulgence,
                 conversionSource: new(frame.SkillId, frame.ActivationId, frame.OwnerSeat, frame.SkillInstanceId));
             ReplaceRuntimeFrame(frame.Id, frame with { DiamondDelayed = frame.DiamondDelayed! with { UseFrameId = id } });
-            MoveCard(card, d.Source, CardLocation.Processing, CardMoveReasons.Use);
+            MoveCard(card, d.Source, CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
             BeginJizhiOrNullificationWindow(id, card, frame.OwnerSeat, [target], LegalActionKind.Indulgence, playedCardKind: CardKind.Indulgence);
             return;
         }

@@ -66,7 +66,7 @@ public sealed partial class GameEngine
     // Preserve the established local ownership semantics for ordinary grants. A retained,
     // upstream-disabled projection is not currently owned for skill-count/replacement rules.
     private IReadOnlyList<string> AdvancedOwnedSkillIds(CharacterState owner) => owner.SkillGrants.Grants
-        .Where(g => g.IsEnabled && (g.LordProjection is null || IsProjectedGrantQualified(owner, g)) && IsGeneralLibraryGrantQualified(owner,g))
+        .Where(g => g.IsEnabled && !g.IsModeRule && (g.LordProjection is null || IsProjectedGrantQualified(owner, g)) && IsGeneralLibraryGrantQualified(owner,g))
         .Select(g => g.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
 
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 40)]

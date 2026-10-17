@@ -244,6 +244,7 @@ internal sealed class MatchSkillBindingIndex
     internal int CachedSeatCount => _shards.Count;
     internal int TotalRebuildCount => _shards.Values.Sum(static entry => entry.RebuildCount);
     internal int GetRebuildCount(int seat) => _shards.GetValueOrDefault(seat).RebuildCount;
+    internal void Invalidate(int seat) => _shards.Remove(seat);
 
     internal SkillBindingShard GetShard(CharacterState player)
     {
@@ -302,6 +303,7 @@ internal sealed class MatchSkillBindingIndex
         if (suppressors.Count > 0)
         {
             activeGrants.RemoveAll(grant =>
+                !grant.IsModeRule &&
                 !suppressors.Contains(grant.SkillId) &&
                 !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal));
             var remainingSkillIds = activeGrants.Select(grant => grant.SkillId)

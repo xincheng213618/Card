@@ -149,9 +149,7 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Slash)
         {
-            var card = self.Hand.Concat(self.WoodenOxGrain ?? []).Concat(self.Equipment)
-                .Concat(_includeJudgmentMaterials ? self.Judgment : [])
-                .Single(card => card.Id == action.CardId);
+            var card = AiActionPhysicalCard(self, action);
             if (!IsSlashCard(card.Kind))
             {
                 var reserve = card.Kind switch

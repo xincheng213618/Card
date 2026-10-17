@@ -415,7 +415,7 @@
                         </Border>
                         <Border x:Name="DeathShade" Visibility="Collapsed" Background="#BC0D1418" IsHitTestVisible="False"
                             HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,5" CornerRadius="3">
-                            <TextBlock Text="阵 亡" FontSize="26" FontFamily="KaiTi" Foreground="#D5C4A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding UnavailableStatusText}" FontSize="26" FontFamily="KaiTi" Foreground="#D5C4A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <Grid VerticalAlignment="Top">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>

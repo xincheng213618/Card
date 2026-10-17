@@ -157,7 +157,8 @@ public sealed partial class GameEngine
                     if (draft.OwnedIds.Where((cardId, index) => _cardZones.GetLocation(cardId) != draft.OwnedLocations[index]).Any()) throw new InvalidOperationException("Exchange payment moved before commit.");
                     ReplaceRuntimeTop(frame with { PublicPileDraft = null, PendingMovementContinuation = new(draft.OwnerSeat, 0, null) });
                     var entering = draft.OwnedIds.Select(cardId => _cardZones.CardsAt(_cardZones.GetLocation(cardId)).Single(card => card.Id == cardId)).ToArray();
-                    MoveProgramCardsFromMultipleSources(draft.OwnedIds, CardLocation.Processing, new("skill-program.public-pile.exchange-payment"));
+                    MoveProgramCardsFromMultipleSources(draft.OwnedIds, CardLocation.Processing, new("skill-program.public-pile.exchange-payment"),
+                        disclosure: CardMovementDisclosure.FaceUp);
                     MoveCards(PublicPileDraftCards(draft).Where(card => ids.Contains(card.Id)).ToArray(), PublicPileDraftLocation(draft), CardLocation.Hand(draft.OwnerSeat), new("skill-program.public-pile.exchange-obtain"));
                     foreach (var card in entering) MoveProcessingCardUnlessDestroyed(card, PublicPileDraftLocation(draft), new("skill-program.public-pile.exchange-deposit"));
                     if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);

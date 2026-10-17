@@ -105,6 +105,7 @@ public sealed partial class GameEngine
 
     private bool MatchesTurnEndingScope(ProgramTriggerCandidate candidate, int actualOwner)
     {
+        if (IsWenheDeadOwnerEndingCandidate(candidate, actualOwner)) return true;
         var scope = GetProgramTrigger(candidate).TurnOwnerScope;
         if (scope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving)
             return candidate.OwnerSeat == actualOwner || PreviousLivingSeatFor(candidate.OwnerSeat) == actualOwner;

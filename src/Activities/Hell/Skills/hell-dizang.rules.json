@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "hell:bufo", "revision": 1,
+      "triggers": [
+        { "id": "fire-all-distance-one", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "effects": [{ "op": "damageHellBufoAdjacent", "target": "owner" }] },
+        { "id": "reduce-large-damage", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false,
+          "effects": [{ "op": "reduceCurrentDamage", "target": "owner", "amount": 1 }] }
+      ]
+    },
+    {
+      "id": "hell:wuliang", "revision": 1,
+      "triggers": [
+        { "id": "draw-three-on-appearance", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "draw", "target": "owner", "amount": 3 }] },
+        { "id": "ending-draw-two", "window": "turnEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "draw", "target": "owner", "amount": 2 }] },
+        { "id": "own-turn-recover-to-three", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "condition": { "kind": "compare", "left": { "kind": "currentHp" }, "operator": "lessThan", "right": { "kind": "integerConstant", "value": 3 } },
+          "effects": [{ "op": "recoverTo", "target": "owner", "numberExpression": "integerConstant", "minimumValue": 3, "clampToMaxHp": true }] }
+      ]
+    },
+    {
+      "id": "hell:dayuan", "revision": 1,
+      "triggers": [
+        { "id": "choose-final-suit-and-rank", "window": "judgmentBeforeResult", "subject": "any", "optional": true,
+          "suits": ["spade", "heart", "club", "diamond", "none"], "minimumRank": 0, "maximumRank": 13, "excludedReasons": [],
+          "effects": [{ "op": "chooseHellDayuanJudgment", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "hell:diting", "revision": 1,
+      "modifiers": [
+        { "id": "distance-outgoing-minus-one", "query": "outgoingDistance", "operation": "add", "value": -1, "priority": 0 },
+        { "id": "distance-incoming-plus-one", "query": "incomingDistance", "operation": "add", "value": 1, "priority": 0 }
+      ],
+      "triggers": [
+        { "id": "abolish-both-mount-slots-on-appearance", "window": "gameStarting", "subject": "owner", "optional": false, "priority": 10,
+          "effects": [{ "op": "alterEquipmentSlots", "target": "owner", "amount": 0, "equipmentSlots": ["offensiveHorse", "defensiveHorse"] }] }
+      ]
+    }
+  ]
+}

@@ -112,7 +112,8 @@ public sealed partial class GameEngine
         if (p is null) return false;
         if (reason != (p.ResponseUse ? CardMoveReasons.Respond : CardMoveReasons.Use) || sourceLocation is not null && sourceLocation != CardLocation.Hand(providerSeat) ||
             cards.Any(c => _cardZones.GetLocation(c.Id) != CardLocation.Hand(providerSeat))) throw new InvalidOperationException("Xiewei changed its issued Hand cost before the public deposit.");
-        MoveProgramCardsFromMultipleSources(ids, p.Pile.Location, new(XieweiStoreReason)); return true;
+        MoveProgramCardsFromMultipleSources(ids, p.Pile.Location, new(XieweiStoreReason),
+            disclosure: CardMovementDisclosure.FaceUp); return true;
     }
     private void CaptureXieweiPaymentBatch(CardMovementBatchContext batch)
     {

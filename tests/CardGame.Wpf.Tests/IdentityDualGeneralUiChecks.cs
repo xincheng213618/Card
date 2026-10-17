@@ -18,14 +18,14 @@ internal static class IdentityDualGeneralUiChecks
         Program.Assert(vm.GeneralSelectionContextDetail.Contains("选择主将") && vm.GeneralSelectionSubtitle.Contains("全员双将"),
             "The new identity entry must explain the primary and deputy selection without national-war reveal rules.");
         vm.ToggleGeneralRosterCommand.Execute(null);
-        var primary = vm.CustomGeneralChoices.Single(choice => choice.GeneralId == "classic:zhang-fei");
+        var primary = vm.CustomGeneralChoices.Single(choice => choice.GeneralId == "boundary:zhang-fei");
         vm.CustomGeneralSearch = "张飞";
         vm.SelectGeneralChoiceCommand.Execute(primary);
         ReachSelection();
         Program.Assert(vm.GeneralSelectionContextDetail.Contains("选择副将") && vm.CustomGeneralSearch.Length == 0,
             "The second prompt must identify the deputy and retire the previous slot's search.");
         vm.ToggleGeneralRosterCommand.Execute(null);
-        var deputy = vm.CustomGeneralChoices.Single(choice => choice.GeneralId == "classic:da-qiao");
+        var deputy = vm.CustomGeneralChoices.Single(choice => choice.GeneralId == "boundary:da-qiao");
         Program.Assert(!vm.CustomGeneralChoices.Any(choice => choice.GeneralId == primary.GeneralId) &&
             deputy.HealthText.Contains("4") && deputy.HealthDescription.Contains("主公 +1"),
             "Deputy previews must show the floored combination health plus the Lord bonus, across factions.");

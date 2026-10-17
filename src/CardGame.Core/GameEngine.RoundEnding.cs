@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool TracksRoundEnding => _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.RoundEnding);
+    private bool TracksRoundEnding => IsDragonBoatActivity || _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.RoundEnding);
 
     private bool TryBeginRoundEndingBoundary(CharacterState previous, bool skipped)
     {

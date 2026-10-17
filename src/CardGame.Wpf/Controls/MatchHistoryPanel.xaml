@@ -49,12 +49,13 @@
                             <TextBlock Text="{Binding Mode}" Foreground="#ABB8A7" Margin="0,8,0,0" />
                             <TextBlock Text="{Binding Summary.DurationText}" Foreground="#91A79B" Margin="0,6,0,0" />
                             <TextBlock Text="{Binding Summary.HumanPerformance}" Foreground="#91A79B" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Summary.DragonBoatRankingText}" Foreground="#D4BE87" FontSize="11" TextWrapping="Wrap" />
                         </StackPanel>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <StackPanel>
                                 <Grid Margin="0,0,0,8" TextBlock.Foreground="#9AB09F" TextBlock.FontSize="11">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="48" /><ColumnDefinition Width="36" /><ColumnDefinition Width="36" /><ColumnDefinition Width="36" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="36" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="武将" /><TextBlock Grid.Column="1" Text="阵营" /><TextBlock Grid.Column="2" Text="状态" /><TextBlock Grid.Column="3" Text="用牌" /><TextBlock Grid.Column="4" Text="响应" /><TextBlock Grid.Column="5" Text="伤害" /><TextBlock Grid.Column="6" Text="承伤" /><TextBlock Grid.Column="7" Text="回复" /><TextBlock Grid.Column="8" Text="救援" ToolTip="救援用牌张数，包含自救" /><TextBlock Grid.Column="9" Text="击败" />
+                                    <TextBlock Text="武将" /><TextBlock Grid.Column="1" Text="{Binding Summary.CampColumnHeader}" /><TextBlock Grid.Column="2" Text="状态" /><TextBlock Grid.Column="3" Text="用牌" /><TextBlock Grid.Column="4" Text="响应" /><TextBlock Grid.Column="5" Text="伤害" /><TextBlock Grid.Column="6" Text="承伤" /><TextBlock Grid.Column="7" Text="回复" /><TextBlock Grid.Column="8" Text="救援" ToolTip="救援用牌张数，包含自救" /><TextBlock Grid.Column="9" Text="击败" />
                                 </Grid>
                                 <ItemsControl x:Name="HistoryPlayers" ItemsSource="{Binding Summary.Players}">
                                     <ItemsControl.ItemTemplate>
@@ -63,7 +64,7 @@
                                                 <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent" /><Style.Triggers><DataTrigger Binding="{Binding IsHuman}" Value="True"><Setter Property="Background" Value="#354437" /></DataTrigger></Style.Triggers></Style></Border.Style>
                                                 <Grid TextBlock.Foreground="#D1DBC5" TextBlock.FontSize="11">
                                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="48" /><ColumnDefinition Width="36" /><ColumnDefinition Width="36" /><ColumnDefinition Width="36" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="40" /><ColumnDefinition Width="36" /></Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{Binding PlayerLabel}" TextTrimming="CharacterEllipsis" ToolTip="{Binding PlayerLabel}" /><TextBlock Grid.Column="1" Text="{Binding Camp}" /><TextBlock Grid.Column="2" Text="{Binding StatusLabel}" /><TextBlock Grid.Column="3" Text="{Binding CardsUsed}" /><TextBlock Grid.Column="4" Text="{Binding Responses}" /><TextBlock Grid.Column="5" Text="{Binding DamageDealt}" /><TextBlock Grid.Column="6" Text="{Binding DamageTaken}" /><TextBlock Grid.Column="7" Text="{Binding Recovery}" /><TextBlock Grid.Column="8" Text="{Binding RescueCards}" /><TextBlock Grid.Column="9" Text="{Binding Defeats}" />
+                                                    <TextBlock Text="{Binding PlayerLabel}" TextTrimming="CharacterEllipsis" ToolTip="{Binding PlayerLabel}" /><TextBlock Grid.Column="1" Text="{Binding RankOrCamp}" /><TextBlock Grid.Column="2" Text="{Binding StatusLabel}" /><TextBlock Grid.Column="3" Text="{Binding CardsUsed}" /><TextBlock Grid.Column="4" Text="{Binding Responses}" /><TextBlock Grid.Column="5" Text="{Binding DamageDealt}" /><TextBlock Grid.Column="6" Text="{Binding DamageTaken}" /><TextBlock Grid.Column="7" Text="{Binding Recovery}" /><TextBlock Grid.Column="8" Text="{Binding RescueCards}" /><TextBlock Grid.Column="9" Text="{Binding Defeats}" />
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>

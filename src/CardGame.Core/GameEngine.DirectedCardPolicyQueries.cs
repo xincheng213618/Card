@@ -6,12 +6,14 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
+        NianShouyiUnlimitedCardDistance(actor) ||
         HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
         !IsSlashCard(kind) && HasLiuYanLimuTargetAllowance(actor,target,excludedEquipmentId,excludedEquipmentSlot) || HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
         HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||
         HasIssuedKuangfuDistance(cardUseFrameId, actor.Seat) || (cardUseFrameId is { } id && HasPhaseSuitAllowance(actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit)) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.CardUseDistanceLimit, kind) || HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
+        IsSlashCard(kind) && HasCardPolicy(actor, SkillProgramCardPolicyKind.HellSlashIgnoreArmor, kind) ||
         HasArmorBypass(actor) ||
         IsArmorIneffectiveForTurn(target) ||
         HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreArmor);
@@ -46,7 +48,9 @@ public sealed partial class GameEngine
     // Borrowed Sword's second seat is the target of a later Slash, not of this trick.
     private IEnumerable<int> GetDeclaredGlobalCardTargets(CharacterState actor, CardKind kind) =>
         _players.Where(player => player.IsAlive &&
-            (kind is CardKind.PeachGarden or CardKind.FiveGrains || player.Seat != actor.Seat))
+            !NianDongmianForbidsTarget(actor.Seat, player.Seat) &&
+            !IsShenwuRobeTargetProhibited(actor.Seat, player.Seat, kind) &&
+            (kind is CardKind.PeachGarden or CardKind.FiveGrains or CardKind.AllianceFeast || player.Seat != actor.Seat))
             .Select(player => player.Seat);
 
     private IEnumerable<int> GetDeclaredCardTargets(

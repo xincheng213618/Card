@@ -50,7 +50,7 @@ public sealed partial class GameEngine
                 adjustedTargets && action.TargetSeats.Count >= 4
                 ? action.TargetSeats.Where((_,index)=>index%2==0).ToArray() : null);
         var actualTargets = _resolutionStack.OfType<CardUseFrame>().Single(frame=>frame.Id==id).TargetSeats;
-        MoveCard(card, FindOwnedCardLocation(actor, card), CardLocation.Processing, CardMoveReasons.Use);
+        MoveCard(card, FindOwnedCardLocation(actor, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(id, source.SkillId, source.BindingId,
             actor.Seat, new[] { card.Id }, rule.OutputKind, true, actualTargets));
         BeginJizhiOrNullificationWindow(id, card, actor.Seat, actualTargets,

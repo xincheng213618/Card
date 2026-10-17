@@ -76,11 +76,13 @@ internal static class Program
             Check("table shortcuts execute once per key press and preserve modal drafts", TableShortcutChecks.SinglePressActions);
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
+            Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("Native public pile UI: original grain play rail and response faces", NativePublicPileUiChecks.OriginalGrainPlayRailAndResponseFaces);
+            Check("Mou Cao Pi UI: portrait skills and timed Fangzhu status", () => MouCaoPiUiChecks.PortraitSkillsAndFangzhuState(output));
             Check("Identity concealment UI: ActualProjectedConcealmentAndAppearanceBridge", () => IdentityConcealmentViewChecks.ActualProjectedConcealmentAndAppearanceBridge(output));
             Check("Named private pile UI: owner pairs public counts and clear", () => NamedPrivatePileUiChecks.OwnerPairsPublicCountsAndClearingUseSharedReadOnlyFaces(output));
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
@@ -89,6 +91,18 @@ internal static class Program
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("Jiange activity UI: faction tier rules AI teammate and real setup", () => CheckJiangeActivity(output));
+            Check("Boss activity UI: real coalition setup stage and cross-mode restore", () => BossActivityUiChecks.RealSetupAndCrossModeRestore(output));
+            Check("Hulao activity UI: forms shuffle counters and cross-mode restore", () => HulaoActivityUiChecks.SetupFormCounterAndCrossModeRestore(output));
+            Check("Shenwu activity UI: shared god draft six seats and restore", () => ShenwuActivityUiChecks.SharedGodDraftSixSeatsAndRestore(output));
+            Check("Nian activity UI: four seats clock and cross-configuration restore", () => NianActivityUiChecks.SetupFourSeatsFormPortraitsAndCrossConfigurationRestore(output));
+            Check("Hell activity UI: five tiers real five seats dormant auxiliary and restore", () => HellActivityUiChecks.FiveTierLobbyRealFiveSeatsDormantAuxiliaryAndRestore(output));
+            Check("Wenhe activity UI: private goal eight seats and cross-configuration restore", () => WenheActivityUiChecks.SurvivalLobbyPrivateGoalEightSeatsAndCrossConfigurationRestore(output));
+            Check("Dragon boat activity UI: four teams private draft and cross configuration", () => DragonBoatActivityUiChecks.FourTeamLobbyPrivateDraftAndCrossConfigurationRestore(output));
+            Check("Dragon boat activity UI: arrival order and actual two round team report", () => DragonBoatActivityUiChecks.NativeTreasureArrivalOrderAndTwoRoundTeamReport(output));
+            Check("Wenhe activity UI: native ranks summary history and winner sound", () => WenheActivityUiChecks.NativeEliminationRanksDriveSummaryHistoryAndWinnerSound(output));
+            Check("Hell activity UI: click physical soul restores automatic public targets", () => HellActivityUiChecks.ClickPhysicalSoulRestoresAutomaticPublicTargets(output));
+            Check("Hell activity UI: single card conversion rail restores all targets", () => HellActivityUiChecks.SingleCardConversionSoulAppearsOnRailAndUsesAllTargets(output));
+            Check("Nian activity UI: click dead ally cancel confirm and save shared revival", () => NianActivityUiChecks.ClickDeadAllyAndConfirmSharedRevival(output));
             Check("identity dual generals show consecutive choices portraits and both skill sources", () => IdentityDualGeneralUiChecks.SelectionAndTable(output));
             Check("Interaction motion: native lifecycle reversal and preference cancellation", InteractionMotionChecks.NativeLifecyclePreservesLayoutAndRetiresAnimations);
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
@@ -183,8 +197,11 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 8 && vm.SelectedModeCategory.Id == "all" &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5 &&
+        Assert(vm.VisibleTableModes.Count == 19 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:shenwu-2017") &&
+               vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:nian-2016") &&
+               vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:dragon-boat-2018") &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 7 &&
                vm.StartingRoles.Any(role => role.Role is null) &&
                vm.StartingRoles.Where(role => role.Role.HasValue).Select(role => role.Role!.Value).ToHashSet()
                    .SetEquals([Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade]) && vm.SelectedStartingRole.Role is null,
@@ -212,7 +229,7 @@ internal static class Program
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 8 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 19 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 5 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
@@ -282,7 +299,7 @@ internal static class Program
         var home = (HomeLobby)window.FindName("LobbyHome");
         Render(root, 1440, 880, null);
         ((Button)home.FindName("ActivityBattleButton")).Command.Execute("activity");
-        Assert(vm.VisibleTableModes.Count == 3 && vm.IsActivityModeSelection && vm.IsTeamModeSelection &&
+        Assert(vm.VisibleTableModes.Count(mode => mode.ModeId.StartsWith("activity:jiange-", StringComparison.Ordinal)) == 3 && vm.IsActivityModeSelection && vm.IsTeamModeSelection &&
             !vm.IsIdentityModeSelection && vm.SelectedStartingTeam.TeamId == "team:shu" &&
             vm.StartingTeams.Select(t => t.TeamId).ToHashSet().SetEquals(["team:shu", "team:wei"]),
             "Activity entry must offer the three real difficulties and Wei/Shu faction choices.");

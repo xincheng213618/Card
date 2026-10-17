@@ -113,6 +113,15 @@ public sealed class SkillRuntimeStateStore
         return _usage.Remove(key);
     }
 
+    // A new encounter character can reuse a dead boss's seat. Other owners'
+    // limited skills and conversion states remain part of the same campaign.
+    internal void ResetOwner(int ownerSeat)
+    {
+        foreach (var key in _usage.Keys.Where(key => key.OwnerSeat == ownerSeat).ToArray()) _usage.Remove(key);
+        foreach (var key in _initialPolarities.Keys.Where(key => key.OwnerSeat == ownerSeat).ToArray()) _initialPolarities.Remove(key);
+        foreach (var key in _polarities.Keys.Where(key => key.OwnerSeat == ownerSeat).ToArray()) _polarities.Remove(key);
+    }
+
     public void RegisterConversionSkill(
         int ownerSeat,
         string skillId,

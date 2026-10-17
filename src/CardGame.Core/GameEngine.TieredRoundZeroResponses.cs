@@ -146,7 +146,7 @@ public sealed partial class GameEngine
             action.ResponderSeat != r.ActorSeat || action.RequesterSeat is not null || action.EffectiveKind != r.EffectiveKind ||
             action.ConversionChain is not [var source] || source != r.Source || source.OwnerSeat != r.ActorSeat ||
             _contentRegistry.GetSkill(source.SkillId).Program is not { } definition || definition.GameplayHash != r.GameplayHash ||
-            definition.ViewAs.SingleOrDefault(v => v.Id == source.BindingId) is not { UseOnly: true, TieredRoundConversion: { } policy } rule || rule.InputCount != r.MaterialCount ||
+            ActivityRuntimeProgram(definition).ViewAs.SingleOrDefault(v => v.Id == source.BindingId) is not { UseOnly: true, TieredRoundConversion: { } policy } rule || rule.InputCount != r.MaterialCount ||
             policy.StateId != r.StateId || policy.UsageId != r.UsageId || rule.OutputKind != r.EffectiveKind ||
             _skillRuntimeState.GetUsage(r.ActorSeat, source.SkillId, TieredRoundUsage(policy), r.FrozenTier == 0 ? SkillUsageScope.Phase : SkillUsageScope.Round) != 1 ||
             CompleteProgramEventHistory().OfType<TieredRoundConversionUseIssuedEvent>().Count(e => e.Receipt == r) != 1) return false;

@@ -330,6 +330,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         var generalPoolIds = CurrentGeneralIds.Concat(FanGeneralIds).ToArray();
         var generalVariantGroups = variantBuilder.CreateGroups(generalPoolIds);
         var aiGeneralSwapExclusions = variantBuilder.CreateAiSwapExclusions(generalPoolIds);
+        var eightPlayerSelectionPool = IdentityGeneralDraftPools.EightPlayer(generalPoolIds);
         var roleGeneralCandidateCounts = new Dictionary<string, int>
         {
             [nameof(Role.Lord)] = 13,
@@ -356,6 +357,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             RoleGeneralCandidateCounts = roleGeneralCandidateCounts,
             GeneralVariantGroups = generalVariantGroups,
+            GeneralSelectionPoolIds = eightPlayerSelectionPool,
             AiGeneralSwapExcludedIds = aiGeneralSwapExclusions,
             GeneralSelectionWeights = IdentityGeneralSelectionWeights.EightPlayer
         };
@@ -381,6 +383,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalPoolIds) { RoleGeneralCandidateCounts = roleGeneralCandidateCounts,
+                GeneralSelectionPoolIds = IdentityGeneralDraftPools.ClassicFive,
                 GeneralVariantGroups = generalVariantGroups, AiGeneralSwapExcludedIds = aiGeneralSwapExclusions });
         {
             builder.AddMode(new ContentModeDefinition(

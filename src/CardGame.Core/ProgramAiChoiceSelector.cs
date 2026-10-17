@@ -42,7 +42,6 @@ internal sealed class ProgramAiChoiceSelector
         SkillProgramEffectOp.DeclareNameForTargetDefense,
         SkillProgramEffectOp.DrawAndDraftLowHandPopulation,
         SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards,
-        SkillProgramEffectOp.ChooseDifferentActionCategoryGift,
         SkillProgramEffectOp.RevealSelectedHandAgainstTarget,
         SkillProgramEffectOp.ExchangePrivatePile,
         SkillProgramEffectOp.DiscardParticipantCards,
@@ -198,8 +197,7 @@ internal sealed class ProgramAiChoiceSelector
     private static PromptChoice SelectAiSimaHui(
         PendingDecision decision, ProgramSkillFrame f, SkillProgramEffect effect) =>decision.Choices.FirstOrDefault(c=>c.Parameters.GetValueOrDefault("value")!="finish")??decision.Choices[0];
 
-    [ProgramAiChoice(SkillProgramEffectOp.DrawAndOfferJianjiExactCard)]
-    private static PromptChoice SelectAiJianjiChoice(
+    internal static PromptChoice SelectAiJianjiChoice(
         PendingDecision decision, ProgramSkillFrame frame, SkillProgramEffect effect) =>decision.Choices.FirstOrDefault(c=>c.Parameters.GetValueOrDefault("option")!="decline")??decision.Choices.Last();
 
     [ProgramAiChoice(SkillProgramEffectOp.ResolveTargetChosenRankJudgment)]

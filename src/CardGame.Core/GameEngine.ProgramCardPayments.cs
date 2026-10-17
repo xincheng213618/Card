@@ -341,12 +341,14 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
                 GetProgramBindingId(frame), frame.OwnerSeat, effect.ResultBind!,
                 Array.AsReadOnly(new[] { ToSnapshot(card) })));
+        var disclosure = effect.RevealBeforeMove || destination.Zone is CardZoneKind.DiscardPile or CardZoneKind.Equipment or CardZoneKind.Judgment
+            ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown;
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
         {
-            MoveCard(card, source, CardLocation.Processing, reason);
-            MoveCard(card, CardLocation.Processing, destination, reason);
+            MoveCard(card, source, CardLocation.Processing, reason, disclosure: disclosure);
+            MoveCard(card, CardLocation.Processing, destination, reason, disclosure: disclosure);
         }
-        else MoveCard(card, source, destination, reason);
+        else MoveCard(card, source, destination, reason, disclosure: disclosure);
         CompleteNativeLogicalDiscardInvocation(discardInvocation);
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
         {

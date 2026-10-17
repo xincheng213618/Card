@@ -1,0 +1,903 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "hell:panguan",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "delayed-trick-immunity",
+          "kind": "prohibitDelayedTrickTarget",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "hell:juhun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-soul-control",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "control",
+              "options": [
+                {
+                  "id": "turn-over",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "chain",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ],
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "control",
+                "optionId": "turn-over"
+              }
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTarget",
+              "chained": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "control",
+                "optionId": "chain"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:wangxiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-equipment-discard-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": [
+                "equipment"
+              ],
+              "amount": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:weimu",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "black-trick-immunity",
+          "kind": "prohibitBlackTrickTarget",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "hell:fankui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "source-card-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamagePoint",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "effects": [
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "damageSource",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "source-card",
+              "skipIfNoCards": true
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "source-card",
+              "destination": "ownerHand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:bingfeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "face-up-killer-turns-over",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "turnHellFaceUpKiller",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:heisheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "all-living-chained-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "setHellAllLivingChained",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:shengfu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-random-other-mount",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardHellRandomOtherMount",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:enyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "native-recovery-source-draw",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "optional": false,
+          "hpChangeOccurrence": "perPoint",
+          "effects": [
+            {
+              "op": "rewardHellRecoverySource",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "heart-hand-or-hp",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "requestHandBySuitsOrLoseHp",
+              "target": "selectedTarget",
+              "suits": [
+                "heart"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:zhiwang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-after-other-outside-draw-hand-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "optional": false,
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "gainPhaseQualification": "outsideOwnerDraw",
+          "effects": [
+            {
+              "op": "discardHellOutsideDrawGain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:gongzheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-own-judgment-discard",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardRandomJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:xuechi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-other-loses-two-at-actual-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 2,
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:tiemian",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "unarmored-renwang",
+          "kind": "virtualEquipment",
+          "cardKinds": [
+            "renwangShield"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:zhadao",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "slash-ignores-armor",
+          "kind": "hellSlashIgnoreArmor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:zhuxin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "lowest-hp-other-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseHellLowestHpOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "normal",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "victim",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:leizhou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-thunder-at-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder",
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:leifu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-chain-at-actual-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTarget",
+              "chained": true,
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:leizhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "sequential-thunder-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "damageParticipants",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1,
+              "nature": "thunder"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:fudu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "poison-on-other-peach-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "optional": false,
+          "cardKinds": [
+            "peach"
+          ],
+          "effects": [
+            {
+              "op": "bindHellPeachPoisonTarget",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "victim",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:kujiu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-preparation-hp-loss-then-real-alcohol",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "turnOwnerScope": "otherLiving",
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "useHellPreparationAlcohol",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:renao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-fire-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 3,
+              "nature": "fire",
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:remen",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "unarmored-card-immunity",
+          "kind": "hellUnarmoredRemen",
+          "cardKinds": [
+            "barbarianAssault",
+            "arrowBarrage",
+            "slash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:zhifen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-target-hand-obtain-then-fire",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindHellRandomOther",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand"
+              ],
+              "count": 1,
+              "destination": "ownerHand",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "sourceBind": "victim",
+                "kind": "choiceIs",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:huoxing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "sequential-fire-on-death",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "damageParticipants",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1,
+              "nature": "fire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:suozu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "all-others-chained-at-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "setHellOthersChained",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:abi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-element-to-actual-source",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "bindHellOtherDamageSource",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "rollHellElement",
+              "target": "owner",
+              "resultBind": "element"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "element",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "element",
+                "optionId": "thunder"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:pingdeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "highest-hp-two-then-recalculate-one",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseHellHighestHpOther",
+              "target": "owner",
+              "resultBind": "first-victim"
+            },
+            {
+              "op": "rollHellElement",
+              "target": "owner",
+              "resultBind": "first-element"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "fire",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "first-element",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "thunder",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "first-element",
+                "optionId": "thunder"
+              }
+            },
+            {
+              "op": "chooseHellNextHighestHpOther",
+              "target": "owner",
+              "resultBind": "second-victim"
+            },
+            {
+              "op": "rollHellElement",
+              "target": "owner",
+              "resultBind": "second-element"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "second-element",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "second-element",
+                "optionId": "thunder"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:modao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-native-draw-two",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawHellPreparation",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:lunhui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "low-hp-exchange-with-highest-other",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseHellReincarnationTarget",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "exchangeHellReincarnationHp",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "victim",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:wangsheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-real-assault",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "rollHellAssault",
+              "target": "owner",
+              "resultBind": "assault"
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "outputKind": "barbarianAssault",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "assault",
+                "optionId": "nanman"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "outputKind": "arrowBarrage",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "assault",
+                "optionId": "wanjian"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hell:fanshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-other-after-later-damage-in-turn",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "bindHellRepeatedDamageTarget",
+              "target": "owner",
+              "resultBind": "victim"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "normal",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "victim",
+                "optionId": "eligible"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

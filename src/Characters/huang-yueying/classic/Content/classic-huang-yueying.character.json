@@ -24,12 +24,6 @@
         "description": "锁定技，你使用锦囊牌无距离限制。",
         "tags": "Locked",
         "executionForms": "State",
-        "selectionWeights": {
-          "Lord": 33.0,
-          "Loyalist": 33.0,
-          "Rebel": 37.0,
-          "Renegade": 37.0
-        },
         "revealWeights": {
           "base": 20,
           "wounded": 0,

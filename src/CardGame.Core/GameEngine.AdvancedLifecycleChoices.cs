@@ -132,7 +132,7 @@ public sealed partial class GameEngine
                 break;
             case SkillProgramEffectOp.ReplaceSkillsOnAwakening:
                 foreach (var id in draft.Selected)
-                    foreach (var grant in _players[frame.OwnerSeat].SkillGrants.Grants.Where(grant => grant.SkillId == id).ToArray())
+                    foreach (var grant in _players[frame.OwnerSeat].SkillGrants.Grants.Where(grant => grant.SkillId == id && !grant.IsModeRule).ToArray())
                         if (grant.LordProjection is not null || grant.GeneralLibraryProjection is not null)
                             _players[frame.OwnerSeat].SkillGrants.SetEnabled(grant.GrantId, false);
                         else _players[frame.OwnerSeat].SkillGrants.RemoveGrant(grant.GrantId);

@@ -103,15 +103,17 @@ public sealed partial class MainViewModel
     internal bool CanAimCardWithoutTarget(CardViewModel card)
     {
         if (!IsCardAimContext(card) || !card.IsSelected || _selectedCardId != card.Id ||
-            !CanConfirmSelected || IsMultiTargetCardSelected || SelectedPlayTargets().Count != 0)
+            !CanConfirmSelected || IsMultiTargetCardSelected ||
+            SelectedPlayTargets().Count != 0 && SelectedHellReturnSoulAction() is null)
             return false;
 
         // Follow ConfirmSelectedCommand's physical-first, conversion-second
         // branch and its exact unique-action selection, including provenance.
         var converted = !CanPlaySelected && CanPlaySelectedAsSlash;
         if (!CanPlaySelected && !converted) return false;
-        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), card.Id, [], card.Kind!.Value,
+        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), card.Id, SelectedPlayTargets(), card.Kind!.Value,
             converted, _selectedConversionSource);
-        return action is { TargetCardId: null } && action.Kind != LegalActionKind.Recast && action.TargetSeats.Count == 0;
+        return action is { TargetCardId: null } && action.Kind != LegalActionKind.Recast &&
+            (action.TargetSeats.Count == 0 || action.Kind == LegalActionKind.ReturnSoul && SelectedHellReturnSoulAction() is not null);
     }
 }

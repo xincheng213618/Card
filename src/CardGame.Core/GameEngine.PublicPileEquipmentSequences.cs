@@ -89,7 +89,7 @@ public sealed partial class GameEngine
         var p=f.PileEquipment!;
         if(action=="store-card"){ReplaceRuntimeTop(f=f with{PileEquipment=p with{SelectedIds=Array.AsReadOnly(p.SelectedIds.Append(choice.Cards.Single()).ToArray())}});PublishDomainChoice(f);return;}
         if(action=="store-finish")
-        {var ids=p.SelectedIds.Where(id=>DomainOwnedCards(f,f.OwnerSeat).Any(c=>c.Id==id)).ToArray();ReplaceRuntimeTop(f=f with{PileEquipment=p with{Stage="complete",SelectedIds=[]},PendingMovementContinuation=new(f.OwnerSeat,0,null)});MoveProgramCardsFromMultipleSources(ids,p.PileLocation,new("skill-program.public-pile.store-owned"));if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(f.Id);return;}
+        {var ids=p.SelectedIds.Where(id=>DomainOwnedCards(f,f.OwnerSeat).Any(c=>c.Id==id)).ToArray();ReplaceRuntimeTop(f=f with{PileEquipment=p with{Stage="complete",SelectedIds=[]},PendingMovementContinuation=new(f.OwnerSeat,0,null)});MoveProgramCardsFromMultipleSources(ids,p.PileLocation,new("skill-program.public-pile.store-owned"),disclosure:CardMovementDisclosure.FaceUp);if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(f.Id);return;}
         if(action=="recipient"){ReplaceRuntimeTop(f=f with{PileEquipment=p with{Stage="equip-choice",RecipientSeat=choice.Targets.Single()}});PublishDomainChoice(f);return;}
         if(action=="equip")
         {

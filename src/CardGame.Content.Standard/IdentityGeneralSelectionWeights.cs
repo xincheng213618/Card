@@ -11,7 +11,7 @@ internal static class IdentityGeneralSelectionWeights
     private static IReadOnlyDictionary<string, int> Create()
     {
         var weights = new Dictionary<string, int>(StringComparer.Ordinal);
-        Add(8, "mou:zhuge-liang", "ol:shen-sima-yi", "ol:du-yu", "ol:cao-chun",
+        Add(8, "mou:zhuge-liang", "mou:cao-pi", "ol:shen-sima-yi", "ol:du-yu", "ol:cao-chun",
             "ol:shen-lu-xun", "ol:shen-sun-quan");
         Add(5, "classic:shen-sima-yi", "classic:shen-cao-cao", "ol:xi-zhi-cai", "boundary:lu-su",
             "ol:wang-can", "ol:cao-ying", "classic:xu-you", "ol:shen-gan-ning", "ol:shen-zhao-yun",

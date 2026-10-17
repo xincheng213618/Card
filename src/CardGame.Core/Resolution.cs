@@ -779,7 +779,8 @@ public enum DyingContinuationKind
 {
     Damage,
     ProgramSkill,
-    AttackHpLoss
+    AttackHpLoss,
+    WenhePoison = 555
 }
 
 public sealed partial record DyingFrame(

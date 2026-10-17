@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ghost:guimei": {
+      "name": "鬼魅",
+      "description": "锁定技，你不能成为延时类锦囊的目标。"
+    },
+    "ghost:didong": {
+      "name": "地动",
+      "description": "结束阶段，令一名其他角色翻面。"
+    },
+    "ghost:shanbeng": {
+      "name": "山崩",
+      "description": "锁定技，当你死亡时，所有其他角色弃置装备区内的所有牌。"
+    },
+    "ghost:enyuan": {
+      "name": "恩怨",
+      "description": "锁定技，其他角色每令你回复1点体力，该角色摸一张牌；其他角色每对你造成一次伤害，须交给你一张红桃手牌，否则失去1点体力。"
+    },
+    "ghost:beiming": {
+      "name": "悲鸣",
+      "description": "锁定技，当你死亡时，杀死你的角色弃置所有手牌。"
+    },
+    "ghost:luolei": {
+      "name": "落雷",
+      "description": "准备阶段，对一名其他角色造成1点雷电伤害。"
+    },
+    "ghost:huilei": {
+      "name": "挥泪",
+      "description": "锁定技，当你死亡时，杀死你的角色弃置所有牌。"
+    },
+    "ghost:guihuo": {
+      "name": "鬼火",
+      "description": "结束阶段，对一名其他角色造成1点火焰伤害。"
+    },
+    "ghost:mingbao": {
+      "name": "冥爆",
+      "description": "锁定技，当你死亡时，对所有其他角色各造成1点火焰伤害。"
+    },
+    "ghost:lianyu": {
+      "name": "炼狱",
+      "description": "结束阶段，对所有其他角色各造成1点火焰伤害。"
+    },
+    "ghost:guiji-end": {
+      "name": "诡计",
+      "description": "锁定技，准备阶段结束时，若你的判定区内有牌，随机弃置其中一张牌。"
+    },
+    "ghost:guiji": {
+      "name": "诡计",
+      "description": "锁定技，准备阶段，若你的判定区内有牌，随机弃置其中一张牌。"
+    },
+    "ghost:fankui": {
+      "name": "反馈",
+      "description": "每当你受到伤害后，你可以获得伤害来源的一张牌。"
+    },
+    "ghost:baolian-one": {
+      "name": "暴敛",
+      "description": "锁定技，结束阶段，你摸一张牌。"
+    },
+    "ghost:baolian-two": {
+      "name": "暴敛",
+      "description": "锁定技，结束阶段，你摸两张牌。"
+    },
+    "ghost:manjia": {
+      "name": "蛮甲",
+      "description": "锁定技，若你的装备区内没有防具牌，视为你装备了【藤甲】。"
+    },
+    "ghost:xiaoshou": {
+      "name": "枭首",
+      "description": "结束阶段，对体力值不少于你的一名其他角色造成3点伤害。"
+    },
+    "ghost:qiangzheng": {
+      "name": "强征",
+      "description": "结束阶段，你获得每名其他角色的一张手牌。"
+    },
+    "ghost:zuijiu": {
+      "name": "醉酒",
+      "description": "锁定技，你使用的【杀】造成的伤害+1。"
+    },
+    "ghost:suoming": {
+      "name": "索命",
+      "description": "结束阶段，你可以横置任意名未横置的其他角色。"
+    },
+    "ghost:xixing": {
+      "name": "吸星",
+      "description": "准备阶段，对一名横置的其他角色造成1点雷电伤害，然后回复1点体力。"
+    },
+    "ghost:modao": {
+      "name": "魔道",
+      "description": "锁定技，准备阶段，你摸两张牌。"
+    },
+    "ghost:yushou": {
+      "name": "驭兽",
+      "description": "锁定技，出牌阶段开始时，视为你使用了一张【南蛮入侵】。"
+    },
+    "ghost:mojian": {
+      "name": "魔箭",
+      "description": "锁定技，出牌阶段开始时，视为你使用了一张【万箭齐发】。"
+    },
+    "ghost:moyan": {
+      "name": "魔炎",
+      "description": "当你于回合外失去牌后，你可以判定；若结果为红色，你对一名其他角色造成1点火焰伤害。"
+    },
+    "ghost:danshu": {
+      "name": "丹术",
+      "description": "当你于回合外失去牌后，你可以判定；若结果为红色，你回复1点体力。"
+    },
+    "ghost:niepan": {
+      "name": "涅槃",
+      "description": "限定技，当你处于濒死状态时，你可以回复3点体力并摸三张牌。"
+    }
+  }
+}

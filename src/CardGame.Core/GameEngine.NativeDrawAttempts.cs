@@ -167,6 +167,8 @@ public sealed partial class GameEngine
                 {
                     NativeDrawAttemptReturnKind.DrawPhase => parent is not DrawPhaseObligationFrame { Stage: DrawPhaseObligationStage.RequestingDraw },
                     NativeDrawAttemptReturnKind.CardUseDrawTwo => parent is not CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.Requesting },
+                    NativeDrawAttemptReturnKind.DragonBoatCardEffect => parent is not CardUseFrame { DragonBoatCardEffect.Stage: DragonBoatCardEffectStage.Drawing },
+                    NativeDrawAttemptReturnKind.EquipmentRecast => parent is not EquipmentRecastFrame { DrawApplied: false },
                     _ => parent is not ProgramSkillFrame
                 }) ||
                 ProgramEventHistory<NativeDrawAttemptStartedEvent>().Count(e => e.Context == context && e.Return == attempt.Return) != 1 ||

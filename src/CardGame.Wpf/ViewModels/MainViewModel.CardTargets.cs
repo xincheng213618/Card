@@ -51,6 +51,7 @@ public sealed partial class MainViewModel
 
     private IReadOnlyList<int> SelectedPlayTargets()
     {
+        if (SelectedHellReturnSoulAction() is { } soul) return soul.TargetSeats;
         if (!IsMultiTargetCardSelected) return _selectedTargetSeat is { } seat ? [seat] : [];
         // Seat clicks are unordered; submit the canonical order supplied by Core.
         return MultiTargetCardActions.FirstOrDefault(action => _selectedCardTargetSeats.SetEquals(action.TargetSeats))?.TargetSeats

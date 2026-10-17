@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shenwu:shura-inferno-halberd", "revision": 1,
+      "modifiers": [{ "id": "all-in-range-slash-targets", "query": "cardTargetCount", "operation": "add",
+        "value": 5, "cardKinds": ["slash", "fireSlash", "thunderSlash"], "priority": 0, "condition": { "kind": "always" } }],
+      "triggers": [{ "id": "recover-damaged-target", "window": "afterDamageApplied", "subject": "damageSource",
+        "damageOccurrence": "perDamage", "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+        "optional": false, "priority": 0,
+        "effects": [{ "op": "recover", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": 1 }]
+      }]
+    },
+    {
+      "id": "shenwu:delusion-crown", "revision": 1,
+      "modifiers": [
+        { "id": "extra-draw", "query": "drawCount", "operation": "add", "value": 2, "priority": 0,
+          "condition": { "kind": "always" } },
+        { "id": "reduced-hand-limit", "query": "handLimit", "operation": "add", "value": -1, "priority": 0,
+          "condition": { "kind": "always" } }
+      ]
+    },
+    {
+      "id": "shenwu:transplant-wood-resolution", "revision": 1,
+      "activations": [{
+        "id": "card-effect", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [
+          { "op": "requestSlashAgainstChosenTarget", "target": "selectedTarget",
+            "chooserRef": { "kind": "selectedTarget" }, "resultBind": "slash-result" },
+          { "op": "selectOwnedCards", "target": "selectedTarget", "amount": 2,
+            "zones": ["hand", "equipment"], "resultBind": "given-cards",
+            "condition": { "kind": "choiceIs", "sourceBind": "slash-result", "optionId": "declined" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "given-cards", "destination": "ownerHand",
+            "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "slash-result", "optionId": "declined" } }
+        ]
+      }]
+    }
+  ]
+}
