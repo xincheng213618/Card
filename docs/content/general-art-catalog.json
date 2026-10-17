@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "ol-mo-sun-quan",
+      "characterName": "魔孙权",
+      "defaultSkinId": "71100",
+      "skins": [
+        {
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71100.png",
+          "sourcePage": "https://www.sanguosha.com/hero/711",
+          "id": "71100",
+          "name": "经典形象",
+          "sha256": "037ecc49728793cbb71187fbd66354a3b6fbb44f3c3a80e013f92a0b82211c6d",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-mo-sun-quan.png"
+        }
+      ]
+    },
+    {
       "key": "le-zhou-yu",
       "characterName": "乐周瑜",
       "defaultSkinId": "1133901",

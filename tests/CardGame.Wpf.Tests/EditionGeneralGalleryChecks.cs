@@ -17,6 +17,7 @@ internal static class EditionGeneralGalleryChecks
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
             entry.GeneralId == "wumiao:guan-yu" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
                 "ol:wen-pin" or "ol:dong-yun" or "ol:shen-pei" or "ol:sun-lu-yu" or "ol:cheng-yu" or
@@ -28,6 +29,12 @@ internal static class EditionGeneralGalleryChecks
         Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify("wumiao:guan-yu") is { Id: "wumiao", SeriesId: "wumiao" } &&
             model.GeneralGallerySeries.Any(series => series.Id == "wumiao"),
             "Wu Guan Yu has a selectable Wumiao series and retains his distinct edition.");
+        var olMagicEntries = entries.Where(entry => entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal)).ToArray();
+        Program.Assert(olMagicEntries.Any(entry => entry.GeneralId == "ol:mo-sun-quan") &&
+            model.GeneralGallerySeries.Any(series => series.Id == "magic") &&
+            olMagicEntries.All(entry => CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
+                is { Id: "magic", SeriesId: "magic" }),
+            "Official OL magic editions must expose their distinct selectable Magic series.");
         Program.Assert(entries.Any(entry => entry.GeneralId == "wumiao:guan-yu") &&
             entries.Any(entry => entry.GeneralId == "le:cai-wen-ji") &&
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
@@ -194,6 +201,19 @@ internal static class EditionGeneralGalleryChecks
                     entry.Portrait.Brush is ImageBrush { ImageSource: not null } &&
                     entry.Skills.Count > 0 && entry.Skills.All(skill => !string.IsNullOrWhiteSpace(skill.Name)),
                     "Opening edition details must decode its own local portrait and show the registered skills.");
+                if (entry.GeneralId == "ol:mo-sun-quan")
+                {
+                    Program.Assert(entry.Name == "魔孙权" && entry.Skills.Count == 3 &&
+                        new[] { "ol:mo-quanyu", "ol:mo-tianen", "ol:mo-qiangang" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name &&
+                                skill.Description == registered.Description);
+                        }), "Mo Sun Quan's actual details show exactly the complete three printed skills.");
+                    Program.Assert(entry.Skills.Single(skill => skill.Name == "乾纲").Description.Contains(
+                        registry.GetSkill("ol:mo-rumo").Description, StringComparison.Ordinal),
+                        "Qiangang must visibly explain the complete shared Rumo rule without a fourth printed skill.");
+                }
                 if (entry.GeneralId == "ol:li-feng")
                     Program.Assert(entry.Skills.Count == 2 && new[] { "ol:jiyun", "ol:shuliang" }.All(id =>
                     {

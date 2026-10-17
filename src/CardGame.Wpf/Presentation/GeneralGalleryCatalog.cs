@@ -18,6 +18,7 @@ public static class GeneralGalleryCatalog
         new("friend", "友", "友系列武将"),
         new("le", "乐", "正音雅乐系列武将"),
         new("wumiao", "武庙", "武庙系列武将"),
+        new("magic", "魔", "魔系列武将"),
         new("other", "其他扩展", "其他扩展武将")
     ]);
 
@@ -45,6 +46,7 @@ public static class GeneralGalleryCatalog
         new("friend", "friend", "友", "友系列"),
         new("le", "le", "乐", "正音雅乐"),
         new("wumiao", "wumiao", "武庙", "武庙"),
+        new("magic", "magic", "魔", "魔系列"),
         new("other", "other", "其他", "其他扩展")
     ];
 
@@ -81,6 +83,7 @@ public static class GeneralGalleryCatalog
         groups.Add("le:da-qiao", "le");
         groups.Add("le:zhou-yu", "le");
         groups.Add("wumiao:guan-yu", "wumiao");
+        groups.Add("ol:mo-sun-quan", "magic");
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");
         Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao yu-ji");
         Add("myth-fire", "dian-wei xun-yu pang-tong wolong-zhuge-liang taishi-ci yuan-shao yan-liang-wen-chou pang-de");
