@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:tang-tang",
+  "skills": [
+    {
+      "registrationOrder": 2060,
+      "programBundle": "ol-tang-tang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zexing",
+        "name": "择行",
+        "description": "出牌阶段限一次，你可展示一张牌并选择一名其他角色，令其选择一项： 1.你观看其手牌并获得两张与展示牌花色不同的牌，然后其获得展示牌； 2.其失去1点体力，然后你可重新选择一名其他角色并重复此流程（本回合每名角色限一次）。",
+        "actionForms": "Active",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 2061,
+      "programBundle": "ol-tang-tang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhiyi",
+        "name": "知意",
+        "description": "每回合限一次，当你获得牌后或其他角色获得你的牌后，若你手牌中有其他此颜色的牌，你可令一名角色摸一张牌。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2062,
+      "pools": {
+        "current": 480
+      },
+      "definition": {
+        "id": "ol:tang-tang",
+        "name": "唐棠",
+        "portraitKey": "ol-tang-tang",
+        "skillId": "ol:zexing",
+        "additionalSkillIds": [
+          "ol:zhiyi"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:tang-tang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

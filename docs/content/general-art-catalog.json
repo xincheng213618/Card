@@ -14906,6 +14906,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-tang-tang",
+      "characterName": "唐棠·OL",
+      "defaultSkinId": "74400",
+      "skins": [
+        {
+          "id": "74400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/744",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/74400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-tang-tang.png",
+          "sha256": "9659eabcaf00a47deefcc3c0386f350b059d61a0f54797554f9620afbe30ed7a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,318 @@
+{
+  "generalId": "ol:tang-tang",
+  "gid": 744,
+  "moduleId": "tang-tang/ol",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-17T05:04:26.628487+00:00",
+  "identity": {
+    "name": "唐棠",
+    "factionId": "qun",
+    "gender": "Female",
+    "baseHp": 3,
+    "directSpellIds": [
+      3854,
+      3855
+    ]
+  },
+  "official": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/744",
+      "capturedAtUtc": "2026-10-17T05:04:26.655957+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/744",
+      "contentType": "text/html",
+      "byteCount": 23632,
+      "sha256": "fb901474fea11580721429132a6aaea4a51ba9dd98515c0ff356a4ce354ff531",
+      "hashScope": "HTTP response body bytes",
+      "fetchedInMemoryOnly": true,
+      "title": "三国杀唐棠 - 三国杀OL-三国杀官网-武将技能介绍",
+      "currentSkillSection": "武将技能： 择行 知意 出牌阶段限一次，你可展示一张牌并选择一名其他角色，令其选择一项： 1.你观看其手牌并获得两张与展示牌花色不同的牌，然后其获得展示牌； 2.其失去1点体力，然后你可重新选择一名其他角色并重复此流程（本回合每名角色限一次）。 每回合限一次，当你获得牌后或其他角色获得你的牌后，若你手牌中有其他此颜色的牌，你可令一名角色摸一张牌。 "
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=744",
+      "capturedAtUtc": "2026-10-17T05:04:26.628487+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=744",
+      "contentType": "application/json",
+      "byteCount": 670,
+      "sha256": "e374a5f7a094d935b3ad66dabacefc4ad18e90d66752114bf7a1a43ed92538e5",
+      "hashScope": "HTTP response body bytes",
+      "fetchedInMemoryOnly": true,
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 744,
+              "name": "唐棠",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/744.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/74400.png",
+              "label": [
+                "进攻",
+                "控制",
+                "过牌"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "汉末中常侍唐衡之女，荀彧之妻，荀莳之母。自小了解其他人的心意，后嫁给荀彧，永汉元年（公元189年）与荀彧同往冀州。",
+              "characteristic": "能让其他角色交换牌或失去体力。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [],
+          "deeds": []
+        }
+      }
+    },
+    "formalRelease": {
+      "url": "https://www.sanguosha.com/news/20260902_7781_1913",
+      "capturedAtUtc": "2026-10-17T05:04:26.689053+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20260902_7781_1913",
+      "contentType": "text/html",
+      "byteCount": 316360,
+      "sha256": "8d8a58217e42eb252decf8098009125ad03bfefd82a5c352a5ba396ff60395fa",
+      "hashScope": "HTTP response body bytes",
+      "fetchedInMemoryOnly": true,
+      "title": "9.5-9.11 白露祈福谋程昱来袭 掌生莲华*孙茹琳琅绘卷上新 - 三国杀OL官网"
+    }
+  },
+  "formalAvailability": {
+    "publishedAtLocal": "2026-09-04T17:01:15+08:00",
+    "officialAdvertisedAvailabilityStartLocal": "2026-09-05T00:15:00+08:00",
+    "officialAdvertisedAvailabilityEndText": "2026-9-11 24:00:00",
+    "mode": "寻宝阁活动或传世玉玺兑换; notice calls her 新品武将 and states postlaunch general welfare",
+    "status": "Formally released before audit date; not a test-server row or ten-year/mobile variant"
+  },
+  "client": {
+    "sources": [
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T04:02:55.071187+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T04:02:55.071904+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    ],
+    "freshnessScope": "Current official public bundle/config read-only bytes match independent root HTTP GET at2026-10-17T04:02:55UTC; small hero/API/release independently refreshed above. No newer fullclient GET or server play session claimed here.",
+    "decoder": "Read public sgsGame_a.sgs InitOfb key/IV arrays, AES-CFB128 segment16 then gzip JSON; no importer execution.",
+    "scriptMember": "sgsGame_a.sgs",
+    "scriptMemberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "members": {
+      "character.sgs": {
+        "encryptedByteCount": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedByteCount": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedByteCount": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedByteCount": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "characterPath": "character.sgs/GameCharacters/character[a=744]",
+    "rawCharacter": {
+      "a": 744,
+      "b": "唐棠",
+      "d": "TangTang",
+      "e": 44,
+      "f": "44",
+      "g": 4,
+      "h": 2,
+      "i": 3,
+      "j": 3854,
+      "k": 3855,
+      "p": 2,
+      "q": "20260904T180000",
+      "r": "9074401",
+      "y": "汉末中常侍唐衡之女，荀彧之妻，荀莳之母。自小了解其他人的心意，后嫁给荀彧，永汉元年（公元189年）与荀彧同往冀州。",
+      "z": "能让其他角色交换牌或失去体力。",
+      "aa": 149,
+      "ab": "1415,1416",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20261005T000000",
+      "starMax": 4
+    },
+    "rawDirectSpells": [
+      {
+        "a": 3854,
+        "b": "3",
+        "c": "择行",
+        "d": "ZeXing",
+        "e": 0,
+        "g": 4,
+        "h": 1,
+        "i": 2,
+        "o": "出牌阶段限一次，你可展示一张牌并选择一名其他角色，令其选择一项：<br>&nbsp;1.你观看其手牌并获得两张与展示牌花色不同的牌，然后其获得展示牌；<br>&nbsp;2.其失去1点体力，然后你可重新选择一名其他角色并重复此流程（本回合每名角色限一次）。",
+        "w": "{0}失去体力，请重新选择一名角色",
+        "v": "是否发动<font color='#FFD800'>择行</font>展示牌并选择角色",
+        "u": "<font color='#FFD800'>择行</font>：请选择两张不为{0}的牌获得",
+        "ae": "失去体力|令{0}获得牌"
+      },
+      {
+        "a": 3855,
+        "b": "3,5",
+        "c": "知意",
+        "d": "ZhiYi",
+        "e": 0,
+        "g": 7,
+        "i": 2,
+        "n": 1,
+        "o": "每回合限一次，当你获得牌后或其他角色获得你的牌后，若你手牌中有其他此颜色的牌，你可令一名角色摸一张牌。",
+        "v": "是否发动<font color='#FFD800'>知意</font>令一名角色摸牌"
+      }
+    ],
+    "rawLinkedSpells": [],
+    "targetOnlyClientClasses": [
+      {
+        "publicRegistrationName": "ZeXing",
+        "classSymbol": "kli",
+        "bundleMember": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "classByteOffsetUtf8": 15072964,
+        "classByteCountUtf8": 2617,
+        "classSha256": "42beb969ebc0a70521eba61272f7b069135dcf37897a0e98db70b9f4c283a871",
+        "targetOnlyClassExcerpt": "class kli extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE|Nmt.ASK,this.timeLimitRound=1,this.targetCanBeSelf=!1,this.targetSelector=new pBt(this),this.selectCardTypeWhenResponse=Lmt.NORMAL|Lmt.EQUIP,this.requestCardType=Lmt.NORMAL|Lmt.EQUIP,this.touchSkillWhenApplyActive=!0,this.showHands=!0,this.enableCancel=!0}get NeedCancel(){return this.flag==JZi.OPT_SKILL_FLAG3}get CardUseType(){return 0==this.flag?Dmt.SHOW:Dmt.GIVE}get TargetCountMax(){return 0==this.flag||this.flag==JZi.OPT_SKILL_FLAG3?1:0}get TargetCountMin(){return this.TargetCountMax}get CardCountMax(){return 0==this.flag?1:0}get CardCountMin(){return this.CardCountMax}get SelectCardFlowerWhenResponse(){if(D2t.RoleOptTargetNtfParam>0){this.selectCardFlowerWhenResponse=[];for(let t=1;t<=4;t++)D2t.RoleOptTargetNtfParam!=t&&this.selectCardFlowerWhenResponse.push(t)}return this.selectCardFlowerWhenResponse}GetResponser(t){return t?(this.Flag=t.Type,t.Type==JZi.OPT_SKILL_FLAG1?(this.responser||(this.responser=new HQt),this.responser):t.Type==JZi.OPT_SKILL_FLAG2?(this.responser1||(this.responser1=new Izt),this.responser1):t.Type==JZi.OPT_SKILL_FLAG3?(this.responser2||(this.responser2=new zqt),this.responser2):null):null}hadDiffColorCard(t){if(!t||t.HandCardCount<2)return!1;let i=t.HandCards.concat(t.EquipCards),s=D2t.RoleOptTargetNtfParam,e=0;for(let t=0;t<i.length;t++)i[t].FlowerOnSeat!=s&&e++;return e>=2}GetMultiSelectDatas(t){if(!t||t.Type!=JZi.OPT_SKILL_FLAG1)return;let i,s=[],e=$mt.SKILL_MULTISELECT_MSG;return i=new pAt,i.label=le.F(this.UseTipArr[1],D2t.GetSeat(t.SrcSeatID).SeatName),i.enabled=this.hadDiffColorCard(t.Seat),i.callBack=this.onCallBack,i.thisObject=this,i.callBackParams=[t.SeatID,1],i.sendType=d1t.OPT_INVALID,s.push(i),i=new pAt,i.label=this.UseTipArr[0],i.enabled=!0,i.callBack=this.onCallBack,i.thisObject=this,i.callBackParams=[t.SeatID,2],i.sendType=d1t.OPT_INVALID,s.push(i),{btnDatas:s,optMsg:e}}GetNextTargetIDs(t){return null}get ActiveTip(){let t=Laya.superGetter(kli,this,\"ActiveTip\");return this.flag==JZi.OPT_SKILL_FLAG3?this.DefensiveTip:t}get DefensiveTip(){let t=Laya.superGetter(kli,this,\"DefensiveTip\"),i=D2t.RoleOptTargetParams,s=D2t.GetSeat(i[i.length-1]);return s?le.F(t,s.SeatName):\"\"}onCallBack(t,i){d1t.SendRoleSpellOptRep(t,this.ID,[i]),ue.I().event(sO.HIDE_SPELLSELECTOR)}GetSkillWindowDesc(t){let i=$mt.Card_Flower_Name_Array[D2t.RoleOptTargetNtfParam];return le.F(this.PassiveTip,i)}get SelectCardCountWhenResponse(){return 2}ClearActionData(){this.flag=0}Use(t,i,s=null){this.flag==JZi.OPT_SKILL_FLAG3?d1t.SendRoleSpellOptRep(D2t.SelfSeatIndex,this.ID,i):super.Use(t,i,s)}}"
+      },
+      {
+        "publicRegistrationName": "ZhiYi",
+        "classSymbol": "bli",
+        "bundleMember": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "classByteOffsetUtf8": 15072740,
+        "classByteCountUtf8": 224,
+        "classSha256": "7b709518a0199221177cbefcc64c47b5c07f8bb85279ac20111c222df3de4d14",
+        "targetOnlyClassExcerpt": "class bli extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.timeLimitRound=Number.MAX_VALUE,this.touchSkillWhenApplyActive=!0,this.targetCountMax=this.targetCountMin=1}get RetainRoleDataExLastParams(){return!1}}"
+      }
+    ]
+  },
+  "rulesAuthority": {
+    "currentText": "Official hero, formal OL2026-09-04 release and current direct spells3854/3855 agree.",
+    "specialFaqLocated": false,
+    "guide": "No dedicated sameproduct official-author guide or FAQ located in this audit; no mobile/ten-year substitute used.",
+    "clientUiStatus": "Current official client UI is primary shipped-client evidence; local class selectors are not a server replay or universal FAQ."
+  },
+  "ruleInterpretations": [
+    {
+      "topic": "Show/equipment and two-card obtain",
+      "classification": "current official client UI corroboration",
+      "basis": "ZeXing constructor uses NORMAL|EQUIP, initialflag selects exactly1show+1other target; hadDiffColorCard requires peer HandCardCount>=2 and at least2 differing-flower cards in HandCards+EquipCards; response count2.",
+      "implementation": "One exact shown HE entity, issuer-only whole Hand view, select exactly2 different-suit transferable HE entities. General-weapon cannot be transferred under existing native restriction; no fakeOutsideGame gift."
+    },
+    {
+      "topic": "Repeat clause",
+      "classification": "text plus current client UI inference, not exclusive FAQ",
+      "basis": "flag3 asks1target with0cards; current text says reselect another role then repeat and each role once this turn.",
+      "implementation": "Keep original shown ID and shown effective suit. Repetition asks new unused peer, not a new showcard. ActualPlay activation quota independent of issuer/skill actualTurn visited recipients; neither resets on skill instance replacement."
+    },
+    {
+      "topic": "One whole gain and other same-color Hand",
+      "classification": "explicit implementation inference from whole获得集合 + 其他 wording; no dedicated FAQ",
+      "implementation": "For own gain, exclude every primary entity in that same complete atomic gain or native DrawCards invocation from other Hand witnesses. Two red cards gained together without any oldred do not mutually qualify. An oldred plus gainedred does qualify. Examine every gained color, never just firstcard; one shared opportunity covers both own-gain and foreign-gain directions across same actualTurn."
+    },
+    {
+      "topic": "Native draw physical batches",
+      "classification": "engine-native preservation",
+      "implementation": "DrawCards can produce separate physical batches. Use its exact NativeDrawInvocationProof, exclude all Materials together and publish one qualification at its LastBatchId before movement-window collection; ordinary standalone deck-to-Hand obtain remains a real gain. Do not fabricate a larger movement batch or alter legacy physical movement shape."
+    },
+    {
+      "topic": "Color and ownership continuity",
+      "classification": "engine-native effective-identity inference",
+      "implementation": "Own gain tests receiving-hand mandatory effective suit after completed whole move; foreign gain freezes original owner effective suit before departure. Only a real owned→Hand movement or exactowned→Processing entry+true transfer producer+same entity immediately Processing→recipientHand proves foreign gain. Use/respond costs followed by someone claiming material are not such transfers. Suit.None has no red/black color. Optional viewAs possibility is not a persistent color identity."
+    },
+    {
+      "topic": "Private view and disclosure",
+      "classification": "explicit text/native privacy",
+      "implementation": "Original shown card is publicly revealed. Other peer Hand IDs are exposed only to issuer during actual take-selection; peer and uninvolved viewers receive no private take menu or entire hand view. Hand/equipment candidates and all receipt collections frozen; no private IDs added to collection-bearing custom events."
+    },
+    {
+      "topic": "Native children/source loss/death",
+      "classification": "implementation inference following existing paid native continuation, not exclusive FAQ",
+      "implementation": "After actual show, accepted chain preserves source-loss continuation. Take2 is fully native and drains equipment removal, SilverLion recovery/Ox grain spill, HP/skill/movement/dying children before transferring original shown entity. If no longer owned/transferable or recipientdead, no replacementgift. Dead issuer receives no cards or new optional repeat; exact already-paid frame drains and closes once. Before paid/show, missing source/deadowner cannot begin a new effect."
+    },
+    {
+      "topic": "Zhiyi qualification time",
+      "classification": "event-derived trigger interpretation",
+      "implementation": "Freeze original whole gain color and remaining otherhand witness at completion, before earlier nested children can change hand. A later child loss of that witness does not erase a qualified opportunity. Skill must be live when unissued candidate is accepted; after own accepted receipt later source loss does not repay or revoke its single chosen draw."
+    }
+  ],
+  "verification": {
+    "status": "focused-and-measured-routine-passed",
+    "behaviorVerified": true,
+    "rootSourceVerificationPending": false,
+    "rootVerified": true,
+    "focusedChecksPassed": true,
+    "routinePassed": true,
+    "routineCoreChecksPassed": 147,
+    "routineWpfChecksPassed": 30,
+    "routineDurationMs": 50354,
+    "validationCheckout": "main workspace; identical captured inputs before focused and routine checks",
+    "fullVerificationRun": false,
+    "releaseOrPackagingRun": false,
+    "commitOrPush": false,
+    "coreChecks": [
+      "TangTangChecks.ZexingPrivateTakeGiftAndWholeNativeChildrenCold",
+      "TangTangChecks.ZexingHpLossRepeatedPeersAndActualPlayScopesCold",
+      "TangTangChecks.ZhiyiWholeGainDirectionsColorsAndNativeTransferCold",
+      "TangTangChecks.ZexingPaidSourceLossDeathAndEquipmentRemovalCold"
+    ]
+  },
+  "art": {
+    "key": "ol-tang-tang",
+    "characterName": "唐棠·OL",
+    "defaultSkinId": "74400",
+    "skins": [
+      {
+        "id": "74400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/744",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/74400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-tang-tang.png",
+        "sha256": "9659eabcaf00a47deefcc3c0386f350b059d61a0f54797554f9620afbe30ed7a",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    ]
+  },
+  "currentClientRefresh": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "capturedAtUtc": "2026-10-17T05:04:22.999293+00:00",
+      "bytes": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "matchesRetainedSource": true
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "capturedAtUtc": "2026-10-17T05:04:22.890652+00:00",
+      "bytes": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "matchesRetainedSource": true
+    }
+  ]
+}
