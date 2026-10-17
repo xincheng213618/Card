@@ -142,6 +142,7 @@ public sealed partial class SeatViewModel : ObservableObject
     public required string SkillText { get; set; }
     public string PortraitTooltip => $"{SkillText}\n\n{HpText}\n{HandBadgeTooltip}\n{EquipmentText}\n{DistanceText}";
     public required bool IsAlive { get; set; }
+    public string UnavailableStatusText { get; set; } = "阵 亡";
     public required bool IsCurrent { get; set; }
     public required bool IsHuman { get; set; }
 
@@ -169,8 +170,8 @@ public sealed partial class SeatViewModel : ObservableObject
         "忠臣" => new SolidColorBrush(Color.FromRgb(188, 129, 39)),
         "反贼" => new SolidColorBrush(Color.FromRgb(62, 113, 153)),
         "内奸" => new SolidColorBrush(Color.FromRgb(104, 83, 125)),
-        "青队" => new SolidColorBrush(Color.FromRgb(48, 125, 115)),
-        "赤队" => new SolidColorBrush(Color.FromRgb(155, 67, 58)),
+        "青队" or "蜀军" or "联合军" or "先锋" or "中坚" or "大将" => new SolidColorBrush(Color.FromRgb(48, 125, 115)),
+        "赤队" or "魏军" or "鬼军" or "神吕布" or "首领" or "烛阴" or "对手" => new SolidColorBrush(Color.FromRgb(155, 67, 58)),
         _ => new SolidColorBrush(Color.FromRgb(91, 96, 92))
     };
 
@@ -225,6 +226,7 @@ public sealed partial class SeatViewModel : ObservableObject
         if (!EqualityComparer<string>.Default.Equals(DistanceText, source.DistanceText)) { DistanceText = source.DistanceText; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(SkillText, source.SkillText)) { SkillText = source.SkillText; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsAlive, source.IsAlive)) { IsAlive = source.IsAlive; changed = true; }
+        if (UnavailableStatusText != source.UnavailableStatusText) { UnavailableStatusText = source.UnavailableStatusText; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsCurrent, source.IsCurrent)) { IsCurrent = source.IsCurrent; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsHuman, source.IsHuman)) { IsHuman = source.IsHuman; changed = true; }
         if (!EqualityComparer<GeneralPortraitViewModel>.Default.Equals(Portrait, source.Portrait)) { Portrait = source.Portrait; changed = true; }

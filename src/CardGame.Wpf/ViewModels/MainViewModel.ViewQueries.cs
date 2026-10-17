@@ -45,5 +45,8 @@ public sealed partial class MainViewModel
             RefreshTargetHighlights();
             RefreshDiscardPresentation();
         }
+        // A terminal continuation may publish its final view only after Submit
+        // returns. Capture from that presented result; repeated calls are inert.
+        if (snapshot.Status == EngineStatus.Completed) CaptureCompletedHistory();
     }
 }

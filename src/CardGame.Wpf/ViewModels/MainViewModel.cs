@@ -98,7 +98,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _confirmOpeningHand = confirmOpeningHand;
         _contentRegistry = contentRegistry ??
             (useExpandedContent
-                ? ComposedSkillContentRegistry.CreateShowcase(includeActivities: true)
+                ? ComposedSkillContentRegistry.CreateShowcase(includeActivities: true, includeBossActivities: true, includeHulaoActivities: true, includeShenwuActivities: true, includeNianActivities: true, includeHellActivities: true, includeWenheActivities: true, includeDragonBoatActivities: true)
                 : StandardContentRegistry.CreateWithTeamModes());
         TableModes = useExpandedContent
             ? [
@@ -113,9 +113,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new TableModeOption(5, "五人身份", "1 主公 · 1 忠臣 · 2 反贼 · 1 内奸", "identity:standard-5"),
                 new TableModeOption(4, "2v2公开阵营", "青队 2 · 赤队 2 · 阵营公开 · 击败另一队获胜", "team:standard-2v2")
             ];
-        TableModes = TableModes.Concat(_contentRegistry.Modes.Values.Where(mode => mode.TeamActivity is not null)
-            .OrderBy(mode => mode.TeamActivity!.MachineTier)
-            .Select(mode => new TableModeOption(8, mode.Name, "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
+        TableModes = TableModes.Concat(_contentRegistry.Modes.Values.Where(IsActivityDefinition)
+            .OrderBy(mode => mode.TeamActivity is not null ? 0 : mode.BossActivity is not null ? 1 : 2)
+            .ThenBy(mode => mode.TeamActivity?.MachineTier ?? 0)
+            .ThenBy(mode => mode.HellActivity?.BossTier ?? 0)
+            .Select(mode => new TableModeOption(mode.MaxPlayers, mode.Name,
+                mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription : mode.BossActivity is not null
+                    ? BossActivityLobbyDescription(mode)
+                    : "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
         DeckOptions =
         [
             .. (_contentRegistry.Decks.ContainsKey("classic:standard-deck")
@@ -140,6 +145,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         InitializeGeneralGallery();
         IsNewGameSetupOpen = showSetup;
         _initializing = false;
+        InitializeNianClock();
     }
 
     public ObservableCollection<SeatViewModel> Seats { get; } = [];
@@ -372,10 +378,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 Seed = seed,
                 HumanSeat = 0,
-                HumanRole = IsSelectedTeamMode || IsNationalModeSelection ? null : SelectedStartingRole.Role,
+                HumanRole = IsSelectedTeamMode || IsNationalModeSelection || IsWenheActivityModeSelection ? null : SelectedStartingRole.Role,
                 HumanTeamId = IsSelectedTeamMode ? SelectedStartingTeam.TeamId : null,
                 PlayerCount = SelectedTableMode.PlayerCount,
                 ModeId = SelectedTableMode.ModeId,
+                WenheAspirationRank = IsWenheAspirationSelection ? SelectedWenheAspiration.GoalRank : null,
                 DeckId = IsClassicIdentityModeSelection ? SelectedDeck?.DeckId : null,
                 MaxTurns = 400,
                 UseInteractiveSetup = true,
@@ -384,7 +391,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 AiPolicyVersion = AiDecisionPolicy.CurrentVersion,
                 AdvanceAfterHumanCommands = false
             },
-            _contentRegistry);
+            SelectedModeRegistry);
         ReplaceEngine(game);
         ExecuteSafely(() =>
         {
@@ -393,10 +400,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         });
     }
 
-    private bool IsSelectedTeamMode =>
-        SelectedTableMode is not null &&
-        _contentRegistry.Modes.TryGetValue(SelectedTableMode.ModeId, out var mode) &&
-        mode.ModeKind == ContentModeKind.Team;
+    private bool IsSelectedTeamMode => SelectedModeDefinition?.ModeKind == ContentModeKind.Team;
 
     private void ReplaceEngine(GameEngine game)
     {
@@ -436,6 +440,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _game.AiThoughtAdded += OnAiThoughtAdded;
         _game.AiGeneralThoughtAdded += OnAiGeneralThoughtAdded;
         _game.StateChanged += OnStateChanged;
+        ResetNianClockForEngine();
         RefreshCurrentView();
         foreach (var entry in _game.Log.TakeLast(400)) OnLogAdded(entry);
         RecordPublicPlays(_game.Events);
@@ -450,7 +455,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _game.StateChanged -= OnStateChanged;
     }
 
-    private void OnStateChanged(GameSnapshot snapshot) => PresentCommittedState(snapshot);
+    private void OnStateChanged(GameSnapshot snapshot)
+    {
+        PresentCommittedState(snapshot);
+        SyncNianClockAfterCommand();
+    }
 
     private void OnLogAdded(GameLogEntry entry)
     {
@@ -582,7 +591,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Text = choice.Description,
                     Name = general.Name,
                     Kingdom = FactionName(general.FactionId),
-                    HealthText = !HasDualGeneralSlots
+                    HealthText = IsDragonBoatActivitySnapshot || IsWenheActivitySnapshot || IsHellActivitySnapshot || IsShenwuActivitySnapshot || IsNianActivitySnapshot ? $"五阶体力上限 {general.BaseHp + 2}" : !HasDualGeneralSlots
                         ? choice.Parameters.TryGetValue("identity-max-hp", out var identityHp) ? $"体力上限 {identityHp}" : string.Empty
                         : choice.Parameters.TryGetValue("combined-max-hp", out var combinedHp) ? $"组合体力 {combinedHp}" :
                         choice.Parameters.TryGetValue("base-hp", out var baseHp) ? $"基础体力 {baseHp}" : "旧规则体力 4",
@@ -767,7 +776,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
                 Hp = player.Hp,
                 IdentityConcealed = player.IdentityConcealed,
-                HpUndefined = player.HpUndefined,
+                HpUndefined = player.HpUndefined || IsHellDormantAuxiliary(player),
                 MaxHp = player.MaxHp,
                 HandCount = player.HandCount,
                 HandLimit = player.HandLimit,
@@ -803,19 +812,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 StatusBadges = ProjectSeatStatuses(player),
                 SkillName = player.IdentityConcealed && !player.IsHuman ? string.Empty : IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
-                    : VisibleSkillNames(player.Skills),
+                    : VisibleSkillNames(WenheDisplaySkills(player)),
                 Name = $"{player.GeneralName} · {(player.IsHuman ? "你" : $"AI {player.Seat + 1}")}",
                 Kingdom = player.IdentityConcealed && !player.IsHuman ? "隐匿" : IsNationalSnapshot
                     ? FactionName(player.FactionId)
                     : player.FactionId is not null
                         ? FactionName(player.FactionId)
                         : GetKingdom(player.GeneralId),
-                RoleLabel = IsNationalSnapshot ? FactionName(player.FactionId) : player.TeamId is { } teamId ? PublicTeamName(teamId)
+                RoleLabel = IsWenheActivitySnapshot ? WenheSeatLabel(player) : IsHellActivitySnapshot ? HellSeatLabel(player) : IsNianActivitySnapshot ? NianSeatLabel(player) : IsShenwuActivitySnapshot ? ShenwuSeatLabel(player) : IsNationalSnapshot ? FactionName(player.FactionId) : player.TeamId is { } teamId ? PublicTeamName(teamId)
                     : player.Role is { } role ? GetRoleName(role) : "?",
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
                     player.TeamId == _snapshot.Players.SingleOrDefault(seat => seat.IsHuman)?.TeamId,
-                HpText = player.HpUndefined ? "隐匿中 · 体力未定义" : $"体力 {player.Hp}/{player.MaxHp}",
+                HpText = IsHellDormantAuxiliary(player) ? "孟婆尚未登场" : player.HpUndefined ? "隐匿中 · 体力未定义" : $"体力 {player.Hp}/{player.MaxHp}",
                 HandText = BuildHandText(player),
                 EquipmentText = player.Equipment.Count == 0
                     ? "装备 —"
@@ -838,6 +847,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         : $"距你 {_game.GetCombatDistance(humanSeat, player.Seat)}",
                 SkillText = DisplaySkillText(player),
                 IsAlive = player.IsAlive,
+                UnavailableStatusText = IsWenheActivitySnapshot && player.SurvivalRank is { } rank ? $"第{rank}名" : IsHellDormantAuxiliary(player) ? "未登场" : "阵 亡",
                 IsCurrent = player.Seat == _snapshot.CurrentSeat && _snapshot.Status != EngineStatus.Completed,
                 IsHuman = player.IsHuman,
                 DecisionRoleLabel = CurrentDecisionContext?.TargetSeat == player.Seat ? CurrentDecisionContext.TargetLabel
@@ -932,7 +942,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 });
             }
 
-            HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · " +
+            HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : human.TeamId is { } humanTeam ? PublicTeamName(humanTeam) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · " +
                 (human.HpUndefined ? "隐匿中 · 体力未定义" : $"{human.Hp}/{human.MaxHp} 体力") +
                 (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
@@ -956,7 +966,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             HumanSummary = "全 AI 演示";
         }
 
-        RoundText = $"回合 {_snapshot.TurnNumber}";
+        RoundText = IsDragonBoatActivitySnapshot ? $"{DragonBoatRoundText} · 行动回合 {_snapshot.TurnNumber}"
+            : IsWenheActivitySnapshot ? $"{WenheRoundText} · 行动回合 {_snapshot.TurnNumber}" : $"回合 {_snapshot.TurnNumber}";
         PhaseText = GetPhaseName(_snapshot.Phase);
         var current = _snapshot.Players.FirstOrDefault(player => player.Seat == _snapshot.CurrentSeat);
         CurrentPlayerText = current is null ? string.Empty : $"当前：{current.GeneralName}";
@@ -972,8 +983,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         HasGameOver = _snapshot.Status == EngineStatus.Completed;
         RefreshMatchSummary();
-        GameOverText = HasGameOver ? _snapshot.Winner == Winner.Draw ? "本局平局结束" :
-            $"{(IsNationalSnapshot ? FactionName(_snapshot.WinnerFactionId) + "势力" : GetWinnerName(_snapshot.Winner))}获胜" : string.Empty;
+        GameOverText = HasGameOver ? IsDragonBoatActivitySnapshot ? DragonBoatGameOverText : IsWenheActivitySnapshot ? WenheGameOverText : _snapshot.Winner == Winner.Draw ? "本局平局结束" :
+            $"{(IsNationalSnapshot ? FactionName(_snapshot.WinnerFactionId) + "势力" : _snapshot.WinnerTeamId is { } winningTeam ? PublicTeamName(winningTeam) : GetWinnerName(_snapshot.Winner))}获胜" : string.Empty;
         RaisePropertyChanged(nameof(GameOutcomeTitle));
         CanEndTurn = _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard;
         CanRespondDodge = _snapshot.PendingDecision is
@@ -1494,7 +1505,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void RebuildTargetCombinationChoices()
     {
         TargetCombinationChoices.Clear();
-        if (IsMultiTargetCardSelected || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } pending ||
+        if (IsMultiTargetCardSelected || SelectedHellReturnSoulAction() is not null || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } pending ||
             _selectedCardId is not { } selectedCardId)
         {
             HasTargetCombinationChoices = false;
@@ -1553,13 +1564,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (!IsMultiTargetCardSelected) _selectedCardTargetSeats.Clear();
         else _selectedCardTargetSeats.IntersectWith(MultiTargetCardActions.SelectMany(action => action.TargetSeats));
         var selectedTargets = SelectedPlayTargets();
+        var automaticSoul = SelectedHellReturnSoulAction() is not null;
 
         foreach (var seat in Seats)
         {
-            seat.IsLegalTarget = IsMultiTargetCardSelected
+            seat.IsLegalTarget = !automaticSoul && (IsMultiTargetCardSelected
                 ? _selectedCardTargetSeats.Contains(seat.Seat) || MultiTargetCardActions.Any(action =>
                     action.TargetSeats.Contains(seat.Seat) && _selectedCardTargetSeats.All(action.TargetSeats.Contains))
-                : legalTargets.Contains(seat.Seat);
+                : legalTargets.Contains(seat.Seat));
             seat.IsSelectedTarget = selectedTargets.Contains(seat.Seat);
         }
 
@@ -2149,6 +2161,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Role.Renegade => "内奸",
         Role.TeamA => "青队",
         Role.TeamB => "赤队",
+        Role.Contestant => "求生者",
         _ => role.ToString()
     };
 

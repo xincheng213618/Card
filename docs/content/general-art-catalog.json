@@ -14872,6 +14872,402 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "shenwu-hundun",
+      "characterName": "混沌",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "daeb62d16d02d44b8ecfdc472b840e95d635c17b7dec5e0910de671769aa4b3c",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-hundun.png",
+          "sha256": "7cf52eeb700c0ef7cb4eb931f384be3a574eee3e5220133ef79782bb332c5cb9",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-qiongqi",
+      "characterName": "穷奇",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "daeb62d16d02d44b8ecfdc472b840e95d635c17b7dec5e0910de671769aa4b3c",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-qiongqi.png",
+          "sha256": "05cdfa1653724c6acb812a235703eb2d2612d02f722f6634d0f96773365f178a",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-taowu",
+      "characterName": "梼杌",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "daeb62d16d02d44b8ecfdc472b840e95d635c17b7dec5e0910de671769aa4b3c",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-taowu.png",
+          "sha256": "95c99283277a436d175066d750b1c104072b3bc27ad346abc8c91f48bbbed220",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-taotie",
+      "characterName": "饕餮",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "daeb62d16d02d44b8ecfdc472b840e95d635c17b7dec5e0910de671769aa4b3c",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-taotie.png",
+          "sha256": "3add277acaee36dd2d25a88079a7d27aa3c4e9bba87b06351571a776739feb59",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-zhuyin",
+      "characterName": "烛阴",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "daeb62d16d02d44b8ecfdc472b840e95d635c17b7dec5e0910de671769aa4b3c",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-zhuyin.png",
+          "sha256": "edb8faf587bcaa95854888d461559a04b72778084e6c0da779489235b14a609d",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "nian-initial",
+      "characterName": "年兽·初始",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-NianBeastArtwork.ps1",
+          "generatorSha256": "0588e6fe8d7bb67199a763e4b9fdf990d8a57253a8e2c49317628463a6ead87b",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-nian-initial.png",
+          "sha256": "73eb428705edcd59d8743140ac2c78f179d348be736dd32ee5f3e806f3f67bf3",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "nian-wise",
+      "characterName": "年兽·睿智",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-NianBeastArtwork.ps1",
+          "generatorSha256": "0588e6fe8d7bb67199a763e4b9fdf990d8a57253a8e2c49317628463a6ead87b",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-nian-wise.png",
+          "sha256": "efa6e60a6ef8cb05bac05e20d26016f9330cadaaea73dbbbee2bfacb2841b177",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "nian-alert",
+      "characterName": "年兽·警觉",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-NianBeastArtwork.ps1",
+          "generatorSha256": "0588e6fe8d7bb67199a763e4b9fdf990d8a57253a8e2c49317628463a6ead87b",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-nian-alert.png",
+          "sha256": "cbcb9e213a0843910a918a0eb5e5b332549dd39590ea0b962d71f6620a671106",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "nian-capricious",
+      "characterName": "年兽·任性",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-NianBeastArtwork.ps1",
+          "generatorSha256": "0588e6fe8d7bb67199a763e4b9fdf990d8a57253a8e2c49317628463a6ead87b",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-nian-capricious.png",
+          "sha256": "3ada7b0b95c78cd3a55a4b0c13101041601d62a3561fde21f970fa1c9cf56049",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "nian-furious",
+      "characterName": "年兽·暴怒",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-NianBeastArtwork.ps1",
+          "generatorSha256": "0588e6fe8d7bb67199a763e4b9fdf990d8a57253a8e2c49317628463a6ead87b",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-nian-furious.png",
+          "sha256": "0457a34ec0393e9d8fac81d15719d7f86b5b6ded5cfefdd50012ace94043b2b9",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-qinguang",
+      "characterName": "秦广王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-qinguang.png",
+          "sha256": "fb75f14456b21b2da80be99b0c300fe364d15b61ab185000f7747dea6ca54698",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-chujiang",
+      "characterName": "楚江王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-chujiang.png",
+          "sha256": "a1032a60cee93983fba77bc2cf0e0ed5449916d933415dc33a2a3d2e25d7d8e8",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-songdi",
+      "characterName": "宋帝王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-songdi.png",
+          "sha256": "4ecd7667b913a1bc1ca21b0725d2852ff80c8140eedd985b1efaabe9364404ac",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-wuguan",
+      "characterName": "五官王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-wuguan.png",
+          "sha256": "acb81f649bed482da1fa00267049a0145987ccfffdd341eeddeb4b1e065e9771",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-yanluo",
+      "characterName": "阎罗王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-yanluo.png",
+          "sha256": "7942529f17f2cb15d692e47732d6c3f96089322671ace7a781766d18fe960498",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-biancheng",
+      "characterName": "卞城王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-biancheng.png",
+          "sha256": "ffccdc702bd574c5711856a9a22d6291f3ff24de2246eebf5b87d946d8ac4bb3",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-taishan",
+      "characterName": "泰山王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-taishan.png",
+          "sha256": "886828fdf43eeb023aef2333377dc11a42ba3c11345898c32c6df023f2a17ab0",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-dushi",
+      "characterName": "都市王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-dushi.png",
+          "sha256": "683bd65b51be2f047262e1fc9c087f93a49f429659aa512d44b60d2f61499f69",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-pingdeng",
+      "characterName": "平等王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-pingdeng.png",
+          "sha256": "da833cf05b831cce2f440b1679235002698f3fed2c53cd1b3631a0f5e22945c5",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-zhuanlun",
+      "characterName": "转轮王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-zhuanlun.png",
+          "sha256": "3204ea34c8469eedbedd3ab28f687538d9afc13c52384fc750733a5b4a02ce66",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-mengpo",
+      "characterName": "孟婆",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-mengpo.png",
+          "sha256": "fbd73609c0ab600a29dec33ca4def11b462aa4926c88b9ae34b6ecb6e91d5096",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "hell-dizang",
+      "characterName": "地藏王",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地殿印",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-HellEmblemArtwork.ps1",
+          "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-dizang.png",
+          "sha256": "54d126d3b8672c0911a37b2eefb9feabb7d65e884cddbe929346a97f249ddd3d",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
     }
   ]
 }

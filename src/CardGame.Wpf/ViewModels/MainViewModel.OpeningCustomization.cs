@@ -26,14 +26,14 @@ public sealed partial class MainViewModel
     private void InitializeOpeningCustomization()
     {
         ToggleGeneralRosterCommand = new RelayCommand(ToggleGeneralRoster,
-            () => !IsTutorialActive && IsGeneralSelectionPending);
+            () => !IsTutorialActive && IsGeneralSelectionPending && CanExpandGeneralRoster);
         ChangeStartingIdentityCommand = new RelayCommand<StartingRoleOption>(ChangeStartingIdentity,
             option => CanCustomizeStartingIdentity && StartingRoles.Contains(option));
     }
 
     private void ToggleGeneralRoster()
     {
-        if (IsTutorialActive || _snapshot.PendingDecision is not { Kind: DecisionKind.SelectGeneral } prompt) return;
+        if (IsTutorialActive || !CanExpandGeneralRoster || _snapshot.PendingDecision is not { Kind: DecisionKind.SelectGeneral } prompt) return;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new RequestGeneralRosterCommand(_snapshot.HumanSeat,

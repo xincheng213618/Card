@@ -45,7 +45,7 @@ public sealed partial class MainViewModel
     public bool IsSpectating => !IsTutorialActive && _snapshot?.Status != EngineStatus.Completed &&
         _snapshot?.Players.SingleOrDefault(player => player.IsHuman) is { IsAlive: false };
     public bool CanFastSpectate => IsSpectating && (!IsAutoAdvance || SelectedPlaybackSpeed != PlaybackSpeed.Fast);
-    public string SpectatorHint => IsAutoAdvance
+    public string SpectatorHint => IsWenheActivitySnapshot ? WenheSpectatorHint : IsAutoAdvance
         ? $"你已阵亡 · {SelectedPlaybackSpeed.Name}观战中；取消「自动推进」可暂停。阵营胜负仍以最终结算为准。"
         : "你已阵亡 · 观战已暂停；点击「快速观战」继续，也可从新对局重新开局。";
     public ICommand FastSpectateCommand { get; private set; } = null!;

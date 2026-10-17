@@ -683,6 +683,322 @@
         260
       ],
       "sha256": "141a4601b4a722a4579d4cec3a5945ae5d84b370d5ecb47c493be79ddd66fd4b"
+    },
+    {
+      "kind": "AllianceFeast",
+      "file": "AllianceFeast.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "70B5E10B96913825F7C93F3B14B3046D665A2F1B732AE70FAE8C25331953C0F6",
+      "notes": "Original project-drawn Hulao symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "WushuangHalberd",
+      "file": "WushuangHalberd.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "AAC6B7D2E1AD5B4735E711A9D105339AF917BF8B52CDE4321EF79184E76D900F",
+      "notes": "Original project-drawn Hulao symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "PurpleGoldCrown",
+      "file": "PurpleGoldCrown.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "F9E5A20CD7CE6B47138A6768E962CFF608BA487C75A111D05044BD8FC5958DC3",
+      "notes": "Original project-drawn Hulao symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "RedCottonRobe",
+      "file": "RedCottonRobe.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "A47490C91F6E13CA8D5570CA73BAE9EC9B69036469DCB7777DE0912D61C474F8",
+      "notes": "Original project-drawn Hulao symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "LionBelt",
+      "file": "LionBelt.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "411B261D6E2AB15CB1D45B9D8CE9237A048F98C1FBCE22C7D6D5B3647D3B7B79",
+      "notes": "Original project-drawn Hulao symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "SowBeans",
+      "file": "SowBeans.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "405E1E88DB7A65401520D8B4998A2BA7E67E78E80BCCF057F710C01D3E1F1466",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "TransplantWood",
+      "file": "TransplantWood.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "CD0AC39F6C3EA70C569B9D9A3A9843D384F425E9D79AF01F288E2304114DCBE1",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "NationalStyleRobe",
+      "file": "NationalStyleRobe.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "3C6BAF1A188393734C0CD6131B29118572AF4E9B4593BE7AD8E8C13DD23A434F",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "CrimsonSoulZither",
+      "file": "CrimsonSoulZither.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "97372EC369C36FDE8F83F2F1B91D4508D13BF8926F80420EA945AB319F81D8BB",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "QimenEightTrigrams",
+      "file": "QimenEightTrigrams.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "2BD6A936CECCFBF5B72370E098A17065BC93A454566EC276449E60A369A9960D",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "DustlessGoldenSpear",
+      "file": "DustlessGoldenSpear.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "AE70F49EB40FE239B5E782210F08920521D1D1C525CE2C25EC95B0F68EDC504B",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "ShuraInfernoHalberd",
+      "file": "ShuraInfernoHalberd.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "34C56EB9794E6524B0B0FD6645119E3E1B565D489ADFCD76A69D3A3ED82C49E6",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "DelusionCrown",
+      "file": "DelusionCrown.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "1901E1761484DC4FBB593D2DF5CBA23201A91FB9208A2C09D38A039CB2FB9BC1",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "ReturnSoul",
+      "file": "ReturnSoul.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HellEmblemArtwork.ps1",
+        "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "737067c10f18def21ee4e58eb384f65857d349cb967d67224b44295ab3fc37de",
+      "notes": "Original project-drawn soul seal and scroll; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "StarShift",
+      "file": "StarShift.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-WenheCardArtwork.ps1",
+        "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "D350F03C097679CFAC04CA06AB8763E3B2C00153C4324FFAF17007E026A67A77",
+      "notes": "Original project-drawn Wenhe constellation seal; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "BeamSwap",
+      "file": "BeamSwap.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-WenheCardArtwork.ps1",
+        "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "0CE5F5F181719CC2150F8C0001FF4D26C4FE6379D7FFFFDA106BCC391B9C779C",
+      "notes": "Original project-drawn Wenhe pillar redistribution symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "HandRedistribution",
+      "file": "HandRedistribution.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-WenheCardArtwork.ps1",
+        "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "87E295EE713958F8945C6372BC383BAD736B9DCE8F11759E0DCCE0B85164BFD1",
+      "notes": "Original project-drawn Wenhe hidden-hand redistribution symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "WenheChaos",
+      "file": "WenheChaos.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-WenheCardArtwork.ps1",
+        "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "6AB8530133D5B489D2218960F3E60DC5F1A28284252BD7375127D8AE8F856D3D",
+      "notes": "Original project-drawn Wenhe crossed-blade seal; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "Poison",
+      "file": "Poison.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-WenheCardArtwork.ps1",
+        "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
+        "originalSize": [186, 260],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "4F5C4C65D5D24F3CB79ABF5EC1BDD4C2FF15C889DA9E52286AC6D8D236ACD7E6",
+      "notes": "Original project-drawn Wenhe poison-vial seal; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "Zong", "file": "Zong.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "6FC8B6E6412ADBA1BFC1E668F258F7C72958AA1A6F0400307932559B8F67896C",
+      "notes": "Original project-drawn Dragon Boat wrapped-zong symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "RealgarWine", "file": "RealgarWine.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "F25EAEB0517223649267A3732038F8E60166E47A43C5580170FD61AE1EB673C3",
+      "notes": "Original project-drawn Dragon Boat wine-jar and mugwort symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "SameBoat", "file": "SameBoat.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "94465C01099A7ACE8BF2823ADC91D0CD45FF4FE1C1C9C7381025668C433E7292",
+      "notes": "Original project-drawn Dragon Boat paired-rowers symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "StriveUpstream", "file": "StriveUpstream.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "E13EC6B90083E1E7687B7978C6469F7840AB0A15AFCD6D0F9AD279D038B4758D",
+      "notes": "Original project-drawn Dragon Boat ascending-paddles symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "AgainstCurrent", "file": "AgainstCurrent.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "199F87D6BF156A3B15EEA4E8D613BF1DC86FC7F135F686E3D17D2005AB6FA297",
+      "notes": "Original project-drawn Dragon Boat opposing-flow symbol; not official game artwork. Rank and suit remain runtime overlays."
     }
   ],
   "components": [
@@ -1399,6 +1715,166 @@
       },
       "sha256": "90744B8FC8EE45037CD9565FB6E04CF863B59E45894C601B7B02AE8C3D8864B6",
       "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
+    },
+    {
+      "id": "equipment:WushuangHalberd",
+      "file": "equip-WushuangHalberd.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "90BBA42BF1D234E48E71E5A390BDA5F6F5576BFCABE8D0526588F7ADECD569FD",
+      "notes": "Original project-drawn Hulao equipment symbol and KaiTi label; not official game artwork."
+    },
+    {
+      "id": "equipment:PurpleGoldCrown",
+      "file": "equip-PurpleGoldCrown.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "5D54F0EACFDADA78F6756AFD783915AB8B9E29F8A98F06FEFE4A6E6AF0415009",
+      "notes": "Original project-drawn Hulao equipment symbol and KaiTi label; not official game artwork."
+    },
+    {
+      "id": "equipment:RedCottonRobe",
+      "file": "equip-RedCottonRobe.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "57388A102982926633AD276884E19A32E48B428CEF11805063C75C7A3399E558",
+      "notes": "Original project-drawn Hulao equipment symbol and KaiTi label; not official game artwork."
+    },
+    {
+      "id": "equipment:LionBelt",
+      "file": "equip-LionBelt.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-HulaoCardArtwork.ps1",
+        "generatorSha256": "94570089D1BB9B7CEFAC6146C450BB8DD37E11B5FB85209B956F09E436C65B33",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "C5B4361BB347A51993263D8B09644D65212754334816F34BFFD161428408E1B9",
+      "notes": "Original project-drawn Hulao equipment symbol and KaiTi label; not official game artwork."
+    },
+    {
+      "id": "equipment:NationalStyleRobe",
+      "file": "equip-NationalStyleRobe.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "9A7EBC7A05D5EA9E3BEE46C6201E5B90DD3FDDC144490B14DC9F745587B62E30",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:CrimsonSoulZither",
+      "file": "equip-CrimsonSoulZither.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "487F1FF8BD9C364632529B57552E4C5A716B99F6FABE67A6B38ED21431702917",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:QimenEightTrigrams",
+      "file": "equip-QimenEightTrigrams.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "5F9C43D8D5FA2785161F97A5090CDA0DC2EF397B0D093DCFB5DAD1428ACC5E28",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:DustlessGoldenSpear",
+      "file": "equip-DustlessGoldenSpear.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "282003F9205D563B1C8F85090DD26F28BBCD0AECD604BF788945597F7A934E12",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:ShuraInfernoHalberd",
+      "file": "equip-ShuraInfernoHalberd.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "9F8BA4C74DF855139C77EDA27FCC59A6BBB980DA3BCF87C8EB1ACBEAD63F6E83",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:DelusionCrown",
+      "file": "equip-DelusionCrown.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-ShenwuCardArtwork.ps1",
+        "generatorSha256": "8EF7B1E6EE5D82E09D0A59427C8F38E91B75551162B0672DB855B54F4F63BC6B",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "622A24691BC03BD4F9BB81BEF1235279A9CD84EBDD7BFAE3A0F66062E3306945",
+      "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
     }
   ]
 }

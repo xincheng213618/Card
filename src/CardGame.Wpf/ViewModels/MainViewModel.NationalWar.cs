@@ -6,9 +6,7 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
-    public bool IsNationalModeSelection => SelectedTableMode is { } selection &&
-        _contentRegistry.Modes.TryGetValue(selection.ModeId, out var mode) &&
-        mode.ModeKind == ContentModeKind.NationalWarLite;
+    public bool IsNationalModeSelection => SelectedModeDefinition?.ModeKind == ContentModeKind.NationalWarLite;
     private bool IsAmbitiousNationalMode => SelectedTableMode?.ModeId == "national:ambitious-6" ||
         _game.ModeId == "national:ambitious-6";
     private bool IsZhangJiaoNationalMode => SelectedTableMode?.ModeId == "national:zhang-jiao-4" ||
@@ -34,6 +32,7 @@ public sealed partial class MainViewModel
         "wu" => "吴",
         "qun" => "群",
         "jin" => "晋",
+        "god" => "神",
         _ => "未明势力"
     };
     private string NationalSelectionSubtitle => _snapshot?.PendingDecision?.Prompt ?? "依次选择两名同势力武将";
@@ -98,8 +97,9 @@ public sealed partial class MainViewModel
 
     private string DisplaySkillText(PlayerSnapshot player)
     {
-        var identitySkills = player.Skills is null ? "武将技能未公开。" :
-            string.Join("\n\n", player.Skills.Select(skill => $"{skill.Name}：{skill.Description}"));
+        var skills = WenheDisplaySkills(player);
+        var identitySkills = skills is null ? "武将技能未公开。" :
+            string.Join("\n\n", skills.Select(skill => $"{skill.Name}：{skill.Description}"));
         if (FriendPredictionText(player.Seat) is { Length: > 0 } prediction)
             identitySkills += "\n\n" + prediction;
         if (!IsNationalSnapshot) return identitySkills;

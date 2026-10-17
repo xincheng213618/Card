@@ -114,6 +114,7 @@ public sealed partial class MainViewModel
                     .Distinct(StringComparer.Ordinal)
                     .ToArray();
             return ownedSkillIds
+                .Where(id => IsVisibleWenheSkill(human, id))
                 .Select(_contentRegistry.GetSkill)
                 .Select(skill =>
                 {
@@ -353,7 +354,9 @@ public sealed partial class MainViewModel
         }
         return string.Join(" · ", parts.Distinct());
     }
-    public string AliveText => IsActivitySnapshot
+    public string AliveText => IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
+        ? $"联合军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.PlayerTeamId)} · {BossActivityEnemyLabel} {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.EnemyTeamId)} 存活 · {BossActivityStageText}"
+        : IsActivitySnapshot
         ? $"魏军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:wei")} · 蜀军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shu")} 存活"
         : IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"
@@ -720,6 +723,7 @@ public sealed partial class MainViewModel
             : IsSkillTargetSelectionPending ? SkillTargetSelectionHint
             : IsHandResponsePending ? HandResponseHint
             : IsActiveSkillSelectionPending ? GetActiveSkillSelectionHint()
+            : SelectedHellReturnSoulAction() is { } soul ? $"回魂 · 将恢复 {soul.TargetSeats.Count} 名角色因忘魂失去的技能 · 点击「确定」使用"
             : IsPlayConversionSelectionPending ? _playConversionSelection!.Mode is null
                 ? $"{PlayConversionSkillName} · 先选择要转换的牌型 · 再选择材料牌和目标"
                 : IsMultiTargetCardSelected ? $"{PlayConversionSkillName} · {MultiTargetSelectionHint}"
@@ -924,6 +928,7 @@ public sealed partial class MainViewModel
     public void Dispose()
     {
         if (_disposed) return;
+        FlushNianClock();
         FlushPreferences();
         if (_preferencesTimer is not null)
         {
@@ -931,11 +936,12 @@ public sealed partial class MainViewModel
             _preferencesTimer.Tick -= OnPreferencesTick;
         }
         FlushMatchHistory();
+        FlushPendingSave();
+        DisposeNianClock();
         _disposed = true;
         PropertyChanged -= OnOpeningPresentationChanged;
         SoundsReset?.Invoke(this, EventArgs.Empty);
         BattleCues.Clear();
-        FlushPendingSave();
         if (_saveTimer is not null)
         {
             _saveTimer.Stop();

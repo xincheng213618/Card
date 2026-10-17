@@ -15,6 +15,12 @@ public static class GameSoundRules
 {
     public static GameSound Outcome(GameSnapshot view)
     {
+        if (view.Winner == Winner.RankedTeams)
+            return view.WinnerTeamId is { } team && view.Players.FirstOrDefault(player => player.IsHuman)?.TeamId == team
+                ? GameSound.Victory : GameSound.Defeat;
+        if (view.Winner == Winner.SoleSurvivor)
+            return view.WinnerSeat is { } seat && view.Players.FirstOrDefault(player => player.IsHuman)?.Seat == seat
+                ? GameSound.Victory : GameSound.Defeat;
         if (view.ModeKind == ContentModeKind.NationalWarLite && view.Winner is not (Winner.Draw or Winner.None))
             return view.WinnerFactionId is { } faction && view.Players.FirstOrDefault(player => player.IsHuman)?.FactionId == faction
                 ? GameSound.Victory : GameSound.Defeat;

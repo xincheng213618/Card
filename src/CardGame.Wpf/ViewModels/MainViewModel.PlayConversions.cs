@@ -22,9 +22,7 @@ public sealed partial class MainViewModel
         _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard;
 
     private SkillProgramViewAs? PlayConversionRule(CardConversionSource? source) => source is not null &&
-        _contentRegistry.Skills.TryGetValue(source.SkillId, out var skill)
-            ? skill.Program?.ViewAs.FirstOrDefault(rule => rule.Id == source.BindingId && rule.ForPlay && rule.InputCount == 1)
-            : null;
+        _game.GetCardConversionDefinition(source) is { ForPlay: true, InputCount: 1 } rule ? rule : null;
 
     private IEnumerable<CardConversionSource> PlayConversionSources(LegalAction action) =>
         action.CardId is > 0 && action.PlayedCardKind is not null &&

@@ -53,6 +53,7 @@ public sealed partial class MainViewModel
 
     private CommandResult SubmitCommand(GameCommand command)
     {
+        command = PrepareNianClockCommand(command);
         if (!AllowsTutorialCommand(command))
         {
             var current = _game.State;
@@ -89,6 +90,7 @@ public sealed partial class MainViewModel
                     QueueAutoSave();
                     CaptureCompletedHistory();
                 }
+                SyncNianClockAfterCommand();
             }
         }
         if (!result.Accepted)
@@ -124,6 +126,7 @@ public sealed partial class MainViewModel
     {
         try
         {
+            FlushNianClock();
             var save = new GameSaveFile(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow,
                 IsAutoAdvance, _game.CreateCheckpoint())
             { PlaybackSpeedId = SelectedPlaybackSpeed.Id };
@@ -176,7 +179,7 @@ public sealed partial class MainViewModel
             // Fully restore and validate a separate engine before replacing the active match.
             var restored = GameReplay.Restore(save.Checkpoint, registry);
             var team = registeredMode.ModeKind == ContentModeKind.Team
-                ? StartingTeams.SingleOrDefault(team => team.TeamId ==
+                ? StartingTeamsFor(registeredMode).SingleOrDefault(team => team.TeamId ==
                     restored.CreateSnapshot(0).Players.Single(player => player.IsHuman).TeamId)
                     ?? throw new InvalidDataException("存档的玩家队伍不受支持。")
                 : null;
@@ -186,6 +189,9 @@ public sealed partial class MainViewModel
             ReplaceEngine(restored);
             SelectedTableMode = mode;
             SelectedStartingRole = StartingRoles[0];
+            if (registeredMode.WenheActivity is not null)
+                SelectedWenheAspiration = WenheAspirations.Single(choice => choice.GoalRank ==
+                    (restored.CreateSnapshot(0).WenheAspiration?.GoalRank ?? options.WenheAspirationRank ?? 1));
             if (team is not null) SelectedStartingTeam = team;
             ManualDiscardEnabled = options.UseInteractiveDiscard;
             IsAutoAdvance = save.AutoAdvance;
@@ -199,6 +205,7 @@ public sealed partial class MainViewModel
             _autoSavePending = true;
             _saveTimer?.Start();
             CaptureCompletedHistory();
+            SyncNianClockAfterCommand();
         }
         catch (Exception exception)
         {
@@ -257,9 +264,7 @@ public sealed partial class MainViewModel
         }
         if (composedPackages.Length == 1)
         {
-            return ComposedSkillContentRegistry.CreateShowcase(
-                includeNationalZhangJiao: nationalZhangJiaoPackages.Length == 1,
-                includeActivities: packages.Contains("jiange-activity@1.0.0", StringComparer.Ordinal));
+            return ComposedSkillContentRegistry.CreateShowcaseForCheckpoint(checkpoint);
         }
         if (nationalZhangJiaoPackages.Length == 1)
             throw new InvalidDataException("存档中的国战张角内容包组合不是当前桌面版支持的组合。");
