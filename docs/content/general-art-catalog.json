@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-zhou-yu",
+      "characterName": "乐周瑜",
+      "defaultSkinId": "1133901",
+      "skins": [
+        {
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133901.png",
+          "sourcePage": "https://x.sanguosha.com/hero/1339.html",
+          "id": "1133901",
+          "name": "经典形象",
+          "sha256": "07c4077956e50ce7dea91daff08dd525595f1bf16ce203094f92997c46fa43fb",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-le-zhou-yu.png"
+        }
+      ]
+    },
+    {
       "key": "le-da-qiao",
       "characterName": "乐大乔",
       "defaultSkinId": "1133501",
