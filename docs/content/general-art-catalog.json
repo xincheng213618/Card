@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "ol-huan-shu-jun",
+      "characterName": "环淑君",
+      "defaultSkinId": "72900",
+      "skins": [
+        {
+          "id": "72900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/729",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-huan-shu-jun.png",
+          "sha256": "35811a7906a232f31a0e7ec97fc75973318c7daf92b2a57ec1974736afe9f756",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "ol-gu-yong",
       "characterName": "顾雍·OL",
       "defaultSkinId": "32900",
