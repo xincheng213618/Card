@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "ol-zhao-zhong",
+      "characterName": "赵忠",
+      "defaultSkinId": "70200",
+      "skins": [
+        {
+          "id": "70200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/702",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhao-zhong.png",
+          "sha256": "b1261a19f54562e1ae1d933c974902934e201570412574caea86ff19534c1f45",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "ol-huan-shu-jun",
       "characterName": "环淑君",
       "defaultSkinId": "72900",
