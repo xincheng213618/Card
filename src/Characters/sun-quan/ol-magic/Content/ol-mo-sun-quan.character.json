@@ -1,0 +1,73 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-quan",
+  "skills": [
+    {
+      "registrationOrder": 2190,
+      "programBundle": "ol-mo-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-quanyu",
+        "name": "权御",
+        "description": "锁定技，每轮开始时，所有角色同时选择一项（每人每项限一次），然后若其中有角色与你的“权御”效果相同，你摸X张牌（X为其中与你相同的角色数且至多为3）：白虹：伤害+1；青冥：目标+1；辟邪：无视防具；紫电：不可响应；百里：额外结算；流星：无次数限制。你的【杀】指定唯一目标时，执行你选择的效果。",
+        "executionForms": "State, Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2191,
+      "programBundle": "ol-mo-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-tianen",
+        "name": "天恩",
+        "description": "锁定技，每回合每项各限一次，你使用牌指定唯一目标后：若本轮你与其选择的“权御”效果不同，你随机弃置其一张牌，对其发动一次“权御”；若与你相同，你获得一张不计入手牌上限的【杀】。",
+        "executionForms": "State, Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2192,
+      "programBundle": "ol-mo-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-qiangang",
+        "name": "乾纲",
+        "description": "出牌阶段，你可失去“天恩”并入魔，然后你的【杀】指定唯一目标时，执行目标选择过的所有“权御”效果。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+        "actionForms": "Active",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 2193,
+      "programBundle": "ol-mo-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-rumo",
+        "name": "入魔",
+        "description": "入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2194,
+      "pools": { "current": 503 },
+      "definition": {
+        "id": "ol:mo-sun-quan",
+        "name": "魔孙权",
+        "portraitKey": "ol-mo-sun-quan",
+        "skillId": "ol:mo-quanyu",
+        "additionalSkillIds": [ "ol:mo-tianen", "ol:mo-qiangang" ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:sun-quan",
+        "variantId": "magic-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

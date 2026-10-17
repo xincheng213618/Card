@@ -48,7 +48,11 @@ public sealed partial class GameEngine
         CharacterState actor,
         IEnumerable<LegalAction> actions,
         Card? nativeOriginalCard = null) =>
-        actions.Where(action =>
+        actions.Select(action => action is { Kind: LegalActionKind.UseEquipmentEffect, EquipmentKind: CardKind.ZhangbaSerpentSpear }
+            ? RestrictMoQuanyuZhangbaQuotaAction(actor, action)
+            : TryGetLegalActionEffectiveCardKind(actor, action, out var kind, nativeOriginalCard)
+                ? RestrictMoQuanyuQuotaAction(actor, action, kind, nativeOriginalCard) : action)
+        .Where(action => action is not null).Select(action => action!).Where(action =>
         {
             if (HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly))
             {

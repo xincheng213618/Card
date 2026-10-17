@@ -1,0 +1,236 @@
+{
+  "checkedAtUtc": "2026-10-17T21:49:39.124886+00:00",
+  "status": "implemented-and-verified",
+  "name": "魔孙权",
+  "generalId": "ol:mo-sun-quan",
+  "product": "三国杀OL",
+  "series": "魔系列（OL）",
+  "characteristic": "血铸六剑，神器终合。",
+  "identity": {
+    "officialHeroId": 711,
+    "family": "character:sun-quan",
+    "variant": "magic-ol",
+    "ruleset": "sanguosha-ol",
+    "faction": "wu",
+    "gender": "Male",
+    "hp": 4,
+    "printedSkills": [
+      "ol:mo-quanyu",
+      "ol:mo-tianen",
+      "ol:mo-qiangang"
+    ],
+    "derivedTemplate": "ol:mo-rumo"
+  },
+  "published": "2026-04-30 17:01:04 Asia/Shanghai",
+  "firstObtainable": "2026-05-01 00:15:00 Asia/Shanghai",
+  "availabilityEvidence": {
+    "source": "https://www.sanguosha.com/news/20260427_9510_4213",
+    "officialText": "2026-5-1 00:15:00~2026-5-10 24:00:00，限时祈福、祈愿台活动获取，或传世玉玺兑换获得。",
+    "scope": "正式发布及首次开放时间；不把现在仍有原活动入口作为本地实现前提。"
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=711",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=711",
+      "httpStatus": 200,
+      "bytes": 1436,
+      "sha256": "eff9c9b13c517b92556299645545c602d0930960413216bc96a02512ed53fe6e",
+      "contentType": "application/json",
+      "fetchedAtUtc": "2026-10-17T21:29:02.308074+00:00",
+      "role": "api"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/711",
+      "finalUrl": "https://www.sanguosha.com/hero/711",
+      "httpStatus": 200,
+      "bytes": 26097,
+      "sha256": "11947b4e443c748e6739abef90d1d567a188c4d3443ebe54369ff1a7cb0c9242",
+      "contentType": "text/html",
+      "fetchedAtUtc": "2026-10-17T21:29:02.270830+00:00",
+      "role": "hero"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260427_9510_4213",
+      "finalUrl": "https://www.sanguosha.com/news/20260427_9510_4213",
+      "httpStatus": 200,
+      "bytes": 468762,
+      "sha256": "8f1fde33ba6e6afdad797830f1272f4a2e8e2a63e8225b44d4e9570256670094",
+      "contentType": "text/html",
+      "fetchedAtUtc": "2026-10-17T21:29:02.316136+00:00",
+      "role": "formal"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "bytes": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "contentType": "application/octet-stream",
+      "fetchedAtUtc": "2026-10-17T21:29:02.239857+00:00",
+      "role": "bundle"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "bytes": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "contentType": "application/octet-stream",
+      "fetchedAtUtc": "2026-10-17T21:29:02.249996+00:00",
+      "role": "config"
+    },
+    {
+      "role": "common-rumo-official-launch",
+      "url": "https://www.sanguosha.com/news/20250427_5050_5013",
+      "title": "5.1-5.10 开黑季魔司马懿魔珠祈愿来袭 五一祈福祢衡、牛辅上新",
+      "published": "2025-04-30 17:00:23 Asia/Shanghai",
+      "httpStatus": 200,
+      "bytes": 485038,
+      "sha256": "292c1233c4bf2f909334ac6fb002ef27f88e6c088b98155ce592a04914b18fac",
+      "fetchedAtUtc": "2026-10-17T21:30:20Z",
+      "ruleText": "入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71100.png",
+      "httpStatus": 200,
+      "bytes": 1284050,
+      "sha256": "037ecc49728793cbb71187fbd66354a3b6fbb44f3c3a80e013f92a0b82211c6d",
+      "contentType": "image/png",
+      "fetchedAtUtc": "2026-10-17T21:49:39.121923+00:00",
+      "role": "official-classic-portrait"
+    }
+  ],
+  "sourceAgreement": {
+    "heroFormalAndCurrentClient": "官方711英雄页、2026正式发布公告、当前官方cha_spell3793/3794/3795三技正文一致。",
+    "notOfflineMagicVariant": "本条注册为OL的ol:mo-sun-quan，不借用线下magic:guan-yu的产品或规则身份。",
+    "notServerFaq": true,
+    "communityGuideScope": "攻略中的无距离或排除本人计数等表述不覆盖官方正文；没有把玩家攻略提升为专项FAQ。"
+  },
+  "skills": [
+    {
+      "id": 3793,
+      "runtimeId": "ol:mo-quanyu",
+      "name": "权御",
+      "frontendClassName": "QuanYu",
+      "officialAndCurrentClientText": "锁定技，每轮开始时，所有角色同时选择一项（每人每项限一次），然后若其中有角色与你的“权御”效果相同，你摸X张牌（X为其中与你相同的角色数且至多为3）：<br>&nbsp;白虹：伤害+1；<br>&nbsp;青冥：目标+1；<br>&nbsp;辟邪：无视防具；<br>&nbsp;紫电：不可响应；<br>&nbsp;百里：额外结算；<br>&nbsp;流星：无次数限制。<br>你的【杀】指定唯一目标时，执行你选择的效果。",
+      "presentationDescription": "锁定技，每轮开始时，所有角色同时选择一项（每人每项限一次），然后若其中有角色与你的“权御”效果相同，你摸X张牌（X为其中与你相同的角色数且至多为3）：白虹：伤害+1；青冥：目标+1；辟邪：无视防具；紫电：不可响应；百里：额外结算；流星：无次数限制。你的【杀】指定唯一目标时，执行你选择的效果。"
+    },
+    {
+      "id": 3794,
+      "runtimeId": "ol:mo-tianen",
+      "name": "天恩",
+      "frontendClassName": "TianEn",
+      "officialAndCurrentClientText": "锁定技，每回合每项各限一次，你使用牌指定唯一目标后：若本轮你与其选择的“权御”效果不同，你随机弃置其一张牌，对其发动一次“权御”；<br>&nbsp;若与你相同，你获得一张不计入手牌上限的【杀】。",
+      "presentationDescription": "锁定技，每回合每项各限一次，你使用牌指定唯一目标后：若本轮你与其选择的“权御”效果不同，你随机弃置其一张牌，对其发动一次“权御”；若与你相同，你获得一张不计入手牌上限的【杀】。"
+    },
+    {
+      "id": 3795,
+      "runtimeId": "ol:mo-qiangang",
+      "name": "乾纲",
+      "frontendClassName": "QianGang",
+      "officialAndCurrentClientText": "出牌阶段，你可失去“天恩”并入魔，然后你的【杀】指定唯一目标时，执行目标选择过的所有“权御”效果。",
+      "presentationDescription": "出牌阶段，你可失去“天恩”并入魔，然后你的【杀】指定唯一目标时，执行目标选择过的所有“权御”效果。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。"
+    }
+  ],
+  "commonRumo": {
+    "templateId": "ol:mo-rumo",
+    "ruleText": "入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+    "printedFourthSkill": false,
+    "visibleDescription": "乾纲的可见说明附入魔完整条款，派生模板也独立注册。",
+    "currentClientBindingEvidence": "RuMo.__i在Datas最后一项为QIANGANG且角色有QUANYU时更新目标权御状态；Gui和d_i.IsRuMo读取RUMO buff。2026新将公告省略共同括号不解释为取消该共同规则。"
+  },
+  "clientEvidence": {
+    "configuration": "官方Config.sgs的cha_spell3793QuanYu、3794TianEn、3795QianGang；当前主包自带pR.WorkParse/aCt.InitOfb解析后读取，不依赖第三方规则文本。",
+    "selector": "d_i.enableCancel=false；GetMultiSelectDatas只提供请求flag中尚未选择的1至6项，selectPreNum为1且sendList=true。",
+    "currentAndHistory": "d_i.UpdateRoleDataResponse分别读取Datas[2]为当前项、Datas[3]为历史mask，二者不是同一个字段。",
+    "enteredHistory": "Gui.GetSkillTipsBeforUse及入魔后的d_i显示目标各个历史已选项；每个bit只显示一次。",
+    "meteor": "Cas.QuanYuOpend/hKt.getSpecifyTargets在入魔时列举历史含流星的具体活目标，不能据此发给所有目标全局无次数。",
+    "rewardArithmeticNotFound": true,
+    "allExhaustedServerFallbackNotFound": true,
+    "initialTwoQingmingDeclarationProofNotFound": true
+  },
+  "engineeringInterpretations": {
+    "evidenceLevel": "以下为官方正文、当前前端与既有native规则的组合实现解释，不是专属服务器FAQ；保留与攻略可能不同的边界。",
+    "historyAndMultipleSources": "每个逻辑发动者座位与参与者的六项历史永久保留，失源重授不重置；同owner重复实例规范为一次选择，不同owner的权御各有独立历史。多持有者组合无专项裁定，按本地source归属处理。",
+    "currentRoundAndExhaustion": "每轮当前项独立更新；六项耗尽者新轮为None，历史不清、不自动重选；不发布没有选项的强制菜单。None不参加相同或不同天恩分支，也不计权御抽牌。",
+    "simultaneousPrivacy": "轮内各人私密提交，全部冻结完成前不在公开事件、公开标记或后选菜单展示他人本轮选择；全部完成后统一公开当前与历史。AI不读取其他未公开选择。",
+    "literalReward": "按所有本次真正选择者中同项人数取至多3；完整轮选择包含本人，因此本人选了有效项时计本人。天恩子调用只由目标选择，计数也只覆盖该子集，不重算全场。未找到客户端或专项FAQ证明奖励人数算法，采用正文所有角色的字面解释。",
+    "targetOnly": "天恩不同分支实际随机弃置与所有孩子排完后，由真实已付父票据启动仅目标的内部权御程序；只替换目标本轮当前项并加入其永久历史。这个derived执行权不要求此时仍持有权御；普通新杀的权御权限仍要求活技能来源。",
+    "singleton": "权御和天恩共用首次真正TargetsFinalized的Use/Action/actor/唯一实际角色目标票据，借刀等多角色参数按native真正被指定目标归一；青冥后加目标不会倒撤此前已冻结资格。真实桃、酒与救援Use有其角色目标，纯Played或无角色目标响应不伪造唯一目标。",
+    "sixEffects": "白虹伤害加1；青冥在最初唯一目标已指定后至多补一个native合法目标，不发布初始双目标，保普通距离与禁止门；辟邪无视防具；紫电不可响应；百里添加独立原生额外结算轮，保材料只付一次并与既有额外结算组合；流星只豁免对应真正初始单目标杀的次数限制，普通使用计数仍记，其他禁止不豁免。",
+    "qiangang": "真正失去天恩并签永久入魔后，以当前目标历史不同项集合替代本人当前项，不把两者叠加或同项重复；已经接受的Use冻结该次集合，后续选择变化不改本Use。",
+    "paidLifetime": "所有待决选择、原生draw结果及子程序返回均在owning frame保存；已付技能失去不重付、不撤销已发行权。死亡后排完已付原生孩子；不再向死角色发新的选择菜单或补充摸牌请求。子目标已死时不改选其他人。",
+    "rumo": "入魔永久不叠，不因乾纲或权御失去撤销；轮末实际结算时检查完整旧轮由该角色作为非source-less来源造成的正伤害（含入魔前），damage0和LoseHp不算；真正失血票据签完后孩子排空不复付。",
+    "tianenMaterials": "随机弃置真实可弃HE实体，原木牛粮、银狮回复及特殊实际去向沿native收据；同项从真实牌堆获得一张杀而非伪造实体。该次得到实体的手限豁免按原票据与持有关系处理，不改印牌或真实draw分类。",
+    "publicView": "全部选择揭示后，MoQuanyuChoice公开标记按发动者座位展示每名参与者本轮当前项及已揭示历史；未提交完的Votes继续私密。",
+    "declarationQuota": "真实初始单目标杀的声明在原材料付款前冻结流星true/false权限，随后只凭原声明ID、同actor/目标/输出牌及精确支付序号继承到那一次真正Use；付款后失源不撤销true，后来新获源不升级false，其他距离、禁止、费用与普通计数不变。",
+    "ordinaryQuotaAppearance": "流星额外权限只补真正初始单目标；判断是否仍能支付既有普通多目标杀时，保留原真实material IDs并读取该Use真实转化后的花色/点数外观，不能用印牌外观撤销继承花色等既有次数许可。"
+  },
+  "runtimeBoundary": {
+    "rulesBundle": "ol-mo-sun-quan",
+    "operations": [
+      28910,
+      28911,
+      28912,
+      28920,
+      28930,
+      28940
+    ],
+    "registrationOrders": [
+      2190,
+      2191,
+      2192,
+      2193,
+      2194
+    ],
+    "currentPoolOrder": 503,
+    "noRulesEpochOrSchemaBump": true,
+    "pendingOnOwningFrame": true,
+    "nestedCollectionsDetachedReadonly": true,
+    "ruleEventsScalar": true,
+    "nativeDrawActualAndReplacementSeparate": true
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71100.png",
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71100.png",
+    "httpStatus": 200,
+    "bytes": 1284050,
+    "sha256": "037ecc49728793cbb71187fbd66354a3b6fbb44f3c3a80e013f92a0b82211c6d",
+    "contentType": "image/png",
+    "fetchedAtUtc": "2026-10-17T21:49:39.121923+00:00",
+    "sourcePage": "https://www.sanguosha.com/hero/711",
+    "id": "71100",
+    "name": "经典形象",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-mo-sun-quan.png",
+    "originalImageVisuallyInspected": true,
+    "visualDescription": "黑色冠服男子举杯，背后六剑与焰光；已按原尺寸查看官方图片。"
+  },
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 34,
+      "wpfPassed": 1,
+      "durationMs": 34248
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 69935
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected both actual WPF gallery renders at original resolution: official portrait, Wu, four HP, all three printed skills and complete shared Rumo clause.",
+    "scopeNote": "Focused behavior checks and measured bounded routine verification; no manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Private simultaneous votes, complete reveal, all six lifetime choices, exhausted None, independent source history, immutable view boundaries and cold replay.",
+      "Tianen two actual-turn branches, real random HE discard and native target-only child, original Slash entity obtain/exemption and paid source loss.",
+      "All six native Slash effects, original singleton qualification, additional native targets, independent extra effect rounds and original accepted Use payment.",
+      "Target-dependent Meteor allowance, native Spear complete selected-target validation, ordinary quota control and rejected forged multi-target commands.",
+      "True and false declaration admission freeze before native payment, exact original source/movement invoice, same-Use inheritance and cold continuation.",
+      "Actual Qiangang Tianen loss, permanent derived Rumo, complete old-round damage sample, native HP/dying children and original completed obligation.",
+      "Generic namespaced WPF gallery, distinct OL Magic classification, complete printed text and official artwork."
+    ]
+  }
+}

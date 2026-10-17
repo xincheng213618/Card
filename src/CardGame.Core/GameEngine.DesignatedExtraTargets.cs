@@ -320,7 +320,7 @@ public sealed partial class GameEngine
     }
 
     private bool HasDesignatedExtraTargetTail(CardUseFrame use) =>
-        HasPijingTargetTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
+        HasMoQuanyuAddedTargetTail(use) || HasPijingTargetTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
         use.BeiMiHuTargetMutation is { Kind: "append" } && ValidBeiMiHuTargetMutation(use) ||
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetResolvedEvent>().Any(e =>
             IsDesignatedExtraTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&

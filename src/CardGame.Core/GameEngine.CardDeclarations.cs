@@ -151,6 +151,7 @@ public sealed partial class GameEngine
         payment = CaptureBeifenDeclarationPayment(payment, parent);
         payment = CaptureWuyouDeclarationPayment(payment, parent);
         payment = CaptureWeiwanDeclarationPayment(payment, parent);
+        payment = CaptureMoQuanyuDeclarationQuota(payment, parent, targets);
         ClearPendingDecision();
         _selectedUseConversion = null; _selectedResponseConversion = null;
         _hasSelectedUseConversionChoice = false; _hasSelectedResponseConversionChoice = false;
@@ -160,6 +161,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Declaration quota changed during acceptance.");
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(provider.Seat, source.SkillId, DeclarationTurnUsage, SkillUsageScope.Turn, 1));
         MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, new("conversion.declaration.pay"));
+        RecordMoQuanyuDeclarationPayment(id);
         AdvanceEventRulesAndQueueFact(new CardDeclarationCommittedEvent(id, provider.Seat, parent.ActorSeat, declared, Array.AsReadOnly(targets.ToArray())));
         AdvanceRuntimeFrame(id);
         return true;

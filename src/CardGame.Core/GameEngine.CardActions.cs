@@ -309,6 +309,7 @@ public sealed partial class GameEngine
             CompletedResponseReturn: completedResponseReturn, AttackOwnerFrameId: attack?.ResolutionId)
             { CaoChunDebtBeforeEffects = caoChunDebtOnly ? true : null };
         PushRuntimeFrame(frame);
+        CaptureMoQuanyuSingleton(frame, window);
         if (HasGuoSiCapability && window == SkillProgramTriggerWindow.CardUseCompleted &&
             completedResponseReturn is not null)
             CaptureGuoSiCompletedUse(frame.Id, action);

@@ -183,6 +183,8 @@ public enum PlayerMarkerKind
     QingyuanPartner = 26820,
     RanshangRan = 27320,
     CaoPiSong = 28000,
+    MoQuanyuChoice = 28910,
+    OlMoRumo = 28940,
     GuanduGrain = 44000
 }
 
@@ -192,6 +194,8 @@ public static class PlayerMarkerCatalog
     {
         PlayerMarkerKind.GuanduGrain => "粮",
         PlayerMarkerKind.CaoPiSong => "颂",
+        PlayerMarkerKind.MoQuanyuChoice => "权御",
+        PlayerMarkerKind.OlMoRumo => "入魔",
         PlayerMarkerKind.AdoptedChild => "义子",
         PlayerMarkerKind.QuxiFeng => "丰",
         PlayerMarkerKind.QuxiQian => "歉",

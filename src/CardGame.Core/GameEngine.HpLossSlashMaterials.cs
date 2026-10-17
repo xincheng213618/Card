@@ -52,6 +52,7 @@ public sealed partial class GameEngine
         if (targets.Count <= 1) return null;
         var cards = GetZhangbaSlashPairs(owner).FirstOrDefault(p => p.Select(c => c.Id).Order().SequenceEqual(ids.Order()));
         return HasHpLossSlashTargets(owner) && cards is not null && CanUseZhangbaSerpentSpear(owner) &&
+            IsMoQuanyuCompleteZhangbaQuotaLegal(owner, targets, cards) &&
             targets.Count <= HpLossSlashMaximum(owner, CardKind.Slash) && targets.Distinct().Count() == targets.Count && targets.All(t =>
                 IsValidPlayerSeat(t) && CanUseVirtualSlashTarget(owner, _players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards),
                     PhysicalGroupColor(owner, cards), ZhangbaSpecificSlashRank(owner, cards), ids) &&

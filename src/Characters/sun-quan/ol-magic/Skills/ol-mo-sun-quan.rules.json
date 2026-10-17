@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:mo-quanyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-choices",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "resolveMoSunQuanQuanyuRoundChoices", "target": "owner" }
+          ]
+        },
+        {
+          "id": "singleton-slash-effects",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [ "slash", "fireSlash", "thunderSlash" ],
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            { "op": "resolveMoSunQuanQuanyuSlashEffects", "target": "owner" }
+          ]
+        }
+      ],
+      "activations": [
+        {
+          "id": "target-only-choices",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [ "hand" ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            { "op": "resolveMoSunQuanQuanyuTargetChoice", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-tianen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "unique-target-branches",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            { "op": "resolveMoSunQuanTianenUniqueUse", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-qiangang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "lose-tianen-enter-rumo",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [ "hand" ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            { "op": "resolveMoSunQuanQiangangEntry", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-rumo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "no-damage-round-ending",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "resolveOlMoRumoRoundPenalty", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

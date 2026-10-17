@@ -1563,9 +1563,12 @@ public sealed class SkillProgramExecutor
                     effect.Op == SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWuyouContributionAndNamedReturn && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op == SkillProgramEffectOp.ResolveOlMoRumoRoundPenalty && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolvePingluInRangeRandomHands && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeGuYinInitialEntities or SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveMoSunQuanQuanyuRoundChoices or SkillProgramEffectOp.ResolveMoSunQuanQuanyuTargetChoice or SkillProgramEffectOp.ResolveMoSunQuanQuanyuSlashEffects) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveMoSunQuanTianenUniqueUse or SkillProgramEffectOp.ResolveMoSunQuanQiangangEntry) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveYixianAllEquipmentObtainAndCompensate && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeLingkongInitialEntities or SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain or SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeShuangjiaInitialEntities or SkillProgramEffectOp.ResolveBeifenLostMarkedSuitGains) && state.CanContinueAfterOwnerDeath(frame) ||

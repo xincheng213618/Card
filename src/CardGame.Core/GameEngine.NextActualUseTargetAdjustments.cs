@@ -283,6 +283,7 @@ public sealed partial class GameEngine
         if (HasHpLossSlashTargets(owner)) return ValidateHpLossSlashZhangba(owner, ids, targets);
         var cards = GetZhangbaSlashPairs(owner).FirstOrDefault(pair => pair.Select(c => c.Id).Order().SequenceEqual(ids.Order()));
         if (targets.Count != 2 || CurrentNextActualUseAdjustment(owner.Seat) is null || !CanUseZhangbaSerpentSpear(owner) || cards is null ||
+            !IsMoQuanyuCompleteZhangbaQuotaLegal(owner, targets, cards) ||
             targets.Any(t => !CanUseVirtualSlashTarget(owner, _players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards),
                 PhysicalGroupColor(owner, cards), ZhangbaSpecificSlashRank(owner, cards), ids) ||
                 IsDirectedCardTargetProhibited(owner.Seat, t, CardKind.Slash) ||

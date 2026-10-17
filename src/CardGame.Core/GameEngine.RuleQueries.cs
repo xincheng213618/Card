@@ -285,7 +285,7 @@ public sealed partial class GameEngine
         ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null, EquipmentSlot? excludedEquipmentSlot = null) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null, EquipmentSlot? excludedEquipmentSlot = null, bool ignoreMoQuanyu = false) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
@@ -302,5 +302,6 @@ public sealed partial class GameEngine
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
              DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
-         HasTargetCardQuotaAllowance(player.Seat, target.Seat));
+         HasTargetCardQuotaAllowance(player.Seat, target.Seat) ||
+         !ignoreMoQuanyu && HasMoQuanyuProspectiveQuota(player, target, effectiveKind));
 }

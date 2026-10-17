@@ -2123,6 +2123,7 @@ public sealed partial class GameEngine
     {
         var candidates = IncludeYuanJiIssuedReturns(owner, window, Array.AsReadOnly(
             CollectProgramTriggerCandidates(owner, window).Where(c => !GetProgramTrigger(c).Effects.Any(e => IsYuanJiReturnOp(e.Op))).ToArray()));
+        candidates = IncludeOlMoRumoRoundCandidates(owner, window, candidates);
         if (candidates.Count == 0) return candidates;
         return candidates
             .Where(candidate =>
@@ -2162,6 +2163,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;
         if (IsIssuedBiriCandidate(candidate, context)) return true;

@@ -74,6 +74,12 @@ public sealed partial class GameEngine
                 var issued = shortRange.Receipt!;
                 designated.Add(issued.AddedTargetSeat); actual.Add(issued.AddedTargetSeat);
             }
+            else if (fact is MoQuanyuTargetAddedEvent mo && mo.UseId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) || mo.TargetIndex != actual.Count || actual.Contains(mo.TargetSeat) ||
+                    !IsMoQuanyuAddedTargetFact(use, mo)) return false;
+                designated.Add(mo.TargetSeat); actual.Add(mo.TargetSeat);
+            }
             else if (fact is SameTypeAidTargetAddedEvent aid && aid.Use.CardUseFrameId == use.Id)
             {
                 if (aid.Use.CardActionId != completed.ActionId || !IsSameTypeAidTargetFact(use, aid) || actual.Contains(aid.RecipientSeat)) return false;

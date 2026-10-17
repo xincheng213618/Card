@@ -1003,6 +1003,12 @@ public enum SkillProgramEffectOp
     InitializeGuYinInitialEntities = 28810,
     ResolveGuYinInitialEntityDiscardDraw = 28811,
     ResolvePingluInRangeRandomHands = 28820,
+    ResolveMoSunQuanQuanyuRoundChoices = 28910,
+    ResolveMoSunQuanQuanyuTargetChoice = 28911,
+    ResolveMoSunQuanQuanyuSlashEffects = 28912,
+    ResolveMoSunQuanTianenUniqueUse = 28920,
+    ResolveMoSunQuanQiangangEntry = 28930,
+    ResolveOlMoRumoRoundPenalty = 28940,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -3978,6 +3984,8 @@ public sealed class SkillProgramCatalog
                  string.Equals(designatedOp.GetString(), "consumeKuiCancelSoleIncomingTarget", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "drawTusheForActualNonEquipmentTargets", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "consumeKuiAppendLegalTargets", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == "ol:mo-quanyu" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanQuanyuSlashEffects", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == "ol:mo-tianen" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanTianenUniqueUse", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "ol:biguo" && string.Equals(designatedOp.GetString(), "resolveBiguoTargetedPindianAndCategoryBan", StringComparison.OrdinalIgnoreCase))))
             Fail(path, "singleActionInstance requires cardUseCompleted or an exact supported target-addition instruction");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
@@ -5229,8 +5237,12 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) BeifenComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuYixianComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WeiwanComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) OlMoRumoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ZixiEffectsComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) GuYinComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MoQuanyuComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MoSunQuanTianenComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MoSunQuanQiangangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) PingluComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuyouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) XianshuComposition.ValidateProgram(program.Id, program);
