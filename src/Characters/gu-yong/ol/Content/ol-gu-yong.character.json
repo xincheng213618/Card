@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gu-yong",
+  "skills": [
+    {
+      "registrationOrder": 2150,
+      "programBundle": "ol-gu-yong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shenxing",
+        "name": "慎行",
+        "description": "出牌阶段，你可以弃置两张牌，然后摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2151,
+      "programBundle": "ol-gu-yong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:bingyi",
+        "name": "秉壹",
+        "description": "每阶段限一次，当你的牌因弃置置入弃牌堆后，你可以展示所有手牌：若颜色均相同，你可以与至多X名其他角色各摸一张牌（X为你的手牌数）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2152,
+      "pools": {
+        "current": 491
+      },
+      "definition": {
+        "id": "ol:gu-yong",
+        "name": "顾雍",
+        "portraitKey": "ol-gu-yong",
+        "skillId": "ol:shenxing",
+        "additionalSkillIds": [
+          "ol:bingyi"
+        ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:gu-yong",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

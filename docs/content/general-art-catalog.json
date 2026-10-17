@@ -15059,6 +15059,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-gu-yong",
+      "characterName": "顾雍·OL",
+      "defaultSkinId": "32900",
+      "skins": [
+        {
+          "id": "32900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/329",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-gu-yong.png",
+          "sha256": "f89b2f57230d3b380419091518b6fb1579c4dac060f92763a2da3154c0562dbb",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
