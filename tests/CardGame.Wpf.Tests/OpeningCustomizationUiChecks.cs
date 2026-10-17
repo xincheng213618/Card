@@ -62,12 +62,15 @@ internal static class OpeningCustomizationUiChecks
                 game.Events.Select(item => item.Payload).OfType<GeneralSelectedEvent>().Single().ActorSeat == lord.Seat,
                 "A non-lord human must see the already selected public lord while every remaining AI general is still unselected and hidden.");
             vm.ToggleGeneralRosterCommand.Execute(null);
-            var expectedRoster = game.ContentRegistry.Modes[game.ModeId].GeneralPoolIds!
-                .Where(id => id != lord.GeneralId).ToHashSet(StringComparer.Ordinal);
+            var modeDefinition = game.ContentRegistry.Modes[game.ModeId];
+            var lordFamily = modeDefinition.GeneralVariantGroups?.Values.FirstOrDefault(ids =>
+                ids.Contains(lord.GeneralId, StringComparer.Ordinal)) ?? [lord.GeneralId];
+            var expectedRoster = modeDefinition.GeneralPoolIds!
+                .Except(lordFamily, StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
             Program.Assert(vm.IsCustomGeneralSelectionOpen &&
                 vm.CustomGeneralChoices.Select(choice => choice.GeneralId).ToHashSet(StringComparer.Ordinal).SetEquals(expectedRoster) &&
                 Enumerable.Range(1, humanView.Players.Count - 1).All(seat => game.CreateSnapshot(seat).PendingDecision is null),
-                "The non-lord's private full roster must contain every mode general except the public lord, without deductions from other AI selections.");
+                "The non-lord's private full roster excludes the public lord's whole character family without deductions from other AI selections.");
             retiredIdentityChoice = vm.CustomGeneralChoices[0];
         }
         using var host = new NativeResponseStatusChecks.NativeHost(vm);
