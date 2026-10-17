@@ -15025,6 +15025,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-li-feng",
+      "characterName": "李丰·OL",
+      "defaultSkinId": "69300",
+      "skins": [
+        {
+          "id": "69300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/693",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-li-feng.png",
+          "sha256": "c8c080e5d78c9d13c687cc5a750752120c83b011bd156c46dc23be0877c03375",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

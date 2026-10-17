@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-feng",
+  "skills": [
+    {
+      "registrationOrder": 2130,
+      "programBundle": "ol-li-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jiyun",
+        "name": "集运",
+        "description": "游戏开始时，将牌堆中3张类别不同的牌置于你的武将牌上，称为“粮”。准备阶段，你可令至多X名角色各摸一张牌（X为你拥有“粮”的数量且至少为1），每名角色使用其因此获得的牌结算完成后，若“粮”的数量小于3，将此牌置于你的武将牌上，称为“粮”。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2131,
+      "programBundle": "ol-li-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shuliang",
+        "name": "输粮",
+        "description": "每回合限一次，你可使用或打出一张“粮”。结束阶段，你可将任意“粮”交给至多等量角色。",
+        "actionForms": "Active",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2132,
+      "pools": {
+        "current": 489
+      },
+      "definition": {
+        "id": "ol:li-feng",
+        "name": "李丰",
+        "portraitKey": "ol-li-feng",
+        "skillId": "ol:jiyun",
+        "additionalSkillIds": [
+          "ol:shuliang"
+        ],
+        "factionId": "shu",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:li-feng",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}
