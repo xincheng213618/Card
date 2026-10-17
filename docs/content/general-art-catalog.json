@@ -15008,6 +15008,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-xie-ling-yu",
+      "characterName": "谢灵毓·OL",
+      "defaultSkinId": "76900",
+      "skins": [
+        {
+          "id": "76900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/769",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/76900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-xie-ling-yu.png",
+          "sha256": "027cf54c692fb9c3a1313672b671b37d42f7c7665d8e2bb3b684a2a1202cc4bd",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
