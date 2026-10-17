@@ -84,6 +84,8 @@ public sealed record MatchSummary(int TurnCount, IReadOnlyList<PlayerMatchResult
             var teamResult = dragonBoat?.Single(team => team.TeamId == player.TeamId);
             var camp = teamResult is not null ? DragonBoatTeamName(teamResult.TeamId)[..1] : survival ? "独立" : snapshot.ModeKind == ContentModeKind.NationalWarLite ? player.FactionId switch { "wei" => "魏", "shu" => "蜀", "ambitious" => "野心家", _ => "未明势力" } : player.TeamId switch
             {
+                "team:cao" => "曹军" + (snapshot.GuanduActivity is { } cao && (player.Seat == cao.PlayerCommanderSeat || player.Seat == cao.OpponentCommanderSeat) ? "主帅" : "部将"),
+                "team:yuan" => "袁军" + (snapshot.GuanduActivity is { } yuan && (player.Seat == yuan.PlayerCommanderSeat || player.Seat == yuan.OpponentCommanderSeat) ? "主帅" : "部将"),
                 "team:blue" => "青队",
                 "team:red" => "赤队",
                 _ => player.Role switch { Role.Lord => "主公", Role.Loyalist => "忠臣", Role.Rebel => "反贼", Role.Renegade => "内奸", _ => "未知" }

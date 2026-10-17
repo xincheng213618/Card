@@ -12,12 +12,12 @@ public sealed partial class MainViewModel
     private ContentModeDefinition? CurrentModeDefinition => _snapshot is not null
         ? _game.ContentRegistry?.Modes.GetValueOrDefault(_game.ModeId) : null;
     private static bool IsActivityDefinition(ContentModeDefinition mode) =>
-        mode.TeamActivity is not null || mode.BossActivity is not null || mode.ShenwuActivity is not null || mode.NianActivity is not null || mode.WenheActivity is not null || mode.DragonBoatActivity is not null;
+        mode.TeamActivity is not null || mode.BossActivity is not null || mode.ShenwuActivity is not null || mode.NianActivity is not null || mode.WenheActivity is not null || mode.DragonBoatActivity is not null || mode.GuanduActivity is not null;
     private bool IsBossActivityModeSelection => SelectedModeDefinition?.BossActivity is not null;
     private bool IsBossActivitySnapshot => CurrentModeDefinition?.BossActivity is not null;
 
     private static IReadOnlyList<StartingTeamOption> StartingTeamsFor(ContentModeDefinition? mode) =>
-        mode?.DragonBoatActivity is not null ? DragonBoatStartingTeams : mode?.ShenwuActivity is { } shenwu
+        mode?.GuanduActivity is not null ? GuanduStartingTeams : mode?.DragonBoatActivity is not null ? DragonBoatStartingTeams : mode?.ShenwuActivity is { } shenwu
             ? [new("联合军", shenwu.PlayerTeamId, "你与两名人机搭档挑战凶兽首领和两名烛阴")]
             : mode?.BossActivity is { } boss
             ? [new("联合军", boss.PlayerTeamId, mode.HellActivity is not null

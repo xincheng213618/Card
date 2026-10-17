@@ -15,6 +15,8 @@ public static class GameSoundRules
 {
     public static GameSound Outcome(GameSnapshot view)
     {
+        if (view.GuanduActivity is not null && view.Winner is not (Winner.None or Winner.Draw))
+            return view.WinnerTeamId == view.GuanduActivity.PlayerTeamId ? GameSound.Victory : GameSound.Defeat;
         if (view.Winner == Winner.RankedTeams)
             return view.WinnerTeamId is { } team && view.Players.FirstOrDefault(player => player.IsHuman)?.TeamId == team
                 ? GameSound.Victory : GameSound.Defeat;

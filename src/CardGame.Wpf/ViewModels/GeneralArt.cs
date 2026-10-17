@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 namespace CardGame.Wpf.ViewModels;
 
 /// <summary>Local artwork and attributed external assets. Only the public general ID selects the image.</summary>
-public static class GeneralArt
+public static partial class GeneralArt
 {
     private static readonly IReadOnlyDictionary<string, string> PortraitAliases =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -538,7 +538,7 @@ public static class GeneralArt
 
     public static string NormalizeKey(string id)
     {
-        var key = id;
+        var key = GuanduPortraitSource(id) ?? id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
         foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:" })

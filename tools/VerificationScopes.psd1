@@ -3,6 +3,8 @@
     # Character work uses focused name filters; new content does not expand this lane.
     # All retained registrations remain available for an explicitly requested manual full run.
     Core = @(
+        'Guandu mode: frozen roster private rotating draft tier five military deck',
+        'Guandu events: counterspell Use and played Slash keep distinct global count',
         'Dragon boat activity: opt in team only fixed draft and cold restore',
         'Dragon boat cards: post damage tied ranking discard then draw',
         'Wenhe activity: real eight seats private draft and cold restore',
@@ -164,6 +166,7 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'Guandu activity UI: two armies roles event and cold restore',
         'Dragon boat activity UI: four teams private draft and cross configuration',
         'Wenhe activity UI: private goal eight seats and cross-configuration restore',
         'Hell activity UI: five tiers real five seats dormant auxiliary and restore',

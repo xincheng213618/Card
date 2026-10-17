@@ -398,6 +398,9 @@
                                         <TextBlock Text="{Binding WenheAspirationText}" Foreground="#725738" FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" />
                                     </StackPanel>
                                 </Border>
+                                <Border x:Name="GuanduEventBanner" Visibility="{Binding IsGuanduActivityTable, Converter={StaticResource BoolToVisibility}}" Background="#DCE9DCBE" BorderBrush="#927449" BorderThickness="1" Padding="8,5" Margin="0,6,0,0" Width="{Binding ActualWidth, ElementName=FeedbackCenter}" MaxWidth="520">
+                                    <StackPanel><TextBlock Text="{Binding GuanduRoundText}" FontSize="14" FontWeight="Bold" Foreground="#654422" TextAlignment="Center" /><TextBlock Text="{Binding GuanduEventText}" FontSize="11" Foreground="#48392A" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" /><TextBlock Text="{Binding GuanduCommanderText}" Foreground="#725738" FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" /></StackPanel>
+                                </Border>
                                 <Border x:Name="DragonBoatScoreBanner" Visibility="{Binding IsDragonBoatActivityTable, Converter={StaticResource BoolToVisibility}}" Background="#DCE9DCBE" BorderBrush="#927449" BorderThickness="1" CornerRadius="3" Padding="6,4" Margin="0,6,0,0" MaxWidth="520">
                                     <StackPanel>
                                         <TextBlock Text="{Binding DragonBoatRoundText}" Foreground="#654422" FontSize="13" FontWeight="Bold" TextAlignment="Center" />
@@ -714,7 +717,7 @@
                     </ItemsControl>
                     <Button x:Name="FastSpectateButton" Content="快速观战" Command="{Binding FastSpectateCommand}" Style="{StaticResource TablePrimaryButton}" Visibility="{Binding IsSpectating, Converter={StaticResource BoolToVisibility}}" ToolTip="以快速节奏观看剩余对局，取消自动推进可暂停。" />
                     <Button Content="推荐弃牌" Command="{Binding RecommendDiscardCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding IsDiscardSelectionPending, Converter={StaticResource BoolToVisibility}}" />
-                    <Button x:Name="RecastButton" Content="重铸换牌" Command="{Binding RecastSelectedCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding ShowRecastAction, Converter={StaticResource BoolToVisibility}}" ToolTip="不选目标时可将铁索置入弃牌堆，再摸一张牌；不会进入无懈响应。" />
+                    <Button x:Name="RecastButton" Content="重铸换牌" Command="{Binding RecastSelectedCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding ShowRecastAction, Converter={StaticResource BoolToVisibility}}" ToolTip="不选目标时可重铸所选牌，将其置入弃牌堆并摸一张牌；不会进入无懈响应。" />
                     <Button Content="{Binding AlternatePlayText}" Command="{Binding PlaySelectedAsSlashCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding HasAlternateSlash, Converter={StaticResource BoolToVisibility}}" ToolTip="按当前技能把所选实体牌转换为对应的有效牌型。" />
                     <ItemsControl ItemsSource="{Binding SupplementalActiveSkillActions}">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -1361,6 +1364,10 @@
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
+                        </ListBox>
+                        <ListBox x:Name="GuanduRoleChoices" ItemsSource="{Binding GuanduRoles}" SelectedItem="{Binding SelectedGuanduRole}" ItemContainerStyle="{StaticResource SetupChoiceItem}" Visibility="{Binding IsGuanduActivityModeSelection, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="官渡主帅或部将">
+                            <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="6,5"><TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="22" Foreground="#E6C58C" /><TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                         <ListBox x:Name="WenheAspirationChoices" ItemsSource="{Binding WenheAspirations}" SelectedItem="{Binding SelectedWenheAspiration}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsWenheAspirationSelection, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="选择本局免费志向">
                             <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ListBox.ItemsPanel>

@@ -36,7 +36,7 @@ public sealed partial class MainViewModel
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
         GetViewLegalActions().Any(action => action.CardId == _selectedCardId &&
             MatchesSelectedPlayConversion(action) &&
-            (action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast ||
+            (action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast or LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort ||
              action.Kind != LegalActionKind.BorrowedSword && action.TargetSeats.Count > 1 &&
              action.ProgramActivationId is "next-card-target-adjustment" or "next-actual-use-target-adjustment"));
 
@@ -45,6 +45,9 @@ public sealed partial class MainViewModel
             MatchesSelectedPlayConversion(action) &&
             action.Kind is not (LegalActionKind.Recast or LegalActionKind.BorrowedSword)).ToArray()
         : [];
+
+    private bool IsWholeArmyCardSelected => MultiTargetCardActions is { Length: > 0 } actions &&
+        actions.All(action => action.Kind == LegalActionKind.UnitedEffort);
 
     private string MultiTargetCardName => MultiTargetCardActions.FirstOrDefault()?.PlayedCardKind is { } kind
         ? CardCatalog.Get(kind).DisplayName : Hand.FirstOrDefault(card => card.Id == _selectedCardId)?.Name ?? "牌";
@@ -60,6 +63,15 @@ public sealed partial class MainViewModel
 
     private void ToggleCardTarget(SeatViewModel seat)
     {
+        if (MultiTargetCardActions.FirstOrDefault(action => action.Kind == LegalActionKind.UnitedEffort && action.TargetSeats.Contains(seat.Seat)) is { } wholeTeam)
+        {
+            var deselect = _selectedCardTargetSeats.SetEquals(wholeTeam.TargetSeats);
+            _selectedCardTargetSeats.Clear();
+            if (!deselect) _selectedCardTargetSeats.UnionWith(wholeTeam.TargetSeats);
+            RebuildPublicTargetChoices();
+            RefreshTargetHighlights();
+            return;
+        }
         if (!_selectedCardTargetSeats.Remove(seat.Seat))
         {
             if (!MultiTargetCardActions.Any(action => action.TargetSeats.Contains(seat.Seat) &&
@@ -76,6 +88,8 @@ public sealed partial class MainViewModel
         {
             var actions = MultiTargetCardActions;
             if (actions.Length == 0) return $"{MultiTargetCardName}当前没有合法目标。";
+            if (IsWholeArmyCardSelected)
+                return $"{MultiTargetCardName} · 点击一名角色选择其整军；已选 {_selectedCardTargetSeats.Count} 人，再次点击取消。未选目标时可重铸。";
             var range = FormatSelectionRange(actions.Min(action => action.TargetSeats.Count), actions.Max(action => action.TargetSeats.Count));
             return $"{MultiTargetCardName} · 已选 {_selectedCardTargetSeats.Count} / {range} 个目标 · " +
                 (_selectedCardTargetSeats.Count == 0 ? CanRecastSelected
@@ -88,6 +102,8 @@ public sealed partial class MainViewModel
 
     private string[] MultiTargetGuideSteps()
     {
+        if (IsWholeArmyCardSelected)
+            return ["点击己方或敌方任一角色，选择该方完整合法目标；切换阵营或再次点击取消。", "选择后确认，按各目标依次结算无懈与效果；己方仅已横置者摸牌，敌方进入横置。", "不选目标可点击重铸，弃置此牌并摸一张牌；重铸不触发无懈。"];
         if (MultiTargetCardActions.All(action => action.Kind != LegalActionKind.IronChain))
             return ["点选亮起的武将追加目标，再次点选取消；只能提交当前合法的目标组合。",
                 _selectedCardTargetSeats.Count == 0 ? "尚未选择目标。" :

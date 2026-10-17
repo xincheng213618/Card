@@ -122,6 +122,11 @@
                                 <TextBlock Text="每轮规则" Style="{StaticResource GuideSubheading}" />
                                 <TextBlock Text="{Binding WenheRulesOverview}" Style="{StaticResource GuideBody}" />
                             </StackPanel>
+                            <StackPanel x:Name="GuanduBasics" Visibility="{Binding IsGuanduGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="官渡两军，护卫主帅" Style="{StaticResource GuideHeading}" /><TextBlock Text="{Binding GuanduBasicsText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="本局事件" Style="{StaticResource GuideSubheading}" /><TextBlock Text="{Binding GuanduEventText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="玩家默认五阶与五种具体座次为本地约定；官方2023公告没有等阶加成表和逐席布局。" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
                             <StackPanel x:Name="DragonBoatBasics" Visibility="{Binding IsDragonBoatGuide, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="四船竞分，两轮定名次" Style="{StaticResource GuideHeading}" />
                                 <TextBlock Text="{Binding DragonBoatBasicsText}" Style="{StaticResource GuideBody}" />

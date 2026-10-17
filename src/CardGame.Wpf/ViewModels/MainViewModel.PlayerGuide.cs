@@ -32,9 +32,9 @@ public sealed partial class MainViewModel
     public bool IsGuideBasics => SelectedGuideSection?.Key == "basics";
     public bool IsGuideCards => SelectedGuideSection?.Key == "cards";
     public bool IsGuideKeys => SelectedGuideSection?.Key == "keys";
-    public bool IsTeamGuide => (IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot) && !IsDragonBoatGuide;
+    public bool IsTeamGuide => (IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot) && !IsDragonBoatGuide && !IsGuanduGuide;
     public bool IsNationalGuide => IsNewGameSetupOpen ? IsNationalModeSelection : IsNationalSnapshot;
-    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide && !IsWenheGuide && !IsDragonBoatGuide;
+    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide && !IsWenheGuide && !IsDragonBoatGuide && !IsGuanduGuide;
     public string CurrentGuideTitle { get => _currentGuideTitle; private set => SetProperty(ref _currentGuideTitle, value); }
     public string CurrentGuideBody { get => _currentGuideBody; private set => SetProperty(ref _currentGuideBody, value); }
     public string GuideIdentity { get => _guideIdentity; private set => SetProperty(ref _guideIdentity, value); }
@@ -114,12 +114,19 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(IsIdentityGuide));
         RaisePropertyChanged(nameof(IsWenheGuide));
         RaisePropertyChanged(nameof(IsDragonBoatGuide));
+        RaisePropertyChanged(nameof(IsGuanduGuide));
         GuideIdentity = IsNewGameSetupOpen
             ? $"开局选择：{SelectedTableMode.Name} · {(IsWenheActivityModeSelection ? "各自求生" : IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
               (IsClassicIdentityModeSelection && SelectedDeck is not null ? $" · {SelectedDeck.Name}" : string.Empty)
             : IdentityObjective;
         string[] steps;
-        if (IsDragonBoatGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        if (IsGuanduGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        {
+            CurrentGuideTitle = "官渡之战 · 两军主帅对决";
+            CurrentGuideBody = IsNewGameSetupOpen ? TeamModeSetupText : GeneralSelectionSubtitle;
+            steps = GuanduGuideSteps;
+        }
+        else if (IsDragonBoatGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
         {
             CurrentGuideTitle = "龙舟争渡 · 八人四船竞分";
             CurrentGuideBody = IsNewGameSetupOpen ? TeamModeSetupText : GeneralSelectionSubtitle;

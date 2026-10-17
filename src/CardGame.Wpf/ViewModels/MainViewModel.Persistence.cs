@@ -192,6 +192,8 @@ public sealed partial class MainViewModel
             if (registeredMode.WenheActivity is not null)
                 SelectedWenheAspiration = WenheAspirations.Single(choice => choice.GoalRank ==
                     (restored.CreateSnapshot(0).WenheAspiration?.GoalRank ?? options.WenheAspirationRank ?? 1));
+            if (registeredMode.GuanduActivity is not null)
+                SelectedGuanduRole = GuanduRoles.Single(choice => choice.Role == (restored.CreateSnapshot(0).GuanduActivity?.HumanRole ?? options.HumanGuanduRole ?? GuanduSeatRole.General));
             if (team is not null) SelectedStartingTeam = team;
             ManualDiscardEnabled = options.UseInteractiveDiscard;
             IsAutoAdvance = save.AutoAdvance;

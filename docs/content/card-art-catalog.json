@@ -999,6 +999,30 @@
       "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
       "sha256": "199F87D6BF156A3B15EEA4E8D613BF1DC86FC7F135F686E3D17D2005AB6FA297",
       "notes": "Original project-drawn Dragon Boat opposing-flow symbol; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "Intoxication", "file": "Intoxication.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "B15DC2A912115019D87042F9556DB1537DEC237C5865B9DD1917586252550A76",
+      "notes": "Original project-drawn Guandu wine jar symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "StoreGrain", "file": "StoreGrain.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "F0374F7050657436EEBAFE7C65BC6477BDE5FCD2F93A793909698A72C373B17C",
+      "notes": "Original project-drawn Guandu granary symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "Reinforcements", "file": "Reinforcements.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "2796B4DB06308AA3E2147C86A4D556F1179313640B308301D7293049067588FE",
+      "notes": "Original project-drawn Guandu marching reinforcements symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "UnitedEffort", "file": "UnitedEffort.png", "sourceKind": "projectGenerated",
+      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "sha256": "6990D85F20797F39E0943621F1DCC41039C9CC279B86471D3D8B4ECE57FDCD2D",
+      "notes": "Original project-drawn Guandu linked armies symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
     }
   ],
   "components": [

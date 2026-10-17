@@ -354,7 +354,7 @@ public sealed partial class MainViewModel
         }
         return string.Join(" · ", parts.Distinct());
     }
-    public string AliveText => IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
+    public string AliveText => IsGuanduActivitySnapshot ? GuanduAliveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
         ? $"联合军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.PlayerTeamId)} · {BossActivityEnemyLabel} {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.EnemyTeamId)} 存活 · {BossActivityStageText}"
         : IsActivitySnapshot
         ? $"魏军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:wei")} · 蜀军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shu")} 存活"

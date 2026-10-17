@@ -98,7 +98,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _confirmOpeningHand = confirmOpeningHand;
         _contentRegistry = contentRegistry ??
             (useExpandedContent
-                ? ComposedSkillContentRegistry.CreateShowcase(includeActivities: true, includeBossActivities: true, includeHulaoActivities: true, includeShenwuActivities: true, includeNianActivities: true, includeHellActivities: true, includeWenheActivities: true, includeDragonBoatActivities: true)
+                ? ComposedSkillContentRegistry.CreateShowcase(includeActivities: true, includeBossActivities: true, includeHulaoActivities: true, includeShenwuActivities: true, includeNianActivities: true, includeHellActivities: true, includeWenheActivities: true, includeDragonBoatActivities: true, includeGuanduActivities: true)
                 : StandardContentRegistry.CreateWithTeamModes());
         TableModes = useExpandedContent
             ? [
@@ -118,7 +118,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .ThenBy(mode => mode.TeamActivity?.MachineTier ?? 0)
             .ThenBy(mode => mode.HellActivity?.BossTier ?? 0)
             .Select(mode => new TableModeOption(mode.MaxPlayers, mode.Name,
-                mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription : mode.BossActivity is not null
+                mode.GuanduActivity is not null ? GuanduLobbyDescription : mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription : mode.BossActivity is not null
                     ? BossActivityLobbyDescription(mode)
                     : "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
         DeckOptions =
@@ -383,6 +383,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 PlayerCount = SelectedTableMode.PlayerCount,
                 ModeId = SelectedTableMode.ModeId,
                 WenheAspirationRank = IsWenheAspirationSelection ? SelectedWenheAspiration.GoalRank : null,
+                HumanGuanduRole = IsGuanduActivityModeSelection ? SelectedGuanduRole.Role : null,
                 DeckId = IsClassicIdentityModeSelection ? SelectedDeck?.DeckId : null,
                 MaxTurns = 400,
                 UseInteractiveSetup = true,
@@ -591,7 +592,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Text = choice.Description,
                     Name = general.Name,
                     Kingdom = FactionName(general.FactionId),
-                    HealthText = IsDragonBoatActivitySnapshot || IsWenheActivitySnapshot || IsHellActivitySnapshot || IsShenwuActivitySnapshot || IsNianActivitySnapshot ? $"五阶体力上限 {general.BaseHp + 2}" : !HasDualGeneralSlots
+                    HealthText = IsGuanduActivitySnapshot ? GuanduSelectionHealth(general) : IsDragonBoatActivitySnapshot || IsWenheActivitySnapshot || IsHellActivitySnapshot || IsShenwuActivitySnapshot || IsNianActivitySnapshot ? $"五阶体力上限 {general.BaseHp + 2}" : !HasDualGeneralSlots
                         ? choice.Parameters.TryGetValue("identity-max-hp", out var identityHp) ? $"体力上限 {identityHp}" : string.Empty
                         : choice.Parameters.TryGetValue("combined-max-hp", out var combinedHp) ? $"组合体力 {combinedHp}" :
                         choice.Parameters.TryGetValue("base-hp", out var baseHp) ? $"基础体力 {baseHp}" : "旧规则体力 4",
@@ -819,7 +820,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     : player.FactionId is not null
                         ? FactionName(player.FactionId)
                         : GetKingdom(player.GeneralId),
-                RoleLabel = IsWenheActivitySnapshot ? WenheSeatLabel(player) : IsHellActivitySnapshot ? HellSeatLabel(player) : IsNianActivitySnapshot ? NianSeatLabel(player) : IsShenwuActivitySnapshot ? ShenwuSeatLabel(player) : IsNationalSnapshot ? FactionName(player.FactionId) : player.TeamId is { } teamId ? PublicTeamName(teamId)
+                RoleLabel = IsGuanduActivitySnapshot ? GuanduSeatLabel(player) : IsWenheActivitySnapshot ? WenheSeatLabel(player) : IsHellActivitySnapshot ? HellSeatLabel(player) : IsNianActivitySnapshot ? NianSeatLabel(player) : IsShenwuActivitySnapshot ? ShenwuSeatLabel(player) : IsNationalSnapshot ? FactionName(player.FactionId) : player.TeamId is { } teamId ? PublicTeamName(teamId)
                     : player.Role is { } role ? GetRoleName(role) : "?",
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
@@ -966,7 +967,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             HumanSummary = "全 AI 演示";
         }
 
-        RoundText = IsDragonBoatActivitySnapshot ? $"{DragonBoatRoundText} · 行动回合 {_snapshot.TurnNumber}"
+        RoundText = IsGuanduActivitySnapshot ? $"{GuanduRoundText} · 行动回合 {_snapshot.TurnNumber}" : IsDragonBoatActivitySnapshot ? $"{DragonBoatRoundText} · 行动回合 {_snapshot.TurnNumber}"
             : IsWenheActivitySnapshot ? $"{WenheRoundText} · 行动回合 {_snapshot.TurnNumber}" : $"回合 {_snapshot.TurnNumber}";
         PhaseText = GetPhaseName(_snapshot.Phase);
         var current = _snapshot.Players.FirstOrDefault(player => player.Seat == _snapshot.CurrentSeat);
@@ -983,7 +984,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         HasGameOver = _snapshot.Status == EngineStatus.Completed;
         RefreshMatchSummary();
-        GameOverText = HasGameOver ? IsDragonBoatActivitySnapshot ? DragonBoatGameOverText : IsWenheActivitySnapshot ? WenheGameOverText : _snapshot.Winner == Winner.Draw ? "本局平局结束" :
+        GameOverText = HasGameOver ? IsGuanduActivitySnapshot ? GuanduGameOverText : IsDragonBoatActivitySnapshot ? DragonBoatGameOverText : IsWenheActivitySnapshot ? WenheGameOverText : _snapshot.Winner == Winner.Draw ? "本局平局结束" :
             $"{(IsNationalSnapshot ? FactionName(_snapshot.WinnerFactionId) + "势力" : _snapshot.WinnerTeamId is { } winningTeam ? PublicTeamName(winningTeam) : GetWinnerName(_snapshot.Winner))}获胜" : string.Empty;
         RaisePropertyChanged(nameof(GameOutcomeTitle));
         CanEndTurn = _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard;
@@ -1570,7 +1571,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             seat.IsLegalTarget = !automaticSoul && (IsMultiTargetCardSelected
                 ? _selectedCardTargetSeats.Contains(seat.Seat) || MultiTargetCardActions.Any(action =>
-                    action.TargetSeats.Contains(seat.Seat) && _selectedCardTargetSeats.All(action.TargetSeats.Contains))
+                    action.TargetSeats.Contains(seat.Seat) && (IsWholeArmyCardSelected || _selectedCardTargetSeats.All(action.TargetSeats.Contains)))
                 : legalTargets.Contains(seat.Seat));
             seat.IsSelectedTarget = selectedTargets.Contains(seat.Seat);
         }

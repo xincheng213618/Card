@@ -94,6 +94,8 @@ internal static class Program
             Check("Nian activity UI: four seats clock and cross-configuration restore", () => NianActivityUiChecks.SetupFourSeatsFormPortraitsAndCrossConfigurationRestore(output));
             Check("Hell activity UI: five tiers real five seats dormant auxiliary and restore", () => HellActivityUiChecks.FiveTierLobbyRealFiveSeatsDormantAuxiliaryAndRestore(output));
             Check("Wenhe activity UI: private goal eight seats and cross-configuration restore", () => WenheActivityUiChecks.SurvivalLobbyPrivateGoalEightSeatsAndCrossConfigurationRestore(output));
+            Check("Guandu activity UI: two armies roles event and cold restore", () => GuanduActivityUiChecks.TwoArmiesCommanderGeneralEventAndCrossConfigurationRestore(output));
+            Check("Guandu activity UI: physical card target sets recast and native finish", () => GuanduActivityUiChecks.PhysicalCardsSelectBoundedRecipientsWholeArmyAndRecast(output));
             Check("Dragon boat activity UI: four teams private draft and cross configuration", () => DragonBoatActivityUiChecks.FourTeamLobbyPrivateDraftAndCrossConfigurationRestore(output));
             Check("Dragon boat activity UI: arrival order and actual two round team report", () => DragonBoatActivityUiChecks.NativeTreasureArrivalOrderAndTwoRoundTeamReport(output));
             Check("Wenhe activity UI: native ranks summary history and winner sound", () => WenheActivityUiChecks.NativeEliminationRanksDriveSummaryHistoryAndWinnerSound(output));
@@ -194,11 +196,12 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 19 && vm.SelectedModeCategory.Id == "all" &&
+        Assert(vm.VisibleTableModes.Count == 20 && vm.SelectedModeCategory.Id == "all" &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:shenwu-2017") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:nian-2016") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:dragon-boat-2018") &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 7 &&
+               vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:guandu-2023") &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 8 &&
                vm.StartingRoles.Any(role => role.Role is null) &&
                vm.StartingRoles.Where(role => role.Role.HasValue).Select(role => role.Role!.Value).ToHashSet()
                    .SetEquals([Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade]) && vm.SelectedStartingRole.Role is null,
@@ -226,7 +229,7 @@ internal static class Program
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 19 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 20 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 5 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
@@ -273,6 +276,9 @@ internal static class Program
         vm.StartNewGameCommand.Execute(null);
         vm.ContinueFromIdentityRevealCommand.Execute(null);
     }
+
+    internal static void AssertNoBindingErrors() =>
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
 
     internal static void Assert(bool condition, string message)
     {
