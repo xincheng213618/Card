@@ -14940,6 +14940,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-kong-shu",
+      "characterName": "孔淑·OL",
+      "defaultSkinId": "65400",
+      "skins": [
+        {
+          "id": "65400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/654",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-kong-shu.png",
+          "sha256": "38e6f82c484f06cc6c86ae0b7bcd92931f444c07b48570ea164365438231f7ff",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
