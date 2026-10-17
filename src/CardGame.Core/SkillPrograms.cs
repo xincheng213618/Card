@@ -970,6 +970,8 @@ public enum SkillProgramEffectOp
     ResolveBiguoDrawAndArmTargetPindian = 28130,
     ResolveBiguoTargetedPindianAndCategoryBan = 28131,
     ResolveDouyuPreRevealSwapAndWinDraw = 28132,
+    InitializeJiguInitialEntities = 28210,
+    ResolveJiguDamageEquipmentDraw = 28211,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -1856,6 +1858,8 @@ public sealed class SkillProgramViewAs
     public bool VariableInputCount { get; internal init; }
     public bool AllHandCardsOfSelectedSuit { get; internal init; }
     public bool DistanceUnlimited { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool EqualNameLengthUse { get; internal init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool NonBasicUnrespondableSlash { get; internal init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -3167,7 +3171,7 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition", "allHandCardsOfSelectedSuit",
             "usesPerPhase", "usesPerActualTurn", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited", "tieredRoundConversion", "drawFundedDistinctBasic", "disableSkillUntilTurnEndIfNoDamage", "roundDistinctBasicUse", "lastInSourceZone", "chainedStateCost", "nonBasicUnrespondableSlash", "roundOnceCardlessBasic", "roundGainedRedHandOnly", "kenshangUse", "sourcePileSkillId", "leiluanBasicUse", "xieweiBaitBasicUse");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited", "tieredRoundConversion", "drawFundedDistinctBasic", "disableSkillUntilTurnEndIfNoDamage", "roundDistinctBasicUse", "lastInSourceZone", "chainedStateCost", "nonBasicUnrespondableSlash", "roundOnceCardlessBasic", "roundGainedRedHandOnly", "kenshangUse", "sourcePileSkillId", "leiluanBasicUse", "xieweiBaitBasicUse", "equalNameLengthUse");
         var sourcePileSkillId = node.TryGetProperty("sourcePileSkillId", out _)
             ? Identifier(node, "sourcePileSkillId", path) : null;
         var kenshangUse = node.TryGetProperty("kenshangUse", out _) ? RequiredBool(node, "kenshangUse", path) : (bool?)null;
@@ -3194,6 +3198,7 @@ public sealed class SkillProgramCatalog
             CheckProperties(declarationNode, path + ".declarationValidation", "challengeGrantSkillId");
             declaration = new(Identifier(declarationNode, "challengeGrantSkillId", path + ".declarationValidation"));
         }
+        var equalNameLengthUse = node.TryGetProperty("equalNameLengthUse", out _) && RequiredBool(node, "equalNameLengthUse", path);
         var allowSameKind = node.TryGetProperty("allowSameKind", out _) && RequiredBool(node, "allowSameKind", path);
         var noDying = node.TryGetProperty("noDying", out _) && RequiredBool(node, "noDying", path);
         var unusedName = node.TryGetProperty("unusedOutputNameThisGame", out _) && RequiredBool(node, "unusedOutputNameThisGame", path);
@@ -3258,7 +3263,7 @@ public sealed class SkillProgramCatalog
              CardKind.PeachGarden or CardKind.FiveGrains or CardKind.Dismantlement or CardKind.Snatch or
              CardKind.FireAttack or CardKind.IronChain or CardKind.BorrowedSword)))
             Fail(path + ".singleCardTrickUse", "requires one physical source and an ordinary trick for play");
-        if (xieweiBaitBasicUse is null && leiluanBasicUse is null && tieredRound is null && drawFunded is null && roundDistinct is null && !chainedStateCost.HasValue && useOnly && !singleTrick && !((conversionState is not null || unusedName || lastInSourceZone == true) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
+        if (!equalNameLengthUse && xieweiBaitBasicUse is null && leiluanBasicUse is null && tieredRound is null && drawFunded is null && roundDistinct is null && !chainedStateCost.HasValue && useOnly && !singleTrick && !((conversionState is not null || unusedName || lastInSourceZone == true) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
             (output == CardKind.Dodge ? forPlay || !forResponse :
              !forPlay || forResponse || output is not
                 (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Peach or CardKind.Alcohol))))
@@ -3290,7 +3295,7 @@ public sealed class SkillProgramCatalog
             Fail(path + ".inheritPreviousPlaySuit", "requires usesPerPhase");
         if (usageGroup is not null && usesPerPhase is null && usesPerActualTurn is null)
             Fail(path + ".usageGroup", "requires usesPerPhase or usesPerActualTurn");
-        if (!singleTrick && !(conversionState is not null && useOnly && !forPlay && forResponse && output is CardKind.Dodge or CardKind.Nullification) && (usesPerPhase is not null || inheritPreviousPlaySuit) &&
+        if (!equalNameLengthUse && !singleTrick && !(conversionState is not null && useOnly && !forPlay && forResponse && output is CardKind.Dodge or CardKind.Nullification) && (usesPerPhase is not null || inheritPreviousPlaySuit) &&
             (!forPlay || forResponse || inputCount != 1 || output is not
                 (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Peach or CardKind.Alcohol)))
             Fail(path, "phase-limited viewAs requires one basic-card input for play only");
@@ -3362,7 +3367,7 @@ public sealed class SkillProgramCatalog
         var parsedViewAs = new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { XieweiBaitBasicUse = xieweiBaitBasicUse, LeiluanBasicUse = leiluanBasicUse, SourcePileSkillId = sourcePileSkillId, RoundGainedRedHandOnly = node.TryGetProperty("roundGainedRedHandOnly", out _) ? RequiredBool(node, "roundGainedRedHandOnly", path) : null, UsesPerActualTurn = usesPerActualTurn, ChainedStateCost = chainedStateCost, LastInSourceZone = lastInSourceZone, DisableSkillUntilTurnEndIfNoDamage = node.TryGetProperty("disableSkillUntilTurnEndIfNoDamage", out _) ? RequiredBool(node, "disableSkillUntilTurnEndIfNoDamage", path) : null, TieredRoundConversion = tieredRound, RoundOnceCardlessBasic = roundOnceCardless, DrawFundedDistinctBasic = drawFunded, RoundDistinctBasicUse = roundDistinct, UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { EqualNameLengthUse = equalNameLengthUse, XieweiBaitBasicUse = xieweiBaitBasicUse, LeiluanBasicUse = leiluanBasicUse, SourcePileSkillId = sourcePileSkillId, RoundGainedRedHandOnly = node.TryGetProperty("roundGainedRedHandOnly", out _) ? RequiredBool(node, "roundGainedRedHandOnly", path) : null, UsesPerActualTurn = usesPerActualTurn, ChainedStateCost = chainedStateCost, LastInSourceZone = lastInSourceZone, DisableSkillUntilTurnEndIfNoDamage = node.TryGetProperty("disableSkillUntilTurnEndIfNoDamage", out _) ? RequiredBool(node, "disableSkillUntilTurnEndIfNoDamage", path) : null, TieredRoundConversion = tieredRound, RoundOnceCardlessBasic = roundOnceCardless, DrawFundedDistinctBasic = drawFunded, RoundDistinctBasicUse = roundDistinct, UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           KenshangUse = kenshangUse, VariableInputCount = variableInput, DistanceUnlimited = distanceUnlimited, AllHandCardsOfSelectedSuit = allHandSuit,
           NonBasicUnrespondableSlash = node.TryGetProperty("nonBasicUnrespondableSlash", out _) && RequiredBool(node, "nonBasicUnrespondableSlash", path),
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
@@ -5051,6 +5056,8 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) ZhaoZhongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) TaoQianComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) PangJiComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) JiguComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) SiruiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouCaoPiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values)
         {

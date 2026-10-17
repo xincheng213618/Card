@@ -106,7 +106,7 @@ public sealed partial class GameEngine
             return;
         }
         if (kind == CardKind.RealgarWine && (actor.HasAlcoholEffect ||
-            !(CanUseJianjiOrdinaryAlcohol(actor, card.Id) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) ||
+            !(SiruiIgnoresAlcoholLimit(actor, conversion) || CanUseJianjiOrdinaryAlcohol(actor, card.Id) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) ||
                 HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))) return;
         foreach (var target in _players.Where(p => p.IsAlive && (kind switch
@@ -150,7 +150,7 @@ public sealed partial class GameEngine
             disclosure: CardMovementDisclosure.FaceUp);
         if (kind == CardKind.RealgarWine)
         {
-            if (!HasIssuedFuRongUnlimitedUse(id, actor.Seat) && !HasIssuedRoundGainedBasicBonus(id, actor.Seat))
+            if (!HasIssuedFuRongUnlimitedUse(id, actor.Seat) && !HasIssuedRoundGainedBasicBonus(id, actor.Seat) && !HasIssuedSiruiUse(id, actor.Seat))
                 actor.UsedPlayPhaseAlcoholThisTurn = true;
             BeginSimpleCardUse(id, new(card.Id, SimpleCardUseEffect.Alcohol)); return;
         }

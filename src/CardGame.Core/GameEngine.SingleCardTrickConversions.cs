@@ -20,7 +20,7 @@ public sealed partial class GameEngine
             // including kinds that also have historical specialized view-as paths.
             actions.RemoveAll(action => action.CardId == card.Id && action.ConversionSource == source);
             foreach (var option in BuildProgramOrdinaryTrickUseOptions(actor, kind,
-                         EffectiveSuit(actor, card), ViewAsRule(source)!.ExcludeOwnerEffects, enforceUsePermission: true, beneficiaryShieldSuit: EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source)), actualEffectiveColor: SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source))), hasActualColor: true, physicalCardIds:[card.Id]))
+                         EffectiveSuit(actor, card), ViewAsRule(source)!.ExcludeOwnerEffects, enforceUsePermission: true, beneficiaryShieldSuit: EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source)), actualEffectiveColor: SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source))), hasActualColor: true, physicalCardIds:[card.Id], conversionSource:source))
                 actions.Add(new LegalAction(option.ActionKind, card.Id,
                     option.TargetSeats.Count == 1 ? option.TargetSeats[0] : null,
                     DescribeConversion(source, option.Description), kind, option.TargetCardId,
@@ -40,7 +40,7 @@ public sealed partial class GameEngine
         var adjustedTargets = IsTargetAdjustmentAction(actor, action) &&
             _selectedNextCardTargetSeats?.SequenceEqual(action.TargetSeats) == true;
         var option = BuildProgramOrdinaryTrickUseOptions(actor, rule.OutputKind,
-            EffectiveSuit(actor, card), rule.ExcludeOwnerEffects, enforceUsePermission: true, beneficiaryShieldSuit: EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source)), actualEffectiveColor: SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source))), hasActualColor: true, physicalCardIds:[card.Id]).Where(option =>
+            EffectiveSuit(actor, card), rule.ExcludeOwnerEffects, enforceUsePermission: true, beneficiaryShieldSuit: EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source)), actualEffectiveColor: SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, card, source))), hasActualColor: true, physicalCardIds:[card.Id], conversionSource:source).Where(option =>
                 option.ActionKind == action.Kind && option.TargetCardId == action.TargetCardId &&
                 (option.TargetSeats.SequenceEqual(action.TargetSeats) || adjustedTargets)).OrderByDescending(option=>option.TargetSeats.Count).FirstOrDefault() ??
             throw new InvalidOperationException("The converted ordinary trick lost its legal targets.");

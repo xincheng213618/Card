@@ -69,7 +69,7 @@ public sealed partial class GameEngine
         if (!CanBeDistanceFreeDesignatedTarget(use, target)) return false;
         if (use.CardKind != CardKind.Snatch) return true;
         var actor = _players[action.ActorSeat];
-        return HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasIssuedGrantedPhaseEntityDistance(use.Id, actor.Seat) ||
+        return HasIssuedSiruiUse(use.Id, actor.Seat) || HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasIssuedGrantedPhaseEntityDistance(use.Id, actor.Seat) ||
             HasProvenanceUseDistance(actor, use.PhysicalCardIds) || HasGrantedPhaseEntityDistance(actor, use.PhysicalCardIds) ||
             HasCardDistanceExemption(actor, target, use.CardKind, use.Id) ||
             HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance, use.CardKind) || GetCombatDistance(actor.Seat, target.Seat) == 1;

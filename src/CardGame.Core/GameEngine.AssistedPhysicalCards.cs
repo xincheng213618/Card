@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target))).Select(target => target.Seat).ToArray();
+        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target) || SlashKinds.Any(k=>HasSiruiSlashDistance(_players[actorSeat],k)))).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind, bool actorChoosesTarget)
     {
@@ -84,7 +84,7 @@ public sealed partial class GameEngine
         foreach (var kind in SlashKinds.Where(kind => kind != CardKind.Slash))
         foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
         {
-            if (IsTurnHandCardRestricted(actor, card) || !AssistedSlashPaymentHasRange(actor, targetSeat, [card]) || !CanUseSlashTarget(actor, _players[targetSeat], card, conversion, kind)) continue;
+            if (IsTurnHandCardRestricted(actor, card) || !AssistedSlashPaymentHasRange(actor, targetSeat, [card], conversion) || !CanUseSlashTarget(actor, _players[targetSeat], card, conversion, kind)) continue;
             var parameters = Parameters("use");
             parameters["effective-kind"] = kind.ToString();
             AddConversionParameters(parameters, conversion);
@@ -121,7 +121,8 @@ public sealed partial class GameEngine
         return choices.Where(c => c.Parameters.GetValueOrDefault("request-option") != "use" || !IsTurnSlashChoiceUseForbidden(actor.Seat,c)).ToArray();
     }
 
-    private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards) =>
+    private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards, CardConversionSource? conversionSource = null) =>
+        SlashKinds.Any(k=>HasSiruiSlashDistance(actor,k,cards.Select(c=>c.Id).ToArray(),conversionSource)) ||
         HasSayingRoundRange(actor.Seat, targetSeat) || (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
         !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
         HasLiYiWeaponPaymentRange(actor, targetSeat, cards) ||
@@ -186,7 +187,7 @@ public sealed partial class GameEngine
         }
         var actor = _players[draft.ActorSeat];
         var (cards, kind, conversion) = ReadAssistedSlashPayment(actor, selected);
-        if (!AssistedPhysicalSlashTargets(actor.Seat).Contains(draft.TargetSeat.Value) || !AssistedSlashPaymentHasRange(actor, draft.TargetSeat.Value, cards) || !CanUseSlashTarget(actor, _players[draft.TargetSeat.Value], cards[0], conversion, kind, noEffectiveRank:cards.Count > 1, specificEffectiveRank:selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString() ? ZhangbaSpecificSlashRank(actor,cards) : null, physicalCardIds:cards.Select(c=>c.Id).ToArray()))
+        if (!AssistedPhysicalSlashTargets(actor.Seat).Contains(draft.TargetSeat.Value) || !AssistedSlashPaymentHasRange(actor, draft.TargetSeat.Value, cards, conversion) || !CanUseSlashTarget(actor, _players[draft.TargetSeat.Value], cards[0], conversion, kind, noEffectiveRank:cards.Count > 1, specificEffectiveRank:selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString() ? ZhangbaSpecificSlashRank(actor,cards) : null, physicalCardIds:cards.Select(c=>c.Id).ToArray()))
             throw new InvalidOperationException("The assisted Slash target became illegal.");
         CommitProgramChoiceResult(frame.Id, effect.ResultBind!, "used-slash", actor.Seat, "使用【杀】。");
         ResolveSlashCore(actor, _players[draft.TargetSeat.Value], cards[0], kind, actor.Seat, physicalCards: cards, countsTowardSlashLimit: false,

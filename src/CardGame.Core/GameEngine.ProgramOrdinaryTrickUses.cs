@@ -115,7 +115,7 @@ public sealed partial class GameEngine
             option.EffectiveCardKind);
     }
 
-    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null, bool? actualEffectiveColor = null, bool hasActualColor = false, IReadOnlyList<int>? physicalCardIds = null, bool includeNextActualUseAdjustment = false)
+    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null, bool? actualEffectiveColor = null, bool hasActualColor = false, IReadOnlyList<int>? physicalCardIds = null, bool includeNextActualUseAdjustment = false, CardConversionSource? conversionSource = null)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
         bool Wants(CardKind kind) => outputKind is null ? IsActivityOrdinaryTrickNameAvailable(kind) : outputKind == kind;
@@ -290,7 +290,7 @@ public sealed partial class GameEngine
         if (Wants(CardKind.Snatch))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
-                     (HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
+                     (SiruiIgnoresTrickDistance(source, conversionSource, physicalCardIds) || HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
                       HasProvenanceUseDistance(source, physicalCardIds) || HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
                           CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&

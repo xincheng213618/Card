@@ -126,6 +126,7 @@ public sealed partial class GameEngine
         {
             UsesPerActualTurn = r.UsesPerActualTurn, KenshangUse = r.KenshangUse, VariableInputCount = r.VariableInputCount,
             AllHandCardsOfSelectedSuit = r.AllHandCardsOfSelectedSuit, DistanceUnlimited = r.DistanceUnlimited,
+            EqualNameLengthUse = r.EqualNameLengthUse,
             NonBasicUnrespondableSlash = r.NonBasicUnrespondableSlash, UseEffectiveInputSuit = r.UseEffectiveInputSuit,
             ExtendedUse = r.ExtendedUse, DamageBonus = r.DamageBonus, RecoveryBonus = r.RecoveryBonus,
             CostDestination = r.CostDestination, UnusedOutputThisTurn = r.UnusedOutputThisTurn, UseOnly = r.UseOnly,

@@ -46,7 +46,7 @@ public sealed partial class GameEngine
             actor.IsAlive && target.IsAlive && !d.Issued &&
             CanUseSlashTarget(actor, target, card, source, kind, ignoreDistance: d.IgnoreDistance,
                 noEffectiveRank: noRank, specificEffectiveRank: rank, physicalCardIds:materials);
-        bool PaymentRange(IReadOnlyList<Card> cards) => d.IgnoreDistance || AssistedSlashPaymentHasRange(actor, target.Seat, cards);
+        bool PaymentRange(IReadOnlyList<Card> cards, CardConversionSource? source=null) => d.IgnoreDistance || AssistedSlashPaymentHasRange(actor, target.Seat, cards, source);
         var choices = new List<PromptChoice>();
         foreach (var card in GetSlashUseCards(actor))
         {
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
         foreach (var kind in SlashKinds.Where(kind => kind != CardKind.Slash))
         foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
         {
-            if (IsTurnHandCardRestricted(actor, card) || !PaymentRange([card]) || !Legal(card, kind, conversion)) continue;
+            if (IsTurnHandCardRestricted(actor, card) || !PaymentRange([card],conversion) || !Legal(card, kind, conversion)) continue;
             var p = Parameters("use"); p["effective-kind"] = kind.ToString(); AddConversionParameters(p, conversion);
             choices.Add(new(new($"fixed-slash.{frame.Id}.typed.{kind}.{conversion.SkillId}.{conversion.BindingId}.{card.Id}"),
                 $"将牌当【{CardCatalog.Get(kind).DisplayName}】使用", [card.Id], [target.Seat], p));

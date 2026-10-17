@@ -15,7 +15,7 @@ public sealed partial class GameEngine
          HasJiyunResponseCompletion(action, continuation) ||
          action.PhysicalCards.Any(cost => IsNativePublicPileOriginalActionCost(action, cost)) ||
          IsJueshengPaidDuelResponse(action, continuation) || HasGuanduChariotResponsePayment(action, continuation) || HasChenglieResponseObserver(action, continuation) ||
-         action.PhysicalCards.Any(cost => TryGetXieweiResponseCostMovement(action, cost.CardId, out _)));
+         action.PhysicalCards.Any(cost => TryGetXieweiResponseCostMovement(action, cost.CardId, out _) || TryGetSiruiDestroyedResponseCost(action,cost.CardId,out _)));
 
     // The Duel's then-clause must wait for its actual response-payment children,
     // including when the catalogue has no response-completed skill observer.
@@ -63,6 +63,8 @@ public sealed partial class GameEngine
         {
             if (GuanduChariotResponsePayment(a, parentFrameId, cost, continuation) is { } destroyed)
             { paid.Add(destroyed); continue; }
+            if (TryGetSiruiDestroyedResponseCost(a,cost.CardId,out var destroyedSirui))
+            { paid.Add(destroyedSirui); continue; }
             if (TryGetXieweiResponseCostMovement(a, cost.CardId, out var baitMovement))
             { paid.Add(baitMovement); continue; }
             if (IsProgramAlternativeCost(a, cost.CardId))
@@ -164,6 +166,8 @@ public sealed partial class GameEngine
         if (records.Length == 0 || records.Any(m => !_cardMovements.Contains(m) || m.CardKind != cost.CardKind)) return false;
         if (GuanduChariotResponsePayment(window.Action, r.ParentFrameId, cost, r.OriginalContinuation) is { } destroyed)
             return records is [var only] && only == destroyed;
+        if (TryGetSiruiDestroyedResponseCost(window.Action,cost.CardId,out var destroyedSirui))
+            return records is [var originalSirui] && originalSirui == destroyedSirui;
         if (TryGetXieweiResponseCostMovement(window.Action, cost.CardId, out var baitMovement))
             return records is [var bait] && bait == baitMovement;
         if (IsProgramAlternativeCost(window.Action, cost.CardId))

@@ -194,6 +194,7 @@ public sealed partial class GameEngine
         CardConversionSource? source)
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
+        if (SiruiIgnoresSlashDistance(owner, source)) return true;
         if (IgnoresNonBasicSlashDistance(owner, source)) return true;
         if (FriendXuanjianIgnoresDistance(owner, source)) return true;
         var context = CreateSkillContext(owner);
@@ -208,7 +209,7 @@ public sealed partial class GameEngine
     }
 
     private bool IgnoresProgramSlashLimit(CharacterState owner, CardConversionSource? source) =>
-        source is not null && source.OwnerSeat == owner.Seat &&
+        SiruiIgnoresSlashLimit(owner, source) || source is not null && source.OwnerSeat == owner.Seat &&
         GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId && binding.Source.SkillInstanceId == source.SkillInstanceId &&
             binding.Modifier.Operation == SkillRuleOperation.Unlimited && binding.Modifier.SourceCardIdentityId == source.BindingId &&
@@ -266,15 +267,16 @@ public sealed partial class GameEngine
                 {
                     var (instance, rule) = item;
                     return rule.KenshangUse != true && rule.InputCount == 1 &&
-                               (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
+                               (rule.OutputKind == outputKind || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
-                               (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.EqualNameLengthUse && IsSiruiTrueResponseUse(owner, rule.OutputKind, dyingUse, requestedUseTarget) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) && GuanConversionAvailable(owner.Seat, instance.SkillId) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
+                               CanUseSiruiConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (inputKind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
@@ -712,9 +714,10 @@ public sealed partial class GameEngine
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
         if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
             programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
+        programSources = programSources.Where(source => SiruiNativeConversionMatchesOutput(owner, source, effectiveKind)).ToArray();
         var originalPile = IsNativePublicPileOriginalChoice(owner, card, effectiveKind, forResponse);
         var includeUnspecified = !IsWenhePhysicalPoison(owner, card) && !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
-            (card.Kind == effectiveKind || programSources.Count == 0);
+            (card.Kind == effectiveKind || programSources.Count == 0) && SiruiAllowsUnspecifiedForcedSlash(owner, card, effectiveKind);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
         if (hasIdentity) sources.AddRange(identitySources);
@@ -726,11 +729,32 @@ public sealed partial class GameEngine
         {
             var source = sources[index];
             var parameters = new Dictionary<string, string>(baseParameters);
+            var sourceKind = source is not null && IsSiruiSource(source) && IsSlashCard(effectiveKind)
+                ? ViewAsRule(source)!.OutputKind : effectiveKind;
+            if (sourceKind != effectiveKind)
+            {
+                if (parameters.ContainsKey("response-card-kind")) parameters["response-card-kind"] = sourceKind.ToString();
+                if (parameters.ContainsKey("effective-kind")) parameters["effective-kind"] = sourceKind.ToString();
+            }
             if (source is null && originalPile) parameters["native-original-public-pile"] = "true";
             if (source is not null) AddConversionParameters(parameters, source);
             var suffix = source is null ? string.Empty : $".conversion-{index}";
+            if (source is not null && IsSiruiSource(source) && SiruiExplicitForcedSlashFrontier(owner))
+                suffix += ".sirui-" + sourceKind;
+            var choiceDescription = sourceKind == effectiveKind
+                ? description
+                : description.Replace("【杀】", "【" + CardCatalog.Get(sourceKind).DisplayName + "】", StringComparison.Ordinal);
+            if (source is not null && IsSiruiSource(source) && IsSlashCard(sourceKind) &&
+                SiruiExplicitForcedSlashFrontier(owner) && targets is [var targetSeat])
+            {
+                var convertedCardDescription = $"将【{card.DisplayName}】当作【{CardCatalog.Get(sourceKind).DisplayName}】使用";
+                if (baseParameters.GetValueOrDefault("action") == "qinglong-slash")
+                    choiceDescription = $"{convertedCardDescription}，继续攻击 {_players[targetSeat].Name}。";
+                else if (baseParameters.GetValueOrDefault("response") == "borrowed-sword-slash")
+                    choiceDescription = $"{convertedCardDescription}攻击 {_players[targetSeat].Name}。";
+            }
             yield return new PromptChoice(
-                new ChoiceId(baseChoiceId + suffix), DescribeConversion(source, description), cards, targets, parameters);
+                new ChoiceId(baseChoiceId + suffix), DescribeConversion(source, choiceDescription), cards, targets, parameters);
         }
     }
 

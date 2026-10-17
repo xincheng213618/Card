@@ -467,7 +467,7 @@ internal static class CompiledSkillMetadataChecks
             object[] Query(CardKind? kind) => ((System.Collections.IEnumerable)method.Invoke(game,
                 [players[0], kind, scenario.PhysicalSuit, scenario.ExcludeOwner, scenario.EnforcePermission,
                     scenario.ShieldSuit, scenario.Color, scenario.HasActualColor, scenario.PhysicalCards,
-                    scenario.IncludeAdjustment])!).Cast<object>().ToArray();
+                    scenario.IncludeAdjustment, null])!).Cast<object>().ToArray();
         }
         Require(before == ProgramCompositionEntryChecks.State(game) &&
             eventsBefore.SequenceEqual(ProgramCompositionEntryChecks.Events(game)),

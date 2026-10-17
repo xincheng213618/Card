@@ -60,7 +60,9 @@ public sealed partial class GameEngine
         $"view-as:{rule.UsageGroup ?? rule.Id}@{source.SkillInstanceId}";
 
     private bool CanUsePhaseLimitedViewAs(IndexedSkillProgramInstance instance,
-        SkillProgramViewAs rule, CharacterState owner) => rule.UsesPerPhase is not { } limit ||
+        SkillProgramViewAs rule, CharacterState owner) => rule.EqualNameLengthUse
+        ? CanUseSiruiPhase(owner, new(instance.SkillId, rule.Id, owner.Seat, instance.SkillInstanceId))
+        : rule.UsesPerPhase is not { } limit ||
         (_phase == TurnPhase.Play && owner.Seat == _currentSeat &&
          _skillRuntimeState.GetUsage(owner.Seat, instance.SkillId,
              ViewAsUsageId(new(instance.SkillId, rule.Id, owner.Seat, instance.SkillInstanceId), rule),
@@ -74,6 +76,7 @@ public sealed partial class GameEngine
     {
         foreach (var source in sources)
         {
+            if (IsSiruiSource(source)) continue;
             ConsumeTieredRoundConversion(source);
             ConsumeNamedUseConversion(source);
             ConsumeGuanduRoundConversion(source);
@@ -112,7 +115,7 @@ public sealed partial class GameEngine
             foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
                          CardKind.Peach, CardKind.Alcohol })
                 foreach (var source in GetProgramViewAsConversions(actor, card, kind, forResponse: false)
-                             .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly)))
+                             .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly) && (!rule.EqualNameLengthUse || rule.OutputKind == kind)))
                 {
                     if (actions.Any(action => action.CardId == card.Id && action.ConversionSource == source &&
                         action.PlayedCardKind == kind)) continue;
@@ -129,7 +132,7 @@ public sealed partial class GameEngine
                         AddProgramTargetCountSlashActions(actions, actor, usedCard, targets, name, kind, source);
                     }
                     else if (kind == CardKind.Peach && IsRuleWounded(actor) ||
-                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
+                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (SiruiIgnoresAlcoholLimit(actor, source) || !actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
                         actions.Add(new LegalAction(kind == CardKind.Peach ? LegalActionKind.Peach : LegalActionKind.Alcohol,
                             card.Id, kind == CardKind.Peach ? actor.Seat : null,
                             DescribeConversion(source, $"将【{card.DisplayName}】当作【{name}】使用"),

@@ -94,7 +94,7 @@ public sealed partial class GameEngine
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)
     {
         if (!HasLiFengCapability && !HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
-            !(HasLiFengCapability || HasCuiYanCapability || HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
+            !(HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||
               TracksCurrentTurnUseKinds && kind == CardKind.Nullification ||
               (TracksActualTurnUseOrdinal || TracksWholeActualTurnUseOrdinal) && kind == CardKind.Dodge)) return null;

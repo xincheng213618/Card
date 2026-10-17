@@ -181,7 +181,7 @@ public sealed partial class GameEngine
     // separately qualified distance exemption survives its payment, however.
     // Historical assisted consumers retain their existing range predicate.
     private bool NearestSlashPaymentHasRange(CharacterState actor, int target, IReadOnlyList<Card> cards,
-        CardConversionSource? conversion, CardKind kind) => AssistedSlashPaymentHasRange(actor, target, cards) ||
+        CardConversionSource? conversion, CardKind kind) => AssistedSlashPaymentHasRange(actor, target, cards, conversion) ||
         (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || IgnoresProgramSlashDistance(actor, conversion) ||
         IgnoresSpGuanYuWushengDistance(actor, cards[0]) ||
         HasSlashUseDistanceBySuit(actor, kind, EffectiveSuit(actor, cards[0])) ||
