@@ -914,7 +914,12 @@ public enum SkillProgramEffectOp
     ResolveOrdinaryGuYongBingyi = 27598,
     ResolveHuanpeiHandAdjustmentAndBasicUse = 28100,
     ResolveWenyiHealthOneAid = 28101,
-    ResolveMiaoxinDamageDrawAndRefresh = 28102
+    ResolveMiaoxinDamageDrawAndRefresh = 28102,
+    ResolvePengbiFirstActualTurn = 28110,
+    ResolveDiciGiftRecoveryAndNeighborChain = 28111,
+    ResolveIssuedDiciNextChainChoice = 28112,
+    ResolveYintianFirstRecovery = 28113,
+    ResolveBiriFirstNonDrawGain = 28114
 
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001, Activator = 2002 }
@@ -4935,6 +4940,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) OrdinaryCaiFuRenComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) OrdinaryGuYongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) HuanShuJunComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) ZhaoZhongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values)
         {
             foreach (var activation in program.Activations) RuanHuiComposition.Activation(program.Id, activation);

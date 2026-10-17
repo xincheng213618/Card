@@ -2131,6 +2131,9 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
+        if (IsIssuedDiciChainCandidate(candidate, context)) return true;
+        if (IsIssuedBiriCandidate(candidate, context)) return true;
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
@@ -2381,7 +2384,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change &&
-                (IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
+                (IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
@@ -3464,6 +3467,7 @@ public sealed partial class GameEngine
             Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
                 frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
                 frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
+        if (IsIssuedDiciChainTrigger(GetProgramTrigger(candidate))) context = CreateIssuedDiciChainContext(frame, candidate, context);
         if (frame.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) context = CreateIdentityAppearanceContext(frame, candidate);
         context = context with { BeforeTurnPreludeProof = frame.BeforeTurnPreludeProof };
         context = CreateQingzhongEndingContext(frame, candidate, context);
@@ -3485,6 +3489,7 @@ public sealed partial class GameEngine
             Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts)
         { ProgramTarget = lifecycle.ProgramTarget, BeforeTurnPreludeProof = lifecycle.BeforeTurnPreludeProof,
             SourceSeat = lifecycle.ProgramTarget?.OwnerSeat ?? lifecycle.OwnerSeat, TargetSeat = lifecycle.ProgramTarget?.TargetSeat ?? lifecycle.OwnerSeat };
+        if (IsIssuedDiciChainTrigger(GetProgramTrigger(candidate))) context = CreateIssuedDiciChainContext(lifecycle, candidate, context);
         context = CreateQingzhongEndingContext(lifecycle, candidate, context);
         context = CreateWeiluEndingContext(lifecycle, candidate, context);
         context = CreateXuRongDyingContext(context);

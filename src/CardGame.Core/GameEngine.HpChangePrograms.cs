@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
             kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
         _pendingHpChanges.Add(change);
+        CaptureYintianRecoveryQualification(change);
         CaptureQimeiHpQualification(change);
         CaptureXianfuRecoveryQualification(change);
         CaptureDianhuRecoveryQualification(change);
@@ -39,9 +40,9 @@ public sealed partial class GameEngine
             };
             var registered = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
-                .Where(candidate => !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
+                .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
                     !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)))
-                .Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
+                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
             if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
@@ -57,7 +58,9 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => IsWenyiHpTrigger(GetProgramTrigger(candidate))
+            var contexts = candidates.Select(candidate => IsYintianRecoveryTrigger(GetProgramTrigger(candidate))
+                ? CreateYintianRecoveryContext(change, candidate)
+                : IsWenyiHpTrigger(GetProgramTrigger(candidate))
                 ? CreateWenyiHpContext(change, candidate)
                 : IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
                 ? CreateQimeiHpContext(change, candidate)

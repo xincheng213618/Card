@@ -39,9 +39,12 @@ public sealed partial class GameEngine
             var candidates = _players.Where(player => player.IsAlive).SelectMany(player =>
                 CollectEligibleProgramTriggerCandidates(player, change.Window, facts[player.Seat])
                     .Where(candidate => GetProgramTrigger(candidate).Subject == SkillProgramTriggerSubject.Any || player.Seat == change.TargetSeat))
+                .Where(candidate => !IsIssuedDiciChainTrigger(GetProgramTrigger(candidate)))
                 .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _playerCount) % _playerCount)
                 .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
-                .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
+                .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal)
+                .ThenBy(candidate => candidate.OccurrenceIndex)
+                .Concat(CollectIssuedDiciChainCandidates(change).OrderBy(candidate => candidate.OccurrenceIndex)).ToArray();
             if (candidates.Length == 0) continue;
             if (continuation == CharacterStateContinuation.ChainedStateBasic)
                 BeginChainedStateBasicChild(resumeFrameId!.Value, change.Id);
