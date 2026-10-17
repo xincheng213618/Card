@@ -1,0 +1,89 @@
+{
+  "checkedAtUtc": "2026-10-17T19:41:16.022381+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐小乔",
+  "generalId": "le:xiao-qiao",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "sources": [
+    {
+      "label": "hero",
+      "url": "https://x.sanguosha.com/hero/1336.html",
+      "httpStatus": 200,
+      "bytes": 29120,
+      "sha256": "4e06e6643602e67daf1bf51e2e539b2bc311c0aa3429ee407236d1406b21417f"
+    },
+    {
+      "label": "launch",
+      "url": "https://sanguosha.com/news/20240111_5622_4711",
+      "httpStatus": 200,
+      "bytes": 420072,
+      "sha256": "c724750b0473979802a3fffd67c80f2872e6b0eea80acf63470edbec235b3f09"
+    },
+    {
+      "label": "guide",
+      "url": "https://my.4399.com/yxxsgs/ziliao/60657/",
+      "httpStatus": 200,
+      "bytes": 58587,
+      "sha256": "4518088aa1f886dcfa69891bb2e36ea6f3163dc1e0a622e0cdffde20f84d77be"
+    },
+    {
+      "label": "shared-qin",
+      "url": "https://my.4399.com/yxxsgs/ziliao/60653/",
+      "httpStatus": 200,
+      "bytes": 58061,
+      "sha256": "cf530782f27ac51be3068a78cfc729ffe703d31d6087bcb2f9610004c7d5b9e8"
+    }
+  ],
+  "officialHero": "https://x.sanguosha.com/hero/1336.html",
+  "launchPublished": "2024-01-11 21:54:37",
+  "firstAvailable": "2024-01-12",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133601.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1336.html",
+    "id": "1133601",
+    "name": "经典形象",
+    "sha256": "db15accdf1b4ffa85f9895b84742e363f4c9ae9a0df3227e2a468cde6cdb269a",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "httpStatus": 200,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-xiao-qiao.png"
+  },
+  "engineeringInterpretations": {
+    "initialEntities": "Freeze the actual final opening Hand entities before GameStarting children, including actual opening replacements; never assume four cards.",
+    "entityMarks": "Permanent global physical-ID Qin marks survive transfer and return. A live Qiqin holder exempts currently held marked Hand cards. This follows the other Le mark mechanisms; the official sources have no transfer-specific hand-limit FAQ. All Qiqin holders share the same Qin pool, as the first-party operator Da Qiao guide explicitly states.",
+    "collection": "Only current DiscardPile Qin are collected during the actual Preparation phase. The operator Xiao Qiao guide accidentally says Discard phase once in its explanation; the skill text and developer hero both say Preparation and are authoritative.",
+    "cost": "A marked physical card in the acting owner actual Hand or Equipment is an ordinary owned discard cost; Wooden Ox contents and special piles are not those zones. Freeze its owner-effective suit before payment. No specialized cost-zone FAQ was found.",
+    "randomObtain": "After the discard and its native children, sample the target current Hand, Equipment and Judgment by its effective suits. For every standard suit different from the frozen cost suit, randomly choose exactly one candidate. Resolve their native atomic movement and count actual primary entities that enter the acting owner Hand. Original equipment destruction and Wooden Ox grain children do not manufacture obtained primaries. H/E/J and mandatory all-suit selection are explicit in the operator guide; effective-suit timing follows the existing engine contracts.",
+    "outcomes": "Actual one card: obtain first, then native LoseHp of the selected other target. Actual two: only directed use against that target ignores distance and quota for this actual turn. Actual three: no card use against that target this actual turn. Zero has no further effect. Branches are exclusive. Self Alcohol keeps its ordinary quota.",
+    "paidRights": "Freeze issued payment and native use ownership on their owning frames. Paid source loss does not pay again or cancel the issued continuation; preserve native death/game-over rules. Directed policies expire with the actual turn, do not reset ordinary card counters, and an accepted declaration retains its exact pre-payment signed rights.",
+    "actualTurnTail": "A lease ends at a native TurnEnded or next TurnStarted that occurs after its issue. A new lease issued in genuine end-owned extra Play after an earlier TurnEnded remains valid through that phase until the subsequent boundary; an earlier lease already expired by TurnEnded never revives."
+  },
+  "validation": {
+    "status": "passed",
+    "manualFullRun": false,
+    "visualInspection": "Actual WPF detail render inspected: official original portrait, Le series, both full skill descriptions and scroll bottom.",
+    "coveredBoundaries": [
+      "Actual post-replacement opening entities, frozen GameStarting mother, non-four starting Hands, permanent global Qin marks, transfers and live-holder hand-limit exemption.",
+      "Actual Preparation obtains the whole shared Qin DiscardPile as one native batch; other areas and Wooden Ox grain are excluded; empty collection does not draw.",
+      "Qiqin paid gain children, exact source rights, native damage/HP changes, owner death, private and stale inputs, immutable frames and cold replay.",
+      "Weiwan actual H/E Qin discard, per-actual-Play quota, mandatory random different-suit selection from current H/E/J after payment children, exclusive zero/one/two/three actual-obtain branches.",
+      "Silver Lion native removal recovery, Wooden Ox grain spill, effective-suit sampling, original entities and exact once-paid stages across source loss, death and replay.",
+      "Directed card-use distance and quota privilege, ordinary counters and self Alcohol quota, prohibition precedence, pure Played response exclusion and issued-use rights.",
+      "Native TurnEnded and TurnStarted expiry, new end-owned extra Play lease, distinct extra Play quota, no revival of old expired leases and no retroactive accepted-use expansion."
+    ],
+    "scope": "Development focused and bounded routine checks only. No manual full run, packaging, release, push or complete manual foreground match.",
+    "verifiedAtUtc": "2026-10-17T20:02:18.152791+00:00",
+    "focused": {
+      "corePassed": 42,
+      "wpfPassed": 1,
+      "durationMs": 37420
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 73611
+    },
+    "nativeInput": "Routine WPF native input checks passed; idle input was required by their real prerequisite guards. The actual native route reported AsyncLeftDown=false."
+  }
+}

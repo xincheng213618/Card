@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-xiao-qiao",
+      "characterName": "乐小乔",
+      "defaultSkinId": "1133601",
+      "skins": [
+        {
+          "id": "1133601",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1336.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133601.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-xiao-qiao.png",
+          "sha256": "db15accdf1b4ffa85f9895b84742e363f4c9ae9a0df3227e2a468cde6cdb269a",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "wumiao-guan-yu",
       "characterName": "武关羽",
       "defaultSkinId": "123201",

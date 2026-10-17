@@ -128,6 +128,7 @@ public static partial class GeneralArt
             ["ol-pang-ji"] = "official-ol-pang-ji.png",
             ["le-mi-heng"] = "official-le-mi-heng.png",
             ["le-zhou-fei"] = "official-le-zhou-fei.png",
+            ["le-xiao-qiao"] = "official-le-xiao-qiao.png",
             ["wumiao-guan-yu"] = "official-wumiao-guan-yu.png",
             ["le-cai-wen-ji"] = "official-le-cai-wen-ji.png",
             // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
