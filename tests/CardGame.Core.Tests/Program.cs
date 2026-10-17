@@ -268,6 +268,18 @@ var tests = new (string Name, Action Body)[]
     ("Le Cai Wen Ji: whole marked loss missing suits and native children cold", CardGame.Core.Tests.LeCaiWenJiChecks.BeifenWholeMarkedLossMissingSuitObtainAndNativeChildrenCold),
     ("Le Cai Wen Ji: all Use range quota and other bans cold", CardGame.Core.Tests.LeCaiWenJiChecks.BeifenAllCardUseDistanceAndNaturalLimitsKeepOtherBansCold),
     ("Le Cai Wen Ji: issued loss source rights privacy and replay cold", CardGame.Core.Tests.LeCaiWenJiChecks.BeifenIssuedLossSourceRightsPrivacyAndReplayCold),
+    ("Wu Guan Yu Juewu: all eight damage names original materials and native quota cold", CardGame.Core.Tests.WuGuanYuJuewuChecks.JuewuAllDamageNamesUseOriginalEntitiesAndNativeQuotaCold),
+    ("Wu Guan Yu Juewu: foreign hand rank residency appearance and pindian cold", CardGame.Core.Tests.WuGuanYuJuewuChecks.JuewuForeignHandRankResidencyAppearanceAndPindianCold),
+    ("Wu Guan Yu Juewu: true forced uses reject played and paid child rights cold", CardGame.Core.Tests.WuGuanYuJuewuChecks.JuewuTrueForcedUsesRejectPlayedAndPaidChildrenRightsCold),
+    ("Wu Guan Yu Juewu: flood ordered nullification and native children cold", CardGame.Core.Tests.WuGuanYuJuewuChecks.WaterOriginalOrderNullificationAndNativeChildrenCold),
+    ("Wu Guan Yu Wuyou: private random contribution self and phase rights cold", CardGame.Core.Tests.WuGuanYuWuyouChecks.WuyouContributionRandomPrivateSelfAndPhaseRightsCold),
+    ("Wu Guan Yu Wuyou: named original use residency and paid children cold", CardGame.Core.Tests.WuGuanYuWuyouChecks.WuyouNamedOriginalUseResidencyAndPaidChildrenCold),
+    ("Wu Guan Yu Wuyou: later phase names native responses and supplied use cold", CardGame.Core.Tests.WuGuanYuWuyouChecks.WuyouLaterPhaseNamesNativeResponsesAndProvidedUseCold),
+    ("Wu Guan Yu Yixian: all field equipment native children and original owners cold", CardGame.Core.Tests.WuGuanYuYixianChecks.FieldEquipmentAtomicOriginalOwnersLionOxAndCompensationCold),
+    ("Wu Guan Yu Yixian: discard equipment limited and empty branches cold", CardGame.Core.Tests.WuGuanYuYixianChecks.DiscardEquipmentObtainLimitedAndEmptyBranchesCold),
+    ("Wu Guan Yu Yixian: paid source loss deaths privacy and replay cold", CardGame.Core.Tests.WuGuanYuYixianChecks.PaidSourceLossDeathNativeChildrenAndInputPrivacyCold),
+    ("Wu Guan Yu Juewu: foreign Hand rank sum original entities and paid source rights cold", CardGame.Core.Tests.WuGuanYuRankConsumerChecks.ForeignHandExactRankGiftKeepsPrintedEntitiesAndPaidSourceRightsCold),
+    ("Wu Guan Yu Juewu: foreign Hand maximum ascending history and hand comparison cold", CardGame.Core.Tests.WuGuanYuRankConsumerChecks.ForeignHandMaximumAscendingAndHandComparisonUseEffectiveRankCold),
     ("Le Zhou Fei: original and transferred entities hand limit cold", CardGame.Core.Tests.LeZhouFeiChecks.LingkongOriginalAndTransferredEntitiesHandLimitCold),
     ("Le Zhou Fei: first whole gain outside Draw and actual turns cold", CardGame.Core.Tests.LeZhouFeiChecks.LingkongFirstWholeGainOutsideDrawPhaseActualTurnsCold),
     ("Le Zhou Fei: Xianshu colors fresh health draw bounds and neutral cold", CardGame.Core.Tests.LeZhouFeiChecks.XianshuColorsFreshHealthDrawBoundsAndNeutralEntityCold),
@@ -1346,7 +1358,7 @@ static void StandardContentRegistryBuilds()
     Equal("standard", registry.Packages[0].Id);
     TrueWithMessage(!string.IsNullOrWhiteSpace(registry.ContentHash), "registry exposes a content hash");
     Equal(registry.ContentHash, secondRegistry.ContentHash);
-    Equal(31, registry.Cards.Count);
+    Equal(32, registry.Cards.Count);
     Equal(13, registry.Skills.Count);
     Equal(
         "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",

@@ -4,7 +4,25 @@ public sealed record ProgramPrivateHandTakeDraft(int SourceSeat, int RequiredCou
     IReadOnlyList<int> ViewedCardIds, IReadOnlyList<int> SelectedCardIds, bool Paid = false);
 public sealed record ProgramHandRepaymentDraft(int SourceSeat, int InstructionIndex,
     bool Paid = false, int? PaidCardId = null, bool LostHp = false);
-public sealed record ProgramBoundParticipantGiftReceipt(int InstructionIndex, string SourceBind, int RecipientSeat);
+public sealed record ProgramBoundParticipantGiftReceipt(int InstructionIndex, string SourceBind, int RecipientSeat)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramOwnedHandRankSumGiftReceipt? RankSum { get; init; }
+}
+public sealed record ProgramOwnedHandRankSumGiftEntity(int CardId, CardKind PrintedKind, int PrintedRank,
+    CardLocation From, int EffectiveRank);
+public sealed record ProgramOwnedHandRankSumGiftReceipt(long OwnerFrameId, int RequiredSum, long SequenceBefore, CardMoveReason Reason)
+{
+    private IReadOnlyList<ProgramOwnedHandRankSumGiftEntity> _entities = Array.AsReadOnly(Array.Empty<ProgramOwnedHandRankSumGiftEntity>());
+    public IReadOnlyList<ProgramOwnedHandRankSumGiftEntity> Entities { get => _entities; init => _entities = Array.AsReadOnly((value ?? []).ToArray()); }
+    public long BatchId { get; init; }
+    public long SequenceAfter { get; init; }
+}
+public sealed record OwnedHandRankSumGiftIssuedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
+    string SourceBind, int RecipientSeat, int RequiredSum, int EntityCount, long SequenceBefore, CardMoveReason Reason) : IGameEvent;
+public sealed record OwnedHandRankSumGiftEntityFrozenEvent(long FrameId, int Index, int CardId, CardKind PrintedKind,
+    int PrintedRank, CardLocation From, int EffectiveRank) : IGameEvent;
+public sealed record OwnedHandRankSumGiftPaidEvent(long FrameId, long BatchId, long SequenceAfter, int EntityCount) : IGameEvent;
 public sealed record ProgramPrivateHandViewedEvent(long FrameId, string SkillId, int ViewerSeat, int SourceSeat, int Count) : IGameEvent;
 public sealed record ProgramHandRepaymentResolvedEvent(long FrameId, string SkillId, int SourceSeat, int RecipientSeat,
     bool GaveCard, bool LostHp) : IGameEvent;
@@ -198,8 +216,12 @@ public sealed partial class GameEngine
         if (frame.BoundParticipantGift is not null || target != CardLocation.Hand(frame.SelectedTargetSeats.Single()) || ids.Count == 0 ||
             ids.Any(id => _cardZones.GetLocation(id).OwnerSeat != frame.OwnerSeat || _cardZones.GetLocation(id).Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException("An awaited bound gift lost its unpaid owned HE cost.");
-        ReplaceRuntimeTop(frame with { BoundParticipantGift = new(frame.InstructionIndex, bind, target.OwnerSeat!.Value) });
-        MoveProgramCardsFromMultipleSources(ids, target, reason);
+        var gift = new ProgramBoundParticipantGiftReceipt(frame.InstructionIndex, bind, target.OwnerSeat!.Value);
+        if (frame.WindowContext is null && frame.TriggerId is null)
+            gift = gift with { RankSum = CaptureOwnedHandRankSumGift(frame, ids, reason) };
+        ReplaceRuntimeTop(frame with { BoundParticipantGift = gift });
+        if (gift.RankSum is null) MoveProgramCardsFromMultipleSources(ids, target, reason);
+        else MoveProgramCardsFromMultipleSources(ids, target, reason, (batchId, records) => SealOwnedHandRankSumGift(frame.Id, batchId, records));
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 

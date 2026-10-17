@@ -131,7 +131,7 @@ internal sealed class SkillBindingShard
             if (rule.InputCount != 1) continue;
             AddConversion(rule.OutputKind, instance, rule);
             if (rule.OutputKind == CardKind.FireSlash && rule.ExtendedUse ||
-                rule.OutputKind is CardKind.FireSlash or CardKind.ThunderSlash && (rule.DeclarationValidation is not null || rule.EqualNameLengthUse))
+                rule.OutputKind is CardKind.FireSlash or CardKind.ThunderSlash && (rule.DeclarationValidation is not null || rule.EqualNameLengthUse || rule.RankTwoDamageUse))
                 AddConversion(CardKind.Slash, instance, rule);
         }
         _singleCardConversions = conversions.ToDictionary(item => item.Key,

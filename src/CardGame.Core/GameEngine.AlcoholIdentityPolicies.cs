@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         (_cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat) || _cardZones.GetLocation(card.Id) == CardLocation.WoodenOxGrain(owner.Seat)) &&
         HasAlcoholKingIdentityPolicy(owner) ? 13 : null;
 
-    private int EffectiveOwnedCardRank(CharacterState owner, Card card) => CaptureAlcoholIdentityRank(owner, card) ?? card.Rank;
+    private int EffectiveOwnedCardRank(CharacterState owner, Card card) => JuewuForeignHandRank(owner, card) ?? CaptureAlcoholIdentityRank(owner, card) ?? card.Rank;
 
     private int? CaptureAlcoholPindianRank(PindianFrame frame, CharacterState owner, Card card, bool source, bool top)
     {

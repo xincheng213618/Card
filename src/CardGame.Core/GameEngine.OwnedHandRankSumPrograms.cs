@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeOwnerFacts, 10)]
     private bool CanStartOwnedHandRankSum(CharacterState owner, ProgramExecutionPlan plan) =>
         plan.Instructions.FirstOrDefault() is not { Op: SkillProgramEffectOp.SelectOwnedHandRankSum } selector ||
-        RankSubsetSearch.CanComplete(GetHand(owner).Select(c => c.Rank), selector.ExactRankSum!.Value);
+        RankSubsetSearch.CanComplete(GetHand(owner).Select(c => JuewuForeignHandRank(owner, c) ?? c.Rank), selector.ExactRankSum!.Value);
 
 
     private SkillProgramStepOutcome BeginOwnedHandRankSum(ProgramSkillFrame frame, int exactRankSum, string resultBind)
@@ -23,7 +23,7 @@ public sealed partial class GameEngine
             active.CardSetBindings.Any(b => b.Name == resultBind))
             throw new InvalidOperationException("Owned-hand rank-sum selection lost its exact activation instruction.");
         var hand = GetHand(_players[active.OwnerSeat]).ToArray();
-        if (!RankSubsetSearch.CanComplete(hand.Select(c => c.Rank), exactRankSum))
+        if (!RankSubsetSearch.CanComplete(hand.Select(c => JuewuForeignHandRank(_players[active.OwnerSeat], c) ?? c.Rank), exactRankSum))
         {
             CancelProgramBindingAndCleanup(active, "自己的手牌中已没有精确点数和方案，未移动任何牌。");
             return SkillProgramStepOutcome.AwaitChild;
@@ -33,7 +33,7 @@ public sealed partial class GameEngine
             OwnedHandRankSumSelection = new(active.InstructionIndex, active.OwnerSeat, active.SkillId,
                 active.ActivationId, active.SkillInstanceId, active.GameplayHash, resultBind, exactRankSum,
                 Array.AsReadOnly(hand.Select(c => c.Id).ToArray()),
-                Array.AsReadOnly(hand.Select(c => c.Rank).ToArray()), Array.AsReadOnly(Array.Empty<int>()))
+                Array.AsReadOnly(hand.Select(c => JuewuForeignHandRank(_players[active.OwnerSeat], c) ?? c.Rank).ToArray()), Array.AsReadOnly(Array.Empty<int>()))
         };
         ReplaceRuntimeTop(active);
         PublishOwnedHandRankSum(active);
@@ -68,7 +68,7 @@ public sealed partial class GameEngine
             {
                 var card = _cardZones.CardsAt(CardLocation.Hand(draft.OwnerSeat)).Single(card => card.Id == c.id);
                 return new PromptChoice(new ChoiceId($"owned-hand-rank-sum.frame-{frame.Id}.pick-{draft.SelectedCardIds.Count}.card-{c.id}"),
-                    $"选择手牌【{card.DisplayName}】（{card.RankText}）；还需点数 {remaining}。",
+                    $"选择手牌【{card.DisplayName}】（{(c.rank == card.Rank ? card.RankText : (card with { Rank = c.rank }).RankText)}）；还需点数 {remaining}。",
                     Array.AsReadOnly(new[] { c.id }), Array.AsReadOnly(Array.Empty<int>()), parameters);
             }).ToArray());
     }
@@ -148,7 +148,7 @@ public sealed partial class GameEngine
             draft.CandidateRanks.Any(rank => rank is < 1 or > 13) ||
             !draft.CandidateCardIds.Order().SequenceEqual(hand.Select(c => c.Id).Order()) ||
             draft.CandidateCardIds.Where((id, index) => _cardZones.GetLocation(id) != CardLocation.Hand(frame.OwnerSeat) ||
-                hand.Single(c => c.Id == id).Rank != draft.CandidateRanks[index]).Any() ||
+                (JuewuForeignHandRank(_players[frame.OwnerSeat], hand.Single(c => c.Id == id)) ?? hand.Single(c => c.Id == id).Rank) != draft.CandidateRanks[index]).Any() ||
             draft.SelectedCardIds.Distinct().Count() != draft.SelectedCardIds.Count ||
             draft.SelectedCardIds.Any(id => !draft.CandidateCardIds.Contains(id)) ||
             OwnedHandSelectedRankSum(draft) > draft.RequiredRankSum ||

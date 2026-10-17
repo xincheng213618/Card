@@ -129,8 +129,10 @@ public sealed partial class GameEngine
             (frame.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(source.Seat));
         var sourceCard = _cardZones.CardsAt(sourceLocation).Single(card => card.Id == frame.SourceCardId);
         var opponentCard = _cardZones.CardsAt(opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat)).Single(card => card.Id == opponentCardId);
-        var sourceIdentityRank = CaptureAlcoholPindianRank(frame, source, sourceCard, true, frame.SourceUsesDrawPileTop);
-        var opponentIdentityRank = CaptureAlcoholPindianRank(frame, opponent, opponentCard, false, opponentTop);
+        var sourceIdentityRank = JuewuForeignHandRank(source, sourceCard) is not null
+            ? EffectivePindianRank(source, sourceCard) : CaptureAlcoholPindianRank(frame, source, sourceCard, true, frame.SourceUsesDrawPileTop);
+        var opponentIdentityRank = JuewuForeignHandRank(opponent, opponentCard) is not null
+            ? EffectivePindianRank(opponent, opponentCard) : CaptureAlcoholPindianRank(frame, opponent, opponentCard, false, opponentTop);
         if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, sourceLocation, CardLocation.Processing, CardMoveReasons.PindianReveal);
         MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));

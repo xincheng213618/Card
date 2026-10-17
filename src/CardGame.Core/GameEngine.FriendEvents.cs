@@ -14,8 +14,8 @@ public sealed partial class GameEngine
     {
         var hand = GetHand(_players[seat]);
         if (hand.Count == 0) return null;
-        var rank = hand.Max(c => c.Rank);
-        return hand.Where(c => c.Rank == rank).ToArray() is [var card] ? card : null;
+        var rank = hand.Max(c => JuewuForeignHandRank(_players[seat], c) ?? c.Rank);
+        return hand.Where(c => (JuewuForeignHandRank(_players[seat], c) ?? c.Rank) == rank).ToArray() is [var card] ? card : null;
     }
     private bool FriendHandDiscardAllowed(int seat, Card card) =>
         !IsSelfHandCategoryDiscardForbidden(seat, card, CardLocation.Hand(seat), OwnedCardMoveIntent.Discard);
@@ -33,8 +33,8 @@ public sealed partial class GameEngine
             action is not { PhysicalCards.Count: 1 } || !IsFriendActualCardUse(action) || action.PhysicalCards[0].From != CardLocation.Hand(action.ActorSeat) ||
             !HasRuntimeSkill(_players[action.ActorSeat], "friend:shunyi")) return;
         var card = GetAttackCard(action.PhysicalCards[0].CardId);
-        var rank = action.EffectiveRank ?? card.Rank;
-        if (GetHand(_players[action.ActorSeat]).Where(c => c.Id != card.Id).All(c => c.Rank > rank))
+        var rank = action.EffectiveRank ?? JuewuForeignHandRank(_players[action.ActorSeat], card) ?? card.Rank;
+        if (GetHand(_players[action.ActorSeat]).Where(c => c.Id != card.Id).All(c => (JuewuForeignHandRank(_players[action.ActorSeat], c) ?? c.Rank) > rank))
             AdvanceEventRulesAndQueueFact(new FriendMinimumHandUseEvent(action.ActionId, action.ActorSeat, GetRuntimeSkillInstanceId(_players[action.ActorSeat], "friend:shunyi"), rank,
                 action.EffectiveSuit ?? EffectiveSuit(_players[action.ActorSeat], card)));
     }
@@ -42,7 +42,7 @@ public sealed partial class GameEngine
     private bool CanOfferFriendEvent(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAscendingMaximumAndDraw))
-            return UniqueMaximumHandCard(candidate.OwnerSeat) is { } highest && highest.Rank > AscendingHandRank(candidate.OwnerSeat, candidate.SkillId) &&
+            return UniqueMaximumHandCard(candidate.OwnerSeat) is { } highest && (JuewuForeignHandRank(_players[candidate.OwnerSeat], highest) ?? highest.Rank) > AscendingHandRank(candidate.OwnerSeat, candidate.SkillId) &&
                 FriendHandDiscardAllowed(candidate.OwnerSeat, highest);
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.HoldUsedSuitHandAndDraw)) return true;
         var action = FriendCardAction(context);
@@ -84,18 +84,20 @@ public sealed partial class GameEngine
             if (f.TriggerId is not null || f.SelectedCardIds is not [var selected] || f.SelectedTargetSeats is not [var target] ||
                 UniqueMaximumHandCard(f.OwnerSeat) is not { } card || card.Id != selected || !FriendHandDiscardAllowed(f.OwnerSeat, card))
                 throw new InvalidOperationException("Maximum hand payment must be the unique maximum physical hand card.");
-            ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.MaximumCost, Rank: card.Rank, TargetSeat: target),
+            ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.MaximumCost, Rank: JuewuForeignHandRank(owner, card) ?? card.Rank, TargetSeat: target),
                 PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, CardLocation.Hand(f.OwnerSeat), new("skill.friend-biwei.cost"));
         }
         else if (operation == SkillProgramEffectOp.DiscardAscendingMaximumAndDraw)
         {
-            if (UniqueMaximumHandCard(f.OwnerSeat) is not { } card || card.Rank <= AscendingHandRank(f.OwnerSeat, f.SkillId) ||
+            if (UniqueMaximumHandCard(f.OwnerSeat) is not { } card ||
                 !FriendHandDiscardAllowed(f.OwnerSeat, card)) return SkillProgramStepOutcome.Continue;
-            ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.AscendingCost, Rank: card.Rank),
+            var paidRank = JuewuForeignHandRank(owner, card) ?? card.Rank;
+            if (paidRank <= AscendingHandRank(f.OwnerSeat, f.SkillId)) return SkillProgramStepOutcome.Continue;
+            ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.AscendingCost, Rank: paidRank),
                 PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, CardLocation.Hand(f.OwnerSeat), new("skill.friend-lunxiong.cost"));
-            AdvanceEventRulesAndQueueFact(new AscendingHandRankPaidEvent(f.OwnerSeat, f.SkillId, card.Id, card.Rank));
+            AdvanceEventRulesAndQueueFact(new AscendingHandRankPaidEvent(f.OwnerSeat, f.SkillId, card.Id, paidRank));
         }
         else if (operation == SkillProgramEffectOp.HoldUsedSuitHandAndDraw)
         {
@@ -172,7 +174,7 @@ public sealed partial class GameEngine
         }
         if (flow.Stage == FriendEventFlowStage.MaximumCost)
         {
-            var cards = _players[flow.TargetSeat].IsAlive ? GetHand(_players[flow.TargetSeat]).Where(c => c.Rank >= flow.Rank && FriendHandDiscardAllowed(flow.TargetSeat, c)).ToArray() : [];
+            var cards = _players[flow.TargetSeat].IsAlive ? GetHand(_players[flow.TargetSeat]).Where(c => (JuewuForeignHandRank(_players[flow.TargetSeat], c) ?? c.Rank) >= flow.Rank && FriendHandDiscardAllowed(flow.TargetSeat, c)).ToArray() : [];
             ReplaceRuntimeTop(f = f with { FriendEventFlow = flow with { Stage = FriendEventFlowStage.TargetDiscard, Count = cards.Length }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             MoveLogicalDiscardCards(f.OwnerSeat, flow.TargetSeat, cards, CardLocation.Hand(flow.TargetSeat), new("skill.friend-biwei.target"));
             if (cards.Length == 0)

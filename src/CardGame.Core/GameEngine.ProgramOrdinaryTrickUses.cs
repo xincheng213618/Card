@@ -182,6 +182,20 @@ public sealed partial class GameEngine
             { if (seats.Length > 0) Add(kind, DragonBoatCardAction(kind), "当【力争上游】使用", seats); }
             else foreach (var seat in seats) Add(kind, DragonBoatCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】对 {_players[seat].Name} 使用", [seat]);
         }
+        if (outputKind == CardKind.WumiaoFlood)
+        {
+            var eligible = _players.Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
+                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.WumiaoFlood) &&
+                !IsCardTargetProhibited(player, CardKind.WumiaoFlood, virtualSuit, effectiveColor) &&
+                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, CardKind.WumiaoFlood)).Select(player => player.Seat).ToArray();
+            foreach (var first in eligible)
+            {
+                Add(CardKind.WumiaoFlood, LegalActionKind.WumiaoFlood, $"当【水淹七军】对 {_players[first].Name} 使用", [first]);
+                foreach (var second in eligible.Where(seat => seat != first))
+                    Add(CardKind.WumiaoFlood, LegalActionKind.WumiaoFlood,
+                        $"当【水淹七军】依次对 {_players[first].Name}、{_players[second].Name} 使用", [first, second]);
+            }
+        }
         foreach (var kind in WenheOrdinaryTrickKinds.Where(kind => (_modeDefinition.WenheActivity is not null || outputKind == kind) && Wants(kind)))
         {
             var self = kind is CardKind.BeamSwap or CardKind.WenheChaos;
@@ -290,7 +304,7 @@ public sealed partial class GameEngine
         if (Wants(CardKind.Snatch))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
-                     (SiruiIgnoresTrickDistance(source, conversionSource, physicalCardIds) || HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
+                     (HasWuyouMaterialPrivilege(source, CardKind.Snatch, physicalCardIds) || SiruiIgnoresTrickDistance(source, conversionSource, physicalCardIds) || HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
                       HasProvenanceUseDistance(source, physicalCardIds) || HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
                           CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&

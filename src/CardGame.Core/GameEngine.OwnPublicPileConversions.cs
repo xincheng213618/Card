@@ -20,6 +20,7 @@ public sealed partial class GameEngine
                 pile.Location == cost.From)));
 
     private CardKind PhysicalSlashUseBaseKind(CharacterState owner, Card card) =>
+        WuyouIdentity(owner, card)?.Identity.OutputKind is { } wuyou && IsSlashCard(wuyou) ? wuyou :
         IsOwnPublicPileCard(owner, card) && !IsNativePublicPileOriginalChoice(owner, card, card.Kind, false)
             ? CardKind.Slash : IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
 

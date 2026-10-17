@@ -28,6 +28,7 @@ public sealed partial class GameEngine
     { var colors=cards.Select(c=>SuitColor(EffectiveSuit(owner,c))).Distinct().ToArray();return colors.Length==1?colors[0]:null; }
     private bool IsRedSlashProviderPaymentLegal(FactionCardRequestHandle pending,CardKind kind,IReadOnlyList<Card> cards,bool isTrueZhangba = false)
     {
+        if (!IsWuyouFactionPaymentLegal(pending, kind, cards, isTrueZhangba)) return false;
         if (IsFactionSlashUse(pending) && HasRankSlashRange(_players[pending.OwnerSeat],kind)) return IsSpecificRankProviderPaymentLegal(pending,kind,cards,isTrueZhangba);
         if(!IsFactionSlashUse(pending) || pending.IsAssistedProgramUse || pending.TargetSeat is not {} target || (!_turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,pending.OwnerSeat) && !HasSlashUseDistanceBySuit(_players[pending.OwnerSeat],kind,Suit.Diamond)))return true;
         var actor=_players[pending.OwnerSeat];var color=PhysicalGroupColor(actor,cards);var suit=HasSlashUseDistanceBySuit(actor,kind,Suit.Diamond) ? PhysicalGroupSuit(actor,cards) : null;

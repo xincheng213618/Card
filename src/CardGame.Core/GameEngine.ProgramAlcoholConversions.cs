@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private void ValidateAlcoholConversion(CharacterState owner, Card card,
         CardConversionSource? source, bool forResponse)
     {
-        if (source is null ? card.Kind != CardKind.Alcohol :
+        if (IsWuyouIdentityMaterial(owner, card, CardKind.Alcohol, source)) return;
+        if (source is null ? card.Kind != CardKind.Alcohol || HasProgramCardIdentity(owner, card) :
             !GetProgramViewAsConversions(owner, card, CardKind.Alcohol, forResponse,
                 dyingUse: forResponse && ActiveDying?.VictimSeat == owner.Seat).Contains(source))
             throw new InvalidOperationException("The Alcohol conversion has no matching enabled program source.");

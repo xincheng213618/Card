@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wumiao:juewu",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "rank-two-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "outputKind": "slash"
+        },
+        {
+          "id": "rank-two-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "outputKind": "fireSlash"
+        },
+        {
+          "id": "rank-two-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "outputKind": "thunderSlash"
+        },
+        {
+          "id": "rank-two-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "singleCardTrickUse": true,
+          "outputKind": "duel"
+        },
+        {
+          "id": "rank-two-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "singleCardTrickUse": true,
+          "outputKind": "barbarianAssault"
+        },
+        {
+          "id": "rank-two-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "singleCardTrickUse": true,
+          "outputKind": "arrowBarrage"
+        },
+        {
+          "id": "rank-two-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "singleCardTrickUse": true,
+          "outputKind": "fireAttack"
+        },
+        {
+          "id": "rank-two-wumiaoFlood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "usesPerActualTurn": 1,
+          "rankTwoDamageUse": true,
+          "singleCardTrickUse": true,
+          "outputKind": "wumiaoFlood"
+        }
+      ]
+    },
+    {
+      "id": "wumiao:wuyou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "hand-contribution",
+          "usesPerTurn": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "sourceZones": [
+            "hand"
+          ],
+          "effects": [
+            {
+              "op": "resolveWuyouContributionAndNamedReturn",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:yixian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "all-equipment",
+          "usesPerTurn": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "effects": [
+            {
+              "op": "resolveYixianAllEquipmentObtainAndCompensate",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "otherLiving",
+          "sourceZones": [
+            "hand"
+          ]
+        }
+      ]
+    }
+  ]
+}

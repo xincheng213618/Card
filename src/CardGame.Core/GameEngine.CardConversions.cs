@@ -139,6 +139,7 @@ public sealed partial class GameEngine
         var identityHand = identityLocation == CardLocation.Hand(owner.Seat);
         var identityGrain = identityLocation == CardLocation.WoodenOxGrain(owner.Seat);
         if (!identityHand && !identityGrain && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
+        if (identityHand && WuyouIdentity(owner, card) is { } wuyou) return [wuyou];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
         if (identityHand && ShiluIdentity(owner, card) is { } shilu) return [shilu];
         if (identityHand && WeilinIdentity(owner, card) is { } weilin) return [weilin];
@@ -243,7 +244,8 @@ public sealed partial class GameEngine
         var hasTurnConversions = _turnCardUseEffects.Conversions.Count > 0;
         if (registered.Count == 0 && !hasTurnConversions) return [];
         if (IsResponseEntityRestricted(owner.Seat,card.Id)) return [];
-        if (HasProgramCardIdentity(owner, card))
+        var wuyouJuewuIdentity = HasWuGuanYuJuewuCapability && WuyouIdentity(owner, card) is not null;
+        if (HasProgramCardIdentity(owner, card) && !wuyouJuewuIdentity)
         {
             return [];
         }
@@ -266,17 +268,19 @@ public sealed partial class GameEngine
                 .Where(item =>
                 {
                     var (instance, rule) = item;
-                    return rule.KenshangUse != true && rule.InputCount == 1 &&
-                               (rule.OutputKind == outputKind || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
+                    return (!wuyouJuewuIdentity || instance.SkillId == "wumiao:juewu" && rule.RankTwoDamageUse) &&
+                               rule.KenshangUse != true && rule.InputCount == 1 &&
+                               (rule.OutputKind == outputKind || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
-                               (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.EqualNameLengthUse && IsSiruiTrueResponseUse(owner, rule.OutputKind, dyingUse, requestedUseTarget) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.RankTwoDamageUse && IsJuewuTrueSlashUse(owner) || rule.EqualNameLengthUse && IsSiruiTrueResponseUse(owner, rule.OutputKind, dyingUse, requestedUseTarget) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) && GuanConversionAvailable(owner.Seat, instance.SkillId) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                CanUseSiruiConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
+                               CanUseJuewuConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (inputKind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
@@ -297,7 +301,7 @@ public sealed partial class GameEngine
             .Where(source => !dyingUse || !IsCuiYanSingleUseForbidden(owner, card, source))
             .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse) && IsWuAnGuoYangConversionAvailable(owner, card, source, forResponse) && IsRuanYuMiaoxianBlackAvailable(owner, card, source, forResponse))
             .ToArray();
-        var turnScoped = !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
+        var turnScoped = wuyouJuewuIdentity || !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
             : _turnCardUseEffects.GetConversions(
                     _turnNumber,
@@ -311,7 +315,7 @@ public sealed partial class GameEngine
                     item.Source.OwnerSeat,
                     item.Source.SkillInstanceId))
                 .ToArray();
-        var paidColor = hasTurnConversions
+        var paidColor = hasTurnConversions && !wuyouJuewuIdentity
             ? GetPaidColorTurnDuelConversions(owner, card, outputKind, forResponse, zone.Value)
             : Array.Empty<CardConversionSource>();
         if (configured.Length == 0 && turnScoped.Length == 0 && paidColor.Count == 0) return [];
@@ -714,13 +718,18 @@ public sealed partial class GameEngine
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
         if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
             programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
-        programSources = programSources.Where(source => SiruiNativeConversionMatchesOutput(owner, source, effectiveKind)).ToArray();
+        programSources = programSources.Where(source => SiruiNativeConversionMatchesOutput(owner, source, effectiveKind) && JuewuNativeConversionMatchesOutput(owner, source, effectiveKind)).ToArray();
         var originalPile = IsNativePublicPileOriginalChoice(owner, card, effectiveKind, forResponse);
         var includeUnspecified = !IsWenhePhysicalPoison(owner, card) && !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
             (card.Kind == effectiveKind || programSources.Count == 0) && SiruiAllowsUnspecifiedForcedSlash(owner, card, effectiveKind);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
-        if (hasIdentity) sources.AddRange(identitySources);
+        if (hasIdentity)
+        {
+            sources.AddRange(identitySources);
+            if (WuyouIdentity(owner, card) is not null)
+                sources.AddRange(programSources.Where(IsJuewuSource));
+        }
         else
         {
             sources.AddRange(programSources);
@@ -729,7 +738,7 @@ public sealed partial class GameEngine
         {
             var source = sources[index];
             var parameters = new Dictionary<string, string>(baseParameters);
-            var sourceKind = source is not null && IsSiruiSource(source) && IsSlashCard(effectiveKind)
+            var sourceKind = source is not null && (IsSiruiSource(source) || IsJuewuSource(source)) && IsSlashCard(effectiveKind)
                 ? ViewAsRule(source)!.OutputKind : effectiveKind;
             if (sourceKind != effectiveKind)
             {
@@ -822,7 +831,9 @@ public sealed partial class GameEngine
         var identitySources = GetProgramCardIdentitySources(
             provider, responseCard, effectiveKind, forResponse: true);
         var candidates = hasIdentity
-            ? identitySources.ToArray()
+            ? identitySources.Concat(WuyouIdentity(provider, responseCard) is not null
+                ? GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true)
+                    .Where(IsJuewuSource) : []).Distinct().ToArray()
             : GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true,
                 dyingUse: ActiveDying is not null && effectiveKind is CardKind.Peach or CardKind.Alcohol).ToArray();
         var selected = _selectedResponseConversion;
@@ -862,7 +873,11 @@ public sealed partial class GameEngine
         var identitySources = GetProgramCardIdentitySources(
             provider, card, effectiveKind, forResponse: false);
         var candidates = hasIdentity
-            ? identitySources.ToArray()
+            ? identitySources.Concat(WuyouIdentity(provider, card) is not null
+                ? GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false)
+                    .Concat(fanConvertsSlash
+                        ? GetProgramViewAsConversions(provider, card, CardKind.Slash, forResponse: false) : [])
+                    .Where(IsJuewuSource) : []).Distinct().ToArray()
             : GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false)
                 .Concat(fanConvertsSlash
                     ? GetProgramViewAsConversions(provider, card, CardKind.Slash, forResponse: false)

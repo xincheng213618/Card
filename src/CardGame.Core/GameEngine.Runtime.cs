@@ -31,6 +31,7 @@ public sealed partial class GameEngine
             case NativeDrawAttemptFrame: ContinueNativeDrawAttempt(frameId); break;
             case CardUseFrame { NativeCardEffectDraw: not null }: ContinueNativeDrawTwo(frameId); break;
             case CardUseFrame { GuanduCardEffect: not null }: ContinueGuanduCardEffect(frameId); break;
+            case CardUseFrame { WumiaoFlood: not null }: ContinueWumiaoFlood(frameId); break;
             case CardUseFrame { DragonBoatCardEffect: not null }: ContinueDragonBoatCardEffect(frameId); break;
             case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
             case QiaoZhouPreparationFrame: ContinueQiaoZhouPreparation(frameId); break;

@@ -224,6 +224,13 @@ public sealed class StandardContentPackage : IGameContentPackage
                 ["action"] = "slash-damage-boost"
             }));
         builder.AddCard(new ContentCardDefinition(
+            Id: "wumiao:flood",
+            DisplayName: "水淹七军",
+            CategoryName: "锦囊牌",
+            Description: "对至多两名角色使用。按所选顺序：第一名受到1点雷电伤害并弃置一张牌，第二名受到1点雷电伤害并摸一张牌。",
+            LegacyKind: CardKind.WumiaoFlood,
+            AiTags: new Dictionary<string, string> { ["action"] = "ordered-thunder-discard-draw" }));
+        builder.AddCard(new ContentCardDefinition(
             Id: "standard:unexpected_assault",
             DisplayName: "出其不意",
             CategoryName: "锦囊牌",

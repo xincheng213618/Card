@@ -115,10 +115,10 @@ public sealed partial class GameEngine
         IsRedSlashProviderPaymentLegal(pending,kind,cards,isTrueZhangba) &&
         (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
         (!pending.IsAssistedProgramUse || HasRankSlashRange(_players[pending.OwnerSeat],kind) || pending.TargetSeat is { } target &&
-        (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind) ||
+        (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind, allowPotentialRank: false, physicalCardIds: cards.Select(c => c.Id).ToArray()) ||
          kind == CardKind.Slash && HasZhuqueFan(_players[pending.OwnerSeat]) &&
-         (cards.Count > 1 || cards is [var primary] && (primary.Kind == CardKind.Slash || IsOwnPublicPileSlashMaterial(_players[pending.CurrentCandidateSeat], primary))) &&
-         IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash)));
+         (cards.Count > 1 || cards is [var primary] && (primary.Kind == CardKind.Slash || IsWuyouIdentityKind(_players[pending.CurrentCandidateSeat], primary, CardKind.Slash) || IsOwnPublicPileSlashMaterial(_players[pending.CurrentCandidateSeat], primary))) &&
+         IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash, allowPotentialRank: false, physicalCardIds: cards.Select(c => c.Id).ToArray())));
 
     private IReadOnlyList<IReadOnlyList<Card>> GetFactionRequestZhangbaPairs(FactionCardRequestHandle pending, CharacterState provider) =>
         GetZhangbaSlashPairs(provider).Where(pair => CanSupplyAssistedFactionSlash(pending, CardKind.Slash, pair, isTrueZhangba:true)).ToArray();
@@ -145,16 +145,18 @@ public sealed partial class GameEngine
         QigongAdapterActor(program, actorSeat, targetSeat, program.InstructionIndex, frameId, request.ResolutionId) &&
         ValidateQigongFactionSlashParent(request, program);
 
-    private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true) =>
+    private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true, IReadOnlyList<int>? physicalCardIds = null) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
-        (HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat) ? true : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
+        (HasWuyouMaterialPrivilege(_players[actorSeat], kind, physicalCardIds) ||
+         allowPotentialRank && physicalCardIds is null && HasPotentialWuyouFactionSlash(_players[actorSeat], kind) ||
+         (HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat) ? true : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == fixedFrameId) is { FixedTargetSlash: { } fixedDraft } fixedFrame &&
          fixedFrame.OwnerSeat == actorSeat && fixedDraft.TargetSeat == targetSeat
             ? IsFixedTargetFactionSlashLegal(fixedFrame, kind, effectiveRank, allowPotentialRank)
             : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
-            : HasBeifenPreUsePrivilege(_players[actorSeat]) || IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
+            : HasBeifenPreUsePrivilege(_players[actorSeat]) || IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind))) &&
         CanSpendSlashUse(_players[actorSeat], _players[targetSeat], ignoresCount: true, kind) &&
         !IsSlashProhibited(_players[targetSeat]) &&
         (!(HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat)) ||

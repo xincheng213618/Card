@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 2178,
+      "programBundle": "wumiao-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:juewu",
+        "name": "绝武",
+        "description": "你点数为2的牌可当任意伤害牌使用（每种牌名每回合限一次）。你从其他角色处获得的牌在你的手牌中时均视为点数2。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 2179,
+      "programBundle": "wumiao-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:wuyou",
+        "name": "武佑",
+        "description": "每名角色的出牌阶段限一次，其可以交给你一张手牌，然后你可以从五个随机非装备牌名中选择一个并交给其一张手牌。此牌视为你选择牌名的牌且无距离和次数限制。"
+      }
+    },
+    {
+      "registrationOrder": 2180,
+      "programBundle": "wumiao-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:yixian",
+        "name": "义贤",
+        "description": "限定技，出牌阶段，你可以选择一项：1.获得场上所有装备牌；2.获得弃牌堆中所有装备牌。然后你可令被你获得牌的角色摸X张牌（X为该角色因此被你获得的牌数）并回复1点体力。",
+        "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2181,
+      "pools": {
+        "current": 499
+      },
+      "definition": {
+        "id": "wumiao:guan-yu",
+        "name": "武关羽",
+        "portraitKey": "wumiao-guan-yu",
+        "skillId": "wumiao:juewu",
+        "additionalSkillIds": [
+          "wumiao:wuyou",
+          "wumiao:yixian"
+        ],
+        "factionId": "shu",
+        "baseHp": 5,
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "wumiao",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

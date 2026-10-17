@@ -57,6 +57,9 @@ public sealed partial class GameEngine
             (from == CardLocation.Hand(actorSeat) || from == CardLocation.WoodenOxGrain(actorSeat)) &&
             c.Kind == CardKind.Peach && !HasProgramCardIdentity(actor, c));
         foreach (var card in natural) Add("native", [card], null, "对其使用【桃】");
+        foreach (var card in GetHand(actor).Where(c => IsWuyouIdentityKind(actor, c, CardKind.Peach)))
+        foreach (var identity in WuyouIdentitySources(actor, card, CardKind.Peach))
+            Add("identity", [card], identity, "使用武佑原牌【桃】");
         var publicRequest = NativePublicPileUseRequest(actorSeat, actorSeat, CardKind.Peach, f.Id);
         foreach (var selection in GetNativePublicPileOriginalCards(publicRequest).Where(s => s.Card.Kind == CardKind.Peach))
             Add("original-pile", [selection.Card], null, "使用公共粮原牌【桃】");

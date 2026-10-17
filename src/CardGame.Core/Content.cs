@@ -19,6 +19,8 @@ public static class CardCatalog
     private static readonly IReadOnlyDictionary<CardKind, CardDefinition> Definitions =
         new Dictionary<CardKind, CardDefinition>
         {
+            [CardKind.WumiaoFlood] = new(CardKind.WumiaoFlood, "水淹七军", "锦囊牌",
+                "出牌阶段，对至多两名角色使用。按所选顺序：第一名受到1点雷电伤害并弃置一张牌，第二名受到1点雷电伤害并摸一张牌。", 45, 0, 45),
             [CardKind.Intoxication] = new(CardKind.Intoxication, "酗酒", "基本牌", "对一名敌方角色使用，本实际回合其受到的伤害+1；同一目标每回合限一次。不能用于濒死救援。", 24, 0, 34),
             [CardKind.StoreGrain] = new(CardKind.StoreGrain, "屯粮", "锦囊牌", "选择至多三名角色，各摸一张牌。", 38, 0, 43),
             [CardKind.Reinforcements] = new(CardKind.Reinforcements, "援军", "锦囊牌", "选择至多两名已受伤的其他角色，各回复一点体力。", 35, 0, 42),

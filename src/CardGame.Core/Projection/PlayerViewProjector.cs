@@ -294,6 +294,8 @@ public sealed partial class GameEngine
             IdentityKind = identity.Identity.OutputKind,
             IdentitySkillName = _contentRegistry.GetSkill(identity.Source.SkillId).Name
         };
+        if (JuewuForeignHandRank(owner, card) is { } juewuRank)
+            snapshot = snapshot with { Rank = juewuRank, RankText = juewuRank.ToString(System.Globalization.CultureInfo.InvariantCulture) };
         return ProjectWenhePoisonHandCard(owner, card, snapshot);
     }
 

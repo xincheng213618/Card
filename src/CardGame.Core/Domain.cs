@@ -114,7 +114,8 @@ public enum CardKind
     ShuraInfernoHalberd,
     DelusionCrown,
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
-    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623, ThunderChariot = 624
+    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623, ThunderChariot = 624,
+    WumiaoFlood = 700
 }
 
 public enum Suit
@@ -408,7 +409,8 @@ public enum LegalActionKind
     HandRedistribution = 552,
     WenheChaos = 553,
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
-    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623
+    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623,
+    WumiaoFlood = 700
 }
 
 public sealed record GameOptions

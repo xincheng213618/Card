@@ -46,6 +46,7 @@ internal sealed class SkillProgramDependencies
             triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse));
         UsesLeiluanBasicUse = programs.Any(program => program.ViewAs.Any(rule => rule.LeiluanBasicUse is not null));
         UsesEqualNameLengthUse = programs.Any(program => program.ViewAs.Any(rule => rule.EqualNameLengthUse));
+        UsesRankTwoDamageUse = programs.Any(program => program.ViewAs.Any(rule => rule.RankTwoDamageUse));
         TracksCurrentRoundActualUses = UsesLeiluanBasicUse || programs.Any(program => program.Modifiers.Any(modifier =>
             modifier.ValueExpression == SkillRuleValueExpression.NegatedCurrentRoundActualUseCount));
         TracksWholeActualTurnUseOrdinal = triggers.Any(trigger => trigger.Effects.Any(effect =>
@@ -120,6 +121,7 @@ internal sealed class SkillProgramDependencies
     internal bool UsesTieredRoundConversions { get; }
     internal bool UsesLeiluanBasicUse { get; }
     internal bool UsesEqualNameLengthUse { get; }
+    internal bool UsesRankTwoDamageUse { get; }
     internal bool UsesRoundOnceCardlessBasics { get; }
     internal bool UsesRoundDistinctBasicUse { get; }
     internal bool UsesRoundGainedRedHandOnly { get; }

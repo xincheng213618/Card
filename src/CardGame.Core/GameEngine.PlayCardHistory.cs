@@ -97,11 +97,12 @@ public sealed partial class GameEngine
     }
 
     private Card ApplyProgramUseAppearance(CharacterState owner, Card card, CardConversionSource? source) =>
+        ApplyJuewuOwnedAppearance(owner,
         source is not null && IsXieweiSource(source) ? card with { Suit = Suit.None, Rank = 0 } :
         source is not null && ViewAsRule(source)?.InheritPreviousPlaySuit == true &&
         PreviousPlayCard(owner.Seat)?.EffectiveSuit is { } suit
             ? card with { Suit = suit }
-            : card;
+            : card);
 
     [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 10)]
     private void AddPhaseLimitedBasicCardActions(List<LegalAction> actions, CharacterState actor,
@@ -115,7 +116,7 @@ public sealed partial class GameEngine
             foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
                          CardKind.Peach, CardKind.Alcohol })
                 foreach (var source in GetProgramViewAsConversions(actor, card, kind, forResponse: false)
-                             .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly) && (!rule.EqualNameLengthUse || rule.OutputKind == kind)))
+                             .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly) && (!(rule.EqualNameLengthUse || rule.RankTwoDamageUse) || rule.OutputKind == kind)))
                 {
                     if (actions.Any(action => action.CardId == card.Id && action.ConversionSource == source &&
                         action.PlayedCardKind == kind)) continue;

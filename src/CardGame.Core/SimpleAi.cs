@@ -2166,6 +2166,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
+        if (TryScoreWumiaoFlood(view, self, selfRole, action, out var floodScore)) return floodScore;
         if (TryScoreGuanduCard(view, self, selfRole, action, out var guanduScore)) return guanduScore;
         if (TryScoreDragonBoatCard(view, self, selfRole, action, out var dragonBoatScore)) return dragonBoatScore;
         if (action.TieredRoundZeroUse is not null) return ScoreTieredRoundZeroAction(view, self, selfRole, action);

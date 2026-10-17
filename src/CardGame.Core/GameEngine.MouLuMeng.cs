@@ -46,7 +46,7 @@ public sealed partial class GameEngine
     private static bool IsDamageCardKind(CardKind kind) => kind is
         CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or
         CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
-        CardKind.FireAttack;
+        CardKind.FireAttack or CardKind.WumiaoFlood;
 
     private static string GetRoundDamageCardUsageId(CardKind kind) =>
         $"{RoundDamageCardUsagePrefix}.{kind}";

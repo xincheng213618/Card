@@ -116,7 +116,7 @@ public sealed partial class GameEngine
    AdvanceEventRulesAndQueueFact(new ProgramHandComparisonCardRevealedEvent(f.Id,d.TargetSeat,id));
    if(d.RevealedIds.Count<d.Required){PublishHandComparison(f);return;}
    var own=GetHand(_players[f.OwnerSeat]).Single(c=>c.Id==d.SourceCardId);var revealed=GetHand(_players[d.TargetSeat]).Where(c=>d.RevealedIds.Contains(c.Id)).ToArray();
-   var color=revealed.Any(c=>IsRedSuit(EffectiveSuit(_players[d.TargetSeat],c))==IsRedSuit(EffectiveSuit(_players[f.OwnerSeat],own)));var rank=revealed.Any(c=>c.Rank==own.Rank);
+   var color=revealed.Any(c=>IsRedSuit(EffectiveSuit(_players[d.TargetSeat],c))==IsRedSuit(EffectiveSuit(_players[f.OwnerSeat],own)));var rank=revealed.Any(c=>(JuewuForeignHandRank(_players[d.TargetSeat],c)??c.Rank)==(JuewuForeignHandRank(_players[f.OwnerSeat],own)??own.Rank));
    AdvanceEventRulesAndQueueFact(new ProgramHandComparisonResolvedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,effect.StateId!,_turnNumber,d.SourceCardId,d.TargetSeat,d.RevealedIds,color,rank));
    if(!color&&!rank)AdjustPersistentHandLimit(f,f.OwnerSeat,-1,effect.StateId!);
    if(color){ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="benefit"}});PublishHandComparison(f);return;}

@@ -125,6 +125,7 @@ public sealed partial class GameEngine
             LegalActionKind.Slash => CanUseSlashTarget(actor, target, physical, action.ConversionSource, kind, ignoreDistance: true),
             LegalActionKind.Peach => IsRuleWounded(target),
             LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
+            LegalActionKind.WumiaoFlood => true,
             LegalActionKind.Duel => target.Seat != actor.Seat,
             LegalActionKind.FireAttack => GetHand(target).Count > 0,
             LegalActionKind.UnexpectedAssault => target.Seat != actor.Seat && GetHand(target).Count > 0,

@@ -146,8 +146,10 @@ public sealed partial class GameEngine
         var id = ++_resolutionSequence;
         var declared = ViewAsRule(source)!.OutputKind;
         var payment = new DeclaredCardPayment(id, id, provider.Seat,
-            new(card.Id, card.Kind, CardLocation.Hand(provider.Seat), CapturePhysicalCardColor(provider.Seat, card)), source, declared, ActorSeat: parent.ActorSeat, FrozenSuit: EffectiveSuit(provider, card));
+            new(card.Id, card.Kind, CardLocation.Hand(provider.Seat), CapturePhysicalCardColor(provider.Seat, card)), source, declared, ActorSeat: parent.ActorSeat, FrozenSuit: EffectiveSuit(provider, card))
+        { JuewuEffectiveRank = JuewuForeignHandRank(provider, card) };
         payment = CaptureBeifenDeclarationPayment(payment, parent);
+        payment = CaptureWuyouDeclarationPayment(payment, parent);
         ClearPendingDecision();
         _selectedUseConversion = null; _selectedResponseConversion = null;
         _hasSelectedUseConversionChoice = false; _hasSelectedResponseConversionChoice = false;

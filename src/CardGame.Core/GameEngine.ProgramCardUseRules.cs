@@ -31,6 +31,9 @@ public sealed partial class GameEngine
         CardKind baseEffectiveKind,
         CardConversionSource? primaryConversionSource)
     {
+        // Rank-two aliases enter the generic Slash family with their exact selected output.
+        if (IsJuewuSource(primaryConversionSource) && ViewAsRule(primaryConversionSource!) is { } juewuRule &&
+            IsSlashCard(juewuRule.OutputKind)) baseEffectiveKind = juewuRule.OutputKind;
         var variants = GetSlashUseVariants(actor, baseEffectiveKind).ToList();
         if (primaryConversionSource is null || baseEffectiveKind != CardKind.Slash)
         {
