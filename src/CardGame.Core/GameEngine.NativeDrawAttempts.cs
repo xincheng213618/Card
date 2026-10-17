@@ -90,6 +90,7 @@ public sealed partial class GameEngine
         var replacement = new NativeDrawReplacementResult(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId,
             frame.ActivationId, sourceSeat, reason, sequenceBefore, after) { GainedIds = gainedIds };
         ReplaceRuntimeFrame(attempt.Id, attempt with { Replacement = replacement });
+        CompleteLingkongNativeDrawReplacement(frame, attempt, replacement);
     }
 
     [ProgramWindowReturn(SkillProgramTriggerWindow.NativeDrawStarting)]

@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     }
     private bool TracksNativeDrawInvocations =>
-        HasPangJiCapability || HasLeMiHengJiguCapability ||
+        HasPangJiCapability || HasLeMiHengJiguCapability || HasLeZhouFeiLingkongCapability ||
         HasTaoQianCapability ||
         HasZhaoZhongCapability ||
         HasHellZhiwangHolder ||
@@ -70,6 +70,7 @@ public sealed partial class GameEngine
             proof.LastBatchId));
         CompleteSanwenNativeDrawQualification(proof);
         CompleteTangTangNativeDrawQualification(proof);
+        CompleteLingkongNativeDrawQualification(proof);
     }
 
     private bool ValidNativeDrawInvocation(NativeDrawInvocationProof p)

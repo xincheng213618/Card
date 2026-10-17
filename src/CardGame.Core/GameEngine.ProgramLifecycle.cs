@@ -2163,6 +2163,7 @@ public sealed partial class GameEngine
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;
         if (IsIssuedBiriCandidate(candidate, context)) return true;
+        if (IsIssuedLingkongCandidate(candidate, context)) return true;
         if (IsIssuedZhaohuoCandidate(candidate, context)) return true;
         if (IsIssuedBiguoCandidate(candidate, context) || IsIssuedDouyuCandidate(candidate, context)) return true;
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;

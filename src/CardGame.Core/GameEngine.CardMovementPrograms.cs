@@ -3,7 +3,7 @@ namespace CardGame.Core;
 /// <summary>Generic post-movement program host. It contains no skill ids.</summary>
 public sealed partial class GameEngine
 {
-    private CardMovementTiming? CaptureMovementTiming() => !(HasZhaoZhongCapability || _contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
+    private CardMovementTiming? CaptureMovementTiming() => !(HasLeZhouFeiLingkongCapability || HasZhaoZhongCapability || _contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGuyingAtomicLossChoice)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
@@ -145,6 +145,7 @@ public sealed partial class GameEngine
         CaptureJiyunMovementBatch(completed);
         CaptureXieLingYuMovementBatch(completed);
         CaptureBiriPotentialGainBatch(completed);
+        completed = CaptureLingkongGainBatch(completed);
         CaptureGuanduDiscardBatch(completed);
         _pendingCardsMovedBatches.Add(completed);
     }
@@ -277,7 +278,7 @@ public sealed partial class GameEngine
             {
                 var trigger = GetProgramTrigger(candidate);
                 if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
-                if (IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
+                if (IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
                     IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
@@ -326,6 +327,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectQuHuangMovementCandidates(batch));
         candidates.AddRange(CollectKanggeHandGainCandidates(batch));
         candidates.AddRange(CollectBiriMovementCandidates(batch));
+        candidates.AddRange(CollectLingkongMovementCandidates(batch));
         candidates.AddRange(CollectQimeiMovementCandidates(batch));
         candidates.AddRange(CollectBuZhiMovementCandidates(batch));
         candidates.AddRange(CollectBianFuRenLossCandidates(batch));
@@ -534,6 +536,7 @@ public sealed partial class GameEngine
         ProgramTriggerCandidate candidate)
     {
         if (IsBiriTrigger(GetProgramTrigger(candidate))) return CreateBiriMovementContext(frame, candidate);
+        if (IsLingkongGainTrigger(GetProgramTrigger(candidate))) return CreateLingkongMovementContext(frame, candidate);
         if (IsNianJingjueTrigger(GetProgramTrigger(candidate))) return CreateNianJingjueContext(frame, candidate);
         if (IsHellZhiwangTrigger(GetProgramTrigger(candidate))) return CreateHellZhiwangContext(frame, candidate);
         if (IsXiangxuMinimumTrigger(GetProgramTrigger(candidate))) return CreateXiangxuMinimumContext(frame, candidate);

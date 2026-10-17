@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     private bool TracksActualDiscardRecoveryPhases =>
         IsGuanduActivity ||
         HasSiruiCapability || HasLeMiHengJiguCapability ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWenrenSequentialDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePengbiFirstActualTurn) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain) ||

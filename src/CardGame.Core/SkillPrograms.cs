@@ -972,6 +972,9 @@ public enum SkillProgramEffectOp
     ResolveDouyuPreRevealSwapAndWinDraw = 28132,
     InitializeJiguInitialEntities = 28210,
     ResolveJiguDamageEquipmentDraw = 28211,
+    InitializeLingkongInitialEntities = 28310,
+    MarkLingkongFirstOutsideDrawGain = 28311,
+    ResolveXianshuGiftDrawAndHealth = 28320,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -5057,6 +5060,8 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) TaoQianComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) PangJiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) JiguComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) LingkongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) XianshuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) SiruiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouCaoPiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values)

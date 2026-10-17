@@ -8,6 +8,7 @@ public sealed partial class GameEngine
 {
     private CardsMovedTriggerWindowFrame? CreateCardsMovedProgramWindow(CardMovementBatchContext batch, long? resumeProgramFrameId = null)
     {
+        PrepareLingkongGainBatch(batch);
         var candidates = CollectCardsMovedProgramCandidates(batch).Concat(CollectDiscardPileReceivedCandidates(batch))
             .Concat(CollectFirstDomainCandidates(batch)).ToArray();
         if (candidates.Length == 0 && !HasWenhePoisonDepartures(batch)) return null;

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:lingkong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeLingkongInitialEntities",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "mark-first-outside-draw-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "optional": false,
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "markLingkongFirstOutsideDrawGain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "le:xianshu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "marked-hand-gift",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveXianshuGiftDrawAndHealth",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
