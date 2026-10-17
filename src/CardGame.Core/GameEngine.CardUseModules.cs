@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
-        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
+        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsZhaohuoPhysicalRestricted(player.Seat, card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&

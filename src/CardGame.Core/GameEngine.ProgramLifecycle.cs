@@ -2134,6 +2134,7 @@ public sealed partial class GameEngine
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;
         if (IsIssuedBiriCandidate(candidate, context)) return true;
+        if (IsIssuedZhaohuoCandidate(candidate, context)) return true;
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
@@ -4748,6 +4749,7 @@ public sealed partial class GameEngine
         DamageTriggerWindowFrame damage,
         ProgramTriggerCandidate candidate)
     {
+        if (IsZhaohuoTrigger(GetProgramTrigger(candidate))) return CreateZhaohuoDamageContext(damage, candidate);
         if (IsXianfuEchoTrigger(GetProgramTrigger(candidate))) return CreateXianfuDamageContext(damage, candidate);
         if (IsDianhuDrawTrigger(GetProgramTrigger(candidate))) return CreateDianhuDamageContext(damage, candidate);
         var attack = GetDamageTriggerAttack(damage);

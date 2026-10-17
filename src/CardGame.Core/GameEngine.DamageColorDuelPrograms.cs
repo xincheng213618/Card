@@ -33,6 +33,7 @@ public sealed partial class GameEngine
         cardId==0 && IsZonghuUse(frameId) ? ZonghuRepresentation(frameId) :
         cardId==0 && IsWeijieUse(frameId) ? WeijieRepresentation(frameId) :
         cardId==0 && IsYouqueUse(frameId) ? YouqueRepresentation(frameId) :
+        cardId==0 && IsZongluanUse(frameId) ? ZongluanRepresentation(frameId) :
         cardId==0 && (IsLiuYanLegacyAlcoholUse(frameId) || IsCuiYanLegacyAlcoholUse(frameId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && LifecycleCardUse(frameId) is { CardKind: CardKind.Alcohol, LegacyDyingAlcoholReturn: not null } legacyWine && IsExactLegacyActualUseCompletion(legacyWine) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && LifecycleCardUse(frameId) is { DyingSuitsPeachReturn: { } dyingReturn } dyingUse && ValidDyingSuitsPeachUse(dyingUse,dyingReturn) ? new Card(0,CardKind.Peach,Suit.None,0) :
