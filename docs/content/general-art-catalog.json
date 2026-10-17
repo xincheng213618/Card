@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "ol-tao-qian",
+      "characterName": "陶谦",
+      "defaultSkinId": "64900",
+      "skins": [
+        {
+          "id": "64900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/649",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-tao-qian.png",
+          "sha256": "608b1104b6d3988b36687a5a2ad2074936c5b7042aded5a64b3041eea7c9be63",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "ol-zhao-zhong",
       "characterName": "赵忠",
       "defaultSkinId": "70200",

@@ -1,0 +1,515 @@
+{
+  "generalId": "ol:tao-qian",
+  "officialHeroId": 649,
+  "capturedAtUtc": "2026-10-17T13:03:08.730460+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary-current",
+  "status": "implemented-and-verified",
+  "identity": {
+    "name": "陶谦",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/649",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=649",
+  "officialAvailability": {
+    "announcementUrl": "https://sanguosha.com/news/20250225_8697_4513",
+    "announcementTitle": "3.1-3.9 闪耀星河限定武将薛灵芸、陶谦祈福上新 限时双倍重置 江山如故闪赵云来袭 - 三国杀OL官网",
+    "publishedAtLocal": "2025-02-28T17:04:35+08:00",
+    "formalAcquisitionFromLocal": "2025-03-01T00:15:00+08:00",
+    "formalAcquisitionUntilLocal": "2025-03-10T00:00:00+08:00",
+    "originalUntilText": "2025-3-9 24:00:00",
+    "acquisition": "祈福同心结兑换获得。",
+    "evidence": "The formal ordinary OL announcement names Tao Qian as a new general, Qun / male / 3 HP, and lists all three current skills. Current hero and public client agree; no test-only date is substituted for this official opening."
+  },
+  "sources": [
+    {
+      "id": "currentIdentityApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=649",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=649",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 1097,
+      "sha256": "f37b793728df32c3de659251f4d4b7440c0f4f45527a3c5958d6e5e189f32f1f",
+      "capturedAtUtc": "2026-10-17T13:03:08.131765+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 649,
+              "name": "陶谦",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/649.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+              "label": [
+                "进攻",
+                "辅助",
+                "卖血"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "字恭祖，丹阳人。曾担任扬武都尉跟随皇甫嵩、张温平定边乱。黄巾起义时，被命为徐州刺史，后升任徐州牧。曹操之父曹嵩于琅琊避祸时，被张闿杀害，有记载称此是陶谦所命，随后引发了曹操对陶谦的攻击。陶谦死后，糜竺迎刘备入主徐州。小说《三国演义》中，陶谦病中对刘备“三让徐州”，将徐州牌印交予刘备。",
+              "characteristic": "可以令他人出杀，也可以辅助手牌少的队友。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 7
+            },
+            {
+              "name": "排位后手",
+              "value": 7
+            },
+            {
+              "name": "地主",
+              "value": 8
+            },
+            {
+              "name": "忠臣",
+              "value": 8
+            },
+            {
+              "name": "反贼",
+              "value": 8
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "currentHero",
+      "url": "https://www.sanguosha.com/hero/649",
+      "finalUrl": "https://www.sanguosha.com/hero/649",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 25061,
+      "sha256": "e6ffaca8d50f8e20e8c7cbf2d8805b0192cf9cd18f4e5026c8a52b63b41b2690",
+      "capturedAtUtc": "2026-10-17T13:03:08.280340+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "title": "三国杀陶谦 - 三国杀OL-三国杀官网-武将技能介绍",
+      "rulesExcerpt": "准备阶段，你可选择一名角色，其视为使用一张可指定其攻击范围内任意名角色的【杀】，然后你弃置X张牌（X为以此法受到伤害的角色数）。 锁定技，一名角色于你的回合内首次受到伤害后，其交给你一张手牌。你不能使用、打出这些牌，且这些牌不计入你的手牌上限直到回合结束。 出牌阶段限一次，你可以选择任意名角色，其每满足一项便摸一张牌：1.没有手牌；2.手牌数小于等于你。"
+    },
+    {
+      "id": "officialFormalRelease",
+      "url": "https://sanguosha.com/news/20250225_8697_4513",
+      "finalUrl": "https://sanguosha.com/news/20250225_8697_4513",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 498492,
+      "sha256": "1640d6dd259ea508ed520508041cee54f090604167968dac34336398b4a2a1a5",
+      "capturedAtUtc": "2026-10-17T13:03:08.483522+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "title": " 3.1-3.9 闪耀星河限定武将薛灵芸、陶谦祈福上新 限时双倍重置 江山如故闪赵云来袭 - 三国杀OL官网",
+      "rulesAndAcquisitionExcerpt": "陶谦 (查看原图) 势力 体力 性别 武将特点 群 3 男 可以令他人出杀，也可以辅助手牌少的队友。 技能 【纵乱】：准备阶段，你可选择一名角色，其视为使用一张可指定其攻击范围内任意名角色的【杀】，然后你弃置X张牌（X为以此法受到伤害的角色数） 【招祸】：锁定技，一名角色于你的回合内首次受到伤害后，其交给你一张手牌。你不能使用、打出这些牌，且这些牌不计入你的手牌上限直到回合结束。 【温仁】：出牌阶段限一次，你可以选择任意名角色，其每满足一项便摸一张牌：1.没有手牌；2.手牌数小于等于你。 获取 2025-3-1 00:15:00~2025-3-9 24:00:00，祈福同心结兑换获得。",
+      "publishedAtLocal": "2025-02-28T17:04:35+08:00"
+    },
+    {
+      "id": "officialPortrait",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+      "httpStatus": 200,
+      "contentType": "image/png",
+      "bytes": 968672,
+      "sha256": "608b1104b6d3988b36687a5a2ad2074936c5b7042aded5a64b3041eea7c9be63",
+      "capturedAtUtc": "2026-10-17T13:03:08.682114+00:00",
+      "rawCopyCreated": false,
+      "authority": "official-primary"
+    },
+    {
+      "id": "sameProductCommunityGuide20250508",
+      "url": "https://www.taptap.cn/moment/669727797870070918",
+      "finalUrl": "https://www.taptap.cn/moment/669727797870070918",
+      "httpStatus": 200,
+      "contentType": "text/html;charset=utf-8",
+      "bytes": 263340,
+      "sha256": "f44c572748d6d546fcce42927424f81d8f524246386fa16946b22b5ab6489b6c",
+      "capturedAtUtc": "2026-10-17T13:19:05.824681+00:00",
+      "rawCopyCreated": false,
+      "authority": "same-product-community-guide-reposted-by-product-account-not-FAQ",
+      "title": "【陶谦武将攻略】不能飞刀的界陈宫",
+      "publishedDate": "2025-05-08",
+      "displayAccount": "三国杀OL大乔",
+      "originalAuthor": "爱多i",
+      "originalArticleUrl": "https://club.sanguosha.com/thread-1655202-1-1.html",
+      "evidenceSummary": [
+        "The guide supports self as a Zongluan actor, a colorless virtual Slash, real HE late discard, and excluding skill-generated or transferred damage from X.",
+        "It describes Wenren two-condition benefit as one draw-two invocation and one use per actual Play phase.",
+        "Its Zhaohuo analysis says other roles only and self excluded, conflicting with current primary wording 一名角色. This implementation follows current primary text and documents the self branch as an engineering interpretation."
+      ],
+      "isOfficialRuling": false
+    }
+  ],
+  "currentRules": [
+    {
+      "clientSkillId": 3534,
+      "name": "纵乱",
+      "clientClass": "ZongLuan",
+      "text": "准备阶段，你可选择一名角色，其视为使用一张可指定其攻击范围内任意名角色的【杀】，然后你弃置X张牌（X为以此法受到伤害的角色数）。",
+      "authority": "current hero + formal ordinary OL release announcement + current shipped public client"
+    },
+    {
+      "clientSkillId": 3535,
+      "name": "招祸",
+      "clientClass": "ZhaoHuo1",
+      "text": "锁定技，一名角色于你的回合内首次受到伤害后，其交给你一张手牌。你不能使用、打出这些牌，且这些牌不计入你的手牌上限直到回合结束。",
+      "authority": "current hero + formal ordinary OL release announcement + current shipped public client"
+    },
+    {
+      "clientSkillId": 3536,
+      "name": "温仁",
+      "clientClass": "WenRen",
+      "text": "出牌阶段限一次，你可以选择任意名角色，其每满足一项便摸一张牌：<br>&nbsp;1.没有手牌；2.手牌数小于等于你。",
+      "authority": "current hero + formal ordinary OL release announcement + current shipped public client"
+    }
+  ],
+  "sourceHierarchy": [
+    "Current official hero and formal ordinary OL release announcement agree on all three skills; identity is independently confirmed by API649.",
+    "Public shipped character/spell rows, selector classes and DATA_ZHAOHUO state refine native UI constraints; they are not authenticated server adjudication.",
+    "The 2025-05-08 same-product community guide supplies supporting examples. Its other-only Zhaohuo claim conflicts with current primary wording and is not adopted as an official ruling.",
+    "Runtime interpretations below state adopted native-engine contracts validated by representative behavior checks. No dedicated Tao Qian FAQ is claimed."
+  ],
+  "publicClient": {
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "retainedInputsReusedInMemory": true,
+    "newLargeRawCopies": false,
+    "rawCharacter": {
+      "a": 649,
+      "b": "陶谦",
+      "d": "TaoQian",
+      "e": 44,
+      "f": "42",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 3534,
+      "k": 3535,
+      "l": 3536,
+      "p": 2,
+      "q": "1",
+      "r": "9064901",
+      "y": "字恭祖，丹阳人。曾担任扬武都尉跟随皇甫嵩、张温平定边乱。黄巾起义时，被命为徐州刺史，后升任徐州牧。曹操之父曹嵩于琅琊避祸时，被张闿杀害，有记载称此是陶谦所命，随后引发了曹操对陶谦的攻击。陶谦死后，糜竺迎刘备入主徐州。小说《三国演义》中，陶谦病中对刘备“三让徐州”，将徐州牌印交予刘备。",
+      "z": "可以令他人出杀，也可以辅助手牌少的队友。",
+      "aa": 1169,
+      "ab": "1221,1222",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20250401T000000",
+      "LordCardRate1": 45,
+      "LordCardRate2": 47,
+      "starMax": 4
+    },
+    "directSkillRows": [
+      {
+        "a": 3534,
+        "b": "3,5",
+        "c": "纵乱",
+        "d": "ZongLuan",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "n": 1,
+        "o": "准备阶段，你可选择一名角色，其视为使用一张可指定其攻击范围内任意名角色的【杀】，然后你弃置X张牌（X为以此法受到伤害的角色数）。",
+        "w": "请弃置{0}张牌",
+        "v": "选择一名角色，令其视为使用<font color='#FFD800'>杀</font>|请选择至少1名角色，视为对其使用<font color='#FFD800'>杀</font>"
+      },
+      {
+        "a": 3535,
+        "b": "3,4,5",
+        "c": "招祸",
+        "d": "ZhaoHuo1",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "n": 0,
+        "o": "锁定技，一名角色于你的回合内首次受到伤害后，其交给你一张手牌。你不能使用、打出这些牌，且这些牌不计入你的手牌上限直到回合结束。",
+        "w": "请选择一张手牌交给{0}"
+      },
+      {
+        "a": 3536,
+        "b": "3",
+        "c": "温仁",
+        "d": "WenRen",
+        "e": 0,
+        "g": 3,
+        "h": 1,
+        "i": 2,
+        "n": 1,
+        "o": "出牌阶段限一次，你可以选择任意名角色，其每满足一项便摸一张牌：<br>&nbsp;1.没有手牌；2.手牌数小于等于你。",
+        "v": "请选择任意名角色"
+      }
+    ],
+    "frontendClasses": [
+      {
+        "classSymbol": "GSi",
+        "byteOffsetUtf8": 15712281,
+        "byteCountUtf8": 977,
+        "sha256": "0c864c137ffaa87fb56b08112a68292679f765f2b5260042cb7300a6810e444b",
+        "evidenceKind": "exact class-to-next-class shipped bundle slice, not server proof",
+        "excerpt": "class GSi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.targetCountMin=1,this.targetCountMax=1,this.touchSkillWhenApplyTrigger=!0,this.targetSelector=new Wxt(this)}get TargetCountMax(){return D2t.LastTriggerSpellID==this.ID?Number.MAX_VALUE:1}get ActiveTip(){let t=this.activeTip.split(\"|\");return D2t.LastTriggerSpellID==this.ID?t?t[1]:\"\":t?t[0]:\"\"}getServerTargetSeatIds(){if(D2t.LastTriggerSpellID==this.ID)return D2t.RoleOptTargetParams}get EnableCancel(){return D2t.LastTriggerSpellID!=this.ID}GetDefensiveSelectCardContext(t,i=null){if(!i)return null;if(i.Type==JZi.OPT_SKILL_FLAG2){var s=new dAt;s.Purpose=fAt.DISCARD,s.Message=le.F(this.DefensiveTip,i.Param),s.Skill=this;var e=new HJt;return e.NeedSelectCount=i.Param,e.CanCancel=!1,e.CardUseType=Dmt.DISCARD,e.CardType=Lmt.NORMAL|Lmt.EQUIP,s.CardSelector=e,s}}Use(t,i,s=null,e=0){D2t.LastTriggerSpellID==this.ID&&D2t.SelfSeat?d1t.SendRoleSpellOptRep(D2t.SelfSeat.Index,this.ID,i):super.Use(t,i,s,e)}}"
+      },
+      {
+        "classSymbol": "OSi",
+        "byteOffsetUtf8": 15717352,
+        "byteCountUtf8": 662,
+        "sha256": "f25979ab63e855c8948f1086981d65c855c4de61fc3e20537b9c177178a1c5ce",
+        "evidenceKind": "exact class-to-next-class shipped bundle slice, not server proof",
+        "excerpt": "class OSi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK}UpdateRoleDataResponse(t,i,s=!1){super.UpdateRoleDataResponse(t,i,s),t.IsSpell||i&&(s?i.addCardTag(i.GetSeatState(zf.DATA_ZHAOHUO).Targets,\"\",0,this.Name):i.addCardTag(t.Datas.slice(2),this.Name),i.UpdateState(zf.DATA_ZHAOHUO,s?0:1,t.Datas.slice(2)))}GetDefensiveSelectCardContext(t,i=null){if(!i)return null;if(i.Type==JZi.OPT_SKILL_FLAG1){let t=D2t.GetSeat(i.SrcSeatID),h=t?t.HtmlName:\"\";var s=new dAt;s.Purpose=fAt.GIVE,s.Message=le.F(this.DefensiveTip,h),s.Skill=this;var e=new HJt;return e.NeedSelectCount=1,e.CanCancel=!1,e.CardUseType=Dmt.GIVE,e.CardType=Lmt.NORMAL,s.CardSelector=e,s}}}"
+      },
+      {
+        "classSymbol": "MSi",
+        "byteOffsetUtf8": 15718014,
+        "byteCountUtf8": 153,
+        "sha256": "d48833d9ec6ee3ed4ac7995527765665c1027b247784a089cd3ef292a7922e95",
+        "evidenceKind": "exact class-to-next-class shipped bundle slice, not server proof",
+        "excerpt": "class MSi extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE,this.targetCountMin=1,this.targetCountMax=Number.MAX_VALUE,this.timeLimitRound=1}}"
+      }
+    ],
+    "frontendSelectors": [
+      {
+        "symbol": "Wxt",
+        "offsetUtf8": 8166024,
+        "sha256": "b0edc82ecba8065e6aef99ec3f59aac367a2f21b37756db6408284e435a24538",
+        "excerpt": "class Wxt extends Iy{constructor(t){super(t)}get AttackSeat(){return D2t.SelfSeat}}"
+      }
+    ],
+    "evidenceScope": "Exact shipped client rows/classes from the same-day decoded public bundle/config; no server private state/packet behavior is asserted.",
+    "sourceMetadata": {
+      "freshHttp": {
+        "bundle": {
+          "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "capturedAtUtc": "2026-10-17T12:59:28.160633+00:00",
+          "httpStatus": 200,
+          "contentType": "application/octet-stream",
+          "byteCount": 5386466,
+          "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+          "rawCopyCreated": false,
+          "etag": "\"6ad22bd5-5230e2\"",
+          "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT",
+          "retainedMatches": true
+        },
+        "config": {
+          "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "capturedAtUtc": "2026-10-17T12:59:28.162765+00:00",
+          "httpStatus": 200,
+          "contentType": "application/octet-stream",
+          "byteCount": 4154044,
+          "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+          "rawCopyCreated": false,
+          "etag": "\"6ad22fbc-3f62bc\"",
+          "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT",
+          "retainedMatches": true
+        }
+      },
+      "members": {
+        "character.sgs": {
+          "encryptedBytes": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedBytes": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "encryptedBytes": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedBytes": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "decoder": "Current bundle InitOfb arrays; AES CFB128 segment16 then gzip; all decoded in memory."
+    },
+    "frontendStateClasses": [
+      {
+        "classSymbol": "UT",
+        "byteOffsetUtf8": 1081191,
+        "byteCountUtf8": 471,
+        "sha256": "fa06767a369de967ab4db82c7debeeed5d74594573ad8c946cd8d9c366046f5b",
+        "evidenceKind": "exact class-to-next-class shipped bundle slice, not server proof",
+        "excerpt": "class UT extends zf{constructor(t){super(t),this.stateId=zf.DATA_ZHAOHUO,this.needResetCardUseType=!0,this.disabledCardOperateType=Dmt.USE|Dmt.DEAL}Init(){super.Init(),this.targets=null}get Value(){return this.value}set Value(t){this.value=t,0==t&&(this.targets=null)}set Targets(t){this.targets=t}get Targets(){return this.targets?this.targets:[]}getDisabledCardOperateType(){return this.value>0?this.disabledCardOperateType:0}get DisabledCardIds(){return this.targets}}",
+        "interpretation": "DATA_ZHAOHUO stores exact target card IDs and disables USE|DEAL while its value is positive. This supports original-entity Use/Played restriction, not a prohibition on discarding or giving the card."
+      }
+    ]
+  },
+  "editionExclusions": [
+    "Do not substitute older Tao Qian versions using 义襄/揖让 or 招祸 that reduces maximum HP; this current gid649 has 纵乱/招祸/温仁.",
+    "Do not substitute anniversary/mobile rules, a test-server preview, or another combined-general/family module."
+  ],
+  "documentedDifferences": [
+    {
+      "topic": "招祸 hand-only payment and original-entity restriction",
+      "evidence": "Client OSi defensive selector requires exactly one real Hand card, GIVE, cannot cancel; DATA_ZHAOHUO records the exact IDs. Equipment is not a substitute.",
+      "scope": "Current client selection evidence, not a new official FAQ."
+    },
+    {
+      "topic": "纵乱 and温仁 choice minima",
+      "evidence": "GSi initial actor min=max1; second target stage max Number.MAX_VALUE and no cancel, with server target-seat list. MSi target min1 and max Number.MAX_VALUE.",
+      "scope": "At least one chosen role when successfully activating; no invented free zero-target activation."
+    },
+    {
+      "topic": "Zhaohuo self recipient conflict",
+      "primary": "Current hero, release announcement and client direct skill all say 一名角色, without another-role restriction.",
+      "secondary": "The 2025-05-08 community guide says only other roles and excludes Tao Qian himself.",
+      "adopted": "Follow current primary wording: a self-damaged Tao Qian privately selects one actual Hand entity for the same turn restriction/exemption. Since it remains in the same zone, commit a typed self-gift fact without a physical movement or false gain/loss event.",
+      "scope": "Explicit engineering interpretation, not FAQ or authenticated server observation."
+    }
+  ],
+  "implementationInterpretations": [
+    {
+      "id": "zongluan-native-actor-targets",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "The chosen role is the actual zero-material, colorless Slash user. Its real range and prohibitions determine legal targets; Tao Qian remains the issuer and later HE discard payer. An actor with no legal target does not fabricate a Use."
+    },
+    {
+      "id": "zongluan-damage-distinct",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "X counts distinct recipients of actual positive damage directly attributed to the exact issued whole Slash Use. Added actual Slash targets can count; transferred damage, propagated-chain recipients and unrelated skill/counter children do not. This is an adopted native-provenance interpretation; the guide supports excluding transferred and separate skill damage but supplies no comprehensive chain FAQ."
+    },
+    {
+      "id": "zongluan-after-use-discard",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "After the issued native Use and its real children return, Tao Qian discards the required available HE entities once through native logical discard. Gifted Zhaohuo entities may be discarded; their restriction concerns Use/Played rather than discard. Source loss/death and cold continuations retain the exact original receipts."
+    },
+    {
+      "id": "zhaohuo-first-actual-victim",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Capture each victim first positive DamageApplied at its native producer in each actual owner turn, before damage/dying children. Record the first event even before skill acquisition and when the victim has no Hand cards. Zero/prevented attempts and LoseHp do not count. Late skill gain or later Hand replenishment does not turn that already-empty first event into a gift; later nested damage cannot revoke the frozen first-event ordinal."
+    },
+    {
+      "id": "zhaohuo-source-and-donor",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Freeze the qualifying original skill source/hash at the first damage producer. A later source loss does not revoke that already-issued qualification. Before a new gift both owner and original donor must be alive and that donor must have a real Hand card; no equipment substitute or replacement donor is invented."
+    },
+    {
+      "id": "zhaohuo-self-gift",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Current primary wording allows Tao Qian as the damaged role. A real private choice marks one exact original Hand entity, with equal movement-sequence bounds. It creates a typed ZhaohuoSelfGiftCommittedEvent and no CardMovementRecord, CardsMoved, CardsGained, loss or gain. Other donors still pay one genuine Hand-to-Hand native move with exact entity/source/movement proof."
+    },
+    {
+      "id": "zhaohuo-issued-entity-lease",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Until native TurnEndedEvent for the original actual turn, the original recipient cannot Use or Play the exact gifted entity from any otherwise legal current source zone. The exemption applies only while that entity is in the original recipient Hand. Other holders do not inherit either rule; if the original recipient reacquires it in the same actual turn its restriction/exemption resumes. Skill loss/regrant does not revoke an issued mark."
+    },
+    {
+      "id": "zhaohuo-end-boundary",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Expire on the native TurnEndedEvent, not the beginning of Ending phase or ActualTurnCursorReturned. Post-TurnEnded tail Play is outside the original turn eligibility and its old entity restrictions. An already-paid gift still drains its true children; a late return does not create a new local turn budget and any mark is already inactive after that turn ended."
+    },
+    {
+      "id": "wenren-sampling",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Choose distinct living recipients with minimum one. At each recipient actual execution step, sample its current Hand and Tao Qian current Hand afresh; award zero, one or two from the two conditions. Both conditions cause one native requested-draw-two invocation, not two draw-one invocations. This per-recipient fresh sampling and order-sensitive draw-child behavior is an implementation interpretation rather than a dedicated FAQ."
+    },
+    {
+      "id": "wenren-native-draw-phase-budget",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "Wenren is limited once per actual own Play-phase identity, including an independently inserted Play phase. Native Draw outcomes keep actual draw-pile IDs separate from replacement gains and retain real zero outcomes; no replacement gain is relabeled a draw."
+    },
+    {
+      "id": "paid-source-loss-and-death",
+      "status": "adopted-engine-interpretation-verified",
+      "text": "An accepted original payment and issued recipient queue retain their exact source, actor, target and cursor through source loss, death and cold replay. The committed Wenren queue continues to each originally selected eligible living recipient, sampling fresh values; no payment/draw is repeated, and death follows native return contracts without fabricating a living source or target."
+    }
+  ],
+  "art": {
+    "id": "officialPortrait",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64900.png",
+    "httpStatus": 200,
+    "contentType": "image/png",
+    "bytes": 968672,
+    "sha256": "608b1104b6d3988b36687a5a2ad2074936c5b7042aded5a64b3041eea7c9be63",
+    "capturedAtUtc": "2026-10-17T13:03:08.682114+00:00",
+    "rawCopyCreated": false,
+    "authority": "official-primary",
+    "sourcePage": "https://www.sanguosha.com/hero/649",
+    "portraitKey": "ol-tao-qian",
+    "skinId": 64900,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-tao-qian.png",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "imageType": "PNG",
+    "originalImageVisuallyInspected": true,
+    "derivation": "Unmodified current official identity API cover response; no re-encoding/crop/redraw.",
+    "validationStatus": "accepted-original-and-gallery-verified",
+    "inspectionDetail": "Original-resolution 750x950 PNG inspected: an elderly white-bearded official in a black ceremonial crown and white/green robe, holding a brush and bamboo roll at a writing desk beside a lamp, with shelves and window behind. Complete official portrait retained without local edits."
+  },
+  "verification": {
+    "sourceAndIdentityFreshHttpVerified": true,
+    "officialAvailabilityVerified": true,
+    "currentClientThreeSkillsVerified": true,
+    "originalPortraitVisuallyInspected": true,
+    "sourceAgentRanBuild": false,
+    "sourceAgentRanTests": false,
+    "runtimeImplementedByThisOwner": false,
+    "registeredByThisOwner": false,
+    "galleryRegisteredByThisOwner": false,
+    "focusedCorePassed": true,
+    "focusedWpfPassed": true,
+    "routinePassed": true,
+    "noDedicatedOfficialFaqClaimed": true,
+    "ownedZhaohuoModuleImplemented": true,
+    "runtimeImplemented": true,
+    "registered": true,
+    "galleryRegistered": true,
+    "focusedCoreChecks": 20,
+    "focusedWpfChecks": 2,
+    "routineCoreChecks": 148,
+    "routineWpfChecks": 28,
+    "routineDurationMs": 63970,
+    "mainIntegrationPassed": true,
+    "mainIntegrationCoreChecks": 5,
+    "mainIntegrationWpfChecks": 2,
+    "mainIntegrationDurationMs": 59055,
+    "manualFullRun": false,
+    "publishPackagingOrPush": false
+  },
+  "focusedBehaviorGroups": [
+    {
+      "name": "ZongluanNativeMultiTargetWholeUseAndDiscard",
+      "behaviors": [
+        "Selected foreign or self actual user; real range/prohibition; same Use/Action; zero material and actor native budget.",
+        "One/multiple targets, partial/multiple responses, distinct positive damaged roles, whole-use late X discard and actual discard children/cold."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "ZhaohuoFirstPerVictimAndRestrictedOriginalHand",
+      "behaviors": [
+        "Each victim first actual positive damage in own actual turn; repeated point/effect/zero prevention and foreign turn negatives.",
+        "Real donor Hand1 with privacy; no fake equipment payment; original entities prohibited for Use and Played and exempt only for proper owner/turn; cold and new actual turn release."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "WenrenRealDrawCountsAndPhaseBudget",
+      "behaviors": [
+        "One/two condition counts, tied Hand counts, self and multiple targets, explicit timing sample.",
+        "Native Draw and replacement distinction, once actual Play phase, cancellation has no fabricated targets."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "PaidChildrenSourceLossAndDeath",
+      "behaviors": [
+        "Real gift/discard Lion/Ox or HP/dying children where reachable.",
+        "Paid source loss/regrant/death through exact native parent return; no repayment, invalid peer/choice/token and cold at each private/native frontier."
+      ],
+      "status": "representative-behavior-check-passed"
+    }
+  ]
+}
