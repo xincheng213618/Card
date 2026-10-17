@@ -19,6 +19,8 @@ internal static class ProgramCompositionValidator
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
         IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
     {
+        NianRevivalComposition.Validate(path, effects, window, initialSelectedTarget, selectedCardCount,
+            initialTargetSetMaximum, activationTargetKind);
         ZhangYiComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))

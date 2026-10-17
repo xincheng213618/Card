@@ -14,6 +14,7 @@ internal interface IProgramSelectionSourceQuery : IProgramSelectionQuery
     bool IsUseForbidden(int seat, CardKind kind);
     bool IsPhysicalUseForbidden(int seat, int cardId);
     Suit EffectiveSuit(int seat, Card card);
+    CardKind EffectiveInputKind(int seat, Card card) => card.Kind;
     IReadOnlyList<ProgramMultiCardViewAsSelection> Conversions(int seat, CardKind kind);
     bool HasHpLossTargets(int seat);
     bool CanUseSlash(int owner, int target, IReadOnlyList<Card>? cards, bool ignoreDistance);
@@ -86,7 +87,7 @@ internal sealed class ConvertedCardSelectionSource : IProgramSelectionSourceProv
         return query.Hand(owner).Concat(query.Equipment(owner))
             .Where(card => !query.IsHandRestricted(owner, card) && !query.HasCardIdentity(owner, card))
             .Where(card => rule.SourceZones.Contains(query.Location(card.Id).Zone))
-            .Where(card => rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind))
+            .Where(card => rule.InputKinds.Count == 0 || rule.InputKinds.Contains(query.EffectiveInputKind(owner, card)))
             .Where(card => rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true
                 ? query.EffectiveSuit(owner, card) : card.Suit))
             .Where(card => !query.IsPhysicalUseForbidden(owner, card.Id)).Select(card => card.Id).Order().ToArray();

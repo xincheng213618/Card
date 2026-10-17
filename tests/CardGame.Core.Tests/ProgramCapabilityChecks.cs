@@ -18,9 +18,9 @@ internal static class ProgramCapabilityChecks
 
         var hostType = typeof(GameEngine).GetNestedType("ProgramSkillHost", BindingFlags.NonPublic)!;
         Require(hostType.GetInterfaces().OrderBy(type => type.FullName, StringComparer.Ordinal)
-                .SequenceEqual(new[] { typeof(ISkillProgramExecutionHost), typeof(ISkillProgramEffectHost) }
+                .SequenceEqual(new[] { typeof(ISkillProgramExecutionHost), typeof(ISkillProgramEffectHost), typeof(IResumableProgramDrawHost) }
                     .OrderBy(type => type.FullName, StringComparer.Ordinal)),
-            "The shared program host must implement only the two shared execution/effect contracts.");
+            "The shared host keeps execution/effect contracts plus the optional resumable Draw adapter; character capabilities stay separate.");
         var constructor = hostType.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Single();
         var firstHost = (ISkillProgramEffectHost)constructor.Invoke([firstGame]);
         var secondHost = (ISkillProgramEffectHost)constructor.Invoke([secondGame]);

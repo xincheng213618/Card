@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shenwu:xiongshou": { "name": "凶兽", "description": "锁定技，你使用【杀】对体力值小于你的角色造成的伤害+1；你计算与其他角色的距离-1；你不能被翻面。" },
+    "shenwu:wuzang": { "name": "无脏", "description": "锁定技，摸牌阶段，你改为摸X张牌（X为你当前体力值的一半，向下取整且至少为5）；你的手牌上限为0。" },
+    "shenwu:xiangde": { "name": "相德", "description": "锁定技，其他角色对你造成伤害时，若其装备区内有武器牌，此伤害+1。" },
+    "shenwu:yinzei": { "name": "隐贼", "description": "锁定技，若你没有手牌，其他角色对你造成伤害后，随机弃置其手牌或装备区内的一张牌。" },
+    "shenwu:zhue": { "name": "助恶", "description": "锁定技，每当一名其他角色造成伤害后，你与伤害来源各摸一张牌。" },
+    "shenwu:futai": { "name": "复态", "description": "锁定技，你的回合外，其他角色不能使用【桃】；你的回合开始时，你令所有角色回复1点体力。" },
+    "shenwu:yandu": { "name": "厌笃", "description": "锁定技，其他角色的实际回合结束后，若其于该回合未造成过伤害，你获得其手牌或装备区内的一张牌。" },
+    "shenwu:mingwan": { "name": "冥顽", "description": "锁定技，当你于回合内使用牌对其他角色造成伤害后，你于此回合内使用牌只能指定你与这些角色为目标，且你每使用一张牌，摸一张牌。" },
+    "shenwu:nitai": { "name": "拟态", "description": "锁定技，防止你于回合内受到的伤害；你于回合外受到火属性伤害+1。" },
+    "shenwu:luanchang": { "name": "乱常", "description": "锁定技，你的回合开始时，你视为使用【南蛮入侵】；你的实际回合结束时，你视为使用【万箭齐发】。" },
+    "shenwu:tanyu": { "name": "贪欲", "description": "锁定技，跳过你的弃牌阶段；结束阶段，若你的手牌数为全场最多（含并列），失去1点体力。" },
+    "shenwu:cangmu": { "name": "藏目", "description": "锁定技，你的摸牌阶段摸牌数改为X（X为存活角色数）。" },
+    "shenwu:jicai": { "name": "积财", "description": "锁定技，一名角色回复体力后，你与其各摸一张牌。同一角色既是你又是回复者时，共摸两张牌。" },
+    "shenwu:coalition": { "name": "联军补给", "description": "玩家击杀烛阴后，回复1点体力并摸三张牌；玩家阵亡后，存活队友各回复1点体力并摸一张牌，若阵亡角色为神势力则改为摸三张牌。" }
+  }
+}

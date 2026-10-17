@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     }
     private bool TracksNativeDrawInvocations =>
+        HasHellZhiwangHolder ||
         HasFeiYiHezhong ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||

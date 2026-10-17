@@ -15,6 +15,18 @@ internal sealed class UseVirtualOrdinaryTrickSkillProgramEffectHandler : ISkillP
 
 internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
+    internal static bool IsGroupOutput(CardKind? kind) => kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage;
+    internal static bool AllowsWindow(CardKind? kind, SkillProgramTriggerWindow window) => IsGroupOutput(kind)
+        ? window is SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.GameStarting
+        : window == SkillProgramTriggerWindow.PlayEnding;
+
+    internal static bool HasValidReferences(CardKind? kind, ProgramParticipantRef? actor, ProgramParticipantRef? recipient) =>
+        IsGroupOutput(kind) ? actor == ProgramParticipantRef.Owner && recipient == ProgramParticipantRef.Owner :
+        kind is (CardKind.DrawTwo or CardKind.Dismantlement) &&
+        actor is (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) &&
+        recipient is (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) &&
+        (kind == CardKind.DrawTwo) == (actor == recipient);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualOrdinaryTrick;
     public override ISkillProgramEffectHandler Handler { get; } = new UseVirtualOrdinaryTrickSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.UseSelectedCardsAs,
@@ -27,14 +39,11 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
         var actor = reader.RequiredParticipantReference("actorRef");
         var recipient = reader.RequiredParticipantReference("targetRef");
         var kind = reader.RequiredEnum<CardKind>("outputKind");
-        if (target != SkillProgramEffectTarget.Owner ||
-            actor.Kind is not (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) ||
-            recipient.Kind is not (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) ||
-            kind is not (CardKind.DrawTwo or CardKind.Dismantlement) ||
-            (kind == CardKind.DrawTwo) != (actor.Kind == recipient.Kind))
-            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual ordinary trick requires an owner placeholder, owner/selectedTarget references, self DrawTwo or distinct-participant Dismantlement.");
+        if (target != SkillProgramEffectTarget.Owner || !HasValidReferences(kind, actor.Kind, recipient.Kind))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual ordinary trick requires an owner placeholder and valid references for self DrawTwo, distinct-participant Dismantlement, or owner-origin global assault.");
         var condition = reader.Condition();
-        if (condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon))
+        if (IsGroupOutput(kind) ? condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs) :
+            condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon))
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.condition: virtual ordinary trick accepts always or a named Pindian branch.");
         return new SkillProgramEffect(Op, target, 0, condition, outputKind: kind,
             actorReference: actor, targetReference: recipient);
@@ -42,5 +51,8 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         Array.AsReadOnly(ParticipantResources(effect.ActorReference, effect.TargetReference)
-            .Concat(new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding) }).ToArray());
+            .Concat(IsGroupOutput(effect.OutputKind)
+                ? new ProgramResourceOperation[] { new RequireTriggerWindows([SkillProgramTriggerWindow.PlayPhaseStarting,
+                    SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.AfterTurnEnded, SkillProgramTriggerWindow.GameStarting]) }
+                : [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)]).ToArray());
 }

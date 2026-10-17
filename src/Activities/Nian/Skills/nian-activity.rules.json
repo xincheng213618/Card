@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "nian:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "recover", "target": "owner", "amount": 3 },
+            { "op": "draw", "target": "owner", "amount": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nian:revive",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "revive",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "nianDeadAlly",
+          "usesPerTurn": null,
+          "effects": [{ "op": "reviveNianAlly", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

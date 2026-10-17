@@ -123,7 +123,10 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
 public static class ComposedSkillContentRegistry
 {
     /// <summary>Builds the current full local showcase plus the composed-skill mode.</summary>
-    public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false)
+    public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false,
+        bool includeBossActivities = false, bool includeHulaoActivities = false, bool includeShenwuActivities = false,
+        bool includeNianActivities = false, bool includeHellActivities = false, bool includeWenheActivities = false,
+        bool includeDragonBoatActivities = false)
     {
         var packages = new List<IGameContentPackage>
         {
@@ -139,6 +142,32 @@ public static class ComposedSkillContentRegistry
             packages.Add(new StandardNationalZhangJiaoPackage());
         packages.Add(new ComposedSkillContentPackage());
         if (includeActivities) packages.Add(new StandardJiangeActivityPackage());
+        if (includeBossActivities) packages.Add(new StandardGhostActivityPackage());
+        if (includeHulaoActivities) packages.Add(new StandardHulaoActivityPackage());
+        if (includeShenwuActivities) packages.Add(new StandardShenwuActivityPackage());
+        if (includeNianActivities) packages.Add(new StandardNianActivityPackage());
+        if (includeHellActivities) packages.Add(new StandardHellActivityPackage());
+        if (includeWenheActivities) packages.Add(new StandardWenheActivityPackage());
+        if (includeDragonBoatActivities) packages.Add(new StandardDragonBoatActivityPackage());
         return ContentRegistry.Build(packages.ToArray());
+    }
+
+    /// <summary>Restores the exact opt-in activity packages recorded by a checkpoint.</summary>
+    public static ContentRegistry CreateShowcaseForCheckpoint(GameCheckpoint checkpoint)
+    {
+        ArgumentNullException.ThrowIfNull(checkpoint);
+        ArgumentNullException.ThrowIfNull(checkpoint.ContentPackages);
+        bool Includes(IGameContentPackage package) => checkpoint.ContentPackages.Contains(
+            $"{package.Manifest.Id}@{package.Manifest.Version}", StringComparer.Ordinal);
+        return CreateShowcase(
+            includeNationalZhangJiao: Includes(new StandardNationalZhangJiaoPackage()),
+            includeActivities: Includes(new StandardJiangeActivityPackage()),
+            includeBossActivities: Includes(new StandardGhostActivityPackage()),
+            includeHulaoActivities: Includes(new StandardHulaoActivityPackage()),
+            includeShenwuActivities: Includes(new StandardShenwuActivityPackage()),
+            includeNianActivities: Includes(new StandardNianActivityPackage()),
+            includeHellActivities: Includes(new StandardHellActivityPackage()),
+            includeWenheActivities: Includes(new StandardWenheActivityPackage()),
+            includeDragonBoatActivities: Includes(new StandardDragonBoatActivityPackage()));
     }
 }

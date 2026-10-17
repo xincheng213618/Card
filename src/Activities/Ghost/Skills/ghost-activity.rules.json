@@ -1,0 +1,683 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ghost:guimei",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "delayed-trick-immunity",
+          "kind": "prohibitDelayedTrickTarget",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "ghost:didong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-over-another",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:shanbeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-other-equipment",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": [
+                "equipment"
+              ],
+              "amount": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:enyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "reward-recovery-source",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "optional": false,
+          "hpChangeOccurrence": "perPoint",
+          "effects": [
+            {
+              "op": "rewardOtherRecoverySource",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "heart-card-or-hp",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "requestHandBySuitsOrLoseHp",
+              "target": "selectedTarget",
+              "suits": [
+                "heart"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:beiming",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "killer-discards-hand",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardDeathSourceCards",
+              "target": "owner",
+              "zones": [
+                "hand"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:luolei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "thunder-another",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:huilei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "killer-discards-all",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardDeathSourceCards",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:guihuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fire-another",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:mingbao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fire-all-others",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "damageParticipants",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1,
+              "nature": "fire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:lianyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fire-all-other-characters",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "damageParticipants", "target": "owner", "targetKind": "otherLiving", "amount": 1, "nature": "fire" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:guiji-end",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-random-judgment-after-preparation",
+          "window": "judgmentPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardRandomJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:guiji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-random-judgment",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardRandomJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:fankui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "take-source-card",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "effects": [
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "damageSource",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "source-card",
+              "skipIfNoCards": true
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "source-card",
+              "destination": "ownerHand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:baolian-one",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "extra-ending-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:baolian-two",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "extra-ending-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:manjia",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "virtual-vine-armor",
+          "kind": "virtualEquipment",
+          "cardKinds": [
+            "tengjia"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:xiaoshou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-not-lower-hp",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingHpAtLeastOwner"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 3,
+              "nature": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:qiangzheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "take-other-hands",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "takeRandomCardFromEveryOtherCharacter",
+              "target": "owner",
+              "zones": [
+                "hand"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:zuijiu",
+      "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "slash-damage-plus-one",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "amount": 1,
+          "condition": "always",
+          "sourceScope": "ownerUsed"
+        }
+      ]
+    },
+    {
+      "id": "ghost:suoming",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "chain-others",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAllPublicTeamTargets",
+              "target": "owner",
+              "targetKind": "publicTeamUnchainedEnemies"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTargets",
+              "chained": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:xixing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "drain-chained-character",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingChained"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:modao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "extra-preparation-draw",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:yushou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "virtual-area-trick",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "outputKind": "barbarianAssault"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:mojian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "virtual-area-trick",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "outputKind": "arrowBarrage"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:moyan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "red-judgment-fire-on-outside-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "ghost-red-judgment",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment",
+              "resultBind": "red-judgment",
+              "suits": [
+                "heart",
+                "diamond"
+              ]
+            },
+            {
+              "op": "selectRedJudgmentFireTarget",
+              "target": "owner",
+              "sourceBind": "red-judgment"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "skipIfNoTarget": true
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:danshu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "red-judgment-recover-on-outside-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "ghost-red-judgment",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "boundCardsMatchSuits",
+                "sourceBind": "judgment",
+                "suits": [
+                  "heart",
+                  "diamond"
+                ]
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ghost:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

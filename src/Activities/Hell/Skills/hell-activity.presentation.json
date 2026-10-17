@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "hell:player-tier": { "name": "五阶特权", "description": "本活动五阶：体力上限+2、起始手牌+2、出杀次数+1、摸牌数+1，开局随机使用一张装备牌。" },
+    "hell:boss-tier": { "name": "阎罗等阶", "description": "按所选敌方等阶获得登场装备、额外杀、体力及摸牌加成；五阶登场视为使用伤害+1的南蛮入侵。" },
+    "hell:chongsheng": { "name": "重生", "description": "限定技，濒死时，你可以弃置判定区所有牌，复原武将牌，将手牌补至体力上限（至多5），然后回复至体力上限。" }
+  }
+}

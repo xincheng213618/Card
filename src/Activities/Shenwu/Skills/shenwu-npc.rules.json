@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shenwu:xiongshou", "revision": 1,
+      "modifiers": [{ "id": "beast-distance", "query": "outgoingDistance", "operation": "add", "value": -1, "priority": 0 }]
+    },
+    {
+      "id": "shenwu:wuzang", "revision": 1,
+      "modifiers": [{ "id": "no-hand-limit", "query": "handLimit", "operation": "set", "value": 0, "priority": 201 }],
+      "triggers": [{ "id": "replace-normal-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "drawPhaseMode": "replacement",
+        "effects": [{ "op": "drawShenwuWuzangReplacement", "target": "owner" }] }]
+    },
+    {
+      "id": "shenwu:xiangde", "revision": 1,
+      "cardPolicies": [{ "id": "armed-source-damage", "kind": "shenwuArmedSourceDamageBonus", "cardKinds": [], "value": 1 }]
+    },
+    {
+      "id": "shenwu:yinzei", "revision": 1,
+      "triggers": [{ "id": "empty-hand-punishes-source", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "resolveShenwuYinzei", "target": "owner" }] }]
+    },
+    {
+      "id": "shenwu:zhue", "revision": 1,
+      "triggers": [{ "id": "other-damage-source-draws", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [
+          { "op": "bindShenwuOtherDamageSource", "target": "owner", "resultBind": "other-source" },
+          { "op": "draw", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "other-source", "optionId": "eligible" } },
+          { "op": "draw", "target": "selectedTarget", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "other-source", "optionId": "eligible" } }
+        ] }]
+    },
+    {
+      "id": "shenwu:futai", "revision": 1,
+      "triggers": [{ "id": "recover-every-living-character", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+        "effects": [{ "op": "recoverAllLiving", "target": "owner", "targetKind": "anyLiving", "amount": 1 }] }]
+    },
+    {
+      "id": "shenwu:yandu", "revision": 1,
+      "triggers": [{ "id": "take-from-actual-undamaging-turn", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false,
+        "effects": [
+          { "op": "bindShenwuUndamagingTurnOwner", "target": "owner", "resultBind": "undamaging-turn" },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedTarget" },
+            "zones": ["hand", "equipment"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true, "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "undamaging-turn", "optionId": "eligible" } }
+        ] }]
+    },
+    {
+      "id": "shenwu:mingwan", "revision": 1,
+      "triggers": [
+        { "id": "record-actual-card-victim", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": false,
+          "effects": [{ "op": "recordShenwuMingwanVictim", "target": "owner" }] },
+        { "id": "draw-for-later-real-use", "window": "cardUseCommitted", "ownerRelation": "actor", "includeResponseUses": true, "optional": false,
+          "effects": [{ "op": "drawShenwuMingwanUse", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "shenwu:nitai", "revision": 1,
+      "triggers": [{ "id": "prevent-own-turn-damage", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false,
+        "effects": [{ "op": "preventShenwuNitaiOwnTurnDamage", "target": "owner" }] }]
+    },
+    {
+      "id": "shenwu:luanchang", "revision": 1,
+      "triggers": [
+        { "id": "start-with-barbarians", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "effects": [{ "op": "useVirtualOrdinaryTrick", "target": "owner", "actorRef": { "kind": "owner" }, "targetRef": { "kind": "owner" }, "outputKind": "barbarianAssault" }] },
+        { "id": "actual-turn-end-with-arrows", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+          "effects": [{ "op": "useVirtualOrdinaryTrick", "target": "owner", "actorRef": { "kind": "owner" }, "targetRef": { "kind": "owner" }, "outputKind": "arrowBarrage" }] }
+      ]
+    },
+    {
+      "id": "shenwu:tanyu", "revision": 1,
+      "triggers": [
+        { "id": "skip-discard", "window": "discardPhaseStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "skipTurnPhases", "target": "owner", "phases": ["discard"] }] },
+        { "id": "largest-hand-ending-loss", "window": "turnEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "loseShenwuTanyuHp", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "shenwu:cangmu", "revision": 1,
+      "triggers": [{ "id": "replace-draw-with-living-count", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "drawPhaseMode": "replacement",
+        "effects": [{ "op": "drawShenwuCangmuReplacement", "target": "owner" }] }]
+    },
+    {
+      "id": "shenwu:jicai", "revision": 1,
+      "triggers": [{ "id": "benefit-each-real-recovery", "window": "afterHpRecovered", "subject": "owner", "optional": false, "hpChangeOccurrence": "perEvent",
+        "effects": [
+          { "op": "bindShenwuRecoveryBeneficiary", "target": "owner", "resultBind": "recovered" },
+          { "op": "draw", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "recovered", "optionId": "eligible" } },
+          { "op": "draw", "target": "selectedTarget", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "recovered", "optionId": "eligible" } }
+        ] }]
+    },
+    {
+      "id": "shenwu:coalition", "revision": 1,
+      "triggers": [{ "id": "native-death-benefits", "window": "characterDied", "subject": "owner", "optional": false,
+        "effects": [
+          { "op": "bindShenwuDeathBenefit", "target": "owner", "resultBind": "death-benefit" },
+          { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "kill-minion" } },
+          { "op": "draw", "target": "owner", "amount": 3, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "kill-minion" } },
+          { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "fallen-god" } },
+          { "op": "draw", "target": "owner", "amount": 3, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "fallen-god" } },
+          { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "fallen-player" } },
+          { "op": "draw", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "death-benefit", "optionId": "fallen-player" } }
+        ] }]
+    }
+  ]
+}

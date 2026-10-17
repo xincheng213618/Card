@@ -113,7 +113,8 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
         }
         // Chaotic Ambition walks the field from the owner's next turn neighbour.
-        var seats = effect.Op is SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest
+        var seats = frame.WenheChaos is { } wenhe && IsExactWenheChaos(frame) ? wenhe.ActorSeats.ToArray() :
+            effect.Op is SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest
             ? Enumerable.Range(1, _playerCount - 1)
                 .Select(offset => _players[(owner.Seat + offset) % _playerCount].Seat).ToArray()
             : effect.TargetKind is { } kind ? _players.Where(player =>

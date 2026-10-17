@@ -16,6 +16,7 @@ public sealed partial class GameEngine
         public bool IsUseForbidden(int seat, CardKind kind) => engine.IsCardUseForbidden(seat, kind, CardActionType.Use);
         public bool IsPhysicalUseForbidden(int seat, int cardId) => engine.IsTurnPhysicalUseForbidden(seat, [cardId]);
         public Suit EffectiveSuit(int seat, Card card) => engine.EffectiveSuit(engine._players[seat], card);
+        public CardKind EffectiveInputKind(int seat, Card card) => engine.EffectiveConversionInputKind(engine._players[seat], card);
         public IReadOnlyList<ProgramMultiCardViewAsSelection> Conversions(int seat, CardKind kind) =>
             Array.AsReadOnly(engine.GetProgramMultiCardViewAsSelections(engine._players[seat], kind, false)
                 .Select(selection => ProgramSelectionProjection.Freeze(selection)!).ToArray());

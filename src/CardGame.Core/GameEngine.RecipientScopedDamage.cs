@@ -2,9 +2,13 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private bool HasShenwuRecipientDamageModifiers =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) ||
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus);
+    private bool NeedsRecipientScopedDamageBase => HasSignedDamagePayments || HasShenwuRecipientDamageModifiers;
     private void CaptureRecipientScopedDamageBase(IDamageAttempt attack, IReadOnlyList<int> targets)
     {
-        if (!HasSignedDamagePayments || targets.Count == 0) return;
+        if (!NeedsRecipientScopedDamageBase || targets.Count == 0) return;
         if (!SameAttackOwner(attack, CurrentDamageAttempt) || !attack.DamageAmountFinalized || attack.IsChainPropagation || attack.DamageAmount <= 0)
             throw new InvalidOperationException("Recipient damage base must originate from the finalized first elemental recipient.");
         var scope = new RecipientScopedDamageState(attack.TargetSeat, attack.TargetSeat, attack.DamageAmount);
@@ -17,7 +21,7 @@ public sealed partial class GameEngine
     {
         var scope = attack is ProgramAttackHandle ? GetProgramAttackState(attack.ResolutionId).RecipientDamageScope : GetCardAttackState(attack.ResolutionId).RecipientDamageScope;
         if (scope is null) return;
-        if (!HasSignedDamagePayments || !attack.IsChainPropagation || scope.CurrentTargetSeat != fromSeat || scope.PropagationBaseAmount <= 0 ||
+        if (!NeedsRecipientScopedDamageBase || !attack.IsChainPropagation || scope.CurrentTargetSeat != fromSeat || scope.PropagationBaseAmount <= 0 ||
             CompleteProgramEventHistory().OfType<RecipientScopedDamageBaseEvent>().Count(e => e.AttackFrameId == attack.ResolutionId &&
                 e.FirstTargetSeat == scope.FirstTargetSeat && e.Amount == scope.PropagationBaseAmount) != 1)
             throw new InvalidOperationException("Recipient damage propagation lost its exact frozen base.");
@@ -43,7 +47,7 @@ public sealed partial class GameEngine
     }
     private void UpdateRecipientScopedDamageRedirect(IDamageAttempt attack)
     {
-        if (!HasSignedDamagePayments) return;
+        if (!NeedsRecipientScopedDamageBase) return;
         if (attack is ProgramAttackHandle)
             UpdateProgramAttackState(attack.ResolutionId, state => state.RecipientDamageScope is { } scope
                 ? state with { RecipientDamageScope = scope with { CurrentTargetSeat = attack.TargetSeat } } : state);
@@ -61,7 +65,7 @@ public sealed partial class GameEngine
             if (scope is null) continue;
             var target = frame is ProgramSkillFrame { AttackAttempt: { } attempt } ? attempt.TargetSeat : GetCardAttackState(frame.Id).TargetSeat;
             var chain = frame is ProgramSkillFrame { AttackAttempt: { } attempt2 } ? attempt2.IsChainPropagation : GetCardAttackState(frame.Id).IsChainPropagation;
-            if (!HasSignedDamagePayments || scope.CurrentTargetSeat != target || scope.PropagationBaseAmount <= 0 ||
+            if (!NeedsRecipientScopedDamageBase || scope.CurrentTargetSeat != target || scope.PropagationBaseAmount <= 0 ||
                 CompleteProgramEventHistory().OfType<RecipientScopedDamageBaseEvent>().Count(e => e.AttackFrameId == frame.Id &&
                     e.FirstTargetSeat == scope.FirstTargetSeat && e.Amount == scope.PropagationBaseAmount) != 1 ||
                 chain && !CompleteProgramEventHistory().OfType<RecipientScopedDamageAdvancedEvent>().Any(e => e.AttackFrameId == frame.Id && e.TargetSeat == target && e.Amount == scope.PropagationBaseAmount) &&

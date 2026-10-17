@@ -13,15 +13,21 @@ internal sealed class UseRandomDeckEquipmentDescriptor : ProgramOperationDescrip
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Recover, static (_, _) => { });
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "resultBind", "condition");
+        r.AllowOnly("op", "target", "resultBind", "targetRef", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner) throw new InvalidOperationException("Random deck equipment uses an owner placeholder and the selected participant.");
         var condition = r.Condition();
         if (condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs)) throw new InvalidOperationException("Random deck equipment requires an unconditional or exact choice branch.");
-        return new(Op, target, 0, condition, resultBind: r.RequiredIdentifier("resultBind"));
+        var recipient = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (recipient is not null &&
+            (recipient.Kind != ProgramParticipantRef.Owner || condition.Kind != SkillProgramConditionKind.Always))
+            throw new InvalidOperationException("Owner-origin random equipment requires an unconditional owner reference.");
+        return new(Op, target, 0, condition, resultBind: r.RequiredIdentifier("resultBind"), targetReference: recipient);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
-        [new ReadSelectedTarget(), new CreateCardSet(e.ResultBind!, 1, false, true)];
+        e.TargetReference is null
+            ? [new ReadSelectedTarget(), new CreateCardSet(e.ResultBind!, 1, false, true)]
+            : [new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting), new CreateCardSet(e.ResultBind!, 1, false, true)];
 }
 
 internal sealed class GrantRandomSkillAndSuitShieldDescriptor : ProgramOperationDescriptorBase
@@ -49,7 +55,8 @@ public sealed class UseRandomDeckEquipmentHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseRandomDeckEquipment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        h.GetCapability<IDeckEquipmentProgramHost>().UseRandomDeckEquipment(f, f.SelectedTargetSeats.Single(), e.ResultBind!);
+        h.GetCapability<IDeckEquipmentProgramHost>().UseRandomDeckEquipment(f,
+            e.TargetReference?.Kind == ProgramParticipantRef.Owner ? f.OwnerSeat : f.SelectedTargetSeats.Single(), e.ResultBind!);
 }
 public sealed class GrantRandomSkillAndSuitShieldHandler : ISkillProgramEffectHandler
 {

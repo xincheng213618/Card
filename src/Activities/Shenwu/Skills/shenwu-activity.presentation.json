@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shenwu:niepan": {
+      "name": "涅槃",
+      "description": "本地五阶特权，限定技，濒死时，你可以回复3点体力，然后摸3张牌。"
+    }
+  }
+}

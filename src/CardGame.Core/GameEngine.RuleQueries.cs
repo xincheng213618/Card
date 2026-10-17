@@ -33,6 +33,8 @@ public sealed partial class GameEngine
 
         if (_modeDefinition.TeamActivity is not null)
             baseTerms.Add(new("jiange:jingfan:allied-distance", JiangeDistanceModifier(source, target)));
+        var shenwuDistance = ShenwuDustlessDistanceBonus(source, target);
+        if (shenwuDistance != 0) baseTerms.Add(new("shenwu:dustless-allied-distance", shenwuDistance));
         var outgoing = CollectNumericRuleContributions(source, SkillRuleQuery.OutgoingDistance).ToList();
         outgoing.AddRange(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, source.Seat, SkillRuleQuery.OutgoingDistance)
             .Select(item => new FiniteRuleQueryContribution(
@@ -136,7 +138,7 @@ public sealed partial class GameEngine
         if (HasFriendYangmingQuota(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-yangming"));
         foreach (var card in GetEquipmentRuleCards(player, excludedEquipmentSlot).Where(card => card.Id != excludedEquipmentId))
         {
-            var bonus = EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
+            var bonus = IsDragonBoatActivity && card.Kind == CardKind.Crossbow ? 3 : EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
             if (bonus == int.MaxValue)
                 contributions.Add(new UnlimitedRuleQueryContribution($"equipment:{card.Id}:slash-use-limit"));
             else
@@ -210,7 +212,7 @@ public sealed partial class GameEngine
     }
 
     private int GetCardUseDistanceLimit(CharacterState player, CardKind effectiveCardKind) =>
-        ConvertRuleValue(RuleQueryService.Evaluate(
+        NianShouyiUnlimitedCardDistance(player) ? int.MaxValue : ConvertRuleValue(RuleQueryService.Evaluate(
             SkillRuleQuery.CardUseDistanceLimit,
             new RuleQueryBounds(1, int.MaxValue),
             [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-use-distance", 1)],
@@ -240,6 +242,9 @@ public sealed partial class GameEngine
                 ? marker => player.Markers.GetValueOrDefault(marker) : null,
             PublicLivingFactionCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicLivingFactionCount)
                 ? GetPublicLivingFactionCount() : null,
+            PublicTeamEnemyCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicTeamEnemyCount)
+                ? _players.Count(p => p.IsAlive && p.TeamRevealed && player.TeamRevealed &&
+                    p.TeamId is not null && player.TeamId is not null && p.TeamId != player.TeamId) : null,
             LivingFemaleCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedLivingFemaleCount)
                 ? _players.Count(p => p.IsAlive && p.Gender == GeneralGender.Female) : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)

@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             conversionSource: selection.Source);
         if (adjusted) UpdateLifecycleCardUse(resolutionId, use => use with { TargetsAdjusted = true });
         MoveCards(selection.Cards, CardLocation.Hand(owner.Seat), CardLocation.Processing,
-            CardMoveReasons.Use);
+            CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(resolutionId, frame.SkillId,
             selection.Source.BindingId, owner.Seat, Array.AsReadOnly(physicalIds),
             CardKind.ArrowBarrage, IsUse: true, targets));

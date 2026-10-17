@@ -149,6 +149,13 @@ public sealed record ContentModeDefinition(
     IReadOnlyList<string>? SoloFactionIds = null)
 {
     public TeamActivityDefinition? TeamActivity { get; init; }
+    public BossActivityDefinition? BossActivity { get; init; }
+    public HulaoActivityDefinition? HulaoActivity { get; init; }
+    public ShenwuActivityDefinition? ShenwuActivity { get; init; }
+    public NianActivityDefinition? NianActivity { get; init; }
+    public HellActivityDefinition? HellActivity { get; init; }
+    public WenheActivityDefinition? WenheActivity { get; init; }
+    public DragonBoatActivityDefinition? DragonBoatActivity { get; init; }
     /// <summary>Eight-player identity variant with two generals per seat.</summary>
     public bool DualGenerals { get; init; }
     /// <summary>Optional identity-role overrides for the number of general choices.</summary>
@@ -465,6 +472,21 @@ public sealed class ContentRegistry
                     activity.PlayerTier, activity.SpiritTierMinimum, activity.SpiritTierMaximum, activity.MachineTier,
                     PlayerSkillIds = OrderedPools(activity.PlayerSkillIds)
                 };
+            if (mode.BossActivity is { } boss)
+                fingerprint[nameof(mode.BossActivity)] = boss;
+            if (mode.HulaoActivity is { } hulao)
+                fingerprint[nameof(mode.HulaoActivity)] = hulao;
+            if (mode.ShenwuActivity is { } shenwu)
+                fingerprint[nameof(mode.ShenwuActivity)] = shenwu;
+            if (mode.NianActivity is { } nian)
+                fingerprint[nameof(mode.NianActivity)] = nian;
+            if (mode.HellActivity is { } hell)
+                fingerprint[nameof(mode.HellActivity)] = hell;
+            if (mode.WenheActivity is { } wenhe)
+                fingerprint[nameof(mode.WenheActivity)] = wenhe;
+            if (mode.DragonBoatActivity is { } dragonBoat)
+                fingerprint[nameof(mode.DragonBoatActivity)] = new
+                { PlayerPoolIds = OrderedPools(dragonBoat.PlayerPoolIds), dragonBoat.PlayerTier, dragonBoat.Rounds };
             if (mode.RoleGeneralCandidateCounts is { } candidates)
                 fingerprint[nameof(mode.RoleGeneralCandidateCounts)] = candidates.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
@@ -764,6 +786,12 @@ public sealed class ContentRegistry
             foreach (var mode in _modes.Values)
             {
                 ValidateTeamActivity(mode);
+                ValidateBossActivity(mode);
+                ValidateShenwuActivity(mode);
+                ValidateNianActivity(mode);
+                ValidateHellActivity(mode);
+                ValidateWenheActivity(mode);
+                ValidateDragonBoatActivity(mode);
                 if (mode.MinPlayers <= 0 || mode.MaxPlayers < mode.MinPlayers)
                 {
                     throw new InvalidOperationException(
@@ -840,6 +868,13 @@ public sealed class ContentRegistry
                                 $"National-war mode '{mode.Id}' must assign exactly one seat to each solo faction.");
                         }
                     }
+                }
+                else if (mode.ModeKind == ContentModeKind.Survival)
+                {
+                    if (mode.RoleCounts.Count != 0 || mode.TeamCounts is { Count: > 0 } ||
+                        mode.FactionCounts is { Count: > 0 } || mode.SoloFactionIds is { Count: > 0 } ||
+                        mode.GeneralPoolIds is null)
+                        throw new InvalidOperationException($"Survival mode '{mode.Id}' requires an explicit individual general pool without identity, team or faction assignments.");
                 }
                 else if (mode.ModeKind == ContentModeKind.Identity)
                 {
@@ -1127,6 +1162,110 @@ public sealed class ContentRegistry
                 throw new InvalidOperationException($"Activity '{mode.Id}' has invalid generals or player skills.");
         }
 
+        private void ValidateBossActivity(ContentModeDefinition mode)
+        {
+            if (mode.HulaoActivity is { } h &&
+                (h.TransformationHp <= 0 || h.ShuffleLimit < 2 || mode.BossActivity is not { Stages.Count: 2 }))
+                throw new InvalidOperationException($"Hulao activity '{mode.Id}' requires two boss forms and valid transition rules.");
+            if (mode.BossActivity is not { } a) return;
+            var seats = mode.HellActivity is null ? 4 : 5;
+            if (mode.TeamActivity is not null || mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != seats || mode.MaxPlayers != seats ||
+                mode.TeamCounts is not { Count: 2 } teams || teams.GetValueOrDefault(a.PlayerTeamId) != 3 ||
+                teams.GetValueOrDefault(a.EnemyTeamId) != seats - 3 || a.PlayerTier is < 1 or > 5 || a.Stages.Count == 0 ||
+                a.PlayerPoolIds.Count < 3 || a.PlayerPoolIds.Distinct(StringComparer.Ordinal).Count() != a.PlayerPoolIds.Count ||
+                a.PlayerSkillIds.Distinct(StringComparer.Ordinal).Count() != a.PlayerSkillIds.Count ||
+                a.PlayerSkillIds.Any(id => !_skills.ContainsKey(id)) || mode.GeneralPoolIds is null)
+                throw new InvalidOperationException($"Boss activity '{mode.Id}' requires three allied players, one boss, and valid tier skills.");
+            var ids = a.PlayerPoolIds.ToHashSet(StringComparer.Ordinal);
+            if (mode.HellActivity is { } hell) ids.Add(hell.AuxiliaryGeneralId);
+            foreach (var stage in a.Stages)
+            {
+                if (string.IsNullOrWhiteSpace(stage.Name) || stage.InitialHandSize < 0 || stage.GeneralPoolIds.Count == 0 ||
+                    stage.GeneralPoolIds.Distinct(StringComparer.Ordinal).Count() != stage.GeneralPoolIds.Count ||
+                    stage.GeneralPoolIds.Any(a.PlayerPoolIds.Contains))
+                    throw new InvalidOperationException($"Boss activity '{mode.Id}' has an invalid stage.");
+                ids.UnionWith(stage.GeneralPoolIds);
+            }
+            if (!ids.SetEquals(mode.GeneralPoolIds))
+                throw new InvalidOperationException($"Boss activity '{mode.Id}' must declare exactly its player and stage generals.");
+        }
+
+        private void ValidateNianActivity(ContentModeDefinition mode)
+        {
+            if (mode.NianActivity is not { } nian) return;
+            if (mode.BossActivity is not { Stages.Count: 1 } boss || mode.TeamActivity is not null ||
+                mode.ShenwuActivity is not null || mode.HulaoActivity is not null || mode.HellActivity is not null || nian.SharedRevives != 3 ||
+                nian.FormGeneralIds.Count != 5 || nian.FormGeneralIds.Distinct(StringComparer.Ordinal).Count() != 5 ||
+                !nian.FormGeneralIds.SequenceEqual(boss.Stages[0].GeneralPoolIds) ||
+                nian.FormGeneralIds.Any(id => _generals[id].BaseHp != 12))
+                throw new InvalidOperationException($"Nian activity '{mode.Id}' requires five ordered twelve-health forms, one encounter and three shared revivals.");
+        }
+
+        private void ValidateWenheActivity(ContentModeDefinition mode)
+        {
+            if (mode.WenheActivity is not { } activity) return;
+            if (mode.ModeKind != ContentModeKind.Survival || mode.MinPlayers != 8 || mode.MaxPlayers != 8 ||
+                activity.PlayerTier is < 1 or > 5 || mode.TeamActivity is not null || mode.BossActivity is not null ||
+                mode.HulaoActivity is not null || mode.ShenwuActivity is not null || mode.NianActivity is not null ||
+                mode.HellActivity is not null || mode.DragonBoatActivity is not null || mode.DualGenerals)
+                throw new InvalidOperationException($"Wenhe activity '{mode.Id}' requires eight independent contestants and its own bounded player tier.");
+        }
+
+        private void ValidateDragonBoatActivity(ContentModeDefinition mode)
+        {
+            if (mode.DragonBoatActivity is not { } a) return;
+            var teams = new[] { "team:wei", "team:shu", "team:wu", "team:qun" };
+            if (mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != 8 || mode.MaxPlayers != 8 ||
+                a.PlayerTier is < 1 or > 5 || a.Rounds != 2 || mode.GeneralCandidateCount != 6 ||
+                mode.TeamCounts is not { Count: 4 } counts || teams.Any(id => counts.GetValueOrDefault(id) != 2) ||
+                a.PlayerPoolIds.Count != 4 || teams.Any(id => !a.PlayerPoolIds.TryGetValue(id, out var pool) || pool.Count < 12 ||
+                    pool.Any(general => !_generals.ContainsKey(general) || mode.GeneralPoolIds?.Contains(general) != true)) ||
+                mode.TeamActivity is not null || mode.BossActivity is not null || mode.ShenwuActivity is not null ||
+                mode.HulaoActivity is not null || mode.NianActivity is not null || mode.HellActivity is not null ||
+                mode.WenheActivity is not null || mode.DualGenerals)
+                throw new InvalidOperationException($"Dragon boat '{mode.Id}' requires four public two-seat faction pools, six candidates and two actual rounds.");
+        }
+
+        private void ValidateHellActivity(ContentModeDefinition mode)
+        {
+            if (mode.HellActivity is not { } hell) return;
+            if (mode.BossActivity is not { Stages.Count: 4, PlayerTier: 5 } boss || hell.BossTier is < 1 or > 5 ||
+                mode.TeamActivity is not null || mode.NianActivity is not null || mode.HulaoActivity is not null ||
+                mode.ShenwuActivity is not null || !_generals.ContainsKey(hell.AuxiliaryGeneralId) ||
+                boss.PlayerPoolIds.Contains(hell.AuxiliaryGeneralId) ||
+                boss.Stages[3].GeneralPoolIds.Count != 2 ||
+                boss.Stages.Any(stage => stage.GeneralPoolIds.Contains(hell.AuxiliaryGeneralId)) ||
+                !boss.Stages[3].GeneralPoolIds.Contains(hell.HiddenGeneralId) ||
+                boss.Stages.Take(3).Any(stage => stage.GeneralPoolIds.Contains(hell.HiddenGeneralId)))
+                throw new InvalidOperationException($"Hell activity '{mode.Id}' requires four encounters, a separate auxiliary and a conditional final boss.");
+        }
+
+        private void ValidateShenwuActivity(ContentModeDefinition mode)
+        {
+            if (mode.ShenwuActivity is not { } activity) return;
+            if (mode.TeamActivity is not null || mode.BossActivity is not null || mode.HulaoActivity is not null ||
+                mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != 6 || mode.MaxPlayers != 6 ||
+                mode.TeamCounts is not { Count: 2 } teams || teams.GetValueOrDefault(activity.PlayerTeamId) != 3 ||
+                teams.GetValueOrDefault(activity.EnemyTeamId) != 3 || activity.PlayerTeamId == activity.EnemyTeamId ||
+                activity.PlayerTier is < 1 or > 5 || activity.PlayerSeatOffsets.Count != 3 ||
+                activity.PlayerSeatOffsets[0] != 0 || activity.MinionSeatOffsets.Count != 2 ||
+                !activity.PlayerSeatOffsets.Concat(activity.MinionSeatOffsets).Append(activity.LeaderSeatOffset)
+                    .Order().SequenceEqual(Enumerable.Range(0, 6)) || activity.PlayerPoolIds.Count < 15 ||
+                activity.GodPoolIds.Count < 3 || activity.LeaderPoolIds.Count == 0 || activity.MinionGeneralIds.Count != 2 ||
+                activity.PlayerSkillIds.Distinct(StringComparer.Ordinal).Count() != activity.PlayerSkillIds.Count ||
+                activity.PlayerSkillIds.Any(id => !_skills.ContainsKey(id)) || mode.GeneralPoolIds is null)
+                throw new InvalidOperationException($"Shenwu activity '{mode.Id}' requires three allied players, three beasts and valid draft slots.");
+            var pools = new[] { activity.PlayerPoolIds, activity.GodPoolIds, activity.LeaderPoolIds, activity.MinionGeneralIds };
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            if (pools.Any(pool => pool.Any(id => !ids.Add(id))) || !ids.SetEquals(mode.GeneralPoolIds) ||
+                activity.PlayerPoolIds.Any(id => _generals[id].FactionId == "god") ||
+                activity.GodPoolIds.Any(id => _generals[id].FactionId != "god") ||
+                activity.HalfHpSkillIds.Count != activity.LeaderPoolIds.Count ||
+                activity.LeaderPoolIds.Any(id => !activity.HalfHpSkillIds.TryGetValue(id, out var skill) ||
+                    !_skills.ContainsKey(skill) || _generals[id].SkillIds.Contains(skill, StringComparer.Ordinal)))
+                throw new InvalidOperationException($"Shenwu activity '{mode.Id}' has overlapping pools or invalid permanent half-health skills.");
+        }
+
         private static IReadOnlyDictionary<string, IReadOnlyList<string>> FreezeActivityPools(
             IReadOnlyDictionary<string, IReadOnlyList<string>> pools) =>
             new ReadOnlyDictionary<string, IReadOnlyList<string>>(pools.ToDictionary(p => p.Key,
@@ -1155,6 +1294,30 @@ public sealed class ContentRegistry
                     SpiritPools = FreezeActivityPools(activity.SpiritPools),
                     MachinePools = FreezeActivityPools(activity.MachinePools),
                     PlayerSkillIds = FreezeActivityPools(activity.PlayerSkillIds)
+                },
+                DragonBoatActivity = definition.DragonBoatActivity is not { } dragonBoat ? null : dragonBoat with
+                { PlayerPoolIds = FreezeActivityPools(dragonBoat.PlayerPoolIds) },
+                BossActivity = definition.BossActivity is not { } boss ? null : boss with
+                {
+                    PlayerPoolIds = Array.AsReadOnly(boss.PlayerPoolIds.ToArray()),
+                    PlayerSkillIds = Array.AsReadOnly(boss.PlayerSkillIds.ToArray()),
+                    Stages = Array.AsReadOnly(boss.Stages.Select(stage => stage with
+                    { GeneralPoolIds = Array.AsReadOnly(stage.GeneralPoolIds.ToArray()) }).ToArray())
+                },
+                NianActivity = definition.NianActivity is not { } nian ? null : nian with
+                {
+                    FormGeneralIds = Array.AsReadOnly(nian.FormGeneralIds.ToArray())
+                },
+                ShenwuActivity = definition.ShenwuActivity is not { } shenwu ? null : shenwu with
+                {
+                    PlayerPoolIds = Array.AsReadOnly(shenwu.PlayerPoolIds.ToArray()),
+                    GodPoolIds = Array.AsReadOnly(shenwu.GodPoolIds.ToArray()),
+                    LeaderPoolIds = Array.AsReadOnly(shenwu.LeaderPoolIds.ToArray()),
+                    MinionGeneralIds = Array.AsReadOnly(shenwu.MinionGeneralIds.ToArray()),
+                    PlayerSeatOffsets = Array.AsReadOnly(shenwu.PlayerSeatOffsets.ToArray()),
+                    MinionSeatOffsets = Array.AsReadOnly(shenwu.MinionSeatOffsets.ToArray()),
+                    PlayerSkillIds = Array.AsReadOnly(shenwu.PlayerSkillIds.ToArray()),
+                    HalfHpSkillIds = FreezeDictionary(shenwu.HalfHpSkillIds)
                 },
                 GeneralPoolIds = definition.GeneralPoolIds is null
                     ? null

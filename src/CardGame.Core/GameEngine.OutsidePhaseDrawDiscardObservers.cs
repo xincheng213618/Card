@@ -81,7 +81,8 @@ public sealed partial class GameEngine
             if (participant == f.OwnerSeat || r.PaidMaterial is not { } material || !r.EligibleMaterials.Contains(material) ||
                 material.From.OwnerSeat != participant || r.ActualCount != 1 || r.BatchId is null || movements is not [var paid] ||
                 paid.CardId != material.CardId || paid.CardKind != material.PrintedKind || paid.From != material.From ||
-                paid.To != (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile) ||
+                paid.To != (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile) &&
+                    !IsHellShiyouPaidDiscardMovement(paid, material.From, new(OutsidePhaseMovementReason(f, false))) ||
                 paid.Reason.Value != OutsidePhaseMovementReason(f, false)) return false;
         }
         return r.Stage == OutsidePhaseDrawDiscardStage.Complete

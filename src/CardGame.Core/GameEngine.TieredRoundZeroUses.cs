@@ -34,6 +34,8 @@ public sealed partial class GameEngine
                 // Fangtian payment.
                 AddProgramTargetCountSlashActions(result, actor, card, targets, card.DisplayName, kind, source, null);
             }
+            else if (kind is CardKind.Zong or CardKind.RealgarWine)
+                AddDragonBoatZeroBasicActions(result, actor, source, kind);
             else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "视为使用【桃】"), kind) { ConversionSource = source });
@@ -177,6 +179,8 @@ public sealed partial class GameEngine
         if (TryBeginEquipmentSlotNamedPlay(actor, action)) return;
         var source = action.ConversionSource!; var kind = action.PlayedCardKind!.Value; var card = new Card(0, kind, Suit.None, 0);
         if (IsTargetAdjustmentAction(actor, action)) _selectedNextCardTargetSeats = action.TargetSeats;
+        if (kind is CardKind.Zong or CardKind.RealgarWine)
+        { ResolveDragonBoatCard(actor, card, action); return; }
         if (kind == CardKind.Peach)
         { ResolveRecoveryCard(actor, actor, card, "桃", CardKind.Peach, conversionSource: source, physicalCards: []); return; }
         // Resolve the published option before BeginCardUse consumes any
@@ -261,7 +265,7 @@ public sealed partial class GameEngine
             string.IsNullOrWhiteSpace(r.Source.SkillInstanceId) || string.IsNullOrWhiteSpace(r.Source.BindingId) ||
             r.FrozenTier is < 0 or > 2 || r.MaterialCount != (r.FrozenTier == 2 ? 0 : 1) || zeroOnly && (r.FrozenTier != 2 || use.CardId != 0) ||
             _contentRegistry.GetSkill(r.Source.SkillId).Program is not { } definition || definition.GameplayHash != r.GameplayHash ||
-            definition.ViewAs.SingleOrDefault(v => v.Id == r.Source.BindingId) is not { TieredRoundConversion: { } policy } rule ||
+            ActivityRuntimeProgram(definition).ViewAs.SingleOrDefault(v => v.Id == r.Source.BindingId) is not { TieredRoundConversion: { } policy } rule ||
             policy.StateId != r.StateId || policy.UsageId != r.UsageId || rule.OutputKind != r.EffectiveKind || rule.InputCount != r.MaterialCount ||
             CompleteProgramEventHistory().OfType<TieredRoundConversionUseIssuedEvent>().Count(e => e.Receipt == r) != 1) return false;
         // This is issued identity, not a second current-shard permission query.
@@ -309,10 +313,10 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(id)!; var card = TieredRoundZeroRepresentation(id); var actor = _players[use.SourceSeat];
         SetCardUseStep(id, ResolutionFrameStep.ResolvingEffect);
         if (!actor.IsAlive || _winner != Winner.None) { FinishCardUse(id, card, use.CardKind); return true; }
-        if (continuation.Effect == SimpleCardUseEffect.Recovery && use.CardKind is CardKind.Peach or CardKind.Alcohol)
+        if (continuation.Effect == SimpleCardUseEffect.Recovery && use.CardKind is CardKind.Peach or CardKind.Alcohol or CardKind.Zong)
             CompleteRecoveryCardUse(actor, _players[use.TargetSeats[use.TargetIndex]], card, id, use.CardKind,
                 continuation.RecoveryAmount, continuation.RecoveryPolicySources ?? []);
-        else if (continuation.Effect == SimpleCardUseEffect.Alcohol && use.CardKind == CardKind.Alcohol)
+        else if (continuation.Effect == SimpleCardUseEffect.Alcohol && use.CardKind is CardKind.Alcohol or CardKind.RealgarWine)
             CompleteAlcoholUse(actor, card, id);
         else throw new InvalidOperationException("A zero-material basic use changed its exact simple effect.");
         return true;
@@ -323,7 +327,7 @@ public sealed partial class GameEngine
         paused = false;
         if (attack.Card is not null || !IsTieredRoundZeroUse(attack.ResolutionId) ||
             attack.EffectiveCardKind is not { } kind ||
-            !IsSlashCard(kind) && kind != CardKind.Duel &&
+            !IsSlashCard(kind) && kind != CardKind.Duel && kind != CardKind.AgainstCurrent &&
                 !(kind == CardKind.FireAttack && MatchesTieredRoundZeroFireAttackAttack(attack))) return false;
         var use = LifecycleCardUse(attack.ResolutionId)!;
         SetCardUseStep(use.Id, ResolutionFrameStep.Completed);

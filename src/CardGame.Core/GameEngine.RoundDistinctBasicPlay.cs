@@ -128,7 +128,7 @@ public sealed partial class GameEngine
             var id = BeginCardUse(selection.Cards[0], owner.Seat, [], CardKind.Alcohol,
                 physicalCardIds: selection.Cards.Select(c => c.Id).ToArray(), conversionSource: source);
             foreach (var cost in selection.Cards)
-                MoveCard(cost, FindOwnedCardLocation(owner, cost), CardLocation.Processing, CardMoveReasons.Use);
+                MoveCard(cost, FindOwnedCardLocation(owner, cost), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
             if (!HasIssuedRoundGainedBasicBonus(id, owner.Seat)) owner.UsedPlayPhaseAlcoholThisTurn = true;
             BeginSimpleCardUse(id, new(selection.Cards[0].Id, SimpleCardUseEffect.Alcohol));
         }

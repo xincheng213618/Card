@@ -49,7 +49,11 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var target = _players[targetSeat];
-        if (active.SelectedTargetSeats is not [var selected] || selected != targetSeat)
+        var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
+            .GetPausedInstruction(active.InstructionIndex).Effect;
+        var ownArrival = instruction.TargetReference?.Kind == ProgramParticipantRef.Owner &&
+            active.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting && targetSeat == active.OwnerSeat;
+        if (!ownArrival && (active.SelectedTargetSeats is not [var selected] || selected != targetSeat))
             throw new InvalidOperationException("Random equipment lost its exact selected participant.");
         var candidates = target.IsAlive && target.Hp > 0
             ? _cardZones.CardsAt(CardLocation.DrawPile).Where(c => EquipmentCatalog.IsEquipment(c.Kind) &&
@@ -111,8 +115,11 @@ public sealed partial class GameEngine
         if (ride is not CardUseFrame equipment || beneath is not ProgramSkillFrame parent || parent.PendingMovementContinuation is not { } pending || equipment.Action is not { } action)
             return false;
         var plan = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!);
-        if (parent.InstructionIndex == 0 || plan.Instructions[parent.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.UseRandomDeckEquipment, ResultBind: { } bind } ||
-            parent.SelectedTargetSeats is not [var target] || pending.SubjectSeat != target || action.ActorSeat != target || !EquipmentCatalog.IsEquipment(action.EffectiveKind) ||
+        if (parent.InstructionIndex == 0 || plan.Instructions[parent.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.UseRandomDeckEquipment, ResultBind: { } bind } effect)
+            return false;
+        var target = effect.TargetReference?.Kind == ProgramParticipantRef.Owner && parent.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting
+            ? parent.OwnerSeat : parent.SelectedTargetSeats.Count == 1 ? parent.SelectedTargetSeats[0] : -1;
+        if (target < 0 || pending.SubjectSeat != target || action.ActorSeat != target || !EquipmentCatalog.IsEquipment(action.EffectiveKind) ||
             parent.CardSetBindings.SingleOrDefault(b => b.Name == bind) is not { CardIds: [var cardId] } || cardId != equipment.CardId)
             return false;
         return action.ConversionChain.Any(source => source.OwnerSeat == parent.OwnerSeat && source.SkillId == parent.SkillId && source.BindingId == GetProgramBindingId(parent) && source.SkillInstanceId == parent.SkillInstanceId);

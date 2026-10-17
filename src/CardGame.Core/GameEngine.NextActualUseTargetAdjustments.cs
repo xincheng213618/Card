@@ -254,7 +254,7 @@ public sealed partial class GameEngine
         if (frame?.NextActualUseAdjustment is { } receipt)
             ReplaceRuntimeFrame(frame.Id, frame with { NextActualUseAdjustment = receipt with { Stage = ProgramNextActualUseAdjustmentStage.Applied, CardUseFrameId = id } });
         var nuzhan = GetNuzhanModifiers(id, owner);
-        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use);
+        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         typedReturn = typedReturn with { PaidMovementLastSequence = CardMovements[^1].Sequence };
         UpdateLifecycleCardUse(id, use => use with { AdjustedSlashReturn = typedReturn });
         var counted = !(LifecycleCardUse(id)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, source) &&

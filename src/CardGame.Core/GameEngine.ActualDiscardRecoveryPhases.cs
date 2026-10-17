@@ -5,6 +5,8 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
+        HasHellShiyouCapability ||
+        HasNativeDrawAttemptCapability ||
         TracksActualPhaseEnds ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShiluDrawRevealIdentity) ||

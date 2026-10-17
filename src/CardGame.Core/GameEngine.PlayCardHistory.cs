@@ -67,8 +67,8 @@ public sealed partial class GameEngine
              SkillUsageScope.Phase) < limit);
 
     private SkillProgramViewAs? ViewAsRule(CardConversionSource source) =>
-        _contentRegistry?.Skills.GetValueOrDefault(source.SkillId)?.Program?.ViewAs
-            .SingleOrDefault(rule => rule.Id == source.BindingId);
+        _contentRegistry?.Skills.GetValueOrDefault(source.SkillId)?.Program is { } program ? ActivityRuntimeProgram(program).ViewAs
+            .SingleOrDefault(rule => rule.Id == source.BindingId) : null;
 
     private void ConsumeProgramViewAsUsage(IReadOnlyList<CardConversionSource> sources)
     {

@@ -47,7 +47,7 @@ public sealed partial class GameEngine
 
         var source = _players[sourceSeat];
         var lost = source.SkillGrants.Grants.Where(grant =>
-                grant.IsEnabled && !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal))
+                grant.IsEnabled && !grant.IsModeRule && !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal))
             .ToArray();
         foreach (var grant in lost) source.SkillGrants.SetEnabled(grant.GrantId, false);
         AdvanceEventRulesAndQueueFact(new CharacterSkillsLostEvent(sourceSeat, frame.OwnerSeat,

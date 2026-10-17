@@ -103,7 +103,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeFrame(f.Id,f with {EndingHistoricalUses=r with {UseReturn=ret}});
         UpdateLifecycleCardUse(id,u=>u with {EndingHistoricalUseReturn=ret,EndingHistoricalCostBefore=RecipientContestSequence,EndingHistoricalActionKind=action.Kind,EndingHistoricalTargetCardId=action.TargetCardId,EndingHistoricalRequiredCardKind=option?.RequiredCardKind,
             EndingHistoricalUsesFangtian=fangtian,EndingHistoricalUsesProgramTargetCount=programTargetCount});
-        MoveCard(physical,CardLocation.Hand(actor.Seat),CardLocation.Processing,CardMoveReasons.Use);
+        MoveCard(physical,CardLocation.Hand(actor.Seat),CardLocation.Processing,CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         UpdateLifecycleCardUse(id,u=>u with {EndingHistoricalCostAfter=RecipientContestSequence});
         AdvanceEventRulesAndQueueFact(new EndingHistoricalUseIssuedEvent(ret)); ContinueHistoricalEndingPayment(id);
     }

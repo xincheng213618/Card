@@ -64,7 +64,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<CardKind> DeclarationNames(ProgramSkillFrame frame, ProgramCardDeclarationDraft draft) =>
-        _contentRegistry.GetSkill(frame.SkillId).Program!.ViewAs
+        ActivityRuntimeProgram(_contentRegistry.GetSkill(frame.SkillId).Program!).ViewAs
             .Where(rule => rule.ConversionStateId == draft.StateId && rule.DeclaredEntity &&
                 rule.MinimumTier <= draft.Tier && rule.MaximumTier >= draft.Tier)
             .Select(rule => rule.OutputKind).Distinct().Order().ToArray();

@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Unexpected Assault became illegal before its real use.");
 
         var id = BeginCardUse(card, source.Seat, [target.Seat], playedCardKind);
-        MoveCard(card, FindOwnedCardLocation(source, card), CardLocation.Processing, CardMoveReasons.Use);
+        MoveCard(card, FindOwnedCardLocation(source, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         BeginJizhiOrNullificationWindow(id, card, source.Seat, [target.Seat],
             LegalActionKind.UnexpectedAssault, playedCardKind: playedCardKind);
     }

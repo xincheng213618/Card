@@ -48,6 +48,8 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        ShenwuSharedGodCandidatesEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
+        NianFormCycleStartedEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
         // CardActionContext detaches all nested collections at construction;
         // the other embedded native payment records contain scalars only.
         QigongNativeIssuedEvent value => value with { Receipt = value.Receipt with { } },

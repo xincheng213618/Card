@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "hell:shiyou",
+      "revision": 1,
+      "cardPolicies": [
+        { "id": "distinct-suits-before-discard", "kind": "hellShiyouIntercept", "cardKinds": [] }
+      ]
+    },
+    {
+      "id": "hell:wanghun",
+      "revision": 1,
+      "triggers": [
+        { "id": "forget-two-enemies", "window": "ownerDied", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveHellWanghunLoss", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "hell:wangshi",
+      "revision": 1,
+      "triggers": [
+        { "id": "forbid-enemy-category", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+          "turnOwnerScope": "otherLiving", "optional": false,
+          "effects": [{ "op": "banHellWangshiCategory", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "hell:return-soul-resolution",
+      "revision": 1,
+      "activations": [
+        { "id": "card-effect", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+          "targetKind": "anyLiving", "usesPerTurn": null,
+          "effects": [{ "op": "restoreHellWanghunSkills", "target": "owner" }] }
+      ]
+    }
+  ]
+}

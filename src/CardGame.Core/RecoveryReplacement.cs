@@ -80,7 +80,7 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(useId);
         if (use is null) return false;
         var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)));
+            OwnsGenericSlashPaymentTail(use) || HasWenhePoisonUsePaymentTail(use, continuation) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)));
         if (use.PendingRecoveryAttempts is not { Count: > 0 } &&
             !((observesPayment || continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion) &&
               _pendingHpChanges.Any(change => change.ParentFrameId == useId)) &&
@@ -115,7 +115,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault()?.Id != useId)
             throw new InvalidOperationException("Paid card use cannot advance before its recovery children return.");
         var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)));
+            OwnsGenericSlashPaymentTail(use) || HasWenhePoisonUsePaymentTail(use, continuation) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)));
         if ((observesPayment || continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion) &&
             TryBeginHpChangedProgramWindow(useId, PostEventContinuation.RecoveryPaidCardUse)) return;
         if (use.PendingRecoveryAttempts is { Count: > 0 })
@@ -442,6 +442,9 @@ public sealed partial class GameEngine
                 AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryPaidCardUse: ContinueRecoveryPaidCardUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.CounterspellPayment: ContinuePolicyCounterspellPayment(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.NativeCardEffectDraw: ContinueNativeDrawTwo(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.WenheCardEffect: ContinueWenheCardEffect(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.DragonBoatCardEffect: ContinueDragonBoatCardEffect(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.ColorFireAttackPayment: ContinueColorFireAttackPayment(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.EquipmentRecast: ContinueEquipmentRecast(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.DrawPhaseObligation: AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;

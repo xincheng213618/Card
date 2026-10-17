@@ -1044,14 +1044,22 @@ public sealed record WinnerDeterminedEvent(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     string? TeamId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    string? FactionId = null) : IGameEvent;
+    string? FactionId = null) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? WinnerSeat { get; init; }
+}
 
 public sealed record GameEndedEvent(
     Winner Winner,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     string? TeamId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    string? FactionId = null) : IGameEvent;
+    string? FactionId = null) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? WinnerSeat { get; init; }
+}
 
 public sealed record CardMovedEvent(
     int CardId,

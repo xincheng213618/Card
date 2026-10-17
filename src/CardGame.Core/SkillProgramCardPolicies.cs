@@ -3,6 +3,8 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    HellUnarmoredRemen = 40000, HellSlashIgnoreArmor = 40001, HellShiyouIntercept = 40050,
+    ShenwuArmedSourceDamageBonus = 27700,
     OtherParticipantDamageBecomesHpLoss = 20560,
     RoundGainedOtherSourceUse = 9085,
     BypassSlashLimitAgainstOutsideAttackRange = 7308,

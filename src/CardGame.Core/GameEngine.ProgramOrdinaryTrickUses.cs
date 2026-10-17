@@ -21,7 +21,7 @@ public sealed partial class GameEngine
                 "The all-hand ordinary-trick use no longer owns exactly its selected unrestricted hand cards.");
 
         var paused = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!).GetPausedInstruction(active.InstructionIndex).Effect;
-        var options = BuildProgramOrdinaryTrickUseOptions(owner, paused.OutputKind, physicalCardIds:active.SelectedCardIds, includeNextActualUseAdjustment:true);
+        var options = BuildProgramOrdinaryTrickUseOptions(owner, paused.OutputKind, enforceUsePermission: true, physicalCardIds:active.SelectedCardIds, includeNextActualUseAdjustment:true);
         if (options.Count == 0)
             throw new InvalidOperationException("No ordinary trick is currently legal for the selected hand cards.");
         var skill = _contentRegistry!.GetSkill(active.SkillId);
@@ -66,7 +66,7 @@ public sealed partial class GameEngine
             hand.Any(card => IsTurnHandCardRestricted(owner, card)))
             throw new InvalidOperationException(
                 "The ordinary-trick choice lost its owner, skill instance or exact all-hand cost.");
-        var option = BuildProgramOrdinaryTrickUseOptions(owner, effect.OutputKind, physicalCardIds:frame.SelectedCardIds, includeNextActualUseAdjustment:true)
+        var option = BuildProgramOrdinaryTrickUseOptions(owner, effect.OutputKind, enforceUsePermission: true, physicalCardIds:frame.SelectedCardIds, includeNextActualUseAdjustment:true)
             .SingleOrDefault(candidate => candidate.Id == selected.Id) ??
             throw new InvalidOperationException("The selected ordinary-trick use is no longer legal.");
         if (!selected.Targets.SequenceEqual(option.TargetSeats))
@@ -88,7 +88,8 @@ public sealed partial class GameEngine
             option.EffectiveCardKind,
             physicalCardIds: physicalCardIds,
             conversionSource: source);
-        MoveCards(hand, CardLocation.Hand(owner.Seat), CardLocation.Processing, CardMoveReasons.Use);
+        MoveCards(hand, CardLocation.Hand(owner.Seat), CardLocation.Processing, CardMoveReasons.Use,
+            disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
             resolutionId,
             frame.SkillId,
@@ -117,7 +118,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null, bool? actualEffectiveColor = null, bool hasActualColor = false, IReadOnlyList<int>? physicalCardIds = null, bool includeNextActualUseAdjustment = false)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
-        bool Wants(CardKind kind) => outputKind is null || outputKind == kind;
+        bool Wants(CardKind kind) => outputKind is null ? IsActivityOrdinaryTrickNameAvailable(kind) : outputKind == kind;
         var effectiveColor = hasActualColor ? actualEffectiveColor : PhysicalGroupColor(source, GetHand(source));
         // A multi-card virtual card only carries a suit while every physical card
         // shares it; mixed-suit combinations are colorless and pass suit shields.
@@ -143,9 +144,13 @@ public sealed partial class GameEngine
         {
             var targets = targetSeats?.ToArray() ?? [];
             var declared = cardKind == CardKind.BorrowedSword ? targets.Take(1) : targets.AsEnumerable();
-            if (cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains)
-                targets = targets.Where(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit)).ToArray();
+            if (cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains or CardKind.AllianceFeast or CardKind.ReturnSoul or CardKind.StriveUpstream)
+                targets = targets.Where(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit) &&
+                    !NianDongmianForbidsTarget(source.Seat, t) &&
+                    !IsShenwuRobeTargetProhibited(source.Seat, t, cardKind)).ToArray();
             else if (declared.Any(t => HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) return;
+            if (cardKind == CardKind.ReturnSoul && targets.Length == 0) return;
+            if (cardKind == CardKind.StriveUpstream && targets.Length == 0) return;
             if (_beneficiarySuitShields.Count > 0 && targets.Length == 0 && cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains) return;
             var targetPart = targets.Length == 0 ? "none" : string.Join('-', targets);
             var cardPart = targetCardId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none";
@@ -160,6 +165,58 @@ public sealed partial class GameEngine
         }
 
         if (Wants(CardKind.DrawTwo) && !excludeOwner && !IsBlackTrickTargetProhibited(source, CardKind.DrawTwo, effectiveColor)) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
+        foreach (var kind in DragonBoatOrdinaryTrickKinds.Where(kind => (_modeDefinition.DragonBoatActivity is not null || outputKind == kind) && Wants(kind)))
+        {
+            var seats = Enumerable.Range(0, _playerCount).Select(offset => _players[(source.Seat + offset) % _playerCount])
+                .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
+                    (kind == CardKind.StriveUpstream || (kind == CardKind.SameBoat) == DragonBoatCardAllies(source.Seat, player.Seat)) &&
+                    !IsDirectedCardTargetProhibited(source.Seat, player.Seat, kind) &&
+                    !IsCardTargetProhibited(player, kind, virtualSuit, effectiveColor) &&
+                    !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, kind) &&
+                    (kind != CardKind.StriveUpstream || !HasCardPolicy(player, SkillProgramCardPolicyKind.ExcludeGlobalTarget, kind)))
+                .Select(player => player.Seat).ToArray();
+            if (kind == CardKind.StriveUpstream)
+            { if (seats.Length > 0) Add(kind, DragonBoatCardAction(kind), "当【力争上游】使用", seats); }
+            else foreach (var seat in seats) Add(kind, DragonBoatCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】对 {_players[seat].Name} 使用", [seat]);
+        }
+        foreach (var kind in WenheOrdinaryTrickKinds.Where(kind => (_modeDefinition.WenheActivity is not null || outputKind == kind) && Wants(kind)))
+        {
+            var self = kind is CardKind.BeamSwap or CardKind.WenheChaos;
+            foreach (var target in _players.Where(player => player.IsAlive && (self ? player.Seat == source.Seat && !excludeOwner : player.Seat != source.Seat) &&
+                (kind != CardKind.StarShift || source.HasHpValue && player.HasHpValue && source.Hp >= 1 && player.Hp >= 1) &&
+                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, kind) &&
+                !IsCardTargetProhibited(player, kind, virtualSuit, effectiveColor) &&
+                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, kind)))
+                Add(kind, WenheCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】对 {target.Name} 使用", [target.Seat]);
+        }
+        if ((_modeDefinition.HellActivity is not null || outputKind == CardKind.ReturnSoul) && Wants(CardKind.ReturnSoul))
+        {
+            var souls = HellReturnSoulTargets(source.Seat).Where(seat => (!excludeOwner || seat != source.Seat) &&
+                !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ExcludeGlobalTarget, CardKind.ReturnSoul) &&
+                !IsCardTargetProhibited(_players[seat], CardKind.ReturnSoul, virtualSuit, effectiveColor) &&
+                !IsDirectedCardTargetProhibited(source.Seat, seat, CardKind.ReturnSoul)).ToArray();
+            if (souls.Length > 0) Add(CardKind.ReturnSoul, LegalActionKind.ReturnSoul, "当【回魂】使用", souls);
+        }
+
+        if ((_modeDefinition.ShenwuActivity is not null || outputKind == CardKind.SowBeans) && Wants(CardKind.SowBeans) && !excludeOwner &&
+            !IsDirectedCardTargetProhibited(source.Seat, source.Seat, CardKind.SowBeans) &&
+            !IsCardTargetProhibited(source, CardKind.SowBeans, virtualSuit, effectiveColor))
+            Add(CardKind.SowBeans, LegalActionKind.SowBeans, "当【撒豆成兵】对自己使用", [source.Seat]);
+        if ((_modeDefinition.ShenwuActivity is not null || outputKind == CardKind.TransplantWood) && Wants(CardKind.TransplantWood))
+            foreach (var target in _players.Where(player => player.IsAlive && player.Seat != source.Seat &&
+                GetHand(player).Count + GetEquipment(player).Count > 0 &&
+                !IsCardTargetProhibited(player, CardKind.TransplantWood, virtualSuit, effectiveColor) &&
+                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.TransplantWood)))
+                Add(CardKind.TransplantWood, LegalActionKind.TransplantWood, $"当【移花接木】对 {target.Name} 使用", [target.Seat]);
+        if ((_modeDefinition.HulaoActivity is not null || outputKind == CardKind.AllianceFeast) && Wants(CardKind.AllianceFeast) &&
+            CanUseGlobalCard(source, CardKind.AllianceFeast, excludeOwner))
+        {
+            var feastTargets = Enumerable.Range(0, _playerCount).Select(offset => _players[(source.Seat + offset) % _playerCount])
+                .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
+                    !HasCardPolicy(player, SkillProgramCardPolicyKind.ExcludeGlobalTarget, CardKind.AllianceFeast) &&
+                    !IsCardTargetProhibited(player, CardKind.AllianceFeast, virtualSuit, effectiveColor)).Select(player => player.Seat).ToArray();
+            if (feastTargets.Length > 0) Add(CardKind.AllianceFeast, LegalActionKind.AllianceFeast, "当【联军盛宴】使用", feastTargets);
+        }
 
         if (Wants(CardKind.BarbarianAssault) && CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) ||
             Wants(CardKind.ArrowBarrage) && CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner))
@@ -270,7 +327,7 @@ public sealed partial class GameEngine
         var legalOptions = Array.AsReadOnly(options.Where(option => (outputKind is null || option.EffectiveCardKind == outputKind) &&
             (!excludeOwner || !option.TargetSeats.Contains(source.Seat)) &&
             !IsSelfTargetForbiddenAction(source, option.EffectiveCardKind, option.TargetSeats) &&
-            (option.EffectiveCardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains ||
+            (option.EffectiveCardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains or CardKind.AllianceFeast or CardKind.ReturnSoul ||
              (option.EffectiveCardKind == CardKind.BorrowedSword ? option.TargetSeats.Where((_, index) => index % 2 == 0) : option.TargetSeats).All(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) &&
             !HasIssuedPlayPhaseUseBan(source.Seat) && !IsNextActualUseTrickForbidden(source.Seat, option.EffectiveCardKind) &&
             (!enforceUsePermission || !IsCardUseForbidden(source.Seat, option.EffectiveCardKind, CardActionType.Use))).ToArray());

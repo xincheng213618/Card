@@ -43,7 +43,7 @@ public sealed partial class GameEngine
         cardId==0 && IsTianChouShandaoUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsProgramVirtualOrdinaryTrickUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
-            (IsClaimedUseCardEntity(frameId, cardId) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, cardId)) ? EntityAtCurrentLocation(cardId) :
+            (IsClaimedUseCardEntity(frameId, cardId) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, cardId) || IsHellDestroyedSoulMaterial(frameId, cardId)) ? EntityAtCurrentLocation(cardId) :
             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);
     private bool MatchesSelectedActorDuelAction(long frameId,CardActionContext action,int cardId) =>
         cardId==0 && IsIssuedZeroEntityDuel(frameId) && LifecycleCardUse(frameId)?.Action?.ActionId==action.ActionId &&

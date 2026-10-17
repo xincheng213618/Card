@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     {
         var candidates = CollectCardsMovedProgramCandidates(batch).Concat(CollectDiscardPileReceivedCandidates(batch))
             .Concat(CollectFirstDomainCandidates(batch)).ToArray();
-        if (candidates.Length == 0) return null;
+        if (candidates.Length == 0 && !HasWenhePoisonDepartures(batch)) return null;
         var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, Array.AsReadOnly(candidates), ResumeProgramFrameId: resumeProgramFrameId);
         return window with { Contexts = Array.AsReadOnly(candidates.Select(c => CreateCardsMovedProgramContext(window, c)).ToArray()) };
     }

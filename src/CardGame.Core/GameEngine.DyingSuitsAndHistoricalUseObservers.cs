@@ -37,6 +37,7 @@ public sealed partial class GameEngine
                 DyingSuitsCursorHash<ResolutionFrame>(owner) == old.AttackOwnerHash;
         return old.AttackOwnerFrameId is null && old.AttackOwnerHash is null &&
             (dying.Continuation == DyingContinuationKind.ProgramSkill && parent is ProgramSkillFrame ||
+             IsWenhePoisonDyingChild(parent, dying) ||
              dying.Continuation == DyingContinuationKind.AttackHpLoss && parent is ProgramSkillFrame or CardUseFrame or JudgmentFrame);
     }
     private bool ValidDyingSuitsReceipt(ProgramSkillFrame f)
@@ -150,7 +151,7 @@ public sealed partial class GameEngine
             return damageWindow.ParentFrameId == applied.Id && damageWindow.SourceSeat == applied.SourceSeat && damageWindow.TargetSeat == applied.TargetSeat && damageWindow.TriggerWindow is SkillProgramTriggerWindow.DamageAppliedBeforeDying or SkillProgramTriggerWindow.AfterDamageApplied;
         if (child is DyingFrame dying)
             return dying.ParentFrameId == parent.Id && CompleteProgramEventHistory().OfType<PlayerDyingEvent>().Count(e => e.ResolutionId == dying.Id && e.VictimSeat == dying.VictimSeat && e.KillerSeat == dying.KillerSeat) == 1 &&
-                (parent is DamageFrame d && dying.Continuation == DyingContinuationKind.Damage && dying.VictimSeat == d.TargetSeat ||
+                (IsWenhePoisonDyingChild(parent, dying) || parent is DamageFrame d && dying.Continuation == DyingContinuationKind.Damage && dying.VictimSeat == d.TargetSeat ||
                  parent is ProgramSkillFrame p && dying.Continuation == DyingContinuationKind.ProgramSkill ||
                  parent is ProgramSkillFrame { AttackAttempt: { } loss } && dying.Continuation == DyingContinuationKind.AttackHpLoss && dying.VictimSeat == loss.TargetSeat && dying.KillerSeat is null);
         if (child is ProgramLifecycleTriggerWindowFrame entry && parent is DyingFrame entered)

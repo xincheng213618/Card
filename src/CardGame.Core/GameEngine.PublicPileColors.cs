@@ -50,7 +50,7 @@ public sealed partial class GameEngine
             var id=cards.CardIds.Single();if(_cardZones.GetLocation(id)!=CardLocation.Hand(frame.OwnerSeat))throw new InvalidOperationException("Initial public reserve requires a current owned hand entity.");
             var source=EnsurePublicPileSource(frame,1);if(PublicPileCards(source).Count!=0)throw new InvalidOperationException("Initial reserve is already occupied.");
             ReplaceRuntimeTop(frame with {PendingMovementContinuation=new(frame.OwnerSeat,0,null)});
-            MoveCard(GetHand(_players[frame.OwnerSeat]).Single(c=>c.Id==id),CardLocation.Hand(frame.OwnerSeat),source.Location,new("skill-program.public-pile.initial-hand"));
+            MoveCard(GetHand(_players[frame.OwnerSeat]).Single(c=>c.Id==id),CardLocation.Hand(frame.OwnerSeat),source.Location,new("skill-program.public-pile.initial-hand"), disclosure: CardMovementDisclosure.FaceUp);
             if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(frame.Id);return SkillProgramStepOutcome.AwaitChild;
         }
         IReadOnlyList<PromptChoice> choices;
@@ -79,7 +79,7 @@ public sealed partial class GameEngine
             var id=choice.Cards.Single();var at=_cardZones.GetLocation(id);var card=_cardZones.CardsAt(at).Single(c=>c.Id==id);
             ClearPendingDecision();CommitProgramConversionPolarity(f);f=GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(f with{PublicPileColorPayment=new(id,at,source.Location,source.SkillInstanceId,PileColor(source)!.Value,choice.Targets.Single()),PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-            MoveCard(card,at,CardLocation.DiscardPile,new("skill-program.public-pile.color-payment"));
+            MoveCard(card,at,CardLocation.DiscardPile,new("skill-program.public-pile.color-payment"), disclosure: CardMovementDisclosure.FaceUp);
             if(!TryBeginCardsMovedProgramWindow())ReturnRuntimeProgramMovement(f.Id);return;
         }
         if(e.Op!=SkillProgramEffectOp.RewardDiscardedActionColor||GetProgramConversionPolarity(f.OwnerSeat,f.SkillId)!=SkillPolarity.Yin||!_players[choice.Targets.Single()].IsAlive)throw new InvalidOperationException("Color reward lost its polarity or recipient.");

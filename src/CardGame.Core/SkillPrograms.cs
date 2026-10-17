@@ -22,7 +22,7 @@ public enum SkillRuleQuery
     InitialHandSize = 5600
 }
 public enum SkillRuleOperation { Add, Set, Unlimited }
-public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200, OwnerMaxHp = 5600, NegatedLivingFemaleCount = 21400, NegatedCurrentRoundActualUseCount = 27260 }
+public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200, OwnerMaxHp = 5600, NegatedLivingFemaleCount = 21400, NegatedCurrentRoundActualUseCount = 27260, PublicTeamEnemyCount = 27600 }
 public enum SkillRuleQueryDependency { MarkerState }
 public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023, PreviousPlayCardIsBasic = 1024, NoWeapon = 11300, NoArmor = 22501, NoMounts = 22502, NoTreasure = 22503 }
 public enum SkillProgramTriggerConditionKind
@@ -135,6 +135,9 @@ public enum SkillProgramComparisonOperator
 }
 public enum SkillProgramTargetKind
 {
+    NianDeadAlly = 27930,
+    OtherLivingHpAtLeastOwner = 27500,
+    OtherLivingChained = 27501,
     PublicTeamEnemies = 27400,
     PublicTeamWoundedAllies = 27401,
     OtherPublicTeamWoundedAllies = 27402,
@@ -220,6 +223,23 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DrawDragonBoatConsecutiveTarget = 42000, ArmDragonBoatDianhu = 42001,
+    DrawDragonBoatDianhu = 42002, DrawDragonBoatTunjiang = 42003,
+    ResolveWenheRoundStart = 41000, ResolveWenheTurnStart = 41001,
+    ResolveWenheTurnEnd = 41002, ResolveWenheRoundEnd = 41003,
+    RewardWenheKiller = 41004, UseWenheChampionMark = 41005,
+    BindHellRandomOther = 40000, BindHellOtherDamageSource = 40001, BindHellPeachPoisonTarget = 40002,
+    ChooseHellLowestHpOther = 40003, ChooseHellHighestHpOther = 40004, ChooseHellNextHighestHpOther = 40005,
+    ChooseHellReincarnationTarget = 40006, RollHellElement = 40007, RollHellAssault = 40008,
+    DiscardHellRandomOtherMount = 40009, RewardHellRecoverySource = 40010,
+    DiscardHellOutsideDrawGain = 40011, ExchangeHellReincarnationHp = 40012,
+    UseHellPreparationAlcohol = 40013, BindHellRepeatedDamageTarget = 40014,
+    SetHellOthersChained = 40015, SetHellAllLivingChained = 40016, TurnHellFaceUpKiller = 40017,
+    DrawHellPreparation = 40018,
+    ResolveHellWanghunLoss = 40051, BanHellWangshiCategory = 40052, RestoreHellWanghunSkills = 40053,
+    DamageHellBufoAdjacent = 40080, ChooseHellDayuanJudgment = 40081,
+    GainHellTurnSlash = 40111, DrawHellChongshengRefill = 40112,
+    RecoverHellChongsheng = 40113,
     SelectAllPublicTeamTargets = 27400,
     RepeatCurrentRedTrick = 27401,
     RefillAndScheduleNextTurnSelfOnly = 20560,
@@ -874,7 +894,35 @@ public enum SkillProgramEffectOp
     ResolveShutongFinalizedUse = 27470,
     ResolveZhijieActualTurnEnd = 27471,
     ResolveChanshuangSimultaneousChoices = 27480,
-    ResolveChanshuangEnding = 27481
+    ResolveChanshuangEnding = 27481,
+    DiscardRandomJudgment = 27500,
+    RewardOtherRecoverySource = 27501,
+    DiscardDeathSourceCards = 27502,
+    ResolveHulaoXiuluo = 27600,
+    OfferHulaoDamagePeach = 27601,
+    PreventHulaoArmoredLargeDamage = 27602,
+    BindPublicAllyDeath = 27603,
+    SkipHulaoTreasureJudgment = 27604,
+    DrawShenwuWuzangReplacement = 27700,
+    DrawShenwuCangmuReplacement = 27701,
+    ResolveShenwuYinzei = 27702,
+    BindShenwuOtherDamageSource = 27703,
+    BindShenwuUndamagingTurnOwner = 27704,
+    RecordShenwuMingwanVictim = 27705,
+    DrawShenwuMingwanUse = 27706,
+    PreventShenwuNitaiOwnTurnDamage = 27707,
+    LoseShenwuTanyuHp = 27708,
+    BindShenwuRecoveryBeneficiary = 27709,
+    BindShenwuDeathBenefit = 27710,
+    ApplyNianMengtaiDiscard = 27900,
+    DrawNianMengtaiEnding = 27901,
+    DiscardNianRuizhiRemainder = 27902,
+    RecoverNianJingjueLoss = 27903,
+    DrawNianRenxingDamage = 27904,
+    DrawNianRenxingRecovery = 27905,
+    DrawNianBaonuReplacement = 27906,
+    ReviveNianAlly = 27930,
+    SelectRedJudgmentFireTarget = 27503
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001, Activator = 2002 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -933,7 +981,9 @@ public enum SkillProgramTriggerWindow
     PindianCardsRevealed = 21500,
     IdentityGeneralAppeared = 22203,
     TurnBeforeStart = 23200,
-    JudgmentBeforeResult = 24403
+    JudgmentBeforeResult = 24403,
+    RoundEnding = 27545,
+    NativeDrawStarting = 27570
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763, PerOtherLastHandLoss = 1031 }
@@ -1653,6 +1703,8 @@ public sealed class SkillProgramModifier
             nameof(context), context.LivingFactionCount, "Living faction count cannot be negative."),
         SkillRuleValueExpression.PublicLivingFactionCount => context.PublicLivingFactionCount is >= 0 ? context.PublicLivingFactionCount.Value :
             throw new InvalidOperationException("Public living factions were not captured."),
+        SkillRuleValueExpression.PublicTeamEnemyCount => context.PublicTeamEnemyCount is >= 0 ? context.PublicTeamEnemyCount.Value :
+            throw new InvalidOperationException("Public living enemies were not captured."),
         SkillRuleValueExpression.CurrentTurnUsedHandSuitCount => context.CurrentTurnUsedHandSuitCount ??
             throw new InvalidOperationException("Actual turn hand-suit facts were not captured."),
         SkillRuleValueExpression.OwnerLostHp => Math.Max(0, context.Owner.MaxHp - context.Owner.Hp),
@@ -2704,7 +2756,13 @@ public sealed class SkillProgramCatalog
         }
         else if (inputSuit is not null || outputSuit is not null)
             Fail(path, "suit fields require rewriteSuit or a suit response prohibition");
-        if (kind is SkillProgramCardPolicyKind.MinimumResponseCount or
+        if (kind == SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus)
+        {
+            if (cardKinds.Count != 0 || requiredKinds.Count != 0 || value != 1 || inputSuit is not null || outputSuit is not null ||
+                ownerRole is not null || factionId is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always)
+                Fail(path, "Shenwu armed damage requires an unconditional +1 owner policy without card filters.");
+        }
+        else if (kind is SkillProgramCardPolicyKind.MinimumResponseCount or
             SkillProgramCardPolicyKind.MinimumResponseCountAsTarget or SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne)
         {
             if (cardKinds.Count == 0 || requiredKinds.Count == 0 || value is < 2 or > 20)
@@ -2761,6 +2819,8 @@ public sealed class SkillProgramCatalog
             if (cardKinds.Count != 0) Fail(path + ".cardKinds", "this policy does not accept card kinds");
         }
         else if (cardKinds.Count == 0 && kind is not (
+                     SkillProgramCardPolicyKind.HellShiyouIntercept or
+                     SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus or
                      SkillProgramCardPolicyKind.FactionResponseRequest or
                      SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse or SkillProgramCardPolicyKind.ForceChained or
                      SkillProgramCardPolicyKind.ChainedHandLimitAura or SkillProgramCardPolicyKind.MarkerTurnBonuses or
@@ -2908,6 +2968,9 @@ public sealed class SkillProgramCatalog
         if (valueExpression == SkillRuleValueExpression.PublicLivingFactionCount &&
             (query != SkillRuleQuery.HandLimit || operation != SkillRuleOperation.Add))
             Fail(path, "public living factions require an additive hand-limit modifier");
+        if (valueExpression == SkillRuleValueExpression.PublicTeamEnemyCount &&
+            (query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.DrawCount) || operation != SkillRuleOperation.Add))
+            Fail(path, "public living enemies require an additive hand-limit or draw-count modifier");
         if (valueExpression is SkillRuleValueExpression.OwnedZoneCount or SkillRuleValueExpression.NegatedOwnedZoneCount)
         {
             if (valueZone is not (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or
@@ -2943,6 +3006,7 @@ public sealed class SkillProgramCatalog
         if (valueExpression is not null && valueExpression is not (SkillRuleValueExpression.NegatedOwnedZoneCount or SkillRuleValueExpression.NegatedOwnerLostHp or SkillRuleValueExpression.NegatedLivingFemaleCount or SkillRuleValueExpression.NegatedCurrentRoundActualUseCount) &&
             (operation != SkillRuleOperation.Add || query != SkillRuleQuery.HandLimit &&
                 !(query == SkillRuleQuery.CardTargetCount && valueExpression == SkillRuleValueExpression.OwnerLostHp) &&
+                !(query == SkillRuleQuery.DrawCount && valueExpression == SkillRuleValueExpression.PublicTeamEnemyCount) &&
                 !(query == SkillRuleQuery.InitialHandSize && valueExpression == SkillRuleValueExpression.OwnerMaxHp)))
             Fail(path + ".valueExpression",
                 "livingFactionCount is currently supported only by additive handLimit modifiers");
@@ -3752,7 +3816,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -3770,7 +3834,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -3862,7 +3926,7 @@ public sealed class SkillProgramCatalog
                     !(window == SkillProgramTriggerWindow.AfterDamageApplied &&
                       subject is SkillProgramTriggerSubject.DamageSource or SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.BeforeDamageApplied &&
-                      subject is SkillProgramTriggerSubject.DamageTarget or SkillProgramTriggerSubject.DamageSource) &&
+                      subject is SkillProgramTriggerSubject.DamageTarget or SkillProgramTriggerSubject.DamageSource or SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.DamageAppliedBeforeDying && subject == SkillProgramTriggerSubject.DamageSource &&
                       node.TryGetProperty("effects", out var fatalEffects) && fatalEffects.ValueKind == JsonValueKind.Array &&
                       fatalEffects.GetArrayLength() == 1 && fatalEffects[0].TryGetProperty("op", out var fatalOp) &&
@@ -3965,7 +4029,7 @@ public sealed class SkillProgramCatalog
             if (suits.Count == 0) Fail(path + ".suits", "must contain at least one final suit");
             minimumRank = RequiredInt(node, "minimumRank", path);
             maximumRank = RequiredInt(node, "maximumRank", path);
-            if (minimumRank is < 1 or > 13 || maximumRank is < 1 or > 13 || minimumRank > maximumRank)
+            if (minimumRank < (window == SkillProgramTriggerWindow.JudgmentBeforeResult ? 0 : 1) || minimumRank > 13 || maximumRank is < 1 or > 13 || minimumRank > maximumRank)
                 Fail(path, "judgment rank bounds must satisfy 1 <= minimumRank <= maximumRank <= 13");
             excludedReasons = StringArray(node, "excludedReasons", path);
             judgmentReasons = node.TryGetProperty("judgmentReasons", out _)
@@ -4369,7 +4433,7 @@ public sealed class SkillProgramCatalog
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 effects.Any(effect => effect.Op is SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule)) &&
             window is not (SkillProgramTriggerWindow.SlashFullyDodged or SkillProgramTriggerWindow.SlashBeforeResponse or
-                SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.PlayEnding or
+                SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
                 SkillProgramTriggerWindow.JudgmentPhaseStarting or SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
                 SkillProgramTriggerWindow.CharacterEnteredChain or SkillProgramTriggerWindow.CardUseCompleted or
                 SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.TurnEnding) &&
@@ -4603,7 +4667,7 @@ public sealed class SkillProgramCatalog
             MarkerCost = ParseMarkerCost(node, path)
         };
         if (window == SkillProgramTriggerWindow.CardUseCommitted && includeResponseUses && !recordsCommittedSuit &&
-            (effects.Count != 1 || effects[0].Op is not (SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan or SkillProgramEffectOp.RecordOpeningTurnUse or SkillProgramEffectOp.HoldUsedSuitHandAndDraw or SkillProgramEffectOp.NullifyMatchingHandUse)) &&
+            (effects.Count != 1 || effects[0].Op is not (SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan or SkillProgramEffectOp.RecordOpeningTurnUse or SkillProgramEffectOp.HoldUsedSuitHandAndDraw or SkillProgramEffectOp.NullifyMatchingHandUse or SkillProgramEffectOp.DrawShenwuMingwanUse)) &&
             !ProgramCommittedUseContracts.TryValidate(skillId, parsedTrigger))
             Fail(path, "committed response uses require a registered contract or the single issued card-policy operation");
         if (parsedTrigger.Effects.Any(e => e.Op == SkillProgramEffectOp.KanggeGainDraw) &&
@@ -4697,8 +4761,11 @@ public sealed class SkillProgramCatalog
         XinPiComposition.Trigger(path, parsedTrigger);
         HuaManComposition.Trigger(path, parsedTrigger);
         if (window == SkillProgramTriggerWindow.JudgmentBeforeResult &&
-            (parsedTrigger.Effects is not [{ Op: SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei }]))
+            (parsedTrigger.Effects is not [{ Op: SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei or SkillProgramEffectOp.ChooseHellDayuanJudgment }]))
             Fail(path, "the before-result boundary requires the exact paid judgment override operation");
+        if (window == SkillProgramTriggerWindow.JudgmentBeforeResult && minimumRank == 0 &&
+            parsedTrigger.Effects is not [{ Op: SkillProgramEffectOp.ChooseHellDayuanJudgment }])
+            Fail(path, "only the arbitrary final-judgment override may include an unprinted rank-zero activity card");
         JiqiaoContract.ValidateTrigger(path, parsedTrigger);
         if (effects.Any(e => e.Op is SkillProgramEffectOp.ResolveRebelCountEquipmentChoice or SkillProgramEffectOp.RevealHandGiftAndResolveRecipientChoice))
             Fail(path, "Equipment recipient and revealed hand gift operations require standalone activations.");

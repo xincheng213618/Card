@@ -43,7 +43,8 @@ public sealed partial class GameEngine
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))
             throw new InvalidOperationException("A top-deck response cost requires its own enabled Slash-defense Dodge use.");
         MoveCard(card, FindOwnedCardLocation(provider, card),
-            alternative ? CardLocation.DrawPile : CardLocation.Processing, CardMoveReasons.Respond);
+            alternative ? CardLocation.DrawPile : CardLocation.Processing, CardMoveReasons.Respond,
+            disclosure: CardMovementDisclosure.FaceUp);
     }
 
     private void FinishSingleCardResponse(Card card, CardConversionSource? source)

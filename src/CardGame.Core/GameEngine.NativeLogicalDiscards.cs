@@ -35,6 +35,8 @@ public sealed partial record ProgramSkillFrame
 public sealed partial class GameEngine
 {
     private bool TracksNativeLogicalDiscards =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardNianRuizhiRemainder) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecoverNianJingjueLoss) ||
         HasLiYiCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment) ||
@@ -98,7 +100,8 @@ public sealed partial class GameEngine
         CardMoveReason reason, Action<long, IReadOnlyList<CardMovementRecord>>? afterPhysicalRecords = null)
     {
         var draft = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat, executorSeat, ids, reason, frame.Id);
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, reason, afterPhysicalRecords);
+        MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, reason, afterPhysicalRecords,
+            disclosure: CardMovementDisclosure.FaceUp);
         CompleteNativeLogicalDiscardInvocation(draft);
     }
 
@@ -106,7 +109,7 @@ public sealed partial class GameEngine
         CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null, long? parentFrameId = null)
     {
         var draft = CaptureNativeLogicalDiscardInvocation(initiatorSeat, executorSeat, [card.Id], reason, parentFrameId);
-        MoveCard(card, from, CardLocation.DiscardPile, reason, beforeFact);
+        MoveCard(card, from, CardLocation.DiscardPile, reason, beforeFact, disclosure: CardMovementDisclosure.FaceUp);
         CompleteNativeLogicalDiscardInvocation(draft);
     }
 
@@ -115,7 +118,7 @@ public sealed partial class GameEngine
     {
         var draft = CaptureNativeLogicalDiscardInvocation(initiatorSeat, executorSeat,
             cards.Select(card => card.Id).ToArray(), reason);
-        MoveCards(cards, from, CardLocation.DiscardPile, reason);
+        MoveCards(cards, from, CardLocation.DiscardPile, reason, disclosure: CardMovementDisclosure.FaceUp);
         CompleteNativeLogicalDiscardInvocation(draft);
     }
 

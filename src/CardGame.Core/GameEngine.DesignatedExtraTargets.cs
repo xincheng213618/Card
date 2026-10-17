@@ -118,6 +118,8 @@ public sealed partial class GameEngine
         {
             CardKind.Peach => IsRuleWounded(target),
             CardKind.Alcohol or CardKind.DrawTwo or CardKind.IronChain => true,
+            CardKind.StarShift or CardKind.HandRedistribution => CanBeWenheAdditionalTarget(use, target),
+            CardKind.SameBoat or CardKind.AgainstCurrent or CardKind.Zong => CanBeDragonBoatAdditionalTarget(use, target),
             CardKind.Duel => target.Seat != actor.Seat,
             CardKind.FireAttack => GetHand(target).Count > 0,
             CardKind.Dismantlement or CardKind.Snatch => target.Seat != actor.Seat && HasTargetCard(target),

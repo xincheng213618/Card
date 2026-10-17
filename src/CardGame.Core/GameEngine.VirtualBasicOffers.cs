@@ -10,7 +10,8 @@ public sealed partial class GameEngine
         if (frame.VirtualBasicDraft is not { } draft) return;
         if ((effect.Op != SkillProgramEffectOp.OfferVirtualBasicCard &&
              !(effect.Op == SkillProgramEffectOp.UseVirtualAlcohol && IsExactProvenanceVirtualBasicDraft(frame, draft)) &&
-             !(effect.Op == SkillProgramEffectOp.UsePhaseOwnerVirtualAlcohol && IsExactPhaseAlcoholVirtualDraft(frame, draft))) || draft.InstructionIndex != frame.InstructionIndex)
+             !(effect.Op == SkillProgramEffectOp.UsePhaseOwnerVirtualAlcohol && IsExactPhaseAlcoholVirtualDraft(frame, draft)) &&
+             !(effect.Op == SkillProgramEffectOp.UseHellPreparationAlcohol && IsExactHellPreparationAlcoholDraft(frame, draft))) || draft.InstructionIndex != frame.InstructionIndex)
             throw new InvalidOperationException("A virtual basic draft lost its exact instruction.");
         if (draft.ChildFrameId is { } childId)
         {

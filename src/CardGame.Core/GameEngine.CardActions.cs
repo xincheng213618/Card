@@ -39,6 +39,9 @@ public sealed partial class GameEngine
     {
         _selectedUseConversion = null;
         _hasSelectedUseConversionChoice = false;
+        if (playedCardKind is null && (CanHulaoWeaponRecast(card) || CanHellDitingMountRecast(actor, card)) &&
+            FindOwnedCardLocation(actor, card) == CardLocation.Hand(actor.Seat))
+        { BeginEquipmentRecast(actor, card, card.Kind); return; }
         if ((playedCardKind is null && card.Kind != CardKind.IronChain) ||
             (playedCardKind is not null && playedCardKind != CardKind.IronChain))
             throw new InvalidOperationException("Only Iron Chain may be recast.");
@@ -222,6 +225,11 @@ public sealed partial class GameEngine
                     CompleteWangYunNativePayment(nativeUse.Id);
                     break;
                 }
+        }
+        if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized && IsDragonBoatActivity)
+        {
+            var nativeUse = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Action?.ActionId == action.ActionId);
+            CaptureDragonBoatFinalizedUse(nativeUse.Id, action);
         }
         if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasSuFeiCapability)
         {
@@ -840,7 +848,7 @@ public sealed partial class GameEngine
             var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
             var sharedContext = candidate?.FrozenContext;
             if (candidate is not null && sharedContext is not null)
-                sharedContext = CreatePijingIssuedContext(frame, candidate, CreateMaMiDiIssuedContext(frame, candidate, sharedContext));
+                sharedContext = CreateCardActionProgramContext(frame, candidate);
             var sharedIdentityMatches = candidate is not null &&
                 sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
                 cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
@@ -890,7 +898,7 @@ public sealed partial class GameEngine
                      !(frame.Action.Type == CardActionType.Use &&
                        LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
                        nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&
-                       (IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
+                       ((IsHellDestroyedSoulMaterial(frame.ParentFrameId, cost.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId)) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        (IsXinPiPhysicalClaim(frame.ParentFrameId, cost.CardId) || IsHuaManClaimedEntity(frame.ParentFrameId, cost.CardId) || IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId)))).Any(cost =>

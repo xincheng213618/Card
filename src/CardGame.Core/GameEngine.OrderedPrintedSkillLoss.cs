@@ -51,9 +51,9 @@ public sealed partial class GameEngine
         // Removed printed skills no longer occupy a currently owned slot. Keep
         // the original card order; neither grant IDs nor skill IDs define it.
         var lostIds = general.Skills.Where(s => s.ContentId is not null &&
-                currentGrants.Any(g => g.SkillId == s.ContentId))
+                currentGrants.Any(g => g.SkillId == s.ContentId && !g.IsModeRule))
             .Select(s => s.ContentId!).Distinct(StringComparer.Ordinal).Take(Math.Max(0, range)).ToArray();
-        var grants = currentGrants.Where(g => lostIds.Contains(g.SkillId, StringComparer.Ordinal)).ToArray();
+        var grants = currentGrants.Where(g => !g.IsModeRule && lostIds.Contains(g.SkillId, StringComparer.Ordinal)).ToArray();
         var lease = new OrderedPrintedSkillLossLease { ProgramFrameId = f.Id,
             Source = new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId), GameplayHash = f.GameplayHash,
             ActualTurnNumber = _turnNumber, ActualTurnOwnerSeat = turnOwner, TemplateSourceId = templateSource,

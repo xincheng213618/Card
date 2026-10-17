@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shenwu:shura-inferno-halberd": { "name": "修罗炼狱戟",
+      "description": "杀可额外指定攻击范围内任意名其他角色；杀伤害+1，然后令受伤角色回复1点体力。" },
+    "shenwu:delusion-crown": { "name": "虚妄之冕", "description": "摸牌阶段额外摸两张牌；手牌上限-1。" },
+    "shenwu:transplant-wood-resolution": { "name": "移花接木",
+      "description": "目标自行选择合法目标使用一张杀，否则交给锦囊使用者两张手牌或装备牌；不足两张时全部交出。" }
+  }
+}

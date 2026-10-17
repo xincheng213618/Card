@@ -26,12 +26,13 @@ public sealed partial class GameEngine
 
     private void BeginRoundForTurn(CharacterState current)
     {
-        if ((!UsesFormalMouLuMeng && !_contentRegistry.ProgramDependencies.UsesRoundTracking) ||
+        if ((!UsesFormalMouLuMeng && !_contentRegistry.ProgramDependencies.UsesRoundTracking && _modeDefinition.NianActivity is null && !IsDragonBoatActivity) ||
             _turnProgression.Kind == ActualTurnKind.Extra) return;
 
         if (_roundNumber == 0 || _roundTurnSeats.Contains(current.Seat))
         {
-            ReturnDemonRoundHolds();
+            if (!TracksRoundEnding || !ProgramEventHistory<RoundEndedEvent>().Any(e => e.RoundNumber == _roundNumber))
+                ReturnDemonRoundHolds();
             _roundNumber++;
             _roundTurnSeats.Clear();
             _skillRuntimeState.ResetRound();

@@ -8,12 +8,14 @@ public sealed partial class GameEngine
 {
     private void BeginEquipmentRecast(CharacterState actor, Card card, CardKind effectiveKind)
     {
-        if (_resolutionStack.Count != 0 || FindOwnedCardLocation(actor, card) != CardLocation.Equipment(actor.Seat))
+        var cost = FindOwnedCardLocation(actor, card);
+        if (_resolutionStack.Count != 0 || cost != CardLocation.Equipment(actor.Seat) &&
+            !(cost == CardLocation.Hand(actor.Seat) && (CanHulaoWeaponRecast(card) || CanHellDitingMountRecast(actor, card))))
             throw new InvalidOperationException("Equipment recast requires its fresh play boundary and owned equipment cost.");
         var frame = new EquipmentRecastFrame(++_resolutionSequence, actor.Seat, card.Id, effectiveKind);
         frame = frame with { NativeRecastInvocation = CaptureNativeRecastInvocation(actor.Seat, actor.Seat, [card.Id], frame.Id) };
         PushRuntimeFrame(frame);
-        MoveCards([card], CardLocation.Equipment(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
+        MoveCards([card], cost, CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         ContinueEquipmentRecast(frame.Id);
     }
 
@@ -25,6 +27,7 @@ public sealed partial class GameEngine
                 TryBeginCardsMovedProgramWindow(frame.Id)) return;
             if (!frame.DrawApplied)
             {
+                if (TryContinueEquipmentRecastNativeDraw(frame)) return;
                 // The physical equipment has already left its zone. Child returns
                 // resume this scalar receipt and cannot pay or draw a second time.
                 ReplaceRuntimeTop(frame with { DrawApplied = true });
@@ -37,7 +40,7 @@ public sealed partial class GameEngine
                 CompleteNativeRecastInvocation(frame.NativeRecastInvocation, drawn.Count);
                 if (frame.NativeRecastInvocation is not null)
                     ReplaceRuntimeTop(((EquipmentRecastFrame)_resolutionStack.Last()) with { NativeRecastInvocation = null });
-                AddLog("Recast", $"{actor.Name} 重铸【铁索连环】，摸 {drawn.Count} 张牌。", actor.Seat);
+                AddLog("Recast", $"{actor.Name} 重铸【{CardCatalog.Get(frame.EffectiveKind).DisplayName}】，摸 {drawn.Count} 张牌。", actor.Seat);
                 continue;
             }
             PopResolutionFrame(frame.Id, ResolutionFrameKind.EquipmentRecast);

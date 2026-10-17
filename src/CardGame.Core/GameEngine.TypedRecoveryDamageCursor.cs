@@ -115,6 +115,12 @@ public sealed partial class GameEngine
         for (var index = firstIndex + 1; index < _resolutionStack.Count; index++)
         {
             var parent = _resolutionStack[index - 1]; var child = _resolutionStack[index];
+            if (child is DyingFrame poisonDying && IsWenhePoisonDyingChild(parent, poisonDying))
+            {
+                if (ownedDyingId is not null) return new(IsMalformed: true);
+                ownedDyingId = poisonDying.Id;
+                continue;
+            }
             if (exactOrdinaryHpProducer && parent is ProgramSkillFrame hpProducer && child is HpChangedTriggerWindowFrame producedHp)
             {
                 var paused = TypedRecoveryPausedEffect(hpProducer);
@@ -467,6 +473,7 @@ public sealed partial class GameEngine
             movement.ResumeRecoveryReplacementFrameId != recovery.Id || movement.ResumeProgramFrameId is not null ||
             movement.ResumeDeclarationFrameId is not null || movement.ResumeDrawFundedDistinctBasicFrameId is not null ||
             movement.ResumePaidCardUseFrameId is not null || movement.ResumeEquipmentRecastFrameId is not null ||
+            movement.ResumeNativeCardEffectDrawFrameId is not null ||
             movement.ResumeColorFireAttackFrameId is not null || movement.ResumeCounterspellPaymentFrameId is not null ||
             movement.ResumeHistoricalEndingUseFrameId is not null || movement.ResumeRoundPileAlcoholUseFrameId is not null ||
             movement.ResumeGuoSiUseFrameId is not null || movement.ResumeDenglouUseFrameId is not null ||

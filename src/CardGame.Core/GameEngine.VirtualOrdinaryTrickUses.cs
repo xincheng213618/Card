@@ -17,8 +17,6 @@ public sealed partial class GameEngine
             engine.BeginProgramVirtualOrdinaryTrick(frame, effect);
     }
 
-    // A phase program must still be the exact candidate paused in its own actual
-    // PlayEnding window. Merely having a similarly named context is insufficient.
     private bool IsExactOwnPlayEndingProgram(ProgramSkillFrame frame)
     {
         var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
@@ -38,23 +36,51 @@ public sealed partial class GameEngine
             candidate.OccurrenceIndex == context.OccurrenceIndex;
     }
 
+    // A virtual use retains the exact candidate paused in its own actual phase
+    // boundary. A matching context name without that parent is insufficient.
+    private bool IsExactOwnVirtualOrdinaryTrickProgram(ProgramSkillFrame frame)
+    {
+        if (frame.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting) return IsExactHellArrivalProgram(frame);
+        if (frame.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding)
+            return IsExactOwnPlayEndingProgram(frame);
+        if (frame.WindowContext?.Window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded)
+            return IsExactOwnVirtualTrickTurnBoundary(frame);
+        var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+        if (index < 1 || frame.TriggerId is null || frame.SelectedCardIds.Count != 0 ||
+            frame.WindowContext is not { } context || context.OwnerSeat != frame.OwnerSeat ||
+            frame.OwnerSeat != _currentSeat || _phase != TurnPhase.Play ||
+            _turnProgression.OwnerSeat != _currentSeat || _turnProgression.TurnNumber != _turnNumber)
+            return false;
+        if (!(context.Window == SkillProgramTriggerWindow.PlayPhaseStarting &&
+            context.SourceSeat == frame.OwnerSeat && context.TargetSeat == frame.OwnerSeat &&
+            _resolutionStack[index - 1] is PlayPhaseStartingBoundaryFrame starting &&
+            starting.Id == context.ParentFrameId && starting.OwnerSeat == frame.OwnerSeat &&
+            starting.ItemIndex >= 0 && starting.ItemIndex < starting.Items.Count &&
+            starting.Items[starting.ItemIndex] is { Kind: TurnEndingBoundaryItemKind.Program, Candidate: { } candidate }))
+            return false;
+        return candidate.OwnerSeat == frame.OwnerSeat && candidate.SkillId == frame.SkillId &&
+            candidate.BindingId == frame.TriggerId && frame.ActivationId == frame.TriggerId &&
+            candidate.SkillInstanceId == frame.SkillInstanceId && candidate.GameplayHash == frame.GameplayHash &&
+            candidate.OccurrenceIndex == context.OccurrenceIndex;
+    }
+
     private SkillProgramEffect ValidateVirtualOrdinaryTrickInstruction(ProgramSkillFrame frame)
     {
-        if (!IsExactOwnPlayEndingProgram(frame) || frame.InstructionIndex <= 0)
-            throw new InvalidOperationException("A virtual ordinary trick lost its exact owning PlayEnding program.");
+        if (!IsExactOwnVirtualOrdinaryTrickProgram(frame) || frame.InstructionIndex <= 0)
+            throw new InvalidOperationException("A virtual ordinary trick lost its exact owning phase program.");
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!)
             .GetPausedInstruction(frame.InstructionIndex).Effect;
         if (effect.Op != SkillProgramEffectOp.UseVirtualOrdinaryTrick ||
             effect.Target != SkillProgramEffectTarget.Owner ||
-            effect.ActorReference?.Kind is not (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) ||
-            effect.TargetReference?.Kind is not (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) ||
-            effect.OutputKind is not (CardKind.DrawTwo or CardKind.Dismantlement) ||
-            (effect.OutputKind == CardKind.DrawTwo) != (effect.ActorReference.Kind == effect.TargetReference.Kind) ||
-            effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) ||
-            (effect.ActorReference.Kind == ProgramParticipantRef.SelectedTarget ||
-             effect.TargetReference.Kind == ProgramParticipantRef.SelectedTarget) && frame.SelectedTargetSeats.Count != 1)
+            !UseVirtualOrdinaryTrickProgramOperationDescriptor.HasValidReferences(effect.OutputKind,
+                effect.ActorReference?.Kind, effect.TargetReference?.Kind) ||
+            !UseVirtualOrdinaryTrickProgramOperationDescriptor.AllowsWindow(effect.OutputKind, frame.WindowContext!.Window) ||
+            UseVirtualOrdinaryTrickProgramOperationDescriptor.IsGroupOutput(effect.OutputKind) && effect.Condition.Kind != SkillProgramConditionKind.Always && !IsHellRandomAssaultBranch(frame, effect) ||
+            effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) && !IsHellRandomAssaultBranch(frame, effect) ||
+            (effect.ActorReference?.Kind == ProgramParticipantRef.SelectedTarget ||
+             effect.TargetReference?.Kind == ProgramParticipantRef.SelectedTarget) && frame.SelectedTargetSeats.Count != 1)
             throw new InvalidOperationException("A virtual ordinary trick lost its exact references or output instruction.");
-        if (effect.Condition.Kind != SkillProgramConditionKind.Always)
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always && !IsHellRandomAssaultBranch(frame, effect))
         {
             var result = frame.PindianResultBindings.SingleOrDefault(item => item.Name == effect.Condition.SourceBind);
             if (result is null || result.SourceSeat != frame.OwnerSeat ||
@@ -63,6 +89,30 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A virtual ordinary trick lost its frozen named Pindian branch.");
         }
         return effect;
+    }
+
+    private bool IsExactOwnVirtualTrickTurnBoundary(ProgramSkillFrame frame)
+    {
+        var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+        if (index < 1 || frame.TriggerId is null || frame.SelectedCardIds.Count != 0 ||
+            frame.WindowContext is not { } context || context.OwnerSeat != frame.OwnerSeat ||
+            context.SourceSeat != frame.OwnerSeat || context.TargetSeat != frame.OwnerSeat ||
+            frame.OwnerSeat != _currentSeat || _turnProgression.OwnerSeat != _currentSeat ||
+            _turnProgression.TurnNumber != _turnNumber) return false;
+        ProgramTriggerCandidate? candidate = null;
+        if (context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow && _phase == TurnPhase.Draw &&
+            _resolutionStack[index - 1] is ProgramLifecycleTriggerWindowFrame start && start.Id == context.ParentFrameId &&
+            start.Window == context.Window && start.OwnerSeat == frame.OwnerSeat &&
+            start.CandidateIndex >= 0 && start.CandidateIndex < start.Candidates.Count)
+            candidate = start.Candidates[start.CandidateIndex];
+        if (context.Window == SkillProgramTriggerWindow.AfterTurnEnded &&
+            _resolutionStack[index - 1] is DeferredTurnEndFrame ending && ending.OwnerSeat == frame.OwnerSeat &&
+            MatchesAfterTurnEndedChild(ending, frame, context))
+            candidate = AfterTurnEndedCandidate(ending);
+        return candidate is not null && candidate.OwnerSeat == frame.OwnerSeat && candidate.SkillId == frame.SkillId &&
+            candidate.BindingId == frame.TriggerId && frame.ActivationId == frame.TriggerId &&
+            candidate.SkillInstanceId == frame.SkillInstanceId && candidate.GameplayHash == frame.GameplayHash &&
+            candidate.OccurrenceIndex == context.OccurrenceIndex;
     }
 
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> VirtualOrdinaryTrickOptions(ProgramSkillFrame frame,
@@ -77,9 +127,11 @@ public sealed partial class GameEngine
         var options = BuildProgramOrdinaryTrickUseOptions(actor, effect.OutputKind, Suit.None,
             enforceUsePermission: true, beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null,
             hasActualColor: true, physicalCardIds: [])
-            .Where(option => effect.OutputKind == CardKind.DrawTwo
-                ? actorSeat == targetSeat && option.TargetSeats.Count == 0
-                : option.TargetSeats.SequenceEqual([targetSeat])).ToArray();
+            .Where(option => UseVirtualOrdinaryTrickProgramOperationDescriptor.IsGroupOutput(effect.OutputKind)
+                ? actorSeat == targetSeat && option.TargetSeats.Count > 0
+                : effect.OutputKind == CardKind.DrawTwo
+                    ? actorSeat == targetSeat && option.TargetSeats.Count == 0
+                    : option.TargetSeats.SequenceEqual([targetSeat])).ToArray();
         return NextActualUseOrdinaryTrickOptions(actor, Array.AsReadOnly(options), Suit.None, null, Suit.None, false);
     }
 
@@ -143,7 +195,7 @@ public sealed partial class GameEngine
     {
         var actorSeat = ResolveProgramParticipant(frame, effect.ActorReference!);
         var targetSeat = ResolveProgramParticipant(frame, effect.TargetReference!);
-        var frozen = effect.Condition.Kind == SkillProgramConditionKind.Always ? (bool?)null :
+        var frozen = effect.Condition.Kind is SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs ? (bool?)null :
             frame.PindianResultBindings.Single(item => item.Name == effect.Condition.SourceBind).SourceWon;
         var origin = new ProgramVirtualOrdinaryTrickOrigin(frame.Id, frame.InstructionIndex,
             frame.WindowContext!.ParentFrameId, frame.OwnerSeat, actorSeat, targetSeat, frame.SkillId,
@@ -187,13 +239,13 @@ public sealed partial class GameEngine
             frame.OwnerSeat != origin.OwnerSeat || frame.SkillId != origin.SkillId ||
             frame.TriggerId != origin.BindingId || frame.SkillInstanceId != origin.SkillInstanceId ||
             frame.GameplayHash != origin.GameplayHash || frame.WindowContext?.ParentFrameId != origin.LifecycleFrameId ||
-            !IsExactOwnPlayEndingProgram(frame)) return false;
+            !IsExactOwnVirtualOrdinaryTrickProgram(frame)) return false;
         var effect = ValidateVirtualOrdinaryTrickInstruction(frame);
         if (effect.OutputKind != origin.OutputKind || effect.Condition.Kind != origin.ConditionKind ||
             effect.Condition.SourceBind != origin.PindianBind ||
             ResolveProgramParticipant(frame, effect.ActorReference!) != origin.InitialActorSeat ||
             ResolveProgramParticipant(frame, effect.TargetReference!) != origin.InitialTargetSeat ||
-            (origin.ConditionKind == SkillProgramConditionKind.Always ? origin.FrozenSourceWon is not null :
+            (origin.ConditionKind is SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs ? origin.FrozenSourceWon is not null :
                 frame.PindianResultBindings.Single(item => item.Name == origin.PindianBind).SourceWon != origin.FrozenSourceWon)) return false;
         // Provider and issuance remain frozen. The actual source may only move
         // along the existing typed, accepted actor-replacement producer chain.
@@ -202,6 +254,38 @@ public sealed partial class GameEngine
 
     private bool IsProgramVirtualOrdinaryTrickUse(long frameId) =>
         LifecycleCardUse(frameId) is { } use && ValidProgramVirtualOrdinaryTrickUse(use);
+
+    private Card ReadVirtualOrdinaryTrickUseAppearance(long ownerId, CardAppearanceReference appearance)
+    {
+        if (LifecycleCardUse(ownerId) is not { VirtualOrdinaryTrickOrigin: not null } use)
+            return ReadDrawFundedDistinctBasicUseAppearance(ownerId, appearance);
+        if (!ValidProgramVirtualOrdinaryTrickUse(use) || appearance.Id != 0 ||
+            appearance.Kind != use.CardKind || appearance.Suit != Suit.None || appearance.Rank != 0)
+            throw new InvalidOperationException("A virtual ordinary trick appearance lost its exact issued use.");
+        return new Card(0, use.CardKind, Suit.None, 0);
+    }
+
+    private bool IsProgramVirtualAreaAttackConsistent(CardAttackHandle attack, IReadOnlyList<Card> processing)
+    {
+        if (LifecycleCardUse(attack.ResolutionId) is not { } use || !ValidProgramVirtualOrdinaryTrickUse(use) ||
+            !UseVirtualOrdinaryTrickProgramOperationDescriptor.IsGroupOutput(use.CardKind) ||
+            ActiveGroupCard is not { Effect: GroupCardEffect.ResponseAttack, CurrentAttack: { } current } group ||
+            group.ResolutionId != use.Id || !SameAttackOwner(current, attack) || group.SourceSeat != use.SourceSeat ||
+            group.DamageSourceSeat != attack.SourceSeat || group.TargetIndex < 0 || group.TargetIndex >= group.TargetSeats.Count ||
+            !group.TargetSeats.SequenceEqual(use.TargetSeats) ||
+            group.RequiredCardKind != (use.CardKind == CardKind.BarbarianAssault ? CardKind.Slash : CardKind.Dodge))
+            return false;
+        var originalTarget = group.TargetSeats[group.TargetIndex];
+        var targetMatches = !attack.DamageRedirected ? attack.TargetSeat == originalTarget :
+            CompleteProgramEventHistory().OfType<ProgramDamageTransferredEvent>().Count(e =>
+                e.ResolutionId == use.Id && e.SourceSeat == group.DamageSourceSeat &&
+                e.OwnerSeat == originalTarget && e.TargetSeat == attack.TargetSeat &&
+                e.DamageAmount > 0 && e.Nature == GetDamageNature(attack)) == 1;
+        return targetMatches && processing.Count == 0 && group.PhysicalCards.Count == 0 && attack.Card is null &&
+            attack.PhysicalCards.Count == 0 && attack.EffectiveCardKind == use.CardKind &&
+            attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is null &&
+            attack.ProgramJudgmentFrameId is null && !attack.IsDelayedJudgmentDamage && !attack.IsSourceLess;
+    }
 
     private bool MatchesVirtualOrdinaryTrickUseAction(long frameId, CardActionContext action, int cardId) =>
         cardId == 0 && IsProgramVirtualOrdinaryTrickUse(frameId) &&

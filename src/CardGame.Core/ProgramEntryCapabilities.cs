@@ -27,6 +27,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.NativeDrawStarting or
         SkillProgramTriggerWindow.ActualPhaseEnded or
         SkillProgramTriggerWindow.IdentityGeneralAppeared or
         SkillProgramTriggerWindow.PindianCardsRevealed or
@@ -41,6 +42,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or
         SkillProgramTriggerWindow.DyingExited or
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        SkillProgramTriggerWindow.RoundEnding or
         SkillProgramTriggerWindow.RoundStarting or
         SkillProgramTriggerWindow.DrawPhaseStarting or
         SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or

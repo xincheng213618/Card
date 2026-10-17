@@ -68,6 +68,11 @@ public sealed class CharacterSkillSet
         ArgumentException.ThrowIfNullOrWhiteSpace(grant.SkillInstanceId);
         ArgumentException.ThrowIfNullOrWhiteSpace(grant.SourceId);
         _ = new ContentId(grant.SkillId);
+        if (grant.IsModeRule && (!grant.SourceId.StartsWith("mode:", StringComparison.Ordinal) || !grant.IsEnabled ||
+            grant.TurnExpiry is not null || grant.PhaseExpiry is not null || grant.LordProjection is not null ||
+            grant.GeneralLibraryProjection is not null || grant.PrintedLordQualification is not null ||
+            grant.HpConditionalSource is not null || grant.EquipmentSuitSource is not null))
+            throw new InvalidOperationException("A mode-rule grant requires an enabled permanent mode source without character projections.");
         if (grant.TurnExpiry is { } expiry &&
             (expiry.TurnNumber <= 0 || expiry.TurnOwnerSeat < 0 ||
              !grant.SourceId.StartsWith("turn:", StringComparison.Ordinal)))
@@ -89,6 +94,7 @@ public sealed class CharacterSkillSet
     public bool RemoveGrant(string grantId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(grantId);
+        if (_grants.TryGetValue(grantId, out var protectedGrant) && protectedGrant.IsModeRule) return false;
         if (!_grants.Remove(grantId)) return false;
         Revision++;
         return true;
@@ -112,6 +118,7 @@ public sealed class CharacterSkillSet
         ArgumentException.ThrowIfNullOrWhiteSpace(grantId);
         if (!_grants.TryGetValue(grantId, out var grant))
             throw new KeyNotFoundException($"Unknown skill grant '{grantId}'.");
+        if (grant.IsModeRule && !enabled) return false;
         if (grant.IsEnabled == enabled) return false;
         _grants[grantId] = grant with { IsEnabled = enabled };
         Revision++;

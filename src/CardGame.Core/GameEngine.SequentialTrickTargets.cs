@@ -4,7 +4,10 @@ public sealed partial class GameEngine
 {
     private static bool UsesSequentialTrickTargets(LegalActionKind kind) => kind is
         LegalActionKind.DrawTwo or LegalActionKind.Dismantlement or LegalActionKind.Snatch or
-        LegalActionKind.FireAttack or LegalActionKind.Duel or LegalActionKind.UnexpectedAssault;
+        LegalActionKind.FireAttack or LegalActionKind.Duel or LegalActionKind.UnexpectedAssault or LegalActionKind.AllianceFeast or
+        LegalActionKind.SowBeans or LegalActionKind.TransplantWood or LegalActionKind.ReturnSoul or
+        LegalActionKind.StarShift or LegalActionKind.HandRedistribution or
+        LegalActionKind.SameBoat or LegalActionKind.StriveUpstream or LegalActionKind.AgainstCurrent;
 
     private IReadOnlyList<int> FreezeSequentialTrickTarget(long frameId, IReadOnlyList<int> targets,
         LegalActionKind kind, int? firstTargetCardId, CardKind? requiredCardKind)
@@ -30,7 +33,7 @@ public sealed partial class GameEngine
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
         if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;
-        if (IsClaimedUseCardEntity(frameId,card.Id) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
+        if (IsClaimedUseCardEntity(frameId,card.Id) || (IsHellDestroyedSoulMaterial(frameId, card.Id) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, card.Id)) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
 
@@ -53,7 +56,7 @@ public sealed partial class GameEngine
             IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
-            : (IsClaimedUseCardEntity(use.Id, use.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId)) ? EntityAtCurrentLocation(use.CardId)
+            : (IsClaimedUseCardEntity(use.Id, use.CardId) || (IsHellDestroyedSoulMaterial(use.Id, use.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId))) ? EntityAtCurrentLocation(use.CardId)
             : _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
         if (afterAttack)
@@ -81,7 +84,7 @@ public sealed partial class GameEngine
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&
                 _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId) &&
-                !IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId))
+                (!IsHellDestroyedSoulMaterial(use.Id, use.CardId) && !IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId)))
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }
     }

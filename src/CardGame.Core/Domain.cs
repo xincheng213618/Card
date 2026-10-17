@@ -12,7 +12,8 @@ public enum Role
     // Compatibility values used by the public-team adapter. They are not
     // identity roles and are never included in an identity RoleCounts map.
     TeamA,
-    TeamB
+    TeamB,
+    Contestant
 }
 
 public enum ContentModeKind
@@ -23,7 +24,8 @@ public enum ContentModeKind
     /// A bounded national-war adapter: each seat owns two generals from one
     /// hidden faction, and the faction/general reveal is an explicit action.
     /// </summary>
-    NationalWarLite
+    NationalWarLite,
+    Survival
 }
 
 public enum GeneralSelectionSlot
@@ -91,7 +93,27 @@ public enum CardKind
     RedBloodBlade = 500,
     GeneralWeapon,
     UnexpectedAssault = 502,
-    Xuanjian = 503
+    Xuanjian = 503,
+    AllianceFeast = 504,
+    WushuangHalberd,
+    PurpleGoldCrown,
+    RedCottonRobe,
+    LionBelt,
+    SowBeans = 520,
+    TransplantWood,
+    ReturnSoul = 540,
+    StarShift = 550,
+    BeamSwap = 551,
+    HandRedistribution = 552,
+    WenheChaos = 553,
+    Poison = 554,
+    NationalStyleRobe,
+    CrimsonSoulZither,
+    QimenEightTrigrams,
+    DustlessGoldenSpear,
+    ShuraInfernoHalberd,
+    DelusionCrown,
+    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604
 }
 
 public enum Suit
@@ -322,7 +344,9 @@ public enum Winner
     TeamB,
     NationalFactionA,
     NationalFactionB,
-    NationalFactionC
+    NationalFactionC,
+    SoleSurvivor,
+    RankedTeams
 }
 
 public enum LegalActionKind
@@ -369,7 +393,16 @@ public enum LegalActionKind
     BorrowedSword,
     UseEquipmentEffect,
     UseProgramSkill,
-    UnexpectedAssault = 502
+    UnexpectedAssault = 502,
+    AllianceFeast = 504,
+    SowBeans = 520,
+    TransplantWood,
+    ReturnSoul = 540,
+    StarShift = 550,
+    BeamSwap = 551,
+    HandRedistribution = 552,
+    WenheChaos = 553,
+    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604
 }
 
 public sealed record GameOptions
@@ -403,6 +436,10 @@ public sealed record GameOptions
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? HumanTeamId { get; init; }
+
+    /// <summary>Free local Wenhe aspiration: top six, four, two, or champion. No account currency is involved.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? WenheAspirationRank { get; init; }
 
     /// <summary>
     /// Runs the deterministic seat/identity/general-selection/deal pipeline.
@@ -1006,6 +1043,17 @@ public sealed record GameSnapshot(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? WinnerFactionId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? WinnerSeat { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public WenheRoundRuleSnapshot? WenheRule { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public WenheAspirationSnapshot? WenheAspiration { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<DragonBoatTeamSnapshot>? DragonBoatStandings { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DragonBoatDraftSnapshot? DragonBoatDraft { get; init; }
 }
 
 public sealed record EngineRunResult(
@@ -1015,6 +1063,8 @@ public sealed record EngineRunResult(
     PendingDecision? PendingDecision,
     long Revision = 0)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? WinnerSeat { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? WinnerTeamId { get; init; }
 
