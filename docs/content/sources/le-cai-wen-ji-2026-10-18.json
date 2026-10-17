@@ -1,0 +1,64 @@
+{
+  "checkedAtUtc": "2026-10-17T17:47:30.713200+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐蔡文姬",
+  "generalId": "le:cai-wen-ji",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "officialHero": "https://x.sanguosha.com/hero/1330.html",
+  "officialHeroSha256": "889872d04328f1420de2bf7ef94c5e91095222914f8e0a21bb9dd20d7a340747",
+  "officialLaunch": "https://sanguosha.com/news/20230707_9812_5709",
+  "officialLaunchSha256": "81b615b4b314a1b64e28a267e27bb78039d5c5c77de9c2cd3e94b2620b48ef90",
+  "launchPublished": "2023-07-07",
+  "firstAvailable": "2023-07-08",
+  "officialPatch": "https://x.sanguosha.com/news/20251119_8021_5913.html",
+  "officialPatchSha256": "12840459b7206f71231ad3db6e4b9c1c761fd9495fcdc24ce5adcfcb0db2e011",
+  "patchPublished": "2025-11-26",
+  "patchEffective": "2025-11-27",
+  "patchText": "修复乐蔡文姬若本局没有标记过胡笳牌，会导致悲愤胡笳少于其他牌时的效果为生效的问题",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133001.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1330.html",
+    "id": "1133001",
+    "name": "经典形象",
+    "sha256": "39af1c09659ffa55132426d8a408c9f4467067e4ebe6d75c6976d14084f96ea3",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-cai-wen-ji.png",
+    "bytes": 615458
+  },
+  "engineeringInterpretations": {
+    "initialEntities": "Freeze actual final opening Hand entities before any GameStarting child, including actual opening replacements. Later skill grants do not initialize old Hand entities.",
+    "entityMarks": "Marks permanently identify original physical entities across transfers and reacquisition. Current Shuangjia holders exempt all marked Hand entities from discard limits.",
+    "ownership": "Own means current Hand and Equipment for incoming distance and marked loss. Judgment, Processing and other piles are excluded. Direct moves between the same owner Hand and Equipment do not lose ownership. Using an entity through Processing is a real loss. The official sources provide no specialized ownership FAQ.",
+    "distance": "One incoming modifier per current holder: plus the count of marked owned Hand and Equipment, capped at five across skill instances. Outgoing distance is unchanged.",
+    "lostBatch": "Each exact source qualifies once for an original real atomic loss batch, including several marked entities. A later grant cannot retroactively qualify an old loss; an already-issued source can drain its original once-only followup after loss. Native survival and game-over boundaries remain authoritative.",
+    "suitGains": "At actual effect start, sample current marked Hand effective suits. Obtain at most one actual DrawPile entity for each missing standard suit, using existing deterministic deck-search order. Do not fabricate unavailable suits, reshuffle, add a fifth None suit or classify the obtains as native draws.",
+    "usePrivilege": "Current marked Hand count must be strictly less than other Hand count. Zero marked cards and a late Beifen grant use the same numeric condition; no initialized-before gate is added. The official patch has an ambiguous typo and is retained literally rather than used to invent a new gate.",
+    "acceptedUse": "Freeze the actual accepted Use source, gameplay hash and qualifying Hand ratio before payment. Later cost or child changes do not revoke that same accepted Use. Ordinary native use counters remain recorded; only ordinary distance and use-count eligibility are relaxed, preserving target prohibitions and intrinsic card restrictions."
+  },
+  "validation": {
+    "status": "passed",
+    "verifiedAtUtc": "2026-10-17T18:11:20.305216+00:00",
+    "focused": {
+      "corePassed": 22,
+      "wpfPassed": 1,
+      "durationMs": 29437
+    },
+    "routine": {
+      "corePassed": 161,
+      "wpfPassed": 36,
+      "durationMs": 65737
+    },
+    "manualFullRun": false,
+    "visualInspection": "Actual WPF details render inspected: official original portrait, Le series, both complete skill descriptions, and the full details area without overflow.",
+    "nativeInput": "Routine native WPF input checks passed after the user released the left button; the real Space input route reported AsyncLeftDown=false.",
+    "coveredBoundaries": [
+      "Actual opening replacement entities, permanent Hu Jia marks across ownership changes, current-holder Hand exemption and directed incoming distance capped at five.",
+      "Original atomic marked HE losses, whole-batch suit obtains, same-owner HE exclusions, real Use and response costs, empty and limited DrawPile without reshuffle.",
+      "Live Hand ratio, zero-mark late grants, normal and converted Use eligibility, accepted-use payment ratio changes, ordinary counters, native Alcohol consumption and preserved target prohibitions.",
+      "Real prepaid Guhuo declaration rights, original source loss, actual gain children, death boundaries, private and stale input rejection and cold replay."
+    ],
+    "scope": "Development focused and routine verification only. Specialized anniversary FAQ/client need branches were not obtained; engineering interpretations remain explicit."
+  }
+}

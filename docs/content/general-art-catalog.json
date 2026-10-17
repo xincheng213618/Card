@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "le-cai-wen-ji",
+      "characterName": "乐蔡文姬",
+      "defaultSkinId": "1133001",
+      "skins": [
+        {
+          "id": "1133001",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1330.html",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-cai-wen-ji.png",
+          "sha256": "39af1c09659ffa55132426d8a408c9f4467067e4ebe6d75c6976d14084f96ea3",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133001.png"
+        }
+      ]
+    },
+    {
       "key": "le-zhou-fei",
       "characterName": "乐周妃",
       "defaultSkinId": "1133101",
