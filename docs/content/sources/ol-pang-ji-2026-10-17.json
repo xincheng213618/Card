@@ -4,7 +4,7 @@
   "capturedAtUtc": "2026-10-17T13:59:42.493014+00:00",
   "ruleset": "sanguosha-ol",
   "variant": "ordinary-current",
-  "status": "pending-root-validation",
+  "status": "implemented-and-verified",
   "identity": {
     "name": "逢纪",
     "factionId": "qun",
@@ -219,13 +219,25 @@
     {
       "topic": "Biguo legal opponent",
       "adoptedContract": "A targeted owner may choose any currently legal other Pindian participant independently of the triggering card user. Primary wording does not restrict the opponent; shipped BiGuo uses a one-target non-self selector supplied by server. No authenticated server selection list is claimed.",
-      "status": "adopted-engine-interpretation-pending-root-validation"
+      "status": "adopted-engine-interpretation-tested"
     },
     {
       "topic": "Simultaneous Douyu opportunity and reward",
       "adoptedContract": "Each participant has one before-reveal opportunity for its single real shared Pindian card. The initiator may choose one real opponent, each opponent may choose only the initiator; choices follow current-turn-owner action order and keep one unique current physical-card assignment. Each committed swap rewards Draw2 only if its actually selected pair is won in the final native comparison. A skipped exchange earns no reward.",
       "authority": "Explicit engineering interpretation of a single physical reveal per participant; no dedicated simultaneous Douyu FAQ verified.",
-      "status": "adopted-engine-interpretation-pending-root-validation"
+      "status": "adopted-engine-interpretation-tested"
+    },
+    {
+      "topic": "Biguo category search",
+      "adoptedContract": "After draining the real discard children, select one real current Deck entity per available printed major category with the engine PRNG. Reveal and obtain those exact entities; absent categories create no card, and the movement is not a Draw.",
+      "authority": "Engineering choice for unspecified within-category search order.",
+      "status": "adopted-engine-interpretation-tested"
+    },
+    {
+      "topic": "Repeated Biguo arms in one actual turn",
+      "adoptedContract": "Multiple completed draw-end arms for the same owner in one actual turn provide one optional Pindian opportunity per exact accepted whole Use. The earliest still-valid arm supplies that opportunity; identical same-name target windows do not duplicate a contest.",
+      "authority": "Engineering deduplication of the same skill trigger; no dedicated repeated-Draw FAQ verified.",
+      "status": "adopted-engine-interpretation-tested"
     }
   ],
   "art": {
@@ -246,7 +258,7 @@
     "imageType": "PNG",
     "derivation": "Unmodified current official identity API cover response; no re-encoding, crop or redraw.",
     "originalImageVisuallyInspected": true,
-    "validationStatus": "pending-root-validation",
+    "validationStatus": "original-and-real-gallery-render-visually-inspected",
     "inspectionDetail": "Original-resolution 750x950 PNG inspected: black-bearded adviser in a gold-trimmed ceremonial crown, pale fur-collared cloak and green bead ornaments, leaning to whisper toward another person above a strategy table in a dark tent. Complete official portrait retained without local edits."
   },
   "verification": {
@@ -254,12 +266,44 @@
     "officialAvailabilityVerified": true,
     "currentClientBothSkillsVerified": true,
     "originalPortraitVisuallyInspected": true,
-    "runtimeImplemented": false,
-    "registered": false,
-    "galleryRegistered": false,
-    "focusedCorePassed": false,
-    "focusedWpfPassed": false,
-    "routinePassed": false,
-    "noDedicatedOfficialFaqClaimed": true
-  }
+    "runtimeImplemented": true,
+    "registered": true,
+    "galleryRegistered": true,
+    "focusedCorePassed": true,
+    "focusedWpfPassed": true,
+    "routinePassed": true,
+    "noDedicatedOfficialFaqClaimed": true,
+    "focusedCoreDistinctChecksPassed": 15,
+    "finalCommitTreeFocusedCoreChecksPassed": 9,
+    "focusedWpfChecksPassed": 2,
+    "ordinaryRoutine": {
+      "corePassed": 148,
+      "wpfPassed": 28,
+      "durationMs": 111577
+    },
+    "commitTreeRoutine": {
+      "corePassed": 159,
+      "wpfPassed": 35,
+      "durationMs": 72946
+    },
+    "manualFullRun": false,
+    "originalAndRenderedGalleryVisuallyInspected": true,
+    "ordinaryCompiledSourceAuditsWithZeroDrift": 4,
+    "commitTreeCompiledSourceAuditsWithZeroDrift": 4,
+    "commitTreeSemanticInputsWithZeroDrift": 3926,
+    "concurrentCommittedBasePreserved": "498f8414e926336b0d1c80e8cecd008e11a9a6bf",
+    "uncommittedConcurrentWorkExcluded": true,
+    "pushPerformed": false
+  },
+  "verifiedAtUtc": "2026-10-17T15:05:46.544566+00:00",
+  "runtimeBoundaries": [
+    "Real DrawPhaseEnded HE discard children before revealed category obtain; obtain never becomes Draw and missing categories never create entities.",
+    "Each accepted actual designated Use retains an exact paid Biguo arm and one native opponent selection, including a different legal other from its card user.",
+    "Final native Pindian result publishes printed-category bans before claims and bonus draws; Use and Played are gated by final effective output kind while discard, gifts, Pindian and Recast remain legal.",
+    "A declared existing Use retains its real additional-target queries after a new ban; the next forced new Slash is still prohibited.",
+    "Pair and simultaneous Douyu preserve original entity/payment-zone invoices and one physical assignment permutation, blind choices, native rank modifiers and claims.",
+    "Paid native draw children may lose source or kill the recipient; the living original opponent can finish the exact paid claim without duplicating draw or cleanup.",
+    "Exact retired Biguo Pindian movement batches resume their owning program before the original Use continues.",
+    "Native TurnEnded releases type bans before a real Dianjun tail Play in the same actual turn number."
+  ]
 }

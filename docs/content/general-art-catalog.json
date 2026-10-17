@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "ol-pang-ji",
+      "characterName": "逢纪",
+      "defaultSkinId": "67900",
+      "skins": [
+        {
+          "id": "67900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/679",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-pang-ji.png",
+          "sha256": "1a0c6d34f44fe0891b0fa3af3d032e0d1d7fe8915242b32f24b5542b53c8c3ca",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "ol-tao-qian",
       "characterName": "陶谦",
       "defaultSkinId": "64900",
