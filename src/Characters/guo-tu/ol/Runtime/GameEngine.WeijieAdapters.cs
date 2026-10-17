@@ -7,7 +7,7 @@ public sealed partial class GameEngine
   var parentIndex=_resolutionStack.FindIndex(frame=>frame.Id==p.Need.OwnerFrameId);
   var useIndex=_resolutionStack.FindIndex(frame=>frame.Id==use.Id);
   if(parentIndex<0||useIndex!=parentIndex+1||_resolutionStack[parentIndex]is not ProgramSkillFrame{WeijieReturn:{}r}parent||r.Origin!=p||r.UseId!=use.Id||r.ActionId!=use.Action!.ActionId||parent.InstructionIndex!=p.Need.InstructionIndex||GetPausedPrivateOfferEffect(parent)?.Op!=p.Need.RequestOp||attack.ProgramSkillCardUseFrameId!=parent.Id||r.Returned)return false;
-  if((parent.Chanshuang is not null||parent.WuJing is not null||parent.LvKuangLvXiang is not null||parent.CaoChun is not null)&&!HasWeijieSpecializedPayment(parent,use))return false;
+  if((TryGetSayingSlashRequest(parent,out _,out _)||parent.Chanshuang is not null||parent.WuJing is not null||parent.LvKuangLvXiang is not null||parent.CaoChun is not null)&&!HasWeijieSpecializedPayment(parent,use))return false;
   var outerCards=_resolutionStack.Take(parentIndex).OfType<CardUseFrame>().SelectMany(frame=>frame.PhysicalCardIds??[]).Where(id=>_cardZones.GetLocation(id)==CardLocation.Processing).Distinct().Order().ToArray();
   return processing.Select(card=>card.Id).Order().SequenceEqual(outerCards);
  }
@@ -22,6 +22,7 @@ public sealed partial class GameEngine
  {
   if(f.WeijieReturn is not{}r||r.Origin is not{}p||!ValidWeijiePayment(p)||p.EffectiveName!=ProgramBasicCardName(p.OutputKind)||p.Need.OwnerFrameId!=f.Id||p.Need.RequestFrameId!=f.Id||p.Need.InstructionIndex!=f.InstructionIndex||!IsSlashCard(p.OutputKind)||ProgramEventHistory<WeijieAttemptResolvedEvent>().Count(e=>e.FrameId==p.AttemptId&&e.Matched&&e.NativeLegal)!=1)return false;
   if(use is not null&&(use.WeijieOrigin!=p||r.UseId!=use.Id||r.ActionId!=use.Action?.ActionId||!IsIssuedWeijieUse(use)))return false;
+  if(TryGetSayingSlashRequest(f,out _,out _))return HasSayingWeijiePayment(f,use);
   if(f.Chanshuang is{}cs)return TryGetChanshuangSlashRequest(f,out var actor,out var targets)&&actor==p.Need.ActorSeat&&targets.SequenceEqual([p.TargetSeat])&&cs.Stage is ChanshuangStage.SlashIssuing or ChanshuangStage.NativeUse or ChanshuangStage.NativeChildren&&
    cs.Selection is{Materials.Count:0,Sources:[var csSource]}selection&&csSource==p.Source&&selection.ActorSeat==p.Need.ActorSeat&&selection.ProviderSeat==p.Need.ProviderSeat&&selection.TargetSeat==p.TargetSeat&&selection.Kind==p.OutputKind&&
    (cs.Stage!=ChanshuangStage.NativeChildren||r.Returned&&cs.NativeReturned&&cs.Native is{}csNative&&csNative.UseId==r.UseId&&csNative.ActionId==r.ActionId&&csNative.Selection==selection&&LifecycleCardUse(r.UseId)is null&&ProgramEventHistory<WeijieUseReturnedEvent>().Count(e=>e.AttemptId==p.AttemptId&&e.UseId==r.UseId&&e.ActionId==r.ActionId)==1&&ProgramEventHistory<ChanshuangSlashReturnedEvent>().Count(e=>e.FrameId==f.Id&&e.Cursor==cs.Cursor&&e.UseId==r.UseId&&e.ActionId==r.ActionId)==1);

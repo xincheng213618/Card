@@ -34,7 +34,8 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
-        IEnumerable<LegalAction> actions) =>
+        IEnumerable<LegalAction> actions,
+        Card? nativeOriginalCard = null) =>
         actions.Where(action =>
         {
             if (HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly))
@@ -46,7 +47,7 @@ public sealed partial class GameEngine
                 if (action.TargetSeats.Any(targetSeat => targetSeat != actor.Seat))
                     return false;
             }
-            if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
+            if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind, nativeOriginalCard)) return true;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
                     ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
             // Zero identifies a genuine material-free action, so only real entities have a physical color.
@@ -83,7 +84,8 @@ public sealed partial class GameEngine
     private bool TryGetLegalActionEffectiveCardKind(
         CharacterState actor,
         LegalAction action,
-        out CardKind effectiveKind)
+        out CardKind effectiveKind,
+        Card? nativeOriginalCard = null)
     {
         effectiveKind = default;
         if (action.Kind is LegalActionKind.EndPlay or LegalActionKind.Recast ||
@@ -100,7 +102,9 @@ public sealed partial class GameEngine
         }
 
         effectiveKind = action.PlayedCardKind ??
-            GetPlayableCards(actor).Single(card => card.Id == cardId).Kind;
+            (nativeOriginalCard is { } original && original.Id == cardId
+                ? original.Kind
+                : GetPlayableCards(actor).Single(card => card.Id == cardId).Kind);
         return true;
     }
 

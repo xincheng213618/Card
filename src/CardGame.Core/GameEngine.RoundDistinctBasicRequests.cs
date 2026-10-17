@@ -7,19 +7,21 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> RoundDistinctBasicRequestedSlashChoices(ProgramSkillFrame frame,
         int actorSeat, IReadOnlyList<int> targetSeats, string? resultBind = null)
     {
-        if (!_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse || !IsValidPlayerSeat(actorSeat) ||
+        if (!(_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse || HasLeiluanCapability) || !IsValidPlayerSeat(actorSeat) ||
             !_players[actorSeat].IsAlive) return [];
         var actor = _players[actorSeat];
         var choices = new List<PromptChoice>();
         var nearest = resultBind is null;
         var action = nearest ? "request-slash-nearest" : "request-slash";
         foreach (var selection in GetProgramMultiCardViewAsSelections(actor, CardKind.Slash, forResponse: false)
-                     .Where(s => ViewAsRule(s.Source)?.RoundDistinctBasicUse is not null && IsSlashCard(s.OutputKind))
+                     .Where(s => (ViewAsRule(s.Source) is { RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }) && IsSlashCard(s.OutputKind))
                      .DistinctBy(s => (s.Source, s.OutputKind, Cards: string.Join('-', s.Cards.Select(c => c.Id).Order()))))
         foreach (var targetSeat in targetSeats)
         {
             if (!RoundDistinctBasicRequestedSlashTarget(actor, selection, targetSeat)) continue;
             var ids = selection.Cards.Select(card => card.Id).ToArray();
+            var countLabel = IsLeiluanSource(selection.Source)
+                ? ids.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) : "两";
             var parameters = new Dictionary<string, string>
             {
                 ["program-action"] = action,
@@ -37,7 +39,7 @@ public sealed partial class GameEngine
             AddConversionParameters(parameters, selection.Source);
             choices.Add(PromptChoiceProjection.Freeze(new PromptChoice(
                 new ChoiceId($"program-{action}.frame-{frame.Id}.pair.{selection.Source.SkillId}.{selection.Source.BindingId}.{selection.Source.SkillInstanceId}.{selection.OutputKind}.{string.Join('-', ids)}.seat-{targetSeat}"),
-                DescribeConversion(selection.Source, $"将两张牌当【{CardCatalog.Get(selection.OutputKind).DisplayName}】使用，攻击 {_players[targetSeat].Name}。"),
+                DescribeConversion(selection.Source, $"将{countLabel}张牌当【{CardCatalog.Get(selection.OutputKind).DisplayName}】使用，攻击 {_players[targetSeat].Name}。"),
                 ids, [targetSeat], parameters)));
         }
         return Array.AsReadOnly(choices.ToArray());
@@ -66,11 +68,12 @@ public sealed partial class GameEngine
             !AssistedChoicesEqual([published], [selected]) ||
             RoundDistinctBasicRequestedSlashChoices(frame, actorSeat, targetSeats, resultBind)
                 .SingleOrDefault(choice => choice.Id == selected.Id) is not { } canonical ||
-            !AssistedChoicesEqual([canonical], [selected]) || selected.Cards.Count != 2 || selected.Targets.Count != 1 ||
+            !AssistedChoicesEqual([canonical], [selected]) || selected.Cards.Count == 0 || selected.Targets.Count != 1 ||
             !Enum.TryParse<CardKind>(selected.Parameters.GetValueOrDefault("effective-kind"), out var kind) || !IsSlashCard(kind))
             throw new InvalidOperationException("A requested pair Slash changed its published source, materials, kind or native target frontier.");
         var source = RequireConversionSource(selected);
-        if (ViewAsRule(source)?.RoundDistinctBasicUse is null ||
+        if (ViewAsRule(source) is not ({ RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }) ||
+            !IsLeiluanSource(source) && selected.Cards.Count != 2 ||
             FindProgramMultiCardViewAsSelection(_players[actorSeat], selected.Cards, kind, false, source) is not { } selection ||
             selection.OutputKind != kind || !RoundDistinctBasicRequestedSlashTarget(_players[actorSeat], selection, selected.Targets[0]))
             throw new InvalidOperationException("A requested pair Slash lost its exact currently legal conversion payment.");

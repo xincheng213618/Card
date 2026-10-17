@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:xiewei": {
+      "name": "卸尾",
+      "description": "你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。",
+      "authorityName": "饵"
+    },
+    "ol:youque": {
+      "name": "诱阙",
+      "description": "出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。",
+      "activationLabels": {
+        "minimum-bait-pindian": "用最小的饵拼点"
+      }
+    }
+  }
+}

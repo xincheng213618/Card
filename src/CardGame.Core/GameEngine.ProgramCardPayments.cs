@@ -417,7 +417,7 @@ public sealed partial class GameEngine
         var subject = _players[subjectSeat];
         var projectedRange = ConvertRuleValue(EvaluateAttackRange(subject, equipmentCardId));
         var projectedCount = _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
-            (IsGameFactionAttackRangeTarget(subjectSeat, player.Seat) ||
+            (HasSayingRoundRange(subjectSeat, player.Seat) || IsGameFactionAttackRangeTarget(subjectSeat, player.Seat) ||
              ConvertRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange));
         return projectedCount < CountLivingInAttackRange(subjectSeat);
     }

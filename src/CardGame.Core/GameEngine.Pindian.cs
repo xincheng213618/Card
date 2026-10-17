@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private void BeginSharedPindian(long parentId, SkillPromptPresentation presentation, int sourceSeat,
         int? opponentSeat = null, int? sourceCardId = null,
         string? programResultBind = null,
-        SkillProgramCardSetVisibility programResultVisibility = SkillProgramCardSetVisibility.Public)
+        SkillProgramCardSetVisibility programResultVisibility = SkillProgramCardSetVisibility.Public,
+        PindianOwnedPileSource? ownedPileSource = null)
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault()?.Id != parentId ||
             _resolutionStack.Any(item => item is PindianFrame) || !_players[sourceSeat].IsAlive ||
@@ -18,7 +19,8 @@ public sealed partial class GameEngine
             ProgramResultBind: programResultBind,
             ProgramResultVisibility: programResultVisibility,
             ParentProcessingCardIds: Array.AsReadOnly(_cardZones.CardsAt(CardLocation.Processing)
-                .Select(card => card.Id).Order().ToArray()));
+                .Select(card => card.Id).Order().ToArray())) { OwnedPileSource = ownedPileSource };
+        AssertOwnedPilePindianSource(frame);
         PushRuntimeFrame(frame);
         PublishPindianSelection(frame);
     }
@@ -121,11 +123,14 @@ public sealed partial class GameEngine
     {
         var source = _players[frame.SourceSeat];
         var opponent = _players[frame.OpponentSeat!.Value];
-        var sourceCard = _cardZones.CardsAt(frame.SourceUsesDrawPileTop?CardLocation.Processing:CardLocation.Hand(source.Seat)).Single(card => card.Id == frame.SourceCardId);
+        AssertOwnedPilePindianSource(frame);
+        var sourceLocation = frame.OwnedPileSource?.Pile.Location ??
+            (frame.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(source.Seat));
+        var sourceCard = _cardZones.CardsAt(sourceLocation).Single(card => card.Id == frame.SourceCardId);
         var opponentCard = _cardZones.CardsAt(opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat)).Single(card => card.Id == opponentCardId);
         var sourceIdentityRank = CaptureAlcoholPindianRank(frame, source, sourceCard, true, frame.SourceUsesDrawPileTop);
         var opponentIdentityRank = CaptureAlcoholPindianRank(frame, opponent, opponentCard, false, opponentTop);
-        if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, sourceLocation, CardLocation.Processing, CardMoveReasons.PindianReveal);
         MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));
         if (TryBeginPairPindianReveal(frame,result)) return;
@@ -198,6 +203,7 @@ public sealed partial class GameEngine
     private void AssertPindianInvariant()
     {
         var frames = _resolutionStack.OfType<PindianFrame>().ToArray();
+        foreach (var owned in frames) AssertOwnedPilePindianSource(owned);
         if (frames.Length == 0) return;
         if (frames.Length == 1 && IsPairPindianRevealSubtree(frames[0])) { AssertPindianRevealWindows(); return; }
         if (frames.Length != 1 || _resolutionStack.Count < 2 || _resolutionStack[^1] != frames[0] ||

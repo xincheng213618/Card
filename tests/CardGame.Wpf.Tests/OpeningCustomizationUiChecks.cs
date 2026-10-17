@@ -257,16 +257,21 @@ internal static class OpeningCustomizationUiChecks
                 ReferenceEquals(Keyboard.FocusedElement, window.FindName("ChangeOpeningHandButton")),
                 "Tab moves from random to the inline replacement action without starting the match.");
             Press((Button)window.FindName("ChangeOpeningHandButton"), Key.Enter);
-            var replaceTarget = vm.Hand.First(card => card.Kind != CardKind.ZhangbaSerpentSpear);
+            var replaceTarget = vm.Hand.First();
             Program.Assert(replaceTarget.IsPlayable, "Opening cards remain selectable in the actual hand area.");
             var handButton = Program.Find<Button>((ItemsControl)window.FindName("HandCards")).Single(button =>
                 ReferenceEquals(button.Command, vm.SelectCardCommand) && ReferenceEquals(button.CommandParameter, replaceTarget));
             Press(handButton, Key.Enter);
+            var replacement = vm.OpeningCardChoices
+                .OrderByDescending(choice => EquipmentCatalog.IsEquipment(choice.Kind))
+                .First(choice => vm.OpeningCardChoices.Count(candidate =>
+                    candidate.Name.Contains(CardCatalog.Get(choice.Kind).DisplayName, StringComparison.Ordinal)) == 1);
+            var replacementName = CardCatalog.Get(replacement.Kind).DisplayName;
             vm.OpeningCardSearch = "__missing_card__";
             Program.Assert(vm.OpeningCardChoices.Count == 0 && !vm.ReplaceOpeningCardCommand.CanExecute(null),
                 "An empty card search cannot submit a replacement.");
-            vm.OpeningCardSearch = "丈八";
-            Program.Assert(vm.IsOpeningHandEditorOpen && vm.OpeningCardChoices.Single().Kind == CardKind.ZhangbaSerpentSpear &&
+            vm.OpeningCardSearch = replacementName;
+            Program.Assert(vm.IsOpeningHandEditorOpen && vm.OpeningCardChoices.Single().Kind == replacement.Kind &&
                 replaceTarget.IsSelected && !vm.IsOpeningDealVisible,
                 "The inline editor filters by card name and highlights the selected existing hand card without an opening overlay.");
             var openingSearch = (TextBox)window.FindName("OpeningCardSearchBox");
@@ -277,11 +282,11 @@ internal static class OpeningCustomizationUiChecks
                 "Search typing and Enter belong to the search box and cannot confirm the opening hand.");
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-replace.png"));
             Press((Button)window.FindName("ReplaceOpeningCardButton"), Key.Enter);
-            Program.Assert(vm.Hand.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
+            Program.Assert(vm.Hand.Single(card => !repeatedOpeningCards.Contains(card.Id)).Kind == replacement.Kind &&
                 vm.Hand.All(card => card.Id != replaceTarget.Id) && vm.Hand.Count == oldCards.Length &&
                 openingGame.AcceptedCommands.Count == beforeSearchKey + 1 && openingGame.State.TurnNumber == 0 &&
                 vm.CanRerollOpeningHand && !vm.IsOpeningDealVisible,
-                "The actual inline replacement button swaps one real hand card for Zhangba and keeps the match before its first turn.");
+                "The actual inline replacement button swaps one real hand card for its published replacement and keeps the match before its first turn.");
             var saved = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0));
             vm.SaveGameCommand.Execute(null);
             vm.LoadManualGameCommand.Execute(null);

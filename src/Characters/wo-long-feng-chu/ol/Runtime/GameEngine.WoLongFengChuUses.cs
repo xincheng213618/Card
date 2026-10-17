@@ -111,7 +111,7 @@ public sealed partial class GameEngine
         var logical = new Card(0, kind, Suit.None, 0);
         return targets.Count > 0 && targets.All(target => CanUseSlashTarget(actor, _players[target], logical, source, kind,
             noEffectiveRank: true, physicalCardIds: [], excludedEquipmentSlot: slot) &&
-            (intent is EquipmentSlotNamedUseIntent.Qinglong or EquipmentSlotNamedUseIntent.BorrowedSword ||
+            (intent is EquipmentSlotNamedUseIntent.Qinglong or EquipmentSlotNamedUseIntent.BorrowedSword or EquipmentSlotNamedUseIntent.SayingSlash ||
              CanSpendSlashUse(actor, _players[target], false, kind, effectiveRank: 0, excludedEquipmentSlot: slot, physicalCardIds: [])));
     }
     private bool IsEquipmentSlotNamedActionPayable(CharacterState actor, LegalAction action) =>
@@ -223,6 +223,9 @@ public sealed partial class GameEngine
         if (!actor.IsAlive || _winner != Winner.None)
         {
             AdvanceEventRulesAndQueueFact(new EquipmentSlotNamedUseCancelledEvent(paid.FrameId));
+            if (draft.Intent == EquipmentSlotNamedUseIntent.SayingSlash && draft.OriginalParentId is { } sayingParent &&
+                _resolutionStack.LastOrDefault() is ProgramSkillFrame saying && saying.Id == sayingParent)
+            { FinishSayingSuppliedSlashFailure(saying); return true; }
             if (draft.OriginalParentId is { } pingduanParent) TryCancelKeBiNengPingduanBasicPayment(pingduanParent);
             return true;
         }
@@ -240,8 +243,17 @@ public sealed partial class GameEngine
             if (actor.IsHuman && _phase == TurnPhase.Play && _currentSeat == actor.Seat) RequestHumanPlay();
             return true;
         }
+        if (draft.Intent == EquipmentSlotNamedUseIntent.SayingSlash && !SayingEquipmentSlotUseStillLegal(actor, draft))
+        {
+            AdvanceEventRulesAndQueueFact(new EquipmentSlotNamedUseCancelledEvent(paid.FrameId));
+            ClearPendingDecision(); _status = EngineStatus.Running;
+            if (draft.OriginalParentId is { } sayingParent && _resolutionStack.LastOrDefault() is ProgramSkillFrame saying && saying.Id == sayingParent)
+                FinishSayingSuppliedSlashFailure(saying);
+            return true;
+        }
         _pendingDecision = draft.OriginalDecision;
-        if (draft.Intent == EquipmentSlotNamedUseIntent.Play)
+        if (draft.Intent == EquipmentSlotNamedUseIntent.SayingSlash) ResolveSayingTieredSlash(draft.ResponseChoice!);
+        else if (draft.Intent == EquipmentSlotNamedUseIntent.Play)
         { ClearPendingDecision(); ExecuteTieredRoundZeroPlay(actor, draft.PlayAction!); }
         else if (draft.Intent == EquipmentSlotNamedUseIntent.Dodge) ResolveTieredRoundZeroDodge(actor, draft.Source);
         else if (draft.Intent == EquipmentSlotNamedUseIntent.Nullification) ResolveTieredRoundZeroCounterspell(actor, draft.Source);

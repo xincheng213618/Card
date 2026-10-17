@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jiyun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-categories",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{"op": "initializeJiyunCategoryGrain", "target": "owner"}]
+        },
+        {
+          "id": "preparation-recipients",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [{"op": "resolveJiyunPreparationDrawLeases", "target": "owner"}]
+        },
+        {
+          "id": "completed-drawn-entity",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [{"op": "collectJiyunCompletedUseEntities", "target": "owner"}]
+        }
+      ]
+    },
+    {
+      "id": "ol:shuliang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-distribution",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [{"op": "distributeShuliangEndingGrain", "target": "owner"}]
+        }
+      ]
+    }
+  ]
+}

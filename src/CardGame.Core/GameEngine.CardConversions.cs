@@ -330,7 +330,8 @@ public sealed partial class GameEngine
         if (!owner.IsAlive) return [];
 
         var bindings = GetSkillBindingShard(owner).ProgramInstances;
-        if (!bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
+        var leiluan = LeiluanSelections(owner, outputKind, forResponse, ignoreSuitUseProhibition);
+        if (leiluan.Count == 0 && !bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
@@ -349,6 +350,7 @@ public sealed partial class GameEngine
                      (forResponse ? rule.ForResponse || rule.RoundDistinctBasicUse is not null && dyingUse && rule.ForPlay : rule.ForPlay) &&
                      (rule.RoundDistinctBasicUse is not null || !IsCardUseForbidden(owner.Seat, outputKind,
                          forResponse ? CardActionType.Response : CardActionType.Use)) &&
+                     (rule.XieweiBaitBasicUse is null || XieweiNativeDirection(owner, outputKind, forResponse)) &&
                      CanUseRoundDistinctBasicConversion(owner, instance, rule, forResponse, dyingUse) &&
                      rule.Condition.Evaluate(context)))
         {
@@ -368,7 +370,7 @@ public sealed partial class GameEngine
                     MatchesRoundDistinctBasicMaterials(owner, rule, cards))
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
-        return selections
+        return selections.Concat(leiluan)
             .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
             .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
@@ -471,7 +473,7 @@ public sealed partial class GameEngine
         BorrowedSwordHandle? borrowedSword = null,
         bool enforceOwnTurnSlashLimit = true)
     {
-        var effectiveKind = ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null
+        var effectiveKind = ViewAsRule(selection.Source) is { RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }
             ? selection.OutputKind : CardKind.Slash;
         var current = FindProgramMultiCardViewAsSelection(
             source,
@@ -480,14 +482,14 @@ public sealed partial class GameEngine
             forResponse: false,
             selection.Source);
         if (current is null || !(borrowedSword is null
-                ? CanUseVirtualSlashTarget(source, target, effectiveKind, physicalSuit: PhysicalGroupSuit(source,current.Cards), effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())
-                : IsLegalBorrowedSwordSlashTarget(source, target, effectiveKind, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())))
+                ? CanUseVirtualSlashTarget(source, target, effectiveKind, physicalSuit: ProgramMultiCardSuit(source, current), effectiveColor:ProgramMultiCardColor(source, current), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())
+                : IsLegalBorrowedSwordSlashTarget(source, target, effectiveKind, physicalSuit:ProgramMultiCardSuit(source, current), allowAnyPhysicalSuit:false, effectiveColor:ProgramMultiCardColor(source, current), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())))
             throw new InvalidOperationException("The configured multi-card Slash is no longer legal.");
 
         ResolveSlashCore(
             source,
             target,
-            current.Cards[0],
+            IsXieweiSelection(current) ? ApplyProgramUseAppearance(source, current.Cards[0], current.Source) : current.Cards[0],
             effectiveKind,
             source.Seat,
             borrowedSword: borrowedSword,
@@ -514,11 +516,21 @@ public sealed partial class GameEngine
             card.Id,
             card.Kind,
             FindOwnedCardLocation(responder, card),CapturePhysicalCardColor(responder.Seat,card))).ToArray();
+        PrepareLeiluanResponsePayment(responder, current, resolutionId);
+        PrepareXieweiResponsePayment(responder, current, resolutionId, actorSeat);
+        var xieweiPayment = IsXieweiSelection(current);
+        if (xieweiPayment && !TryPayXieweiMaterials(current.Cards, responder.Seat, null, CardMoveReasons.Respond))
+            throw new InvalidOperationException("The configured Xiewei response has no exact issued public-pile payment.");
         var completedResponseUseSuit = actorSeat is null || actorSeat == responder.Seat
             ? FreezeCompletedResponseUseSuit(responder, current.Cards, selection.OutputKind) : null;
+        var leiluanAtomicPayment = ViewAsRule(current.Source)?.LeiluanBasicUse is not null;
+        if (leiluanAtomicPayment && !xieweiPayment)
+            MoveProgramCardsFromMultipleSources(current.Cards.Select(c => c.Id).ToArray(), CardLocation.Processing,
+                CardMoveReasons.Respond);
         foreach (var card in current.Cards)
         {
-            MoveCard(card, FindOwnedCardLocation(responder, card), CardLocation.Processing, CardMoveReasons.Respond);
+            if (!leiluanAtomicPayment && !xieweiPayment) MoveCard(card, FindOwnedCardLocation(responder, card),
+                CardLocation.Processing, CardMoveReasons.Respond);
             AdvanceEventRulesAndQueueFact(new CardRespondedEvent(
                 card.Id,
                 responder.Seat,
@@ -540,10 +552,13 @@ public sealed partial class GameEngine
             selection.OutputKind,
             [],
             costs,
-            [selection.Source], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+            [selection.Source], effectiveSuit: xieweiPayment ? Suit.None : completedResponseUseSuit,
+            effectiveRank: xieweiPayment ? 0 : null, effectiveIsRed: xieweiPayment ? null : CaptureActionColor(costs,completedResponseUseSuit)));
         if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);
+        BindLeiluanResponsePayment(resolutionId, action);
+        BindXieweiResponsePayment(resolutionId, action);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         CaptureOffTurnResponseUseOrigin(resolutionId, action);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
@@ -561,7 +576,8 @@ public sealed partial class GameEngine
     private void FinishProgramMultiCardResponse(ProgramMultiCardViewAsSelection selection)
     {
         foreach (var card in selection.Cards)
-            MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.ResponseFinished);
+            if (!IsXieweiResponseRemovedMaterial(selection, card.Id))
+                MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.ResponseFinished);
     }
 
     private void ResolveDuelProgramMultiCardResponse(
@@ -628,6 +644,7 @@ public sealed partial class GameEngine
         cards = cards.Concat(GetEquipment(owner).Concat(GetOwnPublicPileConversionCards(owner)).Where(card =>
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
+        cards = cards.Concat(NativePublicPileSlashUseCards(owner));
         return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,WuJingLiubingUseCard(owner,card,card.Kind)))).DistinctBy(card => card.Id).ToArray();
     }
 
@@ -649,7 +666,7 @@ public sealed partial class GameEngine
         CharacterState provider,
         Card card)
     {
-        if (IsOwnPublicPileCard(provider, card)) return CardKind.Slash;
+        if (IsOwnPublicPileCard(provider, card) && !IsNativePublicPileOriginalChoice(provider, card, card.Kind, false)) return CardKind.Slash;
         var identity = GetProgramCardIdentityMatches(provider, card).FirstOrDefault();
         if (identity is not null) return identity.Identity.OutputKind;
         return IsFactionSlashUse(pending)
@@ -685,7 +702,8 @@ public sealed partial class GameEngine
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
         if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
             programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
-        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && !IsOwnPublicPileCard(owner, card) &&
+        var originalPile = IsNativePublicPileOriginalChoice(owner, card, effectiveKind, forResponse);
+        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
             (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
@@ -698,6 +716,7 @@ public sealed partial class GameEngine
         {
             var source = sources[index];
             var parameters = new Dictionary<string, string>(baseParameters);
+            if (source is null && originalPile) parameters["native-original-public-pile"] = "true";
             if (source is not null) AddConversionParameters(parameters, source);
             var suffix = source is null ? string.Empty : $".conversion-{index}";
             yield return new PromptChoice(
@@ -778,7 +797,8 @@ public sealed partial class GameEngine
         _hasSelectedResponseConversionChoice = false;
         if (selectedChoice)
         {
-            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) && !IsOwnPublicPileCard(provider, responseCard) &&
+            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
+                (!IsOwnPublicPileCard(provider, responseCard) || IsNativePublicPileOriginalChoice(provider, responseCard, effectiveKind, true)) &&
                 IsNativeResponseCard(responseCard, effectiveKind))
                 return null;
             if (selected is not null && candidates.Contains(selected))
@@ -828,7 +848,8 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) && !IsOwnPublicPileCard(provider, card) &&
+        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
+            (!IsOwnPublicPileCard(provider, card) || IsNativePublicPileOriginalChoice(provider, card, effectiveKind, false)) &&
             (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
             (selectedChoice || candidates.Length == 0)) return null;
         throw new InvalidOperationException("A converted card use requires its published source choice.");

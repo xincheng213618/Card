@@ -102,7 +102,7 @@ public sealed partial class GameEngine
     private bool HasRankSlashRange(CharacterState actor, CardKind kind) =>
         IsSlashCard(kind) && (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null);
     private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank, long? existingUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
-        HasJudgedRankSlashDistance(actor.Seat, kind, rank, existingUseFrameId) ||
+        HasSayingRoundRange(actor.Seat, target.Seat) || HasJudgedRankSlashDistance(actor.Seat, kind, rank, existingUseFrameId) ||
         (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) && rank is > 0
             ? (excludedEquipmentId is null && excludedEquipmentSlot is null ? GetCombatDistance(actor.Seat, target.Seat) :
                 ConvertRuleValue(EvaluateDistance(actor, target, excludedEquipmentId, excludedEquipmentSlot))) <= rank.Value

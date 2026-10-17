@@ -18,6 +18,8 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    NativeDrawAttempt = 27570,
+    RoundEndingBoundary = 27545,
     ActualPhaseEnd = 27269,
     FriendDuelResponse = 20300,
     RequestedDeckBasic = 7600,
@@ -75,6 +77,8 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(NativeDrawAttemptFrame), "native-draw-attempt")]
+[JsonDerivedType(typeof(RoundEndingBoundaryFrame), "round-ending-boundary")]
 [JsonDerivedType(typeof(ActualPhaseEndFrame), "actual-phase-end")]
 [JsonDerivedType(typeof(QiaoZhouPreparationFrame), "qiao-zhou-preparation")]
 [JsonDerivedType(typeof(BeiMiHuTurnPreludeFrame), "bei-mi-hu-turn-prelude")]
@@ -117,7 +121,7 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(ProgramDeathTriggerWindowFrame), "program-death-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
-public abstract record ResolutionFrame(
+public abstract partial record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
     ResolutionFrameStep Step)

@@ -126,7 +126,7 @@ public sealed partial class GameEngine
         if (use.CurrentSlashFirePolicy is not null) AssertCurrentSlashFirePolicy(use);
         return (action.ActorSeat == returned.WinnerSeat && use.SourceSeat == returned.WinnerSeat ||
                 MatchesDeclaredActualDamageUse(use, action.ActorSeat, returned.WinnerSeat)) &&
-            (use.TargetSeats.Count == 1 || ((HasWeifuTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) || HasShortRangeSlashTail(use) || HasSameTypeAidTargetTail(use) || HasIssuedOriginalTargetAdditionTail(use) || IsCurrentSlashFireChangedUse(use));
+            (use.TargetSeats.Count == 1 || ((HasWeifuTargetTail(use) || ((HasBingzhongTargetTail(use) || HasChenglieTargetTail(use)) || HasPijingTargetTail(use))) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) || HasShortRangeSlashTail(use) || HasSameTypeAidTargetTail(use) || HasIssuedOriginalTargetAdditionTail(use) || IsCurrentSlashFireChangedUse(use));
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 580)]
     private void AssertRecipientContestPrograms(ProgramSkillFrame f)

@@ -59,6 +59,8 @@ public sealed partial class GameEngine
         if (IsCaoChunInitialRequest(parent))
         { PrepareCaoChunDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;
+        if (IsSayingSlashRequest(parent))
+        { PrepareSayingSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,kind,[],p.Source); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         if (IsChanshuangSlashRequest(parent))
         { PrepareChanshuangSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,kind,[],p.Source); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.ProgramSlash)

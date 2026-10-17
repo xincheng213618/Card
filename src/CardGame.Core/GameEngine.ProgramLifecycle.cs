@@ -601,6 +601,7 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.ZhouQun is not null) return IsNingwuJudgment(pending, frame);
         if (frame?.MaYuanYi is not null) return IsBinghuoJudgment(pending, frame);
         if (frame?.Weifu is not null) return IsWeifuJudgment(pending, frame);
         if (frame?.ZhangJi is not null) return IsZhangJiJudgment(pending, frame);
@@ -627,6 +628,8 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.ZhouQun is not null)
+            return CanBeginNingwuJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.MaYuanYi is not null)
             return CanBeginBinghuoJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.Weifu is not null)
@@ -745,12 +748,22 @@ public sealed partial class GameEngine
         CardMoveReason reason)
     {
         var frame = GetActiveProgramFrame(frameId);
+        var count = ResolveProgramDrawCount(frame, targetSeat, amount, numberExpression);
+        if (count is null) return;
+        var before = frame.FixedRecipient is null ? 0 : PairBenefitSequence;
+        var drawn = DrawCards(_players[targetSeat], count.Value, log: true, reason);
+        CompleteProgramDrawCards(frameId, targetSeat, resultBind, visibility, reason, before, drawn);
+    }
+
+    private int? ResolveProgramDrawCount(ProgramSkillFrame frame, int targetSeat, int amount,
+        SkillProgramNumberExpression? numberExpression)
+    {
         var target = _players[targetSeat];
         if (numberExpression == SkillProgramNumberExpression.OwnerLostHp && !_players[frame.OwnerSeat].HasHpValue ||
             (numberExpression is SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount) && !target.HasHpValue ||
             numberExpression == SkillProgramNumberExpression.LivingPlayersMinHp && _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue))
-        { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return; }
-        var drawCount = numberExpression switch
+        { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return null; }
+        return numberExpression switch
         {
             null => amount,
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => GetHand(target).Count == 0 ? 2 : 1,
@@ -775,8 +788,13 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException(
                 $"Unsupported draw number expression '{numberExpression}'.")
         };
-        var fixedRecipientSequenceBefore = frame.FixedRecipient is null ? 0 : PairBenefitSequence;
-        var drawn = DrawCards(target, drawCount, log: true, reason);
+    }
+
+    private void CompleteProgramDrawCards(long frameId, int targetSeat, string? resultBind,
+        SkillProgramCardSetVisibility visibility, CardMoveReason reason,
+        long fixedRecipientSequenceBefore, IReadOnlyList<int> drawn)
+    {
+        var frame = GetActiveProgramFrame(frameId);
         if (frame.FixedRecipient is not null) CaptureFixedRecipientDraw(frameId, targetSeat, reason, fixedRecipientSequenceBefore, drawn.Count);
         if (frame.WindowContext?.JudgmentReplacement is { } replacement)
         {
@@ -2072,7 +2090,8 @@ public sealed partial class GameEngine
         SkillProgramTriggerWindow window,
         SkillProgramTriggerFacts facts)
     {
-        var candidates = CollectProgramTriggerCandidates(owner, window);
+        var candidates = IncludeYuanJiIssuedReturns(owner, window, Array.AsReadOnly(
+            CollectProgramTriggerCandidates(owner, window).Where(c => !GetProgramTrigger(c).Effects.Any(e => IsYuanJiReturnOp(e.Op))).ToArray()));
         if (candidates.Count == 0) return candidates;
         return candidates
             .Where(candidate =>
@@ -2113,6 +2132,8 @@ public sealed partial class GameEngine
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;
+        if (IsIssuedYuandiCandidate(candidate, context)) return true;
+        if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
@@ -2143,8 +2164,8 @@ public sealed partial class GameEngine
         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
-        if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive && !HasIssuedWeiluDebtCandidate(candidate, context) ||
-            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedMaWanHunjiangCandidate(candidate, context) && !IsIssuedBingjieCandidate(candidate, context) && !HasIssuedZhangYanSujiRewardCandidate(candidate, context) && !HasIssuedWeifuCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) && !IsIssuedQingyaCandidate(candidate, context) ||
+        if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedLeiluanCandidate(candidate, context) && !IsIssuedChenglieCandidate(candidate, context) && !IsIssuedXieweiCandidate(candidate, context) && !IsIssuedGuanHaiYouqueCandidate(candidate, context) ||
+            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedMaWanHunjiangCandidate(candidate, context) && !IsIssuedBingjieCandidate(candidate, context) && !HasIssuedZhangYanSujiRewardCandidate(candidate, context) && !HasIssuedWeifuCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) && !IsIssuedQingyaCandidate(candidate, context) && !IsIssuedJieyanCandidate(candidate, context) && !IsIssuedYuanJiReturn(candidate, context) && !IsIssuedLeiluanCandidate(candidate, context) && !IsIssuedChenglieCandidate(candidate, context) && !IsIssuedXieweiCandidate(candidate, context) && !IsIssuedGuanHaiYouqueCandidate(candidate, context) ||
             _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
@@ -2264,6 +2285,9 @@ public sealed partial class GameEngine
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
                       _players[_currentSeat].IsAlive),
             SkillProgramTriggerWindow.IdentityGeneralAppeared => CanRunIdentityAppearanceCandidate(candidate, context),
+            SkillProgramTriggerWindow.NativeDrawStarting => IsExactNativeDrawCandidate(candidate, context),
+            SkillProgramTriggerWindow.RoundEnding =>
+                owner.IsAlive && _winner == Winner.None && IsExactRoundEndingCandidate(candidate, context),
             SkillProgramTriggerWindow.RoundStarting =>
                 owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
@@ -2337,7 +2361,7 @@ public sealed partial class GameEngine
                         ? !BeforeDamageHasNoSource(beforeDamage) && owner.Seat == beforeDamage.SourceSeat &&
                           (owner.Seat != beforeDamage.TargetSeat || features.HasOperation(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing) ||
                            features.HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && IsIssuedZengdaoCandidate(candidate, context))
-                        : owner.Seat != beforeDamage.TargetSeat),
+                        : trigger.Subject == SkillProgramTriggerSubject.Any || owner.Seat != beforeDamage.TargetSeat),
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
                 SkillProgramTriggerWindow.AfterDamageApplied =>
                 context.Amount > 0 && trigger.Subject switch
@@ -2368,6 +2392,8 @@ public sealed partial class GameEngine
                 (features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
                     ? MatchingLiJueUseDiscardIndexes(batch, candidate).Length > 0
                     : IsSunRuOlChishiTrigger(trigger) ? CanRunSunRuOlChishiCandidate(candidate, context)
+                    : IsTangTangZhiyiTrigger(trigger) ? CurrentTangTangGains(candidate, context) is not null
+                    : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) ? IsIssuedJieyanCandidate(candidate, context)
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
                     : IsDuFuRenYiseTrigger(trigger) ? CurrentDuFuRenGains(candidate, context) is not null
@@ -2848,6 +2874,7 @@ public sealed partial class GameEngine
     private bool HasLivingProgramTriggerBindings(SkillProgramTriggerWindow window) =>
         _players.Any(player => player.IsAlive &&
             (GetSkillBindingShard(player).GetInstanceTriggers(window).Count != 0 ||
+             IncludeYuanJiIssuedReturns(player, window, Array.Empty<ProgramTriggerCandidate>()).Count != 0 ||
              window == SkillProgramTriggerWindow.PlayEnding && IssuedPhaseHandDebtCandidates(player, window, 0).Any()));
 
     private bool TryBeginTurnStartProgramWindow(CharacterState owner)
@@ -3348,6 +3375,10 @@ public sealed partial class GameEngine
         { ReturnDrawPhaseObligationWindow(frame); return; }
         switch (frame.Continuation)
         {
+            case ProgramLifecycleContinuation.ResumeNativeDrawAttempt:
+                ReturnNativeDrawAttemptWindow(frame); break;
+            case ProgramLifecycleContinuation.CompleteRoundEndingBoundary:
+                ReturnRoundEndingLifecycle(frame); break;
             case ProgramLifecycleContinuation.ResumeActualPhaseEnd:
                 ReturnActualPhaseEndWindow(frame); break;
             case ProgramLifecycleContinuation.ResumeYanPuDyingExit:
@@ -3369,6 +3400,7 @@ public sealed partial class GameEngine
             case ProgramLifecycleContinuation.CompleteGameStarting:
                 break;
             case ProgramLifecycleContinuation.NormalTurnStart:
+                if (TryReturnZhouQunPaidPreparation(frame)) break;
                 if (TryReturnDuFuRenPaidPreparation(frame)) break;
                 if (TryReturnChengGongYingPaidPreparation(frame)) break;
                 BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
@@ -3440,7 +3472,7 @@ public sealed partial class GameEngine
         context = CreateZhuijiEndingContext(frame, candidate, context);
         context = AttachPhaseNamePredictionContext(candidate, context);
         if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
-        return context with { ActualPhaseEnd = frame.ActualPhaseEnd };
+        return AttachNativeDrawContext(frame, context with { ActualPhaseEnd = frame.ActualPhaseEnd });
     }
 
     private ProgramSkillWindowContext CreateLifecyclePendingProgramContext(ProgramLifecycleTriggerWindowFrame lifecycle, ProgramTriggerCandidate candidate)
@@ -3456,7 +3488,8 @@ public sealed partial class GameEngine
         context = CreateQingzhongEndingContext(lifecycle, candidate, context);
         context = CreateWeiluEndingContext(lifecycle, candidate, context);
         context = CreateXuRongDyingContext(context);
-        return CreateZhuijiEndingContext(lifecycle, candidate, context) with { ActualPhaseEnd = lifecycle.ActualPhaseEnd };
+        return AttachNativeDrawContext(lifecycle,
+            CreateZhuijiEndingContext(lifecycle, candidate, context) with { ActualPhaseEnd = lifecycle.ActualPhaseEnd });
     }
 
     private void AdvanceProgramLifecycleCandidate(

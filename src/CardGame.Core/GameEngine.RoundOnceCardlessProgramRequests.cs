@@ -21,6 +21,7 @@ public sealed partial class GameEngine
  {
   if(f.InstructionIndex<1||_contentRegistry.Skills.GetValueOrDefault(f.SkillId)?.Program is not {} program||program.GameplayHash!=f.GameplayHash)return false;
   var plan=ProgramInstructionResolver.Default.Resolve(f,program);if(f.InstructionIndex>plan.Instructions.Count||plan.GetPausedInstruction(f.InstructionIndex).Effect.Op!=op)return false;
+  if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out var sayingActor,out _)&&actor==sayingActor;
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out var requested,out _)&&actor==requested;
   if(op==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget)return actor==f.OwnerSeat&&IsWuJingHejiRequest(f);
   if(op==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)return actor==f.OwnerSeat&&f.WindowContext?.Window==SkillProgramTriggerWindow.TurnEnding&&f.WindowContext.TargetSeat==_currentSeat&&f.FixedTargetSlash is {} fixedDraft&&fixedDraft.TargetSeat==_currentSeat&&fixedDraft.TargetSeat!=actor;
@@ -31,6 +32,7 @@ public sealed partial class GameEngine
  private int[] RoundOnceCardlessProgramTargets(ProgramSkillFrame f,int actor,SkillProgramEffectOp op)
  {
   if(!RoundOnceCardlessProgramActor(f,op,actor))return [];
+  if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out _,out var sayingTargets)?sayingTargets.ToArray():[];
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out _,out var targets)?targets.ToArray():[];
   return op switch
   {
@@ -47,7 +49,7 @@ public sealed partial class GameEngine
  private bool RoundOnceCardlessProgramTargetLegal(CharacterState actor,int target,CardConversionSource source,bool ignoreDistance=false)=>IsValidPlayerSeat(target)&&actor.Seat!=target&&_players[target].IsAlive&&!HasBeneficiarySuitShield(actor.Seat,target,Suit.None)&&!IsCardTargetProhibited(_players[target],CardKind.Slash,Suit.None)&&CanUseSlashTarget(actor,_players[target],new(0,CardKind.Slash,Suit.None,0),source,CardKind.Slash,ignoreDistance:ignoreDistance,noEffectiveRank:true,physicalCardIds:[]);
  private IReadOnlyList<PromptChoice> RoundOnceCardlessProgramSlashChoices(ProgramSkillFrame frame,int actorSeat,IReadOnlyList<int> targets,string? resultBind=null)
  {
-  if(frame.RoundOnceCardlessProgramRequest is not null||(! _players[frame.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[frame.OwnerSeat],frame.SkillId,frame.SkillInstanceId)&&!HasIssuedFulueRequest(frame))&&!IsChanshuangSlashRequest(frame)||!IsValidPlayerSeat(actorSeat))return [];
+  if(frame.RoundOnceCardlessProgramRequest is not null||(! _players[frame.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[frame.OwnerSeat],frame.SkillId,frame.SkillInstanceId)&&!HasIssuedFulueRequest(frame))&&!IsChanshuangSlashRequest(frame)&&!IsSayingSlashRequest(frame)||!IsValidPlayerSeat(actorSeat))return [];
   var effect=GetPausedPrivateOfferEffect(frame);if(effect is null)return [];
   var allowed=RoundOnceCardlessProgramTargets(frame,actorSeat,effect.Op);if(allowed.Length==0||targets.Any(t=>!allowed.Contains(t))||resultBind is not null&&resultBind!=effect.ResultBind)return [];
   var result=new List<PromptChoice>();
@@ -58,7 +60,7 @@ public sealed partial class GameEngine
   }
   return Array.AsReadOnly(result.ToArray());
  }
- private PendingDecision RoundOnceCardlessProgramNativeDecision(PendingDecision p)=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==RoundOnceCardlessProgramMarker)?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>c.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker).ToArray())}:p;
+ private PendingDecision RoundOnceCardlessProgramNativeDecision(PendingDecision p)=>ZonghuNativeDecision(p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==RoundOnceCardlessProgramMarker)?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>c.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker).ToArray())}:p);
  private bool TryResolveRoundOnceCardlessProgramSlash(PromptChoice choice,bool advance)
  {
   if(choice.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker)return false;
@@ -68,6 +70,7 @@ public sealed partial class GameEngine
   var source=RequireConversionSource(choice);ClearPendingDecision();var payment=ConsumeRoundOnceCardlessBasic(source,false);
   var receipt=new RoundOnceCardlessProgramRequestReceipt(f.Id,new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId),f.GameplayHash,f.InstructionIndex,effect.Op,actor.Seat,target,effect.ResultBind,prompt.PromptId,prompt.Revision,f.WindowContext?.ParentFrameId,payment);
   ReplaceRuntimeTop(f=f with{RoundOnceCardlessProgramRequest=new(receipt)});AdvanceEventRulesAndQueueFact(new RoundOnceCardlessProgramRequestAcceptedEvent(receipt));
+  if(IsSayingSlashRequest(f))PrepareSayingSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(IsChanshuangSlashRequest(f))PrepareChanshuangSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(effect.Op==SkillProgramEffectOp.RequestSlashByTarget)CommitProgramChoiceResult(f.Id,effect.ResultBind!,RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,actor.Seat,"卫境：视为使用【杀】。");
   else if(effect.Op==SkillProgramEffectOp.RequestSlashAgainstChosenTarget){ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id)with{AssistedSlashRequest=null});CommitProgramChoiceResult(f.Id,effect.ResultBind!,"used-slash",actor.Seat,"卫境：视为使用【杀】。");}
@@ -122,6 +125,7 @@ public sealed partial class GameEngine
  {
   if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{RoundOnceCardlessProgramRequest:{NativeReturned:true}}parent||parent.Id!=id)return false;
   if(!CanContinueIssuedRoundOnceCardlessProgramRequest(parent))throw new InvalidOperationException("Cardless request lost its once completed paid native return.");ReplaceRuntimeTop(parent=parent with{RoundOnceCardlessProgramRequest=null});
+  if(ResumeSayingSuppliedSlash(parent))return true;
   if(ResumeChanshuangSuppliedSlash(parent))return true;
   if(_winner!=Winner.None||_status==EngineStatus.Completed||!_players[parent.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[parent.OwnerSeat],parent.SkillId,parent.SkillInstanceId)&&!HasIssuedFulueRequest(parent))FinishProgramSkill(parent,true);else if(parent.FixedTargetSlash is {Issued:true})TryResumeFixedSlashAndDeclaredDeck(id);else AdvanceRuntimeProgram(id);return true;
  }

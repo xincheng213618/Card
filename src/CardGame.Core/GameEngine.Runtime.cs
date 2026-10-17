@@ -28,6 +28,8 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case NativeDrawAttemptFrame: ContinueNativeDrawAttempt(frameId); break;
+            case CardUseFrame { NativeCardEffectDraw: not null }: ContinueNativeDrawTwo(frameId); break;
             case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
             case QiaoZhouPreparationFrame: ContinueQiaoZhouPreparation(frameId); break;
             case IdentityAppearanceFrame appearance: AdvanceIdentityAppearance(appearance); break;
@@ -59,6 +61,7 @@ public sealed partial class GameEngine
             case RecoveryReplacementFrame: ContinueRecoveryReplacement(); break;
             case EquipmentRecastFrame: ContinueEquipmentRecast(frameId); break;
             case DrawPhaseObligationFrame: ContinueDrawPhaseObligation(frameId); break;
+            case RoundEndingBoundaryFrame: ContinueRoundEndingBoundary(frameId); break;
             case ActualPhaseEndFrame: ContinueActualPhaseEnd(frameId); break;
             case DrawFundedDistinctBasicFrame: ContinueDrawFundedDistinctBasic(frameId); break;
             case ChainedStateBasicFrame: ContinueChainedStateBasic(frameId); break;
@@ -82,6 +85,7 @@ public sealed partial class GameEngine
         // to completed facts, so they are validated by their typed return path.
         var parentId = frame switch
         {
+            NativeDrawAttemptFrame child => child.Context.ParentFrameId,
             IdentityAppearanceFrame child => child.Receipt.ParentFrameId ?? 0,
             RequestedDeckBasicFrame child => child.ParentFrameId,
             DrawFundedDistinctBasicFrame child => child.Payment.RequestFrameId ?? child.Payment.ParentFrameId ?? 0,
@@ -135,6 +139,8 @@ public sealed partial class GameEngine
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)
     {
+        if (_resolutionStack.LastOrDefault()?.NativeDraw is not null)
+            throw new InvalidOperationException("A producer cannot complete with an unconsumed native draw request.");
         if (_resolutionStack.LastOrDefault() is { PendingRecoveryAttempts.Count: > 0 })
             throw new InvalidOperationException("A producer cannot complete with unconsumed recovery attempts.");
         if (_resolutionStack.LastOrDefault()?.PaidFactionRequestCostRecovery is not null)
@@ -229,6 +235,8 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NativeDrawAttemptFrame nativeDraw)
+        { AdvanceRuntimeFrame(nativeDraw.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is BeiMiHuTurnPreludeFrame beforeTurn)
         { AdvanceRuntimeFrame(beforeTurn.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is IdentityAppearanceFrame appearance)
@@ -253,6 +261,8 @@ public sealed partial class GameEngine
         { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
         { AdvanceRuntimeFrame(paidFire.Id); AdvanceRulesAndPublishState(); return; }
+        if (_resolutionStack.LastOrDefault() is RoundEndingBoundaryFrame roundEnd && _pendingDecision is null)
+        { AdvanceRuntimeFrame(roundEnd.Id); AdvanceRulesAndPublishState(); return; }
         if (_resolutionStack.LastOrDefault() is ActualPhaseEndFrame phaseEnd && _pendingDecision is null)
         { AdvanceRuntimeFrame(phaseEnd.Id); AdvanceRulesAndPublishState(); return; }
         if (_resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw)
@@ -268,6 +278,7 @@ public sealed partial class GameEngine
             else { AdvanceRuntimeFrame(recoveryReplacement.Id); AdvanceRulesAndPublishState(); }
             return;
         }
+        if (TryAdvanceZonghuAi()) return;
         if (TryAdvanceWeijieAi()) return;
         if (TryAdvanceRequestedDeckBasicAi()) return;
         if (TryAdvanceDrawFundedDistinctBasicAi()) return;

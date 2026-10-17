@@ -16,6 +16,8 @@ public sealed partial class GameEngine
         if (r.SelectedBasicAction is { ConversionSource: { } conversion } acceptedKenshang &&
             _contentRegistry.GetSkill(conversion.SkillId).Program?.ViewAs.Any(v => v.Id == conversion.BindingId && v.KenshangUse == true) == true &&
             !HasAcceptedKenshangKeAction(f, acceptedKenshang)) return false;
+        if (r.SelectedBasicAction is { ConversionSource.SkillId: "ol:zonghu" } acceptedZonghu &&
+            !HasAcceptedZonghuKeAction(f, acceptedZonghu)) return false;
         var paid = CompleteProgramEventHistory().OfType<KeBiNengPingduanItemPaidEvent>().Where(e => e.FrameId == f.Id).OrderBy(e => e.Item).ToArray();
         if (paid.Length != r.CompletedItems || !paid.Select(e => e.Item).SequenceEqual(Enumerable.Range(1, r.CompletedItems)) || paid.Any(e => e.ActorSeat != actor)) return false;
         if (r.CompletedItems > 0 && (r.NativeUse is null || CompleteProgramEventHistory().OfType<KeBiNengPingduanNativeReturnedEvent>().Count(e => e.Origin == r.NativeUse) != 1)) return false;

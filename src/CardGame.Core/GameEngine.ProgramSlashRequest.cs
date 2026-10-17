@@ -18,13 +18,13 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
+        var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Concat(NativePublicPileSlashUseCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
         var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
         if (!keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
             !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]) &&
-            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]))
+            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]) && !HasZonghuProgramSlash(user, [frame.OwnerSeat]))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -134,7 +134,7 @@ public sealed partial class GameEngine
             selected.Targets.Count != 1 || selected.Targets[0] != frame.OwnerSeat)
             throw new InvalidOperationException("The slash request answer is malformed.");
         var location = _cardZones.GetLocation(cardId);
-        var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat || IsSelectedRequestedDeckBasicMaterial(userSeat, cardId)
+        var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat || IsSelectedRequestedDeckBasicMaterial(userSeat, cardId) || NativePublicPileSlashUseCards(_players[userSeat]).Any(c => c.Id == cardId)
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
         if (card is null || !IsSlashCard(card.Kind) || IsTurnHandCategoryRestricted(_players[userSeat], card))
@@ -183,7 +183,7 @@ public sealed partial class GameEngine
         }
         var participant = _players[participantSeat];
         var nearest = GetNearestLivingCharacterSeats(participantSeat);
-        var slashes = GetHand(participant).Concat(SelectedRequestedDeckBasicCards(participant))
+        var slashes = GetHand(participant).Concat(SelectedRequestedDeckBasicCards(participant)).Concat(NativePublicPileSlashUseCards(participant))
             .Where(card => IsSlashCard(card.Kind))
             .OrderBy(card => card.Id)
             .ToArray();
@@ -192,7 +192,7 @@ public sealed partial class GameEngine
         if (nearest.Length == 0 || !keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(participant, nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(participant, nearest) &&
-            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest))
+            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest) && !HasZonghuProgramSlash(participant, nearest))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
@@ -302,7 +302,7 @@ public sealed partial class GameEngine
             selected.Targets.Count != 1 || selected.Targets[0] != targetSeat)
             throw new InvalidOperationException("The nearest-character slash request answer is malformed.");
         var location = _cardZones.GetLocation(cardId);
-        var card = location == CardLocation.Hand(participantSeat) || IsSelectedRequestedDeckBasicMaterial(participantSeat, cardId)
+        var card = location == CardLocation.Hand(participantSeat) || IsSelectedRequestedDeckBasicMaterial(participantSeat, cardId) || NativePublicPileSlashUseCards(_players[participantSeat]).Any(c => c.Id == cardId)
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
         if (card is null || !IsSlashCard(card.Kind) ||

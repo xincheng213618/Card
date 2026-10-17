@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jieyan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "hand-pair",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveJieyanOppositeEndDrawPair",
+              "target": "owner"
+            }
+          ],
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch"
+        }
+      ]
+    },
+    {
+      "id": "ol:jinghua",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-draw",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveJinghuaRoundDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "turn-bottom",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveJinghuaTurnReturn",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shuiyue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-draw",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveShuiyueTurnDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "round-top",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveShuiyueRoundReturn",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

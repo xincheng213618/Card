@@ -31,7 +31,8 @@ public sealed partial class GameEngine
 
         if (_roundNumber == 0 || _roundTurnSeats.Contains(current.Seat))
         {
-            ReturnDemonRoundHolds();
+            if (!TracksRoundEnding || !ProgramEventHistory<RoundEndedEvent>().Any(e => e.RoundNumber == _roundNumber))
+                ReturnDemonRoundHolds();
             _roundNumber++;
             _roundTurnSeats.Clear();
             _skillRuntimeState.ResetRound();

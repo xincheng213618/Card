@@ -1255,7 +1255,8 @@ public sealed partial class SimpleAiBrain
         int chainDepth,
         IReadOnlyList<int> validCardIds,
         int thoughtSequence,
-        IReadOnlyList<int>? targetSeats = null, bool includeEquipment = false, bool includeGrain = false)
+        IReadOnlyList<int>? targetSeats = null, bool includeEquipment = false, bool includeGrain = false,
+        IReadOnlyList<int>? originalPublicPileCardIds = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
@@ -1286,8 +1287,13 @@ public sealed partial class SimpleAiBrain
             actionScore += 38d;
         }
 
+        var originalIds = originalPublicPileCardIds?.ToHashSet() ?? [];
+        var materials = (includeEquipment
+                ? self.Hand.Concat(self.Equipment).Concat(includeGrain ? self.WoodenOxGrain ?? [] : []) : self.Hand)
+            .Concat(VisibleOriginalPublicPileCards(self).Where(card => originalIds.Contains(card.Id)))
+            .DistinctBy(card => card.Id).ToArray();
         var candidates = validCardIds
-            .Select(cardId => (includeEquipment ? self.Hand.Concat(self.Equipment).Concat(includeGrain ? self.WoodenOxGrain ?? [] : []) : self.Hand).SingleOrDefault(card => card.Id == cardId))
+            .Select(cardId => materials.SingleOrDefault(card => card.Id == cardId))
             .Where(card => card is not null)
             .Select(card =>
             {
@@ -2213,12 +2219,7 @@ public sealed partial class SimpleAiBrain
 
         // Jixi-style conversions may play an authority-zone card (e.g. a Tuntian
         // field as Snatch), so the lookup must mirror the engine's playable sources.
-        var card = self.Hand
-            .Concat(self.WoodenOxGrain ?? [])
-            .Concat(self.Equipment)
-            .Concat(self.AuthorityCards ?? [])
-            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
-            .Single(candidate => candidate.Id == action.CardId);
+        var card = AiActionPhysicalCard(self, action);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
 
@@ -2538,9 +2539,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
-        var card = self.Hand.Concat(self.Equipment)
-            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
-            .Single(candidate => candidate.Id == action.CardId);
+        var card = AiActionPhysicalCard(self, action);
         var effectiveKind = action.PlayedCardKind ?? card.Kind;
         var profile = CardCatalog.Get(effectiveKind);
         var targets = action.TargetSeats

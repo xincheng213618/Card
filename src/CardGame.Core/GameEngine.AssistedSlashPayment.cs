@@ -7,7 +7,8 @@ public sealed partial class GameEngine
         var kind = Enum.Parse<CardKind>(selected.Parameters["effective-kind"]);
         IReadOnlyList<Card> cards;
         CardConversionSource? conversion;
-        if (selected.Cards.Count > 1)
+        if (selected.Cards.Count > 1 || TryReadConversionSource(selected.Parameters, out var selectedSource) &&
+            IsLeiluanSource(selectedSource))
         {
             if (selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString())
             {
@@ -22,7 +23,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(item => item.Id == selected.Cards.Single());
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Concat(NativePublicPileSlashUseCards(actor)).Single(item => item.Id == selected.Cards.Single());
             TryReadConversionSource(selected.Parameters, out _selectedUseConversion);
             _hasSelectedUseConversionChoice = true;
             conversion = GetSelectedUseConversion(actor, actor, card, kind);

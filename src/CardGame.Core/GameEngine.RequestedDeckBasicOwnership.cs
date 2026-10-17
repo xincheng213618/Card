@@ -10,8 +10,8 @@ public sealed partial class GameEngine
         RequestedDeckBasicIntent.FactionSlash => ActiveFactionCardRequest is { } faction && IsFactionSlashUse(faction) ? CardActionType.Use : CardActionType.Response,
         _ => CardActionType.Response
     };
-    private static PendingDecision RequestedDeckBasicNativeDecision(PendingDecision p) => p.Choices.Any(c=>c.Parameters.ContainsKey("deck-basic-source"))
-        ? p with {Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey("deck-basic-source")).ToArray())} : p;
+    private static PendingDecision RequestedDeckBasicNativeDecision(PendingDecision p) => ZonghuNativeDecision(p.Choices.Any(c=>c.Parameters.ContainsKey("deck-basic-source"))
+        ? p with {Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey("deck-basic-source")).ToArray())} : p);
     // These are invariant projections only. They neither remove a parent nor
     // mutate the live request while the private child is awaiting its answer.
     private PendingDecision? RequestedDeckBasicInvariantDecision()

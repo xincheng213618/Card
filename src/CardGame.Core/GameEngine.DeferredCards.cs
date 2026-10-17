@@ -17,14 +17,14 @@ public sealed partial class GameEngine
             .SelectMany(view => view.CardIds)
             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
             .Select(ToSnapshot);
-        return topCards.Concat(DenglouPrivateCards(viewerSeat)).Concat(FanChouPrivateDeckCards(viewerSeat)).Concat(SimaHuiPrivatelyViewedCards(viewerSeat).Select(ToSnapshot)).Concat(MouZhitianPrivateCards(viewerSeat)).Concat(DelegatedJudgmentPrivateCards(viewerSeat)).Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
+        return topCards.Concat(ChengliePrivateCards(viewerSeat)).Concat(TangTangPrivatelyViewedCards(viewerSeat)).Concat(DenglouPrivateCards(viewerSeat)).Concat(FanChouPrivateDeckCards(viewerSeat)).Concat(SimaHuiPrivatelyViewedCards(viewerSeat).Select(ToSnapshot)).Concat(MouZhitianPrivateCards(viewerSeat)).Concat(DelegatedJudgmentPrivateCards(viewerSeat)).Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
     }
 
     // Checkpoints replay the complete accepted command prefix. The event stream is never
     // trimmed; include pending movements, so a gain inside an unresolved window counts.
     private IReadOnlyList<Card> GetDiscardEligibleHand(CharacterState owner)
     {
-        var hand = GetHand(owner).Where(card => !IsXiaHuiHandLimitExempt(owner.Seat,card)).ToArray();
+        var hand = GetHand(owner).Where(card => !IsXiaHuiHandLimitExempt(owner.Seat,card) && !IsXinyouHandLimitExempt(owner.Seat, card.Id)).ToArray();
         var exactIds = _turnCardUseEffects.GetHandLimitExemptCardIds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
         var exemptKinds = _turnCardUseEffects.GetHandLimitExemptCardKinds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
         if (!HasCardPolicy(owner, SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard))

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
-public enum EquipmentSlotNamedUseIntent { Play, Dodge, Nullification, DyingPeach, DyingAlcohol, BorrowedSword, Qinglong }
+public enum EquipmentSlotNamedUseIntent { Play, Dodge, Nullification, DyingPeach, DyingAlcohol, BorrowedSword, Qinglong, SayingSlash }
 public enum EquipmentSlotNamedUseStage { ChoosingSlot, MovementChildren }
 public sealed record EquipmentSlotNamedUsePayment(long FrameId, CardConversionSource Source, string GameplayHash,
     int RoundNumber, int ActualTurn, int ActualTurnOwner, int PhaseInstance, bool Yin, CardKind EffectiveKind,

@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum DrawPhaseObligationStage { Starting, Drawing, DrawChildren, EndObservers, SkipObservers, ConsumeMarker, Finished }
+public enum DrawPhaseObligationStage { Starting, Drawing, DrawChildren, EndObservers, SkipObservers, ConsumeMarker, Finished, RequestingDraw = 27570 }
 public sealed record DrawPhaseObligationFrame(long Id, int OwnerSeat, int ActualTurnNumber,
     bool IsExtra, int DelayedEffects, DrawPhaseObligationStage Stage, long? ParentFrameId = null,
     bool NormalDrawReplaced = false, int DrawAdjustment = 0, int? FrozenBaseDrawCount = null,
@@ -26,6 +26,7 @@ public sealed partial class GameEngine
         for (var index = 0; index < _resolutionStack.Count; index++)
         {
             if (_resolutionStack[index] is not DrawPhaseObligationFrame frame) continue;
+            AssertDrawPhaseAttemptProducer(frame);
             if (frame.OwnerSeat != _currentSeat || frame.ActualTurnNumber != _turnNumber || _phase != TurnPhase.Draw ||
                 frame.DrawCount < 0 || frame.InheritedMovementBatchIds is { } inherited &&
                     (inherited.Distinct().Count() != inherited.Count || inherited is not System.Collections.IList { IsReadOnly: true }))
@@ -79,6 +80,11 @@ public sealed partial class GameEngine
             if (frame.OwnerSeat != _currentSeat || frame.ActualTurnNumber != _turnNumber || _phase != TurnPhase.Draw ||
                 frame.ActiveWindowFrameId is not null)
                 throw new InvalidOperationException("An actual draw phase lost its owner, turn or exact active child.");
+            if (frame.Stage == DrawPhaseObligationStage.RequestingDraw)
+            {
+                if (ContinueOwnedDrawAttempt(frame)) return;
+                continue;
+            }
             if (TryBeginQueuedRecoveryReplacement(frame.Id, PostEventContinuation.DrawPhaseObligation) ||
                 TryBeginHpChangedProgramWindow(frame.Id, PostEventContinuation.DrawPhaseObligation) ||
                 TryBeginCardsMovedProgramWindow(frame.Id)) return;
@@ -97,6 +103,8 @@ public sealed partial class GameEngine
                     ConsumeChengGongYingDraw(frame.OwnerSeat);
                     var baseDrawCount = frame.FrozenBaseDrawCount ?? FreezeAndCaptureCaoXiNativeDrawBase(_players[frame.OwnerSeat], frame.NormalDrawReplaced);
                     var count = frame.NormalDrawReplaced ? 0 : Math.Max(0, checked(baseDrawCount + frame.DrawAdjustment));
+                    if (HasNativeDrawAttemptCapability && !frame.NormalDrawReplaced)
+                    { BeginOwnedDrawAttempt(frame, count); break; }
                     ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.DrawChildren, DrawCount = 0 });
                     if (!frame.NormalDrawReplaced)
                     {

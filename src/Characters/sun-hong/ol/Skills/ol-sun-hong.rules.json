@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xianbi",
+      "revision": 1,
+      "activations": [{
+        "id": "adjust-and-return", "minCards": 0, "maxCards": 0,
+        "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+        "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{"op": "resolveXianbiHandAdjustmentAndRandomReturns", "target": "owner"}]
+      }]
+    },
+    {
+      "id": "ol:zenrun",
+      "revision": 1,
+      "triggers": [{
+        "id": "replace-native-draw", "window": "nativeDrawStarting", "subject": "owner", "optional": true,
+        "effects": [{"op": "resolveZenrunNativeDrawReplacement", "target": "owner"}]
+      }]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fengwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-draw",
+          "window": "roundStarting",
+          "subject": "owner",
+          "priority": 0,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveFengweiRoundStartDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "draw-skip",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "priority": 0,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveFengweiActualDrawSkip",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zonghu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "native-use-request",
+          "usesPerTurn": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "effects": [
+            {
+              "op": "resolveZonghuRequiredUseRequest",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "anyLiving"
+        }
+      ]
+    }
+  ]
+}

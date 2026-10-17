@@ -24,15 +24,17 @@ public sealed partial class GameEngine
     }
 
     private ProgramSkillWindowContext CreateAfterTurnEndedContext(DeferredTurnEndFrame parent, ProgramTriggerCandidate candidate) =>
-        CreateXiangxuAfterTurnEndedContext(parent, candidate, new ProgramSkillWindowContext(SkillProgramTriggerWindow.AfterTurnEnded, parent.Id, candidate.OwnerSeat,
+        CreateOrdinaryCaiFuRenQietingContext(parent, candidate, CreateXiangxuAfterTurnEndedContext(parent, candidate, new ProgramSkillWindowContext(SkillProgramTriggerWindow.AfterTurnEnded, parent.Id, candidate.OwnerSeat,
             SourceSeat: parent.OwnerSeat, TargetSeat: parent.OwnerSeat, OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts)
         { ActualEndedEquipment = IsActualEndedEquipmentTrigger(GetProgramTrigger(candidate))
-            ? CaptureActualEndedEquipmentContext(parent) : null });
+            ? CaptureActualEndedEquipmentContext(parent) : null }));
 
     private bool CanRunAfterTurnEndedCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context, SkillProgramTrigger trigger)
     {
         var parent = _resolutionStack.OfType<DeferredTurnEndFrame>().LastOrDefault();
+        if (IsOrdinaryCaiFuRenQietingTrigger(trigger))
+            return parent is not null && IsEligibleOrdinaryCaiFuRenQietingCandidate(parent, candidate, context);
         if (IsActualEndedEquipmentTrigger(trigger))
             return parent is not null && MatchesActualEndedEquipmentContext(parent, candidate, context, trigger);
         return context.Window == SkillProgramTriggerWindow.AfterTurnEnded && trigger.Window == context.Window &&

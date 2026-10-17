@@ -12,7 +12,10 @@ public sealed partial class GameEngine
     private bool HasCardResponseCompletedObserver(CardActionContext action, ProgramCardContinuation continuation) =>
         action.Type == CardActionType.Response && IsResponseCompletionContinuation(continuation) &&
         (_contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.CardResponseCompleted) ||
-         IsJueshengPaidDuelResponse(action, continuation));
+         HasJiyunResponseCompletion(action, continuation) ||
+         action.PhysicalCards.Any(cost => IsNativePublicPileOriginalActionCost(action, cost)) ||
+         IsJueshengPaidDuelResponse(action, continuation) || HasChenglieResponseObserver(action, continuation) ||
+         action.PhysicalCards.Any(cost => TryGetXieweiResponseCostMovement(action, cost.CardId, out _)));
 
     // The Duel's then-clause must wait for its actual response-payment children,
     // including when the catalogue has no response-completed skill observer.
@@ -58,6 +61,8 @@ public sealed partial class GameEngine
         var paid = new List<CardMovementRecord>();
         foreach (var cost in a.PhysicalCards)
         {
+            if (TryGetXieweiResponseCostMovement(a, cost.CardId, out var baitMovement))
+            { paid.Add(baitMovement); continue; }
             if (IsProgramAlternativeCost(a, cost.CardId))
             {
                 var alternative = _cardMovements.LastOrDefault(m => m.CardId == cost.CardId && m.From == cost.From &&
@@ -155,6 +160,8 @@ public sealed partial class GameEngine
         if (window.ResponseCompletion is not { } r || !window.Action.PhysicalCards.Contains(cost)) return false;
         var records = r.NativeCosts.Where(m => m.CardId == cost.CardId).ToArray();
         if (records.Length == 0 || records.Any(m => !_cardMovements.Contains(m) || m.CardKind != cost.CardKind)) return false;
+        if (TryGetXieweiResponseCostMovement(window.Action, cost.CardId, out var baitMovement))
+            return records is [var bait] && bait == baitMovement;
         if (IsProgramAlternativeCost(window.Action, cost.CardId))
             return records is [var alternative] && alternative.From == cost.From && alternative.To == CardLocation.DrawPile && alternative.Reason == CardMoveReasons.Respond;
         var enter = records[0];

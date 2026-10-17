@@ -18,7 +18,8 @@ public sealed record TieredRoundConversionUseIssuedEvent(TieredRoundConversionUs
 
 public sealed partial class GameEngine
 {
-    private bool TracksTrueRoundCardNames => _contentRegistry.ProgramDependencies.UsesTieredRoundConversions;
+    private bool TracksTrueRoundCardNames => _contentRegistry.ProgramDependencies.UsesTieredRoundConversions ||
+        _contentRegistry.ProgramDependencies.UsesLeiluanBasicUse;
 
     private static bool IsTieredRoundOutput(CardKind kind) =>
         CardCatalog.Get(kind).CategoryName == "基本牌" || IsOrdinaryTrick(kind);

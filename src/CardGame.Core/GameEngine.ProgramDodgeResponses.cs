@@ -104,6 +104,6 @@ public sealed partial class GameEngine
     }
 
     private bool IsWithinAttackRange(int actorSeat, int targetSeat) =>
-        IsGameFactionAttackRangeTarget(actorSeat, targetSeat) ||
+        HasSayingRoundRange(actorSeat, targetSeat) || IsGameFactionAttackRangeTarget(actorSeat, targetSeat) ||
         GetCombatDistance(actorSeat, targetSeat) <= GetAttackRange(actorSeat);
 }

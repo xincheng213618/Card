@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     // The native action already froze and validated its exact source before payment.
     // Source-loss cleanup may remove a now-empty pile while paid children are suspended.
     private bool IsOwnPublicPileActionCost(CardActionContext action, CardActionCost cost) =>
-        action.PhysicalCards is [var only] && only == cost &&
+        IsNativePublicPileOriginalActionCost(action, cost) || action.PhysicalCards is [var only] && only == cost &&
         cost.From.Zone == CardZoneKind.PublicPersistentPile && cost.From.OwnerSeat == action.ProviderSeat &&
         action.ConversionChain.Any(source => source.OwnerSeat == action.ProviderSeat &&
             ViewAsRule(source) is { SourcePileSkillId: { } skill, InputCount: 1, OutputKind: CardKind.Slash } &&
@@ -20,7 +20,8 @@ public sealed partial class GameEngine
                 pile.Location == cost.From)));
 
     private CardKind PhysicalSlashUseBaseKind(CharacterState owner, Card card) =>
-        IsOwnPublicPileCard(owner, card) ? CardKind.Slash : IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+        IsOwnPublicPileCard(owner, card) && !IsNativePublicPileOriginalChoice(owner, card, card.Kind, false)
+            ? CardKind.Slash : IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
 
     private void RefreshOwnPublicPileAddedTargetCandidates(CardUseFrame use, CardUseFrame previous)
     {
@@ -58,7 +59,9 @@ public sealed partial class GameEngine
 
     private Card? OwnPublicPileResponseMaterial(IReadOnlyList<CardActionCost> costs, CardConversionSource? source) =>
         costs is [var cost] && cost.From.Zone == CardZoneKind.PublicPersistentPile &&
-        source is not null && ViewAsRule(source)?.SourcePileSkillId is not null
+        (source is not null && ViewAsRule(source)?.SourcePileSkillId is not null ||
+         source is null && _resolutionStack.Any(f => f.NativePublicPilePayment is { SequenceAfter: > 0 } p &&
+             p.Card.Id == cost.CardId && p.Card.Kind == cost.CardKind && p.Pile.Location == cost.From))
             ? GetAttackCard(cost.CardId) : null;
 
     private bool IsOwnPublicPileCard(CharacterState owner, Card card) =>
@@ -98,6 +101,8 @@ public sealed partial class GameEngine
     private void ValidateOwnPublicPileConversionCommit(CardConversionSource? source,
         CharacterState provider, IReadOnlyList<Card> materials, bool forResponse)
     {
+        if (source is null && materials is [var original] &&
+            IsNativePublicPileOriginalChoice(provider, original, original.Kind, forResponse)) return;
         if (!materials.Any(card => IsOwnPublicPileCard(provider, card)) &&
             (source is null || ViewAsRule(source)?.SourcePileSkillId is null)) return;
         if (source is null || source.OwnerSeat != provider.Seat || materials.Count != 1 ||

@@ -91,7 +91,7 @@ public sealed partial class GameEngine
                     var args=WangYunArgs(f,"slash");args["effective-kind"]=CardKind.Slash.ToString();args["equipment"]=CardKind.ZhangbaSerpentSpear.ToString();
                     choices.Add(new(new($"wang-yun.{f.Id}.zhangba-{string.Join('-',ids)}"),"使用丈八蛇矛的实际两张手牌",ids,[target],args));
                 }
-                foreach(var kind in SlashKinds)foreach(var selected in GetProgramMultiCardViewAsSelections(actor,kind,false))
+                foreach(var kind in SlashKinds)foreach(var selected in GetProgramMultiCardViewAsSelections(actor,kind,false).Where(s => !IsLeiluanSource(s.Source) || s.OutputKind == kind))
                 {
                     var ids=selected.Cards.Select(c=>c.Id).ToArray();if(!Legal(selected.Cards[0],kind,selected.Source,ids) || IsTurnPhysicalUseForbidden(actor.Seat,ids))continue;
                     var args=WangYunArgs(f,"slash");args["effective-kind"]=kind.ToString();AddConversionParameters(args,selected.Source);
@@ -153,7 +153,7 @@ public sealed partial class GameEngine
         if(selected.Parameters.GetValueOrDefault("equipment")!=CardKind.ZhangbaSerpentSpear.ToString())
         {
             TryReadConversionSource(selected.Parameters,out _selectedUseConversion);_hasSelectedUseConversionChoice=true;
-            if(cards.Length>1)
+            if(cards.Length>1 || IsLeiluanSource(_selectedUseConversion))
             {
                 conversion=_selectedUseConversion;if(conversion is null || FindProgramMultiCardViewAsSelection(actor,selected.Cards,kind,false,conversion) is null)
                     throw new InvalidOperationException("The multi-card Slash lost its exact native view-as payment.");

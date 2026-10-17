@@ -25,6 +25,7 @@ public sealed partial class GameEngine
     private void RecordBianFuRenOwnedTransferProducer(CardMovementRecord movement, int recipientSeat, long producerId)
     {
         RecordDuFuRenOwnedTransferProducer(movement, recipientSeat, producerId);
+        RecordTangTangOwnedTransferProducer(movement, recipientSeat, producerId);
         if (!HasBianFuRenCapability || !IsBianFuRenOwnedZone(movement.From) ||
             !HasBianFuRenWanwei(movement.From.OwnerSeat!.Value) || movement.To != CardLocation.Processing ||
             movement.From.OwnerSeat == recipientSeat || !IsValidPlayerSeat(recipientSeat) || producerId <= 0 ||

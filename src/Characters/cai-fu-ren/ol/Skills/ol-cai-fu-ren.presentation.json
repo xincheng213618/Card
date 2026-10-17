@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:xianzhou": {
+      "name": "献州",
+      "description": "限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：1.令你回复X点体力；2.对其攻击范围内至多X名角色各造成1点伤害。（X为你给出的牌数）",
+      "activationLabels": { "all-equipment-donation": "交出全部装备，由接收者选择回复或伤害" }
+    },
+    "ol:qieting": {
+      "name": "窃听",
+      "description": "其他角色的回合结束后，若其本回合未对其他角色使用过牌，你可以选择一项：1.将其装备区里的一张牌置入你的装备区；2.摸一张牌。",
+      "triggerChoices": { "ordinary-turn-end": "置入一张空槽装备，或摸一张牌" }
+    }
+  }
+}

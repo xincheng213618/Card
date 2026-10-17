@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xiewei",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "xw-slash",
+          "inputCount": 2,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "xieweiBaitBasicUse": {
+            "pileSkillId": "ol:xiewei"
+          }
+        },
+        {
+          "id": "xw-dodge",
+          "inputCount": 2,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "xieweiBaitBasicUse": {
+            "pileSkillId": "ol:xiewei"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "paid-bait-basic-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "ol:xiewei",
+          "includeResponseUses": true,
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveXieweiTwoHandBaitBasicUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:youque",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "minimum-bait-pindian",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveYouqueMinimumBaitPindian",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "issued-slash-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "resolveYouqueIssuedSlashDamageBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

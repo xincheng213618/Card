@@ -100,7 +100,7 @@ public sealed partial class GameEngine
             foreach (var target in CompletedGiftSlashTargets(frame, actor.Seat))
             foreach (var kind in SlashKinds)
             foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
-                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
+                     .Where(item => ViewAsRule(item.Source) is { RoundDistinctBasicUse: null, LeiluanBasicUse: null } || item.OutputKind == kind))
             {
                 if (!CanUseSlashTarget(actor, _players[target], selection.Cards[0], selection.Source, kind, ignoreDistance: true)) continue;
                 var parameters = Parameters("slash"); parameters["effective-kind"] = kind.ToString(); AddConversionParameters(parameters, selection.Source);
@@ -169,7 +169,7 @@ public sealed partial class GameEngine
         }
         var kind = Enum.Parse<CardKind>(selected.Parameters["effective-kind"]);
         TryReadConversionSource(selected.Parameters, out var conversion);
-        IReadOnlyList<Card> paid = selected.Cards.Count == 1
+        IReadOnlyList<Card> paid = selected.Cards.Count == 1 && !IsLeiluanSource(conversion)
             ? [GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(card => card.Id == selected.Cards[0])]
             : selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString()
                 ? GetZhangbaSlashPairs(actor).Single(pair => pair.Select(card => card.Id).SequenceEqual(selected.Cards))

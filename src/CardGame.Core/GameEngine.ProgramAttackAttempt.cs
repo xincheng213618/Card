@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
     {
         PrepareLuYuShengChainAdvance(attack);
+        PrepareFengweiChainAdvance(attack);
         PrepareSunHaoChainAdvance(attack);
         PrepareDuFuRenChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
@@ -13,6 +14,7 @@ public sealed partial class GameEngine
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
         ApplySunHaoChainedDamageBonus(attack);
+        ApplyFengweiChainedDamageBonus(attack);
         return true;
     }
 

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:chenshuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prepare",
+          "window": "turnStartBeforeNormalFlow",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveChenshuoRepeatedReveal",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "ol:tianhou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "weather",
+          "window": "turnEnding",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveTianhouTopExchangeAndGrant",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "ol:lieshu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "maximum-ending",
+          "window": "turnEnding",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLieshuEndingLoss",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    },
+    {
+      "id": "ol:ningwu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nonadjacent-sole-slash",
+          "window": "cardUseTargetsFinalized",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveNingwuSingletonSlashJudgment",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "priority": -1000
+        }
+      ]
+    },
+    {
+      "id": "ol:zhouyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-fire-prevention",
+          "window": "beforeDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "condition": {
+            "kind": "damageNatureIs",
+            "damageNature": "fire"
+          },
+          "effects": [
+            {
+              "op": "preventCurrentDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "thunder-neighbors",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveZhouyuThunderNeighbors",
+              "target": "owner"
+            }
+          ],
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "damageNatureIs",
+            "damageNature": "thunder"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ol:yanshuang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "minimum-ending",
+          "window": "turnEnding",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveYanshuangEndingLoss",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    }
+  ]
+}

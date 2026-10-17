@@ -41,6 +41,7 @@ public sealed partial class GameEngine
         }
         if(kind==DecisionKind.QinglongCrescentBlade&&ActiveQinglongCrescentBlade is{}q&&q.Attack.SourceSeat==provider&&SameAttackOwner(ActiveCardAttack,q.Attack))return N(WeijieIntent.Qinglong,provider,[q.Attack.TargetSeat],opponent:q.Attack.TargetSeat,ownerId:q.Attack.ResolutionId);
         if(kind!=DecisionKind.ProgramTrigger||top is not ProgramSkillFrame p||GetPausedPrivateOfferEffect(p)is not{}effect)return null;
+        if(IsSayingSlashRequest(p)&&TryGetSayingSlashRequest(p,out var sayingActor,out var sayingTargets)&&provider==sayingActor)return N(WeijieIntent.AssistedSlash,provider,sayingTargets,op:effect.Op,instruction:p.InstructionIndex);
         if(IsChanshuangSlashRequest(p)&&TryGetChanshuangSlashRequest(p,out var requestedActor,out var requestedTargets)&&provider==requestedActor)return N(WeijieIntent.AssistedSlash,provider,requestedTargets,op:effect.Op,instruction:p.InstructionIndex);
         if(IsQigongRequest(p)&&p.LvKuangLvXiang!.Actor==provider)return N(WeijieIntent.AssistedSlash,provider,[p.LvKuangLvXiang.Target],op:effect.Op,instruction:p.InstructionIndex);
         if(IsWuJingHejiRequest(p)&&p.OwnerSeat==provider)return N(WeijieIntent.AssistedSlash,provider,[p.WuJing!.TargetSeat],op:effect.Op,instruction:p.InstructionIndex);

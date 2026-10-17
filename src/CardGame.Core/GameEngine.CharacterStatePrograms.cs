@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic }
+public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic, NativeCardEffectDraw = 27578 }
 public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         switch (continuation)
         {
             case CharacterStateContinuation.Program: AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value); break;
+            case CharacterStateContinuation.NativeCardEffectDraw: ContinueNativeDrawTwo(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.CardUse:
                 var card = GetTrickRepresentation(frame.ResumeProgramFrameId!.Value, frame.ResumeCardId!.Value);
                 FinishCardUse(frame.ResumeProgramFrameId!.Value, card, frame.ResumeCardKind); break;

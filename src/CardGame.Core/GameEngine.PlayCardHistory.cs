@@ -93,6 +93,7 @@ public sealed partial class GameEngine
     }
 
     private Card ApplyProgramUseAppearance(CharacterState owner, Card card, CardConversionSource? source) =>
+        source is not null && IsXieweiSource(source) ? card with { Suit = Suit.None, Rank = 0 } :
         source is not null && ViewAsRule(source)?.InheritPreviousPlaySuit == true &&
         PreviousPlayCard(owner.Seat)?.EffectiveSuit is { } suit
             ? card with { Suit = suit }

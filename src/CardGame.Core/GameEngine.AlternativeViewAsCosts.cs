@@ -63,6 +63,7 @@ public sealed partial class GameEngine
         // A copied Zhijue card has no material; its ID zero must not move a real card.
         if (card.Id == 0 && card.Kind == use.CardKind && IsMouZhijueZeroUse(use.Id)) return;
         if (card.Id == 0 && use.CardKind == CardKind.Alcohol && IsIssuedWeijieUse(use)) return;
+        if (TryFinishLeiluanAlcoholCost(use, card)) return;
         if (TryFinishRoundDistinctBasicAlcoholCost(use, card)) return;
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;

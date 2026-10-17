@@ -65,6 +65,8 @@ public sealed partial class GameEngine
         if (parent.Id != payment.ParentFrameId || parent.Id != payment.RequestFrameId || parent.InstructionIndex != payment.Cursor ||
             parent.InstructionIndex < 1 || _contentRegistry.Skills.GetValueOrDefault(parent.SkillId)?.Program is not { } definition ||
             definition.GameplayHash != parent.GameplayHash) return false;
+        if (TryGetSayingSlashRequest(parent,out var sayingActor,out var sayingTargets)) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
+            sayingActor == payment.Source.OwnerSeat && payment.TargetSeat is { } sayingTarget && sayingTargets.Contains(sayingTarget);
         if (parent.Chanshuang is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
             TryGetChanshuangSlashRequest(parent,out var actor,out var targets) && actor == payment.Source.OwnerSeat && payment.TargetSeat is { } target && targets.Contains(target);
         if (parent.LvKuangLvXiang is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
