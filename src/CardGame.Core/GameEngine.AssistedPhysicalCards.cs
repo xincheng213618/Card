@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target) || SlashKinds.Any(k=>HasSiruiSlashDistance(_players[actorSeat],k)))).Select(target => target.Seat).ToArray();
+        (HasBeifenPreUsePrivilege(_players[actorSeat]) || HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target) || SlashKinds.Any(k=>HasSiruiSlashDistance(_players[actorSeat],k)))).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind, bool actorChoosesTarget)
     {
@@ -122,7 +122,7 @@ public sealed partial class GameEngine
     }
 
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards, CardConversionSource? conversionSource = null) =>
-        SlashKinds.Any(k=>HasSiruiSlashDistance(actor,k,cards.Select(c=>c.Id).ToArray(),conversionSource)) ||
+        HasBeifenPreUsePrivilege(actor) || SlashKinds.Any(k=>HasSiruiSlashDistance(actor,k,cards.Select(c=>c.Id).ToArray(),conversionSource)) ||
         HasSayingRoundRange(actor.Seat, targetSeat) || (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
         !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
         HasLiYiWeaponPaymentRange(actor, targetSeat, cards) ||

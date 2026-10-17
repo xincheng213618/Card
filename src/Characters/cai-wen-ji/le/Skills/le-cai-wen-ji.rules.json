@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:shuangjia",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeShuangjiaInitialEntities",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "le:beifen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "lost-hujia-suits",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "effects": [
+            {
+              "op": "resolveBeifenLostMarkedSuitGains",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

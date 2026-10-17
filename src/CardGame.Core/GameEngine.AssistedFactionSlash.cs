@@ -154,7 +154,7 @@ public sealed partial class GameEngine
             : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
-            : IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
+            : HasBeifenPreUsePrivilege(_players[actorSeat]) || IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
         CanSpendSlashUse(_players[actorSeat], _players[targetSeat], ignoresCount: true, kind) &&
         !IsSlashProhibited(_players[targetSeat]) &&
         (!(HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat)) ||

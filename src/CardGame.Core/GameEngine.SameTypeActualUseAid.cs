@@ -85,7 +85,7 @@ public sealed partial class GameEngine
                  HasProvenanceUseDistance(actor, materials) || HasGrantedPhaseEntityDistance(actor, materials) ||
                  HasSlashUseDistanceBySuit(actor, identity.EffectiveKind, action.EffectiveSuit) ||
                  HasTurnRedSlashPolicyForColor(actor.Seat, identity.EffectiveKind, color) ||
-                 HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, target, identity.EffectiveKind) ||
+                 HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, target, identity.EffectiveKind, use.Id) ||
                  action.ConversionChain.Any(source => IgnoresProgramSlashDistance(actor, source)) ||
                  IgnoresSpGuanYuWushengDistance(actor, card) || IgnoresSlashUseDistance(actor) ||
                  IsWithinSpecificSlashRange(actor, target, identity.EffectiveKind, action.EffectiveRank, use.Id));

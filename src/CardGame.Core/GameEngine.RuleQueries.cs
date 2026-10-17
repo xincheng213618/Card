@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         {
             incoming.AddRange(IncomingDistanceCourtesyContributions(target.Seat));
             incoming.AddRange(YanPuIncomingDistanceContributions(target.Seat));
+            incoming.AddRange(ShuangjiaIncomingDistanceContributions(target.Seat));
         }
         return ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
             ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))))));
@@ -281,7 +282,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsSayingSlashQuery(player) || HasDongxinEntitySlashQuota(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || HasBeifenPreUsePrivilege(player) || IsSayingSlashQuery(player) || HasDongxinEntitySlashQuota(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
          IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
          IsHuiyunExactHandQuery(player, physicalCardIds is [var huiyunCardId] ? huiyunCardId : physicalCard?.Id) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||

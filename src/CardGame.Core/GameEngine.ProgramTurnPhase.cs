@@ -74,12 +74,12 @@ public sealed partial class GameEngine
         if (!source.IsAlive || !target.IsAlive || source.Seat == target.Seat ||
             IsDirectedCardTargetProhibited(source.Seat, targetSeat, cardKind) ||
             IsSlashProhibited(target) ||
-            !ignoreDistance && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
+            !ignoreDistance && !HasBeifenPreUsePrivilege(source) && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
         var nativeWindows = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source);
-        var action = nativeWindows || HasZhouQunCapability || HasKongShuCapability || HasMaChengCapability || HasCuiYanCapability || HasLiYiCapability || HasLiuYanCapability || TracksNativeLogicalDiscards || TracksAlternateActualUseColor || HasSoleTargetProtectionParticipant || phaseControlParticipant || HasSunHaoCanshiCapability
+        var action = nativeWindows || HasZhouQunCapability || HasKongShuCapability || HasMaChengCapability || HasCuiYanCapability || HasLiYiCapability || HasLeCaiWenJiBeifenCapability || HasLiuYanCapability || TracksNativeLogicalDiscards || TracksAlternateActualUseColor || HasSoleTargetProtectionParticipant || phaseControlParticipant || HasSunHaoCanshiCapability
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [],
                 Array.AsReadOnly(new[] { new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId) }),

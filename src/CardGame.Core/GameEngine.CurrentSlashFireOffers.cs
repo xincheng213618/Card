@@ -72,7 +72,7 @@ public sealed partial class GameEngine
             (ignoreDistance || HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasIssuedGrantedPhaseEntityDistance(use.Id, actor.Seat) || HasProvenanceUseDistance(actor, use.PhysicalCardIds) || HasGrantedPhaseEntityDistance(actor, use.PhysicalCardIds) ||
              HasSlashUseDistanceBySuit(actor, CardKind.FireSlash, action.EffectiveSuit) ||
              HasTurnRedSlashPolicyForColor(actor.Seat, CardKind.FireSlash, ActualTargetPolicyColor(action)) ||
-             HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, t, CardKind.FireSlash) ||
+             HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, t, CardKind.FireSlash, use.Id) ||
              IgnoresSlashUseDistance(actor) ||
              IsWithinSpecificSlashRange(actor, t, CardKind.FireSlash, action.EffectiveRank, use.Id)))
             .Select(t => t.Seat).ToArray();

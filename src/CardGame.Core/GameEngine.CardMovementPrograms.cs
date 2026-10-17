@@ -41,6 +41,9 @@ public sealed partial class GameEngine
         public IReadOnlyList<RuanYuMiaoxianPaymentSource>? RuanYuMiaoxianPaymentSources { get; init; }
         public int? WenhePoisonRound { get; init; }
         public IReadOnlyList<TangTangOwnedOrigin>? TangTangOwnedOrigins { get; init; }
+        private IReadOnlyList<BeifenLossSource> _beifenLossSources = Array.AsReadOnly(Array.Empty<BeifenLossSource>());
+        public IReadOnlyList<BeifenLossSource> BeifenLossSources
+        { get => _beifenLossSources; init => _beifenLossSources = Array.AsReadOnly(value.ToArray()); }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -59,7 +62,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), TangTangOwnedOrigins = CaptureTangTangOwnedOrigins(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { BeifenLossSources = CaptureBeifenLossSources(sources.Keys), MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), TangTangOwnedOrigins = CaptureTangTangOwnedOrigins(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -138,6 +141,7 @@ public sealed partial class GameEngine
         CaptureWuJingLiubingBatch(completed);
         completed = CaptureTangTangGainBatch(completed, batch.TangTangOwnedOrigins);
         CaptureYuanJiAtomicLoss(completed);
+        CaptureBeifenLossQualifications(completed, batch.BeifenLossSources);
         CaptureLeiluanPaymentBatch(completed);
         CaptureQingyuanGainBatch(completed);
         CaptureNativePublicPilePaymentBatch(completed);
@@ -278,7 +282,7 @@ public sealed partial class GameEngine
             {
                 var trigger = GetProgramTrigger(candidate);
                 if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
-                if (IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
+                if (IsBeifenLossTrigger(trigger) || IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
                     IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
@@ -328,6 +332,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectKanggeHandGainCandidates(batch));
         candidates.AddRange(CollectBiriMovementCandidates(batch));
         candidates.AddRange(CollectLingkongMovementCandidates(batch));
+        candidates.AddRange(CollectBeifenLossCandidates(batch));
         candidates.AddRange(CollectQimeiMovementCandidates(batch));
         candidates.AddRange(CollectBuZhiMovementCandidates(batch));
         candidates.AddRange(CollectBianFuRenLossCandidates(batch));
@@ -537,6 +542,7 @@ public sealed partial class GameEngine
     {
         if (IsBiriTrigger(GetProgramTrigger(candidate))) return CreateBiriMovementContext(frame, candidate);
         if (IsLingkongGainTrigger(GetProgramTrigger(candidate))) return CreateLingkongMovementContext(frame, candidate);
+        if (IsBeifenLossTrigger(GetProgramTrigger(candidate))) return CreateBeifenMovementContext(frame, candidate);
         if (IsNianJingjueTrigger(GetProgramTrigger(candidate))) return CreateNianJingjueContext(frame, candidate);
         if (IsHellZhiwangTrigger(GetProgramTrigger(candidate))) return CreateHellZhiwangContext(frame, candidate);
         if (IsXiangxuMinimumTrigger(GetProgramTrigger(candidate))) return CreateXiangxuMinimumContext(frame, candidate);

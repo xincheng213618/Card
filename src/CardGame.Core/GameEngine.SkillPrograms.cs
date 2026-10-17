@@ -1212,6 +1212,7 @@ public sealed partial class GameEngine
                     !IsMouCaoPiMovement(frame, paidEffect, pendingMovement) &&
                     !IsKenshangMovement(frame, paidEffect, pendingMovement) && !IsFulueMovement(frame, paidEffect, pendingMovement) && !IsYangFengMovement(frame, paidEffect, pendingMovement) && !IsWangGuanMovement(frame, paidEffect, pendingMovement) && !IsWuJingMovement(frame, paidEffect, pendingMovement) &&
                     !IsMaMiDiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsBeifenMovement(frame, paidEffect, pendingMovement) &&
                     !IsYanPuAwaitedMovement(frame, paidEffect, pendingMovement) &&
                     !IsDrawAdviceAwaitedMovement(frame, paidEffect, pendingMovement))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");

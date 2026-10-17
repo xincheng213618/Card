@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cai-wen-ji",
+  "skills": [
+    {
+      "registrationOrder": 2175,
+      "programBundle": "le-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:shuangjia",
+        "name": "霜笳",
+        "description": "锁定技，游戏开始时，你的初始手牌增加“胡笳”标记且不计入手牌上限。你每拥有一张“胡笳”，其他角色与你计算距离+1（最多+5）。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2176,
+      "programBundle": "le-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:beifen",
+        "name": "悲愤",
+        "description": "锁定技，当你失去“胡笳”后，你获得与手中“胡笳”花色均不同的牌各一张。你手中“胡笳”少于其他牌时，你使用牌无距离和次数限制。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2177,
+      "pools": {
+        "current": 498
+      },
+      "definition": {
+        "id": "le:cai-wen-ji",
+        "name": "乐蔡文姬",
+        "portraitKey": "le-cai-wen-ji",
+        "skillId": "le:shuangjia",
+        "additionalSkillIds": [
+          "le:beifen"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:cai-wen-ji",
+        "variantId": "le",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

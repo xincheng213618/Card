@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool HasCardPolicy(CharacterState owner, SkillProgramCardPolicyKind kind,
         CardKind? effectiveKind = null) =>
+        kind == SkillProgramCardPolicyKind.UnlimitedAlcoholUse && HasBeifenPreUsePrivilege(owner) ||
         GetSkillBindingShard(owner).GetCardPolicies(kind).Count != 0 &&
         CardPolicies(owner, kind, effectiveKind).Any();
 

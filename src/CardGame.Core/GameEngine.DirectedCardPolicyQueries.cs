@@ -6,7 +6,7 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
-        NianShouyiUnlimitedCardDistance(actor) ||
+        HasBeifenUseDistance(actor, cardUseFrameId) || NianShouyiUnlimitedCardDistance(actor) ||
         HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
         !IsSlashCard(kind) && HasLiuYanLimuTargetAllowance(actor,target,excludedEquipmentId,excludedEquipmentSlot) || HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
         HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||
