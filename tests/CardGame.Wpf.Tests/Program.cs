@@ -93,6 +93,20 @@ internal static class Program
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("Jiange activity UI: faction tier rules AI teammate and real setup", () => CheckJiangeActivity(output));
+            Check("Shanhe campaign UI: story map choices and independent cold restore", () => ShanheCampaignUiChecks.StoryMapChoicesAndIndependentColdRestore(output));
+            Check("Shanhe campaign UI: actual encounter save routing and stale map choices", () => ShanheCampaignUiChecks.ActualEncounterSaveRoutingAndStaleMapChoices(output));
+            Check("Shanhe campaign UI: edition selection exclusive boss and cold restore", () => ShanheCampaignUiChecks.EditionSelectionExclusiveBossAndColdRestore(output));
+            Check("Shanhe campaign UI: launcher selection map and detached window", () => ShanheCampaignUiChecks.LauncherSelectionMapAndDetachedWindow(output));
+            Check("Shanhe campaign UI: full roster search pages and selection", () => ShanheCampaignUiChecks.FullRosterSearchPagesAndSelection(output));
+            Check("Shanhe campaign UI: preparation locks and encounter preview", () => ShanheCampaignUiChecks.PreparationLocksAndEncounterPreview(output));
+            Check("Shanhe campaign UI: inheritance before map and cold restore", () => ShanheCampaignUiChecks.InheritanceOffersBeforeFirstMapAndSurvivesColdRestore(output));
+            Check("Shanhe campaign UI: shop purchase states and codex navigation", () => ShanheModulesUiChecks.ShopPurchaseAndCodexNavigation(output));
+            Check("Shanhe codex UI: unlock equip persist and market", () => ShanheCodexUiChecks.UnlockEquipPersistAndMarket(output));
+            Check("Shanhe codex UI: failed profile write preserves progress", ShanheCodexUiChecks.FailedProfileWritePreservesProgress);
+            Check("Shanhe codex settlement: actual victory one-time books and rejected outcomes", () => ShanheCodexSettlementChecks.ActualCompletedVictoryCreditsOnceAndRejectsOtherOutcomes(output));
+            Check("Shanhe reward UI: real victory cards confirmation skip skill and replacement", () => ShanheRewardUiChecks.RealVictoryRewardCardsConfirmSkipSkillAndReplacement(output));
+            Check("Shanhe reward UI: boss bundles advance through three chapters", () => ShanheRewardUiChecks.BossBundlesRequireEachGroupThenAdvanceThreeChapters(output));
+            Check("Shanhe reward UI: shop skill replacement confirms before payment", () => ShanheRewardUiChecks.ShopSkillsUseReplacementModalAndChargeOnlyOnConfirmation(output));
             Check("Boss activity UI: real coalition setup stage and cross-mode restore", () => BossActivityUiChecks.RealSetupAndCrossModeRestore(output));
             Check("Hulao activity UI: forms shuffle counters and cross-mode restore", () => HulaoActivityUiChecks.SetupFormCounterAndCrossModeRestore(output));
             Check("Shenwu activity UI: shared god draft six seats and restore", () => ShenwuActivityUiChecks.SharedGodDraftSixSeatsAndRestore(output));
@@ -114,6 +128,7 @@ internal static class Program
             Check("Liu Ba UI: private coins and bottom exchange", LiuBaCoinUiChecks.RealMintPrivateBottomExchangeAndReversibleChoice);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
+            Check("multi-target Slash portraits: Tianyi Lihuo Fangtian conversions and exact confirmation", () => MultiTargetSlashUiChecks.PortraitDraftsUseExactNativeTargets(output));
             Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));
             Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
@@ -135,6 +150,7 @@ internal static class Program
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
             Check("battle feedback health tracks follow committed damage recovery and loaded boundaries", () => HealthFeedbackChecks.CommittedHealth(output));
+            Check("Armor seats: real opening stacks payments accessible digits and zero hiding", () => ArmorSeatUiChecks.RealOpeningStacksAndDamagePaymentsRefreshEverySeat(output));
             Check("card flights keep local hand origins private and retire cached layout", () => HandCardFlightChecks.OriginBoundaries(output));
             Check("card flights hand off public faces once and restore interrupted arrivals", () => PublicCardHandoffChecks.ArrivalAndBoundaries(output));
             Check("card flights preserve public suit rank and converted effective faces", () => PublicCardIdentityChecks.PublicFaces(output));

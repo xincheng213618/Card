@@ -40,6 +40,7 @@ public partial class MainWindow : Window
         Deactivated += (_, _) => _audio.SetActive(false);
         PreviewMouseDown += TableMouseDown;
         InitializeCardAim();
+        InitializeShanheWindowHost(viewModel);
     }
 
     private void GameArea_SizeChanged(object sender, SizeChangedEventArgs e) => UpdateTableScale(e.NewSize);
@@ -127,7 +128,7 @@ public partial class MainWindow : Window
     }
 
     private static bool IsNavigationOverlayOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
-        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen;
+        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsShanheOpen;
 
     // Root navigation panels cover both startup overlays; the log and result
     // panels also cover the opening cards inside the table surface.
@@ -184,6 +185,7 @@ public partial class MainWindow : Window
 
     private void Window_Closed(object? sender, EventArgs e)
     {
+        DisposeShanheWindowHost();
         ObserveCardAimModel(null);
         _overlayFocusRequest++;
         _targetCardFocus = null;
@@ -193,6 +195,11 @@ public partial class MainWindow : Window
 
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
+        if (DataContext is MainViewModel { IsShanheOpen: true } campaign && !campaign.FlushShanheProgress())
+        {
+            e.Cancel = true;
+            return;
+        }
         if (DataContext is not MainViewModel viewModel || viewModel.FlushPendingSave()) return;
         viewModel.IsAutoAdvance = false;
         e.Cancel = MessageBox.Show(this, $"{viewModel.SaveStatus}\n\n仍然退出吗？选择“否”可返回牌桌重试保存。",
@@ -261,7 +268,8 @@ public partial class MainWindow : Window
         QueueOverlayFocus(overlay, ref previous);
     }
 
-    private FrameworkElement CurrentFocusSurface(MainViewModel viewModel) => viewModel.IsSettingsOpen ? SettingsOverlay :
+    private FrameworkElement CurrentFocusSurface(MainViewModel viewModel) => viewModel.IsShanheOpen ? ShanheOverlay :
+            viewModel.IsSettingsOpen ? SettingsOverlay :
             viewModel.IsHistoryOpen ? HistoryOverlay :
             viewModel.IsGeneralGalleryOpen ? GeneralGalleryOverlay :
             viewModel.IsHelpOpen ? PlayerGuideOverlay :
@@ -348,6 +356,7 @@ public partial class MainWindow : Window
 
     private void FocusCurrentSurface(MainViewModel viewModel, IInputElement? previous)
     {
+        if (viewModel.IsShanheOpen && FocusDetachedShanheWindow()) return;
         var surface = CurrentFocusSurface(viewModel);
         if (!surface.IsVisible || !surface.IsEnabled) return;
         if (previous is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } target &&
@@ -356,7 +365,8 @@ public partial class MainWindow : Window
             target.Focus();
             return;
         }
-        if (ReferenceEquals(surface, SettingsOverlay)) SettingsSoundToggle.Focus();
+        if (ReferenceEquals(surface, ShanheOverlay)) surface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        else if (ReferenceEquals(surface, SettingsOverlay)) SettingsSoundToggle.Focus();
         else if (ReferenceEquals(surface, HistoryOverlay)) HistoryPanel.FocusHistory();
         else if (ReferenceEquals(surface, GeneralGalleryOverlay)) GeneralGallery.FocusCurrentView();
         else if (ReferenceEquals(surface, PlayerGuideOverlay)) PlayerGuide.FocusGuide();
@@ -428,6 +438,17 @@ public partial class MainWindow : Window
         // Shortcut ownership follows the same top surface as deferred focus.
         // A retained lower panel must not intercept the visible panel's keys.
         var surface = CurrentFocusSurface(viewModel);
+        if (ReferenceEquals(surface, ShanheOverlay))
+        {
+            if (key == Key.Escape && modifiers == ModifierKeys.None)
+            {
+                if (ShanheCampaignWindow.HasOpenDropDown(ShanhePanel)) return false;
+                if (!ShanhePanel.HandleEscape()) viewModel.CloseShanheCommand.Execute(null);
+                return true;
+            }
+            if (key == Key.F5 && modifiers == ModifierKeys.None) { viewModel.FlushShanheProgress(); return true; }
+            return key == Key.Enter && modifiers == ModifierKeys.Control;
+        }
         if (ReferenceEquals(surface, TableSurface) && key == Key.Enter && modifiers == ModifierKeys.None &&
             Keyboard.FocusedElement is IdentityMarkButton { IsVisible: true, IsEnabled: true } marker && marker.IsDescendantOf(TableSurface))
         {

@@ -152,6 +152,13 @@ public sealed partial record ProgramSkillFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
+    private readonly IReadOnlyList<ProgramRecoveryApplicationReceipt>? _recoveryApplications;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramRecoveryApplicationReceipt>? RecoveryApplications
+    {
+        get => _recoveryApplications;
+        init => _recoveryApplications = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDrawDiscardCategoryReceipt? DrawDiscardCategoryRefund { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OverflowTargetCancellationReceipt? OverflowTargetCancellation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramGameActivationAwakeningReceipt? GameActivationAwakening { get; init; }
@@ -470,7 +477,18 @@ public sealed record AttackAttemptState(
 
 /// <summary>Identifies a suspended parent using existing frame IDs, without retaining its attack object.</summary>
 public sealed record ProgramAttackReturn(long? ParentAttackOwnerFrameId,
-    long? ParentDamageWindowFrameId, long? ParentJudgmentFrameId);
+    long? ParentDamageWindowFrameId, long? ParentJudgmentFrameId)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RecoveryDamageOrigin? RecoveryOrigin { get; init; }
+}
+
+public sealed record RecoveryDamageOrigin(long HpWindowId, int InstructionIndex,
+    int SourceSeat, int TargetSeat, int Amount, DamageNature Nature)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? SuspendedDyingFrameId { get; init; }
+}
 
 public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingParentFrameId,
     int DyingVictimSeat, DyingContinuationKind DyingContinuation, bool Survived,
@@ -478,6 +496,12 @@ public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingPare
 
 public sealed record CardAttackState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramUseInstructionIndex { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? CardDamageLayerAmount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardDamageMaximumHpReplacementReceipt? MaximumHpReplacement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ComparedBlackSlashReceipt? ComparedBlackSlash { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjustedSlashReturn? AdjustedSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -544,6 +568,8 @@ public sealed partial record CardUseFrame(
     IReadOnlyList<int>? PhysicalCardIds = null)
     : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NativeCardRecoveryReceipt? RecoveryApplication { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public NoDamageSkillDisablePolicy? NoDamageSkillDisablePolicy { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -810,7 +836,8 @@ public sealed partial record DyingFrame(
 public enum DeathReturnKind
 {
     Dying,
-    ProgramSkill
+    ProgramSkill,
+    CardDamageReplacement
 }
 
 public sealed partial record DeathFrame(

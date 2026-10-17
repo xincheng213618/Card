@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException("Draw has an unsupported amount instruction.")
         };
         if (requested is null) return SkillProgramStepOutcome.Continue;
-        if (!HasNativeDrawAttemptCapability)
+        if (!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame))
         {
             if (selected) DrawProgramSelectedTargets(frame.Id, requested.Value, reason);
             else DrawProgramCards(frame.Id, targetSeat, requested.Value, null,
@@ -136,7 +136,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A Draw instruction lost its exact paid cursor or result binding.");
         if (paid.ReturnKind == NativeDrawAttemptReturnKind.ProgramInstruction)
         {
-            if (!HasNativeDrawAttemptCapability || paid.Operation is not null ||
+            if ((!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame)) || paid.Operation is not null ||
                 plan.Instructions[paid.InstructionIndex - 1].CompiledInstruction is not DrawProgramInstruction instruction ||
                 paid.ResultBind != (instruction.Target == SkillProgramEffectTarget.SelectedTargets ? null : instruction.ResultBind) ||
                 paid.Visibility != instruction.Visibility ||

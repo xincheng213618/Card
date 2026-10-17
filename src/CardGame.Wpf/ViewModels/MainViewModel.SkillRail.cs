@@ -25,7 +25,7 @@ public sealed partial class MainViewModel
             yield break;
 
         var actions = HumanActiveSkillActions;
-        var faction = human.FactionId ?? _contentRegistry.Generals.GetValueOrDefault(human.GeneralId)?.FactionId;
+        var faction = human.FactionId ?? CurrentPresentationRegistry.Generals.GetValueOrDefault(human.GeneralId)?.FactionId;
         var emitted = new HashSet<(string SkillId, int OwnerSeat)>();
         // Public skill metadata keeps shared entries visible when their cost or
         // phase quota is unavailable. Only the viewer's legal actions enable them.
@@ -34,7 +34,7 @@ public sealed partial class MainViewModel
         foreach (var visible in (owner.IsGeneralPublic ? owner.Skills ?? [] : [])
                      .Concat(owner.IsSecondaryGeneralPublic ? owner.SecondarySkills ?? [] : []))
         {
-            if (visible.ContentId is not { } id || !_contentRegistry.Skills.TryGetValue(id, out var skill) ||
+            if (visible.ContentId is not { } id || !CurrentPresentationRegistry.Skills.TryGetValue(id, out var skill) ||
                 skill.Program is not { } program) continue;
             var shared = program.Contributions.Any(contribution => faction is not null &&
                     contribution.ProviderFactions.Contains(faction, StringComparer.Ordinal)) ||
@@ -48,7 +48,7 @@ public sealed partial class MainViewModel
         foreach (var action in actions)
         {
             if (action.ProgramSkillId is not { } id || action.ProgramSkillOwnerSeat is not { } seat ||
-                seat == human.Seat || !_contentRegistry.Skills.TryGetValue(id, out var skill) ||
+                seat == human.Seat || !CurrentPresentationRegistry.Skills.TryGetValue(id, out var skill) ||
                 _snapshot.Players.SingleOrDefault(player => player.Seat == seat) is not { } owner ||
                 !emitted.Add((id, seat))) continue;
             yield return CreateForeignSkillCard(skill, owner, actions);

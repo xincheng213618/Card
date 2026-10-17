@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:jingyu-moulue-2-2026", "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "low-hand-slash-damage", "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "amount": 1, "condition": "sourceHandBelowLimit", "sourceHandCountLimit": 6,
+          "damageLayer": "additionalDamage"
+        }
+      ]
+    },
+    {
+      "id": "shanhe:duipai-2026", "revision": 1,
+      "modifiers": [
+        {
+          "id": "other-allied-normal-draw", "query": "drawCount", "operation": "add",
+          "value": 2, "priority": 0, "recipientScope": "otherPublicTeamAllies"
+        }
+      ]
+    },
+    {
+      "id": "shanhe:duijia-2026", "revision": 1,
+      "triggers": [
+        {
+          "id": "other-allied-opening-armor", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [
+            { "op": "selectAllPublicTeamTargets", "target": "owner", "targetKind": "otherPublicTeamAllies", "allowEmpty": true },
+            { "op": "grantArmor", "target": "selectedTargets", "amount": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

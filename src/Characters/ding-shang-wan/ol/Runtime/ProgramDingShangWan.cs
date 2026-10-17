@@ -19,6 +19,7 @@ public sealed record DingShangWanReceipt(CardConversionSource Source,string Game
     public IReadOnlyList<int> Selected {get=>_selected;init=>_selected=Array.AsReadOnly(value.ToArray());}
     public IReadOnlyList<int> WoodenOxGrainIds {get=>_woodenOxGrainIds;init=>_woodenOxGrainIds=Array.AsReadOnly(value.ToArray());}
     public IReadOnlyList<DingShangWanReshuffle> Reshuffles {get=>_reshuffles;init=>_reshuffles=Array.AsReadOnly(value.Select(s=>s with{Movements=s.Movements}).ToArray());}
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public NativeDrawOutcome? OpeningDrawOutcome {get;init;}
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public DingShangWanReceipt? DingShangWan {get;init;} }

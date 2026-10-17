@@ -46,8 +46,8 @@ public sealed partial class GameEngine
             incoming.AddRange(YanPuIncomingDistanceContributions(target.Seat));
             incoming.AddRange(ShuangjiaIncomingDistanceContributions(target.Seat));
         }
-        return ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
-            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))))));
+        return ApplyPersistentOutgoingDistancePolicy(source, target, ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
+            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)))))));
     }
 
     private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
@@ -226,10 +226,13 @@ public sealed partial class GameEngine
         CardKind? effectiveCardKind = null)
     {
         var bindings = GetSkillBindingShard(player).GetNumericModifiers(query)
+            .Where(binding => binding.Modifier.RecipientScope == SkillRuleRecipientScope.Owner)
             .Where(binding => binding.Modifier.ValueExpression != SkillRuleValueExpression.OwnerMarkerCount ||
                 !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
-        if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query).Concat(ActivityRuleContributions(player, query)).ToArray();
+        if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query)
+            .Concat(ActivityRuleContributions(player, query))
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -246,6 +249,8 @@ public sealed partial class GameEngine
             PublicTeamEnemyCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicTeamEnemyCount)
                 ? _players.Count(p => p.IsAlive && p.TeamRevealed && player.TeamRevealed &&
                     p.TeamId is not null && player.TeamId is not null && p.TeamId != player.TeamId) : null,
+            OtherPublicTeamAllyCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount)
+                ? _players.Count(p => p.IsAlive && OtherRevealedPublicTeamAlly(player, p)) : null,
             LivingFemaleCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedLivingFemaleCount)
                 ? _players.Count(p => p.IsAlive && p.Gender == GeneralGender.Female) : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
@@ -257,7 +262,9 @@ public sealed partial class GameEngine
             query,
             context,
             bindings);
-        return programContributions.Concat(CollectStrategicRuleContributions(player, query)).Concat(ActivityRuleContributions(player, query)).ToArray();
+        return programContributions.Concat(CollectStrategicRuleContributions(player, query))
+            .Concat(ActivityRuleContributions(player, query))
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(

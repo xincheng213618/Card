@@ -4,12 +4,12 @@ public sealed partial class GameEngine
 {
     private readonly List<HpChangeContext> _pendingHpChanges = [];
 
-    private void RecordHpChange(long? parentFrameId, int? sourceSeat, int targetSeat,
+    private HpChangeContext? RecordHpChange(long? parentFrameId, int? sourceSeat, int targetSeat,
         int before, int after, HpChangeKind kind)
     {
         ObserveDongBaiHpDecreased(targetSeat,before,after);
         var amount = kind == HpChangeKind.Setting ? Math.Abs(after - before) : kind == HpChangeKind.Loss ? before - after : after - before;
-        if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return;
+        if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return null;
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
             kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
         _pendingHpChanges.Add(change);
@@ -17,6 +17,7 @@ public sealed partial class GameEngine
         CaptureQimeiHpQualification(change);
         CaptureXianfuRecoveryQualification(change);
         CaptureDianhuRecoveryQualification(change);
+        return change;
     }
 
     private bool TryBeginHpChangedProgramWindow(long? resumeFrameId = null,
@@ -100,6 +101,7 @@ public sealed partial class GameEngine
     private void CompleteHpChangedProgramWindow(HpChangedTriggerWindowFrame frame)
     {
         PopResolutionFrame(frame.Id, ResolutionFrameKind.HpChangedTriggerWindow);
+        ClearProgramRecoveryApplication(frame.Change);
         if (ReturnCardResponseCompletionHpChange(frame)) return;
         if (ReturnCardSupplyCompletionHpChange(frame)) return;
         if (frame.Continuation == PostEventContinuation.DrawFundedDistinctBasic)

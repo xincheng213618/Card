@@ -16,6 +16,8 @@ public sealed record SkillProgramRuleContext(
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? PublicTeamEnemyCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? OtherPublicTeamAllyCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? LivingFemaleCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? CurrentRoundActualUseCount { get; init; }
@@ -70,7 +72,7 @@ public static class SkillProgramRules
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.SkillInstanceId, StringComparer.Ordinal)
             .SelectMany(source => source.Program.Modifiers
-                .Where(modifier => modifier.Query == query &&
+                .Where(modifier => modifier.Query == query && modifier.RecipientScope == SkillRuleRecipientScope.Owner &&
                                    MatchesEffectiveCardKind(modifier, context) &&
                                    modifier.Condition.Evaluate(context.Owner))
                 .Select(modifier => ToContribution(
@@ -85,7 +87,8 @@ public static class SkillProgramRules
     internal static IReadOnlyList<RuleQueryContribution> CollectIndexedContributions(
         SkillRuleQuery query,
         SkillProgramRuleContext context,
-        IReadOnlyList<IndexedSkillProgramModifier> bindings)
+        IReadOnlyList<IndexedSkillProgramModifier> bindings,
+        SkillRuleRecipientScope recipientScope = SkillRuleRecipientScope.Owner)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(bindings);
@@ -101,7 +104,8 @@ public static class SkillProgramRules
                 throw new ArgumentException(
                     $"Indexed modifier '{binding.Source.SkillId}/{binding.Modifier.Id}' belongs to " +
                     $"{binding.Modifier.Query}, not {query}.", nameof(bindings));
-            if (!MatchesEffectiveCardKind(binding.Modifier, context) ||
+            if (binding.Modifier.RecipientScope != recipientScope ||
+                !MatchesEffectiveCardKind(binding.Modifier, context) ||
                 !binding.Modifier.Condition.Evaluate(context.Owner)) continue;
             contributions.Add(ToContribution(
                 context.Owner.Seat,

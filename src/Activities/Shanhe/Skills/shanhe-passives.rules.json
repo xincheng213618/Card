@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:ruoxi", "revision": 1,
+      "damageModifiers": [{ "id": "low-hand-source-damage", "cardKinds": [], "amount": 1, "condition": "sourceHandBelowHp", "sourceScope": "damageSource" }]
+    },
+    {
+      "id": "shanhe:jinshen", "revision": 1,
+      "cardPolicies": [{ "id": "outgoing-one", "kind": "outgoingDistanceOne" }]
+    },
+    {
+      "id": "shanhe:bingfan", "revision": 1,
+      "cardPolicies": [{ "id": "reverse-supply", "kind": "reverseDelayedJudgment", "cardKinds": ["supplyShortage"] }]
+    },
+    {
+      "id": "shanhe:lezhuan", "revision": 1,
+      "cardPolicies": [{ "id": "reverse-indulgence", "kind": "reverseDelayedJudgment", "cardKinds": ["indulgence"] }]
+    },
+    {
+      "id": "shanhe:dushu-1", "revision": 1,
+      "cardPolicies": [{ "id": "rank-plus-three", "kind": "pindianRankBonus", "value": 3 }]
+    },
+    {
+      "id": "shanhe:neihong", "revision": 1,
+      "damageModifiers": [{ "id": "enemy-infighting", "cardKinds": [], "amount": 1, "condition": "bothParticipantsPublicEnemiesOfOwner", "sourceScope": "allLivingSkillOwners", "damageLayer": "additionalDamage" }]
+    },
+    {
+      "id": "shanhe:miaoji-1", "revision": 1,
+      "damageModifiers": [{ "id": "early-trick-damage", "cardKinds": ["duel", "barbarianAssault", "arrowBarrage", "fireAttack"], "amount": 1, "condition": "ownerActualTurnTrickUseOrdinalWithinLimit", "maximumUseOrdinal": 1, "damageLayer": "additionalDamage" }]
+    },
+    {
+      "id": "shanhe:miaoji-2", "revision": 1,
+      "damageModifiers": [{ "id": "early-trick-damage", "cardKinds": ["duel", "barbarianAssault", "arrowBarrage", "fireAttack"], "amount": 1, "condition": "ownerActualTurnTrickUseOrdinalWithinLimit", "maximumUseOrdinal": 2, "damageLayer": "additionalDamage" }]
+    }
+  ]
+}

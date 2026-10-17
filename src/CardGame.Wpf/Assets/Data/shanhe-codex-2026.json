@@ -1,0 +1,2474 @@
+[
+  {
+    "id": 1,
+    "seasonId": 5,
+    "layer": 1,
+    "lane": 1,
+    "cost": 6,
+    "parents": [],
+    "conditions": [],
+    "rewardId": 2219,
+    "name": "和光盟",
+    "description": "开始征程时，你获得1名特殊队友",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 2,
+    "seasonId": 5,
+    "layer": 1,
+    "lane": 5,
+    "cost": 6,
+    "parents": [],
+    "conditions": [],
+    "rewardId": 2138,
+    "name": "传承",
+    "description": "开局时，三选一获得一次稀有的技能",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 3,
+    "seasonId": 5,
+    "layer": 2,
+    "lane": 2,
+    "cost": 5,
+    "parents": [
+      1
+    ],
+    "conditions": [],
+    "rewardId": 3225,
+    "name": "闭月",
+    "description": "结束阶段，若你没有手牌，你可以摸两张牌，否则你可以摸一张牌。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 4,
+    "seasonId": 5,
+    "layer": 2,
+    "lane": 4,
+    "cost": 5,
+    "parents": [
+      2
+    ],
+    "conditions": [],
+    "rewardId": 3057,
+    "name": "势斩",
+    "description": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 5,
+    "seasonId": 5,
+    "layer": 3,
+    "lane": 1,
+    "cost": 5,
+    "parents": [
+      1
+    ],
+    "conditions": [],
+    "rewardId": 3268,
+    "name": "烈刃",
+    "description": "当你使用【杀】对目标角色造成伤害后，你可以与其拼点：若你赢，你获得其一张牌。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 6,
+    "seasonId": 5,
+    "layer": 3,
+    "lane": 3,
+    "cost": 5,
+    "parents": [
+      3,
+      4
+    ],
+    "conditions": [],
+    "rewardId": 3218,
+    "name": "卫境",
+    "description": "每轮限一次，你可以视为使用一张【杀】或【闪】。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 7,
+    "seasonId": 5,
+    "layer": 3,
+    "lane": 5,
+    "cost": 5,
+    "parents": [
+      2
+    ],
+    "conditions": [],
+    "rewardId": 3177,
+    "name": "绝情",
+    "description": "锁定技，你即将造成的伤害视为失去体力。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 8,
+    "seasonId": 5,
+    "layer": 4,
+    "lane": 2,
+    "cost": 8,
+    "parents": [
+      3
+    ],
+    "conditions": [],
+    "rewardId": 2021,
+    "name": "牢固装备",
+    "description": "你的装备不能被其他角色弃置",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 9,
+    "seasonId": 5,
+    "layer": 4,
+    "lane": 4,
+    "cost": 5,
+    "parents": [
+      4
+    ],
+    "conditions": [],
+    "rewardId": 3047,
+    "name": "困奋",
+    "description": "锁定技，结束阶段，你失去1点体力，然后摸两张牌。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 10,
+    "seasonId": 5,
+    "layer": 5,
+    "lane": 1,
+    "cost": 5,
+    "parents": [
+      5
+    ],
+    "conditions": [],
+    "rewardId": 3024,
+    "name": "矜功",
+    "description": "出牌阶段限一次，你可以将一张【杀】或装备牌当三张随机锦囊牌中的一张使用。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 11,
+    "seasonId": 5,
+    "layer": 5,
+    "lane": 3,
+    "cost": 8,
+    "parents": [
+      6
+    ],
+    "conditions": [],
+    "rewardId": 2022,
+    "name": "化刃",
+    "description": "若你没有【武器】，进入战斗时装备随机【武器】，不带出战斗",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 12,
+    "seasonId": 5,
+    "layer": 5,
+    "lane": 4,
+    "cost": 8,
+    "parents": [
+      9
+    ],
+    "conditions": [],
+    "rewardId": 2165,
+    "name": "狂暴Ⅳ",
+    "description": "体力值小于等于5时，你的摸牌数+1",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 13,
+    "seasonId": 5,
+    "layer": 6,
+    "lane": 2,
+    "cost": 12,
+    "parents": [
+      8
+    ],
+    "conditions": [],
+    "rewardId": 4016,
+    "name": "藤甲",
+    "description": "锁定技，【南蛮入侵】【万箭齐发】和普通【杀】对你无效。当你受到火焰伤害时，此伤害+1。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 14,
+    "seasonId": 5,
+    "layer": 6,
+    "lane": 3,
+    "cost": 5,
+    "parents": [
+      11
+    ],
+    "conditions": [],
+    "rewardId": 3003,
+    "name": "奇策",
+    "description": "出牌阶段限一次，你可以将所有手牌当任意普通锦囊牌使用。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 15,
+    "seasonId": 5,
+    "layer": 6,
+    "lane": 5,
+    "cost": 12,
+    "parents": [
+      7
+    ],
+    "conditions": [],
+    "rewardId": 4012,
+    "name": "寒冰剑",
+    "description": "攻击范围：2\n技能\n当你使用【杀】对目标角色造成伤害时，若其有牌，你可以防止此伤害，然后你依次弃置其两张牌。",
+    "rarity": 1,
+    "rewardType": "装备"
+  },
+  {
+    "id": 16,
+    "seasonId": 5,
+    "layer": 7,
+    "lane": 1,
+    "cost": 8,
+    "parents": [
+      10
+    ],
+    "conditions": [],
+    "rewardId": 2303,
+    "name": "弱袭",
+    "description": "你的手牌数小于体力值时，造成的伤害+1",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 17,
+    "seasonId": 5,
+    "layer": 7,
+    "lane": 2,
+    "cost": 8,
+    "parents": [
+      13
+    ],
+    "conditions": [],
+    "rewardId": 2182,
+    "name": "粮草储备",
+    "description": "游戏开始时，你回复1点体力",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 18,
+    "seasonId": 5,
+    "layer": 7,
+    "lane": 4,
+    "cost": 5,
+    "parents": [
+      12
+    ],
+    "conditions": [],
+    "rewardId": 3178,
+    "name": "智愚",
+    "description": "当你受到伤害后，你可以摸一张牌，然后展示所有手牌，若颜色均相同，伤害来源弃置一张手牌。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 19,
+    "seasonId": 5,
+    "layer": 8,
+    "lane": 3,
+    "cost": 12,
+    "parents": [
+      14,
+      17,
+      18
+    ],
+    "conditions": [],
+    "rewardId": 4009,
+    "name": "古锭刀",
+    "description": "攻击范围：2\n技能\n锁定技，当你使用【杀】对目标角色造成伤害时，若该角色没有手牌，则此伤害+1。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 20,
+    "seasonId": 5,
+    "layer": 8,
+    "lane": 5,
+    "cost": 8,
+    "parents": [
+      15
+    ],
+    "conditions": [],
+    "rewardId": 2202,
+    "name": "队·初",
+    "description": "你的所有队友初始手牌+2",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 21,
+    "seasonId": 5,
+    "layer": 9,
+    "lane": 1,
+    "cost": 12,
+    "parents": [
+      16
+    ],
+    "conditions": [],
+    "rewardId": 4006,
+    "name": "丈八蛇矛",
+    "description": "攻击范围：3\n技能\n你可以将两张手牌当【杀】使用或打出。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 22,
+    "seasonId": 5,
+    "layer": 9,
+    "lane": 2,
+    "cost": 5,
+    "parents": [
+      17
+    ],
+    "conditions": [],
+    "rewardId": 3040,
+    "name": "倾国",
+    "description": "你可以将一张黑色手牌当【闪】使用或打出。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 23,
+    "seasonId": 5,
+    "layer": 9,
+    "lane": 4,
+    "cost": 12,
+    "parents": [
+      18
+    ],
+    "conditions": [],
+    "rewardId": 4050,
+    "name": "黑光铠",
+    "description": "锁定技，当你成为【杀】、伤害锦囊牌或黑色锦囊牌的目标后，若你不是唯一目标，此牌对你无效。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 24,
+    "seasonId": 5,
+    "layer": 10,
+    "lane": 3,
+    "cost": 5,
+    "parents": [
+      19
+    ],
+    "conditions": [],
+    "rewardId": 3205,
+    "name": "焚城",
+    "description": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：\n1.弃置任意张牌（须比上家弃置的牌多）；\n2.受到你造成的2点火焰伤害。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 25,
+    "seasonId": 5,
+    "layer": 10,
+    "lane": 5,
+    "cost": 5,
+    "parents": [
+      20
+    ],
+    "conditions": [],
+    "rewardId": 3068,
+    "name": "绝策",
+    "description": "结束阶段，你可以对一名没有手牌的其他角色造成1点伤害。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 26,
+    "seasonId": 5,
+    "layer": 11,
+    "lane": 1,
+    "cost": 6,
+    "parents": [
+      21
+    ],
+    "conditions": [],
+    "rewardId": 3063,
+    "name": "散谣",
+    "description": "出牌阶段各限一次，你可以弃置一张牌对一名体力值/手牌数最大的角色造成1点伤害。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 27,
+    "seasonId": 5,
+    "layer": 11,
+    "lane": 2,
+    "cost": 6,
+    "parents": [
+      22
+    ],
+    "conditions": [],
+    "rewardId": 3222,
+    "name": "谦节",
+    "description": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 28,
+    "seasonId": 5,
+    "layer": 11,
+    "lane": 4,
+    "cost": 10,
+    "parents": [
+      23
+    ],
+    "conditions": [],
+    "rewardId": 2360,
+    "name": "勤勉",
+    "description": "你始终跳过你的判定阶段",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 29,
+    "seasonId": 5,
+    "layer": 12,
+    "lane": 3,
+    "cost": 10,
+    "parents": [
+      24
+    ],
+    "conditions": [],
+    "rewardId": 2128,
+    "name": "及时雨",
+    "description": "回合外失去最后一张手牌后，摸两张牌",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 30,
+    "seasonId": 5,
+    "layer": 12,
+    "lane": 5,
+    "cost": 6,
+    "parents": [
+      25
+    ],
+    "conditions": [],
+    "rewardId": 3188,
+    "name": "陷嗣",
+    "description": "准备阶段，你可以将至多两名角色的各一张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。",
+    "rarity": 1,
+    "rewardType": "技能"
+  },
+  {
+    "id": 31,
+    "seasonId": 5,
+    "layer": 13,
+    "lane": 1,
+    "cost": 12,
+    "parents": [
+      26
+    ],
+    "conditions": [],
+    "rewardId": 3197,
+    "name": "义绝",
+    "description": "出牌阶段限一次，你可以弃置一张牌，然后令一名其他角色展示一张手牌。若此牌为：\n•黑色，其本回合非锁定技失效且不能使用或打出手牌，你本回合对其使用的红桃【杀】伤害+1；\n•红色，你获得之，然后你可以令其回复1点体力。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 32,
+    "seasonId": 5,
+    "layer": 13,
+    "lane": 4,
+    "cost": 12,
+    "parents": [
+      28
+    ],
+    "conditions": [],
+    "rewardId": 3001,
+    "name": "挑衅",
+    "description": "出牌阶段限一次，你可以选择一名攻击范围内包含你的角色，然后除非其对你使用一张【杀】且此【杀】对你造成伤害，否则你弃置其一张牌，然后本阶段本技能限两次。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 33,
+    "seasonId": 5,
+    "layer": 14,
+    "lane": 2,
+    "cost": 20,
+    "parents": [
+      27,
+      31,
+      29
+    ],
+    "conditions": [],
+    "rewardId": 2310,
+    "name": "增寿I",
+    "description": "体力上限+1（不改变当前体力)",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 34,
+    "seasonId": 5,
+    "layer": 14,
+    "lane": 5,
+    "cost": 20,
+    "parents": [
+      30,
+      32
+    ],
+    "conditions": [],
+    "rewardId": 2104,
+    "name": "神龙摆尾",
+    "description": "你每摸9张牌，对随机敌方造成1点伤害",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 35,
+    "seasonId": 5,
+    "layer": 15,
+    "lane": 1,
+    "cost": 20,
+    "parents": [
+      31
+    ],
+    "conditions": [],
+    "rewardId": 2129,
+    "name": "远击技",
+    "description": "造成伤害时，若你与其距离大于1，此伤害+1",
+    "rarity": 1,
+    "rewardType": "战法"
+  },
+  {
+    "id": 36,
+    "seasonId": 5,
+    "layer": 15,
+    "lane": 3,
+    "cost": 16,
+    "parents": [
+      29
+    ],
+    "conditions": [],
+    "rewardId": 4052,
+    "name": "天机图",
+    "description": "锁定技，此牌进入你的装备区时，弃置一张其他牌。此牌离开你的装备区时，将手牌摸至五张。",
+    "rarity": 1,
+    "rewardType": "装备"
+  },
+  {
+    "id": 37,
+    "seasonId": 5,
+    "layer": 15,
+    "lane": 4,
+    "cost": 20,
+    "parents": [
+      32
+    ],
+    "conditions": [],
+    "rewardId": 2317,
+    "name": "反刺",
+    "description": "每回合首次受到伤害后对所有敌方造成1点伤害",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 38,
+    "seasonId": 5,
+    "layer": 16,
+    "lane": 2,
+    "cost": 12,
+    "parents": [
+      33
+    ],
+    "conditions": [],
+    "rewardId": 3089,
+    "name": "御策",
+    "description": "当你受到伤害后，你可以展示一张手牌令伤害来源选择一项：\n1.弃置一张与你展示牌类型不同的手牌；2.你回复1点体力。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 39,
+    "seasonId": 5,
+    "layer": 16,
+    "lane": 5,
+    "cost": 12,
+    "parents": [
+      34
+    ],
+    "conditions": [],
+    "rewardId": 3087,
+    "name": "恩怨",
+    "description": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：\n1.交给你一张手牌；2.失去1点体力。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 40,
+    "seasonId": 5,
+    "layer": 17,
+    "lane": 1,
+    "cost": 12,
+    "parents": [
+      35
+    ],
+    "conditions": [],
+    "rewardId": 3240,
+    "name": "长标",
+    "description": "出牌阶段限一次，你可以将任意张手牌当无距离限制的【杀】使用（计入使用次数），若此【杀】对目标角色造成伤害，本阶段结束时，你摸等量张牌。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 41,
+    "seasonId": 5,
+    "layer": 17,
+    "lane": 3,
+    "cost": 12,
+    "parents": [
+      36
+    ],
+    "conditions": [],
+    "rewardId": 3115,
+    "name": "吉占",
+    "description": "摸牌阶段开始时，你可以改为展示牌堆顶的一张牌，猜测牌堆顶下一张牌点数大于或小于此牌，然后展示之，若猜对你继续猜测，最后你获得以此法展示的牌。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 42,
+    "seasonId": 5,
+    "layer": 18,
+    "lane": 2,
+    "cost": 20,
+    "parents": [
+      38
+    ],
+    "conditions": [],
+    "rewardId": 2011,
+    "name": "锦囊计",
+    "description": "手牌上限+X（X为本回合摸牌阶段摸牌数的一半）",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 43,
+    "seasonId": 5,
+    "layer": 18,
+    "lane": 4,
+    "cost": 12,
+    "parents": [
+      37
+    ],
+    "conditions": [],
+    "rewardId": 3052,
+    "name": "刚烈",
+    "description": "当你受到伤害后，你可以判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到1点伤害。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 44,
+    "seasonId": 5,
+    "layer": 19,
+    "lane": 3,
+    "cost": 20,
+    "parents": [
+      41
+    ],
+    "conditions": [],
+    "rewardId": 2204,
+    "name": "羁绊",
+    "description": "场上每存在一名队友，你的出杀次数+2",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 45,
+    "seasonId": 5,
+    "layer": 19,
+    "lane": 5,
+    "cost": 20,
+    "parents": [
+      39
+    ],
+    "conditions": [],
+    "rewardId": 2162,
+    "name": "狂暴",
+    "description": "体力值小于等于2时，你造成的伤害+1",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 46,
+    "seasonId": 5,
+    "layer": 20,
+    "lane": 1,
+    "cost": 10,
+    "parents": [
+      40
+    ],
+    "conditions": [],
+    "rewardId": 2308,
+    "name": "赌术II",
+    "description": "你的拼点牌点数+6（最大为K）",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 47,
+    "seasonId": 5,
+    "layer": 20,
+    "lane": 4,
+    "cost": 20,
+    "parents": [
+      43
+    ],
+    "conditions": [],
+    "rewardId": 2184,
+    "name": "胆量剥夺",
+    "description": "敌方的出杀次数-1，最低为1",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 48,
+    "seasonId": 5,
+    "layer": 21,
+    "lane": 2,
+    "cost": 14,
+    "parents": [
+      42
+    ],
+    "conditions": [],
+    "rewardId": 3018,
+    "name": "看破",
+    "description": "你可以将一张黑色牌当【无懈可击】使用。\n你的【无懈可击】不能被响应。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 49,
+    "seasonId": 5,
+    "layer": 21,
+    "lane": 3,
+    "cost": 14,
+    "parents": [
+      44
+    ],
+    "conditions": [],
+    "rewardId": 3148,
+    "name": "鸩毒",
+    "description": "每名角色出牌阶段开始时，你可以弃置一张手牌，然后其视为使用一张【酒】，若其不是你，你对其造成1点伤害。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 50,
+    "seasonId": 5,
+    "layer": 22,
+    "lane": 4,
+    "cost": 14,
+    "parents": [
+      47
+    ],
+    "conditions": [],
+    "rewardId": 3128,
+    "name": "替身",
+    "description": "限定技，准备阶段，你可以回复所有体力，你每以此法回复1点体力便摸一张牌。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 51,
+    "seasonId": 5,
+    "layer": 22,
+    "lane": 5,
+    "cost": 14,
+    "parents": [
+      45
+    ],
+    "conditions": [],
+    "rewardId": 3181,
+    "name": "疠火",
+    "description": "你使用的普通【杀】可以视为火【杀】，若此牌造成伤害，你失去1点体力。你使用的火【杀】可以多指定一个目标。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 52,
+    "seasonId": 5,
+    "layer": 23,
+    "lane": 1,
+    "cost": 20,
+    "parents": [
+      46
+    ],
+    "conditions": [],
+    "rewardId": 4010,
+    "name": "朱雀羽扇",
+    "description": "攻击范围：4\n技能\n当你使用普通【杀】时，你可以将此【杀】改为火【杀】。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 53,
+    "seasonId": 5,
+    "layer": 23,
+    "lane": 3,
+    "cost": 24,
+    "parents": [
+      49,
+      48,
+      50
+    ],
+    "conditions": [],
+    "rewardId": 2249,
+    "name": "博闻Ⅰ",
+    "description": "你的回合开始时，从牌堆中获得1张随机锦囊牌",
+    "rarity": 2,
+    "rewardType": "战法"
+  },
+  {
+    "id": 54,
+    "seasonId": 5,
+    "layer": 23,
+    "lane": 5,
+    "cost": 20,
+    "parents": [
+      51
+    ],
+    "conditions": [],
+    "rewardId": 4033,
+    "name": "赤炎镇魂琴",
+    "description": "锁定技，你造成的伤害均视为火焰伤害。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 55,
+    "seasonId": 5,
+    "layer": 24,
+    "lane": 2,
+    "cost": 14,
+    "parents": [
+      48
+    ],
+    "conditions": [],
+    "rewardId": 3051,
+    "name": "再起",
+    "description": "摸牌阶段，若你已受伤，你可以改为亮出牌堆顶一张牌，回复与其中红桃牌数等量的体力并获得剩余牌，你每损失1点体力，便多亮出一张牌。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 56,
+    "seasonId": 5,
+    "layer": 24,
+    "lane": 4,
+    "cost": 20,
+    "parents": [
+      50
+    ],
+    "conditions": [],
+    "rewardId": 4044,
+    "name": "护心镜",
+    "description": "当你受到大于1点的伤害或致命伤害时，你可以将装备区里的【护心镜】置入弃牌堆，若如此做，你防止此伤害。出牌阶段，你可以将手牌中的【护心镜】置于其他角色的装备区。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 57,
+    "seasonId": 5,
+    "layer": 25,
+    "lane": 2,
+    "cost": 20,
+    "parents": [
+      55
+    ],
+    "conditions": [],
+    "rewardId": 4029,
+    "name": "玲珑狮蛮带",
+    "description": "当其他角色使用牌指定你为唯一目标后，你可以判定，若结果为红桃，此牌对你无效。",
+    "rarity": 2,
+    "rewardType": "装备"
+  },
+  {
+    "id": 58,
+    "seasonId": 5,
+    "layer": 25,
+    "lane": 5,
+    "cost": 14,
+    "parents": [
+      54
+    ],
+    "conditions": [],
+    "rewardId": 3238,
+    "name": "断发",
+    "description": "出牌阶段，你可以弃置任意张黑色牌，然后摸等量张牌。你本阶段以此法弃置的总牌数不能大于你的体力上限。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 59,
+    "seasonId": 5,
+    "layer": 26,
+    "lane": 1,
+    "cost": 14,
+    "parents": [
+      52
+    ],
+    "conditions": [],
+    "rewardId": 3250,
+    "name": "缮甲",
+    "description": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。\n出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 60,
+    "seasonId": 5,
+    "layer": 26,
+    "lane": 3,
+    "cost": 14,
+    "parents": [
+      53
+    ],
+    "conditions": [],
+    "rewardId": 3277,
+    "name": "活墨",
+    "description": "你可以将一张黑色非基本牌置于牌堆顶，视为使用一张与你本回合使用过的牌牌名不同的基本牌。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 61,
+    "seasonId": 5,
+    "layer": 27,
+    "lane": 2,
+    "cost": 22,
+    "parents": [
+      57,
+      60
+    ],
+    "conditions": [],
+    "rewardId": 3054,
+    "name": "良助",
+    "description": "当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 62,
+    "seasonId": 5,
+    "layer": 27,
+    "lane": 4,
+    "cost": 22,
+    "parents": [
+      56
+    ],
+    "conditions": [],
+    "rewardId": 3262,
+    "name": "补益",
+    "description": "当一名角色进入濒死状态时，你可以展示其一张手牌，若为非基本牌，其弃置之并回复1点体力。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 63,
+    "seasonId": 5,
+    "layer": 27,
+    "lane": 5,
+    "cost": 28,
+    "parents": [
+      58
+    ],
+    "conditions": [],
+    "rewardId": 4040,
+    "name": "鸾凤和鸣剑",
+    "description": "攻击范围：3\n技能\n当你使用的雷【杀】或火【杀】指定目标后，你可以令对方选择一项：1.弃置一张牌；2.令你摸一张牌。",
+    "rarity": 3,
+    "rewardType": "装备"
+  },
+  {
+    "id": 64,
+    "seasonId": 5,
+    "layer": 28,
+    "lane": 1,
+    "cost": 22,
+    "parents": [
+      59
+    ],
+    "conditions": [],
+    "rewardId": 3230,
+    "name": "劫营",
+    "description": "回合开始时，若全场没有“营”标记，你获得“营”。结束阶段，你可以将“营”置于一名角色的武将牌上。有“营”的角色摸牌阶段多摸一张牌、出牌阶段使用【杀】的限制次数+1、手牌上限+1。有“营”的其他角色回合结束后，你获得其所有手牌和“营”。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 65,
+    "seasonId": 5,
+    "layer": 28,
+    "lane": 3,
+    "cost": 44,
+    "parents": [
+      60
+    ],
+    "conditions": [],
+    "rewardId": 2081,
+    "name": "手到擒来Ⅲ",
+    "description": "每回合你使用第6张牌后,你摸2张牌",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 66,
+    "seasonId": 5,
+    "layer": 29,
+    "lane": 2,
+    "cost": 28,
+    "parents": [
+      61
+    ],
+    "conditions": [],
+    "rewardId": 4015,
+    "name": "仁王盾",
+    "description": "锁定技，黑色【杀】对你无效。",
+    "rarity": 3,
+    "rewardType": "装备"
+  },
+  {
+    "id": 67,
+    "seasonId": 5,
+    "layer": 29,
+    "lane": 3,
+    "cost": 22,
+    "parents": [
+      65
+    ],
+    "conditions": [],
+    "rewardId": 3112,
+    "name": "洛神",
+    "description": "准备阶段，你可以判定，若结果为黑色，你获得此牌，然后你可以重复此流程。以此法获得的牌本回合不计入手牌上限。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 68,
+    "seasonId": 5,
+    "layer": 29,
+    "lane": 4,
+    "cost": 44,
+    "parents": [
+      62,
+      63
+    ],
+    "conditions": [],
+    "rewardId": 2372,
+    "name": "愈战愈勇",
+    "description": "从第2轮开始，你的【杀】造成的伤害+2",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 69,
+    "seasonId": 5,
+    "layer": 30,
+    "lane": 1,
+    "cost": 44,
+    "parents": [
+      64,
+      66
+    ],
+    "conditions": [],
+    "rewardId": 2171,
+    "name": "技艺Ⅰ",
+    "description": "当你的技能直接造成伤害时，此伤害+1",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 70,
+    "seasonId": 5,
+    "layer": 30,
+    "lane": 5,
+    "cost": 22,
+    "parents": [
+      63
+    ],
+    "conditions": [],
+    "rewardId": 3151,
+    "name": "玲珑",
+    "description": "锁定技，若你的装备区里没有：\n•武器牌，你本回合使用【杀】的限制次数+1；\n•防具牌，你视为装备着【八卦阵】；\n•坐骑牌，你的手牌上限+1；\n•宝物牌，你视为拥有“奇才”。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 71,
+    "seasonId": 5,
+    "layer": 31,
+    "lane": 2,
+    "cost": 54,
+    "parents": [
+      66
+    ],
+    "conditions": [],
+    "rewardId": 2315,
+    "name": "噬血I",
+    "description": "回复体力后，摸1张牌",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 72,
+    "seasonId": 5,
+    "layer": 31,
+    "lane": 3,
+    "cost": 26,
+    "parents": [
+      67
+    ],
+    "conditions": [],
+    "rewardId": 3229,
+    "name": "神赋",
+    "description": "回合结束时，若你的手牌数为：奇数，你对一名其他角色造成1点雷电伤害，若其因此死亡，你可以重复此流程；偶数，你令一名角色摸一张牌或弃置一张手牌，然后若其手牌数等于体力值，你可以重复此流程。",
+    "rarity": 2,
+    "rewardType": "技能"
+  },
+  {
+    "id": 73,
+    "seasonId": 5,
+    "layer": 31,
+    "lane": 4,
+    "cost": 26,
+    "parents": [
+      68
+    ],
+    "conditions": [],
+    "rewardId": 3257,
+    "name": "归心",
+    "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后翻面。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 74,
+    "seasonId": 5,
+    "layer": 32,
+    "lane": 1,
+    "cost": 26,
+    "parents": [
+      69
+    ],
+    "conditions": [],
+    "rewardId": 3020,
+    "name": "酒池",
+    "description": "你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 75,
+    "seasonId": 5,
+    "layer": 32,
+    "lane": 5,
+    "cost": 54,
+    "parents": [
+      70,
+      73
+    ],
+    "conditions": [],
+    "rewardId": 2220,
+    "name": "和光盟Ⅱ",
+    "description": "开始征程时，你获得1名精英特殊队友",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 76,
+    "seasonId": 5,
+    "layer": 33,
+    "lane": 2,
+    "cost": 25,
+    "parents": [
+      71
+    ],
+    "conditions": [],
+    "rewardId": 3086,
+    "name": "称象",
+    "description": "当你受到伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和小于等于13的牌。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 77,
+    "seasonId": 5,
+    "layer": 33,
+    "lane": 3,
+    "cost": 55,
+    "parents": [
+      72
+    ],
+    "conditions": [],
+    "rewardId": 2143,
+    "name": "神龙摆尾Ⅱ",
+    "description": "你每摸6张牌，对随机敌方造成1点伤害",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 78,
+    "seasonId": 5,
+    "layer": 34,
+    "lane": 1,
+    "cost": 55,
+    "parents": [
+      74
+    ],
+    "conditions": [],
+    "rewardId": 2049,
+    "name": "淬血Ⅱ",
+    "description": "你每轮【杀】首次造成伤害后摸2张牌",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 79,
+    "seasonId": 5,
+    "layer": 34,
+    "lane": 4,
+    "cost": 25,
+    "parents": [
+      73
+    ],
+    "conditions": [],
+    "rewardId": 3067,
+    "name": "清弦",
+    "description": "当你受到伤害/回复体力后，若没有角色处于濒死状态，你可以令伤害来源/一名其他角色执行一项：\n1.失去1点体力，随机使用一张装备牌；\n2.回复1点体力，弃置一张装备牌。\n若其使用或弃置的牌为梅花牌，你摸一张牌。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 80,
+    "seasonId": 5,
+    "layer": 34,
+    "lane": 5,
+    "cost": 25,
+    "parents": [
+      75
+    ],
+    "conditions": [],
+    "rewardId": 3249,
+    "name": "鏖战",
+    "description": "锁定技，若你装备区里有：武器牌，你使用【杀】的限制次数+1；防具牌，防止你受到的超过1点的伤害；坐骑牌，你摸牌阶段多摸一张牌；宝物牌，跳过你的判定阶段。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 81,
+    "seasonId": 5,
+    "layer": 35,
+    "lane": 3,
+    "cost": 25,
+    "parents": [
+      77,
+      76,
+      79
+    ],
+    "conditions": [],
+    "rewardId": 3010,
+    "name": "制衡",
+    "description": "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌，若你以此法弃置了所有手牌，你额外摸一张牌。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 82,
+    "seasonId": 5,
+    "layer": 35,
+    "lane": 4,
+    "cost": 35,
+    "parents": [
+      79
+    ],
+    "conditions": [],
+    "rewardId": 4056,
+    "name": "禅让诏书",
+    "description": "每回合每名角色限一次，当其他角色于其回合外首次获得牌时，你可以交给其一张牌或令其交给你一张牌。",
+    "rarity": 3,
+    "rewardType": "装备"
+  },
+  {
+    "id": 83,
+    "seasonId": 5,
+    "layer": 36,
+    "lane": 2,
+    "cost": 55,
+    "parents": [
+      76
+    ],
+    "conditions": [],
+    "rewardId": 2197,
+    "name": "厚实Ⅱ",
+    "description": "每轮你前3次受到的伤害-2",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 84,
+    "seasonId": 5,
+    "layer": 36,
+    "lane": 5,
+    "cost": 25,
+    "parents": [
+      80
+    ],
+    "conditions": [],
+    "rewardId": 3099,
+    "name": "完杀",
+    "description": "锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 85,
+    "seasonId": 5,
+    "layer": 37,
+    "lane": 1,
+    "cost": 35,
+    "parents": [
+      78,
+      83
+    ],
+    "conditions": [],
+    "rewardId": 4059,
+    "name": "刑天破军斧",
+    "description": "出牌阶段，当你使用牌指定唯一目标后，你可以弃置两张牌，令其本回合内不能使用或打出牌且防具失效。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 86,
+    "seasonId": 5,
+    "layer": 37,
+    "lane": 4,
+    "cost": 55,
+    "parents": [
+      82,
+      83
+    ],
+    "conditions": [],
+    "rewardId": 2161,
+    "name": "招募后勤Ⅲ",
+    "description": "初始手牌-2，摸牌数+3",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 87,
+    "seasonId": 5,
+    "layer": 38,
+    "lane": 2,
+    "cost": 25,
+    "parents": [
+      83
+    ],
+    "conditions": [],
+    "rewardId": 3085,
+    "name": "恢拓",
+    "description": "当你受到伤害后，你可以令一名角色判定，若结果为：\n•红色，其回复1点体力；\n•黑色，其摸与此伤害值等量张牌。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 88,
+    "seasonId": 5,
+    "layer": 38,
+    "lane": 3,
+    "cost": 35,
+    "parents": [
+      81
+    ],
+    "conditions": [],
+    "rewardId": 4038,
+    "name": "虚妄之冕",
+    "description": "锁定技，摸牌阶段，你多摸两张牌。你的手牌上限-1。",
+    "rarity": 3,
+    "rewardType": "装备"
+  },
+  {
+    "id": 89,
+    "seasonId": 5,
+    "layer": 38,
+    "lane": 5,
+    "cost": 55,
+    "parents": [
+      84
+    ],
+    "conditions": [],
+    "rewardId": 2199,
+    "name": "队·体",
+    "description": "你的所有队友体力+3",
+    "rarity": 3,
+    "rewardType": "战法"
+  },
+  {
+    "id": 90,
+    "seasonId": 5,
+    "layer": 39,
+    "lane": 1,
+    "cost": 25,
+    "parents": [
+      85
+    ],
+    "conditions": [],
+    "rewardId": 3281,
+    "name": "鞬出",
+    "description": "当你使用【杀】指定目标后，你可以弃置其一张牌，若弃置牌为：\n•装备牌，其不能抵消此【杀】；\n•非装备牌，其获得此【杀】。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 91,
+    "seasonId": 5,
+    "layer": 39,
+    "lane": 3,
+    "cost": 90,
+    "parents": [
+      88
+    ],
+    "conditions": [],
+    "rewardId": 2078,
+    "name": "援助Ⅲ",
+    "description": "回合结束时，你摸3张牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 92,
+    "seasonId": 5,
+    "layer": 40,
+    "lane": 2,
+    "cost": 35,
+    "parents": [
+      87,
+      91
+    ],
+    "conditions": [],
+    "rewardId": 3083,
+    "name": "节命",
+    "description": "当你受到1点伤害后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 93,
+    "seasonId": 5,
+    "layer": 40,
+    "lane": 4,
+    "cost": 35,
+    "parents": [
+      86
+    ],
+    "conditions": [],
+    "rewardId": 3017,
+    "name": "伤逝",
+    "description": "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 94,
+    "seasonId": 5,
+    "layer": 41,
+    "lane": 4,
+    "cost": 110,
+    "parents": [
+      93
+    ],
+    "conditions": [],
+    "rewardId": 2120,
+    "name": "应急战略",
+    "description": "回合外成为敌方角色使用牌唯一目标，随机弃置使用者1张牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 95,
+    "seasonId": 5,
+    "layer": 41,
+    "lane": 5,
+    "cost": 45,
+    "parents": [
+      89,
+      93
+    ],
+    "conditions": [],
+    "rewardId": 3070,
+    "name": "博图",
+    "description": "每轮限X次（X为存活角色数且至多为3），回合结束后，若本回合置入弃牌堆的牌包含四种花色，你可以执行一个额外回合。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 96,
+    "seasonId": 5,
+    "layer": 42,
+    "lane": 1,
+    "cost": 45,
+    "parents": [
+      90
+    ],
+    "conditions": [],
+    "rewardId": 3261,
+    "name": "征南",
+    "description": "当其他角色死亡后，你可以摸三张牌，然后获得“武圣”“当先”“制蛮”中的一个。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 97,
+    "seasonId": 5,
+    "layer": 42,
+    "lane": 2,
+    "cost": 45,
+    "parents": [
+      92
+    ],
+    "conditions": [],
+    "rewardId": 3048,
+    "name": "狂骨",
+    "description": "当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 98,
+    "seasonId": 5,
+    "layer": 42,
+    "lane": 4,
+    "cost": 60,
+    "parents": [
+      94
+    ],
+    "conditions": [],
+    "rewardId": 4061,
+    "name": "三首",
+    "description": "当你受到伤害时，你可以亮出牌堆顶三张牌，若包含本回合未使用过的类型，你防止此伤害。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 99,
+    "seasonId": 5,
+    "layer": 43,
+    "lane": 3,
+    "cost": 45,
+    "parents": [
+      91
+    ],
+    "conditions": [],
+    "rewardId": 3260,
+    "name": "奇谋",
+    "description": "限定技，出牌阶段，你可以失去任意点体力，然后你本回合计算与其他角色的距离-X且使用【杀】的限制次数+X（X为你以此法失去的体力值）。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 100,
+    "seasonId": 5,
+    "layer": 43,
+    "lane": 5,
+    "cost": 45,
+    "parents": [
+      95
+    ],
+    "conditions": [],
+    "rewardId": 3091,
+    "name": "当先",
+    "description": "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 101,
+    "seasonId": 5,
+    "layer": 44,
+    "lane": 1,
+    "cost": 60,
+    "parents": [
+      96
+    ],
+    "conditions": [],
+    "rewardId": 4031,
+    "name": "鬼龙斩月刀",
+    "description": "锁定技，你使用的红色【杀】不能被【闪】响应。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 102,
+    "seasonId": 5,
+    "layer": 44,
+    "lane": 2,
+    "cost": 110,
+    "parents": [
+      97
+    ],
+    "conditions": [],
+    "rewardId": 2056,
+    "name": "体魄Ⅲ",
+    "description": "游戏开始时，你增加3点体力上限并回复等量体力",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 103,
+    "seasonId": 5,
+    "layer": 44,
+    "lane": 4,
+    "cost": 45,
+    "parents": [
+      98
+    ],
+    "conditions": [],
+    "rewardId": 3075,
+    "name": "强识",
+    "description": "出牌阶段开始时，你可以展示一名其他角色一张手牌，然后当你本阶段使用与展示牌类型相同的牌时，你可以摸一张牌。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 104,
+    "seasonId": 5,
+    "layer": 45,
+    "lane": 2,
+    "cost": 60,
+    "parents": [
+      102
+    ],
+    "conditions": [],
+    "rewardId": 4034,
+    "name": "奇门八阵",
+    "description": "锁定技，【杀】对你无效。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 105,
+    "seasonId": 5,
+    "layer": 45,
+    "lane": 5,
+    "cost": 110,
+    "parents": [
+      100
+    ],
+    "conditions": [],
+    "rewardId": 2146,
+    "name": "利滚利Ⅱ",
+    "description": "每场战斗后,你的总铜币数量增加10%",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 106,
+    "seasonId": 5,
+    "layer": 46,
+    "lane": 1,
+    "cost": 110,
+    "parents": [
+      101
+    ],
+    "conditions": [],
+    "rewardId": 2043,
+    "name": "三板斧Ⅱ",
+    "description": "你使用的每第3张【杀】伤害+2",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 107,
+    "seasonId": 5,
+    "layer": 46,
+    "lane": 3,
+    "cost": 45,
+    "parents": [
+      99
+    ],
+    "conditions": [],
+    "rewardId": 3023,
+    "name": "龙魂",
+    "description": "你可以将至多两张花色相同的牌按以下规则使用或打出：\n•红桃当【桃】;•方片当火【杀】;\n•梅花当【闪】;•黑桃当【无懈可击】。\n若你以此法转化使用了两张：\n•红色牌，此牌回复值或伤害值+1;\n•黑色牌，你弃置当前回合角色一张牌。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 108,
+    "seasonId": 5,
+    "layer": 47,
+    "lane": 1,
+    "cost": 45,
+    "parents": [
+      106
+    ],
+    "conditions": [],
+    "rewardId": 3038,
+    "name": "龙吟",
+    "description": "当一名角色于其出牌阶段内使用【杀】时，你可以弃置一张牌，令此【杀】不计入此阶段使用次数，若此【杀】为红色，你摸一张牌。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 109,
+    "seasonId": 5,
+    "layer": 47,
+    "lane": 2,
+    "cost": 45,
+    "parents": [
+      104
+    ],
+    "conditions": [],
+    "rewardId": 3292,
+    "name": "魅步",
+    "description": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“止息”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 110,
+    "seasonId": 5,
+    "layer": 47,
+    "lane": 5,
+    "cost": 45,
+    "parents": [
+      105
+    ],
+    "conditions": [],
+    "rewardId": 3256,
+    "name": "乱击",
+    "description": "你可以将两张花色相同的手牌当【万箭齐发】使用。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 111,
+    "seasonId": 5,
+    "layer": 48,
+    "lane": 3,
+    "cost": 60,
+    "parents": [
+      107
+    ],
+    "conditions": [],
+    "rewardId": 4037,
+    "name": "修罗炼狱戟",
+    "description": "你使用【杀】可以多指定任意名攻击范围内的其他角色为目标。锁定技，当你使用【杀】造成伤害时，此伤害+1，然后令受到伤害的角色回复1点体力。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 112,
+    "seasonId": 5,
+    "layer": 48,
+    "lane": 4,
+    "cost": 45,
+    "parents": [
+      103
+    ],
+    "conditions": [],
+    "rewardId": 3019,
+    "name": "激昂",
+    "description": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。",
+    "rarity": 3,
+    "rewardType": "技能"
+  },
+  {
+    "id": 113,
+    "seasonId": 5,
+    "layer": 49,
+    "lane": 1,
+    "cost": 45,
+    "parents": [
+      108
+    ],
+    "conditions": [],
+    "rewardId": 3263,
+    "name": "挽弓",
+    "description": "锁定技，若你使用的上一张牌是基本牌，你使用【杀】无距离和次数限制且造成的伤害+1。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 114,
+    "seasonId": 5,
+    "layer": 49,
+    "lane": 3,
+    "cost": 45,
+    "parents": [
+      111
+    ],
+    "conditions": [],
+    "rewardId": 3006,
+    "name": "双雄",
+    "description": "摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成过伤害的牌。",
+    "rarity": 4,
+    "rewardType": "技能"
+  },
+  {
+    "id": 115,
+    "seasonId": 5,
+    "layer": 49,
+    "lane": 5,
+    "cost": 60,
+    "parents": [
+      110
+    ],
+    "conditions": [],
+    "rewardId": 4032,
+    "name": "国风玉袍",
+    "description": "锁定技，你不能成为其他角色使用普通锦囊牌的目标。",
+    "rarity": 4,
+    "rewardType": "装备"
+  },
+  {
+    "id": 116,
+    "seasonId": 5,
+    "layer": 50,
+    "lane": 1,
+    "cost": 110,
+    "parents": [
+      113
+    ],
+    "conditions": [],
+    "rewardId": 2052,
+    "name": "连击Ⅱ",
+    "description": "出牌阶段，你的出杀次数+3",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 117,
+    "seasonId": 5,
+    "layer": 50,
+    "lane": 2,
+    "cost": 110,
+    "parents": [
+      109
+    ],
+    "conditions": [],
+    "rewardId": 2322,
+    "name": "药理IV",
+    "description": "每回合前2次回复体力时，额外回复2点",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 118,
+    "seasonId": 5,
+    "layer": 50,
+    "lane": 3,
+    "cost": 110,
+    "parents": [
+      114
+    ],
+    "conditions": [],
+    "rewardId": 2084,
+    "name": "多多益善Ⅲ",
+    "description": "每回合你第1次摸牌后,你摸2张牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 119,
+    "seasonId": 5,
+    "layer": 50,
+    "lane": 4,
+    "cost": 110,
+    "parents": [
+      112
+    ],
+    "conditions": [],
+    "rewardId": 2314,
+    "name": "血刃",
+    "description": "回复体力后，对随机敌方造成1点伤害",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 120,
+    "seasonId": 5,
+    "layer": 50,
+    "lane": 5,
+    "cost": 110,
+    "parents": [
+      115
+    ],
+    "conditions": [],
+    "rewardId": 2142,
+    "name": "日行千里Ⅱ",
+    "description": "每个章节，你可以额外行动2次",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 121,
+    "seasonId": 5,
+    "layer": 51,
+    "lane": 3,
+    "cost": 30,
+    "parents": [
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "conditions": [],
+    "rewardId": 2210,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 122,
+    "seasonId": 5,
+    "layer": 52,
+    "lane": 3,
+    "cost": 60,
+    "parents": [
+      121
+    ],
+    "conditions": [],
+    "rewardId": 2042,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 123,
+    "seasonId": 5,
+    "layer": 53,
+    "lane": 3,
+    "cost": 100,
+    "parents": [
+      122
+    ],
+    "conditions": [],
+    "rewardId": 2172,
+    "name": "技艺Ⅱ",
+    "description": "当你的技能直接造成伤害时，此伤害+2",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 124,
+    "seasonId": 5,
+    "layer": 54,
+    "lane": 3,
+    "cost": 30,
+    "parents": [
+      123
+    ],
+    "conditions": [
+      121
+    ],
+    "rewardId": 2054,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 125,
+    "seasonId": 5,
+    "layer": 55,
+    "lane": 3,
+    "cost": 60,
+    "parents": [
+      124
+    ],
+    "conditions": [
+      122
+    ],
+    "rewardId": 2001,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 126,
+    "seasonId": 5,
+    "layer": 56,
+    "lane": 3,
+    "cost": 100,
+    "parents": [
+      125
+    ],
+    "conditions": [
+      123
+    ],
+    "rewardId": 2177,
+    "name": "隔山打牛",
+    "description": "你对其他人造成伤害时，无视其护甲",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 127,
+    "seasonId": 5,
+    "layer": 57,
+    "lane": 3,
+    "cost": 30,
+    "parents": [
+      126
+    ],
+    "conditions": [
+      124
+    ],
+    "rewardId": 2131,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 128,
+    "seasonId": 5,
+    "layer": 58,
+    "lane": 3,
+    "cost": 60,
+    "parents": [
+      127
+    ],
+    "conditions": [
+      125
+    ],
+    "rewardId": 2181,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 129,
+    "seasonId": 5,
+    "layer": 59,
+    "lane": 3,
+    "cost": 100,
+    "parents": [
+      128
+    ],
+    "conditions": [
+      126
+    ],
+    "rewardId": 2224,
+    "name": "打基础Ⅲ",
+    "description": "局外手牌每增加1张，游戏开始额外获得1张手牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 130,
+    "seasonId": 5,
+    "layer": 60,
+    "lane": 3,
+    "cost": 30,
+    "parents": [
+      129
+    ],
+    "conditions": [
+      127
+    ],
+    "rewardId": 2059,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 131,
+    "seasonId": 5,
+    "layer": 61,
+    "lane": 3,
+    "cost": 70,
+    "parents": [
+      130
+    ],
+    "conditions": [
+      128
+    ],
+    "rewardId": 2095,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 132,
+    "seasonId": 5,
+    "layer": 62,
+    "lane": 3,
+    "cost": 120,
+    "parents": [
+      131
+    ],
+    "conditions": [
+      129
+    ],
+    "rewardId": 2101,
+    "name": "雷火势Ⅱ",
+    "description": "每回合限一次，你使用的第一张属性【杀】伤害+2",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 133,
+    "seasonId": 5,
+    "layer": 63,
+    "lane": 3,
+    "cost": 40,
+    "parents": [
+      132
+    ],
+    "conditions": [
+      130
+    ],
+    "rewardId": 2090,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 134,
+    "seasonId": 5,
+    "layer": 64,
+    "lane": 3,
+    "cost": 70,
+    "parents": [
+      133
+    ],
+    "conditions": [
+      131
+    ],
+    "rewardId": 2227,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 135,
+    "seasonId": 5,
+    "layer": 65,
+    "lane": 3,
+    "cost": 120,
+    "parents": [
+      134
+    ],
+    "conditions": [
+      132
+    ],
+    "rewardId": 2240,
+    "name": "趁其不备Ⅱ",
+    "description": "你使用【过河拆桥】时，至多弃置目标3张牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 136,
+    "seasonId": 5,
+    "layer": 66,
+    "lane": 3,
+    "cost": 40,
+    "parents": [
+      135
+    ],
+    "conditions": [
+      133
+    ],
+    "rewardId": 2039,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 137,
+    "seasonId": 5,
+    "layer": 67,
+    "lane": 3,
+    "cost": 70,
+    "parents": [
+      136
+    ],
+    "conditions": [
+      134
+    ],
+    "rewardId": 2163,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 138,
+    "seasonId": 5,
+    "layer": 68,
+    "lane": 3,
+    "cost": 120,
+    "parents": [
+      137
+    ],
+    "conditions": [
+      135
+    ],
+    "rewardId": 2094,
+    "name": "拂衣去·桃",
+    "description": "回合开始时，你获得2张【桃】",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 139,
+    "seasonId": 5,
+    "layer": 69,
+    "lane": 3,
+    "cost": 40,
+    "parents": [
+      138
+    ],
+    "conditions": [
+      136
+    ],
+    "rewardId": 2100,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 140,
+    "seasonId": 5,
+    "layer": 70,
+    "lane": 3,
+    "cost": 70,
+    "parents": [
+      139
+    ],
+    "conditions": [
+      137
+    ],
+    "rewardId": 2143,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 141,
+    "seasonId": 5,
+    "layer": 71,
+    "lane": 3,
+    "cost": 150,
+    "parents": [
+      140
+    ],
+    "conditions": [
+      138
+    ],
+    "rewardId": 2117,
+    "name": "偏转甲",
+    "description": "每次受到伤害后对随机敌方造成1点伤害",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 142,
+    "seasonId": 5,
+    "layer": 72,
+    "lane": 3,
+    "cost": 50,
+    "parents": [
+      141
+    ],
+    "conditions": [
+      139
+    ],
+    "rewardId": 2218,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 143,
+    "seasonId": 5,
+    "layer": 73,
+    "lane": 3,
+    "cost": 90,
+    "parents": [
+      142
+    ],
+    "conditions": [
+      140
+    ],
+    "rewardId": 2073,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 144,
+    "seasonId": 5,
+    "layer": 74,
+    "lane": 3,
+    "cost": 150,
+    "parents": [
+      143
+    ],
+    "conditions": [
+      141
+    ],
+    "rewardId": 2175,
+    "name": "勇战Ⅱ",
+    "description": "你脱离濒死时，对所有敌方造成2点伤害",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 145,
+    "seasonId": 5,
+    "layer": 75,
+    "lane": 3,
+    "cost": 50,
+    "parents": [
+      144
+    ],
+    "conditions": [
+      142
+    ],
+    "rewardId": 2301,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 146,
+    "seasonId": 5,
+    "layer": 76,
+    "lane": 3,
+    "cost": 90,
+    "parents": [
+      145
+    ],
+    "conditions": [
+      143
+    ],
+    "rewardId": 2042,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 147,
+    "seasonId": 5,
+    "layer": 77,
+    "lane": 3,
+    "cost": 150,
+    "parents": [
+      146
+    ],
+    "conditions": [
+      144
+    ],
+    "rewardId": 2009,
+    "name": "偷袭",
+    "description": "黑桃【杀】无次数限制",
+    "rarity": 4,
+    "rewardType": "战法"
+  },
+  {
+    "id": 148,
+    "seasonId": 5,
+    "layer": 78,
+    "lane": 3,
+    "cost": 50,
+    "parents": [
+      147
+    ],
+    "conditions": [
+      145
+    ],
+    "rewardId": 2165,
+    "name": "随机开启1个稀有战法",
+    "description": "解锁后随机开启1个稀有战法",
+    "rarity": 2,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 149,
+    "seasonId": 5,
+    "layer": 79,
+    "lane": 3,
+    "cost": 90,
+    "parents": [
+      148
+    ],
+    "conditions": [
+      146
+    ],
+    "rewardId": 2077,
+    "name": "随机开启1个史诗战法",
+    "description": "解锁后随机开启1个史诗战法",
+    "rarity": 3,
+    "rewardType": "随机战法"
+  },
+  {
+    "id": 150,
+    "seasonId": 5,
+    "layer": 80,
+    "lane": 3,
+    "cost": 150,
+    "parents": [
+      149
+    ],
+    "conditions": [
+      147
+    ],
+    "rewardId": 2190,
+    "name": "阴阳术法",
+    "description": "敌方无法响应你的伤害锦囊牌",
+    "rarity": 4,
+    "rewardType": "战法"
+  }
+]

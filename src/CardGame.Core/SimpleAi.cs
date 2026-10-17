@@ -238,7 +238,8 @@ public sealed partial class SimpleAiBrain
     public (LegalAction Action, AiThoughtRecord Thought) ChoosePlay(
         GameSnapshot view,
         IReadOnlyList<LegalAction> legalActions,
-        int thoughtSequence)
+        int thoughtSequence,
+        Func<LegalAction, int, PublicDamagePrediction>? damagePrediction = null)
     {
         if (legalActions.Count == 0)
         {
@@ -257,8 +258,8 @@ public sealed partial class SimpleAiBrain
             var (score, reason) = action.Kind == LegalActionKind.RevealGeneral
                 ? ScoreNationalRevealAction(view, self, action)
                 : _policyVersion >= 2
-                    ? ScoreTacticalAction(view, self, selfRole, action, legalActions)
-                    : ScoreAction(view, self, selfRole, action);
+                    ? ScoreTacticalAction(view, self, selfRole, action, legalActions, damagePrediction)
+                    : ScoreAction(view, self, selfRole, action, damagePrediction);
             // A very small seeded jitter resolves exact ties without making replays unstable.
             score += _random.NextDouble() * 0.001d;
             candidates.Add(new AiCandidateScore(action, Math.Round(score, 3), reason));
@@ -540,20 +541,23 @@ public sealed partial class SimpleAiBrain
         int thoughtSequence,
         bool incomingIgnoresArmor,
         bool legalDodgeAvailable,
-        bool legalConditionalBaguaAvailable = false)
+        bool legalConditionalBaguaAvailable = false,
+        PublicDamagePrediction? incomingPrediction = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var dodgeProfile = CardCatalog.Get(CardKind.Dodge);
         var hasDodge = legalDodgeAvailable;
         var hasBagua = !incomingIgnoresArmor &&
                        (legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation));
-        var useDodgeScore = self.Hp <= 1
+        var critical = IsCriticalPublicResponse(self, incomingPrediction);
+        var hpPressure = PublicResponseHpPressure(self, incomingPrediction);
+        var useDodgeScore = critical
             ? dodgeProfile.AiResponseValue + 35d
-            : dodgeProfile.AiResponseValue + (self.MaxHp - self.Hp) * 8d;
-        var useBaguaScore = self.Hp <= 1
+            : dodgeProfile.AiResponseValue + hpPressure * 8d;
+        var useBaguaScore = critical
             ? CardCatalog.Get(CardKind.BaguaFormation).AiPlayValue + 35d
-            : CardCatalog.Get(CardKind.BaguaFormation).AiPlayValue + (self.MaxHp - self.Hp) * 8d;
-        var passScore = self.Hp <= 1 ? -100d : 5d;
+            : CardCatalog.Get(CardKind.BaguaFormation).AiPlayValue + hpPressure * 8d;
+        var passScore = critical ? -100d : 5d;
         if (!hasDodge)
         {
             useDodgeScore = double.NegativeInfinity;
@@ -606,7 +610,8 @@ public sealed partial class SimpleAiBrain
             pseudoAction.Description,
             candidates,
             $"生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。" +
-            (incomingIgnoresArmor ? "攻击者的武器无视防具，因此不考虑八卦阵。" : string.Empty));
+            (incomingIgnoresArmor ? "攻击者的武器无视防具，因此不考虑八卦阵。" : string.Empty) +
+            PublicDamageExplanation(self, incomingPrediction));
 
         return (useDodge, useBagua, thought);
     }
@@ -717,14 +722,16 @@ public sealed partial class SimpleAiBrain
     public (bool UseSlash, AiThoughtRecord Thought) ChooseDuelResponse(
         GameSnapshot view,
         int opponentSeat,
-        int thoughtSequence)
+        int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var slashProfile = CardCatalog.Get(CardKind.Slash);
-        var useScore = self.Hp <= 1
+        var critical = IsCriticalPublicResponse(self, incomingPrediction);
+        var useScore = critical
             ? slashProfile.AiResponseValue + 40d
-            : slashProfile.AiResponseValue + Math.Max(0, self.MaxHp - self.Hp) * 4d;
-        var passScore = self.Hp <= 1 ? -100d : 5d;
+            : slashProfile.AiResponseValue + PublicResponseHpPressure(self, incomingPrediction) * 4d;
+        var passScore = critical ? -100d : 5d;
         var useSlash = useScore >= passScore;
         var pseudoAction = new LegalAction(
             LegalActionKind.Slash,
@@ -744,21 +751,23 @@ public sealed partial class SimpleAiBrain
             Seat,
             pseudoAction.Description,
             candidates,
-            $"决斗响应：生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。 ");
+            $"决斗响应：生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。 " + PublicDamageExplanation(self, incomingPrediction));
         return (useSlash, thought);
     }
 
     public (bool UseSlash, AiThoughtRecord Thought) ChooseGroupResponse(
         GameSnapshot view,
         int opponentSeat,
-        int thoughtSequence)
+        int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction = null)
     {
         var (useResponse, thought) = ChooseGroupResponse(
             view,
             opponentSeat,
             CardKind.BarbarianAssault,
             CardKind.Slash,
-            thoughtSequence);
+            thoughtSequence,
+            incomingPrediction);
         return (useResponse, thought);
     }
 
@@ -767,14 +776,16 @@ public sealed partial class SimpleAiBrain
         int opponentSeat,
         CardKind incomingCard,
         CardKind requiredCardKind,
-        int thoughtSequence)
+        int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var responseProfile = CardCatalog.Get(requiredCardKind);
-        var useScore = self.Hp <= 1
+        var critical = IsCriticalPublicResponse(self, incomingPrediction);
+        var useScore = critical
             ? responseProfile.AiResponseValue + 40d
-            : responseProfile.AiResponseValue + Math.Max(0, self.MaxHp - self.Hp) * 4d;
-        var passScore = self.Hp <= 1 ? -100d : 5d;
+            : responseProfile.AiResponseValue + PublicResponseHpPressure(self, incomingPrediction) * 4d;
+        var passScore = critical ? -100d : 5d;
         var useResponse = useScore >= passScore;
         var incomingName = CardCatalog.Get(incomingCard).DisplayName;
         var responseName = CardCatalog.Get(requiredCardKind).DisplayName;
@@ -801,7 +812,7 @@ public sealed partial class SimpleAiBrain
             Seat,
             pseudoAction.Description,
             candidates,
-            $"{incomingName}响应：生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。 ");
+            $"{incomingName}响应：生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。 " + PublicDamageExplanation(self, incomingPrediction));
         return (useResponse, thought);
     }
 
@@ -1129,7 +1140,8 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         int targetSeat,
         int preventedDamageAmount,
-        int thoughtSequence)
+        int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var target = view.Players.Single(player => player.Seat == targetSeat);
@@ -1140,9 +1152,14 @@ public sealed partial class SimpleAiBrain
         var support = GetTacticalSupport(view, selfRole, target);
         var availableCardCount = target.HandCount + target.Equipment.Count;
         var discardPotential = Math.Min(2, availableCardCount) * 32d;
-        var lethalAdjustment = target.Hp <= preventedDamageAmount
+        var payment = incomingPrediction ?? PublicDamagePrediction.Calculate(target.Hp, target.Armor, preventedDamageAmount);
+        var lethalAdjustment = payment.IsLethal
             ? support >= 0d ? 90d : -90d
             : 0d;
+        // Armor still pays a finite resource and the full damage can trigger skills.
+        // It does not carry the same HP pressure or killing value as an unabsorbed hit.
+        var retainedDamageValue = target.Armor > 0
+            ? payment.HpLossAmount + payment.ArmorAbsorbed / 3d : preventedDamageAmount;
         var equipment = target.Equipment.ToDictionary(card => card.Id);
         var candidates = prompt.Choices.Select(choice =>
         {
@@ -1152,8 +1169,8 @@ public sealed partial class SimpleAiBrain
                 ? CardCatalog.Get(publicCard.Kind).HandKeepValue
                 : 32;
             var score = retainsDamage
-                ? -support * preventedDamageAmount * 40d
-                : support * preventedDamageAmount * 45d -
+                ? -support * retainedDamageValue * 40d
+                : support * retainedDamageValue * 45d -
                   support * discardPotential * 1.4d +
                   lethalAdjustment -
                   support * publicCardValue * .08d;
@@ -1182,7 +1199,7 @@ public sealed partial class SimpleAiBrain
             Seat,
             selected.Description,
             candidates,
-            $"寒冰剑：目标关系 {support:0.##}，待造成 {preventedDamageAmount} 点伤害，选择{selected.Description}");
+            $"寒冰剑：目标关系 {support:0.##}，待造成 {preventedDamageAmount} 点伤害，选择{selected.Description}" + PublicDamageExplanation(target, payment));
         return (selected.Id, thought);
     }
 
@@ -2081,12 +2098,13 @@ public sealed partial class SimpleAiBrain
         if (_programUsesThisTurn.GetValueOrDefault((skillId, activationId)) >= 16)
             return (-1000d, "本回合已连续发动该配置技能 16 次，停止 AI 正循环。");
 
-        if (hint.OwnerHpLoss >= self.Hp && hint.OwnerHpLoss > 0)
+        if (hint.OwnerWouldEnterDying ?? (hint.OwnerHpLoss >= self.Hp && hint.OwnerHpLoss > 0))
             return (-1000d, $"该配置技能将失去 {hint.OwnerHpLoss} 点体力，当前仅有 {self.Hp} 点，避免主动进入濒死。");
 
         var missingHp = Math.Max(0, self.MaxHp - self.Hp);
         var ownerRecovery = Math.Min(missingHp, Math.Max(0, hint.OwnerRecovery));
-        var ownerValue = Math.Max(0, hint.OwnerDraw) * 8d + ownerRecovery * 18d - Math.Max(0, hint.OwnerHpLoss) * 22d;
+        var ownerValue = Math.Max(0, hint.OwnerDraw) * 8d + ownerRecovery * 18d - Math.Max(0, hint.OwnerHpLoss) * 22d -
+            Math.Max(0, hint.OwnerArmorLoss) * 8d;
         if (hint.OwnerHpLoss > 0 && self.Hp - hint.OwnerHpLoss <= 1)
             ownerValue -= 24d;
 
@@ -2146,8 +2164,9 @@ public sealed partial class SimpleAiBrain
         var support = -hostility;
         var recovery = Math.Min(Math.Max(0, target.MaxHp - target.Hp), Math.Max(0, hint.TargetRecovery));
         var benefit = Math.Max(0, hint.TargetDraw) * 7d + recovery * 17d + hint.TargetValueAdjustment;
-        var harm = Math.Max(0, hint.TargetHpLoss) * 24d +
-                   (hint.TargetHpLoss > 0 && target.Hp <= hint.TargetHpLoss ? 32d : 0d);
+        var payment = hint.PredictTarget(target.Hp, target.MaxHp, target.Armor);
+        var harm = Math.Max(0, payment.HpLossAmount) * 24d + Math.Max(0, payment.ArmorAbsorbed) * 8d +
+                   (payment.IsLethal && (payment.HpLossAmount > 0 || payment.MaximumHpLossAmount > 0) ? 32d : 0d);
         var give = hint.GivesSelected ? 6d : 0d;
         return support * (benefit + give) / 25d + hostility * harm / 25d;
     }
@@ -2164,7 +2183,8 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         PlayerSnapshot self,
         Role selfRole,
-        LegalAction action)
+        LegalAction action,
+        Func<LegalAction, int, PublicDamagePrediction>? damagePrediction = null)
     {
         if (TryScoreWumiaoFlood(view, self, selfRole, action, out var floodScore)) return floodScore;
         if (TryScoreGuanduCard(view, self, selfRole, action, out var guanduScore)) return guanduScore;
@@ -2231,7 +2251,7 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Slash && action.TargetSeats.Count > 1)
         {
-            return ScoreFangtianHalberdSlash(view, self, selfRole, action);
+            return ScoreFangtianHalberdSlash(view, self, selfRole, action, damagePrediction);
         }
 
         if (action.Kind == LegalActionKind.Equip)
@@ -2504,8 +2524,11 @@ public sealed partial class SimpleAiBrain
                 $"迫使目标展示一张手牌并尝试同花色火焰伤害；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取双方暗牌。");
         }
 
-        var finishingBonus = target.Hp <= 1 ? 28d : 0d;
-        var pressureBonus = Math.Max(0, target.MaxHp - target.Hp) * 3d;
+        var usePublicPayment = HasPublicArmorPrediction(view, damagePrediction);
+        var publicPayment = usePublicPayment ? PredictPublicActionDamage(view, target, action, damagePrediction) : null;
+        var finishingBonus = (usePublicPayment ? publicPayment!.IsLethal : target.Hp <= 1) ? 28d : 0d;
+        var pressureBonus = usePublicPayment && publicPayment!.HpLossAmount == 0
+            ? 0d : Math.Max(0, target.MaxHp - target.Hp) * 3d;
         var conversion = action.PlayedCardKind is { } &&
                          !IsSlashCard(card.Kind)
             ? $"；将{CardCatalog.Get(card.Kind).DisplayName}当作杀使用"
@@ -2520,7 +2543,8 @@ public sealed partial class SimpleAiBrain
             selfRole,
             action,
             card,
-            target);
+            target,
+            damagePrediction);
         var zhuqueFan = zhuqueFanBonus != 0d
             ? $"；朱雀羽扇把普通杀改为火杀，按公开连环关系调整 {zhuqueFanBonus:0.#} 分"
             : string.Empty;
@@ -2534,7 +2558,8 @@ public sealed partial class SimpleAiBrain
             : string.Empty;
         return (
             cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus + zhuqueFanBonus - silverLionPenalty,
-            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}{silverLion}。身份判断只使用公开信息。");
+            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}{silverLion}。身份判断只使用公开信息。" +
+            (usePublicPayment ? PublicDamageExplanation(target, publicPayment) : string.Empty));
     }
 
     private static bool HasGudingBladeDamageBonus(
@@ -2552,7 +2577,8 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action,
         CardSnapshot physicalCard,
-        PlayerSnapshot target)
+        PlayerSnapshot target,
+        Func<LegalAction, int, PublicDamagePrediction>? damagePrediction = null)
     {
         if (action.Kind != LegalActionKind.Slash ||
             action.PlayedCardKind != CardKind.FireSlash ||
@@ -2567,17 +2593,23 @@ public sealed partial class SimpleAiBrain
             return 1d;
         }
 
+        var usePublicPayment = HasPublicArmorPrediction(view, damagePrediction);
+        var firstPayment = usePublicPayment ? PredictPublicActionDamage(view, target, action, damagePrediction) : null;
+        if (firstPayment is { DamageAmount: 0 }) return 1d;
         return 1d + view.Players
             .Where(player => player.IsAlive && player.IsChained && player.Seat != target.Seat)
             .Sum(player => GetHostility(view, selfRole, player) +
-                           (player.Hp <= 1 ? 22d : 0d));
+                ((usePublicPayment
+                    ? PublicDamagePrediction.Calculate(player.Hp, player.Armor, firstPayment!.DamageAmount, maxHp: player.MaxHp).IsLethal
+                    : player.Hp <= 1) ? 22d : 0d));
     }
 
     private (double Score, string Reason) ScoreFangtianHalberdSlash(
         GameSnapshot view,
         PlayerSnapshot self,
         Role selfRole,
-        LegalAction action)
+        LegalAction action,
+        Func<LegalAction, int, PublicDamagePrediction>? damagePrediction = null)
     {
         var card = AiActionPhysicalCard(self, action);
         var effectiveKind = action.PlayedCardKind ?? card.Kind;
@@ -2588,8 +2620,11 @@ public sealed partial class SimpleAiBrain
         var targetValue = targets.Sum(target =>
         {
             var hostility = GetHostility(view, selfRole, target);
-            var finishingBonus = target.Hp <= 1 ? 28d : 0d;
-            var pressureBonus = Math.Max(0, target.MaxHp - target.Hp) * 3d;
+            var usePublicPayment = HasPublicArmorPrediction(view, damagePrediction);
+            var payment = usePublicPayment ? PredictPublicActionDamage(view, target, action, damagePrediction) : null;
+            var finishingBonus = (usePublicPayment ? payment!.IsLethal : target.Hp <= 1) ? 28d : 0d;
+            var pressureBonus = usePublicPayment && payment!.HpLossAmount == 0
+                ? 0d : Math.Max(0, target.MaxHp - target.Hp) * 3d;
             return hostility + finishingBonus + pressureBonus;
         });
         var conversionCost = action.PlayedCardKind is { } && !IsSlashCard(card.Kind)
@@ -2604,6 +2639,30 @@ public sealed partial class SimpleAiBrain
 
     private static bool IsSlashCard(CardKind kind) =>
         kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+
+    private static bool HasPublicArmorPrediction(GameSnapshot view,
+        Func<LegalAction, int, PublicDamagePrediction>? prediction) =>
+        prediction is not null && view.Players.Any(player => player.Armor > 0);
+
+    private static PublicDamagePrediction PredictPublicActionDamage(GameSnapshot view, PlayerSnapshot target,
+        LegalAction action, Func<LegalAction, int, PublicDamagePrediction>? prediction)
+    {
+        if (HasPublicArmorPrediction(view, prediction)) return prediction!(action, target.Seat);
+        // Legacy standalone advice has no content-policy projection. Do not infer
+        // a damage replacement from a general name or treat armor as extra HP.
+        return PublicDamagePrediction.Calculate(target.Hp, 0, 1);
+    }
+
+    private static bool IsCriticalPublicResponse(PlayerSnapshot self, PublicDamagePrediction? prediction) =>
+        self.Armor > 0 && prediction is not null ? prediction.IsLethal : self.Hp <= 1;
+
+    private static int PublicResponseHpPressure(PlayerSnapshot self, PublicDamagePrediction? prediction) =>
+        self.Armor > 0 && prediction is { HpLossAmount: 0 } ? 0 : Math.Max(0, self.MaxHp - self.Hp);
+
+    private static string PublicDamageExplanation(PlayerSnapshot target, PublicDamagePrediction? prediction) =>
+        target.Armor > 0 && prediction is not null
+            ? $" 公开预计：伤害 {prediction.DamageAmount}，护甲吸收 {prediction.ArmorAbsorbed}，体力损失 {prediction.HpLossAmount}。"
+            : string.Empty;
 
     private static bool IsRedCard(Suit suit) =>
         suit is Suit.Heart or Suit.Diamond;

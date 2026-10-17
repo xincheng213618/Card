@@ -24,6 +24,7 @@ public sealed partial class GameEngine
         if (fact is HulaoDeckShuffledEvent { ShuffleNumber: 1 })
             throw new HulaoTurnInterruption(HulaoTransformationCause.FirstShuffle);
         if (fact is DamageAppliedEvent or ProgramSkillHpLostEvent or MaximumHpChangedEvent or DamageReplacedWithHpLossEvent &&
+            _players[BossActivitySeat].IsAlive && _players[BossActivitySeat].MaxHp > 0 &&
             _players[BossActivitySeat].Hp <= h.TransformationHp)
             throw new HulaoTurnInterruption(HulaoTransformationCause.HealthThreshold);
     }

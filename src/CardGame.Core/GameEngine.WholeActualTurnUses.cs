@@ -30,18 +30,42 @@ public sealed partial class GameEngine
         if (matching is not [var current] || current.WholeActualTurnUseSequence is not > 0 ||
             current.RoundActionType != action.Type || current.RoundProviderSeat != action.ProviderSeat)
             throw new InvalidOperationException("An actual-turn use requires its exact frozen declaration sequence and provider.");
+        return CapturedWholeActualTurnUsePrefixOrdinal(current, action.ActorSeat, null);
+    }
+
+    private int? CapturedWholeActualTurnTrickUseOrdinal(IDamageAttempt attack)
+    {
+        if (!_contentRegistry.ProgramDependencies.HasWholeActualTurnTrickDamageModifiers || !HasOngoingWholeActualUseTurn ||
+            attack is not CardAttackHandle || attack.EffectiveCardKind is not { } kind ||
+            GetProgramCardCategory(kind) != SkillProgramCardCategory.Trick) return null;
+        var owner = _resolutionStack.SingleOrDefault(frame => frame.Id == attack.ResolutionId);
+        var instruction = owner is ProgramSkillFrame { CardAttack: { ProgramUseInstructionIndex: { } index } } ? index : (int?)null;
+        if (owner is not CardUseFrame && instruction is null) return null;
+        var matching = WholeActualTurnUseHistory().Where(fact => fact.OriginFrameId == attack.ResolutionId &&
+            !fact.IsNullificationUse && fact.RoundActionType == CardActionType.Use &&
+            fact.ProgramInstructionIndex == instruction).ToArray();
+        if (matching is not [var current] || current.WholeActualTurnUseSequence is not > 0 ||
+            current.CardCategoryMask != 1 << (int)SkillProgramCardCategory.Trick)
+            throw new InvalidOperationException("Trick damage requires its exact frozen native-use declaration.");
+        return CapturedWholeActualTurnUsePrefixOrdinal(current, attack.CardUserSeat, SkillProgramCardCategory.Trick);
+    }
+
+    private int? CapturedWholeActualTurnUsePrefixOrdinal(CurrentTurnCardUseKindsRecordedEvent current,
+        int expectedActorSeat, SkillProgramCardCategory? category)
+    {
+        var facts = WholeActualTurnUseHistory();
         var replacements = EventsSinceLastBoundary(e => e is TurnStartedEvent or ActualTurnCursorReturnedEvent)
             .OfType<ProgramCardUseActorReplacedEvent>().GroupBy(e => e.CardUseFrameId)
             .ToDictionary(group => group.Key, group => group.ToArray());
-        var seen = new HashSet<(long? ActionId, long? LegacyUseId)>();
+        var seen = new HashSet<(long? ActionId, long? LegacyUseId, int? InstructionIndex)>();
         var count = 0;
         for (var index = 0; index < current.WholeActualTurnUseSequence; index++)
         {
             if (index >= facts.Length || facts[index].WholeActualTurnUseSequence != index + 1)
                 throw new InvalidOperationException("An actual-turn declaration sequence cannot skip or reorder an issued use.");
             var fact = facts[index];
-            (long? ActionId, long? LegacyUseId) key = fact.CardActionId is not null
-                ? (fact.CardActionId, null) : (null, fact.OriginFrameId);
+            (long? ActionId, long? LegacyUseId, int? InstructionIndex) key = fact.CardActionId is not null
+                ? (fact.CardActionId, null, null) : (null, fact.OriginFrameId, fact.ProgramInstructionIndex);
             if (!seen.Add(key) || fact.RoundActionType is not (CardActionType.Use or CardActionType.Response) ||
                 fact.RoundProviderSeat is not { } provider || !IsValidPlayerSeat(provider))
                 throw new InvalidOperationException("An actual-turn declaration requires one native use and frozen provider.");
@@ -57,8 +81,9 @@ public sealed partial class GameEngine
                     actor = change.ActorSeat;
                 }
             if (index == current.WholeActualTurnUseSequence - 1 &&
-                (fact != current || actor != action.ActorSeat)) return null;
-            if (actor == action.ActorSeat) count = checked(count + 1);
+                (fact != current || actor != expectedActorSeat)) return null;
+            if (actor == expectedActorSeat && (category is null || fact.CardCategoryMask == 1 << (int)category.Value))
+                count = checked(count + 1);
         }
         return count;
     }

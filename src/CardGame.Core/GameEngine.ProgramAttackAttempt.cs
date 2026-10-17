@@ -11,7 +11,9 @@ public sealed partial class GameEngine
         PrepareYintianChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
-                UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity, out fromSeat)) return false;
+                UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity ||
+                HasPublicEnemyRecipientDamageScope(attack) ||
+                HasPerOccurrenceSourceDamageModifiers(attack.SourceSeat), out fromSeat)) return false;
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
         ApplyYintianChainedDamageBonus(attack);
@@ -256,6 +258,7 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1 || _resolutionStack[index] is not ProgramSkillFrame program)
             throw new InvalidOperationException("Program damage lost its owner continuation.");
         var receipt = program.AttackReturn;
+        AssertRecoveryDamageOrigin(program);
         CaptureSuitPreventionDamageCompleted(program, attack.DamageWasApplied);
         program = CaptureDynamicDiscardDamageCompleted(program);
         program = CaptureYintianProgramDamageCompleted(program, attack);
@@ -295,6 +298,7 @@ public sealed partial class GameEngine
             if (frame.AttackReturn.ParentDamageWindowFrameId is { } windowId &&
                 !_resolutionStack.OfType<DamageTriggerWindowFrame>().Any(window => window.Id == windowId))
                 throw new InvalidOperationException("A program damage attempt lost its suspended damage occurrence.");
+            AssertRecoveryDamageOrigin(frame);
         }
     }
 

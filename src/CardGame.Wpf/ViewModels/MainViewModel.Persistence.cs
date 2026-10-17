@@ -87,8 +87,9 @@ public sealed partial class MainViewModel
                 if (!_initializing && !IsTutorialActive)
                 {
                     _sessionActivated = true;
+                    CaptureShanheBattleResult();
                     QueueAutoSave();
-                    CaptureCompletedHistory();
+                    if (!IsShanheBattleSession) CaptureCompletedHistory();
                 }
                 SyncNianClockAfterCommand();
             }
@@ -117,6 +118,7 @@ public sealed partial class MainViewModel
     /// <summary>Flush the current committed boundary before closing; failure leaves it pending for retry.</summary>
     public bool FlushPendingSave()
     {
+        if (IsShanheBattleSession) return SaveShanheProgress();
         _saveTimer?.Stop();
         if (IsTutorialActive) return true;
         return !_autoSavePending || SaveCurrentGame(GameSaveSlot.Automatic);
@@ -124,6 +126,7 @@ public sealed partial class MainViewModel
 
     private bool SaveCurrentGame(GameSaveSlot slot)
     {
+        if (IsShanheBattleSession) return SaveShanheProgress();
         try
         {
             FlushNianClock();
@@ -153,6 +156,7 @@ public sealed partial class MainViewModel
 
     private void LoadGame(GameSaveSlot slot)
     {
+        SaveShanheBeforeOrdinaryGame();
         try
         {
             var save = _saveStore.Read(slot);

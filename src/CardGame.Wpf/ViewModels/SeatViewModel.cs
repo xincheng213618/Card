@@ -25,6 +25,11 @@ public sealed partial class SeatViewModel : ObservableObject
     public string SkillName { get; set; } = string.Empty;
     public int Hp { get; set; }
     public int MaxHp { get; set; }
+    public int Armor { get; set; }
+    public bool HasArmor => Armor > 0;
+    public string ArmorText => $"护甲 {Armor}";
+    public string ArmorTooltip => $"护甲 {Armor} 点：受到伤害时先消耗护甲，再扣减体力。";
+    public string AccessibleSeatName => HasArmor ? $"{Name} · {ArmorText}" : Name;
     public int HandCount { get; set; }
     public int? HandLimit { get; set; }
     public string HandBadgeText => IsCurrent ? $"{HandCount}/{HandLimitValue}" : HandCount.ToString();
@@ -140,7 +145,7 @@ public sealed partial class SeatViewModel : ObservableObject
     public required string JudgmentText { get; set; }
     public required string DistanceText { get; set; }
     public required string SkillText { get; set; }
-    public string PortraitTooltip => $"{SkillText}\n\n{HpText}\n{HandBadgeTooltip}\n{EquipmentText}\n{DistanceText}";
+    public string PortraitTooltip => $"{SkillText}\n\n{HpText}{(HasArmor ? "\n" + ArmorTooltip : string.Empty)}\n{HandBadgeTooltip}\n{EquipmentText}\n{DistanceText}";
     public required bool IsAlive { get; set; }
     public string UnavailableStatusText { get; set; } = "阵 亡";
     public required bool IsCurrent { get; set; }
@@ -196,6 +201,7 @@ public sealed partial class SeatViewModel : ObservableObject
         if (!EqualityComparer<bool>.Default.Equals(HpUndefined, source.HpUndefined)) { HpUndefined = source.HpUndefined; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(Hp, source.Hp)) { Hp = source.Hp; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(MaxHp, source.MaxHp)) { MaxHp = source.MaxHp; changed = true; }
+        if (Armor != source.Armor) { Armor = source.Armor; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(HandCount, source.HandCount)) { HandCount = source.HandCount; changed = true; }
         if (HandLimit != source.HandLimit) { HandLimit = source.HandLimit; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsChained, source.IsChained)) { IsChained = source.IsChained; changed = true; }

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:xueren": {
+      "name": "血刃",
+      "description": "当你实际回复体力后，随机选择一名存活敌人，对其造成1点伤害。一次回复触发一次；没有敌人时不造成伤害。"
+    },
+    "shanhe:fanci": {
+      "name": "反刺",
+      "description": "每个回合首次受到伤害后，你对所有敌人各造成1点普通伤害。"
+    },
+    "shanhe:shixue-1": {
+      "name": "噬血I",
+      "description": "每次实际回复体力后，你摸一张牌。一次回复多点体力仍只摸一张牌。"
+    },
+    "shanhe:zengshou-1": {
+      "name": "增寿I",
+      "description": "每场战斗开始时，你增加1点体力上限，不回复体力。"
+    },
+    "shanhe:zengshou-2": {
+      "name": "增寿II",
+      "description": "每场战斗开始时，你增加2点体力上限，不回复体力。"
+    }
+  }
+}

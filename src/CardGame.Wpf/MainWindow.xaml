@@ -253,6 +253,7 @@
                         <Button Content="指南" Command="{Binding ToggleHelpCommand}" ToolTip="当前操作与卡牌图鉴 · F1" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button Content="战报 / 存档" Command="{Binding ToggleLogCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button x:Name="HistoryButton" Content="战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
+                        <Button Content="山河图" Command="{Binding OpenShanheCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button Content="设置" Command="{Binding OpenSettingsCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button Content="保存" Command="{Binding SaveGameCommand}" ToolTip="保存到手动存档 · F5" Style="{StaticResource QuietButton}" />
                         <Button Content="新对局" Command="{Binding NewGameCommand}" Style="{StaticResource ToolbarButton}" Margin="12,0,0,0" Padding="15,8" />
@@ -1135,6 +1136,7 @@
                                 <TextBlock Text="伤害与回复按实际点数统计；救援按用牌张数统计，包含自救。" Foreground="#839C8C" FontSize="10" HorizontalAlignment="Center" />
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
                                     <Button x:Name="ResultRematchButton" Content="再 战 一 局" Command="{Binding NewGameCommand}" Style="{StaticResource PrimaryButton}" MinWidth="180" />
+                                    <Button Content="返回征程" Command="{Binding OpenShanheCommand}" Visibility="{Binding IsShanheBattleSession, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource QuietButton}" Margin="10,0,0,0" />
                                     <Button Content="查看战报" Command="{Binding ToggleLogCommand}" Style="{StaticResource QuietButton}" Margin="10,0,0,0" />
                                     <Button Content="历史战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Margin="10,0,0,0" />
                                 </StackPanel>
@@ -1494,6 +1496,9 @@
                     </Border>
                 </Grid>
             </Border>
+        </Border>
+        <Border x:Name="ShanheOverlay" Background="#F00B1519" Panel.ZIndex="300" Visibility="{Binding IsShanheOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" FocusManager.IsFocusScope="True" IsVisibleChanged="TableOverlay_IsVisibleChanged">
+            <Viewbox Stretch="Uniform" StretchDirection="DownOnly"><controls:ShanheCampaignPanel x:Name="ShanhePanel" /></Viewbox>
         </Border>
     </Grid>
 </Window>

@@ -4,6 +4,8 @@ Windows WPF 本地卡牌游戏。规则核心负责合法动作、结算、AI �
 
 全部功能说明与开发资料见 [文档目录](docs/README.md)。
 
+大厅另有[山河图剧情征程](docs/SHANHE_CAMPAIGN.md)：首批“诸侯伐董·本地起步版”提供三章分路、战法与额外技能组合、奇遇商店、真实战斗和独立征程存档。
+
 ## 运行
 
 需要 Windows 和 .NET 8 SDK，SDK 选择见 [global.json](global.json)。在仓库根目录执行：

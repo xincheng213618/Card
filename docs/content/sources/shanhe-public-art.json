@@ -1,0 +1,790 @@
+{
+  "formatVersion": 1,
+  "fetchedAtUtc": "2026-10-17T18:44:44.2577689+00:00",
+  "sourceCatalogs": [
+    "https://s.xiaochao.org/data/tactics.json",
+    "https://s.xiaochao.org/data/cards.json"
+  ],
+  "usage": "Original unedited images referenced by the local Shanhe codex source reward ids and implemented tactic shop metadata.",
+  "entries": [
+    {
+      "sourceId": 2001,
+      "name": "醉拳",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/486374bcb9b470767a10e5c0.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2001.png",
+      "sha256": "486374bcb9b470767a10e5c087daadd444b0cfc963f15e4b316159ae755224a9",
+      "bytes": 29029
+    },
+    {
+      "sourceId": 2009,
+      "name": "偷袭",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/cd72aa021d17a29765c6ddd4.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2009.png",
+      "sha256": "cd72aa021d17a29765c6ddd486e3669ec7b39407c1ab32f17de354444b259ff1",
+      "bytes": 28552
+    },
+    {
+      "sourceId": 2011,
+      "name": "锦囊计",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/d5a4abe0aac9f22d6ca3ac4d.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2011.png",
+      "sha256": "d5a4abe0aac9f22d6ca3ac4d20d246cdf51f483ed451864cbc50904ec0f52069",
+      "bytes": 30057
+    },
+    {
+      "sourceId": 2021,
+      "name": "牢固装备",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c8162167b4a7e1199b065a54.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2021.png",
+      "sha256": "c8162167b4a7e1199b065a54c0f820cf411a8430ccea996cedde422ea6955654",
+      "bytes": 34125
+    },
+    {
+      "sourceId": 2022,
+      "name": "化刃",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e56a71b169bf9e6399fd1cc7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2022.png",
+      "sha256": "e56a71b169bf9e6399fd1cc7b4604c10c4394acb59fda2c07601e201b8601972",
+      "bytes": 33711
+    },
+    {
+      "sourceId": 2039,
+      "name": "铸刀",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/5334ee98c217a45b4d3e525b.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2039.png",
+      "sha256": "5334ee98c217a45b4d3e525b95cdc9d44266be11c8424e32c7dc5d0b32cd123d",
+      "bytes": 31998
+    },
+    {
+      "sourceId": 2042,
+      "name": "三板斧",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/577ddf1a5708f648473208e6.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2042.png",
+      "sha256": "577ddf1a5708f648473208e6bab2e940bbc46d439a5904370431dd589b343785",
+      "bytes": 31762
+    },
+    {
+      "sourceId": 2043,
+      "name": "三板斧Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/577ddf1a5708f648473208e6.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2043.png",
+      "sha256": "577ddf1a5708f648473208e6bab2e940bbc46d439a5904370431dd589b343785",
+      "bytes": 31762
+    },
+    {
+      "sourceId": 2049,
+      "name": "淬血Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/947270736605429d41850946.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2049.png",
+      "sha256": "947270736605429d4185094686a5353e5f3be01e7416e08afa6e5271e8bb3ba7",
+      "bytes": 34200
+    },
+    {
+      "sourceId": 2052,
+      "name": "连击Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/6f4de4d0b1c02c476884fad6.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2052.png",
+      "sha256": "6f4de4d0b1c02c476884fad6e87ca35212f78abc5920a50fd4965026e12a54f6",
+      "bytes": 30824
+    },
+    {
+      "sourceId": 2054,
+      "name": "体魄Ⅰ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c63bcd20355d3e1d40b188b8.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2054.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "bytes": 30221
+    },
+    {
+      "sourceId": 2056,
+      "name": "体魄Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c63bcd20355d3e1d40b188b8.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2056.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "bytes": 30221
+    },
+    {
+      "sourceId": 2059,
+      "name": "摸牌Ⅰ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/d48212040035a28249b1da00.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2059.png",
+      "sha256": "d48212040035a28249b1da002178ab774e31320377e789fdd9a3a14138d0d5ef",
+      "bytes": 29114
+    },
+    {
+      "sourceId": 2073,
+      "name": "铁布衫Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/f2d338f67a4d2ad1ae42364c.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2073.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "bytes": 29061
+    },
+    {
+      "sourceId": 2077,
+      "name": "援助Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/203c7bb0f9e23250d06877fe.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2077.png",
+      "sha256": "203c7bb0f9e23250d06877fe1b87ca250374ef0491864030d39f553000318d01",
+      "bytes": 30273
+    },
+    {
+      "sourceId": 2078,
+      "name": "援助Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/203c7bb0f9e23250d06877fe.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2078.png",
+      "sha256": "203c7bb0f9e23250d06877fe1b87ca250374ef0491864030d39f553000318d01",
+      "bytes": 30273
+    },
+    {
+      "sourceId": 2081,
+      "name": "手到擒来Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c89da3c18047e0d5254ebbfb.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2081.png",
+      "sha256": "c89da3c18047e0d5254ebbfb970ccfab33fac0a3b00bb97559d879b4b79cc7c5",
+      "bytes": 36755
+    },
+    {
+      "sourceId": 2084,
+      "name": "多多益善Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/601a965b590552e9d81fbc6a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2084.png",
+      "sha256": "601a965b590552e9d81fbc6ad3324da1112e52d0aab6d629ab8ac930f95a32a3",
+      "bytes": 34325
+    },
+    {
+      "sourceId": 2090,
+      "name": "利滚利",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/0a5678ba0baf61a4842968b8.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2090.png",
+      "sha256": "0a5678ba0baf61a4842968b88235d3e54be18c4cf83d3e10b5f0addafad80dde",
+      "bytes": 27483
+    },
+    {
+      "sourceId": 2094,
+      "name": "拂衣去·桃",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/983863d735c0c304718fa9d3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2094.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "bytes": 37790
+    },
+    {
+      "sourceId": 2095,
+      "name": "拂衣去·拆",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/983863d735c0c304718fa9d3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2095.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "bytes": 37790
+    },
+    {
+      "sourceId": 2100,
+      "name": "雷火势Ⅰ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e397c876e6680543afbee20a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2100.png",
+      "sha256": "e397c876e6680543afbee20ac342f6603f4c5e87e147ee4d7519a91c1222927d",
+      "bytes": 35047
+    },
+    {
+      "sourceId": 2101,
+      "name": "雷火势Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e397c876e6680543afbee20a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2101.png",
+      "sha256": "e397c876e6680543afbee20ac342f6603f4c5e87e147ee4d7519a91c1222927d",
+      "bytes": 35047
+    },
+    {
+      "sourceId": 2104,
+      "name": "神龙摆尾",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/9cfa30393b51c9c759232b6c.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2104.png",
+      "sha256": "9cfa30393b51c9c759232b6c5549201be39bff9f79ecbf2e10ef94624d226959",
+      "bytes": 37486
+    },
+    {
+      "sourceId": 2117,
+      "name": "偏转甲",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/756a354a2527a10ac58a2075.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2117.png",
+      "sha256": "756a354a2527a10ac58a2075f126c2d9a68fa05a230679e98bd852d4050131a9",
+      "bytes": 26377
+    },
+    {
+      "sourceId": 2120,
+      "name": "应急战略",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/eb5a5b4349092da4762783fb.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2120.png",
+      "sha256": "eb5a5b4349092da4762783fb4aed80defd84d4fc57f7aecbe88ccd9954fc74d1",
+      "bytes": 24672
+    },
+    {
+      "sourceId": 2128,
+      "name": "及时雨",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1230e30e8244fdefe3e42beb.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2128.png",
+      "sha256": "1230e30e8244fdefe3e42beb699c1b769f4540e3c23980f8a2ea58df8fef6033",
+      "bytes": 34581
+    },
+    {
+      "sourceId": 2129,
+      "name": "远击技",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/ba2f9ef9f941567f27ae0aaf.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2129.png",
+      "sha256": "ba2f9ef9f941567f27ae0aafab745f55a1e9f35519665b911cb040461d5772e9",
+      "bytes": 29677
+    },
+    {
+      "sourceId": 2131,
+      "name": "破釜沉舟",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/dc2a429f6648e90266c8e7f7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2131.png",
+      "sha256": "dc2a429f6648e90266c8e7f75ced214ac3fc361b1899f65a1c32cf68649ac6c5",
+      "bytes": 27057
+    },
+    {
+      "sourceId": 2138,
+      "name": "传承",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/09d8957f6ed22dca58fa90a0.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2138.png",
+      "sha256": "09d8957f6ed22dca58fa90a0c123ef759203ea34ecc04704a5710881f379506a",
+      "bytes": 31365
+    },
+    {
+      "sourceId": 2142,
+      "name": "日行千里Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/f820813bbdfdd9828d787fa3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2142.png",
+      "sha256": "f820813bbdfdd9828d787fa3610bb74efdbeae84eb536e88628d7baaf02441c4",
+      "bytes": 31740
+    },
+    {
+      "sourceId": 2143,
+      "name": "神龙摆尾Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/9cfa30393b51c9c759232b6c.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2143.png",
+      "sha256": "9cfa30393b51c9c759232b6c5549201be39bff9f79ecbf2e10ef94624d226959",
+      "bytes": 37486
+    },
+    {
+      "sourceId": 2146,
+      "name": "利滚利Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/0a5678ba0baf61a4842968b8.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2146.png",
+      "sha256": "0a5678ba0baf61a4842968b88235d3e54be18c4cf83d3e10b5f0addafad80dde",
+      "bytes": 27483
+    },
+    {
+      "sourceId": 2161,
+      "name": "招募后勤Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/8437f860d7ddbd5590f4967a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2161.png",
+      "sha256": "8437f860d7ddbd5590f4967af58d1abd541dc3447c30aacde6dc97c5408d672e",
+      "bytes": 27530
+    },
+    {
+      "sourceId": 2162,
+      "name": "狂暴",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e73eb4cf029980c42ffb57c3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2162.png",
+      "sha256": "e73eb4cf029980c42ffb57c324bb3fb507a6c10c84ecfa3a0562721457b4da06",
+      "bytes": 24769
+    },
+    {
+      "sourceId": 2163,
+      "name": "狂暴Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e73eb4cf029980c42ffb57c3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2163.png",
+      "sha256": "e73eb4cf029980c42ffb57c324bb3fb507a6c10c84ecfa3a0562721457b4da06",
+      "bytes": 24769
+    },
+    {
+      "sourceId": 2165,
+      "name": "狂暴Ⅳ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e73eb4cf029980c42ffb57c3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2165.png",
+      "sha256": "e73eb4cf029980c42ffb57c324bb3fb507a6c10c84ecfa3a0562721457b4da06",
+      "bytes": 24769
+    },
+    {
+      "sourceId": 2171,
+      "name": "技艺Ⅰ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7aef15163fe4494fa13264cf.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2171.png",
+      "sha256": "7aef15163fe4494fa13264cf9e4f60d1524d462e47edd9d722863f1254c875ec",
+      "bytes": 25114
+    },
+    {
+      "sourceId": 2172,
+      "name": "技艺Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7aef15163fe4494fa13264cf.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2172.png",
+      "sha256": "7aef15163fe4494fa13264cf9e4f60d1524d462e47edd9d722863f1254c875ec",
+      "bytes": 25114
+    },
+    {
+      "sourceId": 2175,
+      "name": "勇战Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/ad08a27b168d31bbb8a0467a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2175.png",
+      "sha256": "ad08a27b168d31bbb8a0467a342fcd63c5ab4206905f985c788c6256f699ce96",
+      "bytes": 24427
+    },
+    {
+      "sourceId": 2177,
+      "name": "隔山打牛",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/4c3f46e07b695341b577016a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2177.png",
+      "sha256": "4c3f46e07b695341b577016ab8696e7d95a6ed2a9f065b53a746f8a7f1a175d9",
+      "bytes": 22064
+    },
+    {
+      "sourceId": 2181,
+      "name": "守财奴Ⅳ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/6595df49692b4bbccd95d115.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2181.png",
+      "sha256": "6595df49692b4bbccd95d115cf5a1879fcd988fe653ae126951453244412f98c",
+      "bytes": 24959
+    },
+    {
+      "sourceId": 2182,
+      "name": "粮草储备",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/da09645c5fc971c7d91dda01.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2182.png",
+      "sha256": "da09645c5fc971c7d91dda01ef2b1e21b6bb3cd411990c9db87dfd77a665d53e",
+      "bytes": 24170
+    },
+    {
+      "sourceId": 2184,
+      "name": "胆量剥夺",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/42acf062cd22e4fe0b7214b7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2184.png",
+      "sha256": "42acf062cd22e4fe0b7214b731c127954980ecf1c7627f7842f79d4c1a081769",
+      "bytes": 26424
+    },
+    {
+      "sourceId": 2190,
+      "name": "阴阳术法",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c09375200adfa66d843c0e38.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2190.png",
+      "sha256": "c09375200adfa66d843c0e38769d4af3fe0831eaf31d5fd730ca44dd0db1aa85",
+      "bytes": 30019
+    },
+    {
+      "sourceId": 2197,
+      "name": "厚实Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c69d80a69aaac094dcb9914a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2197.png",
+      "sha256": "c69d80a69aaac094dcb9914aeeb25e97cbbda2d50d8ccdf4ae972ff7fd2e209e",
+      "bytes": 25942
+    },
+    {
+      "sourceId": 2199,
+      "name": "队·体",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7dcd5897940a0216824731b3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2199.png",
+      "sha256": "7dcd5897940a0216824731b310103789cf2eef820a66d8a378254e3907c2e1ec",
+      "bytes": 26914
+    },
+    {
+      "sourceId": 2202,
+      "name": "队·初",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/bb9841b9344d42d2a842894e.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2202.png",
+      "sha256": "bb9841b9344d42d2a842894ef0b6b49b3cf6e4b112aa8f3cad0384a057c9948d",
+      "bytes": 28562
+    },
+    {
+      "sourceId": 2204,
+      "name": "羁绊",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1c3a59b9d8bae130c6905c0f.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2204.png",
+      "sha256": "1c3a59b9d8bae130c6905c0f88b5e27be855658d834dbd74c6406102b056670a",
+      "bytes": 26232
+    },
+    {
+      "sourceId": 2210,
+      "name": "稳定士气",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1abec435daf5363c7d02d0b7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2210.png",
+      "sha256": "1abec435daf5363c7d02d0b75ce4769611998c03da3487dad8c41508286141e7",
+      "bytes": 28110
+    },
+    {
+      "sourceId": 2218,
+      "name": "赌徒Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/9b551386c3f49970d6c65c09.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2218.png",
+      "sha256": "9b551386c3f49970d6c65c0917f347822c8c2e6bcb2e6cf66ee6097bfa51e770",
+      "bytes": 28179
+    },
+    {
+      "sourceId": 2219,
+      "name": "和光盟",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/f55eefb574333cf3fcbbea75.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2219.png",
+      "sha256": "f55eefb574333cf3fcbbea75ce4a97518489f507385c6b1d14c514e2ba1c26aa",
+      "bytes": 25764
+    },
+    {
+      "sourceId": 2220,
+      "name": "和光盟Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/932ceb236a3825bdd0d2ea27.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2220.png",
+      "sha256": "932ceb236a3825bdd0d2ea2770f72260e9aa1e9425c027616de0b187c557511e",
+      "bytes": 28786
+    },
+    {
+      "sourceId": 2224,
+      "name": "打基础Ⅲ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/38f37f0689db4d6a397d0acf.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2224.png",
+      "sha256": "38f37f0689db4d6a397d0acfd071b792e6b8f59176ead16a91958f023db3a8dd",
+      "bytes": 29171
+    },
+    {
+      "sourceId": 2227,
+      "name": "弱反馈",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/52115d1818059902d7754858.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2227.png",
+      "sha256": "52115d1818059902d775485882e9cb5550219e1e18eccd91785bd6279282e7c6",
+      "bytes": 22668
+    },
+    {
+      "sourceId": 2240,
+      "name": "趁其不备Ⅱ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/ec73dceb545fa7a605798a54.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2240.png",
+      "sha256": "ec73dceb545fa7a605798a545f9d8adb786a9754680980a3626f3e1735b62c93",
+      "bytes": 35794
+    },
+    {
+      "sourceId": 2249,
+      "name": "博闻Ⅰ",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/dcd5983c590809cb7045d01e.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2249.png",
+      "sha256": "dcd5983c590809cb7045d01ef6f6f0e173e8460302da57a511782274fd24a627",
+      "bytes": 37221
+    },
+    {
+      "sourceId": 2300,
+      "name": "削命",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1172fc47e382ab79b1994237.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2300.png",
+      "sha256": "1172fc47e382ab79b19942379ba2801ffc8a7f7fb22a55ebc29d0011058eb4ac",
+      "bytes": 27522
+    },
+    {
+      "sourceId": 2301,
+      "name": "谋命",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/bd8ca7ea04d5de31d9373794.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2301.png",
+      "sha256": "bd8ca7ea04d5de31d93737944ce53705cd0264b1cab76751ba16599e7e2eb0f8",
+      "bytes": 32505
+    },
+    {
+      "sourceId": 2302,
+      "name": "近身术",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/e8ab51f8034aca3a5c5e85e3.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2302.png",
+      "sha256": "e8ab51f8034aca3a5c5e85e3b3929f72b67a9c3035ba2ea04a4c38f685f6bd9a",
+      "bytes": 29519
+    },
+    {
+      "sourceId": 2303,
+      "name": "弱袭",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7b258ed8b53f499efe5f9c14.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2303.png",
+      "sha256": "7b258ed8b53f499efe5f9c148be0f1762296ce7c12460807f897e9a5ac9ddd82",
+      "bytes": 35556
+    },
+    {
+      "sourceId": 2304,
+      "name": "乐转",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1425a835762f27688f3e5fd4.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2304.png",
+      "sha256": "1425a835762f27688f3e5fd425d59e817abc4f9e6c63fa05fd4d468186ba948b",
+      "bytes": 35106
+    },
+    {
+      "sourceId": 2305,
+      "name": "兵反",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7447a7cf2273421b61c4c997.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2305.png",
+      "sha256": "7447a7cf2273421b61c4c99719cf3ac989bb5e1dca00f3e7a799da2d31d64016",
+      "bytes": 32434
+    },
+    {
+      "sourceId": 2306,
+      "name": "内讧",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/bd94acb2faaeee634d18e67b.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2306.png",
+      "sha256": "bd94acb2faaeee634d18e67b0f4bab284a678447d77e19ab2be85c7ad658aac7",
+      "bytes": 33986
+    },
+    {
+      "sourceId": 2307,
+      "name": "赌术I",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/96d1d66e480368583e7662d2.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2307.png",
+      "sha256": "96d1d66e480368583e7662d2421f8f54c0735af328a6ae38e296d2e65b066bde",
+      "bytes": 31457
+    },
+    {
+      "sourceId": 2308,
+      "name": "赌术II",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/36f731173263fbd1bac98590.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2308.png",
+      "sha256": "36f731173263fbd1bac9859099189daabb1b7c0fcdd40be82e5ad799b7d671d0",
+      "bytes": 27541
+    },
+    {
+      "sourceId": 2310,
+      "name": "增寿I",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/1ce95dc16573ac3607d53c4b.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2310.png",
+      "sha256": "1ce95dc16573ac3607d53c4babd5a42d52636b45f6921da08f974f786165182a",
+      "bytes": 28090
+    },
+    {
+      "sourceId": 2311,
+      "name": "增寿II",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/87de4b52022dc44e67fd8cc1.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2311.png",
+      "sha256": "87de4b52022dc44e67fd8cc13341eb5d8f0333d1a4450b77631945cd0e35ea0e",
+      "bytes": 32354
+    },
+    {
+      "sourceId": 2312,
+      "name": "妙技I",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/83ebab0e284feca2e3cd5c2d.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2312.png",
+      "sha256": "83ebab0e284feca2e3cd5c2dddbe9af8c3b70f474c9d48fc5587af6d61ce2520",
+      "bytes": 27655
+    },
+    {
+      "sourceId": 2313,
+      "name": "妙技II",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/37cfa0884feffd6fccfb79e7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2313.png",
+      "sha256": "37cfa0884feffd6fccfb79e75739e500967c8a68d2e9bee98396d6aa514d21e3",
+      "bytes": 31784
+    },
+    {
+      "sourceId": 2314,
+      "name": "血刃",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/4964094af547a749767ca74a.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2314.png",
+      "sha256": "4964094af547a749767ca74a6970d3f6d96f5af26d42f24835bbdef73104a92d",
+      "bytes": 33350
+    },
+    {
+      "sourceId": 2315,
+      "name": "噬血I",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/12dd287d9f16dff2d5cf7bb5.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2315.png",
+      "sha256": "12dd287d9f16dff2d5cf7bb5ce3ee460cb2c797ee53ec566039c8f1942a5c320",
+      "bytes": 30856
+    },
+    {
+      "sourceId": 2317,
+      "name": "反刺",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/35e0bf7c3ecafff173c24c6f.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2317.png",
+      "sha256": "35e0bf7c3ecafff173c24c6f3b8563bb1757de5091f0259fb2891a650913fcee",
+      "bytes": 33736
+    },
+    {
+      "sourceId": 2322,
+      "name": "药理IV",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/7a8ac20c5d9e125f595318a5.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2322.png",
+      "sha256": "7a8ac20c5d9e125f595318a57c2284c672d034879b8e7beed474f8daf508946f",
+      "bytes": 21062
+    },
+    {
+      "sourceId": 2360,
+      "name": "勤勉",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/4316b7f50a5763463672a741.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2360.png",
+      "sha256": "4316b7f50a5763463672a741ed15272c4439fb2faf971c2b0115a3040fb38519",
+      "bytes": 35441
+    },
+    {
+      "sourceId": 2372,
+      "name": "愈战愈勇",
+      "sourceCatalog": "https://s.xiaochao.org/data/tactics.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/a787a02a841726112fa250e7.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/2372.png",
+      "sha256": "a787a02a841726112fa250e7568aab9e214b6727c91f065b3f710359eca94c21",
+      "bytes": 26313
+    },
+    {
+      "sourceId": 4006,
+      "name": "丈八蛇矛",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/4fecef67db779f62fa0ac63c.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4006.png",
+      "sha256": "4fecef67db779f62fa0ac63c6f98b0fe13cb2d422c212b2a3e98b67940cd8d4c",
+      "bytes": 83822
+    },
+    {
+      "sourceId": 4009,
+      "name": "古锭刀",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/b06d017e04549bee096f87fa.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4009.png",
+      "sha256": "b06d017e04549bee096f87facc5a69df5dc6e43483d63a7044de8995a02da0f5",
+      "bytes": 80381
+    },
+    {
+      "sourceId": 4010,
+      "name": "朱雀羽扇",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/fc5dace7cae9fafbcabebd52.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4010.png",
+      "sha256": "fc5dace7cae9fafbcabebd528ec9226031e6ca91f7bbd7d9ee51f11947533a99",
+      "bytes": 88885
+    },
+    {
+      "sourceId": 4012,
+      "name": "寒冰剑",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/2dd03dd3ade85fdc56b1d1d2.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4012.png",
+      "sha256": "2dd03dd3ade85fdc56b1d1d21875c1a2629bf79d522fef6c2dc76516bfc7e357",
+      "bytes": 83626
+    },
+    {
+      "sourceId": 4015,
+      "name": "仁王盾",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/c020d8168a5cc692c1313070.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4015.png",
+      "sha256": "c020d8168a5cc692c131307033c55920c80763d06b89ebfcd440a02b69460b9d",
+      "bytes": 90227
+    },
+    {
+      "sourceId": 4016,
+      "name": "藤甲",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/bd3b7d749bffd515bdb5227c.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4016.png",
+      "sha256": "bd3b7d749bffd515bdb5227cf817557cd874aa73e535ed6a43fcf91cc5c59c17",
+      "bytes": 79630
+    },
+    {
+      "sourceId": 4031,
+      "name": "鬼龙斩月刀",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/5c913cc0124b98b418042896.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4031.png",
+      "sha256": "5c913cc0124b98b418042896fa631ef9adf61db1a8d9750172cc63a61702b65a",
+      "bytes": 78791
+    },
+    {
+      "sourceId": 4044,
+      "name": "护心镜",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/fd11d26d84275d6ed17bd971.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4044.png",
+      "sha256": "fd11d26d84275d6ed17bd97197fe5aa4562b528abefe7bb52df6b3cbfc7a96a1",
+      "bytes": 81931
+    },
+    {
+      "sourceId": 4052,
+      "name": "天机图",
+      "sourceCatalog": "https://s.xiaochao.org/data/cards.json",
+      "originalUrl": "https://s.xiaochao.org/data/images/f421e234460228bd4f296107.png",
+      "path": "src/CardGame.Wpf/Assets/Shanhe/4052.png",
+      "sha256": "f421e234460228bd4f2961070587769134cbd2cdfe046bc3dd010ed503dde352",
+      "bytes": 86596
+    }
+  ],
+  "missingSourceIds": [
+    4029,
+    4032,
+    4033,
+    4034,
+    4037,
+    4038,
+    4040,
+    4050,
+    4056,
+    4059,
+    4061
+  ],
+  "failures": []
+}

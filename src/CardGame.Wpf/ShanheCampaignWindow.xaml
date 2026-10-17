@@ -1,0 +1,13 @@
+<Window x:Class="CardGame.Wpf.ShanheCampaignWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:CardGame.Wpf.Controls"
+        Title="山河图 · 诸侯伐董" Width="1440" Height="920" MinWidth="960" MinHeight="680"
+        WindowStartupLocation="CenterOwner" Background="#17120F"
+        controls:InteractionMotion.MotionEnabled="{Binding IsMotionEnabled}"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle">
+    <Viewbox Stretch="Uniform" Margin="6">
+        <controls:ShanheCampaignPanel x:Name="CampaignPanelHost" />
+    </Viewbox>
+</Window>

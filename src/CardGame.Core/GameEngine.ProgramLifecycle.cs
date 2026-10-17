@@ -775,13 +775,14 @@ public sealed partial class GameEngine
         SkillProgramNumberExpression? numberExpression)
     {
         var target = _players[targetSeat];
-        if (numberExpression == SkillProgramNumberExpression.OwnerLostHp && !_players[frame.OwnerSeat].HasHpValue ||
+        if ((numberExpression is SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.OwnerMaxHp) && !_players[frame.OwnerSeat].HasHpValue ||
             (numberExpression is SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount) && !target.HasHpValue ||
             numberExpression == SkillProgramNumberExpression.LivingPlayersMinHp && _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue))
         { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return null; }
         return numberExpression switch
         {
             null => amount,
+            SkillProgramNumberExpression.OwnerMaxHp => Math.Max(0, _players[frame.OwnerSeat].MaxHp),
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => GetHand(target).Count == 0 ? 2 : 1,
             SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne => (GetEquipment(target).Count + 1) / 2 + 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => CurrentTurnCategoryDrawCount(frame, targetSeat),
@@ -966,6 +967,7 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.PublicTeamEnemies => PublicTeamEnemy(ownerSeat, target),
                 SkillProgramTargetKind.PublicTeamWoundedAllies => SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
                 SkillProgramTargetKind.OtherPublicTeamWoundedAllies => target.Seat != ownerSeat && SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
+                SkillProgramTargetKind.OtherPublicTeamAllies => OtherRevealedPublicTeamAlly(_players[ownerSeat], target),
                 SkillProgramTargetKind.PublicTeamUnchainedEnemies => PublicTeamEnemy(ownerSeat, target) && !target.IsChained,
                 SkillProgramTargetKind.PublicTeamEnemiesWithFaceDownAlly => PublicTeamEnemy(ownerSeat, target) &&
                     _players.Any(p => p.IsAlive && p.IsFaceDown && SamePublicTeam(_players[ownerSeat], p)),
@@ -4569,10 +4571,11 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
-        if (effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectAllPublicTeamTargets) is { TargetKind: { } teamKind })
+        if (effects.FirstOrDefault(e => e.Op is SkillProgramEffectOp.SelectAllPublicTeamTargets or
+                SkillProgramEffectOp.SelectRandomPublicTeamTarget) is { TargetKind: { } teamKind } teamSelection)
         {
             publishedTargets = GetProgramTargetSeats(owner.Seat, teamKind, windowContext);
-            publicContext = publicContext with { EligibleTargetCount = publishedTargets.Count };
+            publicContext = publicContext with { EligibleTargetCount = Math.Min(publishedTargets.Count, teamSelection.MaximumTargets) };
             // Estimate a representative public recipient; execution still uses the complete frozen set.
             effects = effects.Select(e => e.Op == SkillProgramEffectOp.DamageParticipants
                 ? new SkillProgramEffect(SkillProgramEffectOp.Damage, SkillProgramEffectTarget.SelectedTarget, e.Amount, e.Condition,

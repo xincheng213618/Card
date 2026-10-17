@@ -91,7 +91,8 @@ public sealed partial class GameEngine
             GetCombatDistance(sourceSeat, responderSeat) == 1
             ? CardPolicies(owner, SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne, incomingKind, requiredKind)
                 .Select(item => item.Policy.Value).DefaultIfEmpty(1).Max() : 1;
-        return Math.Max(shortRange, Math.Max(attackerSide, targetSide));
+        return Math.Max(GetBattleSlashCountResponseRequirement(owner, sourceSeat, incomingKind, requiredKind),
+            Math.Max(shortRange, Math.Max(attackerSide, targetSide)));
     }
 
     private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)

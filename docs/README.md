@@ -7,6 +7,7 @@
 | 主题 | 文档 |
 | --- | --- |
 | 开局与模式 | [本地对局](LOCAL_PLAY.md)、[模式与规则](MODES_AND_RULESETS.md)、[团队对局](TEAM_EXPERIENCE.md)、[国战体验](NATIONAL_WAR_EXPERIENCE.md) |
+| 剧情征程 | [山河图版本、战法组合与诸侯伐董](SHANHE_CAMPAIGN.md) |
 | 活动场 | [版本与进度](ACTIVITY_MODES.md)、[剑阁决战](JIANGE_ACTIVITY.md)、[驱鬼逐邪](GHOST_ACTIVITY.md)、[虎牢关](HULAO_ACTIVITY.md)、[神武再世](SHENWU_ACTIVITY.md)、[挑战年兽](NIAN_ACTIVITY.md)、[十殿阎罗](HELL_ACTIVITY.md)、[文和乱武](WENHE_ACTIVITY.md)、[龙舟争渡](DRAGON_BOAT_ACTIVITY.md) |
 | 选牌与响应 | [目标选择](CARD_TARGET_SELECTION.md)、[手牌响应](HAND_RESPONSES.md)、[技能交互](SKILL_INTERACTION.md)、[武圣响应](WUSHENG_RESPONSES.md)、[铁索与重铸](IRON_CHAIN_RECAST.md) |
 | 提示与辅助 | [决策说明](DECISION_CONTEXT.md)、[玩家指南](PLAYER_GUIDE.md)、[新手演练](NEW_PLAYER_TUTORIAL.md)、[出牌建议](PLAY_ADVICE.md) |

@@ -3,7 +3,18 @@ public sealed record PindianTopSourceChosenEvent(int OwnerSeat,CardConversionSou
 public sealed partial class GameEngine
 {
     private bool CanOfferPindianTopChoice(CharacterState owner)=>(_cardZones.Count(CardLocation.DrawPile)>0 || _cardZones.Count(CardLocation.DiscardPile)>0) && CardPolicies(owner,SkillProgramCardPolicyKind.PindianTopCardChoice).Any();
-    private int EffectivePindianRank(CharacterState owner,Card card)=>CardPolicies(owner,SkillProgramCardPolicyKind.PindianRankBySuit).Where(b=>b.Policy.InputSuit==EffectiveSuit(owner,card)).Select(b=>b.Policy.Value).DefaultIfEmpty(EffectiveOwnedCardRank(owner,card)).Max();
+    private int EffectivePindianRank(CharacterState owner, Card card)
+    {
+        var rank = CardPolicies(owner, SkillProgramCardPolicyKind.PindianRankBySuit)
+            .Where(binding => binding.Policy.InputSuit == EffectiveSuit(owner, card))
+            .Select(binding => binding.Policy.Value).DefaultIfEmpty(EffectiveOwnedCardRank(owner, card)).Max();
+        // Several policy nodes on one enabled instance still describe one bonus.
+        // Recompute from the real face/identity each time, never from a prior result.
+        foreach (var instance in CardPolicies(owner, SkillProgramCardPolicyKind.PindianRankBonus)
+            .GroupBy(binding => (binding.Source.SkillId, binding.Source.SkillInstanceId)))
+            rank = (int)Math.Min(13L, (long)rank + instance.Max(binding => binding.Policy.Value));
+        return rank;
+    }
     private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.OwnedPileSource is not null
         ? IsGuanHaiPindianSource(frame, false)
         : frame.SourceUsesDrawPileTop

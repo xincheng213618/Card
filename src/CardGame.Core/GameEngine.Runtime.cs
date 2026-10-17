@@ -152,8 +152,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A producer cannot complete with an unconsumed paid faction request cost.");
         var top = _resolutionStack.CompleteTop(frameId, expectedKind);
         if (top is RecoveryFrame recovery)
-            RecordHpChange(recovery.ParentFrameId, recovery.SourceSeat, recovery.TargetSeat,
+        {
+            var change = RecordHpChange(recovery.ParentFrameId, recovery.SourceSeat, recovery.TargetSeat,
                 recovery.HpBefore, _players[recovery.TargetSeat].Hp, HpChangeKind.Recovery);
+            if (change is not null) RecordProgramRecoveryApplication(recovery, change);
+        }
     }
 
     /// <summary>
@@ -440,6 +443,7 @@ public sealed partial class GameEngine
         if (ActiveDamageTrigger is not null)
         {
             RunOneDamageTriggerStep();
+            AdvanceRulesAndPublishState();
             return;
         }
 

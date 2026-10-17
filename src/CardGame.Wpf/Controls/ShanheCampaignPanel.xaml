@@ -1,0 +1,374 @@
+<UserControl x:Class="CardGame.Wpf.Controls.ShanheCampaignPanel"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:controls="clr-namespace:CardGame.Wpf.Controls" KeyboardNavigation.TabNavigation="Cycle"
+ KeyboardNavigation.ControlTabNavigation="Cycle" FocusManager.IsFocusScope="True"
+ PreviewKeyDown="Campaign_PreviewKeyDown" FontFamily="Microsoft YaHei UI" UseLayoutRounding="True">
+ <UserControl.Resources>
+  <Style x:Key="CampaignButton" TargetType="Button">
+   <Setter Property="Foreground" Value="#EAD7AC"/><Setter Property="Background" Value="#30271E"/>
+   <Setter Property="BorderBrush" Value="#9A8153"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="17,10"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="13"/>
+   <Setter Property="HorizontalContentAlignment" Value="Center"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+    <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="2">
+     <Border x:Name="Inset" BorderBrush="#406F5A3A" BorderThickness="1" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/></Border>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="Background" Value="#55402A"/><Setter TargetName="Frame" Property="BorderBrush" Value="#E0BD75"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Inset" Property="BorderBrush" Value="#FFE3A4"/></Trigger>
+     <Trigger Property="IsPressed" Value="True"><Setter TargetName="Frame" Property="Background" Value="#6D351D"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Frame" Property="Opacity" Value="0.42"/><Setter Property="Cursor" Value="Arrow"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource CampaignButton}">
+   <Setter Property="Background" Value="#872D1E"/><Setter Property="BorderBrush" Value="#D2AC62"/><Setter Property="Foreground" Value="#FFE6AC"/>
+   <Setter Property="FontFamily" Value="KaiTi"/><Setter Property="FontSize" Value="25"/><Setter Property="Padding" Value="28,9"/>
+  </Style>
+  <Style x:Key="QuietCampaignButton" TargetType="Button" BasedOn="{StaticResource CampaignButton}">
+   <Setter Property="Background" Value="#201B16"/><Setter Property="BorderBrush" Value="#665840"/><Setter Property="Padding" Value="12,6"/><Setter Property="FontSize" Value="12"/>
+  </Style>
+  <Style x:Key="Caption" TargetType="TextBlock"><Setter Property="Foreground" Value="#B9AB8E"/><Setter Property="FontSize" Value="12"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="LineHeight" Value="20"/></Style>
+  <Style x:Key="SetupSelector" TargetType="ComboBox">
+   <Setter Property="Foreground" Value="#EEDBB4"/><Setter Property="Background" Value="#29231C"/><Setter Property="BorderBrush" Value="#8E7651"/><Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="38"/>
+   <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem">
+    <Setter Property="Foreground" Value="#EBD9B8"/><Setter Property="Padding" Value="12,9"/>
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+     <Border x:Name="Row" Background="#29231C" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+     <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Row" Property="Background" Value="#625037"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="#51412D"/></Trigger></ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter>
+   </Style></Setter.Value></Setter>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+    <Grid>
+     <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press">
+      <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#29231C" BorderBrush="#8E7651" BorderThickness="1"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE70D;" Foreground="#C7AD79" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10"/></Border></ControlTemplate></ToggleButton.Template>
+     </ToggleButton>
+     <TextBlock Margin="12,8,34,8" Text="{Binding SelectedItem.Name, RelativeSource={RelativeSource TemplatedParent}}" TextTrimming="CharacterEllipsis" IsHitTestVisible="False" VerticalAlignment="Center"/>
+     <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False">
+      <Border Background="#29231C" BorderBrush="#B79A62" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260"><ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer></Border>
+     </Popup>
+    </Grid>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <DataTemplate x:Key="ShanheBuildCardTemplate">
+   <Border Background="#DFCEAA" BorderBrush="#A18454" BorderThickness="1" Padding="15,13" Margin="0,0,0,12" AutomationProperties.Name="{Binding AccessibleText}">
+    <StackPanel>
+     <TextBlock Text="{Binding Name}" Foreground="#533824" FontFamily="KaiTi" FontSize="23"/>
+     <TextBlock Text="{Binding Description}" Foreground="#574731" FontSize="13" LineHeight="23" TextWrapping="Wrap" Margin="0,8,0,0"/>
+     <TextBlock Text="{Binding RuleDescription}" Foreground="#64543C" FontSize="12" LineHeight="21" TextWrapping="Wrap" Margin="0,7,0,0" Visibility="{Binding HasRuleDescription, Converter={StaticResource BoolToVisibility}}"/>
+     <TextBlock Text="{Binding SourceText}" Foreground="#7C613B" FontSize="11" TextWrapping="Wrap" Margin="0,9,0,0"/>
+    </StackPanel>
+   </Border>
+  </DataTemplate>
+  <Style x:Key="CampaignTab" TargetType="TabItem">
+   <Setter Property="Foreground" Value="#D5BD8C"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
+    <Border x:Name="TabFrame" Width="86" Height="94" Background="#D526211C" BorderBrush="#695238" BorderThickness="1" Margin="0,0,12,10" CornerRadius="3">
+     <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsSelected" Value="True"><Setter TargetName="TabFrame" Property="Background" Value="#F4773024"/><Setter TargetName="TabFrame" Property="BorderBrush" Value="#E8C47D"/><Setter Property="Foreground" Value="#FFF0BB"/></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabFrame" Property="BorderBrush" Value="#F5DA9B"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="TabFrame" Property="BorderThickness" Value="2"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="RewardCardButton" TargetType="Button">
+   <Setter Property="Background"><Setter.Value><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#F2DDB8"/><GradientStop Color="#DFBE91" Offset="0.6"/><GradientStop Color="#EFDCB6" Offset="1"/></LinearGradientBrush></Setter.Value></Setter>
+   <Setter Property="BorderBrush" Value="#9E80B3"/><Setter Property="BorderThickness" Value="5"/>
+   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+    <Border x:Name="RewardFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="7,8">
+     <Border BorderBrush="#AFD9BF94" BorderThickness="1" Margin="4"><ContentPresenter/></Border>
+    </Border>
+    <ControlTemplate.Triggers>
+     <DataTrigger Binding="{Binding IsSkip}" Value="True"><Setter Property="Background" Value="#68251F18"/><Setter Property="BorderBrush" Value="#A18242"/></DataTrigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RewardFrame" Property="BorderBrush" Value="#E7BF6D"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="RewardFrame" Property="BorderBrush" Value="#FFE7A0"/></Trigger>
+     <DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter TargetName="RewardFrame" Property="BorderBrush" Value="#FFD56B"/><Setter TargetName="RewardFrame" Property="Effect"><Setter.Value><DropShadowEffect Color="#FFBB25" BlurRadius="17" ShadowDepth="0" Opacity="0.7"/></Setter.Value></Setter></DataTrigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="RewardFrame" Property="Opacity" Value="0.5"/><Setter Property="Cursor" Value="Arrow"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="BossRewardFrame" TargetType="Border">
+   <Setter Property="BorderBrush" Value="#AA864F"/><Setter Property="BorderThickness" Value="4"/><Setter Property="Margin" Value="8"/>
+   <Setter Property="Background"><Setter.Value><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#EFDEBB"/><GradientStop Color="#DABD91" Offset="0.7"/><GradientStop Color="#EBD7B1" Offset="1"/></LinearGradientBrush></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="BossRewardGroupTab" TargetType="Border">
+   <Setter Property="Background" Value="#A9854D28"/><Setter Property="BorderBrush" Value="#D4AA61"/>
+   <Style.Triggers><DataTrigger Binding="{Binding Id}" Value="tactics"><Setter Property="Background" Value="#B99B5927"/><Setter Property="BorderBrush" Value="#E0B46B"/></DataTrigger><DataTrigger Binding="{Binding Id}" Value="cards"><Setter Property="Background" Value="#B99F632A"/><Setter Property="BorderBrush" Value="#E2B870"/></DataTrigger></Style.Triggers>
+  </Style>
+  <Style x:Key="BossRewardGroupButton" TargetType="Button">
+   <Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+    <Border x:Name="GroupFrame" Style="{StaticResource BossRewardFrame}"><Border BorderBrush="#C4B89565" BorderThickness="1" Margin="4"><ContentPresenter/></Border></Border>
+    <ControlTemplate.Triggers>
+     <DataTrigger Binding="{Binding Id}" Value="tactics"><Setter TargetName="GroupFrame" Property="BorderBrush" Value="#D3974B"/></DataTrigger>
+     <DataTrigger Binding="{Binding Id}" Value="cards"><Setter TargetName="GroupFrame" Property="BorderBrush" Value="#D9A052"/></DataTrigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="GroupFrame" Property="BorderBrush" Value="#EAC77D"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="GroupFrame" Property="BorderBrush" Value="#FFF0B6"/></Trigger>
+     <DataTrigger Binding="{Binding IsResolved}" Value="True"><Setter TargetName="GroupFrame" Property="BorderBrush" Value="#D1A260"/></DataTrigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="ReplacementUnderlay" TargetType="Border">
+   <Setter Property="IsEnabled" Value="True"/><Style.Triggers><DataTrigger Binding="{Binding IsShanheSkillReplacementOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger></Style.Triggers>
+  </Style>
+  <Style x:Key="ReplacementSkillButton" TargetType="Button">
+   <Setter Property="Background" Value="#292B29"/><Setter Property="BorderBrush" Value="#74736A"/><Setter Property="Foreground" Value="#D1C9AF"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="SkillFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="10,8"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SkillFrame" Property="BorderBrush" Value="#CDB172"/></Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="SkillFrame" Property="BorderBrush" Value="#FFF0BB"/></Trigger>
+    <DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter TargetName="SkillFrame" Property="BorderBrush" Value="#FFDA78"/><Setter TargetName="SkillFrame" Property="BorderThickness" Value="2"/><Setter TargetName="SkillFrame" Property="Background" Value="#5D4A2E"/><Setter Property="Foreground" Value="#FFE8AC"/></DataTrigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="SkillFrame" Property="Opacity" Value="0.52"/><Setter Property="Cursor" Value="Arrow"/></Trigger>
+   </ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
+ </UserControl.Resources>
+ <Grid Width="1200" Height="750" Background="#211A14">
+  <Image Source="/CardGame.Wpf;component/Assets/shanhe-desk.png" Stretch="Fill" IsHitTestVisible="False"/>
+  <Border BorderBrush="#AA8050" BorderThickness="1" Margin="6" IsHitTestVisible="False"/>
+  <Grid x:Name="CampaignContent" Margin="22,14,22,16">
+   <Grid.Style><Style TargetType="Grid"><Setter Property="IsEnabled" Value="True"/><Style.Triggers><DataTrigger Binding="{Binding Visibility, ElementName=ShanheSetupOverlay}" Value="Visible"><Setter Property="IsEnabled" Value="False"/></DataTrigger><DataTrigger Binding="{Binding Visibility, ElementName=ShanheRulesOverlay}" Value="Visible"><Setter Property="IsEnabled" Value="False"/></DataTrigger><DataTrigger Binding="{Binding IsShanheEncounterPreviewOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger><DataTrigger Binding="{Binding IsShanheRewardOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger><DataTrigger Binding="{Binding IsShanheBossRewardOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger><DataTrigger Binding="{Binding IsShanheSkillReplacementOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger></Style.Triggers></Style></Grid.Style>
+   <Grid.RowDefinitions><RowDefinition Height="78"/><RowDefinition Height="*"/><RowDefinition Height="88"/></Grid.RowDefinitions>
+   <Grid>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="#A5211B15">
+     <Border Background="#8A2C20" BorderBrush="#BB874B" BorderThickness="1" Padding="8,3"><TextBlock Text="山&#x0a;河" FontFamily="KaiTi" Foreground="#F6DDA1" FontSize="19" TextAlignment="Center"/></Border>
+     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="山河图" FontFamily="KaiTi" FontSize="28" Foreground="#F1D7A1"/><TextBlock Text="单机 · 剧情征程" Foreground="#BDA581" FontSize="10" Margin="0,3,0,0"/></StackPanel>
+    </StackPanel>
+    <Border HorizontalAlignment="Center" VerticalAlignment="Top" Width="330" Height="65" BorderBrush="#A5804C" BorderThickness="1,0,1,2" CornerRadius="0,0,14,14">
+     <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#EA171A17"/><GradientStop Color="#F0352920" Offset="1"/></LinearGradientBrush></Border.Background>
+      <StackPanel VerticalAlignment="Center"><TextBlock FontFamily="KaiTi" FontSize="29" Foreground="#F6D990" HorizontalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="诸 侯 伐 董"/><Style.Triggers><DataTrigger Binding="{Binding IsShanheRunInProgress}" Value="True"><Setter Property="Text" Value="{Binding ShanheChapterTitle}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock><TextBlock Foreground="#B99E6E" FontSize="10" HorizontalAlignment="Center" Margin="0,3,0,0"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="初平元年 · 群雄并起"/><Style.Triggers><DataTrigger Binding="{Binding IsShanheRunInProgress}" Value="True"><Setter Property="Text" Value="{Binding ShanheChapterProgressText}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel>
+    </Border>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+     <Button x:Name="DetachWindowButton" Content="独立窗口" Style="{StaticResource QuietCampaignButton}" Click="OpenDetachedWindow" Margin="0,0,8,0" AutomationProperties.Name="在独立窗口打开山河图"/>
+     <Button x:Name="ShanheCloseButton" Content="返回大厅 / 牌桌" Command="{Binding CloseShanheCommand}" Style="{StaticResource QuietCampaignButton}" AutomationProperties.Name="关闭山河图面板并保留征程"/>
+    </StackPanel>
+   </Grid>
+   <TabControl x:Name="ShanheJourneyTabs" Grid.Row="1" TabStripPlacement="Left" Background="Transparent" BorderThickness="0" Padding="0" ItemContainerStyle="{StaticResource CampaignTab}" Margin="0,10,0,0">
+    <TabItem AutomationProperties.Name="山河图征途地图"><TabItem.Header><StackPanel><TextBlock Text="图" FontFamily="KaiTi" FontSize="31" TextAlignment="Center"/><TextBlock Text="征途地图" FontSize="12" Margin="0,7,0,0"/></StackPanel></TabItem.Header>
+     <Grid ClipToBounds="True">
+      <Viewbox Stretch="Uniform" Visibility="{Binding IsShanheRunInProgress, Converter={StaticResource BoolToVisibility}}"><controls:ShanheJourneyMap x:Name="ShanheMapRows"/></Viewbox>
+      <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="18,16,14,0" Background="#D9EFDFBA" BorderBrush="#967147" BorderThickness="3,0,0,0" Padding="14,8" MaxWidth="680" IsHitTestVisible="False" Visibility="{Binding IsShanheRunInProgress, Converter={StaticResource BoolToVisibility}}">
+       <StackPanel><TextBlock Text="{Binding ShanheChapterTitle}" FontFamily="KaiTi" FontSize="23" Foreground="#4B3625"/><TextBlock Text="{Binding ShanheChapterObjectiveText}" FontSize="12" LineHeight="19" Foreground="#715C40" TextWrapping="Wrap" Margin="0,6,0,0" MaxWidth="600" HorizontalAlignment="Left" MaxHeight="43" TextTrimming="CharacterEllipsis"/></StackPanel>
+      </Border>
+      <Grid x:Name="ShanhePreparationPage" Visibility="{Binding IsShanhePreparation, Converter={StaticResource BoolToVisibility}}">
+       <Image Source="/CardGame.Wpf;component/Assets/shanhe-map.png" Stretch="UniformToFill" IsHitTestVisible="False"/>
+       <Border Background="#B8EFDFBC" BorderBrush="#9F7C4F" BorderThickness="1" Margin="18,17"/>
+       <Grid Margin="53,43,43,38"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="235"/></Grid.ColumnDefinitions>
+        <Grid Margin="0,0,28,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+         <StackPanel><TextBlock Text="出 征 准 备" FontFamily="KaiTi" FontSize="45" Foreground="#58391E"/><TextBlock Text="{Binding SelectedShanheScenario.Name}" FontFamily="KaiTi" FontSize="24" Foreground="#80603B" Margin="0,13,0,0"/><Border Background="#885C3E23" Height="1" Margin="0,18,0,0"/></StackPanel>
+         <StackPanel Grid.Row="1" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedShanheScenarioDescription}" Foreground="#624C32" FontSize="14" TextWrapping="Wrap" LineHeight="26"/><TextBlock Text="择一将，携战法，踏山河。" FontFamily="KaiTi" FontSize="25" Foreground="#7C5930" Margin="0,20,0,9"/><TextBlock Text="{Binding ShanhePreparationHint}" Foreground="#786246" FontSize="12" LineHeight="23" TextWrapping="Wrap"/></StackPanel>
+         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0"><Button x:Name="ShanhePrepareGeneralButton" Content="选择出征武将" Style="{StaticResource CampaignButton}" Click="PrepareExpedition" IsEnabled="{Binding CanPrepareShanheExpedition}"/><Button x:Name="ShanhePrepareCodexButton" Content="编辑山河册" Style="{StaticResource CampaignButton}" Click="PrepareCodex" Margin="12,0,0,0" IsEnabled="{Binding CanPrepareShanheExpedition}"/></StackPanel>
+        </Grid>
+        <Border Grid.Column="1" Background="#45291E" BorderBrush="#9C753F" BorderThickness="2" Padding="6"><Grid><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Border Background="{Binding SelectedShanhePortrait}"/><Border Grid.Row="1" Background="#42271B" Padding="8,13"><StackPanel><TextBlock Text="{Binding SelectedShanheGeneral.Name}" Foreground="#F2D79E" FontFamily="KaiTi" FontSize="31" TextAlignment="Center"/><TextBlock Text="{Binding SelectedShanheGeneralMeta}" Foreground="#BDA17A" FontSize="10" TextAlignment="Center" Margin="0,5,0,0"/></StackPanel></Border></Grid></Border>
+       </Grid>
+      </Grid>
+      <Border VerticalAlignment="Bottom" Margin="12,0,12,9" BorderBrush="#807E6541" BorderThickness="0,1,0,0" Padding="0,9,0,0" IsHitTestVisible="False" Visibility="{Binding IsShanheRunInProgress, Converter={StaticResource BoolToVisibility}}"><TextBlock Text="◆ 金色可前往     ◇ 朱印当前所在     ● 青色已完成     · 灰色待开启" Foreground="#513C28" FontSize="12" Background="#BFEBDBB6" Padding="10,3" HorizontalAlignment="Center"/></Border>
+      <Border x:Name="ShanheContextPanel" Width="342" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,56,16,28" Background="#FA29231C" BorderBrush="#C7A365" BorderThickness="1" Padding="18" MaxHeight="400">
+       <Border.Effect><DropShadowEffect Color="#37220F" BlurRadius="18" ShadowDepth="4" Opacity="0.4"/></Border.Effect>
+       <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding ShanheChoices.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger><DataTrigger Binding="{Binding IsShanheShopActive}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger><DataTrigger Binding="{Binding IsShanheRewardOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger><DataTrigger Binding="{Binding IsShanheBossRewardOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style>
+       <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel>
+        <TextBlock Text="{Binding ShanheContextTitle}" Foreground="#E8C986" FontFamily="KaiTi" FontSize="25" TextWrapping="Wrap"/>
+        <TextBlock Text="{Binding ShanheContextDescription}" Style="{StaticResource Caption}" Margin="0,10,0,14"/>
+        <ItemsControl x:Name="ShanheChoiceRows" ItemsSource="{Binding ShanheChoices}"><ItemsControl.ItemTemplate><DataTemplate>
+         <Button Command="{Binding DataContext.ChooseShanheOptionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" IsEnabled="{Binding IsEnabled}" Style="{StaticResource CampaignButton}" HorizontalContentAlignment="Stretch" Margin="0,0,0,9" Padding="10,9" AutomationProperties.Name="{Binding AccessibleName}"><StackPanel><TextBlock Text="{Binding Name}" Foreground="#F2D9A7" FontSize="13" TextWrapping="Wrap"/><TextBlock Text="{Binding Description}" Foreground="#C0AD8D" FontSize="11" LineHeight="18" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel></Button>
+        </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+       </StackPanel></ScrollViewer>
+      </Border>
+     </Grid>
+    </TabItem>
+    <TabItem AutomationProperties.Name="查看战法构筑与技能说明"><TabItem.Header><StackPanel><TextBlock Text="册" FontFamily="KaiTi" FontSize="31" TextAlignment="Center"/><TextBlock Text="山河册" FontSize="12" Margin="0,7,0,0" TextAlignment="Center"/></StackPanel></TabItem.Header><Grid><Grid.RowDefinitions><RowDefinition Height="26"/><RowDefinition Height="*"/></Grid.RowDefinitions><TextBlock Text="{Binding ShanheCodexPhaseText}" Foreground="#DBC393" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/><controls:ShanheCodexPanel x:Name="ShanheCodexHost" Grid.Row="1"/></Grid></TabItem>
+    <TabItem AutomationProperties.Name="山河图商店"><TabItem.Header><StackPanel><TextBlock Text="商" FontFamily="KaiTi" FontSize="31" TextAlignment="Center"/><TextBlock Text="行军商店" FontSize="12" Margin="0,7,0,0"/></StackPanel></TabItem.Header><controls:ShanheShopPanel x:Name="ShanheShopHost"/></TabItem>
+   </TabControl>
+   <StackPanel Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,0,0,14">
+    <Button x:Name="ShanheRulesButton" Content="玩法说明" Style="{StaticResource QuietCampaignButton}" Click="ShowRules" Padding="9,9" Width="86"/>
+     <Button Content="出征整备" Style="{StaticResource QuietCampaignButton}" Click="PrepareExpedition" Margin="0,8,0,0" Padding="9,9" Width="86" Visibility="{Binding IsShanhePreparation, Converter={StaticResource BoolToVisibility}}" IsEnabled="{Binding CanPrepareShanheExpedition}"/>
+   </StackPanel>
+   <Border Grid.Row="2" Background="#EC231B14" BorderBrush="#A98450" BorderThickness="0,1,0,0" Padding="14,10" Margin="0,6,0,0">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="250"/><ColumnDefinition Width="*"/><ColumnDefinition Width="295"/></Grid.ColumnDefinitions>
+     <Button x:Name="ShanheSelectGeneralButton" Style="{StaticResource QuietCampaignButton}" HorizontalContentAlignment="Left" Click="PrepareExpedition" Padding="4,1" HorizontalAlignment="Left" ToolTip="选择出征武将、剧本与难度" Visibility="{Binding IsShanhePreparation, Converter={StaticResource BoolToVisibility}}" IsEnabled="{Binding CanPrepareShanheExpedition}"><StackPanel Orientation="Horizontal"><Border Width="43" Height="53" Background="{Binding SelectedShanhePortrait}" BorderBrush="#AD8F55" BorderThickness="1" Margin="0,0,12,0"/><StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding SelectedShanheGeneral.Name}" FontFamily="KaiTi" FontSize="23" Foreground="#E9D29C"/><TextBlock Text="将池 · 出征整备" Style="{StaticResource Caption}" FontSize="10"/></StackPanel></StackPanel></Button>
+     <StackPanel Orientation="Horizontal" Visibility="{Binding IsShanheRunInProgress, Converter={StaticResource BoolToVisibility}}"><Border Width="43" Height="53" Background="{Binding CurrentShanheGeneralPortrait}" BorderBrush="#AD8F55" BorderThickness="1" Margin="0,0,12,0"/><StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding CurrentShanheGeneralName}" FontFamily="KaiTi" FontSize="23" Foreground="#E9D29C"/><TextBlock Text="{Binding CurrentShanheGeneralSkillsText}" Foreground="#B9A584" FontSize="10" MaxWidth="180" TextWrapping="Wrap" MaxHeight="28" TextTrimming="CharacterEllipsis"/></StackPanel></StackPanel>
+     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Button x:Name="ShanhePrepareButton" Click="PrepareExpedition" Margin="0,0,12,0" Visibility="{Binding IsShanhePreparation, Converter={StaticResource BoolToVisibility}}" IsEnabled="{Binding CanPrepareShanheExpedition}"><Button.Style><Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"><Setter Property="Content" Value="开始征程"/><Style.Triggers><DataTrigger Binding="{Binding HasShanheProgress}" Value="True"><Setter Property="Content" Value="重新出征"/></DataTrigger></Style.Triggers></Style></Button.Style></Button>
+      <Button x:Name="ShanheContinueButton" Content="继续征程" Command="{Binding ContinueShanheCommand}" Click="ContinueExpedition"><Button.Style><Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding HasShanheProgress}" Value="True"/><Condition Binding="{Binding IsShanheBattleActive}" Value="False"/></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible"/></MultiDataTrigger></Style.Triggers></Style></Button.Style></Button>
+      <Button x:Name="ShanheResumeBattleButton" Content="返回战斗" Command="{Binding ResumeShanheBattleCommand}" Style="{StaticResource PrimaryButton}" Visibility="{Binding IsShanheBattleActive, Converter={StaticResource BoolToVisibility}}"/>
+     </StackPanel>
+     <StackPanel Grid.Column="2" VerticalAlignment="Center"><DockPanel><TextBlock Text="{Binding ShanheGoldText}" Foreground="#E8C779" FontSize="16" DockPanel.Dock="Right"/><TextBlock Text="{Binding ShanheVitalText}" Foreground="#CFB991" FontSize="11" TextWrapping="Wrap" MaxWidth="190" HorizontalAlignment="Left"/></DockPanel><TextBlock Text="{Binding ShanheStatusText}" Foreground="#B39D79" FontSize="10" TextWrapping="Wrap" Margin="0,8,0,0" MaxHeight="31"/></StackPanel>
+    </Grid>
+   </Border>
+  </Grid>
+    <Border x:Name="ShanheSetupOverlay" Background="#DF100D0A" Visibility="Collapsed" Style="{StaticResource ReplacementUnderlay}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Border Width="1050" Height="710" Background="#24201A" BorderBrush="#B19661" BorderThickness="1" Padding="24,17" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid>
+       <Grid.RowDefinitions><RowDefinition Height="45"/><RowDefinition Height="*"/><RowDefinition Height="62"/></Grid.RowDefinitions>
+       <TextBlock Text="选 将 出 征" FontFamily="KaiTi" FontSize="28" Foreground="#EAD09A" HorizontalAlignment="Center"/>
+       <Button x:Name="ShanheSetupCloseButton" Content="返回准备" Style="{StaticResource QuietCampaignButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseSetup"/>
+       <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="236"/><ColumnDefinition Width="25"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Border Background="#3C2018" BorderBrush="#846239" BorderThickness="1" Padding="14">
+         <Grid><Grid.RowDefinitions><RowDefinition Height="280"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <Border Background="{Binding SelectedShanhePortrait}" BorderBrush="#C8A565" BorderThickness="2"/>
+          <StackPanel Grid.Row="1" Margin="0,10,0,8"><TextBlock Text="{Binding SelectedShanheGeneral.Name}" FontFamily="KaiTi" FontSize="29" Foreground="#F1D7A2" TextAlignment="Center"/><TextBlock Text="{Binding SelectedShanheGeneralMeta}" Foreground="#BA9B68" FontSize="11" TextAlignment="Center" Margin="0,5,0,0" TextWrapping="Wrap"/></StackPanel>
+          <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"><TextBlock Text="{Binding SelectedShanheGeneralDescription}" Style="{StaticResource Caption}" Foreground="#D2B88D"/></ScrollViewer>
+         </Grid>
+        </Border>
+        <Grid Grid.Column="2">
+         <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="36"/><RowDefinition Height="69"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="65"/><ColumnDefinition Width="155"/></Grid.ColumnDefinitions>
+          <TextBox x:Name="ShanheGeneralSearchBox" Text="{Binding ShanheGeneralSearch, UpdateSourceTrigger=PropertyChanged}" Background="#191713" Foreground="#EBD7AE" BorderBrush="#8E7651" Padding="10,6" FontSize="13" VerticalContentAlignment="Center" ToolTip="搜索姓名、技能、势力或版本，例如：诸葛亮、观星、蜀、OL" AutomationProperties.Name="搜索山河图武将姓名技能势力或版本"/>
+          <TextBlock Text="搜索姓名 / 技能 / 势力 / 版本" Foreground="#9E8A68" FontSize="12" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Text, ElementName=ShanheGeneralSearchBox}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+          <Button Grid.Column="1" Content="清空" Command="{Binding ClearShanheGeneralSearchCommand}" Style="{StaticResource QuietCampaignButton}" Margin="7,0,0,0" Padding="7,4"/>
+          <TextBlock Grid.Column="2" Text="{Binding ShanheGeneralCountText}" Foreground="#C7AC7D" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+         </Grid>
+          <ListBox x:Name="ShanheGeneralSelector" Grid.Row="1" ItemsSource="{Binding ShanheGeneralPage}" SelectedItem="{Binding SelectedShanheGeneral, Mode=TwoWay}" Background="#191713" BorderBrush="#5E5038" BorderThickness="1" Padding="8" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" AutomationProperties.Name="山河图出征武将">
+          <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
+          <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Padding" Value="3"/><Setter Property="Margin" Value="3"/><Setter Property="Cursor" Value="Hand"/>
+           <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+            <Border x:Name="CardFrame" BorderBrush="#726040" BorderThickness="2" Background="#292219" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+            <ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="CardFrame" Property="BorderBrush" Value="#F0CB78"/><Setter TargetName="CardFrame" Property="Background" Value="#7C3420"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CardFrame" Property="BorderBrush" Value="#C4AE7C"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="CardFrame" Property="BorderBrush" Value="#FFE6AA"/></Trigger></ControlTemplate.Triggers>
+           </ControlTemplate></Setter.Value></Setter>
+          </Style></ListBox.ItemContainerStyle>
+          <ListBox.ItemTemplate><DataTemplate><Grid Width="137" Height="164" AutomationProperties.Name="{Binding Name}">
+           <Border Background="{Binding Portrait}"/><Border Background="#D51B1712" VerticalAlignment="Top" Padding="4,3"><TextBlock Text="{Binding EditionText}" Foreground="#D1BA8D" FontSize="10" TextTrimming="CharacterEllipsis"/></Border><Border Background="#E51B1712" VerticalAlignment="Bottom" Padding="4,6"><TextBlock Text="{Binding Name}" Foreground="#F4DBA7" FontFamily="KaiTi" FontSize="22" TextAlignment="Center" TextTrimming="CharacterEllipsis"/></Border>
+          </Grid></DataTemplate></ListBox.ItemTemplate>
+         </ListBox>
+         <TextBlock Grid.Row="1" Text="没有找到匹配的武将，换个姓名、技能或版本试试。" Foreground="#C8B18B" FontSize="13" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasNoShanheGeneralResults, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False"/>
+         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button x:Name="ShanhePreviousGeneralPageButton" Content="上一页" Command="{Binding PreviousShanheGeneralPageCommand}" Style="{StaticResource QuietCampaignButton}" Padding="12,4"/>
+          <TextBlock Text="{Binding ShanheGeneralPageText}" Foreground="#C7AC7D" FontSize="12" Margin="18,0" VerticalAlignment="Center"/>
+          <Button x:Name="ShanheNextGeneralPageButton" Content="下一页" Command="{Binding NextShanheGeneralPageCommand}" Style="{StaticResource QuietCampaignButton}" Padding="12,4"/>
+         </StackPanel>
+         <Grid Grid.Row="3" Margin="0,12,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="185"/></Grid.ColumnDefinitions>
+          <StackPanel><TextBlock Text="征战剧本" Style="{StaticResource Caption}" Margin="0,0,0,4"/><ComboBox x:Name="ShanheScenarioSelector" ItemsSource="{Binding ShanheScenarios}" SelectedItem="{Binding SelectedShanheScenario, Mode=TwoWay}" DisplayMemberPath="Name" Style="{StaticResource SetupSelector}" AutomationProperties.Name="山河图剧本"/></StackPanel>
+          <StackPanel Grid.Column="2"><TextBlock Text="征程难度" Style="{StaticResource Caption}" Margin="0,0,0,4"/><ComboBox x:Name="ShanheDifficultySelector" ItemsSource="{Binding ShanheDifficulties}" SelectedItem="{Binding SelectedShanheDifficulty, Mode=TwoWay}" DisplayMemberPath="Name" Style="{StaticResource SetupSelector}" AutomationProperties.Name="山河图难度"/></StackPanel>
+         </Grid>
+         <TextBlock Grid.Row="4" Text="{Binding SelectedShanheScenarioDescription}" Style="{StaticResource Caption}" FontSize="10" LineHeight="17" Margin="0,9,0,0"/>
+        </Grid>
+       </Grid>
+       <Grid Grid.Row="2" Margin="0,12,0,0">
+        <TextBlock VerticalAlignment="Center" MaxWidth="500" HorizontalAlignment="Left" Style="{StaticResource Caption}" Text="选择武将并确认出征。出征后，武将与初始战法固定至本次征程结束。"/>
+        <Button x:Name="ShanheStartButton" Content="确 定 出 征" Command="{Binding StartShanheCommand}" Click="ExpeditionStarted" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" AutomationProperties.Name="使用已选武将与剧本开始新征程"/>
+       </Grid>
+      </Grid>
+     </Border>
+    </Border>
+    <Border x:Name="ShanheRulesOverlay" Background="#E5100D0A" Visibility="Collapsed" Style="{StaticResource ReplacementUnderlay}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Border Width="850" Height="550" BorderBrush="#AA8A52" BorderThickness="1" Background="#29231C" Padding="30,22" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid><Grid.RowDefinitions><RowDefinition Height="55"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+       <TextBlock Text="山河图 · 玩法说明" FontFamily="KaiTi" FontSize="30" Foreground="#E5CB91"/>
+       <Button x:Name="ShanheRulesCloseButton" Content="返回" Style="{StaticResource QuietCampaignButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseRules"/>
+       <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,10,0">
+        <TextBlock Text="一卷山河，三章征途" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,8,0,12"/>
+        <TextBlock Text="从北路虎牢或南路广成出发，沿连线选择亮起的节点。交锋与首领可先查看敌人与奖励，再确认挑战；奇遇、行商、营地会提供不同的选择。每场胜利后选择一项战利品，或放弃并额外领取铜币，再择路前行。" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
+        <TextBlock Text="体力与行装" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,24,0,12"/>
+        <TextBlock Text="{Binding ShanheCarryoverNotice}" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
+        <TextBlock Text="山河册与本地存档" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,24,0,12"/>
+        <TextBlock Text="出征准备时可编辑山河册，装备初始战法。出征后只能查看本次行装，武将与初始战法固定至征程结束。征程会自动保存在本机，也可从牌桌手动保存；返回大厅后，使用「继续征程」接着前进。征程胜利或战败后，可重新选将出征。" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
+        <TextBlock Text="{Binding ShanheEditionNotice}" Style="{StaticResource Caption}" FontSize="12" Margin="0,24,0,0"/>
+       </StackPanel></ScrollViewer>
+      </Grid>
+     </Border>
+    </Border>
+    <Border x:Name="ShanheEncounterOverlay" Background="#B30E0C09" Visibility="{Binding IsShanheEncounterPreviewOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ReplacementUnderlay}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Border Width="980" Height="535" BorderBrush="#BA9252" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#64462F"/><GradientStop Color="#382A20" Offset="0.48"/><GradientStop Color="#261C16" Offset="1"/></LinearGradientBrush></Border.Background>
+      <Grid>
+       <Border BorderBrush="#7FAF8A52" BorderThickness="1" Margin="8" IsHitTestVisible="False"/>
+       <Grid Margin="36,30,36,26"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="90"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="55"/><ColumnDefinition Width="265"/></Grid.ColumnDefinitions>
+        <Border BorderBrush="#AA8E6A40" BorderThickness="1" Background="#33120904" Padding="24,19">
+         <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+          <TextBlock Text="{Binding ShanheEncounterTitle}" Foreground="#EED395" FontFamily="KaiTi" FontSize="37" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,18"/>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><TextBlock Text="{Binding ShanheEncounterDescription}" Foreground="#CCB791" FontSize="15" LineHeight="28" TextWrapping="Wrap"/></ScrollViewer>
+          <StackPanel Grid.Row="2" Margin="0,15,0,0"><Border BorderBrush="#806F542F" BorderThickness="0,1,0,0" Padding="0,12,0,0"><TextBlock Text="过 关 奖 励" Foreground="#D8BD83" FontFamily="KaiTi" FontSize="20" TextAlignment="Center"/></Border><TextBlock Text="{Binding ShanheEncounterRewardText}" Foreground="#E6C67E" FontSize="14" LineHeight="23" TextWrapping="Wrap" TextAlignment="Center" Margin="0,9,0,0"/></StackPanel>
+         </Grid>
+        </Border>
+        <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+         <Border Width="182" Background="{Binding ShanheEncounterEnemyPortrait}" BorderBrush="#B49962" BorderThickness="3" Margin="0,0,0,9"><Border VerticalAlignment="Bottom" Background="#D9231A13" Padding="6,8"><TextBlock Text="{Binding ShanheEncounterEnemyName}" Foreground="#F2D7A0" FontFamily="KaiTi" FontSize="25" TextWrapping="Wrap" TextAlignment="Center"/></Border></Border>
+         <TextBlock Grid.Row="1" Text="{Binding ShanheEncounterEnemyDetail}" Style="{StaticResource Caption}" TextAlignment="Center" MaxHeight="74" Margin="0,3,0,0"/>
+        </Grid>
+        <TextBlock Grid.Row="1" Text="击败敌人，领取奖励后继续征程。" Foreground="#A68E66" VerticalAlignment="Center" FontSize="12"/>
+        <Button x:Name="ShanheChallengeButton" Grid.Row="1" Grid.Column="2" Content="挑 战" Command="{Binding ChallengeShanheEncounterCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="170" AutomationProperties.Name="确认挑战当前遭遇"/>
+       </Grid>
+       <Button x:Name="ShanheEncounterCloseButton" Content="×" FontSize="25" Style="{StaticResource QuietCampaignButton}" Padding="6,0" Margin="0,9,9,0" HorizontalAlignment="Right" VerticalAlignment="Top" Command="{Binding CloseShanheEncounterPreviewCommand}" AutomationProperties.Name="返回章节地图"/>
+      </Grid>
+     </Border>
+    </Border>
+    <Border x:Name="ShanheRewardOverlay" Background="#B8100E0A" Visibility="{Binding IsShanheRewardOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ReplacementUnderlay}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Grid Margin="28,28,28,23"><Grid.RowDefinitions><RowDefinition Height="103"/><RowDefinition Height="*"/><RowDefinition Height="106"/></Grid.RowDefinitions>
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="{Binding ShanheRewardHeading}" FontFamily="KaiTi" FontSize="45" Foreground="#FFE49B" TextAlignment="Center"><TextBlock.Effect><DropShadowEffect Color="#D18F24" BlurRadius="15" ShadowDepth="0" Opacity="0.7"/></TextBlock.Effect></TextBlock><TextBlock Text="{Binding ShanheRewardNotice}" Foreground="#C6B28E" FontSize="12" TextAlignment="Center" Margin="0,12,0,0"/></StackPanel>
+      <Button x:Name="ShanheRewardBackButton" Content="返回奖励总览" Command="{Binding CloseShanheBossRewardGroupCommand}" Style="{StaticResource QuietCampaignButton}" Visibility="{Binding HasShanheBossRewardGroup, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,8,0"/>
+      <ItemsControl x:Name="ShanheRewardCardRows" Grid.Row="1" ItemsSource="{Binding ShanheRewardCards}">
+       <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+       <ItemsControl.ItemTemplate><DataTemplate>
+        <Button Style="{StaticResource RewardCardButton}" Command="{Binding DataContext.SelectShanheRewardCardCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" IsEnabled="{Binding IsEnabled}" AutomationProperties.Name="{Binding AccessibleText}">
+         <Grid><Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="167"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <Border Background="#9B6F4A82" BorderBrush="#B89AC6" BorderThickness="0,0,0,2" Padding="4,5"><Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsSkip}" Value="True"><Setter Property="Visibility" Value="Hidden"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="{Binding Category}" Foreground="#FFF0BF" FontFamily="KaiTi" FontSize="21" TextAlignment="Center"/></Border>
+          <Grid Grid.Row="1" Margin="12,0"><Grid.Style><Style TargetType="Grid"><Style.Triggers><DataTrigger Binding="{Binding IsSkip}" Value="True"><Setter Property="Grid.RowSpan" Value="2"/></DataTrigger></Style.Triggers></Style></Grid.Style>
+           <Grid><Grid.Style><Style TargetType="Grid"><Style.Triggers><DataTrigger Binding="{Binding HasCardImage}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Grid.Style>
+            <Rectangle Width="105" Height="105" Stroke="#3B976F3E" StrokeThickness="2" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Center"><Rectangle.RenderTransform><RotateTransform Angle="45"/></Rectangle.RenderTransform></Rectangle>
+            <Ellipse Width="115" Height="115" Fill="#1A9C6E36" Stroke="#4C9F763D" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding Name}" FontFamily="KaiTi" TextWrapping="Wrap" TextAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="#654329"/><Setter Property="FontSize" Value="35"/><Style.Triggers><DataTrigger Binding="{Binding IsSkip}" Value="True"><Setter Property="Foreground" Value="#F2DFC0"/><Setter Property="FontSize" Value="48"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock><TextBlock Text="{Binding BonusText}" Foreground="#F4D392" FontFamily="KaiTi" FontSize="27" TextAlignment="Center" Margin="0,14,0,0"/></StackPanel>
+           </Grid>
+           <StackPanel VerticalAlignment="Center" Visibility="{Binding HasCardImage, Converter={StaticResource BoolToVisibility}}"><Image Source="{Binding CardImage}" Width="88" Height="123" Stretch="Uniform"/><TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="23" Foreground="#654329" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel>
+          </Grid>
+          <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="18,0,18,18"><ScrollViewer.Style><Style TargetType="ScrollViewer"><Style.Triggers><DataTrigger Binding="{Binding IsSkip}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></ScrollViewer.Style><StackPanel><TextBlock Text="{Binding Description}" Foreground="#745538" FontSize="14" LineHeight="24" TextWrapping="Wrap"/><TextBlock Text="{Binding RuleDescription}" Foreground="#745538" FontSize="13" LineHeight="23" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="{Binding HasRuleDescription, Converter={StaticResource BoolToVisibility}}"/></StackPanel></ScrollViewer>
+          <Border Grid.RowSpan="3" BorderBrush="#FFF1BA" BorderThickness="1" Margin="5" IsHitTestVisible="False" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibility}}"/>
+         </Grid>
+        </Button>
+       </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Button x:Name="ShanheConfirmRewardButton" Grid.Row="2" Content="确 定" Command="{Binding ConfirmShanheRewardCommand}" Style="{StaticResource PrimaryButton}" MinWidth="160" HorizontalAlignment="Center" VerticalAlignment="Center" AutomationProperties.Name="确认领取所选战后奖励"/>
+     </Grid>
+    </Border>
+    <Border x:Name="ShanheBossRewardOverlay" Background="#C4100E0A" Visibility="{Binding IsShanheBossRewardOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ReplacementUnderlay}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Grid Margin="37,40,37,35"><Grid.RowDefinitions><RowDefinition Height="105"/><RowDefinition Height="*"/><RowDefinition Height="105"/></Grid.RowDefinitions>
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="{Binding ShanheBossRewardTitle}" FontFamily="KaiTi" FontSize="44" Foreground="#FFE49B" TextAlignment="Center"><TextBlock.Effect><DropShadowEffect Color="#D18F24" BlurRadius="15" ShadowDepth="0" Opacity="0.7"/></TextBlock.Effect></TextBlock><TextBlock Text="铜币与技能槽已领取，请完成两项选择，再踏下一程。" Foreground="#C6B28E" FontSize="13" TextAlignment="Center" Margin="0,13,0,0"/></StackPanel>
+      <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border Style="{StaticResource BossRewardFrame}"><Border BorderBrush="#C4B89565" BorderThickness="1" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="78"/></Grid.RowDefinitions>
+        <Border Background="#98784C27" BorderBrush="#C1A06B" BorderThickness="0,0,0,2"><TextBlock Text="铜 币" Foreground="#FFF0BF" FontFamily="KaiTi" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+        <StackPanel Grid.Row="1" VerticalAlignment="Center"><Grid Width="115" Height="115" Margin="0,0,0,20"><Ellipse Stroke="#98713B" StrokeThickness="4"><Ellipse.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#F3D795"/><GradientStop Color="#C79A4A" Offset="0.5"/><GradientStop Color="#AC7834" Offset="1"/></LinearGradientBrush></Ellipse.Fill></Ellipse><Ellipse Margin="10" Stroke="#EED092" StrokeThickness="2"/><Rectangle Width="35" Height="35" Fill="#73502D" Stroke="#EAD090" StrokeThickness="3" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid><TextBlock Text="{Binding ShanheBossFixedGoldText}" Foreground="#674622" FontFamily="KaiTi" FontSize="36" TextAlignment="Center"/></StackPanel>
+        <StackPanel Grid.Row="2" VerticalAlignment="Center"><TextBlock Text="已 领 取" Foreground="#6F7042" FontFamily="KaiTi" FontSize="21" TextAlignment="Center"/><TextBlock Text="首领战固定奖励" Foreground="#91704B" FontSize="12" TextAlignment="Center" Margin="0,8,0,0"/></StackPanel>
+       </Grid></Border></Border>
+       <ItemsControl x:Name="ShanheBossRewardGroupRows" Grid.Column="1" ItemsSource="{Binding ShanheBossRewardGroups}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
+        <Button Style="{StaticResource BossRewardGroupButton}" Command="{Binding DataContext.OpenShanheBossRewardGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}"><Grid><Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="78"/></Grid.RowDefinitions>
+         <Border Style="{StaticResource BossRewardGroupTab}" BorderThickness="0,0,0,2" Padding="4,0"><TextBlock Text="{Binding Name}" Foreground="#FFF0BF" FontFamily="KaiTi" FontSize="24" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/></Border>
+         <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="16,0"><Grid Width="112" Height="112" Margin="0,0,0,22"><Rectangle Width="76" Height="98" Fill="#DDCFAC" Stroke="#9A7C54" StrokeThickness="3" RenderTransformOrigin="0.5,0.8"><Rectangle.RenderTransform><RotateTransform Angle="-14"/></Rectangle.RenderTransform></Rectangle><Rectangle Width="76" Height="98" Fill="#EADBB8" Stroke="#9A7C54" StrokeThickness="3" HorizontalAlignment="Right"/><TextBlock Text="择" FontFamily="KaiTi" Foreground="#8C6840" FontSize="45" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="14,0,0,0"/></Grid><TextBlock Text="{Binding SelectedName}" Foreground="#67462C" FontFamily="KaiTi" FontSize="29" TextWrapping="Wrap" TextAlignment="Center"/></StackPanel>
+         <TextBlock Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="KaiTi" FontSize="21"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="点 此 选 择"/><Setter Property="Foreground" Value="#8B3F2C"/><Style.Triggers><DataTrigger Binding="{Binding IsResolved}" Value="True"><Setter Property="Text" Value="已 领 取"/><Setter Property="Foreground" Value="#6F7042"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+        </Grid></Button>
+       </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+       <Border Grid.Column="2" Style="{StaticResource BossRewardFrame}" BorderBrush="#AA8ABD"><Border BorderBrush="#C4B89565" BorderThickness="1" Margin="4"><Grid><Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="78"/></Grid.RowDefinitions>
+        <Border Background="#886A477D" BorderBrush="#B394BF" BorderThickness="0,0,0,2"><TextBlock Text="技 能 槽" Foreground="#FFF0BF" FontFamily="KaiTi" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+        <StackPanel Grid.Row="1" VerticalAlignment="Center"><Border Width="108" Height="108" BorderBrush="#AB874F" BorderThickness="3" Background="#3F3427" Margin="0,0,0,26"><Border BorderBrush="#756041" BorderThickness="1" Margin="7"><TextBlock Text="＋" FontFamily="KaiTi" FontSize="63" Foreground="#E9D29B" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Border><TextBlock Text="{Binding ShanheBossSkillSlotsText}" Foreground="#674622" FontFamily="KaiTi" FontSize="34" TextAlignment="Center"/></StackPanel>
+        <StackPanel Grid.Row="2" VerticalAlignment="Center"><TextBlock Text="已 领 取" Foreground="#6F7042" FontFamily="KaiTi" FontSize="21" TextAlignment="Center"/><TextBlock Text="本次征程持续生效" Foreground="#91704B" FontSize="12" TextAlignment="Center" Margin="0,8,0,0"/></StackPanel>
+       </Grid></Border></Border>
+      </Grid>
+      <Button x:Name="ShanheConfirmBossRewardButton" Grid.Row="2" Content="{Binding ShanheBossRewardContinueText}" Command="{Binding ConfirmShanheBossRewardCommand}" Style="{StaticResource PrimaryButton}" MinWidth="215" HorizontalAlignment="Center" VerticalAlignment="Center" AutomationProperties.Name="确认首领奖励并继续征程"/>
+     </Grid>
+    </Border>
+    <Border x:Name="ShanheSkillReplacementOverlay" Background="#A8000000" Visibility="{Binding IsShanheSkillReplacementOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+     <Border Width="930" Height="535" BorderBrush="#A09B89" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1"><GradientStop Color="#494B47"/><GradientStop Color="#292B29" Offset="0.48"/><GradientStop Color="#343632" Offset="1"/></LinearGradientBrush></Border.Background>
+      <Grid>
+       <Image Source="/CardGame.Wpf;component/Assets/shanhe-desk.png" Stretch="Fill" Opacity="0.06" IsHitTestVisible="False"/>
+       <Border BorderBrush="#59726F60" BorderThickness="1" Margin="6" IsHitTestVisible="False"/>
+       <Grid Margin="32,23,32,22"><Grid.RowDefinitions><RowDefinition Height="51"/><RowDefinition Height="79"/><RowDefinition Height="39"/><RowDefinition Height="*"/><RowDefinition Height="72"/></Grid.RowDefinitions>
+        <TextBlock Text="替 换 技 能" Foreground="#E5DDC4" FontFamily="KaiTi" FontSize="32" TextAlignment="Center" VerticalAlignment="Center"/>
+        <Border Grid.Row="1" BorderBrush="#E5C574" BorderThickness="2" Background="#4A4535" Padding="22,11" MinWidth="230" MaxWidth="650" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="{Binding ShanheReplacementIncomingName}" Foreground="#F6D887" FontFamily="KaiTi" FontSize="29" TextWrapping="Wrap" TextAlignment="Center"/></Border>
+        <TextBlock Grid.Row="2" Text="技能槽已满，请选择一项额外技能替换。自带技能不可替换。" Foreground="#C4BCA7" FontSize="14" TextAlignment="Center" VerticalAlignment="Center"/>
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,6,0,0">
+         <ItemsControl x:Name="ShanheSkillReplacementRows" ItemsSource="{Binding ShanheSkillReplacementOptions}" HorizontalAlignment="Center"><ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
+          <Button Width="196" Height="73" Margin="6" Style="{StaticResource ReplacementSkillButton}" IsEnabled="{Binding IsEnabled}" Command="{Binding DataContext.SelectShanheSkillReplacementCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}">
+           <Button.ToolTip><TextBlock Text="{Binding Description}" TextWrapping="Wrap" MaxWidth="360"/></Button.ToolTip>
+           <StackPanel><StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Margin="0,0,7,0" VerticalAlignment="Center" Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibility}}"/><TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="25" TextTrimming="CharacterEllipsis" MaxWidth="157"/></StackPanel><TextBlock FontSize="10" TextAlignment="Center" Margin="0,5,0,0"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="可替换"/><Setter Property="Foreground" Value="#A99F87"/><Style.Triggers><DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter Property="Text" Value="已选择"/><Setter Property="Foreground" Value="#E2C783"/></DataTrigger><DataTrigger Binding="{Binding IsLocked}" Value="True"><Setter Property="Text" Value="自带 · 不可替换"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel>
+          </Button>
+         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </ScrollViewer>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"><Button x:Name="ShanheConfirmSkillReplacementButton" Content="确 定" Command="{Binding ConfirmShanheSkillReplacementCommand}" Style="{StaticResource PrimaryButton}" MinWidth="150" FontSize="24" Padding="20,8"/><Button x:Name="ShanheCancelSkillReplacementButton" Content="取 消" Command="{Binding CancelShanheSkillReplacementCommand}" Style="{StaticResource CampaignButton}" MinWidth="130" FontFamily="KaiTi" FontSize="23" Background="#333630" Padding="20,8" Margin="22,0,0,0"/></StackPanel>
+       </Grid>
+       <Button x:Name="ShanheSkillReplacementCloseButton" Content="×" Command="{Binding CancelShanheSkillReplacementCommand}" Style="{StaticResource QuietCampaignButton}" FontSize="24" Padding="6,0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,11,0" Background="#292B27" AutomationProperties.Name="取消技能替换并返回"/>
+      </Grid>
+     </Border>
+    </Border>
+    <controls:ShanheSettlementPanel x:Name="ShanheSettlementHost" Grid.RowSpan="3" Visibility="{Binding IsShanheSettlementOpen, Converter={StaticResource BoolToVisibility}}"/>
+ </Grid>
+</UserControl>

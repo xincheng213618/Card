@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-tuxi-722", "revision": 1,
+      "triggers": [
+        {
+          "id": "reduce-planned-draw-and-take-hands", "window": "drawPhaseStarting", "subject": "owner",
+          "optional": true, "priority": -100, "drawPhaseMode": "additive",
+          "effects": [
+            {
+              "op": "selectTargets", "target": "owner", "targetKind": "otherLivingWithHand",
+              "minimumTargets": 1, "maximumTargets": 8, "numberExpression": "plannedNormalDrawCount",
+              "targetAiOrder": "hostileThenHandCount"
+            },
+            { "op": "adjustNormalDraw", "target": "owner", "numberExpression": "selectedTargetCount" },
+            { "op": "takeRandomHandCardFromSelectedTargets", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

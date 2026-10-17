@@ -8,6 +8,8 @@ public sealed partial class GameEngine
         int PhaseActor, ActualDiscardRecoveryPhaseKey? Phase, long? Parent, CardConversionSource? Producer,
         CardMoveReason Reason, long Before)
     {
+        public GameStartingDrawOrigin? GameStartingOrigin { get; init; }
+        public GameStartingMovementDrawOrigin? GameStartingMovementOrigin { get; init; }
         private readonly IReadOnlyList<ZhanjiDrawEntitlement>? _zhanjiEntitlements;
         public IReadOnlyList<ZhanjiDrawEntitlement>? ZhanjiEntitlements
         { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
@@ -34,13 +36,19 @@ public sealed partial class GameEngine
         CardConversionSource? directProducer)
     {
         if (!TracksNativeDrawInvocations || !_setupComplete || requested <= 0 || reason == CardMoveReasons.InitialDeal ||
-            _turnNumber < 1 || !IsValidPlayerSeat(owner) || !IsValidPlayerSeat(_turnProgression.OwnerSeat) ||
+            _turnNumber < 0 || !IsValidPlayerSeat(owner) || !IsValidPlayerSeat(_turnProgression.OwnerSeat) ||
             _winner != Winner.None || _status == EngineStatus.Completed) return null;
+        GameStartingMovementDrawOrigin? movementOrigin = null;
+        var starting = _turnNumber == 0 ? CaptureGameStartingDrawOrigin(owner, requested, reason, directProducer, out movementOrigin) : null;
+        if (_turnNumber == 0 && starting is null && movementOrigin is null) return null;
         var phase = CurrentActualDiscardRecoveryPhase();
         var draft = new NativeDrawInvocationDraft(++_resolutionSequence, owner, requested, _turnNumber, _turnProgression.OwnerSeat,
             phase?.ActorSeat ?? _currentSeat, phase, _resolutionStack.LastOrDefault()?.Id, directProducer, reason,
             OutsidePhaseMovementSequence);
-        return draft with { ZhanjiEntitlements = CaptureZhanjiDrawEntitlements(draft.Id, owner, draft.Before) };
+        if ((starting?.OutsideDrawChild ?? movementOrigin?.DrawChild) is { } child)
+            AdvanceEventRulesAndQueueFact(new GameStartingDrawChildRequestedEvent(draft.Id, child));
+        return draft with { GameStartingOrigin = starting, GameStartingMovementOrigin = movementOrigin,
+            ZhanjiEntitlements = CaptureZhanjiDrawEntitlements(draft.Id, owner, draft.Before) };
     }
     private void CompleteNativeDrawInvocation(NativeDrawInvocationDraft? draft, IReadOnlyList<int> actualIds)
     {
@@ -62,12 +70,13 @@ public sealed partial class GameEngine
             RequestedCount = draft.Requested, ActualTurnNumber = draft.Turn, ActualTurnOwnerSeat = draft.TurnOwner,
             PhaseActorSeat = draft.PhaseActor, Phase = draft.Phase, ParentFrameId = draft.Parent,
             DirectProducer = draft.Producer, Reason = draft.Reason, SequenceBefore = draft.Before, SequenceAfter = after,
-            LastBatchId = _pendingCardsMovedBatches[index].Id, Materials = materials, ZhanjiEntitlements = draft.ZhanjiEntitlements };
+            LastBatchId = _pendingCardsMovedBatches[index].Id, Materials = materials, ZhanjiEntitlements = draft.ZhanjiEntitlements,
+            GameStartingOrigin = draft.GameStartingOrigin, GameStartingMovementOrigin = draft.GameStartingMovementOrigin };
         _pendingCardsMovedBatches[index] = _pendingCardsMovedBatches[index] with { NativeDrawInvocation = proof };
         AdvanceEventRulesAndQueueFact(new NativeDrawInvocationRecordedEvent(proof.InvocationId, proof.OwnerSeat,
             proof.RequestedCount, proof.ActualCount, proof.ActualTurnNumber, proof.ActualTurnOwnerSeat, proof.PhaseActorSeat,
             proof.Phase, proof.ParentFrameId, proof.DirectProducer, proof.Reason, proof.SequenceBefore, proof.SequenceAfter,
-            proof.LastBatchId));
+            proof.LastBatchId) { GameStartingOrigin = proof.GameStartingOrigin, GameStartingMovementOrigin = proof.GameStartingMovementOrigin });
         CompleteSanwenNativeDrawQualification(proof);
         CompleteTangTangNativeDrawQualification(proof);
         CompleteLingkongNativeDrawQualification(proof);
@@ -76,7 +85,8 @@ public sealed partial class GameEngine
     private bool ValidNativeDrawInvocation(NativeDrawInvocationProof p)
     {
         if (p.InvocationId <= 0 || !IsValidPlayerSeat(p.OwnerSeat) || !IsValidPlayerSeat(p.ActualTurnOwnerSeat) ||
-            !IsValidPlayerSeat(p.PhaseActorSeat) || p.ActualTurnNumber < 1 || p.ActualCount < 1 ||
+            !IsValidPlayerSeat(p.PhaseActorSeat) || p.ActualTurnNumber < 0 || p.ActualCount < 1 ||
+            (p.ActualTurnNumber == 0 ? !ValidGameStartingDrawProvenance(p) : p.GameStartingOrigin is not null || p.GameStartingMovementOrigin is not null) ||
             p.RequestedCount < p.ActualCount || p.Reason == CardMoveReasons.InitialDeal || p.LastBatchId <= 0 ||
             p.SequenceBefore < 0 || p.SequenceAfter <= p.SequenceBefore || p.SequenceAfter > OutsidePhaseMovementSequence ||
             p.Materials.Select(m => m.CardId).Distinct().Count() != p.ActualCount ||
@@ -90,6 +100,8 @@ public sealed partial class GameEngine
             fact.ActualCount != p.ActualCount || fact.TurnNumber != p.ActualTurnNumber ||
             fact.ActualTurnOwnerSeat != p.ActualTurnOwnerSeat || fact.PhaseActorSeat != p.PhaseActorSeat || fact.Phase != p.Phase ||
             fact.ParentFrameId != p.ParentFrameId || fact.DirectProducer != p.DirectProducer || fact.Reason != p.Reason ||
+            fact.GameStartingOrigin != p.GameStartingOrigin ||
+            !SameGameStartingMovementDrawOrigin(fact.GameStartingMovementOrigin, p.GameStartingMovementOrigin) ||
             fact.SequenceBefore != p.SequenceBefore || fact.SequenceAfter != p.SequenceAfter || fact.LastBatchId != p.LastBatchId) return false;
         var actual = _cardMovements.Where(m => m.Sequence > p.SequenceBefore && m.Sequence <= p.SequenceAfter &&
             m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(p.OwnerSeat) && m.Reason == p.Reason)

@@ -229,6 +229,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeFrame(parent.Id, parent with { PendingRecoveryAttempts =
                 Array.AsReadOnly((parent.PendingRecoveryAttempts ?? []).Append(request).ToArray()) });
         }
+        RecordProgramRecoveryRequest(parent, request);
         return true;
     }
 

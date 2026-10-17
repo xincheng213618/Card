@@ -16,6 +16,8 @@ public static partial class GeneralArt
             ["hulao:lvbu-myth"] = "shen-lu-bu",
             ["hulao:lvbu-rage"] = "shen-lu-bu",
             ["hulao:lvbu-demon"] = "shen-lu-bu",
+            ["shanhe:lvbu-shengui-2026"] = "shen-lu-bu",
+            ["shanhe:s5-zhangliao-base"] = "zhang-liao",
             ["shenwu:hundun"] = "shenwu-hundun",
             ["shenwu:qiongqi"] = "shenwu-qiongqi",
             ["shenwu:taowu"] = "shenwu-taowu",

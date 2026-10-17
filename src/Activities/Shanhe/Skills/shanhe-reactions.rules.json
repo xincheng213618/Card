@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:fanci",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-damage-each-actual-turn",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "selectAllPublicTeamTargets", "target": "owner", "targetKind": "publicTeamEnemies", "allowEmpty": true },
+            { "op": "damageParticipants", "target": "selectedTargets", "amount": 1, "nature": "normal" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:xueren",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-enemy-after-real-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "hpChangeOccurrence": "perEvent",
+          "optional": false,
+          "effects": [
+            { "op": "selectRandomPublicTeamTarget", "target": "owner", "targetKind": "publicTeamEnemies", "allowEmpty": true },
+            { "op": "damageParticipants", "target": "selectedTargets", "amount": 1, "nature": "normal" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:shixue-1",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-after-real-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "hpChangeOccurrence": "perEvent",
+          "optional": false,
+          "effects": [ { "op": "draw", "target": "owner", "amount": 1 } ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:zengshou-1",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initialize-empty-maximum",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [ { "op": "changeMaximumHp", "target": "owner", "amount": 1 } ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:zengshou-2",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initialize-empty-maximum",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [ { "op": "changeMaximumHp", "target": "owner", "amount": 2 } ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+<UserControl x:Class="CardGame.Wpf.Controls.ShanheShopPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" FontFamily="Microsoft YaHei UI" UseLayoutRounding="True">
+ <UserControl.Resources>
+  <BooleanToVisibilityConverter x:Key="VisibleWhen"/>
+  <ImageBrush x:Key="Parchment" ImageSource="/CardGame.Wpf;component/Assets/shanhe-codex-book.png" Viewbox="0.38,0.06,0.56,0.82" ViewboxUnits="RelativeToBoundingBox" Stretch="Fill"/>
+  <Style x:Key="TradeButton" TargetType="Button">
+   <Setter Property="Background" Value="#8C3027"/><Setter Property="Foreground" Value="#FFF1D2"/><Setter Property="BorderBrush" Value="#BA9755"/><Setter Property="Padding" Value="14,6"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="2"><Border BorderBrush="#655327" BorderThickness="1" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="Background" Value="#AA4433"/><Setter TargetName="Frame" Property="BorderBrush" Value="#F4D68E"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFEBC1"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Frame" Property="Background" Value="#514536"/><Setter TargetName="Frame" Property="Opacity" Value="0.65"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ScrollBar">
+   <Setter Property="Height" Value="9"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Grid Background="#32271D"><Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}"><Track.Thumb><Thumb MinWidth="35"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="#977644" CornerRadius="2" Margin="1"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb></Track></Grid></ControlTemplate></Setter.Value></Setter>
+  </Style>
+ </UserControl.Resources>
+ <Viewbox Stretch="Uniform"><Grid Width="1050" Height="535" ClipToBounds="True">
+  <Image Source="/CardGame.Wpf;component/Assets/shanhe-desk.png" Stretch="Fill"/>
+  <Border Background="#E61D1A15" BorderBrush="#9F7F4A" BorderThickness="1"/>
+  <Grid Margin="18,16,18,12"><Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Grid><Grid.RowDefinitions><RowDefinition Height="139"/><RowDefinition Height="*"/><RowDefinition Height="80"/></Grid.RowDefinitions>
+    <TextBlock Text="集&#x0a;市" FontFamily="KaiTi" Foreground="#EAC777" FontSize="49" LineHeight="59" TextAlignment="Center" Margin="0,4,6,0"><TextBlock.Effect><DropShadowEffect Color="#A58138" ShadowDepth="0" BlurRadius="12" Opacity="0.3"/></TextBlock.Effect></TextBlock>
+    <ListBox Grid.Row="1" x:Name="MarketCategories" ItemsSource="{Binding ShanheMarketCategories}" SelectedItem="{Binding SelectedShanheMarketCategory}" Background="Transparent" BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0">
+     <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="#CBB78D"/><Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="CategoryFrame" Background="#382B20" BorderBrush="#74603E" BorderThickness="1" Padding="8,7" Margin="0,0,14,9"><ContentPresenter HorizontalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="CategoryFrame" Property="Background" Value="#CEB374"/><Setter Property="Foreground" Value="#40301E"/><Setter TargetName="CategoryFrame" Property="BorderBrush" Value="#ECD392"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="CategoryFrame" Property="BorderThickness" Value="2"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter><Setter Property="FontFamily" Value="KaiTi"/><Setter Property="FontSize" Value="21"/></Style></ListBox.ItemContainerStyle>
+    </ListBox>
+    <StackPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="0,0,10,0"><TextBlock Text="{Binding ShanheMarketRefreshRemaining}" Foreground="#BBA370" FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,6"/><Button Content="{Binding ShanheMarketRefreshText}" Command="{Binding RefreshShanheMarketCommand}" Style="{StaticResource TradeButton}" FontSize="10" Padding="2,6" Background="#3A3023"/></StackPanel>
+   </Grid>
+   <Grid Grid.Column="1"><Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/><RowDefinition Height="49"/></Grid.RowDefinitions>
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="178"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{Binding ShanheMarketCategoryNotice}" Foreground="#CDBB8F" FontSize="12" TextWrapping="Wrap" Margin="0,0,10,7"/><TextBlock Text="{Binding ShanheShopNotice}" Foreground="#9E8C6C" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/></StackPanel><Border Grid.Column="1" Background="#171612" BorderBrush="#786542" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="12,6"><TextBlock Text="{Binding ShanheGoldText}" Foreground="#E8C77D" FontSize="16"/></Border></Grid>
+    <Border Grid.Row="1" BorderBrush="#9E7B43" BorderThickness="1,2,1,2" Background="#352A2119" Padding="11,12,7,9">
+     <Grid>
+      <TextBlock Text="此分类暂无货品，可切换分类或刷新集市。" Foreground="#B8A17A" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ShanheMarketHasGoods}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+      <ScrollViewer x:Name="MarketCardsScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly">
+       <ItemsControl ItemsSource="{Binding ShanheMarketGoods}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
+        <Grid Width="258" Margin="0,0,18,4"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="60"/></Grid.RowDefinitions>
+         <Border Background="{StaticResource Parchment}" BorderBrush="{Binding Accent}" BorderThickness="4" Margin="0,7,0,0" Padding="10,12,10,10">
+          <Grid><Grid.RowDefinitions><RowDefinition Height="24"/><RowDefinition Height="116"/><RowDefinition Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+           <Border Background="{Binding Accent}" BorderBrush="#D9BC86" BorderThickness="1" Margin="12,-24,12,3" Padding="4,4"><TextBlock Text="{Binding MarketCategory}" Foreground="#FFF1CE" FontFamily="KaiTi" FontWeight="Bold" FontSize="20" TextAlignment="Center"/></Border>
+           <Grid Grid.Row="1">
+            <Rectangle Width="78" Height="78" Stroke="#D2B585" StrokeThickness="1" RenderTransformOrigin="0.5,0.5"><Rectangle.RenderTransform><RotateTransform Angle="45"/></Rectangle.RenderTransform></Rectangle>
+            <Grid Width="90" Height="90"><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding HasCardImage}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Grid.Style><Ellipse Stroke="{Binding Accent}" StrokeThickness="5"><Ellipse.Fill><RadialGradientBrush GradientOrigin=".3,.2"><GradientStop Color="#786248"/><GradientStop Color="#272A25" Offset="1"/></RadialGradientBrush></Ellipse.Fill></Ellipse><Ellipse Stroke="#D3B16A" StrokeThickness="1" Margin="7"/><TextBlock Text="{Binding Glyph}" Foreground="#EED5A3" FontFamily="KaiTi" FontSize="27" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
+            <Image Source="{Binding TacticImage}" Width="84" Height="84" Stretch="Uniform"><Image.Clip><EllipseGeometry Center="42,42" RadiusX="42" RadiusY="42"/></Image.Clip></Image>
+            <Viewbox Width="72" Height="104" Stretch="Fill" Visibility="{Binding HasCardImage, Converter={StaticResource VisibleWhen}}"><Grid Width="186" Height="260"><Image Source="{Binding CardImage}" Stretch="Fill"/><StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3,7,0,0"><Image Source="{Binding RankArtwork}" Width="34" Height="31" Stretch="Uniform"/><Image Source="{Binding SuitArtwork}" Width="34" Height="31" Stretch="Uniform"/></StackPanel></Grid></Viewbox>
+           </Grid>
+           <Border Grid.Row="2" Background="{Binding Accent}" BorderBrush="#D8BD8D" BorderThickness="1" Margin="4,5,4,5" Padding="2"><TextBlock Text="{Binding DisplayName}" FontFamily="KaiTi" FontSize="20" TextAlignment="Center" Foreground="#F8E6BC" TextTrimming="CharacterEllipsis"/></Border>
+           <TextBlock Grid.Row="3" Text="{Binding Description}" Foreground="#75573A" FontSize="12" LineHeight="20" TextWrapping="Wrap" Margin="11,8" ToolTip="{Binding RuleDescription}"/>
+          </Grid>
+         </Border>
+         <Button Grid.Row="1" Style="{StaticResource TradeButton}" IsEnabled="{Binding CanBuy}" Command="{Binding DataContext.RequestShanheShopPurchaseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Center" MinWidth="153" Margin="0,7,0,0" Padding="15,3">
+          <StackPanel><TextBlock Text="{Binding PriceText}" FontSize="17" FontWeight="SemiBold" TextAlignment="Center"/><TextBlock Text="{Binding Status}" FontSize="9" Foreground="#D8C29A" TextAlignment="Center"/></StackPanel>
+         </Button>
+        </Grid>
+       </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+      </ScrollViewer>
+     </Grid>
+    </Border>
+    <Grid Grid.Row="2"><TextBlock Text="{Binding ShanheMarketSurchargeNotice}" Foreground="#B39A6F" FontSize="11" VerticalAlignment="Center" MaxWidth="610" TextWrapping="Wrap" HorizontalAlignment="Left"/><ItemsControl ItemsSource="{Binding ShanheShopActions}" HorizontalAlignment="Right" VerticalAlignment="Center"><ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChooseShanheOptionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource TradeButton}" Padding="12,5"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></Grid>
+   </Grid>
+  </Grid>
+ </Grid></Viewbox>
+</UserControl>

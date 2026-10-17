@@ -43,7 +43,8 @@ internal abstract class ParticipantReserveDescriptor : ProgramOperationDescripto
             booleanValue: r.Has("prevent") ? r.RequiredBool("prevent") : null);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        effect.TargetKind is null ? WithSelectedTarget(effect) : [];
+        effect.Op == SkillProgramEffectOp.DamageParticipants && effect.Target == SkillProgramEffectTarget.SelectedTargets
+            ? [new ReadTargetSet(0)] : effect.TargetKind is null ? WithSelectedTarget(effect) : [];
 }
 internal sealed class DamageParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DamageParticipants; }
 internal sealed class LoseHpParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpParticipants; }

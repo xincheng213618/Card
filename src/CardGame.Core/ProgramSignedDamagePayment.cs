@@ -22,7 +22,13 @@ public sealed record ProgramSignedDamagePaymentReceipt(int InstructionIndex, lon
     long CostMovementSequence = 0, int? FinalAmount = null, bool Cancelled = false);
 // The base is frozen only for an actual elemental propagation. Each recipient
 // reads that base; local adjustments never overwrite the propagation amount.
-public sealed record RecipientScopedDamageState(int FirstTargetSeat, int CurrentTargetSeat, int PropagationBaseAmount);
+public sealed record RecipientScopedDamageState(int FirstTargetSeat, int CurrentTargetSeat, int PropagationBaseAmount)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramUseInstructionIndex { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool PublicEnemyObserver { get; init; }
+}
 public sealed record ProgramSignedDamageOfferedEvent(long ProgramFrameId, long BeforeDamageFrameId,
     long OriginalAttackFrameId, int OwnerSeat, int SourceSeat, int TargetSeat, DamageNature Nature,
     int Amount, int Delta, int OwnerHp, int OtherHp, bool WaiveHp, bool AnyColor, bool AllowEquipment,
@@ -34,8 +40,18 @@ public sealed record ProgramSignedDamagePaidEvent(long ProgramFrameId, long Befo
 public sealed record ProgramSignedDamageAdjustedEvent(long ProgramFrameId, long BeforeDamageFrameId,
     long OriginalAttackFrameId, int SourceSeat, int TargetSeat, int BeforeAmount, int AfterAmount,
     int Delta, bool Cancelled) : IGameEvent;
-public sealed record RecipientScopedDamageBaseEvent(long AttackFrameId, int FirstTargetSeat, int Amount) : IGameEvent;
-public sealed record RecipientScopedDamageAdvancedEvent(long AttackFrameId, int FromSeat, int TargetSeat, int Amount) : IGameEvent;
+public sealed record RecipientScopedDamageBaseEvent(long AttackFrameId, int FirstTargetSeat, int Amount) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramUseInstructionIndex { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool PublicEnemyObserver { get; init; }
+}
+public sealed record RecipientScopedDamageAdvancedEvent(long AttackFrameId, int FromSeat, int TargetSeat, int Amount) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramUseInstructionIndex { get; init; }
+}
 
 internal interface ISignedDamagePaymentHost
 {

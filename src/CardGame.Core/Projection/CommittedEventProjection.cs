@@ -26,6 +26,8 @@ internal static class CommittedEventProjection
 
     private static RoundGainedUseQualification FreezeRoundQualification(RoundGainedUseQualification value) =>
         value with { MaterialGains = FreezeList(value.MaterialGains) };
+    private static GameStartingNativeMovementOrigin FreezeGameStartingMovement(GameStartingNativeMovementOrigin value) =>
+        value with { Materials = FreezeList(value.Materials) };
     private static RicePileReceipt FreezeRiceReceipt(RicePileReceipt value) => value with
     { Selected = FreezeList(value.Selected), CardIds = FreezeList(value.CardIds), From = FreezeList(value.From),
         Choices = Array.AsReadOnly(value.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) };
@@ -48,6 +50,9 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        GameStartingNativeMovementRecordedEvent value => value with { Origin = FreezeGameStartingMovement(value.Origin) },
+        NativeDrawInvocationRecordedEvent { GameStartingMovementOrigin: { } origin } value => value with
+            { GameStartingMovementOrigin = origin with { MovementRoot = FreezeGameStartingMovement(origin.MovementRoot) } },
         ShenwuSharedGodCandidatesEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
         NianFormCycleStartedEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
         // CardActionContext detaches all nested collections at construction;

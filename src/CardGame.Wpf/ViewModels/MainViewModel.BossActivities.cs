@@ -17,7 +17,9 @@ public sealed partial class MainViewModel
     private bool IsBossActivitySnapshot => CurrentModeDefinition?.BossActivity is not null;
 
     private static IReadOnlyList<StartingTeamOption> StartingTeamsFor(ContentModeDefinition? mode) =>
-        mode?.GuanduActivity is not null ? GuanduStartingTeams : mode?.DragonBoatActivity is not null ? DragonBoatStartingTeams : mode?.ShenwuActivity is { } shenwu
+        mode?.Id == "campaign:shanhe-battle"
+            ? [new("义军", "team:shanhe-player", "从山河图地图出征；当前节点决定实际敌军与友军人数")]
+        : mode?.GuanduActivity is not null ? GuanduStartingTeams : mode?.DragonBoatActivity is not null ? DragonBoatStartingTeams : mode?.ShenwuActivity is { } shenwu
             ? [new("联合军", shenwu.PlayerTeamId, "你与两名人机搭档挑战凶兽首领和两名烛阴")]
             : mode?.BossActivity is { } boss
             ? [new("联合军", boss.PlayerTeamId, mode.HellActivity is not null

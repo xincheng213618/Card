@@ -9,12 +9,14 @@ public sealed partial class GameEngine
     private void ObserveProgramHealthChange(IGameEvent payload)
     {
         if (payload is DamageAppliedEvent paidDamage)
-            ObserveDongBaiHpDecreased(paidDamage.TargetSeat,_players[paidDamage.TargetSeat].Hp + paidDamage.Amount,_players[paidDamage.TargetSeat].Hp);
+            ObserveDongBaiHpDecreased(paidDamage.TargetSeat,
+                paidDamage.ArmorPayment?.HpBefore ?? _players[paidDamage.TargetSeat].Hp + paidDamage.Amount,
+                paidDamage.ArmorPayment?.HpAfter ?? _players[paidDamage.TargetSeat].Hp);
         else if (payload is MaximumHpChangedEvent { HpBeforeClamp: { } clampBefore } clamp)
             ObserveDongBaiHpDecreased(clamp.PlayerSeat,clampBefore,_players[clamp.PlayerSeat].Hp);
         var changed = payload switch
         {
-            DamageAppliedEvent damage => (damage.TargetSeat, HpChangeKind.Damage, damage.Amount),
+            DamageAppliedEvent damage => (damage.TargetSeat, HpChangeKind.Damage, damage.ArmorPayment?.ActualHpLost ?? damage.Amount),
             MaximumHpChangedEvent maximum => (maximum.PlayerSeat, HpChangeKind.MaximumHp, Math.Abs(maximum.Delta)),
             _ => (-1, HpChangeKind.Damage, 0)
         };
@@ -23,10 +25,11 @@ public sealed partial class GameEngine
              !HasQimeiHealthSubject(changed.Item1) && !HasWenyiHealthSubject(changed.Item1))) return;
         var owner = _players[changed.Item1];
         var healthOwner = GrantedEntityTrailerHealthOwner(payload) ?? _resolutionStack.LastOrDefault()?.Id;
-        var before = payload is DamageAppliedEvent ? owner.Hp + changed.Item3 :
+        var before = payload is DamageAppliedEvent damagePaid ? damagePaid.ArmorPayment?.HpBefore ?? owner.Hp + changed.Item3 :
             payload is MaximumHpChangedEvent { HpBeforeClamp: { } beforeClamp } ? beforeClamp : owner.Hp;
+        var after = payload is DamageAppliedEvent { ArmorPayment: { } payment } ? payment.HpAfter : owner.Hp;
         var change = new HpChangeContext(++_resolutionSequence, healthOwner, null, owner.Seat,
-            changed.Item2, changed.Item3, before, owner.Hp);
+            changed.Item2, changed.Item3, before, after);
         _pendingHpChanges.Add(change);
         CaptureQimeiHpQualification(change);
     }
@@ -34,7 +37,7 @@ public sealed partial class GameEngine
     private bool ApplyAttackAsHpLoss(IDamageAttempt attack)
     {
         var target = _players[attack.TargetSeat];
-        var amount = attack.DamageAmount;
+        var amount = CalculateCardDamageLayer(attack);
         if (TryBeginIdentityAppearanceForDamage(attack, amount)) return true;
         var before = target.Hp;
         target.Hp -= amount;

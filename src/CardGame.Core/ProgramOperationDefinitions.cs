@@ -8,6 +8,7 @@ namespace CardGame.Core;
 internal enum ProgramOperationInteraction { Automatic, Choice }
 internal enum ProgramOperationAiSemantic
 {
+    GrantArmor = 27610,
     IssuePlayUsePolicy=1340,
     GainCards=0, Recover, LoseHp, Reveal, Filter, Subset, Move, Gift, SelectTarget,
     TurnOver, SetFaceState, GiveSelected, DiscardSelected,
@@ -435,7 +436,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
                  SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or SkillProgramNumberExpression.ActualTurnDeathBenefits or
                  SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne or
-                 SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne)))
+                 SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne or SkillProgramNumberExpression.OwnerMaxHp)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression is SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.PhaseSkillUsage) != (source is not null))
@@ -465,6 +466,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression == SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: equipment half-count draw requires the owner and no binding or replacement filter.");
+        if (expression == SkillProgramNumberExpression.OwnerMaxHp &&
+            (target != SkillProgramEffectTarget.Owner || targetRef is not null || replacementSuits.Count != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: maximum-HP draw requires the owner and no participant or replacement filter.");
         if (expression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn type-count draw requires the owner and no card binding or replacement filter.");

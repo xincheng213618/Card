@@ -107,7 +107,7 @@ public sealed partial class MainViewModel
     private bool IsActivitySnapshot => CurrentModeDefinition is { } current && IsActivityDefinition(current);
     private string ActivityDisplayName => CurrentModeDefinition!.Name;
     private string PublicTeamName(string id) => IsDragonBoatActivitySnapshot ? DragonBoatTeamName(id) : id switch
-    { "team:cao" => "曹操军", "team:yuan" => "袁绍军", "team:wei" => "魏军", "team:shu" => "蜀军", "team:allies" => "联合军", "team:boss" => BossActivityEnemyLabel, "team:beasts" => "凶兽", "team:nian" => "年兽", "team:hell" => "阎罗", "team:blue" => "青队", "team:red" => "赤队", _ => id };
+    { "team:shanhe-player" => "义军", "team:shanhe-enemy" => "敌军", "team:cao" => "曹操军", "team:yuan" => "袁绍军", "team:wei" => "魏军", "team:shu" => "蜀军", "team:allies" => "联合军", "team:boss" => BossActivityEnemyLabel, "team:beasts" => "凶兽", "team:nian" => "年兽", "team:hell" => "阎罗", "team:blue" => "青队", "team:red" => "赤队", _ => id };
     public bool IsIdentityModeSelection => !IsTeamModeSelection && !IsNationalModeSelection && !IsWenheActivityModeSelection;
     public bool IsClassicIdentityModeSelection =>
         SelectedTableMode?.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) == true;
@@ -142,9 +142,9 @@ public sealed partial class MainViewModel
     public ICommand OpenLobbyCategoryCommand { get; private set; } = null!;
     public ICommand BackToLobbyCommand { get; private set; } = null!;
     public bool IsIdentityRevealOpen { get => _isIdentityRevealOpen; private set => SetProperty(ref _isIdentityRevealOpen, value); }
-    public string IdentityRevealTitle => IsWenheActivitySnapshot ? "各 自 求 生" : IsNationalSnapshot ? "势 力 揭 示" : IsTeamSnapshot ? "阵 营 揭 示" : "身 份 揭 示";
+    public string IdentityRevealTitle => IsShanheBattleSession ? "义 军 出 征" : IsWenheActivitySnapshot ? "各 自 求 生" : IsNationalSnapshot ? "势 力 揭 示" : IsTeamSnapshot ? "阵 营 揭 示" : "身 份 揭 示";
     public string IdentityRevealRole => HumanPlayer?.RoleLabel ?? "未知";
-    public string IdentityRevealRoster => IsGuanduActivitySnapshot ? GuanduRosterText : IsDragonBoatActivitySnapshot ? DragonBoatActivityRosterText : IsWenheActivitySnapshot ? "八名独立求生者 · 七名AI对手 · 玩家默认五阶" : IsNationalSnapshot
+    public string IdentityRevealRoster => IsShanheBattleSession ? ShanheBattleRosterText : IsGuanduActivitySnapshot ? GuanduRosterText : IsDragonBoatActivitySnapshot ? DragonBoatActivityRosterText : IsWenheActivitySnapshot ? "八名独立求生者 · 七名AI对手 · 玩家默认五阶" : IsNationalSnapshot
         ? NationalSetupText
         : IsHellActivitySnapshot ? HellActivityRosterText
         : IsNianActivitySnapshot ? "联合军三席 · 两名人机搭档 · 逐轮轮换四态年兽"
@@ -158,6 +158,7 @@ public sealed partial class MainViewModel
                 : "主公 1 · 忠臣 2 · 反贼 4 · 内奸 1";
     public string TableModeText => IsTutorialActive
         ? "新手演练 · 四步基础操作"
+        : IsShanheBattleSession ? $"山河图 · {ShanheBattleNodeName} · 单人征程"
         : IsGuanduActivitySnapshot ? $"{ActivityDisplayName} · {GuanduRoundText} · 本地五阶"
         : IsDragonBoatActivitySnapshot ? $"{ActivityDisplayName} · {DragonBoatRoundText} · 五阶"
         : IsWenheActivitySnapshot ? $"{ActivityDisplayName} · {WenheRoundText} · 五阶"
@@ -173,6 +174,7 @@ public sealed partial class MainViewModel
             : $"{(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份 · 本地对战";
     public string WindowTitle => IsNewGameSetupOpen ? "群雄逐鹿 · 游戏大厅" : IsTutorialActive
         ? $"群雄逐鹿 · 新手演练 {TutorialProgress}"
+        : IsShanheBattleSession ? $"群雄逐鹿 · 山河图 · {ShanheBattleNodeName}"
         : IsActivitySnapshot ? $"群雄逐鹿 · {ActivityDisplayName}"
         : IsNationalSnapshot ? $"群雄逐鹿 · {NationalModeDisplayName}"
         : IsDualIdentitySnapshot ? "群雄逐鹿 · 八人身份·双将牌局"
@@ -188,6 +190,7 @@ public sealed partial class MainViewModel
         get
         {
             if (GeneralSelectionViewer is not { } viewer) return string.Empty;
+            if (IsShanheBattleSession) return $"山河图 · {ShanheBattleNodeName}";
             if (IsWenheActivitySnapshot) return "独立求生 · 选择你的武将";
             if (IsNationalSnapshot) return $"你的势力 · {FactionName(viewer.FactionId)}";
             var role = viewer.TeamId is { } team ? PublicTeamName(team) : viewer.Role is { } visibleRole ? GetRoleName(visibleRole) : "未揭示";
@@ -199,6 +202,7 @@ public sealed partial class MainViewModel
         get
         {
             if (GeneralSelectionViewer is not { } viewer) return string.Empty;
+            if (IsShanheBattleSession) return ShanheBattleRosterText;
             if (IsNationalSnapshot)
                 return viewer.GeneralId.Length == 0
                     ? "选择主将 · 双将同势力，暗置入场"
@@ -231,6 +235,7 @@ public sealed partial class MainViewModel
     {
         get
         {
+            if (IsShanheBattleSession) return $"{ShanheBattleNodeName} · {ShanheBattleRosterText}";
             if (IsNationalSnapshot) return NationalSelectionSubtitle;
             if (IsDualIdentitySnapshot)
                 return $"你是{HumanPlayer?.RoleLabel} · 全员双将 · 两将体力平均向下取整，主公 +1";
@@ -249,7 +254,7 @@ public sealed partial class MainViewModel
                 : $"你是{HumanPlayer?.RoleLabel} · 主公：{lord.GeneralName} · 选择一位武将";
         }
     }
-    public string GeneralSelectionFooter => IsDragonBoatActivitySnapshot ? "你与队友的六名候选互相可见 · 其他船候选与所有队友手牌保持私密" : IsWenheActivitySnapshot ? "候选仅对你可见 · 选将结束后同时亮相 · 各自求生" : IsNationalSnapshot
+    public string GeneralSelectionFooter => IsShanheBattleSession ? ShanheCarryoverNotice : IsDragonBoatActivitySnapshot ? "你与队友的六名候选互相可见 · 其他船候选与所有队友手牌保持私密" : IsWenheActivitySnapshot ? "候选仅对你可见 · 选将结束后同时亮相 · 各自求生" : IsNationalSnapshot
         ? "候选仅对你可见 · 双将暗置登场，可在出牌或杀响应时分别明置"
         : IsDualIdentitySnapshot ? "两将技能同时生效 · 势力与性别沿用主将 · 主公先公开，其余开局亮相"
         : IsHellActivitySnapshot ? "候选仅对你可见 · 玩家固定五阶 · 四殿跨关保留状态"
@@ -257,7 +262,7 @@ public sealed partial class MainViewModel
         : IsShenwuActivitySnapshot ? "普通候选仅对你可见 · 神将候选三人共享，选择后从共享池移除"
         : IsTeamSnapshot ? "候选仅对你可见 · 所有玩家选将结束后，武将同时亮相"
         : "候选仅对你可见 · 主公先选并公开，其余玩家选完后亮相";
-    public string IdentityObjective => IsGuanduActivitySnapshot ? GuanduObjectiveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityObjectiveText : IsWenheActivitySnapshot ? WenheActivityObjectiveText : IsHellActivitySnapshot ? HellActivityObjectiveText : IsNianActivitySnapshot ? NianActivityObjectiveText : IsShenwuActivitySnapshot ? ShenwuActivityObjectiveText : IsBossActivitySnapshot ? BossActivityObjectiveText : IsActivitySnapshot ? $"你的目标：与{PublicTeamName(HumanPlayer?.TeamId ?? "team:shu")}人机搭档和两具器械合作，击败两名敌方英灵。" : IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
+    public string IdentityObjective => IsShanheBattleSession ? ShanheBattleObjective : IsGuanduActivitySnapshot ? GuanduObjectiveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityObjectiveText : IsWenheActivitySnapshot ? WenheActivityObjectiveText : IsHellActivitySnapshot ? HellActivityObjectiveText : IsNianActivitySnapshot ? NianActivityObjectiveText : IsShenwuActivitySnapshot ? ShenwuActivityObjectiveText : IsBossActivitySnapshot ? BossActivityObjectiveText : IsActivitySnapshot ? $"你的目标：与{PublicTeamName(HumanPlayer?.TeamId ?? "team:shu")}人机搭档和两具器械合作，击败两名敌方英灵。" : IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
         ? $"你的目标：与{HumanPlayer?.RoleLabel}队友合作，击败{(HumanPlayer?.TeamId == "team:blue" ? "赤队" : "青队")}"
         : HumanPlayer?.RoleLabel switch
         {
@@ -274,7 +279,7 @@ public sealed partial class MainViewModel
     private string NationalModeDisplayName => _snapshot?.Players.Count == 6
         ? "六人国战 M3 · 魏蜀野心家"
         : "四人国战 Lite · 魏蜀双将";
-    public string TableArenaTitle => IsGuanduActivitySnapshot ? "官 渡 之 战" : IsDragonBoatActivitySnapshot ? "龙 舟 争 渡" : IsWenheActivitySnapshot ? "文 和 乱 武" : IsHellActivitySnapshot ? "十 殿 阎 罗" : IsNianActivitySnapshot ? "挑 战 年 兽" : IsShenwuActivitySnapshot ? "神 武 再 世" : IsBossActivitySnapshot ? BossActivityArenaTitle : IsActivitySnapshot ? "剑 阁 决 战" : IsNationalSnapshot ? "国 战 · 暗 将" : IsDualIdentitySnapshot ? "身 份 场 · 双 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
+    public string TableArenaTitle => IsShanheBattleSession ? "山 河 图 · 征 程" : IsGuanduActivitySnapshot ? "官 渡 之 战" : IsDragonBoatActivitySnapshot ? "龙 舟 争 渡" : IsWenheActivitySnapshot ? "文 和 乱 武" : IsHellActivitySnapshot ? "十 殿 阎 罗" : IsNianActivitySnapshot ? "挑 战 年 兽" : IsShenwuActivitySnapshot ? "神 武 再 世" : IsBossActivitySnapshot ? BossActivityArenaTitle : IsActivitySnapshot ? "剑 阁 决 战" : IsNationalSnapshot ? "国 战 · 暗 将" : IsDualIdentitySnapshot ? "身 份 场 · 双 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
     public ICommand StartNewGameCommand { get; private set; } = null!;
     public ICommand StartNewGameFromLobbyCommand { get; private set; } = null!;
     public ICommand CancelNewGameSetupCommand { get; private set; } = null!;

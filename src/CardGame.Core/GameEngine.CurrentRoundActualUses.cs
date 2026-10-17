@@ -17,12 +17,12 @@ public sealed partial class GameEngine
         var history = EventsSinceLastBoundary(e => e is RoundStartedEvent).ToArray();
         var replacements = history.OfType<ProgramCardUseActorReplacedEvent>()
             .GroupBy(e => e.CardUseFrameId).ToDictionary(group => group.Key, group => group.ToArray());
-        var seen = new HashSet<(long? ActionId, long? LegacyUseId)>();
+        var seen = new HashSet<(long? ActionId, long? LegacyUseId, int? InstructionIndex)>();
         var count = 0;
         foreach (var fact in history.OfType<CurrentTurnCardUseKindsRecordedEvent>())
         {
-            (long? ActionId, long? LegacyUseId) key = fact.CardActionId is not null
-                ? (fact.CardActionId, null) : (null, fact.OriginFrameId);
+            (long? ActionId, long? LegacyUseId, int? InstructionIndex) key = fact.CardActionId is not null
+                ? (fact.CardActionId, null, null) : (null, fact.OriginFrameId, fact.ProgramInstructionIndex);
             if (!seen.Add(key))
                 throw new InvalidOperationException("A round use must have one native declaration fact.");
             var actor = fact.ActorSeat;

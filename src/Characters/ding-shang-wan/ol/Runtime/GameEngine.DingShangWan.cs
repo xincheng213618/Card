@@ -123,6 +123,7 @@ public sealed partial class GameEngine
     private void BeginDingShangWanDraw(ProgramSkillFrame f,int seat,int count,DingShangWanStage stage)
     {
         if(!_players[seat].IsAlive||_winner!=Winner.None){FinishDingShangWan(f);return;}
+        if(stage==DingShangWanStage.OpeningDraw){BeginDingShangWanOpeningDraw(f,seat,count);return;}
         var before=_movementSequence;ReplaceRuntimeTop(f=f with{DingShangWan=f.DingShangWan! with{Stage=stage,Payer=seat,Before=before,After=before,Candidates=[],Selected=[],WoodenOxGrainIds=[],Reshuffles=[]},PendingMovementContinuation=new(seat,0,null)});
         DrawProgramCards(f.Id,seat,count,null,null,SkillProgramCardSetVisibility.Private,new(DingShangWanDrawReason));RecordDingShangWanMovement(f.Id);ContinueDingShangWan(f.Id);
     }
@@ -130,7 +131,8 @@ public sealed partial class GameEngine
     {
         var f=GetActiveProgramFrame(id);var r=f.DingShangWan!;var after=_movementSequence;
         var count=_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=after&&(!IsDingShangWanDrawStage(r.Stage)||m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(r.Payer)&&m.Reason.Value==DingShangWanDrawReason));
-        var shuffles=IsDingShangWanDrawStage(r.Stage)?_pendingCardsMovedBatches.Where(b=>b.ParentFrameId==id&&b.ParentBatchId is null&&b.AwaitingProgramFrameId==id&&b.TurnNumber==r.Turn&&
+        var shuffles=IsDingShangWanDrawStage(r.Stage)?_pendingCardsMovedBatches.Where(b=>b.ParentFrameId==id&&b.ParentBatchId is null&&
+            (b.AwaitingProgramFrameId==id||r.Stage==DingShangWanStage.OpeningDraw&&r.OpeningDrawOutcome is not null&&b.AwaitingProgramFrameId is null)&&b.TurnNumber==r.Turn&&
             b.OriginOwnerSeat==f.OwnerSeat&&b.OriginSkillId==f.SkillId&&b.OriginSkillInstanceId==f.SkillInstanceId&&b.Movements.Count>0&&
             b.Movements.All(m=>m.Sequence>r.Before&&m.Sequence<=after&&m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle&&_cardMovements.Contains(m))&&
             b.SourceCounts is [{Location:var source,CountBefore:var discarded,CountAfter:0}]&&source==CardLocation.DiscardPile&&discarded==b.Movements.Count&&

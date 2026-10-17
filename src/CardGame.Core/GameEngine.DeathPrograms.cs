@@ -109,6 +109,7 @@ public sealed partial class GameEngine
             {
                 DeathReturnKind.Dying => _resolutionStack[index - 1] is not DyingFrame,
                 DeathReturnKind.ProgramSkill => _resolutionStack[index - 1] is not ProgramSkillFrame,
+                DeathReturnKind.CardDamageReplacement => !IsExactMaximumHpReplacementDeathParent(death, _resolutionStack[index - 1]),
                 _ => true
             }))
             throw new InvalidOperationException("The death frame lost its typed return parent.");
@@ -462,6 +463,14 @@ public sealed partial class GameEngine
             if (_resolutionStack[^1] is not ProgramSkillFrame)
                 throw new InvalidOperationException("A death resolution lost its program parent.");
             AdvanceRuntimeProgram(death.ParentFrameId);
+            return;
+        }
+        if (death.ReturnKind == DeathReturnKind.CardDamageReplacement)
+        {
+            if (ActiveCardAttack is not { } attack || attack.ResolutionId != death.ParentFrameId ||
+                !IsExactMaximumHpReplacementDeathParent(death, _resolutionStack[^1]))
+                throw new InvalidOperationException("Maximum-HP death lost its exact card attack return.");
+            CompleteAttack(attack);
             return;
         }
         throw new InvalidOperationException("A death resolution has no continuation.");

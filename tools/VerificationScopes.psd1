@@ -32,6 +32,13 @@
         'Native draw attempt: private decision and actual result cold',
         'Native draw attempt: actual normal extra and skipped phases cold',
         'Native card draw: DrawTwo attempts actual gain children and repeated effects cold',
+        # Shared turn-zero draw ancestry, exact native descendants and cold returns.
+        'Shanhe team tactics: real opening Draw2 native Hongde gain child cold',
+        # Shared acquisition identities, independent copies, frozen offers and cold replay.
+        'Shanhe campaign: repeated acquisition identities hashes boss groups and all instances cold',
+        # Shared cross-owner numeric queries and separate Armor/HP damage payment.
+        'Shanhe team draw aura: independent copies other public allies phase-only cold',
+        'Shanhe Armor: full partial damage counter health delta and native Kuanggu cold',
         'program rule observer registration rejects invalid metadata',
         'program legality registration preserves ordered capability gates',
         'program interaction registration preserves dispatch boundaries',
@@ -166,6 +173,7 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'Armor seats: real opening stacks payments accessible digits and zero hiding',
         'Guandu activity UI: two armies roles event and cold restore',
         'Dragon boat activity UI: four teams private draft and cross configuration',
         'Wenhe activity UI: private goal eight seats and cross-configuration restore',

@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         RuleQueryService.Evaluate(
             SkillRuleQuery.InitialHandSize,
             new RuleQueryBounds(0, int.MaxValue),
-            [new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:initial-hand-size", _initialHandSize)],
+            [new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:initial-hand-size",
+                GetShanheStartingHand(player.Seat)?.Count ?? _initialHandSize)],
             CollectNumericRuleContributions(player, SkillRuleQuery.InitialHandSize));
 }

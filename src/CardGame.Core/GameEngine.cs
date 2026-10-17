@@ -252,7 +252,8 @@ public sealed partial class GameEngine
                     !(IsOriginalDyingSuspendedByDyingSuits(frame) || IsOriginalDyingSuspendedByRecipientCategoryMark(frame)) &&
                     !IsOriginalDyingSuspendedByOwnedDeathBenefit(frame) &&
                     !IsOriginalDyingSuspendedByDeathGrowth(frame) && !IsOriginalDyingSuspendedByHeJinYanhuo(frame) &&
-                    !IsOriginalDyingSuspendedByHellKing(frame) && !IsOriginalDyingSuspendedByWenhePoison(frame)) return frame;
+                    !IsOriginalDyingSuspendedByHellKing(frame) && !IsOriginalDyingSuspendedByWenhePoison(frame) &&
+                    !IsOriginalDyingSuspendedByRecoveryDamage(frame)) return frame;
             return null;
         }
     }
@@ -313,6 +314,7 @@ public sealed partial class GameEngine
         GameOptions options,
         ContentRegistry contentRegistry)
     {
+        options = FreezeShanheBattleOptions(options);
         ValidateOptions(options);
         ArgumentNullException.ThrowIfNull(contentRegistry);
         _options = options;
@@ -328,6 +330,7 @@ public sealed partial class GameEngine
         _nativeReturns = new(NativeReturnMetadata.Value, (method, type) => method.CreateDelegate(type, this));
         _modeDefinition = ResolveModeDefinition(contentRegistry, options);
         ValidateModeOptions(options, _modeDefinition);
+        ValidateShanheBattleOptions(options, contentRegistry, _modeDefinition);
         _generalPool = CreateRuntimeGeneralPool(contentRegistry, _modeDefinition);
         _playerCount = options.PlayerCount;
         _cardZones = new CardZoneStore(_playerCount);
@@ -378,7 +381,7 @@ public sealed partial class GameEngine
         _modeDefinition.Id.StartsWith("identity:classic-", StringComparison.Ordinal);
 
     private bool UsesClassicBattleRules =>
-        IsClassicIdentityMode || _modeDefinition.TeamActivity is not null || _modeDefinition.BossActivity is not null ||
+        IsClassicIdentityMode || _options.ShanheBattle is not null || _modeDefinition.TeamActivity is not null || _modeDefinition.BossActivity is not null ||
         _modeDefinition.ShenwuActivity is not null || _modeDefinition.WenheActivity is not null || IsDragonBoatActivity || IsGuanduActivity;
 
     private bool UsesGeneralBaseHp =>
@@ -2684,7 +2687,8 @@ public sealed partial class GameEngine
                 $"Supported AI policy versions are 1 through {AiDecisionPolicy.CurrentVersion}.");
         }
 
-        if (options.PlayerCount is not (4 or 5 or 6 or 8))
+        if (options.PlayerCount is not (4 or 5 or 6 or 8) &&
+            !(options.ShanheBattle is not null && options.PlayerCount is >= 2 and <= 8))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(options.PlayerCount),
@@ -2895,6 +2899,8 @@ public sealed partial class GameEngine
         "team:wu" => "吴军",
         "team:qun" => "群雄",
         "team:allies" => "联合军",
+        Campaigns.ShanheBattleSetup.PlayerTeamId => "义军",
+        Campaigns.ShanheBattleSetup.EnemyTeamId => "敌军",
         "team:boss" => mode?.HulaoActivity is not null ? "神吕布" : "鬼军",
         "team:beasts" => "凶兽",
         _ => teamId
@@ -2961,6 +2967,7 @@ public sealed partial class GameEngine
 
     private int GetStartingSeat()
     {
+        if (_options.ShanheBattle is not null) return 0;
         if (IsGuanduActivity) return GuanduConfiguration!.CaoCommanderSeat;
         if (IsSurvivalMode || IsDragonBoatActivity) return _random.Next(_playerCount);
         if (_modeDefinition.BossActivity is not null || _modeDefinition.ShenwuActivity is not null) return Math.Max(0, _options.HumanSeat);
@@ -3146,6 +3153,7 @@ public sealed partial class GameEngine
 
     private void SetupTeamPlayers()
     {
+        if (_options.ShanheBattle is not null) { SetupShanhePlayers(); return; }
         if (IsGuanduActivity) { SetupGuanduPlayers(); return; }
         if (IsDragonBoatActivity) { SetupDragonBoatPlayers(); return; }
         if (_modeDefinition.ShenwuActivity is not null) { SetupShenwuPlayers(); return; }
@@ -3402,14 +3410,17 @@ public sealed partial class GameEngine
                 if (cardIndex >= counts[player.Seat]) continue;
                 // The first seat of the first public team starts with one
                 // fewer card in the 2v2 adapter, compensating for initiative.
-                if (IsTeamMode && !IsDragonBoatActivity && !IsGuanduActivity && _modeDefinition.TeamActivity is null && _modeDefinition.BossActivity is null && _modeDefinition.ShenwuActivity is null && cardIndex == 0 && player.Seat == _currentSeat)
+                if (IsTeamMode && _options.ShanheBattle is null && !IsDragonBoatActivity && !IsGuanduActivity && _modeDefinition.TeamActivity is null && _modeDefinition.BossActivity is null && _modeDefinition.ShenwuActivity is null && cardIndex == 0 && player.Seat == _currentSeat)
                 {
                     continue;
                 }
 
-                DrawCards(player, 1, log: false, CardMoveReasons.InitialDeal);
+                if (!TryDealShanheStartingHandCard(player.Seat, cardIndex))
+                    DrawCards(player, 1, log: false, CardMoveReasons.InitialDeal);
             }
         }
+
+        PlaceShanheStartingCards();
 
         AssertCoreInvariants();
     }
@@ -4057,7 +4068,8 @@ public sealed partial class GameEngine
     {
         var legalActions = BuildLegalActions(player);
         var view = CreateSnapshot(player.Seat);
-        var (action, thought) = _aiBrains[player.Seat].ChoosePlay(view, legalActions, ++_thoughtSequence);
+        var (action, thought) = _aiBrains[player.Seat].ChoosePlay(view, legalActions, ++_thoughtSequence,
+            damagePrediction: (candidate, target) => PredictPublicActionDamage(player.Seat, candidate, target));
         AddThought(thought);
 
         if (action.Kind == LegalActionKind.EndPlay)
@@ -10674,7 +10686,8 @@ public sealed partial class GameEngine
             CreateSnapshot(attack.SourceSeat),
             attack.TargetSeat,
             pending.PreventedDamageAmount,
-            ++_thoughtSequence);
+            ++_thoughtSequence,
+            incomingPrediction: PredictPublicIncomingDamage(attack, attack.SourceSeat, damageAmount: pending.PreventedDamageAmount));
         AddThought(thought);
         var selected = decision.Choices.Single(choice => choice.Id == choiceId);
         ResolveIceSwordChoice(selected);
@@ -11143,7 +11156,9 @@ public sealed partial class GameEngine
             var (useSlash, thought) = _aiBrains[responder.Seat].ChooseDuelResponse(
                 view,
                 duel.OpponentSeat,
-                ++_thoughtSequence);
+                ++_thoughtSequence,
+                incomingPrediction: PredictPublicIncomingDamage(duel.Attack, responder.Seat,
+                    sourceSeat: duel.OpponentSeat, targetSeat: responder.Seat));
             AddThought(thought);
             if (useSlash && slashes.Count > 0)
             {
@@ -11223,7 +11238,8 @@ public sealed partial class GameEngine
                     ++_thoughtSequence,
                     attack.IgnoresArmor,
                     legalDodgeAvailable: responseCards.Count > 0,
-                    legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(responder));
+                    legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(responder),
+                    incomingPrediction: PredictPublicIncomingDamage(attack, responder.Seat));
             AddThought(thought);
             if (useDodge)
             {
@@ -11254,7 +11270,8 @@ public sealed partial class GameEngine
                 group.SourceSeat,
                 group.Card.Kind,
                 requiredCardKind,
-                ++_thoughtSequence);
+                ++_thoughtSequence,
+                incomingPrediction: PredictPublicIncomingDamage(attack, responder.Seat));
             AddThought(thought);
             if (useResponse && responseCards.Count > 0)
             {
@@ -11323,7 +11340,8 @@ public sealed partial class GameEngine
                     ++_thoughtSequence,
                     attack.IgnoresArmor,
                     legalDodgeAvailable: dodge is not null,
-                    legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(target));
+                    legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(target),
+                    incomingPrediction: PredictPublicIncomingDamage(attack, target.Seat));
             AddThought(thought);
             if (useDodge)
             {
@@ -11673,6 +11691,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.SupplyShortage => judgmentSuit == Suit.Club,
             _ => IsRedSuit(judgmentSuit)
         };
+        succeeded = ApplyDelayedJudgmentOutcomePolicies(pending, succeeded);
         ReplaceJudgmentFrame(frame with
         {
             CardId = judgmentCard.Id,
@@ -12631,20 +12650,27 @@ public sealed partial class GameEngine
             return false;
         }
 
-        if (source.IsAlive && HasCardPolicy(source, SkillProgramCardPolicyKind.DamageBecomesHpLoss))
+        if (!attack.IsSourceLess && source.IsAlive && HasCardPolicy(source, SkillProgramCardPolicyKind.DamageBecomesHpLoss))
             return ApplyAttackAsHpLoss(attack);
 
         if (TryGetOtherParticipantHpReplacement(attack, out var replacementSource))
         {
             AdvanceEventRulesAndQueueFact(new OtherParticipantDamageReplacedEvent(attack.ResolutionId, replacementSource,
-                attack.SourceSeat, target.Seat, attack.DamageAmount, GetDamageNature(attack), attack.IsChainPropagation));
+                attack.SourceSeat, target.Seat, CalculateCardDamageLayer(attack), GetDamageNature(attack), attack.IsChainPropagation));
             return ApplyAttackAsHpLoss(attack);
         }
+
+        if (TryReplaceCardDamageWithMaximumHpLoss(attack, out var replacementPending)) return replacementPending;
 
         if (!attack.IsChainPropagation &&
             (HasDirectedCardArmorBypass(attack.ResolutionId, target.Seat) ||
              HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.IgnoreArmor)))
             attack.SetIgnoresArmor(true);
+        if (!attack.DamageAmountFinalized && attack is CardAttackHandle &&
+            (_contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.DamageBecomesHpLoss) ||
+             _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss) ||
+             _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.FirstRoundCardDamageBecomesMaximumHpLoss)))
+            _ = CalculateCardDamageLayer(attack);
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
         if (nature != DamageNature.Thunder && target.Markers.GetValueOrDefault(PlayerMarkerKind.Mist) > 0)
@@ -12734,8 +12760,14 @@ public sealed partial class GameEngine
                 _skillRuntimeState.TryConsumeUsage(source.Seat, "equipment:red-blood-blade", "farthest-damage", SkillUsageScope.Turn, 1);
                 attack.PendingRedBladeDamageBonus = false;
             }
+            var armorPayment = PrepareDamageArmorPayment(damageFrameId, attack);
             CaptureXuRongActualDamageHp(damageFrameId, attack, target.Hp, amount);
-            target.Hp = Math.Max(0, target.Hp - amount);
+            if (armorPayment is not null)
+            {
+                target.Armor = armorPayment.ArmorAfter;
+                target.Hp = armorPayment.HpAfter;
+            }
+            else target.Hp = Math.Max(0, target.Hp - amount);
             attack.MarkDamageApplied();
             RecordCompletedUndamagedTargetDamage(attack, damageFrameId, amount);
             RecordKenshangDamage(attack, damageFrameId, amount);
@@ -12757,7 +12789,7 @@ public sealed partial class GameEngine
                 target.Seat,
                 amount,
                 Math.Max(0, target.Hp),
-                nature) { SourceLess = attack.IsSourceLess });
+                nature) { SourceLess = attack.IsSourceLess, ArmorPayment = armorPayment });
             if (amount > 0 && HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.DrawAfterDamage))
             {
                 var enhancementOwnerSeat = _resolutionStack.OfType<CardUseFrame>()
@@ -13794,7 +13826,7 @@ public sealed partial class GameEngine
                 fromSeat,
                 attack.TargetSeat,
                 attack.DamageAmount,
-                GetDamageNature(attack)));
+                GetDamageNature(attack)) { ProgramUseInstructionIndex = DamageProgramUseInstructionIndex(attack) });
             AddLog(
                 "ChainDamage",
                 $"连环伤害从 {_players[fromSeat].Name} 传导至 {_players[attack.TargetSeat].Name}。",
@@ -14118,7 +14150,10 @@ public sealed partial class GameEngine
         var recoveryFrameId = BeginRecovery(resolutionId, source.Seat, target.Seat, recoveryAmount);
         try
         {
+            var hpBefore = target.Hp;
             target.Hp = Math.Min(target.MaxHp, target.Hp + recoveryAmount);
+            RecordNativeCardRecovery(resolutionId, recoveryFrameId, source.Seat, target.Seat,
+                playedCardKind, recoveryAmount, hpBefore, target.Hp);
             foreach (var policy in recoveryPolicySources ?? [])
             {
                 AdvanceEventRulesAndQueueFact(new ProgramRecoveryPolicyAppliedEvent(
@@ -16126,19 +16161,31 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<(CardUseEffectSource Source, int Amount)> GetPassiveProgramDamageModifiers(
-        IDamageAttempt attack)
+        IDamageAttempt attack, bool cardDamageOnly = false)
     {
         if (!IsValidPlayerSeat(attack.SourceSeat) || !IsValidPlayerSeat(attack.TargetSeat) ||
-            !_players[attack.SourceSeat].IsAlive || !_players[attack.TargetSeat].IsAlive)
+            !_players[attack.TargetSeat].IsAlive)
             return [];
 
         var sourceAndTarget = new[] { attack.SourceSeat, attack.TargetSeat }.Distinct();
-        return sourceAndTarget
+        var owners = HasPublicEnemyParticipantDamageModifiers
+            ? _players.Where(player => player.IsAlive).Select(player => player.Seat) : sourceAndTarget;
+        return owners
             .SelectMany(seat => GetSkillBindingShard(_players[seat]).ProgramInstances
                 .SelectMany(instance => instance.Program.DamageModifiers.Select(modifier =>
                     (seat, instance, modifier))))
-            .Where(item => !item.modifier.CapsToAmount && (
-                item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant
+            .Where(item => !item.modifier.CapsToAmount && (!cardDamageOnly || item.modifier.DamageLayer == SkillProgramDamageLayer.CardDamage) && (
+                item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.AllLivingSkillOwners
+                ? item.modifier.Condition == SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner &&
+                  !attack.IsSourceLess && attack.SourceSeat != attack.TargetSeat &&
+                  PublicTeamEnemy(item.seat, _players[attack.SourceSeat]) && PublicTeamEnemy(item.seat, _players[attack.TargetSeat])
+                : _players[attack.SourceSeat].IsAlive && (item.seat == attack.SourceSeat || item.seat == attack.TargetSeat) &&
+                  (item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource
+                ? item.modifier.Condition == SkillProgramDamageModifierCondition.SourceHandBelowHp &&
+                  item.seat == attack.SourceSeat && !attack.IsSourceLess &&
+                  _players[attack.SourceSeat].HasHpValue &&
+                  GetHand(_players[attack.SourceSeat]).Count < _players[attack.SourceSeat].Hp
+                : item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant
                 ? item.modifier.Condition switch
                   {
                       SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand =>
@@ -16170,8 +16217,14 @@ public sealed partial class GameEngine
                           GetHand(_players[attack.TargetSeat]).Count <= GetHand(_players[attack.SourceSeat]).Count &&
                           GetEquipment(_players[attack.TargetSeat]).Count <=
                           GetEquipment(_players[attack.SourceSeat]).Count,
+                      SkillProgramDamageModifierCondition.SourceHandBelowLimit =>
+                          !attack.IsSourceLess &&
+                          GetHand(_players[attack.SourceSeat]).Count < item.modifier.SourceHandCountLimit,
+                      SkillProgramDamageModifierCondition.OwnerActualTurnTrickUseOrdinalWithinLimit =>
+                          !attack.IsSourceLess && CapturedWholeActualTurnTrickUseOrdinal(attack) is { } ordinal &&
+                          ordinal <= item.modifier.MaximumUseOrdinal,
                       _ => false
-                  })))
+                  }))))
             .Select(item => (new CardUseEffectSource(item.instance.SkillId, item.modifier.Id,
                 item.seat, item.instance.SkillInstanceId), item.modifier.Amount))
             .ToArray();
@@ -16886,7 +16939,8 @@ public sealed partial class GameEngine
         CharacterState? killer,
         IDamageAttempt? attack,
         DyingFrame? dying,
-        long? causingProgramSkillFrameId = null)
+        long? causingProgramSkillFrameId = null,
+        long? causingCardDamageReplacementId = null)
     {
         if (!victim.IsAlive)
         {
@@ -16897,10 +16951,13 @@ public sealed partial class GameEngine
             return;
         }
 
-        var returnKind = (dying, causingProgramSkillFrameId) switch
+        var returnKind = (dying, causingProgramSkillFrameId, causingCardDamageReplacementId) switch
         {
-            (not null, null) when dying.FrameId == parentFrameId => DeathReturnKind.Dying,
-            (null, not null) when causingProgramSkillFrameId == parentFrameId => DeathReturnKind.ProgramSkill,
+            (not null, null, null) when dying.FrameId == parentFrameId => DeathReturnKind.Dying,
+            (null, not null, null) when causingProgramSkillFrameId == parentFrameId => DeathReturnKind.ProgramSkill,
+            (null, null, not null) when causingCardDamageReplacementId == parentFrameId &&
+                GetCardAttackState(parentFrameId).MaximumHpReplacement is { MaximumHpAfter: 0, TargetSeat: var seat } &&
+                seat == victim.Seat => DeathReturnKind.CardDamageReplacement,
             _ => throw new InvalidOperationException("A death resolution needs exactly one matching parent continuation.")
         };
         var deathFrameId = BeginDeath(parentFrameId, victim.Seat, killer?.Seat, returnKind);
@@ -16910,6 +16967,8 @@ public sealed partial class GameEngine
             victim.Hp = 0;
             var caoYuDeathMinimum = CaptureCaoYuDeathMinimumSources(victim.Seat);
             victim.IsAlive = false;
+            if (causingCardDamageReplacementId is { } replacementId)
+                PublishMaximumHpDamageReplacement(replacementId);
             RecordCaoYuDeathMinimumTransitions(deathFrameId, victim.Seat, caoYuDeathMinimum);
             ExpireDeadOwnerDamageModifiers(victim.Seat);
             ApplyZaowangSuccession(deathFrameId, victim);
@@ -17560,7 +17619,12 @@ public sealed partial class GameEngine
             includeHandLimit ? GetHandLimit(player) : null,
             includeHandLimit ? HasActuallyUsableHandCard(player) : null,
             TracksPlayCardHistory ? PreviousPlayCardIsBasicFor(player.Seat) : null)
-        { HpUndefined = !player.HasHpValue, RuleWounded = UsesTreatedWounded ? IsRuleWounded(player) : null, HasWeapon = GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) };
+        { Armor = player.Armor, HpUndefined = !player.HasHpValue, RuleWounded = UsesTreatedWounded ? IsRuleWounded(player) : null, HasWeapon = GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) };
+        context = context with
+        {
+            DamageBecomesHpLoss = HasPredictionHpPolicy(player, SkillProgramCardPolicyKind.DamageBecomesHpLoss, context),
+            OtherParticipantDamageBecomesHpLoss = HasPredictionHpPolicy(player, SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss, context)
+        };
         if (_contentRegistry.ProgramDependencies.EquipmentPresenceSkillIds.Count == 0 ||
             !GetSkillBindingShard(player).ProgramInstances.Any(instance => _contentRegistry.ProgramDependencies.EquipmentPresenceSkillIds.Contains(instance.SkillId))) return context;
         var slots = GetEquipment(player).Select(card => EquipmentCatalog.Get(card.Kind).Slot).ToArray();
@@ -18296,6 +18360,8 @@ public sealed partial class GameEngine
         }
 
         AssertRecipientScopedDamageStates();
+        AssertMaximumHpDamageReplacementReceipts();
+        AssertDamageArmorPayments();
         AssertOwnedDeathBenefitReturns();
         AssertDyingSuitsSubtree();
         AssertRecipientConsequencesSubtrees();
@@ -20081,12 +20147,7 @@ public sealed partial class GameEngine
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel &&
             attack.ProgramSkillFrameId == attack.ResolutionId && ActiveDuel is { } virtualDuel &&
             virtualDuel.Attack.ResolutionId == attack.ResolutionId)
-        {
-            return processing.Count == 0 && _resolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
-                frame.Id == attack.ResolutionId && frame.SelectedTargetSeats.Count == 2 &&
-                frame.SelectedTargetSeats.Distinct().Count() == 2 &&
-                frame.SelectedTargetSeats.Contains(attack.SourceSeat) && frame.SelectedTargetSeats.Contains(attack.TargetSeat));
-        }
+            return IsProgramVirtualDuelAttackConsistent(attack, processing);
 
         var attackCard = attack.Card;
         if (attackCard is null)

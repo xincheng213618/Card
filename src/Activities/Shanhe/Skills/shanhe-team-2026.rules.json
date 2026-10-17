@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:jiban-2026", "revision": 1,
+      "modifiers": [
+        {
+          "id": "living-public-teammates-slash-limit", "query": "slashLimit", "operation": "add",
+          "valueExpression": "otherPublicTeamAllyCount", "valueMultiplier": 2, "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "shanhe:duichu-2026", "revision": 1,
+      "triggers": [
+        {
+          "id": "opening-teammates-draw", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [
+            { "op": "selectAllPublicTeamTargets", "target": "owner", "targetKind": "otherPublicTeamAllies", "allowEmpty": false },
+            { "op": "draw", "target": "selectedTargets", "amount": 2 }
+          ]
+        }
+      ]
+    }
+  ]
+}

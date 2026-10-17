@@ -73,6 +73,7 @@ public sealed partial class GameEngine
     private IEnumerable<RuleQueryContribution> ActivityRuleContributions(CharacterState player, SkillRuleQuery query)
     {
         foreach (var contribution in GuanduActivityRuleContributions(player, query)) yield return contribution;
+        foreach (var contribution in ShanheRuleContributions(player, query)) yield return contribution;
         foreach (var contribution in WenheActivityRuleContributions(player, query)) yield return contribution;
         foreach (var contribution in DragonBoatRuleContributions(player, query)) yield return contribution;
         foreach (var contribution in ShenwuActivityRuleContributions(player, query)) yield return contribution;

@@ -122,7 +122,7 @@
                 </StackPanel>
                 </Border>
                 <Grid Grid.Column="1" MaxWidth="1220" Margin="16,14,16,0">
-                    <Grid.RowDefinitions><RowDefinition Height="0.25*" /><RowDefinition Height="0.75*" /><RowDefinition Height="68" /></Grid.RowDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="0.25*" /><RowDefinition Height="0.75*" /><RowDefinition Height="Auto" MinHeight="68" /></Grid.RowDefinitions>
                     <!-- The welcome artwork is quiet scenery; auxiliary actions have one stable home on the left. -->
                     <Border Grid.Row="0" BorderBrush="#35E9D4AB" BorderThickness="1" CornerRadius="3" Margin="0,0,0,16" IsHitTestVisible="False">
                         <Grid ClipToBounds="True">
@@ -196,9 +196,14 @@
                         </Button>
                     </Grid>
                     <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button x:Name="ActivityBattleButton" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="activity" Style="{StaticResource LobbyButton}" Padding="32,8" AutomationProperties.Name="活动场，合作挑战与八人生存，玩家默认五阶">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="活动场 · 五阶战场" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="合作挑战  /  八人生存" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" Margin="18,0,0,0" /></StackPanel>
                         </Button>
+                        <Button x:Name="ShanheCampaignButton" Command="{Binding OpenShanheCommand}" Style="{StaticResource LobbyButton}" Padding="32,8" Margin="16,0,0,0" AutomationProperties.Name="山河图，有剧情的单机征程">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="山河图 · 剧情征程" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="选路奇遇  /  战法构筑" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" Margin="18,0,0,0" /></StackPanel>
+                        </Button>
+                        </StackPanel>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" Margin="0,5,0,0" />
                         <TextBlock Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" />
                     </StackPanel>

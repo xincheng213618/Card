@@ -38,8 +38,10 @@ public sealed partial class GameEngine
         r.Nature == damage.Nature && health.Continuation == PostEventContinuation.WenyiDamageHealth &&
         health.ResumeFrameId == damage.Id && health.Change.ParentFrameId == damage.Id &&
         health.Id == health.Change.Id && health.Id == r.HealthChangeId && health.Change.TargetSeat == r.TargetSeat &&
-        health.Change.Kind == HpChangeKind.Damage && health.Change.Amount == r.Amount &&
-        health.Change.HpBefore == r.Amount + 1 && health.Change.HpAfter == 1 &&
+        health.Change.Kind == HpChangeKind.Damage &&
+        health.Change.Amount == (damage.ArmorPayment?.ActualHpLost ?? r.Amount) &&
+        health.Change.HpBefore == (damage.ArmorPayment?.HpBefore ?? r.Amount + 1) && health.Change.HpAfter == 1 &&
+        (damage.ArmorPayment is null || damage.ArmorPayment.HpAfter == 1 && IsIssuedDamageArmorPayment(damage)) &&
         ProgramEventHistory<WenyiDamageHealthStartedEvent>().Count(e => e.Receipt == r) == 1 &&
         !ProgramEventHistory<WenyiDamageHealthReturnedEvent>().Any(e => e.Receipt == r);
 

@@ -5,6 +5,10 @@ namespace CardGame.Core;
 public sealed record NativeDrawMaterial(int CardId, CardKind PrintedKind, long MovementSequence);
 public sealed partial record NativeDrawInvocationProof
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GameStartingDrawOrigin? GameStartingOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GameStartingMovementDrawOrigin? GameStartingMovementOrigin { get; init; }
     private IReadOnlyList<NativeDrawMaterial> _materials = Array.AsReadOnly(Array.Empty<NativeDrawMaterial>());
     public long InvocationId { get; init; }
     public long? ParentFrameId { get; init; }
@@ -26,7 +30,13 @@ public sealed partial record NativeDrawInvocationProof
 public sealed record NativeDrawInvocationRecordedEvent(long InvocationId, int OwnerSeat, int Requested,
     int ActualCount, int TurnNumber, int ActualTurnOwnerSeat, int PhaseActorSeat,
     ActualDiscardRecoveryPhaseKey? Phase, long? ParentFrameId, CardConversionSource? DirectProducer,
-    CardMoveReason Reason, long SequenceBefore, long SequenceAfter, long LastBatchId) : IGameEvent;
+    CardMoveReason Reason, long SequenceBefore, long SequenceAfter, long LastBatchId) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GameStartingDrawOrigin? GameStartingOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GameStartingMovementDrawOrigin? GameStartingMovementOrigin { get; init; }
+}
 
 public enum OutsidePhaseDrawDiscardStage { Choosing, MovementChildren, Complete }
 public sealed record OutsidePhaseDiscardMaterial(int CardId, CardKind PrintedKind, CardLocation From,

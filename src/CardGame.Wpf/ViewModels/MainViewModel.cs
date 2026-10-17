@@ -66,7 +66,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IPlayerPreferencesStore? preferencesStore = null,
         ContentRegistry? contentRegistry = null,
         bool confirmOpeningHand = false,
-        IGameExceptionReportStore? exceptionReportStore = null)
+        IGameExceptionReportStore? exceptionReportStore = null,
+        IShanheCampaignSaveStore? shanheSaveStore = null,
+        IShanheCodexStore? shanheCodexStore = null)
     {
         NewGameCommand = new RelayCommand(() => { if (!IsTutorialActive) OpenGameSetup(); }, () => !IsTutorialActive);
         StepAiCommand = new RelayCommand(StepAi, () => CanStepAi);
@@ -146,6 +148,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IsNewGameSetupOpen = showSetup;
         _initializing = false;
         InitializeNianClock();
+        InitializeShanheCodex(shanheCodexStore, shanheSaveStore is not null);
+        InitializeShanheCampaign(shanheSaveStore);
     }
 
     public ObservableCollection<SeatViewModel> Seats { get; } = [];
@@ -369,6 +373,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void NewGame()
     {
+        SaveShanheBeforeOrdinaryGame();
         if (!_initializing) ResetPersistenceMessage();
         // A predictable seed would let a modified client reconstruct every hidden
         // role and card. Tests inject fixed seeds; ordinary local games use entropy.
@@ -776,6 +781,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 SecondaryGeneralText = HasDualGeneralSlots ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
                 Hp = player.Hp,
+                Armor = player.Armor,
                 IdentityConcealed = player.IdentityConcealed,
                 HpUndefined = player.HpUndefined || IsHellDormantAuxiliary(player),
                 MaxHp = player.MaxHp,

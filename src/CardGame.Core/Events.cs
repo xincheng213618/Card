@@ -525,7 +525,11 @@ public sealed record ChainedDamagePropagatedEvent(
     int FromSeat,
     int TargetSeat,
     int Amount,
-    DamageNature Nature) : IGameEvent;
+    DamageNature Nature) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramUseInstructionIndex { get; init; }
+}
 
 /// <summary>Public lifecycle notification for a deterministic judgment.</summary>
 public sealed record JudgmentRequestedEvent(
@@ -599,6 +603,8 @@ public sealed record DamageAppliedEvent(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool SourceLess { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DamageArmorPaymentReceipt? ArmorPayment { get; init; }
 }
 
 /// <summary>

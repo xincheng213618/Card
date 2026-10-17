@@ -164,6 +164,15 @@ internal sealed partial class ProgramAiEstimateContext
     private double _otherAdjustment;
     private double _targetAdjustment;
     private double _estimatedHp;
+    private int _estimatedArmor;
+    private int _estimatedMaxHp;
+    private int _ownerDamage;
+    private int _ownerArmorLoss;
+    private int _ownerDirectHpLoss;
+    private int _ownerMaximumHpLoss;
+    private bool _hasOwnerHealthPrediction;
+    private readonly List<PublicHealthEffect> _targetHealthEffects = [];
+    private PublicDamageSequencePrediction? _targetHealthPrediction;
     private double _estimatedHandCount;
     private bool _becameSelfLethal;
     private bool _faceDown;
@@ -181,6 +190,8 @@ internal sealed partial class ProgramAiEstimateContext
         _publicContext = publicContext ?? new ProgramAiPublicContext(0);
         _canUseSlashOnOther = _publicContext.CanUseSlashOnOther;
         _estimatedHp = player.Hp;
+        _estimatedArmor = player.Armor;
+        _estimatedMaxHp = player.MaxHp;
         _estimatedHandCount = player.HandCount;
         _faceDown = faceDown;
         if (_publicContext.ReplacesNormalDraw)
@@ -246,6 +257,7 @@ internal sealed partial class ProgramAiEstimateContext
              _publicContext.SelectedTarget.Seat == _player.Seat)) return;
         var amount = effect.NumberExpression switch
         {
+            SkillProgramNumberExpression.OwnerMaxHp => Math.Max(0, _player.MaxHp),
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => _estimatedHandCount == 0 ? 2 : 1,
             SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne => (_publicContext.EquipmentCardCount + 1) / 2 + 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
@@ -341,6 +353,21 @@ internal sealed partial class ProgramAiEstimateContext
         _otherAdjustment += 1d;
     }
 
+    internal void GrantArmor(SkillProgramEffect effect)
+    {
+        if (TargetsOwner(effect))
+        {
+            ApplyOwnerHealth(new(PublicHealthEffectKind.GrantArmor, effect.Amount));
+            _otherAdjustment += effect.Amount * 8d;
+        }
+        else
+        {
+            ApplyTargetHealth(new(PublicHealthEffectKind.GrantArmor, effect.Amount));
+            _targetAdjustment += effect.Amount * 8d *
+                (effect.Target == SkillProgramEffectTarget.SelectedTargets ? _estimatedSelectedTargetCount ?? 1 : 1);
+        }
+    }
+
     internal void Recover(SkillProgramEffect effect)
     {
         if (effect.Target is SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower &&
@@ -353,10 +380,14 @@ internal sealed partial class ProgramAiEstimateContext
         {
             var actual = Math.Min(amount, Math.Max(0, _player.MaxHp - _estimatedHp));
             _ownerRecovery += actual;
-            _estimatedHp += actual;
+            ApplyOwnerHealth(new(PublicHealthEffectKind.Recover, Rounded(amount)));
         }
-        else _targetRecovery += Rounded(amount * (effect.Target == SkillProgramEffectTarget.SelectedTargets
-            ? _estimatedSelectedTargetCount ?? 2 : 1));
+        else
+        {
+            ApplyTargetHealth(new(PublicHealthEffectKind.Recover, Rounded(amount)));
+            _targetRecovery += Rounded(amount * (effect.Target == SkillProgramEffectTarget.SelectedTargets
+                ? _estimatedSelectedTargetCount ?? 2 : 1));
+        }
     }
 
     internal void PriceParticipantMarker(SkillProgramEffect effect)
@@ -375,13 +406,8 @@ internal sealed partial class ProgramAiEstimateContext
     }
     internal void LoseHp(SkillProgramEffect effect)
     {
-        if (TargetsOwner(effect))
-        {
-            _ownerHpLoss += effect.Amount;
-            _estimatedHp -= effect.Amount;
-            if (_estimatedHp <= 0) _becameSelfLethal = true;
-        }
-        else _targetHpLoss += effect.Amount;
+        if (TargetsOwner(effect)) ApplyOwnerHealth(new(PublicHealthEffectKind.HpLoss, effect.Amount));
+        else ApplyTargetHealth(new(PublicHealthEffectKind.HpLoss, effect.Amount));
     }
 
     internal void Reveal(SkillProgramEffect effect)
@@ -908,9 +934,26 @@ internal sealed partial class ProgramAiEstimateContext
         _targetAdjustment -= ownerWin * 20d;
     }
     internal void DamageAppearanceDraw() { /* The mandatory actual receipt chooses its recipient, not a speculative AI reward. */ }
-    internal void Damage(SkillProgramEffect effect) => _targetHpLoss +=
-        effect.Condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice
-            ? effect.Amount * 0.75d : effect.Amount;
+    internal void Damage(SkillProgramEffect effect)
+    {
+        var amount = effect.Condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice
+            ? Rounded(effect.Amount * 0.75d) : effect.Amount;
+        // Program Damage is not a card-use damage occurrence. Only the existing
+        // unconditional HP replacement applies here, never a first-card quota.
+        var source = effect.ActorReference?.Kind switch
+        {
+            null or ProgramParticipantRef.Owner => _player,
+            ProgramParticipantRef.SelectedTarget => _publicContext.SelectedTarget,
+            _ => null
+        };
+        var recipient = TargetsOwner(effect) ? _player : _publicContext.SelectedTarget;
+        var bypass = source?.DamageBecomesHpLoss == true ||
+            source is not null && (recipient is null || source.Seat != recipient.Seat) &&
+                (source.OtherParticipantDamageBecomesHpLoss || recipient?.OtherParticipantDamageBecomesHpLoss == true);
+        var predicted = new PublicHealthEffect(bypass ? PublicHealthEffectKind.HpLoss : PublicHealthEffectKind.Damage, amount);
+        if (TargetsOwner(effect)) ApplyOwnerHealth(predicted);
+        else ApplyTargetHealth(predicted);
+    }
     internal void Pindian(SkillProgramEffect effect) => _otherAdjustment += 4d;
     internal void CategoryAlternativeDiscard(SkillProgramEffect effect) =>
         // The chooser's concealed categories are unknown. Price the configured
@@ -920,8 +963,11 @@ internal sealed partial class ProgramAiEstimateContext
     internal void EscalatingDiscardOrDamage(SkillProgramEffect effect) =>
         // Multi-participant attacks carry a conservative field-wide prior.
         _otherAdjustment += effect.Amount * 8d;
-    internal void ChangeMaximumHp(SkillProgramEffect effect) =>
+    internal void ChangeMaximumHp(SkillProgramEffect effect)
+    {
+        ApplyOwnerHealth(new(PublicHealthEffectKind.ChangeMaximumHp, effect.Amount));
         _otherAdjustment += effect.Amount * 18d;
+    }
     internal void GrantSkills(SkillProgramEffect effect) =>
         _otherAdjustment += effect.SkillIds.Count * 12d;
     internal void GrantTurnSkills(SkillProgramEffect effect)
@@ -969,19 +1015,58 @@ internal sealed partial class ProgramAiEstimateContext
     {
         var ownerDraw = Rounded(Math.Max(0, _ownerDraw));
         var adjustment = _otherAdjustment + Math.Min(0, _ownerDraw) * 8d;
+        // Some specialized operations retain a deliberately coarse public prior.
+        // Keep that prior alongside the exact sequential instruction payments.
+        var healthEffects = _targetHealthEffects.ToList();
+        var residualLoss = Rounded(_targetHpLoss - (_targetHealthPrediction?.HpLossAmount ?? 0));
+        if (healthEffects.Count > 0 && residualLoss > 0)
+            healthEffects.Add(new(PublicHealthEffectKind.HpLoss, residualLoss));
         var hint = new SkillProgramAiHint(
             ownerDraw, Rounded(_ownerRecovery), Rounded(_ownerHpLoss),
             Rounded(Math.Max(0, _targetDraw)), Rounded(_targetRecovery), Rounded(_targetHpLoss),
             _givesSelected, _discardsSelected)
         {
             ValueAdjustment = adjustment,
-            TargetValueAdjustment = _targetAdjustment + Math.Min(0, _targetDraw) * 7d
+            TargetValueAdjustment = _targetAdjustment + Math.Min(0, _targetDraw) * 7d,
+            OwnerDamage = _ownerDamage, OwnerArmorLoss = _ownerArmorLoss,
+            OwnerDirectHpLoss = _ownerDirectHpLoss, OwnerMaximumHpLoss = _ownerMaximumHpLoss,
+            OwnerWouldEnterDying = _hasOwnerHealthPrediction ? _becameSelfLethal : null,
+            TargetDamage = _targetHealthPrediction?.DamageAmount ?? 0,
+            TargetArmorLoss = _targetHealthPrediction?.ArmorAbsorbed ?? 0,
+            TargetDirectHpLoss = _targetHealthPrediction?.DirectHpLossAmount ?? 0,
+            TargetMaximumHpLoss = _targetHealthPrediction?.MaximumHpLossAmount ?? 0,
+            TargetHealthEffects = healthEffects.Count == 0 ? null : healthEffects
         };
-        var score = _ownerDraw * 8d + _ownerRecovery * 18d - _ownerHpLoss * 22d + _otherAdjustment;
+        var score = _ownerDraw * 8d + _ownerRecovery * 18d - _ownerHpLoss * 22d - _ownerArmorLoss * 8d + _otherAdjustment;
         return new ProgramAiEstimate(hint, score, _becameSelfLethal,
             "未知牌按四花色等概率，子集按平均点数7与最大可选数估计；条件使用当前公开快照；" +
             "替代摸牌扣除当前正常摸牌数；未知目标回复按缺失1点体力估计；" +
             "伤害牌、装备区、连环和目标翻面使用不读取私密状态的固定先验。");
+    }
+
+    private void ApplyOwnerHealth(PublicHealthEffect effect)
+    {
+        _hasOwnerHealthPrediction = true;
+        var prediction = PublicDamageSequencePrediction.Calculate(Math.Max(0, Rounded(_estimatedHp)),
+            Math.Max(0, _estimatedMaxHp), _estimatedArmor, [effect]);
+        _estimatedHp = prediction.HpAfter; _estimatedMaxHp = prediction.MaxHpAfter;
+        _estimatedArmor = prediction.ArmorAfter;
+        _ownerHpLoss += prediction.HpLossAmount;
+        _ownerDamage = checked(_ownerDamage + prediction.DamageAmount);
+        _ownerArmorLoss = checked(_ownerArmorLoss + prediction.ArmorAbsorbed);
+        _ownerDirectHpLoss = checked(_ownerDirectHpLoss + prediction.DirectHpLossAmount);
+        _ownerMaximumHpLoss = checked(_ownerMaximumHpLoss + prediction.MaximumHpLossAmount);
+        _becameSelfLethal |= !_player.HpUndefined && prediction.IsLethal;
+    }
+
+    private void ApplyTargetHealth(PublicHealthEffect effect)
+    {
+        _targetHealthEffects.Add(effect);
+        var target = _publicContext.SelectedTarget;
+        var prediction = PublicDamageSequencePrediction.Calculate(target?.Hp ?? int.MaxValue,
+            target?.MaxHp ?? int.MaxValue, target?.Armor ?? 0, _targetHealthEffects);
+        _targetHpLoss += prediction.HpLossAmount - (_targetHealthPrediction?.HpLossAmount ?? 0);
+        _targetHealthPrediction = prediction;
     }
 
     private CardSetEstimate Binding(string? name) =>

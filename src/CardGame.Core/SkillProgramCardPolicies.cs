@@ -3,6 +3,10 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    OutgoingDistanceOne = 43000,
+    ReverseDelayedJudgment = 43001,
+    FirstRoundCardDamageBecomesMaximumHpLoss = 43002,
+    BattleSlashCountMinimumResponses = 43003,
     HellUnarmoredRemen = 40000, HellSlashIgnoreArmor = 40001, HellShiyouIntercept = 40050,
     ShenwuArmedSourceDamageBonus = 27700,
     OtherParticipantDamageBecomesHpLoss = 20560,
@@ -31,6 +35,7 @@ public enum SkillProgramCardPolicyKind
     FirstActualPlayUseDistanceUnlimited = 1340,
     PindianTopCardChoice = 1180,
     PindianRankBySuit = 1181,
+    PindianRankBonus = 1182,
     ProhibitTarget = 0,
     IgnoreUseDistance,
     MinimumResponseCount,

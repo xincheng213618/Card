@@ -78,19 +78,26 @@ public sealed partial class SimpleAiBrain
     // accumulated public evidence. Version 1 remains unchanged for checkpoint replay.
     private (double Score, string Reason) ScoreTacticalAction(
         GameSnapshot view, PlayerSnapshot self, Role role, LegalAction action,
-        IReadOnlyList<LegalAction> legalActions)
+        IReadOnlyList<LegalAction> legalActions,
+        Func<LegalAction, int, PublicDamagePrediction>? damagePrediction = null)
     {
         if (action.Kind == LegalActionKind.EndPlay) return (0, "保留没有正收益的牌，结束出牌。");
 
         if (action.Kind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage)
         {
             var others = view.Players.Where(player => player.IsAlive && player.Seat != Seat).ToArray();
-            if (others.Any(player => player.Role == Role.Lord && player.Hp <= 1) && ProtectLord(view, role))
-                return (-500, "主公仅剩 1 点体力，群体伤害可能直接导致己方失败；保留此牌。");
+            var usePublicPayment = HasPublicArmorPrediction(view, damagePrediction);
+            if (others.Any(player => player.Role == Role.Lord && (usePublicPayment
+                    ? PredictPublicActionDamage(view, player, action, damagePrediction).IsLethal : player.Hp <= 1)) && ProtectLord(view, role))
+                return (-500, usePublicPayment ? "公开伤害预测可能令主公进入濒死；保留此牌。" : "主公仅剩 1 点体力，群体伤害可能直接导致己方失败；保留此牌。");
             var net = others.Sum(player =>
             {
                 var relation = Math.Clamp(GetHostility(view, role, player) / 80d, -1.4, 1.4);
-                var pressure = 20 + (player.Hp <= 1 ? 30 : player.Hp == 2 ? 10 : 0);
+                var payment = usePublicPayment ? PredictPublicActionDamage(view, player, action, damagePrediction) : null;
+                var hpPressure = usePublicPayment
+                    ? payment!.IsLethal ? 30 : payment.HpLossAmount > 0 && payment.HpAfter <= 1 ? 10 : 0
+                    : player.Hp <= 1 ? 30 : player.Hp == 2 ? 10 : 0;
+                var pressure = 20 + hpPressure;
                 var exposure = 1d / (1 + Math.Min(player.HandCount, 6) * .18);
                 return relation * pressure * exposure;
             });
@@ -112,7 +119,7 @@ public sealed partial class SimpleAiBrain
             // A physical wine cannot both be drunk and converted by Wusheng.
             // Published legal Slash actions already include range and turn limits.
             var followUp = legalActions.Where(candidate => candidate.Kind == LegalActionKind.Slash && candidate.CardId != action.CardId)
-                .Select(candidate => (Action: candidate, Score: ScoreTacticalAction(view, self, role, candidate, legalActions).Score))
+                .Select(candidate => (Action: candidate, Score: ScoreTacticalAction(view, self, role, candidate, legalActions, damagePrediction).Score))
                 .OrderByDescending(candidate => candidate.Score).FirstOrDefault();
             if (followUp.Action is null || followUp.Score <= 0)
                 return (-80, "没有另一张可合法打出且有正收益的杀；不消耗酒。");
@@ -124,10 +131,10 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Slash && action.TargetSeats.Count > 1)
         {
-            return ScoreFangtianHalberdSlash(view, self, role, action);
+            return ScoreFangtianHalberdSlash(view, self, role, action, damagePrediction);
         }
 
-        var (score, reason) = ScoreAction(view, self, role, action);
+        var (score, reason) = ScoreAction(view, self, role, action, damagePrediction);
         var targetPlayer = action.TargetSeat is { } targetSeat ? view.Players.Single(player => player.Seat == targetSeat) : null;
         if (targetPlayer is not null && action.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch &&
             targetPlayer.Judgment.FirstOrDefault(card => card.Id == action.TargetCardId) is { } judgment)

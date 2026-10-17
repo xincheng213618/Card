@@ -8,6 +8,7 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
+    private ContentRegistry CurrentPresentationRegistry => _game?.ContentRegistry ?? _contentRegistry;
     private DispatcherTimer? _advanceTimer;
     private bool _isAutomaticAdvanceRunning;
     private bool _isAutoAdvance;
@@ -69,14 +70,14 @@ public sealed partial class MainViewModel
                 (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic, Skills: human.SecondarySkills)
             };
             return slots
-                .Where(slot => slot.Id.Length > 0 && _contentRegistry.Generals.ContainsKey(slot.Id))
+                .Where(slot => slot.Id.Length > 0 && CurrentPresentationRegistry.Generals.ContainsKey(slot.Id))
                 .SelectMany(slot =>
                 {
-                    var definition = _contentRegistry.Generals[slot.Id];
+                    var definition = CurrentPresentationRegistry.Generals[slot.Id];
                     var ownedIds = slot.Skills?.Select(skill => skill.ContentId)
                         .OfType<string>().Distinct(StringComparer.Ordinal).ToArray() ?? definition.SkillIds;
                     return ownedIds
-                        .Select(_contentRegistry.GetSkill)
+                        .Select(CurrentPresentationRegistry.GetSkill)
                         .Where(skill => skill.Name != "无")
                         .Select(skill =>
                         {
@@ -104,7 +105,7 @@ public sealed partial class MainViewModel
                 .ToArray();
         }
 
-        if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
+        if (CurrentPresentationRegistry.Generals.TryGetValue(human.GeneralId, out var general))
         {
             var ownedSkillIds = human.Skills is null
                 ? general.SkillIds
@@ -115,7 +116,7 @@ public sealed partial class MainViewModel
                     .ToArray();
             return ownedSkillIds
                 .Where(id => IsVisibleWenheSkill(human, id))
-                .Select(_contentRegistry.GetSkill)
+                .Select(CurrentPresentationRegistry.GetSkill)
                 .Select(skill =>
                 {
                     var runtimeState = human.SkillRuntimeStates?
@@ -300,7 +301,7 @@ public sealed partial class MainViewModel
     {
         var parts = new List<string>();
         var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
-        if (human is not null && _contentRegistry.Skills.TryGetValue(state.SkillId, out var skill))
+        if (human is not null && CurrentPresentationRegistry.Skills.TryGetValue(state.SkillId, out var skill))
         {
             foreach (var cycle in (human.AlternatingChoiceStates ?? []).Where(cycle => cycle.SkillId == state.SkillId))
                 parts.Add($"下次选择：摸牌 +{cycle.NextDrawBonus}／额外目标 +{cycle.NextTargetBonus}");
@@ -354,7 +355,9 @@ public sealed partial class MainViewModel
         }
         return string.Join(" · ", parts.Distinct());
     }
-    public string AliveText => IsGuanduActivitySnapshot ? GuanduAliveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
+    public string AliveText => IsShanheBattleSession
+        ? $"义军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shanhe-player")} · 敌军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shanhe-enemy")} 存活"
+        : IsGuanduActivitySnapshot ? GuanduAliveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
         ? $"联合军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.PlayerTeamId)} · {BossActivityEnemyLabel} {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.EnemyTeamId)} 存活 · {BossActivityStageText}"
         : IsActivitySnapshot
         ? $"魏军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:wei")} · 蜀军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shu")} 存活"
@@ -423,12 +426,12 @@ public sealed partial class MainViewModel
     private string HumanActiveSkillName => HumanActiveSkillAction is { } action ? ActiveSkillName(action) : "技能";
 
     private string ActiveSkillName(LegalAction action) => action.ProgramSkillId is { } programSkillId &&
-                                                          _contentRegistry.Skills.TryGetValue(programSkillId, out var programSkill)
+                                                          CurrentPresentationRegistry.Skills.TryGetValue(programSkillId, out var programSkill)
         ? programSkill.Name
         : action.EquipmentKind is { } equipment
                 ? EquipmentCatalog.Get(equipment).DisplayName
                 : IsTieredRoundZeroAction(action) && action.ConversionSource is { } source &&
-                  _contentRegistry.Skills.TryGetValue(source.SkillId, out var zeroSkill)
+                  CurrentPresentationRegistry.Skills.TryGetValue(source.SkillId, out var zeroSkill)
                     ? zeroSkill.Name : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
         (IsTieredRoundZeroAction(action) ? CanConfirmTieredRoundZeroAction(action) :
@@ -679,7 +682,8 @@ public sealed partial class MainViewModel
         var origin = HumanPlayer?.Seat ?? 0;
         var opponents = Seats.Where(seat => seat.Seat != origin)
             .OrderBy(seat => (seat.Seat - origin + Seats.Count) % Seats.Count).ToArray();
-        var sideCount = Seats.Count >= 7 ? 2 : 1;
+        // Reserve disjoint side groups; a lone opponent belongs at the top.
+        var sideCount = Math.Min(Seats.Count >= 7 ? 2 : 1, opponents.Length / 2);
         SyncSeats(RightSeats, opponents.Take(sideCount).Reverse());
         SyncSeats(TopSeats, opponents.Skip(sideCount).Take(Math.Max(0, opponents.Length - sideCount * 2)).Reverse());
         SyncSeats(LeftSeats, opponents.TakeLast(sideCount));

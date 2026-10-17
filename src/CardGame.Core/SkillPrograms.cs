@@ -22,7 +22,8 @@ public enum SkillRuleQuery
     InitialHandSize = 5600
 }
 public enum SkillRuleOperation { Add, Set, Unlimited }
-public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200, OwnerMaxHp = 5600, NegatedLivingFemaleCount = 21400, NegatedCurrentRoundActualUseCount = 27260, PublicTeamEnemyCount = 27600 }
+public enum SkillRuleRecipientScope { Owner = 0, OtherPublicTeamAllies = 1 }
+public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200, OwnerMaxHp = 5600, NegatedLivingFemaleCount = 21400, NegatedCurrentRoundActualUseCount = 27260, PublicTeamEnemyCount = 27600, OtherPublicTeamAllyCount = 27602 }
 public enum SkillRuleQueryDependency { MarkerState }
 public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023, PreviousPlayCardIsBasic = 1024, NoWeapon = 11300, NoArmor = 22501, NoMounts = 22502, NoTreasure = 22503 }
 public enum SkillProgramTriggerConditionKind
@@ -143,6 +144,7 @@ public enum SkillProgramTargetKind
     OtherPublicTeamWoundedAllies = 27402,
     PublicTeamUnchainedEnemies = 27403,
     PublicTeamEnemiesWithFaceDownAlly = 27404,
+    OtherPublicTeamAllies = 27405,
     OtherLivingNonLord = 9800, OtherLivingNotLastRoundFocus = 9801,
     ExclusiveRendeBeneficiary = 9802, OtherLivingWithoutEndingSupport = 9803,
     ExclusiveQingnangBeneficiary = 9804,
@@ -199,7 +201,8 @@ public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPrevious
 }
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
-public enum SkillProgramDamageModifierSourceScope { OwnerUsed = 0, DamageSource = 1, DamageParticipant = 2 }
+public enum SkillProgramDamageModifierSourceScope { OwnerUsed = 0, DamageSource = 1, DamageParticipant = 2, AllLivingSkillOwners = 3 }
+public enum SkillProgramDamageLayer { AdditionalDamage = 0, CardDamage = 1 }
 public enum SkillProgramDamageModifierCondition
 {
     Always = 0,
@@ -209,13 +212,25 @@ public enum SkillProgramDamageModifierCondition
     FaceStatesDiffer = 1021,
     ChainedFirePropagationOrigin = 1020,
     DamageSourceAttackRangeBelowThree = 1030,
-    DamageSourceAttackRangeAboveThree = 1031
+    DamageSourceAttackRangeAboveThree = 1031,
+    SourceHandBelowHp = 1032,
+    BothParticipantsPublicEnemiesOfOwner = 1033,
+    OwnerActualTurnTrickUseOrdinalWithinLimit = 1034,
+    SourceHandBelowLimit = 1035
 }
 public sealed record SkillProgramDamageModifier(
     string Id, IReadOnlyList<CardKind> CardKinds, int Amount,
     SkillProgramDamageModifierCondition Condition,
     SkillProgramDamageModifierSourceScope SourceScope,
-    bool CapsToAmount = false);
+    bool CapsToAmount = false)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillProgramDamageLayer DamageLayer { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MaximumUseOrdinal { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? SourceHandCountLimit { get; init; }
+}
 public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition Condition)
 {
     public string Label { get; internal set; } = "";
@@ -266,6 +281,7 @@ public enum SkillProgramEffectOp
     MouCaoPiSongwei = 28003, MouCaoPiRemoveWeiSkills = 28004,
     SelectAllPublicTeamTargets = 27400,
     RepeatCurrentRedTrick = 27401,
+    SelectRandomPublicTeamTarget = 27402,
     RefillAndScheduleNextTurnSelfOnly = 20560,
     UsePhaseOwnerVirtualAlcohol = 4721,
     RecastOwnedCardsAndDuel = 20300,
@@ -985,6 +1001,7 @@ public enum SkillProgramEffectOp
     ResolveHulaoXiuluo = 27600,
     OfferHulaoDamagePeach = 27601,
     PreventHulaoArmoredLargeDamage = 27602,
+    GrantArmor = 27610,
     BindPublicAllyDeath = 27603,
     SkipHulaoTreasureJudgment = 27604,
     DrawShenwuWuzangReplacement = 27700,
@@ -1101,7 +1118,8 @@ public enum SkillProgramNumberExpression
     PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400,
     TurnOwnerDiscardPhaseHandDiscardCount = 3100, CurrentHandEmptyTwoOtherwiseOne = 8008,
     EquipmentHalfCeilingPlusOne = 9000,
-    ActualTurnDeathBenefits = 4721
+    ActualTurnDeathBenefits = 4721,
+    OwnerMaxHp = 43000
 }
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
@@ -1767,10 +1785,14 @@ public sealed class SkillProgramModifier
     public SkillRuleQuery Query { get; }
     public SkillRuleOperation Operation { get; }
     public int Value { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillRuleRecipientScope RecipientScope { get; internal init; }
     public SkillRuleValueExpression? ValueExpression { get; }
     public CardZoneKind? ValueZone { get; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PlayerMarkerKind? ValueMarker { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ValueMultiplier { get; internal init; }
     [JsonIgnore]
     public IReadOnlyList<SkillRuleQueryDependency> QueryDependencies => ValueExpression == SkillRuleValueExpression.OwnerMarkerCount
         ? [SkillRuleQueryDependency.MarkerState] : [];
@@ -1791,6 +1813,9 @@ public sealed class SkillProgramModifier
             throw new InvalidOperationException("Public living factions were not captured."),
         SkillRuleValueExpression.PublicTeamEnemyCount => context.PublicTeamEnemyCount is >= 0 ? context.PublicTeamEnemyCount.Value :
             throw new InvalidOperationException("Public living enemies were not captured."),
+        SkillRuleValueExpression.OtherPublicTeamAllyCount => context.OtherPublicTeamAllyCount is >= 0
+            ? checked(context.OtherPublicTeamAllyCount.Value * (ValueMultiplier ?? 1))
+            : throw new InvalidOperationException("Other living public allies were not captured."),
         SkillRuleValueExpression.CurrentTurnUsedHandSuitCount => context.CurrentTurnUsedHandSuitCount ??
             throw new InvalidOperationException("Actual turn hand-suit facts were not captured."),
         SkillRuleValueExpression.OwnerLostHp => Math.Max(0, context.Owner.MaxHp - context.Owner.Hp),
@@ -2806,6 +2831,38 @@ public sealed class SkillProgramCatalog
             ? EnumValue<Suit>(node, "inputSuit", path) : null;
         Suit? outputSuit = node.TryGetProperty("outputSuit", out _)
             ? EnumValue<Suit>(node, "outputSuit", path) : null;
+        if (kind == SkillProgramCardPolicyKind.FirstRoundCardDamageBecomesMaximumHpLoss)
+        {
+            if (cardKinds.Count == 0 || cardKinds.Any(k => k is not (CardKind.Slash or CardKind.FireSlash or
+                    CardKind.ThunderSlash or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack)) ||
+                requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
+                ownerRole is not null || factionId is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
+                node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _))
+                Fail(path, "First-round card damage replacement requires direct damaging card kinds and no other qualifiers.");
+            return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, OptionalCondition(node, path));
+        }
+        if (kind == SkillProgramCardPolicyKind.BattleSlashCountMinimumResponses)
+        {
+            var slash = cardKinds.Count > 0 && cardKinds.All(k => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
+            var duel = cardKinds.SequenceEqual([CardKind.Duel]);
+            if ((!slash && !duel) || !requiredKinds.SequenceEqual([duel ? CardKind.Slash : CardKind.Dodge]) ||
+                value != 0 || inputSuit is not null || outputSuit is not null || ownerRole is not null || factionId is not null ||
+                OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
+                node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _))
+                Fail(path, "Battle Slash-count responses require Slash-family/Dodge or only Duel/Slash and no other qualifiers.");
+            return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, OptionalCondition(node, path));
+        }
+        if (kind is SkillProgramCardPolicyKind.OutgoingDistanceOne or SkillProgramCardPolicyKind.ReverseDelayedJudgment)
+        {
+            var condition = OptionalCondition(node, path);
+            if (requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
+                ownerRole is not null || factionId is not null || condition.Kind != SkillProgramConditionKind.Always ||
+                node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _) ||
+                (kind == SkillProgramCardPolicyKind.OutgoingDistanceOne ? cardKinds.Count != 0 :
+                    cardKinds.Count == 0 || cardKinds.Any(k => k is not (CardKind.Indulgence or CardKind.SupplyShortage))))
+                Fail(path, "Fixed outgoing distance requires no filters; reversed delayed judgment requires only Indulgence/SupplyShortage kinds.");
+            return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, condition);
+        }
         if (kind == SkillProgramCardPolicyKind.BypassSlashLimitAgainstOutsideAttackRange &&
             (cardKinds.Count != 3 || !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) ||
              requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
@@ -2816,6 +2873,14 @@ public sealed class SkillProgramCatalog
         {
             if(inputSuit is null || outputSuit is not null || value is < 1 or > 13 || cardKinds.Count != 0 || requiredKinds.Count != 0)
                 Fail(path,"Pindian suit rank requires one input suit, rank 1..13 and no card filters.");
+        }
+        else if (kind == SkillProgramCardPolicyKind.PindianRankBonus)
+        {
+            if (value is < 1 or > 12 || cardKinds.Count != 0 || requiredKinds.Count != 0 ||
+                inputSuit is not null || outputSuit is not null || ownerRole is not null || factionId is not null ||
+                OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
+                node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _))
+                Fail(path, "Pindian rank bonus requires an unconditional value 1..12 and no card, suit, role or cost qualifiers.");
         }
         else if (kind == SkillProgramCardPolicyKind.EquipmentSuitHandLimitAtMaxHp)
         {
@@ -2899,11 +2964,11 @@ public sealed class SkillProgramCatalog
                     CardKind.IronChain or CardKind.BorrowedSword)))
                 Fail(path, "nearby response prohibition requires Slash or ordinary trick kinds and distance 1..20");
         }
-        else if (kind != SkillProgramCardPolicyKind.PindianRankBySuit && (requiredKinds.Count != 0 || value != 0))
+        else if (kind is not (SkillProgramCardPolicyKind.PindianRankBySuit or SkillProgramCardPolicyKind.PindianRankBonus) && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
         if (kind is SkillProgramCardPolicyKind.XiaHuiBlackHandAndGainedEntityRestrictions or SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount or SkillProgramCardPolicyKind.RoundGainedOtherSourceUse or SkillProgramCardPolicyKind.DistanceOneToNotHigherHp or SkillProgramCardPolicyKind.SlashExtraTargetsByLostHp or SkillProgramCardPolicyKind.ClaimedEntitiesFaceDownUse or SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying or SkillProgramCardPolicyKind.ProhibitBlackTrickTarget or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard or SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
             SkillProgramCardPolicyKind.PreventEnteringChain or SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget or SkillProgramCardPolicyKind.ProhibitPindianTarget or
-            SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
+            SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or SkillProgramCardPolicyKind.PindianRankBonus or
             SkillProgramCardPolicyKind.RewriteSuit or SkillProgramCardPolicyKind.EquipmentSuitHandLimitAtMaxHp or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery or
             SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.PindianClaimAllWhenSourceWins or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or
@@ -2986,7 +3051,7 @@ public sealed class SkillProgramCatalog
     private static SkillProgramDamageModifier ParseDamageModifier(JsonElement node, string path)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "cardKinds", "amount", "condition", "sourceScope", "capsToAmount");
+        CheckProperties(node, path, "id", "cardKinds", "amount", "condition", "sourceScope", "capsToAmount", "damageLayer", "maximumUseOrdinal", "sourceHandCountLimit");
         var kinds = EnumArray<CardKind>(node, "cardKinds", path);
         if (kinds.Distinct().Count() != kinds.Count ||
             (kinds.Count == 0 && !(
@@ -2994,7 +3059,9 @@ public sealed class SkillProgramCatalog
                 SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
                     or SkillProgramDamageModifierCondition.FaceStatesDiffer
                     or SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree
-                    or SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree)))
+                    or SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree
+                    or SkillProgramDamageModifierCondition.SourceHandBelowHp
+                    or SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner)))
             Fail(path + ".cardKinds", "must contain distinct effective card kinds");
         var amount = PositiveInt(node, "amount", path);
         if (amount > 20) Fail(path + ".amount", "must not exceed 20");
@@ -3003,6 +3070,24 @@ public sealed class SkillProgramCatalog
             ? EnumValue<SkillProgramDamageModifierSourceScope>(node, "sourceScope", path)
             : SkillProgramDamageModifierSourceScope.OwnerUsed;
         var capsToAmount = node.TryGetProperty("capsToAmount", out _) && RequiredBool(node, "capsToAmount", path);
+        var maximumUseOrdinal = node.TryGetProperty("maximumUseOrdinal", out _) ? PositiveInt(node, "maximumUseOrdinal", path) : (int?)null;
+        if (condition == SkillProgramDamageModifierCondition.OwnerActualTurnTrickUseOrdinalWithinLimit)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed || maximumUseOrdinal is not (>= 1 and <= 20) ||
+                kinds.Any(kind => CardCatalog.Get(kind).CategoryName != "锦囊牌"))
+                Fail(path, "trick-use ordinal requires ownerUsed, trick card kinds and maximumUseOrdinal between 1 and 20");
+        }
+        else if (maximumUseOrdinal is not null)
+            Fail(path + ".maximumUseOrdinal", "requires the owner actual-turn trick-use ordinal condition");
+        var sourceHandCountLimit = node.TryGetProperty("sourceHandCountLimit", out _)
+            ? PositiveInt(node, "sourceHandCountLimit", path) : (int?)null;
+        if (condition == SkillProgramDamageModifierCondition.SourceHandBelowLimit)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed || sourceHandCountLimit is null)
+                Fail(path, "source hand below limit requires ownerUsed and a positive sourceHandCountLimit");
+        }
+        else if (sourceHandCountLimit is not null)
+            Fail(path + ".sourceHandCountLimit", "requires the source hand below limit condition");
         if (condition is SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree or
             SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree)
         {
@@ -3016,7 +3101,17 @@ public sealed class SkillProgramCatalog
         }
         else if (capsToAmount)
             Fail(path + ".capsToAmount", "requires the below-three attack-range condition");
-        if (condition is SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)
+        if (condition == SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.AllLivingSkillOwners || kinds.Count != 0)
+                Fail(path, "public enemy participants require allLivingSkillOwners and every damage kind");
+        }
+        else if (condition == SkillProgramDamageModifierCondition.SourceHandBelowHp)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.DamageSource || kinds.Count != 0)
+                Fail(path, "source hand below HP requires damageSource and every damage kind");
+        }
+        else if (condition is SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)
         {
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant || kinds.Count != 0)
                 Fail(path, "unique-maximum-hand damage requires damageParticipant and every damage kind");
@@ -3030,17 +3125,28 @@ public sealed class SkillProgramCatalog
                  condition is not (SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree or
                      SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree))
             Fail(path + ".sourceScope", "card damage modifiers require ownerUsed");
-        return new SkillProgramDamageModifier(Identifier(node, "id", path), kinds, amount, condition, scope, capsToAmount);
+        var damageLayer = node.TryGetProperty("damageLayer", out _)
+            ? EnumValue<SkillProgramDamageLayer>(node, "damageLayer", path) : SkillProgramDamageLayer.AdditionalDamage;
+        if (damageLayer == SkillProgramDamageLayer.CardDamage && (scope != SkillProgramDamageModifierSourceScope.OwnerUsed || capsToAmount))
+            Fail(path + ".damageLayer", "card damage requires an uncapped owner-used card modifier");
+        if ((condition is SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner or
+                SkillProgramDamageModifierCondition.OwnerActualTurnTrickUseOrdinalWithinLimit) &&
+            damageLayer != SkillProgramDamageLayer.AdditionalDamage)
+            Fail(path + ".damageLayer", "public enemy and trick-use ordinal modifiers require additionalDamage");
+        return new SkillProgramDamageModifier(Identifier(node, "id", path), kinds, amount, condition, scope, capsToAmount)
+            { DamageLayer = damageLayer, MaximumUseOrdinal = maximumUseOrdinal, SourceHandCountLimit = sourceHandCountLimit };
     }
 
     private static SkillProgramModifier ParseModifier(JsonElement node, string path)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "query", "operation", "value", "valueExpression", "valueZone", "valueMarker",
+        CheckProperties(node, path, "id", "query", "operation", "value", "valueExpression", "valueZone", "valueMarker", "valueMultiplier", "recipientScope",
             "priority", "sourceCardIdentityId", "cardKinds", "condition");
         var id = Identifier(node, "id", path);
         var query = EnumValue<SkillRuleQuery>(node, "query", path);
         var operation = EnumValue<SkillRuleOperation>(node, "operation", path);
+        var recipientScope = node.TryGetProperty("recipientScope", out _)
+            ? EnumValue<SkillRuleRecipientScope>(node, "recipientScope", path) : SkillRuleRecipientScope.Owner;
         var hasValue = node.TryGetProperty("value", out _);
         var hasValueExpression = node.TryGetProperty("valueExpression", out _);
         if (hasValue == hasValueExpression)
@@ -3049,6 +3155,13 @@ public sealed class SkillProgramCatalog
         SkillRuleValueExpression? valueExpression = hasValueExpression
             ? EnumValue<SkillRuleValueExpression>(node, "valueExpression", path)
             : null;
+        var valueMultiplier = node.TryGetProperty("valueMultiplier", out _) ? PositiveInt(node, "valueMultiplier", path) : (int?)null;
+        if (valueMultiplier is not null &&
+            (valueExpression != SkillRuleValueExpression.OtherPublicTeamAllyCount || valueMultiplier > 20))
+            Fail(path + ".valueMultiplier", "requires otherPublicTeamAllyCount and a multiplier between 1 and 20");
+        if (valueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount &&
+            (query != SkillRuleQuery.SlashLimit || operation != SkillRuleOperation.Add))
+            Fail(path, "other public living allies require an additive Slash-limit modifier");
         var valueZone = node.TryGetProperty("valueZone", out _)
             ? EnumValue<CardZoneKind>(node, "valueZone", path) : (CardZoneKind?)null;
         if (valueExpression == SkillRuleValueExpression.OwnerMaxHp &&
@@ -3081,6 +3194,8 @@ public sealed class SkillProgramCatalog
         var sourceCardIdentityId = node.TryGetProperty("sourceCardIdentityId", out _)
             ? Identifier(node, "sourceCardIdentityId", path)
             : null;
+        if (valueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount && sourceCardIdentityId is not null)
+            Fail(path + ".sourceCardIdentityId", "other public living allies require an owner-wide Slash-limit modifier");
         var cardKinds = node.TryGetProperty("cardKinds", out _)
             ? EnumArray<CardKind>(node, "cardKinds", path)
             : [];
@@ -3100,6 +3215,7 @@ public sealed class SkillProgramCatalog
             (operation != SkillRuleOperation.Add || query != SkillRuleQuery.HandLimit &&
                 !(query == SkillRuleQuery.CardTargetCount && valueExpression == SkillRuleValueExpression.OwnerLostHp) &&
                 !(query == SkillRuleQuery.DrawCount && valueExpression == SkillRuleValueExpression.PublicTeamEnemyCount) &&
+                !(query == SkillRuleQuery.SlashLimit && valueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount) &&
                 !(query == SkillRuleQuery.InitialHandSize && valueExpression == SkillRuleValueExpression.OwnerMaxHp)))
             Fail(path + ".valueExpression",
                 "livingFactionCount is currently supported only by additive handLimit modifiers");
@@ -3136,8 +3252,14 @@ public sealed class SkillProgramCatalog
         var condition = OptionalCondition(node, path);
         if (query == SkillRuleQuery.InitialHandSize && condition.Kind != SkillProgramConditionKind.Always)
             Fail(path + ".condition", "initialHandSize is captured before dealing and requires an unconditional modifier");
+        if (recipientScope == SkillRuleRecipientScope.OtherPublicTeamAllies &&
+            (query != SkillRuleQuery.DrawCount || operation != SkillRuleOperation.Add || value <= 0 ||
+             valueExpression is not null || priority != 0 || condition.Kind != SkillProgramConditionKind.Always ||
+             sourceCardIdentityId is not null || node.TryGetProperty("cardKinds", out _)))
+            Fail(path + ".recipientScope", "otherPublicTeamAllies requires an unconditional positive fixed additive drawCount modifier");
         return new SkillProgramModifier(id, query, operation, value, valueExpression, valueZone, priority,
-            sourceCardIdentityId, cardKinds, condition) { ValueMarker = valueMarker };
+            sourceCardIdentityId, cardKinds, condition)
+            { ValueMarker = valueMarker, ValueMultiplier = valueMultiplier, RecipientScope = recipientScope };
     }
 
     private static SkillProgramCardIdentity ParseCardIdentity(JsonElement node, string path)
@@ -3752,8 +3874,8 @@ public sealed class SkillProgramCatalog
             effect.Op != SkillProgramEffectOp.ChooseOption)
             Fail(path + ".condition", "hasOwnedCardCategory requires a chooser-owned card option");
         if (effect.Target == SkillProgramEffectTarget.SelectedTargets &&
-            effect.Op is not (SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover or SkillProgramEffectOp.SetChainedState or SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.GrantAttributedNatureEffect or SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget))
-            Fail(path + ".target", "selectedTargets is supported only by draw or recover");
+            effect.Op is not (SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover or SkillProgramEffectOp.GrantArmor or SkillProgramEffectOp.SetChainedState or SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.GrantAttributedNatureEffect or SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget))
+            Fail(path + ".target", "selectedTargets requires an admitted multi-recipient operation");
         return effect;
     }
     private static SkillProgramTrigger ParseTrigger(JsonElement node, string path, string skillId)

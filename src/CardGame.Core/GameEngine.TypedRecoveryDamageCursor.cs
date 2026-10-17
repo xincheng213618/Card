@@ -305,9 +305,33 @@ public sealed partial class GameEngine
         for (var index = windowIndex + 2; index < _resolutionStack.Count; index++)
         {
             var parent = _resolutionStack[index - 1]; var child = _resolutionStack[index];
+            if (parent is ProgramSkillFrame receiptOwner && child is HpChangedTriggerWindowFrame programHealth &&
+                programHealth.Change.Kind == HpChangeKind.Recovery)
+            {
+                if (!ProgramRecoveryReceiptMatches(receiptOwner, programHealth, History())) return new(null, IsMalformed: true);
+                hasRecovery = true;
+                continue;
+            }
+            if (ExactPaidNativeRecoveryUseEdge(parent, child, History())) continue;
+            if (parent is CardUseFrame nativeUse && child is HpChangedTriggerWindowFrame nativeHealth)
+            {
+                if (!NativeCardRecoveryReturnMatches(nativeUse, nativeHealth, History())) return new(null, IsMalformed: true);
+                hasRecovery = true;
+                continue;
+            }
+            if (ExactPaidNativeRecoveryReplacementEdge(parent, child, History()))
+            {
+                hasRecovery = true;
+                continue;
+            }
             if (TypedDamagePostEventEdge(parent, child)) continue;
             if (parent is ProgramSkillFrame producer && child is RecoveryReplacementFrame recovery)
             {
+                if (ProgramRecoveryReplacementReceiptMatches(producer, recovery, History()))
+                {
+                    hasRecovery = true;
+                    continue;
+                }
                 if (IsCaoSongLiluRecoveryParent(producer, recovery) || IsSunRuOlRecoveryParent(producer, recovery) || IsHuoJunFenruiRecoveryParent(producer, recovery) || IsDuXiRecoveryParent(producer, recovery) || IsXunyiRecoveryParent(producer, recovery) || (IsYanPuRecoveryParent(producer, recovery) || IsCaoTengRecoveryParent(producer, recovery) || (IsSunHaoRecoveryParent(producer, recovery) || (IsDaQiaoXiaoQiaoRecoveryParent(producer, recovery) || (IsWenYangRecoveryParent(producer, recovery) || IsLiuBaRecoveryParent(producer, recovery) || IsLiuPanRecoveryParent(producer, recovery) || (IsQuHuangRecoveryParent(producer, recovery) || IsCaoYuRecoveryParent(producer, recovery) || IsLiYiRecoveryParent(producer, recovery) || IsSunYuanRecoveryParent(producer, recovery) || (IsLiuZhangRecoveryParent(producer, recovery) || (IsTangTangRecoveryParent(producer, recovery) || IsMouCaoPiRecoveryParent(producer, recovery)) || (IsYuanJiRecoveryParent(producer, recovery) || IsKongShuRecoveryParent(producer, recovery) || (IsMaChengRecoveryParent(producer, recovery) || ((IsZhouQunRecoveryParent(producer, recovery) || (IsGuanHaiRecoveryParent(producer, recovery) || (IsXieLingYuRecoveryParent(producer, recovery) || (IsLiFengRecoveryParent(producer, recovery) || (IsOrdinaryCaiFuRenRecoveryParent(producer, recovery) || (IsOrdinaryGuYongRecoveryParent(producer, recovery) || (IsHuanShuJunRecoveryParent(producer, recovery) || (IsZhaoZhongRecoveryParent(producer, recovery) || (IsTaoQianRecoveryParent(producer, recovery) || (IsPangJiRecoveryParent(producer, recovery) || (IsLeMiHengRecoveryParent(producer, recovery) || (IsLeZhouFeiXianshuRecoveryParent(producer, recovery) || IsWuYixianRecoveryParent(producer, recovery))))))))))))) || IsSunHongRecoveryParent(producer, recovery)))))))))) || IsDuFuRenRecoveryParent(producer, recovery) || IsQianZhaoRecoveryParent(producer, recovery) || IsDingShangWanRecoveryParent(producer, recovery) || IsLiWanRecoveryParent(producer, recovery) || IsHeJinRecoveryParent(producer, recovery) || IsYanRouRecoveryParent(producer, recovery) || IsLuYuShengRecoveryParent(producer, recovery) || IsWangKuangRecoveryParent(producer, recovery) || IsYuanHuanRecoveryParent(producer, recovery) || IsHanFuRecoveryParent(producer, recovery) || IsZhangYanRecoveryParent(producer, recovery) || IsNiuFuRecoveryParent(producer, recovery) || IsRuanHuiRecoveryParent(producer, recovery) || IsMaMiDiRecoveryParent(producer, recovery) || IsDuanJiongRecoveryParent(producer, recovery) || IsTianChouRecoveryParent(producer, recovery) || (IsKenshangRecoveryParent(producer, recovery) || IsFulueRecoveryParent(producer, recovery) || IsYangFengRecoveryParent(producer, recovery) || IsQinLangRecoveryParent(producer, recovery) || IsLiuYanRecoveryParent(producer, recovery) || IsXiangChongRecoveryParent(producer, recovery)) || IsKeBiNengRecoveryParent(producer, recovery) || IsHuJinDingRecoveryParent(producer, recovery) || IsZhangYiRecoveryParent(producer, recovery) || IsLuanfengRecoveryParent(producer, recovery))
                 {
                     if (!TypedRecoveryApplicationBoundsMatch(recovery, History())) return new(null, IsMalformed: true);

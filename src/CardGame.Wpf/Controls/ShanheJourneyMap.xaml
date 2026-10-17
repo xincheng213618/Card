@@ -1,0 +1,164 @@
+<UserControl x:Class="CardGame.Wpf.Controls.ShanheJourneyMap"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:campaign="clr-namespace:CardGame.Core.Campaigns;assembly=CardGame.Core"
+             Width="1040" Height="500" Background="Transparent"
+             AutomationProperties.Name="山河图征途路线" KeyboardNavigation.TabNavigation="Continue">
+    <UserControl.Resources>
+        <DataTemplate x:Key="GateEmblem"><Image Source="/CardGame.Wpf;component/Assets/shanhe-gate.png" Width="78" Height="59" Stretch="Uniform"/></DataTemplate>
+        <DataTemplate x:Key="EventEmblem"><Grid Width="58" Height="56">
+            <Ellipse Width="48" Height="48" Fill="#EDB08035" Stroke="#FFE4A0" StrokeThickness="2"/>
+            <Ellipse Width="40" Height="40" Stroke="#8D5929" StrokeThickness="1"/>
+            <TextBlock Text="?" FontFamily="Georgia" FontSize="36" FontWeight="Bold" Foreground="#FFF0C3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid></DataTemplate>
+        <DataTemplate x:Key="CampEmblem"><Viewbox Width="61" Height="54"><Canvas Width="64" Height="58">
+            <Path Data="M 5,51 L 31,6 L 59,51 Z" Fill="#D3A95E" Stroke="#6E5030" StrokeThickness="2"/>
+            <Path Data="M 31,8 L 31,51 L 17,51 Z" Fill="#F5D99A"/>
+            <Path Data="M 31,26 L 41,51 L 23,51 Z" Fill="#534132"/>
+            <Path Data="M 31,6 L 31,0 M 4,52 L 60,52" Stroke="#6C5031" StrokeThickness="2"/>
+            <Path Data="M 31,0 L 46,2 L 31,9 Z" Fill="#A2472F"/>
+        </Canvas></Viewbox></DataTemplate>
+        <DataTemplate x:Key="ShopEmblem"><Viewbox Width="62" Height="55"><Canvas Width="66" Height="60">
+            <Rectangle Canvas.Left="12" Canvas.Top="25" Width="43" Height="31" Fill="#ECD09A" Stroke="#64482C" StrokeThickness="2"/>
+            <Path Data="M 4,27 Q 16,23 20,11 L 47,11 Q 50,22 63,27 Z" Fill="#925039" Stroke="#5A3B28" StrokeThickness="2"/>
+            <Path Data="M 11,28 L 56,28 M 8,55 L 59,55 M 22,35 L 22,50 M 44,35 L 44,50" Stroke="#6B4A2B" StrokeThickness="3"/>
+            <Ellipse Canvas.Left="25" Canvas.Top="0" Width="17" Height="17" Fill="#D7AC51" Stroke="#6C4927" StrokeThickness="2"/>
+            <Rectangle Canvas.Left="31" Canvas.Top="6" Width="5" Height="5" Fill="#65472A"/>
+            <Rectangle Canvas.Left="29" Canvas.Top="35" Width="9" Height="20" Fill="#705331"/>
+        </Canvas></Viewbox></DataTemplate>
+        <Style x:Key="JourneyNodeButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#F0DEB4" />
+            <Setter Property="Background" Value="#DB42372D" />
+            <Setter Property="BorderBrush" Value="#927851" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="84" Height="112" RenderTransformOrigin="0.5,0.35">
+                            <Grid.RenderTransform><ScaleTransform x:Name="NodeScale" /></Grid.RenderTransform>
+                            <Ellipse x:Name="AvailableHalo" Width="69" Height="52" VerticalAlignment="Top"
+                                     Fill="#48FFE4A5" Stroke="#EBCB80" StrokeThickness="1.5" Visibility="Collapsed" />
+                            <Ellipse Width="63" Height="17" VerticalAlignment="Top" Margin="0,43,0,0" Fill="#58413722" />
+                            <ContentControl x:Name="NodeEmblem" Content="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Top" IsHitTestVisible="False">
+                                <ContentControl.Style><Style TargetType="ContentControl"><Setter Property="ContentTemplate" Value="{StaticResource GateEmblem}"/><Style.Triggers>
+                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static campaign:ShanheNodeKind.Event}"><Setter Property="ContentTemplate" Value="{StaticResource EventEmblem}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static campaign:ShanheNodeKind.Shop}"><Setter Property="ContentTemplate" Value="{StaticResource ShopEmblem}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static campaign:ShanheNodeKind.Camp}"><Setter Property="ContentTemplate" Value="{StaticResource CampEmblem}"/></DataTrigger>
+                                </Style.Triggers></Style></ContentControl.Style>
+                            </ContentControl>
+                            <Border x:Name="BossFlag" Background="#A53A2C" BorderBrush="#E9C27D" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,4,0" Padding="2" Visibility="Collapsed"><TextBlock Text="帅" FontFamily="KaiTi" Foreground="#FFE7B4" FontSize="12"/></Border>
+                            <Border x:Name="NamePlate" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" Padding="2,4" Margin="0,59,0,0" VerticalAlignment="Top" CornerRadius="1">
+                                <TextBlock Text="{Binding ShortName}" Foreground="{TemplateBinding Foreground}" FontSize="13"
+                                           FontFamily="KaiTi, Microsoft YaHei UI" FontWeight="Bold" HorizontalAlignment="Center" />
+                            </Border>
+                            <TextBlock x:Name="NodeStatus" Text="{Binding StateLabel}" Foreground="#574633" FontSize="10" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,90,0,0" />
+                            <Border x:Name="CurrentMarker" Background="#9C3426" BorderBrush="#E8C77D" BorderThickness="1" Padding="6,2"
+                                    HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-24,0,0" Visibility="Collapsed">
+                                <TextBlock Text="此刻所在" Foreground="#FFF0C7" FontSize="10" />
+                            </Border>
+                            <Grid x:Name="GeneralPin" Width="40" Height="52" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-78,0,0" Visibility="Collapsed" IsHitTestVisible="False">
+                                <Path Data="M 10,29 L 30,29 L 20,51 Z" Fill="#FFE8B7" Stroke="#96713C" StrokeThickness="1"/>
+                                <Ellipse Width="39" Height="39" VerticalAlignment="Top" Stroke="#FFE5AA" StrokeThickness="2.5"
+                                         Fill="{Binding DataContext.CurrentShanheGeneralPortrait, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Cursor" Value="Arrow" />
+                                <Setter Property="Foreground" Value="#E0D3B4" />
+                                <Setter Property="Background" Value="#BF675A47" />
+                                <Setter Property="BorderBrush" Value="#8C7959" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding Kind}" Value="{x:Static campaign:ShanheNodeKind.BossBattle}"><Setter TargetName="BossFlag" Property="Visibility" Value="Visible"/></DataTrigger>
+                            <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                <Setter Property="Background" Value="#E84B5D45" />
+                                <Setter Property="BorderBrush" Value="#9DAC76" />
+                                <Setter Property="Foreground" Value="#F0E6C8" />
+                                <Setter TargetName="NodeStatus" Property="Foreground" Value="#3C5138" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                <Setter Property="Background" Value="#F1833829" />
+                                <Setter Property="BorderBrush" Value="#EBC681" />
+                                <Setter Property="Foreground" Value="#FFF1C8" />
+                                <Setter TargetName="CurrentMarker" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="GeneralPin" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="NodeStatus" Property="Foreground" Value="#813625" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsAvailable}" Value="True">
+                                <Setter TargetName="AvailableHalo" Property="Visibility" Value="Visible" />
+                                <Setter Property="Background" Value="#F36A4726" />
+                                <Setter Property="BorderBrush" Value="#FFE4A0" />
+                                <Setter TargetName="NodeStatus" Property="Foreground" Value="#613A20" />
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="NamePlate" Property="BorderBrush" Value="#FFF0BD" />
+                                <Setter TargetName="NamePlate" Property="Background" Value="#AB522C" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="AvailableHalo" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="AvailableHalo" Property="Stroke" Value="#FFF9DA" />
+                                <Setter TargetName="AvailableHalo" Property="StrokeThickness" Value="3" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="NodeEmblem" Property="Opacity" Value="0.75"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid ClipToBounds="False">
+        <Image Source="/CardGame.Wpf;component/Assets/shanhe-map.png" Stretch="Fill" IsHitTestVisible="False"/>
+        <Border BorderBrush="#987548" BorderThickness="1" IsHitTestVisible="False"/>
+        <ItemsControl ItemsSource="{Binding ShanheMapLinks}" IsHitTestVisible="False" Focusable="False">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><Canvas /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Path Data="{Binding Route}" Stroke="#90F8E9C7" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                        <Path Data="{Binding Route}" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Setter Property="Stroke" Value="#936E583A" />
+                                    <Setter Property="StrokeThickness" Value="1.6" />
+                                    <Setter Property="StrokeDashArray" Value="3,3" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                            <Setter Property="Stroke" Value="#566947" />
+                                            <Setter Property="StrokeThickness" Value="3" />
+                                            <Setter Property="StrokeDashArray" Value="1,0" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsAvailable}" Value="True">
+                                            <Setter Property="Stroke" Value="#A85A27" />
+                                            <Setter Property="StrokeThickness" Value="3" />
+                                            <Setter Property="StrokeDashArray" Value="4,2" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <ItemsControl ItemsSource="{Binding ShanheMapNodes}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><Canvas /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding DataContext.PreviewShanheNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding Node}" IsEnabled="{Binding IsAvailable}" ToolTip="{Binding DetailText}"
+                            Style="{StaticResource JourneyNodeButton}" AutomationProperties.Name="{Binding AccessibleName}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

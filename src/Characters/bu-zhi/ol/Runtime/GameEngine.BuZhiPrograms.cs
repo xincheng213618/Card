@@ -191,7 +191,8 @@ public sealed partial class GameEngine
     {
         if(f.BuZhi!.Stage=="branch")return p.Choices.FirstOrDefault(c=>c.Parameters["branch"]=="discard")??p.Choices[0];
         if(f.BuZhi.Stage=="discard")return p.Choices[0];
-        var snapshot=CreateSnapshot(f.OwnerSeat);var hint=new SkillProgramAiHint(1,0,0,0,0,0,false,false);
+        var snapshot=CreateSnapshot(f.OwnerSeat);var hint=new SkillProgramAiHint(
+            OwnerDraw:0,OwnerRecovery:0,OwnerHpLoss:0,TargetDraw:1,TargetRecovery:0,TargetHpLoss:0,GivesSelected:false,DiscardsSelected:false);
         return p.Choices.Where(c=>c.Targets.Count==1).OrderByDescending(c=>_aiBrains[f.OwnerSeat].ScoreProgramTarget(snapshot,c.Targets[0],hint)).FirstOrDefault()??p.Choices[^1];
     }
     [ProgramCapability]

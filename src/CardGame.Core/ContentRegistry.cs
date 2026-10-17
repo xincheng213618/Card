@@ -90,6 +90,8 @@ public sealed record ContentSkillDefinition(
     public SkillSuppressionRule? SuppressionRule { get; init; }
     public IReadOnlyDictionary<Role, double>? SelectionWeights { get; init; }
     public SkillRevealWeights? RevealWeights { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CampaignTacticAcquisitionRule? CampaignTacticAcquisition { get; init; }
 }
 
 public sealed record ContentGeneralDefinition(
@@ -415,24 +417,7 @@ public sealed class ContentRegistry
                 AiTags = (card.AiTags ?? new Dictionary<string, string>()).OrderBy(tag => tag.Key, StringComparer.Ordinal)
                     .Select(tag => new { tag.Key, tag.Value }).ToArray()
             }).ToArray(),
-            Skills = skills.Values.OrderBy(skill => skill.Id, StringComparer.Ordinal).Select(skill => new
-            {
-                skill.Id,
-                ImplementationStatus = skill.ImplementationStatus.ToString(),
-                // Program presentation has its own hash and does not change gameplay identity.
-                Name = skill.Program is null ? skill.Name : string.Empty,
-                Description = skill.Program is null ? skill.Description : string.Empty,
-                Tags = skill.Tags.ToString(),
-                ExecutionForms = skill.ExecutionForms.ToString(),
-                ActionForms = skill.ActionForms.ToString(),
-                skill.RevealWeights,
-                SelectionWeights = skill.SelectionWeights?.OrderBy(pair => pair.Key)
-                    .Select(pair => new { Role = pair.Key.ToString(), pair.Value }).ToArray(),
-                Program = skill.Program is {} program ? new
-                {
-                    program.Id, program.RuntimeVersion, program.MinimumRulesVersion, program.GameplayHash
-                } : null
-            }).ToArray(),
+            Skills = skills.Values.OrderBy(skill => skill.Id, StringComparer.Ordinal).Select(SkillFingerprint).ToArray(),
             Generals = generals.Values.OrderBy(general => general.Id, StringComparer.Ordinal).Select(GeneralFingerprint).ToArray(),
             Decks = decks.Values.OrderBy(deck => deck.Id, StringComparer.Ordinal).Select(deck => new
             {
@@ -446,6 +431,29 @@ public sealed class ContentRegistry
             Modes = modes.Values.OrderBy(mode => mode.Id, StringComparer.Ordinal).Select(ModeFingerprint).ToArray()
         });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
+
+        static object SkillFingerprint(ContentSkillDefinition skill)
+        {
+            // Keep the exact old property order and omit undeclared metadata.
+            var fingerprint = new Dictionary<string, object?>
+            {
+                [nameof(skill.Id)] = skill.Id,
+                [nameof(skill.ImplementationStatus)] = skill.ImplementationStatus.ToString(),
+                [nameof(skill.Name)] = skill.Program is null ? skill.Name : string.Empty,
+                [nameof(skill.Description)] = skill.Program is null ? skill.Description : string.Empty,
+                [nameof(skill.Tags)] = skill.Tags.ToString(),
+                [nameof(skill.ExecutionForms)] = skill.ExecutionForms.ToString(),
+                [nameof(skill.ActionForms)] = skill.ActionForms.ToString(),
+                [nameof(skill.RevealWeights)] = skill.RevealWeights,
+                [nameof(skill.SelectionWeights)] = skill.SelectionWeights?.OrderBy(pair => pair.Key)
+                    .Select(pair => new { Role = pair.Key.ToString(), pair.Value }).ToArray(),
+                [nameof(skill.Program)] = skill.Program is { } program ? new
+                    { program.Id, program.RuntimeVersion, program.MinimumRulesVersion, program.GameplayHash } : null
+            };
+            if (skill.CampaignTacticAcquisition is { } acquisition)
+                fingerprint[nameof(skill.CampaignTacticAcquisition)] = acquisition;
+            return fingerprint;
+        }
 
         static object ModeFingerprint(ContentModeDefinition mode)
         {
@@ -595,6 +603,7 @@ public sealed class ContentRegistry
 
         public void ValidateReferences()
         {
+            CampaignTacticAcquisitionRules.Validate(_skills);
             RicePileContract.ValidatePrograms(_skills.Values.Where(s => s.Program is not null).ToDictionary(s => s.Id, s => s.Program!, StringComparer.Ordinal));
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
@@ -989,7 +998,9 @@ public sealed class ContentRegistry
                 {
                     var minimumGeneralCount = mode.ModeKind == ContentModeKind.NationalWarLite || mode.DualGenerals
                         ? mode.MaxPlayers * 2
-                        : mode.MaxPlayers;
+                        : mode.Id == Campaigns.ShanheBattleSetup.BattleModeId && mode.ModeKind == ContentModeKind.Team
+                            ? 1 // Fixed campaign rosters may repeat the same NPC or include the selected hero as a companion.
+                            : mode.MaxPlayers;
                     if (mode.GeneralPoolIds.Count < minimumGeneralCount ||
                         mode.GeneralPoolIds.Distinct(StringComparer.Ordinal).Count() != mode.GeneralPoolIds.Count)
                     {
@@ -1096,6 +1107,8 @@ public sealed class ContentRegistry
             var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
                 ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }
                 : definition;
+            if (normalized.CampaignTacticAcquisition is { } acquisition)
+                normalized = normalized with { CampaignTacticAcquisition = new(acquisition.IdentityId, acquisition.Repeatable) };
             if (normalized.SelectionWeights is { } selectionWeights)
                 normalized = normalized with
                 {

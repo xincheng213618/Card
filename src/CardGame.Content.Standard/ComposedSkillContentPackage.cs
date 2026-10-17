@@ -126,7 +126,9 @@ public static class ComposedSkillContentRegistry
     public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false,
         bool includeBossActivities = false, bool historicalSelectionWeights = false, bool includeHulaoActivities = false,
         bool includeShenwuActivities = false, bool historicalGeneralSelectionPools = false, bool includeNianActivities = false,
-        bool includeHellActivities = false, bool includeWenheActivities = false, bool includeDragonBoatActivities = false, bool includeGuanduActivities = false)
+        bool includeHellActivities = false, bool includeWenheActivities = false, bool includeDragonBoatActivities = false,
+        bool includeGuanduActivities = false,
+        IEnumerable<IGameContentPackage>? additionalPackages = null)
     {
         var packages = new List<IGameContentPackage>
         {
@@ -150,6 +152,7 @@ public static class ComposedSkillContentRegistry
         if (includeWenheActivities) packages.Add(new StandardWenheActivityPackage());
         if (includeDragonBoatActivities) packages.Add(new StandardDragonBoatActivityPackage());
         if (includeGuanduActivities) packages.Add(new StandardGuanduActivityPackage());
+        if (additionalPackages is not null) packages.AddRange(additionalPackages);
         return ContentRegistry.Build((historicalSelectionWeights
             ? packages.Select(HistoricalGeneralSelectionContent.Wrap)
             : historicalGeneralSelectionPools ? packages.Select(HistoricalGeneralSelectionContent.RestoreSelectionPools) : packages).ToArray());
@@ -161,6 +164,8 @@ public static class ComposedSkillContentRegistry
         ArgumentNullException.ThrowIfNull(checkpoint);
         ArgumentNullException.ThrowIfNull(checkpoint.ContentPackages);
         ArgumentNullException.ThrowIfNull(checkpoint.Options);
+        if (checkpoint.Options.ShanheBattle is { } shanhe)
+            return StandardShanheCampaignCatalog.CreateBattleRegistry(shanhe);
         bool Includes(IGameContentPackage package) => checkpoint.ContentPackages.Contains(
             $"{package.Manifest.Id}@{package.Manifest.Version}", StringComparer.Ordinal);
         var national = Includes(new StandardNationalZhangJiaoPackage());

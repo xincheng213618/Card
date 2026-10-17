@@ -415,6 +415,10 @@ public enum LegalActionKind
 
 public sealed record GameOptions
 {
+    /// <summary>Validated, immutable opening recipe for one local story-campaign encounter.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Campaigns.ShanheBattleSetup? ShanheBattle { get; init; }
+
     public int Seed { get; init; } = 20260907;
 
     /// <summary>Supported identity-table sizes for the current rules adapter.</summary>

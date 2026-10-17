@@ -68,7 +68,7 @@ public sealed partial class MainViewModel
 
     private CardKind? SelectedPlayConversionKind => _playConversionSelection?.Mode?.Kind;
     private string PlayConversionSkillName => _playConversionSelection is { } draft
-        ? _contentRegistry.GetSkill(draft.SkillId).Name : "技能";
+        ? CurrentPresentationRegistry.GetSkill(draft.SkillId).Name : "技能";
     private string PlayConversionCardName => SelectedPlayConversionKind is { } kind ? CardCatalog.Get(kind).DisplayName : "牌";
     private string PlayConversionMaterialName
     {
@@ -117,7 +117,7 @@ public sealed partial class MainViewModel
             var mode = modes[index];
             var companions = mode.AdditionalSources.Prepend(mode.Source)
                 .Where(source => source.SkillId != _playConversionSelection.SkillId)
-                .Select(source => _contentRegistry.Skills.GetValueOrDefault(source.SkillId)?.Name)
+                .Select(source => CurrentPresentationRegistry.Skills.GetValueOrDefault(source.SkillId)?.Name)
                 .OfType<string>().Distinct(StringComparer.Ordinal).ToArray();
             var chainLabel = companions.Length == 0 ? string.Empty : $" · 联用{string.Join("、", companions)}";
             EquipmentPlayChoices.Add(new(new ChoiceId($"conversion-mode-{index}"),

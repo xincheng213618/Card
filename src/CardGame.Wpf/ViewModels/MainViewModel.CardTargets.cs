@@ -37,8 +37,9 @@ public sealed partial class MainViewModel
         GetViewLegalActions().Any(action => action.CardId == _selectedCardId &&
             MatchesSelectedPlayConversion(action) &&
             (action.Kind is LegalActionKind.WumiaoFlood or LegalActionKind.IronChain or LegalActionKind.Recast or LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort ||
-             action.Kind != LegalActionKind.BorrowedSword && action.TargetSeats.Count > 1 &&
-             action.ProgramActivationId is "next-card-target-adjustment" or "next-actual-use-target-adjustment"));
+             action.TargetSeats.Count > 1 && (action.Kind == LegalActionKind.Slash ||
+                 action.Kind != LegalActionKind.BorrowedSword &&
+                 action.ProgramActivationId is "next-card-target-adjustment" or "next-actual-use-target-adjustment")));
 
     private LegalAction[] MultiTargetCardActions => IsMultiTargetCardSelected
         ? GetViewLegalActions().Where(action => action.CardId == _selectedCardId &&

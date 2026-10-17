@@ -86,6 +86,7 @@ public sealed partial class GameEngine
                 player.HasAlcoholEffect)
             {
                 IdentityConcealed = player.IdentityConcealed,
+                Armor = player.Armor,
                 SurvivalRank = WenheSurvivalRank(player.Seat),
                 WenheChampionMarkUsed = IsSurvivalMode && WenheChampionMarkUsed(player.Seat) ? true : null,
                 HpUndefined = !player.HasHpValue,

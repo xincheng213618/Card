@@ -69,9 +69,11 @@ public sealed partial class GameEngine
         recovery.Attempt.Completion.MoveReason?.Value==(r.Stage==DingShangWanStage.FengGiftChildren?FengyanGiftReason:FengyanDiscardReason);
     private bool DingShangWanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
-        if(f.DingShangWan is not{}r||f.PendingMovementContinuation is null)return false;
+        if(f.DingShangWan is not{}r)return false;
         AssertDingShangWan(f);
-        if(child is CardsMovedTriggerWindowFrame moved)return moved.Batch.ParentFrameId==f.Id&&(moved.ResumeProgramFrameId==f.Id||moved.Batch.AwaitingProgramFrameId==f.Id)&&
+        if(r.Stage==DingShangWanStage.OpeningDraw&&f.NativeDraw is not null)return NativeDrawAttemptRidesOn(child,f);
+        if(f.PendingMovementContinuation is null)return false;
+        if(child is CardsMovedTriggerWindowFrame moved)return ProgramMovementReturnMatches(f,moved)&&
             moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&
             moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsDingShangWanIssuedMovement(f,m))&&
             (moved.Batch.Movements.All(m=>m.Reason!=CardMoveReasons.Reshuffle)||moved.Batch.ParentBatchId is null&&r.Reshuffles.Any(s=>s.BatchId==moved.Batch.Id&&s.ParentFrameId==moved.Batch.ParentFrameId&&s.Movements.SequenceEqual(moved.Batch.Movements)));
@@ -83,7 +85,7 @@ public sealed partial class GameEngine
             ProgramEventHistory<CharacterStateChangedEvent>().Any(e=>e.Change.Id==state.Id&&e.Change.ParentFrameId==f.Id&&e.Change.TargetSeat==state.OwnerSeat&&e.Change.Window==state.Window);
     }
     private ProgramSkillFrame? DingShangWanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.DingShangWanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
-        static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
+        static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1])||NativeDrawAttemptRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
     private bool HasDingShangWanDamageObserver(long id)=>DingShangWanObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool IsDingShangWanDying()=>ActiveDying is{}d&&DingShangWanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool AllowsDingShangWanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:mouming",
+      "revision": 1,
+      "cardPolicies": [
+        { "id": "first-round-trick-card-damage", "kind": "firstRoundCardDamageBecomesMaximumHpLoss", "cardKinds": ["duel", "barbarianAssault", "arrowBarrage", "fireAttack"] }
+      ]
+    },
+    {
+      "id": "shanhe:xiaoming",
+      "revision": 1,
+      "cardPolicies": [
+        { "id": "first-round-slash-card-damage", "kind": "firstRoundCardDamageBecomesMaximumHpLoss", "cardKinds": ["slash", "fireSlash", "thunderSlash"] }
+      ]
+    }
+  ]
+}

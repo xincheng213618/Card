@@ -15,7 +15,11 @@ public sealed record CurrentTurnCardUseKindsRecordedEvent(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     int? RoundProviderSeat = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    int? WholeActualTurnUseSequence = null) : IGameEvent;
+    int? WholeActualTurnUseSequence = null) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramInstructionIndex { get; init; }
+}
 
 public sealed partial class GameEngine
 {
@@ -97,7 +101,7 @@ public sealed partial class GameEngine
     }
 
     private void RecordCurrentTurnUseKinds(long frameId, int actorSeat, CardActionContext? action,
-        CardKind effectiveKind, bool nullificationUse)
+        CardKind effectiveKind, bool nullificationUse, int? programInstructionIndex = null)
     {
         var handSuit = action is { ProviderSeat: var provider } && provider == action.ActorSeat &&
             action.PhysicalCards.Count > 0 && action.PhysicalCards.All(c => c.From == CardLocation.Hand(action.ActorSeat))
@@ -116,7 +120,8 @@ public sealed partial class GameEngine
             TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal ? action?.Type ?? CardActionType.Use : null,
             TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal ? action?.ProviderSeat ?? actorSeat : null,
             TracksWholeActualTurnUseOrdinal && HasOngoingWholeActualUseTurn
-                ? checked(WholeActualTurnUseHistory().Length + 1) : null));
+                ? checked(WholeActualTurnUseHistory().Length + 1) : null)
+            { ProgramInstructionIndex = programInstructionIndex });
     }
 
     private int? CapturedActualTurnActorUseOrdinal(CardActionContext action)

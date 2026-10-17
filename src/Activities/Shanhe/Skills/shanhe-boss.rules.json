@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:shengui-wushuang",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "battle-slashes-require-dodges",
+          "kind": "battleSlashCountMinimumResponses",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"]
+        },
+        {
+          "id": "battle-slashes-require-duel-slashes",
+          "kind": "battleSlashCountMinimumResponses",
+          "cardKinds": ["duel"],
+          "requiredCardKinds": ["slash"]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:shengui-shenqu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-maximum-hp-at-every-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": {"kind": "currentHandCount"},
+            "operator": "lessThanOrEqual",
+            "right": {"kind": "currentMaxHp"}
+          },
+          "effects": [
+            {"op": "draw", "target": "owner", "numberExpression": "ownerMaxHp"}
+          ]
+        },
+        {
+          "id": "real-peach-after-received-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {"op": "offerHulaoDamagePeach", "target": "owner"}
+          ]
+        }
+      ]
+    }
+  ]
+}

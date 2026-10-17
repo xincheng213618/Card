@@ -565,7 +565,9 @@ public sealed partial class GameEngine
         var damageWindowNested = frame.WindowContext?.Window ==
             SkillProgramTriggerWindow.AfterDamageApplied && ActiveDamageTrigger is { } outerWindow &&
             outerWindow.Id == frame.WindowContext.ParentFrameId;
-        if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested &&
+        var recoveryNested = TryDescribeRecoveryDamage(frame, targetSeat, amount, sourceReference,
+            nature, sourceLess, explicitSourceSeat, out var recoveryOrigin, out var recoveryDamageWindowId);
+        if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested && !recoveryNested &&
             !AllowsHellKingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             frame.FactionRecoveryDraft?.SettlingDebts != true && !AllowsSuitPreventionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsHalfHandSupportNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
@@ -705,7 +707,7 @@ public sealed partial class GameEngine
             !AllowsCaoXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsHuJinDingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsYanPuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            !AllowsZhangYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+            !AllowsZhangYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null && !recoveryNested ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -716,8 +718,9 @@ public sealed partial class GameEngine
                 ? frame.WindowContext.ParentFrameId : null);
         var parentAttackId = CurrentDamageAttempt?.ResolutionId;
         ReplaceRuntimeTop(current with { AttackAttempt = state,
-            AttackReturn = new(parentAttackId, damageWindowNested ? frame.WindowContext!.ParentFrameId : null,
-                judgmentNested ? frame.WindowContext!.Judgment!.JudgmentFrameId : null) });
+            AttackReturn = new(parentAttackId, damageWindowNested ? frame.WindowContext!.ParentFrameId : recoveryDamageWindowId,
+                judgmentNested ? frame.WindowContext!.Judgment!.JudgmentFrameId : null)
+                { RecoveryOrigin = recoveryOrigin } });
         IDamageAttempt attack = new ProgramAttackHandle(this, frame.Id);
         if (frame.WindowContext?.Judgment is { } judgment)
         {
@@ -1237,7 +1240,7 @@ public sealed partial class GameEngine
                      frame.ChoiceBindings.Any(binding => binding.Name == effect.Condition.SourceBind &&
                          binding.OptionId == effect.Condition.OptionId)) &&
                     effect.Op is (
-                    SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
+                    SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or SkillProgramEffectOp.SelectAllPublicTeamTargets or SkillProgramEffectOp.SelectRandomPublicTeamTarget or
                     SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget or
                     SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift or
                     SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash or
@@ -1260,6 +1263,7 @@ public sealed partial class GameEngine
                             executedSelection.Op == SkillProgramEffectOp.DamageFarthestCharacter ? "advanced-lifecycle" : "strategic-choice"));
             var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
             {
+                SkillProgramEffectOp.SelectAllPublicTeamTargets or SkillProgramEffectOp.SelectRandomPublicTeamTarget => IsExactPublicTeamTargetSelection(frame, executedSelection, plan),
                 SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash => HasIssuedFulueRequest(frame),
                 SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash =>
                     IsValidNearestSlashProgramSelection(frame, executedSelection, plan.Instructions),

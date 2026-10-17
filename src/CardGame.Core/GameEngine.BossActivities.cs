@@ -92,8 +92,8 @@ public sealed partial class GameEngine
         if (_modeDefinition.BossActivity is not { } activity || !_setupComplete || _winner != Winner.None ||
             _players[BossActivitySeat].IsAlive || _resolutionStack.Count != 0 ||
             _pendingDecision is { Kind: not DecisionKind.PlayCard }) return false;
-        if (_modeDefinition.HulaoActivity is not null && BossActivityStageIndex == 0) return false;
-        if (BossActivityStageIndex + 1 >= activity.Stages.Count)
+        if (_modeDefinition.HulaoActivity is not null && BossActivityStageIndex == 0 && _players[BossActivitySeat].MaxHp > 0) return false;
+        if (BossActivityStageIndex + 1 >= activity.Stages.Count || _modeDefinition.HulaoActivity is not null && _players[BossActivitySeat].MaxHp == 0)
         {
             _pendingDecision = null;
             _winnerTeamId = activity.PlayerTeamId;

@@ -193,9 +193,11 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (numberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne && (kind != SkillProgramTargetKind.AnyLiving || minimum != 1))
             throw new InvalidOperationException("Lost-HP-at-least-one targets require anyLiving and minimum one.");
+        var plannedHandTargets = kind == SkillProgramTargetKind.OtherLivingWithHand &&
+            numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount;
         if ((minimum < 1 && !(minimum == 0 && (named || kind is SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingWithoutEndingSupport))) || maximum < minimum || maximum > (named ? 8 : kind == SkillProgramTargetKind.CurrentCardUseTargets
             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
-                SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
+                SkillProgramTargetKind.OtherLivingHandAtLeastOwner || plannedHandTargets ? 8 : 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
         if (kind == SkillProgramTargetKind.OtherLivingUnequalHandPair && (minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unequal-hand pairs require exactly two targets.");
