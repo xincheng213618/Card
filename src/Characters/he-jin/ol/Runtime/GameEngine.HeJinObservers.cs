@@ -36,7 +36,7 @@ public sealed partial class GameEngine
             skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? HeJinObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.HeJinFirstChild(f, c),
-        static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
+        static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
     private bool HasHeJinDamageObserver(long id) => HeJinObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&

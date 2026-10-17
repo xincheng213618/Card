@@ -30,7 +30,7 @@ public sealed partial class GameEngine
         return r.Stage == JueshengStage.GrantChildren && child is ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.SkillsChanged } changed && changed.ResumeProgramFrameId == f.Id && changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? FanJiangZhangDaObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.FanJiangZhangDaFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
-        static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
+        static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
         static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
     private bool HasFanJiangZhangDaDamageObserver(long id) => FanJiangZhangDaObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasFanJiangZhangDaBeforeDamageObserver(long id) => FanJiangZhangDaObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);

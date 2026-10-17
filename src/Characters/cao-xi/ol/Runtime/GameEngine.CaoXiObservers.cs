@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? CaoXiObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.CaoXiFirstChild(f, c),
-        static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
+        static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
     private bool HasCaoXiDamageObserver(long id) => CaoXiObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&

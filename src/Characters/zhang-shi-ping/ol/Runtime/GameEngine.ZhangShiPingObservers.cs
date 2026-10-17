@@ -72,7 +72,7 @@ public sealed partial class GameEngine
             skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private bool ZhangShiPingObserverSuffix(int root) => HasObserverSuffix(root,
-        static (e, i) => e.IsMovementObserverEdge(i) || RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
+        static (e, i) => e.IsMovementObserverEdge(i) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
         static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? ZhangShiPingObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.ZhangShiPingFirstChild(f, child), static (e, i) => e.ZhangShiPingObserverSuffix(i));
     private bool HasZhangShiPingDamageObserver(long id) => ZhangShiPingObserverRoot() is { } root &&

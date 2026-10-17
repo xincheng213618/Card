@@ -53,7 +53,7 @@ public sealed partial class GameEngine
         if(child is DeathFrame death)return r.Stage==WenYangStage.MaximumChildren&&r.MaximumBefore==1&&r.MaximumAfter==0&&r.HpAfter<=0&&death.ParentFrameId==f.Id&&death.VictimSeat==f.OwnerSeat&&death.KillerSeat is null&&death.ReturnKind==DeathReturnKind.ProgramSkill;
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
-    private ProgramSkillFrame? WenYangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WenYangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? WenYangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WenYangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasWenYangDamageObserver(long id)=>WenYangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasWenYangBeforeDamageObserver(long id)=>HasWenYangDamageObserver(id);
     private bool IsWenYangDying()=>ActiveDying is{}dying&&WenYangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

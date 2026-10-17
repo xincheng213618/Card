@@ -32,7 +32,7 @@ public sealed partial class GameEngine
         if(child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills)return skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
         return false;
     }
-    private ProgramSkillFrame? LiuBaObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuBaFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? LiuBaObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuBaFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasLiuBaDamageObserver(long id)=>LiuBaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasLiuBaBeforeDamageObserver(long id)=>HasLiuBaDamageObserver(id);
     private bool IsLiuBaDying()=>ActiveDying is{}d&&LiuBaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

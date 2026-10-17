@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool RecoveryReplacementFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
+    private bool RecoveryReplacementFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
         ride is RecoveryReplacementFrame recovery && recovery.ParentFrameId == beneath.Id &&
         recovery.Return.ResumeFrameId == beneath.Id && recovery.Return.Continuation switch
         {

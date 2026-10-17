@@ -51,7 +51,7 @@ public sealed partial class GameEngine
             skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private bool DuXiObserverSuffix(int rootIndex) => HasObserverSuffix(rootIndex,
-        static (engine, i) => engine.IsMovementObserverEdge(i) || RecoveryReplacementFrameRidesOn(engine._resolutionStack[i], engine._resolutionStack[i - 1]),
+        static (engine, i) => engine.IsMovementObserverEdge(i) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[i], engine._resolutionStack[i - 1]),
         static (engine, i, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? DuXiObserverRoot() => FindProgramObserverRoot(static (engine, f, c) => engine.DuXiFirstChild(f, c), static (engine, i) => engine.DuXiObserverSuffix(i));
     private bool HasDuXiDamageObserver(long id) => DuXiObserverRoot() is { } root &&

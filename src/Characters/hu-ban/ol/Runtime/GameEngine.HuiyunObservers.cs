@@ -64,7 +64,7 @@ public sealed partial class GameEngine
         if(r.Stage==HuiyunStage.RecastCostChildren)return moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&ProgramEventHistory<HuiyunRecastCardEvent>().Any(p=>p.FrameId==f.Id&&p.Index==r.Index&&p.CardId==m.CardId&&p.Sequence==m.Sequence));
         return r.Stage is HuiyunStage.RecastDrawChildren or HuiyunStage.DrawChildren&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&(m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle||m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(HuiyunCurrent(r).TargetSeat)&&m.Reason==(r.Stage==HuiyunStage.RecastDrawChildren?CardMoveReasons.RecastDraw:new CardMoveReason("skill-program.hu-ban.huiyun.draw"))));
     }
-    private ProgramSkillFrame? HuBanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.HuBanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? HuBanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.HuBanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private int? HuBanAnyObserverRootIndex()
     {
         if(HuBanObserverRoot()is{}program)return _resolutionStack.FindIndex(f=>f.Id==program.Id);
@@ -73,7 +73,7 @@ public sealed partial class GameEngine
             if(_resolutionStack[i]is not CardUseFrame{RecoveryPaidContinuation:{}continuation}use||!HasHuiyunTrickPaymentTail(use,continuation))continue;
             var first=_resolutionStack[i+1];
             var native=first is CardsMovedTriggerWindowFrame moved&&IsPaidCardUseMovementReturn(use,moved)||first is HpChangedTriggerWindowFrame hp&&hp.Change.ParentFrameId==use.Id&&hp.ResumeFrameId==use.Id&&hp.Continuation==PostEventContinuation.RecoveryPaidCardUse||RecoveryReplacementFrameRidesOn(first,use);
-            if(native&&HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)))return i;
+            if(native&&HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)))return i;
         }
         return null;
     }

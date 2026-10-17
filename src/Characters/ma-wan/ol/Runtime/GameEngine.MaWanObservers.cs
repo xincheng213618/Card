@@ -47,7 +47,7 @@ public sealed partial class GameEngine
             skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private bool MaWanObserverSuffix(int root) => HasObserverSuffix(root,
-        static (e, i) => e.IsMovementObserverEdge(i) || RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
+        static (e, i) => e.IsMovementObserverEdge(i) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
         static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? MaWanObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.MaWanFirstChild(f, child), static (e, i) => e.MaWanObserverSuffix(i));
     private bool HasMaWanDamageObserver(long id) => MaWanObserverRoot() is { } root &&

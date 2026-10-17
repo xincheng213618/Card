@@ -32,7 +32,7 @@ public sealed partial class GameEngine
             ProgramEventHistory<CharacterStateChangedEvent>().Any(e => e.Change.Id == state.Id && e.Change.ParentFrameId == f.Id && e.Change.TargetSeat == state.OwnerSeat && e.Change.Window == state.Window);
     }
     private ProgramSkillFrame? ZhuJunObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.ZhuJunFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
-        static (engine, child) => engine.IsMovementObserverEdge(child) || engine.IsYanPuDyingExitEdge(child) || RecoveryReplacementFrameRidesOn(engine._resolutionStack[child], engine._resolutionStack[child - 1]),
+        static (engine, child) => engine.IsMovementObserverEdge(child) || engine.IsYanPuDyingExitEdge(child) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child], engine._resolutionStack[child - 1]),
         static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
     private bool HasZhuJunDamageObserver(long id) => ZhuJunObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool IsZhuJunDying() => IsZhuJunLegacyAlcoholPreRecoveryRide() || ActiveDying is { } dying && ZhuJunObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

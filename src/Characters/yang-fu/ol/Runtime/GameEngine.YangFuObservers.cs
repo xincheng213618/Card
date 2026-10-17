@@ -72,7 +72,7 @@ public sealed partial class GameEngine
             ProgramMovementReturnMatches(f, moved) && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => _cardMovements.Contains(m) && m.Sequence > r.Before && m.Sequence <= r.After);
     }
     private ProgramSkillFrame? YangFuObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.YangFuFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
-        static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || x.RandomEquipmentFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]) || RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
+        static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || x.RandomEquipmentFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
         static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
     private bool HasYangFuDamageObserver(long id) => YangFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasYangFuBeforeDamageObserver(long id) => YangFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);

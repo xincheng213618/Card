@@ -26,7 +26,7 @@ public sealed partial class GameEngine
             hp.Change.Kind==HpChangeKind.Recovery&&hp.Change.SourceSeat==f.OwnerSeat&&hp.Change.TargetSeat==f.OwnerSeat&&hp.Change.Amount>0&&ProgramEventHistory<LiuYanLimuRecoveryIssuedEvent>().Count(e=>e.FrameId==f.Id)==1;
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
-    private ProgramSkillFrame? LiuYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? LiuYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasLiuYanDamageObserver(long id)=>LiuYanObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasLiuYanBeforeDamageObserver(long id)=>HasLiuYanDamageObserver(id);
     private bool IsLiuYanDying()=>IsLiuYanOriginalDyingRide()||ActiveDying is{}d&&LiuYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

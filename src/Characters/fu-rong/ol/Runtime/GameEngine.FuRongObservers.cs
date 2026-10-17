@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         static (e, root, child) => e.FuRongFirstChild(root, child),
         static (e, root) => e.HasObserverSuffix(root,
             static (engine, i) => engine.IsMovementObserverEdge(i) ||
-                RecoveryReplacementFrameRidesOn(engine._resolutionStack[i], engine._resolutionStack[i - 1]),
+                engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[i], engine._resolutionStack[i - 1]),
             static (engine, i, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(i, dying)));
     private bool HasFuRongDamageObserver(long id) => FuRongObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&

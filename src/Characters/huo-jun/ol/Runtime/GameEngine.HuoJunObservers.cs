@@ -30,7 +30,7 @@ public sealed partial class GameEngine
     }
     private bool HuoJunFenruiObserverSuffix(int root) => HasObserverSuffix(root,
         static (e, i) => e.IsMovementObserverEdge(i) || e.RandomEquipmentFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]) ||
-            RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
+            e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
         static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? HuoJunFenruiObserverRoot() => FindProgramObserverRoot(
         static (e, f, child) => e.HuoJunFenruiFirstChild(f, child), static (e, i) => e.HuoJunFenruiObserverSuffix(i));

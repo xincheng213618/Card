@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         if(child is RecoveryReplacementFrame recovery)return IsQuHuangRecoveryParent(f,recovery);
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
-    private ProgramSkillFrame? QuHuangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.QuHuangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? QuHuangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.QuHuangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasQuHuangDamageObserver(long id)=>QuHuangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasQuHuangBeforeDamageObserver(long id)=>HasQuHuangDamageObserver(id);
     private bool IsQuHuangDying()=>ActiveDying is{}d&&QuHuangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

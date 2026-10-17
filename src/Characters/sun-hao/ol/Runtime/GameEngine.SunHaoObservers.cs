@@ -59,7 +59,7 @@ public sealed partial class GameEngine
         return child is CardsMovedTriggerWindowFrame moved&&ProgramMovementReturnMatches(f,moved)&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsSunHaoPaymentMovement(f,m));
     }
     private ProgramSkillFrame? SunHaoObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.SunHaoFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
-        static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),
+        static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),
         static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasSunHaoDamageObserver(long id)=>SunHaoObserverRoot() is{} root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasSunHaoBeforeDamageObserver(long id)=>SunHaoObserverRoot() is{} root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

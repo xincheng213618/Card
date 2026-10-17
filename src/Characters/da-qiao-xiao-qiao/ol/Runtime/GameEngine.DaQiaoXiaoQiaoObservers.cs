@@ -36,7 +36,7 @@ public sealed partial class GameEngine
         if(r.Stage!=DaQiaoXiaoQiaoStage.DamageChildren||f.AttackAttempt is not{}attack||attack.TargetSeat!=r.TargetSeat)return false;
         return child is BeforeDamageProgramWindowFrame before&&before.ParentFrameId==f.Id||child is DamageTriggerWindowFrame damage&&damage.ParentFrameId==f.Id||child is DyingFrame dying&&dying.ParentFrameId==f.Id&&dying.VictimSeat==attack.TargetSeat;
     }
-    private ProgramSkillFrame? DaQiaoXiaoQiaoObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.DaQiaoXiaoQiaoFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    private ProgramSkillFrame? DaQiaoXiaoQiaoObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.DaQiaoXiaoQiaoFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
     private bool HasDaQiaoXiaoQiaoDamageObserver(long id)=>DaQiaoXiaoQiaoObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasDaQiaoXiaoQiaoBeforeDamageObserver(long id)=>HasDaQiaoXiaoQiaoDamageObserver(id);
     private bool IsDaQiaoXiaoQiaoDying()=>ActiveDying is{}dying&&DaQiaoXiaoQiaoObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

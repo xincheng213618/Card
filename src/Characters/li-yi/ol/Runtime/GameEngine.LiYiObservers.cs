@@ -57,7 +57,7 @@ public sealed partial class GameEngine
   if(child is not CardsMovedTriggerWindowFrame moved)return false;
   return r.Stage==ChanshuangStage.NativeChildren?moved.ResumeProgramFrameId==f.Id&&IsChanshuangNativeSettlementBatch(f,moved.Batch):ProgramMovementReturnMatches(f,moved)&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsLiYiPaidMovement(f,m));
  }
- private ProgramSkillFrame? LiYiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiYiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ private ProgramSkillFrame? LiYiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiYiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
  private bool HasLiYiDamageObserver(long id)=>LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool HasLiYiBeforeDamageObserver(long id)=>LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool IsLiYiDying()=>ActiveDying is{}d&&LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

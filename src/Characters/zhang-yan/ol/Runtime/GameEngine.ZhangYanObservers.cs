@@ -56,7 +56,7 @@ public sealed partial class GameEngine
   if(child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills)return skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
   return child is ProgramLifecycleTriggerWindowFrame state&&state.Continuation==ProgramLifecycleContinuation.ResumeCharacterStateChange&&state.ResumeProgramFrameId==f.Id&&ProgramEventHistory<CharacterStateChangedEvent>().Any(e=>e.Change.Id==state.Id&&e.Change.ParentFrameId==f.Id&&e.Change.TargetSeat==state.OwnerSeat&&e.Change.Window==state.Window);
  }
- private ProgramSkillFrame? ZhangYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.ZhangYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
+ private ProgramSkillFrame? ZhangYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.ZhangYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
  private bool HasZhangYanDamageObserver(long id)
  {
   if(ZhangYanObserverRoot()is not{}root||!_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame))return false;

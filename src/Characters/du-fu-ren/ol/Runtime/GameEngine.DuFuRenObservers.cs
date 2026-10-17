@@ -73,7 +73,7 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? DuFuRenObserverRoot() => FindProgramObserverRoot(static (e,root,child) => e.DuFuRenFirstChild(root,child),
         static (e,index) => e.HasObserverSuffix(index,static (engine,child) => engine.IsMovementObserverEdge(child) ||
-            engine.IsYanPuDyingExitEdge(child) || RecoveryReplacementFrameRidesOn(engine._resolutionStack[child],engine._resolutionStack[child-1]),
+            engine.IsYanPuDyingExitEdge(child) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child],engine._resolutionStack[child-1]),
             static (engine,child,dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child,dying)));
     private bool HasDuFuRenDamageObserver(long id) => DuFuRenObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
