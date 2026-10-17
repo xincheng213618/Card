@@ -14889,6 +14889,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-liu-zhang",
+      "characterName": "刘璋·OL",
+      "defaultSkinId": "68300",
+      "skins": [
+        {
+          "id": "68300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/683",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-zhang.png",
+          "sha256": "4ef989550138f4aeeca12771723637daeddae2b853cb0dfd891f945b75b9617b",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

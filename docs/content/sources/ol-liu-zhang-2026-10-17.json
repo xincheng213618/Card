@@ -1,0 +1,256 @@
+{
+  "generalId": "ol:liu-zhang",
+  "characterId": "character:liu-zhang",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary",
+  "reviewedAt": "2026-10-17",
+  "identity": {
+    "name": "刘璋",
+    "faction": "qun",
+    "gender": "Male",
+    "baseHp": 3,
+    "variant": "ordinary",
+    "ruleset": "sanguosha-ol",
+    "evidence": "Fresh official API and current character g=4,h=1,i=3; not historical LiuZhang in a different product"
+  },
+  "currentSkills": [
+    {
+      "id": "ol:fengwei",
+      "a": 3625,
+      "b": "3,4,5",
+      "c": "丰蔚",
+      "d": "FengWei",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "o": "锁定技，每轮开始时，你摸至多五张牌。若你手牌中有本轮以此法获得的牌，你跳过摸牌阶段；<br>当你受到牌造成的伤害时，若手牌中有本轮以此法获得的牌，此伤害+1。",
+      "v": "请选择摸至多{0}张牌"
+    },
+    {
+      "id": "ol:zonghu",
+      "a": 3626,
+      "b": "3",
+      "c": "宗护",
+      "d": "ZongHu",
+      "e": 0,
+      "g": 2,
+      "h": 1,
+      "i": 2,
+      "n": 1,
+      "o": "每回合限一次，当你需要使用【杀】或【闪】时，你可将X张牌交给一名其他角色，然后视为你使用之（X为游戏轮数且至多为3）。",
+      "v": "请选择{0}名角色，作为<font color='#FFD800'>杀</font>的目标;可选择最多{0}名角色，作为<font color='#FFD800'>杀</font>的目标",
+      "ac": "请选择{0}张牌并选择一名其他角色"
+    }
+  ],
+  "sources": {
+    "liuZhangHero": {
+      "url": "https://www.sanguosha.com/hero/683",
+      "capturedAtUtc": "2026-10-17T03:15:33.936498+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/683",
+      "contentType": "text/html",
+      "byteCount": 24759,
+      "sha256": "aa84be969be7106dbdcabf99112984896c2b90a5cd6118c6837393615e5737ed",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀刘璋 - 三国杀OL-三国杀官网-武将技能介绍"
+    },
+    "liuZhangApi": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=683",
+      "capturedAtUtc": "2026-10-17T03:15:33.936916+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=683",
+      "contentType": "application/json",
+      "byteCount": 1076,
+      "sha256": "8f5373ba6aa6c2674823bd46c6936b10c6f1131187fb67435dfdce369380385f",
+      "hashScope": "HTTP response body bytes",
+      "title": null
+    },
+    "liuZhangRelease": {
+      "url": "https://www.sanguosha.com/news/20260818_1951_2713",
+      "capturedAtUtc": "2026-10-17T03:15:34.438648+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20260818_1951_2713",
+      "contentType": "text/html",
+      "byteCount": 445910,
+      "sha256": "491e9aa3c467100f12a8fed91eac856dd9e0bad92f46390c8712eeda52795d2f",
+      "hashScope": "HTTP response body bytes",
+      "title": "8.22-8.30 开学祈福曹金玉&刘璋来袭 限时双倍重置 寻宝阁界步练师上新 - 三国杀OL官网"
+    },
+    "liuZhangGuide": {
+      "url": "https://www.taptap.cn/moment/793693416788593374?group_id=5009",
+      "capturedAtUtc": "2026-10-17T03:15:34.459316+00:00",
+      "status": 200,
+      "finalUrl": "https://www.taptap.cn/moment/793693416788593374?group_id=5009",
+      "contentType": "text/html; charset=utf-8",
+      "byteCount": 16124,
+      "sha256": "de920679c47455f3e39a9f3cdb16e7c9a3673fe784fe8d67be8d4f388d18e108",
+      "hashScope": "HTTP response body bytes",
+      "title": ""
+    }
+  },
+  "client": {
+    "bundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "configSha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+    "bundleScriptMemberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "character": {
+      "a": 683,
+      "b": "刘璋",
+      "d": "LiuZhang",
+      "e": 44,
+      "f": "41",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 3625,
+      "k": 3626,
+      "p": 2,
+      "q": "20260821T180000",
+      "r": "9068301",
+      "y": "字季玉，江夏竟陵（今湖北省天门市）人。东汉末年宗室、刘焉幼子，在父亲刘焉死后继任益州牧。人懦弱多疑。建安十六年（211年）刘璋听信手下张松、法正之言，迎接刘备入益州，想借刘备之力，抵抗曹操。后刘备反手攻击刘璋，又有法正为内应，进至成都。刘备占据成都后，刘璋以振威将军的身份被迁往荆州居住，关羽失荆州后，刘璋归属东吴，被孙权任命为益州牧，在刘备东征时去世。 ",
+      "z": "摸牌多所受负面效果越大，需要合理运用技能吸引嘲讽并辅助队友。",
+      "aa": 148,
+      "ab": "1291,1292",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20260922T000000",
+      "starMax": 4
+    }
+  },
+  "clientEvidence": [
+    {
+      "class": "KIi@15601047",
+      "excerpt": "this.cardCount=bW.I().GetExtendPar1ById(ymt.FENGWEI)||3; i.label=(t+1).toString(); i.callBackParams=[t+1]",
+      "supports": "Select positive1..configured maximum; current row/hero/release maximum5. Fallback3 is not the current published maximum; no successful zero choice.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi@15602153",
+      "excerpt": "get TriggerCardUseType(){return Dmt.USE}",
+      "supports": "Use-only skill, not an unrestricted played response conversion.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "this.requestCardType=Lmt.NORMAL|Lmt.EQUIP; get CardCountMin(){return this.CardCountMax}",
+      "supports": "Choose exactly X real HE gift materials; no private Ox grain primary.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "get CardUseType(){return this.isGivingCards?Dmt.GIVE:Dmt.USE}",
+      "supports": "Gift cost and later true Use are different actions. Gift recipient is not made the actual card user.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "get EnableCancel(){return!this.isGivingCards}",
+      "supports": "Initial activation optional; ensuing giving selector mandatory exactX, not an invented successful zero payment.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "get CanUseWhenFixedTarget(){return!this.isGivingCards&&(D2t.LastTriggerSpellID!=ymt.ZHONGYONG_SIJIANG&&D2t.LastTriggerSpellID!=ymt.LUANWU&&D2t.LastTriggerSpellID!=ymt.QIAOWU&&D2t.LastTriggerSpellID!=ymt.LUANWUPO&&D2t.LastTriggerSpellID!=ymt.NISIWOHUO&&!this.IsActive)}",
+      "supports": "Explicit current source exclusions: 忠勇483、乱武118、俏舞3615、界乱武3190、你死我活3792, confirmed from current constants+cha_spell.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "Seat.OnlyUseNotDealActived",
+      "excerpt": "if(D2t.LastTriggerSpellID==ymt.NANMAN||D2t.LastTriggerSpellID==ymt.WANJIAN||D2t.LastTriggerSpellID==ymt.JUEDOU)return!1",
+      "supports": "Reject ordinary Duel/AOE played requests; additional opened Fuhun-state restriction exists.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "get isUseShan(){return D2t.LastTriggerSpellID==ymt.SHA||D2t.LastTriggerSpellID==ymt.HUJIA}",
+      "supports": "HUJIA appears in output routing, but this getter alone does not prove full Activated/offset gating admits pure provider Response. Explicit faction policy decision needed.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "BJt/P$t static offset lists",
+      "excerpt": "ShaCanOffSkills=[LUANWU,LUANWUPO,NISIWOHUO,JIEDAO,XUANHUOXIN_ERJIANG,ZHIGE_WUJIANG,YIHUAJIEMU_BOSS,ZHONGYONG_SIJIANG,TIAOXIN]; ShanCanOffSkills=[SHA,SHEMAO,LIULI,SHENSU,SHENSU_2016,SHENSU_2016_ROGUE]",
+      "supports": "Actual activation has more gates than a requested-kind name. Do not treat every fixed request as admitted merely because it uses a generic native request opcode.",
+      "authority": "Current public client UI; not a server FAQ"
+    },
+    {
+      "class": "JIi",
+      "excerpt": "if(this.Seat.InActiveStateNew)return!!Qf.I().CanUseSha(this.Seat); t=Qf.I().AreShaRangeLimit(this.Seat,this.skillCard)",
+      "supports": "Own Play Slash retains actual native Slash quota, distance, target count and prohibitions.",
+      "authority": "Current public client UI; not a server FAQ"
+    }
+  ],
+  "art": {
+    "generalId": "ol:liu-zhang",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68300.png",
+    "status": 200,
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68300.png",
+    "contentType": "image/png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-liu-zhang.png",
+    "byteCount": 918709,
+    "sha256": "4ef989550138f4aeeca12771723637daeddae2b853cb0dfd891f945b75b9617b",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "capturedAtUtc": "2026-10-17T03:57:59.606915+00:00",
+    "originalImageVisuallyInspected": true
+  },
+  "ruleInterpretation": [
+    {
+      "rule": "丰蔚 positive round choice",
+      "basis": "Current official text and client positive choices",
+      "implementation": "Exactly1..5 choices at the first real normal actual-turn RoundStarting of each round. Later normal turns and extra turns do not repeat it. Native draw exhaustion can complete with zero physical cards; its own scalar completion preserves the positive request without weakening generic draw evidence."
+    },
+    {
+      "rule": "Current Hand sampling",
+      "basis": "Current literal text; implementation inference where older guide differs",
+      "implementation": "Each real DrawPhaseStarting samples this owner’s current Hand and original current-round Fengwei-acquired physical IDs. Original ID reentry qualifies; another recipient never inherits the acquisition. Both ordinary and truly executable extra Draw entries use the same rule. The April guide reported turn-start freezing for an earlier1..4 version and is not a current timing FAQ."
+    },
+    {
+      "rule": "Card-caused damage",
+      "basis": "Current text, earlier same-product observed card versus cardless distinction, native damage inference",
+      "implementation": "Genuine physical, converted and zero-entity native card Use damage qualifies. Pure cardless Damage does not. Freeze hand/source eligibility at the first native damage finalization, before SilverLion clamp; later BeforeDamage children do not recompute it. Each chain recipient computes independently; later-recipient local bonus is unwound before propagating to the next recipient. Native redirect keeps its issued modifier."
+    },
+    {
+      "rule": "宗护 Use-only boundaries",
+      "basis": "Current client TriggerCardUseType USE plus five explicit excluded source IDs",
+      "implementation": "Offer self Play Slash, true self Slash-defense Dodge, genuinely usable BorrowedSword/Qinglong and legal program requests. Duel/AOE played and faction-provider played remain excluded. 忠勇483/乱武118/俏舞3615/界乱武3190/你死我活3792 sources remain excluded when their real source is present. Requester and provider are never conflated; the gift recipient never becomes user."
+    },
+    {
+      "rule": "宗护 exact gift and actual-turn limit",
+      "basis": "Current text, client exact HE giving selector, native settlement inference",
+      "implementation": "Freeze X=min(actual round,3), select X distinct transferable original Hand/Equipment cards and one living other recipient, then finish the original gift’s Lion/Ox/HP/Dying/SkillsChanged/movement children before issuing the once-paid zero-entity use. No pile primary, fake discard, inherited suit/rank/color, distance/quota exemption or second payment. Same actual-turn spend survives skill loss/regrant. After paid source loss the issued right remains; dead user never starts a new card. Original caller lease remains through its full NativeChildren return. After a paid gift, unselected living-candidate changes do not revoke the surviving chosen target: the original native frame/cursor/actor and selected target are revalidated while the initial target-set invoice stays frozen. Death of the actual chosen target prevents new issuance and returns the original request through its native completion. After payment only the originally chosen target is revalidated; an unrelated candidate or gift-recipient death does not revoke the paid use, while a dead chosen target prevents new issuance. Record the exact typed return before supplier-exclusive native returns."
+    },
+    {
+      "rule": "Source authority boundary",
+      "basis": "Primary/current client versus earlier same-product guide",
+      "implementation": "The earlier April2026 guide supplies qualified observations, not a current official FAQ. Current maximum5 and current live Draw-entry sampling are explicit. Multiwindow native return, exact source-loss/death, chain inverse and true-use requester composition are implementation inferences from text plus existing native contracts."
+    }
+  ],
+  "verification": {
+    "status": "fixed-ordinary-source-focused-routine-and-gallery-verified",
+    "coreChecks": [
+      "LiuZhangChecks.FengweiRoundDrawOriginalEntitiesAndActualSkipCold",
+      "LiuZhangChecks.FengweiNativeCardDamageChainAndPreventionCold",
+      "LiuZhangChecks.ZonghuTrueUseRequestFamiliesAndPlayedExclusionsCold",
+      "LiuZhangChecks.ZonghuExactGiftsLionOxSourceLossDeathAndQuotaCold"
+    ],
+    "buildRunByModuleAgent": false,
+    "rootVerified": true,
+    "centralBuildPassed": true,
+    "focusedChecksPassed": true,
+    "focusedCoreGroupsForThisGeneral": 4,
+    "uniqueFocusedCorePassed": 45,
+    "focusedWpfPassed": 2,
+    "routinePassed": true,
+    "routineCorePassed": 145,
+    "routineWpfPassed": 29,
+    "routineDurationMs": 49665,
+    "galleryRenderVisuallyVerified": true,
+    "galleryActualRenderCount": 1,
+    "routineGalleryHashesMatchVisuallyInspected": true,
+    "fullVerificationRun": false,
+    "releaseOrPackagingRun": false,
+    "mainWorkspaceAsAWholeAccepted": false,
+    "validationScope": "Fixed ordinary-mode source verification. In copied sources only, the unfinished Hulao weapon-recast entry is disabled and five Hulao cards are excluded from public ImplementedCards while enum definitions remain. Concurrent main-workspace changes and Boss/Hulao as a whole are not accepted."
+  }
+}
