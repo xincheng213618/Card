@@ -87,6 +87,7 @@ public static class GeneralArt
             ["ol-zhang-qi-ying"] = "official-ol-zhang-qi-ying.png",
             ["ol-cao-chun"] = "official-ol-cao-chun.png",
             ["ol-wang-can"] = "official-ol-wang-can.png",
+            ["ol-zhou-qun"] = "official-ol-zhou-qun.png",
             // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
             ["magic-guan-yu"] = "magic-guan-yu-card.jpg",
             ["mou-guan-yu-mobile"] = "official-mou-guan-yu-mobile.png",

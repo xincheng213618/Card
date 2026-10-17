@@ -14974,6 +14974,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-zhou-qun",
+      "characterName": "周群·OL",
+      "defaultSkinId": "54300",
+      "skins": [
+        {
+          "id": "54300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/543",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhou-qun.png",
+          "sha256": "fa53fda55c469d79b8dfbfb47ce7938667b49396e00ebdb9b908f294ce0a03be",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
