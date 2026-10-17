@@ -1,0 +1,296 @@
+{
+  "generalId": "ol:ma-cheng",
+  "name": "马承",
+  "edition": "ordinary OL",
+  "gid": 532,
+  "capturedAtUtc": "2026-10-17T05:25:42.262923+00:00",
+  "identity": {
+    "factionId": "shu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "verification": {
+    "status": "passed-focused-and-routine",
+    "buildExecutedByModuleAgent": false,
+    "testsExecutedByModuleAgent": false,
+    "verifiedAtUtc": "2026-10-17T06:00:14.876176+00:00",
+    "runtimeBehaviorVerified": true,
+    "ownFocusedCoreGroupsPassed": 4,
+    "batchFocusedCorePassed": 37,
+    "batchFocusedWpfPassed": 3,
+    "routineCorePassed": 149,
+    "routineWpfPassed": 31,
+    "routineDurationMs": 85952,
+    "routineBuildMs": 27996,
+    "routineCoreMs": 17861,
+    "routineWpfMs": 57442,
+    "batchRelatedSourceFilesStableDuringValidation": true,
+    "manualFullVerificationRun": false,
+    "manualForegroundGameplayRun": false,
+    "galleryFixtureRendersVisuallyInspected": true,
+    "validationNote": "Root ran the registered character and shared mechanism filters, then tools/Test-Changed.ps1 routine scope in the main checkout. Concurrent activity work outside this batch was observed separately and is not accepted by this character verification.",
+    "note": "The source hierarchy and implementation inferences above remain distinct from the scoped behavior checks actually run by root."
+  },
+  "primarySources": [
+    {
+      "id": "officialHero",
+      "url": "https://www.sanguosha.com/hero/532",
+      "finalUrl": "https://www.sanguosha.com/hero/532",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-17T05:25:41.889024+00:00",
+      "bytes": 23472,
+      "sha256": "33e781ed2a6435265f13ec8d72bfc65bed92e5f2fe5d16240203bde54e3930fd",
+      "rawCopyCreated": false,
+      "title": [
+        "三国杀马承 - 三国杀OL-三国杀官网-武将技能介绍"
+      ]
+    },
+    {
+      "id": "officialApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=532",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=532",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-17T05:25:41.860985+00:00",
+      "bytes": 782,
+      "sha256": "85b73e18e24eab70bdc36b46d5c76ae7ff1b05d057723ec18a4076d8f87a35cb",
+      "rawCopyCreated": false,
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 532,
+              "name": "马承",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/532.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53200.png",
+              "label": [
+                "进攻",
+                "辅助",
+                "减目标"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "稀有",
+              "biography": "蜀汉骠骑将军马超之子。仕蜀汉，马超死后继承其斄[tái]乡侯爵位。",
+              "characteristic": "能为杀多指定虚目标，他们响应后会有一定惩罚，不响应反而获益。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 5
+            },
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "officialAvailability",
+      "url": "https://www.sanguosha.com/news/20260818_1951_2713",
+      "finalUrl": "https://www.sanguosha.com/news/20260818_1951_2713",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-17T05:25:41.907281+00:00",
+      "bytes": 445910,
+      "sha256": "491e9aa3c467100f12a8fed91eac856dd9e0bad92f46390c8712eeda52795d2f",
+      "rawCopyCreated": false,
+      "title": [
+        " 8.22-8.30 开学祈福曹金玉&amp;刘璋来袭 限时双倍重置 寻宝阁界步练师上新 - 三国杀OL官网"
+      ]
+    }
+  ],
+  "currentClient": {
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "bundleBytes": 5386466,
+    "bundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configBytes": 4154044,
+    "configSha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+    "sameRetainedBytesVerifiedInThisAudit": true,
+    "decode": "In-memory ZIP member sgsGame_a.sgs; public InitOfb AES-CFB128 then gzip; no fetch/import writer called",
+    "scriptSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "members": {
+      "character.sgs": {
+        "encryptedBytes": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedBytes": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "generalRow": {
+      "a": 532,
+      "b": "马承",
+      "d": "MaCheng",
+      "e": 44,
+      "f": "46",
+      "g": 2,
+      "h": 1,
+      "i": 4,
+      "j": 70,
+      "k": 3208,
+      "p": 1,
+      "q": "1",
+      "r": "9053201",
+      "y": "蜀汉骠骑将军马超之子。仕蜀汉，马超死后继承其斄[tái]乡侯爵位。",
+      "z": "能为杀多指定虚目标，他们响应后会有一定惩罚，不响应反而获益。",
+      "aa": 145,
+      "ab": "987,988",
+      "ad": "画师:君桓文化",
+      "x": "丞相，####使命必达！",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ar": "20230801T235959",
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,攻击强将"
+    },
+    "spellRows": [
+      {
+        "a": 70,
+        "b": "3,4,5",
+        "c": "马术",
+        "d": "MaShu",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "锁定技，你计算与其他角色的距离-1。",
+        "bb": "锁定技，你计算与其他角色的距离-1。",
+        "aa": "锁定技，你计算与其他角色的距离-1。",
+        "p": "你与别人距离-1。"
+      },
+      {
+        "a": 3208,
+        "b": "3,5",
+        "c": "骋烈",
+        "d": "ChengLie",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "你使用的【杀】可以多指定至多两个目标，然后展示牌堆顶与目标数等量张牌，秘密将一张手牌与其中一张牌交换，将之分别暗置于目标角色武将牌上直到此【杀】结算结束，其中“骋烈”牌为红色的角色若响应了此【杀】则交给你一张牌，若未响应此【杀】则回复1点体力。"
+      }
+    ],
+    "firstReleaseDescriptionLimit": "Current client says ranked commander-stage gift first release; no exact date is derived from that sentence."
+  },
+  "communityGuides": [
+    {
+      "tier": "same-product community guide",
+      "sourceIds": [
+        "sameProductGuide"
+      ],
+      "author": "游戏小助手",
+      "publishedAtLocal": "2023-06-13 16:58",
+      "supportsParaphrase": [
+        "Optional skill can follow an off-turn BorrowedSword or another general causing a true Slash Use. Physical, converted and virtual Slash are covered.",
+        "Adding targets commits to the exchange/placement remainder; it is not a free target bonus.",
+        "Only issuer knows attachment colors. Damage resolves before whole Slash completion; a dying target that is not saved dies before the recovery reward.",
+        "Responding target chooses the HE card itself; with no HE it need not give."
+      ],
+      "notFaq": true,
+      "limits": "Guide normal one-target examples do not impose a global total-target maximum3 and do not adjudicate multi-Dodge, faction providers, redirected targets, extra-effect rounds, deck shortage or empty Hand."
+    },
+    {
+      "tier": "publisher account repost of community analysis",
+      "sourceIds": [
+        "publisherRepostedRelatedGuide"
+      ],
+      "publisherAccount": "三国杀OL大乔",
+      "originalAuthor": "爱多i",
+      "publishedDate": "2025-05-08",
+      "originalUrl": "https://club.sanguosha.com/thread-1655202-1-1.html",
+      "supportsParaphrase": "TaoQian Zongluan when already designating every character in attack range leaves no extra Chenglie target, so Chenglie does not trigger. This agrees with current client minimum1 added target.",
+      "notFaq": true
+    }
+  ],
+  "ruleInterpretation": [
+    {
+      "topic": "activation",
+      "basis": "current client XRi TargetCountMin1/Max2 plus related same-product guide",
+      "implementation": "Add one or two actually new legal other targets to this true native Slash Use. Existing multi-target Uses are not capped at three total. Normal native target range/prohibitions remain; no extra Slash payment or quota debit."
+    },
+    {
+      "topic": "exact secret entities",
+      "basis": "official current skill text and client exchange/placement UI",
+      "implementation": "Publicly reveal real deck entities equal to the full resulting target count; exchange one current own Hand entity with exactly one revealed entity privately, then privately map the remaining pool to original holders. Only the issuer sees the mapping. Use true Hand loss/gain and exact named private-pile movements."
+    },
+    {
+      "topic": "empty Hand and deck shortage",
+      "basis": "explicit implementation inference; no dedicated current OL FAQ found",
+      "implementation": "If no Hand exists at the exchange step, that step does nothing and the actual revealed pool is still placed. Native reshuffle is used; if the deck and discard pile cannot supply all cards, place only real obtained cards in target order and fabricate no marker."
+    },
+    {
+      "topic": "whole native Use and response",
+      "basis": "official until-this-Slash-finishes wording; same-product guide damage-before-whole-Slash observation",
+      "implementation": "Wait for all native target/effect rounds and damage/Dying/death children. A holder that actually responded at least once uses the give branch once, even if damage still occurs due to partial required responses or StoneAxe. Native zero responses and faction response principals retain real actor/provider direction. Pure played Slash for Duel/AOE is not a new Chenglie Slash Use."
+    },
+    {
+      "topic": "redirect and extra effect",
+      "basis": "explicit composition inference; no dedicated current OL FAQ found",
+      "implementation": "The original attachment holder and entity are frozen. A later Liuli redirect neither moves the hidden card nor invents a card for its new recipient. Whole-Use response history is a boolean per holder; extra effect rounds do not duplicate the final outcome."
+    },
+    {
+      "topic": "red outcomes",
+      "basis": "official text, current FLAG3 HE Give selector and same-product guide",
+      "implementation": "A living responding holder chooses its own legal HE card and gives it to the living original issuer; with no eligible HE no card is fabricated. A living red nonrespondent receives native Recover1 only after damage and rescue settle. All child payments and recoveries finish before advancing another holder."
+    },
+    {
+      "topic": "source loss, death and cleanup",
+      "basis": "paid-effect engine contract plus explicit implementation inference; primary text does not state terminal card destination",
+      "implementation": "Paid setup/outcomes continue after losing the original skill instance. Dead issuers receive no new gift or recovery decisions; stop secret choices and clean exact already-issued entities. A holder dying during setup is not replaced, and its allocated original card is discarded. At whole-Use completion, after eligible outcomes, every attachment still in its exact original private zone is moved to DiscardPile once. Never recover an entity from another zone or leave a dead/source-lost temporary pile."
+    }
+  ],
+  "nativeBoundary": "Active resolution is owned by ProgramSkillFrame.Chenglie; the lasting private-card lease is on the original CardUseFrame.ChenglieLease. The exact original completed-use mother issues the resolver before that CardUseFrame is popped. Facts are scalar and frame lists are deeply frozen.",
+  "art": {
+    "catalogKey": "ol-ma-cheng",
+    "defaultSkinId": "53200",
+    "skins": [
+      {
+        "id": "53200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/532",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-cheng.png",
+        "sha256": "9ae10c236db6c08ba30632400a4b223615be4d311e82fea9433b3d229c7eae5c",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    ]
+  },
+  "behaviorChecks": {
+    "file": "tests/CardGame.Core.Tests/MaChengChecks.cs",
+    "methods": [
+      "ChenglieTargetsNativeMultiAndZeroUsesCold",
+      "ChenglieSecretOriginalEntitiesPrivacyAndDeckEdgesCold",
+      "ChenglieResponsesRecoveryAndTrueNativeDirectionCold",
+      "ChengliePaidLionOxSourceLossAndDeathCold"
+    ],
+    "status": "all four registered groups passed under root-controlled execution"
+  }
+}

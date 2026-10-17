@@ -1,0 +1,7 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-cheng",
+  "skills": [{"registrationOrder":2090,"programBundle":"ol-ma-cheng","includeProgramPresentation":true,"definition":{"id":"ol:chenglie","name":"骋烈","description":"你使用的【杀】可以多指定至多两个目标，然后展示牌堆顶与目标数等量张牌，秘密将一张手牌与其中一张牌交换，将之分别暗置于目标角色武将牌上直到此【杀】结算结束，其中“骋烈”牌为红色的角色若响应了此【杀】则交给你一张牌，若未响应此【杀】则回复1点体力。","actionForms":"None","executionForms":"Trigger"}}],
+  "generals": [{"registrationOrder":2092,"pools":{"current":483},"definition":{"id":"ol:ma-cheng","name":"马承","portraitKey":"ol-ma-cheng","skillId":"ol:chenglie","additionalSkillIds":["classic:mashu"],"factionId":"shu","baseHp":4,"gender":"Male","characterId":"character:ma-cheng","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]
+}

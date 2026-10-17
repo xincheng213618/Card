@@ -14957,6 +14957,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-ma-cheng",
+      "characterName": "马承·OL",
+      "defaultSkinId": "53200",
+      "skins": [
+        {
+          "id": "53200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/532",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-cheng.png",
+          "sha256": "9ae10c236db6c08ba30632400a4b223615be4d311e82fea9433b3d229c7eae5c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
