@@ -14872,6 +14872,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-sun-yuan",
+      "characterName": "孙鸢·OL",
+      "defaultSkinId": "70700",
+      "skins": [
+        {
+          "id": "70700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/707",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sun-yuan.png",
+          "sha256": "78fb8c71bca8b2018394afdfc1241b42b2efea4a1980bd3b59d0c21caca665ba",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
