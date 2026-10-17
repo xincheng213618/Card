@@ -16,6 +16,7 @@ public static class GeneralGalleryCatalog
         new("sp", "SP", "SP 武将"),
         new("mou", "谋", "谋系列武将"),
         new("friend", "友", "友系列武将"),
+        new("le", "乐", "正音雅乐系列武将"),
         new("other", "其他扩展", "其他扩展武将")
     ]);
 
@@ -41,6 +42,7 @@ public static class GeneralGalleryCatalog
         new("sp", "sp", "SP", "SP 武将"),
         new("mou", "mou", "谋", "谋系列"),
         new("friend", "friend", "友", "友系列"),
+        new("le", "le", "乐", "正音雅乐"),
         new("other", "other", "其他", "其他扩展")
     ];
 
@@ -70,6 +72,7 @@ public static class GeneralGalleryCatalog
     private static IReadOnlyDictionary<string, string> BuildGeneralGroups()
     {
         var groups = new Dictionary<string, string>(StringComparer.Ordinal);
+        groups.Add("le:mi-heng", "le");
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");
         Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao yu-ji");
         Add("myth-fire", "dian-wei xun-yu pang-tong wolong-zhuge-liang taishi-ci yuan-shao yan-liang-wen-chou pang-de");

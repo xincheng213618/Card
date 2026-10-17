@@ -1,0 +1,64 @@
+{
+  "checkedAtUtc": "2026-10-17T15:35:57.630215+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐祢衡",
+  "generalId": "le:mi-heng",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "officialHero": "https://x.sanguosha.com/hero/1334.html",
+  "officialHeroSha256": "f27025cfa7cf743841aec695a7d163a296e7734b1b4cb6128cec3e35b1bc51c8",
+  "officialLaunch": "https://sanguosha.com/news/20240913_4240_3411",
+  "launchPublished": "2024-09-14 18:01:45",
+  "firstAvailable": "2024-09-15",
+  "officialWordingUpdate": "https://x.sanguosha.com/news/20260421_4602_0917.html",
+  "portrait": {
+    "id": "1133401",
+    "name": "经典形象",
+    "sourcePage": "https://x.sanguosha.com/hero/1334.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133401.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-le-mi-heng.png",
+    "sha256": "b22e5e867eb34e8afea2fe0a8d31aa89a017015521d507312b4acd41a80ef707",
+    "pixelWidth": 574,
+    "pixelHeight": 761
+  },
+  "engineeringInterpretations": {
+    "jiguInitialization": "Freeze each initialized Jigu owner final opening Hand at the game-start mother before any game-start skill child, preserving actual physical IDs and real Hand-entry movement invoices including opening replacements.",
+    "jiguMarks": "A permanent global physical-ID mark. Original owner is initialization provenance; departure and transfer do not remove identity. All marked entities in a current Jigu holder Hand count; a holder without Jigu retains the visible mark but has no hand-limit exemption. This is a combined textual interpretation, not an official specialized FAQ.",
+    "startedCharacters": "Distinct seats with a recorded first actual Preparation whose actor is the actual turn owner; a skipped face-down scheduled turn and an inserted Play alone do not qualify. This follows existing native true-start terminology and is an engineering interpretation, not an anniversary specialized FAQ. Death never removes a historically started seat.",
+    "jiguQuota": "Each qualifying activation pays once before native draw children. A qualified Draw0 counts even if no actual card can be drawn. Reaching the then-current started-seat threshold permanently latches the remainder of that real round, and later population growth does not reopen it. Only a genuine RoundStarted changes the round entitlement.",
+    "siruiNames": "Compare canonical actual card names with Unicode scalar counts, preserving existing identity and ownership restrictions. Unicode counting is an implementation choice, not an official algorithm quotation.",
+    "siruiDirections": "Within the current owner actual Play, true Use includes native Slash-defense Dodge, counterspell, rescue and valid forced Use; pure Played and faction provision are excluded. Official hero and wording-update text support the Use/Played distinction, but no dedicated client need branch or official specialized FAQ was obtained. This direction rule is explicitly a combined-language/native-contract interpretation.",
+    "siruiPool": "The complete canonical six Basic and eleven active ordinary Tricks plus Nullification use the existing mode-specific ActivityRuntimeProgram projection. Explicit output kinds do not grant unsupported activity-only names.",
+    "siruiLimits": "One shared entitlement for owner+skill+actual phase, across output names and source instances, consumed by the native accepted Use/payment. Distance and ordinary usage-count exemptions belong to this exact conversion only; other target, state and card prohibitions remain."
+  },
+  "clientEvidenceLimits": {
+    "officialLoginScript": "https://web.sanguosha.com/js/10th-client/10th-client.0b24.js",
+    "loginScriptSha256": "8835472d253415c4e6b15c38083dd6a8e04737e11f13d76e685991cdc94ecc44",
+    "finding": "Public official launcher returns an authenticated game URL; no game rule bundle or LeMiHeng need predicate was publicly obtained. Avatar resource paths are not proof of an executable game entry. No login or game command was sent."
+  },
+  "validation": {
+    "status": "passed",
+    "verifiedAtUtc": "2026-10-17T16:48:34.862293+00:00",
+    "focused": {
+      "corePassed": 17,
+      "wpfPassed": 1,
+      "durationMs": 31616
+    },
+    "routine": {
+      "corePassed": 161,
+      "wpfPassed": 36,
+      "durationMs": 95889
+    },
+    "manualFullRun": false,
+    "visualInspection": "Actual WPF details render: official original portrait, Le series, all two complete skill descriptions and the scroll bottom were inspected.",
+    "nativeInput": "Routine native WPF input checks passed after the user released the left button; the real Space input route reported AsyncLeftDown=false.",
+    "coveredBoundaries": [
+      "Original opening entities and global marks across transfers, equipment slots and actual hand-limit discard eligibility.",
+      "Historical actual starts, genuine rounds, latch thresholds, Draw0, replacements, dead or lost-skill paid draw continuations and private cold replay.",
+      "All complete equal-name HE output families, exact-source distance and ordinary use-count separation, phase-wide quota, loss-regain and genuine extra Play.",
+      "True Dodge, Nullification, Peach/Alcohol rescue and forced Use; group Played and faction-provider exclusion; actual GeneralWeapon Outside cost.",
+      "Native Qinglong unique elemental choice IDs, visible true output names, canonical choice validation and once-only cold return."
+    ],
+    "scope": "Development focused and routine verification only. Specialized anniversary FAQ/client need branches were not obtained; engineering interpretations remain explicit."
+  }
+}

@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "le-mi-heng",
+      "characterName": "乐祢衡",
+      "defaultSkinId": "1133401",
+      "skins": [
+        {
+          "id": "1133401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1334.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133401.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-mi-heng.png",
+          "sha256": "b22e5e867eb34e8afea2fe0a8d31aa89a017015521d507312b4acd41a80ef707",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "ol-pang-ji",
       "characterName": "逢纪",
       "defaultSkinId": "67900",

@@ -124,6 +124,7 @@ public static partial class GeneralArt
             ["ol-zhao-zhong"] = "official-ol-zhao-zhong.png",
             ["ol-tao-qian"] = "official-ol-tao-qian.png",
             ["ol-pang-ji"] = "official-ol-pang-ji.png",
+            ["le-mi-heng"] = "official-le-mi-heng.png",
             // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
             ["magic-guan-yu"] = "magic-guan-yu-card.jpg",
             ["mou-guan-yu-mobile"] = "official-mou-guan-yu-mobile.png",
@@ -552,7 +553,7 @@ public static partial class GeneralArt
         var key = GuanduPortraitSource(id) ?? id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
-        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:" })
+        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:", "le:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = prefix[..^1] + "-" + key[prefix.Length..]; break; }
         return PortraitAliases.GetValueOrDefault(key, key);
     }
