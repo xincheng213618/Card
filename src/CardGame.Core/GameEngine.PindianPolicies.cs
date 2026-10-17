@@ -4,7 +4,9 @@ public sealed partial class GameEngine
 {
     private bool CanOfferPindianTopChoice(CharacterState owner)=>(_cardZones.Count(CardLocation.DrawPile)>0 || _cardZones.Count(CardLocation.DiscardPile)>0) && CardPolicies(owner,SkillProgramCardPolicyKind.PindianTopCardChoice).Any();
     private int EffectivePindianRank(CharacterState owner,Card card)=>CardPolicies(owner,SkillProgramCardPolicyKind.PindianRankBySuit).Where(b=>b.Policy.InputSuit==EffectiveSuit(owner,card)).Select(b=>b.Policy.Value).DefaultIfEmpty(EffectiveOwnedCardRank(owner,card)).Max();
-    private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.SourceUsesDrawPileTop
+    private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.OwnedPileSource is not null
+        ? IsGuanHaiPindianSource(frame, false)
+        : frame.SourceUsesDrawPileTop
         ? frame.SourceCardId is { } id && _cardZones.GetLocation(id)==CardLocation.Processing && !(frame.ParentProcessingCardIds??[]).Contains(id)
         : GetHand(_players[frame.SourceSeat]).Any(c=>c.Id==frame.SourceCardId);
     private int ReserveOrReadPindianTop(CharacterState owner,bool reserve)

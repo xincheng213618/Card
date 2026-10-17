@@ -8,12 +8,12 @@ public sealed partial class GameEngine
     {
         if (!IsWuJingHejiRequest(f) || !_players[f.OwnerSeat].IsAlive || !_players[f.WuJing!.TargetSeat].IsAlive) return false;
         var actor = _players[f.OwnerSeat]; var target = _players[f.WuJing.TargetSeat];
-        return HasWeijieProgramSlash(actor, [target.Seat]) || DrawFundedDistinctBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind)).Concat(ChainedStateBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind))).Any(r => IsSlashCard(r.OutputKind) &&
+        return HasWeijieProgramSlash(actor, [target.Seat]) || (HasZonghuProgramSlash(actor, [target.Seat]) || HasHuanpeiProgramSlash(actor, [target.Seat])) || DrawFundedDistinctBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind)).Concat(ChainedStateBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind))).Any(r => IsSlashCard(r.OutputKind) &&
             !HasBeneficiarySuitShield(actor.Seat, target.Seat, Suit.None) && !IsCardTargetProhibited(target, r.OutputKind, Suit.None) && !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, r.OutputKind) &&
             CanUseSlashTarget(actor, target, new(0, r.OutputKind, Suit.None, 0), r.Source, r.OutputKind, ignoreDistance: true, noEffectiveRank: true, physicalCardIds: []));
     }
     private bool WuJingHasPaidAdapter(ProgramSkillFrame f) => WuJingRequestIdentity(f) &&
-        (HasWeijieSpecializedPayment(f) || f.WuJing!.RoundOncePayment is not null || f.WuJing.DrawFundedPayment is not null || f.WuJing.ChainedPayment is not null ||
+        (HasWeijieSpecializedPayment(f) || (HasZonghuSpecializedPayment(f) || HasHuanpeiProgramPayment(f)) || f.WuJing!.RoundOncePayment is not null || f.WuJing.DrawFundedPayment is not null || f.WuJing.ChainedPayment is not null ||
          _resolutionStack.OfType<DrawFundedDistinctBasicFrame>().Any(p => p.Payment.ParentFrameId == f.Id && p.Payment.RequestFrameId == f.Id && p.Payment.Cursor == f.InstructionIndex && p.Payment.Source.OwnerSeat == f.OwnerSeat && p.Payment.TargetSeat == f.WuJing.TargetSeat && p.OriginalDecision.SkillPrompt?.SkillId == f.SkillId && ValidDrawFundedDistinctBasicPayment(p.Payment)) ||
          _resolutionStack.OfType<ChainedStateBasicFrame>().Any(p => p.Payment.ParentFrameId == f.Id && p.Payment.RequestFrameId == f.Id && p.Payment.Cursor == f.InstructionIndex && p.Payment.Source.OwnerSeat == f.OwnerSeat && p.Payment.TargetSeat == f.WuJing.TargetSeat && p.OriginalDecision.SkillPrompt?.SkillId == f.SkillId && ValidChainedStateBasicPayment(p.Payment)));
     private bool WuJingHejiAdapterActor(ProgramSkillFrame f, int actor, int? target, int cursor, long? parent, long? request) => WuJingRequestIdentity(f) && actor == f.OwnerSeat && target == f.WuJing!.TargetSeat && cursor == f.InstructionIndex && parent == f.Id && request == f.Id &&
@@ -38,7 +38,7 @@ public sealed partial class GameEngine
     }
     private bool WuJingZeroPaymentProof(ProgramSkillFrame f, WuJingReceipt r, CardUseFrame? use = null)
     {
-        if (HasWeijieSpecializedPayment(f, use)) return true;
+        if (HasWeijieSpecializedPayment(f, use) || (HasZonghuSpecializedPayment(f, use) || HasHuanpeiProgramPayment(f, use))) return true;
         if (r.Selection is not { CardIds.Count: 0, Conversions: [var source] } || source.OwnerSeat != f.OwnerSeat ||
             new[] { r.RoundOncePayment is not null, r.DrawFundedPayment is not null, r.ChainedPayment is not null }.Count(v => v) != 1) return false;
         if (r.RoundOncePayment is { } quota) return quota.Source == source && quota.ActualTurnNumber == r.ActualTurn && quota.ActualTurnOwnerSeat == _turnProgression.OwnerSeat && quota.GameplayHash == _contentRegistry.GetSkill(source.SkillId).Program!.GameplayHash &&

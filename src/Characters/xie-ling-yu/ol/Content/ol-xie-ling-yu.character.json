@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xie-ling-yu",
+  "skills": [
+    {
+      "registrationOrder": 2120,
+      "programBundle": "ol-xie-ling-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yuandi",
+        "name": "元嫡",
+        "description": "锁定技，当每回合首次有【杀】【闪】【桃】为一组的牌名均进入过弃牌堆后，你摸一张牌。若其中有牌不因使用进入弃牌堆，且剩余牌名大于一，你移除一个牌名。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2121,
+      "programBundle": "ol-xie-ling-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xinyou",
+        "name": "心幽",
+        "description": "出牌阶段限一次，你可弃置任意张基本牌，然后摸一张牌，并重复此流程，直到你因此获得未弃置基本牌的牌名（至多摸5且本回合不计入手牌上限）。",
+        "actionForms": "Active",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2122,
+      "pools": {"current": 488},
+      "definition": {
+        "id": "ol:xie-ling-yu",
+        "name": "谢灵毓",
+        "portraitKey": "ol-xie-ling-yu",
+        "skillId": "ol:yuandi",
+        "additionalSkillIds": ["ol:xinyou"],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:xie-ling-yu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-ji",
+  "skills": [
+    {
+      "registrationOrder": 2166,
+      "programBundle": "ol-pang-ji",
+      "includeProgramPresentation": true,
+      "definition": { "id": "ol:biguo", "name": "愎果", "description": "摸牌阶段结束时，你可弃置一张牌，从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。", "executionForms": "Trigger" }
+    },
+    {
+      "registrationOrder": 2167,
+      "programBundle": "ol-pang-ji",
+      "includeProgramPresentation": true,
+      "definition": { "id": "ol:douyu", "name": "斗誉", "description": "你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸两张牌。", "executionForms": "Trigger" }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2168,
+      "pools": { "current": 495 },
+      "definition": { "id": "ol:pang-ji", "name": "逢纪", "portraitKey": "ol-pang-ji", "skillId": "ol:biguo", "additionalSkillIds": ["ol:douyu"], "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:pang-ji", "variantId": "ordinary", "rulesetId": "sanguosha-ol" }
+    }
+  ]
+}

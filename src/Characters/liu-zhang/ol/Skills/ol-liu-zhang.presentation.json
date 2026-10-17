@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:fengwei": {
+      "name": "丰蔚",
+      "description": "锁定技，每轮开始时，你摸至多五张牌。若你手牌中有本轮以此法获得的牌，你跳过摸牌阶段；当你受到牌造成的伤害时，若手牌中有本轮以此法获得的牌，此伤害+1。",
+      "triggerLabels": {
+        "round-draw": "每轮首次实际回合开始时摸牌",
+        "draw-skip": "持有本轮丰蔚实体时跳过本次摸牌阶段"
+      }
+    },
+    "ol:zonghu": {
+      "name": "宗护",
+      "description": "每回合限一次，当你需要使用【杀】或【闪】时，你可将X张牌交给一名其他角色，然后视为你使用之（X为游戏轮数且至多为3）。",
+      "activationLabels": {
+        "native-use-request": "交牌并视为本人使用杀或闪"
+      }
+    }
+  }
+}

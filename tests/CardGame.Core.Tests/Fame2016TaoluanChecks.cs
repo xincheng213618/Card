@@ -3,6 +3,30 @@ using CardGame.Content.Standard;
 using CardGame.Core;
 internal static class Fame2016TaoluanChecks
 {
+    public static void AiRequestsTeammateAndReplaysRecordedPolicy()
+    {
+        foreach (var policy in new[] { AiDecisionPolicy.CorrelatedActiveSkillVersion, AiDecisionPolicy.CooperativeCategoryGiftVersion })
+        {
+            var (game, registry) = Create(teamAi: true, policy: policy);
+            for (var step = 0; step < 240; step++)
+            {
+                if (game.Events.Any(e => e.Payload is ProgramActionCategoryGiftResolvedEvent)) break;
+                Accept(game, new AdvanceOneStepCommand(game.Revision));
+            }
+            var gift = game.Events.Select(e => e.Payload).OfType<ProgramActionCategoryGiftResolvedEvent>().FirstOrDefault();
+            Require(gift is not null, "A bounded real AI Taoluan use must reach its category-gift settlement.");
+            if (policy >= AiDecisionPolicy.CooperativeCategoryGiftVersion)
+            {
+                var view = game.CreateSnapshot(gift!.OwnerSeat);
+                Require(view.Players[gift.OwnerSeat].TeamId == view.Players[gift.ProviderSeat].TeamId && gift.GiftCardId is not null,
+                    "Actual AI target dispatch asks a public teammate, whose own AI really donates a legal card.");
+            }
+            Replay(game, registry);
+            Require(game.CreateCheckpoint().Options.AiPolicyVersion == policy,
+                "Both historical and cooperative AI policies remain recorded and cold-replay exactly.");
+        }
+    }
+
     public static void EquipmentGlobalAndNullification()
     {
         var (game,registry)=Create();
@@ -51,15 +75,18 @@ internal static class Fame2016TaoluanChecks
     { var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Command rejected."); }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 
-    private static (GameEngine Game, ContentRegistry Registry) Create(bool slashCards = false, bool sameKind = false, bool dyingFixture = false, bool wooden = false)
+    private static (GameEngine Game, ContentRegistry Registry) Create(bool slashCards = false, bool sameKind = false, bool dyingFixture = false, bool wooden = false,
+        bool teamAi = false, int policy = 1)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Scenario(slashCards, sameKind, dyingFixture, wooden));
-        var game = GameEngine.CreateStandard(new GameOptions { Seed = 17, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4,
-            ModeId = "identity:classic-taoluan", UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 20 }, registry);
-        Accept(game, new StartGameCommand()); Accept(game, new SelectGeneralCommand(0, "fixture:taoluan-owner", game.Revision, Prompt(game)!.PromptId));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Scenario(slashCards, sameKind, dyingFixture, wooden, teamAi));
+        var game = GameEngine.CreateStandard(new GameOptions { Seed = 17, HumanSeat = teamAi ? -1 : 0, HumanRole = teamAi ? null : Role.Lord, PlayerCount = 4,
+            AiPolicyVersion = policy, ModeId = "identity:classic-taoluan", UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 20 }, registry);
+        Accept(game, new StartGameCommand());
+        if (teamAi) return (game, registry);
+        Accept(game, new SelectGeneralCommand(0, "fixture:taoluan-owner", game.Revision, Prompt(game)!.PromptId));
         Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard); return (game, registry);
     }
-    private sealed class Scenario(bool slashCards, bool sameKind, bool dyingFixture, bool wooden) : IGameContentPackage
+    private sealed class Scenario(bool slashCards, bool sameKind, bool dyingFixture, bool wooden, bool teamAi) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-conversion", new Version(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -71,8 +98,11 @@ internal static class Fame2016TaoluanChecks
             builder.AddGeneral(new("fixture:taoluan-owner", "张让测试", "supporter", "classic:taoluan", "wei", BaseHp: 9, AdditionalSkillIds: ["classic:tiaoxin", "fixture:taoluan-damage", "fixture:taoluan-observer"]));
             foreach (var seat in Enumerable.Range(1, 3)) builder.AddGeneral(new($"fixture:taoluan-{seat}", "目标", "supporter", "standard:none", "wei", BaseHp: 9));
             builder.AddDeck(new("fixture:taoluan-deck", "真实装备牌", 4, 0, []) { PhysicalCards = Enumerable.Range(0, 160).Select(index => new ContentDeckPhysicalCard(wooden ? "classic:wooden-ox" : sameKind ? "standard:draw_two" : slashCards && index % 2 == 0 ? "standard:slash" : "standard:crossbow", index % 2 == 0 ? Suit.Spade : Suit.Heart, index % 13 + 1)).ToArray() });
-            builder.AddMode(new("identity:classic-taoluan", "转换测试", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, "fixture:taoluan-deck", GeneralCandidateCount: 4,
-                GeneralPoolIds: ["fixture:taoluan-owner", "fixture:taoluan-1", "fixture:taoluan-2", "fixture:taoluan-3"]));
+            builder.AddMode(new("identity:classic-taoluan", "转换测试", 4, 4, teamAi ? new Dictionary<string, int>() :
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, "fixture:taoluan-deck", GeneralCandidateCount: 4,
+                GeneralPoolIds: ["fixture:taoluan-owner", "fixture:taoluan-1", "fixture:taoluan-2", "fixture:taoluan-3"],
+                ModeKind: teamAi ? ContentModeKind.Team : ContentModeKind.Identity,
+                TeamCounts: teamAi ? new Dictionary<string, int> { ["blue"] = 2, ["red"] = 2 } : null));
         }
     }
 }

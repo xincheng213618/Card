@@ -297,6 +297,10 @@ public sealed partial class GameEngine
             SkillProgramEffectOp.ZhuihuanRetaliate => IsValidZhuihuanContinuation(frame, paused),
             SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits =>
                 frame.EquipmentDonation is not null && IsValidAllEquipmentDonation(frame),
+            SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou =>
+                IsIssuedOrdinaryCaiFuRenXianzhou(frame) && IsValidAllEquipmentDonation(frame),
+            SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting =>
+                CanContinueIssuedOrdinaryCaiFuRen(frame),
             SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn =>
                 frame.ActualEndedEquipment is not null && IsValidActualEndedEquipment(frame),
             SkillProgramEffectOp.OfferSlashTargetBenefit =>

@@ -28,7 +28,7 @@ public sealed partial class GameEngine
                 effectiveColor: engine.PhysicalGroupColor(engine._players[owner], cards), physicalCardIds: cards.Select(card => card.Id).ToArray());
         public bool CanUseGlobal(int owner, CardKind kind) => engine.CanUseGlobalCard(engine._players[owner], kind);
         public bool CanUseOrdinaryTrick(int owner, CardKind? kind, IReadOnlyList<int> physicalCards) =>
-            engine.BuildProgramOrdinaryTrickUseOptions(engine._players[owner], kind, physicalCardIds: physicalCards, includeNextActualUseAdjustment: true).Count != 0;
+            engine.BuildProgramOrdinaryTrickUseOptions(engine._players[owner], kind, enforceUsePermission: true, physicalCardIds: physicalCards, includeNextActualUseAdjustment: true).Count != 0;
         public bool CanRequestFactionSlash(int owner, string faction) => engine.CanUseFactionSlashRequest(engine._players[owner], faction);
         public bool HasNextUseAdjustment(int owner) => engine.CurrentNextActualUseAdjustment(owner) is not null;
         public bool IsTargetProhibited(int target, CardKind kind, int owner, IReadOnlyList<Card> cards) =>

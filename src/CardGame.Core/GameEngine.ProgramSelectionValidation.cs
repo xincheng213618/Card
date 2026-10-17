@@ -133,8 +133,8 @@ public sealed partial class GameEngine
         public bool IsValidSeat(int seat) => engine.IsValidPlayerSeat(seat);
         public bool CanUseSlash(int ownerSeat, int targetSeat, ProgramMultiCardViewAsSelection selection) =>
             engine.CanUseVirtualSlashTarget(engine._players[ownerSeat], engine._players[targetSeat],
-                physicalSuit: engine.PhysicalGroupSuit(engine._players[ownerSeat], selection.Cards),
-                effectiveColor: engine.PhysicalGroupColor(engine._players[ownerSeat], selection.Cards),
+                physicalSuit: engine.ProgramMultiCardSuit(engine._players[ownerSeat], selection),
+                effectiveColor: engine.ProgramMultiCardColor(engine._players[ownerSeat], selection),
                 physicalCardIds: selection.Cards.Select(card => card.Id).ToArray());
     }
 

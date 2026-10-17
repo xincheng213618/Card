@@ -123,6 +123,11 @@ public sealed partial class GameEngine
             blade.Attack.SourceSeat == prompt.PlayerSeat && SameAttackOwner(ActiveCardAttack, blade.Attack) && blade.Attack.ResolutionId == ownerId)
             return new(DrawFundedDistinctBasicIntent.Qinglong, ownerId, top.Id, parentAction, 0, blade.Attack.TargetSeat);
         if (prompt.Kind != DecisionKind.ProgramTrigger || top is not ProgramSkillFrame program) return null;
+        if (TryGetWenyiPeachRequest(program, out var wenyiActor, out var wenyiTarget) && prompt.PlayerSeat == wenyiActor &&
+            program.HuanShuJun is { Stage: HuanShuJunStage.WenyiPeachRequest or HuanShuJunStage.NativeIssuing })
+            return new(DrawFundedDistinctBasicIntent.WenyiPeach, program.Id, program.Id, null, program.InstructionIndex, wenyiTarget);
+        if (IsSayingSlashRequest(program) && TryGetSayingSlashRequest(program, out var sayingActor, out var sayingTargets) && prompt.PlayerSeat == sayingActor)
+            return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, sayingTargets.Single());
         if (IsChanshuangSlashRequest(program) && TryGetChanshuangSlashRequest(program, out var requestedActor, out var requestedTargets) && prompt.PlayerSeat == requestedActor)
             return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, requestedTargets.Single());
         if (IsQigongRequest(program) && prompt.PlayerSeat == program.LvKuangLvXiang!.Actor)
@@ -151,6 +156,11 @@ public sealed partial class GameEngine
             return kind == CardKind.Dodge && IsProgramResponseCardUse(actor, kind) && ActiveCardAttack is { } a && a.ResolutionId == need.ParentFrameId &&
                 a.SuccessfulDodgeResponses == need.Cursor && a.SourceSeat == targetSeat && ActiveFactionDefense is null;
         if (targetSeat is not { } seat || !IsValidPlayerSeat(seat) || !_players[seat].IsAlive || HasBeneficiarySuitShield(actor.Seat, seat, Suit.None)) return false;
+        if (need.Intent == DrawFundedDistinctBasicIntent.WenyiPeach)
+            return kind == CardKind.Peach && _resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is ProgramSkillFrame wenyi &&
+                need.RequestFrameId == wenyi.Id && wenyi.InstructionIndex == need.Cursor &&
+                TryGetWenyiPeachRequest(wenyi, out var wenyiActor, out var wenyiTarget) && wenyiActor == actor.Seat && wenyiTarget == seat &&
+                WenyiPeachUseLegal(actor.Seat, seat, []);
         if (need.Intent == DrawFundedDistinctBasicIntent.Dying)
             return ActiveDying is { } d && d.FrameId == need.ParentFrameId && d.ResponderIndex == need.Cursor && d.ResponderSeat == actor.Seat &&
                 d.VictimSeat == seat && _players[seat].Hp <= 0 && (kind == CardKind.Peach && CanUsePeachToRescue(actor.Seat, seat) ||
@@ -163,6 +173,9 @@ public sealed partial class GameEngine
             return ActiveQinglongCrescentBlade is { } q && q.Attack.ResolutionId == need.ParentFrameId && q.Attack.SourceSeat == actor.Seat &&
                 q.Attack.TargetSeat == seat && SameAttackOwner(ActiveCardAttack, q.Attack) && CanUseQinglongCrescentBladeTarget(actor, _players[seat], kind, null, false, Suit.None, 0);
         if (_resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is not ProgramSkillFrame program || program.InstructionIndex != need.Cursor) return false;
+        if (TryGetSayingSlashRequest(program, out var sayingActor, out var sayingTargets))
+            return need.Intent == DrawFundedDistinctBasicIntent.AssistedSlash && need.RequestFrameId == program.Id && actor.Seat == sayingActor && sayingTargets.Contains(seat) &&
+                CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: []);
         if (TryGetChanshuangSlashRequest(program, out var requestedActor, out var requestedTargets))
             return need.Intent == DrawFundedDistinctBasicIntent.AssistedSlash && need.RequestFrameId == program.Id && actor.Seat == requestedActor && requestedTargets.Contains(seat) &&
                 CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: []);
@@ -213,8 +226,8 @@ public sealed partial class GameEngine
         return choices.Count == 0 ? prompt : prompt with { Choices = Array.AsReadOnly(prompt.Choices.Concat(choices).ToArray()) };
     }
     private static bool IsDrawFundedDistinctBasicAnswer(PromptChoice choice) => choice.Parameters.ContainsKey(DrawFundedBasicChoiceMarker);
-    private static PendingDecision DrawFundedDistinctBasicNativeDecision(PendingDecision prompt) => prompt with
-    { Choices = Array.AsReadOnly(prompt.Choices.Where(c => !IsDrawFundedDistinctBasicAnswer(c)).ToArray()) };
+    private static PendingDecision DrawFundedDistinctBasicNativeDecision(PendingDecision prompt) => ZonghuNativeDecision(prompt with
+    { Choices = Array.AsReadOnly(prompt.Choices.Where(c => !IsDrawFundedDistinctBasicAnswer(c)).ToArray()) });
     private bool HasDrawFundedDistinctBasicDodge(CharacterState actor) => IsProgramResponseCardUse(actor, CardKind.Dodge) && DrawFundedDistinctBasicRules(actor, CardKind.Dodge, true).Any();
     private bool HasDrawFundedDistinctBasicDyingResponse(CharacterState actor) => ActiveDying is { } d &&
         DrawFundedDistinctBasicRules(actor, dyingUse: true).Any(r => DrawFundedDistinctBasicNativeResponseLegal(actor,

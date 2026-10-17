@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private bool BeginPindianClaims(PindianFrame frame)
     {
+        if (TryBeginDouyuPairWinDraws(frame)) return true;
         if (HasMaximumSlashPindianClaim(frame)) return BeginMaximumSlashPindianClaims(frame);
         var result = frame.Result ?? throw new InvalidOperationException("Pindian claim requires a revealed result.");
         var seats = frame.ClaimSeats ?? new[] { result.SourceSeat, result.OpponentSeat }

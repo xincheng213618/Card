@@ -41,6 +41,8 @@ public sealed partial class GameEngine
         }
         if(kind==DecisionKind.QinglongCrescentBlade&&ActiveQinglongCrescentBlade is{}q&&q.Attack.SourceSeat==provider&&SameAttackOwner(ActiveCardAttack,q.Attack))return N(WeijieIntent.Qinglong,provider,[q.Attack.TargetSeat],opponent:q.Attack.TargetSeat,ownerId:q.Attack.ResolutionId);
         if(kind!=DecisionKind.ProgramTrigger||top is not ProgramSkillFrame p||GetPausedPrivateOfferEffect(p)is not{}effect)return null;
+        if(TryGetWenyiWeijiePeachNeed(p,provider,out var wenyiTarget))return N(WeijieIntent.WenyiPeach,provider,[wenyiTarget],op:effect.Op,instruction:p.InstructionIndex);
+        if(IsSayingSlashRequest(p)&&TryGetSayingSlashRequest(p,out var sayingActor,out var sayingTargets)&&provider==sayingActor)return N(WeijieIntent.AssistedSlash,provider,sayingTargets,op:effect.Op,instruction:p.InstructionIndex);
         if(IsChanshuangSlashRequest(p)&&TryGetChanshuangSlashRequest(p,out var requestedActor,out var requestedTargets)&&provider==requestedActor)return N(WeijieIntent.AssistedSlash,provider,requestedTargets,op:effect.Op,instruction:p.InstructionIndex);
         if(IsQigongRequest(p)&&p.LvKuangLvXiang!.Actor==provider)return N(WeijieIntent.AssistedSlash,provider,[p.LvKuangLvXiang.Target],op:effect.Op,instruction:p.InstructionIndex);
         if(IsWuJingHejiRequest(p)&&p.OwnerSeat==provider)return N(WeijieIntent.AssistedSlash,provider,[p.WuJing!.TargetSeat],op:effect.Op,instruction:p.InstructionIndex);
@@ -54,10 +56,10 @@ public sealed partial class GameEngine
     private static bool WeijieIsPlayed(WeijieNeed n)=>n.Intent is WeijieIntent.Duel or WeijieIntent.Group or WeijieIntent.FactionDodge or WeijieIntent.FactionSlashPlayed;
     private IEnumerable<(CardKind Kind,int Target)> WeijieOutputs(WeijieNeed n)
     {
-        var kinds=WeijieIsDying(n)?new[]{CardKind.Peach,CardKind.Alcohol}:n.Intent is WeijieIntent.Dodge or WeijieIntent.FactionDodge||n.Intent==WeijieIntent.Group&&ActiveGroupCard!.RequiredCardKind==CardKind.Dodge?new[]{CardKind.Dodge}:n.Intent==WeijieIntent.GenericBasic?new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash,CardKind.Peach,CardKind.Alcohol}:new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash};
+        var kinds=n.Intent==WeijieIntent.WenyiPeach?new[]{CardKind.Peach}:WeijieIsDying(n)?new[]{CardKind.Peach,CardKind.Alcohol}:n.Intent is WeijieIntent.Dodge or WeijieIntent.FactionDodge||n.Intent==WeijieIntent.Group&&ActiveGroupCard!.RequiredCardKind==CardKind.Dodge?new[]{CardKind.Dodge}:n.Intent==WeijieIntent.GenericBasic?new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash,CardKind.Peach,CardKind.Alcohol}:new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash};
         foreach(var kind in kinds)
         {
-            var targets=WeijieIsDying(n)?n.Targets:WeijieIsPlayed(n)||n.Intent==WeijieIntent.Dodge?new[]{n.OpponentSeat??n.ActorSeat}:kind is CardKind.Peach or CardKind.Alcohol?new[]{n.ActorSeat}:n.Targets;
+            var targets=WeijieIsDying(n)||n.Intent==WeijieIntent.WenyiPeach?n.Targets:WeijieIsPlayed(n)||n.Intent==WeijieIntent.Dodge?new[]{n.OpponentSeat??n.ActorSeat}:kind is CardKind.Peach or CardKind.Alcohol?new[]{n.ActorSeat}:n.Targets;
             foreach(var t in targets.Distinct())if(WeijieNativeLegal(n,kind,t))yield return(kind,t);
         }
     }
@@ -76,7 +78,7 @@ public sealed partial class GameEngine
             return n.Intent==WeijieIntent.Dodge?kind==CardKind.Dodge&&attack.TargetSeat==n.ActorSeat&&attack.SuccessfulDodgeResponses==n.Cursor:n.Intent==WeijieIntent.Duel?IsSlashCard(kind)&&ActiveDuel?.ResponderSeat==n.ActorSeat&&ActiveDuel.SuccessfulSlashResponses==n.Cursor:n.Intent==WeijieIntent.Group?ActiveGroupCard?.TargetIndex==n.TargetIndex&&MatchesRequiredCard(kind,ActiveGroupCard.RequiredCardKind!.Value):n.Intent==WeijieIntent.FactionDodge?kind==CardKind.Dodge&&ActiveFactionDefense?.CurrentCandidateSeat==n.ProviderSeat&&ActiveFactionDefense.CandidateIndex==n.Cursor:ActiveFactionCardRequest?.CurrentCandidateSeat==n.ProviderSeat&&ActiveFactionCardRequest.CandidateIndex==n.Cursor&&IsSlashCard(kind);
         }
         if(!IsValidPlayerSeat(target)||!_players[target].IsAlive||HasBeneficiarySuitShield(n.ActorSeat,target,Suit.None)||IsDirectedCardTargetProhibited(n.ActorSeat,target,kind)||IsCardTargetProhibited(_players[target],kind,Suit.None))return false;
-        if(kind==CardKind.Peach)return n.Intent==WeijieIntent.GenericBasic&&target==n.ActorSeat&&IsRuleWounded(actor)&&!HasSelfCardTargetProhibition(n.ActorSeat);
+        if(kind==CardKind.Peach)return n.Intent==WeijieIntent.WenyiPeach?WenyiWeijiePeachLegal(n,target):n.Intent==WeijieIntent.GenericBasic&&target==n.ActorSeat&&IsRuleWounded(actor)&&!HasSelfCardTargetProhibition(n.ActorSeat);
         if(kind==CardKind.Alcohol)return n.Intent==WeijieIntent.GenericBasic&&target==n.ActorSeat&&!actor.HasAlcoholEffect&&!HasSelfCardTargetProhibition(n.ActorSeat)&&CanUseJianjiOrdinaryAlcohol(actor,null);
         if(!IsSlashCard(kind)||target==n.ActorSeat||!n.Targets.Contains(target))return false;
         if(n.Intent==WeijieIntent.BorrowedSword)return ActiveBorrowedSword is{AwaitingSlashChoice:true,ActiveAttack:null}b&&b.ResolutionId==n.OwnerFrameId&&GetWeapon(actor)is not null&&IsLegalBorrowedSwordSlashTarget(actor,_players[target],kind,Suit.None,false,null,0,[]);

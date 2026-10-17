@@ -15,7 +15,7 @@ public sealed partial class GameEngine
         if(context.Window!=SkillProgramTriggerWindow.AfterTurnEnded||context.OwnerSeat!=c.OwnerSeat||_resolutionStack.OfType<DeferredTurnEndFrame>().SingleOrDefault(p=>p.Id==context.ParentFrameId)is not{}p||!IsActualAfterTurnEndedParent(p)||AfterTurnEndedCandidate(p)!=c||p.TurnNumber!=_turnNumber||p.OwnerSeat!=_turnProgression.OwnerSeat||context.SourceSeat!=p.OwnerSeat||context.TargetSeat!=p.OwnerSeat)return false;
         return ProgramEventHistory<CuiYanEndQualifiedEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.TurnOwner==p.OwnerSeat&&e.OwnerSeat==c.OwnerSeat&&e.UsedOrPlayed&&e.WasTargeted);
     }
-    private IReadOnlyList<int> CuiYanDamageTargets(int owner)=>Array.AsReadOnly(_players.Where(p=>p.IsAlive&&p.Seat!=owner&&GetCombatDistance(owner,p.Seat)<=GetAttackRange(owner)).Select(p=>p.Seat).ToArray());
+    private IReadOnlyList<int> CuiYanDamageTargets(int owner)=>Array.AsReadOnly(_players.Where(p=>p.IsAlive&&p.Seat!=owner&&(HasSayingRoundRange(owner,p.Seat)||GetCombatDistance(owner,p.Seat)<=GetAttackRange(owner))).Select(p=>p.Seat).ToArray());
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27470)]
     private bool CanOfferCuiYan(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)
     {

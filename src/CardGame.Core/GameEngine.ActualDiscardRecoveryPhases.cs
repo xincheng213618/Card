@@ -5,8 +5,16 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
-        IsGuanduActivity || HasHellShiyouCapability ||
+        IsGuanduActivity ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWenrenSequentialDraw) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePengbiFirstActualTurn) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi) ||
+        HasXieLingYuCapability ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian) ||
+        HasHellShiyouCapability ||
         HasNativeDrawAttemptCapability ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveZexingShownCardChain) ||
         TracksActualPhaseEnds ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShiluDrawRevealIdentity) ||

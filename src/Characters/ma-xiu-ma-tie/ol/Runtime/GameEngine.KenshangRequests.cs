@@ -145,12 +145,13 @@ public sealed partial class GameEngine
         else if(r.RequestOp==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)ReplaceRuntimeTop(f=f with{FixedTargetSlash=f.FixedTargetSlash! with{Issued=true}});
         else if(r.RequestOp==SkillProgramEffectOp.RequestLegalSlashByNearest)ReplaceRuntimeTop(f=f with{NearestLegalSlashRequest=null});
         if(r.RequestOp==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget){PrepareWuJingKenshangNative(f,selection);f=GetActiveProgramFrame(f.Id);}
+        if(IsSayingSlashRequest(f)){PrepareSayingSuppliedSlash(f,r.ActorSeat,r.ActorSeat,r.TargetSeat,CardKind.Slash,selection.Cards,r.Source);f=GetActiveProgramFrame(f.Id);}
         if(IsChanshuangSlashRequest(f)){PrepareChanshuangSuppliedSlash(f,r.ActorSeat,r.ActorSeat,r.TargetSeat,CardKind.Slash,selection.Cards,r.Source);f=GetActiveProgramFrame(f.Id);}
         ResolveSlashCore(_players[r.ActorSeat],_players[r.TargetSeat],selection.Cards[0],CardKind.Slash,r.ActorSeat,physicalCards:selection.Cards,countsTowardSlashLimit:false,conversionSource:r.Source,programSkillCardUseFrameId:f.Id);
     }
     private bool HasKenshangRequestPrompt()=>CurrentKenshangRequest()is{}r&&_pendingDecision is{Kind:DecisionKind.ProgramTrigger,IsPrivate:true}p&&p.PlayerSeat==r.ActorSeat&&p.SkillPrompt?.SkillId==r.Source.SkillId&&p.Choices.All(c=>c.Parameters.GetValueOrDefault("program-action")==KenshangRequestPick)&&ValidKenshangRequest(r);
     private PendingDecision? KenshangNativeOriginalDecision(long ownerId)=>HasKenshangRequestPrompt()&&CurrentKenshangRequest()is{RequestOp:null}r&&r.OwnerFrameId==ownerId?r.OriginalDecision:null;
-    private PendingDecision KenshangProgramNativeDecision(PendingDecision p)=>HasKenshangRequestPrompt()&&CurrentKenshangRequest()is{RequestOp:not null}r&&p.PlayerSeat==r.ActorSeat?r.OriginalDecision:p;
+    private PendingDecision KenshangProgramNativeDecision(PendingDecision p)=>ZonghuNativeDecision(HasKenshangRequestPrompt()&&CurrentKenshangRequest()is{RequestOp:not null}r&&p.PlayerSeat==r.ActorSeat?r.OriginalDecision:p);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27111)]private void AssertKenshangRequestState(ProgramSkillFrame f)
     {if(f.KenshangRequest is{}r&&(!ValidKenshangRequest(r)||!HasKenshangRequestPrompt()||r.OwnerFrameId!=f.Id))throw new InvalidOperationException("Kenshang program request lost its owning instruction, original private frontier or ordered private selections.");}
     private void AssertKenshangRequests()

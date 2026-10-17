@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix\\bin",
+      "added_at": "2026-10-17T03:31:07.550295+00:00",
+      "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix",
+      "reason": "Test-Changed verification output (build-failed); safe to clean after inspection.",
+      "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix\\obj",
+      "added_at": "2026-10-17T03:31:07.550333+00:00",
+      "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix",
+      "reason": "Test-Changed verification output (build-failed); safe to clean after inspection.",
+      "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\shicai-taoluan-fix"
+    }
+  ]
+}

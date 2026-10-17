@@ -33,7 +33,7 @@ public sealed partial class GameEngine
         CardPolicies(owner, kind, effectiveKind).Any();
 
     private bool HasOutsideAttackRangeSlashQuota(CharacterState owner, CharacterState target, CardKind kind, EquipmentSlot? excludedEquipmentSlot = null) =>
-        owner.IsAlive && target.IsAlive && owner.Seat != target.Seat && IsSlashCard(kind) &&
+        owner.IsAlive && target.IsAlive && owner.Seat != target.Seat && IsSlashCard(kind) && !HasSayingRoundRange(owner.Seat, target.Seat) &&
         HasCardPolicy(owner, SkillProgramCardPolicyKind.BypassSlashLimitAgainstOutsideAttackRange, kind) &&
         (excludedEquipmentSlot is null
             ? GetCombatDistance(owner.Seat, target.Seat) > GetAttackRange(owner.Seat)
@@ -43,6 +43,7 @@ public sealed partial class GameEngine
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {
+        if (MouCaoPiCannotRespondTo(responderSeat, sourceSeat)) return true;
         if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
             sourceSeat == responderSeat || !targetSeats.Contains(responderSeat) ||
             !_players[sourceSeat].IsAlive || !_players[responderSeat].IsAlive)

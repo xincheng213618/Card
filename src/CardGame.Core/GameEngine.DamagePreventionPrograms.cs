@@ -106,6 +106,7 @@ public sealed partial class GameEngine
                             (owner.Seat != targetSeat || ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate))
                                 .HasOperation(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing)),
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
+                        SkillProgramTriggerSubject.Any => true,
                         _ => false
                     })
                     .Where(candidate => GetProgramTrigger(candidate).Condition.Evaluate(

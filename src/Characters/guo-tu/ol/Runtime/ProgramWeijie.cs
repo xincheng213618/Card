@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
-public enum WeijieIntent { Dodge,Duel,Group,FactionDodge,FactionSlashPlayed,FactionSlashUse,BorrowedSword,Qinglong,ProgramSlash,ProgramNearestSlash,AssistedSlash,NearestLegalSlash,FixedSlash,GenericBasic,Dying }
+public enum WeijieIntent { Dodge,Duel,Group,FactionDodge,FactionSlashPlayed,FactionSlashUse,BorrowedSword,Qinglong,ProgramSlash,ProgramNearestSlash,AssistedSlash,NearestLegalSlash,FixedSlash,GenericBasic,Dying,WenyiPeach=28101 }
 public enum WeijieStage { Declare,Victim,Card,CostChildren }
 public sealed record WeijieNeed(WeijieIntent Intent,long OwnerFrameId,long RequestFrameId,long? ParentActionId,int ProviderSeat,int ActorSeat,int? RequesterSeat,int? OpponentSeat,int Cursor,int TargetIndex,int EffectRound,int InstructionIndex,SkillProgramEffectOp? RequestOp,IReadOnlyList<int> Targets)
 {

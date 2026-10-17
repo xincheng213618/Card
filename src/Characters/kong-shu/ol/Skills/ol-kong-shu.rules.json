@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:leiluan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "native-slash",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        },
+        {
+          "id": "native-fireSlash",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        },
+        {
+          "id": "native-thunderSlash",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        },
+        {
+          "id": "native-dodge",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        },
+        {
+          "id": "native-peach",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        },
+        {
+          "id": "native-alcohol",
+          "inputCount": 0,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "extendedUse": true,
+          "leiluanBasicUse": {
+            "stateId": "leiluan"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "last-hand-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "ol:leiluan",
+          "includeResponseUses": true,
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLeiluanLastHandUseBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:fuchao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-basic-completed",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "cardCategories": [
+            "basic"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveFuchaoCurrentTurnChain",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "actual-round-ending",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveFuchaoRoundEndingDrawAndDiscard",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

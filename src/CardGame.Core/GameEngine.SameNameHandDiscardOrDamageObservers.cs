@@ -118,7 +118,7 @@ public sealed partial class GameEngine
     private bool SameNameHandObserverSuffix(int index) => HasObserverSuffix(index,
         static (engine, child) => engine.IsSameNameHandObserverEdge(child),
         static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying) ||
-            engine.TieredRoundZeroDyingRescueRide(child, dying) || engine.DrawFundedDistinctBasicDyingRescueRide(child, dying));
+            engine.TieredRoundZeroDyingRescueRide(child, dying) || (engine.DrawFundedDistinctBasicDyingRescueRide(child, dying) || engine.HuanpeiDyingRescueRide(child, dying)));
 
     private bool IsSameNameHandObserverEdge(int child)
     {

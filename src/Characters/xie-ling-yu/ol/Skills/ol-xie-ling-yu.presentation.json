@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:yuandi": {
+      "name": "元嫡",
+      "description": "锁定技，当每回合首次有【杀】【闪】【桃】为一组的牌名均进入过弃牌堆后，你摸一张牌。若其中有牌不因使用进入弃牌堆，且剩余牌名大于一，你移除一个牌名。",
+      "triggerLabels": {"discard-name-group": "元嫡：摸一张牌，必要时移除一个牌名"}
+    },
+    "ol:xinyou": {
+      "name": "心幽",
+      "description": "出牌阶段限一次，你可弃置任意张基本牌，然后摸一张牌，并重复此流程，直到你因此获得未弃置基本牌的牌名（至多摸5且本回合不计入手牌上限）。",
+      "activationLabels": {"basic-cycle": "选择基本手牌并开始心幽"}
+    }
+  }
+}

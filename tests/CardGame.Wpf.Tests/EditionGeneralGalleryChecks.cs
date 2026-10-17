@@ -20,7 +20,7 @@ internal static class EditionGeneralGalleryChecks
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
                 "ol:wen-pin" or "ol:dong-yun" or "ol:shen-pei" or "ol:sun-lu-yu" or "ol:cheng-yu" or
                 "ol:zhang-lu" or "ol:wang-rong" or "ol:shi-xie" or "ol:ma-yun-lu" or "ol:ta-dun" or "ol:yan-bai-hu" or
-                "ol:guan-suo" or "ol:wang-lang" or "ol:bao-san-niang" or "ol:deng-zhi" or "ol:cao-ying" or "ol:dong-zhao" or "ol:wu-yan" or "ol:sp-zhang-he" or "ol:xuan-gong-zhu" or "ol:huang-yueying-sp" or "ol:bu-zhi" or "ol:dong-bai" or "ol:zhao-xiang" or "ol:he-qi" or "ol:kan-ze" or "ol:wang-yun" or "ol:zhuge-guo" or "ol:xi-zhi-cai" or "ol:bei-mi-hu" or "ol:liu-qi" or "ol:lu-zhi-wei" or "ol:sima-hui" or "ol:xu-rong" or "ol:li-jue" or "ol:zhang-ji" or "ol:su-fei" or "ol:huang-quan" or "ol:tang-zi" or "ol:fan-chou" or "ol:guo-si" or "ol:zhang-qi-ying" or "ol:cao-chun" or "ol:wang-can" or "ol:pang-tong-sp" or "ol:yuan-tan-yuan-shang" or "ol:lv-qian" or "ol:lv-kuang-lv-xiang" or "ol:xin-pi" or "ol:hua-man" or "ol:niu-jin" or "ol:duan-wei" or "mobile:liu-zan" or "ol:ding-yuan" or "ol:cao-song" or "ol:bian-fu-ren" or "ol:zhang-ling" or "ol:cao-shuang" or "ol:sp-zhang-liao" or "ol:wo-long-feng-chu" or "ol:sun-ru" or "ol:liu-pi" or "ol:gao-gan" or "ol:huo-jun" or "ol:qiao-zhou" or "ol:du-xi" or "ol:fu-rong" or "ol:zhang-yi" or "ol:yan-pu" or "ol:luo-xian" or "ol:hao-pu" or "ol:ma-wan" or "ol:du-fu-ren" or "ol:fei-yi" or "ol:zhang-shi-ping" or "ol:qian-zhao" or "ol:ding-shang-wan" or "ol:he-jin" or "ol:li-wan" or "ol:yan-rou" or "ol:cao-xi" or "ol:hu-jin-ding" or "ol:lu-yu-sheng" or "ol:wang-kuang" or "ol:yuan-huan" or "ol:zhang-yan" or "ol:wu-an-guo" or "ol:han-fu" or "ol:zhu-jun" or "ol:ke-bi-neng" or "ol:niu-fu" or "ol:duan-jiong" or "ol:ma-mi-di" or "ol:ruan-hui" or "ol:tian-chou" or "ol:cheng-gong-ying" or "ol:ma-xiu-ma-tie" or "ol:pei-yuan-shao" or "ol:wu-jing" or "ol:xiang-chong" or "ol:yang-feng" or "ol:qin-lang" or "ol:a-hui-nan" or "ol:wang-guan" or "ol:liu-yan" or "ol:meng-da" or "ol:cai-mao" or "ol:ya-dan" or "ol:cao-teng" or "ol:yang-fu" or "ol:wu-tu-gu" or "ol:sun-hao" or "ol:da-qiao-xiao-qiao" or "ol:fan-jiang-zhang-da" or "ol:wen-yang" or "ol:ma-yuan-yi" or "ol:hu-ban" or "ol:liu-ba" or "ol:liu-pan" or "ol:qu-huang" or "ol:ruan-yu" or "ol:cao-yu" or "ol:bao-xin" or "ol:guo-tu" or "ol:cui-yan" or "ol:li-yi").ToArray();
+                "ol:guan-suo" or "ol:wang-lang" or "ol:bao-san-niang" or "ol:deng-zhi" or "ol:cao-ying" or "ol:dong-zhao" or "ol:wu-yan" or "ol:sp-zhang-he" or "ol:xuan-gong-zhu" or "ol:huang-yueying-sp" or "ol:bu-zhi" or "ol:dong-bai" or "ol:zhao-xiang" or "ol:he-qi" or "ol:kan-ze" or "ol:wang-yun" or "ol:zhuge-guo" or "ol:xi-zhi-cai" or "ol:bei-mi-hu" or "ol:liu-qi" or "ol:lu-zhi-wei" or "ol:sima-hui" or "ol:xu-rong" or "ol:li-jue" or "ol:zhang-ji" or "ol:su-fei" or "ol:huang-quan" or "ol:tang-zi" or "ol:fan-chou" or "ol:guo-si" or "ol:zhang-qi-ying" or "ol:cao-chun" or "ol:wang-can" or "ol:pang-tong-sp" or "ol:yuan-tan-yuan-shang" or "ol:lv-qian" or "ol:lv-kuang-lv-xiang" or "ol:xin-pi" or "ol:hua-man" or "ol:niu-jin" or "ol:duan-wei" or "mobile:liu-zan" or "ol:ding-yuan" or "ol:cao-song" or "ol:bian-fu-ren" or "ol:zhang-ling" or "ol:cao-shuang" or "ol:sp-zhang-liao" or "ol:wo-long-feng-chu" or "ol:sun-ru" or "ol:liu-pi" or "ol:gao-gan" or "ol:huo-jun" or "ol:qiao-zhou" or "ol:du-xi" or "ol:fu-rong" or "ol:zhang-yi" or "ol:yan-pu" or "ol:luo-xian" or "ol:hao-pu" or "ol:ma-wan" or "ol:du-fu-ren" or "ol:fei-yi" or "ol:zhang-shi-ping" or "ol:qian-zhao" or "ol:ding-shang-wan" or "ol:he-jin" or "ol:li-wan" or "ol:yan-rou" or "ol:cao-xi" or "ol:hu-jin-ding" or "ol:lu-yu-sheng" or "ol:wang-kuang" or "ol:yuan-huan" or "ol:zhang-yan" or "ol:wu-an-guo" or "ol:han-fu" or "ol:zhu-jun" or "ol:ke-bi-neng" or "ol:niu-fu" or "ol:duan-jiong" or "ol:ma-mi-di" or "ol:ruan-hui" or "ol:tian-chou" or "ol:cheng-gong-ying" or "ol:ma-xiu-ma-tie" or "ol:pei-yuan-shao" or "ol:wu-jing" or "ol:xiang-chong" or "ol:yang-feng" or "ol:qin-lang" or "ol:a-hui-nan" or "ol:wang-guan" or "ol:liu-yan" or "ol:meng-da" or "ol:cai-mao" or "ol:ya-dan" or "ol:cao-teng" or "ol:yang-fu" or "ol:wu-tu-gu" or "ol:sun-hao" or "ol:da-qiao-xiao-qiao" or "ol:fan-jiang-zhang-da" or "ol:wen-yang" or "ol:ma-yuan-yi" or "ol:hu-ban" or "ol:liu-ba" or "ol:liu-pan" or "ol:qu-huang" or "ol:ruan-yu" or "ol:cao-yu" or "ol:bao-xin" or "ol:guo-tu" or "ol:cui-yan" or "ol:li-yi" or "ol:sun-yuan" or "ol:liu-zhang" or "ol:tang-tang" or "ol:yuan-ji" or "ol:kong-shu" or "ol:ma-cheng" or "ol:zhou-qun" or "ol:guan-hai" or "ol:xie-ling-yu" or "ol:li-feng" or "ol:cai-fu-ren" or "ol:gu-yong" or "ol:huan-shu-jun" or "ol:zhao-zhong" or "ol:tao-qian" or "ol:pang-ji").ToArray();
         Program.Assert(entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
             entries.Any(entry => entry.GeneralId == "ol:xiahou-ba") &&
@@ -150,6 +150,22 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "ol:guo-tu") &&
             entries.Any(entry => entry.GeneralId == "ol:cui-yan") &&
             entries.Any(entry => entry.GeneralId == "ol:li-yi") &&
+            entries.Any(entry => entry.GeneralId == "ol:sun-yuan") &&
+            entries.Any(entry => entry.GeneralId == "ol:liu-zhang") &&
+            entries.Any(entry => entry.GeneralId == "ol:tang-tang") &&
+            entries.Any(entry => entry.GeneralId == "ol:yuan-ji") &&
+            entries.Any(entry => entry.GeneralId == "ol:kong-shu") &&
+            entries.Any(entry => entry.GeneralId == "ol:ma-cheng") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhou-qun") &&
+            entries.Any(entry => entry.GeneralId == "ol:guan-hai") &&
+            entries.Any(entry => entry.GeneralId == "ol:xie-ling-yu") &&
+            entries.Any(entry => entry.GeneralId == "ol:li-feng") &&
+            entries.Any(entry => entry.GeneralId == "ol:cai-fu-ren") &&
+            entries.Any(entry => entry.GeneralId == "ol:gu-yong") &&
+            entries.Any(entry => entry.GeneralId == "ol:huan-shu-jun") &&
+            entries.Any(entry => entry.GeneralId == "ol:zhao-zhong") &&
+            entries.Any(entry => entry.GeneralId == "ol:tao-qian") &&
+            entries.Any(entry => entry.GeneralId == "ol:pang-ji") &&
             entries.Any(entry => entry.GeneralId == "ol:fan-jiang-zhang-da") &&
             entries.Any(entry => entry.GeneralId == "ol:sun-hao") &&
             entries.Any(entry => entry.GeneralId == "ol:li-wan"),
@@ -167,6 +183,59 @@ internal static class EditionGeneralGalleryChecks
                     entry.Portrait.Brush is ImageBrush { ImageSource: not null } &&
                     entry.Skills.Count > 0 && entry.Skills.All(skill => !string.IsNullOrWhiteSpace(skill.Name)),
                     "Opening edition details must decode its own local portrait and show the registered skills.");
+                if (entry.GeneralId == "ol:li-feng")
+                    Program.Assert(entry.Skills.Count == 2 && new[] { "ol:jiyun", "ol:shuliang" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Li Feng's actual gallery details must retain both complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:cai-fu-ren")
+                    Program.Assert(entry.Skills.Count == 2 && new[] { "ol:xianzhou", "ol:qieting" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Cai Fu Ren's actual gallery details must retain both complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:gu-yong")
+                    Program.Assert(entry.Skills.Count == 2 && new[] { "ol:shenxing", "ol:bingyi" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Ordinary Gu Yong's actual gallery details must retain both complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:huan-shu-jun")
+                    Program.Assert(entry.Name == "环淑君" && entry.Skills.Count == 3 &&
+                        new[] { "ol:huanpei", "ol:wenyi", "ol:miaoxin" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Huan Shu Jun's actual gallery details must retain her name and all three complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:pang-ji")
+                    Program.Assert(entry.Name == "逢纪" && entry.Skills.Count == 2 &&
+                        new[] { "ol:biguo", "ol:douyu" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Pang Ji's actual gallery retains both complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:tao-qian")
+                    Program.Assert(entry.Name == "陶谦" && entry.Skills.Count == 3 &&
+                        new[] { "ol:zongluan", "ol:zhaohuo", "ol:wenren" }.All(id =>
+                    {
+                        var registered = registry.GetSkill(id);
+                        return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                    }), "Tao Qian's actual gallery details must retain his name and all three complete registered skill descriptions.");
+                if (entry.GeneralId == "ol:zhao-zhong")
+                {
+                        Program.Assert(entry.Name == "赵忠" && entry.Skills.Count == 2 &&
+                            new[] { "ol:pengbi", "ol:dici" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                        }), "Zhao Zhong's actual gallery details retain his name and both complete registered skill descriptions, including linked derived skill text.");
+                    var pengbi = entry.Skills.Single(skill => skill.Name == registry.GetSkill("ol:pengbi").Name);
+                    Program.Assert(new[] { "ol:yintian", "ol:biri" }.All(id =>
+                        pengbi.Description.Contains(registry.GetSkill(id).Name, StringComparison.Ordinal) &&
+                        pengbi.Description.Contains(registry.GetSkill(id).Description, StringComparison.Ordinal)),
+                        "Pengbi's visible details must include both full derived skill rules.");
+                }
                 Program.Render(panel, 1120, 820, Path.Combine(output,
                     GeneralArt.NormalizeKey(entry.GeneralId) + "-gallery.png"));
                 if (entry.HealthImages.Count > 10)

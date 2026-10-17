@@ -3,7 +3,7 @@ namespace CardGame.Core;
 /// <summary>Generic post-movement program host. It contains no skill ids.</summary>
 public sealed partial class GameEngine
 {
-    private CardMovementTiming? CaptureMovementTiming() => !(_contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
+    private CardMovementTiming? CaptureMovementTiming() => !(HasZhaoZhongCapability || _contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGuyingAtomicLossChoice)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         public IReadOnlyDictionary<int,IReadOnlyList<XiaHuiMovementSource>>? XiaHuiOriginalSources { get; init; }
         public IReadOnlyList<RuanYuMiaoxianPaymentSource>? RuanYuMiaoxianPaymentSources { get; init; }
         public int? WenhePoisonRound { get; init; }
+        public IReadOnlyList<TangTangOwnedOrigin>? TangTangOwnedOrigins { get; init; }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -58,7 +59,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), TangTangOwnedOrigins = CaptureTangTangOwnedOrigins(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -135,7 +136,15 @@ public sealed partial class GameEngine
         CaptureDuanJiongSaoguBatch(completed);
         CaptureRuanHuiMovementBatch(completed);
         CaptureWuJingLiubingBatch(completed);
+        completed = CaptureTangTangGainBatch(completed, batch.TangTangOwnedOrigins);
+        CaptureYuanJiAtomicLoss(completed);
+        CaptureLeiluanPaymentBatch(completed);
         CaptureQingyuanGainBatch(completed);
+        CaptureNativePublicPilePaymentBatch(completed);
+        CaptureNativeTrueUseProcessingEntries(completed);
+        CaptureJiyunMovementBatch(completed);
+        CaptureXieLingYuMovementBatch(completed);
+        CaptureBiriPotentialGainBatch(completed);
         CaptureGuanduDiscardBatch(completed);
         _pendingCardsMovedBatches.Add(completed);
     }
@@ -177,12 +186,12 @@ public sealed partial class GameEngine
         var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
         var paidCardUse = _resolutionStack.LastOrDefault() is CardUseFrame { RecoveryPaidContinuation: { } paidContinuation } paidUse && paidUse.Id == instructionFrameId &&
-            (HasWenhePoisonUsePaymentTail(paidUse, paidContinuation) || paidContinuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(paidUse, paidContinuation) || HasWuJingHejiTrickPaymentTail(paidUse, paidContinuation) || (HasHuiyunTrickPaymentTail(paidUse, paidContinuation) || HasQiejianUsePaymentTail(paidUse, paidContinuation)))) ? paidUse : null;
+            (HasNativePublicPileEquipmentTail(paidUse, paidContinuation) || HasWenhePoisonUsePaymentTail(paidUse, paidContinuation) || paidContinuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(paidUse, paidContinuation) || HasWuJingHejiTrickPaymentTail(paidUse, paidContinuation) || (HasHuiyunTrickPaymentTail(paidUse, paidContinuation) || HasQiejianUsePaymentTail(paidUse, paidContinuation)))) ? paidUse : null;
         var nativeCardDraw = _resolutionStack.LastOrDefault() is CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.DrawingChildren } nativeDraw && nativeDraw.Id == instructionFrameId ? nativeDraw : null;
         var guanduCard = _resolutionStack.LastOrDefault() is CardUseFrame { GuanduCardEffect.Stage: GuanduCardEffectStage.DrawingChildren } guandu && guandu.Id == instructionFrameId ? guandu : null;
         var dragonBoatCard = _resolutionStack.LastOrDefault() is CardUseFrame { DragonBoatCardEffect.Stage: DragonBoatCardEffectStage.DrawingChildren or DragonBoatCardEffectStage.DiscardChildren } dragon && dragon.Id == instructionFrameId ? dragon : null;
         var wenheCard = _resolutionStack.LastOrDefault() is CardUseFrame { WenheCardEffect: { Applied: true, Stage: WenheCardEffectStage.Children } } wenhe && wenhe.Id == instructionFrameId ? wenhe : null;
-        bool Eligible(CardMovementBatchContext batch) => guanduCard is not null ? IsGuanduCardEffectMovement(guanduCard, batch) : dragonBoatCard is not null ? IsDragonBoatCardEffectMovement(dragonBoatCard, batch) : wenheCard is not null ? IsWenheCardEffectMovement(wenheCard, batch) : nativeCardDraw is not null ? IsNativeCardEffectDrawMovement(nativeCardDraw, batch) : roundEnding is not null ? IsRoundEndingMovement(roundEnding, batch) : actualPhaseEnd is not null ? actualPhaseEnd.InheritedMovementBatchIds.Contains(batch.Id) && batch.AwaitingProgramFrameId is null : friendResponse is not null ? batch.ParentFrameId == friendResponse.Id && batch.AwaitingProgramFrameId is null : paidCardUse is not null ? IsCardUsePaymentBatch(paidCardUse, batch) : awaitingFrame is not null && (IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || IsZhangYanNativeSettlementBatch(awaitingFrame, batch) || IsWuJingNativeSettlementBatch(awaitingFrame, batch) || IsChanshuangNativeSettlementBatch(awaitingFrame, batch) || IsHuiyunNativeSettlementBatch(awaitingFrame, batch) || IsQuHuangNativeSettlementBatch(awaitingFrame, batch)) || (mouFireAttack is not null ? batch.ParentFrameId == mouFireAttack.Id && batch.AwaitingProgramFrameId is null : drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : denglouUse is not null ? batch.ParentFrameId == denglouUse.Id && batch.AwaitingProgramFrameId is null : guoSiUse is not null ? batch.ParentFrameId == guoSiUse.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        bool Eligible(CardMovementBatchContext batch) => guanduCard is not null ? IsGuanduCardEffectMovement(guanduCard, batch) : dragonBoatCard is not null ? IsDragonBoatCardEffectMovement(dragonBoatCard, batch) : wenheCard is not null ? IsWenheCardEffectMovement(wenheCard, batch) : nativeCardDraw is not null ? IsNativeCardEffectDrawMovement(nativeCardDraw, batch) : roundEnding is not null ? IsRoundEndingMovement(roundEnding, batch) : actualPhaseEnd is not null ? actualPhaseEnd.InheritedMovementBatchIds.Contains(batch.Id) && batch.AwaitingProgramFrameId is null : friendResponse is not null ? batch.ParentFrameId == friendResponse.Id && batch.AwaitingProgramFrameId is null : paidCardUse is not null ? IsCardUsePaymentBatch(paidCardUse, batch) : awaitingFrame is not null && (IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || IsZhangYanNativeSettlementBatch(awaitingFrame, batch) || IsWuJingNativeSettlementBatch(awaitingFrame, batch) || IsChanshuangNativeSettlementBatch(awaitingFrame, batch) || IsSayingNativeSettlementBatch(awaitingFrame, batch) || IsHuiyunNativeSettlementBatch(awaitingFrame, batch) || (IsQuHuangNativeSettlementBatch(awaitingFrame, batch) || IsBiguoPindianSettlementBatch(awaitingFrame, batch))) || (mouFireAttack is not null ? batch.ParentFrameId == mouFireAttack.Id && batch.AwaitingProgramFrameId is null : drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : denglouUse is not null ? batch.ParentFrameId == denglouUse.Id && batch.AwaitingProgramFrameId is null : guoSiUse is not null ? batch.ParentFrameId == guoSiUse.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id);
@@ -203,7 +212,7 @@ public sealed partial class GameEngine
             var window = CreateCardsMovedProgramWindow(batch,
                 awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame) ? awaitingFrame.Id : null);
             if (window is null) continue;
-            if (awaitingFrame is not null && (IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || IsZhangYanNativeSettlementBatch(awaitingFrame, batch) || IsWuJingNativeSettlementBatch(awaitingFrame, batch) || IsChanshuangNativeSettlementBatch(awaitingFrame, batch) || IsHuiyunNativeSettlementBatch(awaitingFrame, batch) || IsQuHuangNativeSettlementBatch(awaitingFrame, batch) || IsNianRevivalMovementBatch(awaitingFrame, batch)))
+            if (awaitingFrame is not null && (IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || IsZhangYanNativeSettlementBatch(awaitingFrame, batch) || IsWuJingNativeSettlementBatch(awaitingFrame, batch) || IsChanshuangNativeSettlementBatch(awaitingFrame, batch) || IsSayingNativeSettlementBatch(awaitingFrame, batch) || IsHuiyunNativeSettlementBatch(awaitingFrame, batch) || (IsQuHuangNativeSettlementBatch(awaitingFrame, batch) || IsBiguoPindianSettlementBatch(awaitingFrame, batch)) || IsNianRevivalMovementBatch(awaitingFrame, batch)))
                 window = window with { ResumeProgramFrameId = awaitingFrame.Id };
             if (recoveryReplacement is not null) window = window with { ResumeRecoveryReplacementFrameId = recoveryReplacement.Id };
             if (paidCardUse is not null) window = window with { ResumePaidCardUseFrameId = paidCardUse.Id };
@@ -267,7 +276,8 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
-                if (IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
+                if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
+                if (IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
                     IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
@@ -315,6 +325,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectOtherLastHandLossCandidates(batch));
         candidates.AddRange(CollectQuHuangMovementCandidates(batch));
         candidates.AddRange(CollectKanggeHandGainCandidates(batch));
+        candidates.AddRange(CollectBiriMovementCandidates(batch));
         candidates.AddRange(CollectQimeiMovementCandidates(batch));
         candidates.AddRange(CollectBuZhiMovementCandidates(batch));
         candidates.AddRange(CollectBianFuRenLossCandidates(batch));
@@ -327,6 +338,9 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectWuJingLiubingCandidates(batch));
         if (batch.LiJueUseDiscard is not null)
             candidates.AddRange(CollectLiJueUseDiscardCandidates(batch));
+        candidates.AddRange(CollectTangTangZhiyiCandidates(batch));
+        candidates.AddRange(CollectYuandiCandidates(batch));
+        CollectJieyanCandidates(batch, candidates);
         CollectXiangxuMinimumCandidates(batch, candidates);
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
@@ -354,7 +368,7 @@ public sealed partial class GameEngine
                 var indexes = MatchingDiscardPileIndexes(batch, candidate, trigger);
                 if (indexes.Length == 0) continue;
                 var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch
-                    ? new[] { IsOtherActualBasicDiscardTrigger(trigger) ? indexes[0] : 0 }
+                    ? new[] { IsOtherActualBasicDiscardTrigger(trigger) || IsOrdinaryGuYongBingyiTrigger(trigger) ? indexes[0] : 0 }
                     : indexes;
                 additions.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
@@ -519,6 +533,7 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame frame,
         ProgramTriggerCandidate candidate)
     {
+        if (IsBiriTrigger(GetProgramTrigger(candidate))) return CreateBiriMovementContext(frame, candidate);
         if (IsNianJingjueTrigger(GetProgramTrigger(candidate))) return CreateNianJingjueContext(frame, candidate);
         if (IsHellZhiwangTrigger(GetProgramTrigger(candidate))) return CreateHellZhiwangContext(frame, candidate);
         if (IsXiangxuMinimumTrigger(GetProgramTrigger(candidate))) return CreateXiangxuMinimumContext(frame, candidate);
@@ -530,6 +545,10 @@ public sealed partial class GameEngine
         if (IsDuFuRenYiseTrigger(GetProgramTrigger(candidate)))
             return CreateDuFuRenYiseContext(frame, candidate);
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
+        if (GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames))
+            return CreateYuandiMovementContext(frame, candidate);
+        if (IsTangTangZhiyiTrigger(GetProgramTrigger(candidate))) return CreateTangTangZhiyiContext(frame, candidate);
+        if (GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair)) return CreateJieyanContext(frame, candidate);
         if (IsWuJingLiubingCandidate(candidate)) return CreateWuJingLiubingContext(frame, candidate);
         var trigger = GetProgramTrigger(candidate);
         var features = ProgramInstructionResolver.Default.Features(trigger);

@@ -1,0 +1,344 @@
+{
+  "generalId": "ol:cai-fu-ren",
+  "officialHeroId": 331,
+  "capturedAtUtc": "2026-10-17T09:48:17.261741+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary",
+  "status": "accepted-development-batch",
+  "identity": {
+    "name": "蔡夫人",
+    "factionId": "qun",
+    "gender": "Female",
+    "baseHp": 3
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/331",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=331",
+  "officialAvailability": {
+    "announcementUrl": "https://www.sanguosha.com/news/20250604_1340_0114",
+    "publishedAtLocal": "2025-06-06T17:00:14+08:00",
+    "verifiedAcquisitionFromLocal": "2025-06-09T00:15:00+08:00",
+    "eventEndLocal": "2025-06-13T24:00:00+08:00",
+    "evidence": "The ordinary named general is in the official permanent reward pool at 1.97%, separately from her skins, with a duplicate compensation token. This is verified formal availability, not a claimed first-release date."
+  },
+  "sources": [
+    {
+      "id": "currentHero",
+      "authority": "official-primary",
+      "url": "https://www.sanguosha.com/hero/331",
+      "finalUrl": "https://www.sanguosha.com/hero/331",
+      "capturedAtUtc": "2026-10-17T09:48:16.661959+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 26710,
+      "sha256": "6b373c13ff4aaaa2b77eb4443a80fa5268ee6ba52c5380f554be1004c243aa01",
+      "rawCopyCreated": false
+    },
+    {
+      "id": "currentIdentityApi",
+      "authority": "official-primary",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=331",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=331",
+      "capturedAtUtc": "2026-10-17T09:48:16.752176+00:00",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 925,
+      "sha256": "a3bece1b47b79c3e02405d25b43c23f0ed238e5545a60bad319acf90de3fe7e2",
+      "rawCopyCreated": false,
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 331,
+              "name": "蔡夫人",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/331.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33100.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "回复"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "普通",
+              "biography": "原是刘表的小妾，正室死后，成为了刘表的后妻。因刘琮娶了自己的侄女所以对其偏爱有加。刘备客居荆州时险些受其所害。刘表死后为了让刘琮即位不惜献州于曹操。",
+              "characteristic": "回合外获得大量手牌，能够通过技能让队友对多名角色直接造成伤害。受到【乐不思蜀】的限制。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 4
+            },
+            {
+              "name": "农民",
+              "value": 3
+            },
+            {
+              "name": "忠臣",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 5
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "formalAvailability",
+      "authority": "official-primary",
+      "url": "https://www.sanguosha.com/news/20250604_1340_0114",
+      "finalUrl": "https://www.sanguosha.com/news/20250604_1340_0114",
+      "capturedAtUtc": "2026-10-17T09:48:16.721563+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 286226,
+      "sha256": "4ae61b81ddbb8900aa133c83430689fb99ca7d32cc7882dd0863cf8df0ee9fd7",
+      "rawCopyCreated": false
+    },
+    {
+      "id": "sameProductGuide",
+      "authority": "official-community-author-guide",
+      "url": "https://www.taptap.cn/moment/767375740109848618?group_id=5009",
+      "finalUrl": "https://www.taptap.cn/moment/767375740109848618?group_id=5009",
+      "capturedAtUtc": "2026-10-17T09:48:16.573526+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 16124,
+      "sha256": "e916fd38b74e6fc4a4b12aee051a0b43f857bbf84a52c8f6e176418f88d729b6",
+      "rawCopyCreated": false
+    }
+  ],
+  "currentPublicClient": {
+    "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "clientBundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "clientBundleBytes": 5386466,
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+    "configBytes": 4154044,
+    "freshness": "Root independently HTTP200 revalidated these identical retained bytes at 2026-10-17T06:05:07Z. This profile re-decoded them without downloading or copying another raw bundle.",
+    "decoder": "Public aCt.InitOfb / pR.WorkParse: AES-CFB128 (segment_size=128), then gzip JSON. No private/server material.",
+    "scriptMemberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "members": {
+      "character.sgs": {
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b",
+        "decodedBytes": 1485990
+      },
+      "cha_spell.sgs": {
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff",
+        "decodedBytes": 1170581
+      }
+    },
+    "characterRow": {
+      "a": 331,
+      "b": "蔡夫人",
+      "d": "CaiFuRen",
+      "e": 29,
+      "g": 4,
+      "h": 2,
+      "i": 3,
+      "j": 493,
+      "k": 494,
+      "p": 0,
+      "q": "1",
+      "r": "933101",
+      "v": "627",
+      "y": "原是刘表的小妾，正室死后，成为了刘表的后妻。因刘琮娶了自己的侄女所以对其偏爱有加。刘备客居荆州时险些受其所害。刘表死后为了让刘琮即位不惜献州于曹操。",
+      "z": "回合外获得大量手牌，能够通过技能让队友对多名角色直接造成伤害。受到【乐不思蜀】的限制。",
+      "aa": 133,
+      "ab": "515,516",
+      "ad": "画师:B.LEE",
+      "x": "荆州自当我儿治事，####若外人觊觎，妾必除之。",
+      "al": 4980,
+      "am": "true",
+      "ap": 20,
+      "aq": 5,
+      "ay": 3,
+      "bs": "31",
+      "bx": 2998,
+      "cc": 33101,
+      "starMax": 4
+    },
+    "directSpells": [
+      {
+        "a": 493,
+        "b": "3,5",
+        "c": "窃听",
+        "d": "QieTing",
+        "e": 0,
+        "g": 3,
+        "i": 2,
+        "ab": 1,
+        "o": "其他角色的回合结束后，若其本回合未对其他角色使用过牌，你可以选择一项：<br>&nbsp;1.将其装备区里的一张牌置入你的装备区；<br>&nbsp;2.摸一张牌。",
+        "ac": "是否对{Source}使用&nbsp;&nbsp;<font color='#FFD800'>窃听</font>",
+        "ae": "请选择一项|请选择至多两项",
+        "j": 1,
+        "ay": "系统提示→选择一项执行→点\"确定\""
+      },
+      {
+        "a": 494,
+        "b": "3,6",
+        "c": "献州",
+        "d": "XianZhou",
+        "e": 0,
+        "h": 1,
+        "i": 2,
+        "l": "caifurenxianzhou",
+        "n": 1,
+        "o": "限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：<br>&nbsp;1.令你回复X点体力；<br>&nbsp;2.对其攻击范围内至多X名角色各造成1点伤害。<br>&nbsp;（X为你给出的牌数）",
+        "w": "请选择至多{0}名角色 对其各造成1点伤害",
+        "v": "请选择一名角色，对其发动<font color='#FFD800'>献州</font>",
+        "ay": "点\"献州\"→选一名角色→选择一项执行→点\"确定\""
+      }
+    ],
+    "linkedSpells": [],
+    "classes": [
+      {
+        "skillName": "QieTing",
+        "className": "nHi",
+        "registration": "this.r(\"QieTing\",nHi)",
+        "scriptByteOffset": 16893851,
+        "classBytes": 2157,
+        "classSha256": "9e73d9367eaaca82e5a5065985a002f590baa283b604012b01254d429f881b16",
+        "relevantCurrentCode": "class nHi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.timeLimitRound=Number.MAX_VALUE,this.touchSkillWhenApplyTrigger=!0,this.touchSkillWhenApplyActive=!0}get AskTip(){let t=Laya.superGetter(nHi,this,\"AskTip\");return D2t.NextSpellTargetSeat?le.replace(t,\"{Source}\",D2t.NextSpellTargetSeat.SeatName):t}get SkillUseHideTimer(){return D2t.LastTriggerSpellID==this.ID&&this.Seat?2:0}Use(t,i,s=null,e=0){D2t.LastTriggerSpellID==this.ID&&this.Seat&&this.Ged._(\"QieTingWindow\",{Time:e,Targets:[this.Seat,D2t.NextSpellTargetSeat],Index:this.Seat.Index,Skill:this,NeedJudge:!1})}canMoveEquipcard(t){if(!t)return!1;let i=!1;if(t.EquipCardCount>0&&t.IsLegalOperable){if(0==this.Seat.EquipCardCount)return!0;let s=\"\";this.Seat.EquipCards.forEach((t=>{s+=t.FirstSkill.Type.toString()})),t.EquipCards.forEach((t=>{if(-1==s.indexOf(t.FirstSkill.Type.toString()))return i=!0,!0}))}return i}onTriggerSpell(t){if(1==t||2==t){let i=0;this.Seat.General.HasSkill(ymt.QIETING_SIJIANG)?i=this.Seat.GeneralId:this.Seat.General2.HasSkill(ymt.QIETING_SIJIANG)&&(i=this.Seat.General2Id),Wzt.SendUseSpell(this.Seat.Index,ymt.QIETING_SIJIANG,[],[],this.Seat.Index,i,[t,0])}else Yzt.SendRoleOptRep(this.Seat.Index,2);ue.I().event(sO.HIDE_SPELLSELECTOR)}GetResponser(t){return t&&t.Type==JZi.OPT_SKILL_FLAG1?(this.responser||(this.responser=new L1t),this.responser):null}GetMultiSelectDatas(t){let i,s=[],e=this.UseTip;return i=new pAt,i.label=$mt.QiETING_Select1,i.enabled=this.canMoveEquipcard(D2t.NextSpellTargetSeat),i.callBack=this.onTriggerSpell,i.thisObject=this,i.callBackParams=[1],s.push(i),i=new pAt,i.label=$mt.QiETING_Select2,i.enabled=!0,i.callBack=this.onTriggerSpell,i.thisObject=this,i.callBackParams=[2],s.push(i),i=new pAt,i.label=$mt.Cancel,i.enabled=!0,i.callBack=this.onTriggerSpell,i.thisObject=this,i.callBackParams=[0],s.push(i),{btnDatas:s,optMsg:e,isWindow:!1}}BeforeTouchSkillItem(){if(D2t.LastTriggerSpellID==this.ID)return!1;let t=this.GetMultiSelectDatas(null),i=new gAt(\"\",null,t.btnDatas,this,t.optMsg,gAt.MULTI_SELECT);return i.ShowOutSideCard=!0,ue.I().event(gAt.APPLYLASTSPELLCONTEXT,i),!0}get RetainRoleDataExLastParams(){return!1}}"
+      },
+      {
+        "skillName": "XianZhou",
+        "className": "Krs",
+        "registration": "this.r(\"XianZhou\",Krs)",
+        "scriptByteOffset": 20883972,
+        "classBytes": 1900,
+        "classSha256": "4991a39872bdd530758e0867ac2f13c156aae9c166e032d2a6acb04862225820",
+        "relevantCurrentCode": "class Krs extends JXi{static targetCount=0;constructor(){super(),this.activeMode=Nmt.ACTIVE,this.targetCountMax=this.targetCountMin=1,this.targetCanBeSelf=!1,this.timeLimitGame=1,this.touchSkillWhenApplyTrigger=!0}get DefensiveTip(){let t=Laya.superGetter(Krs,this,\"DefensiveTip\");return le.F(t,Krs.targetCount)}get Activated(){return Laya.superGetter(Krs,this,\"Activated\")&&this.Seat&&this.Seat.EquipCardCount>0}get TargetCountMax(){return D2t.LastTriggerSpellID==this.ID?Krs.targetCount:Laya.superGetter(Krs,this,\"TargetCountMax\")}get EnableCancel(){return D2t.LastTriggerSpellID!=this.ID}get AreRangeLimit(){return D2t.LastTriggerSpellID==this.ID}GetResponser(t){return t&&t.Type==JZi.OPT_SKILL_FLAG1?(this.responser||(this.responser=new HQt),this.responser):t&&t.Type==JZi.OPT_SKILL_FLAG2?(this.responser1||(this.responser1=new L1t),this.responser1):null}GetMultiSelectDatas(t){let i,s=[],e=$mt.XIANZHOU_Select_Msg;if(t){Krs.targetCount=t.Param;let e=D2t.GetSeat(t.SrcSeatID),h=t.Seat,r=!1;D2t.Seats.forEach((t=>{t.Index!=h.Index&&t.IsLegalOperable&&h.IsInAttackRange(t)&&(r=!0)})),i=new pAt,i.label=le.F($mt.XIANZHOU_Select1,Krs.targetCount),i.enabled=!(!e||!e.IsHurt),i.sendData=1,i.width=129,s.push(i),i=new pAt,i.label=le.F($mt.XIANZHOU_Select2,Krs.targetCount),i.enabled=r,i.sendData=2,i.width=129,s.push(i)}return{btnDatas:s,optMsg:e}}GsCRoleOptTargetNtfResponse(t){D2t.LastTriggerSpell=this,D2t.LastTriggerTargetSeatId=t.SeatID,D2t.LastActivateSpell=null;let i=t.Seat;return i&&(i.LastAttackByTheSkill=this),!0}GetDefensiveSelectSeatContext(t){let i=new Jf;return i.Card=this.skillCard,i.Skill=this,i}get TargetSelector(){return null==this.targetSelector&&(this.targetSelector=new TYt(this)),this.targetSelector}Use(t,i,s=null,e=0){D2t.LastTriggerSpellID==this.ID?d1t.SendRoleSpellOptRep(D2t.LastTriggerTargetSeatId,this.ID,i):super.Use(t,i,s,e)}get RetainRoleDataExLastParams(){return!1}}"
+      }
+    ]
+  },
+  "canonicalSkillText": {
+    "ol:xianzhou": {
+      "name": "献州",
+      "description": "限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：1.令你回复X点体力；2.对其攻击范围内至多X名角色各造成1点伤害。（X为你给出的牌数）",
+      "activationLabels": {
+        "all-equipment-donation": "交出全部装备，由接收者选择回复或伤害"
+      }
+    },
+    "ol:qieting": {
+      "name": "窃听",
+      "description": "其他角色的回合结束后，若其本回合未对其他角色使用过牌，你可以选择一项：1.将其装备区里的一张牌置入你的装备区；2.摸一张牌。",
+      "triggerChoices": {
+        "ordinary-turn-end": "置入一张空槽装备，或摸一张牌"
+      }
+    }
+  },
+  "duplicateExclusion": {
+    "existingVariant": "boundary:cai-fu-ren-current (official 627)",
+    "ordinaryIdPreviouslyAbsent": true,
+    "evidence": "The registered boundary variant has the distinct no-damage or no-foreign-use, one-or-two-benefit Qieting. It does not implement official ordinary 331. Current client row v=627 is a related variant, not an identity alias."
+  },
+  "sourceHierarchy": [
+    "The current official hero and current direct spell 493/494 agree on both complete ordinary rules. Current official text takes priority over older guide skill summaries.",
+    "The TapTap OL guide is an official-community-author repost of a player article credited to Tang Yuanyuan, linked to club thread 64579. It is a same-product guide, not an exclusive official FAQ or server-wire proof.",
+    "The guide explicitly supports no equipment replacement for Qieting, transfer of Wooden Ox grain with the Ox, no zero-equipment Xianzhou, recipient-selected damage targets, and current at-most-X target operation.",
+    "The guide allows selecting recovery when Cai Fu Ren is healthy, while Krs restricts its client recover button with IsHurt. The public skill text has no wounded prerequisite. The implementation follows the text plus guide and preserves native zero recovery at full HP; this UI/rule discrepancy is retained explicitly.",
+    "The guide older statement requiring recovery if no damage target exists is not treated as a new restriction on current at-most-X text. The existing native donor-target picker permits confirming zero targets. This is an implementation interpretation, not an exclusive FAQ."
+  ],
+  "implementationContracts": [
+    {
+      "skill": "ol:xianzhou",
+      "contract": "One real own-Play activation gives every transferable actual Equipment entity to one other living recipient as one original cost. Printed cards and real Ox spill remain native movements. The limited opportunity is consumed once after actual payment, scoped to owner and skill across source regrant."
+    },
+    {
+      "skill": "ol:xianzhou",
+      "contract": "Reuse the existing exact all-equipment donation receipt, actual delivered count, recipient choice, recovery and damage children. Targets are distinct current living characters other than the recipient in its actual attack range, at most the successfully delivered count. Each is normal damage from the recipient, not a card use by Cai Fu Ren."
+    },
+    {
+      "skill": "ol:xianzhou",
+      "contract": "Only this new operation may continue a proven paid receipt after source loss or owner death. Its exact ReturnPaidOrdinaryXianzhouMovement return checks the new operation, original source/hash, full shared payment invoice, PaidMovement stage and owner/zero-count/no-result-bind movement continuation before draining the remaining native payment children. It then resumes the recipient-owned benefit cursor, avoiding the generic movement-return alive check that would otherwise cancel an already-paid dead donor. The old operation and generic alive check remain unchanged. Unpaid activations still require a live source and equipment. A living recipient may finish its chosen paid benefit; native recovery gives no HP to a dead donor. A dead recipient stops new benefit issuance and later damage. These lifecycle details are combinations of the published sequence and the engine paid-child contract, without a dedicated same-product FAQ."
+    },
+    {
+      "skill": "ol:qieting",
+      "contract": "After a different actual turn ends, determine whether its final actual actor used a real card with any final designated target other than itself. Keep one scalar revision per native Use, updating real target rewrites and actor replacements before completion. Pure played Slash in Duel/AOE is not Use; true self-response uses have no foreign designated target. Action-null legacy true uses remain included."
+    },
+    {
+      "skill": "ol:qieting",
+      "contract": "Capture the whole actual turn, including inserted Play before the real cursor returns. Qualification is frozen on the exact AfterTurnEnded mother and signed by the owning started receipt, then preserved through paid children. No damage-based substitute and no second distinct option are offered."
+    },
+    {
+      "skill": "ol:qieting",
+      "contract": "A dead actual turn owner is not excluded by the public rule. A living skill owner may still choose Draw1 if that turn qualifies. Equipment movement requires a real source entity and an entirely empty corresponding destination slot; neither replacement nor placing a general weapon is permitted."
+    },
+    {
+      "skill": "ol:qieting",
+      "contract": "One private published option chooses native Draw1 or an exact public Equipment entity. Native draw replacement, actual zero-card result, Silver Lion recovery, Wooden Ox grain transfer, skill-change and nested movement/HP/dying children retain typed returns. An issued benefit is not repaid after source loss; dead skill owner drains existing children and receives no new draw."
+    },
+    {
+      "runtime": "ownership-and-privacy",
+      "contract": "All pending state is on ProgramSkillFrame or its native mother. Receipt lists are copied to read-only collections, all new facts are scalar immutable records, nullable additions are omitted when absent, and views retain CreateSnapshot privacy. No sidecar, schema bump, rules epoch or package-version salt is introduced."
+    }
+  ],
+  "officialArt": {
+    "sourcePage": "https://www.sanguosha.com/hero/331",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33100.png",
+    "assetPath": "src/CardGame.Wpf/Assets/official-ol-cai-fu-ren.png",
+    "skinId": 33100,
+    "httpStatus": 200,
+    "contentType": "image/png",
+    "capturedAtUtc": "2026-10-17T09:38:16Z",
+    "bytes": 1043523,
+    "sha256": "af5b104abece3336756d015d0ad2b54f09fe68513a8b0495d67c90e694f20221",
+    "width": 750,
+    "height": 950,
+    "originalImageVisuallyInspected": true,
+    "inspectionOwner": "parallel art agent; original 750x950 image inspected"
+  },
+  "verification": {
+    "status": "focused-and-routine-passed",
+    "productionAgentRanBuild": false,
+    "productionAgentRanTests": false,
+    "centralExecutionOwner": "root",
+    "manifestCreated": true,
+    "focusedChecksOwner": "parallel behavior agent",
+    "sourceEvidenceIsNotBehaviorAcceptance": true,
+    "manualFullRun": false,
+    "focusedCorePassed": 13,
+    "focusedWpfPassed": 1,
+    "routineCorePassed": 157,
+    "routineWpfPassed": 34,
+    "routineDurationMs": 64862,
+    "routineBuildDurationMs": 3517,
+    "routineCoreDurationMs": 20444,
+    "routineWpfDurationMs": 58062,
+    "behaviorCoverage": [
+      "Whole actual-turn qualification: quiet, self Use, Action-null legacy zero Slash, final actor replacement, dead turn owner, real Dodge/Nullification versus pure Played, Pijing add/remove, forced physical Slash, pre-preparation inserted Play and real allied Lord Slash supply.",
+      "One Qieting option: native Draw1 or exact empty-slot equipment movement, occupied-slot rejection, actual Silver Lion recovery child and once-only cold return.",
+      "Whole Xianzhou equipment batch, actual delivered X, real Silver Lion and Wooden Ox spill, recipient-owned choice and damage source/range, limited consumption, full-health recovery zero and confirm-zero damage.",
+      "True paid source loss, actual issuer death through movement return, recipient death, private views, stale/wrong commands and JSON checkpoint replay.",
+      "Existing boundary Cai Fu Ren donation and shared rule observers, runtime permissions, typed continuations and native return registration remain covered."
+    ],
+    "galleryVisualInspection": {
+      "rootInspectedRenderedDetails": true,
+      "ordinary331Artwork": true,
+      "completeTwoSkillDescriptionsVisible": true,
+      "renderWidth": 1120,
+      "renderHeight": 820
+    },
+    "consistency": {
+      "semanticInputsChecked": 6955,
+      "semanticInputsChangedDuringRoutine": 0,
+      "coreProductionDocumentsChecked": 1556,
+      "wpfProductionDocumentsChecked": 119,
+      "coreTestDocumentsChecked": 544,
+      "wpfTestDocumentsChecked": 72,
+      "compiledDocumentDrift": 0
+    },
+    "scope": "Focused behavior and measured routine validation with real rendered gallery inspection. This record does not claim an interactive desktop match acceptance."
+  }
+}

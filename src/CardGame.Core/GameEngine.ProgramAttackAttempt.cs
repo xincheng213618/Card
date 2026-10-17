@@ -5,14 +5,18 @@ public sealed partial class GameEngine
     private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
     {
         PrepareLuYuShengChainAdvance(attack);
+        PrepareFengweiChainAdvance(attack);
         PrepareSunHaoChainAdvance(attack);
         PrepareDuFuRenChainAdvance(attack);
+        PrepareYintianChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
                 UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity, out fromSeat)) return false;
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
+        ApplyYintianChainedDamageBonus(attack);
         ApplySunHaoChainedDamageBonus(attack);
+        ApplyFengweiChainedDamageBonus(attack);
         return true;
     }
 
@@ -254,6 +258,7 @@ public sealed partial class GameEngine
         var receipt = program.AttackReturn;
         CaptureSuitPreventionDamageCompleted(program, attack.DamageWasApplied);
         program = CaptureDynamicDiscardDamageCompleted(program);
+        program = CaptureYintianProgramDamageCompleted(program, attack);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, program with { AttackAttempt = null, AttackReturn = null });
         if (receipt?.ParentAttackOwnerFrameId is { } parentId && CurrentDamageAttempt?.ResolutionId != parentId)
             throw new InvalidOperationException("Program damage changed its suspended parent owner.");

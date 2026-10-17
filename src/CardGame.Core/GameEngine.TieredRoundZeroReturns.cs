@@ -30,8 +30,16 @@ public sealed partial class GameEngine
         _resolutionStack.LastOrDefault() is ProgramSkillFrame && HasTieredRoundZeroDyingRide(dying.FrameId);
 
     private Card ReadTieredRoundUseAppearance(long ownerId, CardAppearanceReference appearance) =>
+        appearance.Id == 0 && IsHuanpeiUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? HuanpeiRepresentation(ownerId) :
+        appearance.Id == 0 && IsZonghuUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? ZonghuRepresentation(ownerId) :
         appearance.Id == 0 && IsWeijieUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? WeijieRepresentation(ownerId) :
+        appearance.Id == 0 && IsYouqueUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? YouqueRepresentation(ownerId) :
+        appearance.Id == 0 && IsZongluanUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? ZongluanRepresentation(ownerId) :
         appearance.Id == 0 && appearance.Kind == CardKind.Alcohol && appearance.Suit == Suit.None && appearance.Rank == 0 && (IsLiuYanLegacyAlcoholUse(ownerId) || IsCuiYanLegacyAlcoholUse(ownerId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         appearance.Id == 0 && IsAHuiNanJuemanUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
@@ -49,7 +57,7 @@ public sealed partial class GameEngine
 
     private bool IsPaidZeroMaterialAttackConsistent(CardAttackHandle attack, IReadOnlyList<Card> processing)
     {
-        if ((!IsWeijieUse(attack.ResolutionId) && !IsTieredRoundZeroUse(attack.ResolutionId) && !IsRoundOnceCardlessBasicUse(attack.ResolutionId)) || LifecycleCardUse(attack.ResolutionId) is not { } use ||
+        if ((!IsHuanpeiUse(attack.ResolutionId) && !IsZonghuUse(attack.ResolutionId) && !IsWeijieUse(attack.ResolutionId) && !IsYouqueUse(attack.ResolutionId) && !IsZongluanUse(attack.ResolutionId) && !IsTieredRoundZeroUse(attack.ResolutionId) && !IsRoundOnceCardlessBasicUse(attack.ResolutionId)) || LifecycleCardUse(attack.ResolutionId) is not { } use ||
             attack.Card is not null || attack.PhysicalCards.Count != 0 || attack.EffectiveCardKind != use.CardKind) return false;
         var remaining = processing;
         if (ActiveBorrowedSword is { ActiveAttack: { } forced } borrowed && SameAttackOwner(forced, attack))
@@ -104,7 +112,7 @@ public sealed partial class GameEngine
         paid.SourceSeat == use.SourceSeat && use.TargetSeats.Contains(paid.TargetSeat);
 
     private bool IsTieredRoundZeroProcessingParent(long id, int cardId) =>
-        cardId == 0 && (IsWeijieUse(id) || IsTieredRoundZeroUse(id) || IsRoundOnceCardlessBasicUse(id));
+        cardId == 0 && (IsHuanpeiUse(id) || IsZonghuUse(id) || IsWeijieUse(id) || IsYouqueUse(id) || IsZongluanUse(id) || IsTieredRoundZeroUse(id) || IsRoundOnceCardlessBasicUse(id));
 
     private bool MatchesTieredRoundZeroUseAction(long id, CardActionContext action, int cardId) =>
         cardId == 0 && LifecycleCardUse(id) is { } use && IsIssuedTieredRoundUse(use, true) &&

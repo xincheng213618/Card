@@ -7,7 +7,9 @@ namespace CardGame.Core;
 public static class AiDecisionPolicy
 {
     public const int CorrelatedActiveSkillVersion = 4;
-    public const int CurrentVersion = CorrelatedActiveSkillVersion;
+    public const int CooperativeCategoryGiftVersion = 5;
+    public const int RuleBasedGeneralSelectionVersion = CooperativeCategoryGiftVersion;
+    public const int CurrentVersion = CooperativeCategoryGiftVersion;
 
     public static bool IsSupported(int version) => version >= 1 && version <= CurrentVersion;
 }

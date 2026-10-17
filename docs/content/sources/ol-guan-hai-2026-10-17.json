@@ -1,0 +1,394 @@
+{
+  "generalId": "ol:guan-hai",
+  "officialHeroId": 701,
+  "capturedAtUtc": "2026-10-17T07:19:46.737933+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary",
+  "status": "implemented-focused-and-routine-verified",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/701",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=701",
+  "officialAvailability": {
+    "announcementUrl": "https://www.sanguosha.com/news/20250708_4123_3813",
+    "publishedAtLocal": "2025-07-11 17:06:17",
+    "permanentAcquisitionFromLocal": "2025-07-12 00:15:00",
+    "evidence": "Official OL new-generals table expressly lists Guan Hai, permanent Wish/Jade acquisition and inclusion in ranked pool. This proves release availability; it does not assert the first historical release date from a client flag."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/701",
+      "capturedAtUtc": "2026-10-17T06:07:14.768461+00:00",
+      "httpStatus": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/701",
+      "contentType": "text/html",
+      "bytes": 24208,
+      "sha256": "450e1ad57601979737b4fdc8ecedfa96a61e6406eafd594657ae35e8c1008b94",
+      "rawCopyCreated": false,
+      "title": "三国杀管亥 - 三国杀OL-三国杀官网-武将技能介绍",
+      "currentSkillSection": "武将技能介绍 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 管亥 管亥 管亥 进攻 防御 多刀 武将生平： 青州黄巾首领。曾率兵围困孔融于都昌，期间杀死郑玄之子郑益。太史慈前往救援孔融，后求援刘备。刘备赶到后，管亥等众退散。小说《三国演义》中，管亥在此时被关羽所杀。 武将特点： 根据局势适时关注拼点的输赢，可以创造更大的收益。 武将技能： 卸尾 诱阙 你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。 出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。 ",
+      "id": "guanHaiHero",
+      "authority": "official-primary"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=701",
+      "capturedAtUtc": "2026-10-17T06:07:14.775035+00:00",
+      "httpStatus": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=701",
+      "contentType": "application/json",
+      "bytes": 914,
+      "sha256": "68c3567a775139389b19d0cb60a5110ac1bc672a2ff5e8edf7c1d07fadd3b81e",
+      "rawCopyCreated": false,
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 701,
+              "name": "管亥",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/701.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70100.png",
+              "label": [
+                "进攻",
+                "防御",
+                "多刀"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "青州黄巾首领。曾率兵围困孔融于都昌，期间杀死郑玄之子郑益。太史慈前往救援孔融，后求援刘备。刘备赶到后，管亥等众退散。小说《三国演义》中，管亥在此时被关羽所杀。",
+              "characteristic": "根据局势适时关注拼点的输赢，可以创造更大的收益。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "id": "guanHaiApi",
+      "authority": "official-primary"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250708_4123_3813",
+      "capturedAtUtc": "2026-10-17T06:07:14.748449+00:00",
+      "httpStatus": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20250708_4123_3813",
+      "contentType": "text/html",
+      "bytes": 486174,
+      "sha256": "2394bdd43f94527b7ccda7fa3805ffc3739350d2d508c6faf0f0fff8f9603c0a",
+      "rawCopyCreated": false,
+      "title": " 7.12-7.20 夏日许愿魔貂蝉、管亥来袭 限时双倍重置 盛典祈愿魔吕布上新 - 三国杀OL官网",
+      "targetOnlySection": "管亥 (查看原图) 势力 体力 性别 武将特点 群 4 男 根据局势适时关注拼点的输赢，可以创造更大的收益。 技能 【卸尾】：你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。 【诱阙】：出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。 获取 2025-7-12 00:15:00~2025-7-22 24:00:00，许愿&祈愿台活动获取，或传世玉玺兑换获得。 *魔",
+      "publicationDates": [
+        "2025-07-11 17:06:17"
+      ],
+      "id": "guanHaiFormalRelease",
+      "authority": "official-primary"
+    }
+  ],
+  "sourceHierarchy": [
+    "Official OL hero, API identity and 2025-07-11 release announcement agree with current public client character701/spells3685/3686.",
+    "Current public client canonical rows supply exact text and current menu hints; script limits alone do not supersede published rules.",
+    "OL DaQiao TapTap and 4399 OL guides are community strategy sources, not exclusive official FAQ.",
+    "Native continuation details and combinations without a dedicated ruling are explicitly identified as implementation inferences below."
+  ],
+  "currentClient": {
+    "provenance": {
+      "freshHttpVerification": [
+        {
+          "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "httpStatus": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "capturedAtUtc": "2026-10-17T06:05:07.377143+00:00",
+          "bytes": 5386466,
+          "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+          "rawCopyCreated": false,
+          "retainedSourceMatches": true
+        },
+        {
+          "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "httpStatus": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "capturedAtUtc": "2026-10-17T06:05:07.330114+00:00",
+          "bytes": 4154044,
+          "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+          "rawCopyCreated": false,
+          "retainedSourceMatches": true
+        }
+      ],
+      "rawFilesCopied": false,
+      "members": {
+        "character.sgs": {
+          "encryptedBytes": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedBytes": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "encryptedBytes": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedBytes": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      }
+    },
+    "decoder": "Public sgsGame_a.sgs pR.WorkParse + aCt.InitOfb: per-member AES-CFB128 with runtime key/IV then gzip JSON. Retained byte-identical inputs were decoded, not reconstructed from website summaries.",
+    "rawCharacterPath": "character.sgs/GameCharacters/character[a=701]",
+    "rawCharacter": {
+      "a": 701,
+      "b": "管亥",
+      "d": "GuanHai",
+      "e": 44,
+      "f": "43",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 3685,
+      "k": 3686,
+      "p": 2,
+      "q": "1",
+      "r": "9070101",
+      "y": "青州黄巾首领。曾率兵围困孔融于都昌，期间杀死郑玄之子郑益。太史慈前往救援孔融，后求援刘备。刘备赶到后，管亥等众退散。小说《三国演义》中，管亥在此时被关羽所杀。",
+      "z": "根据局势适时关注拼点的输赢，可以创造更大的收益。",
+      "aa": 267,
+      "ab": "1327,1328",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20250721T000000",
+      "LordCardRate1": 50,
+      "LordCardRate2": 47,
+      "starMax": 4
+    },
+    "directSpells": [
+      {
+        "a": 3685,
+        "b": "3",
+        "c": "卸尾",
+        "d": "XieWei",
+        "e": 0,
+        "g": 1,
+        "h": 1,
+        "i": 2,
+        "o": "你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。",
+        "v": "请选择{0}名角色，作为<font color='#FFD800'>杀</font>的目标;可选择最多{0}名角色，作为<font color='#FFD800'>杀</font>的目标",
+        "ac": "请选择两张牌置为“饵”，视为使用{0}"
+      },
+      {
+        "a": 3686,
+        "b": "3",
+        "c": "诱阙",
+        "d": "YouQue",
+        "e": 0,
+        "g": 1,
+        "h": 1,
+        "i": 2,
+        "o": "出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。",
+        "u": "请选择一张“饵”",
+        "t": "若你赢：对方对你使用杀|若你没赢：你弃置点数大于你拼点牌的所有手牌"
+      }
+    ],
+    "linkedSpells": [],
+    "currentClientClasses": [
+      {
+        "skillClass": "XieWei",
+        "symbol": "ndi",
+        "member": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "utf8ByteOffset": 15395827,
+        "utf8ByteCount": 4215,
+        "sha256": "653d109cfb07159d85a0dcfd87be6ca77ba1ff5a4b14198c4f27a3a104729d17",
+        "targetOnlyExcerpt": "class ndi extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE|Nmt.PASSIVE,this.timeLimitRound=Number.MAX_VALUE,this.avatarSkills.push(ymt.SHA,ymt.SHAN,ymt.QINGLONG),this.offsetSkills=BJt.ShaCanOffSkills.concat(BJt.ShanCanOffSkills),this.needShowOutsideCardOnSeat=!0,this.requestCardType=Lmt.NORMAL,this.targetSelector=new hKt(this),this.cardSelector=new Lzt(this),this.avatarSkillCardBaseType=Rmt.BASIC,this.targetCanBeSelf=!1,this.areRangeLimit=!0,this.touchSkillWhenApplyTrigger=!0}get ActiveTip(){if(this.isUseShan)return\"\";if(this.isPutCards)return this.AskTip;let t=this.activeTip.split(\";\"),i=\"\";return this.TargetCountMax>1&&t.length>1&&(i=t[1]),i=t[0],le.F(i,this.TargetCountMax)}get AskTip(){let t=1==this.flag?\"【杀】\":\"【闪】\";return le.F(this.askTip,t)}get TargetCountMin(){return this.isUseShan?0:1}get TargetCountMax(){if(this.isUseShan)return 0;if(this.isPutCards)return 1;return Qf.I().UseShaTargetMax(this.Seat)}get CardCountMin(){return this.CardCountMax}get CardCountMax(){return this.isPutCards?this.useNum:0}get CardUseType(){return this.isPutCards?Dmt.PUT:Dmt.USE}get TriggerCardUseType(){return Dmt.USE}set TriggerCardUseType(t){this.triggerCardUseType=t}get EnableCancel(){return!this.isPutCards}set EnableCancel(t){this.enableCancel=t}get AreRangeLimit(){if(this.isPutCards)return!1;let t=!0;return t&&(t=Qf.I().AreShaRangeLimit(this.Seat,this.skillCard)),t}get IsActive(){let t=!0;return this.Seat&&0==this.Seat.InActiveStateNew&&(D2t.LastTriggerSpell||D2t.LastActivateSpell)&&(t=!1),D2t.LastTriggerSpellID==ymt.XIEWEI&&(t=this.GetSkillUseCountInRound()<1),t}get Activated(){var t=Laya.superGetter(ndi,this,\"Activated\");if(t&&(t=!this.IsNotAllowByShouFu),!t||!this.Seat)return!1;let i=this.Seat,s=this.useNum,e=0;if(e+=this.Seat.HandCardCount,e<s)return!1;if(this.Seat.InActiveStateNew)return!!Qf.I().CanUseSha(this.Seat);if(D2t.LastTriggerSpellID==ymt.NANMAN||D2t.LastTriggerSpellID==ymt.WANJIAN||D2t.LastTriggerSpellID==ymt.JUEDOU)return!1;if(t=i.LastAttackByTheSkillID==ymt.DENGLOU_SPECIAL||(i.LaskAskSkillID==ymt.MOSHI_ONLINE||D2t.LastTriggerSpellID==ymt.MOSHI_ONLINE||!i.GetSeatState(zf.DATA_JIANGCHI).Avaliable&&(this.IsOffsetSkill(i.LastAttackByTheSkill)||i.LastAskSkill&&this.IsThis(i.LastAskSkill.ID))),D2t.LastTriggerSpellID==ymt.NANMAN||D2t.LastTriggerSpellID==ymt.WANJIAN||D2t.LastTriggerSpellID==ymt.JUEDOU)return!1;if(t=i.LastAttackByTheSkillID==ymt.DENGLOU_SPECIAL||(i.LaskAskSkillID==ymt.MOSHI_ONLINE||D2t.LastTriggerSpellID==ymt.MOSHI_ONLINE||!i.GetSeatState(zf.DATA_JIANGCHI).Avaliable&&(this.IsOffsetSkill(i.LastAttackByTheSkill)||i.LastAskSkill&&this.IsThis(i.LastAskSkill.ID)))){let s=i.GetSeatState(zf.DATA_FUHUNPO);s&&s.Opened&&(t=!1)}if(t){let s=i.GetSeatState(zf.DATA_FENDI);s&&s.Opened&&(t=!1)}return t}get CanUseWhenFixedTarget(){return D2t.LastTriggerSpellID!=ymt.ZHONGYONG_SIJIANG&&D2t.LastTriggerSpellID!=ymt.LUANWU&&D2t.LastTriggerSpellID!=ymt.QIAOWU&&D2t.LastTriggerSpellID!=ymt.LUANWUPO&&D2t.LastTriggerSpellID!=ymt.NISIWOHUO&&!this.IsActive}get isUseShan(){return D2t.LastTriggerSpellID==ymt.SHA||D2t.LastTriggerSpellID==ymt.HUJIA}get isPutCards(){return D2t.LastTriggerSpellID==this.ID}get useNum(){return 2}SortNormalCard(t){return t.sort(((t,i)=>t.CardNumber==i.CardNumber?t.CardFlower==oj.Spade?-1:i.CardFlower==oj.Spade?1:0:t.CardNumber-i.CardNumber)),t}MoveCardToZoneResponse(t,i,s,e,h=null){s&&s.AddSkillOutsideCards(t.CardIDs,t.CardCount,ymt.XIEWEI)}OutsideCardName(t){let i=t?t.GetSkillOutsideCardCount(ymt.XIEWEI):0;return le.F($mt.XieWei_Label,i.toString())}OutsidePopWinName(t){return le.F($mt.SKILL_TOP_TITLE_TEXT_4,t.CardName,$mt.SKILL_TOP_TITLE_TEXT_26)}GsCRoleOptTargetNtfMoveCard(t,i){super.GsCRoleOptTargetNtfMoveCard(t,i)}DealPubGsCUseSpell(t){this.flag=0,t&&t.Params&&t.Params.length&&(this.flag=t.Params[0])}Use(t,i,s=null){if(this.Seat){if(D2t.LastTriggerSpellID==this.ID)return void r1t.SendMoveCard(t,this.Seat.Index);let s=0;this.Seat.General.HasSkill(this.ID)?s=this.Seat.GeneralId:this.Seat.General2.HasSkill(this.ID)&&(s=this.Seat.General2Id),this.isUseShan?Wzt.SendUseSpell(this.Seat.Index,this.ID,[],[],this.Seat.Index,s,[ymt.SHAN]):Wzt.SendUseSpell(this.Seat.Index,this.ID,i,[],this.Seat.Index,s,[ymt.SHA])}}}"
+      },
+      {
+        "skillClass": "YouQue",
+        "symbol": "hdi",
+        "member": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "utf8ByteOffset": 15393049,
+        "utf8ByteCount": 2571,
+        "sha256": "e415fd253a59fece67d014d8cee9fcbac362881d1a43b6e57dfa6f7ff265ffb4",
+        "targetOnlyExcerpt": "class hdi extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE,this.isPinDian=!0,this.timeLimitRound=12,this.targetCanBeSelf=!1,this.targetSelector=new MG(this),this.cardSelector=new rdi(this)}get TargetCountMin(){return this.NeedShowVirtualCard?0:1}get TargetCountMax(){return this.TargetCountMin}get CardCountMin(){return this.NeedShowVirtualCard?1:0}get CardCountMax(){return this.CardCountMin}get EnableCancel(){return this.flag!=JZi.OPT_SKILL_FLAG1&&this.enableCancel}set EnableCancel(t){this.enableCancel=t}get Activated(){let t=Laya.superGetter(hdi,this,\"Activated\");if(this.Seat&&(t=t&&this.Seat.HandCardCount>0),t&&this.Seat){if(t=this.Seat.GetSkillOutsideCardCount(ymt.XIEWEI)>0,t){let i=this.Seat.GetSkillBuffInfo(this.SkillId);i&&i.length&&(t=i[0]>0)}}return t}get NeedShowVirtualCard(){return this.flag==JZi.OPT_SKILL_FLAG1}get TouchSkillWhenApplyTrigger(){return this.NeedShowVirtualCard}get isVirtualCardId(){return this.NeedShowVirtualCard}get VirtualCardShowOrignColorAndNumber(){return this.NeedShowVirtualCard}get VirtualSkillIds(){let t=this.Seat?this.Seat.GetSkillOutsideCards(ymt.XIEWEI):[],i=[];if(t&&t.length){let s=Number.MAX_VALUE;t.forEach((t=>{s>=t.CardNumber&&(s=t.CardNumber)})),t.forEach((t=>{s==t.CardNumber&&i.push(t.CardId)}))}let s=[];for(let t=0;t<i.length;t+=1)s.push(i[t]),s.push(0);return s}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),i&&t.IsSpell){i.SetSkillBuffInfo(this.SkillId,t.Datas);let s=0;t.Datas.length>2&&(s=t.Datas[1]),i.UpdateState(zf.DATA_YOUQUE,s)}}MoveCardFromeZoneResponse(t,i,s,e){if(i&&t&&(t.MoveType==r1t.Mode_Only_Show||t.MoveType==r1t.Mode_PinDian)&&t.CardIDs&&t.CardIDs[0]){let s=t.CardIDs[0];(i.IsOutsideCard(s,ymt.XIEWEI)||i.IsOutsideCard(s,this.ID))&&i.RemoveSkillOutsideCards([s],1,ymt.XIEWEI)}}Use(t,i,s=null,e=0){this.NeedShowVirtualCard?d1t.SendRoleSpellOptRep(this.Seat.Index,this.ID,t):super.Use(t,i,s,e)}GetResponser(t){if(this.flag=t.Type,t){if(t.Type==JZi.OPT_SKILL_FLAG1)return this.responser1||(this.responser1=new L1t),this.responser1;if(t.Type==JZi.OPT_COMPARE_NUMBER)return this.responser||(this.responser=new Czt),this.responser}return null}GetDefensiveSelectCardContext(t,i=null){if(i&&i.Type==JZi.OPT_SKILL_FLAG1){this.flag=i.Type;let t=new dAt;return t.Purpose=fAt.GENERAL,t.Skill=this,t.Message=this.PassiveTip,t.CardSelector=this.CardSelector,t}return null}ResponseSkillFromOther(t,i,s,e){this.flag==JZi.OPT_SKILL_FLAG1&&(t?d1t.SendRoleSpellOptRep(this.Seat.Index,this.ID,i):Yzt.SendRoleOptRep(e.Index,Yzt.OPT_CANCEL))}ClearActionData(){this.flag=0}}"
+      }
+    ]
+  },
+  "publishedSkills": [
+    {
+      "id": "ol:xiewei",
+      "clientId": 3685,
+      "name": "卸尾",
+      "text": "你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。"
+    },
+    {
+      "id": "ol:youque",
+      "clientId": 3686,
+      "name": "诱阙",
+      "text": "出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。"
+    }
+  ],
+  "guides": [
+    {
+      "url": "https://www.taptap.cn/moment/699979505007070719",
+      "publisher": "大乔",
+      "title": "【武将攻略】围师遗阙的“黄巾军渠帅”—管亥",
+      "classification": "same-product author guide, not official FAQ",
+      "supportedParaphrases": [
+        "Only two genuine Hand cards pay Xiewei; use-only Slash/Dodge, not Duel/AOE pure played.",
+        "Youque still requires nonempty Hand; bait minimum rank selected, equal minima permit choosing an entity.",
+        "Equal pindian has no discard or virtual Slash.",
+        "Only positive actual damage from the resulting Slash leads to Draw2, then check for any remaining Spade bait and disable the current actual Play.",
+        "An asserted hidden 10-use cap is not official text and conflicts with current client timeLimitRound=12 metadata; do not silently encode guide ten as a proven rule."
+      ]
+    },
+    {
+      "url": "https://my.4399.com/yxsgs/ziliao/70185/",
+      "publisher": "游戏小助手",
+      "publishedAtLocal": "2025-08-28T17:06:00+08:00",
+      "classification": "same-product guide repost; not independent FAQ"
+    }
+  ],
+  "supportedGuideReadings": [
+    {
+      "reading": "Xiewei pays exactly two Hand cards as one visible bait deposit; it produces a genuine Use of Slash or Dodge and cannot answer Duel or AOE as a merely played card. Hujia is admitted only for its true Dodge-use supply direction.",
+      "classification": "same-product-guide + current-client direction checks"
+    },
+    {
+      "reading": "Youque retains the normal source-Hand>0 and opponent-Hand>0 Pindian requirements; a public bait is its original source entity, never a temporary Hand card.",
+      "classification": "same-product-guide + native Pindian legality"
+    },
+    {
+      "reading": "Choose among actual minimum printed-rank bait entities; ties among equal minimum bait allow an entity choice. Native Pindian rank modifiers still determine the winner.",
+      "classification": "published minimum-bait rule + native Pindian composition"
+    },
+    {
+      "reading": "A tie has no winning role, therefore no loser discard or follow-up Slash.",
+      "classification": "same-product-guide; also follows the requirement for a winning target"
+    },
+    {
+      "reading": "Each actual positive damage caused by the induced Slash first draws two, finishes that real draw and all its children, then checks the current bait for Spade. Dodge/prevention causing no damage does not draw or disable.",
+      "classification": "published ordering + same-product-guide"
+    }
+  ],
+  "implementationInferences": [
+    {
+      "topic": "virtual-output identity",
+      "decision": "The two deposited Hand entities are costs only. The logical Slash/Dodge is suit None, rank0, color null; cost provenance is preserved on the native action, while those entities never become Processing materials or acquire Used/ResponseFinished cleanup or claim rights.",
+      "authority": "Current client virtual-use menu and ordinary native virtual-output contract; not a dedicated official FAQ."
+    },
+    {
+      "topic": "multiple targets",
+      "decision": "Normal true Slash target count, next-use adjustment and target-finalization abilities remain applicable. The initial two-Hand cost prevents the ordinary Fangtian last-single-Hand prerequisite. Color-dependent additional-target rules use the output color None, not the bait colors.",
+      "authority": "Combination inference; no special FAQ excludes ordinary target-count policies."
+    },
+    {
+      "topic": "forced Slash range and quota",
+      "decision": "The real Pindian loser is the native use actor and the winner its original target. The required follow-up uses the existing forced-Slash native contract: countsTowardLimit false and no range check, while genuine directed/card/beneficiary prohibitions still apply.",
+      "authority": "Native forced-use composition inference, not an exclusive Guan Hai FAQ."
+    },
+    {
+      "topic": "once-paid continuation",
+      "decision": "Once the two-Hand deposit or the native Pindian is issued, source loss does not refund or repeat it. A dead issuer does not receive a fresh draw; an already accepted native use and its paid children finish using their exact receipts. A dead loser/winner or truly prohibited target skips the unavailable follow-up.",
+      "authority": "Owning native frame/paid-cost continuation inference."
+    },
+    {
+      "topic": "damage versus whole use",
+      "decision": "Reward eligibility is tied to each actual AfterDamageApplied event of the exact issued Slash. Repeated effects/chain damage use their native damage events; missed or prevented attempts do not create reward invoices.",
+      "authority": "Published damage-after wording with native per-damage semantics; no multi-damage special FAQ found."
+    },
+    {
+      "topic": "phase duration",
+      "decision": "The disabled state is stamped to the original actual Play token, including an inserted actual Play. A later actual Play starts a new qualification; restoration of the same Play retains its disabled state.",
+      "authority": "Published 此阶段 with actual native phase interpretation."
+    }
+  ],
+  "unadoptedConflictingLimits": {
+    "guide": "Some community text mentions ten Pindians.",
+    "clientScript": "Current YouQue class carries timeLimitRound=12.",
+    "decision": "No numeric cap appears in the official current text. Neither ten nor twelve is implemented as an invented skill cap; availability follows actual cards, native Pindian and phase suppression."
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70100.png",
+    "capturedAtUtc": "2026-10-17T07:01:48Z",
+    "httpStatus": 200,
+    "contentType": "image/png",
+    "byteCount": 1128242,
+    "width": 750,
+    "height": 950,
+    "sha256": "db8b3c51a562b187be2460808822b1f1fd2fb8339e4c0b84523db7d63f80833f",
+    "hashScope": "original HTTP PNG bytes",
+    "officialApiCover": "70100.png",
+    "visualInspection": "Original official 750x950 image inspected by the assigned art agent."
+  },
+  "freshOfficialApiVerification": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=701",
+    "capturedAtUtc": "2026-10-17T07:01:48Z",
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "byteCount": 914,
+    "sha256": "68c3567a775139389b19d0cb60a5110ac1bc672a2ff5e8edf7c1d07fadd3b81e"
+  },
+  "verification": {
+    "status": "passed-scoped-behavior-and-routine-verification",
+    "verifiedAtUtc": "2026-10-17T07:49:32.799384+00:00",
+    "agentBuiltOrRanTests": false,
+    "centralizedBuildAndChecks": true,
+    "focusedBehaviorChecksPassed": [
+      "Guan Hai: two real Hand baits true Use and played boundaries cold",
+      "Guan Hai: minimum entity native Pindian ties and empty boundaries cold",
+      "Guan Hai: whole discard foreign Slash and latest Spade reward cold",
+      "Guan Hai: paid children source loss death Lion Ox and rejection cold"
+    ],
+    "batchFocusedCorePassed": 15,
+    "batchFocusedDurationMs": 15720,
+    "routine": {
+      "corePassed": 153,
+      "wpfPassed": 32,
+      "durationMs": 109605,
+      "buildDurationMs": 36657,
+      "coreDurationMs": 26287,
+      "wpfDurationMs": 72239
+    },
+    "concurrentWorkspace": {
+      "scope": "The frozen Guan Hai implementation passed the stated checks. Other tasks continued changing activity implementations and their checks after these runs; this record does not certify those later edits.",
+      "timingContext": "A separate task's build was observed during this batch. The measured routine duration includes a 36657 ms build; no idle-machine timing claim is made."
+    },
+    "galleryAndInput": {
+      "checksPassed": 2,
+      "durationMs": 60913,
+      "guanHaiRenderedImagesVisuallyInspected": 1,
+      "completeBothSkillsVisible": true,
+      "mouseAsyncLeftDown": false
+    },
+    "manualFullVerificationRun": false,
+    "foregroundManualAcceptance": false,
+    "note": "Actual original Hand-to-bait costs, native pile Pindian, ties and empty-hand admission, whole discard, real loser Slash and zero-entity output, Dodge and true Hujia actor/provider/requester, pure played Duel/AOE exclusion, native multiple targets, no-color RenwangShield boundary, latest-Spade decision after actual reward children, source loss/death, SilverLion/WoodenOx and cold replay are covered."
+  }
+}

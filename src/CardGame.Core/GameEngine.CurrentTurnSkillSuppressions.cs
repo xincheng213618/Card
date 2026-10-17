@@ -39,6 +39,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCurrentTurnSkillGrantQualified(CharacterState owner, SkillGrant grant) =>
+        MouCaoPiSkillsQualified(owner, grant) &&
         IsCurrentTurnOwnSkillGrantQualified(owner, grant) &&
         (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||

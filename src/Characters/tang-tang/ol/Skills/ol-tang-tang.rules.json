@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zexing",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "shown-card-chain",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveZexingShownCardChain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhiyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "gain-color",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveZhiyiGainColorBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -202,7 +202,9 @@ public sealed partial class GameEngine
         var effect=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
         if(effect.Op!=SkillProgramEffectOp.DiscardTargetHpCardsAndDamage || f.TriggerId is not null || effect.Target!=SkillProgramEffectTarget.SelectedTarget ||
             f.SelectedTargetSeats is not [var target] || target!=r.TargetSeat || r.InstructionIndex!=f.InstructionIndex || r.ActualTurn!=_turnNumber ||
-            r.FrozenTargetHp<1 || r.FrozenDistance<1 || r.FrozenAttackRange<r.FrozenDistance ||
+            r.FrozenTargetHp<1 || r.FrozenDistance<1 || r.FrozenAttackRange<r.FrozenDistance &&
+                !(HasSunYuanCapability && ProgramEventHistory<SayingRangeGrantedEvent>().Any(grant=>grant.Round==_roundNumber&&
+                    (grant.OwnerSeat==f.OwnerSeat&&grant.Holder==r.TargetSeat||grant.Holder==f.OwnerSeat&&grant.OwnerSeat==r.TargetSeat))) ||
             !Enum.IsDefined(r.Stage) || r.Stage==DynamicDiscardDamageStage.Finished ||
             r.CardIds.Count!=r.OriginalLocations.Count || r.CardIds.Count>r.FrozenTargetHp || r.CardIds.Distinct().Count()!=r.CardIds.Count ||
             r.OriginalLocations.Any(l=>l.OwnerSeat!=f.OwnerSeat || l.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)) ||

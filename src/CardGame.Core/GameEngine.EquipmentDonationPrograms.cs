@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         IsValidPlayerSeat(ownerSeat) && _players[ownerSeat].IsAlive && GetEquipment(_players[ownerSeat]) is { Count: > 0 } equipment &&
         equipment.All(c => !c.IsGeneralWeapon) &&
         _skillRuntimeState.GetUsage(ownerSeat, skillId, EquipmentDonationUsage(usageId), SkillUsageScope.Game) == 0;
-    private bool EquipmentDonationSourceValid(ProgramSkillFrame f) => _players[f.OwnerSeat].IsAlive &&
+    private bool EquipmentDonationSourceValid(ProgramSkillFrame f) => IsIssuedOrdinaryCaiFuRenXianzhou(f) || _players[f.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) &&
         EnabledSkillPrograms(_players[f.OwnerSeat]).Any(p => p.Id == f.SkillId && p.GameplayHash == f.GameplayHash);
     private Dictionary<string,string> EquipmentDonationParameters(ProgramSkillFrame f, string action, string option) => new()
@@ -31,6 +31,7 @@ public sealed partial class GameEngine
         _pendingDecision = new(DecisionKind.ProgramTrigger, chooser, text, choices.SelectMany(c => c.Cards).Distinct().ToArray(),
             choices.SelectMany(c => c.Targets).Distinct().ToArray(), SourceSeat: f.OwnerSeat)
         { PromptId = CreatePromptId(), TargetSeat = chooser, Choices = Array.AsReadOnly(choices.ToArray()),
+            IsPrivate = IsIssuedOrdinaryCaiFuRenXianzhou(f),
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }

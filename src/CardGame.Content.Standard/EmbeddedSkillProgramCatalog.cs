@@ -62,7 +62,6 @@ internal static class EmbeddedSkillProgramCatalog
         {
             Program = program,
             ProgramPresentation = presentation,
-            SelectionWeights = SkillSelectionPreferences.For(skillId),
             RevealWeights = SkillSelectionPreferences.RevealFor(skillId)
         };
     }

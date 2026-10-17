@@ -239,12 +239,16 @@ public sealed partial class GameEngine
         foreach (var source in _publicPersistentPiles.Values.Where(source => !IsIssuedBaoXinMutaoPile(source) && (!_players[source.OwnerSeat].IsAlive ||
             !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source))).ToArray())
         {
-            _publicPersistentPiles.Remove((source.OwnerSeat, source.SkillId, source.SkillInstanceId));
+            var retainMetadata = RetainIssuedJiyunPile(source);
+            if (!retainMetadata) _publicPersistentPiles.Remove((source.OwnerSeat, source.SkillId, source.SkillInstanceId));
             for (var index = 0; index < _resolutionStack.Count; index++)
                 if (_resolutionStack[index] is ProgramSkillFrame { PublicPileDraft: { } draft } active &&
                     draft.OwnerSeat == source.OwnerSeat && draft.SourceSkillId == source.SkillId && (draft.SourceSkillInstanceId is null || draft.SourceSkillInstanceId == source.SkillInstanceId))
                     ReplaceRuntimeFrame(_resolutionStack[index].Id, active with { PublicPileDraft = null });
-            MoveCards(PublicPileCards(source).ToArray(), source.Location, CardLocation.DiscardPile, new("skill-program.public-pile.source-lost"));
+            var cleanup = PublicPileCards(source).Where(card =>
+                !retainMetadata || !IsIssuedJiyunRetainedEntity(source, card.Id)).ToArray();
+            if (cleanup.Length > 0)
+                MoveCards(cleanup, source.Location, CardLocation.DiscardPile, new("skill-program.public-pile.source-lost"));
         }
     }
 }

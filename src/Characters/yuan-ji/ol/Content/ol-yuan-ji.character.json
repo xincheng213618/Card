@@ -1,0 +1,69 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yuan-ji",
+  "skills": [
+    {
+      "registrationOrder": 2070,
+      "programBundle": "ol-yuan-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jieyan",
+        "name": "节言",
+        "description": "一名角色一次性失去了恰好两张手牌后，你可以与其从牌堆两端各摸一张牌并展示，若花色不同，此技能本回合失效。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2071,
+      "programBundle": "ol-yuan-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jinghua",
+        "name": "镜花",
+        "description": "锁定技，每轮开始时，你摸两张牌。回合开始时，你将“镜花”牌置于牌堆底。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2072,
+      "programBundle": "ol-yuan-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shuiyue",
+        "name": "水月",
+        "description": "锁定技，回合结束时，你摸两张牌。每轮结束时，你将“水月”牌置于牌堆顶。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2073,
+      "pools": {
+        "current": 481
+      },
+      "definition": {
+        "id": "ol:yuan-ji",
+        "name": "袁姬",
+        "portraitKey": "ol-yuan-ji",
+        "skillId": "ol:jieyan",
+        "additionalSkillIds": [
+          "ol:jinghua",
+          "ol:shuiyue"
+        ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:yuan-ji",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

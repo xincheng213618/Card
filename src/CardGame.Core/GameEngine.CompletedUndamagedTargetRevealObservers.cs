@@ -162,7 +162,7 @@ public sealed partial class GameEngine
         static (host, index) => host.HasObserverSuffix(index,
             static (engine, child) => engine.CompletedUndamagedTargetRevealObserverEdge(child),
             static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying) ||
-                engine.TieredRoundZeroDyingRescueRide(child, dying) || engine.DrawFundedDistinctBasicDyingRescueRide(child, dying)));
+                engine.TieredRoundZeroDyingRescueRide(child, dying) || (engine.DrawFundedDistinctBasicDyingRescueRide(child, dying) || engine.HuanpeiDyingRescueRide(child, dying))));
 
     private bool CompletedUndamagedTargetRevealObserverEdge(int child)
     {

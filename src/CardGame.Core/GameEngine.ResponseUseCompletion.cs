@@ -71,9 +71,9 @@ public sealed partial class GameEngine
          kind == ProgramCompletedResponseKind.Dodge && action.EffectiveKind == CardKind.Dodge);
 
     private bool HasResponseUseCompletionObserver(CardActionContext action, ProgramCardContinuation continuation) =>
-        IsCompletedResponseUse(action, continuation) && _players.Any(owner => owner.IsAlive &&
+        IsCompletedResponseUse(action, continuation) && (HasJiyunResponseCompletion(action, continuation) || _players.Any(owner => owner.IsAlive &&
             (GetSkillBindingShard(owner)?.GetInstanceTriggers(SkillProgramTriggerWindow.CardUseCompleted) ?? [])
-                .Any(binding => binding.Trigger.IncludeResponseUses));
+                .Any(binding => binding.Trigger.IncludeResponseUses)));
 
     private bool TryBeginCompletedResponseUsePrograms(CardAttackHandle? attack, CardActionContext action,
         ProgramCardContinuation continuation)
@@ -93,8 +93,8 @@ public sealed partial class GameEngine
 
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)
     {
-        if (!HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
-            !(HasCuiYanCapability || HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
+        if (!HasLiFengCapability && !HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
+            !(HasLiFengCapability || HasCuiYanCapability || HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||
               TracksCurrentTurnUseKinds && kind == CardKind.Nullification ||
               (TracksActualTurnUseOrdinal || TracksWholeActualTurnUseOrdinal) && kind == CardKind.Dodge)) return null;

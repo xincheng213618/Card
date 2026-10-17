@@ -15,7 +15,7 @@ public sealed record PindianResult(
 public enum PindianStep { ChooseParticipants, ChooseSourceCard, ChooseOpponentCard, ClaimResult = 780 }
 
 /// <summary>Trusted-host data only. It is not included in player snapshots.</summary>
-public sealed record PindianFrame(
+public sealed partial record PindianFrame(
     long Id, long ParentFrameId, string SkillId, SkillPromptPresentation Presentation,
     int SourceSeat, int? OpponentSeat = null, int? SourceCardId = null,
     PindianStep PindianStep = PindianStep.ChooseParticipants,

@@ -282,7 +282,7 @@
     "sha256": "9e5d97a3a433e33f1f7ffbeaddee82926a70585caa0da28b5fe84e1bad00c69c"
   },
   "verification": {
-    "implementation": "complete runtime; focused character, shared mechanism, routine, and visual gallery verification passed",
+    "implementation": "complete runtime; focused behavior, shared mechanisms, bounded routine, and visual gallery verified",
     "focusedChecks": [
       "LiYiVirtualStoneAxeRealWeaponAndPaidChildrenCold",
       "ChanshuangPrivateSameChoicesRecastLionOxCold",
@@ -297,10 +297,13 @@
     "galleryActualRenderCount": 1,
     "fullVerificationRun": false,
     "releaseOrPackagingRun": false,
-    "notes": "Centralized focused checks passed, including exact typed legacy Alcohol return and whole recast producer boundaries. Bounded routine and actual gallery inspection passed. No manual full run, publishing, or packaging was performed.",
-    "status": "root-focused-routine-and-gallery-verified",
+    "notes": "Centralized focused and bounded routine checks passed on fixed ordinary-mode sources. Two character gallery renders match previously visually inspected images. Independent main-workspace changes continue; this is not acceptance of the whole current main workspace. No manual full run, publishing, or packaging.",
+    "status": "fixed-ordinary-source-focused-routine-and-gallery-verified",
     "routineCorePassed": 144,
     "routineWpfPassed": 28,
-    "routineDurationMs": 51449
+    "routineDurationMs": 55519,
+    "focusedCorePassed": 31,
+    "focusedWpfPassed": 2,
+    "validationScope": "Fixed ordinary-mode source snapshot. The in-flight optional Boss factory integration was excluded in three copied files; main Boss implementation was not changed or accepted by this verification."
   }
 }

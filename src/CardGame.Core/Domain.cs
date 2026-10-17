@@ -181,6 +181,7 @@ public enum PlayerMarkerKind
     XunyiYi = 26320,
     QingyuanPartner = 26820,
     RanshangRan = 27320,
+    CaoPiSong = 28000,
     GuanduGrain = 44000
 }
 
@@ -189,6 +190,7 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.GuanduGrain => "粮",
+        PlayerMarkerKind.CaoPiSong => "颂",
         PlayerMarkerKind.AdoptedChild => "义子",
         PlayerMarkerKind.QuxiFeng => "丰",
         PlayerMarkerKind.QuxiQian => "歉",
@@ -934,6 +936,10 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
+
+    /// <summary>Authorizes one public-pile original entity without converting it.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardConversionSource? NativePublicPileSource { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTieredRoundConversionPolicy? TieredRoundZeroUse { get; init; }

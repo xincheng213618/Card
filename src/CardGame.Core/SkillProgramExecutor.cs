@@ -1551,6 +1551,23 @@ public sealed class SkillProgramExecutor
                      SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                      SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient or
                      SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp or SkillProgramEffectOp.ResolveHongjiGrantedPhase or SkillProgramEffectOp.ResolveYanhuoKillerDiscard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveFulueCounterOption or SkillProgramEffectOp.ResolveMiuyanCompletedUse or SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice or SkillProgramEffectOp.ResolveQushiIssuedHolderEnding) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply or SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim) && frame.SunYuan is { Paid: true } ||
+                    effect.Op is (SkillProgramEffectOp.ResolveZexingShownCardChain or SkillProgramEffectOp.ResolveZhiyiGainColorBenefit) && frame.TangTang is { Paid: true } ||
+                    effect.Op is (SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit or SkillProgramEffectOp.ResolveChenglieRedHolderOutcome) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse or SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian or SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit) && frame.GuanHai is { Paid: true } ||
+                    effect.Op == SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveYuandiDiscardNames or SkillProgramEffectOp.ResolveXinyouBasicCycle) && frame.XieLingYu is { Paid: true } ||
+                    effect.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames && state.CanContinueAfterOwnerDeath(frame) ||
+                    LiFengComposition.Handles(effect.Op) && frame.LiFeng is { Paid: true } ||
+                    effect.Op is (SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op == SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse or SkillProgramEffectOp.ResolveWenyiHealthOneAid or SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain or SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice or SkillProgramEffectOp.ResolveBiriFirstNonDrawGain or SkillProgramEffectOp.ResolveYintianFirstRecovery) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard or SkillProgramEffectOp.ResolveZhaohuoFirstVictimGift or SkillProgramEffectOp.ResolveWenrenSequentialDraw) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian or SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan or SkillProgramEffectOp.ResolveDouyuPreRevealSwapAndWinDraw) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveChenshuoRepeatedReveal or SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant or
+                        SkillProgramEffectOp.ResolveLieshuEndingLoss or SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment or
+                        SkillProgramEffectOp.ResolveZhouyuThunderNeighbors or SkillProgramEffectOp.ResolveYanshuangEndingLoss) && frame.ZhouQun is { Paid: true } ||
                     effect.Op is (SkillProgramEffectOp.ResolveGuanduZhongjie or SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill or
                         SkillProgramEffectOp.DiscardDeathSourceCards or SkillProgramEffectOp.DiscardParticipantCards) &&
                     frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied)))

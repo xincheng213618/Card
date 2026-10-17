@@ -107,7 +107,7 @@ public sealed partial class GameEngine
             engine.HalfHandPaidDamageObserverEdge(child) || engine.PaidTargetObserverEdge(child) || engine.IsYanPuDyingExitEdge(child) ||
             engine.DyingSuitsStructuralEdge(engine._resolutionStack[child - 1], engine._resolutionStack[child]),
         static (engine, child, dying) => engine.IsPaidRescueObserverSuffix(child, dying) ||
-            engine.TieredRoundZeroDyingRescueRide(child, dying) || engine.DrawFundedDistinctBasicDyingRescueRide(child, dying));
+            engine.TieredRoundZeroDyingRescueRide(child, dying) || (engine.DrawFundedDistinctBasicDyingRescueRide(child, dying) || engine.HuanpeiDyingRescueRide(child, dying)));
 
     // Draw advice, gifted-Slash rewards, pile cash-out and Liejie admit this
     // same suffix. Each caller still proves its own first paid child.

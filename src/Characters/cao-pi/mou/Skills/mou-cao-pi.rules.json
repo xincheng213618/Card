@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:xingshang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "menu",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "mouCaoPiXingshang",
+              "target": "owner"
+            }
+          ],
+          "usesPerPhase": 2,
+          "usesPerTurn": null
+        }
+      ],
+      "triggers": [
+        {
+          "id": "damage-song",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "mouCaoPiGainSong",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "death-song",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "mouCaoPiGainSong",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:fangzhu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "menu",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "mouCaoPiFangzhu",
+              "target": "owner"
+            }
+          ],
+          "usesPerPhase": 1,
+          "usesPerTurn": null
+        }
+      ]
+    },
+    {
+      "id": "mou:songwei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "menu",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "mouCaoPiRemoveWeiSkills",
+              "target": "owner"
+            }
+          ],
+          "usesPerGame": 1,
+          "usesPerTurn": null
+        }
+      ],
+      "triggers": [
+        {
+          "id": "wei-song",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "mouCaoPiSongwei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "generalId": "mou:cao-pi",
+  "edition": "mobile current military eight-player identity",
+  "primarySources": [
+    "https://www.sanguosha.cn/hero-detail-576.html",
+    "https://www.sanguosha.cn/pc/news-detail-1833.html"
+  ],
+  "userReference": {
+    "url": "https://baike.baidu.com/item/谋曹丕/64254472",
+    "status": "unavailable when inspected; official sources used"
+  },
+  "ruleDecisions": [
+    "Damage grants two Song once per actual turn; death grants separately. Song cap nine.",
+    "Xingshang shares two uses per actual Play phase. Growth recovers first, then increases maximum HP, then restores one random abolished equipment slot.",
+    "Tracing a real dead current general includes both printed general cards in dual mode, excludes Lord skills, and only grants skills to the owner. Original three skills are then lost.",
+    "Songwei follows the official 2024-05-27 repair: loses all current general grants including acquired grants, preserving equipment sources. Other Wei characters in this game includes dead seats and uses current effective factions.",
+    "Fangzhu uses the military-eight branch, persists independently of issuer life or skill ownership and expires at the target next actual TurnEnded fact. Face-down skipped and extra turns count.",
+    "Hand category limits test effective card category only for actual uses with hand materials; pure response plays, recasts, discard costs and material-free cards are not blanket banned."
+  ],
+  "artwork": {
+    "sourcePage": "https://www.sanguosha.cn/hero-detail-576.html",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/62500.jpg",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-cao-pi.jpg",
+    "sha256": "794a89095440ac7137f704d4e9eb376f71112e5a7512201d6f07e365a6b27b2d",
+    "pixelWidth": 800,
+    "pixelHeight": 1132
+  },
+  "manualForegroundGameplayRun": false,
+  "verification": {
+    "focusedCorePassed": 12,
+    "focusedWpfPassed": 2,
+    "expandedMouBehaviorChecksPassed": 3,
+    "expandedMouBehaviorDurationMs": 13230,
+    "galleryRenderInspected": true,
+    "manualFullVerificationRun": false,
+    "manualForegroundGameplayRun": false,
+    "routine": "attempted; latest source build blocked by concurrent NianNpcChecks using nonexistent CardUseDeclaredEvent.TargetSeats. Prior measured routine 76099 ms: Core 148 passed, one obsolete host-interface expectation subsequently updated; WPF 31 passed, one unrelated Nian lobby assertion failed.",
+    "latestFocusedCorePassed": 12,
+    "latestFocusedWpfPassed": 2,
+    "latestCoreBuildTimeLocal": "2026-10-17 14:40:52",
+    "testAssemblyBuildTimeLocal": "2026-10-17 14:36:03",
+    "verificationMethod": "Existing filtered Core and WPF runners reused against the newly compiled Core/Content assemblies after unrelated in-progress test sources blocked rebuilding all test projects."
+  }
+}

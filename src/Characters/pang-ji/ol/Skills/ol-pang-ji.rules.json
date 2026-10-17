@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:biguo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-end-category-gain",
+          "window": "drawPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [{ "op": "resolveBiguoDrawAndArmTargetPindian", "target": "owner" }]
+        },
+        {
+          "id": "armed-target-pindian",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true,
+          "singleActionInstance": true,
+          "optional": true,
+          "effects": [{ "op": "resolveBiguoTargetedPindianAndCategoryBan", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:douyu",
+      "revision": 1,
+      "triggers": [
+        { "id": "pre-reveal", "window": "pindianBeforeReveal", "subject": "owner", "optional": true,
+          "effects": [{ "op": "resolveDouyuPreRevealSwapAndWinDraw", "target": "owner" }] },
+        { "id": "swapped-win", "window": "pindianResultDetermined", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveDouyuPreRevealSwapAndWinDraw", "target": "owner" }] }
+      ]
+    }
+  ]
+}

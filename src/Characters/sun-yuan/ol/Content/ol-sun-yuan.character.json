@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-yuan",
+  "skills": [
+    {"registrationOrder":2040,"programBundle":"ol-sun-yuan","includeProgramPresentation":true,"definition":{"id":"ol:saying","name":"飒影","description":"出牌阶段开始时，你可获得一名其他角色区域内一张牌，然后若你在其攻击范围内，其可对你使用一张【杀】，若你不在其攻击范围内，本轮你与其均视为在对方的攻击范围内。","actionForms":"None","executionForms":"Trigger"}},
+    {"registrationOrder":2041,"programBundle":"ol-sun-yuan","includeProgramPresentation":true,"definition":{"id":"ol:dongxin","name":"恫心","description":"每回合各限一次，当你造成或受到伤害后，你可弃置受伤角色X+1张牌对伤害来源造成一点伤害（X为受伤角色已损失体力值且不足则全弃）。然后你获得其中的【杀】且你使用这些【杀】无次数限制。","actionForms":"None","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":2042,"pools":{"current":478},"definition":{"id":"ol:sun-yuan","name":"孙鸢","portraitKey":"ol-sun-yuan","skillId":"ol:saying","additionalSkillIds":["ol:dongxin"],"factionId":"wu","baseHp":4,"gender":"Female","characterId":"character:sun-yuan","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]
+}

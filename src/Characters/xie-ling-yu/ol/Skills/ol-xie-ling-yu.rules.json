@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yuandi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-name-group",
+          "window": "cardsMoved",
+          "subject": "any",
+          "sourceZones": [],
+          "destinationZones": ["discardPile"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [{"op": "resolveYuandiDiscardNames", "target": "owner"}]
+        }
+      ]
+    },
+    {
+      "id": "ol:xinyou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "basic-cycle",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [{"op": "resolveXinyouBasicCycle", "target": "owner"}]
+        }
+      ]
+    }
+  ]
+}

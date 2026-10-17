@@ -141,7 +141,7 @@ public sealed partial class GameEngine
                 ((IsOriginalDyingSuspendedByDyingSuits(original) || IsOriginalDyingSuspendedByRecipientCategoryMark(original)) ||
                  IsOriginalDyingSuspendedByOwnedDeathBenefit(original) && OwnedDeathBenefitObserverRoot() is not null ||
                  IsPaidHandRepaymentProgramAlcoholRide(i + 1, original) || IsPaidHandRepaymentRescueRide(i + 1, original) ||
-                 PolicyCounterspellVirtualAlcoholRide(i + 1, original) || (TieredRoundZeroDyingRescueRide(i + 1, original) || DrawFundedDistinctBasicDyingRescueRide(i + 1, original)))) return root;
+                 PolicyCounterspellVirtualAlcoholRide(i + 1, original) || (TieredRoundZeroDyingRescueRide(i + 1, original) || (DrawFundedDistinctBasicDyingRescueRide(i + 1, original) || HuanpeiDyingRescueRide(i + 1, original))))) return root;
             var exact = true;
             for (var child = i + 2; child < _resolutionStack.Count; child++)
             {
@@ -150,7 +150,7 @@ public sealed partial class GameEngine
                 if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
                     (IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
                      PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying) ||
-                     (TieredRoundZeroDyingRescueRide(child, dying) || DrawFundedDistinctBasicDyingRescueRide(child, dying)))) break;
+                     (TieredRoundZeroDyingRescueRide(child, dying) || (DrawFundedDistinctBasicDyingRescueRide(child, dying) || HuanpeiDyingRescueRide(child, dying))))) break;
             }
             if (exact) return root;
         }

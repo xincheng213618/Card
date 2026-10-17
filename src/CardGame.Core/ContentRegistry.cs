@@ -167,6 +167,8 @@ public sealed record ContentModeDefinition(
     public IReadOnlyDictionary<string, int>? GeneralSelectionWeights { get; init; }
     /// <summary>Exact editions AI may draw directly but may not obtain through another edition's swap.</summary>
     public IReadOnlyList<string>? AiGeneralSwapExcludedIds { get; init; }
+    /// <summary>Optional identity setup roster; the complete mode pool remains available to transformations.</summary>
+    public IReadOnlyList<string>? GeneralSelectionPoolIds { get; init; }
 }
 
 /// <summary>
@@ -504,6 +506,8 @@ public sealed class ContentRegistry
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
             if (mode.AiGeneralSwapExcludedIds is { } excluded)
                 fingerprint[nameof(mode.AiGeneralSwapExcludedIds)] = excluded.Order(StringComparer.Ordinal).ToArray();
+            if (mode.GeneralSelectionPoolIds is { } selectionPool)
+                fingerprint[nameof(mode.GeneralSelectionPoolIds)] = selectionPool.Order(StringComparer.Ordinal).ToArray();
             return fingerprint;
         }
 
@@ -962,11 +966,17 @@ public sealed class ContentRegistry
                             !mode.GeneralPoolIds.Contains(entry.Key, StringComparer.Ordinal)))
                         throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general selection weights.");
                 }
-                if (mode.AiGeneralSwapExcludedIds is not null || mode.GeneralSelectionWeights is not null)
+                if (mode.GeneralSelectionPoolIds is { } selectionPool &&
+                    (mode.ModeKind != ContentModeKind.Identity || mode.GeneralPoolIds is null ||
+                     selectionPool.Distinct(StringComparer.Ordinal).Count() != selectionPool.Count ||
+                     selectionPool.Any(id => !mode.GeneralPoolIds.Contains(id, StringComparer.Ordinal))))
+                    throw new InvalidOperationException($"Mode '{mode.Id}' has an invalid identity general selection pool.");
+                if (mode.AiGeneralSwapExcludedIds is not null || mode.GeneralSelectionWeights is not null ||
+                    mode.GeneralSelectionPoolIds is not null)
                 {
                     var familyKeys = mode.GeneralVariantGroups?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
                         .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
-                    if (mode.GeneralPoolIds!.DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
+                    if ((mode.GeneralSelectionPoolIds ?? mode.GeneralPoolIds!).DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
                             StringComparer.Ordinal).Count() < mode.MaxPlayers * (mode.DualGenerals ? 2 : 1))
                         throw new InvalidOperationException($"Mode '{mode.Id}' needs a distinct general family for every seat.");
                 }
@@ -1313,6 +1323,8 @@ public sealed class ContentRegistry
                     : FreezeDictionary(definition.GeneralSelectionWeights),
                 AiGeneralSwapExcludedIds = definition.AiGeneralSwapExcludedIds is null ? null
                     : Array.AsReadOnly(definition.AiGeneralSwapExcludedIds.ToArray()),
+                GeneralSelectionPoolIds = definition.GeneralSelectionPoolIds is null ? null
+                    : Array.AsReadOnly(definition.GeneralSelectionPoolIds.ToArray()),
                 GeneralVariantGroups = definition.GeneralVariantGroups is null ? null : FreezeDictionary(
                     definition.GeneralVariantGroups.ToDictionary(entry => entry.Key,
                         entry => (IReadOnlyList<string>)Array.AsReadOnly(entry.Value.ToArray()), StringComparer.Ordinal)),

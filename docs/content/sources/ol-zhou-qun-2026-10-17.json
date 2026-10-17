@@ -1,0 +1,332 @@
+{
+  "generalId": "ol:zhou-qun",
+  "officialHeroId": 543,
+  "capturedAtUtc": "2026-10-17T06:18:45.752571+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary",
+  "status": "implemented-current-public-rules-verified",
+  "identity": {
+    "factionId": "shu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/543",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=543",
+  "officialAvailability": {
+    "eventRange": "2023-07-08 through 2023-07-15",
+    "facts": [
+      "Official OL Qizhen event gives ZhouQun permanent acquisition by flip-card random prize or 8500 event points; later base price10000.",
+      "Current official list and API identity are live."
+    ],
+    "notClaimed": "Not asserting first release from client flag or current store availability."
+  },
+  "versionResolution": {
+    "heroPage": "Stale old preparation Tianhou/top1 and ending self-show Chenshuo. Do not use as current execution timing.",
+    "revisionPost": "Official 2026-04-15 maintenance bulletin, effective2026-04-16, explicitly replaces both parent skill texts.",
+    "client": "Current character543 j3904/k3903 and exact spell text agree with the post-update column. Class suffix2025 is an internal name, not evidence that this revision occurred in2025.",
+    "decision": "Use official revision post plus current canonical character/spell records. Old guide may inform unchanged subskills only and must not override current parent timings, top3 or duration.",
+    "weatherRemainingUncertainty": "Current public spell metadata resolves the implemented weather rules through explicit links3247..3250. Authenticated server-issued derived IDs are not claimed verified; script-only2025 registrations are not adopted without published rules."
+  },
+  "sources": [
+    {
+      "id": "zhouQunHero",
+      "url": "https://www.sanguosha.com/hero/543",
+      "finalUrl": "https://www.sanguosha.com/hero/543",
+      "capturedAtUtc": "2026-10-17T06:09:49.325802+00:00",
+      "httpStatus": 200,
+      "bytes": 24609,
+      "sha256": "caed3594d359c69d563e161a905300e72f4e0a21a7d08b68182171f40bd4bcd0",
+      "rawCopyCreated": false,
+      "title": "三国杀周群 - 三国杀OL-三国杀官网-武将技能介绍"
+    },
+    {
+      "id": "zhouQunApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=543",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=543",
+      "capturedAtUtc": "2026-10-17T06:09:49.469818+00:00",
+      "httpStatus": 200,
+      "bytes": 975,
+      "sha256": "7cbb920d6776a26bc12cc56145d613e387a45c700f9a91e98ff359386c6ea645",
+      "rawCopyCreated": false,
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 543,
+              "name": "周群",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/543.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54300.png",
+              "label": [
+                "控制",
+                "过牌",
+                "辅助"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "限定",
+              "biography": "字仲直，巴西阆[làng]中（今四川阆中）人。周群年少时随父周舒学习占验天算之术。后来刘璋聘请周群为师友从事，其预言大多得以应验。刘备割据益州，任命周群为儒林校尉。曾劝说刘备攻汉中必定不利，事后得到应验，被举荐为茂才。",
+              "characteristic": "能感应天气变化，使战局风云莫测。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 7
+            },
+            {
+              "name": "排位后手",
+              "value": 7
+            },
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "zhouQunAvailable",
+      "url": "https://www.sanguosha.com/news/20230704_2428_4913",
+      "finalUrl": "https://www.sanguosha.com/news/20230704_2428_4913",
+      "capturedAtUtc": "2026-10-17T06:09:49.498952+00:00",
+      "httpStatus": 200,
+      "bytes": 481558,
+      "sha256": "94090146b4b54581982807a39ace603a56d15f8f1ef2f549165eba68f4513010",
+      "rawCopyCreated": false,
+      "title": "7.8-7.15 蜀中篇火热来袭 祈福卢氏、族王淩首发 首充双倍重置 限定周群奇珍上新 - 三国杀OL官网"
+    },
+    {
+      "id": "zhouQunRevision",
+      "url": "https://www.sanguosha.com/news/20260415_4663_3311",
+      "finalUrl": "https://www.sanguosha.com/news/20260415_4663_3311",
+      "capturedAtUtc": "2026-10-17T06:09:49.510391+00:00",
+      "httpStatus": 200,
+      "bytes": 28702,
+      "sha256": "ff1eeab22e985e835c778ebf4ea6ca9884183a6b81034417c4cc0025fb692e2c",
+      "rawCopyCreated": false,
+      "title": "【重要】4月16日《三国杀OL》3.8.9版本更新停服维护公告 - 三国杀OL官网"
+    }
+  ],
+  "currentClient": {
+    "sources": [
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "httpStatus": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T06:05:07.377143+00:00",
+        "bytes": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "rawCopyCreated": false,
+        "retainedSourceMatches": true
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "httpStatus": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T06:05:07.330114+00:00",
+        "bytes": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "rawCopyCreated": false,
+        "retainedSourceMatches": true
+      }
+    ],
+    "members": {
+      "character.sgs": {
+        "encryptedBytes": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedBytes": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "characterRow": {
+      "a": 543,
+      "b": "周群",
+      "d": "ZhouQun",
+      "e": 9,
+      "f": "1",
+      "g": 2,
+      "h": 1,
+      "i": 4,
+      "j": 3904,
+      "k": 3903,
+      "p": 4,
+      "q": "1",
+      "r": "9054301",
+      "y": "字仲直，巴西阆[làng]中（今四川阆中）人。周群年少时随父周舒学习占验天算之术。后来刘璋聘请周群为师友从事，其预言大多得以应验。刘备割据益州，任命周群为儒林校尉。曾劝说刘备攻汉中必定不利，事后得到应验，被举荐为茂才。",
+      "z": "能感应天气变化，使战局风云莫测。",
+      "aa": 156,
+      "ab": "1011,1012",
+      "x": "上应天数，下合谶词，####师出有名，敌无不克。 ",
+      "al": 1730,
+      "am": "true",
+      "ap": 1500,
+      "aq": 450,
+      "ar": "20230808T235958",
+      "LordCardRate1": 59,
+      "LordCardRate2": 58,
+      "starMax": 4
+    },
+    "directSpellRows": [
+      {
+        "a": 3903,
+        "b": "3,4,5",
+        "c": "天候",
+        "d": "TianHou2025",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "m": "3247,3248,3249,3250",
+        "o": "锁定技，结束阶段，你观看牌堆顶的三张牌并选择是否用你的手牌交换之，然后你展示牌堆顶三张牌中的一张，令一名角色根据此牌花色获得技能直到你下次发动此技能：<br>&nbsp;红桃“<font href='3247'>烈暑</font>”；<br>&nbsp;方片“<font href='3248'>凝雾</font>”；<br>&nbsp;黑桃“<font href='3249'>骤雨</font>”；<br>&nbsp;梅花“<font href='3250'>严霜</font>”。",
+        "v": "请选择一张牌展示，并选择一名角色"
+      },
+      {
+        "a": 3904,
+        "b": "3,5",
+        "c": "谶说",
+        "d": "ChenShuo2025",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "准备阶段，你可以令一名角色展示一张手牌，然后展示牌堆顶的牌，若展示牌类型/花色/点数/牌名字数中任意项相同且展示牌堆顶牌数小于3，重复此流程，最后你获得以此法展示的牌。",
+        "v": "选择一名角色展示一张牌"
+      }
+    ],
+    "linkedWeatherSpellRows": [
+      {
+        "a": 3247,
+        "b": "3,4,5",
+        "c": "烈暑",
+        "d": "LieShu",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "锁定技，其他角色的结束阶段，若其体力值全场最大，其失去1点体力。"
+      },
+      {
+        "a": 3248,
+        "b": "3,4,5",
+        "c": "凝雾",
+        "d": "NingWu",
+        "e": 0,
+        "g": 2,
+        "i": 2,
+        "o": "锁定技，当其他角色使用【杀】指定非相邻角色为唯一目标时，其判定，若判定牌点数大于此【杀】，此【杀】无效。"
+      },
+      {
+        "a": 3249,
+        "b": "3,4,5",
+        "c": "骤雨",
+        "d": "ZhouYu",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "锁定技，防止其他角色造成的火焰伤害。当一名角色受到雷电伤害后，其相邻角色失去1点体力。"
+      },
+      {
+        "a": 3250,
+        "b": "3,4,5",
+        "c": "严霜",
+        "d": "YanShuang",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "锁定技，其他角色的结束阶段，若其体力值全场最小，其失去1点体力。"
+      }
+    ]
+  },
+  "sourceScope": {
+    "currentPublicRules": true,
+    "authenticatedServerWireVerified": false,
+    "scriptOnlyWeather2025IdsNotAdopted": [
+      3905,
+      3906,
+      3907,
+      3908
+    ],
+    "explanation": "Current base and live split public metadata define3903/3904 and link3247..3250. The newer official main-skill announcement supersedes old hero text. Registered JavaScript weather2025 classes without published spell definitions are not adopted as additional rules. No authenticated server issuance packet has been inspected."
+  },
+  "implementationInferences": [
+    {
+      "topic": "谶说重复",
+      "adopted": "Repeat the complete current text flow: issuer selects a current Hand owner again, that participant selects one actual Hand card to show, then reveal one top card and compare only that round frozen shown features. A match permits the next whole repetition while fewer than three deck cards have been revealed. Finally gain only the revealed deck entities, never the shown Hand cards."
+    },
+    {
+      "topic": "牌名长度",
+      "adopted": "Use current native effective displayed card names, including current OL short names; do not use optional conversion possibilities. Freeze category/suit/rank/name length at actual reveal."
+    },
+    {
+      "topic": "天候交换",
+      "adopted": "Select equal numbers of actual original Hand and privately viewed top3 entities (zero exchange allowed). Replace their exact selected top positions, preserving the unselected deck and top order; do not add a free arbitrary deck reorder."
+    },
+    {
+      "topic": "授权期限",
+      "adopted": "Each actual Tianhou invocation first expires only that issuer previous independently issued grants, preserving permanent/same-name grants from all other sources. Mere issuer skill loss/death does not equal the next invocation. A later actual Tianhou after reacquisition still ends that same issuer previous grant."
+    },
+    {
+      "topic": "最高最低与相邻",
+      "adopted": "Use living current HP, including ties, at actual leaf trigger execution. Adjacency means neighboring living seats, with duplicate neighbor removed for a two-player table. Freeze the affected neighboring participants for that one real Thunder damage event, then use genuine native LoseHp sequentially."
+    },
+    {
+      "topic": "凝雾点数与目标",
+      "adopted": "At final actual Use target qualification, require one final designated nonadjacent target and a different actual actor from the holder. Compare against the native frozen effective rank; absent native rank is not replaced by a printed first material. Native numeric rank0 remains numeric0; a genuinely null rank has no greater-than comparison."
+    },
+    {
+      "topic": "子流程",
+      "adopted": "Accepted own-frame obligations finish native paid movement/HP/judgment children after source loss; dead actors receive no new personal choices or card gains. No fake Draw/Ending or damage facts are introduced."
+    }
+  ],
+  "verification": {
+    "status": "focused-and-routine-passed",
+    "verifiedAtUtc": "2026-10-17T06:57:29.726378+00:00",
+    "buildExecutedByThisAgent": true,
+    "testsExecutedByThisAgent": true,
+    "manualFullVerificationRun": false,
+    "behaviorChecks": [
+      "Zhou Qun: repeated Hand and top pairs with native gain cold",
+      "Zhou Qun: private exchange and exact next invocation cold",
+      "Zhou Qun: extrema fire and thunder native children cold",
+      "Zhou Qun: final actor judgment and whole use nullification cold"
+    ],
+    "batchFocusedCorePassed": 18,
+    "galleryCheckPassed": true,
+    "galleryRendersVisuallyInspected": true,
+    "routine": {
+      "corePassed": 152,
+      "wpfPassed": 32,
+      "durationMs": 54946
+    },
+    "staticReviewIsNotExecution": [
+      "Issuer death in Chenshuo or Tianhou",
+      "Source-less Fire",
+      "First reveal nonmatch and extremely short deck"
+    ]
+  },
+  "participantRelations": {
+    "lieshu": "At another role actual Ending, that phase actor loses HP if its current HP ties the living maximum; the weather holder is only the skill issuer.",
+    "yanshuang": "At another role actual Ending, that phase actor loses HP if its current HP ties the living minimum.",
+    "ningwu": "Another actual actor is the Slash user and judgment target; the sole designated target must not neighbor that actor.",
+    "zhouyuFire": "Prevent real Fire damage caused by a different actual source from the weather holder, regardless of the damage target. Source-less Fire is not another role caused damage.",
+    "zhouyuThunder": "Freeze current living neighboring participants around the damaged seat when the after-damage effect starts; retain that seat as directional anchor even if the damaged participant just died."
+  }
+}

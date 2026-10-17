@@ -89,6 +89,12 @@ public sealed partial class GameEngine
                 if (!IsHuaManSouyingMutationFact(use, souying, actual)) return false;
                 designated.Clear(); actual.Clear();
             }
+            else if (fact is ChenglieTargetsAppliedEvent chenglie && chenglie.UseId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) ||
+                    !IsChenglieAppliedTargetFact(use, chenglie, designated, out var chenglieTargets)) return false;
+                designated = chenglieTargets.ToList(); actual = chenglieTargets.ToList();
+            }
             else if (fact is PijingTargetsAppliedEvent pijing && pijing.UseId == use.Id)
             {
                 IReadOnlyList<int> preceding = designated;

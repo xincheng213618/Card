@@ -60,6 +60,7 @@ public static partial class GeneralArt
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             // Mobile editions and source hashes: docs/content/sources/mobile-{sun-ru,chen-zhen}-2026-10-13.json.
+            ["mou-cao-pi"] = "official-mou-cao-pi.jpg",
             ["mobile-sun-ru"] = "official-mobile-sun-ru.jpg",
             ["mobile-chen-zhen"] = "wiki-mobile-chen-zhen.jpg",
             // Official OL editions and source hashes: docs/content/sources/ol-{han-sui,xiahou-ba}-2026-10-13.json.
@@ -113,6 +114,16 @@ public static partial class GeneralArt
             ["ol-zhang-qi-ying"] = "official-ol-zhang-qi-ying.png",
             ["ol-cao-chun"] = "official-ol-cao-chun.png",
             ["ol-wang-can"] = "official-ol-wang-can.png",
+            ["ol-zhou-qun"] = "official-ol-zhou-qun.png",
+            ["ol-guan-hai"] = "official-ol-guan-hai.png",
+            ["ol-xie-ling-yu"] = "official-ol-xie-ling-yu.png",
+            ["ol-li-feng"] = "official-ol-li-feng.png",
+            ["ol-cai-fu-ren"] = "official-ol-cai-fu-ren.png",
+            ["ol-gu-yong"] = "official-gu-yong.png",
+            ["ol-huan-shu-jun"] = "official-ol-huan-shu-jun.png",
+            ["ol-zhao-zhong"] = "official-ol-zhao-zhong.png",
+            ["ol-tao-qian"] = "official-ol-tao-qian.png",
+            ["ol-pang-ji"] = "official-ol-pang-ji.png",
             // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
             ["magic-guan-yu"] = "magic-guan-yu-card.jpg",
             ["mou-guan-yu-mobile"] = "official-mou-guan-yu-mobile.png",

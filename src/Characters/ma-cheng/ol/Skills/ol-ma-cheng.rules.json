@@ -1,0 +1,7 @@
+{
+  "schemaVersion":62,
+  "skills":[{"id":"ol:chenglie","revision":1,"triggers":[
+    {"id":"extra-targets","window":"cardUseTargetsFinalized","ownerRelation":"actor","optional":true,"priority":0,"effects":[{"op":"resolveChenglieExtraTargetsAndHiddenCards","target":"owner"}]},
+    {"id":"red-holder-outcomes","window":"cardUseCompleted","ownerRelation":"actor","optional":false,"priority":0,"effects":[{"op":"resolveChenglieRedHolderOutcome","target":"owner"}]}
+  ]}]
+}

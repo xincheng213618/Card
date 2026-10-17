@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:shenxing": {
+      "name": "慎行",
+      "description": "出牌阶段，你可以弃置两张牌，然后摸一张牌。",
+      "activationLabels": { "discard-two-draw-one": "弃置两张手牌或装备牌，然后摸一张牌" }
+    },
+    "ol:bingyi": {
+      "name": "秉壹",
+      "description": "每阶段限一次，当你的牌因弃置置入弃牌堆后，你可以展示所有手牌：若颜色均相同，你可以与至多X名其他角色各摸一张牌（X为你的手牌数）。",
+      "triggerChoices": { "ordinary-discard-reveal-share": "展示所有手牌；若颜色相同，自己与至多X名其他角色各摸一张牌" }
+    }
+  }
+}

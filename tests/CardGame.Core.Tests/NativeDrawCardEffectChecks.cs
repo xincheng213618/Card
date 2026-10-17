@@ -8,7 +8,9 @@ internal static class NativeDrawCardEffectChecks
     private const string Owner = "fixture:native-card-draw-owner", Mode = "identity:classic-native-card-draw",
         Driver = "fixture:native-card-draw-driver", Quiet = "fixture:native-card-draw-quiet",
         Before = "fixture:native-card-draw-before", Gain = "fixture:native-card-draw-gain",
-        Fengzi = "ol:fengzi";
+        Obtained = "fixture:native-card-draw-obtained", Fengzi = "ol:fengzi", Zenrun = "ol:zenrun";
+    private const string TakeReason = "skill-program.sun-hong.zenrun.obtain",
+        CompensationReason = "skill-program.sun-hong.zenrun.compensation";
     private static string _scene = "";
 
     public static void NativeDrawTwoWaitsForAttemptAndActualGainChildrenCold()
@@ -106,6 +108,89 @@ internal static class NativeDrawCardEffectChecks
         }
     }
 
+    public static void ZenrunReplacesNativeDrawTwoWithoutForgingDrawMaterialsCold()
+    {
+        var (g, registry) = Start("zenrun");
+        var handBefore = Hand(g, 0).HandCount;
+        var victimBefore = Hand(g, 1).HandCount;
+        var sequenceBefore = g.CardMovements.Last().Sequence;
+        var material = PlayDrawTwo(g);
+        Drive(g, () => Optional(g, Zenrun));
+        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == material);
+        var useId = use.Id;
+        var attempt = g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single(a => a.Context.ParentFrameId == useId);
+        Need(use.NativeDraw is { ReturnKind: NativeDrawAttemptReturnKind.CardUseDrawTwo, RequestedCount: 2 } &&
+            use.NativeCardEffectDraw is { Stage: NativeCardEffectDrawStage.Requesting, RecipientSeat: 0 } &&
+            NewDraws(g, sequenceBefore, 0).Length == 0 &&
+            !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
+            "Production Zenrun is offered on the actual native DrawTwo CardUse, not a generic Draw substitute.", g);
+        AssertPrivate(g, 0); g = Cold(g, registry);
+        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+        Drive(g, () => ZenrunFrame(g)?.Zenrun?.Stage == ZenrunStage.Target);
+        Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "target" && c.Targets.SequenceEqual([1]));
+        Need(ZenrunFrame(g)?.Zenrun is { Stage: ZenrunStage.Cards, Paid: false } selection && selection.Draw == attempt.Context &&
+            P(g) is { IsPrivate: true, PlayerSeat: 0 } choice &&
+            choice.Choices.Where(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand))
+                .All(c => c.Cards.Count == 0 && c.Parameters.ContainsKey("slot-index")) &&
+            Hand(g, 1).Hand.Count == 0,
+            "The replacement selects opaque original foreign Hand slots and never publishes the victim's faces.", g);
+        AssertPrivate(g, 0); g = Cold(g, registry);
+        for (var i = 0; i < 2; i++)
+            Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "pick" &&
+                c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
+        var selected = ZenrunFrame(g)!.Zenrun!.Selected.Select(s => s.CardId).ToArray();
+        Need(selected.Length == 2 && selected.Distinct().Count() == 2, "Two original private entities are selected exactly once.", g);
+        Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "take");
+        Drive(g, () => Option(g, Obtained, "obtained"));
+        Need(ZenrunFrame(g)?.Zenrun is { Paid: true } &&
+            g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single(a => a.Id == attempt.Id).Replacement is { } replacement &&
+            replacement.GainedIds.SequenceEqual(selected) &&
+            g.CardMovements.Where(m => m.Sequence > sequenceBefore && m.Reason.Value == TakeReason)
+                .Select(m => m.CardId).SequenceEqual(selected) &&
+            NewDraws(g, sequenceBefore, 0).Length == 0 &&
+            !E<NativeCardEffectDrawAppliedEvent>(g).Any(e => e.UseFrameId == useId) &&
+            g.CardMovements.Last(m => m.CardId == material).To == CardLocation.Processing &&
+            !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
+            "Real HE obtains and their actual gain child precede the original draw's typed decision/finish.", g);
+        AssertPrivate(g, 0); g = Cold(g, registry);
+        Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "obtained");
+        Drive(g, () => ZenrunFrame(g)?.Zenrun?.Stage == ZenrunStage.VictimChoice);
+        var zenrunId = ZenrunFrame(g)!.Id;
+        Need(g.CreateSnapshot(1).PendingDecision is { IsPrivate: true, PlayerSeat: 1 } victim &&
+            victim.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "draw") &&
+            victim.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "block") &&
+            Hand(g, 0).HandCount == handBefore + 1 && Hand(g, 1).HandCount == victimBefore - 2 &&
+            Use(g, useId).NativeDraw is { AttemptReturned: false } &&
+            !E<NativeDrawAttemptDecidedEvent>(g).Any(e => e.AttemptFrameId == attempt.Id) &&
+            !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
+            "The actual AI victim privately owns compensation while the original paid Use still awaits its exact return.", g);
+        AssertPrivate(g, 1); g = Cold(g, registry);
+        // This is the real victim's native AI command; no answer is sent for it.
+        Accept(g, new AdvanceOneStepCommand(g.Revision));
+        Drive(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
+        var compensation = g.CardMovements.Where(m => m.Sequence > sequenceBefore &&
+            m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(1) && m.Reason.Value == CompensationReason).ToArray();
+        Need(E<NativeCardEffectDrawAppliedEvent>(g).Single(e => e.UseFrameId == useId).ActualDrawCount == 0 &&
+            E<NativeDrawAttemptDecidedEvent>(g).Count(e => e.AttemptFrameId == attempt.Id &&
+                e.ParentFrameId == useId && e.Replaced && e.RequestedCount == 2) == 1 &&
+            NewDraws(g, sequenceBefore, 0).Length == 0 && compensation.Length == 2 &&
+            compensation.Select(m => m.CardId).Intersect(selected).Count() == 0 &&
+            E<ZenrunPaidEvent>(g).Count(e => e.FrameId == zenrunId && e.AttemptFrameId == attempt.Id && e.Count == 2) == 1 &&
+            E<ZenrunCompensationReturnedEvent>(g).Single(e => e.FrameId == zenrunId) is
+                { ActualDrawCount: 2, ReplacementGainedCount: 0 } &&
+            E<ZenrunCompletedEvent>(g).Count(e => e.FrameId == zenrunId && e.Paid && e.Count == 2) == 1 &&
+            Hand(g, 0).HandCount == handBefore + 1 && Hand(g, 1).HandCount == victimBefore &&
+            selected.All(id => Hand(g, 0).Hand.Any(c => c.Id == id)) &&
+            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == useId) == 1 &&
+            g.CardMovements.Count(m => m.CardId == material && m.From == CardLocation.Hand(0) &&
+                m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1 &&
+            g.CardMovements.Count(m => m.CardId == material && m.From == CardLocation.Processing &&
+                m.To == CardLocation.DiscardPile) == 1 &&
+            !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == useId),
+            "Replaced DrawTwo reports zero original draw materials; HE2 and victim compensation Draw2 remain distinct and settle once.", g);
+        _ = Cold(g, registry);
+    }
+
     private static GameEngine CompleteGainChildren(GameEngine g, ContentRegistry registry, long useId, int material,
         IReadOnlyList<CardMovementRecord> actual)
     {
@@ -138,6 +223,7 @@ internal static class NativeDrawCardEffectChecks
     private static PlayerSnapshot Hand(GameEngine g, int seat) => g.CreateSnapshot(0).Players[seat];
     private static PendingDecision? P(GameEngine g) => g.PendingDecision;
     private static CardUseFrame Use(GameEngine g, long id) => g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == id);
+    private static ProgramSkillFrame? ZenrunFrame(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f => f.Zenrun is not null);
     private static bool Optional(GameEngine g, string skill) => P(g)?.SkillPrompt?.SkillId == skill &&
         P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static bool Option(GameEngine g, string skill, string option) => P(g) is { PlayerSeat: 0 } p &&
@@ -243,6 +329,15 @@ internal static class NativeDrawCardEffectChecks
             Add(Quiet, "triggers", new[] { new { id = "quiet", window = "afterNormalDraw", subject = "owner", optional = false,
                 effects = new[] { new { op = "skipTurnPhases", target = "owner", phases = new[] { "play" } } } } });
             var ownerSkills = new List<string>();
+            if (scene == "zenrun")
+            {
+                RegisterProduction(b, "ol-sun-hong", Zenrun);
+                ownerSkills.Add(Zenrun); ownerSkills.Add(Obtained);
+                Add(Obtained, "triggers", new[] { new { id = "actual-obtain-child", window = "cardsGained", subject = "owner",
+                    destinationZones = new[] { "hand" }, movementOccurrence = "perBatch", movementReasons = new[] { TakeReason },
+                    optional = false, effects = new[] { Choice("obtained") } } }, "obtained");
+            }
+            else
             {
                 ownerSkills.Add(Before); ownerSkills.Add(Gain);
                 Add(Before, "triggers", new[] { new { id = "native-before", window = "nativeDrawStarting", subject = "owner",

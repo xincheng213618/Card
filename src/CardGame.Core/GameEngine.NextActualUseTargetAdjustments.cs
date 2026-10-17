@@ -170,11 +170,11 @@ public sealed partial class GameEngine
 
 
     private bool CanUseNextActualUseSelectedSlash(CharacterState owner, CharacterState target, ProgramMultiCardViewAsSelection selection) =>
-        CanUseVirtualSlashTarget(owner, target, selection.OutputKind, PhysicalGroupSuit(owner, selection.Cards),
-            PhysicalGroupColor(owner, selection.Cards), physicalCardIds: selection.Cards.Select(c => c.Id).ToArray()) &&
+        CanUseVirtualSlashTarget(owner, target, selection.OutputKind, ProgramMultiCardSuit(owner, selection),
+            ProgramMultiCardColor(owner, selection), physicalCardIds: selection.Cards.Select(c => c.Id).ToArray()) &&
         !IsDirectedCardTargetProhibited(owner.Seat, target.Seat, selection.OutputKind) &&
-        !IsCardTargetProhibited(target, selection.OutputKind, PhysicalGroupSuit(owner, selection.Cards), PhysicalGroupColor(owner, selection.Cards)) &&
-        !HasBeneficiarySuitShield(owner.Seat, target.Seat, PhysicalGroupSuit(owner, selection.Cards));
+        !IsCardTargetProhibited(target, selection.OutputKind, ProgramMultiCardSuit(owner, selection), ProgramMultiCardColor(owner, selection)) &&
+        !HasBeneficiarySuitShield(owner.Seat, target.Seat, ProgramMultiCardSuit(owner, selection));
 
     private ProgramNextActualUseAdjustment? FreezeNextActualUseProgramSelection(CharacterState owner,
         ProgramExecutionPlan plan, IReadOnlyList<int> targets)
@@ -321,8 +321,8 @@ public sealed partial class GameEngine
         var target = _players[receipt.ChangedTargetSeat];
         if (CurrentNextActualUseAdjustment(owner.Seat)?.ProgramFrameId != receipt.Grant.ProgramFrameId ||
             !target.IsAlive || !IsRuleWounded(target) || IsCardTargetProhibited(target, CardKind.Peach,
-                PhysicalGroupSuit(owner, selection.Cards), PhysicalGroupColor(owner, selection.Cards)) ||
-            HasBeneficiarySuitShield(owner.Seat, target.Seat, PhysicalGroupSuit(owner, selection.Cards)))
+                ProgramMultiCardSuit(owner, selection), ProgramMultiCardColor(owner, selection)) ||
+            HasBeneficiarySuitShield(owner.Seat, target.Seat, ProgramMultiCardSuit(owner, selection)))
         { ReplaceRuntimeTop(frame with { SelectedTargetSeats = [], NextActualUseAdjustment = receipt with { Stage = ProgramNextActualUseAdjustmentStage.Canceled } }); return; }
         _selectedNextCardTargetSeats = Array.AsReadOnly(new[] { owner.Seat, target.Seat });
     }

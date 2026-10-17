@@ -180,6 +180,8 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(f = f with { SimultaneousPindian = r });
                 AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(f.Id,f.SkillId,pair));
             }
+            if (TryBeginDouyuSimultaneousWinDraws(f, pair)) return true;
+            f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian!;
             if (r.Claims is null)
             {
                 var claims = FreezeSimultaneousClaims(f,pair); ReplaceRuntimeTop(f = f with { SimultaneousPindian = r = r with { Claims = claims } });
@@ -245,8 +247,9 @@ public sealed partial class GameEngine
         if (!r.Revealed && (r.Stage is not (SimultaneousPindianStage.Selecting or SimultaneousPindianStage.RandomPolicies or SimultaneousPindianStage.TopRefillChildren) || r.Cards.Count != r.SelectionIndex + 1 ||
             r.Cards.Any(c => _cardZones.GetLocation(c.CardId) != SimultaneousOriginalLocation(r,c) || c.Rank != c.OriginalRank)))
             throw new InvalidOperationException("A simultaneous private commitment moved before the shared reveal.");
+        var originalCards = GetDouyuOriginalSimultaneousCards(f);
         if (r.Revealed && (r.Stage == SimultaneousPindianStage.Selecting || r.SelectionIndex != r.Opponents.Count || r.Cards.Count != r.Opponents.Count + 1 ||
-            r.RevealAfter - r.RevealBefore != r.Cards.Count - r.TopReceipts.Count || r.Cards.Where(c => !r.TopReceipts.Any(t => t.CardId == c.CardId)).Any(c => _cardMovements.Count(m => m.Sequence > r.RevealBefore && m.Sequence <= r.RevealAfter &&
+            r.RevealAfter - r.RevealBefore != r.Cards.Count - r.TopReceipts.Count || originalCards.Where(c => !r.TopReceipts.Any(t => t.CardId == c.CardId)).Any(c => _cardMovements.Count(m => m.Sequence > r.RevealBefore && m.Sequence <= r.RevealAfter &&
                 m.CardId == c.CardId && m.From == SimultaneousOriginalLocation(r,c) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal) != 1) ||
             CompleteProgramEventHistory().OfType<PindianCardsRevealedEvent>().Count(e => e.ParentFrameId == f.Id && e.Simultaneous &&
                 e.Cards.Select(c => (c.Seat,c.CardId,c.OriginalRank)).SequenceEqual(r.Cards.Select(c => (c.Seat,c.CardId,c.OriginalRank)))) != 1))

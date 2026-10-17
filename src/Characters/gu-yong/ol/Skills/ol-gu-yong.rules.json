@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:shenxing",
+      "revision": 1,
+      "activations": [{
+        "id": "discard-two-draw-one", "minCards": 2, "maxCards": 2,
+        "sourceZones": ["hand", "equipment"],
+        "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null,
+        "effects": [
+          { "op": "discardSelected", "target": "owner", "amount": 2 },
+          { "op": "draw", "target": "owner", "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "ol:bingyi",
+      "revision": 1,
+      "triggers": [{
+        "id": "ordinary-discard-reveal-share", "window": "discardPileReceived", "subject": "owner",
+        "optional": true, "movementDiscardOnly": true, "discardOwnerScope": "own",
+        "sourceZones": ["hand", "equipment"], "movementOccurrence": "perBatch",
+        "effects": [{ "op": "resolveOrdinaryGuYongBingyi", "target": "owner" }]
+      }]
+    }
+  ]
+}

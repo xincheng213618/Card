@@ -1,0 +1,303 @@
+{
+  "generalId": "ol:sun-hong",
+  "name": "孙弘",
+  "gid": 537,
+  "edition": "ordinary OL",
+  "capturedAtUtc": "2026-10-17T14:19:03.714155+08:00",
+  "identity": {
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "verification": {
+    "status": "partial-runtime-verified-general-not-selectable",
+    "verifiedAtUtc": "2026-10-17T07:49:32.799384+00:00",
+    "fullGeneralBehaviorVerified": false,
+    "partialRuntimeBehaviorVerified": true,
+    "buildExecutedByCoordinatingAgent": true,
+    "testsExecutedByCoordinatingAgent": true,
+    "buildExecutedByModuleAgent": false,
+    "testsExecutedByModuleAgent": false,
+    "manualFullVerificationRun": false,
+    "verifiedBehaviorChecks": [
+      "Sun Hong: frozen adjustment and random original returns cold",
+      "Sun Hong: private whole discard children source loss death cold",
+      "Sun Hong: opaque replacement actual phase and victim choice cold",
+      "Sun Hong: Lion Ox and nested paid loss death cold",
+      "Sun Hong: actual normal draw phase replacement cold"
+    ],
+    "sharedNativeDrawChecksPassed": 6,
+    "batchFocusedCorePassed": 15,
+    "routine": {
+      "corePassed": 153,
+      "wpfPassed": 32,
+      "durationMs": 109605
+    },
+    "note": "Typed pre-draw requests, generic instructions, dual native-operation returns, normal/extra Draw phases and the native DrawTwo card effect pass scoped behavior checks. Other native/custom draw producers, unphased quota semantics and complete general-skill target admission remain pending; no character manifest or current-pool entry is enabled.",
+    "nativeDrawTwoIntegration": {
+      "verifiedAtUtc": "2026-10-17T07:49:32.799384+00:00",
+      "status": "focused-behavior-passed-and-representative-routine-passed",
+      "checksPassed": [
+        "Native card draw: DrawTwo attempts actual gain children and repeated effects cold",
+        "Native card draw: Zenrun replaces DrawTwo without forged draws cold"
+      ],
+      "evidence": "Actual native DrawTwo after its resolved counterspell window; exact attempt return, original card Processing material, actual DrawPile gain children, cold restore, production Fengzi repeated effect and production Zenrun opaque HE replacement with original AI victim compensation. Replacement HE does not populate ActualDrawIds.",
+      "routineRepresentativeCheck": "Native card draw: DrawTwo attempts actual gain children and repeated effects cold"
+    }
+  },
+  "primarySources": [
+    {
+      "id": "sunHongHero",
+      "url": "https://www.sanguosha.com/hero/537",
+      "finalUrl": "https://www.sanguosha.com/hero/537",
+      "capturedAtUtc": "2026-10-17T14:09:49.227798+08:00",
+      "httpStatus": 200,
+      "bytes": 24391,
+      "sha256": "d0523b53c20233027706ac16872f479e96a407b10bd83e26dedd61d79382f937",
+      "rawCopyCreated": false,
+      "title": "三国杀孙弘 - 三国杀OL-三国杀官网-武将技能介绍"
+    },
+    {
+      "id": "sunHongApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=537",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=537",
+      "capturedAtUtc": "2026-10-17T14:09:49.228217+08:00",
+      "httpStatus": 200,
+      "bytes": 1083,
+      "sha256": "60b856d34908c3ca9c05a304b8f2f1d79d32df05d5695ca9c9d1bc317f77108b",
+      "rawCopyCreated": false,
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 537,
+              "name": "孙弘",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/537.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53700.png",
+              "label": [
+                "控制",
+                "随机性拉满",
+                "捡垃圾的"
+              ],
+              "figure": "吴",
+              "figure_py": "wu",
+              "quality": "稀有",
+              "biography": "三国时期吴国中书令、少傅。鲁王孙霸与太子孙和各植党羽，孙弘即依附孙霸。孙权病笃，而太子年少，于是以孙弘领少傅。孙权临终，召他与诸葛恪、孙峻等嘱以后事，孙弘与诸葛恪同为顾命大臣。孙权死后，孙弘因素来与诸葛恪不和，怕为所治，故隐瞒孙权死讯，欲矫诏除掉诸葛恪，被孙峻告发。后诸葛恪请孙弘议事，于座中将其诛杀。",
+              "characteristic": "能汰换手牌，并破坏他人的留牌。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 4
+            },
+            {
+              "name": "忠臣",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 4
+            },
+            {
+              "name": "内奸",
+              "value": 4
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "sunHongAvailable",
+      "url": "https://www.sanguosha.com/news/20230629_1454_0917",
+      "finalUrl": "https://www.sanguosha.com/news/20230629_1454_0917",
+      "capturedAtUtc": "2026-10-17T14:09:49.241962+08:00",
+      "httpStatus": 200,
+      "bytes": 72424,
+      "sha256": "0bff8cf304de039bca577a41f52450470aac49ae6d92eead862692d2055d63a1",
+      "rawCopyCreated": false,
+      "title": "7.1-7.31军典 赵云川剧配音皮肤上新！ - 三国杀OL官网"
+    },
+    {
+      "id": "sunHongGuide",
+      "url": "https://www.taptap.cn/moment/488292134613418270",
+      "finalUrl": "https://www.taptap.cn/moment/488292134613418270",
+      "capturedAtUtc": "2026-10-17T14:09:49.320496+08:00",
+      "httpStatus": 200,
+      "bytes": 242265,
+      "sha256": "48ea4ee82bb33266e693a0892aa568000abc0a81552400d5453ec2021ed22059",
+      "rawCopyCreated": false,
+      "title": "【武将攻略】孙弘 - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛"
+    }
+  ],
+  "currentClient": {
+    "bundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "configSha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+    "scriptSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "members": {
+      "character.sgs": {
+        "encryptedBytes": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedBytes": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "rawCharacter": {
+      "a": 537,
+      "b": "孙弘",
+      "d": "SunHong",
+      "e": 44,
+      "f": "42",
+      "g": 3,
+      "h": 1,
+      "i": 3,
+      "j": 3219,
+      "k": 3220,
+      "p": 1,
+      "q": "1",
+      "r": "9053701",
+      "y": "三国时期吴国中书令、少傅。鲁王孙霸与太子孙和各植党羽，孙弘即依附孙霸。孙权病笃，而太子年少，于是以孙弘领少傅。孙权临终，召他与诸葛恪、孙峻等嘱以后事，孙弘与诸葛恪同为顾命大臣。孙权死后，孙弘因素来与诸葛恪不和，怕为所治，故隐瞒孙权死讯，欲矫诏除掉诸葛恪，被孙峻告发。后诸葛恪请孙弘议事，于座中将其诛杀。",
+      "z": "能汰换手牌，并破坏他人的留牌。",
+      "aa": 136,
+      "ab": "997,998",
+      "ad": "画师:匠人绘",
+      "x": "十步之内，###必有佞臣！",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ar": "20230801T235959",
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,控制强将"
+    },
+    "skillRows": [
+      {
+        "a": 3219,
+        "b": "3",
+        "c": "险诐",
+        "d": "XianBi",
+        "e": 0,
+        "g": 7,
+        "h": 1,
+        "i": 2,
+        "o": "出牌阶段限一次，你可以将手牌调整至与一名角色装备区里的牌数相同，每因此弃置一张牌，便随机获得弃牌堆中另一张类型相同的牌。 ",
+        "k": "1",
+        "fastChooseCard": 2
+      },
+      {
+        "a": 3220,
+        "b": "3,5",
+        "c": "谮润",
+        "d": "ZenRun",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "n": 0,
+        "o": "每阶段限一次，当你摸牌时，你可以改为获得一名其他角色等量张牌，然后其选择一项：<br>&nbsp;1.摸等量张牌；<br>&nbsp;2.你不能再对其发动武将牌上的技能。"
+      }
+    ],
+    "observations": [
+      {
+        "class": "OHt",
+        "fact": "Requires equipmentCount != ownerHandCount; self legal; rejects DATA_ZENRUN blocked target."
+      },
+      {
+        "class": "kHt",
+        "fact": "Requires target Hand+Equipment count >= requested draw count and not blocked; target cannot self."
+      },
+      {
+        "class": "BRi",
+        "fact": "Response cost selects NORMAL|EQUIP exactly server requested count; other player selects draw versus block."
+      }
+    ],
+    "rawCopyCreated": false
+  },
+  "officialAvailability": {
+    "publishedAt": "2023-06-30 14:57:36",
+    "eventRange": "2023-07-01 through 2023-07-31",
+    "facts": [
+      "Official ordinary OL military-pass post names permanent rare general SunHong as an unlock reward.",
+      "Reward table includes permanent SunHong at 1200 points."
+    ],
+    "notClaimed": "Not asserting exact first-release date, current purchase price or current ranked-pool membership."
+  },
+  "guideLayer": {
+    "publisher": "三国杀OL撰稿组",
+    "author": "洛奈",
+    "date": "2023-12-25",
+    "originalUrl": "https://club.sanguosha.com/thread-1253218-1-1.html",
+    "status": "same-product publisher-reposted community analysis, not FAQ",
+    "supports": [
+      "Xianbi may target self and has both top-up and discard/random-same-category branches.",
+      "Zenrun can intercept Xianbi top-up during Play as well as ordinary Draw.",
+      "Block choice prevents both Zenrun and Xianbi target selection."
+    ],
+    "notProof": [
+      "Source loss/regrant lifetime",
+      "No-phase or inserted-phase quota token",
+      "Multiple simultaneous draw-replacement order",
+      "Missing random stock fallback"
+    ]
+  },
+  "ruleInterpretation": [
+    {
+      "rule": "Xianbi target and equality",
+      "status": "canonical text plus client selector",
+      "implementation": "Self or another living role may be chosen only when its current Equipment count differs from the owner Hand count. The chosen Equipment count and original Hand cohort are frozen at actual role selection. Native discard restrictions are preserved; no impossible complete discard is offered."
+    },
+    {
+      "rule": "Xianbi discard and return",
+      "status": "exact text with explicit timing inference",
+      "implementation": "Discard the complete Hand difference in one genuine native logical discard. After its native movement children finish, process each actual primary in original selected order. For each primary, sample the current Discard stock of the same category, excluding at least that exact original physical entity. Other simultaneously discarded original entities may be selected for a different primary. A stock shortage yields no fabricated card or draw. This per-primary live-stock/order treatment is an implementation inference, not a located official FAQ."
+    },
+    {
+      "rule": "Randomness and original material",
+      "status": "engine-native implementation",
+      "implementation": "The deterministic match RNG and the candidate set/index/states are frozen by scalar facts. Hand selection uses the owner private original entities. Random retrieval is Discard to Hand with original physical identity, not a top-deck draw or same-name replacement. Native discard invoices do not count auxiliary spill as a primary."
+    },
+    {
+      "rule": "Xianbi target changes and paid continuation",
+      "status": "implementation inference",
+      "implementation": "After the actual target count is frozen, later target equipment changes do not create an endless hand-equality chase. Real native children fully resolve before later returns. Paid skill-source loss does not revoke the frozen operation. Owner death prevents new choices/gains while already paid children finish exactly once."
+    },
+    {
+      "rule": "Zenrun replacement scope",
+      "status": "canonical text and same-product guide; central all-draw migration pending",
+      "implementation": "The trigger applies to real draw attempts in every actual phase, including skill draws, not only the normal Draw phase. The original requested amount is frozen before physical DrawPile payment. Obtain original foreign Hand/Equipment instead; replacement obtained entities are not ordinary draw entities. Compensation is a separate genuine draw attempt."
+    },
+    {
+      "rule": "Zenrun availability and target prohibition",
+      "status": "client selector plus explicit lifetime and source-classification inference",
+      "implementation": "The selected other role must have enough legally obtainable HE for the frozen requested count. The other role chooses equal compensation draw or a permanent owner-target prohibition on later general-card skill targeting. The mark survives actual skill loss and regrant. Primary, secondary and acquired general-skill grants are considered; equipment-origin skill grants and card target admission are distinct. Permanent lifetime and broad grant-origin classification are implementation inferences, not a located official FAQ. Generic and custom operation target paths must all admit the same query before full activation."
+    },
+    {
+      "rule": "Zenrun actual phase quota",
+      "status": "explicit integration boundary",
+      "implementation": "One paid replacement per owner in the exact native ActualDiscardRecoveryPhaseKey token, including another player actual phases and supported inserted phases. It does not reuse the Play-only debit/reset clock. Native draw attempts without an actual phase are not offered during this integration stage; no per-draw or producer boundary is invented as an extra phase. Their intended quota is unresolved and the general remains unavailable."
+    },
+    {
+      "rule": "Zenrun original HE payment and native children",
+      "status": "native implementation with explicit payment timing inference",
+      "implementation": "The chooser privately selects exactly the frozen requested number of foreign original HE slots. The whole gain pays once in a native multi-source batch; GeneralWeapon equipment whose native destination is Outside is not a legal Hand-gain material. The paid replacement is committed before original SilverLion, WoodenOx spill, health, ownership and Dying descendants. Those real children complete before the victim chooses compensation. Paid skill loss or recipient death does not redraw or revoke the replacement. A living victim can still take the promised compensation after the recipient dies; a dead victim opens no new menu."
+    }
+  ],
+  "architecture": {
+    "pendingState": "Owning ProgramSkillFrame typed receipts and exact native parent returns. No global pending/use-ID sidecar.",
+    "events": "New Xianbi and Zenrun rule facts are scalar. Private selected slots/materials live only on defensively frozen owning frame receipts. Replacement gains are separate from ordinary draw IDs.",
+    "allDrawMigration": "Xianbi top-up and Zenrun compensation use BeginOperationProgramDraw and the exact dual-operation callback. Ordinary and extra Draw-phase attempts and native DrawTwo use the same exact NativeDrawAttempt context; each actual DrawTwo effect owns a typed CardUse receipt and returns only after its actual gain descendants. Own observer edges accept only NativeDrawAttemptRidesOn between the actual owning frame, attempt, lifecycle window and current candidate, then the existing exact native observer suffix. Central migration of other native draw callers remains pending."
+  },
+  "art": null
+}

@@ -5,7 +5,7 @@ namespace CardGame.Core;
 public enum RequestedDeckBasicIntent
 {
     Dodge, Group, Duel, Dying, FactionSlash, FactionDodge,
-    BorrowedSword, Qinglong, ProgramSlash, ProgramNearestSlash, AssistedSlash, NearestLegalSlash
+    BorrowedSword, Qinglong, ProgramSlash, ProgramNearestSlash, AssistedSlash, NearestLegalSlash, WenyiPeach = 28101
 }
 
 /// <summary>One exact existing need, never an independent pending/use-ID table.</summary>

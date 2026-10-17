@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:pengbi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-own-actual-turn",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "resolvePengbiFirstActualTurn", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:dici",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give-recover-chain",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [{ "op": "resolveDiciGiftRecoveryAndNeighborChain", "target": "owner" }]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "issued-next-chain",
+          "window": "characterEnteredChain",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "resolveIssuedDiciNextChainChoice", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:yintian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-global-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "resolveYintianFirstRecovery", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:biri",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-global-non-draw-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [{ "op": "resolveBiriFirstNonDrawGain", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

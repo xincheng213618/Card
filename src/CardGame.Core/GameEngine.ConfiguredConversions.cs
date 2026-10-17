@@ -16,12 +16,12 @@ public sealed partial class GameEngine
     }
 
     private bool IsConfiguredConversionAvailable(CharacterState owner, Card card,
-        IndexedSkillProgramInstance instance, SkillProgramViewAs rule, bool dyingUse)
+        IndexedSkillProgramInstance instance, SkillProgramViewAs rule, bool dyingUse, int? requestedUseTarget = null)
     {
         if (!MatchesLastSourceZoneConversion(owner, card, rule) ||
             !MatchesOwnPublicPileConversion(owner, card, instance, rule)) return false;
         if (rule.ExcludeOwnerEffects &&
-            (dyingUse ? ActiveDying?.VictimSeat == owner.Seat :
+            (requestedUseTarget is { } requested ? requested == owner.Seat : dyingUse ? ActiveDying?.VictimSeat == owner.Seat :
              rule.OutputKind is CardKind.Peach or CardKind.Alcohol)) return false;
         if (rule.ActivationUsageGroup is { } group && rule.UsesPerPhase is { } limit &&
             _programPhaseUses.GetValueOrDefault((owner.Seat, instance.SkillId, group)) >= limit) return false;

@@ -1,11 +1,57 @@
 ﻿using CardGame.Content.Standard;
 using CardGame.Core;
+using System.Text.Json;
 
 internal static class BorrowedSwordScenario
 {
     public static ContentRegistry CreateFixtureRegistry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new BorrowedFixtureMode());
+
+    public static ContentRegistry CreateSourcePlayFixtureRegistry() => ContentRegistry.Build(
+        new StandardContentPackage(), new BorrowedSourcePlayFixture());
+
+    private sealed class BorrowedSourcePlayFixture : IGameContentPackage
+    {
+        public const string Mode = "identity:classic-borrowed-source", Owner = "fixture:borrowed-source-owner";
+        public const string Driver = "fixture:borrowed-source-driver";
+        public PackageManifest Manifest { get; } = new("fixture-borrowed-source-play", new Version(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var catalog = SkillProgramCatalog.Load($$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
+                    {"id":"{{Driver}}","revision":1,"activations":[
+                        {"id":"equip-target","usesPerTurn":1,"minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","effects":[
+                            {"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
+                        {"id":"draw-source","usesPerTurn":1,"minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","effects":[
+                            {"op":"draw","target":"owner","amount":20}]}]}]}
+                """, JsonSerializer.Serialize(new
+                {
+                    schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
+                    skills = new Dictionary<string, object> { [Driver] = new { name = "真实借刀准备", description = "真实原生装备和摸牌命令" } }
+                }));
+            builder.AddSkill(new(Driver, "真实借刀准备", "仅用于原生借刀出牌选择夹具")
+            {
+                Program = catalog.Programs[Driver], ProgramPresentation = catalog.Presentations[Driver],
+                SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => -1000000d)
+            });
+            builder.AddGeneral(new(Owner, "借刀出牌者", "supporter", Driver, "wei", 8));
+            var peers = Enumerable.Range(1, 3).Select(seat => $"fixture:borrowed-source-peer-{seat}").ToArray();
+            foreach (var id in peers) builder.AddGeneral(new(id, id, "supporter", "standard:none", "wei", 8));
+            builder.AddCard(new("fixture:borrowed-source-trick", "借刀杀人", "锦囊牌", "原生借刀实体", CardKind.BorrowedSword));
+            builder.AddCard(new("fixture:borrowed-source-weapon", "诸葛连弩", "装备牌", "原生武器实体", CardKind.Crossbow));
+            // Equip before drawing: 24 weapons exceed the entire initial deal;
+            // the owner's later 24-card hand exceeds the remaining 23 weapons.
+            builder.AddDeck(new("fixture:borrowed-source-deck", "固定借刀和武器", 4, 0, [])
+            {
+                PhysicalCards = Enumerable.Range(0, 72).Select(i => new ContentDeckPhysicalCard(
+                    i < 24 ? "fixture:borrowed-source-weapon" : "fixture:borrowed-source-trick", Suit.Spade, i % 13 + 1)).ToArray()
+            });
+            builder.AddMode(new(Mode, "真实借刀出牌固定局面", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
+                "fixture:borrowed-source-deck", GeneralCandidateCount: 4, GeneralPoolIds: [Owner, ..peers]));
+        }
+    }
 
     private sealed class BorrowedFixtureMode : IGameContentPackage
     {
@@ -191,67 +237,44 @@ internal static class BorrowedSwordScenario
 
     public static GameEngine FindHumanSourcePlay()
     {
-        var registry = CreateFixtureRegistry();
-        // Verified classic fixture: real source keeps Borrowed Sword until an AI equips.
-        foreach (var seed in new[] { 52 })
+        var game = GameEngine.CreateStandard(new GameOptions
         {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                PlayerCount = 5,
-                ModeId = "identity:classic-borrowed-check5",
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 220,
-                AiPolicyVersion = 2
-            }, registry);
-            var started = game.Submit(new StartGameCommand());
-            Require(started.Accepted, "Borrowed Sword source fixture failed to start.");
-            var firstGeneral = game.PendingDecision?.Choices.FirstOrDefault();
-            if (firstGeneral?.ContentIds.Count != 1)
-            {
-                continue;
-            }
+            Seed = 7, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4,
+            ModeId = BorrowedSourcePlayFixture.Mode, UseInteractiveSetup = true,
+            UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 3
+        }, CreateSourcePlayFixtureRegistry());
+        Accept(new StartGameCommand());
+        Reach(() => game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.SelectGeneral });
+        Accept(new SelectGeneralCommand(0, BorrowedSourcePlayFixture.Owner, game.Revision, game.PendingDecision!.PromptId));
+        Reach(() => game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
+        Accept(new UseProgramSkillCommand(0, BorrowedSourcePlayFixture.Driver, "equip-target", [], [1], game.Revision, game.PendingDecision!.PromptId));
+        Reach(() => game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
+        var weapon = game.CreateSnapshot(0).Players[1].Equipment.Single();
+        Require(weapon.Kind == CardKind.Crossbow && game.CardMovements.Any(move => move.CardId == weapon.Id &&
+            move.From == CardLocation.DrawPile && move.To == CardLocation.Processing && move.Reason == CardMoveReasons.EquipmentUse),
+            "The bounded source fixture must equip the original deck weapon through native card use.");
+        Accept(new UseProgramSkillCommand(0, BorrowedSourcePlayFixture.Driver, "draw-source", [], [], game.Revision, game.PendingDecision!.PromptId));
+        Reach(() => game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
+        Require(game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.BorrowedSword && action.TargetSeats.FirstOrDefault() == 1),
+            "The fixed original source Hand and actual equipped target must expose a legal native Borrowed Sword.");
+        return game;
 
-            var selected = game.Submit(new SelectGeneralCommand(
-                0,
-                firstGeneral.ContentIds[0],
-                game.Revision,
-                game.PendingDecision!.PromptId));
-            Require(selected.Accepted, "Borrowed Sword source fixture could not select a general.");
-            var advanced = game.Submit(new AdvanceCommand(game.Revision));
-            Require(advanced.Accepted, "Borrowed Sword source fixture did not reach play.");
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } play ||
-                game.CreateSnapshot(0).Players[0].Hand.All(card => card.Kind != CardKind.BorrowedSword))
-            {
-                continue;
-            }
-
-            var ended = game.Submit(new EndPlayPhaseCommand(0, game.Revision, play.PromptId));
-            Require(ended.Accepted, "Borrowed Sword source fixture could not preserve the trick for another round.");
-            for (var step = 0; step < 1_000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } &&
-                    game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.BorrowedSword))
-                {
-                    return game;
-                }
-
-                var human = game.CreateSnapshot(0, revealAll: true).Players[0];
-                if (!human.IsAlive || human.Hand.All(card => card.Kind != CardKind.BorrowedSword))
-                {
-                    break;
-                }
-
-                Step(game);
-            }
+        void Accept(GameCommand command)
+        {
+            var result = game.Submit(command);
+            Require(result.Accepted, result.Error?.Message ?? "The fixed Borrowed Sword setup command was rejected.");
         }
-
-        throw new InvalidOperationException(
-            "No bounded classic Borrowed Sword source fixture with an equipped target was found.");
+        void Reach(Func<bool> done)
+        {
+            for (var step = 0; step < 96; step++)
+            {
+                if (done()) return;
+                Require(game.State.Winner == Winner.None && game.PendingDecision?.PlayerSeat != 0,
+                    "The fixed Borrowed Sword setup reached an unexpected human or terminal boundary.");
+                Accept(new AdvanceOneStepCommand(game.Revision));
+            }
+            throw new InvalidOperationException("The fixed Borrowed Sword setup exceeded its bounded native steps.");
+        }
     }
 
     public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false,

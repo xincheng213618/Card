@@ -79,7 +79,7 @@ public sealed partial class GameEngine
             var parameters = P(kind); if (source is not null) AddConversionParameters(parameters, source); if (zhangba) parameters["equipment"] = CardKind.ZhangbaSerpentSpear.ToString();
             result.Add(new(new($"wu-jing.{f.Id}.{kind}.{source?.SkillInstanceId}.{source?.BindingId}.{string.Join('-', ids)}.{zhangba}"), $"对{_players[r.TargetSeat].Name}使用【{CardCatalog.Get(kind).DisplayName}】", ids, [r.TargetSeat], parameters));
         }
-        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).DistinctBy(c => c.Id))
+        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(NativePublicPileOriginalUseCards(actor)).DistinctBy(c => c.Id))
         {
             foreach (var kind in SlashKinds.Append(CardKind.Duel))
                 foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, false)) Add(card, kind, conversion, [card.Id]);
@@ -96,7 +96,7 @@ public sealed partial class GameEngine
         }
         foreach (var pair in GetZhangbaSlashPairs(actor)) Add(pair[0], CardKind.Slash, null, pair.Select(c => c.Id).ToArray(), true);
         foreach (var kind in SlashKinds.Append(CardKind.Duel))
-        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false).Where(s => ViewAsRule(s.Source)?.RoundDistinctBasicUse is null || s.OutputKind == kind)) Add(selection.Cards[0], kind, selection.Source, selection.Cards.Select(c => c.Id).ToArray());
+        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false).Where(s => ViewAsRule(s.Source) is { RoundDistinctBasicUse: null, LeiluanBasicUse: null } || s.OutputKind == kind)) Add(selection.Cards[0], kind, selection.Source, selection.Cards.Select(c => c.Id).ToArray());
         result.AddRange(KenshangProgramSlashChoices(f, f.OwnerSeat, [r.TargetSeat]));
         foreach (var (source, _) in RoundOnceCardlessRules(actor, CardKind.Slash).Where(entry => RoundOnceCardlessProgramTargetLegal(actor, r.TargetSeat, entry.Source, true)))
         {
@@ -126,7 +126,7 @@ public sealed partial class GameEngine
         if (choice.Parameters["kind"] == "faction") { BeginWuJingFaction(f); return; }
         var kind = Enum.Parse<CardKind>(choice.Parameters["kind"]); TryReadConversionSource(choice.Parameters, out var source);
         var zhangba = choice.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString();
-        var cards = choice.Cards.Count == 1 ? new[] { GetPlayableCards(_players[f.OwnerSeat]).Concat(GetEquipment(f.OwnerSeat)).Single(c => c.Id == choice.Cards[0]) } :
+        var cards = choice.Cards.Count == 1 ? new[] { GetPlayableCards(_players[f.OwnerSeat]).Concat(GetEquipment(f.OwnerSeat)).Concat(NativePublicPileOriginalUseCards(_players[f.OwnerSeat])).Single(c => c.Id == choice.Cards[0]) } :
             zhangba ? GetZhangbaSlashPairs(_players[f.OwnerSeat]).Single(p => p.Select(c => c.Id).SequenceEqual(choice.Cards)).ToArray() :
             FindProgramMultiCardViewAsSelection(_players[f.OwnerSeat], choice.Cards, kind, false, source!)?.Cards.ToArray() ?? throw new InvalidOperationException("Heji lost its real multi-material conversion.");
         var selection = new WuJingUseSelection(kind, zhangba, kind == CardKind.FireSlash && cards[0].Kind == CardKind.Slash && HasZhuqueFan(_players[f.OwnerSeat])) { CardIds = choice.Cards, Conversions = source is null ? [] : [source] };
@@ -148,7 +148,18 @@ public sealed partial class GameEngine
         if (r.Stage == WuJingStage.UseChoice) { if (_pendingDecision is null) PublishWuJing(f); return; }
         if (!DrainWuJing(f)) FinishWuJing(GetActiveProgramFrame(id), true);
     }
-    private void FinishWuJing(ProgramSkillFrame f, bool applied) { AdvanceEventRulesAndQueueFact(new WuJingCompletedEvent(f.Id, applied)); ReplaceRuntimeTop(f = f with { WuJing = null, PendingMovementContinuation = null }); FinishProgramSkill(f, applied); }
+    private void FinishWuJing(ProgramSkillFrame f, bool applied)
+    {
+        if (f.HuanpeiReturn is { } huanpei && (f.WuJing is not { Stage: WuJingStage.NativeChildren, NativeCompleted: true, NativeOrigin: { } huanpeiNative } ||
+            huanpeiNative.UseId != huanpei.UseId || !huanpei.Returned))
+            throw new InvalidOperationException("Heji cannot release Huanpei before all native children returned.");
+        if (f.ZonghuReturn is { } zonghu && (f.WuJing is not { Stage: WuJingStage.NativeChildren, NativeCompleted: true, NativeOrigin: { } origin } ||
+            origin.UseId != zonghu.UseId || !zonghu.Returned))
+            throw new InvalidOperationException("Heji cannot release its exact paid Zonghu lease before all native children returned.");
+        AdvanceEventRulesAndQueueFact(new WuJingCompletedEvent(f.Id, applied));
+        ReplaceRuntimeTop(f = f with { WuJing = null, ZonghuReturn = null, HuanpeiReturn = null, PendingMovementContinuation = null });
+        FinishProgramSkill(f, applied);
+    }
     [ProgramContinuation(ProgramContinuationKind.Resume, 27130)] private bool ResumeWuJing(long id) { if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { WuJing: not null } f || f.Id != id) return false; ContinueWuJing(id); return true; }
     [ProgramContinuation(ProgramContinuationKind.Movement, 27130)] private bool ReturnWuJingMovement(ProgramSkillFrame f) { if (f.WuJing is null) return false; ContinueWuJing(f.Id); return true; }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27130)] [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27130)]

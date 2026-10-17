@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-zhang",
+  "skills": [
+    {
+      "registrationOrder": 2050,
+      "programBundle": "ol-liu-zhang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fengwei",
+        "name": "丰蔚",
+        "description": "锁定技，每轮开始时，你摸至多五张牌。若你手牌中有本轮以此法获得的牌，你跳过摸牌阶段；当你受到牌造成的伤害时，若手牌中有本轮以此法获得的牌，此伤害+1。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2051,
+      "programBundle": "ol-liu-zhang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zonghu",
+        "name": "宗护",
+        "description": "每回合限一次，当你需要使用【杀】或【闪】时，你可将X张牌交给一名其他角色，然后视为你使用之（X为游戏轮数且至多为3）。",
+        "actionForms": "Active",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2052,
+      "pools": {
+        "current": 479
+      },
+      "definition": {
+        "id": "ol:liu-zhang",
+        "name": "刘璋",
+        "portraitKey": "ol-liu-zhang",
+        "skillId": "ol:fengwei",
+        "additionalSkillIds": [
+          "ol:zonghu"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:liu-zhang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

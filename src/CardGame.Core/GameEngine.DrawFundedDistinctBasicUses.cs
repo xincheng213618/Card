@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private void ExecuteDrawFundedDistinctBasicPaid(DrawFundedDistinctBasicFrame frame)
     {
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat]; var kind = p.EffectiveKind; var card = new Card(0, kind, Suit.None, 0);
+        if (p.Intent == DrawFundedDistinctBasicIntent.WenyiPeach) { ExecuteWenyiDrawFundedPeach(frame); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.OwnSlashDodge) { ResolveDrawFundedDistinctBasicDodge(p); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.Dying)
         {
@@ -59,6 +60,8 @@ public sealed partial class GameEngine
         if (IsCaoChunInitialRequest(parent))
         { PrepareCaoChunDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;
+        if (IsSayingSlashRequest(parent))
+        { PrepareSayingSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,kind,[],p.Source); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         if (IsChanshuangSlashRequest(parent))
         { PrepareChanshuangSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,kind,[],p.Source); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         if (p.Intent == DrawFundedDistinctBasicIntent.ProgramSlash)

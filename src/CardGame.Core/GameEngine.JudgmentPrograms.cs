@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -366,6 +366,7 @@ public sealed partial class GameEngine
         resolvingProgram |= IsExactChouceFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactDamageJudgmentSuitPaymentFinalizedSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactBinghuoFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactNingwuFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         if (pending is null || (frame.ZhenyiBeforeResult == true ? pending.ZhenyiBeforeResultCompleted == true || pending.Succeeded is not null : pending.Succeeded is null) ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||

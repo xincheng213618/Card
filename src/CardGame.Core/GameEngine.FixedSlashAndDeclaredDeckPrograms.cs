@@ -61,7 +61,7 @@ public sealed partial class GameEngine
                     [card.Id], [target.Seat], p));
             }
         }
-        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).DistinctBy(card => card.Id))
+        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Concat(NativePublicPileSlashUseCards(actor)).DistinctBy(card => card.Id))
         foreach (var kind in SlashKinds.Where(kind => kind != CardKind.Slash))
         foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
         {
@@ -79,7 +79,7 @@ public sealed partial class GameEngine
         }
         foreach (var kind in SlashKinds)
         foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
-                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
+                     .Where(item => ViewAsRule(item.Source) is { RoundDistinctBasicUse: null, LeiluanBasicUse: null } || item.OutputKind == kind))
         {
             if (!PaymentRange(selection.Cards) || !Legal(selection.Cards[0], kind, selection.Source, selection.Cards.Count > 1, materials:selection.Cards.Select(c=>c.Id).ToArray())) continue;
             var p = Parameters("use"); p["effective-kind"] = kind.ToString(); AddConversionParameters(p, selection.Source);
@@ -111,7 +111,8 @@ public sealed partial class GameEngine
         var kind = Enum.Parse<CardKind>(selected.Parameters["effective-kind"]);
         IReadOnlyList<Card> cards;
         CardConversionSource? conversion;
-        if (selected.Cards.Count > 1)
+        if (selected.Cards.Count > 1 || TryReadConversionSource(selected.Parameters, out var selectedSource) &&
+            IsLeiluanSource(selectedSource))
         {
             if (selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString())
             { cards = GetZhangbaSlashPairs(actor).Single(pair => pair.Select(card => card.Id).SequenceEqual(selected.Cards)); conversion = null; }
@@ -125,7 +126,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(card => card.Id == selected.Cards.Single());
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Concat(NativePublicPileSlashUseCards(actor)).Single(card => card.Id == selected.Cards.Single());
             TryReadConversionSource(selected.Parameters, out _selectedUseConversion); _hasSelectedUseConversionChoice = true;
             conversion = GetSelectedUseConversion(actor, actor, card, kind);
             if (conversion is null) { _selectedUseConversion = null; _hasSelectedUseConversionChoice = true; }
@@ -357,7 +358,7 @@ public sealed partial class GameEngine
             frame.DeckCriterion is { Stage: "declare" } ? DeclaredDeckCriterionChoices(frame) :
             frame.DeckCriterion is { Stage: "recipient" } ? DeclaredDeckRecipientChoices(frame) : null;
         if (expected is not null && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p ||
-            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(KenshangProgramNativeDecision(WeijieNativeDecision(p)).Choices, expected)))
+            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(KenshangProgramNativeDecision(ZonghuNativeDecision(WeijieNativeDecision(p))).Choices, expected)))
             throw new InvalidOperationException("Fixed Slash or declared deck lost its canonical private prompt.");
     }
 }

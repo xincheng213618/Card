@@ -1,0 +1,625 @@
+{
+  "generalId": "ol:zhao-zhong",
+  "officialHeroId": 702,
+  "capturedAtUtc": "2026-10-17T11:56:36.098814+00:00",
+  "ruleset": "sanguosha-ol",
+  "variant": "ordinary-current",
+  "status": "implemented-and-verified",
+  "identity": {
+    "name": "赵忠",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "officialHeroUrl": "https://www.sanguosha.com/hero/702",
+  "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=702",
+  "officialAvailability": {
+    "announcementUrl": "https://www.sanguosha.com/news/20250722_9134_0814",
+    "announcementTitle": "7.26-8.2 中伏许愿潘淑、曹纯返场 赵忠商城直购 绚舞剑鸿*灵雎上新",
+    "publishedAtLocal": "2025-07-25T17:02:21+08:00",
+    "formalAcquisitionFromLocal": "2025-07-26T00:15:00+08:00",
+    "formalAcquisitionUntilLocal": "2025-08-03T00:00:00+08:00",
+    "originalUntilText": "2025-8-2 24:00:00",
+    "acquisition": "商城直购活动获得。",
+    "evidence": "新品武将 赵忠 (查看原图) 势力 体力 性别 武将特点 群 3 男 可以分配强势技能给队友。关注场上的连环状态，可以为技能创造更大收益。 技能 【朋比】：你首个回合开始时，你选择获得“隐天”“蔽日”中的一个技能，然后可令一名其他角色获得另一个技能。 *【隐天】：锁定技，每回合首次有角色回复体力后，你下次造成的伤害+1（无法叠加）。 *【蔽日】：锁定技，每回合首次有角色不因摸牌获得牌后，你摸一张牌。 【抵慈】：出牌阶段限一次，你可以令一名角色交给你一张手牌，然后其回复1点体力并解除连环状态，其相邻角色进入连环状态。“抵慈”角色下次进入连环状态后，其选择：1.交给你一张手牌；2.你对其造成1点雷电伤害。 获取 2025-7-26 00:15:00~2025-8-2 24:00:00，商城直购活动获得。 "
+  },
+  "sources": [
+    {
+      "id": "currentHero",
+      "url": "https://www.sanguosha.com/hero/702",
+      "finalUrl": "https://www.sanguosha.com/hero/702",
+      "capturedAtUtc": "2026-10-17T11:56:35.989163+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 24395,
+      "sha256": "5931b86e410963e3f09a250dc278f11609716cea9506f783b7da658fe1e0f838",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "rulesExcerpt": "武将技能： 朋比 抵慈 你首个回合开始时，你选择获得“ 隐天 ”“ 蔽日 ”中的一个技能，然后可令一名其他角色获得另一个技能。 出牌阶段限一次，你可以令一名角色交给你一张手牌，然后其回复1点体力并解除连环状态，其相邻角色进入连环状态。 “抵慈”角色下次进入连环状态后，其选择： 1.交给你一张手牌； 2.你对其造成1点雷电伤害。 "
+    },
+    {
+      "id": "currentIdentityApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=702",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=702",
+      "capturedAtUtc": "2026-10-17T11:56:35.955733+00:00",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 1073,
+      "sha256": "6adc950e5dff780e470d5914bf181a76ea08562a598fd1a30c966d4e25aaa4d3",
+      "rawCopyCreated": false,
+      "authority": "official-primary",
+      "payload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 702,
+              "name": "赵忠",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/702.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+              "label": [
+                "进攻",
+                "控制",
+                "过牌"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "安平人，是汉灵帝刘宏最为宠信的宦官之一。曾参与诛杀专权的梁冀。履任小黄门、中常侍、大长秋、车骑将军。灵帝曾说“张常侍是我公，赵常侍是我母。”参与诛杀何进，何进死后，被袁绍等诛杀。小说《三国演义》中，赵忠与张让等十人，共同被称呼为“十常侍”。",
+              "characteristic": "可以分配强势技能给队友。关注场上的连环状态，可以为技能创造更大收益。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 8
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "id": "formalOlAnnouncement",
+      "url": "https://www.sanguosha.com/news/20250722_9134_0814",
+      "finalUrl": "https://www.sanguosha.com/news/20250722_9134_0814",
+      "capturedAtUtc": "2026-10-17T11:56:35.948430+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 327812,
+      "sha256": "d2aebdcb3f6955ab15e1c82ec7ef2ca0e77ac19b58a5954fc207f757aa6bac5d",
+      "rawCopyCreated": false,
+      "authority": "official-primary"
+    },
+    {
+      "id": "differentAnniversaryEdition",
+      "url": "https://www.sanguosha.com/news/20210419_5129_3318",
+      "finalUrl": "https://www.sanguosha.com/news/20210419_5129_3318",
+      "capturedAtUtc": "2026-10-17T11:56:35.973839+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 196008,
+      "sha256": "4564b541dd51fdbe450c34243228b3a70574187951b08d8279a78bcf6dafbaf7",
+      "rawCopyCreated": false,
+      "authority": "official-primary-different-product-exclusion"
+    },
+    {
+      "id": "officialTurnTimingTerminology",
+      "url": "https://www.sanguosha.com/news/20180904_6727_5616",
+      "finalUrl": "https://www.sanguosha.com/news/20180904_6727_5616",
+      "title": "[萌新引导] 三国杀术语大科普 - 三国杀OL官网",
+      "publishedAtLocal": "2018-09-04T17:02:42+08:00",
+      "capturedAtUtc": "2026-10-17T12:34:31.7139824Z",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 46452,
+      "sha256": "06b61365199cdb975b9420be9f53cebc4b511efdc8259a30fc249ff0ea24d649",
+      "rawCopyCreated": false,
+      "authority": "official-site-hosted-community-guide",
+      "attribution": "Community author 土豆兽; hosted on the 三国杀OL official site. The article states that terminology is not clearly defined officially and that its descriptions may be imperfect.",
+      "rulesExcerpt": "当一名角色的回合即将开始时，若其武将牌处于背面朝上的状态，则将之翻转至正面朝上，然后跳过该角色的这一回合。",
+      "scope": "Supporting terminology evidence for the general face-down skip timing, not an official ruling or a Pengbi FAQ. It does not redefine this project's internal TurnStartedEvent scheduling fact."
+    },
+    {
+      "id": "officialPortrait",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+      "capturedAtUtc": "2026-10-17T11:56:35.994255+00:00",
+      "httpStatus": 200,
+      "contentType": "image/png",
+      "bytes": 1116406,
+      "sha256": "b1261a19f54562e1ae1d933c974902934e201570412574caea86ff19534c1f45",
+      "rawCopyCreated": false,
+      "authority": "official-primary"
+    }
+  ],
+  "currentRules": [
+    {
+      "clientSkillId": 3687,
+      "name": "朋比",
+      "clientClass": "PengBi",
+      "derivedFromClientSkillId": null,
+      "text": "你首个回合开始时，你选择获得“隐天”“蔽日”中的一个技能，然后可令一名其他角色获得另一个技能。",
+      "authority": "current hero, formal OL announcement and current public client"
+    },
+    {
+      "clientSkillId": 3688,
+      "name": "抵慈",
+      "clientClass": "DiCi",
+      "derivedFromClientSkillId": null,
+      "text": "出牌阶段限一次，你可以令一名角色交给你一张手牌，然后其回复1点体力并解除连环状态，其相邻角色进入连环状态。\n“抵慈”角色下次进入连环状态后，其选择：\n 1.交给你一张手牌；\n 2.你对其造成1点雷电伤害。",
+      "authority": "current hero, formal OL announcement and current public client"
+    },
+    {
+      "clientSkillId": 3689,
+      "name": "隐天",
+      "clientClass": "YinTian",
+      "derivedFromClientSkillId": 3687,
+      "text": "锁定技，每回合首次有角色回复体力后，你下次造成的伤害+1（无法叠加）。",
+      "authority": "formal OL announcement and current public client linked definitions"
+    },
+    {
+      "clientSkillId": 3690,
+      "name": "蔽日",
+      "clientClass": "BiRi2",
+      "derivedFromClientSkillId": 3687,
+      "text": "锁定技，每回合首次有角色不因摸牌获得牌后，你摸一张牌。",
+      "authority": "formal OL announcement and current public client linked definitions"
+    }
+  ],
+  "sourceHierarchy": {
+    "identity": "Current hero 702, identity API and formal OL announcement independently agree on Qun / male / 3 HP.",
+    "mainRules": "The current hero and public client contain Pengbi and Dici. Linked client skills 3689/3690 and the formal OL announcement supply the complete Yintian/Biri rules. The derived skills are mandatory implementation scope, not optional omissions.",
+    "formalAvailability": "The 2025-07-25 ordinary OL announcement explicitly opens acquisition on 2025-07-26. A configuration q value or frontend registration is not used as the release date.",
+    "clientLimits": "Public frontend selectors establish actual published UI admission and display behavior, not authenticated server adjudication. DATA_DICI showing 0/1 does not settle whether multiple independent obligations stack.",
+    "faqLimit": "No dedicated official FAQ or authenticated server replay was obtained for the edge interpretations below. Their status remains explicit and pending root review and behavior validation."
+  },
+  "publicClient": {
+    "sourceRole": "official-public-client-configuration-and-frontend-only",
+    "network": [
+      {
+        "id": "publicClientBundle",
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T11:56:36.098814+00:00",
+        "httpStatus": 200,
+        "contentType": "application/octet-stream",
+        "bytes": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "rawCopyCreated": false
+      },
+      {
+        "id": "publicClientConfig",
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T11:56:36.038963+00:00",
+        "httpStatus": 200,
+        "contentType": "application/octet-stream",
+        "bytes": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "rawCopyCreated": false
+      }
+    ],
+    "bundleScriptMember": "sgsGame_a.sgs",
+    "bundleScriptSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "decoder": "Public InitOfb AES-CFB128 followed by gzip; fresh HTTP bytes decoded in memory. No new raw bundle/config copies were retained.",
+    "members": {
+      "character.sgs": {
+        "bytes": 352981,
+        "sha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "bytes": 247028,
+        "sha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "characterRowIndex": 1396,
+    "characterRow": {
+      "a": 702,
+      "b": "赵忠",
+      "d": "ZhaoZhong",
+      "e": 44,
+      "f": "47",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 3687,
+      "k": 3688,
+      "p": 2,
+      "q": "1",
+      "r": "9070201",
+      "y": "安平人，是汉灵帝刘宏最为宠信的宦官之一。曾参与诛杀专权的梁冀。履任小黄门、中常侍、大长秋、车骑将军。灵帝曾说“张常侍是我公，赵常侍是我母。”参与诛杀何进，何进死后，被袁绍等诛杀。小说《三国演义》中，赵忠与张让等十人，共同被称呼为“十常侍”。",
+      "z": "可以分配强势技能给队友。关注场上的连环状态，可以为技能创造更大收益。",
+      "aa": 82,
+      "ab": "1329,1330",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20250826T000000",
+      "LordCardRate1": 29,
+      "LordCardRate2": 43,
+      "starMax": 4
+    },
+    "skillRows": [
+      {
+        "rowIndex": 2700,
+        "record": {
+          "a": 3687,
+          "b": "3,5",
+          "c": "朋比",
+          "d": "PengBi",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "m": "3689,3690",
+          "o": "你首个回合开始时，你选择获得“<font href='3689'>隐天</font>”“<font href='3690'>蔽日</font>”中的一个技能，然后可令一名其他角色获得另一个技能。",
+          "w": "请选择以下一个技能获得",
+          "v": "请选择一名其他角色获得{0}或取消"
+        }
+      },
+      {
+        "rowIndex": 2701,
+        "record": {
+          "a": 3688,
+          "b": "3",
+          "c": "抵慈",
+          "d": "DiCi",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段限一次，你可以令一名角色交给你一张手牌，然后其回复1点体力并解除连环状态，其相邻角色进入连环状态。<br>“抵慈”角色下次进入连环状态后，其选择：<br>&nbsp;1.交给你一张手牌；<br>&nbsp;2.你对其造成1点雷电伤害。",
+          "w": "请选择一张手牌交给{0};请选择一张手牌交给{0}，或点取消受到{1}的雷电伤害",
+          "v": "请选择一名角色交给你一张手牌或取消"
+        }
+      },
+      {
+        "rowIndex": 2702,
+        "record": {
+          "a": 3689,
+          "b": "3,4,5",
+          "c": "隐天",
+          "d": "YinTian",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "o": "锁定技，每回合首次有角色回复体力后，你下次造成的伤害+1（无法叠加）。"
+        }
+      },
+      {
+        "rowIndex": 2703,
+        "record": {
+          "a": 3690,
+          "b": "3,4,5",
+          "c": "蔽日",
+          "d": "BiRi2",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "o": "锁定技，每回合首次有角色不因摸牌获得牌后，你摸一张牌。"
+        }
+      }
+    ],
+    "registeredClassMappings": [
+      {
+        "name": "PengBi",
+        "className": "fdi"
+      },
+      {
+        "name": "DiCi",
+        "className": "ddi"
+      },
+      {
+        "name": "YinTian",
+        "className": "_di"
+      },
+      {
+        "name": "BiRi2",
+        "className": "cdi"
+      }
+    ],
+    "frontendEvidence": [
+      {
+        "className": "fdi",
+        "scriptUtf8Offset": 15403705,
+        "bytes": 1498,
+        "sha256": "33cef2794ede4e7288a0fb5d45ee40b4a9ca3091b939f6485c59948af8e2b368",
+        "code": "class fdi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.targetCanBeSelf=!1}NeedResponser(t){return this.flag=t?t.Type:0,this.anotherSkillID=0,t&&t.Params&&t.Type==JZi.OPT_SKILL_FLAG2&&(this.anotherSkillID=t.Params[0]||0),this.needResponser}get TargetCountMax(){return this.flag==JZi.OPT_SKILL_FLAG2?1:0}get TargetCountMin(){return this.TargetCountMax}GetResponser(t){return t&&t.Type==JZi.OPT_SKILL_FLAG1?t.Params.length>3?(this.responser||(this.responser=new HQt),this.responser):(this.responser1||(this.responser1=new Izt,this.responser1.WindowName=\"ZhouXiSkillWindow\"),this.responser1):null}get ActiveTip(){if(this.flag!=JZi.OPT_SKILL_FLAG2)return Laya.superGetter(fdi,this,\"ActiveTip\");{let t=jXt.GetInstance(this.anotherSkillID);if(t)return le.F(this.activeTip,t.Name)}}get DefensiveTip(){return this.flag==JZi.OPT_SKILL_FLAG2?this.ActiveTip:Laya.superGetter(fdi,this,\"DefensiveTip\")}GetMultiSelectDatas(t){let i,s=[],e=this.DefensiveTip;if(t&&t.Params){let e=t.Params;for(let t=0;t<e.length;t++){let h=jXt.GetInstance(e[t]);h?(i=new pAt,i.label=h.Name,i.enabled=!0,i.sendData=e[t],s.push(i)):console.error(`技能未找到：${e[t]}`)}}return{btnDatas:s,optMsg:e,isWindow:!1}}GetDefensiveSelectSeatContext(t,i=null){if(i&&i.Type==JZi.OPT_SKILL_FLAG2){let t=new Jf;return t.TargetSelector=this.TargetSelector,t.SelectCountMin=t.SelectCountMax=1,t.Skill=this,t}return null}Use(t,i,s=null,e=0){this.flag==JZi.OPT_SKILL_FLAG2&&d1t.SendRoleSpellOptRep(this.Seat.Index,this.ID,i)}}",
+        "sourceRole": "Frontend behavior only; not server FAQ"
+      },
+      {
+        "className": "ddi",
+        "scriptUtf8Offset": 15402540,
+        "bytes": 1165,
+        "sha256": "24164fbb2d9d9d08fb4ef866ce32fe7d53b25899e88ba74f163c07d734f89c47",
+        "code": "class ddi extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE,this.targetCountMin=this.targetCountMax=1,this.targetSelector=new oYt(this),this.targetCanBeSelf=!1}get Activated(){let t=Laya.superGetter(ddi,this,\"Activated\");if(t&&this.Seat&&t){let i=D2t.Seats;if(i){t=!1;for(let s=0;s<i.length;s++)if(this.TargetSelector.IsAllowSeat(i[s])){t=!0;break}}}return t}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),i&&t.IsSpell){if(D2t.Seats&&D2t.Seats.forEach((t=>{t.UpdateState(zf.DATA_DICI,0)})),s)return;let i=t.Datas[0];if(i>0)for(let s=0;s<i;s++){let i=D2t.GetSeat(t.Datas[1+s]);i&&i.UpdateState(zf.DATA_DICI,1)}}}get DefensiveTip(){let t=this.defensiveTip.split(\";\");return this.flag==JZi.OPT_SKILL_FLAG1?t[0]:t[1]}GetDefensiveSelectCardContext(t,i=null){if(i&&(i.Type==JZi.OPT_SKILL_FLAG1||i.Type==JZi.OPT_SKILL_FLAG2)){this.flag=i.Type;let t=new dAt,s=D2t.GetSeat(i.SrcSeatID),e=s?s.HtmlName:\"\";t.Purpose=fAt.DISCARD,t.Message=le.F(this.DefensiveTip,e,e),t.Skill=this;let h=new HJt;return h.NeedSelectCount=1,h.CanCancel=i.Type==JZi.OPT_SKILL_FLAG2,h.CardUseType=Dmt.DISCARD,h.CardType=Lmt.NORMAL,t.CardSelector=h,t}return null}}",
+        "sourceRole": "Frontend behavior only; not server FAQ"
+      },
+      {
+        "className": "_di",
+        "scriptUtf8Offset": 15402374,
+        "bytes": 166,
+        "sha256": "d4a87d6adde693d054ea29f2e07c904cc34738ea5827034de021a586c394777f",
+        "code": "class _di extends BJt{constructor(){super()}UpdateRoleDataResponse(t,i,s=!1){super.UpdateRoleDataResponse(t,i,s),i&&!t.IsSpell&&i.UpdateState(zf.DATA_YINTIAN,s?0:1)}}",
+        "sourceRole": "Frontend behavior only; not server FAQ"
+      },
+      {
+        "className": "cdi",
+        "scriptUtf8Offset": 15402329,
+        "bytes": 45,
+        "sha256": "4ee0f3ded7abde9de97477712fe92773b38d07aa290967eb07b54137375415a5",
+        "code": "class cdi extends BJt{constructor(){super()}}",
+        "sourceRole": "Frontend behavior only; not server FAQ"
+      }
+    ],
+    "diciTargetSelector": {
+      "className": "oYt",
+      "scriptUtf8Offset": 8222585,
+      "bytes": 160,
+      "sha256": "c425902db331df335f78046e2c3a43a10b0700d750a371acc6f0a2bcb687175b",
+      "code": "class oYt extends Zf{constructor(t){super(t)}IsAllowSeat(t){let i=super.IsAllowSeat(t);if(i){let s=Lmt.NORMAL;i=this.CheckTargetSelectByCardType(s,t)}return i}}"
+    },
+    "diciTargetSelectorBaseProofs": [
+      {
+        "term": "TargetCanBeSelf",
+        "scriptUtf8Offset": 933782,
+        "excerpt": "rget||t.IsSelf,i){let s=e.getSelectTargetZone();i=t.HasZone(s),i||(t.UnSelectReason=zz.GetNoZoneType(s))}if(i&&(i=null!=s&&s.getCanSelectAsTarget(e,t)),i&&0==e.TargetCanBeSelf&&t.IsSelf&&(i=!1),i&&s){if(!this.ignoreRangeLimit){let h=e.IsNormalCardSkill&&Qf.I().IsTraitOutOfTurnRangeCard(s,e.SkillCard);!h&&e.AreRangeLimit&&0==s.IsInAttackRange(t,!1,e)&&this.igoreDistanceSeatIndex!=t.Index&&(t.UnSelectReason=zz.NO_DISTANCE,i=!1);let r=!h&&e.AreDistanceLimit;if(s.GetStateIsEffectOpen(zf.DATA_TuiShi2023)&&e.IsEffectByTuiShi2023&&s.HandCardCount>t.HandCardCount&&(r=!1,i=!0),s.HasActivatedGeneralSkill(ymt.JIAOWEI)){let e=this.skill.SkillCard?this.skill.SkillCard.FlowerOnSeat:oj.None;s.HandCardCount>s.Hp&&s.Hp>=t.Hp&&(e==oj"
+      },
+      {
+        "term": "CheckTargetSelectByCardType",
+        "scriptUtf8Offset": 940001,
+        "excerpt": ".Seat&&(h.Seat.Index!=this.Seat.Index||e)&&h.IsEffect(this.Skill,s)&&(!s||s.Index!=h.Seat.Index)&&(i=t.Index==h.Seat.Index,s&&(i=i||t.Index==s.Index))}return i}CheckTargetSelectByCardType(t=0,i){let s=!0;if(!i)return s;let e=0,h=0;return t&Lmt.NORMAL&&(e++,h+=i.HandCardCount),t&Lmt.EQUIP&&(e++,h+=i.EquipCardCount),t&Lmt.DECIDE&&(e++,h+=i.JudgeCardCount),h<=0&&(s=!1,e>1?i.UnSelectReason=zz.NO_CARDS:t&Lmt.NORMAL?i.UnSelectReason=zz.NO_HAND_CARDS:t&Lmt.EQUIP?i.UnSelectReason=zz.NO_EQUIP_CARDS:t&Lmt.DECIDE&&(i.UnSelectReason=zz.NO_JUDGE_CARDS)),s}setSeatNoZone(t,i){t&&i&&i.EquipCards&&i.EquipCards.breakForEach((i=>{switch(i.FirstSkill.Type){case mmt.WEAPON:return t.IsAbolishedWeapon&&(t.UnSelectReason=zz.NO_WEAPON_ZONE),!0;case mmt"
+      }
+    ]
+  },
+  "editionExclusions": [
+    {
+      "product": "三国杀十周年",
+      "url": "https://www.sanguosha.com/news/20210419_5129_3318",
+      "publishedAtLocal": "2021-04-23T19:01:55+08:00",
+      "identity": {
+        "name": "赵忠",
+        "factionId": "qun",
+        "gender": "Male",
+        "baseHp": 6
+      },
+      "skills": [
+        "殃众",
+        "惶恐"
+      ],
+      "evidence": "新品武将 画师：MUMU 势力 体力 性别 称号 扩展包 出现模式 定位 群 6 男 骄纵窃幸 戚宦之争 身份模式、欢乐成双 控制、爆发 生平 赵忠（？—189年），安平人，东汉末年宦官，赵延之兄。桓帝、灵帝时，历为小黄门、中常侍、大长秋、车骑将军等职，封都乡侯。在职时以搜刮暴敛、骄纵贪婪见称，灵帝极为宠信，常谓“赵常侍是我母”。中平六年（189年），何进谋诛宦官，事泄，他和其余几个常侍设计伏杀何进，袁绍、袁术等人闻何进被杀，入宫杀尽宦官，后捕杀赵忠。 技能 【殃众】当你造成伤害后，你可以弃置两张牌，然后受伤角色失去1点体力；当你受到伤害后，伤害来源可以弃置两张牌，然后你失去1点体力。 【惶恐】锁定技，你的回合外，当你成为【杀】或伤害类锦囊牌的唯一目标后，若你没有手牌，你摸两张牌。 获得方式： 1、本期新品武将赵忠，可通过充值活动领取。 2、参与谷雨热力活动，全民热力值达到600W后可领取。 3、参与每日活跃/商城购买获得赵忠宝箱，有概率直接 获得。 ",
+      "conclusion": "This is a different product and rule set. Its six-HP identity, skills, equipment art or acquisition evidence must not replace ordinary OL hero 702."
+    }
+  ],
+  "documentedDifferences": [
+    {
+      "id": "dici-self-target",
+      "currentOfficialText": "一名角色",
+      "currentClientEvidence": "DiCi ddi sets targetCanBeSelf=false and uses oYt. oYt calls base Zf, which rejects a self seat when TargetCanBeSelf is false, then checks at least one NORMAL Hand card.",
+      "conclusion": "The actual current frontend restricts initial Dici to another living role with a Hand card. The official prose does not explicitly say other. Preserve both facts; adopting the current UI restriction is an implementation interpretation, not a quoted FAQ.",
+      "runtimeDecision": "Adopt current frontend admission: another living role with a true Hand card. Menu, AI and submission share the same target policy; empty-Hand forged input is rejected without spending quota."
+    },
+    {
+      "id": "dici-state-display-not-stack-proof",
+      "currentClientEvidence": "ddi.UpdateRoleDataResponse clears DATA_DICI for all seats, then marks each seat in the server-supplied list as 1.",
+      "conclusion": "This only proves a boolean visual mark per target. It does not prove replacement, merged or stacked server obligations.",
+      "runtimeDecision": "Freeze the living native seat neighbors after recovery/unlink children have drained. Each activation has an independent lease with original issuer, recipient, source instance, hash and issuance ordinal; settle due leases in issuance order across issuers. Same-issuer overlap in two actual Play phases of one turn is exercised. This is an explicit implementation contract: the listed official text and boolean frontend mark do not independently adjudicate multi-issuer stacking or its order."
+    }
+  ],
+  "implementationInterpretations": [
+    {
+      "id": "first-own-actual-turn",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Pengbi is tied to this general's first actual turn that genuinely reaches the native TurnStartBeforeNormalFlow start window, including a genuine extra turn if it is the first such turn. The engine emits its internal TurnStartedEvent before checking face-down state; that scheduling event alone is not the rule's start timing. A face-down scheduled turn flips up and skips before the normal start window, so it neither executes Pengbi nor consumes the first normal-start opportunity. Native Preparation entries are grouped by distinct actual turn and owner to identify the first normal start without treating an inserted Play phase as a new turn. A new round alone, setup or loss/regrant does not create another first-own-turn entitlement, and acquiring Pengbi after an earlier normal own start does not create a retroactive first start. This is an implementation interpretation of the literal skill and this project's native timing contract, supported by the official-site-hosted community terminology article rather than an official ruling or dedicated Pengbi FAQ. The source has no duration for a granted derived skill; it is not made turn-limited.",
+      "timingSource": "officialTurnTimingTerminology",
+      "runtimeDecision": "Implemented and exercised both permanent-grant directions, optional skip, real SkillsChanged child, source loss/regrant, first extra turn and face-down first scheduled-turn skip. No second entitlement is created by an inserted phase or later own start."
+    },
+    {
+      "id": "actual-turn-first-global-event",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Capture the genuine first positive recovery and actual non-draw Hand acquisition even when no holder exists. Freeze the holders at the producer; later acquisition cannot retroclaim a second event in that actual turn."
+    },
+    {
+      "id": "actual-positive-recovery",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Only positive native Recovery changes qualify; a full-HP zero result does not. Dici still completes its unlink and neighbor effects after a zero result."
+    },
+    {
+      "id": "yintian-next-damage",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Keep at most one issued charge per owner across turns and source loss. Consume only on positive native DamageAppliedEvent; prevented zero damage retains it. Use the common native Card/Program/Judgment damage finalizer with original-source transfer identity. An increment on the first chained target is inherited normally; a new charge on a later chained target is locally rebased before the next recipient. Representative physical Slash, sequential Program instructions with an initially prevented attempt, transfer and three-target chain are exercised; no dedicated Judgment scenario is claimed."
+    },
+    {
+      "id": "biri-draw-provenance",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Use a unique validated native draw invoice plus its physical materials and exact sequence interval. A chosen DrawPile obtain and Zenrun replacement Hand gain qualify as non-draw gains; their genuine compensation draws do not. Equipment placement is not a Hand gain. The issued native Draw1 and its actual replacement outcomes drain through their typed owner."
+    },
+    {
+      "id": "dici-real-hand-gift",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Publish and revalidate only another living donor with a true Hand card using the shared operation legality policy. The donor chooses its own physical entity privately. Drain the gift, Recovery1, unlink and each native neighbor-state child in order; positive recovery is not a prerequisite."
+    },
+    {
+      "id": "dici-next-chain",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Issue each delayed obligation only after the initial Dici effects finish. It waits for the marked target's next actual false-to-true chained transition, with no turn-end expiration. Source loss does not revoke it; a started lease is consumed once and cannot be retriggered by a later entry or an already-true no-op."
+    },
+    {
+      "id": "dici-neighbors-and-overlap",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Freeze the living native seat neighbors after recovery/unlink children have drained. Each activation has an independent lease with original issuer, recipient, source instance, hash and issuance ordinal; settle due leases in issuance order across issuers. Same-issuer overlap in two actual Play phases of one turn is exercised. This is an explicit implementation contract: the listed official text and boolean frontend mark do not independently adjudicate multi-issuer stacking or its order."
+    },
+    {
+      "id": "paid-loss-death",
+      "status": "explicit-implementation-contract-verified",
+      "text": "Paid children continue exactly once across loss and cold restore. Issuer death preserves an already-issued obligation and the original source of its native thunder damage; a dead issuer cannot receive a new gift. Marked-target death cancels an unstarted obligation. Representative actual issuer death, target death and conditional-HP source loss are exercised."
+    }
+  ],
+  "mechanismAssessment": {
+    "status": "implemented-with-native-frame-owned-operations",
+    "alreadyAvailable": [
+      {
+        "capability": "Owned and other-role skill grants",
+        "nativeExamples": [
+          "SkillProgramEffectOp.GrantSkills",
+          "SkillRuntimeState / skill-instance sources"
+        ]
+      },
+      {
+        "capability": "Actual Hand gift, positive recovery and full HP children",
+        "nativeExamples": [
+          "existing Hand movement payment receipts",
+          "SkillProgramEffectOp.Recover",
+          "RecoveryAppliedEvent",
+          "SkillProgramTriggerWindow.AfterHpRecovered"
+        ]
+      },
+      {
+        "capability": "Native chained state and thunder damage",
+        "nativeExamples": [
+          "SkillProgramEffectOp.SetChainedState",
+          "IronChainStateChangedEvent",
+          "native DamageNature.Thunder resolution and chain/death children"
+        ]
+      },
+      {
+        "capability": "Actual draw and non-draw-gain provenance",
+        "nativeExamples": [
+          "CardMovementBatchContext.NativeDrawInvocation",
+          "NativeDrawInvocationRecordedEvent",
+          "NativeDrawOutcome.ActualDrawIds / ReplacementGainedIds",
+          "BeginOperationProgramDraw and ProgramNativeDrawReturn"
+        ]
+      },
+      {
+        "capability": "Paid continuation and cold restore",
+        "nativeExamples": [
+          "own ProgramSkillFrame nullable receipt",
+          "standard movement/recovery/damage/dying observer gates and typed parent returns"
+        ]
+      }
+    ],
+    "newCharacterSpecificWork": [
+      "Pengbi first-own-actual-turn grant and two distinct derived-skill source identities, including donor cancellation of the optional second grant.",
+      "Yintian first actual recovery qualification, non-stacking issued next-damage entitlement and exact native damage consumption.",
+      "Biri first genuine non-draw gain qualification per actual turn; ensure its own Draw1 cannot recursively qualify as a non-draw gain.",
+      "Dici real Hand gift controller plus issued next-chain obligation and native false-to-true chain-state callback. The existing generic trigger list is not claimed to contain a complete next-chain controller.",
+      "Exact source/issuer/recipient/cursor proof for the delayed Dici choice and fully drained native payment, recovery, chain and thunder-damage children."
+    ],
+    "notRequiredForThisCandidate": "No new all-basic request/provider framework or new equipment entity family is required by these four rules."
+  },
+  "art": {
+    "id": "officialPortrait",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+    "capturedAtUtc": "2026-10-17T11:56:35.994255+00:00",
+    "httpStatus": 200,
+    "contentType": "image/png",
+    "bytes": 1116406,
+    "sha256": "b1261a19f54562e1ae1d933c974902934e201570412574caea86ff19534c1f45",
+    "rawCopyCreated": false,
+    "sourcePage": "https://www.sanguosha.com/hero/702",
+    "portraitKey": "ol-zhao-zhong",
+    "skinId": 70200,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhao-zhong.png",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70200.png",
+    "imageType": "PNG",
+    "originalImageVisuallyInspected": true,
+    "inspectionDetail": "Original 750x950 official PNG inspected: court official in gold and black attire holding an orange-red bird, another courtier carrying a gold tray behind him; complete portrait, no local crop, redraw or re-encoding. Gallery top and skills-bottom renders inspected; both derived skill descriptions and the complete Dici text are visible.",
+    "derivation": "Unmodified response bytes from current hero 702 cover URL.",
+    "validationStatus": "registered-and-gallery-verified"
+  },
+  "verification": {
+    "sourceAndIdentityFreshHttpVerified": true,
+    "officialAvailabilityVerified": true,
+    "currentClientFourSkillsVerified": true,
+    "sourceAgentRanBuild": false,
+    "sourceAgentRanTests": false,
+    "focusedCorePassed": true,
+    "focusedWpfPassed": true,
+    "routinePassed": true,
+    "scope": "Four new behavior groups plus sixteen related Core checks and two WPF gallery checks. Ordinary-content routine and main-workspace focused integration passed. Private prompts, actual physical payments, frame-owned native children, cold replay parity and representative loss/death boundaries are covered. Explicit implementation interpretations remain distinguished from official FAQ authority.",
+    "noDedicatedOfficialFaqClaimed": true,
+    "runtimeImplemented": true,
+    "registered": true,
+    "galleryRegistered": true,
+    "focusedCoreChecks": 4,
+    "relatedCoreChecks": 16,
+    "focusedWpfChecks": 2,
+    "routineCoreChecks": 148,
+    "routineWpfChecks": 28,
+    "routineDurationMs": 54725,
+    "mainIntegrationPassed": true,
+    "mainIntegrationCoreChecks": 5,
+    "mainIntegrationWpfChecks": 2,
+    "mainIntegrationDurationMs": 49096,
+    "manualFullRun": false,
+    "publishPackagingOrPush": false
+  },
+  "focusedBehaviorGroups": [
+    {
+      "name": "PengbiFirstActualTurnAndDerivedGrants",
+      "behaviors": [
+        "Both skill-selection directions and optional other-recipient cancellation.",
+        "Actual first turn versus inserted phase/extra turn, skill loss/regrant and exactly-once grant.",
+        "Cold restore before selection, after own grant and before optional recipient grant; no duplicate skill-source instance."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "YintianFirstRecoveryAndNonstackingNextDamage",
+      "behaviors": [
+        "First real positive recovery by any role; zero actual recovery and later recovery in the same actual turn are negative boundaries.",
+        "Pending +1 survives a turn return, cannot stack, then applies to exactly one native damage event.",
+        "Representative prevented/changed damage and paid loss/death cold boundary chosen after root fixes the consumption contract."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "BiriGenuineGainVersusDraw",
+      "behaviors": [
+        "Actual draw including recast draw does not trigger; a real foreign Hand gift does.",
+        "A selected DrawPile obtain and a draw replacement remain distinguished by structured native proof.",
+        "Only one first gain per actual turn, own Draw1 does not recurse, and Cold during the issued draw/recovery children."
+      ],
+      "status": "representative-behavior-check-passed"
+    },
+    {
+      "name": "DiciHandGiftAndNextChainLease",
+      "behaviors": [
+        "Real donor-selected Hand payment and invalid self/empty-Hand/equipment-cost rejection according to the current UI contract.",
+        "Recover then unlink then link living neighbors; preserve every native Lion/Ox, HP and chained-damage child that actually occurs.",
+        "Next real unchained-to-chained transition offers donor Hand1 versus thunder1; no retrigger from an already-chained no-op.",
+        "Representative issuer source-loss/death and target death/cold behavior; exercise overlap only after the explicit root decision."
+      ],
+      "status": "representative-behavior-check-passed"
+    }
+  ]
+}

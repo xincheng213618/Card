@@ -8,11 +8,12 @@ public sealed partial class GameEngine
         int before, int after, HpChangeKind kind)
     {
         ObserveDongBaiHpDecreased(targetSeat,before,after);
-        var amount = kind == HpChangeKind.Loss ? before - after : after - before;
+        var amount = kind == HpChangeKind.Setting ? Math.Abs(after - before) : kind == HpChangeKind.Loss ? before - after : after - before;
         if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return;
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
             kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
         _pendingHpChanges.Add(change);
+        CaptureYintianRecoveryQualification(change);
         CaptureQimeiHpQualification(change);
         CaptureXianfuRecoveryQualification(change);
         CaptureDianhuRecoveryQualification(change);
@@ -39,10 +40,10 @@ public sealed partial class GameEngine
             };
             var registered = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
-                .Where(candidate => !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
+                .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
                     !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) &&
                     !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)))
-                .Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change))
+                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change))
                 .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).ToArray();
             if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
@@ -59,7 +60,11 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
+            var contexts = candidates.Select(candidate => IsYintianRecoveryTrigger(GetProgramTrigger(candidate))
+                ? CreateYintianRecoveryContext(change, candidate)
+                : IsWenyiHpTrigger(GetProgramTrigger(candidate))
+                ? CreateWenyiHpContext(change, candidate)
+                : IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
                 ? CreateQimeiHpContext(change, candidate)
                 : IsXianfuEchoTrigger(GetProgramTrigger(candidate)) ? CreateXianfuHpContext(change, candidate)
                 : IsDianhuDrawTrigger(GetProgramTrigger(candidate)) ? CreateDianhuHpContext(change, candidate)
@@ -117,6 +122,9 @@ public sealed partial class GameEngine
         if (TryBeginHpChangedProgramWindow(frame.ResumeFrameId, frame.Continuation, frame.CardId, frame.CardKind)) return;
         switch (frame.Continuation)
         {
+            case PostEventContinuation.WenyiDamageHealth:
+                ReturnWenyiDamageHealth(frame);
+                break;
             case PostEventContinuation.Program:
                 AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
                 break;
@@ -233,6 +241,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An HP-change window lost its frozen event or cursor.");
             var parentMatches = hp.Continuation switch
             {
+                PostEventContinuation.WenyiDamageHealth => parent is DamageFrame damage && IsWenyiDamageHealthReturn(damage, hp),
                 PostEventContinuation.Boundary => parent is null,
                 PostEventContinuation.FriendDuelResponse => parent is FriendDuelResponseFrame friend && friend.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == friend.Id && IsFriendResponseParent(friend),
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,

@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:kong-shu",
+  "skills": [
+    {
+      "registrationOrder": 2080,
+      "programBundle": "ol-kong-shu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:leiluan",
+        "name": "累卵",
+        "description": "你可以将X张牌当一张你本轮未使用过的基本牌使用（X为已连环的角色数且至少为1）。若你以此法失去最后的手牌，你摸两张牌，从本回合弃牌堆中获得一张普通锦囊牌，然后此技能失效，直到你下次受到伤害后。",
+        "actionForms": "Active",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2081,
+      "programBundle": "ol-kong-shu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fuchao",
+        "name": "覆巢",
+        "tags": "Locked",
+        "description": "锁定技，你使用基本牌后，当前回合角色进入连环状态。每轮结束时，你与已连环的角色各摸一张牌，然后已连环的角色弃置X张牌（X为已连环的角色数且至少为1）。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2082,
+      "pools": {
+        "current": 482
+      },
+      "definition": {
+        "id": "ol:kong-shu",
+        "name": "孔淑",
+        "portraitKey": "ol-kong-shu",
+        "skillId": "ol:leiluan",
+        "additionalSkillIds": [
+          "ol:fuchao"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:kong-shu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

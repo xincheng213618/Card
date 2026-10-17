@@ -24,7 +24,7 @@ public sealed partial class GameEngine
             r.DamageTargets.Any(s => !IsValidPlayerSeat(s) || s == recipient) ||
             _skillRuntimeState.GetUsage(f.OwnerSeat, f.SkillId, EquipmentDonationUsage(r.UsageId), SkillUsageScope.Game) != 1) return false;
         var instructions = ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).Instructions;
-        if (instructions.Count != 1 || instructions[0].Op != SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits ||
+        if (instructions.Count != 1 || instructions[0].Op is not (SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou) ||
             instructions[0].StateId != r.UsageId) return false;
         var history = CompleteProgramEventHistory().ToArray();
         if (history.OfType<EquipmentDonationPaidEvent>().Count(e => e.ProgramFrameId == f.Id && e.Source == r.Source &&
@@ -254,7 +254,7 @@ public sealed partial class GameEngine
     private bool IsEquipmentDonationMovement(ProgramSkillFrame f, SkillProgramEffect? paid,
         ProgramMovementContinuation pending) => pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 &&
         pending.CoverageResultBind is null &&
-        (paid?.Op == SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits &&
+        (paid?.Op is (SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou) &&
             f.EquipmentDonation is { Stage: EquipmentDonationStage.PaidMovement } && IsValidAllEquipmentDonation(f) ||
          paid?.Op == SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn &&
             f.ActualEndedEquipment is { Stage: ActualEndedTurnEquipmentStage.Moving } && IsValidActualEndedEquipment(f));

@@ -111,8 +111,12 @@ internal static class IdentitySetupChecks
         foreach (var role in new[] { Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade })
         {
             var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 5, HumanSeat = 0,
-                HumanRole = role, ModeId = KillRewardPackage.Mode, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false }, registry);
+                HumanRole = role, ModeId = KillRewardPackage.Mode, AiPolicyVersion = AiDecisionPolicy.CurrentVersion,
+                UseInteractiveSetup = true, AdvanceAfterHumanCommands = false }, registry);
             game.DriveStart();
+            Require(game.PendingDecision is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } selection &&
+                selection.ValidContentIds.Contains("fixture:kill-owner"),
+                "The dedicated killer must remain in the human's real published full-pool selection.");
             game.DriveHumanSelectGeneral("fixture:kill-owner");
             for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
             {
@@ -197,7 +201,13 @@ internal static class IdentitySetupChecks
                 "activations":[{"id":"kill","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,
                 "effects":[{"op":"damage","target":"selectedTarget","amount":5}]}]}]}
                 """, """{"schemaVersion":3,"skills":{"fixture:kill":{"name":"真实伤害","description":"实际造成致命伤害"}}}""");
-            builder.AddSkill(new("fixture:kill", "真实伤害", "实际造成致命伤害") { Program = catalog.Programs["fixture:kill"] });
+            builder.AddSkill(new("fixture:kill", "真实伤害", "实际造成致命伤害")
+            {
+                Program = catalog.Programs["fixture:kill"],
+                // The Lord drafts first. Keep this test-only activation available
+                // to the human without depending on its generic AI strength score.
+                SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => -1000000d)
+            });
             var pool = Enumerable.Range(0, 8).Select(index => index == 0 ? "fixture:kill-owner" : $"fixture:kill-other-{index}").ToArray();
             foreach (var id in pool) builder.AddGeneral(new(id, id, "supporter", id == pool[0] ? "fixture:kill" : "standard:none", "wei"));
             builder.AddDeck(new("fixture:kill-deck", "奖励牌堆", 4, 2, [new("standard:slash", 40), new("standard:dodge", 40)]));

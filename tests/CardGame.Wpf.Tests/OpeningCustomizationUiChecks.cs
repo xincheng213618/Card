@@ -62,12 +62,15 @@ internal static class OpeningCustomizationUiChecks
                 game.Events.Select(item => item.Payload).OfType<GeneralSelectedEvent>().Single().ActorSeat == lord.Seat,
                 "A non-lord human must see the already selected public lord while every remaining AI general is still unselected and hidden.");
             vm.ToggleGeneralRosterCommand.Execute(null);
-            var expectedRoster = game.ContentRegistry.Modes[game.ModeId].GeneralPoolIds!
-                .Where(id => id != lord.GeneralId).ToHashSet(StringComparer.Ordinal);
+            var modeDefinition = game.ContentRegistry.Modes[game.ModeId];
+            var lordFamily = modeDefinition.GeneralVariantGroups?.Values.FirstOrDefault(ids =>
+                ids.Contains(lord.GeneralId, StringComparer.Ordinal)) ?? [lord.GeneralId];
+            var expectedRoster = (modeDefinition.GeneralSelectionPoolIds ?? modeDefinition.GeneralPoolIds!)
+                .Except(lordFamily, StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
             Program.Assert(vm.IsCustomGeneralSelectionOpen &&
                 vm.CustomGeneralChoices.Select(choice => choice.GeneralId).ToHashSet(StringComparer.Ordinal).SetEquals(expectedRoster) &&
                 Enumerable.Range(1, humanView.Players.Count - 1).All(seat => game.CreateSnapshot(seat).PendingDecision is null),
-                "The non-lord's private full roster must contain every mode general except the public lord, without deductions from other AI selections.");
+                "The non-lord's private full roster excludes the public lord's whole character family without deductions from other AI selections.");
             retiredIdentityChoice = vm.CustomGeneralChoices[0];
         }
         using var host = new NativeResponseStatusChecks.NativeHost(vm);
@@ -257,16 +260,21 @@ internal static class OpeningCustomizationUiChecks
                 ReferenceEquals(Keyboard.FocusedElement, window.FindName("ChangeOpeningHandButton")),
                 "Tab moves from random to the inline replacement action without starting the match.");
             Press((Button)window.FindName("ChangeOpeningHandButton"), Key.Enter);
-            var replaceTarget = vm.Hand.First(card => card.Kind != CardKind.ZhangbaSerpentSpear);
+            var replaceTarget = vm.Hand.First();
             Program.Assert(replaceTarget.IsPlayable, "Opening cards remain selectable in the actual hand area.");
             var handButton = Program.Find<Button>((ItemsControl)window.FindName("HandCards")).Single(button =>
                 ReferenceEquals(button.Command, vm.SelectCardCommand) && ReferenceEquals(button.CommandParameter, replaceTarget));
             Press(handButton, Key.Enter);
+            var replacement = vm.OpeningCardChoices
+                .OrderByDescending(choice => EquipmentCatalog.IsEquipment(choice.Kind))
+                .First(choice => vm.OpeningCardChoices.Count(candidate =>
+                    candidate.Name.Contains(CardCatalog.Get(choice.Kind).DisplayName, StringComparison.Ordinal)) == 1);
+            var replacementName = CardCatalog.Get(replacement.Kind).DisplayName;
             vm.OpeningCardSearch = "__missing_card__";
             Program.Assert(vm.OpeningCardChoices.Count == 0 && !vm.ReplaceOpeningCardCommand.CanExecute(null),
                 "An empty card search cannot submit a replacement.");
-            vm.OpeningCardSearch = "丈八";
-            Program.Assert(vm.IsOpeningHandEditorOpen && vm.OpeningCardChoices.Single().Kind == CardKind.ZhangbaSerpentSpear &&
+            vm.OpeningCardSearch = replacementName;
+            Program.Assert(vm.IsOpeningHandEditorOpen && vm.OpeningCardChoices.Single().Kind == replacement.Kind &&
                 replaceTarget.IsSelected && !vm.IsOpeningDealVisible,
                 "The inline editor filters by card name and highlights the selected existing hand card without an opening overlay.");
             var openingSearch = (TextBox)window.FindName("OpeningCardSearchBox");
@@ -277,11 +285,11 @@ internal static class OpeningCustomizationUiChecks
                 "Search typing and Enter belong to the search box and cannot confirm the opening hand.");
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-replace.png"));
             Press((Button)window.FindName("ReplaceOpeningCardButton"), Key.Enter);
-            Program.Assert(vm.Hand.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
+            Program.Assert(vm.Hand.Single(card => !repeatedOpeningCards.Contains(card.Id)).Kind == replacement.Kind &&
                 vm.Hand.All(card => card.Id != replaceTarget.Id) && vm.Hand.Count == oldCards.Length &&
                 openingGame.AcceptedCommands.Count == beforeSearchKey + 1 && openingGame.State.TurnNumber == 0 &&
                 vm.CanRerollOpeningHand && !vm.IsOpeningDealVisible,
-                "The actual inline replacement button swaps one real hand card for Zhangba and keeps the match before its first turn.");
+                "The actual inline replacement button swaps one real hand card for its published replacement and keeps the match before its first turn.");
             var saved = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0));
             vm.SaveGameCommand.Execute(null);
             vm.LoadManualGameCommand.Execute(null);

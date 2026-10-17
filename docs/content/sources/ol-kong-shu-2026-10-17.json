@@ -1,0 +1,322 @@
+{
+  "generalId": "ol:kong-shu",
+  "gid": 654,
+  "moduleId": "kong-shu/ol",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-17T05:25:48.439572+00:00",
+  "identity": {
+    "name": "孔淑",
+    "factionId": "qun",
+    "gender": "Female",
+    "baseHp": 3,
+    "directSpellIds": [
+      3545,
+      3546
+    ]
+  },
+  "official": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/654",
+      "capturedAtUtc": "2026-10-17T05:25:48.410616+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/654",
+      "contentType": "text/html",
+      "bytes": 24416,
+      "sha256": "dc7ff3d5e65990def06b72cad4a062b39c2b00a5ac54d00c6aef9d3ddc768c2c",
+      "rawCopyCreated": false,
+      "title": "三国杀孔淑 - 三国杀OL-三国杀官网-武将技能介绍",
+      "containsActualSkillSection": true,
+      "skillSection": "武将技能： 累卵 覆巢 你可以将X张牌当一张你本轮未使用过的基本牌使用（X为已连环的角色数且至少为1）。若你以此法失去最后的手牌，你摸两张牌，从本回合弃牌堆中获得一张普通锦囊牌，然后此技能失效，直到你下次受到伤害后。 锁定技，你使用基本牌后，当前回合角色进入连环状态。每轮结束时，你与已连环的角色各摸一张牌，然后已连环的角色弃置X张牌（X为已连环的角色数且至少为1）。 "
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=654",
+      "capturedAtUtc": "2026-10-17T05:25:48.439572+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=654",
+      "contentType": "application/json",
+      "bytes": 821,
+      "sha256": "a7d6464226b1750728a7713c043dd2472792efcfc08a0c2653c8f425bc8a05fa",
+      "rawCopyCreated": false,
+      "title": "",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 654,
+              "name": "孔淑",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/654.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65400.png",
+              "label": [
+                "进攻",
+                "防御",
+                "辅助"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "孔融之女，七岁受孔融牵连被曹操杀害。孔淑得知孔融被捉时正在下棋，神色不变，说：“安有巢毁而卵不破乎。”",
+              "characteristic": "能够轻松转化基本牌，但门槛会逐步提高。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 6
+            },
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "validHeroPayload": true,
+      "containsActualSkillSection": false
+    },
+    "formalRelease": {
+      "url": "https://www.sanguosha.com/news/20250826_4219_3410",
+      "capturedAtUtc": "2026-10-17T05:25:48.462122+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20250826_4219_3410",
+      "contentType": "text/html",
+      "bytes": 589908,
+      "sha256": "934ecae57f5b5ba45acfca1f5a26f68344c75648fe8a968725f929961d9d06a9",
+      "rawCopyCreated": false,
+      "title": "8.29-9.6 七夕祈愿谋小乔来袭 七夕许愿孔淑上新 幻惑欲影*魔貂蝉琳琅绘卷上新 - 三国杀OL官网"
+    }
+  },
+  "formalAvailability": {
+    "publishedAtLocal": "2025-08-28T17:05:17+08:00",
+    "advertisedAvailableStartLocal": "2025-08-29T00:15:00+08:00",
+    "advertisedEndText": "2025-9-6 24:00:00",
+    "proof": "Official OL notice lists KongShu as a new general with the same two complete current skills and Wish/Treasure Seal acquisition. This is actual formal release evidence, not just a test row."
+  },
+  "currentClient": {
+    "sources": [
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T05:24:45.509317+00:00",
+        "bytes": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "matchesRetainedSource": true,
+        "rawCopyCreated": false
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T05:24:45.519323+00:00",
+        "bytes": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "matchesRetainedSource": true,
+        "rawCopyCreated": false
+      }
+    ],
+    "decoder": "Current InitOfb AES-CFB128 then gzip JSON; decoded only character.sgs and cha_spell.sgs in memory.",
+    "scriptMember": "sgsGame_a.sgs",
+    "scriptMemberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "members": {
+      "character.sgs": {
+        "encryptedBytes": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encryptedBytes": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "rawCharacterPath": "character.sgs/GameCharacters/character[a=654]",
+    "rawCharacter": {
+      "a": 654,
+      "b": "孔淑",
+      "d": "KongShu",
+      "e": 44,
+      "f": "44",
+      "g": 4,
+      "h": 2,
+      "i": 3,
+      "j": 3545,
+      "k": 3546,
+      "p": 2,
+      "q": "1",
+      "r": "9065401",
+      "y": "孔融之女，七岁受孔融牵连被曹操杀害。孔淑得知孔融被捉时正在下棋，神色不变，说：“安有巢毁而卵不破乎。”",
+      "z": "能够轻松转化基本牌，但门槛会逐步提高。",
+      "aa": 147,
+      "ab": "1231,1232",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20250929T000000",
+      "LordCardRate1": 31,
+      "LordCardRate2": 53,
+      "starMax": 4
+    },
+    "directSpells": [
+      {
+        "a": 3545,
+        "b": "3",
+        "c": "累卵",
+        "d": "LeiLuan",
+        "e": 0,
+        "g": 2,
+        "h": 1,
+        "i": 2,
+        "o": "你可以将X张牌当一张你本轮未使用过的基本牌使用（X为已连环的角色数且至少为1）。若你以此法失去最后的手牌，你摸两张牌，从本回合弃牌堆中获得一张普通锦囊牌，然后此技能失效，直到你下次受到伤害后。",
+        "v": "请选择{0}张牌当一张基本牌使用",
+        "noAI": 1
+      },
+      {
+        "a": 3546,
+        "b": "3,4,5",
+        "c": "覆巢",
+        "d": "FuChao",
+        "e": 0,
+        "g": 7,
+        "i": 2,
+        "o": "锁定技，你使用基本牌后，当前回合角色进入连环状态。每轮结束时，你与已连环的角色各摸一张牌，然后已连环的角色弃置X张牌（X为已连环的角色数且至少为1）。",
+        "v": "请选择{0}张牌弃置"
+      }
+    ],
+    "linkedSpells": [],
+    "classes": [
+      {
+        "symbol": "zIi",
+        "member": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "utf8ByteOffset": 15846773,
+        "utf8ByteCount": 4982,
+        "sha256": "4a7d444fd9af729b6c6c3a315d1708153319b95f08e214d017992eacc167cb66",
+        "targetOnlyExcerpt": "class zIi extends BJt{constructor(){super(),this.activeMode=Nmt.ACTIVE|Nmt.ASK|Nmt.PASSIVE,this.cardUseType=Dmt.USE,this.requestCardType=Lmt.NORMAL|Lmt.MUNIULIUMA|Lmt.EQUIP,this.timeLimitRound=1,this.allowFixedTarget=!1,this.touchSkillWhenApplyTrigger=!0,this.avatarSkills.push(ymt.SHA,ymt.JIU,ymt.SHAN,ymt.TAO),this.cardSelector=new jIi(this)}get VirtualCardAsHnad(){return!0}get step(){return D2t.LastTriggerSpellID==this.ID?2:0}get VirtualCardColor(){let t=oj.None,i=this.Seat;if(i){let s,e=oj.None;for(let t=0;t<this.CardSelector.SelectedCards.length;t++){s=this.CardSelector.SelectedCardIds[t];let h=i.GetHandCard(s);if(h){let t=oj.GetColorByFlower(h.FlowerOnSeat);if(0!=e&&e!=t){e=0;break}e=t}}t=e}return t}get AvatarSkillType(){return Lmt.DEFAULT}get CardUseType(){return this.NeedShowVirtualCard?Dmt.USE:Dmt.NONE}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),i&&t.IsSpell)if(s?i.UpdateState(zf.DATA_LEILUAN,0):i.UpdateState(zf.DATA_LEILUAN,t&&t.Datas&&t.Datas.length?t.Datas[0]:0),t.Datas.length>1){let s=t.Datas.slice(1,t.Datas.length-1);i.SetSkillBuffInfo(this.ID,s)}else i.SetSkillBuffInfo(this.ID,[])}BeforeTouchSkillItem(){return this.transferSkillId=0,!1}get thisX(){return Math.max(1,this.HengZhiCount)}get NeedShowVirtualCard(){if(0==this.step){if(this.CardSelector.SelectedCount>=this.thisX)return!0}else if(2==this.step)return!0;return!1}get CardSelector(){return 0==this.step?(this.cardSelector||(this.cardSelector=new jIi(this)),this.cardSelector):(this.cardSelector1||(this.cardSelector1=new $Ii(this)),this.cardSelector1)}Use(t,i,s=null,e=0){if(0==this.step){let t=this.CardSelector.SelectedCards,e=this.CardSelector.SelectedCards[t.length-1],h=this.CardSelector.SelectedCardIds.slice(0,t.length-1);this.transferSkillId=e.FirstIndexSkillID,Wzt.SendUseSpell(s.Index,this.ID,i,h,s.Index,this.skillCard.CardId,[e.FirstSkillId,e.FirstSkill.Property])}else if(2==this.step){if(t&&t[0]&&this.Seat){let t=this.CardSelector.FirstSelectedCard;if(t&&t.FirstSkill){let s=[t.FirstIndexSkillID].concat(i);d1t.SendRoleSpellOptRep(this.Seat.Index,this.ID,s)}}}else super.Use(t,i,s)}get VirtualRemoveSelectCard(){return!1}AiHelpVirtualParams(t){return t}GetResponser(t){return t&&t.Type==JZi.OPT_SKILL_FLAG1?(this.responser||(this.responser=new Izt),this.responser):null}get SendOptSpellInSelectCardWindow(){return!0}SelectCardComplete(t){return!0}get SelectCardCountWhenResponse(){return 1}get SelectCardWindowServer(){return!0}get CardCountMax(){return 0==this.step?this.thisX+1:1==this.step?0:1}get CardCountMin(){return this.CardCountMax}get EnableFangTianHuaJiTargetEffect(){if(0==this.step&&this.handCards.length==this.Seat.HandCardCount){let t=!0;return this.handCards.forEach((i=>{-1==this.Seat.HandCardIDs.indexOf(i)&&(t=!1)})),t}return!1}get VirtualSkillIds(){if(0==this.step){let t=D2t.BaseSpellWithPro,i=[];for(let s=0;s<t.length;s+=2){let e=t[s],h=t[s+1],r=!0;r=!this.hasUsed(e),r&&i.push(e,h)}return i}if(2==this.step){let t=[],i=D2t.RoleOptTargetParams.concat();for(let s=1;s<i.length;s++)t.push(i[s]),t.push(0);return t}}get Activated(){let t=Laya.superGetter(zIi,this,\"Activated\");if(0==this.Seat.GetStateValue(zf.DATA_LEILUAN))return!1;if(this.usedSkills&&4==this.usedSkills.length)return!1;if(this.Seat){let t=0,i=this.Seat.GetSkillOutsideCards(ymt.MUNIULIUMA_JIEXIANTUPO);if(t+=this.Seat.HandCardCount,t+=this.Seat.EquipCardCount,i&&(t+=i.length),t<=0)return!1}if(this.Seat&&0==this.Seat.InActiveState){let i=D2t.LastTriggerSpell;return D2t.LastActivateSpell&&D2t.LastActivateSpell.ID===ymt.TAO?t:D2t.LastActivateSpell&&D2t.LastActivateSpell.ID===ymt.SHAN?!this.hasUsed(ymt.SHAN)&&t:(!i||i.ID!=ymt.NANMAN&&i.ID!=ymt.WANJIAN&&i.ID!=ymt.JUEDOU&&i.ID!=ymt.HUJIA)&&t}return t}get handCards(){let t=this.CardSelector.SelectedCardIds,i=[];for(let s=0;s<this.thisX;s++)i.push(t[s]);return i}get SourceHandCardIds(){return this.handCards}get usedSkills(){return this.Seat?this.Seat.GetSkillBuffInfo(this.ID):null}hasUsed(t){if(!this.Seat)return!1;let i=this.usedSkills;return!!(i&&i.indexOf(t)>-1)}get ActiveTip(){if(0==this.step){return le.F(this.activeTip,this.thisX)}if(2==this.step)return this.DefensiveTip;var t=Laya.superGetter(zIi,this,\"ActiveTip\").split(\";\");return t&&2==t.length?this.CardSelector.SelectedCount<this.thisX?le.F(t[0],this.thisX):t[1]:Laya.superGetter(zIi,this,\"ActiveTip\")}get AvatarSkills(){return this.avatarSkills}GetUseRecord(t,i,s,e,h=null){let r=super.GetUseRecord(t,i,s,e,h);if(0==this.step&&s&&s.length&&e&&e.length){let t=Yz.I();return r+=$mt.RECORD_TAKE+t.GetCardsHtmlNames(s)+$mt.RECORD_USE_AS+t.GetSkillHtmlName(e[0])+$mt.SKILL_USE,r}return r}transferSkillId=0;SkillChangeCardRes(t,i,s){return this.transferSkillId?jXt.GetInstance(this.transferSkillId).ClassName:\"\"}get AskTip(){return le.F(this.askTip,this.thisX)}get HengZhiCount(){let t=D2t.Seats;if(t&&t.length){let i=0;for(let s=0,e=t.length;s<e;s++){let e=t[s];e.IsLegalOperable&&e.ContainsState(zf.DATA_IS_CHARCARD_TAP)&&i++}return i}return 0}}"
+      },
+      {
+        "symbol": "QIi",
+        "member": "sgsGame_a.sgs",
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "utf8ByteOffset": 15846119,
+        "utf8ByteCount": 654,
+        "sha256": "7d25ad01beaeb4f213a183569687c004566c78b72cce30c69f32b62cf846dfc9",
+        "targetOnlyExcerpt": "class QIi extends BJt{constructor(){super(),this.activeMode=Nmt.ASK,this.timeLimitRound=Number.MAX_VALUE,this.cardCountMax=1,this.cardCountMin=1,this.selectCardTypeWhenResponse=Lmt.NORMAL|Lmt.EQUIP,this.cardUseType=Dmt.DISCARD}get ActiveTip(){return le.F(this.activeTip,this.flag)}GetDefensiveSelectCardContext(t,i){if(!i)return;let s=i.Param;this.flag=s;let e=new dAt;e.Purpose=fAt.GENERAL,e.Skill=this,e.Message=this.ActiveTip;let h=new HJt;return h.SelectCountMax=h.SelectCountMin=s,h.CanCancel=!1,h.CardType=Lmt.NORMAL|Lmt.EQUIP,h.CardUseType=Dmt.DISCARD,e.CardSelector=h,e}ResponseSkillFromOther(t,i,s,e){d1t.SendRoleSpellOptRep(e.Index,this.ID,i)}}"
+      }
+    ]
+  },
+  "sourceHierarchy": {
+    "authoritative": "Current official OL hero, API identity, formal release notice and current public OL client direct skills agree.",
+    "sameProductGuide": {
+      "url": "https://www.taptap.cn/moment/726061854073293769?group_id=5009",
+      "title": "【武将攻略】坚贞不屈的“童乌”—孔淑",
+      "publisher": "大乔",
+      "originalAuthor": "5888",
+      "publishedDate": "2025-10-11",
+      "originalForumUrl": "https://club.sanguosha.com/thread-1781788-1-1.html",
+      "classification": "same-product published author guide; not an exclusive official FAQ",
+      "access": "web extractor read full guide; direct requests HTTP200 is a WAF response, so no article-byte hash claimed",
+      "supportedParaphrases": [
+        "Payment equals exactly max(1,living chained count), may combine Hand and equipment.",
+        "Last-Hand mixed with equipment still draws2 and selects a current-turn discarded ordinary trick; no available trick still draws2 and disables.",
+        "Slash variants belong to one of four basic families; true response Dodge is possible; source client explicitly rejects Duel/AOE/faction played.",
+        "A chained owner participates in both owner and chained-recipient shares, for total2 cards at round end; guide does not prove whether native calls are two Draw1 or one Draw2."
+      ]
+    },
+    "dedicatedOfficialFAQFound": false
+  },
+  "implementedRules": [
+    {
+      "skillId": "ol:leiluan",
+      "text": "你可以将X张牌当一张你本轮未使用过的基本牌使用（X为已连环的角色数且至少为1）。若你以此法失去最后的手牌，你摸两张牌，从本回合弃牌堆中获得一张普通锦囊牌，然后此技能失效，直到你下次受到伤害后。",
+      "contract": "Exact max(1,living chained characters) physical HE or valid Wooden Ox grain, revalidated before native payment. Six effective basic outputs share four basic-name families; true use only, including real Dodge and dying Peach/Alcohol, excluding Duel/AOE played and faction pure provision. All owner true uses this whole round, including before skill acquisition, count."
+    },
+    {
+      "skillId": "ol:fuchao",
+      "text": "锁定技，你使用基本牌后，当前回合角色进入连环状态。每轮结束时，你与已连环的角色各摸一张牌，然后已连环的角色弃置X张牌（X为已连环的角色数且至少为1）。",
+      "contract": "A completed true basic use chains the current actual turn owner. At the real round-ending boundary, the owner and each living chained character draw their shares, then each living chained character discards the frozen later X through one native whole HE invocation."
+    }
+  ],
+  "implementationInferences": [
+    "No exclusive official FAQ was found for X sampling, repeated sources, actor replacement, regrant, or round-ending child reentrancy. The following choices are engine interpretations of the current wording, not official rulings.",
+    "Leiluan samples X and original Hand at acceptance/payment revalidation; all physical primary costs are frozen on that native CardUseFrame. Later chain or skill changes do not alter an accepted cost. A mixed Hand/equipment cost qualifies if every original Hand entity is paid. Ox auxiliary grain spill is not another primary cost.",
+    "Ordinary and converted uses share the owner whole-round canonical basic-name history. Native actor-replacement chains determine final actual Use ownership; response Dodge remains its actual responder and cannot be stolen by a change to its incoming attacker. Paid last-Hand reward remains with the original payer.",
+    "The reward runs at native committed true-use time, before effects: Draw2, then obtain one ordinary trick currently in Discard that entered Discard in this actual turn. No such trick does not cancel Draw2 or later disable. Paid source loss retains the receipt; death drains actual children and skips new impossible personal choices.",
+    "Disable is issued after all reward draw/obtain children. Only a later positive actual DamageApplied to that owner clears it; prevention, HP loss and earlier damage do not. Disable and round-name history survive loss and regrant of the same skill.",
+    "Fuchao draw recipients freeze when its real round-ending instruction starts: owner share plus one share per then-living chained character, so a chained owner appears twice. Each share is a native Draw1; the guide only supports the two-card total, not the invocation shape.",
+    "The then-clause resamples the living chained discard recipients and X only after all draw children finish. That later complete queue is frozen once, with one whole discard per payer; insufficient discardable HE pays all legally available entities without inventing cards. Already issued queues survive skill loss and drain native Silver Lion/Ox/HP/death children."
+  ],
+  "runtimeOwnership": {
+    "nativePayment": "CardUseFrame.LeiluanPayments; deeply frozen original material, Hand and actual movement sets.",
+    "pendingEffects": "ProgramSkillFrame.KongShu only, immutable collections and typed native child returns; no sidecar pending state.",
+    "events": "All new facts are scalar, emitted through AdvanceEventRulesAndQueueFact; private entities are exposed only through normal viewer snapshots."
+  },
+  "behaviorChecks": {
+    "file": "tests/CardGame.Core.Tests/KongShuChecks.cs",
+    "methods": [
+      "LeiluanDynamicCountLastHandRewardAndNativeUseCold",
+      "LeiluanTrueResponsePlayedAndPreSkillRoundNamesCold",
+      "FuchaoTrueBasicCompletionAndRoundEndingWholeQueuesCold",
+      "LeiluanEquipmentPaymentsSourceLossDeathAndPrivacyCold"
+    ],
+    "status": "all four registered groups passed under root-controlled execution"
+  },
+  "verification": {
+    "status": "passed-focused-and-routine",
+    "sourceAuditConfirmed": true,
+    "runtimeBehaviorVerified": true,
+    "note": "The source hierarchy and implementation inferences above remain distinct from the scoped behavior checks actually run by root.",
+    "verifiedAtUtc": "2026-10-17T06:00:14.876176+00:00",
+    "ownFocusedCoreGroupsPassed": 4,
+    "batchFocusedCorePassed": 37,
+    "batchFocusedWpfPassed": 3,
+    "routineCorePassed": 149,
+    "routineWpfPassed": 31,
+    "routineDurationMs": 85952,
+    "routineBuildMs": 27996,
+    "routineCoreMs": 17861,
+    "routineWpfMs": 57442,
+    "batchRelatedSourceFilesStableDuringValidation": true,
+    "manualFullVerificationRun": false,
+    "manualForegroundGameplayRun": false,
+    "galleryFixtureRendersVisuallyInspected": true,
+    "validationNote": "Root ran the registered character and shared mechanism filters, then tools/Test-Changed.ps1 routine scope in the main checkout. Concurrent activity work outside this batch was observed separately and is not accepted by this character verification."
+  },
+  "art": {
+    "catalogKey": "ol-kong-shu",
+    "defaultSkinId": "65400",
+    "skins": [
+      {
+        "id": "65400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/654",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-kong-shu.png",
+        "sha256": "38e6f82c484f06cc6c86ae0b7bcd92931f444c07b48570ea164365438231f7ff",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    ]
+  }
+}

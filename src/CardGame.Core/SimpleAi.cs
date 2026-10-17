@@ -1255,7 +1255,8 @@ public sealed partial class SimpleAiBrain
         int chainDepth,
         IReadOnlyList<int> validCardIds,
         int thoughtSequence,
-        IReadOnlyList<int>? targetSeats = null, bool includeEquipment = false, bool includeGrain = false)
+        IReadOnlyList<int>? targetSeats = null, bool includeEquipment = false, bool includeGrain = false,
+        IReadOnlyList<int>? originalPublicPileCardIds = null)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
@@ -1286,8 +1287,13 @@ public sealed partial class SimpleAiBrain
             actionScore += 38d;
         }
 
+        var originalIds = originalPublicPileCardIds?.ToHashSet() ?? [];
+        var materials = (includeEquipment
+                ? self.Hand.Concat(self.Equipment).Concat(includeGrain ? self.WoodenOxGrain ?? [] : []) : self.Hand)
+            .Concat(VisibleOriginalPublicPileCards(self).Where(card => originalIds.Contains(card.Id)))
+            .DistinctBy(card => card.Id).ToArray();
         var candidates = validCardIds
-            .Select(cardId => (includeEquipment ? self.Hand.Concat(self.Equipment).Concat(includeGrain ? self.WoodenOxGrain ?? [] : []) : self.Hand).SingleOrDefault(card => card.Id == cardId))
+            .Select(cardId => materials.SingleOrDefault(card => card.Id == cardId))
             .Where(card => card is not null)
             .Select(card =>
             {
@@ -2005,7 +2011,8 @@ public sealed partial class SimpleAiBrain
     {
         var skills = candidate.Skills
             .Where(skill => !skill.Tags.HasFlag(SkillTag.Lord) || role == Role.Lord)
-            .Select(skill => ScoreGeneralSkill(role, skill, registry))
+            .Select(skill => _policyVersion < AiDecisionPolicy.RuleBasedGeneralSelectionVersion
+                ? ScoreHistoricalGeneralSkill(role, skill) : ScoreGeneralSkill(role, skill, registry))
             .OrderByDescending(item => item.Score)
             .ToArray();
         if (skills.Length == 0) return (12d, "没有可用的印刷技能，按基础候选评估。");
@@ -2016,8 +2023,12 @@ public sealed partial class SimpleAiBrain
     private static (double Score, string Reason) ScoreGeneralSkill(Role role, GeneralSkillDefinition skill,
         ContentRegistry? registry)
     {
+        if (skill.SelectionWeights?.TryGetValue(role, out var declaredScore) == true)
+            return (declaredScore, $"【{skill.Name}】使用内容包显式声明的身份评分。");
+        if (TryScoreDraftRuleSkill(role, skill, registry, out var ruleScore, out var ruleReason))
+            return (ruleScore, ruleReason);
         if (skill.ActionForms.HasFlag(SkillActionForm.Active))
-            return (32d, $"【{skill.Name}】提供主动行动，实战收益由其发布的 Program 效果摘要评估。");
+            return (32d, $"【{skill.Name}】提供主动行动；未提供可检查的规则，使用基础评价。");
         if (skill.ViewAsOpportunities is { Count: > 0 } conversions)
         {
             var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
@@ -2025,11 +2036,8 @@ public sealed partial class SimpleAiBrain
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
         }
-        if (TryScoreDraftRuleSkill(role, skill, registry, out var ruleScore, out var ruleReason))
-            return (ruleScore, ruleReason);
-        var score = skill.SelectionWeights?.GetValueOrDefault(role) ?? 12d;
         var reason = $"【{skill.Name}】{skill.Description}";
-        return (score, reason);
+        return (12d, reason);
     }
 
     private static double ScoreDyingResponse(
@@ -2215,12 +2223,7 @@ public sealed partial class SimpleAiBrain
 
         // Jixi-style conversions may play an authority-zone card (e.g. a Tuntian
         // field as Snatch), so the lookup must mirror the engine's playable sources.
-        var card = self.Hand
-            .Concat(self.WoodenOxGrain ?? [])
-            .Concat(self.Equipment)
-            .Concat(self.AuthorityCards ?? [])
-            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
-            .Single(candidate => candidate.Id == action.CardId);
+        var card = AiActionPhysicalCard(self, action);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
         if (TryScoreWenheCard(view, self, selfRole, action, cardProfile, out var wenheScore)) return wenheScore;
@@ -2575,9 +2578,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
-        var card = self.Hand.Concat(self.Equipment)
-            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
-            .Single(candidate => candidate.Id == action.CardId);
+        var card = AiActionPhysicalCard(self, action);
         var effectiveKind = action.PlayedCardKind ?? card.Kind;
         var profile = CardCatalog.Get(effectiveKind);
         var targets = action.TargetSeats

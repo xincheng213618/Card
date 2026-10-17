@@ -3,7 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool UsesFamilyGeneralDraft => _modeDefinition.AiGeneralSwapExcludedIds is not null ||
-        _modeDefinition.GeneralSelectionWeights is not null;
+        _modeDefinition.GeneralSelectionWeights is not null || _modeDefinition.GeneralSelectionPoolIds is not null;
+
+    private bool IsGeneralSelectionCandidate(GeneralDefinition general) =>
+        _modeDefinition.GeneralSelectionPoolIds?.Contains(general.Id, StringComparer.Ordinal) != false;
 
     private List<GeneralDefinition[]> GetGeneralFamilies(IEnumerable<GeneralDefinition> generals)
     {
@@ -34,7 +37,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<(GeneralDefinition General, string CandidateId)> GetDraftGeneralOffers(
         CharacterState player, bool fullRoster)
     {
-        var groups = GetGeneralFamilies(_availableGenerals);
+        var groups = GetGeneralFamilies(_availableGenerals.Where(IsGeneralSelectionCandidate));
         IReadOnlyList<GeneralDefinition> candidates;
         if (fullRoster)
             candidates = groups.Select(family => family[0]).ToArray();
@@ -43,7 +46,7 @@ public sealed partial class GameEngine
             var count = _modeDefinition.RoleGeneralCandidateCounts?.GetValueOrDefault(
                 player.Role.ToString(), _modeDefinition.GeneralCandidateCount) ?? _modeDefinition.GeneralCandidateCount;
             // The owning seat retains its exact draw until it commits this slot.
-            candidates = player.GeneralDraftCandidates ??= DraftGeneralFamilies(_availableGenerals, count);
+            candidates = player.GeneralDraftCandidates ??= DraftGeneralFamilies(_availableGenerals.Where(IsGeneralSelectionCandidate), count);
         }
         var families = groups
             .SelectMany(family => family.Select(general => (general.Id, Family: family)))

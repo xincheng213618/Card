@@ -26,7 +26,7 @@ public sealed partial class GameEngine
  private bool IsJianjiDeclarationChild(ProgramSkillFrame root,ResolutionFrame child)=>child is CardDeclarationFrame declaration && MatchesJianjiDeclaration(root,declaration);
  private bool HuangQuanDeclarationObserverSuffix(int rootIndex)=>HasObserverSuffix(rootIndex,
   static(e,index)=>e.IsSameNameHandObserverEdge(index)||e.IsJianjiDeclarationObserverEdge(index),
-  static(e,index,dying)=>e.IsSuspendedOrPaidRescueObserverSuffix(index,dying)||e.TieredRoundZeroDyingRescueRide(index,dying)||e.DrawFundedDistinctBasicDyingRescueRide(index,dying));
+  static(e,index,dying)=>e.IsSuspendedOrPaidRescueObserverSuffix(index,dying)||e.TieredRoundZeroDyingRescueRide(index,dying)||(e.DrawFundedDistinctBasicDyingRescueRide(index,dying) || e.HuanpeiDyingRescueRide(index,dying)));
  private bool IsJianjiDeclarationObserverEdge(int index)
  {
   if(index<1 || _resolutionStack[index-1] is not CardDeclarationFrame d || _resolutionStack.SingleOrDefault(f=>f.Id==d.Return.ParentFrameId) is not ProgramSkillFrame root || !MatchesJianjiDeclaration(root,d))return false;

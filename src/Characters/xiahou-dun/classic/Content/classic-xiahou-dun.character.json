@@ -12,12 +12,6 @@
         "name": "刚烈",
         "description": "你受到伤害后可判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到1点伤害。",
         "executionForms": "Trigger",
-        "selectionWeights": {
-          "Lord": 39.0,
-          "Loyalist": 39.0,
-          "Rebel": 35.0,
-          "Renegade": 35.0
-        },
         "revealWeights": {
           "base": 4,
           "wounded": 31,

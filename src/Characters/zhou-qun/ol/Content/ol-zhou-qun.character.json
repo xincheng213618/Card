@@ -1,0 +1,107 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-qun",
+  "skills": [
+    {
+      "registrationOrder": 2102,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:chenshuo",
+        "name": "谶说",
+        "description": "准备阶段，你可以令一名角色展示一张手牌，然后展示牌堆顶的牌，若展示牌类型/花色/点数/牌名字数中任意项相同且展示牌堆顶牌数小于3，重复此流程，最后你获得以此法展示的牌。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2103,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tianhou",
+        "name": "天候",
+        "description": "锁定技，结束阶段，你观看牌堆顶的三张牌并选择是否用你的手牌交换之，然后你展示牌堆顶三张牌中的一张，令一名角色根据此牌花色获得技能直到你下次发动此技能： 红桃“ 烈暑 ”； 方片“ 凝雾 ”； 黑桃“ 骤雨 ”； 梅花“ 严霜 ”。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2104,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lieshu",
+        "name": "烈暑",
+        "description": "锁定技，其他角色的结束阶段，若其体力值全场最大，其失去1点体力。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2105,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:ningwu",
+        "name": "凝雾",
+        "description": "锁定技，当其他角色使用【杀】指定非相邻角色为唯一目标时，其判定，若判定牌点数大于此【杀】，此【杀】无效。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2106,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhouyu",
+        "name": "骤雨",
+        "description": "锁定技，防止其他角色造成的火焰伤害。当一名角色受到雷电伤害后，其相邻角色失去1点体力。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2107,
+      "programBundle": "ol-zhou-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yanshuang",
+        "name": "严霜",
+        "description": "锁定技，其他角色的结束阶段，若其体力值全场最小，其失去1点体力。",
+        "actionForms": "None",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2108,
+      "pools": {
+        "current": 485
+      },
+      "definition": {
+        "id": "ol:zhou-qun",
+        "name": "周群",
+        "portraitKey": "ol-zhou-qun",
+        "skillId": "ol:chenshuo",
+        "additionalSkillIds": [
+          "ol:tianhou"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhou-qun",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

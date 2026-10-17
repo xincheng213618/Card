@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xianzhou",
+      "revision": 1,
+      "activations": [{
+        "id": "all-equipment-donation", "minCards": 0, "maxCards": 0,
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [{ "op": "resolveOrdinaryCaiFuRenXianzhou", "target": "owner", "stateId": "ordinary-xianzhou" }]
+      }]
+    },
+    {
+      "id": "ol:qieting",
+      "revision": 1,
+      "triggers": [{
+        "id": "ordinary-turn-end", "window": "afterTurnEnded", "subject": "owner",
+        "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "resolveOrdinaryCaiFuRenQieting", "target": "owner" }]
+      }]
+    }
+  ]
+}

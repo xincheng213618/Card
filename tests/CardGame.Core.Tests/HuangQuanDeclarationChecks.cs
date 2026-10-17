@@ -21,6 +21,7 @@ internal static class HuangQuanDeclarationChecks
    Need(g.CardMovements.Count(m=>m.CardId==material && m.From==CardLocation.Hand(1) && m.To==CardLocation.Processing)==1,"Success or failure never repays the drawn material.");
    if(challenged)
    {
+    Need(E<YuandiDiscardEnteredEvent>(g).Single(e=>e.CardId==material).FromTrueUse==false,"A failed native declaration is a non-Use discard even when printed-name observers are enabled.");
     Need(E<CardDeclarationRevealedEvent>(g).Count(e=>e.DeclarationId==declaration.Id && e.ChallengerSeat==0 && !e.Succeeded && e.Card.Id==material)==1 && g.CardMovements.Any(m=>m.CardId==material && m.From==CardLocation.Processing && m.To==CardLocation.DiscardPile && m.Reason.Value=="conversion.declaration.failed") && !E<JianjiUseIssuedEvent>(g).Any() && !E<JianjiUseReturnedEvent>(g).Any() && completion.NativeActionId is null,"A human's genuine false challenge discards the one real cost and returns the Jianji parent without inventing an accepted use or action ID.");
    }
    else
@@ -38,6 +39,7 @@ internal static class HuangQuanDeclarationChecks
     Need(nativeFinish==1,"Declaration native use emits its finish exactly once: "+diagnostic);
     Need(typedReturn==1,"Declaration native use returns to its original parent exactly once: "+diagnostic);
     Need(completionIdentity,"Declaration parent completion preserves the native action ID: "+diagnostic);
+    Need(E<YuandiDiscardEnteredEvent>(g).Single(e=>e.CardId==material).FromTrueUse,"A successful native declared use retains its real original entity Use provenance through cleanup.");
    }
   }
  }
@@ -71,7 +73,7 @@ internal static class HuangQuanDeclarationChecks
   public void Register(IContentRegistryBuilder builder)
   {
    void Add(SkillProgramCatalog catalog){foreach(var(id,p)in catalog.Programs)builder.AddSkill(new(id,catalog.Presentations[id].Name,catalog.Presentations[id].Description){Program=p,ProgramPresentation=catalog.Presentations[id],SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,_=>id==Quiet?10000d:-10000d)});}
-   foreach(var bundle in new[]{"ol-huang-quan","classic-yu-ji"})Add(SkillProgramCatalog.Load(Embedded(bundle,"rules.json"),Embedded(bundle,"presentation.json")));
+   foreach(var bundle in new[]{"ol-huang-quan","classic-yu-ji","ol-xie-ling-yu"})Add(SkillProgramCatalog.Load(Embedded(bundle,"rules.json"),Embedded(bundle,"presentation.json")));
    Add(SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"priority":0,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}]}""",JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=new Dictionary<string,object>{[Quiet]=new{name="安静原生同桌",description="仅跳过真实自身出牌阶段"}}})));
    builder.AddGeneral(new(Owner,"原生谏计拥有者","supporter","ol:dianhu","shu",12,["ol:jianji"],GeneralGender.Male));var peers=Enumerable.Range(1,3).Select(i=>$"fixture:huang-quan-declaration-peer-{i}").ToArray();foreach(var id in peers)builder.AddGeneral(new(id,"原生蛊惑受赠者","supporter",Quiet,"qun",12,["classic:guhuo"],GeneralGender.Male));
    builder.AddDeck(new("fixture:huang-quan-declaration-deck","固定实际闪实体",4,0,[]){PhysicalCards=Enumerable.Range(0,80).Select(_=>new ContentDeckPhysicalCard("standard:dodge",Suit.Heart,7)).ToArray()});

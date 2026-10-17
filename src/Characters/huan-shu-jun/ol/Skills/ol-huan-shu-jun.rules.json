@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:huanpei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "adjust-and-use-basic",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveHuanpeiHandAdjustmentAndBasicUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:wenyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "health-becomes-one",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWenyiHealthOneAid",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:miaoxin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "each-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamagePoint",
+          "effects": [
+            {
+              "op": "resolveMiaoxinDamageDrawAndRefresh",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -108,6 +108,7 @@ public sealed partial class GameEngine
                 DeferredHandAlignments = _deferredHandAlignments.Count > 0 &&
                     _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
                 TurnHandCategoryRestrictions = GetTurnHandCategoryRestrictionSnapshot(player.Seat),
+                MouCaoPiControls = MouCaoPiControlsSnapshot(player.Seat),
                 TurnHandLimitCardKindExemptions = GetTurnHandLimitCardKindExemptionsSnapshot(player.Seat),
                 TurnSlashSuitAllowances = GetTurnSlashSuitAllowancesSnapshot(player.Seat),
                 FirstRoundGameUsageRefunds = GetFirstRoundGameUsageRefundsSnapshot(player.Seat),
@@ -137,7 +138,7 @@ public sealed partial class GameEngine
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
-                NamedAmbushPiles = IncludeQushiSealSnapshots(ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
+                NamedAmbushPiles = IncludeChenglieSnapshots(IncludeQushiSealSnapshots(ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
                 PrivateWhirlPiles = ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.Count > 0 &&
                     _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
@@ -258,7 +259,7 @@ public sealed partial class GameEngine
             _cardZones.Count(CardLocation.DiscardPile),
             snapshots,
             visibleDecision,
-            _cardZones.CardsAt(CardLocation.Processing).Count(card =>
+            WithoutChengliePrivateProcessing(_cardZones.CardsAt(CardLocation.Processing)).Count(card =>
                 !IsNishouHeldProcessingCard(card.Id) && (revealAll || !IsSimultaneousPrivateTopCard(card.Id))),
             _revision)
         {
@@ -272,10 +273,11 @@ public sealed partial class GameEngine
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(publicRevealedCards).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards())
+            PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(TangTangPublicShownCardIds().Concat(ZhouQunPublicShownCardIds()).Select(id => ToSnapshot(GetAdvancedCard(id)) with
+                { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null })).Concat(publicRevealedCards).Concat(ChengliePublicCards()).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards())
                 .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
                 .DistinctBy(card => card.Id).ToArray(),
-            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat))
+            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat)).Concat(ZhouQunPrivatelyViewedTopCards(viewerSeat))
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),

@@ -42,7 +42,6 @@ internal sealed class ProgramAiChoiceSelector
         SkillProgramEffectOp.DeclareNameForTargetDefense,
         SkillProgramEffectOp.DrawAndDraftLowHandPopulation,
         SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards,
-        SkillProgramEffectOp.ChooseDifferentActionCategoryGift,
         SkillProgramEffectOp.RevealSelectedHandAgainstTarget,
         SkillProgramEffectOp.ExchangePrivatePile,
         SkillProgramEffectOp.DiscardParticipantCards,

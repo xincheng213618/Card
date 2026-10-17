@@ -47,7 +47,7 @@ public sealed partial class GameEngine
         if (choices.All(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline") &&
             !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest) &&
-            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest))
+            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest) && !(HasZonghuProgramSlash(_players[actorSeat], nearest) || HasHuanpeiProgramSlash(_players[actorSeat], nearest)))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);
@@ -98,7 +98,7 @@ public sealed partial class GameEngine
         bool ExactSingleSourceLegal(PromptChoice choice)
         {
             if (choice.Parameters["request-option"] != "use" || choice.Cards.Count != 1) return true;
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(item => item.Id == choice.Cards[0]);
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Concat(NativePublicPileSlashUseCards(actor)).Single(item => item.Id == choice.Cards[0]);
             TryReadConversionSource(choice.Parameters, out var conversion);
             var kind = Enum.Parse<CardKind>(choice.Parameters["effective-kind"]);
             return NearestSlashPaymentHasRange(actor, target, [card], conversion, kind) && CanUseSlashTarget(actor, _players[target], card, conversion, kind) &&

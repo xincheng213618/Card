@@ -325,12 +325,12 @@
     "All native draw, HP/dying/death and source-loss children return to the owning typed frame. The legacy zero-entity self-rescue Alcohol path receives a dedicated exact target/commit/recovery return before native recovery."
   ],
   "verification": {
-    "status": "root-focused-routine-and-gallery-verified",
+    "status": "fixed-ordinary-source-focused-routine-and-gallery-verified",
     "buildRunByOwner": false,
     "focusedChecksPassed": true,
     "rootVerified": true,
-    "notes": "Centralized focused checks passed, including exact typed legacy Alcohol return and whole recast producer boundaries. Bounded routine and actual gallery inspection passed. No manual full run, publishing, or packaging was performed.",
-    "implementation": "complete runtime; focused character, shared mechanism, routine, and visual gallery verification passed",
+    "notes": "Centralized focused and bounded routine checks passed on fixed ordinary-mode sources. Two character gallery renders match previously visually inspected images. Independent main-workspace changes continue; this is not acceptance of the whole current main workspace. No manual full run, publishing, or packaging.",
+    "implementation": "complete runtime; focused behavior, shared mechanisms, bounded routine, and visual gallery verified",
     "routinePassed": true,
     "centralBuildPassed": true,
     "galleryRenderVisuallyVerified": true,
@@ -346,6 +346,9 @@
     ],
     "routineCorePassed": 144,
     "routineWpfPassed": 28,
-    "routineDurationMs": 51449
+    "routineDurationMs": 55519,
+    "focusedCorePassed": 31,
+    "focusedWpfPassed": 2,
+    "validationScope": "Fixed ordinary-mode source snapshot. The in-flight optional Boss factory integration was excluded in three copied files; main Boss implementation was not changed or accepted by this verification."
   }
 }

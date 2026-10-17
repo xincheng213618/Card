@@ -10,6 +10,7 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame => new CardsMovedTriggerWindowHost(this),
         HpChangedTriggerWindowFrame => new HpChangedTriggerWindowHost(this),
         ProgramCardTriggerWindowFrame => new CardActionTriggerWindowHost(this),
+        DouyuWindowFrame => new DouyuTriggerWindowHost(this),
         _ => null
     };
 

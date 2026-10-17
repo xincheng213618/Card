@@ -76,10 +76,13 @@ internal static class Program
             Check("table shortcuts execute once per key press and preserve modal drafts", TableShortcutChecks.SinglePressActions);
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
+            Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
+            Check("Native public pile UI: original grain play rail and response faces", NativePublicPileUiChecks.OriginalGrainPlayRailAndResponseFaces);
+            Check("Mou Cao Pi UI: portrait skills and timed Fangzhu status", () => MouCaoPiUiChecks.PortraitSkillsAndFangzhuState(output));
             Check("Identity concealment UI: ActualProjectedConcealmentAndAppearanceBridge", () => IdentityConcealmentViewChecks.ActualProjectedConcealmentAndAppearanceBridge(output));
             Check("Named private pile UI: owner pairs public counts and clear", () => NamedPrivatePileUiChecks.OwnerPairsPublicCountsAndClearingUseSharedReadOnlyFaces(output));
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));

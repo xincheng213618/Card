@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:saying","revision":1,"triggers":[{"id":"play-start-obtain","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"resolveSayingPlayStartObtainAndReply","target":"owner"}]}]},
+ {"id":"ol:dongxin","revision":1,"triggers":[
+  {"id":"dealt","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveDongxinDamageDiscardAndReclaim","target":"owner"}]},
+  {"id":"received","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveDongxinDamageDiscardAndReclaim","target":"owner"}]}
+ ]}
+]}

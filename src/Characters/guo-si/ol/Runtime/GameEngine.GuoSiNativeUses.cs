@@ -50,7 +50,7 @@ public sealed partial class GameEngine
   if(r.Stage!=GuoSiStage.MovementChildren||child is not CardsMovedTriggerWindowFrame moved||!CanContinueIssuedGuoSi(root))return false;
   return moved.Batch.ParentFrameId==root.Id&&moved.Batch.AwaitingProgramFrameId==root.Id&&moved.Batch.OriginOwnerSeat==root.OwnerSeat&&moved.Batch.OriginSkillId==root.SkillId&&moved.Batch.OriginSkillInstanceId==root.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==r.SelectedId&&m.From==r.SelectedFrom&&m.To==CardLocation.Hand(root.OwnerSeat)&&m.Reason.Value==TanbeiGainReason);
  }
- private bool GuoSiObserverSuffix(int index)=>HasObserverSuffix(index,static(e,i)=>e.IsSameNameHandObserverEdge(i)||e.GuoSiNativePaymentEdge(i),static(e,i,d)=>e.IsSuspendedOrPaidRescueObserverSuffix(i,d)||e.TieredRoundZeroDyingRescueRide(i,d)||e.DrawFundedDistinctBasicDyingRescueRide(i,d));
+ private bool GuoSiObserverSuffix(int index)=>HasObserverSuffix(index,static(e,i)=>e.IsSameNameHandObserverEdge(i)||e.GuoSiNativePaymentEdge(i),static(e,i,d)=>e.IsSuspendedOrPaidRescueObserverSuffix(i,d)||e.TieredRoundZeroDyingRescueRide(i,d)||(e.DrawFundedDistinctBasicDyingRescueRide(i,d) || e.HuanpeiDyingRescueRide(i,d)));
  private bool GuoSiNativePaymentEdge(int index)
  {
   if(index<1||_resolutionStack[index-1]is not CardUseFrame{GuoSiNative:{}r,GuoSiCostDrained:false}use)return false;

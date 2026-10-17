@@ -56,6 +56,7 @@ public sealed partial class GameEngine
             case SlashTargetBenefitWindowFrame: ContinueSlashTargetBenefitWindowCore(); break;
             case FirstSlashDuelLegacyWindowFrame: ContinueFirstSlashDuelLegacyWindow(); break;
             case PindianRevealWindowFrame: ContinuePindianRevealWindow(); break;
+            case DouyuWindowFrame: ContinueDouyuWindow(frameId); break;
             case SlashTargetPenaltyWindowFrame: ContinueSlashTargetPenaltyWindow(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
@@ -96,6 +97,7 @@ public sealed partial class GameEngine
             SlashTargetBenefitWindowFrame child => child.ParentFrameId,
             FirstSlashDuelLegacyWindowFrame child => child.ParentFrameId,
             PindianRevealWindowFrame child => child.ParentFrameId,
+            DouyuWindowFrame child => child.ParentFrameId,
             SlashTargetPenaltyWindowFrame child => child.ParentFrameId,
             CardDeclarationFrame child => child.Return.ParentFrameId,
             CardDeclarationChallengeFrame child => child.ParentFrameId,
@@ -237,6 +239,8 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is DouyuWindowFrame douyu)
+        { AdvanceRuntimeFrame(douyu.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NativeDrawAttemptFrame nativeDraw)
         { AdvanceRuntimeFrame(nativeDraw.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is BeiMiHuTurnPreludeFrame beforeTurn)
@@ -280,6 +284,8 @@ public sealed partial class GameEngine
             else { AdvanceRuntimeFrame(recoveryReplacement.Id); AdvanceRulesAndPublishState(); }
             return;
         }
+        if (TryAdvanceHuanpeiAi()) return;
+        if (TryAdvanceZonghuAi()) return;
         if (TryAdvanceWeijieAi()) return;
         if (TryAdvanceRequestedDeckBasicAi()) return;
         if (TryAdvanceDrawFundedDistinctBasicAi()) return;

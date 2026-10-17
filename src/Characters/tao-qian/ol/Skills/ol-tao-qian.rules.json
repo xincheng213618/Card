@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zongluan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-slash",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [{ "op": "resolveZongluanPreparationSlashAndDiscard", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhaohuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-victim-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [{ "op": "resolveZhaohuoFirstVictimGift", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:wenren",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "distribute-draw",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [{ "op": "resolveWenrenSequentialDraw", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

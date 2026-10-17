@@ -13,14 +13,18 @@ public sealed partial class GameEngine
         { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     }
     private bool TracksNativeDrawInvocations =>
+        HasPangJiCapability ||
+        HasTaoQianCapability ||
+        HasZhaoZhongCapability ||
         HasHellZhiwangHolder ||
+        HasFengweiCapability ||
         HasFeiYiHezhong ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation) ||
-        HasSanwenCapability;
+        HasTangTangZhiyi || HasYuanJiCapability || HasSanwenCapability;
     private long OutsidePhaseMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static bool IsOutsidePhaseOperation(SkillProgramEffectOp op) => OutsidePhaseDrawDiscardComposition.IsOperation(op);
     private static string OutsidePhaseMovementReason(ProgramSkillFrame f, bool draw) =>
@@ -65,6 +69,7 @@ public sealed partial class GameEngine
             proof.Phase, proof.ParentFrameId, proof.DirectProducer, proof.Reason, proof.SequenceBefore, proof.SequenceAfter,
             proof.LastBatchId));
         CompleteSanwenNativeDrawQualification(proof);
+        CompleteTangTangNativeDrawQualification(proof);
     }
 
     private bool ValidNativeDrawInvocation(NativeDrawInvocationProof p)

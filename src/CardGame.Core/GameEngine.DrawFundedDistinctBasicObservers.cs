@@ -31,7 +31,7 @@ public sealed partial class GameEngine
             var child = _resolutionStack[index]; var parent = _resolutionStack[index - 1];
             if (parent is DyingFrame dying && (IsPaidHandRepaymentRescueRide(index - 1, dying) || IsPaidHandRepaymentProgramAlcoholRide(index - 1, dying) ||
                 PolicyCounterspellVirtualAlcoholRide(index - 1, dying) || PaidObserverDamageVirtualAlcoholRide(index - 1, dying) ||
-                TieredRoundZeroDyingRescueRide(index - 1, dying) || DrawFundedDistinctBasicDyingRescueRide(index - 1, dying))) return true;
+                TieredRoundZeroDyingRescueRide(index - 1, dying) || (DrawFundedDistinctBasicDyingRescueRide(index - 1, dying) || HuanpeiDyingRescueRide(index - 1, dying)))) return true;
             if (HalfHandPaidDamageObserverEdge(index) || DamageFrameRidesOn(child, parent) || DamageObserverRidesOn(child, parent) ||
                 RecoveryReplacementFrameRidesOn(child, parent) || ParticipantHandDyingRide(child, parent) ||
                 parent is DyingFrame entry && ParticipantHandDyingEntryRide(child, parent, entry) ||
@@ -53,7 +53,7 @@ public sealed partial class GameEngine
     private bool HasDrawFundedDistinctBasicDamageObserver(long damageId) => DrawFundedDistinctBasicObserverRoot(damageId) is not null;
     private bool IsDrawFundedDistinctBasicProgramDying() => ActiveDying is { } dying &&
         (DrawFundedDistinctBasicObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id) ||
-         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) is var index && index >= 0 && DrawFundedDistinctBasicDyingRescueRide(index, (DyingFrame)_resolutionStack[index]));
+         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) is var index && index >= 0 && (DrawFundedDistinctBasicDyingRescueRide(index, (DyingFrame)_resolutionStack[index]) || HuanpeiDyingRescueRide(index, (DyingFrame)_resolutionStack[index])));
 
     private bool AllowsDrawFundedDistinctBasicNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)

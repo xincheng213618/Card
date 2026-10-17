@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
-        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
+        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsZhaohuoPhysicalRestricted(player.Seat, card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
@@ -20,10 +20,12 @@ public sealed partial class GameEngine
             isColorless: suit == Suit.None);
     }
 
-    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>
+    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false, long? existingUseFrameId = null) =>
+        IsBiguoCategoryForbidden(actorSeat, effectiveKind) && !IsAcceptedBiguoUse(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
         effectiveKind == CardKind.Poison ||
         IsGuanduCardActionForbidden(actorSeat, effectiveKind, actionType) ||
         IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
+        MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
         ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(
@@ -36,9 +38,16 @@ public sealed partial class GameEngine
         IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsCategoryTalismanUseForbidden(actorSeat, effectiveKind, actionType);
 
+    private bool IsAcceptedBiguoUse(int actorSeat, CardKind kind, CardActionType actionType, long? useId) =>
+        actionType == CardActionType.Use && useId is { } id && LifecycleCardUse(id) is { Action: { Type: CardActionType.Use } action } use &&
+        use.SourceSeat == actorSeat && use.CardKind == kind && action.ActorSeat == actorSeat && action.EffectiveKind == kind &&
+        ProgramEventHistory<CardUseDeclaredEvent>().Count(e => e.ResolutionId == id && e.SourceSeat == actorSeat &&
+            e.CardKind == kind && e.CardId == use.CardId) == 1;
+
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
-        IEnumerable<LegalAction> actions) =>
+        IEnumerable<LegalAction> actions,
+        Card? nativeOriginalCard = null) =>
         actions.Where(action =>
         {
             if (HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly))
@@ -50,7 +59,9 @@ public sealed partial class GameEngine
                 if (action.TargetSeats.Any(targetSeat => targetSeat != actor.Seat))
                     return false;
             }
-            if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
+            if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind, nativeOriginalCard)) return true;
+            if (action.Kind != LegalActionKind.Recast && MouCaoPiHandUseForbidden(actor.Seat, effectiveKind,
+                action.CardId is { } material && material != 0 ? [material] : [])) return false;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
                     ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
             // Zero identifies a genuine material-free action, so only real entities have a physical color.
@@ -87,7 +98,8 @@ public sealed partial class GameEngine
     private bool TryGetLegalActionEffectiveCardKind(
         CharacterState actor,
         LegalAction action,
-        out CardKind effectiveKind)
+        out CardKind effectiveKind,
+        Card? nativeOriginalCard = null)
     {
         effectiveKind = default;
         if (action.Kind is LegalActionKind.EndPlay or LegalActionKind.Recast ||
@@ -106,7 +118,9 @@ public sealed partial class GameEngine
         }
 
         effectiveKind = action.PlayedCardKind ??
-            GetPlayableCards(actor).Single(card => card.Id == cardId).Kind;
+            (nativeOriginalCard is { } original && original.Id == cardId
+                ? original.Kind
+                : GetPlayableCards(actor).Single(card => card.Id == cardId).Kind);
         return true;
     }
 

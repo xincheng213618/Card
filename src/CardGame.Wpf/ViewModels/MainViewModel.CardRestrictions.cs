@@ -5,12 +5,21 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private static string PublicStateBadge(PlayerSnapshot player) =>
-        string.Join(" · ", new[] { AlcoholEffectBadge(player), PublicPileBadge(player), NamedPrivatePileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), PhaseSuitAllowanceBadge(player), SuitShieldBadge(player) }
+        string.Join(" · ", new[] { AlcoholEffectBadge(player), PublicPileBadge(player), NamedPrivatePileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), PhaseSuitAllowanceBadge(player), SuitShieldBadge(player), MouFangzhuBadge(player) }
             .Where(text => text.Length > 0));
 
     private static string PublicStateTooltip(PlayerSnapshot player) =>
-        string.Join("\n", new[] { AlcoholEffectTooltip(player), PublicPileTooltip(player), NamedPrivatePileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), PhaseSuitAllowanceTooltip(player), SuitShieldTooltip(player) }
+        string.Join("\n", new[] { AlcoholEffectTooltip(player), PublicPileTooltip(player), NamedPrivatePileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), PhaseSuitAllowanceTooltip(player), SuitShieldTooltip(player), MouFangzhuTooltip(player) }
             .Where(text => text.Length > 0));
+
+    private static string MouFangzhuBadge(PlayerSnapshot player) => string.Join("／", (player.MouCaoPiControls ?? []).Select(c => c.Kind switch
+    {
+        MouCaoPiControlKind.BasicHandOnly => "仅基本手牌", MouCaoPiControlKind.TrickHandOnly => "仅锦囊手牌",
+        MouCaoPiControlKind.EquipmentHandOnly => "仅装备手牌", MouCaoPiControlKind.CannotRespond => "不能响应他人",
+        _ => "武将技能失效"
+    }).Distinct());
+    private static string MouFangzhuTooltip(PlayerSnapshot player) => player.MouCaoPiControls is { Count: > 0 }
+        ? $"放逐：{MouFangzhuBadge(player)}；持续至此角色下个实际回合结束。手牌使用限制不禁止弃牌或单纯打出。" : string.Empty;
 
     private static string AlcoholEffectBadge(PlayerSnapshot player) =>
         player.HasAlcoholEffect ? $"酒效+{PublicAlcoholDamageBonus(player)}" : string.Empty;

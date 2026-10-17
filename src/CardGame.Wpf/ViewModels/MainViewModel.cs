@@ -1149,6 +1149,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             return;
         }
+        if (choice.Parameters.GetValueOrDefault("native-original-public-pile") == "true" &&
+            (IsPlayConversionSelectionPending || !OwnPublicPileMaterials(human).Any(card => card.Id == cardId) ||
+             !GetViewLegalActions().Any(action => IsNativePublicPilePlayAction(action, regionalCard)))) return;
 
         _selectedCardId = _selectedCardId == cardId ? null : cardId;
         if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
@@ -1171,9 +1174,28 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IReadOnlyList<LegalAction> legalActions)
     {
         EquipmentPlayChoices.Clear();
-        if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending ||
-            !IsPlayConversionSelectionPending)
+        if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending)
         {
+            return;
+        }
+
+        if (!IsPlayConversionSelectionPending)
+        {
+            foreach (var card in OwnPublicPileMaterials(human).Where(card =>
+                         legalActions.Any(action => IsNativePublicPilePlayAction(action, card))))
+            {
+                var zoneName = PublicPersistentOwnedPiles(human).First(pile =>
+                    pile.Cards.Any(material => material.Id == card.Id)).Name;
+                EquipmentPlayChoices.Add(new PromptChoice(
+                    new ChoiceId($"native-public-pile-play.card-{card.Id}"),
+                    _selectedCardId == card.Id ? $"✓ 已选择公开“{zoneName}”【{card.DisplayName}】；点击取消"
+                        : $"使用公开“{zoneName}”原牌【{card.DisplayName}】",
+                    [card.Id], [], new Dictionary<string, string>
+                    {
+                        ["action"] = "select-native-public-pile-play-card",
+                        ["native-original-public-pile"] = "true"
+                    }));
+            }
             return;
         }
 
@@ -1204,6 +1226,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
     }
+
+    private static bool IsNativePublicPilePlayAction(LegalAction action, CardSnapshot card) =>
+        action.CardId == card.Id && action.NativePublicPileSource is not null && action.ConversionSource is null &&
+        action.AdditionalConversionSources is not { Count: > 0 } &&
+        action.Kind is not (LegalActionKind.Recast or LegalActionKind.UseProgramSkill or LegalActionKind.UseEquipmentEffect) &&
+        (action.PlayedCardKind is null || action.PlayedCardKind == card.Kind);
 
     private static bool TryReadConversionSource(
         IReadOnlyDictionary<string, string> parameters,

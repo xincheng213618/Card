@@ -134,7 +134,7 @@ public sealed partial class GameEngine
             ConversionStateId = r.ConversionStateId, MinimumTier = r.MinimumTier, MaximumTier = r.MaximumTier,
             DeclarationValidation = r.DeclarationValidation, DeclaredEntity = r.DeclaredEntity, ActivationUsageGroup = r.ActivationUsageGroup,
             TieredRoundConversion = r.TieredRoundConversion, RoundOnceCardlessBasic = r.RoundOnceCardlessBasic,
-            ChainedStateCost = r.ChainedStateCost, RoundDistinctBasicUse = r.RoundDistinctBasicUse,
+            LeiluanBasicUse = r.LeiluanBasicUse, ChainedStateCost = r.ChainedStateCost, RoundDistinctBasicUse = r.RoundDistinctBasicUse,
             DrawFundedDistinctBasic = r.DrawFundedDistinctBasic, DisableSkillUntilTurnEndIfNoDamage = r.DisableSkillUntilTurnEndIfNoDamage,
             LastInSourceZone = r.LastInSourceZone, SourcePileSkillId = r.SourcePileSkillId, RoundGainedRedHandOnly = r.RoundGainedRedHandOnly
         };

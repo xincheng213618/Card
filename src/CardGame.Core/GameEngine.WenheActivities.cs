@@ -46,7 +46,7 @@ public sealed partial class GameEngine
     private void SetupWenhePlayers()
     {
         if (_modeDefinition.WenheActivity is null) throw new InvalidOperationException("Survival requires an explicit activity definition.");
-        var generals = _generalPool.ToList();
+        var generals = _generalPool.Where(IsGeneralSelectionCandidate).ToList();
         _random.Shuffle(generals);
         if (generals.Count < _playerCount) throw new InvalidOperationException("Wenhe needs eight eligible generals.");
         for (var seat = 0; seat < _playerCount; seat++)

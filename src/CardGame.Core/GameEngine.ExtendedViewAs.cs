@@ -17,13 +17,15 @@ public sealed partial class GameEngine
         if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
         return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection =>
             (kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)) &&
-            (kind != CardKind.Alcohol || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null)).Select(selection =>
+            (kind != CardKind.Alcohol || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
             return new PromptChoice(new ChoiceId("extended-view-as." + kind + "." + selection.Source.SkillId + "." +
                 string.Join('-', selection.Cards.Select(card => card.Id))),
-                $"发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张牌当【{CardCatalog.Get(kind).DisplayName}】。",
+                IsXieweiSelection(selection)
+                    ? $"发动【卸尾】，将两张手牌置为饵，视为使用【{CardCatalog.Get(kind).DisplayName}】。"
+                    : $"发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张牌当【{CardCatalog.Get(kind).DisplayName}】。",
                 selection.Cards.Select(card => card.Id).ToArray(), [], parameters);
         }).ToArray();
     }
@@ -43,6 +45,10 @@ public sealed partial class GameEngine
     private void ResolveExtendedViewAsResponse(CharacterState owner, ProgramMultiCardViewAsSelection selection)
     {
         var kind = selection.OutputKind;
+        if (kind == CardKind.Dodge && IsXieweiSelection(selection) &&
+            ActiveFactionDefense is { } defense && defense.CurrentCandidateSeat == owner.Seat &&
+            TryCompleteXieweiFactionDefense(defense, owner, selection)) return;
+        if (TryResolveLeiluanDyingResponse(owner, selection)) return;
         if (TryResolveRoundDistinctBasicDyingResponse(owner, selection)) return;
         if (kind == CardKind.Peach)
         {
@@ -95,7 +101,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         var responseAction = MoveProgramMultiCardResponse(owner, selection, attack.ResolutionId, attack.SourceSeat);
-        var continuation = ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null
+        var continuation = ViewAsRule(selection.Source) is { RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }
             ? ProgramCardContinuation.Dodge
             : ActiveGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
         if (TryBeginCommittedResponseUsePrograms(attack, responseAction, continuation)) return;

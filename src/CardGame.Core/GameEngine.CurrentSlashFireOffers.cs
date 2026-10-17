@@ -208,6 +208,16 @@ public sealed partial class GameEngine
                 // extra target after that original group completes.
                 continue;
             }
+            if (e is ChenglieTargetsAppliedEvent chenglie && chenglie.UseId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) ||
+                    !IsChenglieAppliedTargetFact(use, chenglie, designated, out var chenglieTargets))
+                    throw new InvalidOperationException("A Chenglie fire tail lost its exact finalized target prefix.");
+                designated = chenglieTargets.ToList();
+                actual = chenglieTargets.ToList();
+                // Finalized additions preserve the prepared original Fangtian plan.
+                continue;
+            }
             if (e is BingzhongTargetsAppliedEvent { AddedCount: > 0 } bingzhong && bingzhong.UseId == use.Id)
             {
                 if (use.BingzhongTail is not { } tail || !HasBingzhongTargetTail(use) ||

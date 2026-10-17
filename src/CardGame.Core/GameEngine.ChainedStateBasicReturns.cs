@@ -29,6 +29,7 @@ public sealed partial class GameEngine
         if(IsWuJingHejiRequest(parent)){PrepareWuJingChainedSlash(parent,p);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         if(IsCaoChunInitialRequest(parent)){PrepareCaoChunChainedSlash(parent,p);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;
+        if(IsSayingSlashRequest(parent)){PrepareSayingSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,p.EffectiveKind,[],p.Source);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         if(IsChanshuangSlashRequest(parent)){PrepareChanshuangSuppliedSlash(parent,actor.Seat,actor.Seat,p.TargetSeat!.Value,p.EffectiveKind,[],p.Source);BeginChainedStateBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id);return;}
         if (p.Intent == ChainedStateBasicIntent.ProgramSlash)
             CommitProgramChoiceResult(parent.Id, effect.ResultBind!, RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption, actor.Seat, "解除连环后视为使用【杀】。");
@@ -169,6 +170,7 @@ public sealed partial class GameEngine
     {
         if (parent.Id != p.ParentFrameId || parent.Id != p.RequestFrameId || parent.InstructionIndex != p.Cursor || parent.InstructionIndex < 1 ||
             _contentRegistry.Skills.GetValueOrDefault(parent.SkillId)?.Program is not { } definition || definition.GameplayHash != parent.GameplayHash) return false;
+        if(TryGetSayingSlashRequest(parent,out var sayingActor,out var sayingTargets))return p.Intent==ChainedStateBasicIntent.AssistedSlash&&sayingActor==p.Source.OwnerSeat&&p.TargetSeat is{}sayingTarget&&sayingTargets.Contains(sayingTarget);
         if(parent.Chanshuang is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&TryGetChanshuangSlashRequest(parent,out var actor,out var targets)&&actor==p.Source.OwnerSeat&&p.TargetSeat is{}target&&targets.Contains(target);
         if(parent.LvKuangLvXiang is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&QigongAdapterActor(parent,p.Source.OwnerSeat,p.TargetSeat,p.Cursor,p.ParentFrameId,p.RequestFrameId);
         if(parent.WuJing is not null)return p.Intent==ChainedStateBasicIntent.AssistedSlash&&WuJingHejiAdapterActor(parent,p.Source.OwnerSeat,p.TargetSeat,p.Cursor,p.ParentFrameId,p.RequestFrameId);
@@ -420,7 +422,7 @@ public sealed partial class GameEngine
             var child = _resolutionStack[i]; var parent = _resolutionStack[i - 1];
             if (parent is DyingFrame dying && (IsPaidHandRepaymentRescueRide(i - 1, dying) || IsPaidHandRepaymentProgramAlcoholRide(i - 1, dying) ||
                 PolicyCounterspellVirtualAlcoholRide(i - 1, dying) || PaidObserverDamageVirtualAlcoholRide(i - 1, dying) ||
-                TieredRoundZeroDyingRescueRide(i - 1, dying) || DrawFundedDistinctBasicDyingRescueRide(i - 1, dying))) return true;
+                TieredRoundZeroDyingRescueRide(i - 1, dying) || (DrawFundedDistinctBasicDyingRescueRide(i - 1, dying) || HuanpeiDyingRescueRide(i - 1, dying)))) return true;
             if (ChainedStateBasicStructuralEdge(parent, child) || HalfHandPaidDamageObserverEdge(i) || DamageFrameRidesOn(child, parent) ||
                 DamageObserverRidesOn(child, parent) || RecoveryReplacementFrameRidesOn(child, parent) || ParticipantHandDyingRide(child, parent) ||
                 parent is DyingFrame entry && ParticipantHandDyingEntryRide(child, parent, entry) ||

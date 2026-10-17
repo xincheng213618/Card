@@ -101,7 +101,7 @@ public sealed partial class GameEngine
         }
         foreach (var kind in SlashKinds)
         foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
-                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
+                     .Where(item => ViewAsRule(item.Source) is { RoundDistinctBasicUse: null, LeiluanBasicUse: null } || item.OutputKind == kind))
         {
             if (!AssistedSlashPaymentHasRange(actor, targetSeat, selection.Cards) || !CanUseSlashTarget(actor, _players[targetSeat], selection.Cards[0], selection.Source, kind, noEffectiveRank: selection.Cards.Count > 1, physicalCardIds:selection.Cards.Select(c=>c.Id).ToArray())) continue;
             var parameters = Parameters("use");
@@ -122,7 +122,7 @@ public sealed partial class GameEngine
     }
 
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards) =>
-        (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
+        HasSayingRoundRange(actor.Seat, targetSeat) || (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
         !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
         HasLiYiWeaponPaymentRange(actor, targetSeat, cards) ||
         GetCombatDistance(actor.Seat, targetSeat) <= 1;

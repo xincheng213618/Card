@@ -124,9 +124,9 @@ public static class ComposedSkillContentRegistry
 {
     /// <summary>Builds the current full local showcase plus the composed-skill mode.</summary>
     public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false,
-        bool includeBossActivities = false, bool includeHulaoActivities = false, bool includeShenwuActivities = false,
-        bool includeNianActivities = false, bool includeHellActivities = false, bool includeWenheActivities = false,
-        bool includeDragonBoatActivities = false, bool includeGuanduActivities = false)
+        bool includeBossActivities = false, bool historicalSelectionWeights = false, bool includeHulaoActivities = false,
+        bool includeShenwuActivities = false, bool historicalGeneralSelectionPools = false, bool includeNianActivities = false,
+        bool includeHellActivities = false, bool includeWenheActivities = false, bool includeDragonBoatActivities = false, bool includeGuanduActivities = false)
     {
         var packages = new List<IGameContentPackage>
         {
@@ -150,26 +150,37 @@ public static class ComposedSkillContentRegistry
         if (includeWenheActivities) packages.Add(new StandardWenheActivityPackage());
         if (includeDragonBoatActivities) packages.Add(new StandardDragonBoatActivityPackage());
         if (includeGuanduActivities) packages.Add(new StandardGuanduActivityPackage());
-        return ContentRegistry.Build(packages.ToArray());
+        return ContentRegistry.Build((historicalSelectionWeights
+            ? packages.Select(HistoricalGeneralSelectionContent.Wrap)
+            : historicalGeneralSelectionPools ? packages.Select(HistoricalGeneralSelectionContent.RestoreSelectionPools) : packages).ToArray());
     }
 
-    /// <summary>Restores the exact opt-in activity packages recorded by a checkpoint.</summary>
+    /// <summary>Chooses matching historical AI metadata while retaining strict replay fingerprint validation.</summary>
     public static ContentRegistry CreateShowcaseForCheckpoint(GameCheckpoint checkpoint)
     {
         ArgumentNullException.ThrowIfNull(checkpoint);
         ArgumentNullException.ThrowIfNull(checkpoint.ContentPackages);
+        ArgumentNullException.ThrowIfNull(checkpoint.Options);
         bool Includes(IGameContentPackage package) => checkpoint.ContentPackages.Contains(
             $"{package.Manifest.Id}@{package.Manifest.Version}", StringComparer.Ordinal);
-        return CreateShowcase(
-            includeNationalZhangJiao: Includes(new StandardNationalZhangJiaoPackage()),
-            includeActivities: Includes(new StandardJiangeActivityPackage()),
-            includeBossActivities: Includes(new StandardGhostActivityPackage()),
-            includeHulaoActivities: Includes(new StandardHulaoActivityPackage()),
-            includeShenwuActivities: Includes(new StandardShenwuActivityPackage()),
-            includeNianActivities: Includes(new StandardNianActivityPackage()),
-            includeHellActivities: Includes(new StandardHellActivityPackage()),
-            includeWenheActivities: Includes(new StandardWenheActivityPackage()),
-            includeDragonBoatActivities: Includes(new StandardDragonBoatActivityPackage()),
-            includeGuanduActivities: Includes(new StandardGuanduActivityPackage()));
+        var national = Includes(new StandardNationalZhangJiaoPackage());
+        var activities = Includes(new StandardJiangeActivityPackage());
+        var bosses = Includes(new StandardGhostActivityPackage());
+        var hulao = Includes(new StandardHulaoActivityPackage());
+        var shenwu = Includes(new StandardShenwuActivityPackage());
+        var nian = Includes(new StandardNianActivityPackage());
+        var hell = Includes(new StandardHellActivityPackage());
+        var wenhe = Includes(new StandardWenheActivityPackage());
+        var dragonBoat = Includes(new StandardDragonBoatActivityPackage());
+        var guandu = Includes(new StandardGuanduActivityPackage());
+        var current = CreateShowcase(national, activities, bosses, includeHulaoActivities: hulao, includeShenwuActivities: shenwu, includeNianActivities: nian, includeHellActivities: hell, includeWenheActivities: wenhe, includeDragonBoatActivities: dragonBoat, includeGuanduActivities: guandu);
+        if (current.ContentHash == checkpoint.ContentHash) return current;
+        var previousPools = CreateShowcase(national, activities, bosses, includeHulaoActivities: hulao,
+            includeShenwuActivities: shenwu, historicalGeneralSelectionPools: true, includeNianActivities: nian, includeHellActivities: hell, includeWenheActivities: wenhe, includeDragonBoatActivities: dragonBoat, includeGuanduActivities: guandu);
+        if (previousPools.ContentHash == checkpoint.ContentHash) return previousPools;
+        if (checkpoint.Options.AiPolicyVersion >= AiDecisionPolicy.RuleBasedGeneralSelectionVersion) return current;
+        var historical = CreateShowcase(national, activities, bosses, historicalSelectionWeights: true, includeHulaoActivities: hulao, includeShenwuActivities: shenwu, includeNianActivities: nian, includeHellActivities: hell, includeWenheActivities: wenhe, includeDragonBoatActivities: dragonBoat, includeGuanduActivities: guandu);
+        return historical.ContentHash == checkpoint.ContentHash ? historical : current;
     }
+
 }
