@@ -128,7 +128,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId)).Single(item => item.Id == continuation.CardId);
         var source = _players[frame.SourceSeat];
         SetCardUseStep(frameId, ResolutionFrameStep.ResolvingEffect);
-        if (!source.IsAlive && frame.ExtraCardEffect is null)
+        if (!source.IsAlive && frame.ExtraCardEffect is null && !IsZixiExtraEffectRound(frameId))
         {
             FinishCardUse(frameId, card, frame.CardKind);
             return;

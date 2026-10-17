@@ -277,7 +277,7 @@ public sealed partial class GameEngine
             ActiveGroupCard is not { Effect: GroupCardEffect.ResponseAttack, CurrentAttack: { } current } group ||
             group.ResolutionId != use.Id || !SameAttackOwner(current, attack) || group.SourceSeat != use.SourceSeat ||
             group.DamageSourceSeat != attack.SourceSeat || group.TargetIndex < 0 || group.TargetIndex >= group.TargetSeats.Count ||
-            !group.TargetSeats.SequenceEqual(use.TargetSeats) ||
+            !group.TargetSeats.SequenceEqual(use.TargetSeats) && !IsZixiExtraEffectTargetSubset(use, group.TargetSeats) ||
             group.RequiredCardKind != (use.CardKind == CardKind.BarbarianAssault ? CardKind.Slash : CardKind.Dodge))
             return false;
         var originalTarget = group.TargetSeats[group.TargetIndex];

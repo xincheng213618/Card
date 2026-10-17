@@ -898,7 +898,8 @@ public sealed partial class GameEngine
         }
 
         if (!IsWenhePhysicalPoison(provider, card) && !hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
-            (!IsOwnPublicPileCard(provider, card) || IsNativePublicPileOriginalChoice(provider, card, effectiveKind, false)) &&
+            (!IsOwnPublicPileCard(provider, card) || IsNativePublicPileOriginalChoice(provider, card, effectiveKind, false) ||
+                IsFriendYangmingOriginalUseChoice(provider, card, effectiveKind)) &&
             (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
             (selectedChoice || candidates.Length == 0)) return null;
         throw new InvalidOperationException("A converted card use requires its published source choice.");

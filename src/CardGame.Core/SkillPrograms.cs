@@ -998,6 +998,8 @@ public enum SkillProgramEffectOp
     ResolveQiqinDiscardPileQin = 28610,
     InitializeQiqinInitialEntities = 28611,
     ResolveWeiwanQinDiscardAndSuitObtain = 28620,
+    ResolveZixiQinJudgmentPlacement = 28710,
+    ResolveZixiUniqueTargetJudgmentEffects = 28720,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -3941,8 +3943,25 @@ public sealed class SkillProgramCatalog
             xieweiEffects.GetArrayLength() == 1 && xieweiEffects[0].ValueKind == JsonValueKind.Object &&
             xieweiEffects[0].TryGetProperty("op", out var xieweiOp) && xieweiOp.ValueKind == JsonValueKind.String &&
             string.Equals(xieweiOp.GetString(), "resolveXieweiTwoHandBaitBasicUse", StringComparison.OrdinalIgnoreCase);
+        var zixiUniqueTargetSingleAction = skillId == "le:zixi" && id == "unique-target-judgment-effects" &&
+            window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
+            node.TryGetProperty("ownerRelation", out var zixiOwner) && zixiOwner.ValueKind == JsonValueKind.String &&
+            string.Equals(zixiOwner.GetString(), "actor", StringComparison.OrdinalIgnoreCase) &&
+            node.TryGetProperty("optional", out var zixiOptional) && zixiOptional.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("singleActionInstance", out var zixiSingle) && zixiSingle.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("cardCategories", out var zixiCategories) && zixiCategories.ValueKind == JsonValueKind.Array &&
+            zixiCategories.GetArrayLength() == 2 && zixiCategories[0].ValueKind == JsonValueKind.String &&
+            zixiCategories[1].ValueKind == JsonValueKind.String &&
+            string.Equals(zixiCategories[0].GetString(), "basic", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(zixiCategories[1].GetString(), "instantTrick", StringComparison.OrdinalIgnoreCase) &&
+            node.TryGetProperty("effects", out var zixiEffects) && zixiEffects.ValueKind == JsonValueKind.Array &&
+            zixiEffects.GetArrayLength() == 1 && zixiEffects[0].ValueKind == JsonValueKind.Object &&
+            zixiEffects[0].TryGetProperty("op", out var zixiOp) && zixiOp.ValueKind == JsonValueKind.String &&
+            string.Equals(zixiOp.GetString(), "resolveZixiUniqueTargetJudgmentEffects", StringComparison.OrdinalIgnoreCase) &&
+            zixiEffects[0].TryGetProperty("target", out var zixiTarget) && zixiTarget.ValueKind == JsonValueKind.String &&
+            string.Equals(zixiTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
         if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted &&
-            !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction &&
+            !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction && !zixiUniqueTargetSingleAction &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 node.TryGetProperty("effects", out var designatedEffects) && designatedEffects.ValueKind == JsonValueKind.Array &&
                 designatedEffects.GetArrayLength() == 1 && designatedEffects[0].ValueKind == JsonValueKind.Object &&
@@ -5196,10 +5215,12 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) LingkongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ShuangjiaComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) QiqinComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) ZixiPlacementComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) JuewuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) BeifenComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuYixianComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WeiwanComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) ZixiEffectsComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuyouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) XianshuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) SiruiComposition.ValidateProgram(program.Id, program);

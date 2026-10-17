@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private bool TryContinuePaidVirtualSlashTargets(CardAttackHandle attack)
     {
+        if (IsTargetScopedZixiEffectRound(attack.ResolutionId)) return false;
         if (attack.Card is not null || !IsForeignPublicPileSlashUse(attack.ResolutionId)) return false;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId);
         var next = use.TargetIndex + 1;

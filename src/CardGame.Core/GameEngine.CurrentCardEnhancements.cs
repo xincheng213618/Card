@@ -161,7 +161,7 @@ public sealed partial class GameEngine
     private bool HasCurrentCardEnhancement(long frameId, CurrentCardEnhancement flag) =>
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { } use && (use.Enhancements & flag) != 0;
 
-    private bool HasRemainingEnhancedSlashTargets(long frameId) => _winner == Winner.None &&
+    private bool HasRemainingEnhancedSlashTargets(long frameId) => !IsTargetScopedZixiEffectRound(frameId) && _winner == Winner.None &&
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { } use &&
         IsSlashCard(use.CardKind) && use.TargetSeats.Count > 1 &&
         use.TargetSeats.Skip(use.TargetIndex + 1).Any(seat => _players[seat].IsAlive);

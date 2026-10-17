@@ -103,7 +103,8 @@ public sealed partial class GameEngine
         CharacterState provider, IReadOnlyList<Card> materials, bool forResponse)
     {
         if (source is null && materials is [var original] &&
-            IsNativePublicPileOriginalChoice(provider, original, original.Kind, forResponse)) return;
+            (IsNativePublicPileOriginalChoice(provider, original, original.Kind, forResponse) ||
+             !forResponse && IsFriendYangmingOriginalUseChoice(provider, original, original.Kind))) return;
         if (!materials.Any(card => IsOwnPublicPileCard(provider, card)) &&
             (source is null || ViewAsRule(source)?.SourcePileSkillId is null)) return;
         if (source is null || source.OwnerSeat != provider.Seat || materials.Count != 1 ||

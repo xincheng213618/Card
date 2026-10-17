@@ -35,7 +35,7 @@ public sealed partial class GameEngine
     private void ConsumeDuFuRenActualDamage(IGameEvent payload)
     {
         if (HasDuFuRenYise && payload is ExtraCardEffectStartedEvent extra && LifecycleCardUse(extra.CardUseFrameId) is
-            { ExtraCardEffect.WholeGroupRepeated: true, Action: { } action, DuFuRenDamage: not null } restarted &&
+            { Action: { } action, DuFuRenDamage: not null } restarted && IsExtraCardEffectRound(restarted.Id) &&
             action.ActionId == extra.ActionId && restarted.Id == extra.CardUseFrameId && _resolutionStack.LastOrDefault()?.Id == restarted.Id)
             SetDuFuRenDamageState(restarted.Id,null);
         if (HasDuFuRenYise && payload is ProgramDamageTransferredEvent transfer && CurrentDamageAttempt is { } moved &&

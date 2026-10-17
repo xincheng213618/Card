@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:zixi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "start-place-qin",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveZixiQinJudgmentPlacement",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "end-place-qin",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveZixiQinJudgmentPlacement",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "unique-target-judgment-effects",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "basic",
+            "instantTrick"
+          ],
+          "singleActionInstance": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveZixiUniqueTargetJudgmentEffects",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

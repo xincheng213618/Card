@@ -56,6 +56,38 @@ public sealed partial class GameEngine
             MoveCards(cards, CardLocation.DrawPile, FriendYangmingLocation(frame), new("friend.yangming.place")));
         return SkillProgramStepOutcome.AwaitChild;
     }
+    // Yangming is an original-card producer, not a view-as conversion or Shuliang access.
+    // Its exact live Use-stage parent and original Deck-to-frame-pile entry authorize admission.
+    private bool IsFriendYangmingOriginalUseFrame(ProgramSkillFrame frame, CharacterState owner, Card card, CardKind kind)
+    {
+        if (card.Id <= 0 || card.Kind != kind || frame.OwnerSeat != owner.Seat || !DeckProgramSourceValid(frame) ||
+            frame.FriendPangTong is not { Operation: SkillProgramEffectOp.UseFriendDeckSuitsAtPlayEnd,
+                Stage: FriendPangTongStage.Use, UseId: null } receipt || receipt.InstructionIndex != frame.InstructionIndex ||
+            !receipt.Cards.Contains(card.Id) || receipt.UsedSuits.Contains(card.Suit) ||
+            _contentRegistry.GetSkill(frame.SkillId).Program is not { } program || program.GameplayHash != frame.GameplayHash ||
+            _cardZones.GetLocation(card.Id) != FriendYangmingLocation(frame)) return false;
+        var effect = ProgramInstructionResolver.Default.Resolve(frame, program).GetPausedInstruction(frame.InstructionIndex).Effect;
+        return effect.Op == SkillProgramEffectOp.UseFriendDeckSuitsAtPlayEnd &&
+            ProgramEventHistory<FriendYangmingStoredEvent>().Count(e => e.ProgramFrameId == frame.Id &&
+                e.OwnerSeat == owner.Seat && e.Count == receipt.Cards.Count) == 1 &&
+            _cardMovements.Count(move => move.CardId == card.Id && move.CardKind == card.Kind &&
+                move.From == CardLocation.DrawPile && move.To == FriendYangmingLocation(frame) &&
+                move.Reason.Value == "friend.yangming.place") == 1;
+    }
+    private bool IsFriendYangmingOriginalUseChoice(CharacterState owner, Card card, CardKind kind) =>
+        _resolutionStack.LastOrDefault() is ProgramSkillFrame frame && IsFriendYangmingOriginalUseFrame(frame, owner, card, kind);
+    private bool IsFriendYangmingOriginalUseParent(CardUseFrame use)
+    {
+        var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
+        if (index != _resolutionStack.Count - 1 || index < 1 || _resolutionStack[index - 1] is not ProgramSkillFrame parent ||
+            use.Action is not { Type: CardActionType.Use, PhysicalCards: [var cost], ConversionChain.Count: 0 } action ||
+            action.ActorSeat != parent.OwnerSeat || action.ProviderSeat != parent.OwnerSeat || action.RequesterSeat is not null ||
+            use.SourceSeat != parent.OwnerSeat || use.CardId != cost.CardId || use.CardKind != cost.CardKind ||
+            action.EffectiveKind != cost.CardKind || cost.From != FriendYangmingLocation(parent) ||
+            use.PhysicalCardIds is not [var physicalId] || physicalId != cost.CardId) return false;
+        return IsFriendYangmingOriginalUseFrame(parent, _players[parent.OwnerSeat], GetAttackCard(cost.CardId), cost.CardKind);
+    }
+
     private IReadOnlyList<LegalAction> FriendYangmingActions(ProgramSkillFrame frame)
     {
         var receipt = frame.FriendPangTong!; var actor = _players[frame.OwnerSeat]; var actions = new List<LegalAction>();
@@ -85,7 +117,7 @@ public sealed partial class GameEngine
                         $"使用【{card.DisplayName}】：{option.Description}", kind, option.TargetCardId, option.TargetSeats));
             else if (kind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning)
                 foreach (var target in _players.Where(target => target.IsAlive && (kind == CardKind.Lightning ? target.Seat == actor.Seat : target.Seat != actor.Seat) &&
-                    !target.JudgmentAreaAbolished && !GetJudgment(target).Any(existing => existing.Kind == kind) &&
+                    !target.JudgmentAreaAbolished && !HasJudgmentEffectiveCard(target, kind) &&
                     !IsCardTargetProhibited(target, kind, suit, red) && !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) &&
                     (kind != CardKind.SupplyShortage || GetSeatDistance(actor.Seat, target.Seat) <= 1 || HasCardDistanceExemption(actor, target, kind))))
                     actions.Add(new(kind switch { CardKind.Indulgence => LegalActionKind.Indulgence,
@@ -162,6 +194,7 @@ public sealed partial class GameEngine
             hasActualColor: true, physicalCardIds: [card.Id], includeNextActualUseAdjustment: true).Single(candidate => candidate.ActionKind == action.Kind &&
                 candidate.TargetCardId == action.TargetCardId && candidate.TargetSeats.SequenceEqual(action.TargetSeats));
         if (option?.NextActualUseAdjusted == true) _selectedNextCardTargetSeats = action.TargetSeats;
+        SelectUseConversion(action);
         var id = BeginCardUse(card, actor.Seat, action.TargetSeats, kind,
             designatedTargetSeats: kind == CardKind.BorrowedSword ? action.TargetSeats.Take(1).ToArray() : null);
         var use = LifecycleCardUse(id)!;

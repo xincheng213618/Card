@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         !HasBeneficiarySuitShield(ownerSeat, targetSeat, EffectiveSuit(_players[ownerSeat], card));
 
     private IEnumerable<(int Seat, Card Card)> DiamondJudgments() => _players.Where(p => p.IsAlive)
-        .OrderBy(p => p.Seat).SelectMany(p => GetJudgment(p).Where(c => GetJudgmentEffectiveCardKind(c) == CardKind.Indulgence)
+        .OrderBy(p => p.Seat).SelectMany(p => GetJudgment(p).Where(c => !IsZixiQinJudgmentCard(c.Id) && GetJudgmentEffectiveCardKind(c) == CardKind.Indulgence)
             .OrderBy(c => c.Id).Select(c => (p.Seat, c)));
 
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 100)]

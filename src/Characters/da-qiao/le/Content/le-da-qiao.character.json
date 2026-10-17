@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:da-qiao",
+  "skills": [
+    {
+      "registrationOrder": 2185,
+      "programBundle": "le-da-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:zixi",
+        "name": "姊希",
+        "description": "出牌阶段开始时和结束时，你可以将至多2张“琴”放置在一名角色的判定区。你使用基本牌或普通锦囊牌指定唯一目标后，可根据其判定区牌的张数获得以下效果：1张：此牌对其额外结算1次；2张：你摸2张牌；3张：获得其判定区和装备区所有牌并对其造成3点伤害。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2186,
+      "pools": {
+        "current": 501
+      },
+      "definition": {
+        "id": "le:da-qiao",
+        "name": "乐大乔",
+        "portraitKey": "le-da-qiao",
+        "skillId": "le:qiqin",
+        "additionalSkillIds": [
+          "le:zixi"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Female",
+        "characterId": "character:da-qiao",
+        "variantId": "le",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

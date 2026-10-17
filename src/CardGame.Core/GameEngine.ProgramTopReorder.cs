@@ -161,7 +161,7 @@ public sealed partial class GameEngine
         var state = frame.TopReorder ?? throw new InvalidOperationException("AI top ordering has no cards.");
         var decision = _pendingDecision ?? throw new InvalidOperationException("AI top ordering has no prompt.");
         var owner = _players[frame.OwnerSeat];
-        var delayed = GetJudgment(owner).Count(card => IsDelayedCard(GetJudgmentEffectiveCardKind(card)));
+        var delayed = GetJudgment(owner).Count(card => !IsZixiQinJudgmentCard(card.Id) && IsDelayedCard(GetJudgmentEffectiveCardKind(card)));
         var desiredTop = state.RequiredTopCount ?? Math.Min(state.ViewedCardIds.Count, delayed + Math.Max(0, GetTurnDrawCount(owner)));
         var selected = !state.ChoosingBottom && state.TopCardIds.Count >= desiredTop
             ? decision.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "finish-top")

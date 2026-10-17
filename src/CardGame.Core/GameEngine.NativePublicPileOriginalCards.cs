@@ -156,6 +156,7 @@ public sealed partial class GameEngine
     {
         if (use.Action is not { Type: CardActionType.Use, PhysicalCards: [var cost], ConversionChain.Count: 0 } action ||
             cost.From.Zone != CardZoneKind.PublicPersistentPile) return;
+        if (IsFriendYangmingOriginalUseParent(use)) return;
         var previous = _resolutionStack.Count > 1 ? _resolutionStack[^2] : null;
         if (previous?.NativePublicPilePayment is { SequenceAfter: 0 } selected &&
             selected.Card.Id == cost.CardId && selected.Card.Kind == cost.CardKind && selected.Pile.Location == cost.From &&

@@ -55,7 +55,7 @@ public sealed partial class GameEngine
     {
         if (!HasYintianCapability) return;
         if (payload is ExtraCardEffectStartedEvent extra && LifecycleCardUse(extra.CardUseFrameId) is
-            { ExtraCardEffect.WholeGroupRepeated: true, Action: { } action, YintianDamage: not null } restarted &&
+            { Action: { } action, YintianDamage: not null } restarted && IsExtraCardEffectRound(restarted.Id) &&
             action.ActionId == extra.ActionId && _resolutionStack.LastOrDefault()?.Id == restarted.Id)
             SetYintianDamageState(restarted.Id, null);
         if (payload is ProgramDamageTransferredEvent transfer && CurrentDamageAttempt is { IsSourceLess: false } moved &&

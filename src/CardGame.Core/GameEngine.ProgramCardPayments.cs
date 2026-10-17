@@ -384,6 +384,8 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(destinationSeat) || !_players[destinationSeat].IsAlive)
             return false;
         var recipient = _players[destinationSeat];
+        if (sourceZone == CardZoneKind.Judgment && IsZixiQinJudgmentCard(card.Id))
+            return CanTransferZixiQinJudgmentCard(card, destinationSeat);
         if (sourceZone == CardZoneKind.Judgment)
             return !recipient.JudgmentAreaAbolished && !HasCardPolicy(recipient, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) &&
                 IsDelayedCard(GetJudgmentEffectiveCardKind(card)) &&
