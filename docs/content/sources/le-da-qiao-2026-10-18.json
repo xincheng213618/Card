@@ -1,0 +1,95 @@
+{
+  "checkedAtUtc": "2026-10-17T20:08:03.365408+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐大乔",
+  "generalId": "le:da-qiao",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "selectedEdition": "2026-07-30 6.4.1 official update",
+  "sources": [
+    {
+      "label": "hero",
+      "url": "https://x.sanguosha.com/hero/1335.html",
+      "httpStatus": 200,
+      "bytes": 32719,
+      "sha256": "d4bc8a3e982869cc9da133d9821379e4536d6662fcaa2e3a8263084a54723353"
+    },
+    {
+      "label": "launch",
+      "url": "https://www.sanguosha.com/news/20240201_2175_0716",
+      "httpStatus": 200,
+      "bytes": 136748,
+      "sha256": "8d43cbbb33fd8da2c662a4839333a53927bc37b10bcd1e279f0e813a64017475"
+    },
+    {
+      "label": "guide",
+      "url": "https://my.4399.com/yxxsgs/ziliao/60653/",
+      "httpStatus": 200,
+      "bytes": 58061,
+      "sha256": "cf530782f27ac51be3068a78cfc729ffe703d31d6087bcb2f9610004c7d5b9e8"
+    },
+    {
+      "label": "revision",
+      "url": "https://x.sanguosha.com/news/20260727_8819_0810.html",
+      "httpStatus": 200,
+      "bytes": 16428,
+      "sha256": "05a5308c9b134f392c929e4f547a8668bac6ace049cedf5fbfb581b396237e44"
+    }
+  ],
+  "sourceConflict": {
+    "datedRevision": "The 2026-07-30 official update says Basic or ordinary Trick, four HP, place at most two Qin, and obtain all Judgment plus Equipment then deal three damage for the three-card outcome.",
+    "currentHero": "The current developer hero page also shows four HP and the new two-Qin / obtain outcome, but says Slash or ordinary Trick instead of Basic.",
+    "userChoice": "The user explicitly chose the 2026-07-30 official update on 2026-10-18. Implementation, rule text and focused coverage follow that complete Basic-card edition.",
+    "legacyGuide": "The 2024 first-party operator guide is used only for stable Qin pooling and named Judgment-subslot placement explanations; its old one-card placement and discard-three outcome are not implemented."
+  },
+  "officialHero": "https://x.sanguosha.com/hero/1335.html",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133501.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1335.html",
+    "id": "1133501",
+    "name": "经典形象",
+    "sha256": "490c56b796e217a13cd4f2782133b425b9dc08a6a1728fcd490ac2287dda969a",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "httpStatus": 200,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-da-qiao.png"
+  },
+  "engineeringInterpretations": {
+    "sharedQin": "Reuse the exact registered le:qiqin and permanent global physical Qin markers from Le Xiao Qiao. Both holders collect the same DiscardPile pool; no second marker family or duplicate skill registration.",
+    "judgmentPlacement": "Place real Qin entities in Judgment while preserving printed kinds. A separate named subslot distinguishes Indulgence, Supply Shortage and Lightning occupancy. This is a native movement, not a delayed-trick Use; attached Qin are not judged as their printed card. A departure removes its special attachment; real continuous Judgment-to-Judgment movement must preserve its slot and target occupancy validation.",
+    "effects": "Use the selected 2026-07-30 Basic-or-ordinary-Trick edition, excluding pure Played and delayed tricks. The unique character target belongs to the original native Use, including Borrowed Sword main weapon owner rather than its later Slash victim.",
+    "finalTargets": "Ordinary Liuli redirects before the native finalized-target boundary, so qualification reads the actual finalized sole character. Once an effect has been issued, any later accepted target replacement follows its original Use through validated native replacement facts rather than re-counting Judgment cards or granting new effects to added targets."
+  },
+  "validation": {
+    "status": "passed",
+    "manualFullRun": false,
+    "selectedEdition": "2026-07-30 6.4.1 official update, explicitly chosen by the user after source-conflict review.",
+    "visualInspection": "Actual WPF Qin Judgment render and official general detail render inspected.",
+    "coveredBoundaries": [
+      "Reuse the single registered Qiqin skill and permanent global physical Qin pool; four-HP Le Da Qiao has the complete Basic-card revision.",
+      "Actual Play start and ending private zero-to-two Qin placement, reversible draft, canonical choices, real entity movement and independent named Judgment subslots.",
+      "Attached Qin preserve original IDs and printed faces, do not perform native delayed-trick judgments, block the chosen slot, and retain attachment only through continuous Judgment-to-Judgment movement.",
+      "The original finalized sole character target qualifies Basic and ordinary Trick uses, including self recovery, native rescue use and Borrowed Sword weapon owner; pure Played and delayed tricks are excluded.",
+      "One Judgment grants an independent native extra effect round for the qualifying target, with native responses, redirects, source rights and original once-paid card Use.",
+      "Two Judgments perform native Draw2 and its replacement children; three obtain all actual Judgment and Equipment as one native batch, drain equipment-removal children, then deal native damage three.",
+      "Cold replay, exact signed source and immutable frame receipts, private/stale/forged inputs, paid source loss and death boundaries.",
+      "True named delayed-card consumers distinguish attached Qin from actual Indulgence, and native delayed placement checks the occupied subslot rather than the printed kind.",
+      "The existing Yangming original public-pile Use retains its exact live mother, signed source, real entry and raw original payment without expanding general public-pile or response access.",
+      "True Fengzi and Zixi compose independent native extra rounds under one original physical Use, with each separate cost paid once.",
+      "WPF native placement choices, original Judgment faces, distinct Qin slot corner glyphs and current general gallery details."
+    ],
+    "scope": "Development focused and bounded routine checks only. No manual full run, packaging, release, push or complete manual foreground match.",
+    "verifiedAtUtc": "2026-10-17T20:56:33.386032+00:00",
+    "focused": {
+      "corePassed": 42,
+      "wpfPassed": 2,
+      "durationMs": 75390
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 76574
+    },
+    "nativeInput": "Routine WPF native input checks passed; idle input was required by their real prerequisite guards. The actual native route reported AsyncLeftDown=false."
+  }
+}

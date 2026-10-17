@@ -843,10 +843,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     .Select(card => new EquipmentSlotViewModel(EquipmentCatalog.Get(card.Kind).Slot, card)).ToArray()),
                 JudgmentText = player.Judgment.Count == 0
                     ? "判定区 —"
-                    : $"判定区 {string.Join(" · ", player.Judgment.Select(card => card.DisplayName))}",
-                JudgmentStatuses = Array.AsReadOnly(player.Judgment.Select(card => new JudgmentStatusViewModel(
-                    card.Id, card.Kind, card.DisplayName,
-                    $"{card.DisplayName} · {GetSuitGlyph(card.Suit)}{card.RankText}\n判定区\n\n{GetCardDescription(card.Kind)}")).ToArray()),
+                    : $"判定区 {string.Join(" · ", player.Judgment.Select(JudgmentDisplayName))}",
+                JudgmentStatuses = Array.AsReadOnly(player.Judgment.Select(BuildJudgmentStatus).ToArray()),
                 DistanceText = humanSeat < 0
                     ? string.Empty
                     : player.Seat == humanSeat

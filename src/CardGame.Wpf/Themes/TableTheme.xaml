@@ -350,11 +350,17 @@
             <Path Data="M 16,4 L 28,16 16,28 4,16 Z" Stroke="#9E833F" StrokeThickness="0.7" IsHitTestVisible="False" />
             <TextBlock x:Name="JudgmentGlyph" Text="{Binding Glyph}" Foreground="#33291B" FontFamily="KaiTi" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
             <Path x:Name="LightningGlyph" Data="M 19,5 L 8,18 15,18 12,27 25,12 18,12 Z" Fill="#35B9D4" Stroke="#FFF8D4" StrokeThickness="1.3" StrokeLineJoin="Round" Visibility="Collapsed" IsHitTestVisible="False" />
+            <Border x:Name="QinSlotBadge" Background="#253633" CornerRadius="2" MinWidth="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" IsHitTestVisible="False">
+                <TextBlock Text="{Binding SlotGlyph}" Foreground="#FFF1BD" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
         </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsLightning}" Value="True">
                 <Setter TargetName="JudgmentGlyph" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="LightningGlyph" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsQin}" Value="True">
+                <Setter TargetName="QinSlotBadge" Property="Visibility" Value="Visible" />
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>

@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-da-qiao",
+      "characterName": "乐大乔",
+      "defaultSkinId": "1133501",
+      "skins": [
+        {
+          "id": "1133501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1335.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133501.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-da-qiao.png",
+          "sha256": "490c56b796e217a13cd4f2782133b425b9dc08a6a1728fcd490ac2287dda969a",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "le-xiao-qiao",
       "characterName": "乐小乔",
       "defaultSkinId": "1133601",
