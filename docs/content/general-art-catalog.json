@@ -14923,6 +14923,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-yuan-ji",
+      "characterName": "袁姬·OL",
+      "defaultSkinId": "65200",
+      "skins": [
+        {
+          "id": "65200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/652",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-yuan-ji.png",
+          "sha256": "f23d0971aaf006306e9e52e3ad87cc0c2fe90275680b5e69023feae689bea3d3",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
