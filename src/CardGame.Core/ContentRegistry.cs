@@ -155,8 +155,10 @@ public sealed record ContentModeDefinition(
     public IReadOnlyDictionary<string, int>? RoleGeneralCandidateCounts { get; init; }
     /// <summary>Optional identity candidate families; every listed version remains a distinct legal general.</summary>
     public IReadOnlyDictionary<string, IReadOnlyList<string>>? GeneralVariantGroups { get; init; }
-    /// <summary>Opt-in weighted family drafting and AI preferences; omitted generals have weight 1.</summary>
+    /// <summary>AI strength preferences only; these never affect candidate draw probability.</summary>
     public IReadOnlyDictionary<string, int>? GeneralSelectionWeights { get; init; }
+    /// <summary>Exact editions AI may draw directly but may not obtain through another edition's swap.</summary>
+    public IReadOnlyList<string>? AiGeneralSwapExcludedIds { get; init; }
 }
 
 /// <summary>
@@ -472,6 +474,8 @@ public sealed class ContentRegistry
             if (mode.GeneralSelectionWeights is { } weights)
                 fingerprint[nameof(mode.GeneralSelectionWeights)] = weights.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
+            if (mode.AiGeneralSwapExcludedIds is { } excluded)
+                fingerprint[nameof(mode.AiGeneralSwapExcludedIds)] = excluded.Order(StringComparer.Ordinal).ToArray();
             return fingerprint;
         }
 
@@ -903,15 +907,24 @@ public sealed class ContentRegistry
                      variants.Values.Sum(ids => ids.Count)))
                     throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general variant groups.");
 
+                if (mode.AiGeneralSwapExcludedIds is { } excluded &&
+                    (mode.GeneralVariantGroups is null || mode.GeneralPoolIds is null ||
+                     excluded.Distinct(StringComparer.Ordinal).Count() != excluded.Count ||
+                     excluded.Any(id => !mode.GeneralPoolIds.Contains(id, StringComparer.Ordinal))))
+                    throw new InvalidOperationException($"Mode '{mode.Id}' has invalid AI general swap exclusions.");
+
                 if (mode.GeneralSelectionWeights is { } weights)
                 {
                     if (mode.ModeKind != ContentModeKind.Identity || mode.GeneralPoolIds is null ||
                         weights.Any(entry => entry.Value is < 1 or > 1000 ||
                             !mode.GeneralPoolIds.Contains(entry.Key, StringComparer.Ordinal)))
                         throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general selection weights.");
+                }
+                if (mode.AiGeneralSwapExcludedIds is not null || mode.GeneralSelectionWeights is not null)
+                {
                     var familyKeys = mode.GeneralVariantGroups?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
                         .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
-                    if (mode.GeneralPoolIds.DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
+                    if (mode.GeneralPoolIds!.DistinctBy(id => familyKeys?.GetValueOrDefault(id, id) ?? id,
                             StringComparer.Ordinal).Count() < mode.MaxPlayers * (mode.DualGenerals ? 2 : 1))
                         throw new InvalidOperationException($"Mode '{mode.Id}' needs a distinct general family for every seat.");
                 }
@@ -1131,6 +1144,8 @@ public sealed class ContentRegistry
                 GeneralSelectionWeights = definition.GeneralSelectionWeights is null
                     ? null
                     : FreezeDictionary(definition.GeneralSelectionWeights),
+                AiGeneralSwapExcludedIds = definition.AiGeneralSwapExcludedIds is null ? null
+                    : Array.AsReadOnly(definition.AiGeneralSwapExcludedIds.ToArray()),
                 GeneralVariantGroups = definition.GeneralVariantGroups is null ? null : FreezeDictionary(
                     definition.GeneralVariantGroups.ToDictionary(entry => entry.Key,
                         entry => (IReadOnlyList<string>)Array.AsReadOnly(entry.Value.ToArray()), StringComparer.Ordinal)),

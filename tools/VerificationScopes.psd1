@@ -145,7 +145,7 @@
         'identity role general candidates freeze private choices and replay',
         'identity dual generals preserve selection health privacy skills and replay',
         'identity general variants keep candidate families private and replay exact editions',
-        'weighted identity draft preserves private diverse families and exact replay',
+        'identity draft preserves fixed fair private families restricted AI swaps and exact replay',
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(

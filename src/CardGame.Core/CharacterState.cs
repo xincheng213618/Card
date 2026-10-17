@@ -60,6 +60,8 @@ public sealed partial class CharacterState
         }
     }
     public required bool GeneralSelected { get; set; }
+    // Owned by this seat's current setup selection; command replay rebuilds it.
+    internal IReadOnlyList<GeneralDefinition>? GeneralDraftCandidates { get; set; }
     public required bool GeneralRevealed { get; set; }
     public GeneralDefinition? SecondaryGeneral
     {

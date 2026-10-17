@@ -22,6 +22,15 @@ internal sealed class GeneralVariantContentBuilder(IContentRegistryBuilder targe
             .Where(group => group.Count() > 1).ToDictionary(group => group.Key,
                 group => (IReadOnlyList<string>)group.Select(general => general.Id).ToArray(), StringComparer.Ordinal);
 
+    internal IReadOnlyList<string> CreateAiSwapExclusions(IReadOnlyList<string> pool) =>
+        pool.Where(id =>
+        {
+            var general = _generals[id];
+            var series = (general.VariantId ?? id.Split(':')[0]).Split('-')[0];
+            return general.FactionId == "god" || series is "mou" or "friend" or "magic" or "demon" or "mo" ||
+                general.Name.StartsWith("魔", StringComparison.Ordinal);
+        }).ToArray();
+
     private static string CharacterKey(ContentGeneralDefinition general)
     {
         var catalogueKey = general.Id[(general.Id.IndexOf(':') + 1)..];

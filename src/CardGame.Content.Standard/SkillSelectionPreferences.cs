@@ -9,8 +9,6 @@ internal static class SkillSelectionPreferences
         {
             ["classic:kongcheng"] = Roles(25, 34, 25, 25),
             ["standard:kongcheng"] = Roles(25, 34, 25, 25),
-            ["classic:guicai"] = Roles(41, 41, 36, 36),
-            ["standard:guicai"] = Roles(41, 41, 36, 36),
             ["classic:ganglie"] = Roles(39, 39, 35, 35),
             ["standard:ganglie"] = Roles(39, 39, 35, 35),
             ["standard:yuanhu"] = Roles(38, 38, 33, 33),

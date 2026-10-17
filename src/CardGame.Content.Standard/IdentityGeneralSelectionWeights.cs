@@ -2,8 +2,8 @@ using System.Collections.ObjectModel;
 
 namespace CardGame.Content.Standard;
 
-// Version-specific, bounded preferences for the implemented mixed eight-player
-// identity roster. Rationale and dated public references: docs/content/IDENTITY_DRAFT.md.
+// AI strength priors, independent of the uniformly sampled candidate roster.
+// Rare editions are restricted at swap time, never weakened after a direct draw.
 internal static class IdentityGeneralSelectionWeights
 {
     internal static IReadOnlyDictionary<string, int> EightPlayer { get; } = Create();

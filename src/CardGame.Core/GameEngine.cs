@@ -3038,8 +3038,8 @@ public sealed partial class GameEngine
         if (!_options.UseInteractiveSetup)
         {
             _random.Shuffle(generals);
-            if (_modeDefinition.GeneralSelectionWeights is not null)
-                generals = DraftWeightedGeneralFamilies(generals, _playerCount * generalsPerSeat).ToList();
+            if (UsesFamilyGeneralDraft)
+                generals = DraftGeneralFamilies(generals, _playerCount * generalsPerSeat).ToList();
         }
 
         var hiddenGeneral = CreateHiddenGeneral();
@@ -3672,7 +3672,7 @@ public sealed partial class GameEngine
             view.Players.Single(snapshot => snapshot.Seat == player.Seat).Role ?? Role.Renegade,
             candidates,
             ++_thoughtSequence,
-            _modeDefinition.GeneralSelectionWeights);
+            _modeDefinition.GeneralSelectionWeights, _contentRegistry);
         AddGeneralThought(thought);
         ApplyGeneralSelection(player, general);
         AdvanceRulesAndPublishState();
@@ -3745,8 +3745,8 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<(GeneralDefinition General, string CandidateId)> GetAvailableGeneralOffers(CharacterState player, bool fullRoster = false)
     {
-        if (_modeDefinition.GeneralSelectionWeights is not null)
-            return GetWeightedGeneralOffers(player, fullRoster);
+        if (UsesFamilyGeneralDraft)
+            return GetDraftGeneralOffers(player, fullRoster);
         var families = _modeDefinition.GeneralVariantGroups;
         var familyKeys = families?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
             .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
@@ -3848,7 +3848,8 @@ public sealed partial class GameEngine
                 $"General '{general.Id}' is not available for seat {player.Seat}.");
         }
 
-        if (_modeDefinition.GeneralSelectionWeights is not null)
+        player.GeneralDraftCandidates = null;
+        if (UsesFamilyGeneralDraft)
         {
             var family = _modeDefinition.GeneralVariantGroups?.Values
                 .FirstOrDefault(ids => ids.Contains(general.Id, StringComparer.Ordinal));

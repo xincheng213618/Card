@@ -487,7 +487,8 @@ public sealed partial class SimpleAiBrain
         Role role,
         IReadOnlyList<GeneralDefinition> candidates,
         int thoughtSequence,
-        IReadOnlyDictionary<string, int>? selectionWeights = null)
+        IReadOnlyDictionary<string, int>? selectionWeights = null,
+        ContentRegistry? contentRegistry = null)
     {
         if (candidates.Count == 0)
         {
@@ -497,11 +498,11 @@ public sealed partial class SimpleAiBrain
         var scored = candidates
             .Select(candidate =>
             {
-                var (baseScore, reason) = ScoreGeneral(role, candidate);
+                var (baseScore, reason) = ScoreContextualGeneral(view, role, candidate, contentRegistry);
                 if (selectionWeights?.GetValueOrDefault(candidate.Id, 1) is > 1 and var weight)
                 {
                     baseScore += 12d * Math.Log2(weight);
-                    reason += $"；本模式强度偏好权重 {weight}。";
+                    reason += $"；候选实战强度偏好 {weight}（不影响抽取概率）。";
                 }
                 var score = Math.Round(baseScore + _random.NextDouble() * 0.001d, 3);
                 return new AiGeneralCandidateScore(
@@ -1999,11 +2000,12 @@ public sealed partial class SimpleAiBrain
 
     private (double Score, string Reason) ScoreGeneral(
         Role role,
-        GeneralDefinition candidate)
+        GeneralDefinition candidate,
+        ContentRegistry? registry)
     {
         var skills = candidate.Skills
             .Where(skill => !skill.Tags.HasFlag(SkillTag.Lord) || role == Role.Lord)
-            .Select(skill => ScoreGeneralSkill(role, skill))
+            .Select(skill => ScoreGeneralSkill(role, skill, registry))
             .OrderByDescending(item => item.Score)
             .ToArray();
         if (skills.Length == 0) return (12d, "没有可用的印刷技能，按基础候选评估。");
@@ -2011,7 +2013,8 @@ public sealed partial class SimpleAiBrain
             string.Join("；", skills.Select(item => item.Reason)));
     }
 
-    private static (double Score, string Reason) ScoreGeneralSkill(Role role, GeneralSkillDefinition skill)
+    private static (double Score, string Reason) ScoreGeneralSkill(Role role, GeneralSkillDefinition skill,
+        ContentRegistry? registry)
     {
         if (skill.ActionForms.HasFlag(SkillActionForm.Active))
             return (32d, $"【{skill.Name}】提供主动行动，实战收益由其发布的 Program 效果摘要评估。");
@@ -2022,6 +2025,8 @@ public sealed partial class SimpleAiBrain
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
         }
+        if (TryScoreDraftRuleSkill(role, skill, registry, out var ruleScore, out var ruleReason))
+            return (ruleScore, ruleReason);
         var score = skill.SelectionWeights?.GetValueOrDefault(role) ?? 12d;
         var reason = $"【{skill.Name}】{skill.Description}";
         return (score, reason);
