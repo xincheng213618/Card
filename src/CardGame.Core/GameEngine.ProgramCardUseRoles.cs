@@ -127,16 +127,18 @@ public sealed partial class GameEngine
             action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, targets,
             action.PhysicalCards, action.ConversionChain,
             action.EffectiveKind == CardKind.BorrowedSword ? targets.Where((_, index) => index % 2 == 0).ToArray() : targets,
-            action.EffectiveSuit, action.EffectiveRank, HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || HasBlackTrickTargetPolicy || action.FactionOrigin is not null || HasComparedBlackSlashPolicies && IsSlashCard(action.EffectiveKind) ? action.EffectiveIsRed : null, action.FactionOrigin);
+            action.EffectiveSuit, action.EffectiveRank, action.ConversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuPanCapability || HasQuHuangCapability || HasRuanYuCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || HasBlackTrickTargetPolicy || action.FactionOrigin is not null || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(action.EffectiveKind) ? action.EffectiveIsRed : null, action.FactionOrigin);
 
     private void UpdateProgramRoleCardUse(CardUseFrame use, CardActionContext action)
     {
         var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
         if (index < 0) throw new InvalidOperationException("A card-use role change lost its parent.");
+        var previous = (CardUseFrame)_resolutionStack[index];
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use);
         if (HasHuaManCapability) CaptureHuaManCompletedUse(use.Id, action);
         for (var cursor = index + 1; cursor < _resolutionStack.Count; cursor++)
             if (_resolutionStack[cursor] is ProgramCardTriggerWindowFrame window && window.ParentFrameId == use.Id)
                 ReplaceRuntimeFrame(_resolutionStack[cursor].Id, window with { Action = action });
+        RefreshOwnPublicPileAddedTargetCandidates(use, previous);
     }
 }

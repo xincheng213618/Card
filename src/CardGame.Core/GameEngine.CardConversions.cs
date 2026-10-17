@@ -252,7 +252,9 @@ public sealed partial class GameEngine
                 : location == CardLocation.Authority(owner.Seat)
                     ? CardZoneKind.Authority
                     : location == CardLocation.WoodenOxGrain(owner.Seat) ? CardZoneKind.WoodenOxGrain
-                    : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment : (CardZoneKind?)null;
+                    : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment
+                    : location.Zone == CardZoneKind.PublicPersistentPile && location.OwnerSeat == owner.Seat
+                        ? CardZoneKind.PublicPersistentPile : (CardZoneKind?)null;
         if (zone is null) return [];
         PlayerSkillContext? context = null;
         var configured = registered.Count == 0 ? Array.Empty<CardConversionSource>() : registered
@@ -285,7 +287,8 @@ public sealed partial class GameEngine
                     item.Rule.Id,
                     owner.Seat,
                     item.Source.SkillInstanceId))
-            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse) && IsWuAnGuoYangConversionAvailable(owner, card, source, forResponse))
+            .Where(source => !dyingUse || !IsCuiYanSingleUseForbidden(owner, card, source))
+            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse) && IsWuAnGuoYangConversionAvailable(owner, card, source, forResponse) && IsRuanYuMiaoxianBlackAvailable(owner, card, source, forResponse))
             .ToArray();
         var turnScoped = !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
@@ -367,6 +370,7 @@ public sealed partial class GameEngine
         }
         return selections
             .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
+            .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)
@@ -452,7 +456,7 @@ public sealed partial class GameEngine
                 return null;
             cards.Add(card);
         }
-        if (IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
+        if (forResponse ? IsTurnPhysicalUseForbiddenByExistingPolicies(owner.Seat, orderedCardIds) || IsCuiYanNativeResponseForbidden(owner, outputKind, cards) : IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
         if (rule.AllHandCardsOfSelectedSuit && !ValidWholeHandSuitConversion(owner, cards, source)) return null;
         return new(cards, source, outputKind);
     }
@@ -621,7 +625,7 @@ public sealed partial class GameEngine
                 : IsSlashCard(card.Kind) ||
                   GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0;
         });
-        cards = cards.Concat(GetEquipment(owner).Where(card =>
+        cards = cards.Concat(GetEquipment(owner).Concat(GetOwnPublicPileConversionCards(owner)).Where(card =>
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
         return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,WuJingLiubingUseCard(owner,card,card.Kind)))).DistinctBy(card => card.Id).ToArray();
@@ -630,17 +634,22 @@ public sealed partial class GameEngine
     private static bool IsFactionSlashUse(FactionCardRequestHandle pending) =>
         pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
-    private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestHandle pending, CharacterState provider) =>
-        (pending.IsAssistedProgramUse
+    private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestHandle pending, CharacterState provider)
+    {
+        var cards = (pending.IsAssistedProgramUse
             ? GetAssistedFactionSlashCards(pending, provider).Select(variant => variant.Card).DistinctBy(card => card.Id).ToArray()
             : IsFactionSlashUse(pending) ? GetSlashUseCards(provider,ignoreSuitUseProhibition:true) : GetResponseCards(provider, CardKind.Slash))
         .Where(card => (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,[card.Id])) && IsRedSlashProviderPaymentLegal(pending,GetFactionSlashEffectiveSlashKind(pending,provider,card),[card])).ToArray();
+        if (!HasCuiYanCapability || !IsFactionSlashUse(pending) || pending.IsAssistedProgramUse) return cards;
+        return cards.Where(card => HasCuiYanAllowedFactionSlashVariant(pending, provider, card)).ToArray();
+    }
 
     private CardKind GetFactionSlashEffectiveSlashKind(
         FactionCardRequestHandle pending,
         CharacterState provider,
         Card card)
     {
+        if (IsOwnPublicPileCard(provider, card)) return CardKind.Slash;
         var identity = GetProgramCardIdentityMatches(provider, card).FirstOrDefault();
         if (identity is not null) return identity.Identity.OutputKind;
         return IsFactionSlashUse(pending)
@@ -674,7 +683,9 @@ public sealed partial class GameEngine
         var hasIdentity = HasProgramCardIdentity(owner, card);
         var identitySources = GetProgramCardIdentitySources(owner, card, effectiveKind, forResponse);
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
-        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) &&
+        if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
+            programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
+        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && !IsOwnPublicPileCard(owner, card) &&
             (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
@@ -767,10 +778,14 @@ public sealed partial class GameEngine
         _hasSelectedResponseConversionChoice = false;
         if (selectedChoice)
         {
-            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
+            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) && !IsOwnPublicPileCard(provider, responseCard) &&
                 IsNativeResponseCard(responseCard, effectiveKind))
                 return null;
-            if (selected is not null && candidates.Contains(selected)) return selected;
+            if (selected is not null && candidates.Contains(selected))
+            {
+                ValidateOwnPublicPileConversionCommit(selected, provider, [responseCard], forResponse: true);
+                return selected;
+            }
             throw new InvalidOperationException("The selected response conversion is no longer legal.");
         }
         throw new InvalidOperationException("A card response requires its published source choice.");
@@ -813,7 +828,7 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
+        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) && !IsOwnPublicPileCard(provider, card) &&
             (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
             (selectedChoice || candidates.Length == 0)) return null;
         throw new InvalidOperationException("A converted card use requires its published source choice.");

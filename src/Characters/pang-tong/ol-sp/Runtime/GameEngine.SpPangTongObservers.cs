@@ -28,7 +28,7 @@ public sealed partial class GameEngine
   }
   if(r.Stage is "health-children" or "grant-children")
   {
-   if(effect.Op!=SkillProgramEffectOp.ResolveSongsangLimitedOtherDeath||f.WindowContext is not{Window:SkillProgramTriggerWindow.CharacterDied,TargetSeat:{}victim}||victim!=r.Target||victim==f.OwnerSeat||_players[victim].IsAlive||r.Wounded!=(r.HpBefore<r.MaximumBefore)||CompleteProgramEventHistory().OfType<SongsangHealthIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash&&e.VictimSeat==r.Target&&e.Wounded==r.Wounded&&e.HpBefore==r.HpBefore&&e.MaximumBefore==r.MaximumBefore)!=1)throw new InvalidOperationException("Songsang lost its actual other death and frozen native health branch.");
+   if(effect.Op!=SkillProgramEffectOp.ResolveSongsangLimitedOtherDeath||f.WindowContext is not{Window:SkillProgramTriggerWindow.CharacterDied,TargetSeat:{}victim}||victim!=r.Target||victim==f.OwnerSeat||_players[victim].IsAlive||r.Wounded!=(r.RuleWounded??(r.HpBefore<r.MaximumBefore))||CompleteProgramEventHistory().OfType<SongsangHealthIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash&&e.VictimSeat==r.Target&&e.Wounded==r.Wounded&&e.HpBefore==r.HpBefore&&e.MaximumBefore==r.MaximumBefore&&e.RuleWounded==r.RuleWounded)!=1)throw new InvalidOperationException("Songsang lost its actual other death and frozen native health branch.");
   }
   if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}pending&&r.Stage is "reveal" or "exchange"&&(pending.PlayerSeat!=f.OwnerSeat||!pending.IsPrivate||!AssistedChoicesEqual(pending.Choices,SpPangTongChoices(f))))throw new InvalidOperationException("Guolun exposes a foreign private decision.");
  }

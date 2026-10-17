@@ -1,0 +1,369 @@
+{
+  "characterId": "character:sun-hao",
+  "generalId": "ol:sun-hao",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-16T20:00:17.568711+00:00",
+  "identity": {
+    "name": "孙皓",
+    "product": "sanguosha-ol",
+    "variant": "ol",
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 5,
+    "initialHp": null
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/137",
+      "finalUrl": "https://www.sanguosha.com/hero/137",
+      "status": 200,
+      "capturedAtUtc": "2026-10-16T20:00:16.928945+00:00",
+      "byteCount": 26392,
+      "sha256": "253b655bbf91a47cd7f96d742737435f99afdf0d9a275e987ad886b3da1de8fb",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html",
+      "title": "三国杀孙皓 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "2eaf79f0c5a785e0e18bd8537ca814c5b3a95504c463d88fcfa3921463fb73b5"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=137",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=137",
+      "status": 200,
+      "capturedAtUtc": "2026-10-16T20:00:16.929689+00:00",
+      "byteCount": 964,
+      "sha256": "8b8b7002ca549ee0c9f67008faffe562dcbda15ca2b23b5915dc1f69158652dd",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "application/json",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 137,
+              "name": "孙皓",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/137.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/13700.png",
+              "label": [
+                "过牌",
+                "主公技",
+                "仇海翻波"
+              ],
+              "figure": "吴",
+              "figure_py": "wu",
+              "quality": "传说",
+              "biography": "孙权之孙，孙和之子，东吴的末代君主。在位初期虽施行过明政，但不久即沉溺酒色，专于杀戮，变得昏庸暴虐，嗜用挖眼、剥皮等酷刑。280年，吴国被西晋所灭，孙皓投降西晋，被封为归命侯。",
+              "characteristic": "能够在回合内获得大量的手牌，拥有高额的体力值。没有手牌时十分脆弱。",
+              "hp": 5,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 5
+            },
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            },
+            {
+              "name": "内奸",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "formalAvailability": {
+    "source": {
+      "url": "https://www.sanguosha.com/news/20150917_3413_0811",
+      "finalUrl": "https://www.sanguosha.com/news/20150917_3413_0811",
+      "status": 200,
+      "capturedAtUtc": "2026-10-16T20:00:17.205416+00:00",
+      "byteCount": 36706,
+      "sha256": "7a0872baed3382288f69fc645dae30cbdffe363f11f344450c5478b07680b44e",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html",
+      "title": "三国杀校园行 全国高校联赛即将开赛 - 三国杀OL官网",
+      "visibleTextSha256": "160b904ebc10cc976ee10fc07d7ea17d4aeb26995f9e1137124b7d26eb3d8f65"
+    },
+    "title": "三国杀校园行 全国高校联赛即将开赛",
+    "publishedAt": "2015-09-10 11:07:48 +08:00",
+    "availableBy": "2015-09-10",
+    "proof": "官方身份赛省决赛冠亚季军奖品明确永久孙皓，证明正式OL可用；不是当前产品最初发布日期。",
+    "deliveredAwardConfirmation": {
+      "source": {
+        "url": "https://www.sanguosha.com/news/20151215_6511_4911",
+        "finalUrl": "https://www.sanguosha.com/news/20151215_6511_4911",
+        "status": 200,
+        "capturedAtUtc": "2026-10-16T20:00:17.219970+00:00",
+        "byteCount": 35930,
+        "sha256": "a21ed576cbdc6b31f06dc738b2092befcec4b185fecbd6b5e2fcb81c79fe6309",
+        "hashScope": "HTTP response body bytes",
+        "contentType": "text/html",
+        "title": "三国杀全国高校联赛 浙江省决赛精彩回顾 - 三国杀OL官网",
+        "visibleTextSha256": "9e4570d9a0e4a1d417c074599908444ea6f47f37a94f3b26c94a94ef521369ef"
+      },
+      "publishedAt": "2015-12-16 18:33:05 +08:00",
+      "proof": "后续官方回顾明确16名省决赛晋级选手已获得三国杀OL限量武将孙皓。"
+    }
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "contentLength": "5386466",
+          "etag": "\"6ad22bd5-5230e2\"",
+          "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-16T19:42:35.606584+00:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "contentLength": "4154044",
+          "etag": "\"6ad22fbc-3f62bc\"",
+          "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-16T19:42:35.606584+00:00"
+      }
+    },
+    "decoder": {
+      "method": "Current bundle InitOfb extraction; AES-CFB128(segment_size128) -> gzip -> JSON in memory",
+      "reference": "tools/import_game_audio.py:383-413 read as documentation only; importer not executed",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "character": {
+      "path": "GameCharacters.character[a=137]",
+      "rawRow": {
+        "a": 137,
+        "b": "孙皓",
+        "d": "SunHao",
+        "e": 44,
+        "f": "41",
+        "g": 3,
+        "h": 1,
+        "i": 5,
+        "j": 252,
+        "k": 253,
+        "l": 254,
+        "p": 3,
+        "q": "1",
+        "r": "913701",
+        "ag": 1,
+        "y": "孙权之孙，孙和之子，东吴的末代君主。在位初期虽施行过明政，但不久即沉溺酒色，专于杀戮，变得昏庸暴虐，嗜用挖眼、剥皮等酷刑。280年，吴国被西晋所灭，孙皓投降西晋，被封为归命侯。",
+        "z": "能够在回合内获得大量的手牌，拥有高额的体力值。没有手牌时十分脆弱。",
+        "RolePointS": "能够在回合内获得大量的手牌。",
+        "aa": 132,
+        "ab": "524,525",
+        "ad": "画师:LiuHeng",
+        "x": "脸皮和眼珠，要留下哪样，####你自己选吧！哈哈哈哈！",
+        "al": 4340,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "bt": "52",
+        "bx": 112000,
+        "LordCardRate1": 1,
+        "LordCardRate2": 37,
+        "cc": 0,
+        "starMax": 4
+      }
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=252]",
+        "rawRow": {
+          "a": 252,
+          "b": "3,5",
+          "c": "残蚀",
+          "d": "CanShi",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "ab": 1,
+          "o": "摸牌阶段，你可以多摸X张牌（X为已受伤的角色数），然后当你本回合使用【杀】或普通锦囊牌时，弃置一张牌。",
+          "v": "<font color='#FFD800'>残蚀</font>发动，请选择弃置一张牌",
+          "ac": "是否发动<font color='#FFD800'>残蚀</font>，额外摸{0}张牌",
+          "u": "是否发动<font color='#FFD800'>残蚀</font>放弃摸牌，改为摸{HurtSeatCount}张牌",
+          "ay": "系统提示→点\"确定\""
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=253]",
+        "rawRow": {
+          "a": 253,
+          "b": "3,4,5",
+          "c": "仇海",
+          "d": "ChouHai",
+          "e": 0,
+          "g": 8,
+          "i": 2,
+          "ab": 1,
+          "o": "锁定技，当你受到伤害时，若你没有手牌，此伤害+1。"
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=254]",
+        "rawRow": {
+          "a": 254,
+          "b": "3,4,5,7",
+          "c": "归命",
+          "d": "GuiMing",
+          "e": 0,
+          "g": 7,
+          "i": 2,
+          "o": "主公技，锁定技，其他吴势力角色于你的回合内视为已受伤。",
+          "y": "主公技，锁定技，其他本方吴势力角色于你的回合内视为已受伤。"
+        }
+      }
+    ],
+    "linkedSpells": []
+  },
+  "sameProductGuide": {
+    "source": {
+      "url": "https://game.xiaomi.com/viewpoint/1624366642_1757646666773_13",
+      "finalUrl": "https://game.xiaomi.com/viewpoint/1624366642_1757646666773_13",
+      "status": 200,
+      "capturedAtUtc": "2026-10-16T20:00:17.241772+00:00",
+      "byteCount": 54878,
+      "sha256": "e58ee1d0eb9131834a5d509995d9f8ce654c9eedbd40b2a392803e6e5db3795c",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html; charset=utf-8",
+      "title": "【举个栗子攻略】东吴の末代帝丶孙皓参上 - 三国杀OL互通版攻略-小米游戏中心",
+      "visibleTextSha256": "5f259a10767e7070c90fa17832966f72d3d40548d714996eb120308133563df2"
+    },
+    "publishedAt": "2025-09-12 +08:00",
+    "publisher": "三国杀小乔",
+    "originalAuthor": "子戾",
+    "authority": "Same-product OL互通版 official-community account strategy guide; not an official FAQ.",
+    "facts": [
+      "残蚀要求至少一名受伤角色（包括自己）；正常2+X，可与其他正常摸牌修正叠加。",
+      "发动后整回合的弃牌效果不受失技影响；真正使用杀/普通锦囊包括视为使用，非闪桃酒和延时锦囊。",
+      "使用时弃HE一张，无可弃则不弃；已满足使用条件后再丢武器/坐骑不取消原牌效果。",
+      "仇海回合内外均可作用于普通/连环/闪电造成的伤害，仍受狮子上限/预防规则影响。",
+      "归命要求受益者活着、是其他吴角色，当前是孙皓自己的回合且主公技有效；真实Hp和已损失体力数不被改写。"
+    ],
+    "guideOnlyCaveats": [
+      "作者提到吴势力庞统的实测与个人预期不一致，不把其个人BUG判断当FAQ裁定。",
+      "当前canonical正文o及官网均是多摸X。client旧提示u仍写放弃摸牌，不能据此实现成replacement或只摸X。"
+    ]
+  },
+  "identityDeduplication": {
+    "aliasesChecked": [
+      "孙皓",
+      "sun-hao",
+      "sunhao"
+    ],
+    "generalMatches": [],
+    "sameNameSkillMatches": [],
+    "allCurrentManifestsExamined": true,
+    "skillIdCollision": {
+      "existingId": "ol:canshi",
+      "existingOwner": "ol:bei-mi-hu",
+      "existingName": "蚕食",
+      "candidateName": "残蚀",
+      "sameSkill": false,
+      "proposedDistinctId": "ol:sun-hao-canshi",
+      "note": "卑弥呼蚕食不是孙皓残蚀，不能借相同拼音缩成已有技能或覆盖其ID。"
+    }
+  },
+  "canonicalSkillIds": {
+    "252": "ol:sun-hao-canshi",
+    "253": "ol:chouhai",
+    "254": "ol:guiming"
+  },
+  "implementation": {
+    "canshi": [
+      "在实际DrawPhaseStarting接受发动时统计活着且IsRuleWounded为真的角色，冻结X；X=0不提供无收益发动。经原生NormalDrawAdjustment加X，不替换正常摸牌。",
+      "每次真实发动各颁发一份本actualturn义务；同一原技能instance的多份义务在每次符合条件Use中按冻结grant序列分别弃1。没有重复发动专项FAQ，此叠加解释是根据每次发动的持续句式作出的实现推论。",
+      "真Use杀及普通锦囊（含无懈、真实零实体Use）在CardUseCommitted原效果前弃HE1。纯打出杀、群体响应、闪/桃/酒与延时锦囊不触发。没有合法可弃实体时跳过该份付款，仍继续原Use。",
+      "已发行义务不因失去原skill-instance撤销，生存者后续Use仍可兑现；真actualturn cursor返回才过期，raw TurnEnded后的同回合额外阶段仍有效。",
+      "每个付款都由owning ProgramSkillFrame保存唯一原动作/父窗口/grant序列/cursor及原实体移动发票；Lion回复、木牛粮spill、失技/死亡/受伤子树按原生typed return完成后续接，不重付。",
+      "使用时已确认的原目标距离在付出武器或坐骑后不倒推撤销；原目标凭据只保存原Use目标，无额外目标或禁止/响应/次数豁免。"
+    ],
+    "chouhai": [
+      "按现有native伤害修正点（首次Finalize、SilverLion clamp前）冻结当前实际recipient的空手资格与+1，后续同伤BeforeDamage孩子不重算。与可选防伤的细分先后未见同品FAQ，此处明确为现行引擎顺序的实现推论。",
+      "普通卡/技能、source-less闪电及连环后继都经同一真实damageattempt。第一目标的最终量是原生传播基数；后继目标各自+1为recipient-local，下一目标前按原生加减顺序逆序还原。formal与legacy chain均保留真实狮子上限/防止伤害。",
+      "只在确有+1时签发标量冻结发票并挂到真实CardUse/ProgramSkill/Judgment owning frame；不向无关全表伤害签发bonus0事件。"
+    ],
+    "guiming": [
+      "只改变受伤这一规则谓词：活着的其他当前吴势力角色，在合格归命拥有者自己的actualturn内被视为受伤。真实Hp、MaxHp、LostHp、恢复空间从不改写。",
+      "归命技能来源先在raw grants中按精确policy筛选，再验证实际启用/投影/借技/条件授技/压制/主公资格，不从GetShard递归查询；因此当前owner的唐咨受伤人口授技可以与归命共存。",
+      "角色、实时有效势力、主公技授权/压制与真正actualturn cursor均实时核对。非主公普通印刷技能不获权；具有合法主公技投影或合格印刷授权的非主公按通用主公技资格契约处理。",
+      "shared RuleWounded流向一般condition、OtherWounded目标、旧Hp<MaxHp精确受伤比较、人口计数及真Peach使用资格。满血的视为受伤目标可接受合法Peach Use，但原生Recover0不发虚假RecoveryApplied，原实体仍正常清理。"
+    ]
+  },
+  "inferenceAuthority": "正文及同品攻略支持整体技能；文中明确标为实现推论的多发动叠加、actualturn尾阶段、被动修正细分顺序与来源/投影优先，不冒称官方专项FAQ。",
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "focusedMethods": [
+      "CanshiNormalDrawAdditiveIndependentGrantsAndActualUsesCold",
+      "CanshiNativeEquipmentChildrenDistanceAndPaidLossDeathCold",
+      "ChouhaiRecipientFinalizationChainLightningAndArmorCold",
+      "GuimingRuleWoundedQueriesRolesFactionAndActualTurnCold"
+    ],
+    "focusedBehaviorGroupsPassed": 4,
+    "scope": "Actual additive and independent draw grants, native equipment/removal children and accepted-use distance, recipient-local damage with real source-less Lightning and formal/legacy chains, shared treated-wounded predicates and actual-turn/source qualifications, private prompt isolation, and deterministic checkpoint/replay. Gallery and shared Lightning regressions also checked; routine verification is tracked by the owning development task. The treated-wounded branch also executes real SP Pang Tong Songsang on another actual Lord turn, freezes the full-HP rule predicate, and cold-restores the Zhanji grant child without maximum-HP gain or fictitious recovery."
+  },
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/137",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/13700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sun-hao.png",
+    "sha256": "9a46a616ceb3f726a4a5db880bde120fae9c8723779f2a7b6723a7a9e1745b6c",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-sun-hao",
+    "originalImageVisuallyInspected": true
+  }
+}

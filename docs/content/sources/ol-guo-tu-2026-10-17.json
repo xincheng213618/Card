@@ -1,0 +1,463 @@
+{
+  "generalId": "ol:guo-tu",
+  "gid": 624,
+  "moduleId": "guo-tu/ol",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-17T00:41:09.731178+00:00",
+  "identity": {
+    "name": "郭图",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "official": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/624",
+      "capturedAtUtc": "2026-10-17T00:41:08.699344+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/624",
+      "contentType": "text/html",
+      "byteCount": 24426,
+      "sha256": "2f3cc080967d3667f8b6caadd48da39d60d3d77b08c40e6f062028ff124bb6a9",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀郭图 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "a109b3b950f325046ece5fc657b2dad2742a4b4f8528df33a7c65f59b7aeaa11",
+      "dateCandidates": [],
+      "skillTextExcerpt": "武将技能介绍 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 郭图 郭图 郭图 辅助 转化大师 拆迁办 武将生平： 郭图是东汉末年袁绍帐下谋士，官渡之战时力主趁机偷袭曹营，战败后为免于责罚而归罪于率军偷袭曹营的张郃、高览，致使二人背袁投曹。袁绍死后，他为袁谭效力，于205年和袁谭一同被曹操所杀。 武将特点： 依赖其他人用牌数获得收益。回合外可以转化基本牌。 武将技能： 趋势 诿解 出牌阶段限一次，你可以摸一张牌，然后扣置一张手牌于一名其他角色的武将牌上，称为“趋”。其结束阶段移去“趋”，然后若其本回合使用过与“趋”同类型牌，你摸X张牌(X为其本回合使用牌指定过的目标数且至多为5)。 其他角色的回合限一次，当你需要使用或打出基本牌时，你可弃置你距离为1的其他角色一张手牌，若此牌与你需要使用/打出的牌名相同，你视为使用/打出此牌。 武将寻迹 历史时间 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 \n                    著作权人：杭州游卡网络技术有限公司 出版服务单位：北京科海电子出版社 出版物号：ISBN\n                    978-7-89487-899-1 文网游备字〔2010〕C-CBG009 号 浙公网安备 33010502005081 ICP证号： 浙B2-20160108 京新出音[2010] 235号\n                    批准文号：科技与数字[2010]284号 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 \n                    著作权人：杭州游卡网络技术有限公司 出版服务单位：上海科学技术文献出版社有限公司 出版物号：ISBN\n                    978-7-89988-640-3 文网游备字〔2016〕M-CSG 2524 号 浙公网安备 33010502005081 号\n                    ICP证号： 浙B2-20160108 批准文号：新广出审[2016]547号"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=624",
+      "capturedAtUtc": "2026-10-17T00:41:08.723564+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=624",
+      "contentType": "application/json",
+      "byteCount": 944,
+      "sha256": "8116868d2547070778784565fa9d3f8a8b53bcd19c2e42fb5408ae71f8a53c63",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 624,
+              "name": "郭图",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/624.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62400.png",
+              "label": [
+                "辅助",
+                "转化大师",
+                "拆迁办"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "郭图是东汉末年袁绍帐下谋士，官渡之战时力主趁机偷袭曹营，战败后为免于责罚而归罪于率军偷袭曹营的张郃、高览，致使二人背袁投曹。袁绍死后，他为袁谭效力，于205年和袁谭一同被曹操所杀。",
+              "characteristic": "依赖其他人用牌数获得收益。回合外可以转化基本牌。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "主公",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "内奸",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "officialApiAndPortrait": {
+    "gid": 624,
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=624",
+    "capturedAtUtc": "2026-10-17T01:11:05.656211+00:00",
+    "status": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=624",
+    "byteCount": 944,
+    "sha256": "8116868d2547070778784565fa9d3f8a8b53bcd19c2e42fb5408ae71f8a53c63",
+    "payload": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 624,
+            "name": "郭图",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/624.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62400.png",
+            "label": [
+              "辅助",
+              "转化大师",
+              "拆迁办"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "郭图是东汉末年袁绍帐下谋士，官渡之战时力主趁机偷袭曹营，战败后为免于责罚而归罪于率军偷袭曹营的张郃、高览，致使二人背袁投曹。袁绍死后，他为袁谭效力，于205年和袁谭一同被曹操所杀。",
+            "characteristic": "依赖其他人用牌数获得收益。回合外可以转化基本牌。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "art": {
+      "sourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62400.png",
+      "localAsset": "src/CardGame.Wpf/Assets/official-ol-guo-tu.png",
+      "capturedAtUtc": "2026-10-17T01:11:20.221286+00:00",
+      "httpStatus": 200,
+      "bytes": 950711,
+      "sha256": "7b319f79cb0ae7a6f5a5badfda4d3542ac83819df2d90c108a49473721177884",
+      "dimensions": [
+        750,
+        950
+      ],
+      "visuallyInspected": true
+    }
+  },
+  "clientProvenance": {
+    "publicBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "publicConfigUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "bundleByteCount": 5386466,
+    "bundleSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+    "configByteCount": 4154044,
+    "configSha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+    "bundleSourceMember": "sgsGame_a.sgs",
+    "bundleSourceMemberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "decoder": "Public current InitOfb AES-CFB128 + gzip JSON; decoded only in memory",
+    "members": {
+      "character.sgs": {
+        "path": "character.sgs",
+        "encryptedByteCount": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedByteCount": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "path": "cha_spell.sgs",
+        "encryptedByteCount": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedByteCount": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "characterRows": 1632,
+    "spellRows": 3116,
+    "freshHttpVerification": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T00:45:41.553949+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "rawCopyCreated": false,
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T00:45:41.513505+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "rawCopyCreated": false,
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true
+      }
+    },
+    "priorBatch46HttpVerification": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-16T23:50:37.664132+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-16T23:50:37.664741+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      }
+    },
+    "lastFreshHttpVerification": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T00:45:41.553949+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "rawCopyCreated": false,
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T00:45:41.513505+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "rawCopyCreated": false,
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true
+      }
+    },
+    "freshVerificationScope": "Batch47 issued a new HEAD and GET for each public resource; bodies hashed in memory, compared to read-only batch37 raw; no copies created."
+  },
+  "character": {
+    "path": "GameCharacters.character[a=624]",
+    "row": {
+      "a": 624,
+      "b": "郭图",
+      "d": "GuoTu",
+      "e": 44,
+      "f": "42",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 3476,
+      "k": 3477,
+      "p": 2,
+      "q": "1",
+      "r": "9062401",
+      "y": "郭图是东汉末年袁绍帐下谋士，官渡之战时力主趁机偷袭曹营，战败后为免于责罚而归罪于率军偷袭曹营的张郃、高览，致使二人背袁投曹。袁绍死后，他为袁谭效力，于205年和袁谭一同被曹操所杀。",
+      "z": "依赖其他人用牌数获得收益。回合外可以转化基本牌。",
+      "aa": 16,
+      "ab": "1163,1164",
+      "al": 1740,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20240402T235959",
+      "LordCardRate1": 30,
+      "LordCardRate2": 48,
+      "starMax": 4,
+      "freetitle": "0,控制强将"
+    }
+  },
+  "skills": [
+    {
+      "path": "GameSpells.spell[a=3476]",
+      "rawRow": {
+        "a": 3476,
+        "b": "3",
+        "c": "趋势",
+        "d": "QuShi",
+        "e": 0,
+        "g": 3,
+        "h": 1,
+        "i": 2,
+        "o": "出牌阶段限一次，你可以摸一张牌，然后扣置一张手牌于一名其他角色的武将牌上，称为“趋”。其结束阶段移去“趋”，然后若其本回合使用过与“趋”同类型牌，你摸X张牌(X为其本回合使用牌指定过的目标数且至多为5)。",
+        "v": "请选择一张手牌和一名角色"
+      }
+    },
+    {
+      "path": "GameSpells.spell[a=3477]",
+      "rawRow": {
+        "a": 3477,
+        "b": "3",
+        "c": "诿解",
+        "d": "WeiJie",
+        "e": 0,
+        "g": 2,
+        "h": 1,
+        "i": 2,
+        "n": 0,
+        "o": "其他角色的回合限一次，当你需要使用或打出基本牌时，你可弃置你距离为1的其他角色一张手牌，若此牌与你需要使用/打出的牌名相同，你视为使用/打出此牌。",
+        "v": "请选择一张要使用或打出的基本牌|请选择一名角色，弃置其一张手牌"
+      }
+    }
+  ],
+  "linkedSpells": [],
+  "formalAvailability": {
+    "url": "https://www.sanguosha.com/news/20240228_8046_0214",
+    "capturedAtUtc": "2026-10-17T00:41:09.372376+00:00",
+    "status": 200,
+    "finalUrl": "https://www.sanguosha.com/news/20240228_8046_0214",
+    "contentType": "text/html",
+    "byteCount": 653920,
+    "sha256": "4b754d085049eb5501038bbb81bdb7f07afb09d1102266a3c7d79649e84af31a",
+    "hashScope": "HTTP response body bytes",
+    "title": "3.2-3.9 传说武将谋袁绍祈愿双形态来袭 限时双倍充值开启 闪闪祈福郭图上新  - 三国杀OL官网",
+    "visibleTextSha256": "163d3f983bf9c54a51a5474a30faa697bf840005a125479f3ee57cd80df8d1a5",
+    "dateCandidates": [
+      "2024-03-01 17:03:00",
+      "2024-3-2 00:15:00",
+      "2024-3-15 23:59:59",
+      "2024-3-2 00:00:00",
+      "2024-3-9 23:59:59",
+      "2024-3-10 00:00:00",
+      "2024-3-10 23:59:59",
+      "2024-3-11 00:00:00",
+      "2024-3-11",
+      "2024-6-30 23:59:59"
+    ],
+    "targetAvailabilityExcerpt": "态，使用技能【合讨】会切换至第一形态； 郭图 (查看原图) 势力 体力 性别 武将特点 群 3 男 依赖其他人用牌数获得收益。回合外可以转化基本牌。 技能 【趋势】：出牌阶段限一次，你可以摸一张牌，然后扣置一张手牌于一名其他角色的武将牌上，称为“趋”。其结束阶段移去“趋”，然后若其本回合使用过与“趋”同类型牌，你摸X张牌(X为其本回合使用牌指定过的目标数且至多为5)。 【诿解】：其他角色的回合限一次，当你需要使用或打出基本牌时，你可弃置你距离为1的其他角色一张手牌，若此牌与你需要使用/打出的牌名相同，你视为使用/打出此牌。 获取 2024-3-2 00:15:00~2024-3-15 23:59:59，祈愿台随机获取，或祈福兑换，或传世玉玺兑换获得。 *注：谋袁绍、郭图上线后将同步加入本期排位赛将池； 武将福利 活动时间： 2024-3-2 00:15:00~2024-3-15 23:59:59 ，拥有武将谋袁绍、郭图 并完成相应任务，即可获得奖励，累计限完成1次。 任务 奖励 限制条件 拥有谋袁绍 经典版谋袁绍 累计限完成1次 使用谋袁绍完成3局游戏 功勋*100 使用谋袁绍获胜5局游戏 普通将印宝箱*1 使用谋袁绍完成9局游戏 中郎将印*1 使用谋袁绍升阶为5阶 自选其一【大将军印*1、水晶碎片*1】 任务 奖励 限制条件 拥有郭图 经典版郭图 累计限完成1次 使用郭图完成3局游戏 功勋*100 使用郭图获胜5局游戏 普通将印宝箱*1 使用郭图完成9局游戏 中郎将印*1 使用郭图升阶为5阶 自选其一【大将军印*1、水晶碎片*1】 新品皮肤 活动时间： 2024-3-2 00:00:00~2024-3-9 23:59:59 品质 皮肤名称 获得方式 传说 劲锋凌人*谋袁绍 消费获取 传说 闪转腾挪*界赵云 活跃获取 水晶碎片 活动期间，每消耗水晶碎片*5可兑换动态水晶*1，动态水晶*1可兑换传说动态水晶；每消耗朱砂*600，可兑换传说皮肤。 动态水晶 传说皮肤 动态水晶-烈帝后裔*刘谌 烈帝后裔*刘谌 动态水晶-披星踏浪*甘宁 披星踏浪*甘宁 动态水晶-西凉雄狮*界马超 西凉雄狮*界马超 动态水晶-烈焰燃天*界陆逊 烈焰燃天*界陆逊 动态水晶-天生奉孝*界郭嘉 天生奉孝*界郭嘉 动态水晶-勇往直前*韩浩史涣 勇往直前*韩浩史涣 动态水晶-陷阵统帅*高顺 陷阵统帅*高顺 动态水晶-从容啸咤*刘表 从容啸咤*刘表 动态水晶-一合而斩*马岱 一合而斩*马岱 动态水晶-密献降书*阚泽 密献降书*阚泽 动态水晶-精炼策数*钟会 精炼策数*钟会 动态水晶-驭魂千机*SP貂蝉 驭魂千机*SP貂蝉 动态水晶-祸乱朝纲*张让 祸乱朝纲*张让 动态水晶-攻心定南*马谡 攻心定南*马谡 动态水晶-空城退敌*诸葛亮 空城退敌*诸葛亮 积分活动 活动时间： 2024-3-2 00:00:00~2024-3-9 23:59",
+    "publishedAtLocal": "2024-03-01 17:03:00",
+    "availabilityEvidence": "2024-03-02 00:15:00 through 2024-03-15 23:59:59, 祈愿台/祈福/传世玉玺; explicitly joins ranked pool",
+    "scope": "A dated formal release availability fact, not a claim that this was the earliest announcement or that the historical sale remains open",
+    "productCheck": "OL article without 十周年/mobile heading; full stated skill text agrees with current ordinary row and current hero"
+  },
+  "communityGuide": {
+    "url": "https://www.taptap.cn/moment/690001024139658998?group_id=5009",
+    "capturedAtUtc": "2026-10-17T00:41:09.169673+00:00",
+    "status": 200,
+    "finalUrl": "https://www.taptap.cn/moment/690001024139658998?group_id=5009",
+    "contentType": "text/html; charset=utf-8",
+    "byteCount": 16124,
+    "sha256": "b1860ae9e126ead7ef1bb3a8f9b19886bbbb699ba78a3fa50de9e138187d12c8",
+    "hashScope": "HTTP response body bytes",
+    "title": "",
+    "visibleTextSha256": "5fb3e7370fd1063fb971d815524f8008e82e7d822a72dfd682dea7faa69184ff",
+    "dateCandidates": [],
+    "attribution": "Same-product official-community account repost of attributed player guide; not exclusive official FAQ",
+    "bodyDateRaw": [],
+    "displayedDate": "2025/07/03",
+    "originalAuthor": "5888",
+    "originalUrl": "https://club.sanguosha.com/thread-1321783-1-1.html",
+    "account": "大乔",
+    "product": "三国杀OL互通版",
+    "evidenceLevel": "Attributed community guide, not exclusive FAQ"
+  },
+  "supplementaryCommunityGuide": {
+    "url": "https://www.taptap.cn/moment/516418032961062411",
+    "capturedAtUtc": "2026-10-17T00:45:41.093698+00:00",
+    "status": 200,
+    "finalUrl": "https://www.taptap.cn/moment/516418032961062411",
+    "contentType": "text/html; charset=utf-8",
+    "byteCount": 16124,
+    "sha256": "b54f94a28f9fce92f3c19ea9506d2ec0bc0ecfbdcf2d18844617adc5ee0e7809",
+    "hashScope": "HTTP response body bytes",
+    "rawCopyCreated": false,
+    "title": "",
+    "visibleTextSha256": "240558476c68de7fa11c022d4562e411d0fdb6ad7f4fc663f5c94f275faa7b97",
+    "dateCandidates": []
+  },
+  "sourceHierarchy": [
+    "Current official hero + current raw cha_spell direct and linked entries",
+    "Current official API identity/hp; gender corroborated by official release and raw character.h",
+    "Dated official OL release announcement establishes formal availability",
+    "Attributed same-product player guide reposted by official community account; interpretation, not exclusive official FAQ",
+    "Engine composition details below are proposed implementation inference, not official rulings"
+  ],
+  "guideSupportedDetails": [
+    {
+      "section": "2025 guide 三.趋势1–3",
+      "paraphrase": "Procedure resembles Shoufu, secret material only issuer (team-mode exception), maximum all-use target count independent of the matched category."
+    },
+    {
+      "section": "2024 detailed guide 二.诿解",
+      "url": "https://www.taptap.cn/moment/516418032961062411",
+      "paraphrase": "Six basic declarations, virtual no-suit/no-rank identity, normal/fire/thunder Slash matching treated same, outgoing/incoming directional horse effects."
+    },
+    {
+      "section": "2024 shorter guide 诿解",
+      "url": "https://www.taptap.cn/moment/521308421853547355",
+      "caveat": "Explicit failed match returns to ordinary native response; wording 类别不一致 lacks a concrete opposing Slash example and must not be elevated to exclusive FAQ."
+    }
+  ],
+  "implementationInferences": [
+    "Guide X is the maximum final designated-target count of one use among all types; matching the seal category is an independent condition. Repeated effect rounds retain the same native use identity.",
+    "Native true-use declarations and accepted true Dodge/Nullification responses are counted; pure played Slash responses to Duel/Barbarian are excluded. Legacy Action-null native uses count. The final legal actor/targets determine the completed use; native faction-provided Dodge remains pure played under the existing native response-completion contract; actual supplied Slash Use has its own native declaration and actual user.",
+    "A seal leaves Hand for a private character zone and therefore uses its physical category after continuous Hand-only identity ceases. Its issuer alone sees the sealed identity; this engine has no additional ranked teammate-sharing rule.",
+    "The exact seal is removed first, its real movement children drain, then current actual-turn history is evaluated. Subsequent draw children do not recalculate an issued reward. There is no exclusive FAQ for nested child timing.",
+    "A paid deposit survives source loss; a dead issuer receives no cards but the mandatory holder Ending still removes the entity. Holder death removes it through native death cleanup.",
+    "Weijie basic Slash-name matching across three Slash natures follows the detailed same-product guide; no suit/rank is manufactured. Failure returns the original native request. Its off-turn allowance and frozen provider/requester are exact actual-turn implementation inferences, not an exclusive FAQ.",
+    "A paid wrong-name attempt consumes only Weijie, and reissues a fresh canonical prompt for the same still-current living native requester/provider, response count and cursor. No availability shortcut may manufacture a decline, apply Duel damage, transfer a Borrowed Sword weapon or skip a faction provider. A later actual native answer owns that outcome.",
+    "The cost is one actual foreign Hand discard, privately selected through the opaque native hand boundary at exact outgoing distance one. Its frozen effective basic name is compared once; the discarded physical entity never becomes a material of the issued card.",
+    "A successful native Use has zero physical materials, Suit.None and rank zero with colorless appearance. A genuine native played Response uses its existing empty-material response appearance and exact actor/provider/requester; pure Duel and group played responses are not promoted to true Uses.",
+    "The off-turn allowance belongs to the actual turn and provider, surviving source loss and reacquisition. A paid continuation retains its exact cost and native parent through real movement, damage, source-loss and dying children. A dead payer issues no new card and follows the exact original native return.",
+    "Off-turn ordinary Alcohol retains the existing ordinary Alcohol quota query and actual-turn expiration. Cao Chun initial active Play remains an own-actual-turn boundary; no simulated foreign activation is claimed as a reachable Weijie request."
+  ],
+  "validation": {
+    "implementationStatus": "focused-verified",
+    "sourceVerifiedByRoot": true,
+    "behaviorChecksRun": true,
+    "rootVerificationPending": false,
+    "rootFocusedVerifiedAtUtc": "2026-10-17T02:29:13.845285+00:00",
+    "focusedCoreGroupsPassed": 9,
+    "focusedBehaviorMethods": [
+      "PrivateSealsNativeDrawPrivacyOncePerPlayAndCold",
+      "SameTypeAndAllUseMaximumTargetsRemainIndependent",
+      "TrueResponsesPlayedAndLegacyUsesKeepExactTurnHistory",
+      "IssuedSealSurvivesSourceLossAndNativeDeathChildren",
+      "SpecializedForeignQigongHejiAndOwnTurnShanjiaBoundaryCold",
+      "WeijieSixBasicNamesNativeDyingAndFailureCold",
+      "WeijiePlayedDuelAoeAndTrueDodgeSupplyCold",
+      "WeijieForcedAndProgramRequestFamiliesCold",
+      "WeijieOpaqueCostSourceLossDeathAndTurnQuotaCold"
+    ],
+    "routineRunner": "tools/Test-Changed.ps1 (measured routine scope; no manual Full run)"
+  }
+}

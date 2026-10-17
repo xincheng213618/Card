@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "ol:tongdu":{"name":"统度","description":"准备阶段，你可以令一名角色交给你一张手牌，然后出牌阶段结束时，你将此牌置于牌堆顶。"},
+ "ol:zhubi":{"name":"铸币","description":"出牌阶段限X次（X为你的体力上限），你可以令一名角色重铸一张牌，以此法摸的牌称为“币”。有“币”的角色结束阶段，其观看牌堆底五张牌，然后可以用任意“币”交换其中等量张牌。","activationLabels":{"recast-coin":"令角色重铸并铸币"}}
+}}

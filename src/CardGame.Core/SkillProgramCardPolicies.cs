@@ -66,7 +66,11 @@ public enum SkillProgramCardPolicyKind
     NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603,
     DyingSelfRescueOnly = 6604,
     StopUsingAfterTrickOrHpCount = 20600,
-    XiaHuiBlackHandAndGainedEntityRestrictions = 22400
+    XiaHuiBlackHandAndGainedEntityRestrictions = 22400,
+    OtherWuTreatedWoundedDuringOwnTurn = 27330,
+    EmptyHandDamageTakenBonus = 27332,
+    BlackSlashIgnoresArmorBothDirections = 27350,
+    EmptyWeaponStoneAxe = 27482
 }
 
 public sealed record SkillProgramCardPolicy(

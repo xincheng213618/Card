@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"ol:mutao":{"name":"募讨","description":"出牌阶段限一次，所选角色将手中所有杀公开暂置，再从其下家起逐张随机环赠，最后由其对末名接收者造成至多2点伤害。","activationLabels":{"public-slash-ring":"募讨：公开暂置并逐张环赠所有杀"}},"ol:yimou":{"name":"毅谋","description":"距离1以内的角色每次受到伤害后，你可令其随机获得牌堆中的一张杀，或由其自行交出一张手牌后摸一张牌。"}}}

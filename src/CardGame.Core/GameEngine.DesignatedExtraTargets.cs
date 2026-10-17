@@ -116,7 +116,7 @@ public sealed partial class GameEngine
                 specificEffectiveRank: action.EffectiveRank, physicalCardIds: action.PhysicalCards.Select(c => c.CardId).ToArray());
         return kind switch
         {
-            CardKind.Peach => target.Hp < target.MaxHp,
+            CardKind.Peach => IsRuleWounded(target),
             CardKind.Alcohol or CardKind.DrawTwo or CardKind.IronChain => true,
             CardKind.Duel => target.Seat != actor.Seat,
             CardKind.FireAttack => GetHand(target).Count > 0,
@@ -317,7 +317,7 @@ public sealed partial class GameEngine
     }
 
     private bool HasDesignatedExtraTargetTail(CardUseFrame use) =>
-        HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
+        HasPijingTargetTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
         use.BeiMiHuTargetMutation is { Kind: "append" } && ValidBeiMiHuTargetMutation(use) ||
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetResolvedEvent>().Any(e =>
             IsDesignatedExtraTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&
@@ -370,9 +370,9 @@ public sealed partial class GameEngine
         out IReadOnlyList<int> targets)
     {
         targets = [];
-        if ((HasBingzhongTargetTail(use) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use)) &&
+        if (((HasBingzhongTargetTail(use) || HasPijingTargetTail(use)) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use)) &&
             TryGetSuyiVirtualPrimaryReturn(use, parent, out targets)) return true;
-        if (!IsSlashCard(use.CardKind) || !(HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use) || HasBingzhongTargetTail(use)) || use.CardId != 0 ||
+        if (!IsSlashCard(use.CardKind) || !(HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || use.CardId != 0 ||
             use.PhysicalCardIds is not { Count: 0 } || use.CardAttack is not { CardId: null, PhysicalCardIds.Count: 0 } attack ||
             attack.ProgramSkillCardUseFrameId != parent.Id || use.Action is not { Type: CardActionType.Use } action ||
             action.ActorSeat != use.SourceSeat || action.ProviderSeat != use.SourceSeat || action.PhysicalCards.Count != 0 ||
@@ -404,7 +404,7 @@ public sealed partial class GameEngine
             _ => false
         };
         if (!exactProducer) return false;
-        targets = Array.AsReadOnly(new[] { use.TargetSeats[0] }); return true;
+        targets = Array.AsReadOnly(new[] { HasPijingTargetTail(use) ? declared.TargetSeats[0] : use.TargetSeats[0] }); return true;
     }
 
     // This producer's zero-material Peach/Alcohol return still belongs to its
@@ -412,7 +412,7 @@ public sealed partial class GameEngine
     private bool ContinueDesignatedVirtualBasicEffect(long id, ProgramSimpleCardContinuation continuation)
     {
         var use = LifecycleCardUse(id);
-        if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: not null } || !((HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
+        if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: not null } || !((HasWeifuTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
         if (continuation.CardId != 0 || use.CardId != 0 || use.PhysicalCardIds is not { Count: 0 } ||
             use.CardKind is not (CardKind.Peach or CardKind.Alcohol) || use.VirtualBasicEffectApplied == true ||
             use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
@@ -453,7 +453,7 @@ public sealed partial class GameEngine
     {
         var use = LifecycleCardUse(id);
         if (use is not { VirtualBasicReturn: not null, AdjustedSimpleContinuation: { } continuation } ||
-            !((HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
+            !((HasWeifuTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) return false;
         var next = use.TargetIndex + 1;
         while (next < use.TargetSeats.Count && !_players[use.TargetSeats[next]].IsAlive) next++;
         if (_winner != Winner.None || next >= use.TargetSeats.Count)

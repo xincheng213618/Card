@@ -18,7 +18,7 @@ public sealed partial class GameEngine
   if(trigger.Effects is not[var e]||!ZhangYanComposition.IsOperation(e.Op))return true;
   if(e.Op==SkillProgramEffectOp.ObtainSujiDamagedPhaseOwnerCard)return HasIssuedZhangYanSujiRewardCandidate(candidate,c)&&ZhangYanRewardChoicesAvailable(candidate.OwnerSeat,c.TargetSeat!.Value);
   if(e.Op==SkillProgramEffectOp.ResolveLangdaoSimultaneousSlash)return ZhangYanLangdaoParent(candidate,c)is{ZhangYanLangdao:null}use&&use.TargetSeats.Count==1&&ZhangYanAvailableOptions(new(candidate.SkillId,candidate.BindingId,candidate.OwnerSeat,candidate.SkillInstanceId)).Count>0;
-  return ZhangYanPlayParent(candidate,c)&&c.Facts is{EventTargetHpUndefined:false,EventTargetMaxHp:>0}facts&&facts.EventTargetHp<facts.EventTargetMaxHp&&
+  return ZhangYanPlayParent(candidate,c)&&c.Facts is{EventTargetHpUndefined:false,EventTargetMaxHp:>0}facts&&(facts.EventTargetRuleWounded??facts.EventTargetHp<facts.EventTargetMaxHp)&&
    new[]{CardZoneKind.Hand,CardZoneKind.Equipment}.Any(z=>_cardZones.CardsAt(new(z,candidate.OwnerSeat)).Any(card=>ZhangYanSujiTargets(candidate.OwnerSeat,card,new(z,candidate.OwnerSeat)).Length>0));
  }
  private SkillProgramStepOutcome BeginZhangYan(ProgramSkillFrame supplied,SkillProgramEffectOp op)

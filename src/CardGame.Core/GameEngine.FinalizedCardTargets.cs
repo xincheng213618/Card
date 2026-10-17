@@ -18,7 +18,7 @@ public sealed partial class GameEngine
         };
         // Response exchanges and paired responses need the original trick's
         // accepted Use identity even without a target-changing subscriber.
-        return HasHuaManCapability || HasXinPiCapability || HasCaoChunCapability || HasNeifaCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability || HasYisuanCapability && category == SkillProgramCardCategory.Trick ||
+        return HasCuiYanCapability || HasHuaManCapability || HasXinPiCapability || HasCaoChunCapability || HasNeifaCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability || HasYisuanCapability && category == SkillProgramCardCategory.Trick ||
             _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeRespondedCardEntities) && IsOrdinaryTrick(kind) ||
             _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
             (category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind)) ||

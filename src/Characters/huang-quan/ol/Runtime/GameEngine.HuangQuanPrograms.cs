@@ -178,13 +178,13 @@ public sealed partial class GameEngine
 {
  private void RecordJianjiOrdinaryAlcoholUse(long id)
  {
-  if(!_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard)&&!HasKeBiNengCapability&&!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards))return;
+  if(!_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard)&&!HasKeBiNengCapability&&!HasWeijieCapability&&!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards)&&!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack))return;
   var use=LifecycleCardUse(id)??throw new InvalidOperationException("Ordinary alcohol requires its native use owner.");
   if(use.CardKind!=CardKind.Alcohol||use.DyingResponse is not null||use.Action is not{Type:CardActionType.Use,EffectiveKind:CardKind.Alcohol}action)throw new InvalidOperationException("Jianji ordinary alcohol quota cannot consume a dying recovery or unrelated card.");
   if(CompleteProgramEventHistory().OfType<JianjiOrdinaryAlcoholPaidEvent>().Any(e=>e.NativeUseId==id))return;
   AdvanceEventRulesAndQueueFact(new JianjiOrdinaryAlcoholPaidEvent(id,action.ActionId,_turnNumber,action.ActorSeat,!HasIssuedRoundGainedBasicBonus(id,action.ActorSeat)&&(!HasKeBiNengCapability||!HasIssuedFuRongUnlimitedUse(id,action.ActorSeat)),use.JianjiUse?.ProgramFrameId));
  }
- private bool CanUseJianjiOrdinaryAlcohol(CharacterState actor,int? selectedId)=>(IsJianjiExactCardQuery(actor,selectedId)||IsKeBiNengPingduanBasicQuery(actor)||IsQingyaDiscardQuery(actor,selectedId))?!CompleteProgramEventHistory().OfType<JianjiOrdinaryAlcoholPaidEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.ActorSeat==actor.Seat&&e.CountsQuota):!actor.UsedPlayPhaseAlcoholThisTurn;
+ private bool CanUseJianjiOrdinaryAlcohol(CharacterState actor,int? selectedId)=>(IsJianjiExactCardQuery(actor,selectedId)||IsKeBiNengPingduanBasicQuery(actor)||IsQingyaDiscardQuery(actor,selectedId)||IsHuiyunExactHandQuery(actor,selectedId)||IsWeijieOrdinaryAlcoholQuery(actor))?!CompleteProgramEventHistory().OfType<JianjiOrdinaryAlcoholPaidEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.ActorSeat==actor.Seat&&e.CountsQuota):!actor.UsedPlayPhaseAlcoholThisTurn;
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 560)]
  private void ObserveJianjiAlcoholExpiry(IGameEvent payload)
  {

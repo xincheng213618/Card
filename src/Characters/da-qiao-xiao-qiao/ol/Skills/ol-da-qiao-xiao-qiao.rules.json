@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:xingwu","revision":1,"triggers":[{"id":"discard-start-dance","window":"discardPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"resolveXingwuDepositAndBurst","target":"owner"}]}]},
+ {"id":"ol:luoyan","revision":1,"triggers":[{"id":"pile-derived-skills","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"maintainLuoyanPileSkills","target":"owner"}]}]}
+]}

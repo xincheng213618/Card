@@ -744,7 +744,7 @@ public sealed partial record DamageFrame(
 /// resolve, and then resume the same ordered window without losing later
 /// candidates.
 /// </summary>
-public sealed record DamageTriggerWindowFrame(
+public sealed partial record DamageTriggerWindowFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,

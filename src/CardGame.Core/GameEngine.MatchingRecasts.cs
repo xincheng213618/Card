@@ -61,6 +61,7 @@ public sealed partial class GameEngine
             (peer ? r.Stage != MatchingRecastStage.ChoosingPeerCards : r.Stage != MatchingRecastStage.OwnerReady))
             throw new InvalidOperationException("Matching recast can pay only its exact frozen original materials once.");
         var before = MatchingRecastSequence;
+        f = BeginFrameNativeRecastInvocation(f, p.Seat, p.Materials.Select(m => m.CardId).ToArray(), peer ? 1 : 0);
         r = r with { Stage = peer ? MatchingRecastStage.PeerCostChildren : MatchingRecastStage.OwnerCostChildren };
         r = WithCurrentMatchingRecast(r, p with { CostIssued = true, CostBefore = before, CostAfter = before });
         ReplaceRuntimeTop(f = f with { MatchingRecast = r, PendingMovementContinuation = new(p.Seat, 0, null) });
@@ -99,6 +100,7 @@ public sealed partial class GameEngine
             CurrentMatchingRecast(r) with { ActualDrawCount = actual, DrawAfter = MatchingRecastSequence }) });
         AdvanceEventRulesAndQueueFact(new MatchingRecastDrawIssuedEvent(f.Id, peer ? 1 : 0, p.Seat, actual, before, MatchingRecastSequence));
         for (var i = 0; i < p.Materials.Count; i++) AdvanceEventRulesAndQueueFact(new CardRecastEvent(p.Seat, p.Materials[i].CardId, p.Materials[i].PrintedKind, i < actual ? 1 : 0));
+        CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(f.Id), actual);
         AdvanceRuntimeProgram(f.Id);
     }
     private PromptChoice MatchingRecastChoice(ProgramSkillFrame f, string step, string label, int? card = null) =>

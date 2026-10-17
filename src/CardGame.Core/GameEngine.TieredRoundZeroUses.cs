@@ -34,7 +34,7 @@ public sealed partial class GameEngine
                 // Fangtian payment.
                 AddProgramTargetCountSlashActions(result, actor, card, targets, card.DisplayName, kind, source, null);
             }
-            else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) &&
+            else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "视为使用【桃】"), kind) { ConversionSource = source });
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&

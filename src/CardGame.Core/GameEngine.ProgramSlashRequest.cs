@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome RequestProgramSlashByTarget(
         ProgramSkillFrame frame,
         int targetSeat,
-        string resultBind)
+        string resultBind,
+        bool keepCurrentRequest = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.ChoiceBindings.Any(binding => binding.Name == resultBind))
@@ -20,10 +21,10 @@ public sealed partial class GameEngine
         var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
         var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
-        if (slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
+        if (!keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
             !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]) &&
-            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]))
+            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -172,7 +173,7 @@ public sealed partial class GameEngine
     }
 
     private SkillProgramStepOutcome RequestProgramSlashByNearest(
-        ProgramSkillFrame frame, int participantSeat, int hpAmount)
+        ProgramSkillFrame frame, int participantSeat, int hpAmount, bool keepCurrentRequest = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (!_players[frame.OwnerSeat].IsAlive)
@@ -188,10 +189,10 @@ public sealed partial class GameEngine
             .ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, participantSeat, nearest);
         var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, participantSeat, nearest).Concat(KenshangProgramSlashChoices(active, participantSeat, nearest)).ToList();
-        if (nearest.Length == 0 || slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
+        if (nearest.Length == 0 || !keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(participant, nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(participant, nearest) &&
-            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest))
+            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

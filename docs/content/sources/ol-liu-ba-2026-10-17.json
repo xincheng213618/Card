@@ -1,0 +1,294 @@
+{
+  "generalId": "ol:liu-ba",
+  "officialGid": 536,
+  "product": "sanguosha-ol",
+  "variantId": "ordinary",
+  "capturedAtUtc": "2026-10-16T21:50:12.178734+00:00",
+  "verification": {
+    "status": "focused-verified",
+    "agentRanBuildOrTests": false,
+    "checks": [
+      "LiuBaChecks.TongduOriginalEntityTruePlayEndDebtAndCold",
+      "LiuBaChecks.ZhubiDynamicMaximumRecastAndMintChildrenCold",
+      "LiuBaChecks.CoinEndingPrivateBottomSlotsAtomicExchangeCold",
+      "LiuBaChecks.PermanentTransferredCoinsPaidLossDeathAndRecoveryCold"
+    ],
+    "scope": "Focused actual-command behavior, privacy, exact physical payment, native children and cold replay are verified. Batch-wide measured routine verification is performed separately by the root coordinator. No manual full run is claimed.",
+    "validatedBy": "root coordinator",
+    "validatedAtUtc": "2026-10-16T23:28:08.173738+00:00",
+    "focusedCorePassed": 4,
+    "focusedCoreFailed": 0,
+    "focusedWpfPassed": 1,
+    "evidence": "All four named actual-command behavior groups and the real WPF coin/private-bottom exchange check passed after connecting the existing phase-limit provider to current maximum HP and the native actual-Play expenditure counter."
+  },
+  "identity": {
+    "name": "刘巴",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "shu",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "official": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/536",
+      "capturedAtUtc": "2026-10-16T21:50:09.440769+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/536",
+      "contentType": "text/html",
+      "byteCount": 24462,
+      "sha256": "3a8327cb9118c178d6edb407f6b2ead19e56d8151d872f372e0b39ef06a630cc",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀刘巴 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "fb947411164852395b225d818954b0676cecb7a078c0801770027e76be71b211",
+      "dateCandidates": []
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=536",
+      "capturedAtUtc": "2026-10-16T21:50:10.059400+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=536",
+      "contentType": "application/json",
+      "byteCount": 967,
+      "sha256": "32235aeffe76fea4f57f59b9c7cecc2e521e9b1daead339152a12f1073cac800",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 536,
+              "name": "刘巴",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/536.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53600.png",
+              "label": [
+                "辅助",
+                "简单",
+                "讨饭"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "史诗",
+              "biography": "字子初，少知名。刘备平定益州后归附，法正死后接任尚书令。为刘备解决入蜀后的财政困难问题，又与诸葛亮等共制蜀汉的法律文件《蜀科》。为人简朴清高，退无私交，曹魏大臣陈群甚敬重之。刘璋请刘备入川时，刘巴曾劝谏此为放虎归山。",
+              "characteristic": "能给团队频繁汰换手牌，并以牌堆底为团队共享金库。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "formalAvailability": [
+    {
+      "url": "https://www.sanguosha.com/news/20230214_7944_0314",
+      "capturedAtUtc": "2026-10-16T21:50:10.092275+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20230214_7944_0314",
+      "contentType": "text/html",
+      "byteCount": 294620,
+      "sha256": "ca4855af39d1f38877d7436a281e930cf7bb42ee6645ceac8e9ad83e76a1d80f",
+      "hashScope": "HTTP response body bytes",
+      "title": "2.18-2.24 奇珍翻翻乐新品武将刘巴来袭 花曳心牵*sp孙尚香限时上新 - 三国杀OL官网",
+      "visibleTextSha256": "4c576feabfa6d04d5c4f490679e642708c66225a9130a260fcce322185632ab4",
+      "dateCandidates": [
+        "2023-02-17 17:41:51",
+        "2023-2-18 00:30:00",
+        "2023-2-24 23:59:59",
+        "2023-2-18 00:00:00",
+        "2023-2-24 23:59:59",
+        "2023-2-18 00:00:00",
+        "2023-2-24 23:59:59",
+        "2023-2-18 00:30:00",
+        "2023-2-24  23:59:59",
+        "2023-2-18 00:30:00"
+      ]
+    }
+  ],
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-16T21:50:11.209859+00:00",
+        "headStatus": 200,
+        "getStatus": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-16T21:50:11.914307+00:00",
+        "headStatus": 200,
+        "getStatus": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    },
+    "decoder": {
+      "method": "Public InitOfb AES-CFB128+gzip JSON memory only",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "rawRowPath": "GameCharacters.character[a=536]",
+    "rawRow": {
+      "a": 536,
+      "b": "刘巴",
+      "d": "LiuBa",
+      "e": 44,
+      "f": "47",
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 3217,
+      "k": 3218,
+      "p": 2,
+      "q": "1",
+      "r": "9053601",
+      "y": "字子初，少知名。刘备平定益州后归附，法正死后接任尚书令。为刘备解决入蜀后的财政困难问题，又与诸葛亮等共制蜀汉的法律文件《蜀科》。为人简朴清高，退无私交，曹魏大臣陈群甚敬重之。刘璋请刘备入川时，刘巴曾劝谏此为放虎归山。",
+      "z": "能给团队频繁汰换手牌，并以牌堆底为团队共享金库。",
+      "aa": 80,
+      "ab": "995,996",
+      "ad": "画师:匠人绘",
+      "x": "辗转四方，###今可安矣！",
+      "al": 1730,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20230318T235959",
+      "LordCardRate1": 45,
+      "LordCardRate2": 41,
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,控制强将"
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=3217]",
+        "rawRow": {
+          "a": 3217,
+          "b": "3,5",
+          "c": "统度",
+          "d": "TongDu",
+          "e": 0,
+          "g": 4,
+          "i": 2,
+          "n": 0,
+          "o": "准备阶段，你可以令一名角色交给你一张手牌，然后出牌阶段结束时，你将此牌置于牌堆顶。",
+          "w": "请选择一张手牌交给{Target}"
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=3218]",
+        "rawRow": {
+          "a": 3218,
+          "b": "3",
+          "c": "铸币",
+          "d": "ZhuBi",
+          "e": 0,
+          "g": 2,
+          "h": 1,
+          "i": 2,
+          "n": 1,
+          "o": "出牌阶段限X次（X为你的体力上限），你可以令一名角色重铸一张牌，以此法摸的牌称为“币”。有“币”的角色结束阶段，其观看牌堆底五张牌，然后可以用任意“币”交换其中等量张牌。",
+          "w": "请选择一张牌重铸",
+          "v": "请选择一名角色令其重铸一张牌"
+        }
+      }
+    ],
+    "linkedSpells": []
+  },
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/536",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53600.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-ba.png",
+    "sha256": "abcab74866e56a66c5d6f95517cf8276f88b519b8517d1bca4742973d7953db4",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-liu-ba",
+    "originalImageVisuallyInspected": true,
+    "byteCount": 1080709
+  },
+  "rules": [
+    {
+      "skillId": "ol:tongdu",
+      "clientSkillId": 3217,
+      "name": "统度",
+      "text": "准备阶段，你可以令一名角色交给你一张手牌，然后出牌阶段结束时，你将此牌置于牌堆顶。"
+    },
+    {
+      "skillId": "ol:zhubi",
+      "clientSkillId": 3218,
+      "name": "铸币",
+      "text": "出牌阶段限X次（X为你的体力上限），你可以令一名角色重铸一张牌，以此法摸的牌称为“币”。有“币”的角色结束阶段，其观看牌堆底五张牌，然后可以用任意“币”交换其中等量张牌。"
+    }
+  ],
+  "evidenceLevels": {
+    "official": "Current hero, identity API, client direct spells and the formal February 2023 release agree. The announcement was published 2023-02-17 and sale begins 2023-02-18 00:30.",
+    "supplementary": "No located current same-product FAQ settles the entity lifetime, special ownership zones, leave-and-return, insertion order or exchange-slot permutation questions below. No other-product Liu Ba rules are imported.",
+    "inference": "The following implementation interpretations follow the complete current wording and native physical movement boundaries. They are not asserted as official FAQ rulings."
+  },
+  "implementationInterpretations": [
+    "Tongdu permits the owner or another living Hand holder. The chosen holder privately selects one original Hand entity. Self-gift records a successful semantic no-op, never a fake movement between the same zone.",
+    "An issued gift debt belongs to its original source instance and actual turn, survives subsequent source loss, and is consumed at the first genuine PlayEnding in that turn, including a real inserted Play. Skipped Play does not create an ending; a debt never migrates into a later actual turn.",
+    "The original entity may be topdecked only if it is currently in the original recipient’s ordinary owned Hand, Equipment, Judgment or Wooden Ox grain zone. A card used or transferred elsewhere is not reclaimed. If the exact entity genuinely returns before the due phase, its current owned entity may be returned. General Weapon removal restrictions are preserved.",
+    "Zhubi uses the current maximum HP against the native skill/group actual-Play counter. A same-phase maximum change does not reset past expenditures. Each target privately chooses a true HE entity; recast is not logical discard and does not borrow discardability eligibility.",
+    "Recast pays one actual physical entity, inherits General Weapon OutsideGame, Silver Lion recovery and Wooden Ox grain removal, then rewards Draw1 after native children. Only an exact original DrawPile-to-recipient-Hand RecastDraw entity returned by that reward is minted. A reshuffle, incidental child gain or reward zero is not a coin.",
+    "A coin is a permanent physical-ID label because the current text provides no unmark or expiry. Transfer, use, discard, deck recycling, original source loss and original source death do not remove that label. A second mint does not duplicate an already marked entity.",
+    "Current ordinary ownership for held/payment coins is HEJ and Wooden Ox grain. Other mechanisms’ exclusive public/private persistent piles are not silently treated as freely spendable cards. Equipped General Weapons are excluded from equal deck exchange because native removal sends them OutsideGame. These zone choices are explicit engine interpretations pending a specific same-product FAQ.",
+    "A minted coin confers its holder’s issued Ending view/exchange entitlement independently of possession of the original Zhubi skill. A holder’s death before payment cancels the unpaid request; fully committed movements and their children still return once.",
+    "The holder privately views the actual available bottom min(5,count) in place. Viewing neither moves, publicly reveals, draws nor reshuffles. The holder may select zero or any legal number of distinct coins and equal distinct viewed bottom entities.",
+    "Both selected sets commit in one native atomic batch before equipment removal hooks. The i-th outgoing coin replaces the i-th selected bottom entity in its original deck slot. Every unselected slot and all other current deck order are preserved. This deterministic pairing is an explicit order inference, not a published FAQ.",
+    "Unmarked obtained bottom cards do not automatically become coins; previously marked physical bottom cards keep their existing mark. Exchange contains no textual unmark instruction.",
+    "Pending choices, original materials, viewed bottom identities and exact payment/return proof live only on the owning ProgramSkillFrame. Public facts are scalar, exposed receipt collections are defensively frozen, and only the actual active holder receives bottom faces through its private snapshot."
+  ],
+  "nativeBoundaries": [
+    "Physical Hand gift and true PlayEnding debt; no fake phase end.",
+    "HE recast and exact reward draw entities, native equipment removal/health/movement/skills/death descendants.",
+    "Current holder Ending from permanent valid physical mark, source-specific typed mother candidate.",
+    "One atomic two-way exchange with exact bottom slots and actor-private menus."
+  ],
+  "coverageIntent": [
+    "Actual self/foreign donor privacy, original spent entity, genuine source loss, real PlayEnding and cold.",
+    "Dynamic current-MaxHp quota, native recast/mint fact, Silver Lion recovery before reward, Wooden Ox grain cleanup.",
+    "Zero/two/short-deck private bottom view, wrong-seat rejection, frozen selections, one atomic exchange and whole-deck slot preservation.",
+    "Actual transferred coin entitlement after original source loss, and paid recast source-loss/death children without repeated cost."
+  ]
+}

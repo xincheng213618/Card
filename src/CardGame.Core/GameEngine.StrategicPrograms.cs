@@ -42,7 +42,7 @@ public sealed partial class GameEngine
         {
             values["junlue"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Junlue);
             values["camp"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Camp);
-            values["woundedPlayers"] = _players.Count(other => other.IsAlive && other.Hp < other.MaxHp);
+            values["woundedPlayers"] = _players.Count(other => other.IsAlive && IsRuleWounded(other));
         }
         foreach (var item in _configuredConversionTiers.Where(item => item.Key.Seat == player.Seat))
             values[item.Key.State] = item.Value;
@@ -60,7 +60,7 @@ public sealed partial class GameEngine
     {
         if (query == SkillRuleQuery.HandLimit && _strategicHandLimitPenaltyTurns.GetValueOrDefault(player.Seat, -1) == _turnNumber)
             yield return new FiniteRuleQueryContribution($"turn:{_turnNumber}:hand-discard-share:{player.Seat}", SkillRuleOperation.Add, -1);
-        var wounded = _players.Count(other => other.IsAlive && other.Hp < other.MaxHp);
+        var wounded = _players.Count(other => other.IsAlive && IsRuleWounded(other));
         foreach (var source in _players.Where(source => source.IsAlive))
         foreach (var instance in GetSkillBindingShard(source).ProgramInstances)
         foreach (var policy in instance.Program.CardPolicies)
@@ -82,7 +82,7 @@ public sealed partial class GameEngine
                 SkillProgramCardPolicyKind.MarkerTurnBonuses when player.MarkerSourceCounts.GetValueOrDefault((PlayerMarkerKind.Camp, source.Seat)) > 0 && query is SkillRuleQuery.DrawCount or SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit => 1,
                 SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.HandLimit && wounded >= 1 => 1,
                 SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.DrawCount && wounded >= 3 => 1,
-                SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty when query == SkillRuleQuery.HandLimit && source.Seat != player.Seat && player.Hp < player.MaxHp && IsWithinAttackRange(source.Seat, player.Seat) => -1,
+                SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty when query == SkillRuleQuery.HandLimit && source.Seat != player.Seat && IsRuleWounded(player) && IsWithinAttackRange(source.Seat, player.Seat) => -1,
                 _ => 0
             };
             if (value != 0) yield return new FiniteRuleQueryContribution($"aura:{source.Seat}:{instance.SkillId}:{instance.SkillInstanceId}:{policy.Id}", SkillRuleOperation.Add, value);

@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xingzuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "private-bottom",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveXingzuoPrivateBottomExchange",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "issued-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveXingzuoIssuedEndingExchange",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:miaoxian",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "black-drawtwo",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "drawTwo",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-duel",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "duel",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-barbarianassault",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "barbarianAssault",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-arrowbarrage",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "arrowBarrage",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-peachgarden",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peachGarden",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-fivegrains",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fiveGrains",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dismantlement",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-snatch",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "snatch",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-fireattack",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-ironchain",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-borrowedsword",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "borrowedSword",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-unexpectedassault",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "unexpectedAssault",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": false
+        },
+        {
+          "id": "black-nullification",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "useEffectiveInputSuit": true,
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "nullification",
+          "allowSameKind": true,
+          "forPlay": false,
+          "forResponse": true,
+          "singleCardTrickUse": false
+        }
+      ],
+      "triggers": [
+        {
+          "id": "unique-red-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMiaoxianUniqueRedUseDraw",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

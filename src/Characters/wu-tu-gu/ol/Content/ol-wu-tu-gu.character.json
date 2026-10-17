@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:wu-tu-gu","skills":[
+ {"registrationOrder":1880,"programBundle":"ol-wu-tu-gu","includeProgramPresentation":true,"definition":{"id":"ol:hanyong","name":"悍勇","description":"当你使用【南蛮入侵】或【万箭齐发】时，若你的体力值小于当前轮数，你可以令此牌伤害+1。","executionForms":"Trigger"}},
+ {"registrationOrder":1881,"programBundle":"ol-wu-tu-gu","includeProgramPresentation":true,"definition":{"id":"ol:ranshang","name":"燃殇","description":"锁定技，当你受到1点火焰伤害后，你获得1枚“燃”标记。结束阶段，你失去X点体力（X为“燃”的数量）。","tags":"Locked","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":1882,"pools":{"current":462},"definition":{"id":"ol:wu-tu-gu","name":"兀突骨","portraitKey":"ol-wu-tu-gu","skillId":"ol:hanyong","additionalSkillIds":["ol:ranshang"],"factionId":"qun","baseHp":15,"gender":"Male","characterId":"character:wu-tu-gu","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

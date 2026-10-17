@@ -153,7 +153,7 @@ public sealed partial class GameEngine
         {
             LegalActionKind.Slash => CanUseVirtualSlashTarget(actor, target, kind, Suit.None,
                 effectiveRank: 0, physicalCardIds: [], ignoreDistance: true),
-            LegalActionKind.Peach => target.Hp < target.MaxHp,
+            LegalActionKind.Peach => IsRuleWounded(target),
             LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
             LegalActionKind.Duel => target.Seat != actor.Seat,
             LegalActionKind.FireAttack => GetHand(target).Count > 0,
@@ -320,7 +320,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Recovery adjustment lost its exact material producer.");
         var target = _players[receipt.ChangedTargetSeat];
         if (CurrentNextActualUseAdjustment(owner.Seat)?.ProgramFrameId != receipt.Grant.ProgramFrameId ||
-            !target.IsAlive || target.Hp >= target.MaxHp || IsCardTargetProhibited(target, CardKind.Peach,
+            !target.IsAlive || !IsRuleWounded(target) || IsCardTargetProhibited(target, CardKind.Peach,
                 PhysicalGroupSuit(owner, selection.Cards), PhysicalGroupColor(owner, selection.Cards)) ||
             HasBeneficiarySuitShield(owner.Seat, target.Seat, PhysicalGroupSuit(owner, selection.Cards)))
         { ReplaceRuntimeTop(frame with { SelectedTargetSeats = [], NextActualUseAdjustment = receipt with { Stage = ProgramNextActualUseAdjustmentStage.Canceled } }); return; }

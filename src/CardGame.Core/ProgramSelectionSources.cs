@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 
 internal readonly record struct ProgramSelectionParticipant(int Seat, bool IsAlive, int Hp, int MaxHp,
-    bool HasHpValue, int HandCount, int EquipmentCount);
+    bool HasHpValue, int HandCount, int EquipmentCount, bool? RuleWounded = null);
 
 internal interface IProgramSelectionSourceQuery : IProgramSelectionQuery
 {
@@ -149,7 +149,7 @@ internal sealed class AdjustedUseSelection : IProgramSelectionCandidateFilter
         {
             var kind = producer.OutputKind.Value;
             return query.Participants().Where(player => player.IsAlive && player.Seat != ownerSeat &&
-                (kind != CardKind.Peach || player.Hp < player.MaxHp) && selections.Any(selection =>
+                (kind != CardKind.Peach || (player.RuleWounded ?? player.Hp < player.MaxHp)) && selections.Any(selection =>
                     !query.IsTargetProhibited(player.Seat, kind, ownerSeat, selection.Cards) &&
                     !query.HasSuitShield(ownerSeat, player.Seat, selection.Cards)))
                 .Select(player => player.Seat).Order().ToArray();

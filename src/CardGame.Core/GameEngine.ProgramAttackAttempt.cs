@@ -5,12 +5,14 @@ public sealed partial class GameEngine
     private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
     {
         PrepareLuYuShengChainAdvance(attack);
+        PrepareSunHaoChainAdvance(attack);
         PrepareDuFuRenChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
                 UsesFormalTengjia || UsesFormalSilverLion, out fromSeat)) return false;
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
+        ApplySunHaoChainedDamageBonus(attack);
         return true;
     }
 

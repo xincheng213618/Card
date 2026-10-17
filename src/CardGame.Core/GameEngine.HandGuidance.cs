@@ -57,7 +57,7 @@ public sealed partial class GameEngine
                         : "当前可以使用；选中后，合法目标或目标组合会亮起。", true);
             }
 
-            if (identity is null && card.Kind == CardKind.Peach && actor.Hp >= actor.MaxHp)
+            if (identity is null && card.Kind == CardKind.Peach && !IsRuleWounded(actor))
                 return Hint(HandGuidanceReason.HealthFull, "你的体力已满，当前不能用桃回复；保留后可在濒死时救援。");
             if ((IsSlashCard(card.Kind) || identity is not null && IsSlashCard(identity.Identity.OutputKind)) &&
                 _slashCountThisTurn >= GetSlashUseLimit(actor) &&

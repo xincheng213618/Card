@@ -259,7 +259,7 @@ public sealed partial class GameEngine
             .Any(o => o.ActionKind == action.Kind && o.TargetCardId == action.TargetCardId && o.TargetSeats.SequenceEqual(action.TargetSeats));
         if (IsSlashCard(kind)) return action.TargetSeats.Count > 0 && action.TargetSeats.All(t => CanUseSlashTarget(actor, _players[t], new(0, kind, Suit.None, 0), draft.Source,
             kind, noEffectiveRank: true, physicalCardIds: []) && CanSpendSlashUse(actor, _players[t], IgnoresProgramSlashLimit(actor, draft.Source), kind, effectiveRank: 0, physicalCardIds: []));
-        if (kind == CardKind.Peach) return actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None);
+        if (kind == CardKind.Peach) return IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None);
         return kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None);
     }
     [ProgramContinuation(ProgramContinuationKind.Movement, 26100)]

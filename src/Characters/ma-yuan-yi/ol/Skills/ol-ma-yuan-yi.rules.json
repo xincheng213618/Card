@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jibing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "replace-normal-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "drawPhaseMode": "replacement",
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJibingDrawWithTwoBing",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "bing-slash",
+          "sourceZones": [
+            "publicPersistentPile"
+          ],
+          "sourcePileSkillId": "ol:jibing",
+          "inputCount": 1,
+          "allowSameKind": true,
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "inputKinds": [],
+          "inputSuits": []
+        },
+        {
+          "id": "bing-dodge",
+          "sourceZones": [
+            "publicPersistentPile"
+          ],
+          "sourcePileSkillId": "ol:jibing",
+          "inputCount": 1,
+          "allowSameKind": true,
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "inputKinds": [],
+          "inputSuits": []
+        }
+      ]
+    },
+    {
+      "id": "ol:wangjing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "bing-use-opponent",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "ol:jibing",
+          "sourceViewAsId": "bing-slash",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWangjingBingOpponentDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "bing-response-opponent",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "ol:jibing",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWangjingBingOpponentDraw",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:moucuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "all-factions-awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveMoucuanAwakening",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:binghuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-actual-turn-bing-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveBinghuoEndingJudgment",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "foreign-actual-turn-bing-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveBinghuoEndingJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -43,9 +43,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Recasting requires one selected physical owner hand card.");
         var owner = _players[frame.OwnerSeat];
         var card = GetHand(owner).Single(item => item.Id == id);
+        var recast = CaptureNativeRecastInvocation(owner.Seat, owner.Seat, [card.Id], frame.Id, frame.InstructionIndex);
         MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(owner, 1, true, CardMoveReasons.RecastDraw);
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, card.Id, card.Kind, drawn.Count));
+        CompleteNativeRecastInvocation(recast, drawn.Count);
         var key = (frame.OwnerSeat, frame.SkillId, "recast-card-count:" + stateId);
         var count = checked(_programPhaseUses.GetValueOrDefault(key) + 1);
         _programPhaseUses[key] = count;

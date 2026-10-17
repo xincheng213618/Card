@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     {
         public IReadOnlyList<ProgramSelectionParticipant> Participants() => Array.AsReadOnly(engine._players.Select(player =>
             new ProgramSelectionParticipant(player.Seat, player.IsAlive, player.Hp, player.MaxHp, player.HasHpValue,
-                engine.GetHand(player).Count, engine.GetEquipment(player).Count)).ToArray());
+                engine.GetHand(player).Count, engine.GetEquipment(player).Count, engine.UsesTreatedWounded ? engine.IsRuleWounded(player) : null)).ToArray());
         public IReadOnlyList<Card> Hand(int seat) => Array.AsReadOnly(engine.GetHand(engine._players[seat]).Select(ProgramSelectionProjection.Freeze).ToArray());
         public IReadOnlyList<Card> Equipment(int seat) => Array.AsReadOnly(engine.GetEquipment(engine._players[seat]).Select(ProgramSelectionProjection.Freeze).ToArray());
         public CardLocation Location(int cardId) => engine._cardZones.GetLocation(cardId);

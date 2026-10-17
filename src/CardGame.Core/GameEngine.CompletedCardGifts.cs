@@ -66,7 +66,7 @@ public sealed partial class GameEngine
                     choices.Add(new(new ChoiceId($"completed-gift.{frame.Id}.faction.{target}"), $"请求同势力角色提供杀，对 {_players[target].Name} 使用", [], [target], parameters));
                 }
             foreach (var target in CompletedGiftSlashTargets(frame, actor.Seat))
-            foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).DistinctBy(card => card.Id))
+            foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).DistinctBy(card => card.Id))
             foreach (var kind in SlashKinds)
             foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
             {
@@ -88,7 +88,7 @@ public sealed partial class GameEngine
             foreach (var card in GetSlashUseCards(actor))
             {
                 var identity = GetProgramCardIdentityMatches(actor, card).FirstOrDefault(item => IsSlashCard(item.Identity.OutputKind));
-                var baseKind = identity?.Identity.OutputKind ?? (IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash);
+                var baseKind = identity?.Identity.OutputKind ?? PhysicalSlashUseBaseKind(actor, card);
                 foreach (var kind in GetSlashUseKinds(actor, baseKind))
                 {
                     if (!CanUseSlashTarget(actor, _players[target], card, effectiveKind: kind, ignoreDistance: true)) continue;
@@ -170,14 +170,14 @@ public sealed partial class GameEngine
         var kind = Enum.Parse<CardKind>(selected.Parameters["effective-kind"]);
         TryReadConversionSource(selected.Parameters, out var conversion);
         IReadOnlyList<Card> paid = selected.Cards.Count == 1
-            ? [GetPlayableCards(actor).Concat(GetEquipment(actor)).Single(card => card.Id == selected.Cards[0])]
+            ? [GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(card => card.Id == selected.Cards[0])]
             : selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString()
                 ? GetZhangbaSlashPairs(actor).Single(pair => pair.Select(card => card.Id).SequenceEqual(selected.Cards))
                 : FindProgramMultiCardViewAsSelection(actor, selected.Cards, kind, false, conversion!)?.Cards ?? throw new InvalidOperationException("Completed gift Slash lost its physical payment.");
         if (!CompletedGiftSlashTargets(frame, actor.Seat).Contains(target) || !CanUseSlashTarget(actor, _players[target], paid[0], conversion, kind, ignoreDistance: true))
             throw new InvalidOperationException("Completed gift Slash target is no longer legal.");
         ResolveSlashCore(actor, _players[target], paid[0], kind, actor.Seat, physicalCards: paid, countsTowardSlashLimit: false,
-            usesZhuqueFan: kind == CardKind.FireSlash && paid[0].Kind == CardKind.Slash && HasZhuqueFan(actor), conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
+            usesZhuqueFan: kind == CardKind.FireSlash && (paid[0].Kind == CardKind.Slash || IsOwnPublicPileSlashMaterial(actor, paid[0])) && HasZhuqueFan(actor), conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
     }
 
     private void CompleteProgramCardGift(ProgramSkillFrame frame)

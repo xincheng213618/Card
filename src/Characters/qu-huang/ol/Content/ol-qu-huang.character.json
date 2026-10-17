@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:qu-huang","skills":[
+ {"registrationOrder":1970,"programBundle":"ol-qu-huang","includeProgramPresentation":true,"definition":{"id":"ol:qiejian","name":"切谏","description":"当一名角色失去最后的手牌后，你可以与其各摸一张牌，然后选择一项：1.弃置你或其场上一张牌；2.你本轮不能对其发动本技能。","executionForms":"Trigger"}},
+ {"registrationOrder":1971,"programBundle":"ol-qu-huang","includeProgramPresentation":true,"definition":{"id":"ol:nishou","name":"泥首","description":"锁定技，当你装备区里的牌进入弃牌堆后，你将之当【闪电】使用或于本阶段结束时与手牌数最少的角色交换手牌。","tags":"Locked","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":1972,"pools":{"current":471},"definition":{"id":"ol:qu-huang","name":"屈晃","portraitKey":"ol-qu-huang","skillId":"ol:qiejian","additionalSkillIds":["ol:nishou"],"factionId":"wu","baseHp":3,"gender":"Male","characterId":"character:qu-huang","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

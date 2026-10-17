@@ -146,5 +146,10 @@ public sealed partial class MainViewModel
     }
 
     private static IEnumerable<CardSnapshot> PlayMaterials(PlayerSnapshot player) => player.Hand
-        .Concat(player.WoodenOxGrain ?? []).Concat(player.Equipment).Concat(player.Judgment).Concat(player.AuthorityCards ?? []);
+        .Concat(player.WoodenOxGrain ?? []).Concat(player.Equipment).Concat(player.Judgment).Concat(player.AuthorityCards ?? [])
+        .Concat(OwnPublicPileMaterials(player));
+
+    private static IEnumerable<CardSnapshot> OwnPublicPileMaterials(PlayerSnapshot player) =>
+        player.PublicPersistentPiles is { Count: > 0 } piles
+            ? piles.SelectMany(pile => pile.Cards) : player.PublicPersistentPileCards ?? [];
 }

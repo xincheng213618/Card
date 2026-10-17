@@ -7,11 +7,12 @@ public sealed partial class GameEngine
         if (!_contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.CardSupplyCompleted)) return false;
         if (request is null || _resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != attack.ResolutionId ||
             use.CompletedCardSupplyFrameId is not null || use.Action is not { Type: CardActionType.Use } action || action.ActorSeat == action.ProviderSeat) return false;
-        if (_winner != Winner.None || action.RequesterSeat != action.ActorSeat || action.PhysicalCards.Count == 0 || !IsSlashCard(action.EffectiveKind) ||
+        if (_winner != Winner.None || action.RequesterSeat != action.ActorSeat || action.PhysicalCards.Count == 0 && !IsWeijieZeroSupply(use, request) || !IsSlashCard(action.EffectiveKind) ||
             request.ActiveAttack?.ResolutionId != use.Id || request.OwnerSeat != action.ActorSeat || request.CurrentCandidateSeat != action.ProviderSeat ||
             request.AwaitingProviders || request.Purpose is not (FactionCardRequestPurpose.ProgramSkillUse or FactionCardRequestPurpose.AssistedProgramUse or
                 FactionCardRequestPurpose.BorrowedSwordUse or FactionCardRequestPurpose.QinglongCrescentBladeUse) ||
-            action.PhysicalCards.Any(c => c.From.OwnerSeat != action.ProviderSeat || c.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
+            action.PhysicalCards.Any(c => c.From.OwnerSeat != action.ProviderSeat ||
+                c.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) && !IsOwnPublicPileActionCost(action, c)))
             throw new InvalidOperationException("An active supplied Slash lost its exact native provider/requester payment.");
         var costs = action.PhysicalCards.Select(c =>
         {
@@ -58,6 +59,7 @@ public sealed partial class GameEngine
     {
         if (!_cardMovements.Contains(moved) || moved.CardId != cost.CardId || moved.CardKind != cost.CardKind ||
             moved.From != cost.From || moved.To != CardLocation.Processing) return false;
+        if (cost.From.Zone == CardZoneKind.PublicPersistentPile && !IsOwnPublicPileActionCost(action, cost)) return false;
         if (moved.Reason == CardMoveReasons.Use) return true;
         // A successful declaration has already drained its own payment children.
         // The native Use claims that same entity instead of moving it a second
@@ -90,7 +92,8 @@ public sealed partial class GameEngine
             a.RequesterSeat != r.RequesterSeat || a.EffectiveKind != r.EffectiveKind || !IsSlashCard(r.EffectiveKind) || native.ActionId != a.ActionId ||
             native.ActorSeat != a.ActorSeat || native.ProviderSeat != a.ProviderSeat || native.RequesterSeat != a.RequesterSeat || native.EffectiveKind != a.EffectiveKind ||
             !native.PhysicalCards.SequenceEqual(a.PhysicalCards) || !native.ConversionChain.SequenceEqual(a.ConversionChain) || !native.TargetSeats.SequenceEqual(a.TargetSeats) ||
-            a.PhysicalCards.Count == 0 || a.PhysicalCards.Any(c => c.From.OwnerSeat != r.ProviderSeat || c.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
+            a.PhysicalCards.Count == 0 && !(ActiveFactionCardRequest is { } weijieRequest && IsWeijieZeroSupply(use, weijieRequest)) || a.PhysicalCards.Any(c => c.From.OwnerSeat != r.ProviderSeat ||
+                c.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) && !IsOwnPublicPileActionCost(a, c)) ||
             r.NativeCosts.Count != a.PhysicalCards.Count || r.NativeCosts.Select(m => m.Sequence).Distinct().Count() != r.NativeCosts.Count ||
             !a.PhysicalCards.All(c => IsCardSupplyCompletionCostPaid(window, c))) return false;
         var history = CompleteProgramEventHistory().ToArray();

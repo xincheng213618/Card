@@ -116,6 +116,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
         if (TryBeginLiuYanLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
+        if (TryBeginCuiYanLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
         if (TryBeginZhuJunLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
         ResumeProgramVirtualDyingAlcoholRecovery(resolutionId, active.Id, dying.FrameId);
     }

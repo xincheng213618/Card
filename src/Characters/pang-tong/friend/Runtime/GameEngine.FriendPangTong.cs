@@ -69,7 +69,7 @@ public sealed partial class GameEngine
                 foreach (var target in _players.Where(target => CanUseSlashTarget(actor, target, card, effectiveKind: kind,
                     physicalCardIds: [card.Id])))
                     actions.Add(new(LegalActionKind.Slash, card.Id, target.Seat, $"使用【{card.DisplayName}】对 {target.Name}", kind, TargetSeats: [target.Seat]));
-            else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) &&
+            else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
                 !IsCardTargetProhibited(actor, kind, suit, red))
                 actions.Add(new(LegalActionKind.Peach, card.Id, null, "使用【桃】", kind));
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&

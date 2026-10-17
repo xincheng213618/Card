@@ -1,0 +1,77 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-yuan-yi",
+  "skills": [
+    {
+      "registrationOrder": 1930,
+      "programBundle": "ol-ma-yuan-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jibing",
+        "name": "集兵",
+        "description": "摸牌阶段开始时，若你的“兵”数小于全场存活势力数，则你可以改为将牌堆顶的两张牌置于你的武将牌上，称为“兵”。你可以将“兵”当作【闪】或【杀】使用或打出。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1931,
+      "programBundle": "ol-ma-yuan-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:wangjing",
+        "name": "往京",
+        "description": "锁定技，当你发动“集兵”使用或打出“兵”时，若对方是全场体力值最高的角色，你摸一张牌。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1932,
+      "programBundle": "ol-ma-yuan-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:moucuan",
+        "name": "谋篡",
+        "description": "觉醒技，准备阶段，若你拥有至少X张“兵”（X为全场势力数），你减少1点体力上限，然后获得技能“兵祸”。",
+        "executionForms": "Trigger",
+        "tags": "Awakening"
+      }
+    },
+    {
+      "registrationOrder": 1933,
+      "programBundle": "ol-ma-yuan-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:binghuo",
+        "name": "兵祸",
+        "description": "一名角色的结束阶段，若你本回合发动“集兵”使用或打出过“兵”牌，你可以令一名角色判定，若结果为黑色，你对该角色造成1点雷电伤害。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1934,
+      "pools": {
+        "current": 467
+      },
+      "definition": {
+        "id": "ol:ma-yuan-yi",
+        "name": "马元义",
+        "portraitKey": "ol-ma-yuan-yi",
+        "skillId": "ol:jibing",
+        "additionalSkillIds": [
+          "ol:wangjing",
+          "ol:moucuan"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:ma-yuan-yi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

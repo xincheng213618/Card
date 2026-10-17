@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         if(!actor.IsAlive||_winner!=Winner.None||IsCardUseForbidden(actor.Seat,kind,CardActionType.Use))return[];
         if(IsSlashCard(kind))return Array.AsReadOnly(_players.Where(p=>CanUseSlashTarget(actor,p,new(0,kind,Suit.None,0),effectiveKind:kind,noEffectiveRank:true,physicalCardIds:[])&&
             !IsSelfTargetForbiddenAction(actor,kind,[p.Seat])&&!IsCardTargetProhibited(p,kind,Suit.None,null)&&!HasBeneficiarySuitShield(actor.Seat,p.Seat,Suit.None)).Select(p=>(IReadOnlyList<int>)Array.AsReadOnly(new[]{p.Seat})).ToArray());
-        if(kind is CardKind.Peach or CardKind.Alcohol&&(kind!=CardKind.Peach||actor.Hp<actor.MaxHp)&&!HasSelfCardTargetProhibition(actor.Seat)&&!HasBeneficiarySuitShield(actor.Seat,actor.Seat,Suit.None)&&!IsCardTargetProhibited(actor,kind,Suit.None,null)&&!IsDirectedCardTargetProhibited(actor.Seat,actor.Seat,kind))return Array.AsReadOnly(new IReadOnlyList<int>[]{Array.AsReadOnly(new[]{actor.Seat})});
+        if(kind is CardKind.Peach or CardKind.Alcohol&&(kind!=CardKind.Peach||IsRuleWounded(actor))&&!HasSelfCardTargetProhibition(actor.Seat)&&!HasBeneficiarySuitShield(actor.Seat,actor.Seat,Suit.None)&&!IsCardTargetProhibited(actor,kind,Suit.None,null)&&!IsDirectedCardTargetProhibited(actor.Seat,actor.Seat,kind))return Array.AsReadOnly(new IReadOnlyList<int>[]{Array.AsReadOnly(new[]{actor.Seat})});
         return[];
     }
     private bool IsAHuiNanJuemanSlashQuery(CharacterState actor)=>HasAHuiNanCapability&&_resolutionStack.LastOrDefault()is ProgramSkillFrame{AHuiNanJueman:{Stage:AHuiNanJuemanStage.UseChoice}r}f&&f.OwnerSeat==actor.Seat&&r.History.Count==3&&IsSlashCard(r.History[2].Kind)&&ValidAHuiNan(f);

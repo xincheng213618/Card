@@ -123,7 +123,7 @@ public sealed partial class GameEngine
         return action.Kind switch
         {
             LegalActionKind.Slash => CanUseSlashTarget(actor, target, physical, action.ConversionSource, kind, ignoreDistance: true),
-            LegalActionKind.Peach => target.Hp < target.MaxHp,
+            LegalActionKind.Peach => IsRuleWounded(target),
             LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
             LegalActionKind.Duel => target.Seat != actor.Seat,
             LegalActionKind.FireAttack => GetHand(target).Count > 0,

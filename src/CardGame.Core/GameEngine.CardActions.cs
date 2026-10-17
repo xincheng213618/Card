@@ -44,10 +44,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Only Iron Chain may be recast.");
         if (FindOwnedCardLocation(actor, card).Zone == CardZoneKind.Equipment)
         { BeginEquipmentRecast(actor, card, playedCardKind ?? card.Kind); return; }
+        var recast = CaptureNativeRecastInvocation(actor.Seat, actor.Seat, [card.Id]);
         MoveCards([card], FindOwnedCardLocation(actor, card), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(actor, 1, log: false, reason: CardMoveReasons.RecastDraw);
         if (_aiBrains.TryGetValue(actor.Seat, out var brain)) brain.ObserveRecast(_turnNumber, card.Id);
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(actor.Seat, card.Id, playedCardKind ?? card.Kind, drawn.Count));
+        CompleteNativeRecastInvocation(recast, drawn.Count);
         AddLog("Recast", $"{actor.Name} 重铸【铁索连环】，摸 {drawn.Count} 张牌。", actor.Seat);
     }
 
@@ -93,6 +95,8 @@ public sealed partial class GameEngine
                 ? GetSelectedUseConversion(_players[actorSeat], _players[provider], card, effectiveKind)
                 : null;
         }
+        ValidateOwnPublicPileConversionCommit(conversion, _players[provider],
+            physicalIds.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id)).ToArray(), forResponse: false);
         var conversionChain = new List<CardConversionSource>();
         if (conversion is not null) conversionChain.Add(conversion);
         if (additionalConversions is not null)
@@ -106,8 +110,10 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasLiuYanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind == CardKind.UnexpectedAssault || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
+        var trackAppearance = HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind == CardKind.UnexpectedAssault || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
         var usedSuit = WuJingLiubingUsedSuit(actorSeat, card, effectiveKind, physicalIds, conversionChain, trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null);
+        if (IsCuiYanNextUseForbidden(actorSeat, physicalIds, usedSuit))
+            throw new InvalidOperationException("The native use violates its issued next-use suit restriction.");
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -127,9 +133,11 @@ public sealed partial class GameEngine
         CardConversionSource? conversionSource = null, Suit? completedResponseUseSuit = null)
     {
         var parent = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId);
+        var pileMaterial = OwnPublicPileResponseMaterial(costs, conversionSource);
+        completedResponseUseSuit ??= pileMaterial is null ? null : EffectiveSuit(provider, pileMaterial);
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
-            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureAlcoholResponseRank(provider, effectiveKind, costs),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureAlcoholResponseRank(provider, effectiveKind, costs) ?? (pileMaterial is { Rank: > 0 } ? pileMaterial.Rank : null),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
         if (parent is not null && actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
             TryIssueTieredRoundResponse(parent, action);
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
@@ -344,6 +352,8 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) ||
+                ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice)) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.PayShanjiaHandUseDebt) ||
                 trigger.Effects.Any(effect => effect.Op is SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards or SkillProgramEffectOp.RewardHejiUnconvertedUse)) continue;
             if (!CanCollectFirstSlashDuelCandidate(owner.Seat, trigger, action)) continue;
@@ -403,6 +413,7 @@ public sealed partial class GameEngine
                         ProgramInstructionResolver.Default.Features(trigger).UsesCondition(SkillProgramTriggerConditionKind.CardActionSuitIs)
                         ? action.EffectiveSuit : capturedFacts.CardActionSuit,
                     CardUseCausedDamage = cardUseCausedDamage,
+                    EventTargetRuleWounded = UsesTreatedWounded && eventTarget >= 0 ? IsRuleWounded(_players[eventTarget]) : null,
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
                     EventTargetHp = window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasFinalTargetSlashEffects(trigger.Effects) && eventTarget >= 0
                         ? _players[eventTarget].Hp : capturedFacts.EventTargetHp,
@@ -442,6 +453,9 @@ public sealed partial class GameEngine
         CollectIssuedWuJingHejiReward(action, window, result);
         CollectIssuedWeifuCandidates(action, window, result);
         CollectIssuedYinjuCandidates(action, window, result);
+        CollectIssuedSunHaoCanshiCandidates(action, window, result);
+        CollectIssuedHuiyunCandidates(action, window, result);
+        CollectIssuedPijingNextUseCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -452,8 +466,8 @@ public sealed partial class GameEngine
                 || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty)
                 || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash) ? "" : candidate.SkillInstanceId;
         }
-        return result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
-            GrantIdentity(candidate), candidate.TriggerId, candidate.OpponentSeat)).ToArray();
+        return IncludeRuanYuMiaoxianRedCandidates(result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
+            GrantIdentity(candidate), candidate.TriggerId, candidate.OpponentSeat)).ToArray(), action, window);
     }
 
     private static ProgramTriggerCandidate ToSharedCandidate(ProgramCardTriggerCandidate candidate) =>
@@ -466,8 +480,8 @@ public sealed partial class GameEngine
         var context = candidate.FrozenContext ?? CreateCardActionProgramContext(frame.Action,
             GetCardActionWindow(frame), frame.Id, candidate.OwnerSeat, candidate.OpponentSeat,
             CaptureProgramTriggerFacts(_players[candidate.OwnerSeat], frame.Action));
-        return CreateMaMiDiIssuedContext(frame, candidate,
-            CreateHuaManCardUseContext(frame, ToSharedCandidate(candidate), context));
+        return CreatePijingIssuedContext(frame, candidate, CreateMaMiDiIssuedContext(frame, candidate,
+            CreateHuaManCardUseContext(frame, ToSharedCandidate(candidate), context)));
     }
 
     private ProgramSkillWindowContext CreateCardActionProgramContext(
@@ -542,8 +556,11 @@ public sealed partial class GameEngine
         var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
         if (TryReturnLiuYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
+        if (TryReturnCuiYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnZhuJunLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryCompleteOverflowCanceledUse(frame)) return ProgramTriggerWindowFlow.Yield;
+        if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
+            TryCompletePijingZeroTargetUse(frame)) return ProgramTriggerWindowFlow.Yield;
         if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
             TryCompleteSoleTargetQuarantinedUse(frame.ParentFrameId)) return ProgramTriggerWindowFlow.Yield;
         if (frame.CardSupplyCompletion is not null)
@@ -675,7 +692,7 @@ public sealed partial class GameEngine
 
     private void ContinueCommittedSlashAfterPrograms(CardAttackHandle attack)
     {
-        if (_winner != Winner.None && IsRoundOnceCardlessBasicUse(attack.ResolutionId))
+        if (_winner != Winner.None && (IsWeijieUse(attack.ResolutionId) || IsRoundOnceCardlessBasicUse(attack.ResolutionId)))
         {
             CompleteAttack(attack);
             return;
@@ -807,7 +824,7 @@ public sealed partial class GameEngine
             var suspendedGuoSiParent = LifecycleCardUse(frame.ParentFrameId) is { } guoSiParent &&
                 IsSuspendedGuoSiCompletedParent(guoSiParent);
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
-            var attackMatches = HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
+            var attackMatches = HasHuiyunCompletedUseObserver(frame.ParentFrameId) || HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
                 OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
                 frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || suspendedGuoSiParent || drawFundedQinglongFollowup ||
@@ -823,7 +840,7 @@ public sealed partial class GameEngine
             var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
             var sharedContext = candidate?.FrozenContext;
             if (candidate is not null && sharedContext is not null)
-                sharedContext = CreateMaMiDiIssuedContext(frame, candidate, sharedContext);
+                sharedContext = CreatePijingIssuedContext(frame, candidate, CreateMaMiDiIssuedContext(frame, candidate, sharedContext));
             var sharedIdentityMatches = candidate is not null &&
                 sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
                 cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
@@ -873,7 +890,7 @@ public sealed partial class GameEngine
                      !(frame.Action.Type == CardActionType.Use &&
                        LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
                        nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&
-                       (IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
+                       (IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        (IsXinPiPhysicalClaim(frame.ParentFrameId, cost.CardId) || IsHuaManClaimedEntity(frame.ParentFrameId, cost.CardId) || IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId)))).Any(cost =>

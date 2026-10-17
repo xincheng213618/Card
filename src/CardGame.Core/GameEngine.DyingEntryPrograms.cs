@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         if (dying.AttemptedSelfDyingBindings.Contains(once) || _players[dying.VictimSeat].Hp > 0) return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var facts = participants.ToDictionary(player => player.Seat, player => CaptureProgramTriggerFacts(player) with
-        { EventTargetHp = _players[dying.VictimSeat].Hp, EventTargetMaxHp = _players[dying.VictimSeat].MaxHp,
+        { EventTargetHp = _players[dying.VictimSeat].Hp, EventTargetRuleWounded = UsesTreatedWounded ? IsRuleWounded(_players[dying.VictimSeat]) : null, EventTargetMaxHp = _players[dying.VictimSeat].MaxHp,
             EventTargetHandCount = GetHand(_players[dying.VictimSeat]).Count });
         var candidates = participants.SelectMany(player => CollectEligibleProgramTriggerCandidates(player,
             SkillProgramTriggerWindow.DyingEntering, facts[player.Seat])

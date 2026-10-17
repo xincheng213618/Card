@@ -62,6 +62,9 @@ public sealed partial class GameEngine
                     GetWeaponAttackRange(player, weapon)));
         }
 
+        if (HasLiYiVirtualStoneAxe(player, excludedEquipmentId, excludedEquipmentSlot) && baseTerms[0].Value < 3)
+            baseTerms[0] = new RuleQueryBaseTerm($"skill:{player.Seat}:zhanjin:attack-range", 3);
+
         if (GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.AttackRange) is { } assignedRange)
             baseTerms.Add(new RuleQueryBaseTerm($"turn:{_turnNumber}:{player.Seat}:allocated-attack-range",
                 Math.Max(0, assignedRange - baseTerms[0].Value)));
@@ -271,8 +274,9 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
          IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
+         IsHuiyunExactHandQuery(player, physicalCardIds is [var huiyunCardId] ? huiyunCardId : physicalCard?.Id) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||
          HasFuRongDiscardDistance(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
          HasRoundGainedBasicBonus(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||

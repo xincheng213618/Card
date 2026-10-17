@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         }
         else if(kind is CardKind.Peach or CardKind.Alcohol)
         {
-            if((kind!=CardKind.Peach||actor.Hp<actor.MaxHp)&&!HasSelfCardTargetProhibition(actor.Seat)&&!HasBeneficiarySuitShield(actor.Seat,actor.Seat,Suit.None)&&
+            if((kind!=CardKind.Peach||IsRuleWounded(actor))&&!HasSelfCardTargetProhibition(actor.Seat)&&!HasBeneficiarySuitShield(actor.Seat,actor.Seat,Suit.None)&&
                 !IsCardTargetProhibited(actor,kind,Suit.None,null)&&!IsDirectedCardTargetProhibited(actor.Seat,actor.Seat,kind))
                 result.Add(new(kind==CardKind.Peach?LegalActionKind.Peach:LegalActionKind.Alcohol,[actor.Seat],null,null,$"视为使用【{CardCatalog.Get(kind).DisplayName}】"));
         }

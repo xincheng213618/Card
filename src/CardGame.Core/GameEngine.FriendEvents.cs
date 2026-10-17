@@ -74,6 +74,7 @@ public sealed partial class GameEngine
                 !CanIssueSelectedActorDuel(target, f.OwnerSeat) || f.SelectedCardIds.Any(id =>
                     _cardZones.GetLocation(id).OwnerSeat != f.OwnerSeat || _cardZones.GetLocation(id).Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
                 throw new InvalidOperationException("Recast Duel requires exact owned HE cards and a legal other target.");
+            f = BeginFrameNativeRecastInvocation(f, f.OwnerSeat, f.SelectedCardIds);
             ReplaceRuntimeTop(f = f with { FriendEventFlow = new(1, operation, FriendEventFlowStage.RecastCost, Count: f.SelectedCardIds.Count, TargetSeat: target),
                 PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             MoveProgramCardsFromMultipleSources(f.SelectedCardIds, CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
@@ -140,7 +141,8 @@ public sealed partial class GameEngine
         if (flow.Stage == FriendEventFlowStage.DuelIssued) throw new InvalidOperationException("Recast Duel requires its typed Use return.");
         if (f.PendingMovementContinuation is not null) { ContinueFriendEventMovement(id); return true; }
         if (!_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId))
-        { ReplaceRuntimeTop(f with { FriendEventFlow = null }); CancelProgramBindingAndCleanup(GetActiveProgramFrame(id), "已付成本保留，武将技能失效。"); return true; }
+        { if (flow.Stage == FriendEventFlowStage.RecastCost) f = CompleteFrameNativeRecastInvocation(f, 0);
+          ReplaceRuntimeTop(f with { FriendEventFlow = null }); CancelProgramBindingAndCleanup(GetActiveProgramFrame(id), "已付成本保留，武将技能失效。"); return true; }
         if (flow.Stage is FriendEventFlowStage.RecastCost or FriendEventFlowStage.AscendingCost or FriendEventFlowStage.SuitHold)
         {
             var stage = flow.Stage == FriendEventFlowStage.RecastCost ? FriendEventFlowStage.RecastDraw :
@@ -149,8 +151,11 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(f = f with { FriendEventFlow = flow with { Stage = stage }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             var drawn = DrawCards(_players[f.OwnerSeat], amount, true, stage == FriendEventFlowStage.RecastDraw ? CardMoveReasons.RecastDraw : CardMoveReasons.Draw);
             if (stage == FriendEventFlowStage.RecastDraw)
+            {
                 for (var i = 0; i < f.SelectedCardIds.Count; i++)
                     AdvanceEventRulesAndQueueFact(new CardRecastEvent(f.OwnerSeat, f.SelectedCardIds[i], GetAttackCard(f.SelectedCardIds[i]).Kind, i < drawn.Count ? 1 : 0));
+                CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(id), drawn.Count);
+            }
             ContinueFriendEventMovement(id); return true;
         }
         if (flow.Stage == FriendEventFlowStage.RecastDraw)

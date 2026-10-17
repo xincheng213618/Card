@@ -1,0 +1,306 @@
+{
+  "characterId": "character:li-yi",
+  "generalId": "ol:li-yi",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-17T02:34:25.016086+00:00",
+  "identity": {
+    "name": "李异",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/607",
+      "capturedAtUtc": "2026-10-17T01:42:00.595468+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/607",
+      "contentType": "text/html",
+      "byteCount": 23317,
+      "sha256": "204201a053a329931108efd68f989294cbc8a0b443de1878dd0961bbb74819f2",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "visibleTextSha256": "180b1fcdd1d904dcbf34a1685d6dc5cbe090183c5d30c76a14f0f4a35ccdd004",
+      "title": "三国杀李异 - 三国杀OL-三国杀官网-武将技能介绍",
+      "targetExcerpt": "武将技能介绍 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 李异 李异 李异 进攻 过牌 强命 武将生平： 李异（生卒年不详），三国时期东吴将领。使一把蘸金大斧，曾与张苞大战数合不分胜负。 武将特点： 要巧妙利用自带的贯石斧效果 武将技能： 缠双 蘸金 出牌阶段限一次，你可以与一名其他角色同时选择一项执行：1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌。结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。 锁定技，若你的装备区里没有武器牌，你视为装备着【贯石斧】。 武将寻迹 历史时间 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 著作权人：杭州游卡网络技术有限公司 出版服务单位：北京科海电子出版社 出版物号：ISBN 978-7-89487-899-1 文网游备字〔2010〕C-CBG009 号 浙公网安备 33010502005081 ICP证号： 浙B2-20160108 京新出音[2010] 235号 批准文号：科技与数字[2010]284号 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【来访预约请点击： 来访预约 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 | 享受健康生活 适龄提示：12岁以上 游卡成长守护平台 | 用户协议 | 实名信息 | 防沉迷系统 | 账号注销 | 不良信息举报 | 用户隐私协议 | 儿童隐私政策 网络文化经营许可证 浙网文〔2016〕0251-121号 著作权人：杭州游卡网络技术有限公司 出版服务单位：上海科学技术文献出版社有限公司 出版物号：ISBN 978-7-89988-640-3 文网游备字〔2016〕M-CSG 2524 号 浙公网安备 33010502005081 号 ICP证号： 浙B2-20160108 批准文号：新广出审[2016]547号 "
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=607",
+      "capturedAtUtc": "2026-10-17T02:34:25.016086+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=607",
+      "contentType": "application/json",
+      "byteCount": 769,
+      "sha256": "cde8681d2b24dfe2b8b2e5c0be5215ebbb6ee695a525afa59a90b3e879f8e6fa",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 607,
+              "name": "李异",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/607.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60700.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "强命"
+              ],
+              "figure": "吴",
+              "figure_py": "wu",
+              "quality": "史诗",
+              "biography": "李异（生卒年不详），三国时期东吴将领。使一把蘸金大斧，曾与张苞大战数合不分胜负。",
+              "characteristic": "要巧妙利用自带的贯石斧效果",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 7
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 4
+            },
+            {
+              "name": "农民",
+              "value": 5
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "formalAvailability": {
+      "url": "https://www.sanguosha.com/news/20240123_3979_3714",
+      "capturedAtUtc": "2026-10-17T01:42:00.837909+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20240123_3979_3714",
+      "contentType": "text/html",
+      "byteCount": 278838,
+      "sha256": "36443dd3d7f2d3fd7d9776eb4d800e0838514141f156fe71931e6b464a3ff00c",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "visibleTextSha256": "c737d2f455f670beca503403a9647e96fe89271df4d5593a693b4aae9d5c1e10",
+      "title": " 1.27-2.2 占星秘宝杨仪返场、驭雷伏乱*杨仪上新 史诗武将李异消费即送 - 三国杀OL官网",
+      "targetExcerpt": "新品武将 李异 (查看原图) 势力 体力 性别 武将特点 吴 4 男 要巧妙利用自带的贯石斧效果 技能 【缠双】：出牌阶段限一次，你可以与一名其他角色同时选择一项执行：1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌。结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。 【蘸金】：锁定技，若你的装备区里没有武器牌，你视为装备着【贯石斧】。 获取 2024-1-27 00:15:00~2024-2-2 23:59:59，累计消费获得。 武将福利 活动时间： 2024-1-27 00:00:00~2024-2-2 23:59:59 ，完成相应任务，即可获得奖励，累计限完成1次。 任务 奖励 限制条件 拥有李异 经典版李异 累计限完成1次 使用李异完成3局游戏 功勋*100 使用李异获胜5局游戏 普通将印宝箱*1 使用李异完成9局游戏 中郎将印*1 使用李异升阶为5阶 自选其一【大将军印*1、水晶碎片*1】 新品皮肤 活动时间： 2024-1-27 00:00:00~2024-2-2 23:59:59 品质 皮肤名称 获得方式 传说(动态) 弈战沙场*荀攸 消费获取 传说 驭雷伏乱*杨仪 占星/夺宝获取 水晶碎片 活动期间，每消耗水晶碎片*5可兑换动态水晶*1，动态水晶*1可兑换传说动态水晶；每消耗朱砂*600，可兑换传说皮肤。 动态水晶 传说皮肤 动态水晶-一战而就*陈宫 一战而就*陈宫 动态水晶-时之彦士*王基 时之彦士*王基 动态水晶-字字珠玑*杨修 字字珠玑*杨修 动态水晶-誓死卫汉*魏延 誓死卫汉*魏延 动态水晶-献策不绝*沮授 献策不绝*沮授 动态水晶-雍容风议*孙乾 雍容风议*孙乾 动态水晶-推仕荐龙*界徐庶 推仕荐龙*界徐庶 动态水晶-扇留魂志*戏志才 扇留魂志*戏志才 动态水晶-神龙佑主*神赵云 神龙佑主*神赵云 动态水晶-铁骑烈焰*马超 铁骑烈焰*马超 动态水晶-立嗣陷危*刘封 立嗣陷危*刘封 动态水晶-汉末龙裔*刘协 汉末龙裔*刘协 动态水晶-真龙之意*SP赵云 真龙之意*SP赵云 动态水晶-挥剑惊石*诸葛诞 挥剑惊石*诸葛诞 动态水晶-大展宏图*张松 大展宏图*张松 占星秘宝 活动时间： 2024-1-27 00:15:00~2024-2-2 23:59:59 自选中心大奖，15次占星必得其中之一。 1、玩家(完成首充六元)每日免费参与占星1次，成功后，需等待24小时，可再次免费占星； 2、占星次数计算：每占星1次计算1次(免费占星计算次数)，占星次数≤15次，玩家抽取珍贵道具后，占星次数清零，再次计算； 3、若自选大奖的永久武将、皮肤、三国秀，玩家已拥有，则不可再次选择； 4、若玩家在占星活动过程中，通过其他途径获得已选珍贵道具(永久武将)，则在珍贵库中重选奖励，之前获得的占星次数不清零； 5、占星石、星石币为时限道具，本次获得过期时间为2024-2-3 00:00:00，请玩家按需购买占星石； *更多详情，查看游戏内活动介绍。 库类型 普通库 珍贵库 概率 99.60% 0.40% 普通库 珍贵库 普通道具 概率 珍贵道具 概率 限制兑换次数 功勋*10 29.09% 星石币*10 18.41% 20 星石币*1 34.90% 星石币*20 15.96% 15 星石币*2 14.54% 星石币*30 9.82% 10 星石币*3 7.75% 星石币*40 5.52% 5 星石币*5 1.45% 星石币*60 1.26% 3 夺宝券*1 4.65% 星石币*80 0.55% 1 皮肤包*1 3.49% 稀有将印宝箱*1 13.99% 8 星石币*10 0.49% 豪华皮肤包*1 10.31% 6 武将包*1 1.65% 武将包*3 10.20% 5 星石币*15 0.05% 史诗将印宝箱*1 5.15% 4 皮肤包*3 1.36% 大将军印*1 1.60% 3 豪华皮肤包*1 0.58% 枭雄金印*1 0.25% 1 元宝*4888 0.46% 1 元宝*7888 0.10% 1 豪华夺宝券*1 1.84% 4 圣魂玄晶*1 1.07% 4 水晶碎片*1 1.60% 4 武将包*5 1.91% 5 累计占星石 消耗占星石数量 每档位星石币数量 限制条件 300 20 累计限完成1次 600 80 90",
+      "publishedAtLocal": "2024-01-26 16:59:57",
+      "availableFromLocal": "2024-01-27 00:15:00",
+      "historicalAvailabilityEndsLocal": "2024-02-02 23:59:59",
+      "availabilityProof": "Official new-general section, Wu male4, both exact skills; cumulative consumption formal unlock."
+    }
+  },
+  "currentPublicClient": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "capturedAtUtc": "2026-10-17T02:34:25.200094+00:00",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "contentType": "application/octet-stream",
+      "byteCount": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "headStatus": 200,
+      "matchesExistingReadOnlyRaw": true
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "capturedAtUtc": "2026-10-17T02:34:25.183289+00:00",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "contentType": "application/octet-stream",
+      "byteCount": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "headStatus": 200,
+      "matchesExistingReadOnlyRaw": true
+    },
+    "characterPath": "GameCharacters.character[a=607]",
+    "characterRow": {
+      "a": 607,
+      "b": "李异",
+      "d": "LiYi",
+      "e": 44,
+      "f": "43",
+      "g": 3,
+      "h": 1,
+      "i": 4,
+      "j": 3432,
+      "k": 3431,
+      "p": 2,
+      "q": "1",
+      "r": "9060701",
+      "y": "李异（生卒年不详），三国时期东吴将领。使一把蘸金大斧，曾与张苞大战数合不分胜负。",
+      "z": "要巧妙利用自带的贯石斧效果",
+      "aa": 1,
+      "ab": "1131,1132",
+      "al": 1730,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20240327T235959",
+      "LordCardRate1": 4,
+      "LordCardRate2": 37,
+      "starMax": 4,
+      "freetitle": "0,攻击强将"
+    },
+    "directSkills": [
+      {
+        "path": "GameSpells.spell[a=3432]",
+        "rawRow": {
+          "a": 3432,
+          "b": "3,5,19",
+          "c": "蘸金",
+          "d": "ZhanJin",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "o": "锁定技，若你的装备区里没有武器牌，你视为装备着【贯石斧】。",
+          "v": "是否弃置两张牌发动<font color='#FFD800'贯石斧</font>，强制对目标造成伤害",
+          "ac": "是否发动<font color='#ffff00'>贯石斧</font>"
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=3431]",
+        "rawRow": {
+          "a": 3431,
+          "b": "3",
+          "c": "缠双",
+          "d": "ChanShuang",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "n": 1,
+          "o": "出牌阶段限一次，你可以与一名其他角色同时选择一项执行：<br>&nbsp;1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌。<br>结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。",
+          "w": "请重铸一张牌;弃置两张牌;使用一张<font color='#FFD800'>杀</font>",
+          "v": "选一名其他角色，发动<font color='#FFD800'>缠双</font>",
+          "ac": "请选择一项执行"
+        }
+      }
+    ],
+    "linkedSkills": []
+  },
+  "sameProductGuides": [
+    {
+      "url": "https://www.taptap.cn/moment/511530093651165834",
+      "capturedAtUtc": "2026-10-17T01:42:00.848444+00:00",
+      "status": 200,
+      "finalUrl": "https://www.taptap.cn/moment/511530093651165834",
+      "contentType": "text/html;charset=utf-8",
+      "byteCount": 261485,
+      "sha256": "88af4f8c691ab7f2be8b4a9486d4ac1c87ba062240e49e81805eca704e6bcb7a",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "visibleTextSha256": "742da9eb9b2cbbb36be4959cf18a2ff796a4f9536c625417e243b4ea422d3fdc",
+      "title": "【武将攻略】自带斧头的全能菜刀 - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛",
+      "targetExcerpt": "武将技能 3.武将台词 4.武将特点 要巧妙利用自带的贯石斧效果。 5.获取方式 2024-1-27 00:15:00~2024-2-2 23:59:59，累计消费18800元宝获得。 二、技能分析 李异有两个技能，其中 〖蘸金〗很好理解，类似卧龙诸葛的〖八阵〗，李异装备区里没武器的时候自带【贯石斧】 。需要注意的是 “视为装备着【贯石斧】”的效果完全等同于装备着实体武器，既视为拥有武器的技能，又拥有武器的攻击范围 。有的小伙伴觉得李异技能复杂，主要还是没搞懂〖缠双〗的机制。下面我们来重点分析一下〖缠双〗。 〖 缠 双 〗 我们可以把技能〖缠双〗分成两段效果来理解 。第一段效果，出牌阶段限一次，你可以与一名其他角色同时选择一项执行：1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌；第二段效果，结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。 第一段是一个 出牌阶段限一次的技能，李异可以选择一名其他角色各自执行3个选项中的一项 。实战效果是， 李异选择目标发动〖缠双〗，双方各自独立选择选项，从当前回合开始依次执行 。 发动〖缠双〗的第一段应该选择己方作目标，一般情况下双方选择重铸牌或者使用杀 ，除非像界凌统这样的特殊配合，否则 不考虑选择弃置两张牌的选项 。这里需要注意：1. 重铸牌包括手牌和装备，选择了这个选项必须执行重铸效果 。2. 使用一张【杀】，区别于“视为使用一张【杀】”，执行这个效果一般来说要出实体杀（包括转化的杀），特殊的有〖活墨〗、〖卫境〗等技能出的虚拟杀 。 杀指定的目标需合法，出牌阶段内以此法使用的杀不计入次数限制 。 使用【杀】的这个效果不需要强制执行，可以点取消 。 第二段效果是回合结束的检测，检测李异在本回合结束阶段前以任意方式执行以上三个效果的情况 。 如果检测到执行过1项，李异在结束阶段执行重铸一张牌；检测到执行过2项，结束阶段先执行重铸项，后执行出杀；检测到执行过3项，则结束阶段依次执行123选项 。 〖缠双〗的第二段效果是〖缠双〗中的锁定技部分，系统自动检测，必须触发对应的效果 。之前有小伙伴说李异不太好发动斧子，主要就是稍不注意，一旦发动了【贯石斧】强命效果弃牌，之前又执行了重铸选项的话就会触发〖缠双〗第二段中强制执行的弃牌效果，结束阶段执行弃置两张牌确实特别亏。 下面我们来简单分析一下通常情况下李异回合内触发每个条件的情形。 ● 触发重铸一张牌：1.〖缠双〗第一段选择重铸牌。2. 重铸【铁索连环】 。 ● 触发使用一张【杀】：1.〖缠双〗第一段选择出杀。2. 出牌阶段正常使用杀 。 ● 触发弃置两张牌的情况：1.〖缠双〗第一段选择弃两张牌。2. 斗地主模式中发动〖飞扬〗弃置两张牌 。3. 弃牌阶段弃置两张牌 。4. 因为其他技能弃置两张牌 ，比如标夏侯的〖刚烈〗弃牌。5. 发动【贯石斧】强命弃牌 。（这里要注意， 跟孟达类似，弃置两张牌的效果是严格检测，比如弃牌阶段弃置三张牌是不符合检测条件的 ） 〖缠双〗第二段效果是存在负面收益的，这里给大家几个小贴士，在使用李异的时候可以避开负面效果。 ● 〖缠双〗第二段的重铸效果必须要触发执行，才能更好地过牌 。因此李异需要保持一定的手牌厚度，不然留不住关键牌的同时也会影响利用〖缠双〗第二段效果给的额外出杀机会。 ● 李异在发动贯石斧弃牌强命时，需要关注本回合是否执行过重铸牌的效果，避免〖缠双〗二段执行弃牌的负面效果 。 ● 李异尽量控制手牌，弃牌阶段不要弃置两张牌 。 李异这个将是有一定的多刀属性的，首先自身能利用技能砍出至少两刀，再加正常出杀的一刀，队友还能选择出杀选项砍出一刀。理想情况下一回合能砍出三刀，极端情况能砍出四刀 。下面就介绍一下李异砍出多刀的操作技巧。（这里只分析李异自己的操作，队友跟着出杀就行） ● 过牌多刀流 ： 〖缠双〗第一段选择重铸，出牌阶段使用杀，〖缠双〗第二段重铸、出杀。一回合重铸两次过2牌，砍两刀。适合手牌比较充裕的时候 。 ● 稳定多刀流 ： 〖缠双〗第一段选择使用杀，出牌阶段使用杀，〖缠双〗第二段重铸。在李异手牌较少的时候可以这样选择，能够保证稳定砍出两刀。如果选择“过牌多刀流”的方式，很有可能手中的杀会被〖缠双〗第二段的重铸效果换掉。少砍一刀，得不偿失 。 ● 极限多刀流 ： 〖缠双〗第一段选择使用杀，出",
+      "account": "大乔",
+      "evidenceLevel": "Same-product official-community guide, not exclusive FAQ"
+    },
+    {
+      "url": "https://www.taptap.cn/moment/694890332034173600",
+      "capturedAtUtc": "2026-10-17T01:42:00.903159+00:00",
+      "status": 200,
+      "finalUrl": "https://www.taptap.cn/moment/694890332034173600",
+      "contentType": "text/html;charset=utf-8",
+      "byteCount": 240587,
+      "sha256": "6186a81a4b4e0e582e42ae4bdae66c4b6a0819f030a94d5e27009f4f972c3969",
+      "hashScope": "HTTP response body bytes",
+      "rawCopyCreated": false,
+      "visibleTextSha256": "f6b31f963c27e681c9657eb61242368140d37ac6c25c413a13063c70f4c66afd",
+      "title": "【武将攻略】兼人之勇的“三板斧”—李异 - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛",
+      "targetExcerpt": "武将技能】 【缠双】：出牌阶段限一次，你可以与一名其他角色同时选择一项执行：1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌。结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。 【蘸金】：锁定技，若你的装备区里没有武器牌，你视为装备着【贯石斧】。 三、【技能分析】 一、【缠双】：是这个武将的主要技能，是李异能否配合队友一起额外打出输出与过牌的关键。关于这个技能谈谈注意的点： 1.技能可以拆分为俩部分，结束阶段前面的字为一部分，也就是说哪怕自己回合内没有通过使用【缠双】的方式进行重铸、出杀、丢牌，只要你的回合做到了相同的效果也依然能在结束阶段触发后半段。举个例子：你回合内没有主动使用【缠双】，你重铸了铁索连环、正常出了杀、别人出闪你用了【蘸金】的贯石斧丢俩牌强中。你的结束阶段就会触发【缠双】的后半段，执行一次这3个选项。 2.出牌阶段限一次的3个选项是能自己主动找目标选择，选项3一般来说除了牌多被神甘【劫营】外基本不会自主选择。除非你回合内做了有前两个选项的行为+【蘸金】为了强中丢牌。 3.选择选项2时，不会要求强制出杀，他们可以选择选项2后不出杀，你自己选择也是一样。 4.如果手牌资源足够你挥霍的话，那么你能达成你的回合能有4张杀打出。举个例子：使用技能【缠双】自己使用一次、【缠双】队友，队友选择出杀一次、正常回合出杀一次、回合结束触发【缠双】选项2一次（回合内要使用过铁索或者【蘸金】丢过牌）。 二、【蘸金】：是这个武将的副技能，有着能为李异提供距离和帮助选项的能力。关于这个技能谈谈注意的点： 1.锁定技，同卧龙诸葛的【八卦】一样。 2.这个视为装备的贯石斧的攻击距离3也是能享受到的。 3.使用【蘸金】的贯石斧强中丢俩牌，会记到【缠双】的1个执行数，要注意。 4.【蘸金】的贯石斧不会收到借刀的影响。举个例子：别人有借刀，但你没有武器【蘸金】虽然视为有贯石斧，但别人无法对你使用借刀。 四、【武将的配合与克制/被克制方面】 配合方面： 1.出杀能有收益的武将：sp马超、某关羽、毌丘俭、界徐盛、界马超、吕伯奢、二成… 2.重铸过牌收益的武将：诸葛瑾、邓艾/界邓艾、羊祜、卫瓘（“失去”这张牌时需要与体力相等）、一些玩装备的武将（孙尚香、凌统…） 克制方面： 3血脆皮将、4血吃状态的将（如二袁…）… 被克制方面： 曹丕、徐晃/界徐晃、张陵、拆迁武将… 五、【军八分析】 主公方面： 选出来就是个破绽，虽然可以通过场上的输出强将进行判断找队友，但是敌方选一些高收益的卖血将你杀不杀？自己也没有什么防御力活着，回合外就是5血无防的白板。不建议选择。 忠臣方面： 主忠方人少，输出方面还是不太够看，比较难受，不建议选择。 反贼方面： 有【蘸金】不会缺距离，可以远距离输出主公，通过技能【缠双】能明确队友一起集火，作为反贼来说是个不错的选择。 内奸方面： 能猥琐发育的话留杀的话，有收割的可能性，技能可能会资敌。本身属于反脸武将，不太容易被主忠方忽视，不建议选择。 六、【排位分析】 1.作为排位将来说，李异有着一定的发挥能力。将池里能配合的菜刀武将也不少，不过李异本质上还是太吃手牌资源了，缺杀也是一个大问题。 2.排位池子里面强力的配合武将有谋关羽、界徐盛、sp马超、吕伯奢、二成… 3.这个将有种类似孟达和界贾诩的感觉。首轮虽然压制力没有贾诩厉害，但是依靠后续过牌还是有机会打出第二轮，从某种方面来说也不失为一种平替。 七、【斗地主分析】 地主方面： 比较弱的地主，玩这个不如玩张飞。指望重铸和贯石斧吗，自身手牌也吃不消，在斗地主里面压制力不行。大概率送豆。 农民方面： 低分局农民可以勉强用用，分一高就得要关掉的水平。 八、【对局分析】 这把我方是1、4号位的李异和sp马超，开局我方将池也是比较烂，于是选出了这个阵容放手一搏。开局五牌是红杀、万剑和一张大点废牌和俩闪。开局想尝试能不能处理掉滕芳兰，队友手里有杀。于是我红杀滕芳兰，我是希望她出闪的，可惜并没有，她选择掉血让我丢俩牌。此时我手里还剩万剑和闪，我使用万箭齐发，马超掉至3血，秦宓掉至2血，滕芳兰出闪。我发动【缠双】重铸手牌，马超选择出杀，滕芳兰出闪，秦宓掉至1血。我重铸到了一张杀此时我手牌为1，秦宓无法【谏征】遗憾退场，结束回合。滕芳兰选择流失马超体力，装备八卦阵，杀马超一刀压至1血结束回合。",
+      "account": "大乔",
+      "evidenceLevel": "Later same-product community guide; agrees with native Stone Axe cost and cancelable Slash choice"
+    }
+  ],
+  "ruleText": {
+    "ol:zhanjin": "锁定技，若你的装备区里没有武器牌，你视为装备着【贯石斧】。",
+    "ol:chanshuang": "出牌阶段限一次，你可以与一名其他角色同时选择一项执行：1.重铸一张牌；2.使用一张【杀】；3.弃置两张牌。结束阶段，你依次执行X项（X为你本回合以任意方式执行过的项数）。"
+  },
+  "ruleInterpretation": [
+    {
+      "status": "official text plus same-product guide",
+      "rule": "Each participant privately seals one independent option. Both choices are revealed together; identical choices still produce two independent executions in native action order. Recast accepts actual Hand/Equipment; Slash is a real native Use with ordinary range and target prohibitions, is cancelable, and consumes no ordinary Slash quota."
+    },
+    {
+      "status": "official text plus same-product guide",
+      "rule": "Ending freezes the number X of DISTINCT categories actually executed in this actual turn, including actions outside Chanshuang and before skill acquisition, then executes numbered options 1 through X. It does not execute only the historical selected subset. Repeated category execution contributes once."
+    },
+    {
+      "status": "implementation inference; no exclusive FAQ",
+      "rule": "Exactly one-card recast and exactly two-card discard mean one whole native semantic invocation by this executor. Two independent discards of one card and one discard of three cards are excluded. A group recast of two cards is excluded even though legacy per-card recast events are emitted twice. A paid one-card recast remains executed if death, exhaustion or a native replacement produces zero reward draw."
+    },
+    {
+      "status": "implementation inference consistent with native ownership",
+      "rule": "Native Slash declarations are deduplicated by native Use; pure played Duel/AOE/provider responses do not qualify. The final actual actor follows the strict native actor-replacement chain; provider material ownership is not silently treated as using the card. Extra effects and repeated target windows do not create another Use."
+    },
+    {
+      "status": "native execution inference; no exclusive FAQ",
+      "rule": "The scope lasts through the actual turn cursor return, including tail or inserted phases. Ending X freezes when its actual native binding starts; its own later recast, Slash and paid children cannot change that X. A paid or fully issued participant queue survives source loss, while dead actors never receive a new card-use menu."
+    },
+    {
+      "status": "official text plus same-product guide",
+      "rule": "Zhanjin grants actual Stone Axe ability and native range3 while no real equipped weapon exists. It creates no physical weapon and therefore cannot be stolen, recast, discarded or selected as a Borrowed Sword weapon. Actual weapons override the empty-weapon condition immediately."
+    },
+    {
+      "status": "literal text implementation inference; no exclusive FAQ",
+      "rule": "The current text contains no abolished-slot exception, so no unsupported wiki caveat is added. Live weapon ability checks use the actual equipment area. Native prospective attack-range queries use their exact excluded equipment id or slot: paying away the final real weapon permits the resulting empty area to supply virtual range3. This projection neither removes the still-equipped entity nor grants the live Axe ability before payment. Ordinary single-entity equipment-to-Slash menus and assisted Slash requests derive the same prospective exclusion only from an actual equipped weapon that is itself the legal conversion material; explicit target prohibitions and native payment-time legality still apply. The equipment-to-Slash interaction follows the native cost legality contract and is an implementation inference, not a dedicated OL FAQ."
+    }
+  ],
+  "runtimeOwnership": {
+    "state": "Chanshuang ProgramSkillFrame owns sealed votes, frozen execution cursor, primary recast/discard group, actual paid movement interval, supplier selection and typed native return. No pending sidecar or synthetic physical weapon.",
+    "recast": "Uses the shared whole NativeRecastInvocation contract at real producer boundaries; actual materials and child spill remain distinct.",
+    "suppliers": "Registered physical, converted, cardless, draw-funded, chained, own-pile/deck and faction sources retain their own actual payment and return proofs. Chanshuang adds its own opportunity invoice and quota exception without importing Heji distance or a fake phase."
+  },
+  "art": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60700.png",
+    "capturedAtUtc": "2026-10-17T02:34:25.562529+00:00",
+    "status": 200,
+    "path": "src/CardGame.Wpf/Assets/official-ol-li-yi.png",
+    "byteCount": 1217440,
+    "sha256": "9e5d97a3a433e33f1f7ffbeaddee82926a70585caa0da28b5fe84e1bad00c69c"
+  },
+  "verification": {
+    "implementation": "complete runtime; focused character, shared mechanism, routine, and visual gallery verification passed",
+    "focusedChecks": [
+      "LiYiVirtualStoneAxeRealWeaponAndPaidChildrenCold",
+      "ChanshuangPrivateSameChoicesRecastLionOxCold",
+      "ChanshuangNativeSlashQuotaZeroSupplyAndFactionCold",
+      "ChanshuangWholeActualTurnHistoryAndFirstXEndingCold"
+    ],
+    "focusedChecksPassed": true,
+    "routinePassed": true,
+    "rootVerified": true,
+    "centralBuildPassed": true,
+    "galleryRenderVisuallyVerified": true,
+    "galleryActualRenderCount": 1,
+    "fullVerificationRun": false,
+    "releaseOrPackagingRun": false,
+    "notes": "Centralized focused checks passed, including exact typed legacy Alcohol return and whole recast producer boundaries. Bounded routine and actual gallery inspection passed. No manual full run, publishing, or packaging was performed.",
+    "status": "root-focused-routine-and-gallery-verified",
+    "routineCorePassed": 144,
+    "routineWpfPassed": 28,
+    "routineDurationMs": 51449
+  }
+}

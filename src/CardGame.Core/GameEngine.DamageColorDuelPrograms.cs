@@ -29,7 +29,8 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
-        cardId==0 && IsLiuYanLegacyAlcoholUse(frameId) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
+        cardId==0 && IsWeijieUse(frameId) ? WeijieRepresentation(frameId) :
+        cardId==0 && (IsLiuYanLegacyAlcoholUse(frameId) || IsCuiYanLegacyAlcoholUse(frameId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && LifecycleCardUse(frameId) is { CardKind: CardKind.Alcohol, LegacyDyingAlcoholReturn: not null } legacyWine && IsExactLegacyActualUseCompletion(legacyWine) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && LifecycleCardUse(frameId) is { DyingSuitsPeachReturn: { } dyingReturn } dyingUse && ValidDyingSuitsPeachUse(dyingUse,dyingReturn) ? new Card(0,CardKind.Peach,Suit.None,0) :
         cardId==0 && IsChosenAssaultUse(frameId) ? new Card(0,CardKind.BarbarianAssault,Suit.None,0) :
@@ -42,7 +43,7 @@ public sealed partial class GameEngine
         cardId==0 && IsTianChouShandaoUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsProgramVirtualOrdinaryTrickUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
-            IsClaimedUseCardEntity(frameId, cardId) ? EntityAtCurrentLocation(cardId) :
+            (IsClaimedUseCardEntity(frameId, cardId) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, cardId)) ? EntityAtCurrentLocation(cardId) :
             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);
     private bool MatchesSelectedActorDuelAction(long frameId,CardActionContext action,int cardId) =>
         cardId==0 && IsIssuedZeroEntityDuel(frameId) && LifecycleCardUse(frameId)?.Action?.ActionId==action.ActionId &&

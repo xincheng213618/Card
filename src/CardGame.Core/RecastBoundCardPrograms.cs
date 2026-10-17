@@ -77,6 +77,7 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.AwaitChild;
         }
         var card = _cardZones.CardsAt(source.SourceLocations[0]).Single(c => c.Id == source.CardIds[0]);
+        frame = BeginFrameNativeRecastInvocation(frame, owner.Seat, [card.Id]);
         ReplaceRuntimeTop(frame with { BoundCardRecast = new(frame.InstructionIndex, sourceBind,
             card.Id, card.Kind, source.SourceLocations[0]) });
         MoveCard(card, source.SourceLocations[0], CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
@@ -112,6 +113,7 @@ public sealed partial class GameEngine
             frame = GetActiveProgramFrame(frame.Id);
             ReplaceRuntimeTop(frame with { BoundCardRecast = frame.BoundCardRecast! with { DrawCount = drawn.Count } });
             AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, receipt.CardId, receipt.CardKind, drawn.Count));
+            CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(frame.Id), drawn.Count);
             return ResumeProgramBoundCardRecast(frame.Id);
         }
         ReplaceRuntimeTop(frame with { BoundCardRecast = null });

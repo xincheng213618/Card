@@ -156,7 +156,8 @@ public enum PlayerMarkerKind
     QuxiFeng = 26300,
     QuxiQian = 26301,
     XunyiYi = 26320,
-    QingyuanPartner = 26820
+    QingyuanPartner = 26820,
+    RanshangRan = 27320
 }
 
 public static class PlayerMarkerCatalog
@@ -201,6 +202,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.Mist => "大雾",
         PlayerMarkerKind.Junlue => "军略",
         PlayerMarkerKind.Camp => "营",
+        PlayerMarkerKind.RanshangRan => "燃",
         PlayerMarkerKind.Kangge => "歌",
         PlayerMarkerKind.Jue => "爵",
         PlayerMarkerKind.CategoryLei => "诔",

@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-tu",
+  "skills": [
+    {
+      "registrationOrder": 2010,
+      "programBundle": "ol-guo-tu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qushi",
+        "name": "趋势",
+        "description": "出牌阶段限一次，你可以摸一张牌，然后扣置一张手牌于一名其他角色的武将牌上，称为“趋”。其结束阶段移去“趋”，然后若其本回合使用过与“趋”同类型牌，你摸X张牌(X为其本回合使用牌指定过的目标数且至多为5)。",
+        "actionForms": "Active",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2011,
+      "programBundle": "ol-guo-tu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:weijie",
+        "name": "诿解",
+        "description": "其他角色的回合限一次，当你需要使用或打出基本牌时，你可弃置你距离为1的其他角色一张手牌，若此牌与你需要使用/打出的牌名相同，你视为使用/打出此牌。",
+        "actionForms": "Active",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2012,
+      "pools": {
+        "current": 475
+      },
+      "definition": {
+        "id": "ol:guo-tu",
+        "name": "郭图",
+        "portraitKey": "ol-guo-tu",
+        "skillId": "ol:qushi",
+        "additionalSkillIds": [
+          "ol:weijie"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:guo-tu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

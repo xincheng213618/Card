@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cui-yan",
+  "skills": [
+    {
+      "registrationOrder": 2020,
+      "programBundle": "ol-cui-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shutong",
+        "name": "束统",
+        "description": "锁定技，你使用一张牌指定目标后，本回合你与目标角色使用的下一张牌不能为此花色。若目标角色均与你体力值相同，你摸一张牌。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2021,
+      "programBundle": "ol-cui-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhijie",
+        "name": "直节",
+        "description": "锁定技，每回合结束时，若你此回合使用或打出过牌，且你成为过牌的目标，你对攻击范围内的一名角色造成1点伤害。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2022,
+      "pools": {
+        "current": 476
+      },
+      "definition": {
+        "id": "ol:cui-yan",
+        "name": "崔琰",
+        "portraitKey": "ol-cui-yan",
+        "skillId": "ol:shutong",
+        "additionalSkillIds": [
+          "ol:zhijie"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:cui-yan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

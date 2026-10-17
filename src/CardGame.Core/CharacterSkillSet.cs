@@ -4,7 +4,7 @@ public sealed record LordSkillProjectionSource(int LordSeat, string LordGrantId,
     string CapabilityGrantId, string CapabilitySkillInstanceId);
 public sealed record SkillGrantTurnExpiry(int TurnNumber, int TurnOwnerSeat);
 public sealed record SkillGrantPhaseExpiry(int TurnNumber, int PhaseActorSeat, int PhaseInstanceId);
-public sealed record SkillGrant(
+public sealed partial record SkillGrant(
     string GrantId, string SkillId, string SkillInstanceId, string SourceId, bool IsEnabled = true,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     LordSkillProjectionSource? LordProjection = null,

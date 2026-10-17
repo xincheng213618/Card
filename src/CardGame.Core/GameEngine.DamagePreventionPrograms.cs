@@ -79,6 +79,7 @@ public sealed partial class GameEngine
                 var facts = CaptureProgramTriggerFacts(owner) with
                 {
                     EventTargetHp = target.Hp,
+                    EventTargetRuleWounded = UsesTreatedWounded ? IsRuleWounded(target) : null,
                     DamageNature = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.DamageNatureIs)
                         ? nature : null,
                     EventTargetMarkerCounts = HasAttributedEventOperations() ? new Dictionary<PlayerMarkerKind,int>(target.Markers) : null,

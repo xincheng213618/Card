@@ -63,7 +63,7 @@ public sealed partial class GameEngine
             parent.YangFu is not { Stage: YangFuStage.SlashUse, NativeCompleted: false } r || r.NativeOrigin != origin ||
             parent.SelectedTargetSeats is not [var selected] || selected != r.TargetSeat ||
             use.CardAttack is not { CardId: null, PhysicalCardIds.Count: 0 } attack || attack.ProgramSkillCardUseFrameId != parent.Id ||
-            !(HasBingzhongTargetTail(use) || HasWeifuTargetTail(use) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use) || HasZhangYanLangdaoTargetTail(use)) || use.TargetSeats.Count == 0 ||
+            !((HasBingzhongTargetTail(use) || HasPijingTargetTail(use)) || HasWeifuTargetTail(use) || HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use) || HasZhangYanLangdaoTargetTail(use)) || use.TargetSeats.Count == 0 ||
             ProgramEventHistory<TargetsConfirmedEvent>().SingleOrDefault(e => e.ResolutionId == use.Id) is not { TargetSeats: [var original] } || original != r.TargetSeat ||
             ProgramEventHistory<CardUseDeclaredEvent>().SingleOrDefault(e => e.ResolutionId == use.Id) is not { CardId: 0, CardKind: CardKind.Slash } declared || declared.SourceSeat != parent.OwnerSeat)
             return false;

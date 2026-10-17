@@ -11,7 +11,16 @@ public sealed partial class GameEngine
     // after those children return, rather than using a premature live-owner gate.
     private bool HasCardResponseCompletedObserver(CardActionContext action, ProgramCardContinuation continuation) =>
         action.Type == CardActionType.Response && IsResponseCompletionContinuation(continuation) &&
-        _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.CardResponseCompleted);
+        (_contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.CardResponseCompleted) ||
+         IsJueshengPaidDuelResponse(action, continuation));
+
+    // The Duel's then-clause must wait for its actual response-payment children,
+    // including when the catalogue has no response-completed skill observer.
+    private bool IsJueshengPaidDuelResponse(CardActionContext action, ProgramCardContinuation continuation) =>
+        continuation is (ProgramCardContinuation.DuelSlash or ProgramCardContinuation.FactionSlashDuelSlash) &&
+        IsSlashCard(action.EffectiveKind) && action.ParentActionId is { } parentAction &&
+        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Action?.ActionId == parentAction &&
+            IsJueshengDuelUse(use.Id));
 
     private bool TryBeginCardResponseCompleted(CardAttackHandle? attack, CardActionContext action,
         ProgramCardContinuation originalContinuation)

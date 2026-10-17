@@ -46,7 +46,7 @@ public sealed partial class GameEngine
             }
             else if (r.Stage is not (WuJingStage.UseChoice or WuJingStage.IssuingUse or WuJingStage.FactionRequest)) throw new InvalidOperationException("Heji entered another instruction's paid stage.");
         }
-        var nativePrompt = _pendingDecision is { } currentPrompt ? KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(currentPrompt))) : null;
+        var nativePrompt = _pendingDecision is { } currentPrompt ? KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(WeijieNativeDecision(currentPrompt)))) : null;
         if (_resolutionStack.LastOrDefault()?.Id == f.Id && r.Stage == WuJingStage.UseChoice && (nativePrompt is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } prompt || prompt.PlayerSeat != f.OwnerSeat || !AssistedChoicesEqual(prompt.Choices, WuJingChoices(f))))
             throw new InvalidOperationException("Heji lost its real private chosen-card boundary.");
     }

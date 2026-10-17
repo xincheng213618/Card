@@ -25,7 +25,7 @@ public sealed partial class GameEngine
     {
         if(t.Effects is not [var effect]||!YanRouComposition.IsOperation(effect.Op))return true;
         if(!YanRouParent(c,context))return false;
-        if(effect.Op==SkillProgramEffectOp.RecoverAndDrawByTurnDamage)return !YanRouSpent(c.OwnerSeat,c.SkillId,c.GameplayHash)&&_players.Any(p=>p.IsAlive&&p.Hp<p.MaxHp);
+        if(effect.Op==SkillProgramEffectOp.RecoverAndDrawByTurnDamage)return !YanRouSpent(c.OwnerSeat,c.SkillId,c.GameplayHash)&&_players.Any(p=>p.IsAlive&&IsRuleWounded(p));
         var card=context.CardUse!;var use=_resolutionStack.OfType<CardUseFrame>().Single(u=>u.Id==card.ParentCardUseFrameId);
         var payer=use.SourceSeat;
         return _players[payer].IsAlive&&(t.OwnerRelation==SkillProgramCardActionOwnerRelation.Actor?c.OwnerSeat==payer:context.TargetSeat==c.OwnerSeat&&use.Action!.EffectiveDesignatedTargetSeats.Contains(c.OwnerSeat))&&
@@ -47,7 +47,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> YanRouChoices(ProgramSkillFrame f)
     {
         var r=f.YanRou!;if(!_players[f.OwnerSeat].IsAlive||_winner!=Winner.None)return [];
-        if(r.Stage==YanRouStage.TargetChoice)return Array.AsReadOnly(_players.Where(p=>p.IsAlive&&p.Hp<p.MaxHp).Select(p=>new PromptChoice(new($"yan-rou.{f.Id}.target.{p.Seat}"),$"令{p.Name}回复{r.Amount}点体力并摸{r.Amount}张牌",[],[p.Seat],new Dictionary<string,string>{{"program-action","yan-rou"},{"frame-id",f.Id.ToString(CultureInfo.InvariantCulture)}})).ToArray());
+        if(r.Stage==YanRouStage.TargetChoice)return Array.AsReadOnly(_players.Where(p=>p.IsAlive&&IsRuleWounded(p)).Select(p=>new PromptChoice(new($"yan-rou.{f.Id}.target.{p.Seat}"),$"令{p.Name}回复{r.Amount}点体力并摸{r.Amount}张牌",[],[p.Seat],new Dictionary<string,string>{{"program-action","yan-rou"},{"frame-id",f.Id.ToString(CultureInfo.InvariantCulture)}})).ToArray());
         if(r.Stage!=YanRouStage.DiscardChoice||!_players[r.Payer].IsAlive||!HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId))return [];
         return Array.AsReadOnly(BuildOwnedCardPaymentChoices(f.Id,f.OwnerSeat,r.Payer,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Discard,
             canSelect:(zone,card)=>YanRouCanDiscard(f.OwnerSeat,r.Payer,card,new(zone,r.Payer)))

@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:mutao","revision":1,"activations":[{"id":"public-slash-ring","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveBaoXinMutao","target":"owner"}]}]},
+ {"id":"ol:yimou","revision":1,"triggers":[{"id":"near-damage","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveBaoXinYimou","target":"owner"}]}]}
+]}

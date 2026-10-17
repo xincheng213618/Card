@@ -19,6 +19,7 @@ public sealed partial class GameEngine
         var card = GetHand(owner).Single(c => c.Id == id);
         if (!IsSlashCard(card.Kind)) throw new InvalidOperationException("The active recast requires a printed physical Slash, Fire Slash or Thunder Slash.");
         var before = EndingPairSequence;
+        f = BeginFrameNativeRecastInvocation(f, f.OwnerSeat, [id]);
         ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null), PlaySlashRecast =
             new(f.InstructionIndex, EndingPairSource(f), f.GameplayHash, _turnNumber, _turnProgression.OwnerSeat, f.OwnerSeat, _cardUseDebitPhaseInstanceId,
                 id, card.Kind, before, before) });
@@ -52,6 +53,7 @@ public sealed partial class GameEngine
                 // The real paid recast survives cancellation; an unattempted
                 // reward must not be recorded as an issued zero-card draw.
                 AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, r.CardId, r.CardKind, 0));
+                f = CompleteFrameNativeRecastInvocation(f, 0);
                 ReplaceRuntimeTop(f with { PlaySlashRecast = null, PendingMovementContinuation = null });
                 CancelProgramBindingAndCleanup(GetActiveProgramFrame(id), "重铸成本已结算，来源、参与者或游戏失效，尚未发行的摸牌取消。");
                 return true;
@@ -62,6 +64,7 @@ public sealed partial class GameEngine
             f = GetActiveProgramFrame(id); ReplaceRuntimeTop(f with { PlaySlashRecast = f.PlaySlashRecast! with { DrawSequenceAfter = EndingPairSequence, ActualDrawCount = count } });
             AdvanceEventRulesAndQueueFact(new PlaySlashRecastDrawIssuedEvent(id, owner.Seat, before, EndingPairSequence, count));
             AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, r.CardId, r.CardKind, count));
+            CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(id), count);
             AdvanceRuntimeProgram(id); return true;
         }
         ReplaceRuntimeTop(f with { PlaySlashRecast = null });

@@ -54,7 +54,7 @@ public sealed partial class GameEngine
  }
  private bool QigongMaterialPaymentMatches(CardUseFrame use,QigongNativeReceipt r)
  {
-  var action=r.OriginalAction;if(action.PhysicalCards.Count==0)return r.RoundOncePayment is{}round&&round.Source.OwnerSeat==r.Actor&&CompleteProgramEventHistory().OfType<RoundOnceCardlessBasicQuotaPaidEvent>().Count(e=>e.Receipt==round)==1||r.DrawFundedPayment is{}draw&&ValidDrawFundedDistinctBasicPayment(draw)||r.ChainedPayment is{}chain&&ValidChainedStateBasicPayment(chain);
+  var action=r.OriginalAction;if(action.PhysicalCards.Count==0)return r.RoundOncePayment is{}round&&round.Source.OwnerSeat==r.Actor&&CompleteProgramEventHistory().OfType<RoundOnceCardlessBasicQuotaPaidEvent>().Count(e=>e.Receipt==round)==1||r.DrawFundedPayment is{}draw&&ValidDrawFundedDistinctBasicPayment(draw)||r.ChainedPayment is{}chain&&ValidChainedStateBasicPayment(chain)||_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==r.ProgramId)is{}weijieParent&&HasWeijieSpecializedPayment(weijieParent,use);
   return action.PhysicalCards.All(c=>_cardMovements.Count(m=>m.CardId==c.CardId&&m.From==c.From&&m.Sequence>r.Before&&m.Sequence<=r.After&&(m.Reason==CardMoveReasons.Use&&m.To==CaoChunNativeCostDestination(action,c)||r.DeclarationPayment is{}d&&d.Cost==c&&d.ProviderSeat==action.ProviderSeat&&d.DeclaredKind==action.EffectiveKind&&action.ConversionChain.Contains(d.Source)&&m.To==CardLocation.Processing&&m.Reason.Value=="conversion.declaration.pay"))==1);
  }
  private bool ValidQigongNativeUse(CardUseFrame use)

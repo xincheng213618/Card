@@ -108,9 +108,9 @@ public sealed partial class GameEngine
         result.Add(new(new($"wu-jing.{f.Id}.decline"), "不使用牌", [], [], new Dictionary<string,string> { ["program-action"] = "wu-jing", ["kind"] = "decline" }));
         return Array.AsReadOnly(result.DistinctBy(c => c.Id).ToArray());
     }
-    private void PublishWuJing(ProgramSkillFrame f)
+    private void PublishWuJing(ProgramSkillFrame f, bool keepCurrentRequest = false)
     {
-        var choices = WuJingChoices(f); if (choices.Count == 0 || choices.All(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("kind") == "decline") && !HasWuJingZeroSupply(f)) { FinishWuJing(f, false); return; }
+        var choices = WuJingChoices(f); if (choices.Count == 0 || !keepCurrentRequest && choices.All(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("kind") == "decline") && !HasWuJingZeroSupply(f)) { FinishWuJing(f, false); return; }
         var skill = _contentRegistry.GetSkill(f.SkillId); ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.AwaitingResponse });
         _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, "合击：对原牌的唯一目标使用一张杀或决斗。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), [f.WuJing!.TargetSeat], f.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = f.OwnerSeat, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };

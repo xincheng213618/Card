@@ -14600,6 +14600,278 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-wu-tu-gu",
+      "characterName": "兀突骨·OL",
+      "defaultSkinId": "14000",
+      "skins": [
+        {
+          "id": "14000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/140",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/14000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-wu-tu-gu.png",
+          "sha256": "98d89b1ea5261bedf95bb53672bb702247ae6e69e7306f8a420b62597a0d89d4",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sun-hao",
+      "characterName": "孙皓·OL",
+      "defaultSkinId": "13700",
+      "skins": [
+        {
+          "id": "13700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/137",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/13700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sun-hao.png",
+          "sha256": "9a46a616ceb3f726a4a5db880bde120fae9c8723779f2a7b6723a7a9e1745b6c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-da-qiao-xiao-qiao",
+      "characterName": "大乔小乔·OL",
+      "defaultSkinId": "11700",
+      "skins": [
+        {
+          "id": "11700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/117",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-da-qiao-xiao-qiao.png",
+          "sha256": "2309eb94fe32c6bffc1886a742ee9ca0857647e69e229dcc461242209dc5a7e2",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-fan-jiang-zhang-da",
+      "characterName": "范疆张达·OL",
+      "defaultSkinId": "49400",
+      "skins": [
+        {
+          "id": "49400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/494",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-fan-jiang-zhang-da.png",
+          "sha256": "8dc12428a91113a8ffc1e67b7883513473460fa02b251faa6644a08b4b1d7d02",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-wen-yang",
+      "characterName": "文鸯·OL",
+      "defaultSkinId": "51700",
+      "skins": [
+        {
+          "id": "51700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/517",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-wen-yang.png",
+          "sha256": "0268c5124056dbb2527b0134c621686aaca8099fa23b4cd283507002713200b7",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-ma-yuan-yi",
+      "characterName": "马元义·OL",
+      "defaultSkinId": "66900",
+      "skins": [
+        {
+          "id": "66900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/669",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/66900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-yuan-yi.png",
+          "sha256": "7cadb2a6bf39b8f75e4e4dae94f98949e9ff03837d6e19b1cfb03bf846b9021e",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-hu-ban",
+      "characterName": "胡班·OL",
+      "defaultSkinId": "53400",
+      "skins": [
+        {
+          "id": "53400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/534",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-hu-ban.png",
+          "sha256": "72f53e6aeaef337473871be8c93b6a6a0d0b1f27369af3669057c62017f3bdff",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-liu-ba",
+      "characterName": "刘巴·OL",
+      "defaultSkinId": "53600",
+      "skins": [
+        {
+          "id": "53600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/536",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-ba.png",
+          "sha256": "abcab74866e56a66c5d6f95517cf8276f88b519b8517d1bca4742973d7953db4",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-liu-pan",
+      "characterName": "刘磐·OL",
+      "defaultSkinId": "61100",
+      "skins": [
+        {
+          "id": "61100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/611",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-pan.png",
+          "sha256": "ab33d4a290309e7a046a4e3539484098e179a7cfd9c8462407e6d544a58487e1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-qu-huang",
+      "characterName": "屈晃·OL",
+      "defaultSkinId": "53500",
+      "skins": [
+        {
+          "id": "53500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/535",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-qu-huang.png",
+          "sha256": "439db1ae1cb7aabf348560070bb768bc16f65f20693aad46d629de0265cd008a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-ruan-yu",
+      "characterName": "阮瑀·OL",
+      "defaultSkinId": "72700",
+      "skins": [
+        {
+          "id": "72700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/727",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ruan-yu.png",
+          "sha256": "b3b5d64e862500cb46d594db5e6af72e55a0707eb09dd5c6040befc81dd9482b",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-cao-yu",
+      "characterName": "曹宇·OL",
+      "defaultSkinId": "59600",
+      "skins": [
+        {
+          "id": "59600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/596",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-yu.png",
+          "sha256": "a4cecae1b598c28f995c272c8ec19c4d48ca9886b438b2435e0726a6fa468c17",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-bao-xin",
+      "characterName": "鲍信·OL",
+      "defaultSkinId": "72800",
+      "skins": [
+        {
+          "id": "72800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/728",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-bao-xin.png",
+          "sha256": "26217fb561a6b51b59e80654b4a1e080dda3a28a17ba3c0bec18d5a441866fb8",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-guo-tu",
+      "characterName": "郭图·OL",
+      "defaultSkinId": "62400",
+      "skins": [
+        {
+          "id": "62400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/624",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-guo-tu.png",
+          "sha256": "7b319f79cb0ae7a6f5a5badfda4d3542ac83819df2d90c108a49473721177884",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-cui-yan",
+      "characterName": "崔琰·OL",
+      "defaultSkinId": "73900",
+      "skins": [
+        {
+          "id": "73900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/739",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/73900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cui-yan.png",
+          "sha256": "b3752997402178ec4204fc90e073c6ebfa6db074b8085a159e51e354993f49a2",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-li-yi",
+      "characterName": "李异·OL",
+      "defaultSkinId": "60700",
+      "skins": [
+        {
+          "id": "60700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/607",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-li-yi.png",
+          "sha256": "9e5d97a3a433e33f1f7ffbeaddee82926a70585caa0da28b5fe84e1bad00c69c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

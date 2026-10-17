@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:qushi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "draw-seal",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveQushiDrawAndPrivateSeal",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "issued-holder-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveQushiIssuedHolderEnding",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:weijie",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "native-basic-request",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveWeijieRequiredBasicRequest",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

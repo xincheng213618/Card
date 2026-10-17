@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:shutong": {
+      "name": "束统",
+      "description": "锁定技，你使用一张牌指定目标后，本回合你与目标角色使用的下一张牌不能为此花色。若目标角色均与你体力值相同，你摸一张牌。",
+      "triggerLabels": {
+        "designated-use": "指定目标后限制下一次使用，并按同体力摸牌"
+      }
+    },
+    "ol:zhijie": {
+      "name": "直节",
+      "description": "锁定技，每回合结束时，若你此回合使用或打出过牌，且你成为过牌的目标，你对攻击范围内的一名角色造成1点伤害。",
+      "triggerLabels": {
+        "end-own": "本回合结束时结算直节",
+        "end-foreign": "其他角色本回合结束时结算直节"
+      }
+    }
+  }
+}

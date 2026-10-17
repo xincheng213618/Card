@@ -72,7 +72,7 @@ public sealed partial class GameEngine
     private PendingDecision? _pendingDecision
     {
         get => _pendingDecisionBacking;
-        set => _pendingDecisionBacking = AddChainedStateBasicChoices(AddRequestedDeckBasicChoices(AddDrawFundedDistinctBasicChoices(value)));
+        set => _pendingDecisionBacking = AddWeijieRequestChoices(AddChainedStateBasicChoices(AddRequestedDeckBasicChoices(AddDrawFundedDistinctBasicChoices(value))));
     }
     private CardAttackHandle? ActiveCardAttack
     {
@@ -329,9 +329,9 @@ public sealed partial class GameEngine
             contentRegistry.GetSkill,
             IsNationalWarMode,
             player => player.SkillGrants.HasEnabledSkill(contentRegistry.ProgramDependencies.HpSensitiveSkillIds),
-            (owner,grant)=>!owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
-            derivedProjectionStamp: player => player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
-                ? CaptureCombinedProjectionDependencyStamp() : 0, dualGenerals: _modeDefinition.DualGenerals);
+            (owner,grant)=>!owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant)&&IsDaQiaoXiaoQiaoLuoyanGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
+            derivedProjectionStamp: player => CaptureDaQiaoXiaoQiaoLuoyanQualificationStamp(player, player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
+                ? CaptureCombinedProjectionDependencyStamp() : 0), dualGenerals: _modeDefinition.DualGenerals);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
             options.DeckId ?? _modeDefinition.DeckId);
@@ -916,6 +916,7 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitPromptAnswer(int actorSeat, PromptId prompt, ChoiceId choice)
     {
+        if (IsWeijieAnswer(choice)) return SubmitWeijieAnswer(actorSeat, prompt, choice);
         if (IsChainedStateBasicAnswer(choice)) return SubmitChainedStateBasicAnswer(actorSeat, prompt, choice);
         if (IsDrawFundedDistinctBasicAnswer(choice)) return SubmitDrawFundedDistinctBasicAnswer(actorSeat, prompt, choice);
         if (IsRequestedDeckBasicAnswer(choice)) return SubmitRequestedDeckBasicAnswer(actorSeat, prompt, choice);
@@ -4584,6 +4585,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<Card> GetNullificationCards(CharacterState responder) =>
         GetPlayableCards(responder).Concat(GetEquipment(responder)).Where(card =>
             !IsCardUseForbidden(responder.Seat, CardKind.Nullification, CardActionType.Use) &&
+            !IsCuiYanNativeResponseForbidden(responder, CardKind.Nullification, [card]) &&
             !IsTurnHandCardRestricted(responder, card) &&
             !HasProgramCardIdentity(responder, card) &&
             (card.Kind == CardKind.Nullification ||
@@ -4713,7 +4715,7 @@ public sealed partial class GameEngine
             CardActionType.Response, responder.Seat, responder.Seat, null, responder.Seat,
             pending.SourceSeat, CardKind.Nullification, [],
             [new CardActionCost(card.Id, card.Kind, responseFrom,responseCostIsRed)],
-            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:(HasMaMiDiCapability || TracksActionDiscardColor || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition))?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null));
+            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:(HasRuanYuCapability || HasMaMiDiCapability || TracksActionDiscardColor || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition))?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null));
         if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, responseAction);
         TryIssueTieredRoundResponse(pending, responseAction);
         RecordActualPlayPhaseUse(responseAction);
@@ -5312,10 +5314,11 @@ public sealed partial class GameEngine
             pending.ParentFrameId,
             source.Seat,
             target.Seat,
-            virtualOrigin is not null || obtainOrigin is not null || dualColorOrigin is not null || conditionalOrigin is not null || IsHeJinMouzhuDuelUse(pending.ParentFrameId) || IsWuAnGuoLiyongDuelUse(pending.ParentFrameId) || IsZhenyingDuelUse(pending.ParentFrameId) || IsFriendRecastDuelUse(pending.ParentFrameId) || (IsZeroEntityUse(pending.ParentFrameId) || IsMouZhijueZeroUse(pending.ParentFrameId)) ? null : GetNullificationEffectCard(pending),
+            virtualOrigin is not null || obtainOrigin is not null || dualColorOrigin is not null || conditionalOrigin is not null || IsHeJinMouzhuDuelUse(pending.ParentFrameId) || IsWuAnGuoLiyongDuelUse(pending.ParentFrameId) || IsJueshengDuelUse(pending.ParentFrameId) || IsZhenyingDuelUse(pending.ParentFrameId) || IsFriendRecastDuelUse(pending.ParentFrameId) || (IsZeroEntityUse(pending.ParentFrameId) || IsMouZhijueZeroUse(pending.ParentFrameId)) ? null : GetNullificationEffectCard(pending),
             playedCardKind: pending.EffectCardKind,
             physicalCards: GetCardUsePhysicalCards(pending.ParentFrameId),
-            programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId ?? obtainOrigin?.ParentProgramFrameId ?? dualColorOrigin?.ParentProgramFrameId ?? conditionalOrigin?.ParentProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.FriendRecastDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.ZhenyingDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.HeJinMouzhu?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.WuAnGuoLiyong?.ProgramFrameId ?? WuJingHejiProgramParent(pending.ParentFrameId));
+            damageAmount: PrepareJueshengDuelDamage(pending.ParentFrameId, targetSeat),
+            programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId ?? obtainOrigin?.ParentProgramFrameId ?? dualColorOrigin?.ParentProgramFrameId ?? conditionalOrigin?.ParentProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.FriendRecastDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.ZhenyingDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.HeJinMouzhu?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.WuAnGuoLiyong?.ProgramFrameId ?? WuJingHejiProgramParent(pending.ParentFrameId) ?? JueshengDuelProgramParent(pending.ParentFrameId));
         ActiveCardAttack = attack;
         var duel = new DuelHandle(this, attack);
         ActiveDuel = duel;
@@ -5481,7 +5484,7 @@ public sealed partial class GameEngine
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(cardUse => cardUse.Id == resolutionId);
         var processing = _cardZones.CardsAt(CardLocation.Processing);
         return (frame.PhysicalCardIds ?? [frame.CardId])
-            .Select(cardId => IsClaimedUseCardEntity(resolutionId,cardId) ? EntityAtCurrentLocation(cardId) : processing.Single(card => card.Id == cardId))
+            .Select(cardId => (IsClaimedUseCardEntity(resolutionId,cardId) || IsHuiyunOutsideGeneralWeaponMaterial(resolutionId, cardId)) ? EntityAtCurrentLocation(cardId) : processing.Single(card => card.Id == cardId))
             .ToArray();
     }
 
@@ -5640,6 +5643,7 @@ public sealed partial class GameEngine
                 $"Card {GetNullificationEffectCard(pending).Kind} is not a delayed card.")
         };
         if (TrySkipUnavailableLiuYanLimuEffect(pending)) return;
+        if (TrySkipUnavailableQuHuangLightning(pending)) return;
         var canTargetSelf = pending.EffectCardKind == CardKind.Lightning || IsLiuYanLimuSelfDelayedUse(pending);
         if (pending.EffectCardKind == CardKind.SupplyShortage &&
             false &&
@@ -6391,7 +6395,7 @@ public sealed partial class GameEngine
         if (responseCards.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 &&
             !hasBagua && !canRequestFactionDefense && !canRequestFactionSlash &&
             !(requiredCardKind == CardKind.Dodge && ProgramDodgeResponseChoices(target).Any()) &&
-            !HasRequestedDeckBasicSource(target, requiredCardKind))
+            !HasRequestedDeckBasicSource(target, requiredCardKind) && !HasWeijieRequiredBasic(target, requiredCardKind))
         {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveGroupResponse(group, target, selectedResponse: null);
@@ -6476,7 +6480,7 @@ public sealed partial class GameEngine
             .Where(card => !HasBeneficiarySuitShield(weaponOwner.Seat, slashTarget.Seat, EffectiveSuit(weaponOwner, card)))
             .Where(card =>
             {
-                var baseKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+                var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Any(variant =>
                         (HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id])))
                     return false;
@@ -6506,7 +6510,8 @@ public sealed partial class GameEngine
 
     private void BeginBorrowedSwordSlashChoice(
         BorrowedSwordHandle pending,
-        bool includeFactionSlash)
+        bool includeFactionSlash,
+        bool keepCurrentRequest = false)
     {
         if (!SameContinuationOwner(ActiveBorrowedSword, pending) || pending.ActiveAttack is not null)
         {
@@ -6542,13 +6547,13 @@ public sealed partial class GameEngine
                     PhysicalGroupColor(weaponOwner, selection.Cards), physicalCardIds: selection.Cards.Select(c => c.Id).ToArray()))
             .Where(selection => !HasBeneficiarySuitShield(weaponOwner.Seat, slashTarget.Seat, selection.Cards.Select(card => EffectiveSuit(weaponOwner, card)).Distinct().ToArray() is [var suit] ? suit : null)).ToArray();
         var canRequestFactionSlash = includeFactionSlash && CanRequestBorrowedSwordFactionSlash(pending);
-        if (slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
+        if (!keepCurrentRequest && slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
             TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
             KenshangBorrowedSlashChoices(pending).Count == 0 &&
             RoundOnceCardlessForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
             !ChainedStateBasicForcedSlashRules(weaponOwner, slashTarget, false).Any() &&
             !DrawFundedDistinctBasicForcedSlashRules(weaponOwner, slashTarget, false).Any() &&
-            !HasRequestedDeckBasicSource(weaponOwner, CardKind.Slash))
+            !HasRequestedDeckBasicSource(weaponOwner, CardKind.Slash) && !HasWeijieForcedSlash(weaponOwner, slashTarget, pending))
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
             return;
@@ -6563,10 +6568,10 @@ public sealed partial class GameEngine
         pending.AwaitingSlashChoice = true;
         var choices = slashes.SelectMany(card =>
         {
-            var baseEffectiveKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+            var baseEffectiveKind = PhysicalSlashUseBaseKind(weaponOwner, card);
             return GetSlashUseKinds(weaponOwner, baseEffectiveKind)
                 .Where(effectiveKind => effectiveKind == baseEffectiveKind ||
-                                        IsNativeResponseCard(card, CardKind.Slash))
+                                        IsNativeResponseCard(card, CardKind.Slash) || IsOwnPublicPileSlashMaterial(weaponOwner, card))
                 .SelectMany(effectiveKind =>
             {
                 var usesZhuqueFan = effectiveKind != baseEffectiveKind;
@@ -6698,7 +6703,7 @@ public sealed partial class GameEngine
         var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
             .SingleOrDefault(card => card.Id == slash.Id) ??
             throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
-        var baseEffectiveKind = IsSlashCard(selected.Kind) ? selected.Kind : CardKind.Slash;
+        var baseEffectiveKind = PhysicalSlashUseBaseKind(weaponOwner, selected);
         var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
         var usesZhuqueFan = IsZhuqueFanConversion(
             weaponOwner,
@@ -6975,7 +6980,7 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardMoveReasons.Use);
         var countedTowardSlashLimit =
-            !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) && _phase == TurnPhase.Play && source.Seat == _currentSeat;
+            !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) && _phase == TurnPhase.Play && source.Seat == _currentSeat;
         if (countedTowardSlashLimit)
         {
             RecordSlashUseDebit(resolutionId, source.Seat);
@@ -7208,7 +7213,7 @@ public sealed partial class GameEngine
         CompleteZhangYanSujiPayment(resolutionId);
         CompleteWuJingHejiPayment(resolutionId);
         CompleteSelectedForeignCardSlashPayment(resolutionId);
-        var countedTowardSlashLimit = countsTowardSlashLimit && !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) &&
+        var countedTowardSlashLimit = countsTowardSlashLimit && !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) &&
                                      _phase == TurnPhase.Play && source.Seat == _currentSeat;
         if (countedTowardSlashLimit)
         {
@@ -7510,7 +7515,7 @@ public sealed partial class GameEngine
         var responsePrompt = attack.RequiredDodgeResponses > 1
             ? $"{source.Name} 的【无双】要求你打出第 {responseOrdinal} 张【闪】，是否响应？"
             : $"{source.Name} 对你使用了【{slashName}】，是否打出【闪】？";
-        if ((dodges.Count > 0 || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasChainedStateBasicDodge(target) || HasDrawFundedDistinctBasicDodge(target) || HasRequestedDeckBasicSource(target, CardKind.Dodge)) && target.IsHuman)
+        if ((dodges.Count > 0 || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasChainedStateBasicDodge(target) || HasDrawFundedDistinctBasicDodge(target) || HasRequestedDeckBasicSource(target, CardKind.Dodge) || HasWeijieRequiredBasic(target, CardKind.Dodge)) && (target.IsHuman || HasWeijieRequiredBasic(target, CardKind.Dodge)))
         {
             PushResponseWindow(
                 resolutionId,
@@ -7548,7 +7553,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (dodge is not null || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasChainedStateBasicDodge(target) || HasDrawFundedDistinctBasicDodge(target) || HasRequestedDeckBasicSource(target, CardKind.Dodge))
+        if (dodge is not null || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasChainedStateBasicDodge(target) || HasDrawFundedDistinctBasicDodge(target) || HasRequestedDeckBasicSource(target, CardKind.Dodge) || HasWeijieRequiredBasic(target, CardKind.Dodge))
         {
             // Choosing to respond is a separate continuation. Advance() consumes it
             // immediately, while AdvanceOneStep() exposes it as the next AI decision.
@@ -7812,7 +7817,7 @@ public sealed partial class GameEngine
             playedCardKind: playedCardKind);
     }
 
-    private void BeginDuelResponse(DuelHandle duel)
+    private void BeginDuelResponse(DuelHandle duel, bool keepCurrentRequest = false)
     {
         if (!SameContinuationOwner(ActiveDuel, duel))
         {
@@ -7844,7 +7849,7 @@ public sealed partial class GameEngine
             responder, CardKind.Slash, forResponse: true);
         var canRequestFactionSlash = CanRequestFactionSlashResponse(responder, duel.Attack);
         var friendResponses = FriendDuelResponseChoices(duel, responder);
-        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 && !canRequestFactionSlash && !HasRequestedDeckBasicSource(responder, CardKind.Slash) && friendResponses.Count == 0)
+        if (!keepCurrentRequest && slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 && !canRequestFactionSlash && !HasRequestedDeckBasicSource(responder, CardKind.Slash) && !HasWeijieRequiredBasic(responder, CardKind.Slash) && friendResponses.Count == 0)
         {
             if (ActiveCardAttack is null)
             {
@@ -8236,7 +8241,7 @@ public sealed partial class GameEngine
         AdvanceFactionDefenseCandidate();
     }
 
-    private void AdvanceFactionDefenseCandidate()
+    private void AdvanceFactionDefenseCandidate(bool keepCurrentRequest = false)
     {
         var pending = ActiveFactionDefense ??
             throw new InvalidOperationException("There is no active FactionDefense request.");
@@ -8245,6 +8250,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The FactionDefense request no longer belongs to the active attack.");
         }
 
+        var retainedCandidateIndex = keepCurrentRequest ? pending.CandidateIndex : -1;
         while (pending.CandidateIndex < pending.CandidateSeats.Count)
         {
             var provider = _players[pending.CurrentCandidateSeat];
@@ -8254,8 +8260,10 @@ public sealed partial class GameEngine
                 : [];
             var hasBagua = provider.IsAlive &&
                            HasBagua(provider);
-            if (responseCards.Count == 0 && !hasBagua && !ProgramDodgeResponseChoices(provider).Any() &&
-                !(provider.IsAlive && (pending.Source.FactionId == "magic-any" || GetEffectiveFactionId(provider)==pending.Source.FactionId) && HasRequestedDeckBasicSource(provider, CardKind.Dodge)))
+            var retainsProvider = pending.CandidateIndex == retainedCandidateIndex && provider.IsAlive &&
+                (pending.Source.FactionId == "magic-any" || GetEffectiveFactionId(provider) == pending.Source.FactionId);
+            if (!retainsProvider && responseCards.Count == 0 && !hasBagua && !ProgramDodgeResponseChoices(provider).Any() &&
+                !(provider.IsAlive && (pending.Source.FactionId == "magic-any" || GetEffectiveFactionId(provider)==pending.Source.FactionId) && (HasRequestedDeckBasicSource(provider, CardKind.Dodge) || HasWeijieRequiredBasic(provider, CardKind.Dodge))))
             {
                 pending.CandidateIndex++;
                 continue;
@@ -8617,7 +8625,7 @@ public sealed partial class GameEngine
         CharacterState target) =>
         CanUseQinglongCrescentBladeTarget(source, target)
             ? GetSlashUseCards(source).Where(card =>
-                GetSlashUseVariants(source, IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash)
+                GetSlashUseVariants(source, PhysicalSlashUseBaseKind(source, card))
                     .Any(variant => CanUseQinglongCrescentBladeTarget(
                         source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false,physicalSuit:EffectiveSuit(source,card),effectiveRank:SpecificSlashRank(source,card,variant.EffectiveKind),physicalCardIds:[card.Id]))).ToArray()
             : [];
@@ -8656,7 +8664,7 @@ public sealed partial class GameEngine
         if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeFactionSlash(pending) &&
             !TieredRoundZeroForcedSlashRules(source, target, true).Any() &&
             !ChainedStateBasicForcedSlashRules(source, target, true).Any() &&
-            !DrawFundedDistinctBasicForcedSlashRules(source, target, true).Any() && !HasRequestedDeckBasicSource(source, CardKind.Slash) &&
+            !DrawFundedDistinctBasicForcedSlashRules(source, target, true).Any() && !HasRequestedDeckBasicSource(source, CardKind.Slash) && !HasWeijieForcedSlash(source, target, pending) &&
             KenshangQinglongSlashChoices(pending).Count == 0)
         {
             RestoreFactionRequestAfterQinglongChoice(attack.ResolutionId);
@@ -8686,7 +8694,7 @@ public sealed partial class GameEngine
         var slashes = GetQinglongCrescentBladeSlashCards(source, target);
         var choices = slashes.SelectMany(card =>
         {
-            var followupKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+            var followupKind = PhysicalSlashUseBaseKind(source, card);
             var cardDescription = IsSlashCard(card.Kind)
                 ? $"使用【{CardCatalog.Get(card.Kind).DisplayName}】"
                 : $"将【{card.DisplayName}】当作【杀】使用";
@@ -8777,7 +8785,7 @@ public sealed partial class GameEngine
             slash = GetQinglongCrescentBladeSlashCards(source, target)
                 .SingleOrDefault(card => card.Id == selected.Cards[0]) ??
                 throw new InvalidOperationException("The selected Qinglong Crescent Blade Slash is no longer available.");
-            effectiveSlashKind = IsSlashCard(slash.Kind) ? slash.Kind : CardKind.Slash;
+            effectiveSlashKind = PhysicalSlashUseBaseKind(source, slash);
             if (!CanUseQinglongCrescentBladeTarget(source, target, effectiveSlashKind, SuitColor(EffectiveSuit(source,slash)), false, EffectiveSuit(source,slash), SpecificSlashRank(source,slash,effectiveSlashKind ?? CardKind.Slash),[slash.Id]))
                 throw new InvalidOperationException(
                     "The selected Qinglong Crescent Blade Slash kind is prohibited for its target.");
@@ -9261,7 +9269,7 @@ public sealed partial class GameEngine
         AdvanceFactionSlashCandidate();
     }
 
-    private void AdvanceFactionSlashCandidate()
+    private void AdvanceFactionSlashCandidate(bool keepCurrentRequest = false)
     {
         var pending = ActiveFactionCardRequest ??
             throw new InvalidOperationException("There is no active FactionSlash request.");
@@ -9271,6 +9279,7 @@ public sealed partial class GameEngine
         }
         if (TryPublishFactionRequestCost(pending)) return;
 
+        var retainedCandidateIndex = keepCurrentRequest ? pending.CandidateIndex : -1;
         while (pending.CandidateIndex < pending.CandidateSeats.Count)
         {
             var provider = _players[pending.CurrentCandidateSeat];
@@ -9288,8 +9297,10 @@ public sealed partial class GameEngine
                                               string.Equals(GetEffectiveFactionId(provider), pending.ProviderFactionId, StringComparison.Ordinal)
                 ? GetFactionRequestMultiCardSelections(pending, provider)
                 : [];
-            if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardConversions.Count == 0 &&
-                !(provider.IsAlive && GetEffectiveFactionId(provider)==pending.ProviderFactionId && HasRequestedDeckBasicSource(provider, CardKind.Slash)))
+            var retainsProvider = pending.CandidateIndex == retainedCandidateIndex && provider.IsAlive &&
+                GetEffectiveFactionId(provider) == pending.ProviderFactionId;
+            if (!retainsProvider && slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardConversions.Count == 0 &&
+                !(provider.IsAlive && GetEffectiveFactionId(provider)==pending.ProviderFactionId && (HasRequestedDeckBasicSource(provider, CardKind.Slash) || HasWeijieRequiredBasic(provider, CardKind.Slash))))
             {
                 pending.CandidateIndex++;
                 continue;
@@ -9357,7 +9368,7 @@ public sealed partial class GameEngine
                     ["response-card-kind"] = effectiveKind.ToString(),
                     ["skill"] = GetFactionRequestSkillId(pending)
                 });
-        }).ToList();
+        }).Where(choice => !IsCuiYanFactionSlashChoiceForbidden(pending, choice)).ToList();
         foreach (var pair in GetFactionRequestZhangbaPairs(pending, provider))
         {
             choices.Add(new PromptChoice(
@@ -9964,6 +9975,9 @@ public sealed partial class GameEngine
         bool usesZhuqueFan,
         CardConversionSource? conversionSource = null)
     {
+        var actualConversion = conversionSource ?? _selectedUseConversion ?? _selectedResponseConversion;
+        if (IsCuiYanFactionSlashUseForbidden(pending, effectiveKind, physicalCards, actualConversion))
+            throw new InvalidOperationException("The supplied Slash violates its actual user's current next-use suit restriction.");
         if (physicalCards.Count == 1 && TryBeginCardDeclaration(provider, physicalCards[0], effectiveKind,
             PeekDeclarationConversion(provider, physicalCards[0], effectiveKind, true, conversionSource),
             DeclarationReturn(CardDeclarationPurpose.ProvidedSlash, pending.OwnerSeat, fan: usesZhuqueFan, finalKind: effectiveKind), [pending.TargetSeat!.Value])) return;
@@ -9997,7 +10011,9 @@ public sealed partial class GameEngine
         if (pending.IsAssistedProgramUse)
         {
             ValidateAssistedFactionSlashParent(pending, frame);
-            if(!PrepareQigongFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareCaoChunFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareWuJingFactionNative(frame,pending,provider,physicalCards,effectiveKind)) CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "used-slash", owner.Seat, "通过势力响应使用【杀】。");
+            if (IsChanshuangSlashRequest(frame))
+                PrepareChanshuangSuppliedSlash(frame, owner.Seat, provider.Seat, target.Seat, effectiveKind, physicalCards, conversionSource);
+            else if(!PrepareQigongFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareCaoChunFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareWuJingFactionNative(frame,pending,provider,physicalCards,effectiveKind)) CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "used-slash", owner.Seat, "通过势力响应使用【杀】。");
             AdvanceEventRulesAndQueueFact(new FactionSlashResolvedEvent(pending.ResolutionId, owner.Seat,
                 Succeeded: true, provider.Seat, selectedSlash.Id, effectiveKind, IsActiveUse: true, target.Seat));
         }
@@ -10009,7 +10025,7 @@ public sealed partial class GameEngine
         ResolveSlashCore(
             owner,
             target,
-            selectedSlash,
+            HasCuiYanCapability && physicalCards.Count == 1 ? ApplyProgramUseAppearance(owner, selectedSlash, actualConversion) : selectedSlash,
             effectiveKind,
             provider.Seat,
             pending,
@@ -10031,6 +10047,7 @@ public sealed partial class GameEngine
         var providerReward = CaptureFactionProviderReward(pending);
         var selectedSlash = physicalCards.FirstOrDefault() ??
             throw new InvalidOperationException("A Borrowed Sword FactionSlash Slash must retain a physical card.");
+        var actualConversion = conversionSource ?? _selectedUseConversion ?? _selectedResponseConversion;
         var borrowedSword = pending.BorrowedSword ??
             throw new InvalidOperationException("A Borrowed Sword FactionSlash use has no parent resolution.");
         var owner = _players[pending.OwnerSeat];
@@ -10047,6 +10064,9 @@ public sealed partial class GameEngine
         if (physicalCards.Count == 1 && TryBeginCardDeclaration(provider, selectedSlash, effectiveKind,
             PeekDeclarationConversion(provider, selectedSlash, effectiveKind, true, conversionSource ?? _selectedResponseConversion),
             DeclarationReturn(CardDeclarationPurpose.BorrowedSwordProvidedSlash, pending.OwnerSeat, fan: usesZhuqueFan, finalKind: effectiveKind), [target.Seat])) return;
+
+        if (IsCuiYanFactionSlashUseForbidden(pending, effectiveKind, physicalCards, actualConversion))
+            throw new InvalidOperationException("The supplied Borrowed Sword Slash violates its actual user's current next-use suit restriction.");
 
         pending.AwaitingProviders = false;
         borrowedSword.AwaitingSlashChoice = false;
@@ -10071,7 +10091,7 @@ public sealed partial class GameEngine
         ResolveSlashCore(
             owner,
             target,
-            selectedSlash,
+            HasCuiYanCapability && physicalCards.Count == 1 ? ApplyProgramUseAppearance(owner, selectedSlash, actualConversion) : selectedSlash,
             effectiveKind,
             provider.Seat,
             factionRequest: pending,
@@ -10093,6 +10113,7 @@ public sealed partial class GameEngine
         var providerReward = CaptureFactionProviderReward(pending);
         var selectedSlash = physicalCards.FirstOrDefault() ??
             throw new InvalidOperationException("A Qinglong Crescent Blade FactionSlash Slash must retain a physical card.");
+        var actualConversion = conversionSource ?? _selectedUseConversion ?? _selectedResponseConversion;
         var qinglong = pending.QinglongCrescentBlade ??
             throw new InvalidOperationException("A Qinglong Crescent Blade FactionSlash use has no parent resolution.");
         var owner = _players[pending.OwnerSeat];
@@ -10114,6 +10135,9 @@ public sealed partial class GameEngine
             PeekDeclarationConversion(provider, selectedSlash, effectiveKind, true, conversionSource ?? _selectedResponseConversion),
             DeclarationReturn(CardDeclarationPurpose.QinglongProvidedSlash, pending.OwnerSeat, fan: usesZhuqueFan, finalKind: effectiveKind), [target.Seat])) return;
 
+        if (IsCuiYanFactionSlashUseForbidden(pending, effectiveKind, physicalCards, actualConversion))
+            throw new InvalidOperationException("The supplied Qinglong Slash violates its actual user's current next-use suit restriction.");
+
         pending.AwaitingProviders = false;
         AdvanceEventRulesAndQueueFact(new FactionSlashResolvedEvent(
             pending.ResolutionId,
@@ -10131,7 +10155,7 @@ public sealed partial class GameEngine
             target.Seat);
         BeginQinglongCrescentBladeFollowup(
             qinglong,
-            selectedSlash,
+            HasCuiYanCapability && physicalCards.Count == 1 ? ApplyProgramUseAppearance(owner, selectedSlash, actualConversion) : selectedSlash,
             effectiveKind,
             provider.Seat,
             physicalCards,
@@ -10149,10 +10173,36 @@ public sealed partial class GameEngine
         var owner = _players[pending.OwnerSeat];
         if ((!pending.IsProgramSkillUse && !pending.IsBorrowedSwordUse) ||
             baseEffectiveKind != CardKind.Slash ||
-            (physicalCards.Count == 1 && physicalCards[0].Kind != CardKind.Slash) ||
+            (physicalCards.Count == 1 && physicalCards[0].Kind != CardKind.Slash && !IsOwnPublicPileSlashMaterial(provider, physicalCards[0])) ||
             !HasZhuqueFan(owner))
         {
             return false;
+        }
+
+        if (HasCuiYanCapability && physicalCards.Count == 1)
+        {
+            var conversion = _selectedUseConversion ?? _selectedResponseConversion;
+            var normalAllowed = !IsCuiYanFactionSlashUseForbidden(pending, CardKind.Slash, physicalCards, conversion);
+            var fireAllowed = !IsCuiYanFactionSlashUseForbidden(pending, CardKind.FireSlash, physicalCards, conversion);
+            if (pending.IsAssistedProgramUse && pending.TargetSeat is { } exactTarget)
+            {
+                normalAllowed &= IsAssistedProvidedSlashTarget(owner.Seat, exactTarget, CardKind.Slash,
+                    ProvidedSpecificSlashRank(owner, provider, physicalCards, false), allowPotentialRank: false);
+                fireAllowed &= IsAssistedProvidedSlashTarget(owner.Seat, exactTarget, CardKind.FireSlash,
+                    ProvidedSpecificSlashRank(owner, provider, physicalCards, false, CardKind.FireSlash), allowPotentialRank: false);
+            }
+            if (!normalAllowed || !fireAllowed)
+            {
+                if (!normalAllowed && !fireAllowed)
+                    throw new InvalidOperationException("The supplied Slash has no legal native suit after the requester's fan conversion.");
+                ClearPendingDecision();
+                var kind = fireAllowed ? CardKind.FireSlash : CardKind.Slash;
+                if (pending.IsBorrowedSwordUse)
+                    BeginBorrowedSwordFactionSlashSlash(pending, provider, physicalCards, kind, usesZhuqueFan: fireAllowed);
+                else
+                    BeginProvidedFactionSlashSlash(pending, provider, physicalCards, kind, usesZhuqueFan: fireAllowed);
+                return true;
+            }
         }
 
         if (pending.IsAssistedProgramUse && pending.TargetSeat is { } assistedTarget)
@@ -10542,7 +10592,7 @@ public sealed partial class GameEngine
         if (selectedSlash is not null)
         {
             CaptureAiCardResponseChoice(decision, selectedSlash,
-                IsSlashCard(selectedSlash.Kind) ? selectedSlash.Kind : CardKind.Slash);
+                PhysicalSlashUseBaseKind(owner, selectedSlash));
             ResolveBorrowedSwordSlashChoice(pending, selectedSlash);
         }
         else if (useSlash && GetZhangbaSlashPairs(owner).FirstOrDefault() is { } pair)
@@ -11656,6 +11706,7 @@ public sealed partial class GameEngine
         var succeeded = receipt.Succeeded;
         if (pending.Continuation == JudgmentContinuationKind.ProgramSkill)
         {
+            if (TryReturnBinghuoJudgment(pending)) return;
             if (TryReturnWeifuJudgment(pending)) return;
             if (TryReturnZhangJiJudgment(pending)) return;
             if (TryReturnDamageJudgmentSuitPayment(pending)) return;
@@ -12548,7 +12599,7 @@ public sealed partial class GameEngine
 
         var frozenCandidates = Array.AsReadOnly(candidates.ToArray());
         var frameId = ++_resolutionSequence;
-        PushRuntimeFrame(new DamageTriggerWindowFrame(
+        var damageWindow = new DamageTriggerWindowFrame(
             frameId,
             damageFrameId,
             attack.SourceSeat,
@@ -12559,7 +12610,8 @@ public sealed partial class GameEngine
             window)
         { EventTargetDamageInstancesTakenThisTurn = window == SkillProgramTriggerWindow.AfterDamageApplied &&
             _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.EventTargetDamageInstancesTakenThisTurn)
-                ? DamageInstancesTakenThisTurn(attack.TargetSeat) : null });
+                ? DamageInstancesTakenThisTurn(attack.TargetSeat) : null };
+        PushRuntimeFrame(CaptureBaoXinYimouWindow(damageWindow, attack));
         AdvanceEventRulesAndQueueFact(new DamageTriggerWindowOpenedEvent(
             frameId,
             damageFrameId,
@@ -12786,7 +12838,7 @@ public sealed partial class GameEngine
         var handCandidates = GetPlayableCards(responder)
             .Where(card => !IsTurnHandCardRestricted(responder, card))
             .Where(card => !HasProgramCardIdentity(responder, card))
-            .Where(card => card.Kind == CardKind.Peach && (ActiveDying is not { } victim || !HasBeneficiarySuitShield(responder.Seat, victim.VictimSeat, EffectiveSuit(responder, card))) ||
+            .Where(card => card.Kind == CardKind.Peach && !IsCuiYanSingleUseForbidden(responder, card) && (ActiveDying is not { } victim || !HasBeneficiarySuitShield(responder.Seat, victim.VictimSeat, EffectiveSuit(responder, card))) ||
                            GetDyingPeachConversionSources(responder, card).Count != 0)
             .ToArray();
         return handCandidates
@@ -12808,7 +12860,7 @@ public sealed partial class GameEngine
                 .Where(card => !IsTurnHandCardRestricted(responder, card) &&
                     !IsCardUseForbidden(responder.Seat, CardKind.Alcohol, CardActionType.Use) &&
                     !HasProgramCardIdentity(responder, card) &&
-                    (card.Kind == CardKind.Alcohol || GetProgramViewAsConversions(
+                    (card.Kind == CardKind.Alcohol ? !IsCuiYanSingleUseForbidden(responder, card) : GetProgramViewAsConversions(
                         responder, card, CardKind.Alcohol, forResponse: true, dyingUse: true).Count > 0))
                 .ToArray()
             : [];
@@ -12836,7 +12888,7 @@ public sealed partial class GameEngine
         if (responder.IsHuman)
         {
             if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach))
+                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -12874,6 +12926,8 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (HasWeijieRequiredBasic(responder, CardKind.Peach))
+        { RequestHumanDyingResponse(responder, peaches, alcohols); AdvanceRulesAndPublishState(); return; }
         if (!skipRequestedDeckBasic && HasRequestedDeckBasicSource(responder, CardKind.Peach))
         { RequestHumanDyingResponse(responder, peaches, alcohols); AdvanceRulesAndPublishState(); return; }
         if (TryResolveDrawFundedDistinctBasicAiDying()) return;
@@ -12944,7 +12998,7 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         var programCandidates = GetDyingProgramCandidates(responder, dying);
         if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach))
+            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -13258,6 +13312,7 @@ public sealed partial class GameEngine
         }
 
         if (FinishChainedStateBasicAttack(attack, out var chainedPaused)) return chainedPaused;
+        if (FinishWeijieAttack(attack, out var weijiePaused)) return weijiePaused;
         if (FinishRoundOnceCardlessAttack(attack, out var roundCardlessPaused)) return roundCardlessPaused;
         if (FinishTieredRoundZeroAttack(attack, out var tieredZeroPaused)) return tieredZeroPaused;
         if (FinishMouZhijueZeroAttack(attack, out var mouZeroPaused)) return mouZeroPaused;
@@ -13288,7 +13343,7 @@ public sealed partial class GameEngine
             virtualUse = NormalizeActualTurnLegacyCompletedUse(virtualUse, attack.ProgramSkillCardUseFrameId);
             if (virtualUse.Action is { } virtualAction)
             {
-                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id))
+                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id) && !HasIssuedChanshuangSlash(virtualUse.Id, virtualUse.SourceSeat))
                 {
                     var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == programParentId);
                     if (parentIndex < 0 || _resolutionStack[parentIndex] is not ProgramSkillFrame parent)
@@ -13365,7 +13420,7 @@ public sealed partial class GameEngine
         foreach (var physicalCard in attack.PhysicalCards)
         {
             if (IsXinPiPhysicalClaim(attack.ResolutionId, physicalCard.Id) || IsHuaManClaimedEntity(attack.ResolutionId, physicalCard.Id) || IsCurrentUsePhysicalCardClaim(attack.ResolutionId, physicalCard.Id) || IsXuRongCausalEntityClaim(attack.ResolutionId, physicalCard.Id)) continue;
-            if ((IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, physicalCard.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, physicalCard.Id)))) continue;
+            if (IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, physicalCard.Id) || (IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, physicalCard.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, physicalCard.Id)))) continue;
             var physicalLocation = _cardZones.GetLocation(physicalCard.Id);
             if (physicalLocation == CardLocation.Processing)
             {
@@ -13703,7 +13758,7 @@ public sealed partial class GameEngine
         CardConversionSource? conversionSource = null,
         DyingResponseEvent? dyingResponse = null)
     {
-        if ((!allowDying && source.Hp >= source.MaxHp) ||
+        if ((!allowDying && !IsRuleWounded(source)) ||
             (allowDying && target.Hp > 0) ||
             !target.IsAlive)
         {
@@ -13781,7 +13836,7 @@ public sealed partial class GameEngine
         IReadOnlyList<ProgramRecoveryPolicySource> recoveryPolicySources)
     {
         var cardName = CardCatalog.Get(playedCardKind).DisplayName;
-        if (!target.IsAlive || !target.HasHpValue || IsCardEffectIneffective(resolutionId, target.Seat))
+        if (!target.IsAlive || !target.HasHpValue || target.Hp >= target.MaxHp || IsCardEffectIneffective(resolutionId, target.Seat))
         {
             FinishCardUse(resolutionId, card, playedCardKind);
             return;
@@ -13834,7 +13889,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? physicalCardIds = null,
         CardConversionSource? conversionSource = null,
         IReadOnlyList<CardConversionSource>? additionalConversionSources = null,
-        IReadOnlyList<int>? designatedTargetSeats = null, bool isTrueZhangbaSlash = false, ProgramSelectedActorDuelOrigin? selectedActorDuelOrigin = null, ProgramDamageTargetDuelOrigin? damageTargetDuelOrigin = null, ProgramDualColorDuelOrigin? dualColorDuelOrigin = null, ConditionalDiscardDuelOrigin? conditionalDiscardDuelOrigin = null, ProgramVirtualOrdinaryTrickOrigin? virtualOrdinaryTrickOrigin = null, DrawFundedDistinctBasicPayment? drawFundedPayment = null, ChainedStateBasicPayment? chainedStatePayment = null, FriendRecastDuelOrigin? friendRecastDuel = null, ChosenAssaultReturn? chosenAssault = null, ZhenyingDuelOrigin? zhenyingDuel = null, HeJinMouzhuUseOrigin? heJinMouzhu = null, WuAnGuoLiyongDuelOrigin? wuAnGuoLiyong = null, TianChouShandaoUseOrigin? tianChouShandao = null, QinLangXianyingUseOrigin? qinLangXianying = null, AHuiNanJuemanUseOrigin? aHuiNanJueman = null, LiuYanLimuUseOrigin? liuYanLimu = null)
+        IReadOnlyList<int>? designatedTargetSeats = null, bool isTrueZhangbaSlash = false, ProgramSelectedActorDuelOrigin? selectedActorDuelOrigin = null, ProgramDamageTargetDuelOrigin? damageTargetDuelOrigin = null, ProgramDualColorDuelOrigin? dualColorDuelOrigin = null, ConditionalDiscardDuelOrigin? conditionalDiscardDuelOrigin = null, ProgramVirtualOrdinaryTrickOrigin? virtualOrdinaryTrickOrigin = null, DrawFundedDistinctBasicPayment? drawFundedPayment = null, ChainedStateBasicPayment? chainedStatePayment = null, FriendRecastDuelOrigin? friendRecastDuel = null, ChosenAssaultReturn? chosenAssault = null, ZhenyingDuelOrigin? zhenyingDuel = null, HeJinMouzhuUseOrigin? heJinMouzhu = null, WuAnGuoLiyongDuelOrigin? wuAnGuoLiyong = null, TianChouShandaoUseOrigin? tianChouShandao = null, QinLangXianyingUseOrigin? qinLangXianying = null, AHuiNanJuemanUseOrigin? aHuiNanJueman = null, LiuYanLimuUseOrigin? liuYanLimu = null, JueshengDuelOrigin? jueshengDuel = null, QuHuangNishouUseOrigin? quHuangNishou = null, WeijiePaidOrigin? weijieOrigin = null)
     {
         var resolutionId = ++_resolutionSequence;
         var adjustedTargets = _selectedNextCardTargetSeats;
@@ -13871,6 +13926,7 @@ public sealed partial class GameEngine
             actionContext = CaptureFactionAction(new CardActionContext(actionContext!.ActionId, actionContext.ParentActionId,
                 CardActionType.Use, sourceSeat, sourceSeat, null, null, null, aHuiNanJueman is null && qinLangXianying is null && tianChouShandao is null && virtualOrdinaryTrickOrigin is null && chosenAssault is null && heJinMouzhu is null ? CardKind.Duel : effectiveCardKind, targets, [], [], designated,
                 effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
+        if (actionContext is not null) actionContext = PrepareWeijieAction(actionContext, weijieOrigin);
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
         if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
@@ -13887,7 +13943,8 @@ public sealed partial class GameEngine
             targets,
             IgnoresArmor: ignoresArmor,
             PhysicalCardIds: physicalIds)
-        { LiuYanLimu = liuYanLimu, AHuiNanJueman = aHuiNanJueman, QinLangXianying = qinLangXianying, TianChouShandao = tianChouShandao, WuAnGuoLiyong = wuAnGuoLiyong, HeJinMouzhu = heJinMouzhu, ZhenyingDuel = zhenyingDuel, ChosenAssault = chosenAssault, FriendRecastDuel = friendRecastDuel, SelectedActorDuelOrigin = selectedActorDuelOrigin, VirtualOrdinaryTrickOrigin = virtualOrdinaryTrickOrigin is null ? null : virtualOrdinaryTrickOrigin with { CardActionId = actionContext!.ActionId }, DamageTargetDuelOrigin = damageTargetDuelOrigin, DualColorDuelOrigin = dualColorDuelOrigin, ConditionalDiscardDuelOrigin = conditionalDiscardDuelOrigin, Enhancements = turnRedSlashBenefit ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, TurnRedSlashSkipsDodge = turnRedSlashBenefit, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance, GuanFirstRedDistance = GuanFirstRedAvailable(_players[sourceSeat], actionContext?.EffectiveSuit), ColorFireAttack = colorFireAttack });
+        { QuHuangNishou = quHuangNishou, JueshengDuel = jueshengDuel, LiuYanLimu = liuYanLimu, AHuiNanJueman = aHuiNanJueman, QinLangXianying = qinLangXianying, TianChouShandao = tianChouShandao, WuAnGuoLiyong = wuAnGuoLiyong, HeJinMouzhu = heJinMouzhu, ZhenyingDuel = zhenyingDuel, ChosenAssault = chosenAssault, FriendRecastDuel = friendRecastDuel, SelectedActorDuelOrigin = selectedActorDuelOrigin, VirtualOrdinaryTrickOrigin = virtualOrdinaryTrickOrigin is null ? null : virtualOrdinaryTrickOrigin with { CardActionId = actionContext!.ActionId }, DamageTargetDuelOrigin = damageTargetDuelOrigin, DualColorDuelOrigin = dualColorDuelOrigin, ConditionalDiscardDuelOrigin = conditionalDiscardDuelOrigin, Enhancements = turnRedSlashBenefit ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, TurnRedSlashSkipsDodge = turnRedSlashBenefit, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance, GuanFirstRedDistance = GuanFirstRedAvailable(_players[sourceSeat], actionContext?.EffectiveSuit), ColorFireAttack = colorFireAttack });
+        IssueWeijieUse(LifecycleCardUse(resolutionId)!, weijieOrigin);
         BindRoundOnceCardlessProgramRequestUse(LifecycleCardUse(resolutionId)!);
         if (colorFireAttack is not null) AdvanceEventRulesAndQueueFact(new ColorFireAttackPolicyIssuedEvent(resolutionId, colorFireAttack.ActionId, colorFireAttack.Source));
         IssueTieredRoundConversionUse(LifecycleCardUse(resolutionId)!);
@@ -13904,7 +13961,10 @@ public sealed partial class GameEngine
         IssueKenshangUse(resolutionId, actionContext!);
         IssueFulueCounterUse(resolutionId, actionContext!);
         BindWuJingHejiUse(resolutionId);
+        BindChanshuangSlashUse(LifecycleCardUse(resolutionId)!);
         BindSuyiEquipmentUse(LifecycleCardUse(resolutionId)!);
+        IssueHuiyunUse(resolutionId, actionContext);
+        BindHuiyunFollowupUse(LifecycleCardUse(resolutionId)!);
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -14093,7 +14153,7 @@ public sealed partial class GameEngine
         // This batch's extra target can redirect onto another actual target. Use its
         // native cursor, because an earlier redirected seat may now be duplicated.
         var targetIndex = cardUse.ShortRangeSlashTarget is not null || HasCurrentEnhancementVirtualProducer(cardUse) ||
-            ((HasWeifuTargetTail(cardUse) || HasBingzhongTargetTail(cardUse)) || HasMaWanHunjiangTargetTail(cardUse) || (HasZhangYanLangdaoTargetTail(cardUse) || HasKenshangTargetTail(cardUse)))
+            ((HasWeifuTargetTail(cardUse) || (HasBingzhongTargetTail(cardUse) || HasPijingTargetTail(cardUse))) || HasMaWanHunjiangTargetTail(cardUse) || (HasZhangYanLangdaoTargetTail(cardUse) || HasKenshangTargetTail(cardUse)))
             ? cardUse.TargetIndex : Array.IndexOf(targetSeats, originalTargetSeat);
         if (targetIndex < 0 || targetIndex >= targetSeats.Length || targetSeats[targetIndex] != originalTargetSeat)
         {
@@ -14212,11 +14272,14 @@ public sealed partial class GameEngine
         bool ignoreDistance = false, long? existingUseFrameId=null, bool noEffectiveRank = false, int? specificEffectiveRank = null, IReadOnlyList<int>? physicalCardIds = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
         slashCard = WuJingLiubingUseCard(source, slashCard, effectiveKind, conversionSource, physicalCardIds, existingUseFrameId);
+        if (existingUseFrameId is null && excludedEquipmentId is null && excludedEquipmentSlot is null)
+            excludedEquipmentId = LiYiPaidSlashWeapon(source, physicalCardIds ?? [slashCard.Id]);
+        if (existingUseFrameId is null && HasCuiYanCapability && IsCuiYanNextUseForbidden(source.Seat, physicalCardIds ?? [slashCard.Id], EffectiveSuit(source, ApplyProgramUseAppearance(source, slashCard, conversionSource)))) return false;
         return
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat)) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        (ignoreDistance || HasIssuedWuJingHejiDistance(existingUseFrameId, source.Seat) || existingUseFrameId is not null && HasWeifuUseDistance(source, effectiveKind, existingUseFrameId) || HasIssuedFuRongDistance(existingUseFrameId, source.Seat) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || IsQigongIssuedDistance(existingUseFrameId, source.Seat) || HasIssuedNonBasicSlashDistance(existingUseFrameId) || existingUseFrameId is { } roundUseId && HasIssuedRoundGainedBasicBonus(roundUseId, source.Seat) ||
+        (ignoreDistance || HasSunHaoCanshiIssuedDistance(existingUseFrameId, source.Seat, target.Seat) || HasIssuedWuJingHejiDistance(existingUseFrameId, source.Seat) || existingUseFrameId is not null && HasWeifuUseDistance(source, effectiveKind, existingUseFrameId) || HasIssuedFuRongDistance(existingUseFrameId, source.Seat) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || IsQigongIssuedDistance(existingUseFrameId, source.Seat) || HasIssuedNonBasicSlashDistance(existingUseFrameId) || existingUseFrameId is { } roundUseId && HasIssuedRoundGainedBasicBonus(roundUseId, source.Seat) ||
          existingUseFrameId is null && HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || HasIssuedSelectedForeignCardSlashDistance(existingUseFrameId, source.Seat) || HasIssuedKuangfuDistance(existingUseFrameId, source.Seat) || HasIssuedJudgedRankSlashDistance(existingUseFrameId, source.Seat) || (HasIssuedProvenanceUseDistance(existingUseFrameId, source.Seat) || HasIssuedGrantedPhaseEntityDistance(existingUseFrameId, source.Seat)) || (HasProvenanceUseDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : [])) || HasGrantedPhaseEntityDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : []))) || HasSlashUseDistanceBySuit(source,effectiveKind,EffectiveSuit(source,slashCard)) || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
          GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedDistance(source, slashCard, existingUseFrameId) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
@@ -14322,7 +14385,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId))
         {
             return actions;
         }
@@ -14356,7 +14419,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -14519,13 +14582,13 @@ public sealed partial class GameEngine
             }
 
             {
-                foreach (var converted in GetEquipment(actor).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+                foreach (var converted in GetEquipment(actor).Concat(GetOwnPublicPileConversionCards(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                              .Where(IncludesPhysicalCard).Where(card =>
                              GetProgramViewAsConversions(actor, card, CardKind.Slash,
                                  forResponse: false).Count != 0))
                 {
                     var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
-                    var conversionZoneName = IsLastZoneJudgmentCard(actor, converted) ? "判定区" : "装备区";
+                    var conversionZoneName = IsLastZoneJudgmentCard(actor, converted) ? "判定区" : IsOwnPublicPileCard(actor, converted) ? "武将牌堆中" : "装备区";
                     var sources = GetProgramViewAsConversions(
                         actor, converted, CardKind.Slash, forResponse: false);
                     foreach (var conversionSource in sources)
@@ -14596,7 +14659,7 @@ public sealed partial class GameEngine
             AddNuzhanUnlimitedTrickSlashActions(actions, actor, playableCards);
         }
 
-        if (actor.HasHpValue && actor.Hp < actor.MaxHp)
+        if (IsRuleWounded(actor))
         {
             foreach (var converted in GetHand(actor).Concat(GetEquipment(actor)).Where(IncludesPhysicalCard))
                 foreach (var conversion in GetProgramViewAsConversions(actor, converted, CardKind.Peach, false))
@@ -15128,6 +15191,7 @@ public sealed partial class GameEngine
                 declaredColor = SuitColor(declaredSuit);
             }
             if (action.Kind != LegalActionKind.Recast && action.MaxCardCount <= 1 && declaredSuit is { } useSuit && IsTurnSuitUseForbidden(actor.Seat, useSuit)) return false;
+            if (action.Kind != LegalActionKind.Recast && action.MaxCardCount <= 1 && IsCuiYanNextUseForbidden(actor.Seat, action.CardId is { } cuiCardId ? [cuiCardId] : [], action.ConversionSource is { } cuiConversion && ViewAsRule(cuiConversion)?.InheritPreviousPlaySuit == true ? PreviousPlayCard(actor.Seat)?.EffectiveSuit ?? declaredSuit : declaredSuit)) return false;
             // Global tricks drop individually shielded targets instead of the whole
             // use: a black Nanman still resolves against everyone a Curtain bearer
             // does not protect, and only loses its action when no target remains.
@@ -15302,6 +15366,7 @@ public sealed partial class GameEngine
                GetWoodenOxGrain(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
                GetEquipment(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
                GetAuthority(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
+               FindOwnPublicPileConversionCard(actor, requestedCardId) ??
                FindLastZoneJudgmentConversionCard(actor, requestedCardId) ??
                FindFuRongDiscardCard(actor, requestedCardId) ??
                FindQingyaDiscardCard(actor, requestedCardId) ??
@@ -15336,6 +15401,9 @@ public sealed partial class GameEngine
         {
             return CardLocation.Authority(actor.Seat);
         }
+
+        if (IsOwnPublicPileCard(actor, card) && FindOwnPublicPileConversionCard(actor, card.Id) is not null)
+            return _cardZones.GetLocation(card.Id);
 
         if (TryGetLastZoneJudgmentConversionLocation(actor, card, out var lastJudgmentLocation))
             return lastJudgmentLocation;
@@ -15429,9 +15497,11 @@ public sealed partial class GameEngine
 
         var cards = GetPlayableCards(responder)
             .Where(card => !IsTurnHandCardRestricted(responder, card))
-            .Where(card => CanUseCardAsResponse(responder, card, requiredCardKind));
-        cards = cards.Concat(GetEquipment(responder).Where(card =>
+            .Where(card => CanUseCardAsResponse(responder, card, requiredCardKind))
+            .Where(card => !IsCuiYanNativeResponseForbidden(responder, requiredCardKind, [card]));
+        cards = cards.Concat(GetEquipment(responder).Concat(GetOwnPublicPileConversionCards(responder)).Where(card =>
             IsRecordedSuitResponseAllowed(responder, [card], requiredCardKind) &&
+            !IsCuiYanNativeResponseForbidden(responder, requiredCardKind, [card]) &&
             GetProgramViewAsConversions(responder, card, requiredCardKind,
                 forResponse: true).Count != 0));
 
@@ -15594,7 +15664,7 @@ public sealed partial class GameEngine
             .Concat(GetArmedGameDamageBonuses(attack))
             .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + XionghuoActualDamageBonus(attack) + FirstSlashDuelDamage(attack) + FinalTargetSlashDamage(attack) + RecordedSuitSlashDamage(attack) + FrozenNextSlashDamage(attack) + CaoYingDamage(attack) + AdoptedChildSlashDamage(attack) + ZhangYiKangruiDamageBonus(attack) + ChengGongYingKuangxiangDamageBonus(attack) + DuFuRenYiseDamageBonus(attack) + ZhangYanLangdaoDamageBonus(attack) + FulueDamageBonus(attack) +
-            ZhuJunCuipoDamageBonus(attack) + (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0);
+            ZhuJunCuipoDamageBonus(attack) + WuTuGuHanyongDamageBonus(attack) + SunHaoChouhaiDamageBonus(attack) + (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0);
         var receivesGudingBladeBonus = UsesFormalGudingBlade &&
             !attack.IsChainPropagation &&
             attack.CardUserSeat == attack.SourceSeat &&
@@ -16070,6 +16140,7 @@ public sealed partial class GameEngine
                     : GetProgramCardIdentitySources(
                         responder, card, effectiveCardKind, forResponse: true);
                 var includeUnspecified = !hasIdentity &&
+                    (responder is null || !IsOwnPublicPileCard(responder, card)) &&
                     IsNativeResponseCard(card, requiredCardKind);
                 var sources = new List<CardConversionSource?>();
                 if (includeUnspecified) sources.Add(null);
@@ -16431,7 +16502,7 @@ public sealed partial class GameEngine
 
     private void AdvanceAfterDeferredTurnEnd(CharacterState previous, bool skipped)
     {
-        if (TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        if (HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -16493,7 +16564,9 @@ public sealed partial class GameEngine
         try
         {
             victim.Hp = 0;
+            var caoYuDeathMinimum = CaptureCaoYuDeathMinimumSources(victim.Seat);
             victim.IsAlive = false;
+            RecordCaoYuDeathMinimumTransitions(deathFrameId, victim.Seat, caoYuDeathMinimum);
             ExpireDeadOwnerDamageModifiers(victim.Seat);
             ApplyZaowangSuccession(deathFrameId, victim);
             if (victim.IsChained)
@@ -16570,6 +16643,7 @@ public sealed partial class GameEngine
                 CardMoveReasons.PojunHoldDeathDiscard);
             MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PrivateReserve, victim.Seat)),
                 new CardLocation(CardZoneKind.PrivateReserve, victim.Seat), new CardMoveReason("program.private-reserve.death"));
+            deathCleanupCardIds.AddRange(DiscardQushiHolderDeathSeals(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
             UpdateDeathFrame(deathFrameId, frame => frame with { CleanedUpCardIds = deathCleanupCardIds });
 
             AddLog(
@@ -17119,7 +17193,7 @@ public sealed partial class GameEngine
             includeHandLimit ? GetHandLimit(player) : null,
             includeHandLimit ? HasActuallyUsableHandCard(player) : null,
             TracksPlayCardHistory ? PreviousPlayCardIsBasicFor(player.Seat) : null)
-        { HpUndefined = !player.HasHpValue, HasWeapon = GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) };
+        { HpUndefined = !player.HasHpValue, RuleWounded = UsesTreatedWounded ? IsRuleWounded(player) : null, HasWeapon = GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) };
         if (_contentRegistry.ProgramDependencies.EquipmentPresenceSkillIds.Count == 0 ||
             !GetSkillBindingShard(player).ProgramInstances.Any(instance => _contentRegistry.ProgramDependencies.EquipmentPresenceSkillIds.Contains(instance.SkillId))) return context;
         var slots = GetEquipment(player).Select(card => EquipmentCatalog.Get(card.Kind).Slot).ToArray();
@@ -17579,7 +17653,7 @@ public sealed partial class GameEngine
         // judgment, card use or death subtree). Keep those semantic proofs on
         // their owning capabilities; ordinary typed movement/HP observers above
         // do not run this compatibility path. Evaluate it only once per invariant.
-        var paidObserverSubtree = HasSimultaneousDamageObserver(window.Id) || HasBaoDamageObserver(window.Id) || HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || HasYangFuDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) || HasDongZhaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) || HasDamageAcquisitionDamageObserver(window.Id) || HasFirstSlashDuelDamageObserver(window.Id) || HasExtraEffectsAndRankGuessDamageObserver(window.Id) || HasRiceDamageObserver(window.Id) || HasNamedHandChoiceDamageObserver(window.Id) || HasChainedStateBasicDamageObserver(window.Id) ||
+        var paidObserverSubtree = HasSimultaneousDamageObserver(window.Id) || HasBaoDamageObserver(window.Id) || HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || (HasYangFuDamageObserver(window.Id) || HasWuTuGuDamageObserver(window.Id) || (HasSunHaoDamageObserver(window.Id) || HasDaQiaoXiaoQiaoDamageObserver(window.Id) || (HasFanJiangZhangDaDamageObserver(window.Id) || HasWenYangDamageObserver(window.Id) || (HasMaYuanYiDamageObserver(window.Id) || HasHuBanDamageObserver(window.Id) || HasLiuBaDamageObserver(window.Id) || HasLiuPanDamageObserver(window.Id) || (HasQuHuangDamageObserver(window.Id) || HasCaoYuDamageObserver(window.Id) || HasRuanYuDamageObserver(window.Id) || HasBaoXinDamageObserver(window.Id) || HasWeijieDamageObserver(window.Id) || HasQushiDamageObserver(window.Id) || HasCuiYanDamageObserver(window.Id) || HasLiYiDamageObserver(window.Id))))))) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) || HasDongZhaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) || HasDamageAcquisitionDamageObserver(window.Id) || HasFirstSlashDuelDamageObserver(window.Id) || HasExtraEffectsAndRankGuessDamageObserver(window.Id) || HasRiceDamageObserver(window.Id) || HasNamedHandChoiceDamageObserver(window.Id) || HasChainedStateBasicDamageObserver(window.Id) ||
             HasSelectedForeignCardSlashDamageObserver(window.Id) ||
             HasRoundGainedEquipmentDrawDamageObserver(window.Id) ||
             HasJoinedTrickDamageRewardDamageObserver(window.Id) ||
@@ -17626,7 +17700,7 @@ public sealed partial class GameEngine
             HasAppliedDamageBenefitObserver(window.Id) ||
             HasFireTargetBenefitObserver(window.Id) ||
             HasFirstSlashDuelDamageObserver(window.Id) ||
-            HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || HasYangFuDamageObserver(window.Id)) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) ||
+            HasCaoYingDamageObserver(window.Id) || HasPrivateWhirlDamageObserver(window.Id) || HasBuZhiDamageObserver(window.Id) || HasLianZhuDamageObserver(window.Id) || HasJiqiaoDamageObserver(window.Id) || HasKanZeDamageObserver(window.Id) || HasHeQiDamageObserver(window.Id) || HasZhaoXiangDamageObserver(window.Id) || HasZhugeGuoDamageObserver(window.Id) || HasXiZhiCaiDamageObserver(window.Id) || HasBeiMiHuDamageObserver(window.Id) || HasSimaHuiDamageObserver(window.Id) || HasXuRongDamageObserver(window.Id) || HasLiJueDamageObserver(window.Id) || HasZhangJiDamageObserver(window.Id) || HasSuFeiDamageObserver(window.Id) || HasHuangQuanDamageObserver(window.Id) || HasFanChouDamageObserver(window.Id) || HasGuoSiDamageObserver(window.Id) || HasZhangQiYingDamageObserver(window.Id) || HasCaoChunDamageObserver(window.Id) || HasWangCanDamageObserver(window.Id) || HasSpPangTongDamageObserver(window.Id) || HasNeifaDamageObserver(window.Id) || HasLvQianDamageObserver(window.Id) || HasLvKuangLvXiangDamageObserver(window.Id) || HasXinPiDamageObserver(window.Id) || HasHuaManDamageObserver(window.Id) || HasCaoSongLiluDamageObserver(window.Id) || HasCaoShuangDamageObserver(window.Id) || HasSpZhangLiaoDamageObserver(window.Id) || HasSunRuOlDamageObserver(window.Id) || HasLiuPiDamageObserver(window.Id) || HasWoLongFengChuDamageObserver(window.Id) || HasHuoJunFenruiDamageObserver(window.Id) || HasQiaoZhouDamageObserver(window.Id) || HasXunyiDamageObserver(window.Id) || HasDuXiDamageObserver(window.Id) || HasFuRongDamageObserver(window.Id) || HasDailiDamageObserver(window.Id) || HasZhenyingDamageObserver(window.Id) || HasMaWanDamageObserver(window.Id) || HasDuFuRenDamageObserver(window.Id) || HasZhangShiPingDamageObserver(window.Id) || HasFeiYiDamageObserver(window.Id) || HasQianZhaoDamageObserver(window.Id) || HasDingShangWanDamageObserver(window.Id) || HasLiWanDamageObserver(window.Id) || HasHeJinDamageObserver(window.Id) || HasYanRouDamageObserver(window.Id) || HasCaoXiDamageObserver(window.Id) || HasLuYuShengDamageObserver(window.Id) || HasWangKuangDamageObserver(window.Id) || HasYuanHuanDamageObserver(window.Id) || HasHanFuDamageObserver(window.Id) || HasWuAnGuoDamageObserver(window.Id) || HasZhangYanDamageObserver(window.Id) || HasZhuJunDamageObserver(window.Id) || HasNiuFuDamageObserver(window.Id) || HasRuanHuiDamageObserver(window.Id) || HasMaMiDiDamageObserver(window.Id) || HasDuanJiongDamageObserver(window.Id) || HasTianChouDamageObserver(window.Id) || HasChengGongYingDamageObserver(window.Id) || (HasKenshangDamageObserver(window.Id) || HasFulueDamageObserver(window.Id) || HasYangFengDamageObserver(window.Id) || (HasAHuiNanDamageObserver(window.Id) || HasLiuYanDamageObserver(window.Id)) || HasWangGuanDamageObserver(window.Id) || (HasMengDaDamageObserver(window.Id) || HasCaiMaoDamageObserver(window.Id) || HasYaDanDamageObserver(window.Id) || HasCaoTengDamageObserver(window.Id) || (HasYangFuDamageObserver(window.Id) || HasWuTuGuDamageObserver(window.Id) || (HasSunHaoDamageObserver(window.Id) || HasDaQiaoXiaoQiaoDamageObserver(window.Id) || (HasFanJiangZhangDaDamageObserver(window.Id) || HasWenYangDamageObserver(window.Id) || (HasMaYuanYiDamageObserver(window.Id) || HasHuBanDamageObserver(window.Id) || HasLiuBaDamageObserver(window.Id) || HasLiuPanDamageObserver(window.Id) || (HasQuHuangDamageObserver(window.Id) || HasCaoYuDamageObserver(window.Id) || HasRuanYuDamageObserver(window.Id) || HasBaoXinDamageObserver(window.Id) || HasWeijieDamageObserver(window.Id) || HasQushiDamageObserver(window.Id) || HasCuiYanDamageObserver(window.Id) || HasLiYiDamageObserver(window.Id))))))) || HasQinLangDamageObserver(window.Id) || HasWuJingDamageObserver(window.Id) || HasXiangChongDamageObserver(window.Id)) || HasKeBiNengDamageObserver(window.Id) || HasHuJinDingDamageObserver(window.Id) || HasYanPuDamageObserver(window.Id) || HasZhangYiDamageObserver(window.Id) || HasLiuQiDamageObserver(window.Id) || HasLuZhiWeiDamageObserver(window.Id) || HasWangYunDamageObserver(window.Id) || HasXuanGongZhuDamageObserver(window.Id) ||
             HasDongZhaoDamageObserver(window.Id) ||
             HasBaoDamageObserver(window.Id) || HasDeathGrowthDamageObserver(window.Id) ||
             HasSimultaneousDamageObserver(window.Id) ||
@@ -17720,10 +17794,11 @@ public sealed partial class GameEngine
         AssertRequestedDeckBasicMaterials();
         AssertDrawFundedDistinctBasicFramesAndUses();
         AssertChainedStateBasicFramesAndUses();
+        AssertWeijieRequests();
         AssertSelectedForeignCardSlashes();
-        var coreDecision = (KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) ??
-            ChainedStateBasicInvariantDecision(DrawFundedDistinctBasicInvariantDecision(RequestedDeckBasicInvariantDecision()));
-        var coreTop = ChainedStateBasicInvariantTop(DrawFundedDistinctBasicInvariantTop(RequestedDeckBasicInvariantTop()));
+        var coreDecision = WeijieInvariantDecision((KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) ??
+            ChainedStateBasicInvariantDecision(DrawFundedDistinctBasicInvariantDecision(RequestedDeckBasicInvariantDecision())));
+        var coreTop = WeijieInvariantTop(ChainedStateBasicInvariantTop(DrawFundedDistinctBasicInvariantTop(RequestedDeckBasicInvariantTop())));
         var responseHealthCursor = ProjectTypedResponseCompletionHealthCursor();
         if (responseHealthCursor.IsMalformed)
             throw new InvalidOperationException("A native response health child lost its exact paid return.");
@@ -17757,7 +17832,7 @@ public sealed partial class GameEngine
             damageProgramDying |= IsBaoDying();
             damageProgramDying |= IsCaoYingDying();
             damageProgramDying |= IsPrivateWhirlDying();
-            damageProgramDying |= IsBuZhiDying() || IsLianZhuDying() || IsJiqiaoDying() || IsKanZeDying() || IsHeQiDying() || IsZhaoXiangDying() || IsZhugeGuoDying() || IsXiZhiCaiDying() || IsWangYunDying() || IsBeiMiHuDying() || IsSimaHuiDying() || IsXuRongDying() || IsLiJueDying() || IsZhangJiDying() || IsSuFeiDying() || IsHuangQuanDying() || IsFanChouDying() || IsGuoSiDying() || IsZhangQiYingDying() || IsCaoChunDying() || IsWangCanDying() || IsSpPangTongDying() || IsNeifaDying() || IsLvQianDying() || IsLvKuangLvXiangDying() || IsXinPiDying() || IsHuaManDying() || IsCaoSongLiluDying() || IsCaoShuangDying() || IsSpZhangLiaoDying() || IsSunRuOlDying() || IsLiuPiDying() || IsWoLongFengChuDying() || IsHuoJunFenruiDying() || IsQiaoZhouDying() || IsXunyiDying() || IsDuXiDying() || IsFuRongDying() || IsDailiDying() || IsZhenyingDying() || IsMaWanDying() || IsDuFuRenDying() || IsZhangShiPingDying() || IsFeiYiDying() || IsQianZhaoDying() || IsDingShangWanDying() || IsLiWanDying() || IsHeJinDying() || IsYanRouDying() || IsLuYuShengDying() || IsWangKuangDying() || IsYuanHuanDying() || IsHanFuDying() || IsWuAnGuoDying() || IsZhangYanDying() || IsZhuJunDying() || IsNiuFuDying() || IsRuanHuiDying() || IsMaMiDiDying() || IsDuanJiongDying() || IsTianChouDying() || IsChengGongYingDying() || (IsKenshangDying() || IsFulueDying() || IsYangFengDying() || IsAHuiNanDying() || IsLiuYanDying() || IsWangGuanDying() || (IsMengDaDying() || IsCaiMaoDying() || (IsYaDanDying() || IsCaoTengDying() || IsYangFuDying())) || IsQinLangDying() || IsWuJingDying() || IsXiangChongDying()) || IsKeBiNengDying() || IsCaoXiDying() || IsHuJinDingDying() || IsYanPuDying() || IsZhangYiDying() || IsLiuQiDying() || IsLuZhiWeiDying();
+            damageProgramDying |= IsBuZhiDying() || IsLianZhuDying() || IsJiqiaoDying() || IsKanZeDying() || IsHeQiDying() || IsZhaoXiangDying() || IsZhugeGuoDying() || IsXiZhiCaiDying() || IsWangYunDying() || IsBeiMiHuDying() || IsSimaHuiDying() || IsXuRongDying() || IsLiJueDying() || IsZhangJiDying() || IsSuFeiDying() || IsHuangQuanDying() || IsFanChouDying() || IsGuoSiDying() || IsZhangQiYingDying() || IsCaoChunDying() || IsWangCanDying() || IsSpPangTongDying() || IsNeifaDying() || IsLvQianDying() || IsLvKuangLvXiangDying() || IsXinPiDying() || IsHuaManDying() || IsCaoSongLiluDying() || IsCaoShuangDying() || IsSpZhangLiaoDying() || IsSunRuOlDying() || IsLiuPiDying() || IsWoLongFengChuDying() || IsHuoJunFenruiDying() || IsQiaoZhouDying() || IsXunyiDying() || IsDuXiDying() || IsFuRongDying() || IsDailiDying() || IsZhenyingDying() || IsMaWanDying() || IsDuFuRenDying() || IsZhangShiPingDying() || IsFeiYiDying() || IsQianZhaoDying() || IsDingShangWanDying() || IsLiWanDying() || IsHeJinDying() || IsYanRouDying() || IsLuYuShengDying() || IsWangKuangDying() || IsYuanHuanDying() || IsHanFuDying() || IsWuAnGuoDying() || IsZhangYanDying() || IsZhuJunDying() || IsNiuFuDying() || IsRuanHuiDying() || IsMaMiDiDying() || IsDuanJiongDying() || IsTianChouDying() || IsChengGongYingDying() || (IsKenshangDying() || IsFulueDying() || IsYangFengDying() || IsAHuiNanDying() || IsLiuYanDying() || IsWangGuanDying() || (IsMengDaDying() || IsCaiMaoDying() || (IsYaDanDying() || IsCaoTengDying() || (IsYangFuDying() || IsWuTuGuDying() || (IsSunHaoDying() || IsDaQiaoXiaoQiaoDying() || (IsFanJiangZhangDaDying() || IsWenYangDying() || (IsMaYuanYiDying() || IsHuBanDying() || IsLiuBaDying() || IsLiuPanDying() || (IsQuHuangDying() || IsCaoYuDying() || IsRuanYuDying() || IsBaoXinDying() || IsWeijieDying() || IsQushiDying() || IsCuiYanDying() || IsLiYiDying()))))))) || IsQinLangDying() || IsWuJingDying() || IsXiangChongDying()) || IsKeBiNengDying() || IsCaoXiDying() || IsHuJinDingDying() || IsYanPuDying() || IsZhangYiDying() || IsLiuQiDying() || IsLuZhiWeiDying();
             damageProgramDying |= IsXuanGongZhuDying();
             damageProgramDying |= IsDongZhaoDying();
             damageProgramDying |= IsRiceProgramDying();
@@ -17845,7 +17920,7 @@ public sealed partial class GameEngine
         AssertProgramVirtualOrdinaryTricks();
         AssertDamageTargetDuels();
         AssertQinglongInsertions();
-        var processing = _cardZones.CardsAt(CardLocation.Processing);
+        var processing = WithoutNishouHeldProcessingCards(_cardZones.CardsAt(CardLocation.Processing));
         var hasActiveCardResolution = _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
             ActiveQinglongFollowup is not null || ActiveBorrowedSword is not null ||
             ActiveGroupCard is not null ||
@@ -17856,7 +17931,7 @@ public sealed partial class GameEngine
             ActiveJudgment is not null ||
             HasCharacterStateCardUseContinuation() ||
             HasOwnTrickDrawOfferProcessing(processing) ||
-            HasFeiYiTrickPaymentProcessing(processing) || HasWuJingHejiTrickPaymentProcessing(processing) ||
+            HasFeiYiTrickPaymentProcessing(processing) || HasWuJingHejiTrickPaymentProcessing(processing) || HasHuiyunTrickPaymentProcessing(processing) ||
             _resolutionStack.Any(frame => frame is CardEffectBeforeApplyFrame or ProgramSkillFrame or ProgramCardTriggerWindowFrame or PindianFrame or HpChangedTriggerWindowFrame or RecoveryReplacementFrame or CardDeclarationFrame);
         if (!hasActiveCardResolution && processing.Count != 0)
         {
@@ -17931,7 +18006,8 @@ public sealed partial class GameEngine
         if (ActiveFireAttack is { } fireAttack)
         {
             var retainedFireAttack = !IsZeroEntityUse(fireAttack.Id) &&
-                !IsClaimedUseCardEntity(fireAttack.Id, fireAttack.CardId);
+                !IsClaimedUseCardEntity(fireAttack.Id, fireAttack.CardId) &&
+                !IsHuiyunOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId);
             var expectedProcessingCount = retainedFireAttack ? 1 : 0;
             if (processing.Count != expectedProcessingCount ||
                 retainedFireAttack && processing.All(card => card.Id != fireAttack.CardId) ||
@@ -17998,10 +18074,11 @@ public sealed partial class GameEngine
             completedResponseDying |= counterspellPaymentRide && ActiveDying is not null;
             completedResponseDying |= slotNamedPaymentRide && ActiveDying is not null;
             if (counterspellPaymentRide) rescueCosts = paymentRescueCosts;
-            var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
+            var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId) || IsJueshengDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
-            expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id)).ToArray();
+            expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id) &&
+                !IsHuiyunOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id)).ToArray();
             if (!processing.Select(card => card.Id).Order().SequenceEqual(expectedPhysicalCardIds.Concat(rescueCosts).Order()))
             {
                 throw new InvalidOperationException(
@@ -18217,6 +18294,7 @@ public sealed partial class GameEngine
                 originalQinglongDecision.ValidTargetSeats.SequenceEqual([target.Seat]) &&
                 originalQinglongDecision.PromptId == qinglongPayment.OriginalPromptId && originalQinglongDecision.Revision == qinglongPayment.OriginalRevision;
             paidQinglongPaused |= HasWoLongFengChuQinglongPaymentRide(qinglongAttack);
+            paidQinglongPaused |= HasWeijieQinglongPaymentRide(qinglongAttack);
             if (!paidQinglongPaused)
             {
                 var currentCandidates = GetQinglongCrescentBladeSlashCards(source, target)
@@ -18558,6 +18636,8 @@ public sealed partial class GameEngine
             }
             else if ((HasChainedStateBasicObserver(pendingAttack.ResolutionId) || HasDrawFundedDistinctBasicObserver(pendingAttack.ResolutionId)))
             { AssertChainedStateBasicFramesAndUses(); AssertDrawFundedDistinctBasicFramesAndUses(); }
+            else if (HasWeijieNativeRequestContinuation(pendingAttack.ResolutionId))
+            { AssertWeijieRequests(); }
             else if (HasFriendDuelResponseObserver(pendingAttack.ResolutionId))
             { AssertFriendEventFrames(); }
             else if (ProgramCardAttack is not null)
@@ -18715,7 +18795,7 @@ public sealed partial class GameEngine
                     } && parentFrameId == beforeDamage.Id;
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
-                    !topMatchesWindow && !topMatchesProgram && !HasSelectedForeignCardSlashBeforeDamageObserver(beforeDamage.Id) && !HasChainedStateBasicDamageObserver(beforeDamage.Id) && !HasPreventionDrawDying(beforeDamage.Id) && !HasTongxieGuardDying(beforeDamage.Id) && !HasJielieGiftDying(beforeDamage.Id) && !HasJielieGiftDamageObserver(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !(HasDynamicDiscardDamageObserver(beforeDamage.Id) || HasSignedDamagePaymentObserver(beforeDamage.Id)) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasPlacedEquipmentBenefitDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasOffTurnUsedCardGiftBeforeDamageObserver(beforeDamage.Id) && !HasMatchingRecastBeforeDamageObserver(beforeDamage.Id) && !HasOrderedPrintedSkillLossBeforeDamageObserver(beforeDamage.Id) && !HasOverflowTargetCancellationBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id) && !HasPairedColorDispositionBeforeDamageObserver(beforeDamage.Id) && !HasJoinedTrickDamageRewardBeforeDamageObserver(beforeDamage.Id) && !HasRoundGainedEquipmentDrawBeforeDamageObserver(beforeDamage.Id) && !HasInspectedHandDamageObserver(beforeDamage.Id) && !HasFrozenHandRosterBeforeDamageObserver(beforeDamage.Id) && !HasBuZhiBeforeDamageObserver(beforeDamage.Id) && !HasZhaoXiangBeforeDamageObserver(beforeDamage.Id) && !HasKanZeBeforeDamageObserver(beforeDamage.Id) && !HasHeQiBeforeDamageObserver(beforeDamage.Id) && !HasZhugeGuoBeforeDamageObserver(beforeDamage.Id) && !HasXiZhiCaiBeforeDamageObserver(beforeDamage.Id) && !HasBeiMiHuBeforeDamageObserver(beforeDamage.Id) && !HasSimaHuiBeforeDamageObserver(beforeDamage.Id) && !HasXuRongBeforeDamageObserver(beforeDamage.Id) && !HasLiJueBeforeDamageObserver(beforeDamage.Id) && !HasZhangJiBeforeDamageObserver(beforeDamage.Id) && !HasSuFeiBeforeDamageObserver(beforeDamage.Id) && !HasHuangQuanBeforeDamageObserver(beforeDamage.Id) && !HasFanChouBeforeDamageObserver(beforeDamage.Id) && !HasGuoSiBeforeDamageObserver(beforeDamage.Id) && !HasZhangQiYingBeforeDamageObserver(beforeDamage.Id) && !HasCaoChunBeforeDamageObserver(beforeDamage.Id) && !HasWangCanBeforeDamageObserver(beforeDamage.Id) && !HasSpPangTongBeforeDamageObserver(beforeDamage.Id) && !HasNeifaBeforeDamageObserver(beforeDamage.Id) && !HasLvQianBeforeDamageObserver(beforeDamage.Id) && !HasLvKuangLvXiangBeforeDamageObserver(beforeDamage.Id) && !HasXinPiBeforeDamageObserver(beforeDamage.Id) && !HasHuaManBeforeDamageObserver(beforeDamage.Id) && !HasLiuQiBeforeDamageObserver(beforeDamage.Id) && !HasLuZhiWeiBeforeDamageObserver(beforeDamage.Id) && !HasXunyiBeforeDamageObserver(beforeDamage.Id) && !HasDuXiDamageObserver(beforeDamage.Id) && !HasFuRongDamageObserver(beforeDamage.Id) && !HasDailiBeforeDamageObserver(beforeDamage.Id) && !HasZhenyingBeforeDamageObserver(beforeDamage.Id) && !HasMaWanDamageObserver(beforeDamage.Id) && !HasDuFuRenDamageObserver(beforeDamage.Id) && !HasZhangShiPingDamageObserver(beforeDamage.Id) && !HasFeiYiDamageObserver(beforeDamage.Id) && !HasQianZhaoBeforeDamageObserver(beforeDamage.Id) && !HasDingShangWanDamageObserver(beforeDamage.Id) && !HasLiWanBeforeDamageObserver(beforeDamage.Id) && !HasHeJinDamageObserver(beforeDamage.Id) && !HasYanRouDamageObserver(beforeDamage.Id) && !HasCaoXiDamageObserver(beforeDamage.Id) && !HasLuYuShengDamageObserver(beforeDamage.Id) && !HasWangKuangDamageObserver(beforeDamage.Id) && !HasYuanHuanBeforeDamageObserver(beforeDamage.Id) && !HasHanFuBeforeDamageObserver(beforeDamage.Id) && !HasWuAnGuoBeforeDamageObserver(beforeDamage.Id) && !HasZhangYanDamageObserver(beforeDamage.Id) && !HasZhuJunDamageObserver(beforeDamage.Id) && !HasNiuFuBeforeDamageObserver(beforeDamage.Id) && !HasRuanHuiBeforeDamageObserver(beforeDamage.Id) && !HasMaMiDiBeforeDamageObserver(beforeDamage.Id) && !HasDuanJiongBeforeDamageObserver(beforeDamage.Id) && !HasTianChouBeforeDamageObserver(beforeDamage.Id) && !HasChengGongYingBeforeDamageObserver(beforeDamage.Id) && !(HasKenshangBeforeDamageObserver(beforeDamage.Id) || HasFulueBeforeDamageObserver(beforeDamage.Id) || HasYangFengBeforeDamageObserver(beforeDamage.Id) || HasAHuiNanBeforeDamageObserver(beforeDamage.Id) || HasLiuYanBeforeDamageObserver(beforeDamage.Id) || HasWangGuanBeforeDamageObserver(beforeDamage.Id) || (HasMengDaBeforeDamageObserver(beforeDamage.Id) || HasCaiMaoBeforeDamageObserver(beforeDamage.Id) || HasYaDanBeforeDamageObserver(beforeDamage.Id) || HasCaoTengBeforeDamageObserver(beforeDamage.Id) || HasYangFuBeforeDamageObserver(beforeDamage.Id)) || HasQinLangBeforeDamageObserver(beforeDamage.Id) || HasWuJingBeforeDamageObserver(beforeDamage.Id) || HasXiangChongBeforeDamageObserver(beforeDamage.Id)) && !HasKeBiNengBeforeDamageObserver(beforeDamage.Id) && !HasHuJinDingBeforeDamageObserver(beforeDamage.Id) && !HasYanPuDamageObserver(beforeDamage.Id) && !HasZhangYiDamageObserver(beforeDamage.Id) && !HasWangYunBeforeDamageObserver(beforeDamage.Id))
+                    !topMatchesWindow && !topMatchesProgram && !HasSelectedForeignCardSlashBeforeDamageObserver(beforeDamage.Id) && !HasChainedStateBasicDamageObserver(beforeDamage.Id) && !HasPreventionDrawDying(beforeDamage.Id) && !HasTongxieGuardDying(beforeDamage.Id) && !HasJielieGiftDying(beforeDamage.Id) && !HasJielieGiftDamageObserver(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !(HasDynamicDiscardDamageObserver(beforeDamage.Id) || HasSignedDamagePaymentObserver(beforeDamage.Id)) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasPlacedEquipmentBenefitDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasOffTurnUsedCardGiftBeforeDamageObserver(beforeDamage.Id) && !HasMatchingRecastBeforeDamageObserver(beforeDamage.Id) && !HasOrderedPrintedSkillLossBeforeDamageObserver(beforeDamage.Id) && !HasOverflowTargetCancellationBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id) && !HasPairedColorDispositionBeforeDamageObserver(beforeDamage.Id) && !HasJoinedTrickDamageRewardBeforeDamageObserver(beforeDamage.Id) && !HasRoundGainedEquipmentDrawBeforeDamageObserver(beforeDamage.Id) && !HasInspectedHandDamageObserver(beforeDamage.Id) && !HasFrozenHandRosterBeforeDamageObserver(beforeDamage.Id) && !HasBuZhiBeforeDamageObserver(beforeDamage.Id) && !HasZhaoXiangBeforeDamageObserver(beforeDamage.Id) && !HasKanZeBeforeDamageObserver(beforeDamage.Id) && !HasHeQiBeforeDamageObserver(beforeDamage.Id) && !HasZhugeGuoBeforeDamageObserver(beforeDamage.Id) && !HasXiZhiCaiBeforeDamageObserver(beforeDamage.Id) && !HasBeiMiHuBeforeDamageObserver(beforeDamage.Id) && !HasSimaHuiBeforeDamageObserver(beforeDamage.Id) && !HasXuRongBeforeDamageObserver(beforeDamage.Id) && !HasLiJueBeforeDamageObserver(beforeDamage.Id) && !HasZhangJiBeforeDamageObserver(beforeDamage.Id) && !HasSuFeiBeforeDamageObserver(beforeDamage.Id) && !HasHuangQuanBeforeDamageObserver(beforeDamage.Id) && !HasFanChouBeforeDamageObserver(beforeDamage.Id) && !HasGuoSiBeforeDamageObserver(beforeDamage.Id) && !HasZhangQiYingBeforeDamageObserver(beforeDamage.Id) && !HasCaoChunBeforeDamageObserver(beforeDamage.Id) && !HasWangCanBeforeDamageObserver(beforeDamage.Id) && !HasSpPangTongBeforeDamageObserver(beforeDamage.Id) && !HasNeifaBeforeDamageObserver(beforeDamage.Id) && !HasLvQianBeforeDamageObserver(beforeDamage.Id) && !HasLvKuangLvXiangBeforeDamageObserver(beforeDamage.Id) && !HasXinPiBeforeDamageObserver(beforeDamage.Id) && !HasHuaManBeforeDamageObserver(beforeDamage.Id) && !HasLiuQiBeforeDamageObserver(beforeDamage.Id) && !HasLuZhiWeiBeforeDamageObserver(beforeDamage.Id) && !HasXunyiBeforeDamageObserver(beforeDamage.Id) && !HasDuXiDamageObserver(beforeDamage.Id) && !HasFuRongDamageObserver(beforeDamage.Id) && !HasDailiBeforeDamageObserver(beforeDamage.Id) && !HasZhenyingBeforeDamageObserver(beforeDamage.Id) && !HasMaWanDamageObserver(beforeDamage.Id) && !HasDuFuRenDamageObserver(beforeDamage.Id) && !HasZhangShiPingDamageObserver(beforeDamage.Id) && !HasFeiYiDamageObserver(beforeDamage.Id) && !HasQianZhaoBeforeDamageObserver(beforeDamage.Id) && !HasDingShangWanDamageObserver(beforeDamage.Id) && !HasLiWanBeforeDamageObserver(beforeDamage.Id) && !HasHeJinDamageObserver(beforeDamage.Id) && !HasYanRouDamageObserver(beforeDamage.Id) && !HasCaoXiDamageObserver(beforeDamage.Id) && !HasLuYuShengDamageObserver(beforeDamage.Id) && !HasWangKuangDamageObserver(beforeDamage.Id) && !HasYuanHuanBeforeDamageObserver(beforeDamage.Id) && !HasHanFuBeforeDamageObserver(beforeDamage.Id) && !HasWuAnGuoBeforeDamageObserver(beforeDamage.Id) && !HasZhangYanDamageObserver(beforeDamage.Id) && !HasZhuJunDamageObserver(beforeDamage.Id) && !HasNiuFuBeforeDamageObserver(beforeDamage.Id) && !HasRuanHuiBeforeDamageObserver(beforeDamage.Id) && !HasMaMiDiBeforeDamageObserver(beforeDamage.Id) && !HasDuanJiongBeforeDamageObserver(beforeDamage.Id) && !HasTianChouBeforeDamageObserver(beforeDamage.Id) && !HasChengGongYingBeforeDamageObserver(beforeDamage.Id) && !(HasKenshangBeforeDamageObserver(beforeDamage.Id) || HasFulueBeforeDamageObserver(beforeDamage.Id) || HasYangFengBeforeDamageObserver(beforeDamage.Id) || HasAHuiNanBeforeDamageObserver(beforeDamage.Id) || HasLiuYanBeforeDamageObserver(beforeDamage.Id) || HasWangGuanBeforeDamageObserver(beforeDamage.Id) || (HasMengDaBeforeDamageObserver(beforeDamage.Id) || HasCaiMaoBeforeDamageObserver(beforeDamage.Id) || HasYaDanBeforeDamageObserver(beforeDamage.Id) || HasCaoTengBeforeDamageObserver(beforeDamage.Id) || (HasYangFuBeforeDamageObserver(beforeDamage.Id) || HasWuTuGuBeforeDamageObserver(beforeDamage.Id) || (HasSunHaoBeforeDamageObserver(beforeDamage.Id) || HasDaQiaoXiaoQiaoBeforeDamageObserver(beforeDamage.Id) || (HasFanJiangZhangDaBeforeDamageObserver(beforeDamage.Id) || HasWenYangBeforeDamageObserver(beforeDamage.Id) || (HasMaYuanYiBeforeDamageObserver(beforeDamage.Id) || HasHuBanBeforeDamageObserver(beforeDamage.Id) || HasLiuBaBeforeDamageObserver(beforeDamage.Id) || HasLiuPanBeforeDamageObserver(beforeDamage.Id) || (HasQuHuangBeforeDamageObserver(beforeDamage.Id) || HasCaoYuBeforeDamageObserver(beforeDamage.Id) || HasRuanYuBeforeDamageObserver(beforeDamage.Id) || HasBaoXinBeforeDamageObserver(beforeDamage.Id) || HasWeijieBeforeDamageObserver(beforeDamage.Id) || HasQushiBeforeDamageObserver(beforeDamage.Id) || HasCuiYanBeforeDamageObserver(beforeDamage.Id) || HasLiYiBeforeDamageObserver(beforeDamage.Id))))))) || HasQinLangBeforeDamageObserver(beforeDamage.Id) || HasWuJingBeforeDamageObserver(beforeDamage.Id) || HasXiangChongBeforeDamageObserver(beforeDamage.Id)) && !HasKeBiNengBeforeDamageObserver(beforeDamage.Id) && !HasHuJinDingBeforeDamageObserver(beforeDamage.Id) && !HasYanPuDamageObserver(beforeDamage.Id) && !HasZhangYiDamageObserver(beforeDamage.Id) && !HasWangYunBeforeDamageObserver(beforeDamage.Id))
                 {
                     throw new InvalidOperationException(
                         "An active before-damage program must retain its damage and parent window.");
@@ -19416,7 +19496,9 @@ public sealed partial class GameEngine
             !HasWoLongFengChuUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasTargetPenaltyUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasRecoveryPaidCardUseObserver(ActiveCardAttack.ResolutionId) &&
+            !HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) &&
             !(HasChainedStateBasicObserver(ActiveCardAttack.ResolutionId) || HasDrawFundedDistinctBasicObserver(ActiveCardAttack.ResolutionId)) &&
+            !HasWeijieNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&
             !HasFriendDuelResponseObserver(ActiveCardAttack.ResolutionId) &&
             !HasPaidFactionRequestCostRecovery(ActiveFactionCardRequest) && !HasDyingSuitsSuspendedAttack(ActiveCardAttack.ResolutionId))
         {
@@ -19501,6 +19583,7 @@ public sealed partial class GameEngine
             return IsWuAnGuoLiyongAttackConsistent(attack, processing);
         if (IsExactHpLossMaterialSlash(attack, processing)) return true;
         if (IsRoundOnceCardlessProgramRequestAttackConsistent(attack, processing)) return true;
+        if (IsWeijieProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsSoleTargetQuarantinedAttackConsistent(attack, processing)) return true;
         if (IsAHuiNanJuemanAttackConsistent(attack, processing) || IsQinLangXianyingAttackConsistent(attack, processing) || IsQinLangXianyingBorrowedAttackConsistent(attack, processing) || IsTianChouShandaoAttackConsistent(attack, processing) || IsChosenAssaultAttackConsistent(attack, processing) || IsMouZhijueZeroAttackConsistent(attack, processing) || IsMouZhijueBorrowedAttackConsistent(attack, processing) || IsPaidZeroMaterialAttackConsistent(attack, processing) || IsTieredRoundZeroBorrowedAttackConsistent(attack, processing)) return true;
         if (IsChainedStateBasicAttackConsistent(attack, processing)) return true;
@@ -19529,6 +19612,9 @@ public sealed partial class GameEngine
             return processing.Count == 0 && _resolutionStack.OfType<CardUseFrame>().Any(frame =>
                 frame.Id == attack.ResolutionId && frame.CardId == 0 && frame.PhysicalCardIds?.Count is 0);
         }
+
+        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsJueshengDuelUse(attack.ResolutionId))
+            return IsJueshengDuelAttackConsistent(attack, processing);
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsZhenyingDuelUse(attack.ResolutionId))
             return IsZhenyingDuelAttackConsistent(attack, processing);
@@ -19649,7 +19735,7 @@ public sealed partial class GameEngine
         {
             if (IsQigongCompletedAttackProcessing(attack, processing)) return true;
             return processing.Count == 0 && attack.PhysicalCards.All(card =>
-                (IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id))) ||
+                (IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id) || IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id))) ||
                 _cardZones.GetLocation(card.Id).Zone is CardZoneKind.DiscardPile or
                     CardZoneKind.Hand or CardZoneKind.DrawPile);
         }
@@ -19671,6 +19757,7 @@ public sealed partial class GameEngine
         var toleratedProcessing = processing
             .Where(card => !heldByOuterUses.Contains(card.Id)).ToArray();
         var retainedAttackIds = attack.PhysicalCards.Where(card=>!IsClaimedUseCardEntity(attack.ResolutionId,card.Id) &&
+            !IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id) &&
             !(IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id)))).Select(card=>card.Id).ToHashSet();
         if (retainedAttackIds.Count != attack.PhysicalCards.Count && toleratedProcessing.Select(card=>card.Id).ToHashSet().SetEquals(retainedAttackIds)) return true;
         if (toleratedProcessing.Length == attack.PhysicalCards.Count &&
@@ -19979,7 +20066,8 @@ public sealed partial class GameEngine
         var silv = HasSilvEntityMark(cardId);
         var zhongshen = HasZhongshenCapability && _players.Any(player => _cardZones.Contains(CardLocation.Hand(player.Seat), cardId)) &&
             HasZhongshenCardMark(cardId);
-        return (silv, zhongshen) switch { (true, true) => "闾 / 重身", (true, false) => "闾", (false, true) => "重身", _ => null };
+        var existing = (silv, zhongshen) switch { (true, true) => "闾 / 重身", (true, false) => "闾", (false, true) => "重身", _ => null };
+        return HasLiuBaCoinEntity(cardId) ? existing is null ? "币" : existing + " / 币" : existing;
     }
 
     private CardSnapshot ToSnapshot(Card card)
@@ -20049,7 +20137,7 @@ public sealed partial class GameEngine
             "",
             [new GeneralSkillDefinition("未知", "武将尚未公开。")]);
 
-    private static string GetRoleName(Role role) => role switch
+    private string GetRoleName(Role role) => role switch
     {
         Role.Lord => "主公",
         Role.Loyalist => "忠臣",
@@ -20140,6 +20228,7 @@ public sealed partial class GameEngine
                 IgnoresArmor = ignoresArmor,
                 EffectiveCardKind = playedCardKind ?? card?.Kind,
                 IsDelayedJudgmentDamage = isDelayedJudgmentDamage,
+                IsSourceLess = isDelayedJudgmentDamage && (playedCardKind ?? card?.Kind) == CardKind.Lightning,
                 ProgramJudgmentFrameId = programJudgmentFrameId,
                 ProgramSkillFrameId = programSkillFrameId,
                 ProgramSkillCardUseFrameId = programSkillCardUseFrameId,

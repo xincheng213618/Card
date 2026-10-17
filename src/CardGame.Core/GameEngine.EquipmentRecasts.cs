@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public sealed record EquipmentRecastFrame(long Id, int ActorSeat, int CardId, CardKind EffectiveKind,
+public sealed partial record EquipmentRecastFrame(long Id, int ActorSeat, int CardId, CardKind EffectiveKind,
     bool DrawApplied = false, int DrawCount = 0)
     : ResolutionFrame(Id, ResolutionFrameKind.EquipmentRecast, ResolutionFrameStep.ResolvingEffect);
 
@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.Count != 0 || FindOwnedCardLocation(actor, card) != CardLocation.Equipment(actor.Seat))
             throw new InvalidOperationException("Equipment recast requires its fresh play boundary and owned equipment cost.");
         var frame = new EquipmentRecastFrame(++_resolutionSequence, actor.Seat, card.Id, effectiveKind);
+        frame = frame with { NativeRecastInvocation = CaptureNativeRecastInvocation(actor.Seat, actor.Seat, [card.Id], frame.Id) };
         PushRuntimeFrame(frame);
         MoveCards([card], CardLocation.Equipment(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         ContinueEquipmentRecast(frame.Id);
@@ -33,6 +34,9 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(((EquipmentRecastFrame)_resolutionStack.Last()) with { DrawCount = drawn.Count });
                 if (_aiBrains.TryGetValue(actor.Seat, out var brain)) brain.ObserveRecast(_turnNumber, frame.CardId);
                 AdvanceEventRulesAndQueueFact(new CardRecastEvent(actor.Seat, frame.CardId, frame.EffectiveKind, drawn.Count));
+                CompleteNativeRecastInvocation(frame.NativeRecastInvocation, drawn.Count);
+                if (frame.NativeRecastInvocation is not null)
+                    ReplaceRuntimeTop(((EquipmentRecastFrame)_resolutionStack.Last()) with { NativeRecastInvocation = null });
                 AddLog("Recast", $"{actor.Name} 重铸【铁索连环】，摸 {drawn.Count} 张牌。", actor.Seat);
                 continue;
             }

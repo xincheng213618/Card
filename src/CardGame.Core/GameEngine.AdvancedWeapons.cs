@@ -94,7 +94,8 @@ public sealed partial class GameEngine
         new[] { card.Kind }.Concat(_copiedWeaponAbilities.GetValueOrDefault(card.Id) ?? []);
     private bool HasWeaponAbility(CharacterState player, CardKind kind) =>
         GetEquipment(player).Any(card => !card.IsGeneralWeapon && GetWeaponAbilityKinds(card).Contains(kind)) ||
-        (_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Contains(kind);
+        (_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Contains(kind) ||
+        kind == CardKind.StoneAxe && HasLiYiVirtualStoneAxe(player);
     private IReadOnlyList<Card> GetEquipmentRuleCards(CharacterState player, EquipmentSlot? excludedEquipmentSlot = null)
     {
         IReadOnlyList<Card> physical = GetEquipment(player);

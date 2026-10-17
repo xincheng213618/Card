@@ -143,7 +143,7 @@ public sealed partial class GameEngine
                                 target.Seat != owner.Seat && target.Gender == GeneralGender.Male,
                             SkillProgramTargetKind.OtherWoundedMale =>
                                 target.Seat != owner.Seat && target.Gender == GeneralGender.Male &&
-                                target.HasHpValue && target.Hp < target.MaxHp,
+                                IsRuleWounded(target),
                             SkillProgramTargetKind.OtherLivingInAttackRange =>
                                 target.Seat != owner.Seat &&
                                 IsWithinAttackRange(owner.Seat, target.Seat),
@@ -176,8 +176,8 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand or SkillProgramTargetKind.AnyLivingLeastHandCount or SkillProgramTargetKind.OtherLivingHighestHand =>
                                 GetProgramTargetSeats(owner.Seat, activation.TargetKind).Contains(target.Seat),
                             SkillProgramTargetKind.OtherWounded =>
-                                target.Seat != owner.Seat && target.HasHpValue && target.Hp < target.MaxHp,
-                            SkillProgramTargetKind.AnyWounded => target.HasHpValue && target.Hp < target.MaxHp,
+                                target.Seat != owner.Seat && IsRuleWounded(target),
+                            SkillProgramTargetKind.AnyWounded => IsRuleWounded(target),
                             SkillProgramTargetKind.AnyLivingHandBelowMaxHp => target.HasHpValue && GetHand(target).Count < target.MaxHp,
                             SkillProgramTargetKind.OtherLivingPair => target.Seat != owner.Seat &&
                                 _players.Count(peer => peer.IsAlive && peer.Seat != owner.Seat) >= 2,
@@ -688,6 +688,14 @@ public sealed partial class GameEngine
             !AllowsYaDanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsCaoTengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsYangFuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWuTuGuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSunHaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDaQiaoXiaoQiaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsFanJiangZhangDaNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWenYangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsMaYuanYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+                    !AllowsHuBanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+                    !AllowsLiuBaNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsLiuPanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsQuHuangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsCaoYuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsRuanYuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsBaoXinNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsWeijieNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsQushiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsCuiYanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) && !AllowsLiYiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !(AllowsKenshangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsFulueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsYangFengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsAHuiNanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsLiuYanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWangGuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsQinLangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsWuJingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || AllowsXiangChongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess)) &&
             !AllowsKeBiNengNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsCaoXiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
@@ -1192,6 +1200,10 @@ public sealed partial class GameEngine
                     !IsMengDaMovement(frame, paidEffect, pendingMovement) &&
                     !IsYaDanMovement(frame, paidEffect, pendingMovement) &&
                     !IsYangFuMovement(frame, paidEffect, pendingMovement) &&
+                    !IsSunHaoMovement(frame, paidEffect, pendingMovement) &&
+                    !IsMaYuanYiMovement(frame, paidEffect, pendingMovement) &&
+                    !IsHuBanMovement(frame, paidEffect, pendingMovement) &&
+                    !IsLiuBaMovement(frame, paidEffect, pendingMovement) && !IsLiuPanMovement(frame, paidEffect, pendingMovement) && !IsQuHuangMovement(frame, paidEffect, pendingMovement) && !IsCaoYuMovement(frame, paidEffect, pendingMovement) && !IsRuanYuMovement(frame, paidEffect, pendingMovement) && !IsBaoXinMovement(frame, paidEffect, pendingMovement) && !IsWeijieMovement(frame, paidEffect, pendingMovement) && !IsQushiMovement(frame, paidEffect, pendingMovement) && !IsCuiYanMovement(frame, paidEffect, pendingMovement) && !IsLiYiMovement(frame, paidEffect, pendingMovement) &&
                     !IsKenshangMovement(frame, paidEffect, pendingMovement) && !IsFulueMovement(frame, paidEffect, pendingMovement) && !IsYangFengMovement(frame, paidEffect, pendingMovement) && !IsWangGuanMovement(frame, paidEffect, pendingMovement) && !IsWuJingMovement(frame, paidEffect, pendingMovement) &&
                     !IsMaMiDiMovement(frame, paidEffect, pendingMovement) &&
                     !IsYanPuAwaitedMovement(frame, paidEffect, pendingMovement) &&

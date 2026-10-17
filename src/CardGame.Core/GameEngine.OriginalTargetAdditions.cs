@@ -219,7 +219,7 @@ public sealed partial class GameEngine
         // The old group cursor counts completed original targets. Enhanced
         // targets use a last-resolved index, so resume at original count - 1.
         if (_winner == Winner.None && multi.TargetSeats.Count > 0 && use is not null &&
-            (((HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) || HasSameTypeAidTargetTail(use) || HasShortRangeSlashTail(use) || (HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) &&
+            (((HasWeifuTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) || HasSameTypeAidTargetTail(use) || HasShortRangeSlashTail(use) || (HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) &&
             multi.SourceSeat == use.SourceSeat && multi.EffectiveCardKind == use.CardKind && use.TargetSeats.Count > multi.TargetSeats.Count)
             return multi.TargetSeats.Count - 1;
         if (_winner == Winner.None && multi.TargetSeats.Count > 0 && use is not null && HasIssuedOriginalTargetAdditionTail(use) &&

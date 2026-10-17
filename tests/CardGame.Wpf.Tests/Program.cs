@@ -91,6 +91,8 @@ internal static class Program
             Check("Interaction motion: native lifecycle reversal and preference cancellation", InteractionMotionChecks.NativeLifecyclePreservesLayoutAndRetiresAnimations);
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
+            Check("own public pile conversion: real Bing rail and response source", OwnPublicPileConversionUiChecks.RealBingPlayRailAndPublishedResponseSource);
+            Check("Liu Ba UI: private coins and bottom exchange", LiuBaCoinUiChecks.RealMintPrivateBottomExchangeAndReversibleChoice);
             Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
             Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));
             Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));

@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksActualPhaseEnds => _contentRegistry.ProgramDependencies
-        .HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse);
+        .HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap);
 
     private void ConfirmActualDiscardPhaseExecution()
     {
@@ -47,10 +47,12 @@ public sealed partial class GameEngine
         {
             if (TryBeginCardsMovedProgramWindow(frame.Id)) return;
             AdvanceEventRulesAndQueueFact(new ActualPhaseEndingEvent(frame.Id, frame.Phase));
-            var items = Array.AsReadOnly(CollectQingyaPhaseEndCandidates(frame.Phase).ToArray());
+            var items = Array.AsReadOnly(CollectQingyaPhaseEndCandidates(frame.Phase).Concat(CollectNishouPhaseEndCandidates(frame.Phase)).ToArray());
             ReplaceRuntimeTop(frame with { Items = items, ItemsCaptured = true });
             frame = (ActualPhaseEndFrame)_resolutionStack.Last();
         }
+        var withLateNishou = AppendNishouLatePhaseItems(frame);
+        if (!ReferenceEquals(withLateNishou, frame)) ReplaceRuntimeTop(frame = withLateNishou);
         if (frame.ItemIndex >= frame.Items.Count)
         {
             AdvanceEventRulesAndQueueFact(new ActualPhaseEndedEvent(frame.Id, frame.Phase));

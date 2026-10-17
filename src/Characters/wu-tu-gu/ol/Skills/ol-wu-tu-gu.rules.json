@@ -1,0 +1,6 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:hanyong","revision":1,"triggers":[{"id":"native-group-use","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["barbarianAssault","arrowBarrage"],"optional":true,"effects":[{"op":"armHanyongNativeGroupDamage","target":"owner"}]}]},
+ {"id":"ol:ranshang","revision":1,"triggers":[
+ {"id":"actual-fire-point","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"condition":{"kind":"damageNatureIs","damageNature":"fire"},"effects":[{"op":"accumulateRanshangFirePoint","target":"owner"}]},
+ {"id":"ending-total-hp-loss","window":"turnEnding","subject":"owner","optional":false,"effects":[{"op":"resolveRanshangEndingHpLoss","target":"owner"}]}]}
+]}

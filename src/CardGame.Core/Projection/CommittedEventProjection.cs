@@ -55,6 +55,8 @@ internal static class CommittedEventProjection
         NeifaTargetsResolvedEvent value => value with { OriginalTargets = FreezeList(value.OriginalTargets), ResultTargets = FreezeList(value.ResultTargets) },
         JianjiUseIssuedEvent value => value with { Receipt = FreezeJianjiReceipt(value.Receipt) },
         JianjiUseReturnedEvent value => value with { Receipt = FreezeJianjiReceipt(value.Receipt) },
+        HuiyunNativeIssuedEvent value => value with { Invoice = value.Invoice with { Plan = HuiyunFreeze.Action(value.Invoice.Plan) } },
+        HuiyunNativeReturnedEvent value => value with { Invoice = value.Invoice with { Plan = HuiyunFreeze.Action(value.Invoice.Plan) } },
         SuFeiActualUseRecordedEvent value => value with { Use = value.Use with { PrimaryTargets = FreezeList(value.Use.PrimaryTargets) } },
         SimaHuiChoiceStartedEvent value => value with { Candidates = FreezeList(value.Candidates) },
         SimaHuiTopViewedEvent value => value with { CardIds = FreezeList(value.CardIds) },

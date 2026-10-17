@@ -6,6 +6,7 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
+        HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
         !IsSlashCard(kind) && HasLiuYanLimuTargetAllowance(actor,target,excludedEquipmentId,excludedEquipmentSlot) || HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
         HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||
         HasIssuedKuangfuDistance(cardUseFrameId, actor.Seat) || (cardUseFrameId is { } id && HasPhaseSuitAllowance(actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit)) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.CardUseDistanceLimit, kind) || HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
@@ -15,13 +16,15 @@ public sealed partial class GameEngine
         IsArmorIneffectiveForTurn(target) ||
         HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreArmor);
 
+    private bool HasYuanchouCardPolicy => _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.BlackSlashIgnoresArmorBothDirections);
+
     private bool HasDirectedCardArmorBypass(long resolutionId, int targetSeat)
     {
         var action = _resolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.Id == resolutionId)?.Action;
         // Damage sources can change (for example in a duel). The policy belongs
         // to the original card actor and its actual declared targets.
-        return HasIssuedOriginalTargetArmorBypass(resolutionId, targetSeat) || action is not null && action.TargetSeats.Contains(targetSeat) &&
+        return HasYuanchouArmorBypass(resolutionId, targetSeat) || HasIssuedOriginalTargetArmorBypass(resolutionId, targetSeat) || action is not null && action.TargetSeats.Contains(targetSeat) &&
             HasDirectedTurnCardPolicy(action.ActorSeat, targetSeat, action.EffectiveKind,
                 DirectedTurnCardPolicyEffect.IgnoreArmor);
     }

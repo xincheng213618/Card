@@ -120,6 +120,7 @@ public sealed partial class GameEngine
         var stagePaid = branch == "recast" ? NiuFuStage.RecastCostChildren : branch == "gift" ? NiuFuStage.SourceGiftChildren : NiuFuStage.ZoneChildren;
         var reason = branch == "recast" ? CardMoveReasons.RecastDiscard : new CardMoveReason(branch == "gift" ? ShisuanGiftReason : ZonglueTakeReason);
         var destination = branch == "recast" ? CardLocation.DiscardPile : CardLocation.Hand(f.OwnerSeat); var before = _movementSequence;
+        if (branch == "recast") f = BeginFrameNativeRecastInvocation(f, f.OwnerSeat, [id]);
         ReplaceRuntimeTop(f = f with { NiuFu = r with { Stage = stagePaid, Recast = branch == "recast" ? new(id, card.Kind, from, card.IsGeneralWeapon) : r.Recast }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         MoveCard(card, from, destination, reason); var move = _cardMovements.Single(m => m.Sequence > before && m.CardId == id && m.Reason == reason);
         AddNiuFuStep(f.Id, stagePaid, reason.Value, before, 1, card, from, move.To); ContinueNiuFu(f.Id);
@@ -140,12 +141,12 @@ public sealed partial class GameEngine
             if (r.Stage is NiuFuStage.RecastChoice or NiuFuStage.SourceChoice or NiuFuStage.SourceGiftChoice or NiuFuStage.ZoneChoice) { if (_pendingDecision is null) PublishNiuFu(f); return; }
             if (DrainNiuFu(id, f.PendingMovementContinuation is not null)) return;
             ReplaceRuntimeTop(f = GetActiveProgramFrame(id) with { PendingMovementContinuation = null });
-            if (_winner != Winner.None || !_players[f.OwnerSeat].IsAlive) { FinishNiuFu(f); return; }
+            if (_winner != Winner.None || !_players[f.OwnerSeat].IsAlive) { if (r.Stage == NiuFuStage.RecastCostChildren) f = CompleteFrameNativeRecastInvocation(f, 0); FinishNiuFu(f); return; }
             if (r.Stage == NiuFuStage.RecastCostChildren)
             {
                 var before = _movementSequence; ReplaceRuntimeTop(f = f with { NiuFu = f.NiuFu! with { Stage = NiuFuStage.RecastDrawChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
                 var drawn = DrawCards(_players[f.OwnerSeat], 1, true, CardMoveReasons.RecastDraw).Count; AddNiuFuStep(f.Id, NiuFuStage.RecastDrawChildren, CardMoveReasons.RecastDraw.Value, before, drawn);
-                AdvanceEventRulesAndQueueFact(new CardRecastEvent(f.OwnerSeat, r.Recast!.CardId, r.Recast.Kind, drawn)); continue;
+                AdvanceEventRulesAndQueueFact(new CardRecastEvent(f.OwnerSeat, r.Recast!.CardId, r.Recast.Kind, drawn)); CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(f.Id), drawn); continue;
             }
             if (r.Stage == NiuFuStage.RecastDrawChildren) { ReplaceRuntimeTop(f = f with { NiuFu = f.NiuFu! with { Stage = NiuFuStage.SourceChoice } }); PublishNiuFu(f); return; }
             if (r.Stage == NiuFuStage.ZoneChildren) { ReplaceRuntimeTop(f = f with { NiuFu = f.NiuFu! with { Stage = NiuFuStage.ZoneChoice, NextZone = r.NextZone + 1 } }); PublishNiuFu(f); return; }

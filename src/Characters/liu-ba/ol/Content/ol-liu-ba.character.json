@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:liu-ba","skills":[
+ {"registrationOrder":1950,"programBundle":"ol-liu-ba","includeProgramPresentation":true,"definition":{"id":"ol:tongdu","name":"统度","description":"准备阶段，你可以令一名角色交给你一张手牌，然后出牌阶段结束时，你将此牌置于牌堆顶。","executionForms":"Trigger"}},
+ {"registrationOrder":1951,"programBundle":"ol-liu-ba","includeProgramPresentation":true,"definition":{"id":"ol:zhubi","name":"铸币","description":"出牌阶段限X次（X为你的体力上限），你可以令一名角色重铸一张牌，以此法摸的牌称为“币”。有“币”的角色结束阶段，其观看牌堆底五张牌，然后可以用任意“币”交换其中等量张牌。","actionForms":"Active","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":1952,"pools":{"current":469},"definition":{"id":"ol:liu-ba","name":"刘巴","portraitKey":"ol-liu-ba","skillId":"ol:tongdu","additionalSkillIds":["ol:zhubi"],"factionId":"shu","baseHp":3,"gender":"Male","characterId":"character:liu-ba","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

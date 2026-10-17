@@ -80,6 +80,12 @@ internal static class CommandSessionChecks
         var choices = new[] { new PromptChoice(new ChoiceId("fixture"), "fixture", ids, choiceTargets, parameters)
             { ContentIds = contentIds } };
         var conversion = new CardConversionSource("fixture", "binding", 0, "instance");
+        var naturalPlan = new LegalAction(LegalActionKind.Slash, 1, 1, "fixture")
+        {
+            TargetSeats = ids, SelectableCardIds = ids, SelectableTargetSeats = choiceTargets,
+            AdditionalConversionSources = [conversion], SelectableTargetSequences = [ids, choiceTargets]
+        };
+        var naturalInvoice = new HuiyunNativeInvoice(1, 0, conversion, "fixture", 0, 1, CardKind.Slash, naturalPlan, 0);
         IGameEvent[] nested =
         [
             new CardActionProhibitionGrantedEvent(new TurnCardActionProhibition(1, 1, 0, 1, 0,
@@ -98,7 +104,9 @@ internal static class CommandSessionChecks
             new ProgramLiejieSourceDiscardEvent(1, "fixture", "binding", 0, 1, 2, ids),
             new ProgramTongxieFollowUpResolvedEvent(1, "fixture", "binding", 0, 1, 2, ids, ids, ids),
             new RoundGainedTrickTargetOfferedEvent(1, 0, conversion,
-                new(conversion, "fixture", "fixture", 1, 0, 2, 3, 0, CardKind.Duel), ids, choices)
+                new(conversion, "fixture", "fixture", 1, 0, 2, 3, 0, CardKind.Duel), ids, choices),
+            new HuiyunNativeIssuedEvent(naturalInvoice),
+            new HuiyunNativeReturnedEvent(naturalInvoice, 1)
         ];
         var bytes = nested.Select(item => JsonSerializer.Serialize(item, item.GetType())).ToArray();
         var frozen = nested.Select(CommittedEventProjection.Freeze).ToArray();

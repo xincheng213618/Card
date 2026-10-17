@@ -35,8 +35,12 @@ public sealed partial record ProgramSkillFrame
 public sealed partial class GameEngine
 {
     private bool TracksNativeLogicalDiscards =>
+        HasLiYiCapability ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQiejianLastHandLoss);
 
     private NativeLogicalDiscardInvocationDraft? CaptureNativeLogicalDiscardInvocation(int initiatorSeat,
         int executorSeat, IReadOnlyList<int> cardIds, CardMoveReason reason, long? parentFrameId = null)

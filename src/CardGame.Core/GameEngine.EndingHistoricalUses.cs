@@ -44,7 +44,7 @@ public sealed partial class GameEngine
                 AddFangtianHalberdSlashActions(result,actor,card,targets,CardCatalog.Get(kind).DisplayName,kind);
                 AddProgramTargetCountSlashActions(result,actor,card,targets,CardCatalog.Get(kind).DisplayName,kind);
             }
-            else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) && !IsCardTargetProhibited(actor,kind,suit,color) && !HasBeneficiarySuitShield(actor.Seat,actor.Seat,suit))
+            else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) && !IsCardTargetProhibited(actor,kind,suit,color) && !HasBeneficiarySuitShield(actor.Seat,actor.Seat,suit))
                 result.Add(new(LegalActionKind.Peach,card.Id,null,$"将【{card.DisplayName}】当【桃】使用",kind,TargetSeats:[actor.Seat]));
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) && !IsCardTargetProhibited(actor,kind,suit,color) &&
                 !HasBeneficiarySuitShield(actor.Seat,actor.Seat,suit))

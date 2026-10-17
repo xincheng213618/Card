@@ -36,6 +36,7 @@ public sealed partial class GameEngine
             frame = (ProgramSkillFrame)_resolutionStack.Last();
             ReplaceRuntimeTop(frame with { EquipmentRecast = frame.EquipmentRecast! with { DrawCount = drawn.Count } });
             AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, receipt.CardId, receipt.CardKind, drawn.Count));
+            CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(frame.Id), drawn.Count);
             return ResumeProgramEquipmentRecast(frame.Id);
         }
         ReplaceRuntimeTop(frame with { EquipmentRecast = null });

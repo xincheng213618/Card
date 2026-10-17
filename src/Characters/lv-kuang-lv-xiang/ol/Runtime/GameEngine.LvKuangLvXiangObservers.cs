@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool QigongPaidAdapterChild(ProgramSkillFrame f,ResolutionFrame child)=>child switch
@@ -28,7 +28,7 @@ public sealed partial class GameEngine
  }
  private bool LvKuangLvXiangDecisionMatches(ProgramSkillFrame f,PendingDecision prompt)
  {
-  var native=RoundOnceCardlessProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt))));
+  var native=RoundOnceCardlessProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(prompt)))));
   if(f.LvKuangLvXiang is{Stage:"slash",Faction:not null}&&ActiveFactionCardRequest is{AwaitingProviders:true}request)
   {
    if(!ValidateQigongFactionSlashParent(request,f)||prompt.Kind!=DecisionKind.RespondSlash||prompt.PlayerSeat!=request.CurrentCandidateSeat||prompt.SourceSeat!=request.OwnerSeat||prompt.TargetSeat!=request.OwnerSeat||prompt.IncomingCard!=CardKind.Slash||prompt.RequiredCardKind!=CardKind.Slash||!prompt.IsPrivate||prompt.ValidTargetSeats.Count!=0)return false;

@@ -44,7 +44,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUsePaymentBatch(CardUseFrame use, CardMovementBatchContext batch) =>
-        IsFeiYiTrickPaymentBatch(use, batch) || IsWuJingHejiTrickPaymentBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
+        IsFeiYiTrickPaymentBatch(use, batch) || IsWuJingHejiTrickPaymentBatch(use, batch) || IsHuiyunTrickPaymentBatch(use, batch) || IsQiejianUsePaymentBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
 
     private static bool CardUsePaymentBatchMatchesReceipt(CardUseFrame use, CardMovementBatchContext batch)
     {
@@ -93,7 +93,7 @@ public sealed partial class GameEngine
 
     private bool IsPaidCardUseMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame movement) =>
         use.RecoveryPaidContinuation is { } continuation &&
-        (continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation))) &&
+        (continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)))) &&
         continuation.SourceSeat == use.SourceSeat && use.Step == ResolutionFrameStep.ResolvingEffect &&
         movement.Id == movement.Batch.Id && movement.ResumePaidCardUseFrameId == use.Id &&
         movement.ResumeProgramFrameId is null && movement.ResumeDeclarationFrameId is null &&
@@ -107,7 +107,7 @@ public sealed partial class GameEngine
 
     private bool HasFeiYiTrickPaymentProcessing(IReadOnlyList<Card> processing) =>
         _resolutionStack.Count == 2 && _resolutionStack[0] is CardUseFrame { RecoveryPaidContinuation: { } continuation } use &&
-        _resolutionStack[1] is CardsMovedTriggerWindowFrame movement && (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation)) &&
+        _resolutionStack[1] is CardsMovedTriggerWindowFrame movement && (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || HasQiejianUsePaymentTail(use, continuation)) &&
         IsPaidCardUseMovementReturn(use, movement) && processing.All(card =>
             use.PaymentMovementReceipt!.Batch.Movements.Any(cost => cost.CardId == card.Id && cost.To == CardLocation.Processing));
 }

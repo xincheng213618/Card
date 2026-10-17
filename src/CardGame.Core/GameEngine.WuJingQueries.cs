@@ -23,7 +23,7 @@ public sealed partial class GameEngine
     private bool IsTurnSlashChoiceUseForbidden(int actorSeat, PromptChoice choice)
     {
         if (!HasWuJingLiubing || choice.Cards is not [var id])
-            return IsTurnPhysicalUseForbidden(actorSeat, choice.Cards);
+            return IsTurnPhysicalUseForbidden(actorSeat, choice.Cards) || IsCuiYanSlashChoiceForbidden(actorSeat, choice);
         TryReadConversionSource(choice.Parameters, out var conversion);
         var kind = choice.Parameters.TryGetValue("effective-kind", out var name) &&
             Enum.TryParse<CardKind>(name, out var parsed) ? parsed : CardKind.Slash;
@@ -31,6 +31,7 @@ public sealed partial class GameEngine
         var suit = WuJingLiubingUsedSuit(actorSeat, card, kind, [id],
             conversion is null ? [] : [conversion], CaptureUsedCardSuit(actorSeat, [id], card));
         return IsHandCategoryMaterialRestricted(choice.Cards) ||
-            suit is { } value && IsTurnSuitUseForbidden(actorSeat, value);
+            suit is { } value && IsTurnSuitUseForbidden(actorSeat, value) ||
+            IsCuiYanSlashChoiceForbidden(actorSeat, choice);
     }
 }

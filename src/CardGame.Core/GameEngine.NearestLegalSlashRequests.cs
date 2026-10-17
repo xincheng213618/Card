@@ -47,7 +47,7 @@ public sealed partial class GameEngine
         if (choices.All(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline") &&
             !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest) &&
-            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest))
+            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);
@@ -98,7 +98,7 @@ public sealed partial class GameEngine
         bool ExactSingleSourceLegal(PromptChoice choice)
         {
             if (choice.Parameters["request-option"] != "use" || choice.Cards.Count != 1) return true;
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Single(item => item.Id == choice.Cards[0]);
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(item => item.Id == choice.Cards[0]);
             TryReadConversionSource(choice.Parameters, out var conversion);
             var kind = Enum.Parse<CardKind>(choice.Parameters["effective-kind"]);
             return NearestSlashPaymentHasRange(actor, target, [card], conversion, kind) && CanUseSlashTarget(actor, _players[target], card, conversion, kind) &&
@@ -111,7 +111,7 @@ public sealed partial class GameEngine
         foreach (var card in GetSlashUseCards(actor))
         {
             var identity = GetProgramCardIdentityMatches(actor, card).FirstOrDefault(item => IsSlashCard(item.Identity.OutputKind));
-            var baseKind = identity?.Identity.OutputKind ?? (IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash);
+            var baseKind = identity?.Identity.OutputKind ?? PhysicalSlashUseBaseKind(actor, card);
             foreach (var kind in GetSlashUseKinds(actor, baseKind))
             {
                 var parameters = new Dictionary<string, string> { ["program-action"] = "assisted-physical-slash",
@@ -173,7 +173,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Nearest legal Slash target or material became illegal.");
         ReplaceRuntimeTop(frame with { NearestLegalSlashRequest = null });
         ResolveSlashCore(actor, _players[target], cards[0], kind, actor.Seat, physicalCards: cards, countsTowardSlashLimit: false,
-            usesZhuqueFan: kind == CardKind.FireSlash && cards[0].Kind == CardKind.Slash && HasZhuqueFan(actor),
+            usesZhuqueFan: kind == CardKind.FireSlash && (cards[0].Kind == CardKind.Slash || IsOwnPublicPileSlashMaterial(actor, cards[0])) && HasZhuqueFan(actor),
             conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
     }
 
@@ -285,7 +285,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Nearest legal Slash owning draft lost its exact cursor or frozen actors.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && !draft.AwaitingFaction &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision || decision.PlayerSeat != draft.ActorSeat ||
-                 !AssistedChoicesEqual(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(decision)))).Choices, NearestLegalSlashChoices(frame))))
+                 !AssistedChoicesEqual(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(decision))))).Choices, NearestLegalSlashChoices(frame))))
                 throw new InvalidOperationException("Nearest legal Slash prompt changed its actual material choices.");
         }
         if (paused.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&

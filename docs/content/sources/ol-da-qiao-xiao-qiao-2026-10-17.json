@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "generalId": "ol:da-qiao-xiao-qiao",
+  "officialGid": 117,
+  "identity": {
+    "name": "大乔小乔",
+    "factionId": "wu",
+    "gender": "Female",
+    "baseHp": 3,
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "liveHeroRecheckedOn": "2026-10-17",
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/117",
+      "capturedAtUtc": "2026-10-17T04:35:44.228104+08:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/117",
+      "contentType": "text/html",
+      "byteCount": 26824,
+      "sha256": "3822e450880109c4d276fa8d8d7ce99ba3ed60ca0a58d0dd2580c806864d4422",
+      "title": "三国杀大乔小乔 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "45103da5f835cf36cdea4dd4447780c093a59fedd83a05e0e03c9a3830caf873",
+      "visibleDateMatches": []
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=117",
+      "capturedAtUtc": "2026-10-17T04:35:44.228896+08:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=117",
+      "contentType": "application/json",
+      "byteCount": 834,
+      "sha256": "4991b9bad467087480c1288c450e5c96b2150709f88242e04d15d8263ff20ebd",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 117,
+              "name": "大乔小乔",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/117.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png",
+              "label": [
+                "进攻",
+                "防御",
+                "发育"
+              ],
+              "figure": "吴",
+              "figure_py": "wu",
+              "quality": "稀有",
+              "biography": "大乔，庐江皖县人，为乔公长女，孙策之妻，容貌国色流离。小乔为大乔之妹，周瑜之妻，资貌绝伦。两人合称“二乔”。",
+              "characteristic": "积累标记来获得防御，能够对男性角色造成大量伤害。没有牌时很脆弱。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "主公",
+              "value": 4
+            },
+            {
+              "name": "忠臣",
+              "value": 3
+            },
+            {
+              "name": "反贼",
+              "value": 5
+            },
+            {
+              "name": "内奸",
+              "value": 4
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "availability": {
+    "classification": "Formally available ordinary OL identity; current rule is established by current hero/API/client, not historical guide.",
+    "officialOlGuide": {
+      "url": "https://www.sanguosha.com/news/20161122_7597_4616",
+      "capturedAtUtc": "2026-10-17T04:35:44.32879+08:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20161122_7597_4616",
+      "contentType": "text/html",
+      "byteCount": 73152,
+      "sha256": "4032529a6e0ebb979ba0ff32104b1cb83fe23635e69380c4ebb3934051368caa",
+      "title": "[攻略] SP武将：大乔小乔攻略文  - 三国杀OL官网",
+      "visibleTextSha256": "2826a1884857f1e794934926c4511a9635e70d5a5a93801eaf8dc68a492f11ab",
+      "visibleDateMatches": [
+        "2016-11-22 16:30:44"
+      ]
+    },
+    "availableNoLaterThan": "2016-11-22",
+    "evidence": "Official-site SP general guide explicitly identifies Wu / 3 HP / Xingwu / Luoyan and marks OL available.",
+    "olderPartnerLaunch": {
+      "url": "http://g.iqiyi.com/sanguosha/news/320975.html",
+      "capturedAtUtc": "2026-10-17T04:35:44.329164+08:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "http://g.iqiyi.com/sanguosha/news/320975.html",
+      "contentType": "text/html; charset=UTF-8",
+      "byteCount": 30911,
+      "sha256": "53b892bbe7de881d429e7c93a1ab191c95fb0d00d2f6eef228f0319c6646b305",
+      "title": "三国杀OL-【活动】武将大乔&小乔新品上架",
+      "visibleTextSha256": "bf77aa0dfd8b99232bbf40489c21425efa53d0c5bc04671712a3a2cc35cfb703",
+      "visibleDateMatches": [
+        "2013-07-30"
+      ]
+    },
+    "olderPartnerLaunchObservedDate": "2013-07-30",
+    "olderPartnerLaunchCaveat": "HTTPS raw fetch encountered an expired certificate; the unchanged historical page was successfully fetched over public HTTP with status200 and the recorded raw-body SHA. Historical partner text establishes availability only; the current hero/client define current rules."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "contentLength": "5386466",
+          "etag": "\"6ad22bd5-5230e2\"",
+          "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-17T03:42:35.606584+08:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "contentLength": "4154044",
+          "etag": "\"6ad22fbc-3f62bc\"",
+          "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-17T03:42:35.606584+08:00"
+      }
+    },
+    "decoder": {
+      "method": "Current public bundle InitOfb AES-CFB128(segment128), then gzip JSON in memory",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116,
+      "allClientRowsWritten": false
+    },
+    "characterPath": "GameCharacters.character[a=117]",
+    "rawCharacterRow": {
+      "a": 117,
+      "b": "大乔小乔",
+      "d": "DaQiaoXiaoQiao",
+      "e": 44,
+      "f": "44",
+      "g": 3,
+      "h": 2,
+      "i": 3,
+      "j": 219,
+      "k": 220,
+      "p": 1,
+      "q": "1",
+      "r": "911701",
+      "y": "大乔，庐江皖县人，为乔公长女，孙策之妻，容貌国色流离。小乔为大乔之妹，周瑜之妻，资貌绝伦。两人合称“二乔”。",
+      "z": "积累标记来获得防御，能够对男性角色造成大量伤害。没有牌时很脆弱。",
+      "RolePointS": "积累标记获得防御，并对男性造成大量伤害。",
+      "aa": 131,
+      "ab": "288,318",
+      "ad": "画师:木美人",
+      "x": "看到了吧，####小瞧女孩子可是会吃大亏的哦。",
+      "aj": "大乔小乔",
+      "al": 4540,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 6898,
+      "cc": 0,
+      "starMax": 4
+    },
+    "directSpellIds": [
+      219,
+      220
+    ],
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=219]",
+        "rawRow": {
+          "a": 219,
+          "b": "3,5",
+          "c": "星舞",
+          "d": "XingWu",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 0,
+          "o": "弃牌阶段开始时，你可以将一张牌置于你的武将牌上，然后你可以移去三张“星舞”牌或翻面并弃置两张手牌，弃置一名其他角色装备区里的所有牌，若其为男性/女性，你对其造成2/1点伤害。",
+          "bb": "弃牌阶段开始时，你可以将一张牌置于你的武将牌上，称为“星舞”。然后你可以移去3张“星舞”或翻面并弃2张手牌，弃置一名其他角色装备区里的所有牌，若其为男性/女性，你对其造成2/1点伤害。",
+          "w": "请选择一项发动<font color='#FFD800'>星舞</font>",
+          "v": "请选择一张牌作为<font color='#FFD800'>星舞</font>牌;请选择一名目标并选择3张<font color='#FFD800'>星舞</font>牌弃置;请选择一名目标并选择2张手牌弃置",
+          "ay": "系统提示→选中一张亮置的手牌→点\"确定\"→（星舞牌等于3时）选择一个男性角色→点\"确定\""
+        },
+        "canonicalCurrentText": "弃牌阶段开始时，你可以将一张牌置于你的武将牌上，然后你可以移去三张“星舞”牌或翻面并弃置两张手牌，弃置一名其他角色装备区里的所有牌，若其为男性/女性，你对其造成2/1点伤害。"
+      },
+      {
+        "path": "GameSpells.spell[a=220]",
+        "rawRow": {
+          "a": 220,
+          "b": "3,4,5",
+          "c": "落雁",
+          "d": "LuoYan",
+          "e": 0,
+          "g": 2,
+          "i": 2,
+          "m": "382,61",
+          "o": "锁定技，若你有“星舞”牌，你视为拥有“<font href='382'>天香</font>”和“<font href='61'>流离</font>”。",
+          "bb": "锁定技，若你有“星舞”牌，你视为拥有“<font href='382'>天香</font>”和“<font href='61'>流离</font>”。"
+        },
+        "canonicalCurrentText": "锁定技，若你有“星舞”牌，你视为拥有“<font href='382'>天香</font>”和“<font href='61'>流离</font>”。"
+      }
+    ],
+    "linkedSpells": [
+      {
+        "path": "GameSpells.spell[a=382]",
+        "rawRow": {
+          "a": 382,
+          "b": "3,5",
+          "c": "天香",
+          "d": "TianXiang1",
+          "e": 0,
+          "g": 6,
+          "i": 2,
+          "ab": 1,
+          "o": "当你受到伤害时，你可以弃置一张红桃手牌，防止此伤害并选择一名其他角色，你选择令其：<br>&nbsp;1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；<br>&nbsp;2.失去1点体力并获得你弃置的牌。",
+          "v": "是否发动<font color='#FFD800'>天香</font>防止伤害，弃置一张红桃牌并选择一个目标，或取消",
+          "ae": "{Source}发动了<font color='#FFD800'>天香</font>，弃置{Card}，目标是{Target}",
+          "p": "你受伤时，可弃置一张红桃手牌，防止伤害并选择一名其他角色，令其：1.受到1点伤害并摸X张牌（X为其已损失体力值且至多为5）；2.掉1血并获得你弃置的牌。",
+          "ay": "系统提示→点\"确定\"→选择一张红桃手牌→选择目标→点\"确定\"",
+          "autoCancel": 1,
+          "AutoAI": 1
+        },
+        "canonicalCurrentText": "当你受到伤害时，你可以弃置一张红桃手牌，防止此伤害并选择一名其他角色，你选择令其：<br>&nbsp;1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；<br>&nbsp;2.失去1点体力并获得你弃置的牌。"
+      },
+      {
+        "path": "GameSpells.spell[a=61]",
+        "rawRow": {
+          "a": 61,
+          "b": "3,5",
+          "c": "流离",
+          "d": "LiuLi",
+          "e": 0,
+          "g": 2,
+          "i": 2,
+          "ab": 1,
+          "n": 0,
+          "o": "当你成为【杀】的目标时，你可以弃置一张牌并将此【杀】转移给你攻击范围内的一名其他角色。",
+          "bb": "你被【杀】时，可以弃一张牌并将【杀】转给你攻击范围内的其他角色。",
+          "w": "{Source}将<font color='#FFD800'>杀</font><font color='#FFD800'>流离</font>给你，请出<font color='#FFD800'>闪</font>",
+          "v": "是否发动<font color='#FFD800'>流离</font>，选择一张牌和一名角色，将{Source}对你的杀转移给该角色或取消",
+          "ac": "是否发动<font color='#FFD800'>流离</font>转移<font color='#FFD800'>杀</font>",
+          "ae": "{Source}发动了<font color='#FFD800'>流离</font>，弃置{Card}，将杀转移给{Target}",
+          "p": "你被杀时可弃一张牌，将杀转移给其他人",
+          "ay": "系统提示→点\"确定\"或\"流离\"→选中一张牌→选择目标→点\"确定\"",
+          "AutoAI": 1
+        },
+        "canonicalCurrentText": "当你成为【杀】的目标时，你可以弃置一张牌并将此【杀】转移给你攻击范围内的一名其他角色。"
+      }
+    ],
+    "linkDiscovery": "Recursively followed cha_spell.m and inline numeric font href. Character audio or binding fields are not treated as linked skills."
+  },
+  "rules": [
+    {
+      "skillId": "ol:xingwu",
+      "spellId": 219,
+      "text": "弃牌阶段开始时，你可以将一张牌置于你的武将牌上，然后你可以移去三张“星舞”牌或翻面并弃置两张手牌，弃置一名其他角色装备区里的所有牌，若其为男性/女性，你对其造成2/1点伤害。",
+      "implementation": "Native actual DiscardPhaseStarting; optional one physical owned HE entity enters an exact public pile. A separate optional attack chooses three exact Xingwu pile entities or true native turnover plus two actual hand cards. The full target equipment removal, native Lion recovery and Ox grain children finish before native male two / female one damage. No color restriction, male-only target restriction or damage-before-equipment ordering from the historical version."
+    },
+    {
+      "skillId": "ol:luoyan",
+      "spellId": 220,
+      "text": "锁定技，若你有“星舞”牌，你视为拥有“天香”和“流离”。",
+      "links": [
+        {
+          "spellId": 382,
+          "registrySkillId": "boundary:tianxiang",
+          "currentRule": "Prevent the genuine incoming damage by the native heart payment, then choose incoming-source one damage plus lost-HP draw capped at five, or one HP loss plus obtain the exact discarded entity."
+        },
+        {
+          "spellId": 61,
+          "registrySkillId": "classic:liuli",
+          "currentRule": "The existing native redirect, real HE cost, actual attack range and exclusion of the actual Slash source."
+        }
+      ],
+      "implementation": "Two independently source-aware derived grants follow public pile nonzero presence and the exact active Luoyan capability grant/instance. Empty pile, suppression, source loss or death revoke only that relation. Independent acquired copies of Tianxiang and Liuli survive. No Hongyan grant. Isolated registries also register boundary:xiao-qiao and classic:da-qiao to load the actual linked definitions."
+    }
+  ],
+  "historicalBoundary": [
+    "Canonical cha_spell.o and current hero permit one card on the pile, then either remove three Xingwu cards OR turn over and discard two hand cards; strip all target equipment before male 2 / female 1 damage. Preserve both payment branches and female target.",
+    "The historical 2016 official-hosted guide has the OLD hand-color restriction / automatic three-card male-only attack / damage-before-strip sequence. It proves formal OL availability, not the present skill behavior.",
+    "Current linked spell 382 is the two-option Tianxiang with one incoming-source damage capped lost-HP draw or lose-HP plus obtain discarded heart. Reuse boundary:tianxiang, not old classic Tianxiang; Luoyan does not grant Hongyan.",
+    "Ten-anniversary / yijiangchengming x.sanguosha.com/hero/517.html is a different product and has different Xingwu suit-count damage; excluded."
+  ],
+  "implementationInferences": [
+    "Current wording one card is interpreted as an owned hand or equipment entity; Wooden Ox stored grain is not itself ordinary owned HE and is not silently treated as a hand card for this deposit.",
+    "The second you may is independent of placing a card: declining or lacking the first optional deposit still permits a payable second branch; current text contains no if you do gate.",
+    "The three-pile-card branch accepts any three real Xingwu entities owned by the character, including retained pile source instances; it never replaces a physical pile with a synthetic count.",
+    "For the alternate cost, native turnover children resolve before selecting the current two discardable hand entities. If fewer than two remain after a real child, the already completed turnover is retained and the unpaid attack ends; no missing payment or damage is invented.",
+    "Current effective target sex is read after the target equipment-removal children complete, rather than copying sex from an earlier private menu.",
+    "Native unmovable or protected equipment and GeneralWeapon OutsideGame replacement retain the existing native card-movement rules. The effect attempts all currently discardable target equipment, then continues its native damage.",
+    "Loss of source after a paid current binding does not repay it. Death before a new private attack choice terminates that unissued optional attack; a fully paid attack with frozen target retains its mandatory native equipment-removal and damage continuation even if the original source dies.",
+    "The old official 2016 guide establishes formal OL availability only. Its color-restricted hand deposit, male-only automatic burst and damage-before-equipment text are not current rules; the current hero/client override them.",
+    "These composed timing and zone details are implementation inferences from current wording and native resolution contracts; no dedicated official FAQ is claimed for them."
+  ],
+  "runtimeBoundary": {
+    "pending": "One frozen nullable receipt belongs to the original ProgramSkillFrame; no parallel pending object or use-ID sidecar.",
+    "entities": "Every paid entity is tied to the actual native movement record and one payment-stage invoice. Nested collections use defensive read-only copies.",
+    "ownership": "Luoyan uses genuine native SkillGrant source relations, revision changes and real SkillsChanged windows. The old revision baseline is primed only when absent. Pure source/pile qualification rejects stale derived grants and a native-style dependency stamp invalidates cached bindings before synchronization.",
+    "events": "New rule facts are scalar or contain scalar immutable relations; there are no collection-bearing custom facts."
+  },
+  "focusedChecks": [
+    "PublicPileDerivedSourcesZeroTransitionsAndCold",
+    "BothCostsNativeTurnoverGenderDamageAndCold",
+    "EquipmentStripLionOxAndPaidChildrenCold",
+    "LinkedTianxiangLiuliAndPaidSourceLossDeathCold"
+  ],
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "agentBuildOrTestRun": false,
+    "focusedBehaviorGroupsPassed": 4,
+    "scope": "Real public-pile entities and zero/nonzero derived sources; independent skills retained; both costs and actual male/female damage; real Lion/Ox removal, logical discard and recovery/death children; both current Tianxiang branches and native Liuli; private prompt isolation and deterministic cold replay. Gallery visually accepted. Routine verification is tracked by the owning development task."
+  },
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/117",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-da-qiao-xiao-qiao.png",
+    "sha256": "2309eb94fe32c6bffc1886a742ee9ca0857647e69e229dcc461242209dc5a7e2",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-da-qiao-xiao-qiao",
+    "originalImageVisuallyInspected": true
+  }
+}

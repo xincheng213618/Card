@@ -85,7 +85,7 @@ public sealed partial class GameEngine
     {
         var owner = _players[candidate.OwnerSeat];
         return context.Window == SkillProgramTriggerWindow.OtherActualTurnStarted &&
-            owner.IsAlive && owner.Hp > 0 && owner.Hp < owner.MaxHp &&
+            owner.IsAlive && owner.Hp > 0 && IsRuleWounded(owner) &&
             context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat && owner.Seat != _currentSeat &&
             _players[_currentSeat].IsAlive && GetHand(owner).Count > 0 && GetHand(_players[_currentSeat]).Count > 0 &&
             CanBePindianTarget(owner.Seat, _currentSeat) &&

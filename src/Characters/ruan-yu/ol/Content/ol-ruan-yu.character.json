@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ruan-yu","skills":[
+ {"registrationOrder":1980,"programBundle":"ol-ruan-yu","includeProgramPresentation":true,"definition":{"id":"ol:xingzuo","name":"兴作","description":"出牌阶段开始时，你可观看牌堆底的三张牌并用任意张手牌替换其中等量的牌。若如此做，结束阶段，你可令一名有手牌的角色用所有手牌替换牌堆底的三张牌。若其换入牌堆底的牌数大于三张，你失去1点体力。","executionForms":"Trigger"}},
+ {"registrationOrder":1981,"programBundle":"ol-ruan-yu","includeProgramPresentation":true,"definition":{"id":"ol:miaoxian","name":"妙弦","description":"若你手牌中仅有一张黑色牌，你可将此牌当做任意一张普通锦囊牌使用（每回合限一次）；若你的手牌中仅有一张红色牌，你使用此牌时摸一张牌。","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":1982,"pools":{"current":472},"definition":{"id":"ol:ruan-yu","name":"阮瑀","portraitKey":"ol-ruan-yu","skillId":"ol:xingzuo","additionalSkillIds":["ol:miaoxian"],"factionId":"wei","baseHp":3,"gender":"Male","characterId":"character:ruan-yu","variantId":"ordinary","rulesetId":"sanguosha-ol"}}]}

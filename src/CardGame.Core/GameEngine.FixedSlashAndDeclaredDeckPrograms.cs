@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         foreach (var card in GetSlashUseCards(actor))
         {
             var identity = GetProgramCardIdentityMatches(actor, card).FirstOrDefault(item => IsSlashCard(item.Identity.OutputKind));
-            var baseKind = identity?.Identity.OutputKind ?? (IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash);
+            var baseKind = identity?.Identity.OutputKind ?? PhysicalSlashUseBaseKind(actor, card);
             foreach (var kind in GetSlashUseKinds(actor, baseKind))
             {
                 if (!PaymentRange([card]) || !Legal(card, kind)) continue;
@@ -61,7 +61,7 @@ public sealed partial class GameEngine
                     [card.Id], [target.Seat], p));
             }
         }
-        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).DistinctBy(card => card.Id))
+        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).DistinctBy(card => card.Id))
         foreach (var kind in SlashKinds.Where(kind => kind != CardKind.Slash))
         foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
         {
@@ -125,7 +125,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Single(card => card.Id == selected.Cards.Single());
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(card => card.Id == selected.Cards.Single());
             TryReadConversionSource(selected.Parameters, out _selectedUseConversion); _hasSelectedUseConversionChoice = true;
             conversion = GetSelectedUseConversion(actor, actor, card, kind);
             if (conversion is null) { _selectedUseConversion = null; _hasSelectedUseConversionChoice = true; }
@@ -135,7 +135,7 @@ public sealed partial class GameEngine
             noEffectiveRank: cards.Count > 1, specificEffectiveRank: selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString() ? ZhangbaSpecificSlashRank(actor, cards) : null, physicalCardIds:cards.Select(c=>c.Id).ToArray()))
             throw new InvalidOperationException("The fixed Slash target became illegal.");
         ResolveSlashCore(actor, _players[draft.TargetSeat], cards[0], kind, actor.Seat, physicalCards: cards,
-            countsTowardSlashLimit: false, usesZhuqueFan: kind == CardKind.FireSlash && cards[0].Kind == CardKind.Slash && HasZhuqueFan(actor),
+            countsTowardSlashLimit: false, usesZhuqueFan: kind == CardKind.FireSlash && (cards[0].Kind == CardKind.Slash || IsOwnPublicPileSlashMaterial(actor, cards[0])) && HasZhuqueFan(actor),
             conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
     }
 
@@ -357,7 +357,7 @@ public sealed partial class GameEngine
             frame.DeckCriterion is { Stage: "declare" } ? DeclaredDeckCriterionChoices(frame) :
             frame.DeckCriterion is { Stage: "recipient" } ? DeclaredDeckRecipientChoices(frame) : null;
         if (expected is not null && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p ||
-            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(KenshangProgramNativeDecision(p).Choices, expected)))
+            p.PlayerSeat != frame.OwnerSeat || !AssistedChoicesEqual(KenshangProgramNativeDecision(WeijieNativeDecision(p)).Choices, expected)))
             throw new InvalidOperationException("Fixed Slash or declared deck lost its canonical private prompt.");
     }
 }

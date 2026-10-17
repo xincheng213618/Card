@@ -73,10 +73,12 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(location).Single(c => c.Id == id);
         if (!EquipmentCatalog.IsEquipment(card.Kind))
             throw new InvalidOperationException("Recast entity is not equipment.");
+        frame = BeginFrameNativeRecastInvocation(frame, owner.Seat, [card.Id]);
         MoveCard(card, location, CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         if (TryPauseProgramEquipmentRecast(frame, card)) return;
         var drawn = DrawCards(owner, 1, true, CardMoveReasons.RecastDraw);
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, card.Id, card.Kind, drawn.Count));
+        CompleteFrameNativeRecastInvocation(frame, drawn.Count);
     }
 
     private void ReplaceProgramPreparationSkills(ProgramSkillFrame frame, IReadOnlyList<string> lost, string acquired)

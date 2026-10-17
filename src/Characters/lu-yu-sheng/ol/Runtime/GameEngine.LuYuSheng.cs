@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         if(t.Effects is not [var e]||!LuYuShengComposition.IsOperation(e.Op))return true;if(!LuYuShengParent(c,context))return false;
         if(e.Op==SkillProgramEffectOp.RevealBottomHeartsAndDraw)return _phase==TurnPhase.Draw;
         if(e.Op==SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction)return context.Amount>0&&LuYuShengFirstDamage(c.OwnerSeat)&&CurrentDamageAttempt is{DamageAmountFinalized:true}attack&&attack.TargetSeat==c.OwnerSeat;
-        return _phase==TurnPhase.Discard&&CurrentActualDiscardRecoveryPhase()is{Kind:ActualDiscardRecoveryPhaseKind.Discard}p&&p.ActorSeat==_currentSeat&&IsRecordedActualDiscardRecoveryPhase(p)&&_players[p.ActorSeat].IsAlive&&_players[p.ActorSeat].Hp<_players[p.ActorSeat].MaxHp;
+        return _phase==TurnPhase.Discard&&CurrentActualDiscardRecoveryPhase()is{Kind:ActualDiscardRecoveryPhaseKind.Discard}p&&p.ActorSeat==_currentSeat&&IsRecordedActualDiscardRecoveryPhase(p)&&_players[p.ActorSeat].IsAlive&&IsRuleWounded(_players[p.ActorSeat]);
     }
     private SkillProgramStepOutcome BeginLuYuSheng(ProgramSkillFrame supplied,SkillProgramEffectOp op)
     {

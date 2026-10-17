@@ -117,7 +117,7 @@ public sealed partial class GameEngine
                     Suit.None, effectiveColor: null, physicalCardIds: [])))
                     result.Add(new(LegalActionKind.Slash, 0, target.Seat, $"视为对 {target.Name} 使用【{CardCatalog.Get(kind).DisplayName}】",
                         kind, TargetSeats: [target.Seat]));
-            else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) &&
+            else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
                 !IsCardTargetProhibited(actor, kind, Suit.None))
                 result.Add(new(LegalActionKind.Peach, 0, null, "视为使用【桃】", kind));
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&

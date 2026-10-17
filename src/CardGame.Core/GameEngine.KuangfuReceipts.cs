@@ -179,8 +179,8 @@ public sealed partial class GameEngine
             var index = _resolutionStack.FindIndex(f => f.Id == use.Id);
             if (index <= 0 || _resolutionStack[index - 1].Id != use.KuangfuSlashReturn!.ProgramFrameId || !IsKuangfuSlashUse(use) ||
                 !IsSlashCard(use.CardKind) || use.CardKind != CardKind.Slash && !IsCurrentSlashFireChangedUse(use) ||
-                use.TargetSeats.Count == 0 && !CompleteProgramEventHistory().OfType<SlashTargetsReplacedEvent>().Any(e =>
-                    e.CardUseFrameId == use.Id && e.Targets.Count == 0) || use.TargetSeats.Count > 1 && !((HasWeifuTargetTail(use) || HasBingzhongTargetTail(use)) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) && !HasShortRangeSlashTail(use) &&
+                use.TargetSeats.Count == 0 && !HasPijingZeroTargetTail(use) && !CompleteProgramEventHistory().OfType<SlashTargetsReplacedEvent>().Any(e =>
+                    e.CardUseFrameId == use.Id && e.Targets.Count == 0) || use.TargetSeats.Count > 1 && !((HasWeifuTargetTail(use) || (HasBingzhongTargetTail(use) || HasPijingTargetTail(use))) || HasMaWanHunjiangTargetTail(use) || (HasZhangYanLangdaoTargetTail(use) || HasKenshangTargetTail(use))) && !HasShortRangeSlashTail(use) &&
                     !HasSameTypeAidTargetTail(use) && !HasIssuedOriginalTargetAdditionTail(use) && !IsCurrentSlashFireChangedUse(use) ||
                 CompleteProgramEventHistory().OfType<CardUseDeclaredEvent>().Count(e => e.ResolutionId == use.Id && e.CardId == 0 &&
                     e.SourceSeat == use.KuangfuSlashReturn.Source.OwnerSeat && e.CardKind == CardKind.Slash) != 1 ||

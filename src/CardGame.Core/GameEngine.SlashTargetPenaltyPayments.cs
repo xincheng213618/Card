@@ -69,6 +69,7 @@ public sealed partial class GameEngine
         if (cards.Count == 0 || recast && cards.Any(c => c.IsGeneralWeapon)) throw new InvalidOperationException("The selected equipment recast is not fully payable.");
         ClearPendingDecision();
         var before = SlashTargetPenaltySequence;
+        if (recast) f = BeginFrameNativeRecastInvocation(f, d.Identity.TargetSeat, cards.Select(c => c.Id).ToArray());
         ReplaceRuntimeTop(f = f with { SlashTargetPenaltyDraft = d with { Stage = SlashTargetPenaltyStage.CostChildren,
             Recast = recast, SequenceBefore = before, PaidCardIds = cards.Select(c => c.Id).ToArray(), PaidFrom = from },
             PendingMovementContinuation = new(d.Identity.TargetSeat, 0, null) });
@@ -149,6 +150,7 @@ public sealed partial class GameEngine
         var d = f.SlashTargetPenaltyDraft!;
         for (var i = 0; i < d.PaidCardIds.Count; i++) AdvanceEventRulesAndQueueFact(new CardRecastEvent(d.Identity.TargetSeat,
             d.PaidCardIds[i], GetAttackCard(d.PaidCardIds[i]).Kind, i < actual ? 1 : 0));
+        CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(f.Id), actual);
     }
     private void FinishTargetPenalty(ProgramSkillFrame supplied, bool completed)
     {

@@ -40,7 +40,7 @@ public sealed partial class GameEngine
   {
    ReplaceRuntimeTop(f=f with{SpPangTong=r with{DrawInvocation=w.MovementBatch!.NativeDrawInvocation!.InvocationId,RewardSeat=f.OwnerSeat}});PaySpPangTongDraw(f);return SkillProgramStepOutcome.AwaitChild;
   }
-  var owner=_players[f.OwnerSeat];r=r with{Stage="health-children",Target=w.TargetSeat!.Value,Wounded=owner.Hp<owner.MaxHp,HpBefore=owner.Hp,MaximumBefore=owner.MaxHp};ReplaceRuntimeTop(f=f with{SpPangTong=r});AdvanceEventRulesAndQueueFact(new SongsangHealthIssuedEvent(f.Id,r.Source,r.GameplayHash,r.Target,r.Wounded,r.HpBefore,r.MaximumBefore));
+  var owner=_players[f.OwnerSeat];var wounded=IsRuleWounded(owner);r=r with{Stage="health-children",Target=w.TargetSeat!.Value,Wounded=wounded,HpBefore=owner.Hp,MaximumBefore=owner.MaxHp,RuleWounded=UsesTreatedWounded?wounded:null};ReplaceRuntimeTop(f=f with{SpPangTong=r});AdvanceEventRulesAndQueueFact(new SongsangHealthIssuedEvent(f.Id,r.Source,r.GameplayHash,r.Target,r.Wounded,r.HpBefore,r.MaximumBefore,r.RuleWounded));
   if(r.Wounded)(new ProgramSkillHost(this)).Recover(f.Id,f.OwnerSeat,f.OwnerSeat,1,null,null);else ChangeProgramMaximumHp(f,1);
   AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
  }

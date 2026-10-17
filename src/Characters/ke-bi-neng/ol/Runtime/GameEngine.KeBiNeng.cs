@@ -39,7 +39,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { KeBiNengPingduan = f.KeBiNengPingduan! with { BasicActions = actions } });
         var actor = f.KeBiNengPingduan!.ActorSeat;
         if (actions.Count == 0 && KenshangProgramSlashChoices(f, actor,
-                _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat).ToArray()).Count == 0)
+                _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat).ToArray()).Count == 0 && !HasWeijieGenericBasic(f))
             FinishKeBiNeng(f, "no-legal-basic-use");
         else PublishKeBiNeng(f);
     }
@@ -97,6 +97,7 @@ public sealed partial class GameEngine
     private void PayKeBiNengCard(ProgramSkillFrame f, KeBiNengPingduanCard card, bool recast)
     {
         var r = f.KeBiNengPingduan!;
+        if (recast) f = BeginFrameNativeRecastInvocation(f, r.ActorSeat, [card.CardId]);
         var grain = card.From.Zone == CardZoneKind.Equipment && GetAttackCard(card.CardId).Kind == CardKind.WoodenOx ? GetWoodenOxGrain(_players[r.ActorSeat]).Select(c => c.Id).ToArray() : [];
         ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.ResolvingEffect, KeBiNengPingduan = r with { SelectedCard = card, Cards = [], Stage = recast ? KeBiNengPingduanStage.RecastChildren : KeBiNengPingduanStage.EquipmentChildren,
             Before = _movementSequence, After = _movementSequence, WoodenOxGrainIds = grain } });
@@ -114,7 +115,7 @@ public sealed partial class GameEngine
         var drawn = _winner == Winner.None && _players[r.ActorSeat].IsAlive ? DrawCards(_players[r.ActorSeat], 1, true, recast ? CardMoveReasons.RecastDraw : new(PingduanRewardReason)) : [];
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { KeBiNengPingduan = f.KeBiNengPingduan! with { DrawCount = drawn.Count, After = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new KeBiNengPingduanDrawPaidEvent(f.Id, item, recast, drawn.Count, f.KeBiNengPingduan!.Before, f.KeBiNengPingduan.After));
-        if (recast) AdvanceEventRulesAndQueueFact(new CardRecastEvent(r.ActorSeat, r.SelectedCard!.CardId, r.SelectedCard.EffectiveKind, drawn.Count));
+        if (recast) { AdvanceEventRulesAndQueueFact(new CardRecastEvent(r.ActorSeat, r.SelectedCard!.CardId, r.SelectedCard.EffectiveKind, drawn.Count)); CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(f.Id), drawn.Count); }
     }
     private bool DrainKeBiNeng(long id) => TryBeginQueuedRecoveryReplacement(id, PostEventContinuation.Program) || TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(id, PostEventContinuation.Program) || TryBeginCardsMovedProgramWindow(id) || TryBeginAdvancedSkillsChanged(id);

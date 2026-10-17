@@ -222,6 +222,16 @@ public sealed partial class GameEngine
                 // Fangtian plan and run through the ordinary enhanced cursor.
                 continue;
             }
+            if (e is PijingTargetsAppliedEvent pijing && pijing.UseId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) ||
+                    !IsPijingAppliedTargetFact(use, pijing, designated, out var resultTargets))
+                    throw new InvalidOperationException("A Pijing fire tail lost its exact original target sequence and paid mutation.");
+                designated = resultTargets.ToList();
+                actual = resultTargets.ToList();
+                planned = resultTargets.ToList();
+                continue;
+            }
             int? added = e switch
             {
                 CurrentCardEnhancedEvent { Enhancement: CurrentCardEnhancement.ExtraTarget } enhancement when enhancement.CardUseFrameId == use.Id && enhancement.CardActionId == p.OriginalAction.ActionId => enhancement.ExtraTargetSeat,

@@ -1,11 +1,11 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private CardUseFrame NormalizeImplicitDrawTwoUseTarget(CardUseFrame use)
     {
         if (use.CardKind != CardKind.DrawTwo || use.TargetSeats.Count != 0 || use.Action is not { } old ||
-            !HasLiuYanCapability && !HasCaoChunCapability && !HasNeifaCapability && !HasSuFeiCapability && !HasJianjiNativeUseCapability && !HasFanChouCapability && !HasGuoSiCapability &&
+            !HasLiuYanCapability && !HasLiuPanCapability && !HasCaoChunCapability && !HasNeifaCapability && !HasSuFeiCapability && !HasJianjiNativeUseCapability && !HasFanChouCapability && !HasGuoSiCapability &&
             !HasWeifuCapability && !HasKuansaiCapability &&
             !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBingzhongExtraTargets) &&
             !HasTargetedOrdinaryTrickAdjustment && !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget) &&

@@ -6,6 +6,50 @@ using static BoundaryLiDianChecks;
 
 internal static class MouZhugeLiangChecks
 {
+    public static void CopiedBasicCardsFinishWithoutPhysicalCleanup()
+    {
+        foreach (var kind in new[] { CardKind.Alcohol, CardKind.Peach })
+        {
+            var (game, registry) = Start(kind == CardKind.Alcohol ? "standard:alcohol" : "standard:peach");
+            Use(game, "mou:zhijue", "alternate");
+            Answer(game, choice => choice.Targets.SequenceEqual([1]));
+            Reach(game, prompt => prompt.Kind == DecisionKind.FireAttackDiscard);
+            Answer(game, choice => choice.Id.Value == "fire-attack.skip"); Settle(game);
+            if (kind == CardKind.Peach)
+            {
+                Use(game, "fixture:mou-driver", "hurt"); Settle(game);
+            }
+            Use(game, "mou:zhijue", "alternate");
+            var paid = P(game)!.Choices.Single().Cards.ToArray();
+            Answer(game, _ => true);
+            Reach(game, prompt => prompt.Choices.Any(choice => choice.Id.Value.StartsWith("mou-copy.")));
+            Require(game.CreateSnapshot(1).PendingDecision is null, "The paid copy choice stays private.");
+            ReplayFourViews(game, registry);
+            game = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+            var hp = game.State.Players[0].Hp;
+            var hand = game.State.Players[0].HandCount;
+            var zeroMoves = game.CardMovements.Count(move => move.CardId == 0);
+            var undamaged = game.Events.Count(e => e.Payload is MouZhijueUndamagedEvent);
+            Answer(game, choice => choice.Id.Value.StartsWith("mou-copy.") && choice.Cards.Count == 0 &&
+                choice.Parameters.GetValueOrDefault("option") != "decline"); Settle(game);
+            var declaration = game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>()
+                .Single(e => e.CardId == 0 && e.CardKind == kind);
+            Require(game.Events.Select(e => e.Payload).OfType<CardUseFinishedEvent>()
+                .Count(e => e.ResolutionId == declaration.ResolutionId) == 1 &&
+                game.CardMovements.Count(move => move.CardId == 0) == zeroMoves &&
+                game.ResolutionStack.Count == 0,
+                "The copied basic card finishes once without moving real card zero or leaving its owning frames.");
+            Require(paid.All(id => game.CardMovements.Count(move => move.CardId == id &&
+                move.From == CardLocation.Hand(0) && move.To == CardLocation.DiscardPile &&
+                move.Reason.Value == "mou.zhijue.place") == 1) &&
+                game.Events.Count(e => e.Payload is MouZhijueUndamagedEvent) == undamaged + 1 &&
+                game.State.Players[0].HandCount == hand + 2,
+                "The color hand is paid once and the undamaged copy grants its two-card benefit once.");
+            Require(kind == CardKind.Alcohol ? game.State.Players[0].HasAlcoholEffect : game.State.Players[0].Hp == hp + 1,
+                "The copied Alcohol or Peach applies its real native effect.");
+            ReplayFourViews(game, registry);
+        }
+    }
 
     public static void PrivateTopYangPaymentAndColdReplay()
     {
@@ -75,7 +119,9 @@ internal static class MouZhugeLiangChecks
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:mou-driver","revision":1,
                 "activations":[{"id":"discard-other-equipment","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,
                 "targetKind":"otherLiving","effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"equipped"},
-                {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["equipment"],"count":1,"destination":"discardPile","skipIfNoCards":true}]}]}]}
+                {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["equipment"],"count":1,"destination":"discardPile","skipIfNoCards":true}]},
+                {"id":"hurt","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving",
+                "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
                 """, """{"schemaVersion":3,"skills":{"fixture:mou-driver":{"name":"夹具","description":"夹具"}}}""").Programs["fixture:mou-driver"];
             builder.AddSkill(new("fixture:mou-driver", "夹具", "fixture") { Program = driver });
             builder.AddGeneral(new("fixture:mou-zhuge", "谋诸葛亮", "mou-zhuge-liang", "mou:zhitian", "shu", 3,

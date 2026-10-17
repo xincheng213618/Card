@@ -29,8 +29,8 @@ public sealed partial class GameEngine
     {
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
-        if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId))) return;
-        if (IsClaimedUseCardEntity(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
+        if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;
+        if (IsClaimedUseCardEntity(frameId,card.Id) || IsHuiyunOutsideGeneralWeaponMaterial(frameId, card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
 
@@ -50,9 +50,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
             IsProgramVirtualOrdinaryTrickUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
-            : IsClaimedUseCardEntity(use.Id, use.CardId) ? EntityAtCurrentLocation(use.CardId)
+            : (IsClaimedUseCardEntity(use.Id, use.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId)) ? EntityAtCurrentLocation(use.CardId)
             : _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
         if (afterAttack)
@@ -76,9 +77,11 @@ public sealed partial class GameEngine
                 use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
                 !IsTieredRoundZeroUse(use.Id) &&
                 !IsProgramVirtualOrdinaryTrickUse(use.Id) &&
+                !IsJueshengDuelUse(use.Id) &&
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&
-                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId))
+                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId) &&
+                !IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId))
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }
     }

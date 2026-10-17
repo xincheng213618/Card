@@ -1,0 +1,445 @@
+{
+  "generalId": "ol:ruan-yu",
+  "gid": 727,
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "status": "implemented-awaiting-focused-verification",
+  "identity": {
+    "name": "阮瑀",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "initialHpRaw": 0
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/727",
+      "capturedAtUtc": "2026-10-17T07:50:37.665141+08:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/727",
+      "contentType": "text/html",
+      "byteCount": 24449,
+      "sha256": "3f2fd4e95eebacf45fe007dc95987369658576fdaedde99e01202bcc5a55b183",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀阮瑀 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "37b871a1b44807044c93be0af222682a8c3feff3c843f820e208d2f0a70894a6",
+      "dateCandidates": [],
+      "skillTextExcerpt": "武将技能： 兴作 妙弦 出牌阶段开始时，你可观看牌堆底的三张牌并用任意张手牌替换其中等量的牌。若如此做，结束阶段，你可令一名有手牌的角色用所有手牌替换牌堆底的三张牌。若其换入牌堆底的牌数大于三张，你失去1点体力。 若你手牌中仅有一张黑色牌，你可将此牌当做任意一张普通锦囊牌使用（每回合限一次）；若你的手牌中仅有一张红色牌，你使用此牌时摸一张牌。"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=727",
+      "capturedAtUtc": "2026-10-17T07:50:37.706935+08:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=727",
+      "contentType": "application/json",
+      "byteCount": 1044,
+      "sha256": "1deefa0bb3329493024e0db9d8523835fe6b761c0ebd9436a0df640048a7d1ad",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 727,
+              "name": "阮瑀",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/727.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72700.png",
+              "label": [],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "传说",
+              "biography": "字元瑜，陈留尉氏人。东汉末年文学家，建安七子之一。幼年聪明，师从蔡邕。建安中期，都护曹洪知阮瑀有才，欲使阮瑀掌管书记，被他拒绝。后来曹操把阮瑀召去，担任司空军谋祭酒管记室。阮瑀的职务与陈琳相同，又都擅长写檄文。当时曹操的军国书檄，大多出自他两人手笔。",
+              "characteristic": "手牌中每个颜色最后的牌都有较高价值，可以操控牌堆底的牌。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 6
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "主公",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "title": "",
+      "visibleTextSha256": "1deefa0bb3329493024e0db9d8523835fe6b761c0ebd9436a0df640048a7d1ad",
+      "dateCandidates": []
+    }
+  },
+  "formalAvailability": {
+    "url": "https://www.sanguosha.com/news/20260415_4720_3913",
+    "capturedAtUtc": "2026-10-17T07:50:38.106544+08:00",
+    "status": 200,
+    "finalUrl": "https://www.sanguosha.com/news/20260415_4720_3913",
+    "contentType": "text/html",
+    "byteCount": 251194,
+    "sha256": "9c4dc0ecef9d139958301a8db73ccead39bed5591b2fe11aa2b4edaf22178850",
+    "hashScope": "HTTP response body bytes",
+    "title": "4.18-4.25 奇珍翻翻乐阮瑀来袭 百绣朝凤*薛灵芸琳琅绘卷上新 - 三国杀OL官网",
+    "visibleTextSha256": "7536020e3ee98c9747025f4b9bca0a8db9e959d3b15fc8f684e606399ab912ce",
+    "dateCandidates": [
+      "2026-4-18 00:15:00",
+      "2026-4-25 24:00:00",
+      "2026-4-18 00:00:00",
+      "2026-4-27 24:00:00",
+      "2026-4-28 00:00:00",
+      "2026-4-26 00:00:00",
+      "2026-4-26",
+      "2026-04-17 17:01:47"
+    ],
+    "publishedAtLocal": "2026-04-17 17:01:47",
+    "provesAvailableFrom": "2026-04-18 00:15:00",
+    "provesAvailableThrough": "2026-04-25 24:00:00",
+    "classification": "Official OL 新品武将 sale/recharge announcement, complete current skill texts and identity explicitly present.",
+    "firstEverReleaseDateClaimed": false
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-17T07:50:37.664132+08:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-17T07:50:37.664741+08:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      }
+    },
+    "decoder": {
+      "method": "Fresh public InitOfb AES-CFB128 + gzip decoded in memory; no whole resource copied.",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "rawRowPath": "GameCharacters.character[a=727]",
+    "rawRow": {
+      "a": 727,
+      "b": "阮瑀",
+      "d": "RuanYu",
+      "e": 44,
+      "f": "42",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 3776,
+      "k": 3777,
+      "p": 3,
+      "q": "20260417T180000",
+      "r": "9072701",
+      "y": "字元瑜，陈留尉氏人。东汉末年文学家，建安七子之一。幼年聪明，师从蔡邕。建安中期，都护曹洪知阮瑀有才，欲使阮瑀掌管书记，被他拒绝。后来曹操把阮瑀召去，担任司空军谋祭酒管记室。阮瑀的职务与陈琳相同，又都擅长写檄文。当时曹操的军国书檄，大多出自他两人手笔。",
+      "z": "手牌中每个颜色最后的牌都有较高价值，可以操控牌堆底的牌。",
+      "aa": 162,
+      "ab": "1379,1380",
+      "al": 1740,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "ar": "20260518T000000",
+      "LordCardRate1": 36,
+      "LordCardRate2": 49,
+      "starMax": 4
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=3776]",
+        "rawRow": {
+          "a": 3776,
+          "b": "3,5",
+          "c": "兴作",
+          "d": "XingZuo",
+          "e": 0,
+          "g": 4,
+          "o": "出牌阶段开始时，你可观看牌堆底的三张牌并用任意张手牌替换其中等量的牌。若如此做，结束阶段，你可令一名有手牌的角色用所有手牌替换牌堆底的三张牌。若其换入牌堆底的牌数大于三张，你失去1点体力。",
+          "w": "是否发动<font color='#FFD800'>兴作</font>，请选择1名有手牌的角色",
+          "ae": "选择交换手牌和牌堆底的牌"
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=3777]",
+        "rawRow": {
+          "a": 3777,
+          "b": "3",
+          "c": "妙弦",
+          "d": "MiaoXian",
+          "e": 0,
+          "g": 3,
+          "h": 1,
+          "i": 2,
+          "o": "若你手牌中仅有一张黑色牌，你可将此牌当做任意一张普通锦囊牌使用（每回合限一次）；若你的手牌中仅有一张红色牌，你使用此牌时摸一张牌。"
+        }
+      }
+    ],
+    "linkedSpells": [],
+    "linkedSpellsComplete": true
+  },
+  "skillTextExact": [
+    {
+      "clientSkillId": 3776,
+      "name": "兴作",
+      "rawText": "出牌阶段开始时，你可观看牌堆底的三张牌并用任意张手牌替换其中等量的牌。若如此做，结束阶段，你可令一名有手牌的角色用所有手牌替换牌堆底的三张牌。若其换入牌堆底的牌数大于三张，你失去1点体力。",
+      "plainText": "出牌阶段开始时，你可观看牌堆底的三张牌并用任意张手牌替换其中等量的牌。若如此做，结束阶段，你可令一名有手牌的角色用所有手牌替换牌堆底的三张牌。若其换入牌堆底的牌数大于三张，你失去1点体力。"
+    },
+    {
+      "clientSkillId": 3777,
+      "name": "妙弦",
+      "rawText": "若你手牌中仅有一张黑色牌，你可将此牌当做任意一张普通锦囊牌使用（每回合限一次）；若你的手牌中仅有一张红色牌，你使用此牌时摸一张牌。",
+      "plainText": "若你手牌中仅有一张黑色牌，你可将此牌当做任意一张普通锦囊牌使用（每回合限一次）；若你的手牌中仅有一张红色牌，你使用此牌时摸一张牌。"
+    }
+  ],
+  "supplementaryGuide": {
+    "url": "https://www.taptap.cn/moment/795319660915460950",
+    "capturedAtUtc": "2026-10-17T07:52:08.054514+08:00",
+    "status": 200,
+    "finalUrl": "https://www.taptap.cn/moment/795319660915460950",
+    "contentType": "text/html;charset=utf-8",
+    "byteCount": 291418,
+    "sha256": "5a7733398ef321778430c2c098a65288fdd721d53daf292f013c045bf0c85c67",
+    "hashScope": "HTTP response body bytes",
+    "title": "阮瑀技能浅析丨三血脆皮杂技武将，曾经的阳顶天 - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛",
+    "visibleTextSha256": "922be93d00198d0c0f3bd36c6e79ac99d1dbe54ac6750bad0592975e330f4fc6",
+    "dateCandidates": [
+      "2026-10-16",
+      "2026-04-20T07:56:23",
+      "2026-04-21T06:39:12",
+      "2026/04/20 07:56:23",
+      "2026-10-05T04:30:12",
+      "2025-12-06T06:32:28",
+      "2026-04-20T15:56:23",
+      "2026-04-21T14:39:12"
+    ],
+    "articleDatesStructured": [
+      "2026-04-20T15:56:23+08:00"
+    ],
+    "articleDatePublished": "2026-04-20T15:56:23+08:00",
+    "articleDateModified": "2026-04-20T15:56:23+08:00",
+    "classification": "Current same-product OL community author guide reposted by official-community account; not an exclusive official FAQ.",
+    "originalAuthor": "苍流涤疆",
+    "publisher": "大乔 / 三国杀OL互通版攻略",
+    "originalUrl": "https://club.sanguosha.com/thread-2050025-1-1.html",
+    "publishedAtStructured": "2026-04-20T15:56:23+08:00",
+    "observations": [
+      "兴作前段底牌顺序与后段随机置底有具体说明；应区分这两种原生牌序，而不是一律顶置或按实体ID排序。",
+      "后段可以选择自己，自己的交换手牌数大于3也失去体力。",
+      "妙弦红色分支不限制每回合次数；黑色分支可在回合外用于无懈可击。",
+      "攻略专列木牛：黑色转换仅手中那张唯一黑牌；红色分支在手中有红牌与无红牌时对粮牌适用不同，不能把Hand/WoodenOxGrain简单混算。"
+    ]
+  },
+  "currentClientInteractions": {
+    "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "member": "sgsGame_a.sgs",
+    "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+    "evidence": [
+      {
+        "class": "Rui",
+        "purpose": "Xingzuo uses YiChengWindow",
+        "byteOffset": 15202742,
+        "byteLength": 74,
+        "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+        "exactSnippet": "this.responser.WindowName=\"YiChengWindow\",this.responser.ResponseAlways=!1"
+      },
+      {
+        "class": "zgs",
+        "purpose": "Xingzuo initial confirm is enabled",
+        "byteOffset": 22873807,
+        "byteLength": 38,
+        "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+        "exactSnippet": "this.confirmBtn.enabled=this.isXingZuo"
+      },
+      {
+        "class": "zgs",
+        "purpose": "Xingzuo zero-for-zero confirmation allowed",
+        "byteOffset": 22876200,
+        "byteLength": 132,
+        "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+        "exactSnippet": "this.confirmBtn.enabled=this.selectCard1s.length==this.selectCard2s.length||0==this.selectCard1s.length&&0==this.selectCard2s.length"
+      },
+      {
+        "class": "zgs",
+        "purpose": "Xingzuo native request carries complete result order",
+        "byteOffset": 22877135,
+        "byteLength": 57,
+        "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+        "exactSnippet": "r1t.SendMoveCard(t,D2t.SelfSeatIndex,NaN,NaN,ymt.XINGZUO)"
+      },
+      {
+        "class": "zgs",
+        "purpose": "Xingzuo drag mutates bottom display order",
+        "byteOffset": 22879739,
+        "byteLength": 197,
+        "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+        "exactSnippet": "this.qxCardUiList.splice(t,1,this.targetCardUi),this.qxCardList.splice(t,1,this.targetCardUi.Card),this.qxCardUiList.splice(i,1,this.sourceCardUi),this.qxCardList.splice(i,1,this.sourceCardUi.Card)"
+      }
+    ],
+    "interpretation": {
+      "guideLine": 46,
+      "primaryClientConclusion": "The current Xingzuo window accepts the complete ordered bottom slice after optional hand substitution and permits dragging existing bottom cards into a different order. Do not restrict to a fixed slot substitution or assume every new Hand entity is forced permanently left.",
+      "zeroConfirm": "Current client enables confirm with zero selected Hand and zero selected bottom cards, and sends the unchanged/reordered full bottom IDs. This is distinct from cancel.",
+      "zeroEndingEntitlement": "No dedicated server FAQ was found. Whether successful zero confirmation issues Ending entitlement is still an implementation inference from current composite wording; do not call it an official exclusive ruling.",
+      "orientation": "Client preserves a server-provided array/display order. Equating its first displayed item with the engine bottom-first slot is an explicit native representation convention, not independently proven server orientation."
+    }
+  },
+  "guideContracts": {
+    "guide": {
+      "url": "https://www.taptap.cn/moment/795319660915460950",
+      "originalUrl": "https://club.sanguosha.com/thread-2050025-1-1.html",
+      "classification": "Same-product OL community-author guide reposted by official community account, not exclusive official FAQ",
+      "author": "苍流涤疆"
+    },
+    "woodenOx": {
+      "guideLines": [
+        65,
+        70
+      ],
+      "contract": [
+        "When actual Hand contains red, only its unique red Hand entity qualifies; red grain does not.",
+        "When Hand has no red, a single red grain entity used from the real own WoodenOxGrain qualifies regardless of other red grain count.",
+        "Black conversion always requires exactly one black Hand entity and uses that Hand entity; grain does not contribute or substitute."
+      ],
+      "effectiveColorEvidence": "Aui.Activated explicitly handles activated Hongyan by counting Club Hand cards, confirming ongoing effective-color interpretation rather than printed Spade being black."
+    },
+    "firstExchangeOrder": {
+      "guideLine": 46,
+      "primaryClientConclusion": "The current Xingzuo window accepts the complete ordered bottom slice after optional hand substitution and permits dragging existing bottom cards into a different order. Do not restrict to a fixed slot substitution or assume every new Hand entity is forced permanently left.",
+      "zeroConfirm": "Current client enables confirm with zero selected Hand and zero selected bottom cards, and sends the unchanged/reordered full bottom IDs. This is distinct from cancel.",
+      "zeroEndingEntitlement": "No dedicated server FAQ was found. Whether successful zero confirmation issues Ending entitlement is still an implementation inference from current composite wording; do not call it an official exclusive ruling.",
+      "orientation": "Client preserves a server-provided array/display order. Equating its first displayed item with the engine bottom-first slot is an explicit native representation convention, not independently proven server orientation."
+    },
+    "endingOrder": {
+      "guideLine": 46,
+      "contract": "Original target Hand enters the bottom in a native random order; target can be self. More than three actually moved original Hand entities causes the original RuanYu to lose one HP after the exchange children.",
+      "notProven": "Short-deck and multi-Play entitlements have no dedicated cited FAQ; source them as composition inferences."
+    },
+    "useSemantics": {
+      "guideLines": [
+        63,
+        78,
+        89,
+        92,
+        156
+      ],
+      "contract": "Red real Use effects occur before the used card effect and include defensive Dodge use. Pure Slash responses during Duel are played, not Use; black Nullification conversion works in and outside the Play phase."
+    },
+    "nativeReuse": [
+      {
+        "path": "src/CardGame.Core/CardZones.cs",
+        "symbol": "ReorderDrawPileTop(viewedTopFirst,newTopFirst,newBottomFirst)",
+        "boundary": "Can represent complete current draw-pile order without fake movement. New exchange should freeze the original complete pile and construct desired bottom permutation + untouched remainder; reversed orientation must be explicit."
+      },
+      {
+        "path": "src/CardGame.Core/CardZones.cs",
+        "symbol": "PlaceDrawPileCardsAtBottom(cardIds)",
+        "boundary": "Only accepts the exact just-moved top-appended segment in supplied bottom-first order. It cannot by itself preserve/reorder existing unselected bottom members."
+      },
+      {
+        "path": "src/Characters/liu-ba/ol/Runtime/GameEngine.LiuBa.cs",
+        "symbol": "PayLiuBaExchange",
+        "boundary": "Useful exact atomic exchange callback and final pile reorder, but its fixed coin-to-selected-slot mapping is narrower than current Xingzuo full result ordering."
+      },
+      {
+        "path": "src/CardGame.Core/GameEngine.ProgramAtomicCardMoves.cs",
+        "symbol": "MoveProgramCardsFromMultipleSources",
+        "boundary": "Use true Hand and DrawPile sources with destinationForCard and one native callback; card exchange is not a draw/discard invoice."
+      },
+      {
+        "path": "src/Characters/qu-huang/ol/Runtime/GameEngine.QuHuangPayments.cs",
+        "symbol": "CaptureQiejianUsePaymentBatch / HasQiejianUsePaymentTail",
+        "boundary": "Most recent exact physical payment prelude across native Trick/Simple/EquipmentUse; RuanYu must own its distinct red-use qualification and cannot borrow Qiejian empty-Hand proof."
+      }
+    ]
+  },
+  "implementation": {
+    "front": "The native available bottom-first slice of at most three is viewed only by the owner. Equal original Hand/bottom subsets exchange in one actual movement batch. The complete resulting bottom slice may be permuted, including zero-Hand pure reorder; unrelated deck cards keep their order.",
+    "ending": "Every confirmed front instance issues one exact same-actual-turn optional Ending entitlement. A living nonempty-Hand target, including self, exchanges its entire current original Hand for the current available bottom at resolution. Only that original Hand set is randomized with replayed native RNG. More than three original Hand entities then causes one genuine owner LoseHp after native movement children.",
+    "black": "All 13 native ordinary trick outputs, including UnexpectedAssault and true foreign-turn Nullification, use the exact sole effective-black Hand entity. Actual-turn usage is shared across all outputs and source generations. Wooden Ox grain never counts as black Hand or supplies the conversion.",
+    "red": "A prepayment movement-builder snapshot freezes original source generation/hash and actual Hand effective colors. A genuine unique-red Hand Use rewards one native Draw before its card effect; pure played/provision responses do not. Defensive Dodge and Nullification are true response Uses. With no red Hand, any individually red real grain Use qualifies; with red Hand, red grain does not.",
+    "state": "Private drafts, complete immutable original sets, exact native parent/source/hash/action/sequence and once-paid child stages belong to the owning ProgramSkillFrame. Event facts are scalar. No secondary pending resolver or global use-ID pending state is added."
+  },
+  "inferences": [
+    "Accepted front confirmation, including zero-for-zero or pure bottom reorder, issues the later Ending entitlement; cancellation does not. Current client distinguishes both requests, but no dedicated server FAQ specifies zero confirmation entitlement.",
+    "A short/empty draw pile supplies only its actual available bottom entities, with no shuffle or invented cards. Ending still exchanges the full actual Hand and applies its greater-than-three cost.",
+    "Several genuine Play starts in one actual turn may issue independent front entitlements; each exact source instance and grant is consumed once at that turn Ending. A skipped Play start cannot issue a front entitlement.",
+    "The engine represents displayed bottom order using its native bottom-first deck convention; client request ordering does not independently prove a server-facing physical orientation.",
+    "Current effective Hand suit/color is frozen before payment; optional view-as opportunities do not themselves turn other physical Hand cards into red or black.",
+    "Confirmed front/paid red rights retain their exact original source/hash across later source loss; a dead source cannot begin a new front or receive a fabricated draw. Already paid native children return once and dead owners do not pay a subsequent extra LoseHp."
+  ],
+  "art": {
+    "sourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72700.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-ruan-yu.png",
+    "capturedAtUtc": "2026-10-17T08:30:58.187181+08:00",
+    "bytes": 1124147,
+    "sha256": "b3b5d64e862500cb46d594db5e6af72e55a0707eb09dd5c6040befc81dd9482b",
+    "width": 750,
+    "height": 950,
+    "format": "PNG",
+    "visuallyInspected": true
+  },
+  "verification": {
+    "state": "focused-verified",
+    "methods": [
+      "XingzuoPrivateFullBottomOrderZeroAndShortDeckCold",
+      "XingzuoEndingAllHandRandomBottomDebtLossAndDeathCold",
+      "MiaoxianBlackAllOrdinaryNativeUseAndForeignNullificationCold",
+      "MiaoxianRedUseResponsesWoodenOxAndPaidChildrenCold"
+    ],
+    "buildsRunByAuthor": 0,
+    "testsRunByAuthor": 0,
+    "temporaryOutputsCreatedByAuthor": [],
+    "status": "Passed all named focused Core behavior checks and shared content/gallery verification under root coordination.",
+    "rootFocusedVerifiedAtUtc": "2026-10-17T01:02:48.902672+00:00",
+    "routineRunner": "tools/Test-Changed.ps1 (measured routine scope; no manual Full run)"
+  }
+}

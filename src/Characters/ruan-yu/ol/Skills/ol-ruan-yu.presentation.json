@@ -1,0 +1,13 @@
+{
+  "skills": {
+    "ol:xingzuo": {
+      "name": "兴作",
+      "description": "出牌阶段开始时，私看并交换、排列牌堆底三张牌；确认后，结束阶段可令一名角色交换全部手牌。"
+    },
+    "ol:miaoxian": {
+      "name": "妙弦",
+      "description": "每回合一次，唯一黑色手牌可当普通锦囊使用；使用唯一红色手牌时摸一张牌。"
+    }
+  },
+  "schemaVersion": 3
+}

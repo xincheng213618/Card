@@ -46,7 +46,7 @@ public sealed partial class GameEngine
             return _players.Where(target => CanUseVirtualSlashTarget(owner, target, kind, suit,
                     effectiveColor: color, physicalCardIds: selection.Cards.Select(c => c.Id).ToArray()))
                 .Select(target => target.Seat).Order().ToArray();
-        if (kind == CardKind.Peach && owner.Hp < owner.MaxHp && !HasSelfCardTargetProhibition(owner.Seat) &&
+        if (kind == CardKind.Peach && IsRuleWounded(owner) && !HasSelfCardTargetProhibition(owner.Seat) &&
             !IsCardTargetProhibited(owner, kind, suit, color) && !HasBeneficiarySuitShield(owner.Seat, owner.Seat, suit))
             return [owner.Seat];
         return [];

@@ -235,8 +235,8 @@ public sealed partial class GameEngine
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 70)]
     private void CleanupLostPublicPersistentPiles()
     {
-        foreach (var source in _publicPersistentPiles.Values.Where(source => !_players[source.OwnerSeat].IsAlive ||
-            !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source)).ToArray())
+        foreach (var source in _publicPersistentPiles.Values.Where(source => !IsIssuedBaoXinMutaoPile(source) && (!_players[source.OwnerSeat].IsAlive ||
+            !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source))).ToArray())
         {
             _publicPersistentPiles.Remove((source.OwnerSeat, source.SkillId, source.SkillInstanceId));
             for (var index = 0; index < _resolutionStack.Count; index++)

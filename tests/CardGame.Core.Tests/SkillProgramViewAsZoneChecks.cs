@@ -26,6 +26,20 @@ internal static class SkillProgramViewAsZoneChecks
         Reject(Rules.Replace("\"inputKinds\":[]", "\"inputCount\":2,\"inputKinds\":[]",
                 StringComparison.Ordinal),
             "sourceZones");
+        var pileWithoutSource = Rules.Replace("[\"hand\",\"equipment\"]", "[\"publicPersistentPile\"]", StringComparison.Ordinal);
+        Reject(pileWithoutSource, "sourceZones");
+        var pileRules = pileWithoutSource.Replace("\"inputKinds\":[]",
+            "\"sourcePileSkillId\":\"test:owned-red-slash\",\"allowSameKind\":true,\"inputKinds\":[]", StringComparison.Ordinal);
+        var pileProgram = SkillProgramCatalog.Load(pileRules, Presentation).Programs["test:owned-red-slash"];
+        Require(pileProgram.ViewAs.Single().SourcePileSkillId == "test:owned-red-slash" &&
+                pileProgram.ViewAs.Single().SourceZones.SequenceEqual([CardZoneKind.PublicPersistentPile]) &&
+                pileProgram.GameplayHash != program.GameplayHash,
+            "The additive pile conversion preserves its named source and changes the gameplay fingerprint without changing the format.");
+        Reject(pileRules.Replace("[\"publicPersistentPile\"]", "[\"hand\"]", StringComparison.Ordinal), "sourcePileSkillId");
+        Reject(pileRules.Replace("[\"publicPersistentPile\"]", "[\"publicPersistentPile\",\"equipment\"]", StringComparison.Ordinal), "sourcePileSkillId");
+        Reject(pileRules.Replace("\"inputKinds\":[]", "\"inputCount\":2,\"inputKinds\":[]", StringComparison.Ordinal), "sourceZones");
+        Reject(pileRules.Replace("\"outputKind\":\"slash\"", "\"outputKind\":\"nullification\"", StringComparison.Ordinal), "sourcePileSkillId");
+
         var categoryRules = Rules.Replace("\"inputKinds\":[]",
             "\"inputKinds\":[],\"inputCategories\":[\"basic\",\"equipment\"]",
             StringComparison.Ordinal);

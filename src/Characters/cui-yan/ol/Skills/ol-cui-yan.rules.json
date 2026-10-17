@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:shutong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "designated-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "priority": 0,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShutongFinalizedUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhijie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "end-own",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "priority": 0,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveZhijieActualTurnEnd",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "end-foreign",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "priority": 0,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveZhijieActualTurnEnd",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -14,7 +14,7 @@ public sealed partial class GameEngine
                 request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt))))).Choices, AssistedPhysicalSlashWithKenshangChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(prompt)))))).Choices, AssistedPhysicalSlashWithKenshangChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)
@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash))).Select(target => target.Seat).ToArray();
+        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target))).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind, bool actorChoosesTarget)
     {
@@ -71,7 +71,7 @@ public sealed partial class GameEngine
         foreach (var card in GetSlashUseCards(actor))
         {
             var identity = GetProgramCardIdentityMatches(actor, card).FirstOrDefault(item => IsSlashCard(item.Identity.OutputKind));
-            var baseKind = identity?.Identity.OutputKind ?? (IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash);
+            var baseKind = identity?.Identity.OutputKind ?? PhysicalSlashUseBaseKind(actor, card);
             foreach (var kind in GetSlashUseKinds(actor, baseKind))
             {
                 if (!AssistedSlashPaymentHasRange(actor, targetSeat, [card]) || !CanUseSlashTarget(actor, _players[targetSeat], card, effectiveKind: kind)) continue;
@@ -80,7 +80,7 @@ public sealed partial class GameEngine
                 choices.AddRange(CreateConversionChoiceVariants(actor, card, kind, false, $"assisted-slash.{frame.Id}.card-{card.Id}.{kind}", $"使用【{CardCatalog.Get(kind).DisplayName}】", [card.Id], [targetSeat], parameters));
             }
         }
-        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).DistinctBy(card => card.Id))
+        foreach (var card in GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).DistinctBy(card => card.Id))
         foreach (var kind in SlashKinds.Where(kind => kind != CardKind.Slash))
         foreach (var conversion in GetProgramViewAsConversions(actor, card, kind, forResponse: false))
         {
@@ -124,6 +124,7 @@ public sealed partial class GameEngine
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards) =>
         (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
         !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
+        HasLiYiWeaponPaymentRange(actor, targetSeat, cards) ||
         GetCombatDistance(actor.Seat, targetSeat) <= 1;
 
     private IReadOnlyList<PromptChoice> AssistedPhysicalSlashWithKenshangChoices(ProgramSkillFrame frame)
@@ -189,7 +190,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The assisted Slash target became illegal.");
         CommitProgramChoiceResult(frame.Id, effect.ResultBind!, "used-slash", actor.Seat, "使用【杀】。");
         ResolveSlashCore(actor, _players[draft.TargetSeat.Value], cards[0], kind, actor.Seat, physicalCards: cards, countsTowardSlashLimit: false,
-            usesZhuqueFan: kind == CardKind.FireSlash && cards[0].Kind == CardKind.Slash && HasZhuqueFan(actor), conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
+            usesZhuqueFan: kind == CardKind.FireSlash && (cards[0].Kind == CardKind.Slash || IsOwnPublicPileSlashMaterial(actor, cards[0])) && HasZhuqueFan(actor), conversionSource: conversion, programSkillCardUseFrameId: frame.Id);
     }
 
     private SkillProgramStepOutcome TakeProgramSelectedTargetCards(ProgramSkillFrame frame, int sourceSeat, int count)

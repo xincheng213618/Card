@@ -396,7 +396,7 @@
                 <Grid>
                     <Grid ClipToBounds="True">
                         <Rectangle x:Name="SinglePortrait" Fill="{Binding Portrait.Brush}" />
-                        <TextBlock x:Name="UnknownGeneral" Text="候&#xA;将" TextAlignment="Center" FontSize="34" FontFamily="KaiTi" Foreground="#817556" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock x:Name="UnknownGeneral" Text="{Binding VerticalName}" TextAlignment="Center" FontSize="24" LineHeight="28" FontFamily="KaiTi" Foreground="#CABB95" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Rectangle Fill="{StaticResource PortraitShade}" />
                         <Grid x:Name="DualPortraits" Visibility="Collapsed">
                             <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="2" /><ColumnDefinition /></Grid.ColumnDefinitions>

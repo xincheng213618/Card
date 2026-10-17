@@ -707,7 +707,7 @@ public sealed partial class MainViewModel
         if (_snapshot is null) return;
         var card = Hand.FirstOrDefault(item => item.Id == _selectedCardId);
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
-        var equipment = human?.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? [])
+        var equipment = human?.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human))
             .FirstOrDefault(item => item.Id == _selectedCardId);
         var selectedName = card?.Name ?? equipment?.DisplayName;
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);

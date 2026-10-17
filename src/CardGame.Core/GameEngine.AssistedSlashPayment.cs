@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Single(item => item.Id == selected.Cards.Single());
+            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Concat(GetOwnPublicPileConversionCards(actor)).Single(item => item.Id == selected.Cards.Single());
             TryReadConversionSource(selected.Parameters, out _selectedUseConversion);
             _hasSelectedUseConversionChoice = true;
             conversion = GetSelectedUseConversion(actor, actor, card, kind);

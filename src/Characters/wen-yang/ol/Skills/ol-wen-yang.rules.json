@@ -1,0 +1,15 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:lvli","revision":1,"triggers":[
+  {"id":"after-causing-damage","window":"afterDamageApplied","subject":"damageSource","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveLvliActualDamageChoice","target":"owner"}]},
+  {"id":"after-receiving-damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveLvliActualDamageChoice","target":"owner"}]}
+ ]},
+ {"id":"ol:choujue","revision":1,"triggers":[
+  {"id":"own-actual-turn-ended","window":"afterTurnEnded","subject":"owner","optional":false,"effects":[{"op":"resolveWenYangAwakening","target":"owner"}]},
+  {"id":"foreign-actual-turn-ended","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"resolveWenYangAwakening","target":"owner"}]}
+ ]},
+ {"id":"ol:beishui","revision":1,"triggers":[{"id":"actual-preparation","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"resolveWenYangAwakening","target":"owner"}]}]},
+ {"id":"ol:qingjiao","revision":1,"triggers":[
+  {"id":"whole-hand-at-play-start","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"resolveQingjiaoWholeHandExchange","target":"owner"}]},
+  {"id":"issued-actual-ending","window":"turnEnding","subject":"owner","optional":false,"effects":[{"op":"resolveQingjiaoIssuedEndingDiscard","target":"owner"}]}
+ ]}
+]}

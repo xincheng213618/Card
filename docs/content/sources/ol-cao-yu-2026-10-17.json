@@ -1,0 +1,441 @@
+{
+  "characterId": "character:cao-yu",
+  "generalId": "ol:cao-yu",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-16T23:50:39.506885+00:00",
+  "identity": {
+    "name": "曹宇",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "initialHpRaw": 0
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/596",
+      "capturedAtUtc": "2026-10-16T23:50:37.762598+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/596",
+      "contentType": "text/html",
+      "byteCount": 24195,
+      "sha256": "5c8bd9a9e4de52b6f68d61c3a75d49ef4ae897664348f20cab949114a282bb24",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀曹宇 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "6d3ef2f0b3eb5f35a408a8f466587418d6ca1fc696e517dc32bda878f8d9df9f",
+      "dateCandidates": [],
+      "skillTextExcerpt": "武将技能： 恭节 相胥 襄胙 每轮首位角色回合开始时，你可以令任意名其他角色各获得你一张牌，然后你摸X张牌（X为被获得牌的花色数）。 当你的手牌数变为全场最少时，你可以于本回合结束时将手牌调整至与当前回合角色相同（至多摸至五张）。你以此法弃置至少两张牌后，回复1点体力。 限定技，当你进入濒死状态时，你可以交给一名其他角色任意张牌，若你对其发动过“ 恭节 ”和“ 相胥 ”，你回复等量体力。"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=596",
+      "capturedAtUtc": "2026-10-17T00:30:39.925312+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=596",
+      "contentType": "application/json",
+      "byteCount": 920,
+      "sha256": "7d5fea1a74bbf1b3d63f4dfbe3a3392de8f65ad1b5dc2ca65531c052713974d5",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 596,
+              "name": "曹宇",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/596.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59600.png",
+              "label": [
+                "过牌",
+                "辅助",
+                "回复"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "字彭祖，沛国谯县（今安徽亳州）人。魏武帝曹操与环夫人之子，曹冲同母兄弟。太和六年，封为燕王。魏明帝病危，欲以大将军辅政，不果。其子常道乡公曹奂，是魏国末代皇帝，史称魏元帝",
+              "characteristic": "必要时令敌人获得你的牌也是一种选择。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "title": "",
+      "visibleTextSha256": "7d5fea1a74bbf1b3d63f4dfbe3a3392de8f65ad1b5dc2ca65531c052713974d5",
+      "dateCandidates": []
+    }
+  },
+  "officialAvailability": {
+    "url": "https://www.sanguosha.com/news/20240619_5435_5313",
+    "capturedAtUtc": "2026-10-16T23:50:38.135955+00:00",
+    "status": 200,
+    "finalUrl": "https://www.sanguosha.com/news/20240619_5435_5313",
+    "contentType": "text/html",
+    "byteCount": 280570,
+    "sha256": "51efbb8dab7cec14ff4edc160928033928bfcdc97d62e21b7e4fb167f03567fd",
+    "hashScope": "HTTP response body bytes",
+    "title": "6.22-6.28 谷雨祈愿曹宇返场 传说皮肤说营青鸟*蒋干上新 - 三国杀OL官网",
+    "visibleTextSha256": "e41f2be1013cb51ed2aa382bdd2b594cdafcf86ff14e0e2b6f032c6ef33c8b82",
+    "dateCandidates": [
+      "2024-6-22 00:00:00",
+      "2024-6-28 23:59:59",
+      "2024-6-22 00:15:00",
+      "2024-6-29",
+      "2024-6-30",
+      "2024-6-29 23:59:59",
+      "2024-6-29 00:00:00",
+      "2024-06-21 16:59:00"
+    ],
+    "publishedAtLocal": "2024-06-21 16:59:00",
+    "provesReleasedNoLaterThan": "2024-06-22",
+    "classification": "Official OL 谷雨祈愿曹宇返场 sale announcement; explicitly a rerun, so availability proof only and not first launch.",
+    "firstEverReleaseDateClaimed": false
+  },
+  "client": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-16T23:50:37.664132+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-16T23:50:37.664741+00:00",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "contentType": "application/octet-stream",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "hashScope": "HTTP response body bytes",
+        "headStatus": 200,
+        "matchesExistingReadOnlyRaw": true,
+        "rawCopyCreated": false
+      }
+    },
+    "decoder": {
+      "method": "Fresh public InitOfb AES-CFB128 + gzip decoded in memory; no whole resource copied.",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "characterPath": "GameCharacters.character[a=596]",
+    "rawRow": {
+      "a": 596,
+      "b": "曹宇",
+      "d": "CaoYu",
+      "e": 44,
+      "f": "41",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 3410,
+      "k": 3411,
+      "l": 3412,
+      "p": 2,
+      "q": "1",
+      "r": "9059601",
+      "y": "字彭祖，沛国谯县（今安徽亳州）人。魏武帝曹操与环夫人之子，曹冲同母兄弟。太和六年，封为燕王。魏明帝病危，欲以大将军辅政，不果。其子常道乡公曹奂，是魏国末代皇帝，史称魏元帝",
+      "z": "必要时令敌人获得你的牌也是一种选择。",
+      "aa": 20,
+      "ab": "1147,1148",
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ar": "20240207T235959",
+      "LordCardRate1": 3,
+      "LordCardRate2": 44,
+      "starMax": 4,
+      "freetitle": "0,回复强将"
+    },
+    "directSpells": [
+      {
+        "path": "GameSpells.spell[a=3410]",
+        "rawRow": {
+          "a": 3410,
+          "b": "3,5",
+          "c": "恭节",
+          "d": "GongJie",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "o": "每轮首位角色回合开始时，你可以令任意名其他角色各获得你一张牌，然后你摸X张牌（X为被获得牌的花色数）。",
+          "w": "请选择至多{0}名角色获得你的牌",
+          "v": "请选择至多{0}名角色获得你的牌"
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=3411]",
+        "rawRow": {
+          "a": 3411,
+          "b": "3,5",
+          "c": "相胥",
+          "d": "XiangXu",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "o": "当你的手牌数变为全场最少时，你可以于本回合结束时将手牌调整至与当前回合角色相同（至多摸至五张）。你以此法弃置至少两张牌后，回复1点体力。",
+          "w": "是否摸{0}张牌？|是否弃置{0}张手牌",
+          "fastChooseCard": 2
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=3412]",
+        "rawRow": {
+          "a": 3412,
+          "b": "3,5,6",
+          "c": "襄胙",
+          "d": "XiangZuo",
+          "e": 0,
+          "i": 2,
+          "l": "caoyuxiangzuo",
+          "o": "限定技，当你进入濒死状态时，你可以交给一名其他角色任意张牌，若你对其发动过“<font href='3410'>恭节</font>”和“<font href='3411'>相胥</font>”，你回复等量体力。",
+          "w": "请选择任意张牌交给一名角色",
+          "fastChooseCard": 1
+        }
+      }
+    ],
+    "linkedSpells": [],
+    "skillTextExact": [
+      {
+        "clientSkillId": 3410,
+        "name": "恭节",
+        "rawText": "每轮首位角色回合开始时，你可以令任意名其他角色各获得你一张牌，然后你摸X张牌（X为被获得牌的花色数）。",
+        "plainText": "每轮首位角色回合开始时，你可以令任意名其他角色各获得你一张牌，然后你摸X张牌（X为被获得牌的花色数）。"
+      },
+      {
+        "clientSkillId": 3411,
+        "name": "相胥",
+        "rawText": "当你的手牌数变为全场最少时，你可以于本回合结束时将手牌调整至与当前回合角色相同（至多摸至五张）。你以此法弃置至少两张牌后，回复1点体力。",
+        "plainText": "当你的手牌数变为全场最少时，你可以于本回合结束时将手牌调整至与当前回合角色相同（至多摸至五张）。你以此法弃置至少两张牌后，回复1点体力。"
+      },
+      {
+        "clientSkillId": 3412,
+        "name": "襄胙",
+        "rawText": "限定技，当你进入濒死状态时，你可以交给一名其他角色任意张牌，若你对其发动过“<font href='3410'>恭节</font>”和“<font href='3411'>相胥</font>”，你回复等量体力。",
+        "plainText": "限定技，当你进入濒死状态时，你可以交给一名其他角色任意张牌，若你对其发动过“恭节”和“相胥”，你回复等量体力。"
+      }
+    ],
+    "selectionEvidence": {
+      "source": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "containerSha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "member": "sgsGame_a.sgs",
+        "memberByteCount": 23053109,
+        "memberSha256": "64b07374e3cd1995e9379526278202cbe49c0312a8576ee73f6334b2140a1f51",
+        "rawCopyCreated": false,
+        "referenceScope": "Current client source inspected in memory; permanent profiles must cite public URLs/hash facts, not this ignored path"
+      },
+      "registrations": [
+        {
+          "byteOffset": 906251,
+          "byteLength": 22,
+          "exactSnippet": "this.r(\"XiangZuo\",nss)"
+        },
+        {
+          "byteOffset": 906207,
+          "byteLength": 21,
+          "exactSnippet": "this.r(\"GongJie\",NCi)"
+        },
+        {
+          "byteOffset": 906229,
+          "byteLength": 21,
+          "exactSnippet": "this.r(\"XiangXu\",mCi)"
+        }
+      ],
+      "exactClientEvidence": [
+        {
+          "class": "nss",
+          "purpose": "successful Xiangzuo minimum material count",
+          "byteOffset": 20768078,
+          "byteLength": 61,
+          "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+          "exactSnippet": "this.cardCountMin=1,this.cardCountMax=Number.MAX_SAFE_INTEGER"
+        },
+        {
+          "class": "nss",
+          "purpose": "defensive HE Give selector minimum and cancel",
+          "byteOffset": 20768561,
+          "byteLength": 129,
+          "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+          "exactSnippet": "e.SelectCountMin=1,e.SelectCountMax=Number.MAX_SAFE_INTEGER,e.CanCancel=!0,e.CardType=Lmt.NORMAL|Lmt.EQUIP,e.CardUseType=Dmt.GIVE"
+        },
+        {
+          "class": "NCi",
+          "purpose": "Gongjie successful target minimum",
+          "byteOffset": 15885987,
+          "byteLength": 21,
+          "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+          "exactSnippet": "this.targetCountMin=1"
+        },
+        {
+          "class": "mCi",
+          "purpose": "Xiangxu amount comes from current server trigger",
+          "byteOffset": 15884909,
+          "byteLength": 82,
+          "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+          "exactSnippet": "this.flag=t.FirstTriggerParam.Datas[1],this.markCount=t.FirstTriggerParam.Datas[0]"
+        },
+        {
+          "class": "mCi",
+          "purpose": "Xiangxu displayed state is boolean",
+          "byteOffset": 15885808,
+          "byteLength": 53,
+          "offsetScope": "zero-based bytes in ZIP member sgsGame_a.sgs",
+          "exactSnippet": "t.IsSpell||i&&t&&i.UpdateState(zf.DATA_XIANGXU,s?0:1)"
+        }
+      ]
+    }
+  },
+  "sameProductGuide": {
+    "url": "https://www.taptap.cn/moment/529691824546121955",
+    "capturedAtUtc": "2026-10-16T23:52:08.060085+00:00",
+    "status": 200,
+    "finalUrl": "https://www.taptap.cn/moment/529691824546121955",
+    "contentType": "text/html;charset=utf-8",
+    "byteCount": 251011,
+    "sha256": "8ae5a908cbb7285ed6f33ac0f02889e89e07f8e18beb4022c72c797e932bf3ab",
+    "hashScope": "HTTP response body bytes",
+    "title": "【新武将体验】曹宇——位居燕王，性情恭良 - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛",
+    "visibleTextSha256": "900b529309aa636ad33a670b3e0d45cd0de58795516c19c9d32fe354bca4bd1e",
+    "dateCandidates": [
+      "2026-10-16",
+      "2024-04-17T08:06:12",
+      "2024/04/17 08:06:12",
+      "2024/04/17",
+      "2026-10-05T04:30:12",
+      "2025-12-06T06:32:28",
+      "2024-04-17T16:06:12"
+    ],
+    "articleDatesStructured": [
+      "2024-04-17T08:06:12+00:00"
+    ],
+    "articleDatePublished": "2024-04-17T08:06:12+00:00",
+    "articleDateModified": "2024-04-17T08:06:12+00:00",
+    "classification": "Current same-product OL community author guide reposted by official-community account; not an exclusive official FAQ.",
+    "originalAuthor": "不畏浮云",
+    "publisher": "三国杀OL大乔 / OL互通版攻略",
+    "originalUrl": "https://club.sanguosha.com/thread-1325433-1-1.html",
+    "publishedAtStructured": "2024-04-17T08:06:12+00:00",
+    "observations": [
+      "恭节获得牌是不定向的，受益者可取得装备；暗手与明装备的合法选择不能化为曹宇自主发牌。",
+      "相胥允许并列最少；满足时记录资格，结算时对照当前回合角色的当前手牌。之后currentowner反而更少，可使曹宇弃2而回复。",
+      "襄胙可给任意other而不是仅两个前技命中者；即使不满足恢复也可转交手牌/装备，送出SilverLion另有原生移除回复。"
+    ]
+  },
+  "versionBoundaries": [
+    "Ordinary OL gid596 is Wei Male3 with current direct skills3410/3411/3412. The official rerun notice proves availability by2024-06-22; no exact first launch date is inferred.",
+    "The same-product OL community guide is supporting author analysis, not an exclusive official FAQ. It establishes foreign recipient choice, tied minimum and current turn-owner comparison, but does not adjudicate every causal edge or multiple ending opportunities.",
+    "Current public client requires one or more Gongjie recipients and one or more Xiangzu HE entities for successful confirmation. Empty selection can cancel; it cannot create a successful zero-gift limited expenditure."
+  ],
+  "ruleInterpretation": [
+    {
+      "rule": "恭节真实轮首与获牌者选择",
+      "basis": "Current primary text; current client minimum; same-product guide. Frozen action order and native child sequencing are implementation inferences.",
+      "implementation": "Only the actual first turn recorded by RoundStarted may offer the skill, even when another player owns that turn. A later normal turn or same-round extra turn cannot reoffer. Freeze a nonempty distinct other-player set in native action order. Each living recipient independently chooses one legally transferable owner Hand or Equipment entity: foreign Hand remains an opaque native slot and visible Equipment retains its exact entity. CaoYu cannot nominate a foreign hidden Hand entity. GeneralWeapon cannot transfer; WoodenOx grain never joins the primary gift."
+    },
+    {
+      "rule": "恭节收益与已发动续接",
+      "basis": "Primary text and guide; source-loss continuation is the native paid-resolution implementation contract, not a separate FAQ.",
+      "implementation": "After every frozen recipient has actually obtained its one card or become unable to obtain, draw the count of distinct actual obtained effective suits. Freeze each material suit at its real payment, not from later ownership or an initial target count. Drain actual SilverLion removal recovery, Ox spill, movements, HP, skill-change and dying children before continuing. Once the first gift has paid, losing the original source does not revoke the remaining frozen recipient queue or the final suit draw. A dead owner issues no new gift/draw; already-paid children return exactly once."
+    },
+    {
+      "rule": "相胥完整因果最少边沿",
+      "basis": "Guide confirms tied minimum and remembered qualification. A/B causal edges and independent multiple opportunities are explicit wording/composition inferences; no dedicated server FAQ was found. Death-population new-minimum issuance is the same broad causal wording inference, not a dedicated official death FAQ.",
+      "implementation": "At each completed native movement batch with real Hand changes, freeze living-player before/after Hand vectors. Issue one opportunity for each qualified original source if the owner is tied least afterward and either its Hand count genuinely changed or it was not least before and becomes least. An owner reducing its already-minimum Hand therefore creates another event; another player gaining can create a new tied minimum without owner Hand movement. An unchanged already-minimum owner does not gain opportunities from unrelated movement. Ignore setup/initial deal, while admitting genuine first-turn RoundStarting gifts before TurnStarted. Do not reduce the causal test to static minimum or only owner-local moves. A genuine native death also changes the living comparison population: freeze qualified sources and all Hand counts/alive flags immediately before IsAlive changes, then directly arm a new-minimum opportunity only for a living owner that was not least before but is least after. This has an exact real DeathFrame receipt, null movement-batch identity and unchanged Hand counts; no CardsMoved window or batch is fabricated. Another tied-minimum player dying while CaoYu remains tied minimum with unchanged Hand does not issue a duplicate."
+    },
+    {
+      "rule": "相胥真实回合结束与多份资格",
+      "basis": "Current wording and existing native actual-turn mother contract; multiple grants, tail appending and expiry are implementation inferences.",
+      "implementation": "Each original causal event independently arms a same-actualturn entitlement with immutable original source, instance, movement batch and event index. Resolve only in the genuine AfterTurnEnded/DeferredTurnEnd mother, not the Ending phase. The resolver uses its own end-own/end-foreign binding while retaining the original minimum-edge issuer and source instance proof. Source loss after issue does not cancel the right. At each entitlement beginning, offer adjust/decline and freeze the then-current owner Hand and the actual turn owner current Hand. New true edges created by earlier ending children append at the unprocessed tail without reordering existing items. Raw TurnEnded does not expire fresh same-actualturn tail opportunities; the actual cursor return/new actual turn does. A dead owner cannot begin a fresh adjustment."
+    },
+    {
+      "rule": "相胥原生调整与历史",
+      "basis": "Current text and guide; zero-difference successful adjustment history is an implementation inference.",
+      "implementation": "If the owner has fewer cards than the current turn owner, draw only the difference needed to reach min(5, reference Hand), never five unconditional extra cards. If it has more, discard the whole frozen difference as one real logical Hand discard invocation. After actual primary discard of at least two, perform one native recovery. Opposite branch, no difference, or fewer than two discards produces no invented recovery. An actual chosen adjustment records the actual reference turn owner as recipient history, including a confirmed zero difference; declining does not. Current counts are frozen per entitlement before its payment children and are never recomputed to repay."
+    },
+    {
+      "rule": "襄胙任意他人与永久限定",
+      "basis": "Current primary text, client successful minimum one HE, and same-product guide. Exact spend/history points follow the native implementation contract.",
+      "implementation": "Only a genuine original DyingEntering occurrence can begin the limited skill. Choose any living other player, including a person without both prior skill histories; self is excluded. Give any nonempty set of actual legally transferable HE entities through native atomic movement. Cancellation or no legal HE does not spend the limited right. A successful confirmed gift permanently spends owner+skill for this game across skill loss/regrant and distinct instances. Freeze whether this same recipient has actual earlier Gongjie acquisition history and actual chosen Xiangxu reference-person adjustment history. These are permanent executed facts, not present source membership or current cards. If both histories hold, recover the actual primary gift count after all transfer children; otherwise no Xiangzu recovery is issued. Ox spill is not another gifted card. Lion removal can independently recover before conditional equal recovery while the exact original dying frame remains suspended."
+    },
+    {
+      "rule": "原生孩子、隐私与冷恢复",
+      "basis": "Native command, movement, recovery, actual-turn and typed return contracts; not an official exclusive timing FAQ.",
+      "implementation": "All active state belongs to the real CaoYu ProgramSkillFrame; nullable receipt/context fields are omitted when absent and every exposed receipt list is defensively frozen. Rule facts are scalar. Exact materials, original zones, movement sequences, child origins and once-paid indices prove real payments. Drain actual skills-change, HP, recovery, CardsMoved and dying descendants before each return, including source loss and death. A resumed child cannot repeat a gift, whole discard, suit draw or recovery. Viewer projections expose only the real chooser private frontier and reject outsider commands without state mutation."
+    }
+  ],
+  "verification": {
+    "status": "Passed all named focused Core behavior checks and shared content/gallery verification under root coordination.",
+    "focusedBehaviorMethods": [
+      "GongjieTrueRoundOpaqueChoicesAndSuitDrawCold",
+      "XiangxuCausalMinimumEdgesAndIssuedActualEndCold",
+      "XiangzuTrueDyingHistoryAndPermanentLimitedCold",
+      "CaoYuNativeLionOxPaidLossDeathAndPrivacyCold"
+    ],
+    "state": "focused-verified",
+    "rootFocusedVerifiedAtUtc": "2026-10-17T01:02:48.902672+00:00",
+    "routineRunner": "tools/Test-Changed.ps1 (measured routine scope; no manual Full run)"
+  },
+  "art": {
+    "sourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59600.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-cao-yu.png",
+    "capturedAtUtc": "2026-10-17T00:30:58.187418+00:00",
+    "bytes": 1151398,
+    "sha256": "a4cecae1b598c28f995c272c8ec19c4d48ca9886b438b2435e0726a6fa468c17",
+    "width": 750,
+    "height": 950,
+    "format": "PNG",
+    "visuallyInspected": true
+  }
+}

@@ -89,6 +89,15 @@ public sealed partial class GameEngine
                 if (!IsHuaManSouyingMutationFact(use, souying, actual)) return false;
                 designated.Clear(); actual.Clear();
             }
+            else if (fact is PijingTargetsAppliedEvent pijing && pijing.UseId == use.Id)
+            {
+                IReadOnlyList<int> preceding = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0)
+                    preceding = [actor];
+                if (!actual.SequenceEqual(designated) ||
+                    !IsPijingAppliedTargetFact(use, pijing, preceding, out var resultTargets)) return false;
+                designated = resultTargets.ToList(); actual = resultTargets.ToList();
+            }
             else if (fact is OverflowUseTargetsCanceledEvent canceled && canceled.Receipt.CardUseFrameId == use.Id)
             {
                 if (canceled.Receipt.Source.OwnerSeat != actor || !IsOverflowTargetCancellationFact(use, canceled, actual)) return false;

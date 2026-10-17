@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "generalId": "ol:wu-tu-gu",
+  "officialGid": 140,
+  "identity": {
+    "name": "兀突骨",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 15,
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol"
+  },
+  "liveHeroAndGuideRecheckedOn": "2026-10-17",
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/140",
+      "finalUrl": "https://www.sanguosha.com/hero/140",
+      "status": 200,
+      "capturedAtUtc": "2026-10-17T04:00:16.93023+08:00",
+      "byteCount": 24516,
+      "sha256": "a4981f459d9a72ad5d4cbd7c24ed41d8be36b05d4c1c433df20715e8eb69b9d9",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html",
+      "title": "三国杀兀突骨 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "c3053550d9cad6ec99536c543e80d6a262dab3cd1c1acef1051ecd9fd452a65a"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=140",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=140",
+      "status": 200,
+      "capturedAtUtc": "2026-10-17T04:00:16.93075+08:00",
+      "byteCount": 884,
+      "sha256": "f7be6e0d640c356dad98c3f54d53c546ba41f565292932afe86cfd8df08ec519",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "application/json",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 140,
+              "name": "兀突骨",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/140.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/14000.png",
+              "label": [
+                "进攻",
+                "防御",
+                "简单"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "南蛮乌戈国主，身长丈二[约合现在2.77米]，不食五谷，以生蛇恶兽为饭。身有鳞甲，刀箭不能侵。兀突骨乘骑巨象，头戴日月狼须帽，身披金珠缨络，两肋下露出生鳞甲，眼目中微有光芒。",
+              "characteristic": "拥有高额的体力值。面对火焰伤害十分脆弱。",
+              "hp": 15,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 5
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "formalAvailability": {
+    "source": {
+      "url": "https://www.sanguosha.com/news/20181024_9780_2419",
+      "finalUrl": "https://www.sanguosha.com/news/20181024_9780_2419",
+      "status": 200,
+      "capturedAtUtc": "2026-10-17T04:00:17.242828+08:00",
+      "byteCount": 48074,
+      "sha256": "c363ecf7178cf835619183b32a0a546494c155efe9145ef0185da39389d00241",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html",
+      "title": "[新服] 10月26日-11月1日 兀突骨上线，福利嗨翻天 - 三国杀OL官网",
+      "visibleTextSha256": "96f7b471bdee9d676e6c28c42fcbb80ff98e21d65f348ae4c56532572b09c067"
+    },
+    "title": "[新服] 10月26日-11月1日 兀突骨上线，福利嗨翻天",
+    "publishedAt": "2018-10-25 18:37:39 +08:00",
+    "availableFrom": "2018-10-26 10:00:00 +08:00",
+    "proof": "正式新服礼包提供3天兀突骨及永久兀突骨宝箱；并非测试服。2016官方OL攻略更早已存在，所以2018日期仅是该正式渠道上线，不冒称整个产品首次发行日。"
+  },
+  "officialSiteGuide": {
+    "source": {
+      "url": "https://www.sanguosha.com/news/20161202_9640_3814",
+      "finalUrl": "https://www.sanguosha.com/news/20161202_9640_3814",
+      "status": 200,
+      "capturedAtUtc": "2026-10-17T04:00:17.246103+08:00",
+      "byteCount": 46464,
+      "sha256": "d03471d5e0feceacefe0e6fe4587b9e71d68dc9269093227c74a9a10fe1dbd3a",
+      "hashScope": "HTTP response body bytes",
+      "contentType": "text/html",
+      "title": "[攻略] SP武将：兀突骨攻略文 - 三国杀OL官网",
+      "visibleTextSha256": "5faf60e2ed6f703f44df57652abe0aa104057dd44e594359f341cb2719c8a0d4"
+    },
+    "publishedAt": "2016-12-02 14:22:36 +08:00",
+    "authority": "Official-site published same-product strategy guide, not a dedicated FAQ.",
+    "facts": [
+      "明确OL161牌与15体力的当前普通身份。",
+      "明确存在孟获时仍可令南蛮伤害+1，伤害来源归孟获；因此奖励必须归真实Use而非要求damage.Source==兀突骨。",
+      "燃标记累计，结束阶段失去与标记数等量体力；不含每3燃再减体力上限的其他产品变体。"
+    ],
+    "qualification": "策略性说法如伤害翻倍仅针对基础1伤例子，不能实现为乘2。"
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "contentLength": "5386466",
+          "etag": "\"6ad22bd5-5230e2\"",
+          "lastModified": "Fri, 16 Oct 2026 13:51:17 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-17T03:42:35.606584+08:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "head": {
+          "status": 200,
+          "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "contentLength": "4154044",
+          "etag": "\"6ad22fbc-3f62bc\"",
+          "lastModified": "Fri, 16 Oct 2026 14:07:56 GMT"
+        },
+        "briefHashMatches": true,
+        "reusedRawHashMatches": true,
+        "newRawFileWritten": false,
+        "verifiedAtUtc": "2026-10-17T03:42:35.606584+08:00"
+      }
+    },
+    "decoder": {
+      "method": "Current bundle InitOfb extraction; AES-CFB128(segment_size128) -> gzip -> JSON in memory",
+      "reference": "tools/import_game_audio.py:383-413 read as documentation only; importer not executed",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "characterPath": "GameCharacters.character[a=140]",
+    "rawCharacterRow": {
+      "a": 140,
+      "b": "兀突骨",
+      "d": "WuTuGu",
+      "e": 44,
+      "f": "43",
+      "g": 4,
+      "h": 1,
+      "i": 15,
+      "j": 268,
+      "k": 267,
+      "p": 2,
+      "q": "1",
+      "r": "914001",
+      "y": "南蛮乌戈国主，身长丈二[约合现在2.77米]，不食五谷，以生蛇恶兽为饭。身有鳞甲，刀箭不能侵。兀突骨乘骑巨象，头戴日月狼须帽，身披金珠缨络，两肋下露出生鳞甲，眼目中微有光芒。",
+      "z": "拥有高额的体力值。面对火焰伤害十分脆弱。",
+      "aa": 67,
+      "ab": "550,551",
+      "ad": "画师:biou09&KayaK",
+      "x": "若再敢犯，即率我藤甲精兵，####荡平中原大地！",
+      "al": 4310,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "bt": "50",
+      "bx": 40000,
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,攻击强将"
+    },
+    "directSpellIds": [
+      268,
+      267
+    ],
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=268]",
+        "rawRow": {
+          "a": 268,
+          "b": "3,5",
+          "c": "悍勇",
+          "d": "HanYong",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "o": "当你使用【南蛮入侵】或【万箭齐发】时，若你的体力值小于当前轮数，你可以令此牌伤害+1。 ",
+          "ay": "系统提示→点\"确定\""
+        }
+      },
+      {
+        "path": "GameSpells.spell[a=267]",
+        "rawRow": {
+          "a": 267,
+          "b": "3,4,5",
+          "c": "燃殇",
+          "d": "RanShang",
+          "e": 0,
+          "g": 8,
+          "i": 2,
+          "o": "锁定技，当你受到1点火焰伤害后，你获得1枚“燃”标记。结束阶段，你每有1枚“燃”，你便失去1点体力。"
+        }
+      }
+    ],
+    "linkedSpells": []
+  },
+  "rules": [
+    {
+      "skillId": "ol:hanyong",
+      "spellId": 268,
+      "text": "当你使用【南蛮入侵】或【万箭齐发】时，若你的体力值小于当前轮数，你可以令此牌伤害+1。",
+      "implementation": "Freeze current HP and native round at the true native Use declaration. The optional accepted enhancement belongs to that exact CardUseFrame and its original source invoice. Every actual group-card damage receives one additional point; native Huoshou source attribution, source loss and legitimate actor replacement do not detach the paid card enhancement. Chained propagation inherits its already-finalized amount without adding it twice."
+    },
+    {
+      "skillId": "ol:ranshang",
+      "spellId": 267,
+      "clientText": "锁定技，当你受到1点火焰伤害后，你获得1枚“燃”标记。结束阶段，你每有1枚“燃”，你便失去1点体力。",
+      "heroEquivalentText": "锁定技，当你受到1点火焰伤害后，你获得1枚“燃”标记。结束阶段，你失去X点体力（X为“燃”的数量）。",
+      "implementation": "Native actually applied fire points add public persistent fuel. Prevented damage and other natures add none. One ending binding freezes the current total and performs one equal-amount native unclamped HP loss, including a single native dying procedure below zero. No per-mark separate loss windows or maximum-HP reduction variant. Losing the skill leaves historical marks intact."
+    }
+  ],
+  "interpretationAndEvidence": [
+    "The official-site 2016 OL strategy guide explicitly retains Hanyong when Meng Huo attributes Nanman damage to himself; therefore this is a card-use enhancement, not an original-damage-source predicate.",
+    "The 2018 official new-server availability article is evidence of formal availability, not a claimed first product release: the official 2016 guide predates it.",
+    "The current client per-mark phrasing and current hero total-X phrasing describe the same full amount. One full ending HP loss follows the current hero wording and the official guide, rather than inventing a rescue window for each mark.",
+    "Declaration-time HP/round qualification and continuation after an already accepted use or already paid HP loss follow the literal timing and existing native resolution contract; no dedicated FAQ is claimed for every composed child scenario.",
+    "Only the source needed for new unstarted skill activations is rechecked. Existing native use grants and already paid ending receipts retain their precise typed continuation without granting rights to merely collected unstarted candidates."
+  ],
+  "runtimeBoundary": {
+    "pending": "The ending receipt lives only on its owning ProgramSkillFrame; Hanyong grants live only on their exact native CardUseFrame.",
+    "payment": "The exact native ProgramSkillHpLostEvent transitions the receipt from issuing to paid before BeginProgramSkillDying can expose a child.",
+    "eventPayloads": "New facts contain only scalar fields or scalar immutable records; native-use grant collections are defensively copied as Array.AsReadOnly.",
+    "checkpoint": "Nullable new frame properties are omitted when null. Native children, original source instances and once-only payment proofs are replayed from real commands."
+  },
+  "focusedChecks": [
+    "ActualFirePointsPreventionChainAndPersistentMarksCold",
+    "HanyongActualRoundAndDeclarationFreezeCold",
+    "NativeGroupHuoshouZeroUseAndPaidSourceLossCold",
+    "EndingSingleUnclampedLossDyingChildrenAndSourceLossCold"
+  ],
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "agentBuildOrTestRun": false,
+    "focusedBehaviorGroupsPassed": 4,
+    "scope": "Actual fire damage and prevention, actual-round declaration freeze, native group uses and Huoshou source replacement, single unclamped ending HP loss with paid children/source loss, and deterministic checkpoint/replay. Gallery also checked with bounded two-row high-HP layout. Routine verification is tracked by the owning development task."
+  },
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/140",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/14000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wu-tu-gu.png",
+    "sha256": "98d89b1ea5261bedf95bb53672bb702247ae6e69e7306f8a420b62597a0d89d4",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-wu-tu-gu",
+    "originalImageVisuallyInspected": true
+  }
+}

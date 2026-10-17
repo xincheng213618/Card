@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public sealed record SpPangTongReceipt(CardConversionSource Source,string GameplayHash,int Instruction,int Turn,string Stage,int Target=-1,int? RevealedCard=null,int? OwnCard=null,CardLocation? OwnFrom=null,int? TargetRank=null,int? OwnRank=null,int? RewardSeat=null,long Before=0,long After=0,int ActualCount=0,bool Wounded=false,int HpBefore=0,int MaximumBefore=0,long? DrawInvocation=null,long? BatchId=null,long? ParentId=null)
+public sealed record SpPangTongReceipt(CardConversionSource Source,string GameplayHash,int Instruction,int Turn,string Stage,int Target=-1,int? RevealedCard=null,int? OwnCard=null,CardLocation? OwnFrom=null,int? TargetRank=null,int? OwnRank=null,int? RewardSeat=null,long Before=0,long After=0,int ActualCount=0,bool Wounded=false,int HpBefore=0,int MaximumBefore=0,long? DrawInvocation=null,long? BatchId=null,long? ParentId=null,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? RuleWounded=null)
 {
  private readonly IReadOnlyList<int> _hand=[];
  public IReadOnlyList<int> OriginalHand {get=>_hand;init=>_hand=Array.AsReadOnly(value.ToArray());}
@@ -10,7 +10,7 @@ public sealed partial record ProgramSkillFrame
 public sealed record GuolunRevealedEvent(long FrameId,CardConversionSource Source,int TargetSeat,int CardId):IGameEvent;
 public sealed record SpPangTongStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Instruction,int Turn,long? ParentId,SkillProgramEffectOp Operation):IGameEvent;
 public sealed record SpPangTongSegmentPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Instruction,string Stage,int TargetSeat,long Before,long After,int Count,long? DrawInvocation):IGameEvent;
-public sealed record SongsangHealthIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int VictimSeat,bool Wounded,int HpBefore,int MaximumBefore):IGameEvent;
+public sealed record SongsangHealthIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int VictimSeat,bool Wounded,int HpBefore,int MaximumBefore,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? RuleWounded=null):IGameEvent;
 public sealed record ZhanjiDrawEntitlement(CardConversionSource Source,string GameplayHash);
 public sealed record ZhanjiDrawEntitlementsCapturedEvent(long InvocationId,int OwnerSeat,long SequenceBefore,int Count):IGameEvent;
 public sealed record ZhanjiDrawSourceCapturedEvent(long InvocationId,int OwnerSeat,long SequenceBefore,ZhanjiDrawEntitlement Entitlement):IGameEvent;

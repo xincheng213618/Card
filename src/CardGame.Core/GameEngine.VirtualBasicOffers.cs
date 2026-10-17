@@ -33,7 +33,7 @@ public sealed partial class GameEngine
         if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != owner) yield break;
         foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
-        if (actor.Hp < actor.MaxHp && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
+        if (IsRuleWounded(actor) && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
         if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
     }
 

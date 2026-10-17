@@ -1,0 +1,302 @@
+{
+  "characterId": "character:fan-jiang-zhang-da",
+  "generalId": "ol:fan-jiang-zhang-da",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-16T20:35:44.728569+00:00",
+  "identity": {
+    "name": "范疆张达",
+    "clientRomanization": "FanJiangZhangDa",
+    "product": "sanguosha-ol",
+    "variant": "ol",
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/494",
+      "capturedAtUtc": "2026-10-16T20:35:44.229359+00:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/494",
+      "contentType": "text/html",
+      "byteCount": 24165,
+      "sha256": "d2d93703489ee222bf2491802fba3e9dd4171204141318564055193a69e8f7b9",
+      "title": "三国杀范疆张达 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "b058f6b71523ca71e62239976a9daa96c9438b31d5cc6baab56127089b610114",
+      "visibleDateMatches": []
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=494",
+      "capturedAtUtc": "2026-10-16T20:35:44.245510+00:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=494",
+      "contentType": "application/json",
+      "byteCount": 874,
+      "sha256": "e717f0b37511645d58016945ff6512d670cadeb13df00bc448937fda7ba65d3f",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 494,
+              "name": "范疆张达",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/494.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49400.png",
+              "label": [
+                "进攻",
+                "简单",
+                "转化大师"
+              ],
+              "figure": "吴",
+              "figure_py": "wu",
+              "quality": "史诗",
+              "biography": "范疆、张达两人皆为张飞部将。张飞为关羽报仇，令2人3日之内制造出白盔白甲。二人请求宽限期限，张飞不许，并扬言斩杀2人。2人决定先下手为强，趁张飞熟睡之时刺杀张飞，随后投奔东吴。",
+              "characteristic": "使用限定技之前先确认伤害",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "忠臣",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 2
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "release": {
+    "classification": "Official ordinary OL release",
+    "release": {
+      "url": "https://www.sanguosha.com/news/20220503_1326_3013",
+      "capturedAtUtc": "2026-10-16T20:35:44.495303+00:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20220503_1326_3013",
+      "contentType": "text/html",
+      "byteCount": 530812,
+      "sha256": "4d8607739bcc04bf3f877f206ef966bc5ad88d02f8204772db6a6f1a57746d25",
+      "title": "5.8-5.14 范疆张达神箭秘宝 新品皮肤抢先体验 - 三国杀OL官网",
+      "visibleTextSha256": "57a2424d5012b7ba54f8c91e38f4d9da90fd468864cf2d09cd631acb7a4dfcfc",
+      "visibleDateMatches": [
+        "2022-05-06 17:28:24",
+        "2022-05-08 00:00:00",
+        "2022-05-14 23:59:59",
+        "2022-05-08",
+        "2022-05-08 10:00:00",
+        "2022-05-15 23:59:59",
+        "2022-05-15 00:00:00"
+      ]
+    },
+    "publishedAt": "2022-05-06 17:28:24",
+    "availableFrom": "2022-05-08 00:00:00",
+    "evidence": "Official news lists Wu / male / 4 HP and new-general acquisition plus actual-use weekly tasks; title date range 5.8-5.14."
+  },
+  "currentClient": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+        "verifiedAtUtc": "2026-10-16T19:42:35.606584+00:00"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "status": 200,
+        "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+        "verifiedAtUtc": "2026-10-16T19:42:35.606584+00:00"
+      }
+    },
+    "decoder": {
+      "method": "Current public bundle InitOfb AES-CFB128(segment128), then gzip JSON in memory",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116,
+      "allClientRowsWritten": false
+    },
+    "character": {
+      "path": "Characters.character[a=494]",
+      "rawRow": {
+        "a": 494,
+        "b": "范疆张达",
+        "d": "FanJiangZhangDa",
+        "e": 44,
+        "f": "43",
+        "g": 3,
+        "h": 1,
+        "i": 4,
+        "j": 3076,
+        "k": 3077,
+        "p": 2,
+        "q": "1",
+        "r": "9049401",
+        "y": "范疆、张达两人皆为张飞部将。张飞为关羽报仇，令2人3日之内制造出白盔白甲。二人请求宽限期限，张飞不许，并扬言斩杀2人。2人决定先下手为强，趁张飞熟睡之时刺杀张飞，随后投奔东吴。",
+        "z": "使用限定技之前先确认伤害",
+        "aa": 65,
+        "ab": "901,902",
+        "ad": "画师:游漫美绘",
+        "x": "坐以待毙，####不如先下手为强！ ",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 40000,
+        "LordCardRate1": 16,
+        "LordCardRate2": 56,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,爆发强将"
+      }
+    },
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=3076]",
+        "rawRow": {
+          "a": 3076,
+          "b": "3,4,5",
+          "c": "怨仇",
+          "d": "YuanChou",
+          "g": 1,
+          "i": 2,
+          "o": "锁定技，你使用的黑色【杀】无视目标角色防具，其他角色对你使用的黑色【杀】无视你的防具。",
+          "ae": "<font color='#FFD800'>怨仇</font>发动，{0}无视防具;<font color='#FFD800'>怨仇</font>发动，{0}防具失效"
+        },
+        "canonicalCurrentText": "锁定技，你使用的黑色【杀】无视目标角色防具，其他角色对你使用的黑色【杀】无视你的防具。"
+      },
+      {
+        "path": "GameSpells.spell[a=3077]",
+        "rawRow": {
+          "a": 3077,
+          "b": "3,6",
+          "c": "决生",
+          "d": "JueSheng",
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "l": "494,fanjiangzhangdajuesheng",
+          "n": 0,
+          "o": "限定技，你可以视为使用一张伤害为X的【决斗】（X为目标角色本局使用【杀】的数量且至少为1），然后其获得本技能直到其下回合结束。",
+          "v": "请选择一名目标;<font color='#FFD800'>决生</font>伤害{0}"
+        },
+        "canonicalCurrentText": "限定技，你可以视为使用一张伤害为X的【决斗】（X为目标角色本局使用【杀】的数量且至少为1），然后其获得本技能直到其下回合结束。"
+      }
+    ],
+    "linkedSpells": []
+  },
+  "historicalGuide": {
+    "source": {
+      "url": "https://my.4399.com/yxtouch/gonglue/44760/",
+      "capturedAtUtc": "2026-10-16T20:35:44.510306+00:00",
+      "hashScope": "HTTP response body bytes",
+      "status": 200,
+      "finalUrl": "https://my.4399.com/yxtouch/gonglue/44760/",
+      "contentType": "text/html",
+      "byteCount": 61756,
+      "sha256": "04ff1ecaf8dbd00e2401b5f4db4b4aa157523b4b92624d70992b7d2854460039",
+      "title": "4399三国杀OL 天柱系列武将：范疆张达攻略！_游戏攻略_Touch触动",
+      "visibleTextSha256": "4fdceed9bc171e5dc63e81ff0e34e50a61a0d7135f5b794c89c18d57fa170b3a",
+      "visibleDateMatches": [
+        "2022-07-09 19:09"
+      ]
+    },
+    "classification": "Same-product 4399 OL player guide, not an exclusive official FAQ; historical 2022 wording.",
+    "publishedAt": "2022-07-09 19:09",
+    "usefulObservations": [
+      "True cardless/colorless Duel is nullifiable; multi-target expansion was observed.",
+      "Limited expenditure persists when the skill passes through A to B to C and returns to a previously spent role.",
+      "Historical damage-stage grant timing and zero-damage/prevention cases differ from the current then-clause and must not be applied without current support."
+    ]
+  },
+  "ruleInterpretation": [
+    {
+      "rule": "Yuanchou",
+      "basis": "Current official hero and client spell 3076",
+      "implementation": "Only an actual effective-black Slash Use ignores the current target armor if either the actual user or that target qualifies for Yuanchou. Colorless native zero-entity Slash is excluded. Effective identity/color uses native card-use appearance, including conversions and target/actor replacement."
+    },
+    {
+      "rule": "Juesheng lifetime count",
+      "basis": "Current official hero and client spell 3077",
+      "implementation": "Every unconditional native Slash-family CardUseDeclared resolution is counted once for its final actual actor after exact native actor replacement. Physical Slash, converted Slash, cardless Slash and real requested/response Uses count, including before skill acquisition. Merely playing Slash in Duel/AOE or supplying another actor does not become an additional Use."
+    },
+    {
+      "rule": "Juesheng target-specific X and then-clause",
+      "basis": "Implementation inference from current text and complete native Duel order; no current product-specific FAQ found",
+      "implementation": "Freeze max(1, lifetime Slash count) separately when each actual target first begins its native Duel pair; the same target-based base amount applies in both directions and is reused for extra effect rounds. Grant only after the whole native Use and all target/damage/dying children return. Each actual final recipient still alive receives an independent temporary source even when its effect was nullified or damage prevented. A dead recipient receives no new skill; a paid issuer losing its source or dying does not retract the already issued then-clause."
+    },
+    {
+      "rule": "Permanent limited expenditure and temporary skill lifetime",
+      "basis": "Limited skill semantics; historical same-product relay observation is compatible, while exact cursor timing is implementation inference",
+      "implementation": "Spent status belongs to the player and skill for the entire game, not an instance, printed grant, temporary source or content hash. Relays or reacquisition never reset it. Each temporary grant expires after the first subsequent actual TurnStarted of its recipient reaches ActualTurnCursorReturned, including a face-down skipped turn and all same-actual-turn inserted tail phases. Raw TurnEnded alone does not expire it; independent printed or other temporary grants are preserved."
+    },
+    {
+      "rule": "Paid native Duel response children before the then-clause",
+      "basis": "Implementation inference from the current then-clause and native response completion order, not an exclusive official FAQ",
+      "implementation": "For an exact issued Juesheng Duel, a real Slash response completes its original entity payment and drains native equipment-leaving recovery, HP, card-movement and dying children before the Duel continues. It does not require an unrelated response-observer skill. Thus Silver Lion or Wooden Ox payment cannot defer these children until after the temporary skill is granted; a paid issuer death still permits the living final recipient to receive the subsequent grant."
+    }
+  ],
+  "versionBoundary": {
+    "currentSkillId": 3077,
+    "currentThenClause": "限定技，你可以视为使用一张伤害为X的【决斗】（X为目标角色本局使用【杀】的数量且至少为1），然后其获得本技能直到其下回合结束。",
+    "historical2022": "Historical damage-stage granting and failure/nullification cases are not used as current rules."
+  },
+  "verification": {
+    "status": "implemented-and-focused-checked",
+    "focusedMethods": [
+      "YuanchouEffectiveBlackNativeArmorAndPrivacyCold",
+      "JueshengLifetimeSlashAndBothDuelDirectionsCold",
+      "JueshengWholeMultiTargetExtraEffectsAndTemporaryExpiryCold",
+      "JueshengPaidArmorChildrenSourceLossDeathAndPermanentSpendCold"
+    ],
+    "focusedBehaviorGroupsPassed": 4,
+    "scope": "True effective black armor bypass including actor replacement and private responses; lifetime native Slash declarations before skill acquisition and both Duel damage directions; actual expanded targets, extra effects, nullification and source-specific next-actual-turn expiry; real Lion/Ox response-payment recovery, source loss, true death before then-grant and permanent limited expenditure; native response-completion regressions and deterministic cold replay. Gallery visually accepted; routine verification is tracked by the owning development task."
+  },
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/494",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-fan-jiang-zhang-da.png",
+    "sha256": "8dc12428a91113a8ffc1e67b7883513473460fa02b251faa6644a08b4b1d7d02",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-fan-jiang-zhang-da",
+    "originalImageVisuallyInspected": true
+  }
+}

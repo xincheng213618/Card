@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:qiejian","revision":1,"triggers":[{"id":"last-hand-loss","window":"cardsMoved","subject":"owner","optional":true,"sourceZones":["hand"],"movementOccurrence":"perBatch","effects":[{"op":"resolveQiejianLastHandLoss","target":"owner"}]}]},
+ {"id":"ol:nishou","revision":1,"triggers":[{"id":"equipment-to-discard","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["equipment"],"movementOccurrence":"perBatch","effects":[{"op":"resolveNishouEquipmentLossChoice","target":"owner"}]},{"id":"issued-current-phase-swap","window":"actualPhaseEnded","subject":"owner","optional":false,"effects":[{"op":"resolveNishouIssuedCurrentPhaseSwap","target":"owner"}]}]}
+]}

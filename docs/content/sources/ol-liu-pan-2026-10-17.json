@@ -1,0 +1,290 @@
+{
+  "generalId": "ol:liu-pan",
+  "characterId": "character:liu-pan",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "officialGid": 611,
+  "name": "刘磐",
+  "factionId": "qun",
+  "gender": "Male",
+  "baseHp": 4,
+  "skills": [
+    {
+      "id": "ol:pijing",
+      "officialSkillId": 3439,
+      "name": "披荆",
+      "text": "每回合限一次，当你使用【杀】或普通锦囊牌指定目标后，你可以令至多X名其他角色成为或不成为此牌目标并随机交给你一张牌（X为你已损失体力值且至少为1），这些角色下次使用基本牌或普通锦囊牌指定唯一目标时，可指定你为额外目标或摸一张牌。"
+    }
+  ],
+  "capturedAtUtc": "2026-10-16T22:49:03.955765+00:00",
+  "primarySources": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/611",
+      "capturedAtUtc": "2026-10-16T22:49:02.758145+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/611",
+      "contentType": "text/html",
+      "byteCount": 23729,
+      "sha256": "8d4667ab297d1d254ef25f4479ade87cc32709b7360b198de20a6c06f9dbc998",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀刘磐 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "88e3be4852bb1ce51f148d2d390491437a522fbfbdec659a9fac6a57eb073459",
+      "currentSkillText": "武将技能介绍 官网首页 游戏资讯 赛事广场 视听中心 游戏资料 游戏攻略 武将介绍 原画欣赏 --> 模式介绍 内容中心 常见问题 关注我们 桃园社区 武将详情 您的位置： 官网首页 > 武将介绍 > 武将详情 --> 刘磐 刘磐 刘磐 进攻 过牌 减目标 武将生平： 刘磐是荆州牧刘表的从子，为人骁勇，数次为寇于艾、西安诸县。黄忠曾与其共守长沙攸县。江东孙策为抵御刘磐，分海昏、建昌为左右六县，以东莱太史慈为建昌都尉，治海昏，并督诸将共拒刘磐。此后，刘磐便销声匿迹，不再为寇。 武将特点： 有卖血队友的配合能有更强发挥 武将技能： 披荆 每回合限一次，当你使用【杀】或普通锦囊牌指定目标后，你可以令至多X名其他角色成为或不成为此牌目标并随机交给你一张牌（X为你已损失体力值且至少为1），这些角色下次使用基本牌或普通锦囊牌指定唯一目标时，可指定你为额外目标或摸一张牌。"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=611",
+      "capturedAtUtc": "2026-10-16T22:49:02.778176+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=611",
+      "contentType": "application/json",
+      "byteCount": 962,
+      "sha256": "f63208c839578852db1813aedcc71107384c2c9fb96e0f26bab2c06389defb39",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 611,
+              "name": "刘磐",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/611.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61100.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "减目标"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "稀有",
+              "biography": "刘磐是荆州牧刘表的从子，为人骁勇，数次为寇于艾、西安诸县。黄忠曾与其共守长沙攸县。江东孙策为抵御刘磐，分海昏、建昌为左右六县，以东莱太史慈为建昌都尉，治海昏，并督诸将共拒刘磐。此后，刘磐便销声匿迹，不再为寇。",
+              "characteristic": "有卖血队友的配合能有更强发挥",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 4
+            },
+            {
+              "name": "地主",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "formalAvailability": [
+    {
+      "url": "https://www.sanguosha.com/news/20250909_8014_1816",
+      "capturedAtUtc": "2026-10-16T22:49:02.853177+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20250909_8014_1816",
+      "contentType": "text/html",
+      "byteCount": 329146,
+      "sha256": "d13492c7e511eaa66169d33b536e04da8ae7652332f0e4e0eb012bd9e3cdc82b",
+      "hashScope": "HTTP response body bytes",
+      "title": "9.13-9.19 早秋许愿谋许攸上新 祈愿台闪刘宏来袭 - 三国杀OL官网",
+      "visibleTextSha256": "ab7bf6e164d4a4e8b09192b20310a1827e79215b4ac9e8b7e529576d5900464f",
+      "dates": [
+        "2025-09-12 17:00:02",
+        "2025-9-13 00:15:00",
+        "2025-9-19 24:00:00",
+        "2025-9-13 00:15:00",
+        "2025-9-19 24:00:00",
+        "2025-9-13 00:15:00",
+        "2025-9-19 24:00:00",
+        "2025-9-13 00:00:00",
+        "2025-9-19 24:00:00",
+        "2025-9-13 00:15:00",
+        "2025-9-19 24:00:00",
+        "2025-9-13 00:15:00"
+      ],
+      "interpretation": "Official OL sale lists LiuPan at 2025-09-15 12:00-14:00 for 6666 yuanbao. Proves formally released by then; not a first-release date."
+    }
+  ],
+  "clientSources": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "capturedAtUtc": "2026-10-16T22:49:02.757185+00:00",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "contentType": "application/octet-stream",
+      "byteCount": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "hashScope": "HTTP response body bytes"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "capturedAtUtc": "2026-10-16T22:49:02.757761+00:00",
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "contentType": "application/octet-stream",
+      "byteCount": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "hashScope": "HTTP response body bytes"
+    }
+  ],
+  "decoder": {
+    "method": "fresh public InitOfb AES-CFB128 then gzip JSON, in memory only",
+    "members": {
+      "character.sgs": {
+        "path": "character.sgs",
+        "encryptedByteCount": 352981,
+        "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedByteCount": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "path": "cha_spell.sgs",
+        "encryptedByteCount": 247028,
+        "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedByteCount": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      }
+    },
+    "characterRows": 1632,
+    "spellRows": 3116
+  },
+  "characterRow": {
+    "path": "GameCharacters.character[a=611]",
+    "row": {
+      "a": 611,
+      "b": "刘磐",
+      "d": "LiuPan",
+      "e": 44,
+      "f": "46",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 3439,
+      "p": 1,
+      "q": "1",
+      "r": "9061101",
+      "y": "刘磐是荆州牧刘表的从子，为人骁勇，数次为寇于艾、西安诸县。黄忠曾与其共守长沙攸县。江东孙策为抵御刘磐，分海昏、建昌为左右六县，以东莱太史慈为建昌都尉，治海昏，并督诸将共拒刘磐。此后，刘磐便销声匿迹，不再为寇。",
+      "z": "有卖血队友的配合能有更强发挥",
+      "aa": 16,
+      "ab": "1135,1136",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ar": "20240601T235959",
+      "starMax": 4
+    }
+  },
+  "skillRows": [
+    {
+      "path": "GameSpells.spell[a=3439]",
+      "rawRow": {
+        "a": 3439,
+        "b": "3,5",
+        "c": "披荆",
+        "d": "PiJing",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "每回合限一次，当你使用【杀】或普通锦囊牌指定目标后，你可以令至多X名其他角色成为或不成为此牌目标并随机交给你一张牌（X为你已损失体力值且至少为1），这些角色下次使用基本牌或普通锦囊牌指定唯一目标时，可指定你为额外目标或摸一张牌。",
+        "v": "请至多选择{0}名角色",
+        "at": 0
+      }
+    }
+  ],
+  "linkedSkills": [],
+  "sameProductSupportingSources": [
+    {
+      "url": "https://www.taptap.cn/moment/519114831026980057?group_id=5009",
+      "capturedAtUtc": "2026-10-16T22:49:03.098822+00:00",
+      "status": 200,
+      "finalUrl": "https://www.taptap.cn/moment/519114831026980057?group_id=5009",
+      "contentType": "text/html;charset=utf-8",
+      "byteCount": 229403,
+      "sha256": "15312a7239d18a28ea1d325f237c403e4dfd1ef1b7e3ad57e5dbc1cee8456d9d",
+      "hashScope": "HTTP response body bytes",
+      "title": "【武将攻略】刘磐——“界SP马超”？ - 三国杀OL互通版攻略 - TapTap 三国杀OL互通版论坛",
+      "visibleTextSha256": "bfb0f404fb0bcd7d73a7100877691dbac8eec3bbdb897c98473a88ab08af7923",
+      "dates": [
+        "2024/03/19"
+      ],
+      "classification": "OL author guide, not FAQ",
+      "author": "三国杀OL撰稿组; original 不畏浮云",
+      "publishedAt": "2024-03-19",
+      "originalUrl": "https://club.sanguosha.com/thread-1317895-1-1.html",
+      "versionBoundary": "Guide explicitly describes old black-only, sole-target, donor-choice version. Current official/client removes black/sole restrictions for initial activation, adds target removal and RANDOM payment. Never copy those obsolete initial conditions. Unchanged reciprocal clause observations are supporting guide evidence only."
+    }
+  ],
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/611",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-pan.png",
+    "sha256": "ab33d4a290309e7a046a4e3539484098e179a7cfd9c8462407e6d544a58487e1",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-liu-pan",
+    "byteCount": 1043750,
+    "originalImageVisuallyInspected": true
+  },
+  "versionBoundary": "Current official hero and public-client skill3439 agree. The 2024 OL author guide describes an obsolete black-only, initially-sole, donor-choice version. Its old activation and payment restrictions are not used. Only its unchanged reciprocal support-card/distance observations and HE scope are supplementary evidence, not a current exclusive FAQ.",
+  "ruleInterpretation": [
+    {
+      "rule": "The initial optional clause can add or remove targets from an already multi-target Slash or ordinary trick. Select at most max(1, actual MaxHp-Hp) distinct other living players; freeze X when its real activation starts. Every initial addition independently obeys current native distance, target prohibitions, suit/color policies and card-family legality. True lost HP is separate from treated-wounded booleans.",
+      "classification": "Current primary text plus native card legality; X freeze is implementation inference."
+    },
+    {
+      "rule": "Borrowed Sword changes an entire weapon-holder/victim pair. Its holder alone is the selected person and random donor. Native prepared Slash target plans are reordered to retain each surviving recipient's real state; newly added recipients receive fresh ordinary target state. Removing every target settles the original paid use without a replacement declaration.",
+      "classification": "Compound-card/native continuation composition inference; no dedicated current OL FAQ found."
+    },
+    {
+      "rule": "Each selected person randomly gives one currently transferable genuine Hand or Equipment entity to LiuPan. Use the engine random stream once and preserve the exact movement invoice. GeneralWeapon cannot transfer; there is no false movement if a selected person has no transferable HE. Real Lion recovery, Ox grain spill and all resulting health, movement, death and skill-change children finish before proceeding to the next person.",
+      "classification": "Current random-give text, supplementary old same-product HE observation, and native equipment rules."
+    },
+    {
+      "rule": "Every selected person receives the later right after its own gift/skip subtree even when there was no transferable card. This follows the unconditional wording “这些角色”; no dedicated FAQ was found. The issued right survives turns, rounds and the original skill's loss, regrant or issuer death. A dead holder cannot begin another use.",
+      "classification": "Explicit implementation inference for the unconditional grant and duration/source composition."
+    },
+    {
+      "rule": "The next genuine basic/ordinary-trick Use with exactly one real designated player binds the holder's rights and consumes them once, including decline. The holder may draw one or add the original living LiuPan as a legal extra target. Only distance is waived for that additional target; all other native restrictions remain. Supportive self Peach, Alcohol and implicit-self DrawTwo keep their real native continuations. A dying Peach/Alcohol is considered only if the actual native Use has a real unique designation; Dodge/Nullification response opponents and pure played/provided cards are not invented targets.",
+      "classification": "Current primary text and unchanged same-product support/distance observations, with true-use/designation composition inference."
+    },
+    {
+      "rule": "All pending rights from the same original LiuPan owner and skill bind to one next-use opportunity, preserving every original instance/source invoice and consuming all of them together; they do not multiply that one draw. Independent issuers have independent opportunities in the native target window. Binding belongs to the actual holder accepted at that window; later actor changes cannot invent a new entitlement.",
+      "classification": "Overlapping-source and actor-chain implementation inference; not a claimed official exclusive ruling."
+    },
+    {
+      "rule": "One scalar invoice per committed target choice, complete pair, original/final slot, random selected material, paid movement, grant and consumption reconstructs the exact native history. Only its owning ProgramSkillFrame holds an active cursor/pending movement; use frames hold frozen native target tails and issued groups. No use-ID sidecar or fabricated turn/phase/card event is used.",
+      "classification": "Checkpoint, replay, privacy and native return contract."
+    }
+  ],
+  "verification": {
+    "status": "focused-core-behavior-and-gallery-verified",
+    "focusedMethods": [
+      "PijingNativeAddRemoveZeroAndRandomGiftCold",
+      "PijingBorrowedPairsAndReciprocalSupportTargetsCold",
+      "PijingLongLeaseSourceLossAndTrueDesignationCold",
+      "PijingEquipmentGiftsChildrenPrivacyAndPaidDeathCold"
+    ],
+    "focusedCoreGroupsPassed": 4,
+    "galleryCheckPassed": true,
+    "manualFullRun": false,
+    "scope": "Four actual-command focused behavior groups passed centrally, including initial native add/remove/zero targets, prepared Slash and current-fire composition, BorrowedSword pairs, real supportive uses, long-lived issued rights, genuine Dodge/rescue Peach, source replacement/death, private HE gifts and paid native children. Routine verification is a separate measured scope; no manual full run is claimed."
+  }
+}

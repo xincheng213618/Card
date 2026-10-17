@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:sun-hao-canshi","revision":1,"triggers":[
+  {"id":"normal-draw-add-wounded","window":"drawPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"grantSunHaoCanshiDrawObligation","target":"owner"}]},
+  {"id":"issued-turn-use-discard","window":"cardUseCommitted","ownerRelation":"actor","optional":false,"includeResponseUses":true,"effects":[{"op":"resolveSunHaoCanshiUseDiscard","target":"owner"}]}
+ ]},
+ {"id":"ol:chouhai","revision":1,"cardPolicies":[{"id":"empty-hand-damage","kind":"emptyHandDamageTakenBonus","value":0}]},
+ {"id":"ol:guiming","revision":1,"cardPolicies":[{"id":"other-wu-own-actual-turn","kind":"otherWuTreatedWoundedDuringOwnTurn","value":0}]}
+]}

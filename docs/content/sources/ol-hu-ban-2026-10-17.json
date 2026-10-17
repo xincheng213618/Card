@@ -1,0 +1,283 @@
+{
+  "characterId": "character:hu-ban",
+  "generalId": "ol:hu-ban",
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "capturedAtUtc": "2026-10-16T21:50:12.178734+00:00",
+  "identity": {
+    "name": "胡班",
+    "product": "sanguosha-ol",
+    "variant": "ordinary",
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "primary": {
+    "hero": {
+      "url": "https://www.sanguosha.com/hero/534",
+      "capturedAtUtc": "2026-10-16T21:50:09.531080+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/534",
+      "contentType": "text/html",
+      "byteCount": 24623,
+      "sha256": "bdd07f1d0b93e43c615ac6ca6713e8c5bcbc00fb817734c25b7a4df2072f052c",
+      "hashScope": "HTTP response body bytes",
+      "title": "三国杀胡班 - 三国杀OL-三国杀官网-武将技能介绍",
+      "visibleTextSha256": "d2543274e11e712982b0625d38d67e71e7d83c65091fc1bdce255756f22d60ab",
+      "dateCandidates": []
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=534",
+      "capturedAtUtc": "2026-10-16T21:50:09.510293+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=534",
+      "contentType": "application/json",
+      "byteCount": 1306,
+      "sha256": "e3f6fcf0c87327539b680de26478da2a9f474f3dc0eb24d726818d73ee01887c",
+      "hashScope": "HTTP response body bytes",
+      "apiPayload": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 534,
+              "name": "胡班",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/534.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53400.png",
+              "label": [
+                "进攻",
+                "辅助",
+                "爆发"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "稀有",
+              "biography": "为《三国演义》所杜撰的人物，正史无记载，荥阳太守王植麾下从事、桓帝时议郎胡华之子。关羽过五关斩六将时其中一关就是王植所镇守，胡班奉命放火夜袭关公，因敬服公之气概，并得其父托公所带家书，班看毕，叹曰：“险些误杀忠良！”故将之放走。在嘉靖本里胡班被王植家人杀死，而在后来的毛本里则修改为胡班到荆州来投降关公，公念其旧日相救之情，甚爱之；令随费祎[yī]入川，见汉中王受爵。费祎辞别关公，带了胡班，自回蜀中去了。",
+              "characteristic": "能转化火攻，但更多时候是以队友为目标，帮助队友汰换手牌或出牌。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 7
+            },
+            {
+              "name": "排位后手",
+              "value": 5
+            },
+            {
+              "name": "地主",
+              "value": 5
+            },
+            {
+              "name": "农民",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 5
+            }
+          ],
+          "deeds": []
+        }
+      }
+    }
+  },
+  "formalAvailability": [
+    {
+      "url": "https://www.sanguosha.com/news/20230831_5869_5813",
+      "capturedAtUtc": "2026-10-16T21:50:10.118406+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/news/20230831_5869_5813",
+      "contentType": "text/html",
+      "byteCount": 45510,
+      "sha256": "f4bf98caab7fc84910af243fb041edb198b7ee54cd9a9ccfbaa3b10e19bd4d36",
+      "hashScope": "HTTP response body bytes",
+      "title": "2023年9月排位赛将池修改公告 - 三国杀OL官网",
+      "visibleTextSha256": "d50f3eddfbbd5c250f8757cffba977163a540aeda10f763793cb315f5fa88d61",
+      "dateCandidates": [
+        "2023-08-31 19:18:00"
+      ]
+    }
+  ],
+  "availabilityBoundary": "Official OL September2023 ranked-pool announcement includes HuBan, proving released no later than2023-09; do not call exact launch date.",
+  "client": {
+    "sources": {
+      "bundle": {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "capturedAtUtc": "2026-10-16T21:50:11.209859+00:00",
+        "headStatus": 200,
+        "getStatus": 200,
+        "byteCount": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      "config": {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "capturedAtUtc": "2026-10-16T21:50:11.914307+00:00",
+        "headStatus": 200,
+        "getStatus": 200,
+        "byteCount": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    },
+    "decoder": {
+      "method": "Public InitOfb AES-CFB128+gzip JSON memory only",
+      "members": {
+        "character.sgs": {
+          "path": "character.sgs",
+          "encryptedByteCount": 352981,
+          "encryptedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+          "decodedByteCount": 1485990,
+          "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+        },
+        "cha_spell.sgs": {
+          "path": "cha_spell.sgs",
+          "encryptedByteCount": 247028,
+          "encryptedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+          "decodedByteCount": 1170581,
+          "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+        }
+      },
+      "characterRows": 1632,
+      "spellRows": 3116
+    },
+    "characterPath": "GameCharacters.character[a=534]",
+    "characterRow": {
+      "a": 534,
+      "b": "胡班",
+      "d": "HuBan",
+      "e": 44,
+      "f": "46",
+      "g": 1,
+      "h": 1,
+      "i": 4,
+      "j": 3210,
+      "p": 1,
+      "q": "1",
+      "r": "9053401",
+      "y": "为《三国演义》所杜撰的人物，正史无记载，荥阳太守王植麾下从事、桓帝时议郎胡华之子。关羽过五关斩六将时其中一关就是王植所镇守，胡班奉命放火夜袭关公，因敬服公之气概，并得其父托公所带家书，班看毕，叹曰：“险些误杀忠良！”故将之放走。在嘉靖本里胡班被王植家人杀死，而在后来的毛本里则修改为胡班到荆州来投降关公，公念其旧日相救之情，甚爱之；令随费祎[yī]入川，见汉中王受爵。费祎辞别关公，带了胡班，自回蜀中去了。",
+      "z": "能转化火攻，但更多时候是以队友为目标，帮助队友汰换手牌或出牌。",
+      "aa": 17,
+      "ab": "991,992",
+      "ad": "画师:鬼画府",
+      "x": "大义在侧，####觉我形秽。",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ar": "20231101T235959",
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,爆发强将"
+    },
+    "directSpellIds": [
+      3210
+    ],
+    "spells": [
+      {
+        "path": "GameSpells.spell[a=3210]",
+        "rawRow": {
+          "a": 3210,
+          "b": "3",
+          "c": "晖云",
+          "d": "HuiYun",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "n": 1,
+          "o": "每轮每项限一次，你可以将一张牌当【火攻】使用，结算后选择一项，令目标可以：<br>&nbsp;1.使用展示牌并重铸所有手牌；<br>&nbsp;2.使用一张手牌并重铸展示牌；<br>&nbsp;3.摸一张牌。",
+          "w": "请使用展示牌|请选择一张手牌使用",
+          "v": "请选择一张牌当<font color='#FFD800'>火攻</font>使用",
+          "elementDamage": 2
+        }
+      }
+    ],
+    "linkedSpells": []
+  },
+  "sameProductGuides": [
+    {
+      "url": "https://www.taptap.cn/moment/648453632718539595",
+      "capturedAtUtc": "2026-10-16T21:50:10.040057+00:00",
+      "status": 200,
+      "finalUrl": "https://www.taptap.cn/moment/648453632718539595",
+      "contentType": "text/html; charset=utf-8",
+      "byteCount": 16124,
+      "sha256": "760d9916134fa577f29e3c272c246f6816a95309c1950c1d7d15beafd3a04369",
+      "hashScope": "HTTP response body bytes",
+      "title": "",
+      "visibleTextSha256": "a1a85d515d41409497ad53d979cec9ba89f19cffe957d339a4079d93b2c42371",
+      "dateCandidates": []
+    }
+  ],
+  "sourceBoundary": "Current official hero and public client have the same complete Huiyun text. The March2025 OL community author guide is corroboration, not an official exclusive FAQ. Current ordinary OL HuBan is distinct from any other product/variant. September2023 availability is not asserted as an exact launch date.",
+  "ruleInterpretation": [
+    {
+      "rule": "conversion and round options",
+      "basis": "current primary text; same-product guide",
+      "implementation": "One actual HE entity may be converted to FireAttack. Each of the three post-use options has an independent owner/skill/actual-round spend. Choosing an option consumes it even if its target declines. All three spent options suppress later bonus menus, never further FireAttack conversions. An extra actual turn in the same round does not reset them; a real new round does."
+    },
+    {
+      "rule": "whole-use opportunity and shown entity",
+      "basis": "whole-use timing in same-product guide; multi-target and extra-effect composition are implementation inferences, not an exclusive FAQ",
+      "implementation": "Each real native FireAttack effect retains its actual recipient, native extra-effect ordinal and target cursor. Its genuine displayed Hand entity is frozen separately before FireAttack scratch state resets. Wait for the entire original FireAttack and every native child before freezing and iterating those opportunities. A nullified or Hand-empty actual effect may choose option3 without inventing a display. A removed/nonexistent actual target generates no artificial opportunity. A natural follow-up FireAttack never inherits a Huiyun conversion origin just from its card kind."
+    },
+    {
+      "rule": "natural follow-up and consent",
+      "basis": "same-product guide; mandatory entity identity and leave-and-return details are explicit implementation inferences",
+      "implementation": "The recipient privately chooses whether to act. Option1 requires the same original displayed physical entity currently in its true Hand; option2 permits one current natural Hand entity. Optional viewAs, active skills, grain/piles, zero/multi-material use and recast are excluded. Mandatory current entity identities remain native. Another same-name entity cannot substitute and no entity is obtained from Discard or another owner. If the original entity genuinely returns to the recipient Hand before the offer, its physical ID remains the authorized original entity."
+    },
+    {
+      "rule": "native use and quotas",
+      "basis": "same-product guide and native legality contract",
+      "implementation": "Execute the complete canonical native legal action with real actor/provider, material, implicit/global/self targets and typed whole-use/attack return. Only the exact issued assisted Slash is exempt from ordinary Slash quota and debit. Range, directed prohibitions, target legality, Alcohol quota and unrelated uses receive no exemption. Recheck current native legality at consent/commit. Actual off-turn Alcohol effects expire at their actual-turn cursor return."
+    },
+    {
+      "rule": "recast and paid children",
+      "basis": "current text, same-product guide and native movement contract",
+      "implementation": "After successful accepted option1 use and its entire native subtree, recast the remaining true Hand as one native physical batch, then draw its actual primary count. Option2 recasts only the surviving original displayed entity still in Hand and different from the used card. Decline, unusable original material, a used shown entity or an absent shown entity never substitutes another card. Recast is not discard. Real recast costs use RecastDiscard, rewards RecastDraw and actual CardRecastEvent facts; shuffle and WoodenOx spill never inflate primary costs. The original conversion's native HE payment drains removal-recovery and the separately owned exact WoodenOx spill batch before FireAttack effects and its later bonus. Each ordinary FireAttack effect separately freezes its real source-Hand discard and discard-finish batches, drains their native children before damage and retains the original material invoice independently. This also applies to a genuinely issued natural FireAttack child without creating another Huiyun origin. Existing alternate FireAttack cost producers keep their own already-paid return contract. An equipped GeneralWeapon pays to its true OutsideGame destination and receives only exact per-use native-material recognition. Each Use freezes its own actual payment sequence, so genuinely recovering and reusing the same entity in a later native Use cannot invalidate or borrow the older payment."
+    },
+    {
+      "rule": "source loss, death and replay",
+      "basis": "paid-effect and native-child ordering implementation inference, not an exclusive official FAQ",
+      "implementation": "The completed original conversion, each original opportunity, option spend and accepted natural use retain the original source/hash/round. Source loss or issuer death after an option was paid does not revoke a living recipient's issued native use or recast. A dead recipient cannot issue a new use/reward; an unpaid dead issuer receives no new option menu. Pending choices/payment/native-return cursors live on the owning frame. Event collections and nested canonical actions are frozen; private menus use viewer-filtered snapshots and reject other-seat answers."
+    }
+  ],
+  "art": {
+    "source": "official current hero API cover",
+    "sourcePage": "https://www.sanguosha.com/hero/534",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-hu-ban.png",
+    "sha256": "72f53e6aeaef337473871be8c93b6a6a0d0b1f27369af3669057c62017f3bdff",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "catalogKey": "ol-hu-ban",
+    "originalImageVisuallyInspected": true
+  },
+  "implementationStatus": "Complete module with all four focused actual-command behavior groups verified by the root coordinator.",
+  "verification": {
+    "status": "focused-verified",
+    "validatedBy": "root coordinator",
+    "validatedAtUtc": "2026-10-16T23:43:53.701020+00:00",
+    "focusedCorePassed": 4,
+    "focusedCoreFailed": 0,
+    "behaviorChecks": [
+      "HuiyunWholeFireAttackRoundOptionsAndRepeatedEffectsCold",
+      "HuiyunNaturalHandUseQuotaAndNativeKindsCold",
+      "HuiyunOriginalShownEntityConsentAndPrivacyCold",
+      "HuiyunEquipmentCostRecastChildrenAndPaidLossDeathCold"
+    ],
+    "coveredBoundaries": [
+      "Actual round reset and repeated complete FireAttack effects; exact natural Hand uses, Slash allowance, delayed/global/equipment/FireAttack kinds and native whole-use return.",
+      "Original displayed entity privacy and consent, true leave-and-return through Lianying, original material reclaimed through Jianxiong and reused in a distinct native Use with independent exact payment sequences.",
+      "Initial HE payment, native Silver Lion recovery and Wooden Ox grain movement/damage descendants; real General Weapon Outside payment followed by actual matching discard and FireAttack damage.",
+      "Ordinary FireAttack effect discard uses its two independent native payment batches and the existing AttackDamage return, including genuine Lianying before damage. Native follow-up FireAttack preserves its own source and generates no second Huiyun bonus. Existing ColorFireAttack and MouZhitian payment contracts remain separate.",
+      "Completed original FireAttack and its exact bonus frame retain the original completed window while native recipient uses and their actual remaining movement children finish before recast. Paid source loss/death, immutable event plans, actor-private snapshots and cold checkpoint/replay remain covered."
+    ],
+    "scope": "Focused behavior verification only. Batch-wide measured routine verification is performed separately by the root coordinator. No manual full run is claimed."
+  }
+}

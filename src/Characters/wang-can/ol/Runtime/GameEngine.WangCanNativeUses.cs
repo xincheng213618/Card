@@ -23,7 +23,7 @@ public sealed partial class GameEngine
     }
     else if(actor.HasHpValue&&!HasSelfCardTargetProhibition(actor.Seat)&&!IsDirectedCardTargetProhibited(actor.Seat,actor.Seat,kind)&&!IsCardTargetProhibited(actor,kind,suit,color)&&!HasBeneficiarySuitShield(actor.Seat,actor.Seat,suit))
     {
-     if(kind==CardKind.Peach&&actor.Hp<actor.MaxHp)result.Add(new(LegalActionKind.Peach,id,actor.Seat,$"登楼：使用【桃】",kind,TargetSeats:[actor.Seat]){ConversionSource=conversion});
+     if(kind==CardKind.Peach&&IsRuleWounded(actor))result.Add(new(LegalActionKind.Peach,id,actor.Seat,$"登楼：使用【桃】",kind,TargetSeats:[actor.Seat]){ConversionSource=conversion});
      if(kind==CardKind.Alcohol&&!actor.HasAlcoholEffect&&(CanUseJianjiOrdinaryAlcohol(actor,null)||HasTargetCardQuotaAllowance(actor.Seat,actor.Seat)||HasNextUnlimitedCard(actor)||HasMouWujingAllowance(actor)||HasFriendQihuiAllowance(actor)||HasCardPolicy(actor,SkillProgramCardPolicyKind.UnlimitedAlcoholUse,CardKind.Alcohol)||HasRoundGainedBasicBonus(actor,CardKind.Alcohol,[id])))result.Add(new(LegalActionKind.Alcohol,id,actor.Seat,"登楼：使用【酒】",kind,TargetSeats:[actor.Seat]){ConversionSource=conversion});
     }
    }

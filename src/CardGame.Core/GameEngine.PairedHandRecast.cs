@@ -91,6 +91,7 @@ public sealed partial class GameEngine
         if (r.Stage != PairedHandRecastStage.Ready || p.CostIssued || p.Skipped || !PairedRecastMaterialStillOwned(p))
             throw new InvalidOperationException("A pair may pay only its current frozen original hand entity once.");
         var before = PairedHandRecastSequence;
+        f = BeginFrameNativeRecastInvocation(f, p.Seat, [m.CardId], r.Cursor);
         ReplaceRuntimeTop(f = f with { PairedHandRecast = WithCurrentPairedRecast(r, p with {
             CostIssued = true, CostBefore = before, CostAfter = before }) with { Stage = PairedHandRecastStage.CostChildren },
             PendingMovementContinuation = new(p.Seat, 0, null) });
@@ -130,6 +131,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PairedHandRecastDrawIssuedEvent(f.Id, receipt.Cursor, p.Seat,
             actual, before, PairedHandRecastSequence));
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(p.Seat, p.Material!.CardId, p.Material.PrintedKind, actual));
+        CompleteFrameNativeRecastInvocation(GetActiveProgramFrame(f.Id), actual);
         AdvanceRuntimeProgram(f.Id);
     }
 

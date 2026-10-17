@@ -20,7 +20,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(frame.OwnerSeat, holder.Seat, requested, holder.Hp));
             PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
         }
-        var draw = holder.Hp < holder.MaxHp ? 1 : 2;
+        var draw = IsRuleWounded(holder) ? 1 : 2;
         DrawProgramCards(frame.Id, frame.OwnerSeat, draw, null, null,
             SkillProgramCardSetVisibility.Private, new($"skill-program.{frame.SkillId}.xizhen"));
     }

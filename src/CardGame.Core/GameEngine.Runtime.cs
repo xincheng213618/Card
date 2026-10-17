@@ -268,6 +268,7 @@ public sealed partial class GameEngine
             else { AdvanceRuntimeFrame(recoveryReplacement.Id); AdvanceRulesAndPublishState(); }
             return;
         }
+        if (TryAdvanceWeijieAi()) return;
         if (TryAdvanceRequestedDeckBasicAi()) return;
         if (TryAdvanceDrawFundedDistinctBasicAi()) return;
         if (TryAdvanceChainedStateBasicAi()) return;

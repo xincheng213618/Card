@@ -59,7 +59,7 @@ public sealed partial class GameEngine
                     !IsCardTargetProhibited(target, kind, PhysicalGroupSuit(actor, cards), PhysicalGroupColor(actor, cards)) &&
                     !HasBeneficiarySuitShield(actor.Seat, target.Seat, PhysicalGroupSuit(actor, cards)))
                     .Select(t => t.Seat).ToArray()
-                : kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) &&
+                : kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
                     !IsCardTargetProhibited(actor, kind, PhysicalGroupSuit(actor, cards), PhysicalGroupColor(actor, cards)) &&
                     !HasBeneficiarySuitShield(actor.Seat, actor.Seat, PhysicalGroupSuit(actor, cards)) ? [actor.Seat]
                 : kind == CardKind.Alcohol && CanUseRoundDistinctBasicAlcohol(actor, cards) ? [actor.Seat] : [];
@@ -76,7 +76,7 @@ public sealed partial class GameEngine
     private void BeginKeBiNengPingduanBasicUse(ProgramSkillFrame frame, LegalAction selected)
     {
         if (frame.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing } receipt ||
-            !HasAcceptedKenshangKeAction(frame, selected) && !BuildKeBiNengPingduanBasicActions(frame).Any(a => SameKeBiNengAction(a, selected)))
+            !HasAcceptedKenshangKeAction(frame, selected) && !HasAcceptedWeijieKeAction(frame, selected) && !BuildKeBiNengPingduanBasicActions(frame).Any(a => SameKeBiNengAction(a, selected)))
             throw new InvalidOperationException("Pingduan lost its exact currently legal basic-card selection.");
         var actor = _players[receipt.ActorSeat];
         var original = _pendingDecision;

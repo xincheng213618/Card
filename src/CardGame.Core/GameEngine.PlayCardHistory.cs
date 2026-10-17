@@ -126,7 +126,7 @@ public sealed partial class GameEngine
                         AddFangtianHalberdSlashActions(actions, actor, usedCard, targets, name, kind, source);
                         AddProgramTargetCountSlashActions(actions, actor, usedCard, targets, name, kind, source);
                     }
-                    else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp ||
+                    else if (kind == CardKind.Peach && IsRuleWounded(actor) ||
                              kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
                         actions.Add(new LegalAction(kind == CardKind.Peach ? LegalActionKind.Peach : LegalActionKind.Alcohol,
                             card.Id, kind == CardKind.Peach ? actor.Seat : null,

@@ -10,7 +10,8 @@ public sealed partial class GameEngine
             (attack is null || attack.EffectiveCardKind is not { } incoming || !IsSlashCard(incoming) || attack.TargetSeat != action.ActorSeat)) return false;
         if (!_players.Any(owner => owner.IsAlive &&
             (GetSkillBindingShard(owner)?.GetInstanceTriggers(SkillProgramTriggerWindow.CardUseCommitted) ?? [])
-                .Any(binding => binding.Trigger.IncludeResponseUses))) return false;
+                .Any(binding => binding.Trigger.IncludeResponseUses)) &&
+            !HasSunHaoCanshiResponseObligation(action, continuation)) return false;
         return TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, [],
             continuation: null, completedResponseReturn: new(continuation == ProgramCardContinuation.Dodge ? ProgramCompletedResponseKind.Dodge : ProgramCompletedResponseKind.Nullification, IsCommitted: true));
     }

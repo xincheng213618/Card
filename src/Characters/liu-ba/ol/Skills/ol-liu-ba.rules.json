@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:tongdu","revision":1,"triggers":[
+  {"id":"preparation-gift","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"effects":[{"op":"issueTongduHandGift","target":"owner"}]},
+  {"id":"issued-play-end","window":"playEnding","subject":"owner","optional":false,"effects":[{"op":"returnTongduOriginalCardAtPlayEnd","target":"owner"}]}
+ ]},
+ {"id":"ol:zhubi","revision":1,"activations":[{"id":"recast-coin","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":null,"effects":[{"op":"recastZhubiAndMarkActualDraw","target":"owner"}]}],"triggers":[{"id":"issued-holder-ending","window":"turnEnding","subject":"owner","optional":false,"effects":[{"op":"exchangeZhubiCoinsAtEnding","target":"owner"}]}]}
+]}

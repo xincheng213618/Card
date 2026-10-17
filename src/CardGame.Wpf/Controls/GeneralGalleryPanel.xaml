@@ -189,8 +189,8 @@
                         <Image x:Name="SelectedGeneralPortraitImage" Source="{Binding Portrait.Image}" Stretch="UniformToFill" Margin="19,23,19,24" />
                         <Image Source="/CardGame.Wpf;component/Assets/gallery-portrait-frame.png" Stretch="Fill" IsHitTestVisible="False" />
                         <Image Source="{Binding FactionImage}" Width="156" Height="164" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,18,0,0" />
-                        <ItemsControl ItemsSource="{Binding HealthImages}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="190,35,0,0" ToolTip="{Binding HealthText}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl x:Name="SelectedGeneralHealthIcons" ItemsSource="{Binding HealthImages}" Width="500" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="190,35,0,0" ToolTip="{Binding HealthText}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate><Image Source="{Binding}" Width="48" Height="48" Margin="0,0,2,0" /></DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock Text="{Binding VerticalName}" FontFamily="KaiTi" FontWeight="Bold" FontSize="48" LineHeight="62" Foreground="#FFF4D9" Margin="52,0,0,135" VerticalAlignment="Bottom"><TextBlock.Effect><DropShadowEffect BlurRadius="5" ShadowDepth="2" Color="Black" /></TextBlock.Effect></TextBlock>

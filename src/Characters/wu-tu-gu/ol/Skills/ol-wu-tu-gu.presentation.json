@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "ol:hanyong":{"name":"悍勇","description":"当你使用【南蛮入侵】或【万箭齐发】时，若你的体力值小于当前轮数，你可以令此牌伤害+1。"},
+ "ol:ranshang":{"name":"燃殇","description":"锁定技，当你受到1点火焰伤害后，你获得1枚“燃”标记。结束阶段，你失去X点体力（X为“燃”的数量）。"}
+}}
