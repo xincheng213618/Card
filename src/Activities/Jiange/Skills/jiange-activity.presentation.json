@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "jiange:jiguan": {
+      "name": "机关",
+      "description": "锁定技，你不能成为【乐不思蜀】的目标。"
+    },
+    "jiange:yizhong": {
+      "name": "毅重",
+      "description": "锁定技，若你没有防具，黑色【杀】对你无效。"
+    },
+    "jiange:yuhuo": {
+      "name": "浴火",
+      "description": "锁定技，防止你受到的火焰伤害。"
+    },
+    "jiange:didong": {
+      "name": "地动",
+      "description": "结束阶段，你可以令一名敌方角色翻面。"
+    },
+    "jiange:lianyu": {
+      "name": "炼狱",
+      "description": "结束阶段，你可以对所有敌方角色造成1点火焰伤害。"
+    },
+    "jiange:huodi": {
+      "name": "惑敌",
+      "description": "结束阶段，若有背面朝上的友方角色，你可以令一名敌方角色翻面。"
+    },
+    "jiange:jizhen": {
+      "name": "激阵",
+      "description": "结束阶段，你可以令所有已受伤的友方角色摸一张牌。"
+    },
+    "jiange:lingfeng": {
+      "name": "灵锋",
+      "description": "摸牌阶段，你可以放弃摸牌，亮出牌堆顶两张牌并获得之；若颜色不同，你可以令一名敌方角色失去1点体力。"
+    },
+    "jiange:qiwu": {
+      "name": "栖梧",
+      "description": "当你使用梅花牌时，你可以令一名友方角色回复1点体力。"
+    },
+    "jiange:tianyu": {
+      "name": "天狱",
+      "description": "结束阶段，你可以横置所有未横置的敌方角色。"
+    },
+    "jiange:tianyun": {
+      "name": "天陨",
+      "description": "结束阶段，你可以失去1点体力，对一名敌方角色造成2点火焰伤害并弃置其所有装备。"
+    },
+    "jiange:lingyu": {
+      "name": "灵愈",
+      "description": "结束阶段，你可以翻面，然后令所有已受伤的其他友方角色回复1点体力。"
+    },
+    "jiange:niepan": {
+      "name": "涅槃",
+      "description": "限定技，濒死时，你可以回复3点体力，摸3张牌。"
+    },
+    "jiange:kuanggu": {
+      "name": "狂骨",
+      "description": "当你对距离1以内的角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+      "optionLabels": {
+        "recover": "回复1点体力",
+        "draw": "摸一张牌"
+      }
+    },
+    "jiange:fuyou": {
+      "name": "福佑",
+      "description": "锁定技，你的普通红色锦囊牌结算两次；每回合限一次，此类牌造成伤害后，你摸一张牌。"
+    }
+  }
+}

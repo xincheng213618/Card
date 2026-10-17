@@ -31,6 +31,8 @@ public sealed partial class GameEngine
             $"equipment:{card.Id}:incoming-distance",
             EquipmentCatalog.Get(card.Kind).IncomingDistanceModifier)));
 
+        if (_modeDefinition.TeamActivity is not null)
+            baseTerms.Add(new("jiange:jingfan:allied-distance", JiangeDistanceModifier(source, target)));
         var outgoing = CollectNumericRuleContributions(source, SkillRuleQuery.OutgoingDistance).ToList();
         outgoing.AddRange(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, source.Seat, SkillRuleQuery.OutgoingDistance)
             .Select(item => new FiniteRuleQueryContribution(
@@ -224,7 +226,7 @@ public sealed partial class GameEngine
             .Where(binding => binding.Modifier.ValueExpression != SkillRuleValueExpression.OwnerMarkerCount ||
                 !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
-        if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query).ToArray();
+        if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query).Concat(ActivityRuleContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -249,7 +251,7 @@ public sealed partial class GameEngine
             query,
             context,
             bindings);
-        return programContributions.Concat(CollectStrategicRuleContributions(player, query)).ToArray();
+        return programContributions.Concat(CollectStrategicRuleContributions(player, query)).Concat(ActivityRuleContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(

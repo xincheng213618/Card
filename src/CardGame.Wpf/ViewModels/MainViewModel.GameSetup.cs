@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CardGame.Core;
 
@@ -21,7 +21,8 @@ public sealed partial class MainViewModel
         new("all", "全部", "全部可用模式"),
         new("identity", "身份", "五人或八人随机身份"),
         new("team", "阵营", "公开队伍协作对抗"),
-        new("national", "国战", "双将暗置试验模式")
+        new("national", "国战", "双将暗置试验模式"),
+        new("activity", "活动场", "剑阁决战 · 单人合作挑战")
     ];
     public ObservableCollection<TableModeOption> VisibleTableModes { get; } = [];
     public ModeCategoryOption SelectedModeCategory
@@ -37,14 +38,17 @@ public sealed partial class MainViewModel
     }
     public string ModeLobbySummary => $"{SelectedModeCategory.Description} · {VisibleTableModes.Count} 个入口";
 
-    public IReadOnlyList<StartingTeamOption> StartingTeams { get; } =
+    private static readonly IReadOnlyList<StartingTeamOption> StandardStartingTeams =
     [new("青队", "team:blue", "与青队同伴并肩作战"), new("赤队", "team:red", "与赤队同伴并肩作战")];
+    private static readonly IReadOnlyList<StartingTeamOption> ActivityStartingTeams =
+    [new("蜀军", "team:shu", "守卫剑阁，福佑助战"), new("魏军", "team:wei", "进攻剑阁，狂骨助战")];
+    public IReadOnlyList<StartingTeamOption> StartingTeams => IsActivityModeSelection ? ActivityStartingTeams : StandardStartingTeams;
     public StartingTeamOption SelectedStartingTeam
     {
         get => _selectedStartingTeam;
         set
         {
-            if (!SetProperty(ref _selectedStartingTeam, value)) return;
+            if (value is null || !SetProperty(ref _selectedStartingTeam, value)) return;
             RaisePropertyChanged(nameof(TeamModeSetupText));
             RefreshPlayerGuide();
         }
@@ -80,6 +84,9 @@ public sealed partial class MainViewModel
             // Keep a valid setup mode until the replacement list is ready.
             if (value is null) return;
             if (!SetProperty(ref _selectedTableMode, value)) return;
+            RaisePropertyChanged(nameof(StartingTeams));
+            if (!StartingTeams.Contains(SelectedStartingTeam)) SelectedStartingTeam = StartingTeams[0];
+            RaisePropertyChanged(nameof(IsActivityModeSelection));
             RaisePropertyChanged(nameof(IsTeamModeSelection));
             RaisePropertyChanged(nameof(IsIdentityModeSelection));
             RaisePropertyChanged(nameof(IsNationalModeSelection));
@@ -91,6 +98,13 @@ public sealed partial class MainViewModel
     }
 
     public bool IsTeamModeSelection => IsSelectedTeamMode;
+    public bool IsActivityModeSelection => SelectedTableMode is { } selected &&
+        _contentRegistry.Modes.GetValueOrDefault(selected.ModeId)?.TeamActivity is not null;
+    private bool IsActivitySnapshot => _snapshot is not null &&
+        _contentRegistry.Modes.GetValueOrDefault(_game.ModeId)?.TeamActivity is not null;
+    private string ActivityDisplayName => _contentRegistry.Modes[_game.ModeId].Name;
+    private static string PublicTeamName(string id) => id switch
+    { "team:wei" => "魏军", "team:shu" => "蜀军", "team:blue" => "青队", "team:red" => "赤队", _ => id };
     public bool IsIdentityModeSelection => !IsTeamModeSelection && !IsNationalModeSelection;
     public bool IsClassicIdentityModeSelection =>
         SelectedTableMode?.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) == true;
@@ -99,7 +113,9 @@ public sealed partial class MainViewModel
         ? string.Empty
         : $"{SelectedDeck.Name}：{SelectedDeck.Description}";
     public string TeamModeSetupText =>
-        $"你将加入{SelectedStartingTeam.Name}（2 人）。双方阵营公开，击败另一队全部角色即可获胜。";
+        IsActivityModeSelection
+            ? $"{SelectedTableMode.Name} · {SelectedStartingTeam.Name}。你与人机搭档、两具器械迎战两名英灵和两具器械；击败敌方英灵获胜。玩家固定五阶：体力上限+2、起手牌+1、出杀次数+1、摸牌数+1，获得一次涅槃（回复3点体力、摸3张牌）。万夫莫开仅对你和人机搭档生效：魏军狂骨，蜀军福佑。"
+            : $"你将加入{SelectedStartingTeam.Name}（2 人）。双方阵营公开，击败另一队全部角色即可获胜。";
 
     public bool ManualDiscardEnabled { get => _manualDiscardEnabled; set => SetProperty(ref _manualDiscardEnabled, value); }
     public bool IsNewGameSetupOpen
@@ -125,6 +141,7 @@ public sealed partial class MainViewModel
     public string IdentityRevealRole => HumanPlayer?.RoleLabel ?? "未知";
     public string IdentityRevealRoster => IsNationalSnapshot
         ? NationalSetupText
+        : IsActivitySnapshot ? "双方各四席 · 一名人机搭档 · 两具友军器械 · 两名敌方英灵"
         : IsTeamSnapshot
             ? "青队 2 人 · 赤队 2 人 · 阵营公开"
             : _snapshot?.Players.Count == 5
@@ -132,6 +149,7 @@ public sealed partial class MainViewModel
                 : "主公 1 · 忠臣 2 · 反贼 4 · 内奸 1";
     public string TableModeText => IsTutorialActive
         ? "新手演练 · 四步基础操作"
+        : IsActivitySnapshot ? $"{ActivityDisplayName} · 万夫莫开 · 五阶"
         : IsNationalSnapshot ? NationalModeDisplayName
         : IsDualIdentitySnapshot ? "八人身份·双将 · 本地对战"
         : IsTeamSnapshot
@@ -139,6 +157,7 @@ public sealed partial class MainViewModel
             : $"{(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份 · 本地对战";
     public string WindowTitle => IsNewGameSetupOpen ? "群雄逐鹿 · 游戏大厅" : IsTutorialActive
         ? $"群雄逐鹿 · 新手演练 {TutorialProgress}"
+        : IsActivitySnapshot ? $"群雄逐鹿 · {ActivityDisplayName}"
         : IsNationalSnapshot ? $"群雄逐鹿 · {NationalModeDisplayName}"
         : IsDualIdentitySnapshot ? "群雄逐鹿 · 八人身份·双将牌局"
         : IsTeamSnapshot
@@ -154,7 +173,7 @@ public sealed partial class MainViewModel
         {
             if (GeneralSelectionViewer is not { } viewer) return string.Empty;
             if (IsNationalSnapshot) return $"你的势力 · {FactionName(viewer.FactionId)}";
-            var role = viewer.Role is { } visibleRole ? GetRoleName(visibleRole) : "未揭示";
+            var role = viewer.TeamId is { } team ? PublicTeamName(team) : viewer.Role is { } visibleRole ? GetRoleName(visibleRole) : "未揭示";
             return $"{(IsTeamSnapshot ? "你的阵营" : "你的身份")} · {role}";
         }
     }
@@ -171,6 +190,7 @@ public sealed partial class MainViewModel
                 return viewer.GeneralId.Length == 0
                     ? "选择主将 · 势力与性别沿用主将"
                     : $"主将 · {viewer.GeneralName} · 选择副将（不限势力）";
+            if (IsActivitySnapshot) return "五阶普通武将 · 同阵营人机搭档 · 两具器械协作";
             if (IsTeamSnapshot) return "公开阵营 · 与 1 位队友协作";
             // These public flags remain authoritative even in the diagnostic
             // reveal-all view. Never infer a public general from its visible name.
@@ -190,6 +210,7 @@ public sealed partial class MainViewModel
             if (IsNationalSnapshot) return NationalSelectionSubtitle;
             if (IsDualIdentitySnapshot)
                 return $"你是{HumanPlayer?.RoleLabel} · 全员双将 · 两将体力平均向下取整，主公 +1";
+            if (IsActivitySnapshot) return $"{ActivityDisplayName} · 仅限本阵营武将 · 默认五阶，队友由人机操控";
             if (IsTeamSnapshot) return $"你是{HumanPlayer?.RoleLabel} · 与 1 位队友合作，迎战 2 位对手";
             var lord = _snapshot?.Players.FirstOrDefault(player => player.Role == Role.Lord && player.IsGeneralPublic);
             return lord is null
@@ -202,7 +223,7 @@ public sealed partial class MainViewModel
         : IsDualIdentitySnapshot ? "两将技能同时生效 · 势力与性别沿用主将 · 主公先公开，其余开局亮相"
         : IsTeamSnapshot ? "候选仅对你可见 · 所有玩家选将结束后，武将同时亮相"
         : "候选仅对你可见 · 主公先选并公开，其余玩家选完后亮相";
-    public string IdentityObjective => IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
+    public string IdentityObjective => IsActivitySnapshot ? $"你的目标：与{PublicTeamName(HumanPlayer?.TeamId ?? "team:shu")}人机搭档和两具器械合作，击败两名敌方英灵。" : IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
         ? $"你的目标：与{HumanPlayer?.RoleLabel}队友合作，击败{(HumanPlayer?.TeamId == "team:blue" ? "赤队" : "青队")}"
         : HumanPlayer?.RoleLabel switch
         {
@@ -220,7 +241,7 @@ public sealed partial class MainViewModel
     private string NationalModeDisplayName => _snapshot?.Players.Count == 6
         ? "六人国战 M3 · 魏蜀野心家"
         : "四人国战 Lite · 魏蜀双将";
-    public string TableArenaTitle => IsNationalSnapshot ? "国 战 · 暗 将" : IsDualIdentitySnapshot ? "身 份 场 · 双 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
+    public string TableArenaTitle => IsActivitySnapshot ? "剑 阁 决 战" : IsNationalSnapshot ? "国 战 · 暗 将" : IsDualIdentitySnapshot ? "身 份 场 · 双 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
     public ICommand StartNewGameCommand { get; private set; } = null!;
     public ICommand StartNewGameFromLobbyCommand { get; private set; } = null!;
     public ICommand CancelNewGameSetupCommand { get; private set; } = null!;
@@ -299,7 +320,8 @@ public sealed record StartingTeamOption(string Name, string TeamId, string Descr
 public sealed record TableModeOption(int PlayerCount, string Name, string Description, string ModeId)
 {
     public string PlayerCountText => $"{PlayerCount} 人";
-    public string ModeBadge => ModeId.StartsWith("national:", StringComparison.Ordinal) ? "双将试验"
+    public string ModeBadge => ModeId.StartsWith("activity:", StringComparison.Ordinal) ? "五阶 PVE"
+        : ModeId.StartsWith("national:", StringComparison.Ordinal) ? "双将试验"
         : ModeId == "identity:classic-dual-8" ? "双将身份"
         : ModeId.StartsWith("team:", StringComparison.Ordinal) ? "公开阵营"
         : ModeId.Contains("composed-skills", StringComparison.Ordinal) ? "配置组合"

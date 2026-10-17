@@ -9,6 +9,10 @@ public static class GeneralArt
     private static readonly IReadOnlyDictionary<string, string> PortraitAliases =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["jiange:jia-ren-zi-dan"] = "cao-zhen",
+            ["jiange:qiao-kui-jun-yi"] = "zhang-he",
+            ["jiange:lie-di-xuan-de"] = "liu-bei",
+            ["jiange:yu-huo-shi-yuan"] = "pang-tong",
             ["ol-sp-huang-yueying"] = "ol-huang-yueying-sp",
             ["demo-yuanhu"] = "huang-gai",
             ["demo-ganglie"] = "xiahou-dun",

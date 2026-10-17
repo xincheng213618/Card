@@ -135,6 +135,11 @@ public enum SkillProgramComparisonOperator
 }
 public enum SkillProgramTargetKind
 {
+    PublicTeamEnemies = 27400,
+    PublicTeamWoundedAllies = 27401,
+    OtherPublicTeamWoundedAllies = 27402,
+    PublicTeamUnchainedEnemies = 27403,
+    PublicTeamEnemiesWithFaceDownAlly = 27404,
     OtherLivingNonLord = 9800, OtherLivingNotLastRoundFocus = 9801,
     ExclusiveRendeBeneficiary = 9802, OtherLivingWithoutEndingSupport = 9803,
     ExclusiveQingnangBeneficiary = 9804,
@@ -215,6 +220,8 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    SelectAllPublicTeamTargets = 27400,
+    RepeatCurrentRedTrick = 27401,
     RefillAndScheduleNextTurnSelfOnly = 20560,
     UsePhaseOwnerVirtualAlcohol = 4721,
     RecastOwnedCardsAndDuel = 20300,

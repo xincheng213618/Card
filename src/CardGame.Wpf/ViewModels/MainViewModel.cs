@@ -98,7 +98,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _confirmOpeningHand = confirmOpeningHand;
         _contentRegistry = contentRegistry ??
             (useExpandedContent
-                ? ComposedSkillContentRegistry.CreateShowcase()
+                ? ComposedSkillContentRegistry.CreateShowcase(includeActivities: true)
                 : StandardContentRegistry.CreateWithTeamModes());
         TableModes = useExpandedContent
             ? [
@@ -113,6 +113,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new TableModeOption(5, "五人身份", "1 主公 · 1 忠臣 · 2 反贼 · 1 内奸", "identity:standard-5"),
                 new TableModeOption(4, "2v2公开阵营", "青队 2 · 赤队 2 · 阵营公开 · 击败另一队获胜", "team:standard-2v2")
             ];
+        TableModes = TableModes.Concat(_contentRegistry.Modes.Values.Where(mode => mode.TeamActivity is not null)
+            .OrderBy(mode => mode.TeamActivity!.MachineTier)
+            .Select(mode => new TableModeOption(8, mode.Name, "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
         DeckOptions =
         [
             .. (_contentRegistry.Decks.ContainsKey("classic:standard-deck")
@@ -807,7 +810,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     : player.FactionId is not null
                         ? FactionName(player.FactionId)
                         : GetKingdom(player.GeneralId),
-                RoleLabel = IsNationalSnapshot ? FactionName(player.FactionId) : player.Role is { } role ? GetRoleName(role) : "?",
+                RoleLabel = IsNationalSnapshot ? FactionName(player.FactionId) : player.TeamId is { } teamId ? PublicTeamName(teamId)
+                    : player.Role is { } role ? GetRoleName(role) : "?",
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
                     player.TeamId == _snapshot.Players.SingleOrDefault(seat => seat.IsHuman)?.TeamId,

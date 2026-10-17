@@ -258,7 +258,8 @@ public sealed partial class MainViewModel
         if (composedPackages.Length == 1)
         {
             return ComposedSkillContentRegistry.CreateShowcase(
-                includeNationalZhangJiao: nationalZhangJiaoPackages.Length == 1);
+                includeNationalZhangJiao: nationalZhangJiaoPackages.Length == 1,
+                includeActivities: packages.Contains("jiange-activity@1.0.0", StringComparer.Ordinal));
         }
         if (nationalZhangJiaoPackages.Length == 1)
             throw new InvalidDataException("存档中的国战张角内容包组合不是当前桌面版支持的组合。");

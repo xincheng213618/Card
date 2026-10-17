@@ -196,7 +196,9 @@
                         </Button>
                     </Grid>
                     <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Text="以智谋会群雄，以卡牌定胜负" Foreground="#F1DEC0" FontFamily="KaiTi" FontSize="18" HorizontalAlignment="Center"><TextBlock.Effect><DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.8" /></TextBlock.Effect></TextBlock>
+                        <Button x:Name="ActivityBattleButton" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="activity" Style="{StaticResource LobbyButton}" Padding="32,8" AutomationProperties.Name="活动场，剑阁决战，五阶武将与人机队友">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="活动场 · 剑阁决战" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="五阶出征  /  人机搭档" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" Margin="18,0,0,0" /></StackPanel>
+                        </Button>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" Margin="0,5,0,0" />
                         <TextBlock Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" />
                     </StackPanel>

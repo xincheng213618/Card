@@ -148,6 +148,7 @@ public sealed record ContentModeDefinition(
     IReadOnlyDictionary<string, int>? FactionCounts = null,
     IReadOnlyList<string>? SoloFactionIds = null)
 {
+    public TeamActivityDefinition? TeamActivity { get; init; }
     /// <summary>Eight-player identity variant with two generals per seat.</summary>
     public bool DualGenerals { get; init; }
     /// <summary>Optional identity-role overrides for the number of general choices.</summary>
@@ -453,6 +454,15 @@ public sealed class ContentRegistry
             };
             // Modes without overrides keep their historical fingerprint representation.
             if (mode.DualGenerals) fingerprint[nameof(mode.DualGenerals)] = true;
+            if (mode.TeamActivity is { } activity)
+                fingerprint[nameof(mode.TeamActivity)] = new
+                {
+                    PlayerPools = OrderedPools(activity.PlayerPools),
+                    SpiritPools = OrderedPools(activity.SpiritPools),
+                    MachinePools = OrderedPools(activity.MachinePools),
+                    activity.PlayerTier, activity.SpiritTierMinimum, activity.SpiritTierMaximum, activity.MachineTier,
+                    PlayerSkillIds = OrderedPools(activity.PlayerSkillIds)
+                };
             if (mode.RoleGeneralCandidateCounts is { } candidates)
                 fingerprint[nameof(mode.RoleGeneralCandidateCounts)] = candidates.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
@@ -464,6 +474,9 @@ public sealed class ContentRegistry
                     .Select(entry => new { entry.Key, entry.Value }).ToArray();
             return fingerprint;
         }
+
+        static object OrderedPools(IReadOnlyDictionary<string, IReadOnlyList<string>> pools) =>
+            pools.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => new { p.Key, p.Value }).ToArray();
 
         static object GeneralFingerprint(ContentGeneralDefinition general) => general.InitialHp is null
             ? new
@@ -746,6 +759,7 @@ public sealed class ContentRegistry
 
             foreach (var mode in _modes.Values)
             {
+                ValidateTeamActivity(mode);
                 if (mode.MinPlayers <= 0 || mode.MaxPlayers < mode.MinPlayers)
                 {
                     throw new InvalidOperationException(
@@ -1076,6 +1090,35 @@ public sealed class ContentRegistry
             };
         }
 
+        private void ValidateTeamActivity(ContentModeDefinition mode)
+        {
+            if (mode.TeamActivity is not { } a) return;
+            if (mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != 8 || mode.MaxPlayers != 8 ||
+                mode.TeamCounts is not { Count: 2 } teams || teams.Values.Any(n => n != 4) ||
+                mode.GeneralPoolIds is null || a.PlayerTier is < 1 or > 5 || a.SpiritTierMinimum is < 1 or > 5 ||
+                a.SpiritTierMaximum < a.SpiritTierMinimum || a.SpiritTierMaximum > 5 || a.MachineTier is < 1 or > 5)
+                throw new InvalidOperationException($"Activity '{mode.Id}' requires two four-seat teams and bounded bonuses.");
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var pools in new[] { a.PlayerPools, a.SpiritPools, a.MachinePools })
+            {
+                if (pools.Count != 2 || teams.Keys.Any(team => !pools.ContainsKey(team)))
+                    throw new InvalidOperationException($"Activity '{mode.Id}' has inconsistent team pools.");
+                foreach (var pool in pools.Values)
+                    if (pool.Count < 2 || pool.Distinct(StringComparer.Ordinal).Count() != pool.Count ||
+                        pool.Any(id => !seen.Add(id) || !mode.GeneralPoolIds.Contains(id, StringComparer.Ordinal)))
+                        throw new InvalidOperationException($"Activity '{mode.Id}' needs disjoint pools with at least two generals each.");
+            }
+            if (seen.Count != mode.GeneralPoolIds.Count ||
+                a.PlayerSkillIds.Count != 2 || teams.Keys.Any(team => !a.PlayerSkillIds.ContainsKey(team)) ||
+                a.PlayerSkillIds.Values.Any(ids => ids.Distinct(StringComparer.Ordinal).Count() != ids.Count || ids.Any(id => !_skills.ContainsKey(id))))
+                throw new InvalidOperationException($"Activity '{mode.Id}' has invalid generals or player skills.");
+        }
+
+        private static IReadOnlyDictionary<string, IReadOnlyList<string>> FreezeActivityPools(
+            IReadOnlyDictionary<string, IReadOnlyList<string>> pools) =>
+            new ReadOnlyDictionary<string, IReadOnlyList<string>>(pools.ToDictionary(p => p.Key,
+                p => (IReadOnlyList<string>)Array.AsReadOnly(p.Value.ToArray()), StringComparer.Ordinal));
+
         private static ContentModeDefinition NormalizeMode(ContentModeDefinition definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
@@ -1091,6 +1134,13 @@ public sealed class ContentRegistry
                 GeneralVariantGroups = definition.GeneralVariantGroups is null ? null : FreezeDictionary(
                     definition.GeneralVariantGroups.ToDictionary(entry => entry.Key,
                         entry => (IReadOnlyList<string>)Array.AsReadOnly(entry.Value.ToArray()), StringComparer.Ordinal)),
+                TeamActivity = definition.TeamActivity is not { } activity ? null : activity with
+                {
+                    PlayerPools = FreezeActivityPools(activity.PlayerPools),
+                    SpiritPools = FreezeActivityPools(activity.SpiritPools),
+                    MachinePools = FreezeActivityPools(activity.MachinePools),
+                    PlayerSkillIds = FreezeActivityPools(activity.PlayerSkillIds)
+                },
                 GeneralPoolIds = definition.GeneralPoolIds is null
                     ? null
                     : Array.AsReadOnly(definition.GeneralPoolIds.ToArray()),

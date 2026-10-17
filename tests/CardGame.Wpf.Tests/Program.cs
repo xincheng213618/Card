@@ -87,12 +87,13 @@ internal static class Program
             Check("Opening customization UI: identities roster and hand confirmation", () => OpeningCustomizationUiChecks.RolesRosterAndHandConfirmation(output));
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
+            Check("Jiange activity UI: faction tier rules AI teammate and real setup", () => CheckJiangeActivity(output));
             Check("identity dual generals show consecutive choices portraits and both skill sources", () => IdentityDualGeneralUiChecks.SelectionAndTable(output));
             Check("Interaction motion: native lifecycle reversal and preference cancellation", InteractionMotionChecks.NativeLifecyclePreservesLayoutAndRetiresAnimations);
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
-            Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("own public pile conversion: real Bing rail and response source", OwnPublicPileConversionUiChecks.RealBingPlayRailAndPublishedResponseSource);
             Check("Liu Ba UI: private coins and bottom exchange", LiuBaCoinUiChecks.RealMintPrivateBottomExchangeAndReversibleChoice);
+            Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
             Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));
             Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));
@@ -181,8 +182,8 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 5 && vm.SelectedModeCategory.Id == "all" &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 4 &&
+        Assert(vm.VisibleTableModes.Count == 8 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5 &&
                vm.StartingRoles.Any(role => role.Role is null) &&
                vm.StartingRoles.Where(role => role.Role.HasValue).Select(role => role.Role!.Value).ToHashSet()
                    .SetEquals([Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade]) && vm.SelectedStartingRole.Role is null,
@@ -210,8 +211,8 @@ internal static class Program
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 5 &&
-               (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 8 &&
+               (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 5 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
 
@@ -268,6 +269,45 @@ internal static class Program
         if (root is T item) yield return item;
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
             foreach (var child in Find<T>(VisualTreeHelper.GetChild(root, i))) yield return child;
+    }
+
+    private static void CheckJiangeActivity(string output)
+    {
+        using var vm = new MainViewModel(false, 17, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        { IsMotionEnabled = false };
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        var home = (HomeLobby)window.FindName("LobbyHome");
+        Render(root, 1440, 880, null);
+        ((Button)home.FindName("ActivityBattleButton")).Command.Execute("activity");
+        Assert(vm.VisibleTableModes.Count == 3 && vm.IsActivityModeSelection && vm.IsTeamModeSelection &&
+            !vm.IsIdentityModeSelection && vm.SelectedStartingTeam.TeamId == "team:shu" &&
+            vm.StartingTeams.Select(t => t.TeamId).ToHashSet().SetEquals(["team:shu", "team:wei"]),
+            "Activity entry must offer the three real difficulties and Wei/Shu faction choices.");
+        Assert(vm.TeamModeSetupText.Contains("五阶") && vm.TeamModeSetupText.Contains("人机搭档") && vm.TeamModeSetupText.Contains("万夫莫开"),
+            "Setup must explain the actual player tier, teammate and event.");
+        Render(root, 1440, 880, Path.Combine(output, "150-jiange-setup.png"));
+        vm.StartNewGameFromLobbyCommand.Execute(null);
+        vm.ContinueFromIdentityRevealCommand.Execute(null);
+        Assert(vm.IsGeneralSelectionPending && vm.GeneralSelectionSubtitle.Contains("五阶") &&
+            vm.WindowTitle.Contains("剑阁决战") && vm.IdentityObjective.Contains("英灵"),
+            "A real activity game must reach the same-faction general prompt with activity-specific labels.");
+        Assert(Engine(vm).CreateSnapshot(0).Players.Count(p => p.IsHuman) == 1,
+            "The teammate and all six NPC seats must remain AI controlled.");
+        Render(root, 1440, 880, Path.Combine(output, "151-jiange-selection.png"));
+        vm.ConfirmGeneralChoiceCommand.Execute(null);
+        if (vm.RunToHumanCommand.CanExecute(null)) vm.RunToHumanCommand.Execute(null);
+        Assert(Engine(vm).CreateSnapshot(0).Players.All(p => p.GeneralId.Length > 0) &&
+            vm.Seats.All(p => p.RoleLabel is "蜀军" or "魏军"),
+            "NPC setup must complete through the real UI commands and show the actual factions.");
+        Render(root, 1440, 880, Path.Combine(output, "152-jiange-table.png"));
+        vm.SaveGameCommand.Execute(null);
+        var savedMode = Engine(vm).ModeId;
+        vm.LoadManualGameCommand.Execute(null);
+        Assert(!vm.HasSaveError && Engine(vm).ModeId == savedMode && vm.WindowTitle.Contains("剑阁决战"),
+            "The desktop must restore a real activity save with the optional content package.");
+        window.Close();
     }
 
     internal static void Render(FrameworkElement root, int width, int height, string? path)

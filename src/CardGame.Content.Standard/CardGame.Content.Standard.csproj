@@ -15,6 +15,9 @@
     <EmbeddedResource Include="..\Characters\**\Skills\*.json"
                       LogicalName="CardGame.Content.Standard.SkillPrograms.%(Filename)%(Extension)"
                       WithCulture="false" />
+    <EmbeddedResource Include="..\Activities\**\Skills\*.json"
+                      LogicalName="CardGame.Content.Standard.SkillPrograms.%(Filename)%(Extension)"
+                      WithCulture="false" />
   </ItemGroup>
 
 </Project>

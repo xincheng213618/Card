@@ -921,6 +921,12 @@ public sealed partial class GameEngine
         return _players
             .Where(target => target.IsAlive && targetKind switch
             {
+                SkillProgramTargetKind.PublicTeamEnemies => PublicTeamEnemy(ownerSeat, target),
+                SkillProgramTargetKind.PublicTeamWoundedAllies => SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
+                SkillProgramTargetKind.OtherPublicTeamWoundedAllies => target.Seat != ownerSeat && SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
+                SkillProgramTargetKind.PublicTeamUnchainedEnemies => PublicTeamEnemy(ownerSeat, target) && !target.IsChained,
+                SkillProgramTargetKind.PublicTeamEnemiesWithFaceDownAlly => PublicTeamEnemy(ownerSeat, target) &&
+                    _players.Any(p => p.IsAlive && p.IsFaceDown && SamePublicTeam(_players[ownerSeat], p)),
                 SkillProgramTargetKind.OtherLiving => target.Seat != ownerSeat,
                 SkillProgramTargetKind.OtherLivingMale =>
                     target.Seat != ownerSeat && target.Gender == GeneralGender.Male,
@@ -4445,6 +4451,15 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        if (effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectAllPublicTeamTargets) is { TargetKind: { } teamKind })
+        {
+            publishedTargets = GetProgramTargetSeats(owner.Seat, teamKind, windowContext);
+            publicContext = publicContext with { EligibleTargetCount = publishedTargets.Count };
+            // Estimate a representative public recipient; execution still uses the complete frozen set.
+            effects = effects.Select(e => e.Op == SkillProgramEffectOp.DamageParticipants
+                ? new SkillProgramEffect(SkillProgramEffectOp.Damage, SkillProgramEffectTarget.SelectedTarget, e.Amount, e.Condition,
+                    damageNature: e.DamageNature) : e).ToArray();
+        }
         if (effects.Any(e => e.Op is SkillProgramEffectOp.ResolveUnequalHandHpEnding or SkillProgramEffectOp.AdjustTargetedOrdinaryTrick))
             publicContext = publicContext with { TargetedTrickHandHpScore = GetTargetedTrickHandHpPublicScore(owner.Seat, effects, windowContext) };
         if (effects.Any(e => e.Op == SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly))

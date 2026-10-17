@@ -47,6 +47,8 @@ public sealed record ExtraCardEffectState
     public long ProgramFrameId { get; init; }
     public long ActionId { get; init; }
     public int PaidCardId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AutomaticGameplayHash { get; init; }
     public ProgramSimpleCardContinuation? Simple { get; init; }
     public ProgramTrickContinuation? Trick { get; init; }
     public bool WholeGroupRepeated { get; init; }

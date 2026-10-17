@@ -125,6 +125,12 @@ public sealed partial class MainViewModel
                 ? ["系统分配魏 3 人、蜀 2 人和野心家 1 人；你的候选和暗将只对自己可见。", "依次选择主将、副将；出牌时点击各自的明置按钮，启用对应技能并公开势力。", "消灭其他势力即可获胜；这是六人独立势力试验，完整野心家规则、阵法和明置奖励仍未开放。"]
                 : ["系统分配魏或蜀势力，每个势力两人。你的候选和暗将只对自己可见。", "依次选择主将、副将；出牌时点击各自的明置按钮，启用对应技能并公开势力。", "消灭另一势力即可获胜；本模式为四人简化国战，没有野心家、阵法或明置奖励。"];
         }
+        else if (IsNewGameSetupOpen && IsActivityModeSelection)
+        {
+            CurrentGuideTitle = "剑阁决战 · 五阶出征";
+            CurrentGuideBody = TeamModeSetupText;
+            steps = ["选择普通、进阶或困难，再选择魏军或蜀军；搭档由人机操控。", "普通为英灵一阶、器械一阶；进阶为英灵二至四阶、器械二阶；困难为英灵三至五阶、器械三阶。", "万夫莫开只加成普通武将席位；击败两名敌方英灵即可获胜。"];
+        }
         else if (IsNewGameSetupOpen && IsTeamModeSelection)
         {
             CurrentGuideTitle = "选择队伍，与同伴并肩作战";

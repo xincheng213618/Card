@@ -555,7 +555,7 @@ internal static class ProgramCompositionValidator
                     case ReadTargetSet read:
                     {
                         var selection = effects.Take(index)
-                            .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
+                            .LastOrDefault(item => item.Op is SkillProgramEffectOp.SelectTargets or SkillProgramEffectOp.SelectAllPublicTeamTargets);
                         if (selection is null && effects.Take(index)
                                 .Any(item => item.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment))
                             break; // The paid pair selection produces exactly its two exchange targets.

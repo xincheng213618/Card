@@ -30,7 +30,7 @@ internal static class ModeSelectionChecks
             var fivePlayer = vm.VisibleTableModes.Single(mode => mode.ModeId == "identity:classic-5");
             choices.SetCurrentValue(Selector.SelectedItemProperty, fivePlayer);
             choices.GetBindingExpression(Selector.SelectedItemProperty)!.UpdateSource();
-            foreach (var categoryId in new[] { "all", "identity", "all", "team", "national", "identity", "all" })
+            foreach (var categoryId in new[] { "all", "identity", "all", "team", "national", "activity", "identity", "all" })
             {
                 var retained = vm.SelectedTableMode;
                 vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == categoryId);

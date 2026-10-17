@@ -2842,6 +2842,8 @@ public sealed partial class GameEngine
     {
         "team:blue" => "青队",
         "team:red" => "赤队",
+        "team:wei" => "魏军",
+        "team:shu" => "蜀军",
         _ => teamId
     };
 
@@ -3085,6 +3087,7 @@ public sealed partial class GameEngine
 
     private void SetupTeamPlayers()
     {
+        if (_modeDefinition.TeamActivity is not null) { SetupActivityPlayers(); return; }
         var teamIds = GetModeTeamIds();
         if (teamIds.Count != 2 || _modeDefinition.TeamCounts is null)
         {
@@ -3328,7 +3331,7 @@ public sealed partial class GameEngine
                 if (cardIndex >= counts[player.Seat]) continue;
                 // The first seat of the first public team starts with one
                 // fewer card in the 2v2 adapter, compensating for initiative.
-                if (IsTeamMode && cardIndex == 0 && player.Seat == _currentSeat)
+                if (IsTeamMode && _modeDefinition.TeamActivity is null && cardIndex == 0 && player.Seat == _currentSeat)
                 {
                     continue;
                 }
@@ -3748,6 +3751,7 @@ public sealed partial class GameEngine
         var familyKeys = families?.SelectMany(group => group.Value.Select(id => (Id: id, Family: group.Key)))
             .ToDictionary(entry => entry.Id, entry => entry.Family, StringComparer.Ordinal);
         var candidates = _availableGenerals
+            .Where(general => _modeDefinition.TeamActivity is null || ActivitySeatPool(player.Seat).Contains(general.Id, StringComparer.Ordinal))
             .Where(general => !IsNationalWarMode ||
                               string.Equals(general.FactionId, player.NationalFactionId, StringComparison.Ordinal))
             .DistinctBy(general => familyKeys?.GetValueOrDefault(general.Id, general.Id) ?? general.Id, StringComparer.Ordinal)
@@ -3891,6 +3895,8 @@ public sealed partial class GameEngine
         {
             player.General = general;
             player.GeneralSelected = true;
+            player.General = ActivityGeneral(player, general);
+            if (_modeDefinition.TeamActivity is not null) InitializeActivityHealth(player);
             player.GeneralRevealed = !IsTeamMode && player.Role == Role.Lord && !GeneralHasIdentityConcealment(general);
             if (UsesGeneralBaseHp)
             {
@@ -15871,6 +15877,7 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(attack.SourceSeat) || !IsValidPlayerSeat(attack.TargetSeat) ||
             !_players[attack.SourceSeat].IsAlive || !_players[attack.TargetSeat].IsAlive)
             return null;
+        if (JiangeDamageCap(attack) is { } activityCap) return activityCap;
         foreach (var instance in GetSkillBindingShard(_players[attack.TargetSeat]).ProgramInstances)
             foreach (var modifier in instance.Program.DamageModifiers)
                 if (modifier.CapsToAmount &&
@@ -16685,7 +16692,7 @@ public sealed partial class GameEngine
             var previousWinner = _winner;
             if (IsTeamMode)
             {
-                _winnerTeamId = GameRules.EvaluateWinningTeam(_players.Select(player =>
+                _winnerTeamId = EvaluateActivityWinner() ?? GameRules.EvaluateWinningTeam(_players.Select(player =>
                     new TeamLifeState(player.TeamId!, player.IsAlive)));
                 _winner = _winnerTeamId is null
                     ? Winner.None
@@ -20143,8 +20150,8 @@ public sealed partial class GameEngine
         Role.Loyalist => "忠臣",
         Role.Rebel => "反贼",
         Role.Renegade => "内奸",
-        Role.TeamA => "青队",
-        Role.TeamB => "赤队",
+        Role.TeamA => GetTeamName(GetModeTeamIds().FirstOrDefault() ?? "team:blue"),
+        Role.TeamB => GetTeamName(GetModeTeamIds().Skip(1).FirstOrDefault() ?? "team:red"),
         _ => role.ToString()
     };
 

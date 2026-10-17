@@ -39,6 +39,9 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Jiange activity: five-tier players scaled NPCs private faction roster and replay", JiangeActivityChecks.SetupTiersTeamsPrivateRosterAndReplay),
+    ("Jiange activity: Fuyou repeats one red trick use and replays", JiangeActivityChecks.RedTrickRepeatsOnePhysicalUseAndReplays),
+    ("Jiange activity: native NPC enemy effects and limited rescue replay", JiangeActivityChecks.NpcEffectsAndLimitedRescueUseRealCommands),
     ("native logical discard invocations preserve whole mixed and cross-prompt costs", NativeLogicalDiscardChecks.WholeLogicalDiscardsKeepCrossPromptAndMixedMaterialInvoicesCold),
     ("native effective faction changes preserve avatar declarations and setup boundaries", NativeFactionChecks.AvatarAcquisitionRedeclarationSourceLossAndSetupCold),
     ("Meng Da: GoudeWholeInvocationHistoryAndOptionMasksCold", MengDaChecks.GoudeWholeInvocationHistoryAndOptionMasksCold),

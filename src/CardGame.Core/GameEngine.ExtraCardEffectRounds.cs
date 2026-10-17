@@ -104,8 +104,12 @@ public sealed partial class GameEngine
         {
             var r = use.ExtraCardEffect!;
             if (use.Action is not { Type: CardActionType.Use } action || action.ActionId != r.ActionId || !ExtraEffectCardKind(use.CardKind) ||
-                CompleteProgramEventHistory().OfType<ExtraCardEffectIssuedEvent>().Count(e => e.CardUseFrameId == use.Id &&
-                    e.ActionId == r.ActionId && e.ProgramFrameId == r.ProgramFrameId && e.Source == r.Source && e.PaidCardId == r.PaidCardId) != 1 ||
+                (r.AutomaticGameplayHash is { } automaticHash
+                    ? CompleteProgramEventHistory().OfType<AutomaticExtraCardEffectIssuedEvent>().Count(e => e.CardUseFrameId == use.Id &&
+                        e.ActionId == r.ActionId && e.ProgramFrameId == r.ProgramFrameId && e.Source == r.Source &&
+                        e.GameplayHash == automaticHash && _contentRegistry.GetSkill(r.Source.SkillId).Program?.GameplayHash == automaticHash)
+                    : CompleteProgramEventHistory().OfType<ExtraCardEffectIssuedEvent>().Count(e => e.CardUseFrameId == use.Id &&
+                        e.ActionId == r.ActionId && e.ProgramFrameId == r.ProgramFrameId && e.Source == r.Source && e.PaidCardId == r.PaidCardId)) != 1 ||
                 r.OriginalAttacks.GroupBy(s => s.TargetIndex).Any(g => g.Count() != 1) ||
                 r.OriginalAttacks.Any(s => s.TargetIndex < 0 || s.TargetIndex >= use.TargetSeats.Count) ||
                 r.WholeGroupRepeated && !CompleteProgramEventHistory().OfType<ExtraCardEffectStartedEvent>().Any(e => e.CardUseFrameId == use.Id && e.ActionId == r.ActionId))

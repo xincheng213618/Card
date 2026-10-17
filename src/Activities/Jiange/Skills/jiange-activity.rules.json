@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "jiange:jiguan",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "indulgence-immunity",
+          "kind": "prohibitTarget",
+          "cardKinds": [
+            "indulgence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:yizhong",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "black-slash-without-armor",
+          "kind": "nullifyBlackSlashWithoutArmor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:yuhuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prevent-fire",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "condition": {
+            "kind": "damageNatureIs",
+            "damageNature": "fire"
+          },
+          "effects": [
+            {
+              "op": "preventCurrentDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:didong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-over-enemy",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "publicTeamEnemies"
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:lianyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "burn-enemies",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAllPublicTeamTargets",
+              "target": "owner",
+              "targetKind": "publicTeamEnemies"
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTargets",
+              "amount": 1,
+              "nature": "fire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:huodi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "confuse-enemy",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "publicTeamEnemiesWithFaceDownAlly"
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:jizhen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "support-wounded-allies",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAllPublicTeamTargets",
+              "target": "owner",
+              "targetKind": "publicTeamWoundedAllies"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTargets",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:lingfeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "replace-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "destination": "ownerHand"
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "publicTeamEnemies"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardsSameColor",
+                    "sourceBind": "revealed"
+                  }
+                ]
+              }
+            }
+          ],
+          "drawPhaseMode": "replacement"
+        }
+      ]
+    },
+    {
+      "id": "jiange:qiwu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "club-use-recovery",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "cardActionSuitIs",
+            "suits": [
+              "club"
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "publicTeamWoundedAllies"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:tianyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "chain-enemies",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAllPublicTeamTargets",
+              "target": "owner",
+              "targetKind": "publicTeamUnchainedEnemies"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTargets",
+              "chained": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:tianyun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "burn-and-break",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "publicTeamEnemies"
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "fire"
+            },
+            {
+              "op": "discardParticipantCards",
+              "target": "selectedTarget",
+              "zones": [
+                "equipment"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:lingyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "heal-allies",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAllPublicTeamTargets",
+              "target": "owner",
+              "targetKind": "otherPublicTeamWoundedAllies"
+            },
+            {
+              "op": "turnOver",
+              "target": "owner"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTargets",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "tier-five-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ],
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "jiange:kuanggu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nearby-damage-choice",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 100,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "sourceToTargetDistanceAtDamage"
+            },
+            "operator": "lessThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "draw"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jiange:fuyou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "repeat-red-trick",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "instantTrick"
+          ],
+          "optional": false,
+          "condition": {
+            "kind": "cardActionCardIsRed"
+          },
+          "effects": [
+            {
+              "op": "repeatCurrentRedTrick",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "red-trick-damage-draw",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "directCardUseDamage"
+              },
+              {
+                "kind": "damageCardIsRed"
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "damageCardIsSlash"
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    }
+  ]
+}

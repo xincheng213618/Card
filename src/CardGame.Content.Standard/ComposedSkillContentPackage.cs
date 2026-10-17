@@ -123,7 +123,7 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
 public static class ComposedSkillContentRegistry
 {
     /// <summary>Builds the current full local showcase plus the composed-skill mode.</summary>
-    public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true)
+    public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false)
     {
         var packages = new List<IGameContentPackage>
         {
@@ -138,6 +138,7 @@ public static class ComposedSkillContentRegistry
         if (includeNationalZhangJiao)
             packages.Add(new StandardNationalZhangJiaoPackage());
         packages.Add(new ComposedSkillContentPackage());
+        if (includeActivities) packages.Add(new StandardJiangeActivityPackage());
         return ContentRegistry.Build(packages.ToArray());
     }
 }

@@ -41,6 +41,12 @@ internal sealed class CharacterContentCatalog
         return entries.Pools.TryGetValue(pool, out var ids) ? ids : System.Array.Empty<string>();
     }
 
+    internal IReadOnlyList<ContentGeneralDefinition> GetPoolGenerals(string packageId, string pool)
+    {
+        var ids = GetPoolIds(packageId, pool).ToHashSet(StringComparer.Ordinal);
+        return Package(packageId).Definitions.Value.OfType<ContentGeneralDefinition>().Where(g => ids.Contains(g.Id)).ToArray();
+    }
+
     private PackageEntries Package(string packageId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(packageId);

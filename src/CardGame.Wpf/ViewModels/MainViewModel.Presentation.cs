@@ -353,7 +353,9 @@ public sealed partial class MainViewModel
         }
         return string.Join(" · ", parts.Distinct());
     }
-    public string AliveText => IsTeamSnapshot
+    public string AliveText => IsActivitySnapshot
+        ? $"魏军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:wei")} · 蜀军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shu")} 存活"
+        : IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"
         : $"{Seats.Count(seat => seat.IsAlive)} / {Seats.Count} 人存活";
     public string PlayButtonText => IsDiscardSelectionPending ? $"弃置 {SelectedDiscardCount} / {RequiredDiscardCount} 张"
