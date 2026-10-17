@@ -1,0 +1,62 @@
+{
+  "checkedAtUtc": "2026-10-17T16:53:18.579529+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐周妃",
+  "generalId": "le:zhou-fei",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "officialHero": "https://x.sanguosha.com/hero/1331.html",
+  "officialHeroSha256": "d6544d7eefd18ed1915f39dd983c0c40a2638b787f00994f9d3e63013d8077bf",
+  "officialRevision": "https://sanguosha.com/news/20231204_6793_5816",
+  "officialRevisionSha256": "9f0c590b1c19a61a79bcc7c6ac4d01ea7e76d34ddd8c0b00d903b76be914f712",
+  "revisionPublished": "2023-12-06 18:09:47",
+  "revisionEffective": "2023-12-07",
+  "officialLaunch": "https://sanguosha.com/news/20230927_5620_0617",
+  "launchPublished": "2023-09-28 22:41:19",
+  "firstAvailable": "2023-09-29",
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133101.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1331.html",
+    "heroImageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1133101.png",
+    "id": "1133101",
+    "name": "经典形象",
+    "sha256": "ca9d598c6b777feb34105fe19e602f4ca695ac77442ca3c2a230f2201840adab",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-zhou-fei.png"
+  },
+  "engineeringInterpretations": {
+    "initialEntities": "Freeze actual final opening Hand entities before any GameStarting child, including real opening replacements.",
+    "entityMarks": "Permanent global physical-ID marks. Transfer or departure does not remove the mark. All marked cards in the Hand of a live Lingkong holder are exempt from the hand limit; this applies the common mark name consistently. The official pages have no specialized transfer/reacquisition FAQ.",
+    "outsideDraw": "Use actual movement timing: only the recipient own actual Draw phase is excluded, including an extra Draw phase. A gain during another character Draw phase qualifies. Empty gains and Hand-to-Processing-to-same-Hand returns do not qualify.",
+    "firstActualGain": "Each recipient actual turn first outside-Draw gain is historical even before skill acquisition; acquiring or regaining Lingkong does not manufacture a new first gain. The live exact source at the original batch issues the permanent marking right; later source loss does not cancel that issued right. Native after-TurnEnded tail effects and end-owned Dianjun extra Play retain the old actual-turn cursor until the next genuine turn starts.",
+    "xianshuSequence": "Gift the original marked Hand entity, finish its native children, then sample the current public HP difference (absolute, capped at five). Finish native draw and its children before sampling the red/black HP comparison anew.",
+    "paidSourceRights": "A paid gift retains its original source and once-only stages after skill loss or owner death. Native draw decides the actual dead-recipient result; later comparison may still use public numeric HP when the target lives. Undefined HP gives zero draw count and cannot satisfy a numeric comparison. Native game-over boundaries remain authoritative.",
+    "giftColor": "Freeze the chosen physical entity effective suit in the source Hand when the gift is issued, matching existing movement-payment color handling. Later movement, recipient changes, skill loss or death does not rewrite the original color. No specialized anniversary FAQ was obtained.",
+    "wholeGain": "Treat one completed native draw or its actual replacement as one acquisition using its exact physical material list. Freeze first-gain ownership on the original movement before child observers; an earlier queued acquisition retains first rights."
+  },
+  "validation": {
+    "status": "passed",
+    "verifiedAtUtc": "2026-10-17T17:32:59.635186+00:00",
+    "focused": {
+      "corePassed": 16,
+      "wpfPassed": 1,
+      "durationMs": 22077
+    },
+    "routine": {
+      "corePassed": 161,
+      "wpfPassed": 36,
+      "durationMs": 69229
+    },
+    "manualFullRun": false,
+    "visualInspection": "Actual WPF details render: official original portrait, Le series, all two complete skill descriptions and the scroll bottom were inspected.",
+    "nativeInput": "Routine native WPF input checks passed after the user released the left button; the real Space input route reported AsyncLeftDown=false.",
+    "coveredBoundaries": [
+      "Original opening entities, permanent marks across transfers and reacquisition, current-holder exemption and actual discard eligibility.",
+      "Whole first nonempty outside-own-Draw gains, own and foreign Draw timing, actual-turn quota across extra Play, source acquisition and loss, and exact native replacement materials.",
+      "Xianshu original marked Hand gift, zero and capped-five actual draws, gift children and fresh post-draw red or black health comparison.",
+      "Paid source loss or death, genuine health children, private and stale input rejection, once-only returns and cold replay."
+    ],
+    "scope": "Development focused and routine verification only. Specialized anniversary FAQ/client need branches were not obtained; engineering interpretations remain explicit."
+  }
+}

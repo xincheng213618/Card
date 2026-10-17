@@ -15061,6 +15061,23 @@
       ]
     },
     {
+      "key": "le-zhou-fei",
+      "characterName": "乐周妃",
+      "defaultSkinId": "1133101",
+      "skins": [
+        {
+          "id": "1133101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1331.html",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-zhou-fei.png",
+          "sha256": "ca9d598c6b777feb34105fe19e602f4ca695ac77442ca3c2a230f2201840adab",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133101.png"
+        }
+      ]
+    },
+    {
       "key": "le-mi-heng",
       "characterName": "乐祢衡",
       "defaultSkinId": "1133401",
