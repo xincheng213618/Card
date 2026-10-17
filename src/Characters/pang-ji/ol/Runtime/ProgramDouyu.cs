@@ -120,6 +120,16 @@ internal static class DouyuComposition
     private static bool Exact(SkillProgramTrigger t, string id, SkillProgramTriggerWindow window, bool optional) =>
         t.Id == id && t.Window == window && t.Subject == SkillProgramTriggerSubject.Owner && t.Optional == optional &&
         t.Condition.Kind == SkillProgramTriggerConditionKind.Always && t.UsageScope is null && t.UsageLimit is null &&
+        t.DynamicUsageLimit is null && t.NamedUsageGroup is null && t.GainPhaseQualification is null &&
+        t.RequireDamageSource is null && t.RequireNoCardConversion is null && t.CardCategories.Count == 0 &&
+        t.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && !t.AllowNoEventTarget && !t.OnlyDesignatedCardTargets &&
+        t.MovementOccurrence is null && t.DamageOccurrence is null && !t.EvaluateConditionAtResolution &&
+        t.ChoiceGroup is null && t.OrderGroup is null && t.Suits.Count == 0 && t.MinimumRank == 1 && t.MaximumRank == 13 &&
+        t.ExcludedReasons.Count == 0 && t.JudgmentReasons.Count == 0 && t.JudgmentSource is null &&
+        t.MovementReasons.Count == 0 && t.ExcludedMovementReasons.Count == 0 && !t.IgnoreOwnSkillMovements &&
+        !t.MovementDiscardOnly && t.DiscardOwnerScope == SkillProgramDiscardOwnerScope.Other &&
+        t.HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerEvent && t.DrawPhaseMode == SkillProgramDrawPhaseMode.Additive &&
+        !t.NoDyingAtActivation && !t.DeferredTurnEndOnly && !t.AllowOwnDiscardPhaseEnded &&
         t.MarkerCost is null && t.OwnerRelation is null && t.SourceSkillId is null && t.SourceViewAsId is null &&
         !t.IncludeResponseUses && !t.SingleActionInstance && t.SourceZones.Count == 0 && t.DestinationZones.Count == 0 &&
         t.CardKinds.Count == 0 && t.DamageCardKinds.Count == 0 && t.Effects is [{ Op: SkillProgramEffectOp.ResolveDouyuPreRevealSwapAndWinDraw,

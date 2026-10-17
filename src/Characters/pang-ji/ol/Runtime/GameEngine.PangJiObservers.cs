@@ -55,6 +55,40 @@ public sealed partial class GameEngine
         return r.Stage == PangJiStage.PindianChildren && r.Result is { } result && (m.CardId == result.SourceCardId || m.CardId == result.OpponentCardId);
     }
     private bool IsPangJiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame child) => IsDouyuRecoveryParent(f, child) || f.PangJi is { Paid: true, Stage: PangJiStage.CostChildren, Cost: { CardKind: CardKind.SilverLion, From.Zone: CardZoneKind.Equipment } } && RecoveryReplacementFrameRidesOn(child, f) && child.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && child.Attempt.SourceSeat == f.OwnerSeat && child.Attempt.TargetSeat == f.OwnerSeat && child.Attempt.Amount == 1 && child.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && child.Attempt.Completion.MoveReason?.Value == BiguoCostReason;
+    private bool IsBiguoPindianSettlementBatch(ProgramSkillFrame f, CardMovementBatchContext batch)
+    {
+        if (f.PangJi is not { Paid: true, Stage: PangJiStage.PindianChildren, Result: { } result } r ||
+            r.Op != SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan ||
+            batch.ParentFrameId != r.PindianId || batch.AwaitingProgramFrameId is not null ||
+            batch.TurnNumber != r.ActualTurn || batch.OriginOwnerSeat != f.OwnerSeat ||
+            batch.OriginSkillId != f.SkillId || batch.OriginSkillInstanceId != f.SkillInstanceId ||
+            batch.Movements.Count is < 1 or > 2 ||
+            batch.Movements.Select(m => m.Sequence).Distinct().Count() != batch.Movements.Count ||
+            batch.Movements.Select(m => m.CardId).Distinct().Count() != batch.Movements.Count ||
+            f.PendingMovementContinuation is not { } pending || !IsPangJiMovement(f, GetPausedPrivateOfferEffect(f), pending)) return false;
+        // The native child has returned; its original reveal/claim/finish batches
+        // retain that retired child's ID rather than acquiring the program's ID.
+        AssertPangJi(f);
+        return batch.Movements.All(m => m.TurnNumber == r.ActualTurn && m.Sequence > r.Before && m.Sequence <= r.After &&
+            (m.CardId == result.SourceCardId || m.CardId == result.OpponentCardId) &&
+            GetAdvancedCard(m.CardId).Kind == m.CardKind &&
+            _cardMovements.Count(actual => actual.Sequence == m.Sequence && actual == m) == 1 &&
+            (m.To == CardLocation.Processing &&
+                (m.Reason == CardMoveReasons.PindianReveal &&
+                    (m.From == CardLocation.Hand(result.SourceSeat) || m.From == CardLocation.Hand(result.OpponentSeat) ||
+                     m.From == CardLocation.DrawPile && ProgramEventHistory<PindianTopSourceChosenEvent>().Any(e => e.CardId == m.CardId &&
+                         (e.OwnerSeat == result.SourceSeat || e.OwnerSeat == result.OpponentSeat))) ||
+                 m.From == CardLocation.DrawPile && m.Reason.Value == "pindian.reserve-top" &&
+                    ProgramEventHistory<PindianTopSourceChosenEvent>().Any(e => e.CardId == m.CardId &&
+                        (e.OwnerSeat == result.SourceSeat || e.OwnerSeat == result.OpponentSeat))) ||
+             m.From == CardLocation.Processing &&
+                (m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.PindianFinish ||
+                 m.Reason.Value == "program.pindian.claim" &&
+                    (m.To == CardLocation.Hand(result.SourceSeat) || m.To == CardLocation.Hand(result.OpponentSeat)))));
+    }
+    private bool IsBiguoPindianSettlementReturn(ProgramSkillFrame f, CardsMovedTriggerWindowFrame moved) =>
+        moved.Id == moved.Batch.Id && moved.ResumeProgramFrameId == f.Id &&
+        !HasAlternateProgramMovementReturn(moved) && IsBiguoPindianSettlementBatch(f, moved.Batch);
     private bool PangJiFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.PangJi is not { Paid: true } r) return false; AssertPangJi(f);
@@ -63,7 +97,8 @@ public sealed partial class GameEngine
         if (child is HpChangedTriggerWindowFrame hp) return hp.Change.ParentFrameId == f.Id && hp.ResumeFrameId == f.Id && hp.Continuation == PostEventContinuation.AwaitedProgramMovement;
         if (child is ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.SkillsChanged } skills) return skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
         if (child is ProgramLifecycleTriggerWindowFrame state) return state.ResumeProgramFrameId == f.Id && state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && ProgramEventHistory<CharacterStateChangedEvent>().Any(e => e.Change.Id == state.Id && e.Change.ParentFrameId == f.Id && e.Change.Window == state.Window);
-        return child is CardsMovedTriggerWindowFrame moved && ProgramMovementReturnMatches(f, moved) && (moved.Batch.ParentFrameId == f.Id || r.Stage == PangJiStage.PindianChildren && moved.Batch.ParentFrameId == r.PindianId) && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => PangJiPaidMovement(f, m));
+        return child is CardsMovedTriggerWindowFrame moved && (IsBiguoPindianSettlementReturn(f, moved) ||
+            ProgramMovementReturnMatches(f, moved) && moved.Batch.ParentFrameId == f.Id && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => PangJiPaidMovement(f, m)));
     }
     private bool PangJiLifecycleEdge(int index) => _resolutionStack[index - 1] is ProgramLifecycleTriggerWindowFrame w && _resolutionStack[index] is ProgramSkillFrame f && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count && MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex]) && f.WindowContext is { } c && c.ParentFrameId == w.Id && c.Window == w.Window;
     private bool PangJiObserverSuffix(int index) => HasObserverSuffix(index, static (g, n) => g.IsMovementObserverEdge(n) || g.TypedDamagePostEventEdge(g._resolutionStack[n - 1], g._resolutionStack[n]) || g.PangJiLifecycleEdge(n) || g.DouyuPindianChildRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g._resolutionStack[n - 1] is ProgramSkillFrame { Zenrun: not null } z && g.ZenrunFirstChild(z, g._resolutionStack[n]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g.IsYanPuDyingExitEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));

@@ -19,6 +19,7 @@ public static class JudgmentReasons
 public enum ResolutionFrameKind
 {
     NativeDrawAttempt = 27570,
+    DouyuWindow = 28134,
     RoundEndingBoundary = 27545,
     ActualPhaseEnd = 27269,
     FriendDuelResponse = 20300,
@@ -92,6 +93,7 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(SlashTargetBenefitWindowFrame), "slash-target-benefit-window")]
 [JsonDerivedType(typeof(FirstSlashDuelLegacyWindowFrame), "first-slash-duel-legacy-window")]
 [JsonDerivedType(typeof(PindianRevealWindowFrame), "pindian-reveal-window")]
+[JsonDerivedType(typeof(DouyuWindowFrame), "douyu-window")]
 [JsonDerivedType(typeof(SlashTargetPenaltyWindowFrame), "slash-target-penalty-window")]
 [JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
 [JsonDerivedType(typeof(CardEffectBeforeApplyFrame), "card-effect-before-apply")]

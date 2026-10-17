@@ -97,12 +97,15 @@ public sealed partial class GameEngine
     }
     private void RevealSimultaneousCommittedGroup(ProgramSkillFrame f)
     {
+        if (TryBeginDouyuSimultaneousPreReveal(f)) return;
         var r = f.SimultaneousPindian!;
         if (r.Cards.Any(c => _cardZones.GetLocation(c.CardId) != SimultaneousOriginalLocation(r,c)))
             throw new InvalidOperationException("A simultaneous private commitment lost its original hand/top entity or allowed children to consume a reserved top.");
         var before = _movementSequence;
         foreach (var c in r.Cards.Where(c => !r.TopReceipts.Any(t => t.CardId == c.CardId))) MoveCard(GetAdvancedCard(c.CardId),SimultaneousOriginalLocation(r,c),CardLocation.Processing,CardMoveReasons.PindianReveal);
-        ReplaceRuntimeTop(f = f with { SimultaneousPindian = r with { Stage = SimultaneousPindianStage.RevealChildren, Revealed = true,
+        var mappedCards = ApplyDouyuSimultaneousCards(f, r.Cards);
+        f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian!;
+        ReplaceRuntimeTop(f = f with { SimultaneousPindian = r = r with { Cards = mappedCards, Stage = SimultaneousPindianStage.RevealChildren, Revealed = true,
             RevealBefore = before, RevealAfter = _movementSequence, MovementBefore = before, MovementAfter = _movementSequence, PaymentKind = "reveal" }, PendingMovementContinuation = new(f.OwnerSeat,0,null) });
         foreach (var t in r.TopReceipts) AdvanceEventRulesAndQueueFact(new PindianTopSourceChosenEvent(t.Seat,t.Source,t.CardId));
         AdvanceEventRulesAndQueueFact(new PindianCardsRevealedEvent(f.Id,r.Cards,true));
@@ -111,6 +114,7 @@ public sealed partial class GameEngine
     private void AssertSimultaneousSelectionPolicies(ProgramSkillFrame f)
     {
         var r = f.SimultaneousPindian!; var selection = r.RandomSelection;
+        var originalCards = GetDouyuOriginalSimultaneousCards(f);
         if (selection is null || selection.Candidates is not System.Collections.ObjectModel.ReadOnlyCollection<PindianRandomCandidate> ||
             selection.Receipts is not System.Collections.ObjectModel.ReadOnlyCollection<PindianRandomReceipt> || selection.Index < 0 || selection.Index > selection.Candidates.Count ||
             selection.Receipts.GroupBy(p => p.TargetSeat).Any(p => p.Count() != 1) || selection.Candidates.Any(c => c.OwnerSeat == c.TargetSeat ||
@@ -120,9 +124,9 @@ public sealed partial class GameEngine
                 CompleteProgramEventHistory().OfType<PindianRandomHandCommittedEvent>().Count(e => e.FrameId == f.Id && e.OwnerSeat == p.OwnerSeat && e.TargetSeat == p.TargetSeat && e.Source == p.Source) != 1))
             throw new InvalidOperationException("A simultaneous random choice lost its private once-target entity, policy source or RNG receipt.");
         var actualSource = selection.Receipts.SingleOrDefault(p => p.TargetSeat == f.OwnerSeat)?.CardId ?? r.OriginalSourceCardId;
-        if (actualSource != r.Cards[0].CardId || r.TopReceipts.Select(t => t.Seat).Distinct().Count() != r.TopReceipts.Count ||
+        if (actualSource != originalCards[0].CardId || r.TopReceipts.Select(t => t.Seat).Distinct().Count() != r.TopReceipts.Count ||
             r.TopReceipts.Select(t => t.CardId).Distinct().Count() != r.TopReceipts.Count || r.TopReceipts.Any(t => t.Source.OwnerSeat != t.Seat ||
-                !r.Cards.Any(c => c.Seat == t.Seat && c.CardId == t.CardId && c.OriginalRank == t.EffectiveRank) ||
+                !originalCards.Any(c => c.Seat == t.Seat && c.CardId == t.CardId && c.OriginalRank == t.EffectiveRank) ||
                 _cardMovements.Count(m => m.Sequence == t.ReservationMovementSequence && m.CardId == t.CardId && m.From == CardLocation.DrawPile && m.To == CardLocation.Processing && m.Reason == SimultaneousTopReservationReason) != 1 ||
                 !r.Revealed && _cardZones.GetLocation(t.CardId) != CardLocation.Processing ||
                 CompleteProgramEventHistory().OfType<SimultaneousPindianTopCommittedEvent>().Count(e => e.ProgramFrameId == f.Id && e.ParticipantSeat == t.Seat && e.Source == t.Source) != 1))

@@ -18,6 +18,11 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
+        if (IsBiguoCategoryForbidden(user.Seat, CardKind.Slash))
+        {
+            CommitProgramChoiceResult(frame.Id, resultBind, RequestSlashByTargetProgramOperationDescriptor.DeclinedOption, user.Seat, "没有可用的【杀】。");
+            return SkillProgramStepOutcome.Continue;
+        }
         var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Concat(NativePublicPileSlashUseCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card) && !IsZhaohuoPhysicalRestricted(user.Seat, card.Id)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
         var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
@@ -103,6 +108,8 @@ public sealed partial class GameEngine
         }
 
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (action != "request-slash-decline" && IsBiguoCategoryForbidden(userSeat, CardKind.Slash))
+            throw new InvalidOperationException("The requested new Slash is forbidden by the active type restriction.");
         if (selected.Parameters.ContainsKey(RoundDistinctBasicRequestMarker))
         {
             var selection = RequireRoundDistinctBasicRequestedSlash(frame, decision, selected, userSeat, [frame.OwnerSeat], resultBind);
@@ -182,6 +189,8 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.AwaitChild;
         }
         var participant = _players[participantSeat];
+        if (IsBiguoCategoryForbidden(participantSeat, CardKind.Slash))
+            return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
         var nearest = GetNearestLivingCharacterSeats(participantSeat);
         var slashes = GetHand(participant).Concat(SelectedRequestedDeckBasicCards(participant)).Concat(NativePublicPileSlashUseCards(participant))
             .Where(card => IsSlashCard(card.Kind))
@@ -262,6 +271,8 @@ public sealed partial class GameEngine
             decision.PlayerSeat != participantSeat)
             throw new InvalidOperationException("The nearest-character slash request responder changed while suspended.");
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (action != "request-slash-nearest-decline" && IsBiguoCategoryForbidden(participantSeat, CardKind.Slash))
+            throw new InvalidOperationException("The requested new Slash is forbidden by the active type restriction.");
         if (!_players[frame.OwnerSeat].IsAlive || !_players[participantSeat].IsAlive ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
         {

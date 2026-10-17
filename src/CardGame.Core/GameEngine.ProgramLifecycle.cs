@@ -2158,6 +2158,7 @@ public sealed partial class GameEngine
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;
         if (IsIssuedBiriCandidate(candidate, context)) return true;
         if (IsIssuedZhaohuoCandidate(candidate, context)) return true;
+        if (IsIssuedBiguoCandidate(candidate, context) || IsIssuedDouyuCandidate(candidate, context)) return true;
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;

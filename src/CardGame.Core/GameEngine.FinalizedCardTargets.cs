@@ -10,6 +10,7 @@ public sealed partial class GameEngine
 
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
+        if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) return true;
         if (HasActivityOrdinaryTrickProjection && (kind is CardKind.AllianceFeast or CardKind.SowBeans or CardKind.TransplantWood or CardKind.ReturnSoul || IsWenheCard(kind) || IsDragonBoatTrick(kind)) &&
             _players.Where(player => player.IsAlive).Any(player => GetSkillBindingShard(player)
                 .GetInstanceTriggers(SkillProgramTriggerWindow.CardUseTargetsFinalized)

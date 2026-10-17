@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         if (!_cardMovements.Contains(m) || m.Sequence <= r.MovementBefore || m.Sequence > r.MovementAfter) return false;
         if (r.PaymentKind == "top-reserve") return r.TopReceipts.Any(t => t.CardId == m.CardId && t.ReservationMovementSequence == m.Sequence) && m.From == CardLocation.DrawPile && m.To == CardLocation.Processing && m.Reason == SimultaneousTopReservationReason;
         if (r.PaymentKind == "top-refill") return m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle;
-        if (r.PaymentKind == "reveal") return r.Cards.Any(c => c.CardId == m.CardId && m.From == SimultaneousOriginalLocation(r,c)) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal;
+        if (r.PaymentKind == "reveal") return GetDouyuOriginalSimultaneousCards(f).Any(c => c.CardId == m.CardId && m.From == SimultaneousOriginalLocation(r,c)) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal;
         if (r.PaymentKind == "cleanup") return r.Cards.Any(c => c.CardId == m.CardId) && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.PindianFinish;
         if (r.PaymentKind == "claim") return r.Claims!.Claims[r.Claims.Index].CardIds.Contains(m.CardId) && m.From == CardLocation.Processing &&
             m.To == CardLocation.Hand(r.PaymentSeat!.Value) && m.Reason.Value == "program.pindian.claim";

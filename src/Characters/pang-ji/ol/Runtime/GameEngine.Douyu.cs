@@ -142,7 +142,20 @@ public sealed partial class GameEngine
         public override ProgramTriggerWindowFlow Close(DouyuWindowFrame f) { Engine.CloseDouyuWindow(f); return ProgramTriggerWindowFlow.Yield; }
         protected override ProgramTriggerCandidate Candidate(DouyuWindowFrame f) => f.Entries[f.CandidateIndex].Candidate;
         public override ProgramTriggerWindowEntry Read(DouyuWindowFrame f) => new(Candidate(f), Engine.DouyuContext(f, Candidate(f)));
-        public override void Skip(DouyuWindowFrame f, ProgramTriggerCandidate c) => Engine.ReplaceRuntimeTop(f with { CandidateIndex = f.CandidateIndex + 1 });
+        public override void Skip(DouyuWindowFrame f, ProgramTriggerCandidate c) => Engine.SkipDouyuCandidate(f, c);
+    }
+    private void SkipDouyuCandidate(DouyuWindowFrame window, ProgramTriggerCandidate candidate)
+    {
+        if (window.CandidateIndex >= window.Entries.Count || window.Entries[window.CandidateIndex].Candidate != candidate)
+            throw new InvalidOperationException("Douyu cannot skip a different private or issued result candidate.");
+        if (window.Stage == DouyuWindowStage.WinDraw)
+        {
+            var swap = window.Entries[window.CandidateIndex].SwapFrameId ?? throw new InvalidOperationException("A Douyu win candidate lost its original swap.");
+            if (ProgramEventHistory<DouyuRewardClosedEvent>().Any(e => e.ContestId == window.ParentFrameId && e.SwapFrameId == swap))
+                throw new InvalidOperationException("Douyu cannot close the same issued win twice.");
+            AdvanceEventRulesAndQueueFact(new DouyuRewardClosedEvent(window.ParentFrameId, window.ComparisonIndex, swap, false));
+        }
+        ReplaceRuntimeTop(window with { CandidateIndex = window.CandidateIndex + 1 });
     }
     private void ContinueDouyuWindow(long id)
     { if (_resolutionStack.LastOrDefault() is not DouyuWindowFrame w || w.Id != id) return; AssertDouyuWindows(); ProgramTriggerWindowDriver.Run(new DouyuTriggerWindowHost(this)); }

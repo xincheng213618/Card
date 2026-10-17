@@ -1564,6 +1564,7 @@ public sealed class SkillProgramExecutor
                     effect.Op is (SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse or SkillProgramEffectOp.ResolveWenyiHealthOneAid or SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain or SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice or SkillProgramEffectOp.ResolveBiriFirstNonDrawGain or SkillProgramEffectOp.ResolveYintianFirstRecovery) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard or SkillProgramEffectOp.ResolveZhaohuoFirstVictimGift or SkillProgramEffectOp.ResolveWenrenSequentialDraw) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian or SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan or SkillProgramEffectOp.ResolveDouyuPreRevealSwapAndWinDraw) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.ResolveChenshuoRepeatedReveal or SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant or
                         SkillProgramEffectOp.ResolveLieshuEndingLoss or SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment or
                         SkillProgramEffectOp.ResolveZhouyuThunderNeighbors or SkillProgramEffectOp.ResolveYanshuangEndingLoss) && frame.ZhouQun is { Paid: true } ||

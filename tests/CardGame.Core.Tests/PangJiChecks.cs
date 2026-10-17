@@ -70,31 +70,54 @@ internal static partial class PangJiChecks
             s.PgNeed(p.OpponentSeat is null && p.ParentProcessingCardIds?.Contains(original.CardId) == true && s.PgP!.Choices.Any(c => c.Targets.SequenceEqual([opponent]) && c.Cards.SequenceEqual([sourceCard])), "The real generic Pindian selector is independent of the original card user and preserves the already held Slash cost.");
             s.PgPrivate(0); s.PgReject(); s.PgCold(); s.PgAnswer(c => c.Parameters.GetValueOrDefault("action") == "pindian-start" && c.Targets.SequenceEqual([opponent]) && c.Cards.SequenceEqual([sourceCard]));
             s.PgNeed(s.PgP is { PlayerSeat: > 0 } && s.PgG.ResolutionStack.OfType<PindianFrame>().Single().OpponentSeat == opponent && s.PgV(opponent).Hand.Single().Kind == CardKind.Crossbow, "The actual selected other privately chooses its sole original Equipment entity; no source or target is substituted."); s.PgPrivate(opponent); s.PgCold(); s.PgAdvance();
-            if (scene == "ban-user") s.PgReach(() => s.PgNative("pindian-claim")); else s.PgReach(() => s.PgP is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge });
+            s.PgReach(() => s.PgNative("pindian-claim"));
             var determined = s.PgE<PindianResultDeterminedEvent>().Single(e => e.FrameId == p.Id); var result = determined.Result; var bans = s.PgE<BiguoCategoryBanEvent>().Where(e => e.PindianId == p.Id).ToArray();
             var losers = scene == "ban-tie" ? new[] { 0, opponent } : scene == "ban-loss" ? new[] { 0 } : new[] { opponent };
             s.PgNeed(result.SourceCardId == sourceCard && result.OpponentSeat == opponent && result.SourceRank == (scene == "ban-loss" ? 1 : scene == "ban-tie" ? 7 : 13) && result.OpponentRank == 7 &&
                 bans.Length == losers.Length * 2 && losers.All(seat => bans.Where(e => e.Seat == seat).Select(e => e.Category).ToHashSet().SetEquals([SkillProgramCardCategory.Basic, SkillProgramCardCategory.Equipment])) &&
                 s.PgE<BiguoPindianCardCategoryEvent>().Count(e => e.PindianId == p.Id) == 2 && !s.PgE<CardUseFinishedEvent>().Any(e => e.ResolutionId == incomingId), "Final actual ranks determine both types; ties ban both participants, and the bans exist while the original native Use is still accepted and unfinished.");
+            s.PgNeed(s.PgG.ResolutionStack.OfType<PindianFrame>().Single().PindianStep == PindianStep.ClaimResult && !s.PgE<BiguoPindianReturnedEvent>().Any() && (scene != "ban-user" || bans.All(e => e.Seat == 1)), "Every nonwinner's ban is already effective before a real result-claim child, rather than after the contest returns.");
+            s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Parameters.GetValueOrDefault("action") == "pindian-claim" && c.Parameters.GetValueOrDefault("take") == "true"); s.PgReach(() => s.PgHold("claim-gain"));
+            s.PgNeed(bans.All(b => s.PgE<BiguoCategoryBanEvent>().Contains(b)) && !s.PgE<CardUseFinishedEvent>().Any(e => e.ResolutionId == incomingId), "A genuine claim movement child cannot delay the type ban or discard the original Slash's continuation."); s.PgCold();
+            var hpBeforeSlash = s.PgV().Hp; var dodgesBefore = s.PgE<CardRespondedEvent>().Count(e => e.ResponderSeat == 0 && e.SourceSeat == 1); int? addedTarget = null;
+            s.PgContinue();
             if (scene == "ban-user")
             {
-                s.PgNeed(s.PgG.ResolutionStack.OfType<PindianFrame>().Single().PindianStep == PindianStep.ClaimResult && bans.All(e => e.Seat == 1) && !s.PgE<BiguoPindianReturnedEvent>().Any(), "The original card user's ban is already effective before a real result-claim child, rather than after the contest returns.");
-                s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Parameters.GetValueOrDefault("action") == "pindian-claim" && c.Parameters.GetValueOrDefault("take") == "true"); s.PgReach(() => s.PgHold("claim-gain"));
-                s.PgNeed(bans.All(b => s.PgE<BiguoCategoryBanEvent>().Contains(b)) && !s.PgE<CardUseFinishedEvent>().Any(e => e.ResolutionId == incomingId), "A genuine claim movement child cannot delay the type ban or discard the original Slash's continuation."); s.PgCold();
-                s.PgReach(() => s.PgP is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge });
+                s.PgReach(() => s.PgP?.SkillPrompt?.SkillId == "ol:yidian" && s.PgP.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "designated-extra-target"));
+                var offered = s.PgE<DesignatedExtraTargetOfferedEvent>().Single(e => e.CardUseFrameId == incomingId);
+                s.PgNeed(s.PgV(1).Skills?.Any(sk => sk.ContentId == "ol:yidian") == true && s.PgV(1).HandCount == 0 && s.PgP!.PlayerSeat == 1 && offered.Source is { SkillId: "ol:yidian", OwnerSeat: 1 } && offered.ActionId == incoming.Action!.ActionId && offered.OriginalTargetSeats.SequenceEqual([0]) && offered.CandidateTargetSeats.Any(seat => seat is 2 or 3) &&
+                    bans.All(b => s.PgE<BiguoCategoryBanEvent>().Contains(b)) && !s.PgE<CardUseFinishedEvent>().Any(e => e.ResolutionId == incomingId), "After the actual card user loses and becomes Basic-banned, the same already accepted native Slash still publishes a real Yidian additional-target draft.");
+                s.PgCold(); s.PgAdvance();
+                var addition = s.PgE<DesignatedExtraTargetResolvedEvent>().Single(e => e.CardUseFrameId == incomingId);
+                s.PgNeed(addition.Source == offered.Source && addition.ActionId == offered.ActionId && addition.OriginalTargetSeats.SequenceEqual([0]) && addition.AddedTargetSeats is [var actualAdded] && actualAdded is 2 or 3 && offered.CandidateTargetSeats.Contains(actualAdded) && addition.ResultTargetSeats.SequenceEqual(new[] { 0, actualAdded }) &&
+                    s.PgG.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == incomingId).Action!.TargetSeats.SequenceEqual(addition.ResultTargetSeats), "The genuine AI choice appends one actual legal target to the original action; the new type ban neither removes its accepted targets nor creates another Slash.");
+                addedTarget = addition.AddedTargetSeats.Single(); s.PgFrozen(addition.AddedTargetSeats); s.PgFrozen(addition.ResultTargetSeats); s.PgCold();
             }
-            var response = s.PgP!; var hasDodge = response.Choices.Any(c => c.Cards.Count == 1);
-            s.PgNeed(s.PgV().Hand.Any(c => c.Kind == CardKind.Slash) && hasDodge == !losers.Contains(0), "The same real Slash-to-Dodge conversion is offered only when the actual responder's effective Basic type is not banned.");
-            s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("response") is not ("faction-defense-request" or "faction-slash-request")); s.PgPlay();
+            s.PgReach(() => s.PgP is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge or DecisionKind.PlayCard });
+            if (!losers.Contains(0))
+            {
+                s.PgNeed(s.PgP is { Kind: DecisionKind.RespondDodge } && s.PgV().Hand.Any(c => c.Kind == CardKind.Slash) && s.PgP.Choices.Any(c => c.Cards.Count == 1), "The unbanned actual responder still receives its real Slash-to-Dodge conversion choice.");
+                s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Cards.Count == 0 && c.Parameters.GetValueOrDefault("response") is not ("faction-defense-request" or "faction-slash-request"));
+            }
+            else if (s.PgP is { Kind: DecisionKind.RespondDodge })
+            {
+                s.PgNeed(s.PgP.Choices.All(c => c.Cards.Count == 0), "A losing responder cannot publish any forbidden Basic material; a native decline-only prompt is not a playable Dodge.");
+                s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Cards.Count == 0);
+            }
+            s.PgPlay();
+            s.PgNeed(s.PgV().Hp == hpBeforeSlash - 1 && s.PgE<CardRespondedEvent>().Count(e => e.ResponderSeat == 0 && e.SourceSeat == 1) == dodgesBefore, "The original Slash deals its actual point with no fabricated Dodge; a banned responder may natively bypass the empty response menu.");
             s.PgNeed(s.PgE<BiguoPindianReturnedEvent>().Count(e => e.PindianId == p.Id) == 1 && s.PgE<CardUseDeclaredEvent>().Count(e => e.ResolutionId == incomingId) == 1 && s.PgE<CardUseFinishedEvent>().Count(e => e.ResolutionId == incomingId) == 1 &&
-                s.PgE<DamageAppliedEvent>().Any(e => e.SourceSeat == 1 && e.TargetSeat == 0) && s.PgG.CardMovements.Count(m => m.CardId == original.CardId && m.From == original.From && m.To == CardLocation.Processing) == 1,
+                s.PgE<DamageAppliedEvent>().Any(e => e.SourceSeat == 1 && e.TargetSeat == 0) && (addedTarget is null || s.PgE<DamageAppliedEvent>().Any(e => e.SourceSeat == 1 && e.TargetSeat == addedTarget.Value)) && s.PgG.CardMovements.Count(m => m.CardId == original.CardId && m.From == original.From && m.To == CardLocation.Processing) == 1,
                 "The original paid Slash completes all targets and actual damage once even when its user became Basic-banned during its own target window.");
             if (losers.Contains(0))
             {
                 s.PgNeed(!s.PgG.GetHumanLegalActions().Any(a => a.CardId is { } card && s.PgV().Hand.Any(c => c.Id == card && PgCategory(c.Kind) is SkillProgramCardCategory.Basic or SkillProgramCardCategory.Equipment)), "A losing owner cannot publish a new Basic or Equipment Use while the turn remains open.");
                 var id = s.PgV().Hand.First(c => c.Kind == CardKind.Slash).Id; s.PgRejectCommand(new PlayCardCommand(0, id, [1], s.PgG.Revision, s.PgP!.PromptId));
-                s.PgGive(1, CardKind.Slash); s.PgUse("duel", targets: [1]); s.PgReach(() => s.PgP is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash });
-                s.PgNeed(s.PgV().Hand.Any(c => c.Kind == CardKind.Slash) && s.PgP!.Choices.All(c => c.Cards.Count == 0), "A true Duel Played response is also banned despite a real Slash remaining in Hand; the rule is not limited to ordinary play menus."); s.PgCold(); s.PgAnswer(c => c.Cards.Count == 0); s.PgPlay();
+                s.PgGive(1, CardKind.Slash); var hpBeforeDuel = s.PgV().Hp; var playedBefore = s.PgE<CardRespondedEvent>().Count(e => e.ResponderSeat == 0 && e.SourceSeat == 1); var duelsBefore = s.PgE<CardUseDeclaredEvent>().Count(e => e.SourceSeat == 1 && e.CardKind == CardKind.Duel);
+                s.PgUse("duel", targets: [1]); s.PgReach(() => s.PgP is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash or DecisionKind.PlayCard });
+                s.PgNeed(s.PgV().Hand.Any(c => c.Kind == CardKind.Slash), "The real forbidden Slash remains available as a physical entity for this Played-response negative.");
+                if (s.PgP is { Kind: DecisionKind.RespondSlash }) { s.PgNeed(s.PgP.Choices.All(c => c.Cards.Count == 0), "A true Duel Played response cannot publish the banned Basic entity."); s.PgPrivate(0); s.PgCold(); s.PgAnswer(c => c.Cards.Count == 0); }
+                s.PgPlay(); s.PgNeed(s.PgV().Hp == hpBeforeDuel - 1 && s.PgE<CardUseDeclaredEvent>().Count(e => e.SourceSeat == 1 && e.CardKind == CardKind.Duel) == duelsBefore + 1 && s.PgE<CardRespondedEvent>().Count(e => e.ResponderSeat == 0 && e.SourceSeat == 1) == playedBefore, "An actual foreign Duel completes and injures the losing responder without playing its real banned Slash, including the native empty-response fast path."); s.PgCold();
             }
             if (scene == "ban-user")
             {
@@ -128,7 +151,7 @@ internal static partial class PangJiChecks
         public void PgUse(string id, int[]? targets = null, int[]? cards = null) => PgAccept(new UseProgramSkillCommand(0, PgDriver, id, cards ?? [], targets ?? [], PgG.Revision, PgP!.PromptId));
         public void PgEnd() => PgAccept(new EndPlayPhaseCommand(0, PgG.Revision, PgP!.PromptId));
         public void PgPlay() => PgReach(() => PgP is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        public void PgFinishGain() { PgActivate(); PgAnswer(c => c.Parameters.GetValueOrDefault("pang-ji") == "cost-card" && PgV().Hand.Any(h => c.Cards.SequenceEqual([h.Id]))); PgPlay(); PgNeed(PgE<BiguoArmedEvent>().Length == 1, "The actual discard/obtain children must arm the later native target window."); }
+        public void PgFinishGain() { PgActivate(); PgAnswer(c => c.Parameters.GetValueOrDefault("pang-ji") == "cost-card" && PgV().Hand.Any(h => c.Cards.SequenceEqual([h.Id]) && (scene != "ban-user" || h.Kind != CardKind.Slash))); PgPlay(); PgNeed(PgE<BiguoArmedEvent>().Length == 1, "The actual discard/obtain children must arm the later native target window."); }
         public void PgGive(int seat, CardKind kind) { var id = PgV().Hand.First(c => c.Kind == kind).Id; PgUse("give", targets: [seat], cards: [id]); PgPlay(); }
         public void PgTakeAll(int seat)
         {
@@ -183,6 +206,7 @@ internal static partial class PangJiChecks
             string Read(string part) { using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ol-pang-ji." + part + ".json") ?? throw new InvalidOperationException("Missing actual Pang Ji embedded " + part); using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
             var production = SkillProgramCatalog.Load(Read("rules"), Read("presentation")); foreach (var id in new[] { PgSkill, "ol:douyu" }) b.AddSkill(new(id, production.Presentations[id].Name, production.Presentations[id].Description) { Program = production.Programs[id], ProgramPresentation = production.Presentations[id] });
             if (scene.StartsWith("ban-", StringComparison.Ordinal)) CharacterFixtureContent.Register(b, "ol:zhang-yi");
+            if (scene == "ban-user") CharacterFixtureContent.Register(b, "ol:sun-shao");
             static JsonNode N(string text) => JsonNode.Parse(text)!;
             static string C(string id) => "{\"op\":\"chooseOption\",\"target\":\"owner\",\"resultBind\":\"" + id + "\",\"options\":[{\"id\":\"" + id + "\"}]}";
             static JsonObject A(string id, string effects, int cards = 0, int targets = 0) => new() { ["id"] = id, ["minCards"] = cards, ["maxCards"] = cards, ["sourceZones"] = new JsonArray("hand"), ["minTargets"] = targets, ["maxTargets"] = targets, ["targetKind"] = "anyLiving", ["usesPerTurn"] = null, ["effects"] = N("[" + effects + "]") };
@@ -195,13 +219,15 @@ internal static partial class PangJiChecks
                 ["viewAs"] = N("[{\"id\":\"actual-dodge\",\"inputKinds\":[\"slash\"],\"inputSuits\":[],\"sourceZones\":[\"hand\"],\"outputKind\":\"dodge\",\"forPlay\":false,\"forResponse\":true}]"),
                 ["modifiers"] = N("[{\"id\":\"range\",\"query\":\"slashDistanceLimit\",\"operation\":\"unlimited\",\"value\":0,\"priority\":0},{\"id\":\"quota\",\"query\":\"slashLimit\",\"operation\":\"add\",\"value\":5,\"priority\":0}]") };
             if (scene == "gain-lion") driver["triggers"] = new JsonArray(T("real-equipped-lion", "gameStarting", "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"anyLiving\"},{\"op\":\"useRandomDeckEquipment\",\"target\":\"owner\",\"resultBind\":\"lion\"},{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}"));
-            var watches = new JsonArray(T("real-cost-child", "cardsMoved", C("cost") + (scene == "gain-loss" ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}" : ""), "\"sourceZones\":[\"hand\",\"equipment\"],\"movementOccurrence\":\"perBatch\",\"movementReasons\":[\"" + PgCost + "\"],"),
+            var costEffects = C("cost") + (scene == "gain-loss" ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}" : "");
+            var watches = new JsonArray(T("real-hand-cost-child", "cardsMoved", costEffects, "\"sourceZones\":[\"hand\"],\"movementOccurrence\":\"perBatch\",\"movementReasons\":[\"" + PgCost + "\"],"),
+                T("real-equipment-cost-child", "cardsMoved", costEffects, "\"sourceZones\":[\"equipment\"],\"movementOccurrence\":\"perBatch\",\"movementReasons\":[\"" + PgCost + "\"],"),
                 T("real-obtain-child", "cardsGained", C("gain"), "\"destinationZones\":[\"hand\"],\"movementOccurrence\":\"perBatch\",\"movementReasons\":[\"" + PgGain + "\"],"),
                 T("real-lion-recovery", "afterHpRecovered", C("health")),
                 T("real-claim-child", "cardsGained", C("claim-gain"), "\"destinationZones\":[\"hand\"],\"movementOccurrence\":\"perBatch\",\"movementReasons\":[\"program.pindian.claim\"],"));
             var rank = scene == "ban-loss" ? 1 : scene == "ban-tie" ? 7 : 13;
             var policies = new JsonArray(N("{\"id\":\"actual-final-rank\",\"kind\":\"pindianRankBySuit\",\"inputSuit\":\"spade\",\"value\":" + rank + "}"));
-            if (scene == "ban-user") policies.Add(N("{\"id\":\"actual-claim\",\"kind\":\"pindianClaimAllWhenSourceWins\"}"));
+            if (scene.StartsWith("ban-", StringComparison.Ordinal)) policies.Add(N("{\"id\":\"actual-claim\",\"kind\":\"" + (scene == "ban-user" ? "pindianClaimAllWhenSourceWins" : "pindianClaim") + "\"}"));
             var defs = new JsonArray(driver, new JsonObject { ["id"] = PgWatch, ["revision"] = 1, ["triggers"] = watches },
                 new JsonObject { ["id"] = PgQuiet, ["revision"] = 1, ["triggers"] = new JsonArray(T("quiet", "afterNormalDraw", "{\"op\":\"skipTurnPhases\",\"target\":\"owner\",\"phases\":[\"play\"]}")) },
                 new JsonObject { ["id"] = "fixture:pg-rank", ["revision"] = 1, ["cardPolicies"] = policies });
@@ -211,11 +237,12 @@ internal static partial class PangJiChecks
             const string pick = "fixture:pg-pick"; b.AddSkill(new(pick, "Human", "Public draft") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, _ => -100000000d) });
             var skills = new List<string> { PgDriver, PgWatch, "fixture:pg-rank", scene == "gain-loss" ? "fixture:pg-conditional" : PgSkill }; if (scene.StartsWith("ban-", StringComparison.Ordinal)) skills.Add("ol:dianjun");
             b.AddGeneral(new(PgOwner, "愎果原生检查", "supporter", pick, "qun", 12, skills, GeneralGender.Male)); var peers = Enumerable.Range(1, 3).Select(i => "fixture:pg-peer-" + i).ToArray();
-            foreach (var i in Enumerable.Range(1, 3)) { var p = "fixture:pg-pick-" + i; b.AddSkill(new(p, "Peer", "Public draft") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, _ => 1000000d * (4 - i)) }); b.AddGeneral(new(peers[i - 1], "原生其他角色", "supporter", p, "qun", 12, [PgQuiet], GeneralGender.Male)); }
+            foreach (var i in Enumerable.Range(1, 3)) { var p = "fixture:pg-pick-" + i; b.AddSkill(new(p, "Peer", "Public draft") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, _ => 1000000d * (4 - i)) }); b.AddGeneral(new(peers[i - 1], "原生其他角色", "supporter", p, "qun", 12, scene == "ban-user" ? [PgQuiet, "ol:yidian"] : [PgQuiet], GeneralGender.Male)); }
             var kinds = scene == "gain-lion" ? new[] { CardKind.SilverLion } : new[] { CardKind.Slash, CardKind.Duel, CardKind.Crossbow };
             foreach (var kind in kinds) b.AddCard(new("fixture:pg-" + kind, "原实体" + kind, CardCatalog.Get(kind).CategoryName, "Actual physical card", kind));
             b.AddDeck(new("fixture:pg-deck", "63 fixed rank-seven real entities", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 63).Select(i => new ContentDeckPhysicalCard("fixture:pg-" + kinds[i % kinds.Length], Suit.Spade, 7)).ToArray() });
-            b.AddMode(new(PgMode, "真实摸牌结束与原生拼点母窗", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:pg-deck", GeneralCandidateCount: 4, GeneralPoolIds: [PgOwner, .. peers]));
+            var roles = scene == "ban-user" ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 } : new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 };
+            b.AddMode(new(PgMode, "真实摸牌结束与原生拼点母窗", 4, 4, roles, "fixture:pg-deck", GeneralCandidateCount: 4, GeneralPoolIds: [PgOwner, .. peers]));
         }
     }
 }

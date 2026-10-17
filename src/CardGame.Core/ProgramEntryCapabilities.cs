@@ -30,6 +30,8 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.NativeDrawStarting or
         SkillProgramTriggerWindow.ActualPhaseEnded or
         SkillProgramTriggerWindow.IdentityGeneralAppeared or
+        SkillProgramTriggerWindow.PindianBeforeReveal or
+        SkillProgramTriggerWindow.PindianResultDetermined or
         SkillProgramTriggerWindow.PindianCardsRevealed or
         SkillProgramTriggerWindow.OtherActualTurnStarted or
         SkillProgramTriggerWindow.OtherActualUseTargeted or

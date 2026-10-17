@@ -331,6 +331,7 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse, bool ignoreSuitUseProhibition = false, int? requestedUseTarget = null)
     {
+        if (IsBiguoCategoryForbidden(owner.Seat, outputKind)) return [];
         if (!owner.IsAlive || requestedUseTarget is { } requested && (forResponse || outputKind != CardKind.Peach ||
             !IsWenyiPeachSupplyQuery(owner, requested))) return [];
 

@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     {
         if (!HasPindianRevealCapability) return false;
         if (_resolutionStack.LastOrDefault()?.Id != frame.Id || frame.Result is not null || frame.OpponentSeat != result.OpponentSeat ||
-            frame.SourceSeat != result.SourceSeat || frame.SourceCardId != result.SourceCardId || result.SourceCardId == result.OpponentCardId ||
+            frame.SourceSeat != result.SourceSeat || (frame.SourceCardId != result.SourceCardId && !IsDouyuPairAssignment(frame, result)) || result.SourceCardId == result.OpponentCardId ||
             _cardZones.GetLocation(result.SourceCardId) != CardLocation.Processing || _cardZones.GetLocation(result.OpponentCardId) != CardLocation.Processing)
             throw new InvalidOperationException("A reveal window lost its original pair and paid entities.");
         ReplaceRuntimeTop(frame with { Result = result });
@@ -116,7 +116,7 @@ public sealed partial class GameEngine
         if (index < 1 || _resolutionStack[index - 1] is not ProgramSkillFrame parent || parent.Id != pair.ParentFrameId ||
             pair.PindianStep != PindianStep.ChooseOpponentCard || pair.Result is not { } result || pair.ProgramResultBind is null ||
             parent.PindianResultBindings.Any(b => b.Name == pair.ProgramResultBind) || pair.SourceSeat != result.SourceSeat || pair.OpponentSeat != result.OpponentSeat ||
-            pair.SourceCardId != result.SourceCardId || !w.Cards.Select(c => (c.Seat,c.CardId,c.OriginalRank)).SequenceEqual(new[] {
+            (pair.SourceCardId != result.SourceCardId && !IsDouyuPairAssignment(pair, result)) || !w.Cards.Select(c => (c.Seat,c.CardId,c.OriginalRank)).SequenceEqual(new[] {
                 (result.SourceSeat,result.SourceCardId,result.SourceRank),(result.OpponentSeat,result.OpponentCardId,result.OpponentRank) })) return false;
         var held = pair.ParentProcessingCardIds ?? [];
         return !held.Contains(result.SourceCardId) && !held.Contains(result.OpponentCardId) &&

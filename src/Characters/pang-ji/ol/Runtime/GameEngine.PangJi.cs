@@ -34,11 +34,11 @@ public sealed partial class GameEngine
         if (target)
         {
             AdvanceEventRulesAndQueueFact(new BiguoTargetAcceptedEvent(f.Id, r.Target!));
+            var childId = _resolutionSequence + 1;
+            ReplaceRuntimeTop(f = f with { PangJi = r = r with { PindianId = childId } });
+            AdvanceEventRulesAndQueueFact(new BiguoPindianIssuedEvent(f.Id, childId, r.Target!.ArmFrameId, r.Target.UseId, r.Target.ActionId, f.OwnerSeat, r.Before));
             var skill = _contentRegistry.GetSkill(f.SkillId);
             BeginSharedPindian(f.Id, new(f.SkillId, skill.Name, skill.Name + " · 拼点", skill.Description), f.OwnerSeat, programResultBind: BiguoResultBind);
-            var child = (PindianFrame)_resolutionStack.Last(); f = GetActiveProgramFrame(f.Id);
-            ReplaceRuntimeFrame(f.Id, f with { PangJi = f.PangJi! with { PindianId = child.Id } });
-            AdvanceEventRulesAndQueueFact(new BiguoPindianIssuedEvent(f.Id, child.Id, r.Target!.ArmFrameId, r.Target.UseId, r.Target.ActionId, f.OwnerSeat, r.Before));
         }
         else PublishPangJi(f);
         return SkillProgramStepOutcome.AwaitChoice;
@@ -86,14 +86,14 @@ public sealed partial class GameEngine
         for (var i = 0; i < entities.Count; i++) AdvanceEventRulesAndQueueFact(new BiguoObtainEntityIssuedEvent(f.Id, i, entities[i].CardId, entities[i].PrintedKind));
         SetProgramCardSet(f.Id, BiguoGainBind, entities.Select(e => e.CardId).ToArray(), SkillProgramCardSetVisibility.Public, entities.Select(e => e.From).ToArray());
         RevealProgramBoundCards(GetActiveProgramFrame(f.Id), BiguoGainBind);
-        if (entities.Count > 0) MoveProgramCardsFromMultipleSources(entities.Select(e => e.CardId).ToArray(), CardLocation.Hand(f.OwnerSeat), new(BiguoObtainReason), (batch, moves) =>
+        if (entities.Count > 0) MoveProgramCardsFromMultipleSources(entities.Select(e => e.CardId).ToArray(), CardLocation.Hand(f.OwnerSeat), new CardMoveReason(BiguoObtainReason), (batch, moves) =>
         {
             for (var i = 0; i < entities.Count; i++)
             {
                 var entity = entities[i]; var m = moves.Single(m => m.CardId == entity.CardId && m.From == entity.From && m.To == CardLocation.Hand(f.OwnerSeat));
                 AdvanceEventRulesAndQueueFact(new BiguoObtainEntityPaidEvent(f.Id, i, batch, m.CardId, m.CardKind, m.From, m.To, m.Sequence));
             }
-        }, disclosure: CardMovementDisclosure.FaceUp);
+        });
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { PangJi = f.PangJi! with { After = _movementSequence } });
     }
     private bool DrainPangJi(long id) => TryBeginQueuedRecoveryReplacement(id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.Program) || TryBeginAdvancedSkillsChanged(id) || TryBeginHpChangedProgramWindow(id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(id);

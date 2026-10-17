@@ -945,6 +945,9 @@ public enum SkillProgramEffectOp
     ResolveZongluanPreparationSlashAndDiscard = 28120,
     ResolveZhaohuoFirstVictimGift = 28121,
     ResolveWenrenSequentialDraw = 28122,
+    ResolveBiguoDrawAndArmTargetPindian = 28130,
+    ResolveBiguoTargetedPindianAndCategoryBan = 28131,
+    ResolveDouyuPreRevealSwapAndWinDraw = 28132,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -1033,7 +1036,9 @@ public enum SkillProgramTriggerWindow
     TurnBeforeStart = 23200,
     JudgmentBeforeResult = 24403,
     RoundEnding = 27545,
-    NativeDrawStarting = 27570
+    NativeDrawStarting = 27570,
+    PindianBeforeReveal = 28132,
+    PindianResultDetermined = 28133
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763, PerOtherLastHandLoss = 1031 }
@@ -3725,6 +3730,8 @@ public sealed class SkillProgramCatalog
             "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly", "dynamicUsageLimit", "namedUsageGroup", "gainPhaseQualification", "requireDamageSource", "requireNoCardConversion");
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
+        if (window is SkillProgramTriggerWindow.PindianBeforeReveal or SkillProgramTriggerWindow.PindianResultDetermined && skillId != "ol:douyu")
+            Fail(path, "pre-reveal and result windows require the complete admitted Douyu program");
         bool? requireNoCardConversion = null;
         if (node.TryGetProperty("requireNoCardConversion", out _))
         {
@@ -3785,7 +3792,8 @@ public sealed class SkillProgramCatalog
                  string.Equals(designatedOp.GetString(), "cancelOtherCurrentUseTargetsIfOverHandLimit", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "consumeKuiCancelSoleIncomingTarget", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "drawTusheForActualNonEquipmentTargets", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(designatedOp.GetString(), "consumeKuiAppendLegalTargets", StringComparison.OrdinalIgnoreCase))))
+                 string.Equals(designatedOp.GetString(), "consumeKuiAppendLegalTargets", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == "ol:biguo" && string.Equals(designatedOp.GetString(), "resolveBiguoTargetedPindianAndCategoryBan", StringComparison.OrdinalIgnoreCase))))
             Fail(path, "singleActionInstance requires cardUseCompleted or an exact supported target-addition instruction");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
         var includeResponseUses = node.TryGetProperty("includeResponseUses", out _) && RequiredBool(node, "includeResponseUses", path);
@@ -3890,7 +3898,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window is SkillProgramTriggerWindow.PindianBeforeReveal or SkillProgramTriggerWindow.PindianResultDetermined || window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -5011,6 +5019,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) HuanShuJunComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ZhaoZhongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) TaoQianComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) PangJiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouCaoPiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values)
         {

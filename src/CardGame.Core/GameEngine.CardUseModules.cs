@@ -20,7 +20,8 @@ public sealed partial class GameEngine
             isColorless: suit == Suit.None);
     }
 
-    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>
+    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false, long? existingUseFrameId = null) =>
+        IsBiguoCategoryForbidden(actorSeat, effectiveKind) && !IsAcceptedBiguoUse(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
         effectiveKind == CardKind.Poison ||
         IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
         MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
@@ -35,6 +36,12 @@ public sealed partial class GameEngine
         IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsCategoryTalismanUseForbidden(actorSeat, effectiveKind, actionType);
+
+    private bool IsAcceptedBiguoUse(int actorSeat, CardKind kind, CardActionType actionType, long? useId) =>
+        actionType == CardActionType.Use && useId is { } id && LifecycleCardUse(id) is { Action: { Type: CardActionType.Use } action } use &&
+        use.SourceSeat == actorSeat && use.CardKind == kind && action.ActorSeat == actorSeat && action.EffectiveKind == kind &&
+        ProgramEventHistory<CardUseDeclaredEvent>().Count(e => e.ResolutionId == id && e.SourceSeat == actorSeat &&
+            e.CardKind == kind && e.CardId == use.CardId) == 1;
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,

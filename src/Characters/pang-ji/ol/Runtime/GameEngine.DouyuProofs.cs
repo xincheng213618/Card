@@ -148,8 +148,73 @@ public sealed partial class GameEngine
         var index = _resolutionStack.FindIndex(f => f.Id == pair.Id);
         if (index < 0 || pair.DouyuContest is null || !ValidDouyuContest(pair) || index + 1 >= _resolutionStack.Count ||
             !DouyuPindianChildRidesOn(_resolutionStack[index + 1], pair)) return false;
-        return HasObserverSuffix(index + 1, static (g, n) => g.DouyuPindianChildRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) ||
+        return HasObserverSuffix(index, static (g, n) => g.DouyuPindianChildRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) ||
             g.DouyuObserverEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
+    }
+    private void AssertDouyuPairSubtreeProcessing(PindianFrame pair)
+    {
+        if (!IsDouyuPairSubtree(pair)) throw new InvalidOperationException("Douyu cannot authorize an unrelated native processing subtree.");
+        var index = _resolutionStack.FindIndex(f => f.Id == pair.Id); var r = pair.DouyuContest!;
+        var parentCards = pair.ParentProcessingCardIds ?? [];
+        var expected = new HashSet<int>(parentCards);
+        if (expected.Count != parentCards.Count || parentCards.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing) ||
+            r.OriginalCards.Any(c => expected.Contains(c.CardId)))
+            throw new InvalidOperationException("Douyu cannot release or reuse the suspended parent's genuine processing materials.");
+        foreach (var id in CurrentPindianProcessingIds(pair)) expected.Add(id);
+        for (var at = index + 2; at < _resolutionStack.Count; at++)
+        {
+            if (_resolutionStack[at] is CardUseFrame { Action: { Type: CardActionType.Use } action } use)
+            {
+                if (action.ActorSeat != use.SourceSeat || action.EffectiveKind != use.CardKind ||
+                    ProgramEventHistory<CardUseDeclaredEvent>().Count(e => e.ResolutionId == use.Id && e.SourceSeat == use.SourceSeat && e.CardId == use.CardId) != 1)
+                    throw new InvalidOperationException("A nested Douyu observer must retain its exact declared native Use.");
+                foreach (var cost in action.PhysicalCards.Where(c => _cardZones.GetLocation(c.CardId) == CardLocation.Processing))
+                {
+                    var moved = _cardMovements.LastOrDefault(m => m.CardId == cost.CardId);
+                    if (moved is null || moved.Sequence <= r.SequenceBefore || moved.CardKind != cost.CardKind ||
+                        moved.From != cost.From || moved.To != CardLocation.Processing ||
+                        !(IsCardSupplyCompletionEntry(action, use.Id, _resolutionStack[at - 1].Id, cost, moved) ||
+                          EquipmentCatalog.IsEquipment(use.CardKind) && moved.Reason == CardMoveReasons.EquipmentUse ||
+                          use.CardKind == CardKind.IronChain && moved.Reason == CardMoveReasons.IronChainUse) || !expected.Add(cost.CardId))
+                        throw new InvalidOperationException("A nested Douyu native Use cannot claim an unpaid, stale or ancestor processing entity.");
+                }
+            }
+            else if (_resolutionStack[at] is ProgramCardTriggerWindowFrame { ResponseCompletion: not null } response &&
+                ValidResponseCompletionWindow(response))
+            {
+                foreach (var cost in response.Action.PhysicalCards.Where(c => _cardZones.GetLocation(c.CardId) == CardLocation.Processing))
+                {
+                    var moved = _cardMovements.LastOrDefault(m => m.CardId == cost.CardId);
+                    if (moved is null || moved.Sequence <= r.SequenceBefore || moved.CardKind != cost.CardKind ||
+                        moved.From != cost.From || moved.To != CardLocation.Processing || moved.Reason != CardMoveReasons.Respond || !expected.Add(cost.CardId))
+                        throw new InvalidOperationException("A nested Douyu response lost its exact native payment entity.");
+                }
+            }
+            // A completed ordinary Program Judgment binds only its actual final
+            // result. While still active, judgments hold their card in Judgment,
+            // not Processing; no arbitrary judgment-frame ID is admitted here.
+            else if (_resolutionStack[at] is ProgramSkillFrame program)
+            {
+                foreach (var bound in program.CardSetBindings)
+                    for (var cardIndex = 0; cardIndex < bound.CardIds.Count; cardIndex++)
+                    {
+                        var id = bound.CardIds[cardIndex];
+                        if (_cardZones.GetLocation(id) != CardLocation.Processing || expected.Contains(id)) continue;
+                        var moved = _cardMovements.LastOrDefault(m => m.CardId == id);
+                        if (bound.SourceLocations.Count != bound.CardIds.Count || bound.SourceLocations[cardIndex] != CardLocation.Processing ||
+                            moved is null || moved.Sequence <= r.SequenceBefore || moved.From.Zone != CardZoneKind.Judgment ||
+                            moved.To != CardLocation.Processing || moved.Reason.Value != "skill-program.judgment.result" ||
+                            ProgramEventHistory<JudgmentResolvedEvent>().Count(e => e.ParentResolutionId == program.Id &&
+                                e.TargetSeat == moved.From.OwnerSeat && e.CardId == id && e.CardKind == moved.CardKind &&
+                                ProgramEventHistory<JudgmentRequestedEvent>().Any(start => start.ResolutionId == e.ResolutionId &&
+                                    start.ParentResolutionId == program.Id && start.TargetSeat == e.TargetSeat && start.Reason == e.Reason)) != 1)
+                            throw new InvalidOperationException("A nested Douyu judgment result lacks its exact final-card handoff and native parent.");
+                        expected.Add(id);
+                    }
+            }
+        }
+        if (!_cardZones.CardsAt(CardLocation.Processing).Select(c => c.Id).Order().SequenceEqual(expected.Order()))
+            throw new InvalidOperationException("Douyu lost the precise union of its parent, contest and paid native child processing cards.");
     }
     private void AssertDouyuWindows()
     {

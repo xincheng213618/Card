@@ -362,6 +362,7 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) continue;
             if (trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.CollectJiyunCompletedUseEntities or SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit or SkillProgramEffectOp.ResolveChenglieRedHolderOutcome or SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse)) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) ||
                 ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice)) continue;
@@ -470,6 +471,7 @@ public sealed partial class GameEngine
         CollectIssuedSunHaoCanshiCandidates(action, window, result);
         CollectIssuedHuiyunCandidates(action, window, result);
         CollectIssuedPijingNextUseCandidates(action, window, result);
+        CollectIssuedBiguoCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -496,8 +498,8 @@ public sealed partial class GameEngine
         var context = candidate.FrozenContext ?? CreateCardActionProgramContext(frame.Action,
             GetCardActionWindow(frame), frame.Id, candidate.OwnerSeat, candidate.OpponentSeat,
             CaptureProgramTriggerFacts(_players[candidate.OwnerSeat], frame.Action));
-        return CreateJiyunCompletedUseContext(frame, candidate, CreatePijingIssuedContext(frame, candidate, CreateMaMiDiIssuedContext(frame, candidate,
-            CreateHuaManCardUseContext(frame, ToSharedCandidate(candidate), context))));
+        return CreateBiguoTargetContext(frame, candidate, CreateJiyunCompletedUseContext(frame, candidate, CreatePijingIssuedContext(frame, candidate, CreateMaMiDiIssuedContext(frame, candidate,
+            CreateHuaManCardUseContext(frame, ToSharedCandidate(candidate), context)))));
     }
 
     private ProgramSkillWindowContext CreateCardActionProgramContext(

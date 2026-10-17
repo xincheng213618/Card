@@ -121,6 +121,7 @@ public sealed partial class GameEngine
 
     private void RevealPindian(PindianFrame frame, int opponentCardId, bool opponentTop = false)
     {
+        if (TryBeginDouyuPairPreReveal(frame, opponentCardId, opponentTop)) return;
         var source = _players[frame.SourceSeat];
         var opponent = _players[frame.OpponentSeat!.Value];
         AssertOwnedPilePindianSource(frame);
@@ -133,6 +134,8 @@ public sealed partial class GameEngine
         if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, sourceLocation, CardLocation.Processing, CardMoveReasons.PindianReveal);
         MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));
+        result = ApplyDouyuPairResult(frame, result);
+        frame = (PindianFrame)_resolutionStack[^1];
         if (TryBeginPairPindianReveal(frame,result)) return;
         AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(frame.Id, frame.SkillId, result));
         AddLog("Pindian", $"{source.Name} 以 {result.SourceRank} 点与 {opponent.Name} 的 {result.OpponentRank} 点拼点，" +
@@ -205,6 +208,7 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<PindianFrame>().ToArray();
         foreach (var owned in frames) AssertOwnedPilePindianSource(owned);
         if (frames.Length == 0) return;
+        if (frames.Length == 1 && IsDouyuPairSubtree(frames[0])) { AssertDouyuWindows(); AssertDouyuPairSubtreeProcessing(frames[0]); return; }
         if (frames.Length == 1 && IsPairPindianRevealSubtree(frames[0])) { AssertPindianRevealWindows(); return; }
         if (frames.Length != 1 || _resolutionStack.Count < 2 || _resolutionStack[^1] != frames[0] ||
             _resolutionStack[^2].Id != frames[0].ParentFrameId ||
@@ -218,8 +222,12 @@ public sealed partial class GameEngine
                 .SequenceEqual(parentCards.Concat(contestCards).Order()) == false ||
             parentCards.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing))
             throw new InvalidOperationException("Pindian lost its parent card or acquired an unrelated processing card.");
-        if (!_players[frame.SourceSeat].IsAlive || frame.OpponentSeat is { } opponent &&
-            (opponent == frame.SourceSeat || !_players[opponent].IsAlive) ||
+        var paidDouyuClaim = frame.PindianStep == PindianStep.ClaimResult && frame.Result is { } paidResult &&
+            IsDouyuPairAssignment(frame, paidResult) &&
+            ProgramEventHistory<PindianResultDeterminedEvent>().Count(e => e.FrameId == frame.Id && e.SkillId == frame.SkillId && e.Result == paidResult) == 1 &&
+            ProgramEventHistory<DouyuResultRecordedEvent>().Count(e => e.ContestId == frame.Id && e.ComparisonIndex == 0 && e.Result == paidResult) == 1;
+        if ((!_players[frame.SourceSeat].IsAlive || frame.OpponentSeat is { } opponent && !_players[opponent].IsAlive) && !paidDouyuClaim ||
+            frame.OpponentSeat == frame.SourceSeat || !_players[decision.PlayerSeat].IsAlive ||
             _status != (_players[decision.PlayerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running))
             throw new InvalidOperationException("Pindian prompt owner or participants are inconsistent.");
         if (AssertPindianRandomSelection(frame, decision)) return;
