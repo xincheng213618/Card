@@ -15042,6 +15042,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-cai-fu-ren",
+      "characterName": "蔡夫人·OL",
+      "defaultSkinId": "33100",
+      "skins": [
+        {
+          "id": "33100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/331",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cai-fu-ren.png",
+          "sha256": "af5b104abece3336756d015d0ad2b54f09fe68513a8b0495d67c90e694f20221",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
