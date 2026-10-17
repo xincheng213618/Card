@@ -14991,6 +14991,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-guan-hai",
+      "characterName": "管亥·OL",
+      "defaultSkinId": "70100",
+      "skins": [
+        {
+          "id": "70100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/701",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-guan-hai.png",
+          "sha256": "db8b3c51a562b187be2460808822b1f1fd2fb8339e4c0b84523db7d63f80833f",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

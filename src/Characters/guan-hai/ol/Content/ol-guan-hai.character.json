@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-hai",
+  "skills": [
+    {
+      "registrationOrder": 2110,
+      "programBundle": "ol-guan-hai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiewei",
+        "name": "卸尾",
+        "description": "你可以将两张手牌置于武将牌上，称为“饵”，视为使用一张【杀】或【闪】。",
+        "actionForms": "Active",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2111,
+      "programBundle": "ol-guan-hai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:youque",
+        "name": "诱阙",
+        "description": "出牌阶段，你可以用点数最小的“饵”拼点。没赢的角色弃置点数大于其拼点牌的所有手牌，视为对赢的角色使用一张【杀】。此【杀】造成伤害后，你摸两张牌，若你没有黑桃的“饵”，此技能此阶段失效。",
+        "actionForms": "Active",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2112,
+      "pools": {
+        "current": 486
+      },
+      "definition": {
+        "id": "ol:guan-hai",
+        "name": "管亥",
+        "portraitKey": "ol-guan-hai",
+        "skillId": "ol:xiewei",
+        "additionalSkillIds": [
+          "ol:youque"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:guan-hai",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}
