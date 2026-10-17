@@ -995,6 +995,9 @@ public enum SkillProgramEffectOp
     ResolveBeifenLostMarkedSuitGains = 28420,
     ResolveYixianAllEquipmentObtainAndCompensate = 28530,
     ResolveWuyouContributionAndNamedReturn = 28520,
+    ResolveQiqinDiscardPileQin = 28610,
+    InitializeQiqinInitialEntities = 28611,
+    ResolveWeiwanQinDiscardAndSuitObtain = 28620,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -5192,9 +5195,11 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) JiguComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LingkongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ShuangjiaComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) QiqinComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) JuewuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) BeifenComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuYixianComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) WeiwanComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuyouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) XianshuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) SiruiComposition.ValidateProgram(program.Id, program);

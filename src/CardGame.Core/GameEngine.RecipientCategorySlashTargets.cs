@@ -13,7 +13,7 @@ public sealed partial class GameEngine
     private bool CanBeRecipientCategorySlashTarget(CardUseFrame use, CharacterState target)
     {
         if (!IsSlashCard(use.CardKind) || use.Action is not { Type: CardActionType.Use } action || !target.IsAlive ||
-            use.TargetSeats.Contains(target.Seat) || IsDirectedCardTargetProhibited(action.ActorSeat, target.Seat, use.CardKind) ||
+            use.TargetSeats.Contains(target.Seat) || IsDirectedCardTargetProhibited(action.ActorSeat, target.Seat, use.CardKind, use.Id) ||
             IsCardTargetProhibited(target, use.CardKind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) ||
             HasBeneficiarySuitShield(action.ActorSeat, target.Seat, action.EffectiveSuit) ||
             IsSelfTargetForbiddenAction(_players[action.ActorSeat], use.CardKind, [target.Seat])) return false;

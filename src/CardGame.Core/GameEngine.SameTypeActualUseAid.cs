@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(seat) || LifecycleCardUse(identity.CardUseFrameId) is not { } use ||
             !MatchesSameTypeAidUse(identity) || use.TargetSeats.Contains(seat) || !_players[seat].IsAlive ||
             seat == identity.ActorSeat || HasTurnCardTargetRestriction(identity.ActorSeat, SkillProgramCardTargetRestriction.SelfOnly) ||
-            IsDirectedCardTargetProhibited(identity.ActorSeat, seat, identity.EffectiveKind)) return false;
+            IsDirectedCardTargetProhibited(identity.ActorSeat, seat, identity.EffectiveKind, use.Id)) return false;
         var action = use.Action; var suit = action?.EffectiveSuit ?? Suit.None;
         var color = action is null ? null : ActualTargetPolicyColor(action);
         var actor = _players[identity.ActorSeat]; var target = _players[seat];

@@ -11,12 +11,12 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.GameStarting, facts[player.Seat])).OrderBy(candidate => candidate.OwnerSeat)
             .ThenByDescending(candidate => candidate.Priority).ToArray();
         if (candidates.Length == 0) return false;
-        PushRuntimeFrame(CaptureShuangjiaInitialEntities(CaptureLingkongInitialEntities(CaptureJiguInitialEntities(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, _currentSeat,
+        PushRuntimeFrame(CaptureQiqinInitialEntities(CaptureShuangjiaInitialEntities(CaptureLingkongInitialEntities(CaptureJiguInitialEntities(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, _currentSeat,
             SkillProgramTriggerWindow.GameStarting, candidates, ProgramLifecycleContinuation.CompleteGameStarting,
             facts[_currentSeat]) { ParticipantFacts = facts,
                 FrozenFactionPopulation = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantFactionPopulationMarker)
                     ? new System.Collections.ObjectModel.ReadOnlyDictionary<string,int>(_players.GroupBy(player => GetEffectiveFactionId(player) ?? "")
-                        .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal)) : null }))));
+                        .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal)) : null })))));
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }

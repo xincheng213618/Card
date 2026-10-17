@@ -48,8 +48,8 @@ public sealed partial class GameEngine
             item.Effects.HasFlag(effect) &&
             HasRuntimeSkillInstance(_players[item.Source.OwnerSeat], item.Source.SkillId, item.Source.SkillInstanceId));
 
-    private bool IsDirectedCardTargetProhibited(int actorSeat, int targetSeat, CardKind cardKind) =>
-        NianDongmianForbidsTarget(actorSeat, targetSeat) ||
+    private bool IsDirectedCardTargetProhibited(int actorSeat, int targetSeat, CardKind cardKind, long? cardUseFrameId = null) =>
+        IsWeiwanTargetForbidden(actorSeat, targetSeat, cardKind, cardUseFrameId) || NianDongmianForbidsTarget(actorSeat, targetSeat) ||
         ShenwuMingwanForbidsTarget(actorSeat, targetSeat) || IsShenwuRobeTargetProhibited(actorSeat, targetSeat, cardKind) ||
         HasGuoSiTargetEffect(actorSeat, targetSeat, DirectedTurnCardPolicyEffect.ForbidTarget) ||
         IsXuRongSlashTargetForbidden(actorSeat, targetSeat, cardKind) || GuanFocusProhibitsSlash(actorSeat, targetSeat, cardKind) ||

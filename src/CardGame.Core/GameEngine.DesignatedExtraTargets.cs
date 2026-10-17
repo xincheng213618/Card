@@ -105,7 +105,7 @@ public sealed partial class GameEngine
             ? use.TargetSeats.Where((_, i) => i % 2 == 0) : action.EffectiveDesignatedTargetSeats;
         if (!target.IsAlive || originalMainTargets.Contains(target.Seat) ||
             kind == CardKind.DrawTwo && use.TargetSeats.Count == 0 && target.Seat == actor.Seat ||
-            IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
+            IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind, use.Id) ||
             IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) ||
             HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit) ||
             IsSelfTargetForbiddenAction(actor, kind, [target.Seat]) ||

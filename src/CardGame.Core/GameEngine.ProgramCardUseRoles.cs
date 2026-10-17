@@ -50,7 +50,7 @@ public sealed partial class GameEngine
         var action = use.Action!;
         var actor = _players[action.ActorSeat];
         var kind = action.EffectiveKind;
-        if (!target.IsAlive || target.Seat == actor.Seat || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
+        if (!target.IsAlive || target.Seat == actor.Seat || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind, use.Id) ||
             IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) || HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit)) return false;
         var physical = action.PhysicalCards.Count > 0
             ? _cardZones.CardsAt(_cardZones.GetLocation(action.PhysicalCards[0].CardId)).Single(card => card.Id == action.PhysicalCards[0].CardId)

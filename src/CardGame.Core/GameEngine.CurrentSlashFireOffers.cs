@@ -43,7 +43,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(use.SourceSeat, CardKind.FireSlash, CardActionType.Use) && use.TargetSeats.All(seat =>
             IsValidPlayerSeat(seat) && _players[seat].IsAlive && !IsSlashProhibited(_players[seat]) &&
             !HasBeneficiarySuitShield(use.SourceSeat, seat, use.Action!.EffectiveSuit) &&
-            !IsDirectedCardTargetProhibited(use.SourceSeat, seat, CardKind.FireSlash) &&
+            !IsDirectedCardTargetProhibited(use.SourceSeat, seat, CardKind.FireSlash, use.Id) &&
             !IsCardTargetProhibited(_players[seat], CardKind.FireSlash, use.Action!.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(use.Action!)));
 
     private int CurrentFireSlashMaximum(CardUseFrame use)
@@ -67,7 +67,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(parent.InstructionIndex).Effect is { Op: SkillProgramEffectOp.UseVirtualCard, TargetRestriction: SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget };
         return _players.Where(t => t.IsAlive && t.Seat != actor.Seat && !use.TargetSeats.Contains(t.Seat) &&
             !HasBeneficiarySuitShield(actor.Seat, t.Seat, action.EffectiveSuit) &&
-            !IsSlashProhibited(t) && !IsDirectedCardTargetProhibited(actor.Seat, t.Seat, CardKind.FireSlash) &&
+            !IsSlashProhibited(t) && !IsDirectedCardTargetProhibited(actor.Seat, t.Seat, CardKind.FireSlash, use.Id) &&
             !IsCardTargetProhibited(t, CardKind.FireSlash, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) &&
             (ignoreDistance || HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasIssuedGrantedPhaseEntityDistance(use.Id, actor.Seat) || HasProvenanceUseDistance(actor, use.PhysicalCardIds) || HasGrantedPhaseEntityDistance(actor, use.PhysicalCardIds) ||
              HasSlashUseDistanceBySuit(actor, CardKind.FireSlash, action.EffectiveSuit) ||

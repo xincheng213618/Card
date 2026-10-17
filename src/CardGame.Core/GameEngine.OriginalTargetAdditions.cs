@@ -113,7 +113,7 @@ public sealed partial class GameEngine
             use.SourceSeat != action.ActorSeat || !IsValidPlayerSeat(grant.TargetSeat)) return false;
         var actor = _players[action.ActorSeat]; var target = _players[grant.TargetSeat];
         if (!target.IsAlive || action.EffectiveDesignatedTargetSeats.Contains(target.Seat) ||
-            IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind) ||
+            IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind, use.Id) ||
             IsCardTargetProhibited(target, use.CardKind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) ||
             HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit)) return false;
         if (IsSlashCard(use.CardKind))

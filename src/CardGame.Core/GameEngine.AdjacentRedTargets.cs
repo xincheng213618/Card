@@ -34,7 +34,7 @@ public sealed partial class GameEngine
             !(a.EffectiveIsRed ?? a.EffectiveSuit is Suit.Heart or Suit.Diamond) ||
             !AdjacentRedOriginalPrimaryTargets(use).Any(s => s != owner && _players[s].IsAlive && GetCombatDistance(s, owner) == 1) ||
             HasTurnCardTargetRestriction(a.ActorSeat, SkillProgramCardTargetRestriction.SelfOnly) ||
-            IsDirectedCardTargetProhibited(a.ActorSeat, owner, use.CardKind) ||
+            IsDirectedCardTargetProhibited(a.ActorSeat, owner, use.CardKind, use.Id) ||
             IsCardTargetProhibited(target, use.CardKind, a.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(a)) ||
             HasBeneficiarySuitShield(a.ActorSeat, owner, a.EffectiveSuit)) return false;
         // Mandatory target addition ignores use distance and permits a full-HP

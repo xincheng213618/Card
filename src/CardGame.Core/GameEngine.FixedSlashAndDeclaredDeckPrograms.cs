@@ -146,7 +146,7 @@ public sealed partial class GameEngine
         var owner = _players[frame.OwnerSeat]; var target = _players[draft.TargetSeat];
         return owner.IsAlive && target.IsAlive && owner.Seat != target.Seat &&
             !IsCardUseForbidden(owner.Seat, kind, CardActionType.Use) &&
-            (draft.IgnoreDistance || HasBeifenPreUsePrivilege(owner) || IsWithinSpecificSlashRange(owner, target, kind, effectiveRank) ||
+            (draft.IgnoreDistance || HasWeiwanUseDistance(owner, target, kind) || HasBeifenPreUsePrivilege(owner) || IsWithinSpecificSlashRange(owner, target, kind, effectiveRank) ||
                 allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(owner, target, kind)) &&
             !IsDirectedCardTargetProhibited(owner.Seat, target.Seat, kind) &&
             CanSpendSlashUse(owner, target, ignoresCount: true, kind) && !IsSlashProhibited(target);

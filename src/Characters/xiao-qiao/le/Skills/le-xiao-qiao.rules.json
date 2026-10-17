@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:qiqin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeQiqinInitialEntities",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "collect-discard-qin",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveQiqinDiscardPileQin",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "le:weiwan",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "discard-qin-obtain-suits",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveWeiwanQinDiscardAndSuitObtain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -48,7 +48,7 @@ public sealed partial class GameEngine
         return _players.Where(target => target.IsAlive && target.Seat != actor.Seat && !use.TargetSeats.Contains(target.Seat) &&
             GetCombatDistance(actor.Seat, target.Seat) == 1 && (use.Action is not null
                 ? CanBeProgramCardUseRoleTarget(use, target)
-                : !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind) &&
+                : !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind, use.Id) &&
                     !IsCardTargetProhibited(target, use.CardKind, Suit.None, null) && !HasBeneficiarySuitShield(actor.Seat, target.Seat, Suit.None) &&
                     !IsSlashProhibited(target) && IsWithinSpecificSlashRange(actor, target, use.CardKind, null, use.Id)))
             .OrderBy(target => (target.Seat - actor.Seat + _playerCount) % _playerCount).Select(target => target.Seat).ToArray();

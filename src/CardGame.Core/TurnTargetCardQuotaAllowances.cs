@@ -38,6 +38,6 @@ internal sealed partial class TurnCardUseEffectStore
 public sealed partial class GameEngine
 {
     private bool HasTargetCardQuotaAllowance(int actor, int target) =>
-        HasGuoSiTargetEffect(actor, target, DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
+        HasWeiwanQuota(_players[actor], _players[target]) || HasGuoSiTargetEffect(actor, target, DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
         _turnCardUseEffects.HasTargetCardQuotaAllowance(_turnNumber, _currentSeat, actor, target);
 }

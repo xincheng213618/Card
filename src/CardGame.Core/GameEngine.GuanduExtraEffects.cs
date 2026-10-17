@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     {
         if (use.Action is not { } action || !_players[use.SourceSeat].IsAlive || use.TargetSeats.Count == 0) return false;
         bool IsTrickTargetAllowed(int seat) => IsValidPlayerSeat(seat) && _players[seat].IsAlive &&
-            !IsDirectedCardTargetProhibited(use.SourceSeat, seat, use.CardKind) &&
+            !IsDirectedCardTargetProhibited(use.SourceSeat, seat, use.CardKind, use.Id) &&
             !IsCardTargetProhibited(_players[seat], use.CardKind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) &&
             !HasBeneficiarySuitShield(use.SourceSeat, seat, action.EffectiveSuit) &&
             !IsShenwuRobeTargetProhibited(use.SourceSeat, seat, use.CardKind);

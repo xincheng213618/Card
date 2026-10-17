@@ -210,7 +210,7 @@ public sealed partial class GameEngine
         var r = f.SoleTargetProtection!; var use = LifecycleCardUse(r.CardUseFrameId); var owner = _players[f.OwnerSeat];
         if (use?.Action is not { } action || !owner.IsAlive || use.SoleTargetQuarantine is not null ||
             SoleProtectionMainTargets(use) is not [var old] || old != r.ProtectedSeat ||
-            IsDirectedCardTargetProhibited(use.SourceSeat, owner.Seat, use.CardKind) ||
+            IsDirectedCardTargetProhibited(use.SourceSeat, owner.Seat, use.CardKind, use.Id) ||
             HasBeneficiarySuitShield(use.SourceSeat, owner.Seat, action.EffectiveSuit)) return false;
         if (!afterDraw && GetHand(owner).Count == 0 && (IsSlashCard(use.CardKind) || use.CardKind == CardKind.Duel) &&
             CardPolicies(owner, SkillProgramCardPolicyKind.ProhibitTarget, use.CardKind).Any() &&

@@ -150,6 +150,7 @@ public sealed partial class GameEngine
         { JuewuEffectiveRank = JuewuForeignHandRank(provider, card) };
         payment = CaptureBeifenDeclarationPayment(payment, parent);
         payment = CaptureWuyouDeclarationPayment(payment, parent);
+        payment = CaptureWeiwanDeclarationPayment(payment, parent);
         ClearPendingDecision();
         _selectedUseConversion = null; _selectedResponseConversion = null;
         _hasSelectedUseConversionChoice = false; _hasSelectedResponseConversionChoice = false;
