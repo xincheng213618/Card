@@ -83,6 +83,7 @@ public sealed partial class GameEngine
              {
                  CardKind.DrawTwo or CardKind.IronChain => true,
                  CardKind.StarShift or CardKind.HandRedistribution => CanBeWenheAdditionalTarget(use, target),
+                 CardKind.Intoxication or CardKind.StoreGrain or CardKind.Reinforcements => CanBeGuanduAdditionalTarget(use, target),
                  CardKind.SameBoat or CardKind.AgainstCurrent or CardKind.Zong => CanBeDragonBoatAdditionalTarget(use, target),
                  CardKind.BorrowedSword => GetEquipment(target).Any(item => EquipmentCatalog.Get(item.Kind).Slot == EquipmentSlot.Weapon) &&
                      _players.Any(victim => IsLegalBorrowedSwordSlashTarget(target, victim)),

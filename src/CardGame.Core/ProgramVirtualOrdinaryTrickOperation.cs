@@ -15,14 +15,18 @@ internal sealed class UseVirtualOrdinaryTrickSkillProgramEffectHandler : ISkillP
 
 internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
+    internal static bool IsChoulueShape(SkillProgramEffect effect) => effect.Condition is
+        { Kind: SkillProgramConditionKind.ChoiceIs, SourceBind: "choulue-kind" } && effect.OutputKind is { } kind &&
+        CardCatalog.Get(kind).CategoryName == "锦囊牌" && kind is not (CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning) &&
+        effect.ActorReference?.Kind == ProgramParticipantRef.Owner && effect.TargetReference?.Kind == ProgramParticipantRef.Owner;
     internal static bool IsGroupOutput(CardKind? kind) => kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage;
     internal static bool AllowsWindow(CardKind? kind, SkillProgramTriggerWindow window) => IsGroupOutput(kind)
         ? window is SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.GameStarting
-        : window == SkillProgramTriggerWindow.PlayEnding;
+        : kind == CardKind.Duel ? window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow : window == SkillProgramTriggerWindow.PlayEnding;
 
     internal static bool HasValidReferences(CardKind? kind, ProgramParticipantRef? actor, ProgramParticipantRef? recipient) =>
         IsGroupOutput(kind) ? actor == ProgramParticipantRef.Owner && recipient == ProgramParticipantRef.Owner :
-        kind is (CardKind.DrawTwo or CardKind.Dismantlement) &&
+        kind is (CardKind.DrawTwo or CardKind.Dismantlement or CardKind.Duel) &&
         actor is (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) &&
         recipient is (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget) &&
         (kind == CardKind.DrawTwo) == (actor == recipient);
@@ -39,10 +43,12 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
         var actor = reader.RequiredParticipantReference("actorRef");
         var recipient = reader.RequiredParticipantReference("targetRef");
         var kind = reader.RequiredEnum<CardKind>("outputKind");
-        if (target != SkillProgramEffectTarget.Owner || !HasValidReferences(kind, actor.Kind, recipient.Kind))
-            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual ordinary trick requires an owner placeholder and valid references for self DrawTwo, distinct-participant Dismantlement, or owner-origin global assault.");
         var condition = reader.Condition();
-        if (IsGroupOutput(kind) ? condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs) :
+        var effect = new SkillProgramEffect(Op, target, 0, condition, outputKind: kind, actorReference: actor, targetReference: recipient);
+        if (target != SkillProgramEffectTarget.Owner || !HasValidReferences(kind, actor.Kind, recipient.Kind) && !IsChoulueShape(effect))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual ordinary trick requires an owner placeholder and valid references for self DrawTwo, distinct-participant Dismantlement, or owner-origin global assault.");
+        if (IsChoulueShape(effect)) return effect;
+        if (IsGroupOutput(kind) || kind == CardKind.Duel ? condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs) :
             condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon))
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.condition: virtual ordinary trick accepts always or a named Pindian branch.");
         return new SkillProgramEffect(Op, target, 0, condition, outputKind: kind,
@@ -51,8 +57,8 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         Array.AsReadOnly(ParticipantResources(effect.ActorReference, effect.TargetReference)
-            .Concat(IsGroupOutput(effect.OutputKind)
+            .Concat(IsChoulueShape(effect) ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting) } : IsGroupOutput(effect.OutputKind)
                 ? new ProgramResourceOperation[] { new RequireTriggerWindows([SkillProgramTriggerWindow.PlayPhaseStarting,
                     SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.AfterTurnEnded, SkillProgramTriggerWindow.GameStarting]) }
-                : [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)]).ToArray());
+                : [new RequireTriggerWindow(effect.OutputKind == CardKind.Duel ? SkillProgramTriggerWindow.TurnStartBeforeNormalFlow : SkillProgramTriggerWindow.PlayEnding)]).ToArray());
 }

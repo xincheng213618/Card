@@ -1,0 +1,1084 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "guandu:shicai",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "play",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveGuanduShicai",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "anyLiving"
+        }
+      ]
+    },
+    {
+      "id": "guandu:zezhu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "play",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveGuanduZezhu",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "anyLiving"
+        }
+      ]
+    },
+    {
+      "id": "guandu:fushi",
+      "revision": 1,
+      "modifiers": [
+        {
+          "priority": 0,
+          "value": 1,
+          "operation": "add",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "always"
+              }
+            ]
+          },
+          "id": "native-rule-marker",
+          "query": "handLimit"
+        }
+      ]
+    },
+    {
+      "id": "guandu:chenggong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "multi-target-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:jieliang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "drawPhaseStarting",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "turnOwnerScope": "otherLiving",
+          "drawPhaseMode": "additive",
+          "effects": [
+            {
+              "op": "resolveGuanduJieliang",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "claim-turn-discard",
+          "window": "discardPhaseEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduJieliangClaim",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:quanjiu",
+      "revision": 1,
+      "cardIdentities": [
+        {
+          "id": "intoxication-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [
+            "intoxication"
+          ],
+          "inputSuits": [],
+          "outputKind": "slash"
+        }
+      ],
+      "modifiers": [
+        {
+          "id": "intoxication-without-quota",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "sourceCardIdentityId": "intoxication-slash",
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "guandu:fuyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "committed-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduFuyuan",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "accepted-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduFuyuan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:zhongjie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ownerDied",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduZhongjie",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:yongdi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turnStartBeforeNormalFlow",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "raiseMaximumRecoverAndQualifyPrintedLord",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:cangchu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "gameStarting",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveGuanduCangchu",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamagePoint",
+          "effects": [
+            {
+              "op": "resolveGuanduCangchu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:sushou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discardPhaseStarting",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduSushou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:liangying",
+      "revision": 1,
+      "modifiers": [
+        {
+          "priority": 0,
+          "value": 1,
+          "operation": "add",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "always"
+              }
+            ]
+          },
+          "id": "native-rule-marker",
+          "query": "handLimit"
+        }
+      ]
+    },
+    {
+      "id": "guandu:polu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turnStartBeforeNormalFlow",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveGuanduPolu",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "damageOccurrence": "perDamagePoint",
+          "effects": [
+            {
+              "op": "resolveGuanduPolu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:thunder-chariot",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "resolveGuanduThunderChariot",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:choulue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "playPhaseStarting",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduChoulue",
+              "target": "owner"
+            },
+            {
+              "op": "offerVirtualBasicCard",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "slash"
+              },
+              "target": "owner"
+            },
+            {
+              "op": "offerVirtualBasicCard",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "fireSlash"
+              },
+              "target": "owner"
+            },
+            {
+              "op": "offerVirtualBasicCard",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "thunderSlash"
+              },
+              "target": "owner"
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "duel",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "duel"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "drawTwo",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "drawTwo"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "barbarianAssault",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "barbarianAssault"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "arrowBarrage",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "arrowBarrage"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "peachGarden",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "peachGarden"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "fiveGrains",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "fiveGrains"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "dismantlement",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "dismantlement"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "snatch",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "snatch"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "fireAttack",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "fireAttack"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "nullification",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "nullification"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "ironChain",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "ironChain"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "borrowedSword",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "borrowedSword"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "unexpectedAssault",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "unexpectedAssault"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "allianceFeast",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "allianceFeast"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "sowBeans",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "sowBeans"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "transplantWood",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "transplantWood"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "returnSoul",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "returnSoul"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "starShift",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "starShift"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "beamSwap",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "beamSwap"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "handRedistribution",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "handRedistribution"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "wenheChaos",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "wenheChaos"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "sameBoat",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "sameBoat"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "striveUpstream",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "striveUpstream"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "againstCurrent",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "againstCurrent"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "storeGrain",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "storeGrain"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "reinforcements",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "reinforcements"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "unitedEffort",
+              "condition": {
+                "sourceBind": "choulue-kind",
+                "kind": "choiceIs",
+                "optionId": "unitedEffort"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "actorRef": {
+                "kind": "owner"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:hengjiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamagePoint",
+          "effects": [
+            {
+              "op": "resolveGuanduHengjiang",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "afterTurnEnded",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "turnOwnerScope": "own",
+          "effects": [
+            {
+              "op": "resolveGuanduHengjiangReward",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "foreign-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "turnOwnerScope": "otherLiving",
+          "effects": [
+            {
+              "op": "resolveGuanduHengjiangReward",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:xiying",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "playPhaseStarting",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduXiying",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:gangzhi",
+      "revision": 1,
+      "modifiers": [
+        {
+          "priority": 0,
+          "value": 1,
+          "operation": "add",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "always"
+              }
+            ]
+          },
+          "id": "native-rule-marker",
+          "query": "handLimit"
+        }
+      ]
+    },
+    {
+      "id": "guandu:beizhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterTurnEnded",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveGuanduBeizhan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:yuanlve",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "play",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveGuanduYuanlve",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "anyLiving"
+        }
+      ]
+    },
+    {
+      "id": "guandu:moushi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "play",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveGuanduMoushi",
+              "target": "owner"
+            }
+          ],
+          "targetKind": "anyLiving"
+        }
+      ],
+      "triggers": [
+        {
+          "damageOccurrence": "perDamage",
+          "window": "afterDamageApplied",
+          "effects": [
+            {
+              "target": "owner",
+              "op": "resolveGuanduMoushi"
+            }
+          ],
+          "optional": false,
+          "id": "gifted-next-play-damage",
+          "subject": "any"
+        }
+      ]
+    },
+    {
+      "id": "guandu:sijian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "last-hand-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": [
+                "hand",
+                "equipment",
+                "judgment"
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment",
+                "judgment"
+              ],
+              "count": 1,
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:suishi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "same-faction-source-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveGuanduSuishiDying",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "same-faction-other-death",
+          "window": "characterDied",
+          "subject": "any",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveGuanduSuishiDeath",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guandu:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

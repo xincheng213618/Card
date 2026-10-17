@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         return use.CardKind switch
         {
             CardKind.StarShift or CardKind.HandRedistribution => CanBeWenheAdditionalTarget(use, target),
+            CardKind.Intoxication or CardKind.StoreGrain or CardKind.Reinforcements => CanBeGuanduAdditionalTarget(use, target),
             CardKind.SameBoat or CardKind.AgainstCurrent or CardKind.Zong => CanBeDragonBoatAdditionalTarget(use, target),
             CardKind.FireAttack => GetHand(target).Count > 0,
             CardKind.Snatch or CardKind.Dismantlement => HasTargetCard(target),

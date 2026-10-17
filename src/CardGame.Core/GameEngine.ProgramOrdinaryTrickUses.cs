@@ -165,6 +165,9 @@ public sealed partial class GameEngine
         }
 
         if (Wants(CardKind.DrawTwo) && !excludeOwner && !IsBlackTrickTargetProhibited(source, CardKind.DrawTwo, effectiveColor)) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
+        foreach (var kind in GuanduOrdinaryTrickKinds.Where(kind => (IsGuanduActivity || outputKind == kind) && Wants(kind)))
+            foreach (var targets in GuanduTargetChoices(source, kind, virtualSuit, effectiveColor, excludeOwner))
+                Add(kind, GuanduCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】使用", targets);
         foreach (var kind in DragonBoatOrdinaryTrickKinds.Where(kind => (_modeDefinition.DragonBoatActivity is not null || outputKind == kind) && Wants(kind)))
         {
             var seats = Enumerable.Range(0, _playerCount).Select(offset => _players[(source.Seat + offset) % _playerCount])

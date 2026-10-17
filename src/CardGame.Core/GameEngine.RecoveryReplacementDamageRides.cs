@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         {
             PostEventContinuation.Program or PostEventContinuation.AwaitedProgramMovement => beneath is ProgramSkillFrame,
             PostEventContinuation.FriendDuelResponse => beneath is FriendDuelResponseFrame,
+            PostEventContinuation.GuanduCardEffect => beneath is CardUseFrame guandu && IsGuanduCardEffectRecoveryReturn(guandu, recovery),
             PostEventContinuation.DragonBoatCardEffect => beneath is CardUseFrame dragon && IsDragonBoatCardEffectRecoveryReturn(dragon, recovery),
             PostEventContinuation.CardUse or PostEventContinuation.GroupRecovery or
                 PostEventContinuation.VirtualBasicCardUse or PostEventContinuation.RecoveryProducer => beneath is CardUseFrame,

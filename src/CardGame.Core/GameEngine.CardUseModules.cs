@@ -22,6 +22,7 @@ public sealed partial class GameEngine
 
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>
         effectiveKind == CardKind.Poison ||
+        IsGuanduCardActionForbidden(actorSeat, effectiveKind, actionType) ||
         IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
         ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
@@ -99,7 +100,7 @@ public sealed partial class GameEngine
                 LegalActionKind.Indulgence or LegalActionKind.SupplyShortage or LegalActionKind.Lightning or
                 LegalActionKind.BorrowedSword or LegalActionKind.StarShift or LegalActionKind.BeamSwap or
                 LegalActionKind.HandRedistribution or LegalActionKind.WenheChaos or LegalActionKind.Zong or
-                LegalActionKind.RealgarWine or LegalActionKind.SameBoat or LegalActionKind.StriveUpstream or LegalActionKind.AgainstCurrent))
+                LegalActionKind.RealgarWine or LegalActionKind.SameBoat or LegalActionKind.StriveUpstream or LegalActionKind.Intoxication or LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort or LegalActionKind.AgainstCurrent))
         {
             return false;
         }

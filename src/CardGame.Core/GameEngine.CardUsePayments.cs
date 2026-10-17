@@ -84,7 +84,8 @@ public sealed partial class GameEngine
                 _cardMovements[move.Sequence - 1] != move)
                 return false;
             var card = _cardZones.CardsAt(_cardZones.GetLocation(move.CardId)).Single(card => card.Id == move.CardId);
-            var destination = card.IsGeneralWeapon && cost.From.Zone == CardZoneKind.Equipment
+            var destination = card.IsGeneralWeapon && cost.From.Zone == CardZoneKind.Equipment ||
+                IsGuanduThunderChariotDeparture(card, cost.From, CardLocation.Processing)
                 ? CardLocation.OutsideGame : IsProgramAlternativeCost(action, move.CardId)
                     ? CardLocation.DrawPile : CardLocation.Processing;
             if (move.To != destination) return false;
@@ -100,6 +101,7 @@ public sealed partial class GameEngine
         movement.ResumeProgramFrameId is null && movement.ResumeDeclarationFrameId is null &&
         movement.ResumeRecoveryReplacementFrameId is null && movement.ResumeDrawFundedDistinctBasicFrameId is null &&
         movement.ResumeNativeCardEffectDrawFrameId is null &&
+        movement.ResumeGuanduCardEffectFrameId is null &&
         movement.ResumeDragonBoatCardEffectFrameId is null &&
         movement.ResumeEquipmentRecastFrameId is null && movement.ResumeColorFireAttackFrameId is null &&
         movement.ResumeCounterspellPaymentFrameId is null && movement.ResumeHistoricalEndingUseFrameId is null && movement.ResumeGuoSiUseFrameId is null && movement.ResumeDenglouUseFrameId is null &&

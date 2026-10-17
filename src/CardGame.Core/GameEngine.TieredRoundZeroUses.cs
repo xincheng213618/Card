@@ -34,6 +34,8 @@ public sealed partial class GameEngine
                 // Fangtian payment.
                 AddProgramTargetCountSlashActions(result, actor, card, targets, card.DisplayName, kind, source, null);
             }
+            else if (kind == CardKind.Intoxication)
+                AddGuanduZeroBasicActions(result, actor, source);
             else if (kind is CardKind.Zong or CardKind.RealgarWine)
                 AddDragonBoatZeroBasicActions(result, actor, source, kind);
             else if (kind == CardKind.Peach && IsRuleWounded(actor) && !HasSelfCardTargetProhibition(actor.Seat) &&
@@ -179,6 +181,8 @@ public sealed partial class GameEngine
         if (TryBeginEquipmentSlotNamedPlay(actor, action)) return;
         var source = action.ConversionSource!; var kind = action.PlayedCardKind!.Value; var card = new Card(0, kind, Suit.None, 0);
         if (IsTargetAdjustmentAction(actor, action)) _selectedNextCardTargetSeats = action.TargetSeats;
+        if (kind == CardKind.Intoxication)
+        { ResolveGuanduCard(actor, card, action); return; }
         if (kind is CardKind.Zong or CardKind.RealgarWine)
         { ResolveDragonBoatCard(actor, card, action); return; }
         if (kind == CardKind.Peach)

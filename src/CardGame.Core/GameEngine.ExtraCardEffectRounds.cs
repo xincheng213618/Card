@@ -36,6 +36,7 @@ public sealed partial class GameEngine
         if (!HasUnstartedExtraCardEffect(id) || LifecycleCardUse(id) is not { ExtraCardEffect: { } r, Action: { } action } use) return false;
         if (_resolutionStack.LastOrDefault()?.Id != id) throw new InvalidOperationException("An extra effect cannot pass an unfinished child.");
         if (r.Trick is not null && HasRemainingSequentialTrickTargets(id) || r.Simple is not null && HasRemainingAdjustedSimpleTargets(id)) return false;
+        if (r.Source.SkillId == "guandu:battle-event" && !GuanduRepeatTargetsRemainLegal(use)) return false;
         // The source/targets were already accepted, finalized and paid by this
         // use. Rechecking distance, target legality, skill ownership or quota
         // here would turn an extra effect into another card use.
@@ -71,7 +72,7 @@ public sealed partial class GameEngine
         }
         if (r.Simple is { } simple)
         {
-            if (use.TargetSeats.Count > 1 && simple.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
+            if (use.TargetSeats.Count > 1 && simple.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol or SimpleCardUseEffect.GuanduIntoxication)
                 UpdateLifecycleCardUse(id, current => current with { AdjustedSimpleContinuation = simple });
             ContinueSimpleCardUse(id, simple); return true;
         }

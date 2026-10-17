@@ -1551,7 +1551,7 @@ public sealed class SkillProgramExecutor
                      SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                      SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient or
                      SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn or SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp or SkillProgramEffectOp.ResolveHongjiGrantedPhase or SkillProgramEffectOp.ResolveYanhuoKillerDiscard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveFulueCounterOption or SkillProgramEffectOp.ResolveMiuyanCompletedUse or SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice or SkillProgramEffectOp.ResolveQushiIssuedHolderEnding) ||
-                    effect.Op is (SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill or
+                    effect.Op is (SkillProgramEffectOp.ResolveGuanduZhongjie or SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill or
                         SkillProgramEffectOp.DiscardDeathSourceCards or SkillProgramEffectOp.DiscardParticipantCards) &&
                     frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied)))
             {

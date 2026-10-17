@@ -126,7 +126,7 @@ public static class ComposedSkillContentRegistry
     public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true, bool includeActivities = false,
         bool includeBossActivities = false, bool includeHulaoActivities = false, bool includeShenwuActivities = false,
         bool includeNianActivities = false, bool includeHellActivities = false, bool includeWenheActivities = false,
-        bool includeDragonBoatActivities = false)
+        bool includeDragonBoatActivities = false, bool includeGuanduActivities = false)
     {
         var packages = new List<IGameContentPackage>
         {
@@ -149,6 +149,7 @@ public static class ComposedSkillContentRegistry
         if (includeHellActivities) packages.Add(new StandardHellActivityPackage());
         if (includeWenheActivities) packages.Add(new StandardWenheActivityPackage());
         if (includeDragonBoatActivities) packages.Add(new StandardDragonBoatActivityPackage());
+        if (includeGuanduActivities) packages.Add(new StandardGuanduActivityPackage());
         return ContentRegistry.Build(packages.ToArray());
     }
 
@@ -168,6 +169,7 @@ public static class ComposedSkillContentRegistry
             includeNianActivities: Includes(new StandardNianActivityPackage()),
             includeHellActivities: Includes(new StandardHellActivityPackage()),
             includeWenheActivities: Includes(new StandardWenheActivityPackage()),
-            includeDragonBoatActivities: Includes(new StandardDragonBoatActivityPackage()));
+            includeDragonBoatActivities: Includes(new StandardDragonBoatActivityPackage()),
+            includeGuanduActivities: Includes(new StandardGuanduActivityPackage()));
     }
 }

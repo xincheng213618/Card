@@ -47,7 +47,8 @@ public sealed partial class GameEngine
             var paid = _cardMovements.Where(m => m.Sequence > draft.SequenceBefore && m.Sequence <= _movementSequence &&
                 m.CardId == material.CardId && m.CardKind == material.PrintedKind && m.From == material.From &&
                 m.Reason == draft.Reason && (m.To == CardLocation.DiscardPile ||
-                    material.IsGeneralWeapon && m.To == CardLocation.OutsideGame)).ToArray();
+                    (material.IsGeneralWeapon || IsGuanduThunderChariotDeparture(GetAdvancedCard(material.CardId), material.From, m.To)) &&
+                    m.To == CardLocation.OutsideGame)).ToArray();
             // A child may legitimately recover and recast this same entity again.
             // The first matching payment after capture belongs to this producer;
             // later payments never increase this invocation's primary count.

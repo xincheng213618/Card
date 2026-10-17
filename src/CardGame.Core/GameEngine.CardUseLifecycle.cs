@@ -101,7 +101,7 @@ public sealed partial class GameEngine
         if (continuation.Effect == SimpleCardUseEffect.Alcohol) RecordJianjiOrdinaryAlcoholUse(frameId);
         if (TryPauseRecoveryPaidCardUse(frameId, new(RecoveryPaidCardUseKind.Simple, use.SourceSeat, continuation.CardId, Simple: continuation))) return;
         if ((LifecycleCardUse(frameId)?.TargetsAdjusted == true) && use.TargetSeats.Count > 1 &&
-            continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
+            continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol or SimpleCardUseEffect.GuanduIntoxication)
             UpdateLifecycleCardUse(frameId, frame => frame with { AdjustedSimpleContinuation = continuation with
                 { RecoveryPolicySources = continuation.RecoveryPolicySources is { } policies ? Array.AsReadOnly(policies.ToArray()) : null } });
         if (!TryBeginCommittedCardUse(frameId, ProgramCardContinuation.CommittedSimpleCard,
@@ -114,6 +114,7 @@ public sealed partial class GameEngine
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
+        if (ContinueGuanduIntoxicationUse(frameId, continuation)) return;
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
         if (ContinueWeijieSimpleUse(frameId, continuation)) return;
         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;

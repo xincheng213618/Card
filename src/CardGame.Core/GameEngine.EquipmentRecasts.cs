@@ -6,11 +6,24 @@ public sealed partial record EquipmentRecastFrame(long Id, int ActorSeat, int Ca
 
 public sealed partial class GameEngine
 {
+    private bool HasEquipmentRecastNativeDrawBoundary() =>
+        _resolutionStack.FirstOrDefault() is EquipmentRecastFrame
+        {
+            DrawApplied: false,
+            NativeDraw: { ActiveAttemptId: { } attemptId, AttemptReturned: false,
+                ReturnKind: NativeDrawAttemptReturnKind.EquipmentRecast }
+        } recast && _resolutionStack.Count > 1 &&
+        _resolutionStack[1] is NativeDrawAttemptFrame attempt && attempt.Id == attemptId &&
+        attempt.Context.ParentFrameId == recast.Id && attempt.Context.RecipientSeat == recast.ActorSeat &&
+        attempt.Context.RequestedCount == 1 && attempt.Context.Reason == CardMoveReasons.RecastDraw &&
+        attempt.Return is { Kind: NativeDrawAttemptReturnKind.EquipmentRecast, InstructionIndex: 0, RecipientIndex: 0 };
+
     private void BeginEquipmentRecast(CharacterState actor, Card card, CardKind effectiveKind)
     {
         var cost = FindOwnedCardLocation(actor, card);
         if (_resolutionStack.Count != 0 || cost != CardLocation.Equipment(actor.Seat) &&
-            !(cost == CardLocation.Hand(actor.Seat) && (CanHulaoWeaponRecast(card) || CanHellDitingMountRecast(actor, card))))
+            !(cost == CardLocation.Hand(actor.Seat) && (CanHulaoWeaponRecast(card) || CanHellDitingMountRecast(actor, card) ||
+                IsGuanduActivity && effectiveKind == CardKind.UnitedEffort && card.Kind == CardKind.UnitedEffort)))
             throw new InvalidOperationException("Equipment recast requires its fresh play boundary and owned equipment cost.");
         var frame = new EquipmentRecastFrame(++_resolutionSequence, actor.Seat, card.Id, effectiveKind);
         frame = frame with { NativeRecastInvocation = CaptureNativeRecastInvocation(actor.Seat, actor.Seat, [card.Id], frame.Id) };

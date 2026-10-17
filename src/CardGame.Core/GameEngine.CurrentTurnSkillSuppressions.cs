@@ -50,7 +50,7 @@ public sealed partial class GameEngine
         // Upstream owners affect derived grants only. Their separate shard stamp
         // avoids scanning the whole table for every ordinary policy lookup.
         const long projection = 0;
-        if (_currentTurnSkillSuppressionRevision == 0) return CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection)));
+        if (_currentTurnSkillSuppressionRevision == 0) return CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection))));
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)
         {
@@ -58,7 +58,7 @@ public sealed partial class GameEngine
             _currentTurnQualificationStamp++;
         }
         // Disjoint from the nonnegative legacy projection stamp.
-        return CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp)));
+        return CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp))));
     }
 
     private void ExpireCurrentTurnNonLockedSkillSuppressions(int turnNumber, int turnOwnerSeat)

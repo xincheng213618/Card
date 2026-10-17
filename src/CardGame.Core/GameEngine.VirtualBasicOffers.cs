@@ -18,13 +18,14 @@ public sealed partial class GameEngine
             var index = _resolutionStack.FindIndex(f => f.Id == frame.Id);
             if (index < 0 || index + 1 >= _resolutionStack.Count || _resolutionStack[index + 1] is not CardUseFrame child || child.Id != childId ||
                 child.VirtualBasicReturn != new ProgramVirtualBasicReturn(frame.Id, draft.InstructionIndex) || child.CardId != 0 || child.PhysicalCardIds?.Count != 0 ||
+                frame.SkillId == "guandu:choulue" && GuanduChoulueFrozenBasicKind(frame) != child.CardKind ||
                 child.Action is not { Type: CardActionType.Use } action || action.ActorSeat != child.SourceSeat || action.ProviderSeat != frame.OwnerSeat || action.PhysicalCards.Count != 0 || action.EffectiveKind != child.CardKind)
                 throw new InvalidOperationException("A virtual basic child has no exact zero-entity parent return.");
             return;
         }
         if (_resolutionStack.LastOrDefault()?.Id != frame.Id || _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt || prompt.PlayerSeat != frame.OwnerSeat || prompt.Choices.Count == 0 ||
             prompt.Choices.Any(c => c.Cards.Count != 0 || c.Parameters.GetValueOrDefault("program-action") != "virtual-basic" || c.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
-                (c.Parameters.GetValueOrDefault("basic-option") == "skip" ? c.Targets.Count != 0 : !VirtualBasicOptions(frame.OwnerSeat).Any(o => c.Parameters.GetValueOrDefault("basic-option") == $"{o.Kind}:{o.Target}" && c.Targets.SequenceEqual(new[] {o.Target})))))
+                (c.Parameters.GetValueOrDefault("basic-option") == "skip" ? c.Targets.Count != 0 : !VirtualBasicOptions(frame).Any(o => c.Parameters.GetValueOrDefault("basic-option") == $"{o.Kind}:{o.Target}" && c.Targets.SequenceEqual(new[] {o.Target})))))
             throw new InvalidOperationException("A virtual basic chooser lost its exact legal options.");
     }
 
@@ -38,11 +39,15 @@ public sealed partial class GameEngine
         if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
     }
 
+    private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(ProgramSkillFrame frame) =>
+        frame.SkillId == "guandu:choulue" ? GuanduChoulueFrozenBasicKind(frame) is { } kind
+            ? VirtualBasicOptions(frame.OwnerSeat).Where(o => o.Kind == kind) : [] : VirtualBasicOptions(frame.OwnerSeat);
+
     private SkillProgramStepOutcome OfferVirtualBasicCard(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.VirtualBasicDraft is not null) throw new InvalidOperationException("A virtual basic offer cannot start twice.");
-        var options = VirtualBasicOptions(active.OwnerSeat).ToArray();
+        var options = VirtualBasicOptions(active).ToArray();
         if (options.Length == 0) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(active with { VirtualBasicDraft = new(active.InstructionIndex) });
         PromptChoice Choice(string option, string label, IReadOnlyList<int> targets) => new(new($"virtual-basic.{active.Id}.{option}"), label, [], targets,
@@ -66,7 +71,7 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision(); ReplaceRuntimeTop(frame with { VirtualBasicDraft = null }); AdvanceRuntimeProgram(frame.Id); return;
         }
-        var chosen = VirtualBasicOptions(frame.OwnerSeat).SingleOrDefault(o => $"{o.Kind}:{o.Target}" == option);
+        var chosen = VirtualBasicOptions(frame).SingleOrDefault(o => $"{o.Kind}:{o.Target}" == option);
         if (option != $"{chosen.Kind}:{chosen.Target}" || !selected.Targets.SequenceEqual(new[] { chosen.Target })) throw new InvalidOperationException("This virtual basic use is no longer legal.");
         ClearPendingDecision();
         var actor = _players[frame.OwnerSeat];

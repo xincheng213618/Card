@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private bool HasShenwuRecipientDamageModifiers =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) ||
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus);
-    private bool NeedsRecipientScopedDamageBase => HasSignedDamagePayments || HasShenwuRecipientDamageModifiers;
+    private bool NeedsRecipientScopedDamageBase => HasSignedDamagePayments || HasShenwuRecipientDamageModifiers || IsGuanduActivity;
     private void CaptureRecipientScopedDamageBase(IDamageAttempt attack, IReadOnlyList<int> targets)
     {
         if (!NeedsRecipientScopedDamageBase || targets.Count == 0) return;

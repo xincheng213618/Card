@@ -1292,6 +1292,7 @@ public sealed partial class GameEngine
                 if (IsNearestFactionChoiceResult(frame, binding)) continue;
                 if (IsShenwuChoiceResult(frame, binding)) continue;
                 if (IsHellKingChoiceResult(frame, binding)) continue;
+                if (IsGuanduChoiceResult(frame, binding)) continue;
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.AccumulatePaidPhaseGift or SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or

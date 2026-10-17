@@ -39,6 +39,8 @@ public sealed partial class GameEngine
     {
         _selectedUseConversion = null;
         _hasSelectedUseConversionChoice = false;
+        if (IsGuanduActivity && card.Kind == CardKind.UnitedEffort && playedCardKind is null)
+        { BeginEquipmentRecast(actor, card, card.Kind); return; }
         if (playedCardKind is null && (CanHulaoWeaponRecast(card) || CanHellDitingMountRecast(actor, card)) &&
             FindOwnedCardLocation(actor, card) == CardLocation.Hand(actor.Seat))
         { BeginEquipmentRecast(actor, card, card.Kind); return; }
@@ -149,6 +151,7 @@ public sealed partial class GameEngine
             RecordActualPlayPhaseUse(action);
         }
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        CaptureGuanduChariotResponsePayments(action, attack.ResolutionId, continuation);
         CaptureFriendMinimumHandUse(action);
         CaptureOffTurnResponseUseOrigin(attack.ResolutionId, action);
         if (TryBeginCommittedResponseUsePrograms(attack, action, continuation)) return true;
@@ -211,6 +214,7 @@ public sealed partial class GameEngine
     {
         if ((continuation is null) != (completedResponseReturn is not null))
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
+        RecordGuanduCardAction(action, window);
         if (window == SkillProgramTriggerWindow.CardUseCommitted && TracksAlternateActualUseColor)
             RecordAlternateActualUseColor(action);
         if (window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted &&
@@ -895,10 +899,11 @@ public sealed partial class GameEngine
                                program.WindowContext?.ParentFrameId == frame.Id && GuoSiNativeRidesOn(program, use)))) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
                      !IsSoleTargetQuarantinedMaterial(frame.ParentFrameId, cost.CardId) &&
+                     GuanduChariotResponsePayment(frame.Action, frame.ParentFrameId, cost) is null &&
                      !(frame.Action.Type == CardActionType.Use &&
                        LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
                        nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&
-                       ((IsHellDestroyedSoulMaterial(frame.ParentFrameId, cost.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId)) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
+                       ((IsHellDestroyedSoulMaterial(frame.ParentFrameId, cost.CardId) || IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || IsGuanduDestroyedChariotMaterial(frame.ParentFrameId, cost.CardId)) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || (IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId)))) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        (IsXinPiPhysicalClaim(frame.ParentFrameId, cost.CardId) || IsHuaManClaimedEntity(frame.ParentFrameId, cost.CardId) || IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId)))).Any(cost =>

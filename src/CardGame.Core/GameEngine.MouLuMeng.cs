@@ -26,7 +26,7 @@ public sealed partial class GameEngine
 
     private void BeginRoundForTurn(CharacterState current)
     {
-        if ((!UsesFormalMouLuMeng && !_contentRegistry.ProgramDependencies.UsesRoundTracking && _modeDefinition.NianActivity is null && !IsDragonBoatActivity) ||
+        if ((!UsesFormalMouLuMeng && !_contentRegistry.ProgramDependencies.UsesRoundTracking && _modeDefinition.NianActivity is null && !IsDragonBoatActivity && !IsGuanduActivity) ||
             _turnProgression.Kind == ActualTurnKind.Extra) return;
 
         if (_roundNumber == 0 || _roundTurnSeats.Contains(current.Seat))

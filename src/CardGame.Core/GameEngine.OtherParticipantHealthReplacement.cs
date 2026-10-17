@@ -3,6 +3,7 @@ public sealed partial class GameEngine
 {
     private bool TryGetOtherParticipantHpReplacement(IDamageAttempt attack, out CardUseEffectSource source)
     {
+        if (TryGetGuanduIncomingHpReplacement(attack, out source)) return true;
         source = null!;
         if (!_contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss) ||
             attack.IsSourceLess || attack.IsDelayedJudgmentDamage || attack.SourceSeat == attack.TargetSeat ||

@@ -2158,6 +2158,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
+        if (TryScoreGuanduCard(view, self, selfRole, action, out var guanduScore)) return guanduScore;
         if (TryScoreDragonBoatCard(view, self, selfRole, action, out var dragonBoatScore)) return dragonBoatScore;
         if (action.TieredRoundZeroUse is not null) return ScoreTieredRoundZeroAction(view, self, selfRole, action);
         if (action.ChainedStateBasicUse.HasValue) return ScoreChainedStateBasicAction(view, self, selfRole, action);
@@ -2612,6 +2613,11 @@ public sealed partial class SimpleAiBrain
         PlayerSnapshot? target,
         CardKind effectCardKind)
     {
+        if (effectCardKind is CardKind.StoreGrain or CardKind.Reinforcements && target is not null)
+            return target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
+        if (effectCardKind == CardKind.UnitedEffort && target is not null)
+            return target.TeamId == source.TeamId ? target.IsChained ? target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target) : 0 :
+                target.IsChained ? 0 : target.Seat == Seat ? -45 : GetHostility(view, selfRole, target) * 0.5;
         if (effectCardKind is CardKind.SameBoat or CardKind.StriveUpstream && target is not null)
             return target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
         if (effectCardKind == CardKind.AgainstCurrent && target is not null)

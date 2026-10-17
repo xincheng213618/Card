@@ -19,6 +19,11 @@ public static class CardCatalog
     private static readonly IReadOnlyDictionary<CardKind, CardDefinition> Definitions =
         new Dictionary<CardKind, CardDefinition>
         {
+            [CardKind.Intoxication] = new(CardKind.Intoxication, "酗酒", "基本牌", "对一名敌方角色使用，本实际回合其受到的伤害+1；同一目标每回合限一次。不能用于濒死救援。", 24, 0, 34),
+            [CardKind.StoreGrain] = new(CardKind.StoreGrain, "屯粮", "锦囊牌", "选择至多三名角色，各摸一张牌。", 38, 0, 43),
+            [CardKind.Reinforcements] = new(CardKind.Reinforcements, "援军", "锦囊牌", "选择至多两名已受伤的其他角色，各回复一点体力。", 35, 0, 42),
+            [CardKind.UnitedEffort] = new(CardKind.UnitedEffort, "勠力同心", "锦囊牌", "选择一个阵营：己方已横置的角色各摸一张牌；敌方角色横置。可以重铸。", 30, 0, 38),
+            [CardKind.ThunderChariot] = new(CardKind.ThunderChariot, "霹雳车", "装备牌", "攻击范围9。造成伤害后可弃置目标的防具和防御坐骑；离开装备区销毁。", 48, 0, 50),
             [CardKind.Zong] = new(CardKind.Zong, "粽", "基本牌", "出牌阶段对自己或队友使用，令其回复1点体力；不能用于濒死救援。", 42, 0, 50),
             [CardKind.RealgarWine] = new(CardKind.RealgarWine, "雄黄酒", "基本牌", "出牌阶段对自己使用，本回合下一张杀的伤害+1；与酒共用正常使用次数，不能用于濒死救援。", 18, 0, 35),
             [CardKind.SameBoat] = new(CardKind.SameBoat, "同舟共济", "锦囊牌", "对自己或队友使用。己队龙船至宝并列最多时，同队两人各摸2张牌，否则各摸1张牌。", 40, 0, 44),

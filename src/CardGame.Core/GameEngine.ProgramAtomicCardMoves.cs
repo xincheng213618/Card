@@ -13,7 +13,7 @@ public sealed partial class GameEngine
             var source = _cardZones.GetLocation(id);
             var card = _cardZones.CardsAt(source).Single(item => item.Id == id);
             var target = destinationForCard?.Invoke(card, source) ?? destination;
-            if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon) target = CardLocation.OutsideGame;
+            if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, source, target)) target = CardLocation.OutsideGame;
             return (Card: card, Source: source, Target: target);
         }).ToArray();
         if (entries.Length == 0) return;

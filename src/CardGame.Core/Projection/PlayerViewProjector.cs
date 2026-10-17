@@ -51,7 +51,7 @@ public sealed partial class GameEngine
             var hasIdentityGodFaction = SupportsGodFactionSelection &&
                                         string.Equals(player.General.FactionId, "god", StringComparison.Ordinal) &&
                                         player.ChosenFactionId is not null;
-            var hasActivityFaction = _modeDefinition.ShenwuActivity is not null || _modeDefinition.NianActivity is not null || IsDragonBoatActivity;
+            var hasActivityFaction = _modeDefinition.ShenwuActivity is not null || _modeDefinition.NianActivity is not null || IsDragonBoatActivity || IsGuanduActivity;
             var canSeeFaction = effectiveFactionId is not null &&
                                 (IsNationalWarMode
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
@@ -266,6 +266,7 @@ public sealed partial class GameEngine
             WinnerSeat = _winnerSeat,
             WenheRule = GetWenheRuleSnapshot(),
             WenheAspiration = GetWenheAspirationSnapshot(viewerSeat),
+            GuanduActivity = GetGuanduSnapshot(),
             DragonBoatStandings = GetDragonBoatStandings(),
             DragonBoatDraft = GetDragonBoatDraft(viewerSeat),
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
@@ -274,7 +275,7 @@ public sealed partial class GameEngine
             PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(publicRevealedCards).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards())
                 .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
                 .DistinctBy(card => card.Id).ToArray(),
-            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat))
+            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat))
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),

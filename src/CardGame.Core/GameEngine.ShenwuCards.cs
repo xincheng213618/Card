@@ -216,7 +216,7 @@ public sealed partial class GameEngine
             _ = GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true);
             if (use.Action is null || use.Action.PhysicalCards.Any(card =>
                     !IsClaimedUseCardEntity(use.Id, card.CardId) &&
-                    !IsHuiyunOutsideGeneralWeaponMaterial(use.Id, card.CardId) &&
+                    !IsHuiyunOutsideGeneralWeaponMaterial(use.Id, card.CardId) && !IsGuanduDestroyedChariotMaterial(use.Id, card.CardId) &&
                     _cardZones.GetLocation(card.CardId) != CardLocation.Processing) ||
                 !_resolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
                     frame.Id == use.ShenwuTransplant!.ProgramFrameId && IsShenwuTransplantProgram(frame)))

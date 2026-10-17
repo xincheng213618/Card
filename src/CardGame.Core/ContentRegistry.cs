@@ -156,6 +156,7 @@ public sealed record ContentModeDefinition(
     public HellActivityDefinition? HellActivity { get; init; }
     public WenheActivityDefinition? WenheActivity { get; init; }
     public DragonBoatActivityDefinition? DragonBoatActivity { get; init; }
+    public GuanduActivityDefinition? GuanduActivity { get; init; }
     /// <summary>Eight-player identity variant with two generals per seat.</summary>
     public bool DualGenerals { get; init; }
     /// <summary>Optional identity-role overrides for the number of general choices.</summary>
@@ -484,6 +485,11 @@ public sealed class ContentRegistry
                 fingerprint[nameof(mode.HellActivity)] = hell;
             if (mode.WenheActivity is { } wenhe)
                 fingerprint[nameof(mode.WenheActivity)] = wenhe;
+            if (mode.GuanduActivity is { } guandu)
+                fingerprint[nameof(mode.GuanduActivity)] = new {
+                    GeneralPools = guandu.GeneralPools.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(),
+                    Commanders = guandu.Commanders.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(),
+                    guandu.Events, guandu.SeatLayouts, guandu.PlayerTier, guandu.CandidateCount };
             if (mode.DragonBoatActivity is { } dragonBoat)
                 fingerprint[nameof(mode.DragonBoatActivity)] = new
                 { PlayerPoolIds = OrderedPools(dragonBoat.PlayerPoolIds), dragonBoat.PlayerTier, dragonBoat.Rounds };
@@ -792,6 +798,7 @@ public sealed class ContentRegistry
                 ValidateHellActivity(mode);
                 ValidateWenheActivity(mode);
                 ValidateDragonBoatActivity(mode);
+                ValidateGuanduActivity(mode);
                 if (mode.MinPlayers <= 0 || mode.MaxPlayers < mode.MinPlayers)
                 {
                     throw new InvalidOperationException(
@@ -1211,6 +1218,27 @@ public sealed class ContentRegistry
                 throw new InvalidOperationException($"Wenhe activity '{mode.Id}' requires eight independent contestants and its own bounded player tier.");
         }
 
+        private void ValidateGuanduActivity(ContentModeDefinition mode)
+        {
+            if (mode.GuanduActivity is not { } a) return;
+            var teams = new[] { "team:cao", "team:yuan" };
+            if (mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != 8 || mode.MaxPlayers != 8 ||
+                mode.DualGenerals || a.PlayerTier is < 1 or > 5 || a.CandidateCount is < 1 or > 6 ||
+                mode.GeneralCandidateCount != a.CandidateCount || mode.TeamCounts is not { Count: 2 } counts ||
+                teams.Any(t => counts.GetValueOrDefault(t) != 4) || a.GeneralPools.Count != 2 || a.Commanders.Count != 2 ||
+                teams.Any(t => !a.GeneralPools.TryGetValue(t, out var pool) || pool.Count < a.CandidateCount + 3 ||
+                    pool.Distinct(StringComparer.Ordinal).Count() != pool.Count ||
+                    pool.Any(g => !_generals.ContainsKey(g) || mode.GeneralPoolIds?.Contains(g) != true) ||
+                    !a.Commanders.TryGetValue(t, out var commander) || !pool.Contains(commander)) ||
+                a.Events.Count == 0 || a.Events.Any(e => !Enum.IsDefined(e)) || a.Events.Distinct().Count() != a.Events.Count ||
+                a.SeatLayouts.Count != 5 || a.SeatLayouts.Any(l => l.Count != 8 || l[0] != "team:cao" ||
+                    l.Any(t => !teams.Contains(t)) || teams.Any(t => l.Count(x => x == t) != 4)) ||
+                mode.TeamActivity is not null || mode.BossActivity is not null || mode.ShenwuActivity is not null ||
+                mode.HulaoActivity is not null || mode.NianActivity is not null || mode.HellActivity is not null ||
+                mode.WenheActivity is not null || mode.DragonBoatActivity is not null)
+                throw new InvalidOperationException($"Guandu '{mode.Id}' requires two four-seat armies, fixed commanders, bounded pools, five explicit layouts and valid battle events.");
+        }
+
         private void ValidateDragonBoatActivity(ContentModeDefinition mode)
         {
             if (mode.DragonBoatActivity is not { } a) return;
@@ -1295,6 +1323,10 @@ public sealed class ContentRegistry
                     MachinePools = FreezeActivityPools(activity.MachinePools),
                     PlayerSkillIds = FreezeActivityPools(activity.PlayerSkillIds)
                 },
+                GuanduActivity = definition.GuanduActivity is not { } guandu ? null : guandu with
+                { GeneralPools = FreezeActivityPools(guandu.GeneralPools), Commanders = FreezeDictionary(guandu.Commanders),
+                    Events = Array.AsReadOnly(guandu.Events.ToArray()),
+                    SeatLayouts = Array.AsReadOnly(guandu.SeatLayouts.Select(l => (IReadOnlyList<string>)Array.AsReadOnly(l.ToArray())).ToArray()) },
                 DragonBoatActivity = definition.DragonBoatActivity is not { } dragonBoat ? null : dragonBoat with
                 { PlayerPoolIds = FreezeActivityPools(dragonBoat.PlayerPoolIds) },
                 BossActivity = definition.BossActivity is not { } boss ? null : boss with

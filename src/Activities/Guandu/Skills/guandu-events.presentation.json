@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "guandu:battle-event": {
+      "name": "官渡战事",
+      "description": "本局随机战事按官渡之战2023年6月规则生效。坚守待战的杀当闪每实际轮限一次，下个实际弃牌阶段手牌上限减一。",
+      "optionLabels": {
+        "duel": "选择其他角色，视为对其使用决斗",
+        "lose": "放弃决斗，失去1点体力"
+      }
+    }
+  }
+}

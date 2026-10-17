@@ -278,6 +278,7 @@ public sealed partial class GameEngine
                                (inputKind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                 CanUseActualTurnLimitedViewAs(instance, rule, owner) &&
+                               CanUseGuanduRoundConversion(instance, rule, owner) &&
                                (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
                                (rule.InputCategories.Count == 0 ||

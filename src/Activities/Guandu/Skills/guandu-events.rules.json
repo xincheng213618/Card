@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "guandu:battle-event",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "hold-line",
+          "inputKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "inputSuits": []
+        }
+      ],
+      "triggers": [
+        {
+          "id": "tenth-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": -1000,
+          "effects": [
+            {
+              "op": "resolveGuanduRepeat",
+              "target": "owner"
+            }
+          ],
+          "includeResponseUses": true
+        },
+        {
+          "id": "damage-draw",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "rewardGuanduDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "turn-duel",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "battle-duel",
+              "options": [
+                {
+                  "id": "duel",
+                  "requiredTargetKind": "otherLivingVirtualDuelTarget"
+                },
+                {
+                  "id": "lose"
+                }
+              ]
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingVirtualDuelTarget",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "battle-duel",
+                "optionId": "duel"
+              }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "selectedTarget"
+              },
+              "outputKind": "duel",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "battle-duel",
+                "optionId": "duel"
+              }
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "battle-duel",
+                "optionId": "lose"
+              }
+            }
+          ]
+        },
+        {
+          "id": "arrogance-discard",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "arrogance-discard"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "arrogance-discard",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            }
+          ],
+          "priority": 100
+        },
+        {
+          "id": "arrogance",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveGuanduArrogance",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

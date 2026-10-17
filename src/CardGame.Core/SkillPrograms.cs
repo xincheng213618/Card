@@ -168,6 +168,7 @@ public enum SkillProgramTargetKind
     OtherWoundedMale = 17,
     OtherLivingInAttackRange = 18,
     OtherLivingSlashable = 19,
+    OtherLivingVirtualDuelTarget = 46000,
     OtherLivingVirtualSlashTarget = 20,
     SlashRedirectable = 21,
     OtherLivingPair = 22,
@@ -223,6 +224,27 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveGuanduShicai = 44000,
+    ResolveGuanduZezhu = 44001,
+    ResolveGuanduJieliang = 44002,
+    ResolveGuanduJieliangClaim = 44003,
+    ResolveGuanduCangchu = 44004,
+    ResolveGuanduSushou = 44005,
+    ResolveGuanduPolu = 44006,
+    ResolveGuanduThunderChariot = 44007,
+    ResolveGuanduChoulue = 44008,
+    ResolveGuanduHengjiang = 44009,
+    ResolveGuanduHengjiangReward = 44010,
+    ResolveGuanduXiying = 44011,
+    ResolveGuanduBeizhan = 44012,
+    ResolveGuanduYuanlve = 44013,
+    ResolveGuanduMoushi = 44014,
+    ResolveGuanduZhongjie = 44015,
+    ResolveGuanduSuishiDying = 44017,
+    ResolveGuanduSuishiDeath = 44018,
+    ResolveGuanduFuyuan = 44019,
+    ResolveGuanduRepeat = 46000, RewardGuanduDamage = 46002,
+    ResolveGuanduArrogance = 46003,
     DrawDragonBoatConsecutiveTarget = 42000, ArmDragonBoatDianhu = 42001,
     DrawDragonBoatDianhu = 42002, DrawDragonBoatTunjiang = 42003,
     ResolveWenheRoundStart = 41000, ResolveWenheTurnStart = 41001,
@@ -3787,9 +3809,9 @@ public sealed class SkillProgramCatalog
             if (!yisuanOwnerScope && window is not (SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.TurnEnding or
                 SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting or
                 SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.DiscardPhaseStarting or
-                SkillProgramTriggerWindow.DrawPhaseEnded or
+                SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.DrawPhaseEnded or
                 SkillProgramTriggerWindow.JudgmentPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.TurnBeforeStart))
-                Fail(path + ".turnOwnerScope", "requires an afterTurnEnded, turnEnding, playEnding, playPhaseStarting, judgmentPhaseStarting, discardPhaseStarting, discardPhaseEnded, drawPhaseEnded or turnStartBeforeNormalFlow trigger");
+                Fail(path + ".turnOwnerScope", "requires an afterTurnEnded, turnEnding, playEnding, playPhaseStarting, judgmentPhaseStarting, discardPhaseStarting, discardPhaseEnded, drawPhaseStarting, drawPhaseEnded or turnStartBeforeNormalFlow trigger");
             turnOwnerScope = EnumValue<SkillProgramTurnOwnerScope>(node, "turnOwnerScope", path);
             if (yisuanOwnerScope && turnOwnerScope != SkillProgramTurnOwnerScope.Own)
                 Fail(path + ".turnOwnerScope", "the exact used-Trick movement invoice requires own");
@@ -3921,7 +3943,9 @@ public sealed class SkillProgramCatalog
                       node.TryGetProperty("effects", out var sealDeathEffects) && sealDeathEffects.ValueKind == JsonValueKind.Array &&
                       sealDeathEffects.GetArrayLength() == 1 && sealDeathEffects[0].ValueKind == JsonValueKind.Object &&
                       sealDeathEffects[0].TryGetProperty("op", out var sealDeathOp) && sealDeathOp.ValueKind == JsonValueKind.String &&
-                      string.Equals(sealDeathOp.GetString(), "transferDeadDragonPhoenixSeal", StringComparison.OrdinalIgnoreCase)) &&
+                      (string.Equals(sealDeathOp.GetString(), "transferDeadDragonPhoenixSeal", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(sealDeathOp.GetString(), "resolveGuanduSuishiDeath", StringComparison.OrdinalIgnoreCase) &&
+                       !RequiredBool(node, "optional", path))) &&
                     !(window is (SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain) && subject == SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.AfterDamageApplied &&
                       subject is SkillProgramTriggerSubject.DamageSource or SkillProgramTriggerSubject.Any) &&
@@ -4692,6 +4716,13 @@ public sealed class SkillProgramCatalog
         PublicPileCashOutContract.ValidateTrigger(path, parsedTrigger);
         GiftedSlashRewardContract.ValidateTrigger(path, parsedTrigger);
         DrawAdviceContract.ValidateTrigger(path, parsedTrigger);
+        if (window == SkillProgramTriggerWindow.DrawPhaseStarting && turnOwnerScope != SkillProgramTurnOwnerScope.Own &&
+            (turnOwnerScope != SkillProgramTurnOwnerScope.OtherLiving || subject != SkillProgramTriggerSubject.Owner || !optional ||
+             drawPhaseMode != SkillProgramDrawPhaseMode.Additive || condition.Kind != SkillProgramTriggerConditionKind.Always ||
+             usageScope is not null || usageLimit is not null || choiceGroup is not null ||
+             effects is not [{ Op: SkillProgramEffectOp.ResolveGuanduJieliang, Target: SkillProgramEffectTarget.Owner,
+                 TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }]))
+            Fail(path + ".turnOwnerScope", "other draw-phase starts require the exact optional additive Guandu interception instruction");
         var isHongjiIssuedDraw = skillId == "ol:hongji" && turnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving && !optional &&
             subject == SkillProgramTriggerSubject.Owner && condition.Kind == SkillProgramTriggerConditionKind.Always &&
             effects is [{ Op: SkillProgramEffectOp.ResolveHongjiGrantedPhase, Target: SkillProgramEffectTarget.Owner,

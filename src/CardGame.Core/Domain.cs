@@ -113,7 +113,8 @@ public enum CardKind
     DustlessGoldenSpear,
     ShuraInfernoHalberd,
     DelusionCrown,
-    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604
+    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
+    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623, ThunderChariot = 624
 }
 
 public enum Suit
@@ -179,13 +180,15 @@ public enum PlayerMarkerKind
     QuxiQian = 26301,
     XunyiYi = 26320,
     QingyuanPartner = 26820,
-    RanshangRan = 27320
+    RanshangRan = 27320,
+    GuanduGrain = 44000
 }
 
 public static class PlayerMarkerCatalog
 {
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
+        PlayerMarkerKind.GuanduGrain => "粮",
         PlayerMarkerKind.AdoptedChild => "义子",
         PlayerMarkerKind.QuxiFeng => "丰",
         PlayerMarkerKind.QuxiQian => "歉",
@@ -402,7 +405,8 @@ public enum LegalActionKind
     BeamSwap = 551,
     HandRedistribution = 552,
     WenheChaos = 553,
-    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604
+    Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
+    Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623
 }
 
 public sealed record GameOptions
@@ -436,6 +440,9 @@ public sealed record GameOptions
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? HumanTeamId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GuanduSeatRole? HumanGuanduRole { get; init; }
 
     /// <summary>Free local Wenhe aspiration: top six, four, two, or champion. No account currency is involved.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -1054,6 +1061,9 @@ public sealed record GameSnapshot(
     public IReadOnlyList<DragonBoatTeamSnapshot>? DragonBoatStandings { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DragonBoatDraftSnapshot? DragonBoatDraft { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GuanduActivitySnapshot? GuanduActivity { get; init; }
 }
 
 public sealed record EngineRunResult(

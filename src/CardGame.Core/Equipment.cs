@@ -37,6 +37,8 @@ public static class EquipmentCatalog
     private static readonly IReadOnlyDictionary<CardKind, EquipmentDefinition> Definitions =
         new Dictionary<CardKind, EquipmentDefinition>
         {
+            [CardKind.ThunderChariot] = new(CardKind.ThunderChariot, "霹雳车", EquipmentSlot.Weapon,
+                "造成伤害后可弃置目标防具及防御坐骑；离开装备区销毁。", WeaponAttackRange: 9),
             [CardKind.NationalStyleRobe] = new(CardKind.NationalStyleRobe, "国风玉袍", EquipmentSlot.Armor,
                 "不能成为其他角色使用普通锦囊牌的目标。"),
             [CardKind.CrimsonSoulZither] = new(CardKind.CrimsonSoulZither, "赤焰镇魂琴", EquipmentSlot.Weapon,

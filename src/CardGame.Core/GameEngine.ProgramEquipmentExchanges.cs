@@ -41,7 +41,8 @@ public sealed partial class GameEngine
             var slot = EquipmentCatalog.Get(item.Card.Kind).Slot;
             var key = (item.Recipient, slot);
             var count = occupied.GetValueOrDefault(key);
-            var destination = item.Card.IsGeneralWeapon ? CardLocation.OutsideGame :
+            var destination = item.Card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(item.Card,
+                CardLocation.Equipment(item.Source), CardLocation.Equipment(item.Recipient)) ? CardLocation.OutsideGame :
                 count < _players[item.Recipient].EquipmentSlotCapacity(slot)
                     ? CardLocation.Equipment(item.Recipient) : CardLocation.DiscardPile;
             if (destination.Zone == CardZoneKind.Equipment) occupied[key] = count + 1;

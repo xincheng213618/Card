@@ -453,7 +453,9 @@ public sealed partial class GameEngine
                 .Select(card => card.Id).ToArray();
             MoveProgramCardsFromMultipleSources(ids, CardLocation.DiscardPile, reason, (_, records) =>
             {
-                var actual = records.Where(move => move.To == CardLocation.DiscardPile).Select(move => move.CardId).ToArray();
+                var actual = records.Where(move => move.To == CardLocation.DiscardPile ||
+                    move.CardKind == CardKind.ThunderChariot && move.To == CardLocation.OutsideGame &&
+                    GetProgramDiscardSource(move) == move.From).Select(move => move.CardId).ToArray();
                 actualDiscardIds?.AddRange(actual);
                 discarded = actual.Length;
             }, disclosure: CardMovementDisclosure.FaceUp);
@@ -850,6 +852,10 @@ public sealed partial class GameEngine
         PlayerMarkerKind? marker = null,
         ProgramParticipantReference? actorReference = null)
     {
+        if (targetKind == SkillProgramTargetKind.OtherLivingVirtualDuelTarget)
+            return BuildProgramOrdinaryTrickUseOptions(_players[ownerSeat], CardKind.Duel, Suit.None,
+                enforceUsePermission: true, beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null,
+                hasActualColor: true, physicalCardIds: []).SelectMany(o => o.TargetSeats).Distinct().ToArray();
         if (targetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord)
         {
             var lord = _players.SingleOrDefault(p => p.IsAlive && p.Role == Role.Lord);
@@ -2308,9 +2314,9 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.RoundStarting =>
                 owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
-                (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
-                 IsYanPuDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
+                 IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
             SkillProgramTriggerWindow.DyingExited => IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context),
             SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
@@ -3028,6 +3034,40 @@ public sealed partial class GameEngine
         _ => !ownSeat,
     };
 
+    private static bool IsGuanduForeignDrawTrigger(SkillProgramTrigger trigger) =>
+        trigger.Window == SkillProgramTriggerWindow.DrawPhaseStarting && trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
+        trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional && trigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Additive &&
+        trigger.Condition.Kind == SkillProgramTriggerConditionKind.Always && trigger.UsageScope is null && trigger.UsageLimit is null &&
+        trigger.ChoiceGroup is null && trigger.Effects is
+            [{ Op: SkillProgramEffectOp.ResolveGuanduJieliang, Target: SkillProgramEffectTarget.Owner,
+                TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }];
+
+    private IReadOnlyList<ProgramTriggerCandidate> IncludeGuanduForeignDrawObservers(CharacterState subject,
+        IReadOnlyList<ProgramTriggerCandidate> existing, out IReadOnlyDictionary<int, SkillProgramTriggerFacts>? participants)
+    {
+        participants = null;
+        if (!IsGuanduActivity || !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGuanduJieliang)) return existing;
+        var facts = _players.Where(player => player.IsAlive).ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        var extra = _players.Where(player => player.IsAlive && player.Seat != subject.Seat).SelectMany(player =>
+            CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.DrawPhaseStarting, facts[player.Seat])
+                .Where(candidate => IsGuanduForeignDrawTrigger(GetProgramTrigger(candidate)))).ToArray();
+        if (extra.Length == 0) return existing;
+        participants = new System.Collections.ObjectModel.ReadOnlyDictionary<int, SkillProgramTriggerFacts>(facts);
+        return Array.AsReadOnly(existing.Concat(extra).Distinct().OrderByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => (candidate.OwnerSeat - subject.Seat + _playerCount) % _playerCount)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal).ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray());
+    }
+
+    private bool IsGuanduForeignDrawContext(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) =>
+        IsGuanduActivity && IsGuanduForeignDrawTrigger(GetProgramTrigger(candidate)) &&
+        context.Window == SkillProgramTriggerWindow.DrawPhaseStarting && context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
+        context.OwnerSeat == candidate.OwnerSeat && candidate.OwnerSeat != _currentSeat && _phase == TurnPhase.Draw &&
+        _players[candidate.OwnerSeat].IsAlive && _players[_currentSeat].IsAlive &&
+        _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(frame => frame.Id == context.ParentFrameId) is
+            { Window: SkillProgramTriggerWindow.DrawPhaseStarting, Continuation: ProgramLifecycleContinuation.CompleteDrawPhase,
+                ActualPhaseSubstitution: null } parent && parent.OwnerSeat == _currentSeat &&
+        parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count && parent.Candidates[parent.CandidateIndex] == candidate;
+
     private bool TryBeginDrawPhaseProgramWindow(CharacterState owner, bool skipPlayPhaseAfterDraw)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
@@ -3040,6 +3080,7 @@ public sealed partial class GameEngine
             owner, SkillProgramTriggerWindow.DrawPhaseStarting, facts);
         candidates = IncludeAttributedDrawObservers(owner,candidates);
         candidates = IncludeYanPuDrawObservers(owner, candidates);
+        candidates = IncludeGuanduForeignDrawObservers(owner, candidates, out var participants);
         if (candidates.Count == 0) return false;
         var frame = new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence,
@@ -3048,7 +3089,7 @@ public sealed partial class GameEngine
             candidates,
             ProgramLifecycleContinuation.CompleteDrawPhase,
             facts,
-            SkipPlayPhaseAfterDraw: skipPlayPhaseAfterDraw);
+            SkipPlayPhaseAfterDraw: skipPlayPhaseAfterDraw) { ParticipantFacts = participants };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
@@ -4443,7 +4484,8 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
             drawPhase.Window != SkillProgramTriggerWindow.DrawPhaseStarting ||
             drawPhase.OwnerSeat != ownerSeat && !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) &&
-            !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveCardSkipDrawForEnding))
+            !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveCardSkipDrawForEnding) &&
+            !IsGuanduForeignDrawTrigger(trigger))
             throw new InvalidOperationException("A draw-phase estimate lost its lifecycle parent.");
         return CreateAttributedPaymentAiContext(owner,trigger) with
         {

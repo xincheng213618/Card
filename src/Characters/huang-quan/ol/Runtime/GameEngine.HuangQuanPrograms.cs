@@ -128,6 +128,7 @@ public sealed partial class GameEngine
   var a=r.Action;var actor=_players[r.ActorSeat];var card=ApplyProgramUseAppearance(actor,GetAttackCard(r.CardId),a.ConversionSource);
   if(a.ConversionSource is{}source&&ViewAsRule(source)is{SingleCardTrickUse:true}rule)
    return BuildProgramOrdinaryTrickUseOptions(actor,rule.OutputKind,EffectiveSuit(actor,GetAttackCard(r.CardId)),rule.ExcludeOwnerEffects,enforceUsePermission:true,beneficiaryShieldSuit:EffectiveSuit(actor,card),actualEffectiveColor:SuitColor(EffectiveSuit(actor,card)),hasActualColor:true,physicalCardIds:[r.CardId]).Where(o=>o.ActionKind==a.Kind&&o.TargetCardId==a.TargetCardId&&(o.TargetSeats.SequenceEqual(a.TargetSeats)||a.ProgramActivationId=="red-additional-targets"&&o.TargetSeats.SequenceEqual(a.TargetSeats.Take(o.TargetSeats.Count)))).OrderByDescending(o=>o.TargetSeats.Count).Select(o=>o.TargetSeats).First();
+  if(GuanduExpectedNativeTargets(actor,card,a)is{}guanduTargets)return guanduTargets;
   if(DragonBoatExpectedNativeTargets(actor,card,a)is{}dragonTargets)return dragonTargets;
   var effectiveKind=a.PlayedCardKind??card.Kind;
   if(a.Kind==LegalActionKind.Peach)return [actor.Seat];
@@ -172,7 +173,7 @@ public sealed partial class GameEngine
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24000)]private bool ReturnHuangQuanMovement(ProgramSkillFrame f)=>f.HuangQuan is not null&&ResumeHuangQuan(f.Id);
  private void FinishHuangQuan(ProgramSkillFrame f)
- {var p=f.HuangQuan!;AdvanceEventRulesAndQueueFact(new HuangQuanCompletedEvent(f.Id,p.Source,p.Kind,p.NativeUse?.ActionId));ReplaceRuntimeTop(f=f with{HuangQuan=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
+ {if(FinishGuanduYuanlveUse(f))return;var p=f.HuangQuan!;AdvanceEventRulesAndQueueFact(new HuangQuanCompletedEvent(f.Id,p.Source,p.Kind,p.NativeUse?.ActionId));ReplaceRuntimeTop(f=f with{HuangQuan=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
 }
 
 public sealed record JianjiOrdinaryAlcoholPaidEvent(long NativeUseId,long ActionId,int ActualTurn,int ActorSeat,bool CountsQuota,long? JianjiProgramFrameId):IGameEvent;

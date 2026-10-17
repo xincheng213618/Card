@@ -444,6 +444,7 @@ public sealed partial class GameEngine
             case PostEventContinuation.CounterspellPayment: ContinuePolicyCounterspellPayment(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.NativeCardEffectDraw: ContinueNativeDrawTwo(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.WenheCardEffect: ContinueWenheCardEffect(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.GuanduCardEffect: ContinueGuanduCardEffect(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.DragonBoatCardEffect: ContinueDragonBoatCardEffect(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.ColorFireAttackPayment: ContinueColorFireAttackPayment(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.EquipmentRecast: ContinueEquipmentRecast(continuation.ResumeFrameId!.Value); break;

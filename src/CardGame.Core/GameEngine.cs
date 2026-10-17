@@ -330,7 +330,7 @@ public sealed partial class GameEngine
             ActivityRuntimeSkillDefinition,
             IsNationalWarMode,
             player => player.SkillGrants.HasEnabledSkill(contentRegistry.ProgramDependencies.HpSensitiveSkillIds),
-            (owner,grant)=>grant.IsModeRule || !owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant)&&IsDaQiaoXiaoQiaoLuoyanGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
+            (owner,grant)=>grant.IsModeRule || !owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&GuanduGeneralGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant)&&IsDaQiaoXiaoQiaoLuoyanGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
             derivedProjectionStamp: player => CaptureDaQiaoXiaoQiaoLuoyanQualificationStamp(player, player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
                 ? CaptureCombinedProjectionDependencyStamp() : 0), dualGenerals: _modeDefinition.DualGenerals);
         var deckDefinition = ResolveDeckDefinition(
@@ -373,10 +373,10 @@ public sealed partial class GameEngine
 
     private bool UsesClassicBattleRules =>
         IsClassicIdentityMode || _modeDefinition.TeamActivity is not null || _modeDefinition.BossActivity is not null ||
-        _modeDefinition.ShenwuActivity is not null || _modeDefinition.WenheActivity is not null || IsDragonBoatActivity;
+        _modeDefinition.ShenwuActivity is not null || _modeDefinition.WenheActivity is not null || IsDragonBoatActivity || IsGuanduActivity;
 
     private bool UsesGeneralBaseHp =>
-        IsClassicIdentityMode || IsSurvivalMode || IsDragonBoatActivity;
+        IsClassicIdentityMode || IsSurvivalMode || IsDragonBoatActivity || IsGuanduActivity;
 
     private bool UsesFormalKongchengTargeting =>
         UsesClassicBattleRules;
@@ -1734,6 +1734,7 @@ public sealed partial class GameEngine
 
         _started = true;
         _status = EngineStatus.Running;
+        RecordGuanduSetupFact();
         RecordShenwuDraftFacts();
         AddLog(
             "GameStarted",
@@ -2699,6 +2700,8 @@ public sealed partial class GameEngine
         ContentRegistry contentRegistry,
         GameOptions options)
     {
+        if (options.HumanGuanduRole is { } guanduRole && (!Enum.IsDefined(guanduRole) || options.HumanSeat < 0))
+            throw new ArgumentException("A Guandu role requires a valid human seat and role.", nameof(options.HumanGuanduRole));
         var modeId = options.ModeId ??
             (options.PlayerCount == 4
                 ? "team:standard-2v2"
@@ -2721,6 +2724,8 @@ public sealed partial class GameEngine
         GameOptions options,
         ContentModeDefinition mode)
     {
+        if (options.HumanGuanduRole is not null && mode.GuanduActivity is null)
+            throw new ArgumentException("Guandu role is only valid in Guandu.", nameof(options.HumanGuanduRole));
         if (options.WenheAspirationRank is { } goal &&
             (mode.WenheActivity is null || options.HumanSeat < 0 || goal is not (1 or 2 or 4 or 6)))
             throw new ArgumentException("Wenhe aspiration requires a human seat in Wenhe and a rank of 1, 2, 4 or 6.", nameof(options));
@@ -2868,6 +2873,8 @@ public sealed partial class GameEngine
 
     private static string GetTeamName(string teamId, ContentModeDefinition? mode = null) => teamId switch
     {
+        "team:cao" => "曹操军",
+        "team:yuan" => "袁绍军",
         "team:blue" => "青队",
         "team:red" => "赤队",
         "team:wei" => "魏军",
@@ -2941,6 +2948,7 @@ public sealed partial class GameEngine
 
     private int GetStartingSeat()
     {
+        if (IsGuanduActivity) return GuanduConfiguration!.CaoCommanderSeat;
         if (IsSurvivalMode || IsDragonBoatActivity) return _random.Next(_playerCount);
         if (_modeDefinition.BossActivity is not null || _modeDefinition.ShenwuActivity is not null) return Math.Max(0, _options.HumanSeat);
         if (IsNationalWarMode)
@@ -3123,6 +3131,7 @@ public sealed partial class GameEngine
 
     private void SetupTeamPlayers()
     {
+        if (IsGuanduActivity) { SetupGuanduPlayers(); return; }
         if (IsDragonBoatActivity) { SetupDragonBoatPlayers(); return; }
         if (_modeDefinition.ShenwuActivity is not null) { SetupShenwuPlayers(); return; }
         if (_modeDefinition.TeamActivity is not null) { SetupActivityPlayers(); return; }
@@ -3348,6 +3357,7 @@ public sealed partial class GameEngine
         cards = PrepareHellActivityDeck(cards);
         cards = PrepareWenheActivityDeck(cards);
         cards = PrepareDragonBoatDeck(cards);
+        cards = PrepareGuanduDeck(cards);
         _cardZones.LoadInitialDeck(cards);
         _initialCardCount = _cardZones.TotalCards;
         if (!_options.UseInteractiveSetup)
@@ -3377,7 +3387,7 @@ public sealed partial class GameEngine
                 if (cardIndex >= counts[player.Seat]) continue;
                 // The first seat of the first public team starts with one
                 // fewer card in the 2v2 adapter, compensating for initiative.
-                if (IsTeamMode && !IsDragonBoatActivity && _modeDefinition.TeamActivity is null && _modeDefinition.BossActivity is null && _modeDefinition.ShenwuActivity is null && cardIndex == 0 && player.Seat == _currentSeat)
+                if (IsTeamMode && !IsDragonBoatActivity && !IsGuanduActivity && _modeDefinition.TeamActivity is null && _modeDefinition.BossActivity is null && _modeDefinition.ShenwuActivity is null && cardIndex == 0 && player.Seat == _currentSeat)
                 {
                     continue;
                 }
@@ -3797,6 +3807,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<(GeneralDefinition General, string CandidateId)> GetAvailableGeneralOffers(CharacterState player, bool fullRoster = false)
     {
+        if (IsGuanduActivity) return GetGuanduOffers(player);
         if (IsDragonBoatActivity) return GetDragonBoatOffers(player);
         if (_modeDefinition.ShenwuActivity is not null) return GetShenwuGeneralOffers(player, fullRoster);
         if (UsesFamilyGeneralDraft)
@@ -3966,6 +3977,7 @@ public sealed partial class GameEngine
                     ? initialHp + (player.Role == Role.Lord ? 1 : 0) : player.MaxHp;
             }
             if (IsSurvivalMode) InitializeWenheHealth(player);
+            if (IsGuanduActivity) InitializeGuanduHealth(player);
             if (IsDragonBoatActivity) InitializeDragonBoatHealth(player);
             AddLog("GeneralSelected", player.GeneralRevealed
                 ? $"主公 {player.Name} 选择了 {general.Name}。"
@@ -4171,6 +4183,12 @@ public sealed partial class GameEngine
                 break;
             case LegalActionKind.TransplantWood:
                 ResolveShenwuTransplantWood(actor, _players[action.TargetSeat!.Value], card);
+                break;
+            case LegalActionKind.Intoxication:
+            case LegalActionKind.StoreGrain:
+            case LegalActionKind.Reinforcements:
+            case LegalActionKind.UnitedEffort:
+                ResolveGuanduCard(actor, card, action);
                 break;
             case LegalActionKind.Zong:
             case LegalActionKind.RealgarWine:
@@ -4913,6 +4931,11 @@ public sealed partial class GameEngine
             case LegalActionKind.WenheChaos:
                 ResolveWenheCardEffect(pending);
                 break;
+            case LegalActionKind.StoreGrain:
+            case LegalActionKind.Reinforcements:
+            case LegalActionKind.UnitedEffort:
+                ResolveGuanduTrickEffect(pending);
+                break;
             case LegalActionKind.SameBoat:
             case LegalActionKind.StriveUpstream:
             case LegalActionKind.AgainstCurrent:
@@ -5490,7 +5513,8 @@ public sealed partial class GameEngine
                 : $"{source.Name} 使用【铁索连环】，" + string.Join("、", changes) + "。",
             source.Seat);
         var finishedIronChain = GetNullificationEffectCard(pending);
-        if (!SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain))
+        if (!HasUnstartedExtraCardEffect(pending.ParentFrameId) &&
+            !SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain))
             MoveCard(finishedIronChain, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.IronChainFinished);
         FinishCardUse(pending.ParentFrameId, GetNullificationEffectCard(pending), pending.EffectCardKind);
     }
@@ -5607,7 +5631,7 @@ public sealed partial class GameEngine
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(cardUse => cardUse.Id == resolutionId);
         var processing = _cardZones.CardsAt(CardLocation.Processing);
         return (frame.PhysicalCardIds ?? [frame.CardId])
-            .Select(cardId => (IsClaimedUseCardEntity(resolutionId,cardId) || (IsHellDestroyedSoulMaterial(resolutionId, cardId) || IsHuiyunOutsideGeneralWeaponMaterial(resolutionId, cardId))) ? EntityAtCurrentLocation(cardId) : processing.Single(card => card.Id == cardId))
+            .Select(cardId => (IsClaimedUseCardEntity(resolutionId,cardId) || (IsHellDestroyedSoulMaterial(resolutionId, cardId) || IsHuiyunOutsideGeneralWeaponMaterial(resolutionId, cardId) || IsGuanduDestroyedChariotMaterial(resolutionId, cardId))) ? EntityAtCurrentLocation(cardId) : processing.Single(card => card.Id == cardId))
             .ToArray();
     }
 
@@ -6187,7 +6211,7 @@ public sealed partial class GameEngine
             pending.Id,
             source.Seat,
             target.Seat,
-            (IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
+            (IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
             damageAmount: 1,
             playedCardKind: CardKind.FireAttack,
             physicalCards: GetCardUsePhysicalCards(pending.Id));
@@ -9145,7 +9169,8 @@ public sealed partial class GameEngine
             }
             foreach (var card in selectedCards)
             {
-                if (card.IsGeneralWeapon && originalLocations[card.Id] == CardLocation.Equipment(source.Seat) &&
+                if ((card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, originalLocations[card.Id], CardLocation.OutsideGame)) &&
+                    originalLocations[card.Id] == CardLocation.Equipment(source.Seat) &&
                     _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
                     continue;
                 MoveCard(
@@ -12017,6 +12042,7 @@ public sealed partial class GameEngine
                 continue;
             }
             if (IsExchangedCardClaim(action.ActionId, cost.CardId)) continue;
+            if (GuanduChariotResponsePayment(action, attack.ResolutionId, cost, continuation) is not null) continue;
             var card = processing.Single(item => item.Id == cost.CardId);
             MoveCard(
                 card,
@@ -12363,7 +12389,8 @@ public sealed partial class GameEngine
                 !_cardMovements.Any(move => move.CardId == m.CardId && move.Sequence > draft.SequenceBefore &&
                     move.From == m.From && move.Reason == draft.Reason &&
                     (move.To == CardLocation.DiscardPile || m.From.Zone == CardZoneKind.Equipment &&
-                        GetAdvancedCard(m.CardId).IsGeneralWeapon && move.To == CardLocation.OutsideGame))))
+                        (GetAdvancedCard(m.CardId).IsGeneralWeapon || IsGuanduThunderChariotDeparture(GetAdvancedCard(m.CardId), m.From, move.To)) &&
+                        move.To == CardLocation.OutsideGame))))
             throw new InvalidOperationException("Ice Sword lost its exact source, target, paid primary prefix or once-only whole invocation.");
     }
 
@@ -13459,6 +13486,7 @@ public sealed partial class GameEngine
         if (FinishAHuiNanJuemanAttack(attack, out var aHuiNanPaused)) return aHuiNanPaused;
         if (FinishQinLangXianyingAttack(attack, out var qinLangPaused)) return qinLangPaused;
         if (FinishDrawFundedDistinctBasicAttack(attack, out var drawFundedPaused)) return drawFundedPaused;
+        if (FinishProgramVirtualOrdinaryAttack(attack, out var virtualTrickPaused)) return virtualTrickPaused;
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsIssuedZeroEntityDuel(attack.ResolutionId))
         {
             var use = LifecycleCardUse(attack.ResolutionId)!;
@@ -13560,7 +13588,7 @@ public sealed partial class GameEngine
         foreach (var physicalCard in attack.PhysicalCards)
         {
             if (IsXinPiPhysicalClaim(attack.ResolutionId, physicalCard.Id) || IsHuaManClaimedEntity(attack.ResolutionId, physicalCard.Id) || IsCurrentUsePhysicalCardClaim(attack.ResolutionId, physicalCard.Id) || IsXuRongCausalEntityClaim(attack.ResolutionId, physicalCard.Id)) continue;
-            if ((IsHellDestroyedSoulMaterial(attack.ResolutionId, physicalCard.Id) || IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, physicalCard.Id)) || (IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, physicalCard.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, physicalCard.Id)))) continue;
+            if ((IsHellDestroyedSoulMaterial(attack.ResolutionId, physicalCard.Id) || IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, physicalCard.Id) || IsGuanduDestroyedChariotMaterial(attack.ResolutionId, physicalCard.Id)) || (IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, physicalCard.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, physicalCard.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, physicalCard.Id)))) continue;
             var physicalLocation = _cardZones.GetLocation(physicalCard.Id);
             if (physicalLocation == CardLocation.Processing)
             {
@@ -14860,6 +14888,7 @@ public sealed partial class GameEngine
         AddShenwuTrickActions(actions, actor, playableCards);
         AddHellSoulActions(actions, actor, playableCards);
         AddWenheCardActions(actions, actor, playableCards);
+        AddGuanduCardActions(actions, actor, playableCards);
         AddDragonBoatCardActions(actions, actor, playableCards);
         foreach (var drawTwo in playableCards.Where(card => card.Kind == CardKind.DrawTwo))
         {
@@ -15771,9 +15800,9 @@ public sealed partial class GameEngine
     };
 
     private DamageNature GetDamageNature(IDamageAttempt attack) =>
-        ShenwuDamageNature(attack, IsYingboRepeated(attack.ResolutionId)
+        GuanduDamageNature(ShenwuDamageNature(attack, IsYingboRepeated(attack.ResolutionId)
             ? DamageNature.Fire
-            : attack.DamageNatureOverride ?? GetDamageNature(RequireAttackCardKind(attack)));
+            : attack.DamageNatureOverride ?? GetDamageNature(RequireAttackCardKind(attack))));
 
     private static Card RequireAttackCard(CardAttackHandle attack) =>
         attack.Card ?? throw new InvalidOperationException(
@@ -15812,7 +15841,7 @@ public sealed partial class GameEngine
             .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + XionghuoActualDamageBonus(attack) + FirstSlashDuelDamage(attack) + FinalTargetSlashDamage(attack) + RecordedSuitSlashDamage(attack) + FrozenNextSlashDamage(attack) + CaoYingDamage(attack) + AdoptedChildSlashDamage(attack) + ZhangYiKangruiDamageBonus(attack) + ChengGongYingKuangxiangDamageBonus(attack) + DuFuRenYiseDamageBonus(attack) + ZhangYanLangdaoDamageBonus(attack) + FulueDamageBonus(attack) +
             ZhuJunCuipoDamageBonus(attack) + WuTuGuHanyongDamageBonus(attack) + SunHaoChouhaiDamageBonus(attack) + (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0) +
-            ShenwuNpcDamageBonus(attack) + ShenwuShuraDamageBonus(attack) + NianBaonuDamageBonus(attack) + HellArrivalDamageBonus(attack) +
+            GuanduEventDamageBonus(attack) + GuanduIntoxicationDamageBonus(attack) + ShenwuNpcDamageBonus(attack) + ShenwuShuraDamageBonus(attack) + NianBaonuDamageBonus(attack) + HellArrivalDamageBonus(attack) +
             (CurrentWenheRule == WenheRuleKind.Sweep && !attack.IsChainPropagation ? 1 : 0);
         var receivesGudingBladeBonus = UsesFormalGudingBlade &&
             !attack.IsChainPropagation &&
@@ -16164,6 +16193,10 @@ public sealed partial class GameEngine
                 LegalActionKind.SameBoat => "same-boat",
                 LegalActionKind.StriveUpstream => "strive-upstream",
                 LegalActionKind.AgainstCurrent => "against-current",
+                LegalActionKind.Intoxication => "intoxication",
+                LegalActionKind.StoreGrain => "store-grain",
+                LegalActionKind.Reinforcements => "reinforcements",
+                LegalActionKind.UnitedEffort => "united-effort",
                 LegalActionKind.BarbarianAssault => "barbarian-assault",
                 LegalActionKind.ArrowBarrage => "arrow-barrage",
                 LegalActionKind.PeachGarden => "peach-garden",
@@ -16672,6 +16705,7 @@ public sealed partial class GameEngine
     private void CompleteActualTurnCursorAfterRoundEnding(CharacterState previous, bool skipped)
     {
         if (TryCompleteWenheSurvival()) return;
+        if (TryCompleteGuanduBattle()) return;
         if (TryCompleteDragonBoatRace()) return;
         if (TracksRoundEnding || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
@@ -16764,6 +16798,7 @@ public sealed partial class GameEngine
             {
                 AdvanceEventRulesAndQueueFact(new RoleRevealedEvent(victim.Seat, victim.Role));
             }
+            ApplyGuanduDeathReward(victim, killer);
             var deathCleanupCardIds = new List<int>();
             void MoveDiedCards(IEnumerable<Card> cards, CardLocation from, CardMoveReason reason)
             {
@@ -16858,7 +16893,7 @@ public sealed partial class GameEngine
             {
                 RecordWenheDeathRank(deathFrameId, victim.Seat);
             }
-            else if (IsDragonBoatActivity)
+            else if (IsDragonBoatActivity || IsGuanduActivity)
             {
                 // The treasure race ranks four teams at its actual round end.
             }
@@ -16926,7 +16961,7 @@ public sealed partial class GameEngine
         _pendingDecision = null;
         _pendingCardsMovedBatches.Clear();
         _pendingHpChanges.Clear();
-        var winnerName = IsDragonBoatActivity && _winnerTeamId is { } boat ? $"{GetFactionName(boat[5..])}队" : IsSurvivalMode && _winnerSeat is { } champion ? _players[champion].Name : IsNationalWarMode
+        var winnerName = IsGuanduActivity && _winnerTeamId is { } army ? GetTeamName(army) : IsDragonBoatActivity && _winnerTeamId is { } boat ? $"{GetFactionName(boat[5..])}队" : IsSurvivalMode && _winnerSeat is { } champion ? _players[champion].Name : IsNationalWarMode
             ? _winnerFactionId is { } winnerFactionId
                 ? $"{GetFactionName(winnerFactionId)}势力"
                 : "未知势力"
@@ -17035,6 +17070,12 @@ public sealed partial class GameEngine
         if (_cardZones.Count(CardLocation.DrawPile) > 0)
         {
             return true;
+        }
+
+        if (IsGuanduActivity)
+        {
+            RecordGuanduDeckExhaustion();
+            return false;
         }
 
         if (_cardZones.Count(CardLocation.DiscardPile) == 0)
@@ -17449,7 +17490,7 @@ public sealed partial class GameEngine
     {
         if (ClaimDeclarationPayment(card, from, to)) return;
         to = NormalizeProgramViewAsCostDestination(card, from, to, reason);
-        if (card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment)
+        if (card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment || IsGuanduThunderChariotDeparture(card, from, to))
             to = CardLocation.OutsideGame;
         var shiyou = CanPlanHellDiscard(to) ? PrepareHellShiyouDiscardTransfers([new CardTransfer(card.Id, from, to)], reason) : null;
         to = shiyou?.Transfers[0].To ?? to;
@@ -17485,7 +17526,7 @@ public sealed partial class GameEngine
         CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null, bool emitCardMovedEvents = true,
         CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified)
     {
-        if (from.Zone == CardZoneKind.Equipment && cards.Any(card => card.IsGeneralWeapon))
+        if (from.Zone == CardZoneKind.Equipment && cards.Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             foreach (var card in cards) MoveCard(card, from, to, reason, beforeFact, emitCardMovedEvents, disclosure);
             return;
@@ -17527,7 +17568,7 @@ public sealed partial class GameEngine
     {
         if (CanPlanHellDiscard(to) || _cardZones.CardsAt(from).Any(card => card.Kind == CardKind.ReturnSoul))
         { MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure); return; }
-        if (from.Zone == CardZoneKind.Equipment && _cardZones.CardsAt(from).Any(card => card.IsGeneralWeapon))
+        if (from.Zone == CardZoneKind.Equipment && _cardZones.CardsAt(from).Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure);
             return;
@@ -17828,6 +17869,7 @@ public sealed partial class GameEngine
         movement.ResumeRecoveryReplacementFrameId is not null || movement.ResumePaidCardUseFrameId is not null ||
         movement.ResumeNativeCardEffectDrawFrameId is not null ||
         movement.ResumeWenheCardEffectFrameId is not null ||
+        movement.ResumeGuanduCardEffectFrameId is not null ||
         movement.ResumeDragonBoatCardEffectFrameId is not null ||
         movement.ResumeEquipmentRecastFrameId is not null || movement.ResumeColorFireAttackFrameId is not null ||
         movement.ResumeCounterspellPaymentFrameId is not null || movement.ResumeHistoricalEndingUseFrameId is not null || movement.ResumeGuoSiUseFrameId is not null || movement.ResumeDenglouUseFrameId is not null ||
@@ -18026,7 +18068,7 @@ public sealed partial class GameEngine
             ActiveDying?.Id == paymentDyingId;
         if (ActiveDying is not null && !damageProgramDying)
         {
-            damageProgramDying = IsPhaseNamePredictionDying() || IsLastDamageSourceReciprocityDying() || IsFixedDistanceDebtProgramDying() || IsKuangfuProgramDying() || IsActualHandGainProgramDying() || IsOldHandDispositionProgramDying() || IsFrozenHandRosterDying() || (IsGainGiftProgramDying() || IsUnequalHandHpDying() || IsPhaseStartCardControlDying() || IsEndRefillDying() || IsIncomingDistanceCourtesyDying()) || IsPublicPilePreparationProgramDying() || IsPublicPileCashOutProgramDying() || IsPhaseHandSeizureProgramDying() || IsSourceCurseProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsOffTurnUsedCardGiftProgramDying() || IsOrderedPrintedSkillLossProgramDying() || IsOverflowTargetCancellationDying() || IsRecipientCategoryMarkProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying() || IsJielieGiftProgramDying();
+            damageProgramDying = IsGuanduArroganceDying() || IsPhaseNamePredictionDying() || IsLastDamageSourceReciprocityDying() || IsFixedDistanceDebtProgramDying() || IsKuangfuProgramDying() || IsActualHandGainProgramDying() || IsOldHandDispositionProgramDying() || IsFrozenHandRosterDying() || (IsGainGiftProgramDying() || IsUnequalHandHpDying() || IsPhaseStartCardControlDying() || IsEndRefillDying() || IsIncomingDistanceCourtesyDying()) || IsPublicPilePreparationProgramDying() || IsPublicPileCashOutProgramDying() || IsPhaseHandSeizureProgramDying() || IsSourceCurseProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsOffTurnUsedCardGiftProgramDying() || IsOrderedPrintedSkillLossProgramDying() || IsOverflowTargetCancellationDying() || IsRecipientCategoryMarkProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying() || IsJielieGiftProgramDying();
             damageProgramDying |= IsPaidCardUseProgramDying();
             damageProgramDying |= IsMatchingRecastDying() || IsPairedHandRecastDying();
             damageProgramDying |= IsOutsidePhaseDrawDiscardDying();
@@ -18064,6 +18106,7 @@ public sealed partial class GameEngine
         AssertNativeDrawAttempts();
         foreach (var use in _resolutionStack.OfType<CardUseFrame>()) AssertNativeCardEffectDraw(use);
         AssertWenheCardState();
+        AssertGuanduCardState();
         AssertDragonBoatCardState();
         AssertRecoveryReplacementInvariants();
         AssertPindianInvariant();
@@ -18149,6 +18192,7 @@ public sealed partial class GameEngine
             HasCharacterStateCardUseContinuation() ||
             HasNativeCardEffectDrawProcessing(processing) ||
             HasWenheCardEffectProcessing(processing) ||
+            HasGuanduCardEffectProcessing(processing) ||
             HasDragonBoatCardEffectProcessing(processing) ||
             HasOwnTrickDrawOfferProcessing(processing) ||
             HasFeiYiTrickPaymentProcessing(processing) || HasWuJingHejiTrickPaymentProcessing(processing) || HasHuiyunTrickPaymentProcessing(processing) ||
@@ -18227,7 +18271,7 @@ public sealed partial class GameEngine
         {
             var retainedFireAttack = !IsZeroEntityUse(fireAttack.Id) &&
                 !IsClaimedUseCardEntity(fireAttack.Id, fireAttack.CardId) &&
-                (!IsHellDestroyedSoulMaterial(fireAttack.Id, fireAttack.CardId) && !IsHuiyunOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId));
+                (!IsHellDestroyedSoulMaterial(fireAttack.Id, fireAttack.CardId) && !IsHuiyunOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId) && !IsGuanduDestroyedChariotMaterial(fireAttack.Id, fireAttack.CardId));
             var expectedProcessingCount = retainedFireAttack ? 1 : 0;
             if (processing.Count != expectedProcessingCount ||
                 retainedFireAttack && processing.All(card => card.Id != fireAttack.CardId) ||
@@ -18298,7 +18342,7 @@ public sealed partial class GameEngine
                 ? physicalCardIds
                 : [nullification.EffectCardId];
             expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id) &&
-                (!IsHellDestroyedSoulMaterial(nullification.ParentFrameId, id) && !IsHuiyunOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id))).ToArray();
+                (!IsHellDestroyedSoulMaterial(nullification.ParentFrameId, id) && !IsHuiyunOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id) && !IsGuanduDestroyedChariotMaterial(nullification.ParentFrameId, id))).ToArray();
             if (!processing.Select(card => card.Id).Order().SequenceEqual(expectedPhysicalCardIds.Concat(rescueCosts).Order()))
             {
                 throw new InvalidOperationException(
@@ -18803,7 +18847,7 @@ public sealed partial class GameEngine
 
         if (!hasActiveCardResolution && _resolutionStack.Count != 0 &&
             !HasBeiMiHuTurnPreludeBoundary() && !HasQiaoZhouPreparationBoundaryFrame() && !HasForeignActualTurnStartBoundary() && !(HasActualPhaseEndBoundaryFrame() || HasRoundEndingBoundaryFrame()) && !HasProgramLifecycleBoundaryFrame() && !HasDrawPhaseObligationBoundaryFrame() && !HasTurnEndingBoundaryFrame() && !HasDeferredTurnEndBoundaryFrame() &&
-            !HasPlayPhaseStartingBoundaryFrame() &&
+            !HasPlayPhaseStartingBoundaryFrame() && !HasEquipmentRecastNativeDrawBoundary() &&
             !HasCardsMovedProgramBoundaryFrame() && DrawFundedDistinctBasicObserverRoot() is null)
         {
             throw new InvalidOperationException($"A completed card resolution left frames on the stack: {string.Join(", ", _resolutionStack.Select(frame => $"{frame.Id}/{frame.Kind}/{frame.Step}"))}.");
@@ -19786,8 +19830,14 @@ public sealed partial class GameEngine
                 .Where(cost => IsProgramAlternativeCost(programFrame.Action, cost.CardId))
                 .Select(cost => cost.CardId).ToHashSet();
             if (processing.Any(card => alternativeResponseIds.Contains(card.Id))) return false;
+            var destroyedResponseIds = programFrame.Action.PhysicalCards
+                .Where(cost => GuanduChariotResponsePayment(programFrame.Action, programFrame.ParentFrameId,
+                    cost, programFrame.Continuation) is not null)
+                .Select(cost => cost.CardId).ToHashSet();
+            if (processing.Any(card => destroyedResponseIds.Contains(card.Id))) return false;
             var responseIds = programFrame.Action.PhysicalCards
-                .Where(cost => !alternativeResponseIds.Contains(cost.CardId) && !IsExchangedCardClaim(programFrame.Action.ActionId,cost.CardId))
+                .Where(cost => !alternativeResponseIds.Contains(cost.CardId) && !destroyedResponseIds.Contains(cost.CardId) &&
+                    !IsExchangedCardClaim(programFrame.Action.ActionId,cost.CardId))
                 .Select(cost => cost.CardId).ToHashSet();
             if (programFrame.ResponseCompletion is not null && ValidResponseCompletionWindow(programFrame) ||
                 programFrame.CompletedResponseReturn is { IsCommitted: false } || programFrame.CompletedResponseReturn is { IsCommitted: true, Kind: ProgramCompletedResponseKind.Nullification })
@@ -19959,7 +20009,7 @@ public sealed partial class GameEngine
         {
             if (IsQigongCompletedAttackProcessing(attack, processing)) return true;
             return processing.Count == 0 && attack.PhysicalCards.All(card =>
-                ((IsHellDestroyedSoulMaterial(attack.ResolutionId, card.Id) || IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id)) || IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id))) ||
+                ((IsHellDestroyedSoulMaterial(attack.ResolutionId, card.Id) || IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id) || IsGuanduDestroyedChariotMaterial(attack.ResolutionId, card.Id)) || IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id))) ||
                 _cardZones.GetLocation(card.Id).Zone is CardZoneKind.DiscardPile or
                     CardZoneKind.Hand or CardZoneKind.DrawPile);
         }
@@ -19981,7 +20031,7 @@ public sealed partial class GameEngine
         var toleratedProcessing = processing
             .Where(card => !heldByOuterUses.Contains(card.Id)).ToArray();
         var retainedAttackIds = attack.PhysicalCards.Where(card=>!IsClaimedUseCardEntity(attack.ResolutionId,card.Id) &&
-            (!IsHellDestroyedSoulMaterial(attack.ResolutionId, card.Id) && !IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id)) &&
+            (!IsHellDestroyedSoulMaterial(attack.ResolutionId, card.Id) && !IsHuiyunOutsideGeneralWeaponMaterial(attack.ResolutionId, card.Id) && !IsGuanduDestroyedChariotMaterial(attack.ResolutionId, card.Id)) &&
             !(IsSelectedForeignCardSlashRemovedMaterial(attack.ResolutionId, card.Id) || IsZhangYanSujiRemovedMaterial(attack.ResolutionId, card.Id) || (IsKenshangRemovedMaterial(attack.ResolutionId, card.Id) || IsWuJingHejiRemovedMaterial(attack.ResolutionId, card.Id)))).Select(card=>card.Id).ToHashSet();
         if (retainedAttackIds.Count != attack.PhysicalCards.Count && toleratedProcessing.Select(card=>card.Id).ToHashSet().SetEquals(retainedAttackIds)) return true;
         if (toleratedProcessing.Length == attack.PhysicalCards.Count &&
@@ -20974,7 +21024,7 @@ public sealed partial class GameEngine
         public int SourceSeat { get => State.SourceSeat; }
         public int WeaponOwnerSeat { get => State.WeaponOwnerSeat; }
         public int SlashTargetSeat { get => State.SlashTargetSeat; }
-        public Card Card { get => (_engine.IsChainedStateBasicUse(OwnerFrameId) ? _engine.ReadChainedStateBasicUseAppearance(OwnerFrameId, State.Card) : _engine.ReadDrawFundedDistinctBasicUseAppearance(OwnerFrameId, State.Card)); }
+        public Card Card { get => (_engine.IsChainedStateBasicUse(OwnerFrameId) ? _engine.ReadChainedStateBasicUseAppearance(OwnerFrameId, State.Card) : _engine.ReadVirtualOrdinaryTrickUseAppearance(OwnerFrameId, State.Card)); }
         public bool AwaitingSlashChoice { get => State.AwaitingSlashChoice; set => Update(state => state with { AwaitingSlashChoice = value }); }
         public bool FactionSlashAttempted { get => State.FactionSlashAttempted; set => Update(state => state with { FactionSlashAttempted = value }); }
         public CardAttackHandle? ActiveAttack { get => State.ActiveAttackOwnerId is { } id ? new(_engine, id) : null; set => Update(state => state with { ActiveAttackOwnerId = value?.ResolutionId }); }

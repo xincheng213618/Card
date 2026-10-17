@@ -169,6 +169,10 @@ public sealed partial class GameEngine
                 if (_resolutionStack.LastOrDefault() is not CardUseFrame wenhe || !IsWenheCardEffectHpReturn(wenhe, frame))
                     throw new InvalidOperationException("A Wenhe trick lost its exact HP-child return.");
                 ContinueWenheCardEffect(wenhe.Id); break;
+            case PostEventContinuation.GuanduCardEffect:
+                if (_resolutionStack.LastOrDefault() is not CardUseFrame guandu || !IsGuanduCardEffectHpReturn(guandu, frame))
+                    throw new InvalidOperationException("A Guandu card lost its exact health return.");
+                ContinueGuanduCardEffect(guandu.Id); break;
             case PostEventContinuation.DragonBoatCardEffect:
                 if (_resolutionStack.LastOrDefault() is not CardUseFrame dragon || !IsDragonBoatCardEffectHpReturn(dragon, frame))
                     throw new InvalidOperationException("Dragon boat HP changes lost their exact card return.");
@@ -248,6 +252,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
                 PostEventContinuation.NativeCardEffectDraw => parent is CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.DrawingChildren } nativeDraw && nativeDraw.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == nativeDraw.Id,
                 PostEventContinuation.WenheCardEffect => parent is CardUseFrame wenhe && IsWenheCardEffectHpReturn(wenhe, hp),
+                PostEventContinuation.GuanduCardEffect => parent is CardUseFrame guandu && IsGuanduCardEffectHpReturn(guandu, hp),
                 PostEventContinuation.DragonBoatCardEffect => parent is CardUseFrame dragon && IsDragonBoatCardEffectHpReturn(dragon, hp),
                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
                 PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,

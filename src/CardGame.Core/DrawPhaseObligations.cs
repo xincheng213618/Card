@@ -180,6 +180,7 @@ public sealed partial class GameEngine
             {
                 candidates = IncludeAttributedDrawObservers(owner, candidates);
                 candidates = IncludeYanPuDrawObservers(owner, candidates);
+                candidates = IncludeGuanduForeignDrawObservers(owner, candidates, out participants);
             }
             if (window == SkillProgramTriggerWindow.DrawPhaseEnded)
             {

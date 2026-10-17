@@ -76,6 +76,7 @@ public sealed partial class GameEngine
         {
             ConsumeTieredRoundConversion(source);
             ConsumeNamedUseConversion(source);
+            ConsumeGuanduRoundConversion(source);
             ConsumeActualTurnLimitedViewAs(source);
             if (ViewAsRule(source) is not { UsesPerPhase: { } limit } rule) continue;
             if (rule.ActivationUsageGroup is { } activationGroup)

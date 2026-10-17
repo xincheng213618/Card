@@ -278,8 +278,8 @@ internal sealed class ProgramOperationNodeReader
             var requiredTargetKind = reader.Has("requiredTargetKind")
                 ? reader.RequiredEnum<SkillProgramTargetKind>("requiredTargetKind") : (SkillProgramTargetKind?)null;
             if (requiredTargetKind is not null and not
-                (SkillProgramTargetKind.OtherLivingInAttackRange or SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment))
-                Fail(reader.Path + ".requiredTargetKind", "requires otherLivingInAttackRange or otherLivingWithDiscardableHandOrEquipment");
+                (SkillProgramTargetKind.OtherLivingInAttackRange or SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment or SkillProgramTargetKind.OtherLivingVirtualDuelTarget))
+                Fail(reader.Path + ".requiredTargetKind", "requires an attack-range, discardable-card or virtual-Duel target set");
             return new SkillProgramChoiceOption(reader.RequiredIdentifier("id"), reader.Condition())
             {
                 RequiredTargetKind = requiredTargetKind
@@ -860,7 +860,8 @@ internal sealed class SelectTargetProgramOperationDescriptor : ProgramOperationD
             actorReference: actorRef, skipIfNoTarget: skipIfNoTarget);
         if (effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
             (targetKind is not (SkillProgramTargetKind.OtherLivingInAttackRange or
-                SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment) ||
+                SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment or
+                SkillProgramTargetKind.OtherLivingVirtualDuelTarget) ||
              zones.Count != 0 || actorRef is not null || skipIfNoTarget))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: choice-guarded target selection requires a matching requiredTargetKind and no additional selection filters.");
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&

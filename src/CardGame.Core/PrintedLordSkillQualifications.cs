@@ -34,7 +34,7 @@ public sealed record PrintedLordQualificationIssuedEvent(long ProgramFrameId, in
 public sealed partial class GameEngine
 {
     private bool IsPrintedLordGrantQualified(CharacterState owner, SkillGrant grant) =>
-        PrintedLordSkillQualifications.Matches(owner, grant);
+        PrintedLordSkillQualifications.Matches(owner, grant) || IsGuanduCommanderPrintedLordGrant(owner, grant);
 
     // Menu and execution share this selection only for a newly qualified
     // printed Lord grant. Explicit acquired instances never borrow its right.
