@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-zou-shi",
+      "characterName": "乐邹氏",
+      "defaultSkinId": "1133701",
+      "skins": [
+        {
+          "id": "1133701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1337.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133701.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-zou-shi.png",
+          "sha256": "790442909dcdf603bd943438ef97a2b3689fecc3e299782bb4fb95b597fd86da",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "ol-mo-sun-quan",
       "characterName": "魔孙权",
       "defaultSkinId": "71100",

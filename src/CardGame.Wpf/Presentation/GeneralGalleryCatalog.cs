@@ -82,6 +82,7 @@ public static class GeneralGalleryCatalog
         groups.Add("le:xiao-qiao", "le");
         groups.Add("le:da-qiao", "le");
         groups.Add("le:zhou-yu", "le");
+        groups.Add("le:zou-shi", "le");
         groups.Add("wumiao:guan-yu", "wumiao");
         groups.Add("ol:mo-sun-quan", "magic");
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");

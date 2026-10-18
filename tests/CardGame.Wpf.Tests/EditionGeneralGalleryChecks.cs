@@ -39,6 +39,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "le:cai-wen-ji") &&
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
+            entries.Any(entry => entry.GeneralId == "le:zou-shi") &&
             entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
             entries.Any(entry => entry.GeneralId == "ol:xiahou-ba") &&
@@ -201,6 +202,16 @@ internal static class EditionGeneralGalleryChecks
                     entry.Portrait.Brush is ImageBrush { ImageSource: not null } &&
                     entry.Skills.Count > 0 && entry.Skills.All(skill => !string.IsNullOrWhiteSpace(skill.Name)),
                     "Opening edition details must decode its own local portrait and show the registered skills.");
+                if (entry.GeneralId == "le:zou-shi")
+                {
+                    Program.Assert(entry.Name == "乐邹氏" && entry.Skills.Count == 2 &&
+                        new[] { "le:yunzheng", "le:huoxin" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name &&
+                                skill.Description == registered.Description);
+                        }), "Le Zou Shi must show both complete registered skills with her own edition portrait.");
+                }
                 if (entry.GeneralId == "ol:mo-sun-quan")
                 {
                     Program.Assert(entry.Name == "魔孙权" && entry.Skills.Count == 3 &&
