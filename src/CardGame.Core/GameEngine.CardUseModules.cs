@@ -63,7 +63,9 @@ public sealed partial class GameEngine
                 if (action.TargetSeats.Any(targetSeat => targetSeat != actor.Seat))
                     return false;
             }
+            if (action.Kind == LegalActionKind.UseEquipmentEffect && action.EquipmentKind == CardKind.ZhangbaSerpentSpear && MouGuquRestrictingSources(actor.Seat).Count != 0) return false;
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind, nativeOriginalCard)) return true;
+            if (!IsMouGuquPlayActionAllowed(actor, action, effectiveKind)) return false;
             if (action.Kind != LegalActionKind.Recast && MouCaoPiHandUseForbidden(actor.Seat, effectiveKind,
                 action.CardId is { } material && material != 0 ? [material] : [])) return false;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword

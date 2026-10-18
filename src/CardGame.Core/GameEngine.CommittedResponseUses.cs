@@ -1,9 +1,16 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private bool TryBeginCommittedResponseUsePrograms(CardAttackHandle? attack, CardActionContext action, ProgramCardContinuation continuation)
     {
+        if (IsCompletedResponseUse(action, continuation) &&
+            (continuation != ProgramCardContinuation.Dodge || attack is not null && attack.EffectiveCardKind is { } incomingGuqu && IsSlashCard(incomingGuqu) && attack.TargetSeat == action.ActorSeat))
+        {
+            var guquParent = continuation == ProgramCardContinuation.NullificationResponse
+                ? (ResolutionFrame?)ActiveNullificationWindow : attack is null ? null : LifecycleCardUse(attack.ResolutionId);
+            if (guquParent is not null) CaptureMouGuquResponseUse(guquParent, action, continuation);
+        }
         if (TryBeginCaoChunPaidResponseDebt(attack, action, continuation)) return true;
         if (_winner != Winner.None || !IsCompletedResponseUse(action, continuation) ||
             continuation == ProgramCardContinuation.Dodge &&

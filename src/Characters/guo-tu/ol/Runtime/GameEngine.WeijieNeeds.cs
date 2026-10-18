@@ -67,6 +67,7 @@ public sealed partial class GameEngine
     {
         if(!IsValidPlayerSeat(n.ProviderSeat)||!IsValidPlayerSeat(n.ActorSeat)||!_players[n.ProviderSeat].IsAlive||!_players[n.ActorSeat].IsAlive||_winner!=Winner.None)return false;
         var actor=_players[n.ActorSeat];var provider=_players[n.ProviderSeat];var action=WeijieIsPlayed(n)||n.Intent==WeijieIntent.Dodge?CardActionType.Response:CardActionType.Use;
+        if (!WeijieIsPlayed(n) && !IsMouGuquUseAllowed(n.ActorSeat, kind, [])) return false;
         if(IsCardUseForbidden(n.ActorSeat,kind,action)||n.ProviderSeat!=n.ActorSeat&&IsCardUseForbidden(n.ProviderSeat,IsSlashCard(kind)?CardKind.Slash:kind,action)||IsSlashCard(kind)&&action==CardActionType.Response&&IsCardUseForbidden(n.ActorSeat,CardKind.Slash,action))return false;
         if(n.Intent==WeijieIntent.Dodge&&IsProgramResponseCardUse(actor,kind)&&HasIssuedPlayPhaseUseBan(actor.Seat))return false;
         if(WeijieIsDying(n))return ActiveDying is{}d&&d.Id==n.OwnerFrameId&&d.ResponderIndex==n.Cursor&&d.ResponderSeat==n.ProviderSeat&&d.VictimSeat==target&&_players[target].IsAlive&&_players[target].Hp<=0&&!HasBeneficiarySuitShield(n.ActorSeat,target,Suit.None)&&(kind==CardKind.Peach&&CanUsePeachToRescue(n.ActorSeat,target)||kind==CardKind.Alcohol&&n.ActorSeat==target&&!HasSelfCardTargetProhibition(target));

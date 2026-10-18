@@ -162,6 +162,9 @@ public sealed partial class GameEngine
     private bool RequestedDeckBasicCardMatches(RequestedDeckBasicFrame view,Card card)
     {
         var r=view.Receipt;var actor=_players[r.ActorSeat];
+        if (RequestedDeckBasicActionType(r.Intent) == CardActionType.Use
+            ? !IsMouGuquUseAllowed(actor.Seat, card.Kind, [card.Id])
+            : !IsMouGuquResponseAllowed(actor, card.Kind, [card.Id], dyingUse: r.Intent == RequestedDeckBasicIntent.Dying)) return false;
         if(r.Intent==RequestedDeckBasicIntent.WenyiPeach) return WenyiRequestedDeckPeachTargets(view,card).Length==1;
         if(r.Intent==RequestedDeckBasicIntent.Dying)
         {

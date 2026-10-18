@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             if ((output is null || rule.OutputKind == output) && (dyingUse ? rule.ForPlay && !rule.NoDying : responseUse ? rule.ForResponse : rule.ForPlay) &&
                 rule.InputCount == 0 && rule.UseOnly && rule.Condition.Evaluate(CreateSkillContext(actor)) &&
                 DrawFundedDistinctBasicNameAvailable(actor.Seat, rule.DrawFundedDistinctBasic!.MethodLedgerId, rule.OutputKind) &&
-                !IsCardUseForbidden(actor.Seat, rule.OutputKind, CardActionType.Use))
+                !IsCardUseForbidden(actor.Seat, rule.OutputKind, CardActionType.Use) && IsMouGuquCardlessAllowed(actor, rule.OutputKind, responseUse, dyingUse))
                 yield return (new(instance.SkillId, rule.Id, actor.Seat, instance.SkillInstanceId), rule, instance.Program.GameplayHash);
     }
 

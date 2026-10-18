@@ -63,7 +63,8 @@ public sealed partial class GameEngine
             ActiveDying is not { } dying || dying.FrameId != context.ParentFrameId || dying.ResponderSeat != responder ||
             context.TargetSeat != dying.VictimSeat) return false;
         // A pile provider does not use Wine: its exact dying victim is the actor.
-        return !IsForeignTurnAlcoholUseForbidden(dying.VictimSeat, CardKind.Alcohol, CardActionType.Use);
+        return !MouGuquPhysicalUseForbidden(dying.VictimSeat, []) &&
+            !IsForeignTurnAlcoholUseForbidden(dying.VictimSeat, CardKind.Alcohol, CardActionType.Use);
     }
 
     private ProgramDyingAlcoholPermission? CaptureProgramDyingAlcoholPermission(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context)
@@ -91,6 +92,7 @@ public sealed partial class GameEngine
     }
 
     private bool CanUseProgramDyingAlcohol(ProgramSkillFrame frame, SkillProgramEffectOp op) =>
-        HasFrozenProgramDyingAlcoholPermission(frame, op) || ActiveDying is { } dying &&
-        !IsForeignTurnAlcoholUseForbidden(dying.VictimSeat, CardKind.Alcohol, CardActionType.Use);
+        ActiveDying is { } dying && !MouGuquPhysicalUseForbidden(dying.VictimSeat, []) &&
+        (HasFrozenProgramDyingAlcoholPermission(frame, op) ||
+            !IsForeignTurnAlcoholUseForbidden(dying.VictimSeat, CardKind.Alcohol, CardActionType.Use));
 }

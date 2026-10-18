@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:zuifeng",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "unique-suit-view-and-wine",
+          "usesPerTurn": null,
+          "sourceZones": [
+            "hand"
+          ],
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "resolveMouZhouYuZuifeng",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:guqu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-que-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "effects": [
+            {
+              "op": "resolveMouZhouYuGuqu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

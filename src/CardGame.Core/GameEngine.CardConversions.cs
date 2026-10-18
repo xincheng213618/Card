@@ -320,6 +320,7 @@ public sealed partial class GameEngine
             : Array.Empty<CardConversionSource>();
         if (configured.Length == 0 && turnScoped.Length == 0 && paidColor.Count == 0) return [];
         return configured.Concat(turnScoped).Concat(paidColor)
+            .Where(source => IsMouGuquViewAsAllowed(owner, outputKind, [card.Id], source, forResponse, dyingUse, requestedUseTarget))
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
@@ -384,6 +385,7 @@ public sealed partial class GameEngine
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
         return selections.Concat(leiluan)
+            .Where(item => IsMouGuquViewAsAllowed(owner, outputKind, item.Cards.Select(c => c.Id).ToArray(), item.Source, forResponse, dyingUse, requestedUseTarget))
             .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
             .Where(item => !MouCaoPiHandUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
             .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
@@ -473,7 +475,9 @@ public sealed partial class GameEngine
             cards.Add(card);
         }
         if (forResponse ? IsTurnPhysicalUseForbiddenByExistingPolicies(owner.Seat, orderedCardIds) || IsCuiYanNativeResponseForbidden(owner, outputKind, cards) : IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
-        if (MouCaoPiHandUseForbidden(owner.Seat, outputKind, orderedCardIds, forResponse)) return null;
+        if (MouCaoPiHandUseForbidden(owner.Seat, outputKind, orderedCardIds, forResponse) ||
+            !IsMouGuquViewAsAllowed(owner, outputKind, orderedCardIds, source, forResponse,
+                forResponse && outputKind is CardKind.Peach or CardKind.Alcohol && ActiveDying?.ResponderSeat == owner.Seat)) return null;
         if (rule.AllHandCardsOfSelectedSuit && !ValidWholeHandSuitConversion(owner, cards, source)) return null;
         return new(cards, source, outputKind);
     }

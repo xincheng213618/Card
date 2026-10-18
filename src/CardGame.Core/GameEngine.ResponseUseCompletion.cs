@@ -71,7 +71,7 @@ public sealed partial class GameEngine
          kind == ProgramCompletedResponseKind.Dodge && action.EffectiveKind == CardKind.Dodge);
 
     private bool HasResponseUseCompletionObserver(CardActionContext action, ProgramCardContinuation continuation) =>
-        IsCompletedResponseUse(action, continuation) && (HasJiyunResponseCompletion(action, continuation) || _players.Any(owner => owner.IsAlive &&
+        IsCompletedResponseUse(action, continuation) && (HasIssuedMouGuquResponse(action) || HasJiyunResponseCompletion(action, continuation) || _players.Any(owner => owner.IsAlive &&
             (GetSkillBindingShard(owner)?.GetInstanceTriggers(SkillProgramTriggerWindow.CardUseCompleted) ?? [])
                 .Any(binding => binding.Trigger.IncludeResponseUses)));
 

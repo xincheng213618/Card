@@ -18,7 +18,7 @@ public sealed partial class GameEngine
         foreach (var rule in instance.Program.ViewAs.Where(r => r.ChainedStateCost.HasValue))
             if ((output is null || rule.OutputKind == output) && (dodge ? rule.ForResponse && rule.OutputKind == CardKind.Dodge : rule.ForPlay && IsSlashCard(rule.OutputKind)) &&
                 rule.UseOnly && rule.InputCount == 0 && rule.Condition.Evaluate(CreateSkillContext(actor)) &&
-                CanPayChainedStateBasic(actor, rule.ChainedStateCost!.Value) && !IsCardUseForbidden(actor.Seat, rule.OutputKind, CardActionType.Use))
+                CanPayChainedStateBasic(actor, rule.ChainedStateCost!.Value) && !IsCardUseForbidden(actor.Seat, rule.OutputKind, CardActionType.Use) && IsMouGuquCardlessAllowed(actor, rule.OutputKind, dodge))
                 yield return (new(instance.SkillId, rule.Id, actor.Seat, instance.SkillInstanceId), rule, instance.Program.GameplayHash);
     }
 

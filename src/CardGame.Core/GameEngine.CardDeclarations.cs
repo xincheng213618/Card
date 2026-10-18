@@ -151,6 +151,7 @@ public sealed partial class GameEngine
         payment = CaptureBeifenDeclarationPayment(payment, parent);
         payment = CaptureWuyouDeclarationPayment(payment, parent);
         payment = CaptureWeiwanDeclarationPayment(payment, parent);
+        payment = CaptureMouGuquDeclaration(payment, parent);
         payment = CaptureMoQuanyuDeclarationQuota(payment, parent, targets);
         ClearPendingDecision();
         _selectedUseConversion = null; _selectedResponseConversion = null;

@@ -32,7 +32,8 @@ public sealed partial class GameEngine
     private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(int owner)
     {
         var actor = _players[owner];
-        if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != owner) yield break;
+        if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != owner ||
+            MouGuquPhysicalUseForbidden(owner, [])) yield break;
         foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
         if (IsRuleWounded(actor) && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);

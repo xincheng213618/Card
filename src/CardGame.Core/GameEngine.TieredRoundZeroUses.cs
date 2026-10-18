@@ -10,9 +10,9 @@ public sealed partial class GameEngine
             if ((output is null || rule.OutputKind == output) && rule.Condition.Evaluate(CreateSkillContext(owner)) &&
                 (dyingUse ? !rule.NoDying && (rule.ForResponse || rule.ForPlay && rule.UseOnly) : responseUse ? rule.ForResponse : rule.ForPlay) &&
                 CanUseTieredRoundConversion(owner, instance, rule, responseUse, dyingUse) &&
-                !IsCardUseForbidden(owner.Seat, rule.OutputKind, CardActionType.Use))
+                !IsCardUseForbidden(owner.Seat, rule.OutputKind, CardActionType.Use) && IsMouGuquCardlessAllowed(owner, rule.OutputKind, responseUse, dyingUse))
                 yield return (new(instance.SkillId, rule.Id, owner.Seat, instance.SkillInstanceId), rule, instance.Program.GameplayHash);
-        foreach (var paid in PaidEquipmentSlotNamedZeroRules(owner, output, responseUse, dyingUse))
+        foreach (var paid in PaidEquipmentSlotNamedZeroRules(owner, output, responseUse, dyingUse).Where(p => IsMouGuquCardlessAllowed(owner, p.Rule.OutputKind, responseUse, dyingUse)))
             yield return paid;
     }
 

@@ -1,0 +1,153 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-18",
+  "name": "谋周瑜·OL",
+  "generalId": "mou:zhou-yu-ol",
+  "product": "sanguosha-ol",
+  "series": "谋",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/770",
+      "finalUrl": "https://www.sanguosha.com/hero/770",
+      "httpStatus": 200,
+      "bytes": 24053,
+      "sha256": "e75e9fba011d279a9e3bf1e95a2cb3ded4dd2584a93d3c661a1a6e8d10074096",
+      "capturedAtUtc": "2026-10-18T06:29:38.939089+00:00"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260922_7360_5713",
+      "finalUrl": "https://www.sanguosha.com/news/20260922_7360_5713",
+      "httpStatus": 200,
+      "bytes": 833364,
+      "sha256": "ec234b09683db8562ed0068195b61b362129888f1f1dd54b039c684095e20a90",
+      "capturedAtUtc": "2026-10-18T06:29:38.998818+00:00"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "bytes": 5386466,
+      "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5",
+      "capturedAtUtc": "2026-10-18T06:29:39.101775+00:00"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "finalUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "bytes": 4154044,
+      "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1",
+      "capturedAtUtc": "2026-10-18T06:29:39.082222+00:00"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=770",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=770",
+      "httpStatus": 200,
+      "bytes": 813,
+      "sha256": "80cfe3305a0f7abeed61e9243bf4c72bfa5b679708cb5c0da3bd2b6a8b4cef51",
+      "fetchedAtUtc": "2026-10-18T06:32:51.808052+00:00"
+    }
+  ],
+  "formalPublishedAt": "2026-09-30T16:57:59+08:00",
+  "firstObtainableAt": "2026-10-01T00:15:00+08:00",
+  "officialAvailability": "忠义祈福或传世玉玺兑换",
+  "officialIdentity": {
+    "faction": "wu",
+    "hp": 4,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "mou-ol:zuifeng",
+      "name": "醉锋",
+      "text": "出牌阶段限X次（X为你的体力上限），你可弃置一个花色的唯一手牌并选择一名角色，你观看其的手牌并展示其中一张。若弃置牌与展示牌花色相同，你对其造成1点火焰伤害。其可将此牌当【酒】对你使用。"
+    },
+    {
+      "id": "mou-ol:guqu",
+      "name": "顾曲",
+      "text": "锁定技，你的回合内：被展示过的手牌称为“阙”；手牌中有“阙”的其他角色只能使用“阙”；“阙”只能因“醉锋”转化；当有“阙”被使用后，你摸两张牌。"
+    }
+  ],
+  "currentVersusFormal": "The hero page and formal release omit the current selected OL client Guqu clause that Qu can only be converted by Zuifeng. This implementation follows the unique spells 4025/4024 bound to character gid770 in the freshly fetched public client. Client DATA_GUQV availability excludes the source, requires the living source, and restricts true Use rather than pure Played. No dated rule-change announcement is inferred.",
+  "selectedClient": {
+    "characterId": 770,
+    "skillIds": [
+      4025,
+      4024
+    ],
+    "members": {
+      "character.sgs": {
+        "encodedBytes": 352981,
+        "encodedSha256": "d67644b18d0b932e6205b1fe4b6bfa04082e09daecbb07ffa0a3da4f32c4d249",
+        "decodedBytes": 1485990,
+        "decodedSha256": "0b24874f3b1aabe475cdc1f9943c16bb3d9925df5fba0bc38cac94208a3c073b"
+      },
+      "cha_spell.sgs": {
+        "encodedBytes": 247028,
+        "encodedSha256": "b5a7edd2ca80648e3e8220aafb1024d88b33f2eec3cd846a330dfa6769514d4a",
+        "decodedBytes": 1170581,
+        "decodedSha256": "5f9022fe6ed020f6c0bb4dda06c15f6883d81f33cd884c55d978422987bfb3ff"
+      },
+      "cha_spellextend.sgs": {
+        "encodedBytes": 32844,
+        "encodedSha256": "2ffa16723e90ac981b90e0c55d935f264527a5dd28087db7cfe84007f9f0682f",
+        "decodedBytes": 144732,
+        "decodedSha256": "465c14759140f83229727303b96db792527904560aa595832df9a356c6c0460e"
+      }
+    }
+  },
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77000.png",
+    "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77000.png",
+    "httpStatus": 200,
+    "bytes": 1173092,
+    "sha256": "6234adec068252d5b7e8c5b123ed7df77533ae3bf041bdb04b9b759a3f4c54b4",
+    "fetchedAtUtc": "2026-10-18T06:32:52.205870+00:00",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "skinId": "77000",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-zhou-yu-ol.png",
+    "sourcePage": "https://www.sanguosha.com/hero/770"
+  },
+  "engineeringInterpretations": [
+    "Zuifeng pays exactly one legal real Hand discard of a standard effective suit occurring once in the current Hand. Its per-Play quota uses the real phase and current MaxHP, without a once-per-suit lock or reset on regrant.",
+    "The selected living holder may be the source. Full viewing is private to the activator; exactly one real Hand entity is publicly revealed. Same-suit fire damage resolves through native children before the optional original-entity Alcohol use.",
+    "The special Alcohol permission allows its holder to truly use the exact still-owned revealed Hand entity on the original Zhou Yu outside their own Play or ordinary quota. Native payment, card restrictions, ordinary Alcohol debit, nonstacking effect and typed returns still apply.",
+    "Guqu lasts until that actual TurnEnded. It captures genuine public Hand reveal events, including other reveal skills, and excludes private peeks, ordinary use exposure, gifts and mere face-up movement.",
+    "While another actor holds Qu for a living source, every material in a true Use must be that source current-turn Qu; zero-material Use is forbidden. Conversion of such Qu is permitted only by the exact Zuifeng Alcohol permission. The source is excluded from these actor restrictions.",
+    "Each actual true Use containing Qu yields one native draw-two for each entitled source, rather than once per material. Pure Played is unrestricted and does not yield this benefit. Accepted use rights are frozen before subsequent hand changes.",
+    "Qu capture and pending draw claims retain the complete skill source instance and gameplay hash. An independent later copy does not inherit another instance merely because its owner seat matches; already accepted claims retain their original native parent and materials.",
+    "The project treats independently acquired skill instances as independent sources: copies already present at a genuine reveal each sign their own mark and each receive draw-two for a qualifying later Use. This is a project runtime interpretation, not an asserted official duplicate-skill FAQ.",
+    "Holding Qu in Hand activates the restriction, but it does not add a new material-zone limit: the same marked entity may be used from a natively legal owned region such as Wooden Ox grain. Every actual material must still be Qu, and all original ownership, payment and conversion checks remain in force.",
+    "The baseline faction-defense supplier Dodge is a response-only Played action and earns no Guqu draw. No additional lord Use is invented. A faction Slash request that already creates a complete native lord CardUse is handled through that actual Use.",
+    "A native actor replacement on the same accepted Use retains the original qualification only through its exact original UseID, ActionID, provider, physical materials and ordered actor-replacement events. It does not acquire a new mark or sample a replacement source."
+  ],
+  "verificationLimits": [
+    "No dedicated official FAQ has been verified; engineering interpretations are distinguished from primary rules.",
+    "No rules epoch, skill schema, or package version is raised for this general."
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 32,
+      "wpfPassed": 2,
+      "durationMs": 65405
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 74467
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the original-resolution actual WPF gallery: official portrait, selectable Mou series, Wu faction, four HP and both complete selected-client skills.",
+    "scopeNote": "Focused native behavior groups and measured bounded routine verification; no manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Real actual-Play current-MaxHP quota and one unique effective standard-suit Hand discard, excluding equipment and Wooden Ox grain.",
+      "Private complete target Hand view, one real public Hand reveal, same-suit native fire damage and exact original-material foreign-target native Alcohol.",
+      "Native material payment, use declaration, ordinary Alcohol debit and nonstacking effect, nested movement/recovery/response completion and typed parent returns.",
+      "All supported genuine public Hand reveal events, exact source-instance Qu marks, actual turn expiry and restriction removal on source loss/death.",
+      "True Use whitelist, conversion restrictions with exact Zuifeng exception, pure Played exclusion, targetless uses and original-material response uses.",
+      "Native per-Use draw-two with frozen source claims, draw replacement and children, rejected stale/forged input, cold restore and player-view privacy.",
+      "Complete namespaced OL Mou gallery with official locally decoded artwork."
+    ]
+  }
+}

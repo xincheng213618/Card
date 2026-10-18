@@ -275,10 +275,10 @@ public sealed partial class GameEngine
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
             PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(TangTangPublicShownCardIds().Concat(ZhouQunPublicShownCardIds()).Select(id => ToSnapshot(GetAdvancedCard(id)) with
-                { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null })).Concat(publicRevealedCards).Concat(ChengliePublicCards()).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards())
+                { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null })).Concat(publicRevealedCards).Concat(ChengliePublicCards()).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards()).Concat(MouZuifengPublicCards())
                 .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
                 .DistinctBy(card => card.Id).ToArray(),
-            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat)).Concat(ZhouQunPrivatelyViewedTopCards(viewerSeat))
+            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat)).Concat(ZhouQunPrivatelyViewedTopCards(viewerSeat)).Concat(MouZuifengPrivatelyViewedCards(viewerSeat))
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),
