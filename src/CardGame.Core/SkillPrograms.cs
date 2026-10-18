@@ -1009,6 +1009,8 @@ public enum SkillProgramEffectOp
     ResolveMoSunQuanTianenUniqueUse = 28920,
     ResolveMoSunQuanQiangangEntry = 28930,
     ResolveOlMoRumoRoundPenalty = 28940,
+    InitializeYunzhengInitialEntities = 28950,
+    ResolveHuoxinNonEquipmentUse = 28951,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -3969,7 +3971,11 @@ public sealed class SkillProgramCatalog
             string.Equals(zixiOp.GetString(), "resolveZixiUniqueTargetJudgmentEffects", StringComparison.OrdinalIgnoreCase) &&
             zixiEffects[0].TryGetProperty("target", out var zixiTarget) && zixiTarget.ValueKind == JsonValueKind.String &&
             string.Equals(zixiTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
-        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted &&
+        var huoxinSingleAction = skillId == "le:huoxin" && id == "non-equipment-use" && window == SkillProgramTriggerWindow.CardUseCommitted &&
+            node.TryGetProperty("effects", out var huoxinEffects) && huoxinEffects.ValueKind == JsonValueKind.Array && huoxinEffects.GetArrayLength() == 1 &&
+            huoxinEffects[0].ValueKind == JsonValueKind.Object && huoxinEffects[0].TryGetProperty("op", out var huoxinOp) && huoxinOp.ValueKind == JsonValueKind.String &&
+            string.Equals(huoxinOp.GetString(), "resolveHuoxinNonEquipmentUse", StringComparison.OrdinalIgnoreCase);
+        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !huoxinSingleAction &&
             !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction && !zixiUniqueTargetSingleAction &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 node.TryGetProperty("effects", out var designatedEffects) && designatedEffects.ValueKind == JsonValueKind.Array &&
@@ -4771,7 +4777,7 @@ public sealed class SkillProgramCatalog
             ownerRelation == SkillProgramCardActionOwnerRelation.Observer && includeResponseUses && singleActionInstance &&
             effects is [{ Op: SkillProgramEffectOp.CollectJiyunCompletedUseEntities }];
         if (allowNoEventTarget && (!isCardActionWindow ||
-            ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource && !jiyunCompletedObserver ||
+            ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource && !jiyunCompletedObserver && !(skillId == "le:huoxin" && id == "non-equipment-use" && window == SkillProgramTriggerWindow.CardUseCommitted && ownerRelation == SkillProgramCardActionOwnerRelation.Actor && includeResponseUses && singleActionInstance && effects is [{ Op: SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse }]) ||
             effects.SelectMany(EnumerateParticipantReferences).Any(reference => reference.Kind == ProgramParticipantRef.EventTarget)))
             Fail(path + ".allowNoEventTarget", "requires a conversion-source card action without event-target participants");
         var allowOwnDiscardPhaseEnded = node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && RequiredBool(node, "allowOwnDiscardPhaseEnded", path);
@@ -5231,6 +5237,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) JiguComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LingkongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ShuangjiaComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) LeZouShiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) QiqinComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ZixiPlacementComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) JuewuComposition.ValidateProgram(program.Id, program);

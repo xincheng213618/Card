@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zou-shi",
+  "skills": [
+    {
+      "registrationOrder": 2195,
+      "programBundle": "le-zou-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:yunzheng", "name": "韵筝",
+        "description": "锁定技，游戏开始时，你的初始手牌增加“筝”标记且不计入手牌上限，手牌有“筝”的其他角色非锁定技失效。",
+        "executionForms": "State, Trigger", "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2196,
+      "programBundle": "le-zou-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:huoxin", "name": "惑心",
+        "description": "你使用非装备牌时，可以展示一名其他角色一张手牌并标记为“筝”。若此牌与你使用的牌花色相同或已被标记过，你可以获得之。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2197,
+      "pools": { "current": 504 },
+      "definition": {
+        "id": "le:zou-shi", "name": "乐邹氏", "portraitKey": "le-zou-shi",
+        "skillId": "le:yunzheng", "additionalSkillIds": ["le:huoxin"],
+        "factionId": "qun", "baseHp": 3, "gender": "Female",
+        "characterId": "character:zou-shi", "variantId": "le", "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

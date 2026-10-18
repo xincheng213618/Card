@@ -54,9 +54,8 @@ public sealed partial class GameEngine
             !IsProjectedGrantQualified(owner, source) || !IsGeneralLibraryGrantQualified(owner, source)) return false;
         var suppressors = HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs(owner) :
             owner.SkillGrants.Grants.Where(grant => grant.HpConditionalSource is null &&
-                LibraryBaseGrantLive(owner, grant) && IsCurrentTurnSkillGrantQualified(owner, grant) &&
-                IsProjectedGrantQualified(owner, grant) &&
-                _contentRegistry.GetSkill(grant.SkillId).SuppressionRule is { } rule && owner.Hp == rule.OwnerHpEquals)
+                _contentRegistry.GetSkill(grant.SkillId).SuppressionRule is { } rule && owner.Hp == rule.OwnerHpEquals &&
+                LibraryBaseGrantLive(owner, grant) && IsCurrentTurnSkillGrantQualified(owner, grant) && IsProjectedGrantQualified(owner, grant))
                 .Select(grant => grant.SkillId).ToHashSet(StringComparer.Ordinal);
         return suppressors.Count == 0 || suppressors.Contains(source.SkillId) ||
             source.SourceId.StartsWith("equipment:", StringComparison.Ordinal);

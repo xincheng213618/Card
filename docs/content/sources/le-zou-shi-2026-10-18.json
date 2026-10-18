@@ -1,0 +1,86 @@
+{
+  "checkedAtUtc": "2026-10-18T04:06:21.241941+00:00",
+  "status": "implemented-and-verified",
+  "name": "乐邹氏",
+  "generalId": "le:zou-shi",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "title": "淯水吟",
+  "published": "2024-07-26",
+  "firstObtainable": "2024-07-27T00:00:00+08:00",
+  "sources": [
+    {
+      "label": "currentHero",
+      "url": "https://x.sanguosha.com/hero/1337.html",
+      "fetchedAtUtc": "2026-10-18T04:06:20.978243+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 24947,
+      "sha256": "648369d7c3c4d9bfef62c89bff88be9cfb094778fcd688789b0dcc002a31b2ad"
+    },
+    {
+      "label": "formalLaunch",
+      "url": "https://www.sanguosha.com/news/20240725_3047_5514",
+      "fetchedAtUtc": "2026-10-18T04:06:21.234446+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 327402,
+      "sha256": "7a08960bad366c63b833da6be5db6f5092e20ed046d6b5c97240a3a2a85c0020"
+    }
+  ],
+  "officialHero": "https://x.sanguosha.com/hero/1337.html",
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-le-zou-shi.png",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133701.png",
+    "sha256": "790442909dcdf603bd943438ef97a2b3689fecc3e299782bb4fb95b597fd86da",
+    "bytes": 641524,
+    "pixelWidth": 574,
+    "pixelHeight": 761
+  },
+  "sourceAgreement": {
+    "currentHeroAndLaunch": "The current hero page and dated formal launch contain the same complete Yunzheng and Huoxin text. No conflicting later official change was found in a bounded official audit.",
+    "notServerFaq": "No dedicated official FAQ or current anniversary game selector was captured; the public game entry returned 403. Interpretations below are explicit repository engineering readings, not claimed server rulings."
+  },
+  "skills": [
+    {
+      "id": "le:yunzheng",
+      "name": "韵筝",
+      "text": "锁定技，游戏开始时，你的初始手牌增加“筝”标记且不计入手牌上限，手牌有“筝”的其他角色非锁定技失效。"
+    },
+    {
+      "id": "le:huoxin",
+      "name": "惑心",
+      "text": "你使用非装备牌时，可以展示一名其他角色一张手牌并标记为“筝”。若此牌与你使用的牌花色相同或已被标记过，你可以获得之。"
+    }
+  ],
+  "engineeringInterpretations": {
+    "markedIdentity": "A Zheng mark belongs permanently to the physical entity, including entities marked by Huoxin, across zones and transfers. Marks do not manufacture a new card or copy its identity.",
+    "handLimit": "Use the established Le entity-family convention: a current Yunzheng holder exempts marked entities in that holder's actual Hand. An unrelated holder does not acquire a hand-limit skill merely by receiving a marked card.",
+    "suppression": "With another living current Yunzheng source present, the current holder of any marked Hand entity loses qualification for every non-locked skill, including later grants. Locked grants remain qualified. Real hand movement, death and source loss change qualification immediately; accepted native children keep their exact issued rights.",
+    "suit": "Compare the actual used card's effective suit frozen at the accepted true Use against the revealed physical card; Suit.None is not a suit. An old mark independently qualifies optional obtain even when the used card has no suit. Freeze old-mark eligibility before adding the new mark.",
+    "useBoundary": "Every accepted true Use of a non-equipment card can issue Huoxin, including response, rescue, forced and targetless Uses. Pure Played is excluded. Select another living hand owner independently of original targets; reveal the exact selected card and optionally obtain that same entity through native movement."
+  },
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 25,
+      "wpfPassed": 1,
+      "durationMs": 24956
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 65552
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the actual WPF gallery render at original resolution: official portrait, distinct Le series, Qun, three HP and both complete printed skills.",
+    "scopeNote": "Focused behavior checks and measured bounded routine verification. No manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Actual post-replacement opening entities and permanent physical Zheng marks.",
+      "Immediate non-locked qualification and cache refresh across real hand movement, future grants and source loss, preserving locked skills and accepted native rights.",
+      "Non-equipment true Use observation, private opaque selection, exact public reveal, pre-mark eligibility, effective suit and optional obtain of the same native physical entity.",
+      "Frame-owned continuation, native movement children, cold replay, immutable commit projection and view/AI privacy.",
+      "Distinct namespaced WPF gallery entry with complete printed text and locally decoded official artwork."
+    ]
+  }
+}

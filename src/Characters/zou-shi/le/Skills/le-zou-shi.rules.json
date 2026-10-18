@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:yunzheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "initializeYunzhengInitialEntities", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "le:huoxin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "non-equipment-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "includeResponseUses": true,
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "effects": [{ "op": "resolveHuoxinNonEquipmentUse", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

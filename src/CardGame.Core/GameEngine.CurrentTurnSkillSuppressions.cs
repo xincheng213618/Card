@@ -44,14 +44,14 @@ public sealed partial class GameEngine
         (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||
          _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
-        IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant);
+        IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant) && YunzhengNonLockedGrantQualified(owner, grant);
 
     private long CaptureCurrentTurnQualificationStamp()
     {
         // Upstream owners affect derived grants only. Their separate shard stamp
         // avoids scanning the whole table for every ordinary policy lookup.
         const long projection = 0;
-        if (_currentTurnSkillSuppressionRevision == 0) return CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection))));
+        if (_currentTurnSkillSuppressionRevision == 0) return CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection)))));
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)
         {
@@ -59,7 +59,7 @@ public sealed partial class GameEngine
             _currentTurnQualificationStamp++;
         }
         // Disjoint from the nonnegative legacy projection stamp.
-        return CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp))));
+        return CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp)))));
     }
 
     private void ExpireCurrentTurnNonLockedSkillSuppressions(int turnNumber, int turnOwnerSeat)
