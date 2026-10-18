@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-huang-yueying-ol",
+      "characterName": "谋黄月英",
+      "defaultSkinId": "62200",
+      "skins": [
+        {
+          "id": "62200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/622",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/62200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-yueying-ol.png",
+          "sha256": "1f3d2b0e7064433bd26d39bb23be7aba677a63c95e1e772a61717669e9ba11e3",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "le-zou-shi",
       "characterName": "乐邹氏",
       "defaultSkinId": "1133701",

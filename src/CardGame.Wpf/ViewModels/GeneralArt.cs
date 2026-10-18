@@ -132,6 +132,7 @@ public static partial class GeneralArt
             ["le-da-qiao"] = "official-le-da-qiao.png",
             ["le-zhou-yu"] = "official-le-zhou-yu.png",
             ["le-zou-shi"] = "official-le-zou-shi.png",
+            ["mou-huang-yueying-ol"] = "official-mou-huang-yueying-ol.png",
             ["ol-mo-sun-quan"] = "official-ol-mo-sun-quan.png",
             ["wumiao-guan-yu"] = "official-wumiao-guan-yu.png",
             ["le-cai-wen-ji"] = "official-le-cai-wen-ji.png",

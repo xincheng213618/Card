@@ -16,7 +16,7 @@ internal static class EditionGeneralGalleryChecks
         model.OpenGeneralGalleryCommand.Execute(null);
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
-            entry.GeneralId == "wumiao:guan-yu" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId == "wumiao:guan-yu" || entry.GeneralId == "mou:huang-yueying-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
@@ -40,6 +40,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
             entries.Any(entry => entry.GeneralId == "le:zou-shi") &&
+            entries.Any(entry => entry.GeneralId == "mou:huang-yueying-ol") &&
             entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
             entries.Any(entry => entry.GeneralId == "ol:xiahou-ba") &&
@@ -202,6 +203,18 @@ internal static class EditionGeneralGalleryChecks
                     entry.Portrait.Brush is ImageBrush { ImageSource: not null } &&
                     entry.Skills.Count > 0 && entry.Skills.All(skill => !string.IsNullOrWhiteSpace(skill.Name)),
                     "Opening edition details must decode its own local portrait and show the registered skills.");
+                if (entry.GeneralId == "mou:huang-yueying-ol")
+                {
+                    Program.Assert(entry.Name == "谋黄月英·OL" && entry.Skills.Count == 2 &&
+                        new[] { "mou-ol:lixian", "mou-ol:bingcai" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name &&
+                                skill.Description == registered.Description);
+                        }), "OL Mou Huang Yueying must show both complete printed skills with her distinct artwork.");
+                    Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
+                        is { Id: "mou", SeriesId: "mou" }, "The distinct OL edition must be selectable in the Mou series.");
+                }
                 if (entry.GeneralId == "le:zou-shi")
                 {
                     Program.Assert(entry.Name == "乐邹氏" && entry.Skills.Count == 2 &&
