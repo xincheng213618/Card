@@ -1,22 +1,47 @@
-# 群雄逐鹿 · 本地卡牌对战
+# Sanguosha.NET · 群雄逐鹿
 
-Windows WPF 本地卡牌游戏。规则核心负责合法动作、结算、AI 和命令回放；界面负责玩家视图、操作、音画反馈与本地持久化。
+[English](README.en.md) · [开发起步](docs/GETTING_STARTED.md) · [文档目录](docs/README.md) · [参与贡献](CONTRIBUTING.md)
 
-全部功能说明与开发资料见 [文档目录](docs/README.md)。
+[![CI](https://github.com/xincheng213618/sanguosha-dotnet/actions/workflows/ci.yml/badge.svg)](https://github.com/xincheng213618/sanguosha-dotnet/actions/workflows/ci.yml)
 
-大厅另有[山河图剧情征程](docs/SHANHE_CAMPAIGN.md)：首批“诸侯伐董·本地起步版”提供三章分路、战法与额外技能组合、奇遇商店、真实战斗和独立征程存档。
+**使用 C# / .NET 8 实现的三国杀（Sanguosha）规则引擎与 Windows WPF 单机客户端。** 希望为卡牌规则研究、自定义武将、AI 实验和其他界面实现提供可以运行、阅读和扩展的基础。
 
-## 运行
+本项目为社区独立实现，与三国杀官方无隶属或背书关系。玩法以各模式和武将明确记录的版本为准；实现范围和缺口见[模式与规则](docs/MODES_AND_RULESETS.md)、[活动场清单](docs/ACTIVITY_MODES.md)及[能力缺口](docs/SANGUOSHA_GAP_PLAN.md)。
 
-需要 Windows 和 .NET 8 SDK，SDK 选择见 [global.json](global.json)。在仓库根目录执行：
+## 这个项目能提供什么
+
+| 你想做的事 | 已有基础与入口 |
+| --- | --- |
+| 运行本地游戏 | WPF 牌桌、AI 对手、身份场、2v2、国战及活动场；见[玩家指南](docs/PLAYER_GUIDE.md) |
+| 接入自己的界面 | Core 不依赖 WPF；用命令提交操作，用当前座位的快照展示信息；见[可运行示例](samples/CardGame.Headless/README.md) |
+| 扩展武将和技能 | 按人物、版本组织的内容声明、技能 JSON 和运行模块；见[开发起步](docs/GETTING_STARTED.md)和[人物模块](docs/CHARACTER_MODULES.md) |
+| 研究结算和回放 | 命令校验、嵌套结算、原子牌区移动、玩家隐私投影、checkpoint 与命令回放；见[架构说明](docs/ARCHITECTURE.md) |
+| 尝试 AI 策略 | 可读的规则查询与现有决策实现；见[AI 说明](docs/TACTICAL_AI.md)和 [SimpleAi.cs](src/CardGame.Core/SimpleAi.cs) |
+
+当前以源码方式使用，扩展内容随项目编译；尚未承诺稳定的外部 SDK、二进制插件协议或联机服务。桌面界面需要 Windows；Core 和无界面示例以 `net8.0` 为目标，CI 在 Windows 上验证。
+
+## 快速运行
+
+安装 Git、[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)。SDK 选择以 [global.json](global.json) 为准。以下命令使用 PowerShell：
 
 ```powershell
+git clone https://github.com/xincheng213618/sanguosha-dotnet.git
+Set-Location sanguosha-dotnet
+
+# 无界面：提交真实命令、读取玩家快照、序列化 checkpoint 并恢复回放
+dotnet run --project .\samples\CardGame.Headless\CardGame.Headless.csproj
+
+# Windows：启动 WPF 游戏
 dotnet run --project .\src\CardGame.Wpf\CardGame.Wpf.csproj
 ```
 
-也可以双击 [Play.cmd](Play.cmd)：有本地发行包时启动该包，否则构建并启动开发版本。
+Windows 用户也可以双击 [Play.cmd](Play.cmd)：有本地发行包时启动该包，否则构建并启动开发版本。无界面示例不读取桌面存档，不需要图片、音频或 WPF。
+
+接入自己的界面时请使用 `CreateSnapshot(viewerSeat)` 生成玩家视图。结算栈与 checkpoint 属于可信宿主数据，可能包含私有信息，不应直接发送给其他玩家。
 
 ## 玩法与操作
+
+大厅另有[山河图剧情征程](docs/SHANHE_CAMPAIGN.md)：首批“诸侯伐董·本地起步版”提供三章分路、战法与额外技能组合、奇遇商店、真实战斗和独立征程存档。
 
 开局面板提供经典八人身份、经典五人身份、2v2、国战及活动场入口，可选择身份或队伍、选将方式和弃牌设置。剑阁决战默认五阶武将与人机搭档，提供普通、进阶、困难三档；驱鬼逐邪提供四关挑战；虎牢关采用OL 2022双阶段神吕布；神武再世采用OL 2017六席单关，提供共享神将、专属装备与四类凶兽首领；挑战年兽采用OL 2016四席版，包含四态轮换、共享三次复活和30分钟时限；十殿阎罗采用OL 2020四关版，包含孟婆失技、回魂与隐藏地藏王；文和乱武采用十周年2019八人生存版，包含七种轮次规则、四张活动锦囊、毒与个人排名，其余七人由AI控制；龙舟争渡采用OL 2018四队两轮版，包含共享至宝、同船选将、五张活动牌及四名专将。合作活动默认五阶玩家和人机搭档，各活动采用自己明确记录的等阶规则。实际模式范围见 [模式与规则](docs/MODES_AND_RULESETS.md)，其他官方活动的版本与实现进度见 [活动场清单](docs/ACTIVITY_MODES.md)。
 
@@ -60,7 +85,7 @@ dotnet run --project .\src\CardGame.Wpf\CardGame.Wpf.csproj
 
 ## 验证
 
-验证脚本需要 PowerShell 7。无参运行选择常规范围，开发时按检查名称过滤：
+验证脚本需要 Windows、PowerShell 7，以及 PATH 中可用的 Python 3.10 或更新版本（登记临时输出使用，不需要额外 Python 包）。无参运行选择常规范围，开发时按检查名称过滤：
 
 ```powershell
 pwsh -File .\tools\Test-Changed.ps1
@@ -69,3 +94,9 @@ pwsh -File .\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 ```
 
 常规清单在 [VerificationScopes.psd1](tools/VerificationScopes.psd1)，全部登记名称在 Core/WPF 测试入口中。完整验证使用 `-Full`，仅在明确要求手动完整验证时执行。日志和临时构建目录的生命周期见 [开发门禁](docs/DEVELOPMENT_GATES.md)。
+
+CI 运行同一常规范围，并构建、运行无界面示例。欢迎提交可复现的问题、规则依据、文档修正和小型扩展。参与方式见[贡献指南](CONTRIBUTING.md)；通过 [Issues](https://github.com/xincheng213618/sanguosha-dotnet/issues) 提问或报告问题，第一次参与可以从 [good first issue](https://github.com/xincheng213618/sanguosha-dotnet/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22) 开始。
+
+## 许可与素材
+
+本项目原创软件代码、脚本与自写文档采用 [MIT License](LICENSE)。第三方图片、音频、商标、抓取页面及引文（包括嵌入源码或内容文件的原文）不在此授权范围内；来源与具体边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。复用规则引擎时，可以从不依赖桌面素材的 Core 和无界面示例开始。

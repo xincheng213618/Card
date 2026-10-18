@@ -1,0 +1,17 @@
+name: Feature or question / 建议与提问
+description: Propose a focused improvement or ask about using the engine / 提出改进或接入问题
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do? / 你希望完成什么？
+      description: Describe your use case and what the current source or documentation does not cover.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior or question / 期望行为或具体问题
+      description: Keep the scope small. Include the mode, rule edition and source when proposing game content.
+    validations:
+      required: true
