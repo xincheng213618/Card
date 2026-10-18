@@ -16,7 +16,7 @@ internal static class EditionGeneralGalleryChecks
         model.OpenGeneralGalleryCommand.Execute(null);
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
-            entry.GeneralId == "wumiao:guan-yu" || entry.GeneralId == "mou:huang-yueying-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId == "mou:huang-yueying-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
@@ -36,6 +36,7 @@ internal static class EditionGeneralGalleryChecks
                 is { Id: "magic", SeriesId: "magic" }),
             "Official OL magic editions must expose their distinct selectable Magic series.");
         Program.Assert(entries.Any(entry => entry.GeneralId == "wumiao:guan-yu") &&
+            entries.Any(entry => entry.GeneralId == "wumiao:lu-xun") &&
             entries.Any(entry => entry.GeneralId == "le:cai-wen-ji") &&
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
@@ -203,6 +204,18 @@ internal static class EditionGeneralGalleryChecks
                     entry.Portrait.Brush is ImageBrush { ImageSource: not null } &&
                     entry.Skills.Count > 0 && entry.Skills.All(skill => !string.IsNullOrWhiteSpace(skill.Name)),
                     "Opening edition details must decode its own local portrait and show the registered skills.");
+                if (entry.GeneralId == "wumiao:lu-xun")
+                {
+                    Program.Assert(entry.Name == "武陆逊" && entry.Skills.Count == 3 &&
+                        new[] { "wumiao:xiongmu", "wumiao:zhangcai", "wumiao:ruxian" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name &&
+                                skill.Description == registered.Description);
+                        }), "Wu Lu Xun must show all three complete printed skills with his distinct artwork.");
+                    Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
+                        is { Id: "wumiao", SeriesId: "wumiao" }, "Wu Lu Xun must belong to the selectable Wumiao series.");
+                }
                 if (entry.GeneralId == "mou:huang-yueying-ol")
                 {
                     Program.Assert(entry.Name == "谋黄月英·OL" && entry.Skills.Count == 2 &&

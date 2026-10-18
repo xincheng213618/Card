@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "wumiao-lu-xun",
+      "characterName": "武陆逊",
+      "defaultSkinId": "123101",
+      "skins": [
+        {
+          "id": "123101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/231.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123101.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-lu-xun.png",
+          "sha256": "27a9be4e256317f6b1c758cb9efd1453b53274097daaa59f29b435b2c6dd9452",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "mou-huang-yueying-ol",
       "characterName": "谋黄月英",
       "defaultSkinId": "62200",
