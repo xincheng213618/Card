@@ -1,0 +1,35 @@
+name: Bug report / 问题报告
+description: Report a reproducible game, engine or desktop issue / 报告可复现问题
+labels: [bug]
+body:
+  - type: input
+    id: revision
+    attributes:
+      label: Commit and environment / 提交版本与环境
+      description: Include the commit SHA, Windows version and .NET SDK version.
+    validations:
+      required: true
+  - type: input
+    id: mode
+    attributes:
+      label: Mode and characters / 模式与武将
+      description: Include the edition or activity ruleset when relevant.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      description: Give the shortest sequence of actions, a fixed seed if available, or an existing focused check.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior / 预期与实际行为
+      description: For a rule discrepancy, include a source link and edition.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Relevant output / 相关输出
+      description: Include errors or focused verification results. Review saves and logs for private state or personal paths before sharing.
