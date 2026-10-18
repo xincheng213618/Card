@@ -586,6 +586,7 @@ public sealed partial class GameEngine
         if (TryReturnLiuYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnCuiYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnZhuJunLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
+        if (TryReturnMouBingcaiLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryCompleteOverflowCanceledUse(frame)) return ProgramTriggerWindowFlow.Yield;
         if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
             TryCompletePijingZeroTargetUse(frame)) return ProgramTriggerWindowFlow.Yield;
@@ -923,7 +924,7 @@ public sealed partial class GameEngine
                      !(frame.Action.Type == CardActionType.Use &&
                        LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
                        nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&
-                       ((IsHellDestroyedSoulMaterial(frame.ParentFrameId, cost.CardId) || (IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || IsSiruiOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId)) || IsGuanduDestroyedChariotMaterial(frame.ParentFrameId, cost.CardId)) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || ((IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsXieweiRemovedMaterial(frame.ParentFrameId, cost.CardId)) || (IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsSayingRemovedMaterial(frame.ParentFrameId, cost.CardId))))) &&
+                       ((IsHellDestroyedSoulMaterial(frame.ParentFrameId, cost.CardId) || (IsHuiyunOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || (IsSiruiOutsideGeneralWeaponMaterial(frame.ParentFrameId, cost.CardId) || IsMouLixianRemovedMaterial(frame.ParentFrameId, cost.CardId))) || IsGuanduDestroyedChariotMaterial(frame.ParentFrameId, cost.CardId)) || IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsZhangYanSujiRemovedMaterial(frame.ParentFrameId, cost.CardId) || ((IsKenshangRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsXieweiRemovedMaterial(frame.ParentFrameId, cost.CardId)) || (IsWuJingHejiRemovedMaterial(frame.ParentFrameId, cost.CardId) || IsSayingRemovedMaterial(frame.ParentFrameId, cost.CardId))))) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        (IsXinPiPhysicalClaim(frame.ParentFrameId, cost.CardId) || IsHuaManClaimedEntity(frame.ParentFrameId, cost.CardId) || IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId)))).Any(cost =>

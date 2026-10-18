@@ -118,6 +118,7 @@ public sealed partial class GameEngine
         if (TryBeginLiuYanLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
         if (TryBeginCuiYanLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
         if (TryBeginZhuJunLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
+        if (TryBeginMouBingcaiLegacyAlcoholUse(resolutionId, active.Id, dying.FrameId)) return;
         ResumeProgramVirtualDyingAlcoholRecovery(resolutionId, active.Id, dying.FrameId);
     }
 

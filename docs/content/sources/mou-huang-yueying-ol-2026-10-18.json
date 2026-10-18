@@ -1,0 +1,242 @@
+{
+  "checkedAtUtc": "2026-10-18T04:41:06.200805+00:00",
+  "status": "implemented-and-verified",
+  "name": "谋黄月英",
+  "displayName": "谋黄月英·OL",
+  "generalId": "mou:huang-yueying-ol",
+  "product": "sanguosha-ol",
+  "series": "谋",
+  "published": "2025-10-17",
+  "firstObtainable": "2025-10-18T00:15:00+08:00",
+  "sources": [
+    {
+      "label": "currentHero",
+      "url": "https://www.sanguosha.com/hero/622",
+      "fetchedAtUtc": "2026-10-18T04:41:05.789294+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 24845,
+      "sha256": "268c9049feaa25c1bb098615c3b1e2239d7ca354d849fa653e52d568676942d7"
+    },
+    {
+      "label": "formalLaunch",
+      "url": "https://www.sanguosha.com/news/20251014_4821_5714",
+      "fetchedAtUtc": "2026-10-18T04:41:06.032116+00:00",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 277042,
+      "sha256": "df296c10b7b7e8f35a84b714f3609d9fb8c37ba676e76c37e4d5cd7efd2dd87a"
+    },
+    {
+      "label": "officialHeroApi",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=622",
+      "fetchedAtUtc": "2026-10-18T04:41:06.200482+00:00",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 930,
+      "sha256": "576736fbcdcf7c338016378eefe0b9ea33cf79d456868d53739cc5550ce928db"
+    }
+  ],
+  "officialHero": "https://www.sanguosha.com/hero/622",
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-huang-yueying-ol.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/62200.png",
+    "sha256": "1f3d2b0e7064433bd26d39bb23be7aba677a63c95e1e772a61717669e9ba11e3",
+    "bytes": 1191150,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "sourceAgreement": {
+    "currentHeroAndLaunch": "Both official sources contain the complete Lixian and Bingcai rules. The current hero resolves the launch phrase 此牌 into 被使用牌 for Bingcai's extra resolution. Current hero Lixian template placeholders are resolved using the dated full formal text.",
+    "versionIdentity": "Use current gid 622 skill IDs 3845 Lixian and 3844 Bingcai; the older 3474/3475 definitions belong to a different version."
+  },
+  "skills": [
+    {
+      "id": "mou-ol:lixian",
+      "name": "理贤",
+      "text": "当你受到伤害后，你可将一张牌当【无中生有】使用。当你以此法使用过三种不同牌名的锦囊牌后，此技能于你的结束阶段也可发动。"
+    },
+    {
+      "id": "mou-ol:bingcai",
+      "name": "并才",
+      "text": "每回合第一张基本牌被使用时，你可重铸一张牌，若这两张牌均为伤害牌或非伤害牌，则被使用牌额外结算一次。然后若重铸的牌为锦囊牌，你为“理贤”添加一个牌名：【顺手牵羊】；【过河拆桥】；【铁索连环】。以上牌名均添加完后，“理贤”于你的准备阶段也可发动。"
+    }
+  ],
+  "clientEvidence": {
+    "status": "verified-current-primary-client",
+    "sources": [
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "httpStatus": 200,
+        "bytes": 5386466,
+        "sha256": "2771f10fbda877b4aaebf5867ca5674fe8693bdbb1445fad64e44ddeb556bda5"
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "httpStatus": 200,
+        "bytes": 4154044,
+        "sha256": "e4a82fb8743f4d8261cfe543991619c728e9b9f599615bdcf3fcd9178937d9d1"
+      }
+    ],
+    "currentCharacterId": 622,
+    "currentSkillIds": {
+      "lixian": 3845,
+      "bingcai": 3844
+    },
+    "classHashes": {
+      "eci": "0dae2867e0d51fa65575a9f5661c0927de769d83f1a6d32d48960550efef1b61",
+      "ici": "18a332bd94fa6391ce2df6df5fc6cdbf995b37bd2ddb78d9ecb42e1f11075164",
+      "sci": "8973c737b7084064236d0bf9bf1cfe49b0805532dcefc17024168898eb2fc86e"
+    },
+    "observedInterfaces": [
+      "当前gid622主技3845/LiXian1，副技3844/BingCai1；旧3474/3475同名不同规则不得混用。",
+      "并才eci真实单材NORMAL|EQUIP与RESET；不含MUNIULIUMA。理贤ici真实单材NORMAL|EQUIP|MUNIULIUMA与USE。",
+      "eci FLAG2将服务器Params未解锁牌名列为可选按钮；并非固定依次添加。",
+      "ici VirtualSkillIds从无中生有7开始，并拼入服务器buff已解锁牌名。固定三个追加名4顺手、5过拆、85铁索。",
+      "eci.IsHurtCard只查3837/QIWU1配置固定名单，不读实际造成过伤害；当前名单无Lightning。",
+      "ici.UseCardAsFlower/VirtualCardColor取原material实际花色与颜色；原native Use还须保有效Rank，不造0材替身。"
+    ],
+    "damageClassification": {
+      "sourceSkillId": 3837,
+      "configModeId": 999,
+      "extendStr1": "1,8,9,10,83,2028,2029,4001,6000,6001,6004,",
+      "nativeMapping": [
+        {
+          "skillId": 1,
+          "name": "杀",
+          "clientClass": "Sha",
+          "nativeKinds": [
+            "Slash",
+            "FireSlash",
+            "ThunderSlash"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 8,
+          "name": "决斗",
+          "clientClass": "JueDou",
+          "nativeKinds": [
+            "Duel"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 9,
+          "name": "南蛮入侵",
+          "clientClass": "NanManRuQin",
+          "nativeKinds": [
+            "BarbarianAssault"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 10,
+          "name": "万箭齐发",
+          "clientClass": "WanJianQiFa",
+          "nativeKinds": [
+            "ArrowBarrage"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 83,
+          "name": "火攻",
+          "clientClass": "HuoGong",
+          "nativeKinds": [
+            "FireAttack"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 2028,
+          "name": "火烧连营",
+          "clientClass": "HuoShaoLianYing",
+          "nativeKinds": [],
+          "nativeMapped": false
+        },
+        {
+          "skillId": 2029,
+          "name": "水淹七军",
+          "clientClass": "GuoShuiYanQiJun",
+          "nativeKinds": [],
+          "nativeMapped": false
+        },
+        {
+          "skillId": 4001,
+          "name": "水淹七军",
+          "clientClass": "ShuiYanQiJun",
+          "nativeKinds": [
+            "WumiaoFlood"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 6000,
+          "name": "出其不意",
+          "clientClass": "ChuQiBuYi",
+          "nativeKinds": [
+            "UnexpectedAssault"
+          ],
+          "nativeMapped": true
+        },
+        {
+          "skillId": 6001,
+          "name": "燎原之火",
+          "clientClass": "LiaoYuanZhiHuo",
+          "nativeKinds": [],
+          "nativeMapped": false
+        },
+        {
+          "skillId": 6004,
+          "name": "水淹七军",
+          "clientClass": "ShuiYanQiJun2",
+          "nativeKinds": [],
+          "nativeMapped": false
+        }
+      ]
+    },
+    "excludedOldSkillIds": [
+      3474,
+      3475
+    ]
+  },
+  "engineeringInterpretations": {
+    "contracts": [
+      "每actualturn全场首个真正Basic Use按原native声明/真实Dodge Use账本；纯Duel/AOE/provider Played不伪造Use。首Slash已先于其Dodge占首，不能为测试强造无parent的firstDodge。",
+      "理贤每次实际damage事件一机会，不凭伤害点数自行循环；Preparation/Ending解锁门依原生真正阶段时机。",
+      "永久owner已添加名及实际理贤accepted的3distinct输出名，失源/重授不刷新；被无懈的真实accepted Use仍属于使用过。",
+      "并才重铸用真实HE一实体，支付前冻原实体有效身份/伤害分类，原nativeRecast1次及Draw1各typed returned/children drain；替代gain不冒充DrawPile牌。",
+      "并才已付且匹配的extra权绑定原Use全部targets/唯一材料与原source，独立于丰姿/官渡/姊希/百里；失源/issuerdeath不撤已付非交互权。死亡不新私选派生名或新LixianUse。",
+      "理贤Hand/Equipment/WoodenOxGrain原牌一付到Processing，正常距离、目标禁令、无懈与原生设备/HP孩子，铁索必须真Use，不把Recast当使用。",
+      "仅映射实际已存在native CardKinds；官方白名单未映射的模式牌ID保留为来源事实，不据此凭空新增卡。"
+    ],
+    "notOfficialFaq": [
+      "未找到谋黄月英专项官方FAQ；牌身份采样、失源/死亡及重复来源合同按明确原生机制解释。"
+    ]
+  },
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 27,
+      "wpfPassed": 1,
+      "durationMs": 30895
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 76259
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected actual WPF gallery at original resolution: distinct OL Mou edition, official artwork, Shu, three HP and both complete printed skills.",
+    "scopeNote": "Focused behavior checks and measured bounded routine verification; no manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Global first Basic true Use in each actual turn, real declarations, legacy virtual uses and Played exclusions without late-grant reset.",
+      "One actual HE recast invocation, genuine material identity, native draw attempts and real equipment/health/gain children.",
+      "Independent extra effect rights on the original accepted Basic Use, preserving original source, targets, payment, other extra-effect sources and paid source-loss/death continuation.",
+      "Lixian real single material from Hand, Equipment or Wooden Ox grain, native off-phase trick uses, distinct-name and added-name unlocks, real Preparation/Ending windows.",
+      "Immutable frame-owned receipts, exact native parent returns, private canonical choices, public gameplay progress, rejected stale/forged input and cold replay.",
+      "Complete namespaced Mou gallery with locally decoded official artwork."
+    ]
+  }
+}

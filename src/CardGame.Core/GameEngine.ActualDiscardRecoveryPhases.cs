@@ -5,6 +5,8 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         IsGuanduActivity ||
         HasMoQiangangCapability || HasLeZhouYuPingluCapability || HasZixiPlacementCapability || HasLeXiaoQiaoWeiwanCapability || HasWuyouCapability || HasSiruiCapability || HasLeMiHengJiguCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) ||

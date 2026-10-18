@@ -1011,6 +1011,8 @@ public enum SkillProgramEffectOp
     ResolveOlMoRumoRoundPenalty = 28940,
     InitializeYunzhengInitialEntities = 28950,
     ResolveHuoxinNonEquipmentUse = 28951,
+    ResolveMouHuangYueyingLixian = 28960,
+    ResolveMouHuangYueyingBingcai = 28961,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -3975,7 +3977,22 @@ public sealed class SkillProgramCatalog
             node.TryGetProperty("effects", out var huoxinEffects) && huoxinEffects.ValueKind == JsonValueKind.Array && huoxinEffects.GetArrayLength() == 1 &&
             huoxinEffects[0].ValueKind == JsonValueKind.Object && huoxinEffects[0].TryGetProperty("op", out var huoxinOp) && huoxinOp.ValueKind == JsonValueKind.String &&
             string.Equals(huoxinOp.GetString(), "resolveHuoxinNonEquipmentUse", StringComparison.OrdinalIgnoreCase);
-        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !huoxinSingleAction &&
+        var bingcaiSingleAction = skillId == "mou-ol:bingcai" && id == "first-basic-recast" && window == SkillProgramTriggerWindow.CardUseCommitted &&
+            node.TryGetProperty("ownerRelation", out var bingcaiOwner) && bingcaiOwner.ValueKind == JsonValueKind.String &&
+            string.Equals(bingcaiOwner.GetString(), "observer", StringComparison.OrdinalIgnoreCase) &&
+            node.TryGetProperty("optional", out var bingcaiOptional) && bingcaiOptional.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("includeResponseUses", out var bingcaiResponses) && bingcaiResponses.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("singleActionInstance", out var bingcaiSingle) && bingcaiSingle.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("allowNoEventTarget", out var bingcaiNoTarget) && bingcaiNoTarget.ValueKind == JsonValueKind.True &&
+            node.TryGetProperty("cardCategories", out var bingcaiCategories) && bingcaiCategories.ValueKind == JsonValueKind.Array &&
+            bingcaiCategories.GetArrayLength() == 1 && bingcaiCategories[0].ValueKind == JsonValueKind.String &&
+            string.Equals(bingcaiCategories[0].GetString(), "basic", StringComparison.OrdinalIgnoreCase) &&
+            node.TryGetProperty("effects", out var bingcaiEffects) && bingcaiEffects.ValueKind == JsonValueKind.Array && bingcaiEffects.GetArrayLength() == 1 &&
+            bingcaiEffects[0].ValueKind == JsonValueKind.Object && bingcaiEffects[0].TryGetProperty("op", out var bingcaiOp) && bingcaiOp.ValueKind == JsonValueKind.String &&
+            string.Equals(bingcaiOp.GetString(), "resolveMouHuangYueyingBingcai", StringComparison.OrdinalIgnoreCase) &&
+            bingcaiEffects[0].TryGetProperty("target", out var bingcaiTarget) && bingcaiTarget.ValueKind == JsonValueKind.String &&
+            string.Equals(bingcaiTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
+        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !huoxinSingleAction && !bingcaiSingleAction &&
             !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction && !zixiUniqueTargetSingleAction &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 node.TryGetProperty("effects", out var designatedEffects) && designatedEffects.ValueKind == JsonValueKind.Array &&
@@ -4777,7 +4794,7 @@ public sealed class SkillProgramCatalog
             ownerRelation == SkillProgramCardActionOwnerRelation.Observer && includeResponseUses && singleActionInstance &&
             effects is [{ Op: SkillProgramEffectOp.CollectJiyunCompletedUseEntities }];
         if (allowNoEventTarget && (!isCardActionWindow ||
-            ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource && !jiyunCompletedObserver && !(skillId == "le:huoxin" && id == "non-equipment-use" && window == SkillProgramTriggerWindow.CardUseCommitted && ownerRelation == SkillProgramCardActionOwnerRelation.Actor && includeResponseUses && singleActionInstance && effects is [{ Op: SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse }]) ||
+            ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource && !jiyunCompletedObserver && !bingcaiSingleAction && !(skillId == "le:huoxin" && id == "non-equipment-use" && window == SkillProgramTriggerWindow.CardUseCommitted && ownerRelation == SkillProgramCardActionOwnerRelation.Actor && includeResponseUses && singleActionInstance && effects is [{ Op: SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse }]) ||
             effects.SelectMany(EnumerateParticipantReferences).Any(reference => reference.Kind == ProgramParticipantRef.EventTarget)))
             Fail(path + ".allowNoEventTarget", "requires a conversion-source card action without event-target participants");
         var allowOwnDiscardPhaseEnded = node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && RequiredBool(node, "allowOwnDiscardPhaseEnded", path);
@@ -5238,6 +5255,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) LingkongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ShuangjiaComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LeZouShiComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) QiqinComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) ZixiPlacementComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) JuewuComposition.ValidateProgram(program.Id, program);

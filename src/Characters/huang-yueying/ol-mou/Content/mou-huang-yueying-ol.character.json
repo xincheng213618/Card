@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-yueying",
+  "skills": [
+    {
+      "registrationOrder": 2198,
+      "programBundle": "mou-huang-yueying-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:lixian",
+        "name": "理贤",
+        "description": "当你受到伤害后，你可将一张牌当【无中生有】使用。当你以此法使用过三种不同牌名的锦囊牌后，此技能于你的结束阶段也可发动。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2199,
+      "programBundle": "mou-huang-yueying-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:bingcai",
+        "name": "并才",
+        "description": "每回合第一张基本牌被使用时，你可重铸一张牌，若这两张牌均为伤害牌或非伤害牌，则被使用牌额外结算一次。然后若重铸的牌为锦囊牌，你为“理贤”添加一个牌名：【顺手牵羊】；【过河拆桥】；【铁索连环】。以上牌名均添加完后，“理贤”于你的准备阶段也可发动。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2200,
+      "pools": {
+        "current": 505
+      },
+      "definition": {
+        "id": "mou:huang-yueying-ol",
+        "name": "谋黄月英·OL",
+        "portraitKey": "mou-huang-yueying-ol",
+        "skillId": "mou-ol:lixian",
+        "additionalSkillIds": [
+          "mou-ol:bingcai"
+        ],
+        "factionId": "shu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:huang-yueying",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -54,7 +54,7 @@ internal sealed class SkillProgramDependencies
         HasPublicEnemyParticipantDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
             modifier.SourceScope == SkillProgramDamageModifierSourceScope.AllLivingSkillOwners));
         TracksWholeActualTurnUseOrdinal = HasWholeActualTurnTrickDamageModifiers || triggers.Any(trigger => trigger.Effects.Any(effect =>
-            effect.Op == SkillProgramEffectOp.ResolveBingzhongExtraTargets));
+            effect.Op is SkillProgramEffectOp.ResolveBingzhongExtraTargets or SkillProgramEffectOp.ResolveMouHuangYueyingBingcai));
         TracksCurrentTurnUseKinds = UsesLeiluanBasicUse || TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal || programs.Any(program =>
             program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
             program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||

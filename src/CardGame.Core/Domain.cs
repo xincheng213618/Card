@@ -185,6 +185,8 @@ public enum PlayerMarkerKind
     CaoPiSong = 28000,
     MoQuanyuChoice = 28910,
     OlMoRumo = 28940,
+    MouLixianAvailableNames = 28960,
+    MouLixianUsedNames = 28961,
     GuanduGrain = 44000
 }
 
@@ -196,6 +198,8 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.CaoPiSong => "颂",
         PlayerMarkerKind.MoQuanyuChoice => "权御",
         PlayerMarkerKind.OlMoRumo => "入魔",
+        PlayerMarkerKind.MouLixianAvailableNames => "理贤牌名",
+        PlayerMarkerKind.MouLixianUsedNames => "理贤已用牌名",
         PlayerMarkerKind.AdoptedChild => "义子",
         PlayerMarkerKind.QuxiFeng => "丰",
         PlayerMarkerKind.QuxiQian => "歉",

@@ -40,7 +40,7 @@ public sealed partial class GameEngine
             appearance.Suit == Suit.None && appearance.Rank == 0 ? YouqueRepresentation(ownerId) :
         appearance.Id == 0 && IsZongluanUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? ZongluanRepresentation(ownerId) :
-        appearance.Id == 0 && appearance.Kind == CardKind.Alcohol && appearance.Suit == Suit.None && appearance.Rank == 0 && (IsLiuYanLegacyAlcoholUse(ownerId) || IsCuiYanLegacyAlcoholUse(ownerId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
+        appearance.Id == 0 && appearance.Kind == CardKind.Alcohol && appearance.Suit == Suit.None && appearance.Rank == 0 && (IsLiuYanLegacyAlcoholUse(ownerId) || IsCuiYanLegacyAlcoholUse(ownerId) || IsMouBingcaiLegacyAlcoholUse(ownerId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         appearance.Id == 0 && IsAHuiNanJuemanUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
         appearance.Id == 0 && IsQinLangXianyingUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&

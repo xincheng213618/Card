@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:lixian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouHuangYueyingLixian",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "unlocked-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouHuangYueyingLixian",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "unlocked-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouHuangYueyingLixian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:bingcai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-basic-recast",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "cardCategories": [
+            "basic"
+          ],
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "allowNoEventTarget": true,
+          "effects": [
+            {
+              "op": "resolveMouHuangYueyingBingcai",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

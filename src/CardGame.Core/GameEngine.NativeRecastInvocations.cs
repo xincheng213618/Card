@@ -3,6 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksNativeRecastInvocations =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveChanshuangEnding);
 
