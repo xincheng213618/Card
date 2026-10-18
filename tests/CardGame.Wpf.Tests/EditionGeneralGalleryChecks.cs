@@ -16,7 +16,7 @@ internal static class EditionGeneralGalleryChecks
         model.OpenGeneralGalleryCommand.Execute(null);
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
-            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId == "mou:huang-yueying-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
@@ -41,6 +41,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
             entries.Any(entry => entry.GeneralId == "le:zou-shi") &&
+            entries.Any(entry => entry.GeneralId == "mou:zhou-yu-ol") &&
             entries.Any(entry => entry.GeneralId == "mou:huang-yueying-ol") &&
             entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
@@ -215,6 +216,18 @@ internal static class EditionGeneralGalleryChecks
                         }), "Wu Lu Xun must show all three complete printed skills with his distinct artwork.");
                     Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
                         is { Id: "wumiao", SeriesId: "wumiao" }, "Wu Lu Xun must belong to the selectable Wumiao series.");
+                }
+                if (entry.GeneralId == "mou:zhou-yu-ol")
+                {
+                    Program.Assert(entry.Name == "谋周瑜·OL" && entry.Skills.Count == 2 &&
+                        new[] { "mou-ol:zuifeng", "mou-ol:guqu" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name &&
+                                skill.Description == registered.Description);
+                        }), "OL Mou Zhou Yu must show both complete current-client rules with his distinct artwork.");
+                    Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
+                        is { Id: "mou", SeriesId: "mou" }, "OL Mou Zhou Yu must belong to the selectable Mou series.");
                 }
                 if (entry.GeneralId == "mou:huang-yueying-ol")
                 {

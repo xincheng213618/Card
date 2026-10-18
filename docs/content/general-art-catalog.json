@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-zhou-yu-ol",
+      "characterName": "谋周瑜·OL",
+      "defaultSkinId": "77000",
+      "skins": [
+        {
+          "id": "77000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/770",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhou-yu-ol.png",
+          "sha256": "6234adec068252d5b7e8c5b123ed7df77533ae3bf041bdb04b9b759a3f4c54b4",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "wumiao-lu-xun",
       "characterName": "武陆逊",
       "defaultSkinId": "123101",
