@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wumiao:xiongmu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-start",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuXunXiongmu",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWuLuXunXiongmuFirstDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:zhangcai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "accepted-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuXunZhangcai",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "accepted-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuXunZhangcai",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "accepted-supply",
+          "window": "cardSupplyCompleted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuXunZhangcai",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:ruxian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "all-ranks-until-next-turn",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "resolveWuLuXunRuxian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

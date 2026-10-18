@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
     {
-        PrepareLuYuShengChainAdvance(attack);
+        PrepareWuXiongmuCangxinChainAdvance(attack);
         PrepareFengweiChainAdvance(attack);
         PrepareSunHaoChainAdvance(attack);
         PrepareDuFuRenChainAdvance(attack);
@@ -262,6 +262,7 @@ public sealed partial class GameEngine
         CaptureSuitPreventionDamageCompleted(program, attack.DamageWasApplied);
         program = CaptureDynamicDiscardDamageCompleted(program);
         program = CaptureYintianProgramDamageCompleted(program, attack);
+        program = CaptureWuXiongmuProgramDamageCompleted(program, attack);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, program with { AttackAttempt = null, AttackReturn = null });
         if (receipt?.ParentAttackOwnerFrameId is { } parentId && CurrentDamageAttempt?.ResolutionId != parentId)
             throw new InvalidOperationException("Program damage changed its suspended parent owner.");

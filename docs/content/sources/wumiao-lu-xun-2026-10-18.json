@@ -1,0 +1,126 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-18",
+  "name": "武陆逊",
+  "generalId": "wumiao:lu-xun",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/231.html",
+      "finalUrl": "https://x.sanguosha.com/hero/231.html",
+      "httpStatus": 200,
+      "bytes": 21249,
+      "sha256": "9ad3ee3d5481977817e74c8b68707e1b256d2f3ff55f780cd631dabf434e3950",
+      "fetchedAtUtc": "2026-10-18T05:48:12.891471+00:00"
+    },
+    {
+      "url": "https://sanguosha.com/news/20230927_5620_0617",
+      "finalUrl": "https://sanguosha.com/news/20230927_5620_0617",
+      "httpStatus": 200,
+      "bytes": 559872,
+      "sha256": "b04936bdb00c60b72206721aa148c9e1149f35b8e7a2b80db83281f2a1713166",
+      "fetchedAtUtc": "2026-10-18T05:48:13.148382+00:00"
+    }
+  ],
+  "formalPublishedAt": "2023-09-28T22:41:19+08:00",
+  "firstObtainableAt": "2023-09-29T00:00:00+08:00",
+  "officialAvailability": "中秋礼盒或宝玉兑换",
+  "officialIdentity": {
+    "faction": "wu",
+    "hp": 3,
+    "gender": "Male",
+    "title": "释武怀儒"
+  },
+  "skills": [
+    {
+      "id": "wumiao:xiongmu",
+      "name": "雄幕",
+      "text": "每轮开始时，你可以将手牌摸至体力上限，然后将任意张牌随机置入牌堆，从牌堆或弃牌堆中获得等量的点数为8的牌，这些牌不计入你的手牌上限。你每回合受到第一次伤害时，若你的手牌数小于等于体力值，此伤害-1。"
+    },
+    {
+      "id": "wumiao:zhangcai",
+      "name": "彰才",
+      "text": "你使用或打出点数为8的牌时，可以摸X张牌（X为手牌中剩余点数为8的牌数量且至少为1）。"
+    },
+    {
+      "id": "wumiao:ruxian",
+      "name": "儒贤",
+      "text": "限定技，出牌阶段，你可令“彰才”改为所有点数均可触发摸牌直到你的下回合开始。"
+    }
+  ],
+  "currentVersusFormal": "The current official hero and complete formal launch agree on all three skills. Formal Zhangcai says 牌数; current hero says 牌数量. No semantic difference.",
+  "artwork": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123101.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123101.png",
+    "httpStatus": 200,
+    "bytes": 791826,
+    "sha256": "27a9be4e256317f6b1c758cb9efd1453b53274097daaa59f29b435b2c6dd9452",
+    "fetchedAtUtc": "2026-10-18T05:48:13.300440+00:00",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "skinId": "123101",
+    "localPath": "src/CardGame.Wpf/Assets/official-wumiao-lu-xun.png",
+    "sourcePage": "https://x.sanguosha.com/hero/231.html"
+  },
+  "engineeringInterpretations": [
+    "Xiongmu selects any current Hand/Equipment originals, including the equipped Wooden Ox but excluding its grain. Actual equipment-loss, health and grain-spill children complete before further choices.",
+    "Each actual inserted original is placed using the native deterministic RNG at a uniform current-deck insertion position. The unselected deck retains its relative order; this does not shuffle the preexisting deck.",
+    "Obtain min(actual originals inserted, available rank-eight originals), searching current DrawPile top first and then current Discard order. This is obtain, not draw; no reshuffle or cloned replacements. An inserted eight can be obtained back.",
+    "The obtained exact-entity Hand-limit exemption belongs permanently to the original recipient. It applies whenever that recipient holds the entity in Hand, survives loss/regrant, does not follow transfers to others, and applies again on return.",
+    "Positive actual damage to the recipient occupies the first-damage slot for the real actual turn even before skill acquisition or when Hand>Hp. External prevention to zero is not damage received. An actual Xiongmu reduction consumes its own first-damage right even when it reduces the damage to zero.",
+    "Zhangcai captures the actual accepted Use/Played effective rank and remaining-Hand effective rank-eight count at its native action boundary, after excluding real Hand costs. Each logical accepted action contributes one trigger; response Use and pure Played remain distinct native actions.",
+    "Ruxian widens only Zhangcai trigger ranks, keeping its explicitly defined X as remaining rank-eight Hand count, minimum one. Its issued effect lasts until the next actual owner turn starts, including face-down skips; it is not confined to the current Play phase.",
+    "An issued native draw/obtain continues through real payment/replacement/health/movement children with its frozen original invoice; new voluntary choices require a living authorized owner. No forged sources, new Uses or repeated payments are introduced.",
+    "Ruxian removes the rank-eight trigger restriction from real native accepted actions. A genuine zero-material virtual Use/Played retains its native absent/zero rank and can trigger while Ruxian is active; it is never relabeled rank eight. The primary sources do not separately rule on absent ranks.",
+    "Ruxian uses the existing game-scope owner/skill/activation usage ledger. Reacquisition does not reset it. No new generic limited-skill-reset capability or invented reset fixture is introduced; the current Bao2025 reset producer is restricted to its original trigger contract and cannot target Ruxian."
+  ],
+  "verificationLimits": [
+    "No dedicated official FAQ has been verified. Native boundary decisions are recorded separately from first-party text.",
+    "No rules epoch, skill schema, or package version is raised for this general."
+  ],
+  "secondaryOperatorGuide": {
+    "url": "https://my.4399.com/yxxsgs/gonglue/57313/",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-18T05:50:32.389941+00:00",
+    "bytes": 55957,
+    "sha256": "d8687159f88a84702047211d26ec301b11196481ae03e44625ba42b2ff383a64",
+    "summary": "Equipment is selectable for Xiongmu. Its Ruxian analysis describes remaining same-rank cards and an own-Play-only duration, differing from the complete printed-skill contract; this guide is not treated as a formal rule replacement."
+  },
+  "sourceHierarchyAndDifferences": [
+    "Current hero and dated formal publication have complete same three rules. 彰才 difference 牌数量/牌数 is not semantic.",
+    "Operator guide explicitly includes equipment among returnable cards. This supports HE but does not prove Wooden Ox grain support.",
+    "Operator guide Ruxian analysis3 changes X to remaining same-rank count and analysis5 says only own Play. The latter contradicts explicit primary until-next-own-turn text; do not elevate guide to FAQ.",
+    "The implemented contract follows the current official hero and formal launch: Ruxian removes the trigger-rank restriction while X remains the explicitly defined remaining rank-eight Hand count, minimum one."
+  ],
+  "clientVerificationLimits": {
+    "anniversarySelectorUnverified": true,
+    "ol220IsDifferentProduct": true,
+    "note": "The available OL client has no hero231/these three skills and is not evidence for anniversary selection or server rules. No authenticated anniversary client was available."
+  },
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 26,
+      "wpfPassed": 1,
+      "durationMs": 34155
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 75469
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected original-resolution actual WPF gallery and scrolled skill panel: official portrait, Wumiao series, Wu faction, three HP and all three complete printed skills.",
+    "scopeNote": "Focused behavior groups and measured bounded routine verification; no manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Actual round-start draw-to-maximum-HP, native replacement/gain children, private reversible arbitrary-HE selection and native deterministic random insertion retaining the untouched deck order.",
+      "Real original rank-eight obtains with shortage handling, source-owned exact-entity Hand-limit exemptions, actual equipment-loss recovery and Wooden Ox grain spill.",
+      "First actual-turn damage and Hand/HP threshold without late-acquisition reset, native prevention, chain-recipient reduction scopes and independent native damage-attempt receipts.",
+      "True Use, pure Played and provider-supply acceptance; real effective action rank and postpayment remaining-Hand count; independent actor/provider opportunities.",
+      "Limited actual-Play Ruxian activation, existing game-scope usage ledger, source reacquisition and exact next actual owner turn-start expiry including extra phases and skipped turns.",
+      "Frozen frame-owned invoices, exact native child returns, legitimate paid source-loss/death continuation, private canonical choices, rejected stale/forged input and cold replay.",
+      "Complete namespaced Wumiao gallery with official locally decoded artwork."
+    ]
+  }
+}
