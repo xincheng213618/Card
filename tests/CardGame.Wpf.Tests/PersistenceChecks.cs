@@ -22,10 +22,11 @@ internal static class PersistenceChecks
     {
         var store = FileStore(output, "round-trip");
         using var original = Create(store);
-        original.IsMotionEnabled = !System.Windows.SystemParameters.ClientAreaAnimation;
+        original.IsMotionEnabled = false;
         original.StartNewGameCommand.Execute(null);
         Require(Engine(original).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "New UI games must use the current public-evidence AI.");
         var seen = new HashSet<string>();
+        var restoredMotionPreferences = new HashSet<bool>();
         for (var step = 0; step < 6000; step++)
         {
             var engine = Engine(original);
@@ -42,13 +43,18 @@ internal static class PersistenceChecks
                 using var restored = Create(store, showSetup: true);
                 Require(restored.HasAutomaticSave && restored.HasManualSave, "Startup did not discover both save slots.");
                 Require(File.ReadAllText(store.GetPath(GameSaveSlot.Manual)) == savedText, "Constructing a new view overwrote a save.");
+                // Device preferences are independent of Windows' system animation
+                // setting and the source match. Cover both values without another match.
+                var expectedMotion = seen.Count % 2 != 0;
+                restored.IsMotionEnabled = expectedMotion;
                 restored.LoadManualGameCommand.Execute(null);
                 Require(!restored.HasSaveError && !restored.IsNewGameSetupOpen, $"{label}: {restored.SaveStatus}");
                 Require(State(restored) == expected && restored.GameLog.SequenceEqual(expectedLog), $"Restored {label} state or public log differs.");
                 Require(Engine(restored).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "Restoring a new game lost its public-evidence AI policy.");
                 Require(restored.RecentPlays.SequenceEqual(expectedPlays), $"Restored {label} public card display differs.");
-                Require(restored.IsMotionEnabled == System.Windows.SystemParameters.ClientAreaAnimation,
+                Require(restored.IsMotionEnabled == expectedMotion,
                     "A restored match must preserve the current device's animation preference.");
+                restoredMotionPreferences.Add(expectedMotion);
                 Require(restored.Hand.All(card => !card.IsSelected) && restored.SelectedDiscardCount == 0, "Restore retained stale visual selection.");
                 if (!original.HasGameOver)
                 {
@@ -66,6 +72,7 @@ internal static class PersistenceChecks
         }
         Require(seen.Contains("SelectGeneral") && seen.Contains("PlayCard") && seen.Contains("DiscardCards") && seen.Contains("InFlight"), "Round-trip coverage missed a required game boundary.");
         Require(seen.Any(label => label is "RespondDodge" or "RespondSlash" or "SelectHarvestCard" or "RescueDying"), "Round-trip coverage missed an actual response.");
+        Require(restoredMotionPreferences.SetEquals([false, true]), "Round-trip coverage must preserve both device animation preferences.");
         Console.WriteLine($"  Restored and continued: {string.Join(", ", seen)}.");
 
         var legacy = GameEngine.CreateStandard(new GameOptions

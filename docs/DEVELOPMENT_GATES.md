@@ -22,7 +22,7 @@
 
 ## 验证方式
 
-[Test-Changed.ps1](../tools/Test-Changed.ps1) 需要 PowerShell 7，在一次调用内构建并复用产物。开发时运行相关名称过滤；批次结束运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：
+[Test-Changed.ps1](../tools/Test-Changed.ps1) 需要 Windows、PowerShell 7 和 PATH 中可用的 Python 3.10 或更新版本；Python 仅使用标准库登记临时输出。脚本在一次调用内构建并复用产物。开发时运行相关名称过滤；批次结束运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：
 
 ```powershell
 pwsh -File .\tools\Test-Changed.ps1

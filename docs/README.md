@@ -2,6 +2,8 @@
 
 本文档按当前功能和开发职责导航。运行项目见 [仓库 README](../README.md)；人物规则以对应内容定义、实现和保留的来源依据为准。
 
+第一次接入规则引擎，请从[开发起步 / Developer quickstart](GETTING_STARTED.md)与[无界面可运行示例](../samples/CardGame.Headless/README.md)开始。参与开发见[贡献指南](../CONTRIBUTING.md)，代码与素材的授权范围见[许可说明](../THIRD_PARTY_NOTICES.md)。
+
 ## 玩家操作
 
 | 主题 | 文档 |

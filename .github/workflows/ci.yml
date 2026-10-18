@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  routine:
+    name: Routine checks and headless examples
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install the repository SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          global-json-file: global.json
+      - name: Install Python for output registration
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Run the existing routine scope
+        run: |
+          $artifacts = Join-Path $env:RUNNER_TEMP 'sanguosha-dotnet-ci'
+          & .\tools\Test-Changed.ps1 -ArtifactsPath $artifacts
+      - name: Build and run headless examples
+        run: |
+          $artifacts = Join-Path $env:RUNNER_TEMP 'sanguosha-dotnet-ci'
+          dotnet build .\samples\CardGame.Headless\CardGame.Headless.csproj -c Release --artifacts-path $artifacts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $example = Join-Path $artifacts 'bin/CardGame.Headless/release/CardGame.Headless.dll'
+          dotnet $example
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet $example --custom-general
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Remove this job's disposable outputs
+        if: always()
+        run: |
+          $temporaryRoot = (Resolve-Path -LiteralPath $env:RUNNER_TEMP).Path
+          $candidate = Join-Path $temporaryRoot 'sanguosha-dotnet-ci'
+          if (-not (Test-Path -LiteralPath $candidate)) { exit 0 }
+          $target = (Resolve-Path -LiteralPath $candidate).Path
+          if (-not $target.StartsWith($temporaryRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'Refusing an output path outside RUNNER_TEMP.'
+          }
+          for ($ancestor = [IO.DirectoryInfo]::new($target); $null -ne $ancestor; $ancestor = $ancestor.Parent) {
+            if ($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Refusing a linked output path.' }
+          }
+          if (Get-ChildItem -LiteralPath $target -Recurse -Force -Attributes ReparsePoint) { throw 'Refusing linked output contents.' }
+          $owner = Get-Content -LiteralPath (Join-Path $target '.test-changed-owner.json') -Raw | ConvertFrom-Json
+          if ($owner.repository -ne $env:GITHUB_WORKSPACE -or $owner.artifactsPath -ne $target) { throw 'Output owner mismatch.' }
+          $lease = [IO.File]::Open((Join-Path $target '.test-changed.lock'), 'Open', 'ReadWrite', 'None')
+          $lease.Dispose()
+          Remove-Item -LiteralPath $target -Recurse -Force
