@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-cai-yong",
+      "characterName": "乐蔡邕",
+      "defaultSkinId": "1133301",
+      "skins": [
+        {
+          "id": "1133301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1333.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133301.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-cai-yong.png",
+          "sha256": "d4f2c8c1305e5990a898ca7de94c85addc64d22711b87addb9f333f0e87cb92a",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "wumiao-zhang-fei",
       "characterName": "武张飞",
       "defaultSkinId": "123501",
