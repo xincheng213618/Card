@@ -83,7 +83,7 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.FindIndex(f => f.Id == use.Id);
         if (index <= 0 || _resolutionStack[index - 1] is not ProgramSkillFrame producer ||
-            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null && !TracksActualTurnUseOrdinal && !TracksCurrentRoundActualUses && !TracksWholeActualTurnUseOrdinal) return false;
+            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null && !TracksActualTurnUseOrdinal && !TracksCurrentRoundActualUses && !TracksWholeActualTurnUseOrdinal && !HasLeCaoZhiWenlanCapability) return false;
         var program = _contentRegistry.GetSkill(producer.SkillId).Program;
         if (program is null || program.GameplayHash != producer.GameplayHash) return false;
         var paused = ProgramInstructionResolver.Default.Resolve(producer, program)

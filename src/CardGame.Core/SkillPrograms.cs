@@ -1030,6 +1030,8 @@ public enum SkillProgramEffectOp
     ResolveWuZhangFeiHaoxian = 29063,
     InitializeLeCaiYongJiaowei = 29070,
     ResolveLeCaiYongFeibai = 29071,
+    InitializeLeCaoZhiFule = 29080,
+    ResolveLeCaoZhiWenlan = 29081,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -3427,7 +3429,8 @@ public sealed class SkillProgramCatalog
             output is not (CardKind.Slash or CardKind.Dodge) || lastInSourceZone == true ||
             chainedStateCost.HasValue || tieredRound is not null || roundOnceCardless is not null || drawFunded is not null))
             Fail(path + ".sourcePileSkillId", "requires a single physical public-pile Slash or Dodge conversion");
-        if (tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
+        var fuleAlias = id.StartsWith("fu-alias-", StringComparison.Ordinal);
+        if (!fuleAlias && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
                 CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.Nullification or CardKind.Peach or
                 CardKind.ArrowBarrage or CardKind.Alcohol or CardKind.Snatch))
@@ -3497,11 +3500,11 @@ public sealed class SkillProgramCatalog
             Fail(path + ".forResponse", "this trick cannot be used as a response");
         if (output == CardKind.Nullification && forPlay)
             Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
-        if (output == CardKind.Peach && forPlay && usesPerPhase is null && !extended && !useOnly)
+        if (!fuleAlias && output == CardKind.Peach && forPlay && usesPerPhase is null && !extended && !useOnly)
             Fail(path + ".forPlay", "proactive peach has no configured viewAs executor");
-        if (output == CardKind.ThunderSlash && usesPerPhase is null && !useOnly && declaration is null)
+        if (!fuleAlias && output == CardKind.ThunderSlash && usesPerPhase is null && !useOnly && declaration is null)
             Fail(path + ".outputKind", "thunderSlash requires phase-limited play viewAs");
-        if (output == CardKind.FireSlash && usesPerPhase is null && !extended && !useOnly)
+        if (!fuleAlias && output == CardKind.FireSlash && usesPerPhase is null && !extended && !useOnly)
         {
             if (inputCount == 1 && inputs.Count > 0 && suits.Count == 0)
             {
@@ -3548,6 +3551,8 @@ public sealed class SkillProgramCatalog
           NonBasicUnrespondableSlash = node.TryGetProperty("nonBasicUnrespondableSlash", out _) && RequiredBool(node, "nonBasicUnrespondableSlash", path),
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
+        if (fuleAlias && !LeCaoZhiComposition.IsFuleRule(parsedViewAs))
+            Fail(path, "reserved Fu aliases require the exact complete physical-name metadata profile");
         TieredRoundConversionSchema.Validate(parsedViewAs, path);
         RoundOnceCardlessBasicSchema.Validate(parsedViewAs, path);
         NonBasicUnrespondableSlashSchema.Validate(parsedViewAs, path);
@@ -5293,6 +5298,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) MouHuangGaiKurouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuZhangFeiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LeCaiYongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) LeCaoZhiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

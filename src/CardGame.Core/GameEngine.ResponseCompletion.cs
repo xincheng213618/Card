@@ -306,6 +306,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(window = window with { ResponseCompletion = r with { ActiveCostChildFrameId = child.Id } });
             PushRuntimeFrame(child); AdvanceRuntimeTop<CardsMovedTriggerWindowFrame>(); return true;
         }
+        CaptureLeCaoZhiWenlanQualification(ResponseCompletionActorAction(window), SkillProgramTriggerWindow.CardResponseCompleted);
         var candidates = CollectSharedCardActionCandidates(ResponseCompletionActorAction(window), SkillProgramTriggerWindow.CardResponseCompleted,
                 window.Action.OpponentSeat is { } opponent ? [opponent] : [], null)
             .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId, StringComparer.Ordinal)

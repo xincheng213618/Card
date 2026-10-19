@@ -61,7 +61,8 @@ public enum ResolutionFrameKind
     PindianRevealWindow = 21500,
     IdentityAppearance = 22200,
     BeiMiHuTurnPrelude = 23200,
-    QiaoZhouPreparation = 26220
+    QiaoZhouPreparation = 26220,
+    LeCaoZhiWenlanDirectDuelWindow = 29081
 }
 
 public enum ResolutionFrameStep
@@ -92,6 +93,7 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(ActualUseTargetWindowFrame), "actual-use-target-window")]
 [JsonDerivedType(typeof(SlashTargetBenefitWindowFrame), "slash-target-benefit-window")]
 [JsonDerivedType(typeof(FirstSlashDuelLegacyWindowFrame), "first-slash-duel-legacy-window")]
+[JsonDerivedType(typeof(WenlanDirectDuelWindowFrame), "le-cao-zhi-wenlan-direct-duel-window")]
 [JsonDerivedType(typeof(PindianRevealWindowFrame), "pindian-reveal-window")]
 [JsonDerivedType(typeof(DouyuWindowFrame), "douyu-window")]
 [JsonDerivedType(typeof(SlashTargetPenaltyWindowFrame), "slash-target-penalty-window")]

@@ -2226,6 +2226,8 @@ public sealed partial class GameEngine
                 .Contains(candidate.OwnerSeat)) return false;
         if (_resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().Any(w => w.Id == context.ParentFrameId))
             return CanRunFirstLegacyBenefit(candidate, context);
+        if (_resolutionStack.OfType<WenlanDirectDuelWindowFrame>().Any(w => w.Id == context.ParentFrameId))
+            return CanRunWenlanDirectDuelCandidate(candidate, context);
         var plan = ProgramInstructionResolver.Default.Resolve(program, ProgramInstructionSourceKind.Trigger, candidate.BindingId);
         var features = plan.Features;
         var legality = new ProgramTriggerLegalityContext(owner, program, plan, candidate, context);

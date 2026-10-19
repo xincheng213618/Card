@@ -42,6 +42,7 @@ public sealed partial class GameEngine
              usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null ||
              source is { SkillId: "guandu:battle-event", BindingId: "hold-line" })) ConsumeProgramViewAsUsage([source]);
         PrepareWuZhangFeiResponseRanks(provider, effectiveKind, [card], source);
+        PrepareLeCaoZhiWenlanResponse(provider, effectiveKind, [card]);
         PrepareSiruiResponsePayment(provider, card, effectiveKind, source);
         var alternative = IsProgramTopDeckDodgeSource(source);
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))

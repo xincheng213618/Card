@@ -115,6 +115,7 @@ public sealed partial class GameEngine
         ActiveCardAttack = attack;
         ActiveDuel = new DuelHandle(this, attack);
         UpdateCardAttackState(active.Id, state => state! with { ProgramUseInstructionIndex = active.InstructionIndex });
+        CaptureWenlanDirectDuel(active, sourceSeat, targetSeat);
         IssueMouZhaJiangLegacyDuel(active, sourceSeat);
         if (TracksWholeActualTurnUseOrdinal)
         {

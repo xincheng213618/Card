@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:fule",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeLeCaoZhiFule",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "fu-alias-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-wumiaoFlood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "wumiaoFlood",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "fu-alias-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-indulgence",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "indulgence",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "fu-alias-supplyShortage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "supplyShortage",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "fu-alias-lightning",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "lightning",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "fu-alias-unexpectedAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "unexpectedAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true
+        }
+      ]
+    },
+    {
+      "id": "le:wenlan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-pair-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLeCaoZhiWenlan",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-pair-played",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLeCaoZhiWenlan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

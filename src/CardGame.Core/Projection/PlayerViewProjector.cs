@@ -121,7 +121,7 @@ public sealed partial class GameEngine
                 WoodenOxGrainCount = woodenOxGrain.Count,
                 WoodenOxGrain = playerEquipment.Any(card => card.Kind == CardKind.WoodenOx) || woodenOxGrain.Count > 0
                     ? canSeeHand
-                        ? woodenOxGrain.Select(ToSnapshot).ToArray()
+                        ? woodenOxGrain.Select(card => ProjectFuleHandCard(player, card, ToSnapshot(card))).ToArray()
                         : Array.Empty<CardSnapshot>()
                     : null,
                 IsChained = player.IsChained,
@@ -297,7 +297,7 @@ public sealed partial class GameEngine
         };
         if (JuewuForeignHandRank(owner, card) is { } juewuRank)
             snapshot = snapshot with { Rank = juewuRank, RankText = juewuRank.ToString(System.Globalization.CultureInfo.InvariantCulture) };
-        return ProjectWenhePoisonHandCard(owner, card, snapshot);
+        return ProjectWenhePoisonHandCard(owner, card, ProjectFuleHandCard(owner, card, snapshot));
     }
 
     private string? ProjectAuthorityName(IReadOnlyList<GeneralSkillDefinition>? skills)

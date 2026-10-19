@@ -1,0 +1,137 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-19",
+  "name": "乐曹植",
+  "generalId": "le:cao-zhi",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1341.html",
+      "role": "current hero HTML",
+      "httpStatus": 200,
+      "bytes": 25365,
+      "sha256": "0991dea2e26daccea31e3e7070c40281b6645cc1731734bea49c1b37a817e8a3",
+      "fetchedAtUtc": "2026-10-19T07:21:16.286091+00:00",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260723_3405_2818.html",
+      "role": "formal release 2026-07-24",
+      "httpStatus": 200,
+      "bytes": 282446,
+      "sha256": "23541bc0e0a3316994a5b4ebbb3232f58bba83a84f47069db590b3c66168f11e",
+      "fetchedAtUtc": "2026-10-19T07:21:16.405023+00:00",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "role": "official anniversary identity roster",
+      "httpStatus": 200,
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "fetchedAtUtc": "2026-10-19T07:21:17.176035+00:00",
+      "contentType": "text/html"
+    }
+  ],
+  "firstObtainableAt": "2026-07-25",
+  "officialIdentity": {
+    "faction": "wei",
+    "hp": 3,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "le:fule",
+      "name": "赋乐",
+      "text": "锁定技，你的初始手牌增加“赋”标记且不计入手牌上限。“赋”随机获得另一种非装备牌牌名，使用“赋”时可选择使用该牌所拥有的任意一种牌名。"
+    },
+    {
+      "id": "le:wenlan",
+      "name": "文澜",
+      "text": "你每使用或打出两张牌结算后：若为包含相同牌名的两张“赋“，你从牌堆中获得这两张“赋”所含牌名的牌各一张，并标记为“赋”；否则你选择任意张手牌标记为“赋”或替换“赋”牌名。"
+    }
+  ],
+  "currentVersusFormal": "Fresh current hero all four skins use exactly the same two complete texts. Formal launch gives the same complete wording. No verified later first-party rebalance/FAQ found in bounded exact-name/skill-name searches; third-party test-server wording is not authoritative.",
+  "artwork": {
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1134101.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1134101.png",
+    "httpStatus": 200,
+    "bytes": 812325,
+    "sha256": "bf4646d1a865c466755a5a02cd19bb5e06efef76e2edd3fa9e66c2c865c9c9b1",
+    "fetchedAtUtc": "2026-10-19T07:52:57.175442+00:00",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-cao-zhi.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1341.html",
+    "visualSubjectVerified": true
+  },
+  "userDecisions": [
+    {
+      "topic": "文澜嵌套使用或打出的配对顺序",
+      "decision": "按使用/打出顺序固定配对，第 2 张结算完成后触发",
+      "confirmed": true
+    },
+    {
+      "topic": "赋乐随机非装备牌名池",
+      "decision": "当前模式允许的非装备牌名，含延时锦囊，火杀/雷杀单列；排除原印刷名，且不随牌堆耗尽缩小",
+      "confirmed": true
+    }
+  ],
+  "engineeringInterpretations": [
+    "Wenlan has no turn-reset clause: its accepted true Use or Played sequence persists across turns and source loss. A true response Use appearing in both native completion windows counts once.",
+    "The shared-name branch requires two Fu entities with intersecting frozen name sets and obtains one actual DrawPile entity per distinct name in their union. An absent name produces no synthetic card.",
+    "Fule permits choosing a name for true Uses, including native response Uses. It grants no extra alias for a pure Played response.",
+    "Each real action counts once. A Fu action requires exactly one actual marked physical material; zero-material and multi-material actions still count toward the pair but have no single Fu identity. A single marked material retains its physical printed-plus-alias name set through another native conversion. This is an engineering interpretation, not a claimed official FAQ.",
+    "Fu is a permanent physical entity mark with one printed name and one random alternate name. Its hand-limit exemption requires the current holder to have active Fule. Replacing an alias excludes both the printed name and the old alias so replacement actually changes the name.",
+    "The name pool comes from the selected immutable ContentDeckRecipe and the same deterministic native mode face mappings used for the initial deck. It retains Wenhe suit-dependent names and actual mode removals. Hulao random equipment selection is not rerun. Querying this pool consumes no random numbers or gameplay state.",
+    "A newly obtained ordinary entity receives its first Fu alias before gain observers. Obtaining an entity already marked Fu preserves its alias and revision; only the explicit private Hand-rewrite branch rerolls an existing alias. An empty alternate pool retains a printed-only mark or the previous alias without manufacturing a name.",
+    "Logical action snapshots freeze the single physical Fu name set before material movement. Native true response Uses and pure Played follow their original actor/provider and payment contracts. Source loss does not reclassify already accepted entries.",
+    "Forced alias Slash availability requires the exact current native Borrowed Sword or Qinglong parent frontier. An ancestor forced-Use request does not authorize an alias Slash for an intervening pure Played Duel response.",
+    "Legacy direct virtual Duels use their own source-bound typed acceptance, completion and return receipt. They participate in the same accepted pair sequence without inventing CardUseDeclared or CardActionAccepted facts for a producer that never issued those native facts.",
+    "An exact native actor-replacement chain moves an unconsumed pending Use from the old actor tail to the new actor active-source sequence while retaining the original physical Fu names and provider. Previously claimed pairs remain frozen; a later replacement does not roll back an already resolved benefit."
+  ],
+  "verificationLimits": [
+    "No authenticated official gameplay client or character-specific official FAQ established the engineering interpretations above."
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 22,
+      "wpfPassed": 4,
+      "durationMs": 36360
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 71103
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the unmodified official PNG, actual WPF gallery details, and the actual Fu alias selection render.",
+    "scopeNote": "Five focused native behavior groups, relevant retained shared mechanisms, actual WPF alias interaction and gallery rendering, and measured bounded routine verification. No manual full run or complete foreground match.",
+    "focusedCheckNames": [
+      "Activity ordinary tricks: tiered one zero materials native receipts and quota",
+      "Le Cai Yong: initial Xian actual loss binary protection Armor expiry cold",
+      "Le Cai Yong: effective names previous Use private samples cold",
+      "Le Cai Yong: true Dodge Null parents Played exclusion cold",
+      "Le Cai Yong: actual fallback short Draw Xian disable source loss cold",
+      "Le Cao Zhi: opening Fu entities mode aliases hand limit privacy cold",
+      "Le Cao Zhi: alternate native names real materials delayed responses cold",
+      "Le Cao Zhi: fixed accepted pairs nested Played cross turn source cold",
+      "Le Cao Zhi: full name union actual obtains shortage gain source cold",
+      "Le Cao Zhi: private Hand mark replacement zero selection return cold",
+      "character manifests preserve ordered registration and package isolation",
+      "Actual turn use ordinal: frozen declaration order and true uses",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "skill program direct Dodge and Lightning judgments resume and replay",
+      "schema-46 viewAs source zones validate and isolate hand from equipment",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "classic Wooden Ox stores private playable grain and replays",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  }
+}

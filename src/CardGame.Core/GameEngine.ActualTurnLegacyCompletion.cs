@@ -13,7 +13,7 @@ public sealed partial class GameEngine
 {
     private CardUseFrame NormalizeActualTurnLegacyCompletedUse(CardUseFrame use, long? programParentId)
     {
-        if (!(TracksActualTurnUseOrdinal || HasLeCaiYongFeibaiCapability || HasKongShuCapability || HasLiuYanCapability || HasCuiYanCapability || HasMouHuangYueyingBingcaiCapability) || use.Action is not null) return use;
+        if (!(TracksActualTurnUseOrdinal || HasLeCaiYongFeibaiCapability || HasLeCaoZhiWenlanCapability || HasKongShuCapability || HasLiuYanCapability || HasCuiYanCapability || HasMouHuangYueyingBingcaiCapability) || use.Action is not null) return use;
         var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
         if (use.CardId != 0 || use.PhysicalCardIds is not { Count: 0 } || index <= 0 ||
             _resolutionStack[index - 1] is not ProgramSkillFrame parent || parent.Id != programParentId ||
@@ -71,7 +71,7 @@ public sealed partial class GameEngine
 
     private bool FinishActualTurnLegacyDyingAlcohol(long useId, long programParentId)
     {
-        if (!(TracksActualTurnUseOrdinal || HasLeCaiYongFeibaiCapability || HasKongShuCapability || HasLiuYanCapability || HasCuiYanCapability || HasMouHuangYueyingBingcaiCapability)) return false;
+        if (!(TracksActualTurnUseOrdinal || HasLeCaiYongFeibaiCapability || HasLeCaoZhiWenlanCapability || HasKongShuCapability || HasLiuYanCapability || HasCuiYanCapability || HasMouHuangYueyingBingcaiCapability)) return false;
         var use = NormalizeActualTurnLegacyCompletedUse(LifecycleCardUse(useId) ??
             throw new InvalidOperationException("Legacy Alcohol completion lost its owning use."), programParentId);
         var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);

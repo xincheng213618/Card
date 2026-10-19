@@ -371,6 +371,7 @@ public sealed partial class GameEngine
         CaptureWuLuXunZhangcai(action, window);
         CaptureWuZhangFeiUseQualification(action, window);
         CaptureLeCaiYongFeibaiQualification(action, window);
+        CaptureLeCaoZhiWenlanQualification(action, window);
         var targets = eventTargets.Distinct().ToHashSet();
         var result = new List<ProgramCardTriggerCandidate>();
         var capturedOwnerFacts = new SkillProgramTriggerFacts?[_players.Count];

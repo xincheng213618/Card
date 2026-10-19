@@ -270,7 +270,7 @@ public sealed partial class GameEngine
                     var (instance, rule) = item;
                     return (!wuyouJuewuIdentity || instance.SkillId == "wumiao:juewu" && rule.RankTwoDamageUse) &&
                                rule.KenshangUse != true && rule.InputCount == 1 &&
-                               (rule.OutputKind == outputKind || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
+                               (rule.OutputKind == outputKind || instance.SkillId == "le:fule" && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && FuleSlashAliasAllowed(owner, forResponse) || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
@@ -280,6 +280,7 @@ public sealed partial class GameEngine
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                CanUseSiruiConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
+                               CanUseFuleAlias(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                CanUseJuewuConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
@@ -536,6 +537,7 @@ public sealed partial class GameEngine
             card.Kind,
             FindOwnedCardLocation(responder, card),CapturePhysicalCardColor(responder.Seat,card))).ToArray();
         PrepareWuZhangFeiResponseRanks(responder, selection.OutputKind, current.Cards, current.Source, actorSeat);
+        PrepareLeCaoZhiWenlanResponse(responder, selection.OutputKind, current.Cards);
         PrepareLeiluanResponsePayment(responder, current, resolutionId);
         PrepareXieweiResponsePayment(responder, current, resolutionId, actorSeat);
         var xieweiPayment = IsXieweiSelection(current);
@@ -724,10 +726,10 @@ public sealed partial class GameEngine
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
         if (!forResponse && effectiveKind == CardKind.FireSlash && HasZhuqueFan(owner) && IsOwnPublicPileCard(owner, card))
             programSources = programSources.Concat(GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false)).Distinct().ToArray();
-        programSources = programSources.Where(source => SiruiNativeConversionMatchesOutput(owner, source, effectiveKind) && JuewuNativeConversionMatchesOutput(owner, source, effectiveKind)).ToArray();
+        programSources = programSources.Where(source => SiruiNativeConversionMatchesOutput(owner, source, effectiveKind) && JuewuNativeConversionMatchesOutput(owner, source, effectiveKind) && FuleNativeConversionMatchesOutput(owner, source, effectiveKind)).ToArray();
         var originalPile = IsNativePublicPileOriginalChoice(owner, card, effectiveKind, forResponse);
         var includeUnspecified = !IsWenhePhysicalPoison(owner, card) && !hasIdentity && !IsLastZoneJudgmentCard(owner, card) && (!IsOwnPublicPileCard(owner, card) || originalPile) &&
-            (card.Kind == effectiveKind || programSources.Count == 0) && SiruiAllowsUnspecifiedForcedSlash(owner, card, effectiveKind);
+            (card.Kind == effectiveKind || programSources.Count == 0) && SiruiAllowsUnspecifiedForcedSlash(owner, card, effectiveKind) && FuleAllowsUnspecifiedForcedSlash(owner, card, effectiveKind);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
         if (hasIdentity)
