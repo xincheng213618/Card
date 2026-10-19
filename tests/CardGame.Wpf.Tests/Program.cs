@@ -129,6 +129,7 @@ internal static class Program
             Check("own public pile conversion: real Bing rail and response source", OwnPublicPileConversionUiChecks.RealBingPlayRailAndPublishedResponseSource);
             Check("Liu Ba UI: private coins and bottom exchange", LiuBaCoinUiChecks.RealMintPrivateBottomExchangeAndReversibleChoice);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
+            Check("Le Cao Zhi UI: private Fu alias draft and exact native payment", () => LeCaoZhiUiChecks.PrivateFuAliasDraftAndExactNativePayment(output));
             Check("Huoji selects its rail skill before red cards and commits the exact conversion", () => CardConversionTargetUiChecks.HuojiSelectsSkillThenRedCard(output));
             Check("multi-target Slash portraits: Tianyi Lihuo Fangtian conversions and exact confirmation", () => MultiTargetSlashUiChecks.PortraitDraftsUseExactNativeTargets(output));
             Check("conversion skill rail selects published materials including chains and delayed cards", () => ConversionSkillSelectionChecks.SingleCardRules(output));

@@ -40,6 +40,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "wumiao:zhang-fei") &&
             entries.Any(entry => entry.GeneralId == "le:cai-wen-ji") &&
             entries.Any(entry => entry.GeneralId == "le:cai-yong") &&
+            entries.Any(entry => entry.GeneralId == "le:cao-zhi") &&
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
             entries.Any(entry => entry.GeneralId == "le:zou-shi") &&

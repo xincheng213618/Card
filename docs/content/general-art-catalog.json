@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-cao-zhi",
+      "characterName": "乐曹植",
+      "defaultSkinId": "1134101",
+      "skins": [
+        {
+          "id": "1134101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1341.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1134101.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-cao-zhi.png",
+          "sha256": "bf4646d1a865c466755a5a02cd19bb5e06efef76e2edd3fa9e66c2c865c9c9b1",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "le-cai-yong",
       "characterName": "乐蔡邕",
       "defaultSkinId": "1133301",

@@ -80,6 +80,7 @@ public static class GeneralGalleryCatalog
         groups.Add("le:zhou-fei", "le");
         groups.Add("le:cai-wen-ji", "le");
         groups.Add("le:cai-yong", "le");
+        groups.Add("le:cao-zhi", "le");
         groups.Add("le:xiao-qiao", "le");
         groups.Add("le:da-qiao", "le");
         groups.Add("le:zhou-yu", "le");
