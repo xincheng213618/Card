@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-huang-gai-mobile",
+      "characterName": "谋黄盖·移动版",
+      "defaultSkinId": "64400",
+      "skins": [
+        {
+          "id": "64400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-514.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/64400.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-gai-mobile.jpg",
+          "sha256": "ca36e5bea73a82af621d3431e7520388aa4e42222e4fb192a08aee0fede57621",
+          "pixelWidth": 3080,
+          "pixelHeight": 4357
+        }
+      ]
+    },
+    {
       "key": "le-diao-chan",
       "characterName": "乐貂蝉",
       "defaultSkinId": "1133801",
