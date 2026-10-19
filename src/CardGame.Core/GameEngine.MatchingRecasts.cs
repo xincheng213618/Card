@@ -71,7 +71,7 @@ public sealed partial class GameEngine
         {
             if (records.Count != p.Materials.Count || !records.Zip(p.Materials).All(pair => pair.First.CardId == pair.Second.CardId &&
                 pair.First.CardKind == pair.Second.PrintedKind && pair.First.From == pair.Second.From &&
-                pair.First.To == pair.Second.Destination && pair.First.Reason == CardMoveReasons.RecastDiscard))
+                pair.First.To == NormalizeDiouCarrierDestination(GetAdvancedCard(pair.Second.CardId), pair.Second.From, pair.Second.Destination) && pair.First.Reason == CardMoveReasons.RecastDiscard))
                 throw new InvalidOperationException("Matching recast changed its paid original physical HE group.");
             var current = GetActiveProgramFrame(f.Id); var receipt = current.MatchingRecast!;
             var after = records.Max(m => m.Sequence);

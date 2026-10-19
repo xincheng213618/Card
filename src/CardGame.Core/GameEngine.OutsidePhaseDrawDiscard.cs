@@ -272,7 +272,7 @@ public sealed partial class GameEngine
             {
                 foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
                 if (records is not [var move] || move.CardId != paid.CardId || move.CardKind != paid.PrintedKind || move.From != paid.From ||
-                    move.To != (paid.IsGeneralWeapon && paid.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile))
+                    move.To != NormalizeDiouCarrierDestination(GetAdvancedCard(paid.CardId), paid.From, (paid.IsGeneralWeapon && paid.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)))
                     throw new InvalidOperationException("Outside-phase discard did not pay its single real frozen foreign card.");
                 var current = GetActiveProgramFrame(f.Id);
                 ReplaceRuntimeTop(current with { OutsidePhaseDrawDiscard = current.OutsidePhaseDrawDiscard! with {

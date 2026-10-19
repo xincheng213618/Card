@@ -25,7 +25,7 @@ public sealed partial class GameEngine
         if (!ProgramEventHistory<GuanduChariotDestroyedEvent>().Any(e => e.MovementSequence == movement.Sequence))
             AdvanceEventRulesAndQueueFact(new GuanduChariotDestroyedEvent(moved.CardId, movement.Sequence, owner));
     }
-    private bool IsGuanduDestroyedChariotMaterial(long useId, int cardId) => LifecycleCardUse(useId)?.Action is { } action &&
+    private bool IsGuanduDestroyedChariotMaterial(long useId, int cardId) => cardId > 0 && LifecycleCardUse(useId)?.Action is { } action &&
         _cardZones.GetLocation(cardId) == CardLocation.OutsideGame &&
         action.PhysicalCards.Any(material => material.CardId == cardId && material.CardKind == CardKind.ThunderChariot &&
             material.From is { Zone: CardZoneKind.Equipment, OwnerSeat: { } owner } &&

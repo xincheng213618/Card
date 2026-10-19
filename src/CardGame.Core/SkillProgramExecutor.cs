@@ -1574,6 +1574,7 @@ public sealed class SkillProgramExecutor
                     effect.Op is (SkillProgramEffectOp.InitializeShuangjiaInitialEntities or SkillProgramEffectOp.ResolveBeifenLostMarkedSuitGains) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeQiqinInitialEntities or SkillProgramEffectOp.ResolveQiqinDiscardPileQin) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.InitializeYunzhengInitialEntities or SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.InitializeTanbanInitialEntities or SkillProgramEffectOp.SwapTanbanHandMarks) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op is (SkillProgramEffectOp.ResolveMouHuangYueyingLixian or SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWuLuXunZhangcai && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveZixiQinJudgmentPlacement && state.CanContinueAfterOwnerDeath(frame) ||

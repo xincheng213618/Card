@@ -142,7 +142,7 @@ public sealed partial class GameEngine
             m.From == set.SourceLocations[n] && m.To == OwnedPaymentDiscardDestination(id) && m.Reason.Value == reason) != 1).Any();
     }
     private CardLocation OwnedPaymentDiscardDestination(int cardId) =>
-        _cardZones.CardsAt(_cardZones.GetLocation(cardId)).Single(c => c.Id == cardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile;
+        (_cardZones.CardsAt(_cardZones.GetLocation(cardId)).Single(c => c.Id == cardId).IsGeneralWeapon || ProgramEventHistory<DiouCarrierDestroyedEvent>().Any(e => e.CardId == cardId && IsDiouCarrierDestroyedMaterial(cardId,e.From,CardLocation.OutsideGame))) ? CardLocation.OutsideGame : CardLocation.DiscardPile;
     private bool CanResumePaidEquipmentPair(ProgramSkillFrame frame) => EquipmentPairCostIsPaid(frame) &&
         frame.EquipmentPairPayment is { } paid && _winner == Winner.None && _players[frame.OwnerSeat].IsAlive &&
         _players[paid.FirstSeat].IsAlive && _players[paid.SecondSeat].IsAlive &&

@@ -81,7 +81,8 @@ public sealed partial class GameEngine
         if (d.ObtainMovementSequence is not { } sequence || _cardMovements.SingleOrDefault(m=>m.Sequence==sequence) is not { } movement ||
             movement.From.OwnerSeat!=d.VictimSeat || !DamageTargetMountZones.Contains(movement.From.Zone) || movement.Reason.Value!=DamageTargetObtainReason) return false;
         if (d.Receipt is not { } r) return (d.Stage is ProgramDamageTargetObtainStage.ObtainChildren or ProgramDamageTargetObtainStage.Complete) &&
-            movement.CardKind==CardKind.GeneralWeapon && movement.From.Zone==CardZoneKind.Equipment && movement.To==CardLocation.OutsideGame;
+            movement.To==CardLocation.OutsideGame &&
+            (movement.CardKind==CardKind.GeneralWeapon && movement.From.Zone==CardZoneKind.Equipment || IsDiouCarrierDestroyedMaterial(movement));
         if (r.MovementSequence!=sequence)return false;
         return d.Stage != ProgramDamageTargetObtainStage.SelectingCard && r.Reason == DamageTargetObtainReason &&
             r.From.OwnerSeat == d.VictimSeat && DamageTargetMountZones.Contains(r.From.Zone) && r.To == CardLocation.Hand(d.OwnerSeat) &&

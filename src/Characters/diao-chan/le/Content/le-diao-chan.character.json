@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:diao-chan",
+  "skills": [
+    {
+      "registrationOrder": 2208,
+      "programBundle": "le-diao-chan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:tanban",
+        "name": "檀板",
+        "description": "游戏开始时，你的初始手牌增加“檀板”标记且不计入手牌上限。摸牌阶段结束时，你可以交换手中檀板牌与非檀板牌的标记。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2209,
+      "programBundle": "le-diao-chan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:diou",
+        "name": "低讴",
+        "description": "你使用檀板牌结算后，可以展示1张非檀板牌，然后视为使用之。若此牌为本回合首次展示或与你使用的牌牌名相同，你摸2张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2210,
+      "pools": {
+        "current": 508
+      },
+      "definition": {
+        "id": "le:diao-chan",
+        "name": "乐貂蝉",
+        "portraitKey": "le-diao-chan",
+        "skillId": "le:tanban",
+        "additionalSkillIds": [
+          "le:diou"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:diao-chan",
+        "variantId": "le",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

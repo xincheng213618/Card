@@ -77,7 +77,7 @@ public sealed partial class GameEngine
         if (r.Discarded != r.SelectedCards.Count || r.Before < 0 || r.After < r.Before || r.After > _movementSequence || paid.Length != r.Discarded) return false;
         return r.SelectedCards.Select((s, n) => paid.Count(e => e.Index == n && e.KillerSeat == r.KillerSeat && e.CardId == s.CardId && e.From == s.From &&
             e.Before == r.Before && e.After == r.After) == 1 && _cardMovements.Count(m => m.CardId == s.CardId && m.From == s.From &&
-                m.To == (s.From.Zone == CardZoneKind.Equipment && GetAttackCard(s.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile) &&
+                m.To == NormalizeDiouCarrierDestination(GetAttackCard(s.CardId), s.From, (s.From.Zone == CardZoneKind.Equipment && GetAttackCard(s.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
                 m.Reason.Value == HeJinDiscardReason && m.Sequence > r.Before && m.Sequence <= r.After) == 1).All(x => x);
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 26710)]

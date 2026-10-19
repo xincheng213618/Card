@@ -44,7 +44,7 @@ public sealed partial class GameEngine
                     return moved.Batch.ParentFrameId == f.Id && moved.Batch.Movements.All(m =>
                         (m.Sequence > paid.Before && m.Sequence <= paid.After &&
                          paid.CardIds.Select((id, i) => (id, from: paid.Locations[i])).Any(p => p.id == m.CardId && p.from == m.From &&
-                            m.Reason.Value == BlackGiftDiscardReason(f) && (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && GetAdvancedCard(m.CardId).IsGeneralWeapon))) ||
+                            m.Reason.Value == BlackGiftDiscardReason(f) && (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(m.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m))))) ||
                         // Equipment hooks run after the original physical-cost invoice is frozen.
                         (m.Sequence > paid.After && m.From == CardLocation.WoodenOxGrain(paid.WinnerSeat) &&
                          m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard &&

@@ -54,7 +54,7 @@ public sealed partial class GameEngine
         foreach (var pair in r.CardIds.Select((id, i) => (id, from: r.SourceLocations[i])))
             if (_cardMovements.Count(m => m.Sequence > r.CostBefore && m.Sequence <= r.CostAfter && m.CardId == pair.id &&
                 m.From == pair.from && m.Reason.Value == UniqueHpPeerCostReason(f) &&
-                (m.To == CardLocation.DiscardPile || pair.from.Zone == CardZoneKind.Equipment && m.To == CardLocation.OutsideGame && GetAdvancedCard(pair.id).IsGeneralWeapon)) != 1) return false;
+                (m.To == CardLocation.DiscardPile || pair.from.Zone == CardZoneKind.Equipment && m.To == CardLocation.OutsideGame && (GetAdvancedCard(pair.id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m)))) != 1) return false;
         if (!r.DrawIssued) return r.DrawBefore == 0 && r.DrawAfter == 0 && r.ActualDrawCount == 0 &&
             !CompleteProgramEventHistory().OfType<UniqueHpPeerDrawIssuedEvent>().Any(e => e.FrameId == f.Id && e.ActorSeat == seat);
         return r.DrawBefore >= r.CostAfter && r.DrawAfter >= r.DrawBefore && r.ActualDrawCount is >= 0 and <= 2 &&

@@ -175,7 +175,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Zone acquisition lost its once-issued movement parent.");
         foreach (var (id, i) in r.Cards.Select((id, i) => (id, i)))
             if (_cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.CardId == id && m.From == r.From[i] &&
-                m.To == (m.CardKind == CardKind.GeneralWeapon && m.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(f.OwnerSeat)) &&
+                m.To == NormalizeDiouCarrierDestination(GetAdvancedCard(id), m.From, (m.CardKind == CardKind.GeneralWeapon && m.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(f.OwnerSeat))) &&
                 m.Reason.Value == DamageAcquisitionReason) != 1)
                 throw new InvalidOperationException("Zone acquisition must move each selected physical entity exactly once.");
     }

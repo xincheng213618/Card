@@ -112,7 +112,7 @@ public sealed partial class GameEngine
             var moves = _cardMovements.Where(m => m.Sequence > r.SequenceBefore && m.Sequence <= r.SequenceAfter).ToArray();
             return moves.Length == r.SelectedCardIds.Count && moves.Select(m => m.CardId).SequenceEqual(r.SelectedCardIds) && moves.All(m =>
                 m.From == r.Materials.Single(x => x.CardId == m.CardId).From && m.Reason.Value == RecipientMarkReason(f, "discard") &&
-                m.To == (m.From.Zone == CardZoneKind.Equipment && GetAdvancedCard(m.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
+                m.To == NormalizeDiouCarrierDestination(GetAdvancedCard(m.CardId), m.From, (m.From.Zone == CardZoneKind.Equipment && GetAdvancedCard(m.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) &&
                 (r.Stage == RecipientCategoryMarkStage.Complete ? f.PendingMovementContinuation is null : f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } p && p.SubjectSeat == target);
         }
         if (r.Operation != SkillProgramEffectOp.SpendCategoryMarkForSlashTargets || r.CardUseFrameId is not { } useId || r.ActionId is not { } actionId ||

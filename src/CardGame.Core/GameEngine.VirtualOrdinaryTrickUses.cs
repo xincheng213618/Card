@@ -262,7 +262,7 @@ public sealed partial class GameEngine
     private Card ReadVirtualOrdinaryTrickUseAppearance(long ownerId, CardAppearanceReference appearance)
     {
         if (LifecycleCardUse(ownerId) is not { VirtualOrdinaryTrickOrigin: not null } use)
-            return ReadDrawFundedDistinctBasicUseAppearance(ownerId, appearance);
+            return ReadDiouUseAppearance(ownerId, appearance);
         if (!ValidProgramVirtualOrdinaryTrickUse(use) || appearance.Id != 0 ||
             appearance.Kind != use.CardKind || appearance.Suit != Suit.None || appearance.Rank != 0)
             throw new InvalidOperationException("A virtual ordinary trick appearance lost its exact issued use.");

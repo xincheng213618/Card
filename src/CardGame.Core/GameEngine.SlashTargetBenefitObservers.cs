@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         var records = _cardMovements.Where(m => m.Sequence > before && m.Sequence <= after).ToArray();
         return records is [var moved] && moved.CardId == cardId && moved.From == from && moved.Reason.Value == reason &&
             moved.TurnNumber == _turnNumber && (moved.To == CardLocation.DiscardPile ||
-                from.Zone == CardZoneKind.Equipment && moved.To == CardLocation.OutsideGame && GetAttackCard(cardId).IsGeneralWeapon);
+                from.Zone == CardZoneKind.Equipment && moved.To == CardLocation.OutsideGame && (GetAttackCard(cardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(moved)));
     }
     private bool ValidSlashTargetBenefitReceipt(SlashTargetBenefitReceipt r)
     {

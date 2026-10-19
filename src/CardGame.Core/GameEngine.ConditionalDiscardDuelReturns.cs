@@ -15,7 +15,7 @@ public sealed partial class GameEngine
                 p.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment && p.SequenceBefore >= 0 && p.SequenceAfter > p.SequenceBefore &&
                 moved is [var actual] && actual.CardId == p.CardId && actual.CardKind == p.PrintedKind && actual.From == p.From &&
                 actual.Reason.Value == reason && actual.TurnNumber == d.TurnNumber &&
-                (actual.To == CardLocation.DiscardPile || p.From.Zone == CardZoneKind.Equipment && actual.To == CardLocation.OutsideGame && GetAttackCard(p.CardId).IsGeneralWeapon) &&
+                (actual.To == CardLocation.DiscardPile || p.From.Zone == CardZoneKind.Equipment && actual.To == CardLocation.OutsideGame && (GetAttackCard(p.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(actual))) &&
                 (!owner || IsSlashCard(p.PrintedKind) && !GetAttackCard(p.CardId).IsGeneralWeapon) &&
                 CompleteProgramEventHistory().OfType<ConditionalDiscardDuelPaidEvent>().Count(e => e.ProgramFrameId == f.Id &&
                     e.PayerSeat == seat && e.OwnerCost == owner && e.SequenceBefore == p.SequenceBefore && e.SequenceAfter == p.SequenceAfter) == 1;

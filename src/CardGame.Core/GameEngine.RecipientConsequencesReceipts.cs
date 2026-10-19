@@ -67,7 +67,7 @@ public sealed partial class GameEngine
             var records = _cardMovements.Where(m => m.Sequence > paid.Before && m.Sequence <= paid.After).ToArray();
             foreach (var pair in paid.CardIds.Select((id, i) => (id, from: paid.Locations[i])))
                 if (records.Count(m => m.CardId == pair.id && m.From == pair.from && m.Reason.Value == BlackGiftDiscardReason(f) &&
-                    (m.To == CardLocation.DiscardPile || pair.from == CardLocation.Equipment(paid.WinnerSeat) && m.To == CardLocation.OutsideGame && GetAdvancedCard(pair.id).IsGeneralWeapon)) != 1) return false;
+                    (m.To == CardLocation.DiscardPile || pair.from == CardLocation.Equipment(paid.WinnerSeat) && m.To == CardLocation.OutsideGame && (GetAdvancedCard(pair.id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m)))) != 1) return false;
             if (records.Where(m => !paid.CardIds.Contains(m.CardId)).Any(m => m.From != CardLocation.WoodenOxGrain(paid.WinnerSeat) ||
                 m.To != CardLocation.DiscardPile || m.Reason != CardMoveReasons.WoodenOxGrainDiscard ||
                 !records.Any(p => paid.CardIds.Contains(p.CardId) && p.CardKind == CardKind.WoodenOx && p.From == CardLocation.Equipment(paid.WinnerSeat)))) return false;

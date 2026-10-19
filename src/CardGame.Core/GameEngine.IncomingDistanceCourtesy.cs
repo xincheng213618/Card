@@ -107,7 +107,7 @@ public sealed partial class GameEngine
         if (r.Kind == IncomingDistanceCourtesyKind.FactionDistance)
         {
             var card = GetAttackCard(choice.Cards.Single()); var from = _cardZones.GetLocation(card.Id);
-            var to = card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile;
+            var to = NormalizeDiouCarrierDestination(card, from, card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile);
             var movement = new IncomingDistanceCourtesyMovement(0, f.OwnerSeat, 1, 1, _movementSequence, _movementSequence, card.Id, from, to);
             ReplaceRuntimeTop(f = f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
             var logicalDiscard = CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,

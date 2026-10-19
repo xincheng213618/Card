@@ -1,0 +1,108 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-19",
+  "name": "乐貂蝉",
+  "generalId": "le:diao-chan",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "sources": [
+    {
+      "kind": "currentHero",
+      "url": "https://x.sanguosha.com/hero/1338.html",
+      "bytes": 25223,
+      "sha256": "675f3f186071c032672aea3fc40c948478375c990b92a63283bd47c4879ead04"
+    },
+    {
+      "kind": "formalLaunch",
+      "url": "https://x.sanguosha.com/news/20241107_9689_2119.html",
+      "bytes": 532685,
+      "sha256": "dd58e53b72baee01c4ebc2e507821af34eec0c77d6126f02fc8ac437d1a1df58"
+    },
+    {
+      "kind": "formalFix",
+      "url": "https://x.sanguosha.com/news/20250324_1252_0615.html",
+      "bytes": 22299,
+      "sha256": "6ff82d13b1e7eafe9c60cbf99527c5b004e0c1972d423136cb75df4dcf290970"
+    }
+  ],
+  "firstObtainableAt": "2024-11-08T00:00:00+08:00",
+  "officialIdentity": {
+    "faction": "qun",
+    "hp": 3,
+    "gender": "Female"
+  },
+  "skills": [
+    {
+      "id": "le:tanban",
+      "name": "檀板",
+      "text": "游戏开始时，你的初始手牌增加“檀板”标记且不计入手牌上限。摸牌阶段结束时，你可以交换手中檀板牌与非檀板牌的标记。"
+    },
+    {
+      "id": "le:diou",
+      "name": "低讴",
+      "text": "你使用檀板牌结算后，可以展示1张非檀板牌，然后视为使用之。若此牌为本回合首次展示或与你使用的牌牌名相同，你摸2张牌。"
+    }
+  ],
+  "currentVersusFormal": {
+    "same": true,
+    "fix": "2025-03-26正式发布、3月27日6.1.6生效，修复乐貂蝉低讴展示酒牌使用异常；不表示只允许六种基本牌。",
+    "versions": "本次fresh当前hero及2024-11-07正式上线公告均为摸牌阶段结束、首次展示或同名、摸2；没有把测试版或欢乐三国杀不同版本当成本版正文。"
+  },
+  "artwork": {
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133801.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133801.png",
+    "httpStatus": 200,
+    "bytes": 792658,
+    "sha256": "93b3207661487ab3e1855540133722133fc878bce9d0c902ff29486e44477862",
+    "fetchedAtUtc": "2026-10-19T02:08:28.749750+00:00",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-diao-chan.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1338.html",
+    "inspection": "Official hero userInfoStatic URL returned a generic black silhouette. The matching official runtime static asset 1133801 was fetched and visually inspected as the complete classic Le Diao Chan portrait; no image modification was performed."
+  },
+  "engineeringInterpretations": [
+    "Whole Hand optional mark exchange means atomic binary inversion, not a picked equal-size subset.",
+    "Official primary text gives no separate multi-material conversion, source-loss, late-acquisition or exact virtual equipment entity ruling. Preserve complete behavior and document explicit native contracts rather than silently delete families.",
+    "Tanban is a global binary property of the exact original physical entity. Initial source copies mark the frozen final opening Hand once per owner; subsequent source regrant does not mark a fresh Hand. The live holder source supplies only their own marked Hand exemption.",
+    "Each offered DrawPhaseEnded source may invert every current Hand entity in one atomic mark batch. Cards outside that Hand keep their marks; transfers and returns do not erase physical marks.",
+    "Diou captures whether any actual physical material was Tanban and the effective native name at accepted true Use. Pure Played does not trigger; zero-material virtual copies do not themselves supply a Tanban material.",
+    "The selected original entity is publicly revealed and stays in Hand. A neutral suit/rank zero-material use has independent native identity; generated equipment or delayed carriers represent only its persistent logical effect and never pay with or consume the revealed original entity.",
+    "The reward is first public Hand reveal of this original physical entity during the current actual turn OR the same effective name as the triggering use. Other real public Hand reveals count; private peeks, ordinary use exposure and face-up movements do not.",
+    "No specialized official FAQ was verified for these engineering edge contracts; they are explicit implementation decisions rather than invented official rulings.",
+    "Text-order interpretation: every owned real non-Tanban Hand entity may be revealed, including Dodge, Nullification or a card without a currently legal target. If no legal same-name native Use exists after reveal, that step is skipped without fabricating a Use or consuming use quota; the already revealed entity still qualifies for the conditional Draw2.",
+    "The immediate Diou native request may occur outside the ordinary Play timing, while existing target restrictions, distance, source restrictions and ordinary use quota still apply. The whole card use settles before the conditional reward begins.",
+    "For multi-material converted true Uses, at least one actual Tanban material qualifies the use; zero-material uses do not qualify. This is an explicit engineering interpretation, not a verified official multi-material FAQ.",
+    "Persistent carrier contract: neutral virtual equipment may transfer directly between Equipment zones, and delayed effects may transfer directly between Judgment zones. These preserve the same logical effect identity. Leaving the field for Hand, discard, draw pile or other storage, or equipment being spent as a material into Processing, destroys the carrier to OutsideGame with an exact destruction receipt. A destroyed carrier cannot be revived or recycled. Wooden Ox grain remains real material and follows its normal native departure or transfer rules."
+  ],
+  "verificationLimits": [
+    "No authenticated client or server FAQ was used. Complete primary text is the rule authority."
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 26,
+      "wpfPassed": 2,
+      "durationMs": 40701
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 73761
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the original-resolution official Le Diao Chan artwork, the actual WPF gallery details and native Hand mark exchange render.",
+    "scopeNote": "Four focused native behavior groups, real WPF hand/gallery checks and measured bounded routine verification. No manual full run or complete manual foreground match.",
+    "coveredBoundaries": [
+      "Frozen real opening Hand entities, permanent physical binary marks, native Draw-ended whole-Hand inversion and currently qualified holder Hand-limit exemption.",
+      "Accepted true-Use and true-response qualification, original material and effective name proof, pure Played exclusion and prepaid declaration source lifetime.",
+      "Public reveal retains the exact original Hand entity; independent neutral zero-material native same-name Use supports standard Basic, ordinary trick, delayed trick and equipment families.",
+      "Exact first public Hand reveal during the actual turn OR same effective name yields real native Draw2 after child return, without recursive zero-material qualification.",
+      "Native effect carriers retain direct field transfers and retire through exact OutsideGame destruction receipts, including real Snatch and Liyu acquisition with zero actual Hand gain.",
+      "Nested true Dodge, Nullification and Peach completion preserves the original attack, response cursor and dying token without repeated material payment or damage.",
+      "Native Borrowed Sword retains its designated real material-backed Slash child, and a genuine granted multi-target Duel completes both ordered targets through one whole Use and one conditional Draw2.",
+      "Player-view privacy, rejected stale/forged choices, frozen owning-frame collections and completed paid children survive source changes.",
+      "Complete selectable Le gallery details with the visually inspected official portrait, and actual WPF Tanban badge refresh through its published native choice."
+    ]
+  }
+}

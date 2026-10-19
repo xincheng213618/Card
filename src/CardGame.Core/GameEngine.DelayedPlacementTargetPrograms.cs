@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         // discarded-card and owned-card conversion producers. Their paid
         // movement children and committed-use observers have drained before
         // entering this method, including when protection will end the use.
-        if (!(HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
+        if (!(HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
             LifecycleCardUse(frameId) is not { } use || !IsDelayedCard(use.CardKind) ||
             use.FinalizedTrickProgramsStarted) return false;
         if (_resolutionStack.LastOrDefault()?.Id != frameId ||
@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             actionKind != DelayedPlacementActionKind(use.CardKind) ||
             action.TargetSeats is not [var target] || !IsValidPlayerSeat(target) ||
             !action.TargetSeats.SequenceEqual(use.TargetSeats) ||
-            !action.PhysicalCards.Any(cost => cost.CardId == card.Id) ||
+            !(action.PhysicalCards.Any(cost => cost.CardId == card.Id) || IsDiouUse(frameId)) ||
             _cardZones.GetLocation(card.Id) != CardLocation.Processing)
             throw new InvalidOperationException("A delayed placement lost its exact paid use and target.");
         TryMarkProgramUseAccepted(frameId);
@@ -40,7 +40,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsExactFinalizedDelayedPlacementWindow(ProgramCardTriggerWindowFrame window) =>
-        (HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
+        (HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
         window.TrickContinuation is { TargetCardId: null, RequiredCardKind: null } continuation &&
         window.SimpleContinuation is null && window.CompletedResponseReturn is null && window.AttackOwnerFrameId is null &&
         LifecycleCardUse(window.ParentFrameId) is
@@ -49,7 +49,7 @@ public sealed partial class GameEngine
         action.ActorSeat == use.SourceSeat && action.EffectiveKind == use.CardKind &&
         window.Action.EffectiveKind == use.CardKind && IsDelayedCard(use.CardKind) &&
         continuation.ActionKind == DelayedPlacementActionKind(use.CardKind) &&
-        continuation.EffectCardId == use.CardId && action.PhysicalCards.Any(cost => cost.CardId == use.CardId) &&
+        continuation.EffectCardId == use.CardId && (action.PhysicalCards.Any(cost => cost.CardId == use.CardId) || IsDiouUse(use.Id)) &&
         window.Action.PhysicalCards.SequenceEqual(action.PhysicalCards) &&
         action.TargetSeats is [var target] && IsValidPlayerSeat(target) &&
         action.TargetSeats.SequenceEqual(use.TargetSeats);

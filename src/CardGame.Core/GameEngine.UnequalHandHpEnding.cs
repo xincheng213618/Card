@@ -212,7 +212,7 @@ public sealed partial class GameEngine
                       expectedStep == "gift" && p.From != CardLocation.Hand(f.OwnerSeat) && p.From != CardLocation.Equipment(f.OwnerSeat)) ||
                 fact is not [var issued] || issued.Payment != p || p.Count is < 0 or > 1 || actual.Length != p.Count ||
                 (p.CardId is { } paid ? p.Count != 1 || p.From is null || actual[0].CardId != paid || actual[0].From != p.From ||
-                    actual[0].To != p.To && !(actual[0].To == CardLocation.OutsideGame && GetAdvancedCard(paid).IsGeneralWeapon)
+                    actual[0].To != p.To && !(actual[0].To == CardLocation.OutsideGame && (GetAdvancedCard(paid).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(actual[0])))
                     : actual.Any(m => m.From != CardLocation.DrawPile || m.To != CardLocation.Hand(p.SubjectSeat))))
                 throw new InvalidOperationException("The hand/HP receipt lost its exact once-only actual movement producer.");
         }

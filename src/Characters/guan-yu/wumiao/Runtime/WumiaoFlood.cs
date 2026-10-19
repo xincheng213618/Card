@@ -191,7 +191,7 @@ public sealed partial class GameEngine
             DiscardCardId = cardId, DiscardFrom = from, DiscardPrintedKind = card.Kind,
             DiscardSequenceBefore = before, DiscardSequenceAfter = before, GrainMaterials = grains,
             DiscardNativeDestruction = from.Zone == CardZoneKind.Equipment &&
-                (card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, CardLocation.DiscardPile)) } });
+                (card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, CardLocation.DiscardPile) || IsDiouCarrier(card.Id)) } });
         MoveLogicalDiscard(r.TargetSeat, r.TargetSeat, card, from, WumiaoFloodDiscardReason, movement =>
         {
             UpdateLifecycleCardUse(use.Id, current => current with
@@ -241,7 +241,7 @@ public sealed partial class GameEngine
         movement.Reason == WumiaoFloodDiscardReason &&
         (r.DiscardNativeDestruction ? movement.From.Zone == CardZoneKind.Equipment && movement.To == CardLocation.OutsideGame &&
             (GetAdvancedCard(movement.CardId).IsGeneralWeapon ||
-             IsGuanduThunderChariotDeparture(GetAdvancedCard(movement.CardId), movement.From, CardLocation.DiscardPile)) :
+             IsGuanduThunderChariotDeparture(GetAdvancedCard(movement.CardId), movement.From, CardLocation.DiscardPile) || IsDiouCarrierDestroyedMaterial(movement)) :
             movement.To == CardLocation.DiscardPile || IsHellShiyouPaidDiscardMovement(movement, movement.From, WumiaoFloodDiscardReason));
 
     [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 28510)]

@@ -2,9 +2,13 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private CardLocation PairedColorPaidDestination(ProgramSkillFrame f, ProgramPairedColorDispositionReceipt r) =>
-        r.PaidGeneralWeapon && r.PaidFrom?.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame :
-        r.Obtain ? CardLocation.Hand(f.OwnerSeat) : CardLocation.DiscardPile;
+    private CardLocation PairedColorPaidDestination(ProgramSkillFrame f, ProgramPairedColorDispositionReceipt r)
+    {
+        var intended = r.PaidGeneralWeapon && r.PaidFrom?.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame :
+            r.Obtain ? CardLocation.Hand(f.OwnerSeat) : CardLocation.DiscardPile;
+        return r.PaidCardId is { } id && r.PaidFrom is { } from
+            ? NormalizeDiouCarrierDestination(GetAdvancedCard(id), from, intended) : intended;
+    }
     private string PairedColorPaidReason(ProgramPairedColorDispositionReceipt r) => r.Obtain ? PairedColorObtainReason : PairedColorDiscardReason;
 
     private bool ValidPairedColorDispositionReceipt(ProgramSkillFrame f)

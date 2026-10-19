@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
+        cardId==0 && IsDiouUse(frameId) ? DiouRepresentation(frameId) :
         cardId==0 && IsHuanpeiUse(frameId) ? HuanpeiRepresentation(frameId) :
         cardId==0 && IsZonghuUse(frameId) ? ZonghuRepresentation(frameId) :
         cardId==0 && IsWeijieUse(frameId) ? WeijieRepresentation(frameId) :
@@ -47,6 +48,7 @@ public sealed partial class GameEngine
         cardId==0 && IsTianChouShandaoUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsProgramVirtualOrdinaryTrickUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
+        cardId > 0 && LifecycleCardUse(frameId) is { DiouOrigin: { } diou } && diou.CarrierId == cardId && IsDiouUse(frameId) ? EntityAtCurrentLocation(cardId) :
             (IsClaimedUseCardEntity(frameId, cardId) || (IsHuiyunOutsideGeneralWeaponMaterial(frameId, cardId) || (IsSiruiOutsideGeneralWeaponMaterial(frameId, cardId) || IsMouLixianRemovedMaterial(frameId, cardId))) || IsGuanduDestroyedChariotMaterial(frameId, cardId) || IsHellDestroyedSoulMaterial(frameId, cardId)) ? EntityAtCurrentLocation(cardId) :
             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);
     private bool MatchesSelectedActorDuelAction(long frameId,CardActionContext action,int cardId) =>

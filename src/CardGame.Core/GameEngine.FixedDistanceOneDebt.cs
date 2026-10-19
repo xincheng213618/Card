@@ -184,7 +184,7 @@ public sealed partial class GameEngine
         return paid is [var fact] && fact.Grant == r.Grant && fact.CardId == r.CardId && fact.From == from &&
             fact.SequenceBefore == r.SequenceBefore && fact.SequenceAfter == r.SequenceAfter &&
             _cardMovements.Count(m => m.Sequence > r.SequenceBefore && m.Sequence <= r.SequenceAfter && m.CardId == r.CardId && m.From == from &&
-                (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && GetAttackCard(m.CardId).IsGeneralWeapon) && m.Reason.Value == FixedDistanceDebtReason) == 1;
+                (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAttackCard(m.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m))) && m.Reason.Value == FixedDistanceDebtReason) == 1;
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 390)]
     private void AssertFixedDistanceDebtPayment(ProgramSkillFrame f)

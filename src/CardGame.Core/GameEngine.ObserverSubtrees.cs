@@ -82,7 +82,7 @@ public sealed partial class GameEngine
 
     private bool IsSuspendedOrPaidRescueObserverSuffix(int child, DyingFrame dying) =>
         IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying) ||
-        IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) || IsOriginalDyingSuspendedByHeJinYanhuo(dying) || IsPaidRescueObserverSuffix(child, dying);
+        IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) || IsOriginalDyingSuspendedByHeJinYanhuo(dying) || IsOriginalDyingSuspendedByDiou(dying) || IsPaidRescueObserverSuffix(child, dying);
 
     private bool HasMovementObserverSuffix(int rootIndex) => HasObserverSuffix(rootIndex,
         static (engine, child) => engine.IsMovementObserverEdge(child),

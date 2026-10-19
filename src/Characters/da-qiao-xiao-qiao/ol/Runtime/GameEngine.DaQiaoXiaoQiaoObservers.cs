@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         var reason=paid.Stage==DaQiaoXiaoQiaoStage.DepositChildren?XingwuDepositReason:paid.Stage==DaQiaoXiaoQiaoStage.CostChildren?r.Branch=="pile"?XingwuPileReason:XingwuHandReason:XingwuEquipmentReason;
         return r.Entities.All(entity=>ProgramEventHistory<DaQiaoXiaoQiaoEntityPaidEvent>().Where(e=>e.FrameId==f.Id&&e.Step==r.MovementStep&&e.CardId==entity.Id).ToArray()is[var receipt]&&receipt.From==entity.From&&receipt.Sequence>r.Before&&receipt.Sequence<=r.After&&
             _cardMovements.Count(m=>m.Sequence==receipt.Sequence&&m.CardId==entity.Id&&m.From==entity.From&&m.To==receipt.To&&m.Reason.Value==reason)==1&&
-            receipt.To==(entity.From.Zone==CardZoneKind.Equipment&&GetAttackCard(entity.Id).IsGeneralWeapon?CardLocation.OutsideGame:paid.Stage==DaQiaoXiaoQiaoStage.DepositChildren?r.Pile.Location:CardLocation.DiscardPile));
+            receipt.To==NormalizeDiouCarrierDestination(GetAttackCard(entity.Id), entity.From, (entity.From.Zone==CardZoneKind.Equipment&&GetAttackCard(entity.Id).IsGeneralWeapon?CardLocation.OutsideGame:paid.Stage==DaQiaoXiaoQiaoStage.DepositChildren?r.Pile.Location:CardLocation.DiscardPile)));
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27340)]private void AssertDaQiaoXiaoQiao(ProgramSkillFrame f){if(f.DaQiaoXiaoQiao is not null&&!ValidDaQiaoXiaoQiao(f))throw new InvalidOperationException("Xingwu lost its exact actual-phase parent, original source, frozen paid entities or once-only native child receipt.");}
     private bool DaQiaoXiaoQiaoMovementMatches(ProgramSkillFrame f,CardMovementRecord m)

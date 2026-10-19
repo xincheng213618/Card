@@ -75,7 +75,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(location).Single(item => item.Id == cardId);
         if (card.IsGeneralWeapon || !CanEnterEquipmentSlot(destination, card))
             throw new InvalidOperationException("The Jiewei destination no longer accepts the equipment.");
-        var target = CardLocation.Equipment(destination);
+        var target = NormalizeDiouCarrierDestination(card, location, CardLocation.Equipment(destination));
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.jiewei-move");
         ReplaceRuntimeTop(active with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         var batch = BeginCardMovementBatch([location], [target]);

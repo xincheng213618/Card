@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     private readonly HashSet<string> _usedGeneralWeaponSources = new(StringComparer.Ordinal);
     private bool MoveProcessingCardUnlessDestroyed(Card card, CardLocation destination, CardMoveReason reason)
     {
-        if (card.IsGeneralWeapon && _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
+        if ((card.IsGeneralWeapon || IsDiouCarrier(card.Id)) && _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
             return false;
         MoveCard(card, CardLocation.Processing, destination, reason);
         return true;
@@ -55,7 +55,7 @@ public sealed partial class GameEngine
     private void PlaceAdvancedWeapon(ProgramSkillFrame frame, int targetSeat, CardKind kind)
     {
         if (!_players[targetSeat].IsAlive) return;
-        var found = CreateCardZoneDiagnostics().Where(item => item.CardKind == kind && !_permanentlyRemovedWeapons.Contains(item.CardId)).ToArray();
+        var found = CreateCardZoneDiagnostics().Where(item => item.CardKind == kind && !_permanentlyRemovedWeapons.Contains(item.CardId) && !IsDiouCarrier(item.CardId)).ToArray();
         var card = found.Length > 0 ? GetAdvancedCard(found[0].CardId) : null;
         if (card is null)
         {

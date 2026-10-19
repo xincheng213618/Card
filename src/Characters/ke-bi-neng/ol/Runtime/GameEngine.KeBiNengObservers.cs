@@ -16,7 +16,7 @@ public sealed partial class GameEngine
                 moved.Batch.OriginSkillInstanceId != f.SkillInstanceId || moved.Batch.Movements.Count == 0) return false;
             return moved.Batch.Movements.All(m => _cardMovements.Contains(m) && m.Sequence > r.Before && m.Sequence <= r.After && (KeBiNengCardPaymentStage(r) ?
                 r.SelectedCard is { } c && moved.Batch.Id == r.PaidBatchId && m.CardId == c.CardId && m.From == c.From && m.Reason == KeBiNengPaymentReason(r) &&
-                    m.To == (r.Stage == KeBiNengPingduanStage.RecastChildren ? GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile : CardLocation.Hand(f.OwnerSeat)) ||
+                    m.To == NormalizeDiouCarrierDestination(GetAttackCard(c.CardId), c.From, (r.Stage == KeBiNengPingduanStage.RecastChildren ? GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile : CardLocation.Hand(f.OwnerSeat))) ||
                 moved.Batch.ParentBatchId == r.PaidBatchId && m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.From == CardLocation.WoodenOxGrain(r.ActorSeat) && m.To == CardLocation.DiscardPile && r.WoodenOxGrainIds.Contains(m.CardId) :
                 r.Stage is KeBiNengPingduanStage.BasicRewardChildren or KeBiNengPingduanStage.RecastDrawChildren or KeBiNengPingduanStage.RecastRewardChildren or KeBiNengPingduanStage.EquipmentRewardChildren &&
                     (m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(r.ActorSeat) && m.Reason == (r.Stage == KeBiNengPingduanStage.RecastDrawChildren ? CardMoveReasons.RecastDraw : new CardMoveReason(PingduanRewardReason)) || m.Reason == CardMoveReasons.Reshuffle)));

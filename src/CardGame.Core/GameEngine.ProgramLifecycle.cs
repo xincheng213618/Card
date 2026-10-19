@@ -2163,13 +2163,14 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
-        if (IsIssuedMouGuquCandidate(candidate, context)) return true;
+        if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;
         if (IsIssuedBiriCandidate(candidate, context)) return true;
         if (IsIssuedLingkongCandidate(candidate, context)) return true;
         if (IsIssuedShuangjiaCandidate(candidate, context)) return true;
+        if (IsIssuedTanbanInitialCandidate(candidate, context)) return true;
         if (IsIssuedQiqinCandidate(candidate, context)) return true;
         if (IsIssuedBeifenCandidate(candidate, context)) return true;
         if (IsIssuedGuYinCandidate(candidate, context)) return true;

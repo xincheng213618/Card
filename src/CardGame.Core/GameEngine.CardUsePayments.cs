@@ -91,7 +91,8 @@ public sealed partial class GameEngine
                 IsGuanduThunderChariotDeparture(card, cost.From, CardLocation.Processing)
                 ? CardLocation.OutsideGame : IsProgramAlternativeCost(action, move.CardId)
                     ? CardLocation.DrawPile : CardLocation.Processing;
-            if (move.To != destination) return false;
+            destination = NormalizeDiouCarrierDestination(card, cost.From, destination);
+            if (move.To != destination || IsDiouCarrier(card.Id) && destination == CardLocation.OutsideGame && !IsDiouCarrierDestroyedMaterial(move)) return false;
         }
         return true;
     }

@@ -56,7 +56,7 @@ public sealed partial class GameEngine
         return pending.Count == 0 ? pending.CardId is null && pending.From is null : pending.CardId is { } id && pending.From is { OwnerSeat: { } cardOwner } from && cardOwner == stepInfo.Seat &&
             from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment && _cardMovements.Count(m => m.Sequence > pending.Before && m.Sequence <= pending.After && m.CardId == id &&
                 m.From == from && m.Reason.Value == "skill-program.xunyi.discard" &&
-                (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && GetAdvancedCard(id).IsGeneralWeapon)) == 1;
+                (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m)))) == 1;
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 26320)]
     private void RequireXunyi(ProgramSkillFrame frame)

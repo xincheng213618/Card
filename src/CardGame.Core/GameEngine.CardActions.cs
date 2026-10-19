@@ -486,6 +486,7 @@ public sealed partial class GameEngine
         CollectIssuedPijingNextUseCandidates(action, window, result);
         CollectIssuedBiguoCandidates(action, window, result);
         CollectIssuedMouGuquCandidates(action, window, result);
+        CollectIssuedDiouCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -856,11 +857,13 @@ public sealed partial class GameEngine
             var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
             var suspendedGuoSiParent = LifecycleCardUse(frame.ParentFrameId) is { } guoSiParent &&
                 IsSuspendedGuoSiCompletedParent(guoSiParent);
+            var suspendedDiouParent = LifecycleCardUse(frame.ParentFrameId) is { } diouParent &&
+                IsDiouSuspendedCompletedAttack(diouParent, frame.Id);
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
             var attackMatches = (HasHuiyunCompletedUseObserver(frame.ParentFrameId) || HasChenglieCompletedUseObserver(frame.ParentFrameId)) || HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
                 OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
-                frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || suspendedGuoSiParent || drawFundedQinglongFollowup ||
+                frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || suspendedGuoSiParent || suspendedDiouParent || drawFundedQinglongFollowup ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:tanban",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeTanbanInitialEntities",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "swap-draw-end-hand-marks",
+          "window": "drawPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "swapTanbanHandMarks",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "le:diou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-tanban-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "effects": [
+            {
+              "op": "resolveDiouTanbanUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

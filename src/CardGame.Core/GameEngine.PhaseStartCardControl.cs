@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         if (branch == "decline") { CompletePhaseStartCardControl(f); return; }
         var card = GetAttackCard(selected.Cards.Single()); var from = _cardZones.GetLocation(card.Id);
         var obtain = r.Kind == PhaseStartCardControlKind.StartingEquipment && branch == "obtain";
-        var to = obtain ? CardLocation.Hand(f.OwnerSeat) : from.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile;
+        var to = NormalizeDiouCarrierDestination(card, from, obtain ? CardLocation.Hand(f.OwnerSeat) : from.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile);
         var payment = new PhaseStartCardControlPayment(card.Id, card.Kind, EffectiveSuit(_players[from.OwnerSeat!.Value], card), from, to,
             _movementSequence, _movementSequence);
         ReplaceRuntimeTop(f = f with { PhaseStartCardControl = r with { Stage = PhaseStartCardControlStage.MovementChildren,
@@ -135,9 +135,9 @@ public sealed partial class GameEngine
         return r.Stage is PhaseStartCardControlStage.MovementChildren or PhaseStartCardControlStage.GrantChildren &&
             p.SequenceAfter > p.SequenceBefore && p.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
             (r.Kind == PhaseStartCardControlKind.OtherPlayRestriction ? p.From.OwnerSeat == f.OwnerSeat && !r.ArmorAcquired &&
-                p.To == (p.Kind == CardKind.GeneralWeapon && p.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile) :
-                p.From.Zone == CardZoneKind.Equipment && (r.ArmorAcquired ? p.To == CardLocation.Hand(f.OwnerSeat) && EquipmentCatalog.Get(p.Kind).Slot == EquipmentSlot.Armor :
-                    p.From.OwnerSeat != f.OwnerSeat && p.To == (p.Kind == CardKind.GeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) &&
+                p.To == NormalizeDiouCarrierDestination(GetAdvancedCard(p.CardId),p.From,p.Kind == CardKind.GeneralWeapon && p.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile) :
+                p.From.Zone == CardZoneKind.Equipment && (r.ArmorAcquired ? p.To == NormalizeDiouCarrierDestination(GetAdvancedCard(p.CardId),p.From,CardLocation.Hand(f.OwnerSeat)) && EquipmentCatalog.Get(p.Kind).Slot == EquipmentSlot.Armor :
+                    p.From.OwnerSeat != f.OwnerSeat && p.To == NormalizeDiouCarrierDestination(GetAdvancedCard(p.CardId),p.From,p.Kind == CardKind.GeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) &&
             _cardMovements.Count(m => m.CardId == p.CardId && m.CardKind == p.Kind && m.From == p.From && m.To == p.To &&
                 m.Sequence > p.SequenceBefore && m.Sequence <= p.SequenceAfter && m.Reason.Value == PhaseStartControlReason(r.Kind)) == 1 &&
             CompleteProgramEventHistory().OfType<PhaseStartCardControlPaidEvent>().Count(e => e.Receipt.ProgramFrameId == f.Id &&
@@ -167,7 +167,7 @@ public sealed partial class GameEngine
         {
             ReplaceRuntimeTop(f = f with { PhaseStartCardControl = r with { Stage = PhaseStartCardControlStage.GrantChildren } });
             if (r.Kind == PhaseStartCardControlKind.OtherPlayRestriction) GrantOtherPlayRestriction(f);
-            else if (r.ArmorAcquired) GrantStartingEquipmentSlashProhibition(f);
+            else if (r.ArmorAcquired && r.Payment?.To == CardLocation.Hand(f.OwnerSeat)) GrantStartingEquipmentSlashProhibition(f);
             AdvanceRuntimeProgram(id); return true;
         }
         CompletePhaseStartCardControl(f); return true;

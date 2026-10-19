@@ -64,6 +64,7 @@ public sealed partial class GameEngine
             {
                 var material=materials[j]; var fact=paid[j]; var to=reason==ShuziGiftReason?CardLocation.Hand(r.TargetSeat):reason==ShuziReturnReason?CardLocation.Hand(f.OwnerSeat):reason==KuangshouDiscardReason?(material.From.Zone==CardZoneKind.Equipment&&material.IsGeneralWeapon?CardLocation.OutsideGame:CardLocation.DiscardPile):
                     material.From.Zone==CardZoneKind.Judgment?CardLocation.Judgment(r.TargetSeat):CardLocation.Equipment(r.TargetSeat);
+                to=NormalizeDiouCarrierDestination(GetAdvancedCard(material.CardId),material.From,to);
                 if(fact.Index!=j || fact.Material!=material || fact.To!=to || (fact.MovementSequence is { } sequence ?
                     moves.Count(move=>move.Sequence==sequence && move.CardId==material.CardId && move.CardKind==material.PrintedKind && move.From==material.From && move.To==to)!=1 :
                     reason is not (ShuziGiftReason or ShuziReturnReason) || r.TargetSeat!=f.OwnerSeat || material.From!=CardLocation.Hand(f.OwnerSeat) || to!=material.From ||
