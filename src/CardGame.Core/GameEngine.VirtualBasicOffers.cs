@@ -125,7 +125,7 @@ public sealed partial class GameEngine
             }
             else
             {
-                actor.UsedPlayPhaseAlcoholThisTurn = true; ApplyExtraCapableAlcoholEffect(id, actor);
+                RecordMouZhaJiangAwareAlcoholDebit(id, actor); ApplyExtraCapableAlcoholEffect(id, actor);
                 AdvanceEventRulesAndQueueFact(new AlcoholAppliedEvent(id, actor.Seat, 1));
                 AddLog("CardEffect", $"{actor.Name} 使用【酒】，下一张直接杀造成的伤害 +1。", actor.Seat, actor.Seat);
             }

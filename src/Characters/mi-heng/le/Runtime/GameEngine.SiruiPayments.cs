@@ -43,6 +43,7 @@ public sealed partial class GameEngine
     private void PrepareSiruiResponsePayment(CharacterState provider, Card card, CardKind kind,
         CardConversionSource? source)
     {
+        PrepareMouZhaJiangResponse(provider, [card.Id], kind);
         if (!IsSiruiSource(source)) return;
         if (!CanUseSiruiPhase(provider, source!) || !IsSiruiTrueResponseUse(provider, kind) ||
             ViewAsRule(source!)!.OutputKind != kind)

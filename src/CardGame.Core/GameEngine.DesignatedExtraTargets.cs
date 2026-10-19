@@ -424,7 +424,7 @@ public sealed partial class GameEngine
         var actor = _players[use.SourceSeat]; var target = _players[use.TargetSeats[use.TargetIndex]];
         SetCardUseStep(id, ResolutionFrameStep.ResolvingEffect);
         if (use.CardKind == CardKind.Alcohol && actor.IsAlive)
-            actor.UsedPlayPhaseAlcoholThisTurn = true;
+            RecordMouZhaJiangAwareAlcoholDebit(id, actor);
         if (actor.IsAlive && target.IsAlive && _winner == Winner.None && !IsCardEffectIneffective(id, target.Seat))
         {
             if (use.CardKind == CardKind.Peach && target.HasHpValue)

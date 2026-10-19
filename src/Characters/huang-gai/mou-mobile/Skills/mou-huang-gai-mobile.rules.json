@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:kurou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "give-before-loss",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouHuangGaiKurouGift",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "loss-armor",
+          "window": "afterHpLost",
+          "subject": "owner",
+          "hpChangeOccurrence": "perPoint",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantMouHuangGaiLossArmor",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:zhajiang",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "lost-hp-extra-draw",
+          "query": "drawCount",
+          "operation": "add",
+          "valueExpression": "ownerLostHp",
+          "priority": 0
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "first-lost-hp-uses",
+          "kind": "ownTurnFirstLostHpUses"
+        }
+      ]
+    }
+  ]
+}

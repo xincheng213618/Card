@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
             kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
         _pendingHpChanges.Add(change);
+        CaptureMouKurouNativeLoss(change);
         CaptureYintianRecoveryQualification(change);
         CaptureQimeiHpQualification(change);
         CaptureXianfuRecoveryQualification(change);

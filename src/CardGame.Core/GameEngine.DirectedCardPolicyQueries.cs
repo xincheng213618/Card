@@ -7,7 +7,7 @@ public sealed partial class GameEngine
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
         cardUseFrameId is { } wuyouUse && HasIssuedWuyouUse(wuyouUse, actor.Seat) ||
-        HasWeiwanUseDistance(actor, target, kind, cardUseFrameId) || HasBeifenUseDistance(actor, cardUseFrameId) || NianShouyiUnlimitedCardDistance(actor) ||
+        HasWeiwanUseDistance(actor, target, kind, cardUseFrameId) || (HasBeifenUseDistance(actor, cardUseFrameId) || HasMouZhaJiangUseDistance(actor, cardUseFrameId)) || NianShouyiUnlimitedCardDistance(actor) ||
         HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
         !IsSlashCard(kind) && HasLiuYanLimuTargetAllowance(actor,target,excludedEquipmentId,excludedEquipmentSlot) || HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
         HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||

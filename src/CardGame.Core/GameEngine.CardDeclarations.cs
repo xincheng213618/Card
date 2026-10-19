@@ -149,6 +149,7 @@ public sealed partial class GameEngine
             new(card.Id, card.Kind, CardLocation.Hand(provider.Seat), CapturePhysicalCardColor(provider.Seat, card)), source, declared, ActorSeat: parent.ActorSeat, FrozenSuit: EffectiveSuit(provider, card))
         { JuewuEffectiveRank = JuewuForeignHandRank(provider, card) };
         payment = CaptureBeifenDeclarationPayment(payment, parent);
+        payment = CaptureMouZhaJiangDeclaration(payment, parent);
         payment = CaptureWuyouDeclarationPayment(payment, parent);
         payment = CaptureWeiwanDeclarationPayment(payment, parent);
         payment = CaptureMouGuquDeclaration(payment, parent);

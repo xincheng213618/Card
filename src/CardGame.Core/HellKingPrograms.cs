@@ -332,7 +332,7 @@ public sealed partial class GameEngine
             CardKind.Alcohol, [actor.Seat], [], [], effectiveSuit: Suit.None, effectiveRank: 0));
         PushRuntimeFrame(new CardUseFrame(id, actor.Seat, 0, CardKind.Alcohol, [actor.Seat], PhysicalCardIds: [])
             { Action = action, VirtualBasicReturn = new(frame.Id, frame.InstructionIndex), FirstOwnPlayUseDistanceUnlimited = HasFirstActualPlayUseDistance(actor) });
-        actor.UsedPlayPhaseAlcoholThisTurn = true;
+        RecordMouZhaJiangAwareAlcoholDebit(id, actor);
         if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(id, 0, CardKind.Alcohol, actor.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(id, [actor.Seat]));

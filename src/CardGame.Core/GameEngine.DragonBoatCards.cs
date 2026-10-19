@@ -151,7 +151,7 @@ public sealed partial class GameEngine
         if (kind == CardKind.RealgarWine)
         {
             if (!HasIssuedFuRongUnlimitedUse(id, actor.Seat) && !HasIssuedRoundGainedBasicBonus(id, actor.Seat) && !HasIssuedSiruiUse(id, actor.Seat))
-                actor.UsedPlayPhaseAlcoholThisTurn = true;
+                RecordMouZhaJiangAwareAlcoholDebit(id, actor);
             BeginSimpleCardUse(id, new(card.Id, SimpleCardUseEffect.Alcohol)); return;
         }
         BeginJizhiOrNullificationWindow(id, card, actor.Seat, targets, DragonBoatCardAction(kind), playedCardKind: kind);

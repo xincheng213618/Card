@@ -74,7 +74,7 @@ public sealed partial class GameEngine
         if (!source.IsAlive || !target.IsAlive || source.Seat == target.Seat ||
             IsDirectedCardTargetProhibited(source.Seat, targetSeat, cardKind) ||
             IsSlashProhibited(target) ||
-            !ignoreDistance && !HasBeifenPreUsePrivilege(source) && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
+            !ignoreDistance && !(HasBeifenPreUsePrivilege(source) || HasMouZhaJiangPreUsePrivilege(source)) && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;

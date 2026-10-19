@@ -128,6 +128,7 @@ public sealed partial class GameEngine
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.SlashLimit) ?? 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
+        if (HasMouZhaJiangPreUsePrivilege(player)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mou-mobile:zhajiang:first-lost-hp-uses"));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:yang-feng:qujia:slash-limit", QujiaPermanentSlashBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:slash-limit", CaoXiGangshuBonus(player, SkillRuleQuery.SlashLimit));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:slash-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.SlashLimit));
@@ -289,7 +290,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || HasBeifenPreUsePrivilege(player) || HasWuyouMaterialPrivilege(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsSayingSlashQuery(player) || HasDongxinEntitySlashQuota(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || (HasBeifenPreUsePrivilege(player) || HasMouZhaJiangPreUsePrivilege(player)) || HasWuyouMaterialPrivilege(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsSayingSlashQuery(player) || HasDongxinEntitySlashQuota(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
          IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
          IsHuiyunExactHandQuery(player, physicalCardIds is [var huiyunCardId] ? huiyunCardId : physicalCard?.Id) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||

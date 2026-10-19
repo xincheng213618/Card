@@ -103,7 +103,7 @@ public sealed partial class GameEngine
         {
             if (kind is CardKind.Peach or CardKind.Alcohol && p.Targets.Count > 1) _selectedNextCardTargetSeats = p.Targets;
             if (kind == CardKind.Peach) { ResolveRecoveryCard(actor, actor, card, "桃", kind, conversionSource: p.Source, physicalCards: [], huanpeiOrigin: p); return; }
-            if (kind == CardKind.Alcohol) { var id = BeginCardUse(card, actor.Seat, [], kind, physicalCardIds: [], conversionSource: p.Source, huanpeiOrigin: p); actor.UsedPlayPhaseAlcoholThisTurn = true; BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return; }
+            if (kind == CardKind.Alcohol) { var id = BeginCardUse(card, actor.Seat, [], kind, physicalCardIds: [], conversionSource: p.Source, huanpeiOrigin: p); RecordMouZhaJiangAwareAlcoholDebit(id, actor); BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return; }
             BeginHuanpeiSlash(p, p.Request.Intent == HuanpeiIntent.Play, null); return;
         }
         if (p.Request.Intent == HuanpeiIntent.BorrowedSword)

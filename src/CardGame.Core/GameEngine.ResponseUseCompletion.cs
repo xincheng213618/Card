@@ -93,6 +93,7 @@ public sealed partial class GameEngine
 
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)
     {
+        PrepareMouZhaJiangResponse(owner, cards.Select(c => c.Id).ToArray(), kind);
         if (!HasLiFengCapability && !HasMaMiDiCapability && kind is not (CardKind.Dodge or CardKind.Nullification) ||
             !(HasLeZouShiCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || HasMaMiDiCapability || HasWuAnGuoCapability || _contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||

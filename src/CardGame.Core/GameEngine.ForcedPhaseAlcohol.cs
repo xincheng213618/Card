@@ -94,7 +94,7 @@ public sealed partial class GameEngine
         { Action = action, VirtualBasicReturn = new(f.Id, f.InstructionIndex), FirstOwnPlayUseDistanceUnlimited = HasFirstActualPlayUseDistance(actor) });
         // The use allowance is spent by the real actor at commitment, even when
         // a card-use trigger later cancels Wine's effect.
-        actor.UsedPlayPhaseAlcoholThisTurn = true;
+        RecordMouZhaJiangAwareAlcoholDebit(id, actor);
         if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(id, 0, CardKind.Alcohol, actor.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(id, [actor.Seat]));

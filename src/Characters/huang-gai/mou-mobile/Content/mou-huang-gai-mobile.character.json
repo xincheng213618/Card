@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-gai",
+  "skills": [
+    {
+      "registrationOrder": 2211,
+      "programBundle": "mou-huang-gai-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:kurou",
+        "name": "苦肉",
+        "description": "出牌阶段开始时，你可以交给其他角色一张牌，然后失去1点体力（若你交出的牌是【桃】或【酒】，则改为失去2点体力）。当你失去1点体力后，你获得2点护甲。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2212,
+      "programBundle": "mou-huang-gai-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:zhajiang",
+        "name": "诈降",
+        "description": "锁定技，你于回合内使用的前X张牌无距离和次数限制且不可被响应。摸牌阶段，你多摸X张牌。（X为你已损失体力值）",
+        "executionForms": "State",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2213,
+      "pools": {
+        "current": 509
+      },
+      "definition": {
+        "id": "mou:huang-gai-mobile",
+        "name": "谋黄盖·移动版",
+        "portraitKey": "mou-huang-gai-mobile",
+        "skillId": "mou-mobile:kurou",
+        "additionalSkillIds": [
+          "mou-mobile:zhajiang"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:huang-gai",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

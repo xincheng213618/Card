@@ -58,7 +58,7 @@ public sealed partial class GameEngine
         {
             var use = BeginCardUse(selection.Cards[0], actor.Seat, [], kind, physicalCardIds: selection.Cards.Select(c => c.Id).ToArray(), conversionSource: source);
             MoveProgramCardsFromMultipleSources(selection.Cards.Select(c => c.Id).ToArray(), CardLocation.Processing, CardMoveReasons.Use);
-            if (!HasIssuedRoundGainedBasicBonus(use, actor.Seat)) actor.UsedPlayPhaseAlcoholThisTurn = true;
+            if (!HasIssuedRoundGainedBasicBonus(use, actor.Seat)) RecordMouZhaJiangAwareAlcoholDebit(use, actor);
             BeginSimpleCardUse(use, new(selection.Cards[0].Id, SimpleCardUseEffect.Alcohol));
         }
         return true;

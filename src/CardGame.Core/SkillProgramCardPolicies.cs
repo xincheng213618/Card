@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    OwnTurnFirstLostHpUses = 29050,
     OutgoingDistanceOne = 43000,
     ReverseDelayedJudgment = 43001,
     FirstRoundCardDamageBecomesMaximumHpLoss = 43002,

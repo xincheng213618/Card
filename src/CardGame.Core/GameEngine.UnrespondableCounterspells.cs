@@ -7,13 +7,14 @@ public sealed partial class GameEngine
 
     private CardConversionSource? FreezeUnrespondableCounterspellSource(CharacterState owner, IReadOnlyList<int> physicalCardIds)
     {
+        var zhaJiangSource = MouZhaJiangCounterspellSource(owner, physicalCardIds);
         var binding = CardPolicies(owner, SkillProgramCardPolicyKind.UnrespondableNullification,
             CardKind.Nullification).FirstOrDefault();
         if (binding.Source is not null)
             return new(binding.Source.SkillId, binding.Policy.Id, owner.Seat, binding.Source.SkillInstanceId);
         CardConversionSource? source = null;
         TryFreezeProvenanceCounterspellSource(owner, physicalCardIds, ref source);
-        return source;
+        return source ?? zhaJiangSource;
     }
 
     private void IssueUnrespondableCounterspell(NullificationWindowFrame window,

@@ -127,7 +127,7 @@ public sealed partial class GameEngine
         if (EquipmentCatalog.IsEquipment(p.Kind))
         { if (!TryBeginEquipmentTargetPrograms(actor, card, useId)) CompleteEquipmentUse(actor, card, useId); return; }
         if (p.Kind == CardKind.Alcohol)
-        { actor.UsedPlayPhaseAlcoholThisTurn = true; BeginSimpleCardUse(useId, new(0, SimpleCardUseEffect.Alcohol)); return; }
+        { RecordMouZhaJiangAwareAlcoholDebit(useId, actor); BeginSimpleCardUse(useId, new(0, SimpleCardUseEffect.Alcohol)); return; }
         if (IsSlashCard(p.Kind))
         {
             var targets = LifecycleCardUse(useId)!.TargetSeats;

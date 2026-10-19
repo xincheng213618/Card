@@ -4577,6 +4577,8 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        if (effects is [{ Op: SkillProgramEffectOp.ResolveMouHuangGaiKurouGift }])
+            return EstimateMouKurouGiftForAi(owner, publicContext);
         if (effects.FirstOrDefault(e => e.Op is SkillProgramEffectOp.SelectAllPublicTeamTargets or
                 SkillProgramEffectOp.SelectRandomPublicTeamTarget) is { TargetKind: { } teamKind } teamSelection)
         {

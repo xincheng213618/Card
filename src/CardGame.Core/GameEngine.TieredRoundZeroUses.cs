@@ -211,7 +211,7 @@ public sealed partial class GameEngine
         }
         var id = BeginCardUse(card, actor.Seat, action.TargetSeats, kind, physicalCardIds: [], conversionSource: source);
         if (kind == CardKind.Alcohol)
-        { actor.UsedPlayPhaseAlcoholThisTurn = true; BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return; }
+        { RecordMouZhaJiangAwareAlcoholDebit(id, actor); BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return; }
         if (IsSlashCard(kind))
         {
             var targets = LifecycleCardUse(id)!.TargetSeats;

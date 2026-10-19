@@ -37,7 +37,7 @@ public sealed partial class GameEngine
         MoveCard(card, CardLocation.Hand(actor.Seat), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         var parent = _resolutionStack.OfType<ProgramSkillFrame>().Single(p => p.Id == f.Id);
         if (parent.MouZuifeng!.WinePaidSequence <= before) throw new InvalidOperationException("Zuifeng's native Alcohol did not pay its original real Hand entity.");
-        actor.UsedPlayPhaseAlcoholThisTurn = true;
+        RecordMouZhaJiangAwareAlcoholDebit(id, actor);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(id, r.Source.SkillId, r.Source.BindingId, actor.Seat,
             Array.AsReadOnly(new[] { card.Id }), CardKind.Alcohol, true, Array.AsReadOnly(new[] { f.OwnerSeat })));
         BeginSimpleCardUse(id, new(card.Id, SimpleCardUseEffect.Alcohol));

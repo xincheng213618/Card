@@ -1022,6 +1022,8 @@ public enum SkillProgramEffectOp
     InitializeTanbanInitialEntities = 29040,
     SwapTanbanHandMarks = 29041,
     ResolveDiouTanbanUse = 29042,
+    ResolveMouHuangGaiKurouGift = 29050,
+    GrantMouHuangGaiLossArmor = 29051,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -2525,6 +2527,9 @@ public sealed class SkillProgramCatalog
                 ParseModifier, optional: true);
             var damageModifiers = ReadArray(skill, "damageModifiers", skillPath, ParseDamageModifier, optional: true);
             var cardPolicies = ReadArray(skill, "cardPolicies", skillPath, ParseCardPolicy, optional: true);
+            if (cardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.OwnTurnFirstLostHpUses &&
+                    (id != "mou-mobile:zhajiang" || policy.Id != "first-lost-hp-uses")))
+                Fail(skillPath + ".cardPolicies", "Own-turn first-lost-HP use admission is reserved for mou-mobile:zhajiang/first-lost-hp-uses.");
             var viewAs = ReadArray(skill, "viewAs", skillPath,
                 ParseViewAs, optional: true);
             var activations = ReadArray(skill, "activations", skillPath,
@@ -2877,6 +2882,12 @@ public sealed class SkillProgramCatalog
                 OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
                 node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _))
                 Fail(path, "Battle Slash-count responses require Slash-family/Dodge or only Duel/Slash and no other qualifiers.");
+            return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, OptionalCondition(node, path));
+        }
+        if (kind == SkillProgramCardPolicyKind.OwnTurnFirstLostHpUses)
+        {
+            if (node.EnumerateObject().Any(p => p.Name is not ("id" or "kind")))
+                Fail(path, "Own-turn first-lost-HP uses require an unfiltered marker policy.");
             return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, OptionalCondition(node, path));
         }
         if (kind is SkillProgramCardPolicyKind.OutgoingDistanceOne or SkillProgramCardPolicyKind.ReverseDelayedJudgment)
@@ -3241,7 +3252,7 @@ public sealed class SkillProgramCatalog
         if (valueExpression is not null && valueExpression is not (SkillRuleValueExpression.NegatedOwnedZoneCount or SkillRuleValueExpression.NegatedOwnerLostHp or SkillRuleValueExpression.NegatedLivingFemaleCount or SkillRuleValueExpression.NegatedCurrentRoundActualUseCount) &&
             (operation != SkillRuleOperation.Add || query != SkillRuleQuery.HandLimit &&
                 !(query == SkillRuleQuery.CardTargetCount && valueExpression == SkillRuleValueExpression.OwnerLostHp) &&
-                !(query == SkillRuleQuery.DrawCount && valueExpression == SkillRuleValueExpression.PublicTeamEnemyCount) &&
+                !(query == SkillRuleQuery.DrawCount && valueExpression is (SkillRuleValueExpression.PublicTeamEnemyCount or SkillRuleValueExpression.OwnerLostHp)) &&
                 !(query == SkillRuleQuery.SlashLimit && valueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount) &&
                 !(query == SkillRuleQuery.InitialHandSize && valueExpression == SkillRuleValueExpression.OwnerMaxHp)))
             Fail(path + ".valueExpression",
@@ -5265,6 +5276,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) ShuangjiaComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LeZouShiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) TanbanComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouHuangGaiKurouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

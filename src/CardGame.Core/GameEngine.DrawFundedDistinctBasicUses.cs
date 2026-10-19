@@ -30,7 +30,7 @@ public sealed partial class GameEngine
             if (kind == CardKind.Alcohol)
             {
                 var id = BeginCardUse(card, actor.Seat, [], kind, physicalCardIds: [], conversionSource: p.Source, drawFundedPayment: p);
-                actor.UsedPlayPhaseAlcoholThisTurn = true; BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return;
+                RecordMouZhaJiangAwareAlcoholDebit(id, actor); BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return;
             }
             BeginDrawFundedDistinctBasicSlash(actor, frame.TargetSeats, p, null, true, null); return;
         }
