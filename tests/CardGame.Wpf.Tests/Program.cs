@@ -83,6 +83,7 @@ internal static class Program
             Check("Wumiao Flood UI: ordered portraits undo aim and native commit", () => WumiaoFloodUiChecks.OrderedPortraitTargetsUndoAimAndCommit(output));
             Check("Wu Guan Yu Wuyou UI: foreign contribution issuer and private return", () => WuGuanYuWuyouUiChecks.ForeignContributionUsesIssuerAndKeepsPrivateReturn(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
+            Check("Le Diao Chan UI: original marks and whole Hand exchange", () => LeDiaoChanUiChecks.OriginalMarksAndWholeHandSwapUseNativeChoices(output));
             Check("Le Da Qiao Qin UI: original judgment subslots and native choices", () => LeDaQiaoJudgmentUiChecks.QinSubslotsKeepOriginalCardsAndNativeChoices(output));
             Check("Native public pile UI: original grain play rail and response faces", NativePublicPileUiChecks.OriginalGrainPlayRailAndResponseFaces);
             Check("Mou Cao Pi UI: portrait skills and timed Fangzhu status", () => MouCaoPiUiChecks.PortraitSkillsAndFangzhuState(output));

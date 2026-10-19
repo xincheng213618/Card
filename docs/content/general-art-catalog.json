@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-diao-chan",
+      "characterName": "乐貂蝉",
+      "defaultSkinId": "1133801",
+      "skins": [
+        {
+          "id": "1133801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1338.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133801.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-diao-chan.png",
+          "sha256": "93b3207661487ab3e1855540133722133fc878bce9d0c902ff29486e44477862",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "mou-zhou-yu-ol",
       "characterName": "谋周瑜·OL",
       "defaultSkinId": "77000",

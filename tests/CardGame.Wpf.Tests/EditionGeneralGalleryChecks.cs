@@ -41,6 +41,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&
             entries.Any(entry => entry.GeneralId == "le:zou-shi") &&
+            entries.Any(entry => entry.GeneralId == "le:diao-chan") &&
             entries.Any(entry => entry.GeneralId == "mou:zhou-yu-ol") &&
             entries.Any(entry => entry.GeneralId == "mou:huang-yueying-ol") &&
             entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
@@ -240,6 +241,15 @@ internal static class EditionGeneralGalleryChecks
                         }), "OL Mou Huang Yueying must show both complete printed skills with her distinct artwork.");
                     Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId)
                         is { Id: "mou", SeriesId: "mou" }, "The distinct OL edition must be selectable in the Mou series.");
+                }
+                if (entry.GeneralId == "le:diao-chan")
+                {
+                    Program.Assert(entry.Name == "乐貂蝉" && entry.Skills.Count == 2 &&
+                        new[] { "le:tanban", "le:diou" }.All(id =>
+                        {
+                            var registered = registry.GetSkill(id);
+                            return entry.Skills.Any(skill => skill.Name == registered.Name && skill.Description == registered.Description);
+                        }), "Le Diao Chan must show both complete primary rules and her distinct official portrait.");
                 }
                 if (entry.GeneralId == "le:zou-shi")
                 {
