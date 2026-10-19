@@ -37,6 +37,7 @@ internal static class EditionGeneralGalleryChecks
             "Official OL magic editions must expose their distinct selectable Magic series.");
         Program.Assert(entries.Any(entry => entry.GeneralId == "wumiao:guan-yu") &&
             entries.Any(entry => entry.GeneralId == "wumiao:lu-xun") &&
+            entries.Any(entry => entry.GeneralId == "wumiao:zhang-fei") &&
             entries.Any(entry => entry.GeneralId == "le:cai-wen-ji") &&
             entries.Any(entry => entry.GeneralId == "le:zhou-fei") &&
             entries.Any(entry => entry.GeneralId == "le:mi-heng") &&

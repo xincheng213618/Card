@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "wumiao-zhang-fei",
+      "characterName": "武张飞",
+      "defaultSkinId": "123501",
+      "skins": [
+        {
+          "id": "123501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/235.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123501.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-zhang-fei.png",
+          "sha256": "94180f3798e2d102ed43a518dc629dc5e78ce5477eea15b92884476195f52b27",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "mou-huang-gai-mobile",
       "characterName": "谋黄盖·移动版",
       "defaultSkinId": "64400",
