@@ -43,6 +43,9 @@ public sealed partial class GameEngine
             expiry == SkillProgramDamageModifierExpiration.NextOwnerTurnStart
                 ? ActivePlayerEffectExpiry.NextSourceTurnStart : ActivePlayerEffectExpiry.CurrentTurnEnd;
 
+        if (WuZhangFeiPublicCycleDescription(player.Seat, primarySkills, secondarySkills) is { } wuZhangFeiCycle)
+            Add("wumiao:xianlue", player.Seat, wuZhangFeiCycle, ActivePlayerEffectExpiry.RuleCleared);
+
         foreach (var item in _turnCardUseEffects.DamageModifiers)
             if (item.Source.OwnerSeat == player.Seat && Lasting(item.TurnNumber, item.TurnSeat, item.Expiration))
                 Add(item.Source.SkillId, item.Source.OwnerSeat,

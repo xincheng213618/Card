@@ -1,0 +1,135 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-19",
+  "name": "武张飞",
+  "generalId": "wumiao:zhang-fei",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "sources": [
+    {
+      "kind": "currentHero",
+      "url": "https://x.sanguosha.com/hero/235.html",
+      "bytes": 16647,
+      "sha256": "bbd3f70c8a48eefbbe89ceefe099b75e76fbc3110c0b324643a991613e2a5ef5"
+    },
+    {
+      "kind": "formalLaunch",
+      "url": "https://x.sanguosha.com/news/20260616_2004_3116.html",
+      "published": "2026-06-17",
+      "releaseDate": "2026-06-18",
+      "title": "6.18-6.27 端阳狂欢 新将武张飞&威张星彩&谋关羽&史阿",
+      "bytes": 321564,
+      "sha256": "aed43eb8e9cecba93a8207f4b7da535d0c31841679f6b6ffbae1e32062ff00de"
+    },
+    {
+      "kind": "officialEmbeddedIdentityRoster",
+      "url": "https://x.sanguosha.com/hero/",
+      "format": "Official hero index embeds machine-readable JSON in const heros; no separate identity HTTP API was found or invented.",
+      "record": {
+        "gid": 235,
+        "gender": "男",
+        "star": "SSS",
+        "resource": 123501,
+        "prefix": "武",
+        "name": "张飞",
+        "country": "蜀",
+        "country_py": "shu",
+        "level_one_general_lamp": 11,
+        "level_two_general_lamp": 76,
+        "level_one_general_lamp_txt": "限定",
+        "level_two_general_lamp_txt": "武庙",
+        "hp": 4
+      },
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c"
+    }
+  ],
+  "firstObtainableAt": "2026-06-18",
+  "officialIdentity": {
+    "faction": "shu",
+    "hp": 4,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "wumiao:zisheng",
+      "name": "恣胜",
+      "text": "你使用点数大于3且为3的倍数的牌时（同时使用多张牌时点数相加），可从牌堆中随机三张点数为3的牌，选择其中一张获得；你弃置或获得其他角色牌时，可对该角色造成与弃置或获得牌数相等的伤害（不超过该角色当前体力值）。"
+    },
+    {
+      "id": "wumiao:xianlue",
+      "name": "显略",
+      "text": "出牌阶段每名角色限一次，你可以观看本回合受到过伤害或失去过牌的一名其他角色的手牌并记录其中所有牌的点数。当本次记录点数的数量超过3、6、9时，你摸三张牌。若已因此记录了所有点数，则清除记录且“豪贤”视为未发动过。你每次造成伤害令其他角色进入濒死状态后，本次记录触发后续的点数减少3个。"
+    },
+    {
+      "id": "wumiao:haoxian",
+      "name": "豪贤",
+      "text": "限定技，出牌阶段，你可以将弃牌堆中所有点数为3的牌洗入牌库，然后获得其他角色手牌中点数为3的牌。"
+    }
+  ],
+  "currentVersusFormal": {
+    "same": true,
+    "decision": "Use the complete formal launch wording: simultaneous physical material ranks are summed for the used card. The current hero places this parenthetical after the sample, which does not change the launch rule."
+  },
+  "artwork": {
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123501.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123501.png",
+    "httpStatus": 200,
+    "bytes": 823006,
+    "sha256": "94180f3798e2d102ed43a518dc629dc5e78ce5477eea15b92884476195f52b27",
+    "fetchedAtUtc": "2026-10-19T05:00:04.567667+00:00",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-wumiao-zhang-fei.png",
+    "sourcePage": "https://x.sanguosha.com/hero/235.html",
+    "inspection": "Visually inspected the unmodified official 574 x 761 PNG as the complete classic Wu Zhang Fei portrait, matching the exact current hero image source and independently checked SHA-256."
+  },
+  "engineeringInterpretations": [
+    "The complete three printed skills are implemented together. No character-specific official FAQ was located for the edge contracts below; they must remain identified as engineering interpretations.",
+    "Zisheng qualifies real true Uses, including native response Uses; pure Played does not qualify. The positive actual rank sum is not clamped to thirteen. A neutral zero-material Use with rank zero does not qualify.",
+    "Neutral use appearances, including Xiewei, retain rank zero even when their physical payment materials have positive printed ranks. They neither borrow the materials rank sum nor acquire an ordinary response payment invoice.",
+    "A deterministic private sample contains at most three actual rank-three DrawPile entities; choose and obtain one through native movement. Unchosen entities stay in the pile.",
+    "Discard retaliation requires the exact native logical discard executor and its direct paid entities. Merely initiating another player own discard, or collateral equipment storage spill, does not transfer causal ownership. Actual acquisition from another owned zone into the owner Hand includes another character gift.",
+    "Xianlue keeps one distinct A..K rank set per owner and named skill across source loss/regrant. Exact inspected Hand identities and faces remain private; public rule progress must not reveal private material identities.",
+    "User-confirmed interpretation on 2026-10-19: first strict crossings above three, six and nine each draw three once per record cycle. Attributed damage-caused Dying lowers only that cycle completion target from thirteen by three, floor one; it does not lower the three draw gates. This is an explicit engineering convention, not an invented official FAQ.",
+    "If a lowered completion target is already met, clear that exact cycle and restore Haoxian availability. A new cycle starts with target thirteen and fresh paid gates. An observation commits its rank mask and paid gate claims first, drains its frozen awarded Draw3 children, then completes the original cycle in printed order. A Draw child causing a genuine qualifying Dying can independently complete a cycle immediately; mother return only completes its original still-current cycle and never clears the next cycle.",
+    "Haoxian pays a real limited Play activation, moves all actual rank-three DiscardPile entities into the DrawPile and shuffles the whole real pile, then obtains actual rank-three Hand entities from the other living owners. Every movement and damage child must return to its owning frame; the original payment cannot repeat.",
+    "A real Zisheng movement damage issued inside an existing native Dying keeps an exact suspended ancestor token on its owning receipt, including original native parent and attack cursor hashes and typed ancestry. Only that original Dying is suspended; a new child Dying remains active, and completion returns to the unchanged original rescue cursor."
+  ],
+  "verificationLimits": [
+    "No authenticated game client, complete manual foreground match or character-specific official FAQ was used. The explicit primary skill text controls the content; uncertain lifecycle and threshold details are documented as engineering contracts."
+  ],
+  "userDecisions": [
+    {
+      "rule": "Xianlue damage-caused Dying threshold interpretation",
+      "confirmedOn": "2026-10-19",
+      "decision": "Only lower the current record cycle completion target: 13, 10, 7 and so on; the strict draw gates remain greater than 3, 6 and 9."
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 14,
+      "wpfPassed": 1,
+      "durationMs": 33009
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 67986
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the unmodified official PNG and the actual WPF gallery render of the complete three-skill Wu Zhang Fei edition.",
+    "scopeNote": "Four new native behavior groups, relevant retained mechanism checks, existing WPF gallery check and measured bounded routine verification. No manual full run or complete foreground match.",
+    "coveredBoundaries": [
+      "True native Use and response Use versus pure Played, unclamped physical material ranks, exact neutral Xiewei zero-rank compatibility, real deterministic private rank-three samples and exact payment once.",
+      "Exact native logical discard executor and direct entity invoices, other-owned-zone acquisition, per-victim optional native damage, exact ancestor Dying return and collateral equipment-storage exclusion.",
+      "Actual-turn target eligibility, per-actual-Play target budget, owner-private whole-Hand observation, distinct A..K cycle and independent strict first crossings at four, seven and ten.",
+      "Persistent named rank cycle and native limited usage across source loss/regrant; damage-caused genuine Dying lowers only current completion target under the user-confirmed interpretation.",
+      "Native separate Draw3 requests drain in gate order before clearing their original cycle; nested children may not repay gates or clear a new cycle.",
+      "Native Haoxian payment before execution, exact DiscardPile rank-three insertion and real whole-pile shuffle, other living Hand rank-three acquisition, movement and damage children, cold replay and checkpoint returns.",
+      "Private prompt snapshots and exact hidden card materials stay owner-only. Collection-bearing committed facts are detached before observers receive history.",
+      "Actual gallery loads the distinct official Wu Zhang Fei portrait and all three complete printed skills without advancing the game."
+    ]
+  }
+}

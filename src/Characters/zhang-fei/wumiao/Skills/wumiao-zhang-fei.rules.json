@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wumiao:zisheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "rank-use-sample",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "includeResponseUses": true,
+          "effects": [
+            {
+              "op": "resolveWuZhangFeiUseSample",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "retaliate-foreign-cards",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuZhangFeiMovementDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:xianlue",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "observe-ranks",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "effects": [
+            {
+              "op": "resolveWuZhangFeiXianlue",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:haoxian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "collect-rank-three",
+          "usageGroup": "collect-rank-three",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "effects": [
+            {
+              "op": "resolveWuZhangFeiHaoxian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

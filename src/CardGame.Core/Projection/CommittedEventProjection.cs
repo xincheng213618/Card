@@ -50,6 +50,10 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        WuZishengMovementQualifiedEvent value => value with
+        { Qualification = value.Qualification with { Materials = FreezeList(value.Qualification.Materials) } },
+        WuHaoxianShuffledEvent value => value with
+        { BeforeOrder = FreezeList(value.BeforeOrder), AfterOrder = FreezeList(value.AfterOrder) },
         GameStartingNativeMovementRecordedEvent value => value with { Origin = FreezeGameStartingMovement(value.Origin) },
         NativeDrawInvocationRecordedEvent { GameStartingMovementOrigin: { } origin } value => value with
             { GameStartingMovementOrigin = origin with { MovementRoot = FreezeGameStartingMovement(origin.MovementRoot) } },

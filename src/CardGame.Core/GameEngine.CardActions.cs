@@ -117,11 +117,11 @@ public sealed partial class GameEngine
         if (!IsMouGuquUseAllowed(actorSeat, effectiveKind, physicalIds, conversionChain.FirstOrDefault()))
             throw new InvalidOperationException("Guqu forbids this true Use material or conversion.");
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasMouZuifengCapability || HasWuLuXunZhangcaiCapability || HasLeZouShiCapability || HasWuyouCapability || HasWuGuanYuJuewuCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind is CardKind.UnexpectedAssault or CardKind.WumiaoFlood || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
+        var trackAppearance = HasWuZhangFeiUseCapability || HasMouZuifengCapability || HasWuLuXunZhangcaiCapability || HasLeZouShiCapability || HasWuyouCapability || HasWuGuanYuJuewuCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind is CardKind.UnexpectedAssault or CardKind.WumiaoFlood || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
         var usedSuit = WuJingLiubingUsedSuit(actorSeat, card, effectiveKind, physicalIds, conversionChain, trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null);
         if (IsCuiYanNextUseForbidden(actorSeat, physicalIds, usedSuit))
             throw new InvalidOperationException("The native use violates its issued next-use suit restriction.");
-        return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
+        return CaptureWuZhangFeiUseRankAction(CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
             null, null, effectiveKind, targets, costs, conversionChain,
@@ -133,7 +133,7 @@ public sealed partial class GameEngine
                 ? physicalIds.Count == 1 && card.Rank > 0 ? card.Rank
                     : isTrueZhangbaSlash && physicalIds.Count == 2 && conversionChain.Count == 0
                         ? ZhangbaSpecificSlashRank(_players[actorSeat], physicalIds.Select(id => GetAttackCard(id)).ToArray(), _players[provider]) : null
-                : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null), effectiveIsRed: CaptureActionColor(costs,usedSuit)));
+                : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null), effectiveIsRed: CaptureActionColor(costs,usedSuit))));
     }
 
     private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
@@ -146,7 +146,8 @@ public sealed partial class GameEngine
         completedResponseUseSuit ??= pileMaterial is null ? null : EffectiveSuit(provider, pileMaterial);
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
-            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureJuewuResponseRank(provider, costs) ?? SiruiResponseRank(conversionSource, costs) ?? CaptureAlcoholResponseRank(provider, effectiveKind, costs) ?? CaptureWuLuXunResponseRank(provider, effectiveKind, costs, conversionSource) ?? (pileMaterial is { Rank: > 0 } ? pileMaterial.Rank : null),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureJuewuResponseRank(provider, costs) ?? SiruiResponseRank(conversionSource, costs) ?? CaptureAlcoholResponseRank(provider, effectiveKind, costs) ?? CaptureWuLuXunResponseRank(provider, effectiveKind, costs, conversionSource) ?? CaptureWuZhangFeiResponseRank(provider, effectiveKind, costs, conversionSource) ?? (pileMaterial is { Rank: > 0 } ? pileMaterial.Rank : null),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+        BindWuZhangFeiResponseRanks(action);
         if (parent is not null)
         {
             BindSiruiResponseAction(parent, action);
@@ -368,6 +369,7 @@ public sealed partial class GameEngine
         bool? cardUseCausedDamage, ProgramCardContinuation? continuation = null)
     {
         CaptureWuLuXunZhangcai(action, window);
+        CaptureWuZhangFeiUseQualification(action, window);
         var targets = eventTargets.Distinct().ToHashSet();
         var result = new List<ProgramCardTriggerCandidate>();
         var capturedOwnerFacts = new SkillProgramTriggerFacts?[_players.Count];

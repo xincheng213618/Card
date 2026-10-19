@@ -37,7 +37,7 @@ public sealed partial class GameEngine
     private bool TracksNativeLogicalDiscards =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard) ||
-        HasMoTianenCapability || HasXieLingYuCapability || HasGuYinCapability ||
+        HasMoTianenCapability || HasXieLingYuCapability || HasGuYinCapability || HasWuZishengMovementCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardNianRuizhiRemainder) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecoverNianJingjueLoss) ||
@@ -73,13 +73,13 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A logical discard needs its original owned primary material.");
             return new NativeLogicalDiscardMaterial(id, from);
         }).ToArray();
-        return new NativeLogicalDiscardInvocationDraft
+        return AdmitWuZishengNativeDiscard(new NativeLogicalDiscardInvocationDraft
         {
             InvocationId = ++_resolutionSequence, TurnNumber = _turnNumber,
             ActualTurnOwnerSeat = _turnProgression.OwnerSeat, InitiatorSeat = initiatorSeat,
             ExecutorSeat = executorSeat, SequenceBefore = _movementSequence,
             ParentFrameId = parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, Reason = reason, Materials = materials
-        };
+        });
     }
 
     private void CompleteNativeLogicalDiscardInvocation(NativeLogicalDiscardInvocationDraft? draft)
@@ -87,6 +87,7 @@ public sealed partial class GameEngine
         if (draft is null) return;
         if (ProgramEventHistory<NativeLogicalDiscardInvocationRecordedEvent>().Any(e => e.InvocationId == draft.InvocationId))
             throw new InvalidOperationException("A logical discard must finish exactly once.");
+        CloseWuZishengNativeDiscard(draft);
         var actual = draft.Materials.Where(material => _cardMovements.Any(move =>
             move.CardId == material.CardId && move.Sequence > draft.SequenceBefore && move.Sequence <= _movementSequence &&
             (move.From == material.From && move.To == CardLocation.DiscardPile && move.Reason == draft.Reason ||
@@ -151,7 +152,11 @@ public sealed partial class GameEngine
             draft = draft with { Materials = draft.Materials.Concat(ids.Select(id =>
                 new NativeLogicalDiscardMaterial(id, _cardZones.GetLocation(id)))).ToArray() };
         }
-        if (draft is not null) ReplaceRuntimeTop(frame = frame with { LogicalDiscardInvocation = draft });
+        if (draft is not null)
+        {
+            AdmitWuZishengDiscardMaterials(draft);
+            ReplaceRuntimeTop(frame = frame with { LogicalDiscardInvocation = draft });
+        }
         return frame;
     }
 

@@ -2173,6 +2173,7 @@ public sealed partial class GameEngine
         if (IsIssuedTanbanInitialCandidate(candidate, context)) return true;
         if (IsIssuedQiqinCandidate(candidate, context)) return true;
         if (IsIssuedBeifenCandidate(candidate, context)) return true;
+        if (IsIssuedWuZishengMovementCandidate(candidate, context)) return true;
         if (IsIssuedGuYinCandidate(candidate, context)) return true;
         if (IsIssuedZhaohuoCandidate(candidate, context)) return true;
         if (IsIssuedBiguoCandidate(candidate, context) || IsIssuedDouyuCandidate(candidate, context)) return true;

@@ -535,6 +535,7 @@ public sealed partial class GameEngine
             card.Id,
             card.Kind,
             FindOwnedCardLocation(responder, card),CapturePhysicalCardColor(responder.Seat,card))).ToArray();
+        PrepareWuZhangFeiResponseRanks(responder, selection.OutputKind, current.Cards, current.Source, actorSeat);
         PrepareLeiluanResponsePayment(responder, current, resolutionId);
         PrepareXieweiResponsePayment(responder, current, resolutionId, actorSeat);
         var xieweiPayment = IsXieweiSelection(current);
@@ -573,6 +574,7 @@ public sealed partial class GameEngine
             costs,
             [selection.Source], effectiveSuit: xieweiPayment ? Suit.None : completedResponseUseSuit,
             effectiveRank: xieweiPayment ? 0 : null, effectiveIsRed: xieweiPayment ? null : CaptureActionColor(costs,completedResponseUseSuit)));
+        BindWuZhangFeiResponseRanks(action);
         if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);

@@ -1024,6 +1024,10 @@ public enum SkillProgramEffectOp
     ResolveDiouTanbanUse = 29042,
     ResolveMouHuangGaiKurouGift = 29050,
     GrantMouHuangGaiLossArmor = 29051,
+    ResolveWuZhangFeiUseSample = 29060,
+    ResolveWuZhangFeiXianlue = 29061,
+    ResolveWuZhangFeiMovementDamage = 29062,
+    ResolveWuZhangFeiHaoxian = 29063,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -4070,6 +4074,12 @@ public sealed class SkillProgramCatalog
             guYinEffects.GetArrayLength() == 1 && guYinEffects[0].ValueKind == JsonValueKind.Object &&
             guYinEffects[0].TryGetProperty("op", out var guYinOp) && guYinOp.ValueKind == JsonValueKind.String &&
             string.Equals(guYinOp.GetString(), "resolveGuYinInitialEntityDiscardDraw", StringComparison.OrdinalIgnoreCase);
+        var isWuZishengMovement = skillId == "wumiao:zisheng" && id == "retaliate-foreign-cards" &&
+            window == SkillProgramTriggerWindow.CardsMoved &&
+            node.TryGetProperty("effects", out var wuZishengEffects) && wuZishengEffects.ValueKind == JsonValueKind.Array &&
+            wuZishengEffects.GetArrayLength() == 1 && wuZishengEffects[0].ValueKind == JsonValueKind.Object &&
+            wuZishengEffects[0].TryGetProperty("op", out var wuZishengOp) && wuZishengOp.ValueKind == JsonValueKind.String &&
+            string.Equals(wuZishengOp.GetString(), "resolveWuZhangFeiMovementDamage", StringComparison.OrdinalIgnoreCase);
         var isHpWindow = window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged;
         foreach (var field in new[] { "movementOccurrence", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements" })
             if (!isMovementWindow && node.TryGetProperty(field, out _))
@@ -4303,10 +4313,12 @@ public sealed class SkillProgramCatalog
                     if (!destinationZones.SequenceEqual([CardZoneKind.DiscardPile]))
                         Fail(path + ".destinationZones", "the exact global discard or used-Trick invoice requires discardPile");
                 }
-                sourceZones = EnumArray<CardZoneKind>(node, "sourceZones", path);
+                sourceZones = isWuZishengMovement && !node.TryGetProperty("sourceZones", out _)
+                    ? [] : EnumArray<CardZoneKind>(node, "sourceZones", path);
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
-                if (isYuandiMovement || isGuYinMovement
-                    ? sourceZones.Count != 0 || movementOccurrence != SkillProgramMovementOccurrence.PerBatch || subject != SkillProgramTriggerSubject.Any
+                if (isYuandiMovement || isGuYinMovement || isWuZishengMovement
+                    ? sourceZones.Count != 0 || movementOccurrence != SkillProgramMovementOccurrence.PerBatch ||
+                        subject != (isWuZishengMovement ? SkillProgramTriggerSubject.Owner : SkillProgramTriggerSubject.Any)
                     : sourceZones.Count == 0 || sourceZones.Distinct().Count() != sourceZones.Count ||
                     movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch && sourceZones.Count != 1 &&
                         !(movementOccurrence == SkillProgramMovementOccurrence.PerCard &&
@@ -5277,6 +5289,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) LeZouShiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) TanbanComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangGaiKurouComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) WuZhangFeiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

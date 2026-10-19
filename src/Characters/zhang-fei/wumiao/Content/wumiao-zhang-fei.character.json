@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-fei",
+  "skills": [
+    {
+      "registrationOrder": 2214,
+      "programBundle": "wumiao-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:zisheng",
+        "name": "恣胜",
+        "description": "你使用点数大于3且为3的倍数的牌时（同时使用多张牌时点数相加），可从牌堆中随机三张点数为3的牌，选择其中一张获得；你弃置或获得其他角色牌时，可对该角色造成与弃置或获得牌数相等的伤害（不超过该角色当前体力值）。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2215,
+      "programBundle": "wumiao-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:xianlue",
+        "name": "显略",
+        "description": "出牌阶段每名角色限一次，你可以观看本回合受到过伤害或失去过牌的一名其他角色的手牌并记录其中所有牌的点数。当本次记录点数的数量超过3、6、9时，你摸三张牌。若已因此记录了所有点数，则清除记录且“豪贤”视为未发动过。你每次造成伤害令其他角色进入濒死状态后，本次记录触发后续的点数减少3个。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 2216,
+      "programBundle": "wumiao-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:haoxian",
+        "name": "豪贤",
+        "description": "限定技，出牌阶段，你可以将弃牌堆中所有点数为3的牌洗入牌库，然后获得其他角色手牌中点数为3的牌。",
+        "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2217,
+      "pools": {
+        "current": 510
+      },
+      "definition": {
+        "id": "wumiao:zhang-fei",
+        "name": "武张飞",
+        "portraitKey": "wumiao-zhang-fei",
+        "skillId": "wumiao:zisheng",
+        "additionalSkillIds": [
+          "wumiao:xianlue",
+          "wumiao:haoxian"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhang-fei",
+        "variantId": "wumiao",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

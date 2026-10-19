@@ -234,7 +234,8 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
                  parent is not DyingFrame originalDying || parent.Id != dyingId ||
-                 (ActiveDying?.FrameId != dyingId && !(IsOriginalDyingSuspendedByDyingSuits(originalDying) || IsOriginalDyingSuspendedByRecipientCategoryMark(originalDying) || IsOriginalDyingSuspendedByWenhePoison(originalDying))) ||
+                 (ActiveDying?.FrameId != dyingId && !(IsOriginalDyingSuspendedByDyingSuits(originalDying) || IsOriginalDyingSuspendedByRecipientCategoryMark(originalDying) || IsOriginalDyingSuspendedByWenhePoison(originalDying) ||
+                     IsOriginalDyingSuspendedByWuZishengMovement(originalDying))) ||
                  entry.OwnerSeat != originalDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
