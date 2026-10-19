@@ -48,6 +48,9 @@ public sealed partial class GameEngine
         private IReadOnlyList<BeifenLossSource> _beifenLossSources = Array.AsReadOnly(Array.Empty<BeifenLossSource>());
         public IReadOnlyList<BeifenLossSource> BeifenLossSources
         { get => _beifenLossSources; init => _beifenLossSources = Array.AsReadOnly(value.ToArray()); }
+        private IReadOnlyList<JiaoweiLossSource> _jiaoweiLossSources = Array.AsReadOnly(Array.Empty<JiaoweiLossSource>());
+        public IReadOnlyList<JiaoweiLossSource> JiaoweiLossSources
+        { get => _jiaoweiLossSources; init => _jiaoweiLossSources = Array.AsReadOnly(value.ToArray()); }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -66,7 +69,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { WuZishengSources = CaptureWuZishengMovementSources(), GuYinSources = CaptureGuYinSources(), BeifenLossSources = CaptureBeifenLossSources(sources.Keys), MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), TangTangOwnedOrigins = CaptureTangTangOwnedOrigins(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { WuZishengSources = CaptureWuZishengMovementSources(), GuYinSources = CaptureGuYinSources(), BeifenLossSources = CaptureBeifenLossSources(sources.Keys), JiaoweiLossSources = CaptureJiaoweiLossSources(sources.Keys), MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase(), XiaHuiOriginalSources = CaptureXiaHuiOriginalSources(sources.Keys), TangTangOwnedOrigins = CaptureTangTangOwnedOrigins(sources.Keys), RuanYuMiaoxianPaymentSources = CaptureRuanYuMiaoxianPaymentSources(sources.Keys), WenhePoisonRound = CaptureWenhePoisonRound() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -147,6 +150,7 @@ public sealed partial class GameEngine
         completed = CaptureTangTangGainBatch(completed, batch.TangTangOwnedOrigins);
         CaptureYuanJiAtomicLoss(completed);
         CaptureBeifenLossQualifications(completed, batch.BeifenLossSources);
+        CaptureJiaoweiLossQualifications(completed, batch.JiaoweiLossSources);
         CaptureLeiluanPaymentBatch(completed);
         CaptureQingyuanGainBatch(completed);
         CaptureNativePublicPilePaymentBatch(completed);

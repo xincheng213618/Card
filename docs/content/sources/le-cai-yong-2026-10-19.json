@@ -1,0 +1,153 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-19",
+  "name": "乐蔡邕",
+  "generalId": "le:cai-yong",
+  "product": "sanguosha-anniversary",
+  "series": "正音雅乐",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1333.html",
+      "httpStatus": 200,
+      "bodyBytes": 22058,
+      "bodySha256": "b5f8ee7453a979385d1f7013d3e71d204df59ca422d10bfc5cb7ef39559a162a",
+      "role": "current official skill text",
+      "skillBlocks": 6,
+      "allThreeSkinsAgree": true,
+      "faqMarkersPresent": false
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250514_9893_3515.html",
+      "httpStatus": 200,
+      "bodyBytes": 206569,
+      "bodySha256": "a369776f96c98c33dbb755b2a63711e7ddad814a615802d64f3ee3c3410443f0",
+      "role": "formal release announcement",
+      "published": "2025-05-15",
+      "activityStart": "2025-05-16 00:00:00",
+      "activityEnd": "2025-05-23 23:59:59",
+      "title": "5.16-5.23 小满活动 新将谋董承&乐蔡邕 诸葛若雪限定动态 消费送宝玉"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "httpStatus": 200,
+      "bodyBytes": 187953,
+      "bodySha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260429_1123_0517.html",
+      "httpStatus": 200,
+      "bodyBytes": 324169,
+      "bodySha256": "5ba5e15f51ac7afa148d8de5410a610e5d272ac7266c8c6cc5f551247e41a89d",
+      "role": "later official availability only",
+      "evidence": "累计纳贤乐蔡邕*100，可领取奖励：乐蔡邕、王双、唐姬、大将军印*1，4选1，限完成1次。"
+    }
+  ],
+  "firstObtainableAt": "2025-05-16",
+  "officialIdentity": {
+    "faction": "qun",
+    "hp": 3,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "le:jiaowei",
+      "name": "焦尾",
+      "text": "锁定技，游戏开始时，你的初始手牌增加“弦”标记且不计入手牌上限。当你失去“弦”后，防止你本回合下次受到的伤害。"
+    },
+    {
+      "id": "le:feibai",
+      "name": "飞白",
+      "text": "当你使用牌后，你可以从随机两张字数为X的牌中挑选一张获得（X为此牌与你本回合使用的上一张牌两张牌字数之和）。若发动此技能未获得牌，你摸两张牌并标记为“弦”，然后此技能本回合失效。"
+    }
+  ],
+  "currentVersusFormal": {
+    "skill": "飞白",
+    "releaseFallback": "若牌堆中没有字数为X的牌，你摸两张牌并标记为“弦”，然后此技能本回合失效。",
+    "currentHeroFallback": "若发动此技能未获得牌，你摸两张牌并标记为“弦”，然后此技能本回合失效。",
+    "certainty": "direct official text comparison",
+    "implication": "Current hero defines fallback by actual failure to obtain, beyond the release wording about an empty name-count pool. Prefer current hero if implementing the current roster.",
+    "changeDate": "not established; no dated official adjustment notice found; do not invent a historical change date"
+  },
+  "artwork": {
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133301.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133301.png",
+    "httpStatus": 200,
+    "bytes": 745875,
+    "sha256": "d4f2c8c1305e5990a898ca7de94c85addc64d22711b87addb9f333f0e87cb92a",
+    "fetchedAtUtc": "2026-10-19T06:24:00.333693+00:00",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "localPath": "src/CardGame.Wpf/Assets/official-le-cai-yong.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1333.html",
+    "visualSubjectVerified": true
+  },
+  "userDecisions": [
+    {
+      "topic": "飞白本回合没有上一张真实使用牌",
+      "decision": "X 取本张牌的字数",
+      "confirmed": true
+    }
+  ],
+  "engineeringInterpretations": [
+    "Use the current official hero text: the fallback depends on actual failure to obtain, rather than merely an empty matching DrawPile pool. No dated official adjustment was located.",
+    "Card-name length counts Unicode runes in the effective declared card name. Each real true Use has its own frozen previous same-actor actual-turn declaration prefix, including true response Uses; pure Played responses do not become Uses. Source loss does not rewrite prior Uses.",
+    "A deterministic private sample contains at most two actual DrawPile entities of the required name length. Optional decline precedes activation; a paid nonempty candidate selection has no extra cancel choice. Successful native obtain is determined from its actual movement receipt, rather than whether later children leave it in Hand.",
+    "The failed activation commits same-actual-turn disable before its native Draw2 request to avoid reentrant repayment. Only genuine NativeDrawOutcome.ActualDrawIds receive Xian marks, before gain children; replacement obtains remain distinct. A short Draw0 or Draw1 still consumes the failed activation.",
+    "Engineering interpretation: one pending next-damage protection per owner and actual turn. Multiple lost marked cards and repeated losses before consumption coalesce; a later loss after consumption can arm protection again. This is not a claimed official FAQ.",
+    "Engineering interpretation: Xian is a permanent physical-card mark. HandLimit exemption requires the current holder own active Jiaowei. An actual departure from owner Hand or Equipment to outside that owner Hand/Equipment qualifies; direct same-owner Hand/Equipment transfers do not. Native Use/response movement into Processing is an actual departure. This is an engineering contract, not an official ruling.",
+    "An already earned protection persists through source loss until the native ActualTurnCursorReturned boundary, including inserted phases after a raw TurnEnded event. It prevents one whole positive finalized native damage before Armor, preserving Armor. Pure HP loss, nonpositive damage, substituted HP loss and an earlier prevented attempt do not consume it. Existing earlier one-use shields retain their established priority.",
+    "Initial Xian marks bind the final frozen native initial-Hand row once, rather than a later mutable Hand after GameStarting children. A later source gain does not reinitialize the initial cards. Turn-zero loss grants no protection because no actual turn has begun.",
+    "Native true Uses issued by the exact GameStarting mother also qualify. Their setup-only previous-name declaration prefix is bound to that mother epoch, without inventing an actual-turn ordinal. Setup failure disable is scoped to owner and turn zero; the first real TurnStarted begins a fresh history and availability.",
+    "A genuine committed Slash-to-FireSlash conversion is proven by its native kind-change receipt and original source binding. Feibai uses the resulting two-rune FireSlash name while retaining the immutable original Slash declaration and whole-turn use sequence. Earlier-use names follow only conversions already issued within the current declaration prefix."
+  ],
+  "verificationLimits": [
+    "No authenticated official client or character-specific official FAQ established the lifecycle interpretations above. Focused Core, bounded routine, WPF rendering and manual foreground acceptance remain separate scopes."
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 19,
+      "wpfPassed": 1,
+      "durationMs": 92939
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 82026
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the unmodified official PNG and the actual WPF gallery render of the complete Le Cai Yong edition.",
+    "scopeNote": "Four focused native behavior groups, relevant retained mechanism checks, existing WPF gallery check and measured bounded routine verification. No manual full run or complete foreground match.",
+    "focusedCheckNames": [
+      "Native draw attempt: private decision and actual result cold",
+      "Native draw attempt: sequential recipients and actual gain observers cold",
+      "Le Cai Wen Ji: opening entities hand limit and incoming distance cold",
+      "Le Cai Wen Ji: whole marked loss missing suits and native children cold",
+      "Le Cai Yong: initial Xian actual loss binary protection Armor expiry cold",
+      "Le Cai Yong: effective names previous Use private samples cold",
+      "Le Cai Yong: true Dodge Null parents Played exclusion cold",
+      "Le Cai Yong: actual fallback short Draw Xian disable source loss cold",
+      "Le Mi Heng: same name HE outputs distance and ordinary quotas cold",
+      "character manifests preserve ordered registration and package isolation",
+      "Actual turn use ordinal: frozen declaration order and true uses",
+      "Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ],
+    "knownBaselineFailures": [
+      {
+        "check": "Fame 2017 Ji Kang real equipment nested replay",
+        "baselineCommit": "f4257a526017e305542884057a1241ade38866fa",
+        "reproducedOnUnmodifiedBaseline": true,
+        "stage": "third genuine damage then Qingxian recovery branch before equipment selection",
+        "error": "A damage trigger continuation must retain its window or skill frame at the stack top.",
+        "scope": "The unchanged retained check failed identically on the separate unmodified baseline and the candidate. It remains registered, and is outside this batch final focused and routine scopes."
+      }
+    ]
+  }
+}

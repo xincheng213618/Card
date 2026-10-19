@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:jiaowei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mark-initial-entities",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeLeCaiYongJiaowei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "le:feibai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveLeCaiYongFeibai",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

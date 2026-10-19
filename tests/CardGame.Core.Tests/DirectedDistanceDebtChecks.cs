@@ -50,11 +50,20 @@ internal static class DirectedDistanceDebtChecks
         foreach(var branch in new[]{0,1,2})
         {
             var fire=branch>0; var fireExtra=branch==2;
+            FeibaiDeclaredNameEvent? originalFeibaiName=null;
+            CurrentTurnCardUseKindsRecordedEvent? originalUseSequence=null;
             var (g,r)=Start(fire:fire,redirects:true); Grant(g,2); ReachPlay(g);
             Accept(g,new UseProgramSkillCommand(0,Driver,"virtual",[],[1],g.Revision,P(g)!.PromptId));
             if(fire)
             {
                 Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:lihuo" && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
+                var declaring=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.CardAttack is not null);
+                var actionId=declaring.Action!.ActionId;
+                originalFeibaiName=Facts<FeibaiDeclaredNameEvent>(g).Single(e=>e.ActionId==actionId);
+                originalUseSequence=Facts<CurrentTurnCardUseKindsRecordedEvent>(g).Single(e=>e.CardActionId==actionId);
+                Require(originalFeibaiName.EffectiveKind==CardKind.Slash && declaring.Action.EffectiveKind==CardKind.Slash &&
+                    originalUseSequence.WholeActualTurnUseSequence is >0,
+                    "Before true Lihuo conversion, Feibai records the actual ordinary Slash declaration at its issued whole-turn use position.");
                 Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
                 Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="current-slash-fire"));
                 Choose(g,c=>c.Parameters.GetValueOrDefault("branch")== (fireExtra?"extra":"convert") &&
@@ -87,6 +96,21 @@ internal static class DirectedDistanceDebtChecks
                     Facts<ProgramActualSlashTargetRedirectedEvent>(g).Length==0,
                     "Fire reconstruction consumes the exact accepted prefix and tail once, while retaining the original prepared source plan.");
                 Reach(g,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="completed-use-payment"));
+                var completedUse=g.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.Id==use.Id);
+                var actionId=completedUse.Action!.ActionId;
+                var feibai=Facts<FeibaiUsePrefixCapturedEvent>(g).Single(e=>e.ActionId==actionId);
+                var recorded=Facts<CurrentTurnCardUseKindsRecordedEvent>(g).Single(e=>e.CardActionId==actionId);
+                var actualTurnUses=Facts<CurrentTurnCardUseKindsRecordedEvent>(g).Where(e=>
+                    e.TurnNumber==recorded.TurnNumber && e.TurnOwnerSeat==recorded.TurnOwnerSeat).ToArray();
+                Require(completedUse.CardKind==CardKind.FireSlash && completedUse.Action.EffectiveKind==CardKind.FireSlash &&
+                    feibai is {ActorSeat:0,EffectiveKind:CardKind.FireSlash,NameLength:2} &&
+                    feibai.ActionId==use.Action!.ActionId && feibai.ActualTurn==recorded.TurnNumber &&
+                    feibai.UseSequence==recorded.WholeActualTurnUseSequence && recorded==originalUseSequence &&
+                    Array.IndexOf(actualTurnUses,recorded)+1==recorded.WholeActualTurnUseSequence &&
+                    Facts<FeibaiDeclaredNameEvent>(g).Single(e=>e.ActionId==actionId)==originalFeibaiName &&
+                    originalFeibaiName is {EffectiveKind:CardKind.Slash},
+                    "At the real completed-fire payment child, Feibai freezes the exact same action as two-character FireSlash while retaining its original Slash name fact and unchanged whole-actual-turn use position. "+
+                    JsonSerializer.Serialize(new{ActionId=actionId,feibai,Declared=originalFeibaiName,recorded}));
                 Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==originalParent).SelectedTargetSeats.SequenceEqual([1]),
                     "The true converted-fire finish writes the original producer singleton before its real mandatory payment.");
                 Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="completed-use-payment" && c.Parameters.GetValueOrDefault("branch")=="lose-hp");

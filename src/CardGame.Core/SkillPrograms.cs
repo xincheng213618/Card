@@ -1028,6 +1028,8 @@ public enum SkillProgramEffectOp
     ResolveWuZhangFeiXianlue = 29061,
     ResolveWuZhangFeiMovementDamage = 29062,
     ResolveWuZhangFeiHaoxian = 29063,
+    InitializeLeCaiYongJiaowei = 29070,
+    ResolveLeCaiYongFeibai = 29071,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -5290,6 +5292,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) TanbanComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangGaiKurouComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuZhangFeiComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) LeCaiYongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

@@ -103,6 +103,7 @@ public sealed partial class GameEngine
     private void RecordCurrentTurnUseKinds(long frameId, int actorSeat, CardActionContext? action,
         CardKind effectiveKind, bool nullificationUse, int? programInstructionIndex = null)
     {
+        if (_contentRegistry.ProgramDependencies.TracksEffectiveUseNames) CaptureFeibaiDeclaredName(frameId, action, effectiveKind, programInstructionIndex);
         var handSuit = action is { ProviderSeat: var provider } && provider == action.ActorSeat &&
             action.PhysicalCards.Count > 0 && action.PhysicalCards.All(c => c.From == CardLocation.Hand(action.ActorSeat))
                 ? ActualTurnSuitBit(action.EffectiveSuit) : 0;
