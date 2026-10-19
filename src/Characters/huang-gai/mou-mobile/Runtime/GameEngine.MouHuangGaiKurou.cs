@@ -343,11 +343,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("KuRou armor needs one actual positive Loss point and its original candidate.");
         var owner = _players[frame.OwnerSeat];
         if (!owner.IsAlive || !HasRuntimeSkillInstance(owner, frame.SkillId, frame.SkillInstanceId)) return;
-        var before = owner.Armor; var actual = Math.Max(0, Math.Min(2, 5 - before));
+        var before = owner.Armor; const int actual = 2;
         owner.Armor = checked(before + actual);
         var source = MouKurouSource(frame); var context = frame.WindowContext!;
         AdvanceEventRulesAndQueueFact(new MouHuangGaiKurouArmorGrantedEvent(frame.Id, source, frame.GameplayHash,
-            context.HpChange!.Id, context.OccurrenceIndex, 2, actual, before, owner.Armor, 5));
+            context.HpChange!.Id, context.OccurrenceIndex, 2, actual, before, owner.Armor, null));
         AdvanceEventRulesAndQueueFact(new ArmorGrantedEvent(frame.Id, frame.InstructionIndex - 1, CreateProgramTurnEffectSource(frame),
             frame.OwnerSeat, actual, before, owner.Armor));
     }
@@ -395,7 +395,7 @@ public sealed partial class GameEngine
                 [new(PublicHealthEffectKind.Recover, recover), new(PublicHealthEffectKind.HpLoss, payableLoss)]);
             var lethal = owner.HasHpValue && health.IsLethal;
             var armor = !lethal && owner.HasHpValue
-                ? Math.Max(0, Math.Min(checked(health.DirectHpLossAmount * 2), 5 - owner.Armor)) : 0;
+                ? checked(health.DirectHpLossAmount * 2) : 0;
             var effects = new[]
             {
                 new SkillProgramEffect(SkillProgramEffectOp.Recover, SkillProgramEffectTarget.Owner, recover, condition),
@@ -422,7 +422,7 @@ public sealed partial class GameEngine
                     Hint = hint with { ValueAdjustment = hint.ValueAdjustment - cardCost },
                     Score = estimate.Score + targetValue - cardCost,
                     IsSelfLethal = lethal,
-                    Approximation = "苦肉按自己实际牌的有效牌名扣血；确定的银狮离装先回复；按实际失血及护甲上限估值；不预支濒死救援。"
+                    Approximation = "苦肉按自己实际牌的有效牌名扣血；确定的银狮离装先回复；每实际失去1点体力固定增加2点护甲；不预支濒死救援。"
                 }));
             }
         }

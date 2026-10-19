@@ -14,7 +14,6 @@ internal static class MouHuangGaiChecks
     private const string Quiet = "fixture:mhg-quiet", Conditional = "fixture:mhg-conditional", Neutral = "fixture:mhg-neutral", PeerResponse = "fixture:mhg-peer-response";
     private const string AiWitness = "fixture:mhg-ai-witness";
     private const string Owner = "fixture:mhg-owner", Mode = "identity:classic-mou-huang-gai-mobile";
-    private const int KurouArmorCap = 5;
 
     public static void RealPlayStartGiftsPerPointLossArmorPaymentPrivacyCold()
     {
@@ -68,17 +67,21 @@ internal static class MouHuangGaiChecks
             "Partially absorbed damage also keeps its real HP reduction separate from direct HP Loss."); damage.Use("loss-one"); damage.Play();
         damage.Need(damage.V() is { Hp: 1, Armor: 2 } && damage.ArmorOccurrences() == 1, "A real direct Loss bypasses Armor and earns one genuine Armor2 occurrence."); damage.Cold();
 
-        var capped = Scene.Start("armor-cap"); capped.Use("loss-two"); capped.Play();
-        capped.Need(capped.V() is { Hp: 2, Armor: 4 } && capped.ArmorOccurrences() == 2, "Two real Loss points establish four KuRou Armor.");
-        capped.Use("loss-one"); capped.Play(); capped.Need(capped.V().Armor == KurouArmorCap && capped.ArmorOccurrences() == 3, "The dedicated KuRou grant clips 4 to 5.");
-        capped.Use("recover-one"); capped.Play(); capped.Use("loss-one"); capped.Play();
-        capped.Need(capped.V().Armor == KurouArmorCap && capped.ArmorOccurrences() == 4, "Loss at the five-point cap still resolves its real occurrence once without creating Armor.");
-        capped.Use("generic-armor-three"); capped.Play(); capped.Use("recover-one"); capped.Play(); capped.Use("loss-one"); capped.Play();
-        capped.Need(capped.V().Armor == KurouArmorCap + 3 && capped.ArmorOccurrences() == 5 &&
-            capped.E<ArmorGrantedEvent>().Single(e => e.Source.SkillId == Driver && e.Amount == 3) is { Amount: 3, ArmorBefore: KurouArmorCap, ArmorAfter: KurouArmorCap + 3 } &&
-            capped.E<MouHuangGaiKurouArmorGrantedEvent>().Select(e => (e.ArmorBefore, e.ArmorAfter, e.Actual)).SequenceEqual(new[] { (0, 2, 2), (2, 4, 2), (4, 5, 1), (5, 5, 0), (8, 8, 0) }) &&
-            capped.E<MouHuangGaiKurouArmorGrantedEvent>().Select(e => (e.HpChangeId, e.OccurrenceIndex)).Distinct().Count() == 5,
-            "Generic Armor stays uncapped; a later KuRou grant neither duplicates the Loss nor lowers pre-existing Armor above five."); capped.Cold();
+        var unbounded = Scene.Start("armor-unbounded"); unbounded.Use("loss-two"); unbounded.Play();
+        unbounded.Need(unbounded.V() is { Hp: 2, Armor: 4 } && unbounded.ArmorOccurrences() == 2, "Two real Loss points establish four KuRou Armor.");
+        unbounded.Use("loss-one"); unbounded.Play(); unbounded.Need(unbounded.V().Armor == 6 && unbounded.ArmorOccurrences() == 3, "The next real Loss grants both Armor points, advancing four to six.");
+        unbounded.Use("recover-one"); unbounded.Play(); unbounded.Use("loss-one"); unbounded.Play();
+        unbounded.Need(unbounded.V().Armor == 8 && unbounded.ArmorOccurrences() == 4, "Another real Loss advances six to eight without clipping its paid grant.");
+        unbounded.Use("generic-armor-three"); unbounded.Play(); unbounded.Use("recover-one"); unbounded.Play(); unbounded.Use("loss-one"); unbounded.Play();
+        var kurouArmor = unbounded.E<MouHuangGaiKurouArmorGrantedEvent>();
+        unbounded.Need(unbounded.V().Armor == 13 && unbounded.ArmorOccurrences() == 5 &&
+            unbounded.E<ArmorGrantedEvent>().Single(e => e.Source.SkillId == Driver && e.Amount == 3) is { Amount: 3, ArmorBefore: 8, ArmorAfter: 11 } &&
+            kurouArmor.Select(e => (e.ArmorBefore, e.ArmorAfter, e.Requested, e.Actual)).SequenceEqual(new[] { (0, 2, 2, 2), (2, 4, 2, 2), (4, 6, 2, 2), (6, 8, 2, 2), (11, 13, 2, 2) }) &&
+            kurouArmor.Select(e => (e.HpChangeId, e.OccurrenceIndex)).Distinct().Count() == 5 &&
+            unbounded.E<ArmorGrantedEvent>().Where(e => e.Source.SkillId == Kurou)
+                .Select(e => (e.ProgramFrameId, e.PlayerSeat, e.Amount, e.ArmorBefore, e.ArmorAfter))
+                .SequenceEqual(kurouArmor.Select(e => (e.FrameId, 0, e.Actual, e.ArmorBefore, e.ArmorAfter))),
+            "Each real Loss point requests and grants two Armor exactly once through matching KuRou and generic invoices; generic Armor3 remains independent and existing Armor eleven advances to thirteen."); unbounded.Cold();
 
         foreach (var scene in new[] { "ai-safe-mix", "ai-all-fatal" })
         {
@@ -110,7 +113,7 @@ internal static class MouHuangGaiChecks
         var draw = Scene.Start("draw-timing", CardKind.Dodge, atGift: true);
         draw.Need(draw.V() is { Hp: 2, MaxHp: 4, HandCount: 8, Armor: 4 }, "A real pre-turn Loss2 yields the opening four plus normal two plus current lost-HP two, before Play-start giving.");
         var before = draw.V().HandCount; var gift = draw.V().Hand[0].Id; draw.ActivateGift(); draw.Gift(gift, 1); draw.Play();
-        draw.Need(draw.V() is { Hp: 1, Armor: KurouArmorCap } && draw.V().HandCount == before - 1,
+        draw.Need(draw.V() is { Hp: 1, Armor: 6 } && draw.V().HandCount == before - 1,
             "The later Play-start HP loss changes X for uses but cannot retroactively add cards to an already completed Draw phase.");
         draw.Use("recover-one"); draw.Play(); var retained = draw.V().HandCount; var previous = draw.G.State.TurnNumber;
         draw.End(); draw.Reach(() => draw.G.State.TurnNumber > previous && draw.GiftOffer());
@@ -131,7 +134,7 @@ internal static class MouHuangGaiChecks
         s.Need(s.V().Hp == 1 && s.OwnAdmissions().Select(e => (e.UseOrdinal, e.Applies)).SequenceEqual(new[] { (1, true), (2, true), (3, true) }) &&
             s.E<ResponseRequestedEvent>().Length == requests && new[] { first, second, third }.All(id => s.E<CardUseFinishedEvent>().Count(e => e.ResolutionId == id) == 1),
             "A later genuine Loss raises X to three, permitting the third far Slash beyond ordinary quota; all three whole uses finish once.");
-        s.Use("lose-zhajiang"); s.Play(); s.Need(!s.Has(ZhaJiang) && s.V().Armor == KurouArmorCap &&
+        s.Use("lose-zhajiang"); s.Play(); s.Need(!s.Has(ZhaJiang) && s.V().Armor == 8 &&
             !s.Actions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2])), "Actual source loss removes future privileges while retaining already paid Armor.");
         s.Use("grant-zhajiang"); s.Play(); s.Need(s.Has(ZhaJiang) && s.OwnUses().Length == 3 &&
             !s.Actions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2])), "Regranting the skill cannot reset the actual-turn use history or lend slot three to a fourth use."); s.Cold();

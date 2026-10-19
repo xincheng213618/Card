@@ -30,7 +30,7 @@ public sealed record MouHuangGaiKurouCompletedEvent(long FrameId, CardConversion
     long? GiftMovementSequence, int ActualLost) : IGameEvent;
 public sealed record MouHuangGaiKurouArmorGrantedEvent(long FrameId, CardConversionSource Source,
     string GameplayHash, long HpChangeId, int OccurrenceIndex, int Requested, int Actual,
-    int ArmorBefore, int ArmorAfter, int Maximum) : IGameEvent;
+    int ArmorBefore, int ArmorAfter, int? Maximum) : IGameEvent;
 
 internal interface IMouHuangGaiKurouHost
 {
@@ -75,13 +75,13 @@ internal sealed partial class ProgramAiEstimateContext
     internal void MouKurouHealthPrior(SkillProgramEffect effect, SkillProgramEffectOp op)
     {
         // The native optional decision prices the exact owned-card candidates.
-        // Other composition consumers still see the unavoidable minimum loss,
-        // and never treat an already full armor allowance as a new benefit.
+        // Other composition consumers still see the unavoidable minimum loss
+        // and the same unbounded Armor2 benefit as the native grant.
         if (op == SkillProgramEffectOp.ResolveMouHuangGaiKurouGift)
             LoseHp(new(SkillProgramEffectOp.LoseHp, SkillProgramEffectTarget.Owner, 1, effect.Condition));
         if (_estimatedHp > 0)
             GrantArmor(new(SkillProgramEffectOp.GrantArmor, SkillProgramEffectTarget.Owner,
-                Math.Max(0, Math.Min(2, 5 - _estimatedArmor)), effect.Condition));
+                2, effect.Condition));
     }
 }
 

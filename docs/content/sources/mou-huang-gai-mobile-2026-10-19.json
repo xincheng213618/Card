@@ -76,14 +76,14 @@
   "engineeringInterpretations": [
     "Kurou uses a real owned Hand or Equipment entity and another living recipient, then pays 1 HP loss, or 2 if the frozen effective given card kind is Peach or Alcohol. Native movement children settle before HP loss.",
     "Only direct HpChangeKind.Loss enters the per-point armor trigger, for all causes and turns. Damage HP reduction, recovery and maximum HP changes do not qualify.",
-    "Armor cap decision: apply a Kurou-specific maximum of five as the working mobile-product interpretation. The official character text and located primary sources do not specify this cap. This is an explicit product/engineering assumption; generic armor remains unchanged and pre-existing armor above five is never reduced.",
+    "Armor decision confirmed by the user on 2026-10-19: use the repository generic uncapped armor model. Each explicit HP-loss point grants exactly two armor, including above five; the earlier provisional character-only cap is removed. The official character text and located primary sources do not specify an armor cap.",
     "ZhaJiang evaluates current lost HP and the prospective whole-actual-turn true Use ordinal. True response Uses count; pure Played does not. No privilege is admitted on another actor actual turn.",
     "Admission, including negative admission, is frozen on the owning declaration/payment and then the native Use frame before material payment. An admitted use retains its distance, quota and response privileges through nested HP or source changes; subsequent uses recompute current eligibility.",
     "Extra normal draw is current lost HP at the native draw query. A later PlayStart gift never retroactively increases a completed draw phase.",
     "Source changes, unusual material conversions, native effect carriers and payment/death boundaries follow explicit repository contracts. They are not presented as a found character-specific official FAQ.",
     "For native departing special equipment and logical Diou carriers, an attempted gift may normalize its real destination to OutsideGame. The exact paid removal retains its following HP-loss step, but no recipient Hand gain is fabricated. This follows the existing physical movement contract, not a verified character-specific mobile ruling.",
     "A prepaid declaration reserves its admitted true-Use position on its unique owning payment through cost children. Later same-actor child Uses cannot borrow that slot; the actual ledger still records genuinely accepted native Uses in their native order. Exact Use/Action/Declaration receipts retire the reservation without a parallel sidecar.",
-    "Kurou AI optional admission and entity selection share one real candidate estimate, use the effective given card cost and capped actual armor gain, and exclude active self-lethal payment without pre-crediting rescue. Silver Lion recovery is credited only when public snapshots rule out hidden or potential redirect sources; private foreign skill qualification is never queried."
+    "Kurou AI optional admission and entity selection share one real candidate estimate, use the effective given card cost and actual armor gain, and exclude active self-lethal payment without pre-crediting rescue. Silver Lion recovery is credited only when public snapshots rule out hidden or potential redirect sources; private foreign skill qualification is never queried."
   ],
   "verificationLimits": [
     "No authenticated client or complete manual foreground match was used. No character-specific official armor-cap FAQ was located."
@@ -93,19 +93,19 @@
     "focused": {
       "corePassed": 15,
       "wpfPassed": 1,
-      "durationMs": 26945
+      "durationMs": 50486
     },
     "routine": {
       "corePassed": 165,
       "wpfPassed": 37,
-      "durationMs": 75616
+      "durationMs": 69852
     },
     "manualFullRun": false,
     "visualInspection": "Inspected the unmodified official JPEG and the actual WPF gallery render with the full two-skill mobile edition.",
     "scopeNote": "Four new native behavior groups, relevant retained mechanism checks, existing WPF gallery check and measured bounded routine verification. No manual full run or complete foreground match.",
     "coveredBoundaries": [
       "True Play-start Hand and Equipment gifts; exact recipient movement before 1/2 native HP loss, per-point armor and decline/stale/forged/private choice boundaries.",
-      "Explicit HP loss versus native damage and armor absorption; Kurou-specific cap five without changing generic armor or reducing pre-existing armor above five.",
+      "Explicit HP loss versus native damage and armor absorption; uncapped Armor2 per explicit HP-loss point, including four to six, six to eight and eleven to thirteen after a real generic Armor3 grant.",
       "Normal draw queries current lost HP; later gift loss cannot retroactively alter the draw phase.",
       "Whole actual-turn true Use ordinal, ordinary tricks, equipment, native Slash, dynamic loss/recovery and future source loss/regrant restrictions.",
       "Native response Use versus pure Played, real payment once, foreign actual-turn boundaries and cold replay.",
@@ -114,5 +114,12 @@
       "Real AI automatic decisions avoid active lethal gifts and use the same candidate estimate as actual selection; hidden foreign skills never enter recovery qualification estimates.",
       "Actual gallery loads the distinct mobile portrait and both complete printed skills without advancing the game."
     ]
+  },
+  "armorDecision": {
+    "decidedOn": "2026-10-19",
+    "authority": "explicit-user-selection",
+    "rule": "Follow generic repository armor with no gameplay cap.",
+    "requestedPerLossPoint": 2,
+    "historicalReceiptCompatibility": "Retain the legacy Maximum field as optional nullable metadata. Historical numerical maxima remain readable; null denotes an uncapped new grant."
   }
 }
