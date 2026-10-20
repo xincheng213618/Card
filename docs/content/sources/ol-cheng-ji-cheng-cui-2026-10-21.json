@@ -1,0 +1,95 @@
+{
+  "formatVersion": 1,
+  "status": "source-verified-and-implemented",
+  "generalId": "ol:cheng-ji-cheng-cui",
+  "characterId": "character:cheng-ji-cheng-cui",
+  "displayName": "成济成倅",
+  "edition": "ol",
+  "rulesetId": "sanguosha-ol",
+  "verifiedAtUtc": "2026-10-20T17:54:02.498617Z",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 6,
+    "officialHeroId": 551,
+    "apiInitialHp": 0,
+    "apiInitialHpMeaning": "API zero sentinel; the formal release explicitly identifies ordinary full six HP."
+  },
+  "skills": [
+    {
+      "id": "ol:tousui",
+      "name": "透髓",
+      "officialText": "你可以将任意张牌置于牌堆底，视为使用需等量张【闪】抵消的【杀】。"
+    },
+    {
+      "id": "ol:xuming",
+      "name": "畜鸣",
+      "officialText": "锁定技，当你对其他角色造成伤害或受到其他角色的伤害时，若没有造成伤害的实体牌，此伤害+1，否则其将造成伤害的牌于本回合结束时当【借刀】或【过河拆桥】对你使用。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/551",
+      "bytes": 23636,
+      "sha256": "E9A4518ECD881E74C4C4C5186BD655C592ADB6743ADAA72353CB642EBFEF5866"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=551",
+      "bytes": 857,
+      "sha256": "5B0517FE9CD20D98B67AF8DF0BED701A41E9D9CB48D94B97940262E4AEC1519B"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20231128_1768_5313",
+      "bytes": 286802,
+      "sha256": "F5BE0719D15E2041DC7DE2166B16FB22BD3CB69493FFCC0E04E5A47ED31F0429"
+    }
+  ],
+  "firstRelease": {
+    "publishedAt": "2023-12-01 17:03:52",
+    "permanentAvailabilityFrom": "2023-12-02 00:00:00",
+    "method": "成济成倅武将礼盒首发，活动2023-12-02至12-08",
+    "identityEvidence": "Formal 新品武将 table explicitly gives 魏/6/男; body has exactly 透髓 and 畜鸣.",
+    "currentSaleAvailabilityNotClaimed": true
+  },
+  "revisionAudit": {
+    "currentHeroFresh": true,
+    "currentIdentityApiFresh": true,
+    "formalFullTextAgreement": true,
+    "targetedSearches": [
+      "site:www.sanguosha.com/news/ 成济成倅 调整",
+      "site:www.sanguosha.com/news/ 透髓 修改",
+      "site:www.sanguosha.com/news/ 畜鸣 -20231128_1768_5313"
+    ],
+    "results": "Retrieved other official hits were ranked-pool additions/removals, not skill amendments. No complete replacing skill announcement was found in this bounded search. This is not an assertion that no announcement could exist.",
+    "formalPoolEvidence": [
+      "https://www.sanguosha.com/news/20231229_9237_0319",
+      "https://www.sanguosha.com/news/20250530_7564_1614",
+      "https://www.sanguosha.com/news/20260729_9167_3313"
+    ]
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Tousui cost and timing",
+      "decision": "At least one real owned HE or native usable Wooden Ox hand source. Ordinary native Slash timing, quota, distance, target prohibitions remain. Only actual Use requests, never pure Played.",
+      "authority": "Root engineering ruling; not an official FAQ."
+    },
+    {
+      "topic": "Xuming original material promise",
+      "decision": "No early obtain. Freeze the complete original causing-card material set. At same actual turn end require every material still in native Processing or Discard; do not reclaim stolen/removed entities. One complete set makes one true Borrowed Sword or Dismantlement use. Borrowed Sword requires the skill owner as genuine legal weapon target and a legal secondary victim. Multiple damage promises resolve natively in sequence, allowing already-used materials returned to Discard to serve a later valid promise.",
+      "authority": "Root engineering ruling based on official text without 获得; not an official FAQ."
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55100.png",
+    "localAsset": "src/CardGame.Wpf/Assets/official-ol-cheng-ji-cheng-cui.png",
+    "sha256": "1AA3E076CF11F0BAE9F90E26EC3E5FF3DA47CABBCBD2CAA6553BC96903E21DDF",
+    "bytes": 962650,
+    "width": 750,
+    "height": 950,
+    "visualValidation": "Root downloaded and visually inspected the official current portrait."
+  },
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/OlChengJiChengCuiChecks.cs",
+    "method": "OlChengJiChengCuiChecks.NativeBottomCostMultiDodgeAndOriginalWholeTurnMaterialPromise"
+  }
+}

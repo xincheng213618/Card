@@ -2194,6 +2194,7 @@ public sealed partial class GameEngine
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
         if (IsIssuedMouZhuRongLieren(candidate, context)) return true;
+        if (IsIssuedXumingCandidate(candidate, context)) return true;
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
@@ -2447,7 +2448,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change &&
-                (IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
+                (IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : IsSpSunShangxiangLiangzhuTrigger(trigger) ? CanRunSpSunShangxiangLiangzhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
@@ -4345,7 +4346,8 @@ public sealed partial class GameEngine
             ? current
             : throw new InvalidOperationException("The AI program prompt is unavailable.");
         PromptChoice selected;
-        if (TryChooseKenshangAi(decision, out var kenshangChoice)) selected = kenshangChoice;
+        if (TryChooseTousuiAi(decision, out var tousuiChoice)) selected = tousuiChoice;
+        else if (TryChooseKenshangAi(decision, out var kenshangChoice)) selected = kenshangChoice;
         else if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame)
         {
             var paused = ProgramInstructionResolver.Default

@@ -25,11 +25,11 @@ public sealed partial class GameEngine
         }
         var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Concat(NativePublicPileSlashUseCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card) && !IsProgramEntityPhysicalRestricted(user.Seat, card.Id)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
-        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
+        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).Concat(TousuiProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
         if (!keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
             !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]) &&
-            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]) && !(HasZonghuProgramSlash(user, [frame.OwnerSeat]) || HasHuanpeiProgramSlash(user, [frame.OwnerSeat])))
+            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasTousuiProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]) && !(HasZonghuProgramSlash(user, [frame.OwnerSeat]) || HasHuanpeiProgramSlash(user, [frame.OwnerSeat])))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -197,11 +197,11 @@ public sealed partial class GameEngine
             .OrderBy(card => card.Id)
             .ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, participantSeat, nearest);
-        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, participantSeat, nearest).Concat(KenshangProgramSlashChoices(active, participantSeat, nearest)).ToList();
+        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, participantSeat, nearest).Concat(KenshangProgramSlashChoices(active, participantSeat, nearest)).Concat(TousuiProgramSlashChoices(active, participantSeat, nearest)).ToList();
         if (nearest.Length == 0 || !keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(participant, nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(participant, nearest) &&
-            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest) && !(HasZonghuProgramSlash(participant, nearest) || HasHuanpeiProgramSlash(participant, nearest)))
+            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasTousuiProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest) && !(HasZonghuProgramSlash(participant, nearest) || HasHuanpeiProgramSlash(participant, nearest)))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

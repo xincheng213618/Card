@@ -1,0 +1,67 @@
+{
+  "generalId": "mou:guo-you-zhi-mobile",
+  "officialName": "谋郭攸之",
+  "product": "三国杀移动版",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "officialHeroId": 674,
+    "gameGeneralId": 909,
+    "faction": "shu",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-674.html",
+      "role": "Current complete two-skill text. 忠纯 is present in the hidden second skill tab of the actual HTML.",
+      "sha256": "C454362216070EFA69603E0FC74002EA07EC3937917C34FBCD3FA4A77C8BFA7C"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Fresh official identity and complete skills, entry674/general909. Both skill bodies agree with the hero HTML."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2395.html",
+      "role": "Formal launch notice published2026-09-30 17:30; available2026-10-01 through 银枪龙胆礼盒. The notice confirms launch but does not reprint skill text.",
+      "sha256": "7259A1512D82E704D7F7AA8721A10CE7DA94D420D0DF22822700ED3D12622317"
+    }
+  ],
+  "completeOfficialSkills": [
+    {
+      "name": "裨阙",
+      "id": "mou-mobile:bique",
+      "text": "出牌阶段限一次，你可观看一名其他角色手牌。然后你可交给其任意张其未拥有的牌名的手牌，并可将手牌数调整至你此次交出的牌名数。"
+    },
+    {
+      "name": "忠纯",
+      "id": "mou-mobile:zhongchun",
+      "text": "一名角色的结束阶段，你可从弃牌堆中选择一张其本回合弃置的牌，令其获得且其可使用之。"
+    }
+  ],
+  "portrait": {
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-guo-you-zhi-mobile.jpg",
+    "url": "https://www.sanguosha.cn/storage/uploads/images/90900.jpg",
+    "evidence": "Actual hero swiper img src appears twice. API full portrait field is empty; this URL is from the current DOM, not a guessed path.",
+    "width": 530,
+    "height": 750,
+    "bytes": 117672,
+    "sha256": "420706E6FA1AE9B64315DB9BF2C68AA96E5E445690C3CEA68B887B4452DE8EEB",
+    "visuallyInspected": true,
+    "visualDescription": "红袍黑金冠文臣手持绿玉笏，城楼与守卒背景。"
+  },
+  "engineeringContractsNotOfficialFaq": [
+    "裨阙按所观看目标的当前Hand牌名集合，在给牌被接受时校验；不读取其他私有牌堆。允许交零张，真实观看已消耗本实际出牌阶段的次数。",
+    "给出实体的牌名在接受时冻结；以真实移动到目标Hand的实体计算不同牌名数。同名多张只计一种。先结清真实交牌孩子，再选择是否将本人Hand调整至该数；多则真实弃Hand，少则请求原生摸牌。",
+    "忠纯按原生逻辑弃置发票的ExecutorSeat与实际回合筛选仍在弃牌堆的原实体。包括该角色执行弃别人牌的实际收据；不把别人弃其牌、普通使用完成弃置或重铸当成其弃牌。",
+    "忠纯包括当前结束阶段角色本人。先真实获得，完整结清移动与获得孩子，再由实际受益者独立选择使用该实体或拒绝。没有额外距离、次数、目标或禁用豁免；使用保留原生actor/provider、真实物料与转化合法性。",
+    "已接受并实际交牌或获得后的尾程，不因原来源随后失去而回滚或重新支付；未来新机会仍要求有效来源。死亡与胜负截止沿原生引擎。",
+    "待决选择、移动、摸牌与原生使用的返回保存在各自所属帧；不增加与UseId并行的待决容器。"
+  ],
+  "revisionAudit": "Bounded fresh official-domain searches found no later superseding full skill adjustment after2026-10-01. No unofficial forum draft is treated as a rules revision.",
+  "status": "source-verified-and-implemented",
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouGuoYouZhiMobileChecks.cs",
+    "method": "MouGuoYouZhiMobileChecks.RealPrivateGiftHandAdjustmentAndExactDiscardReuseCold"
+  }
+}

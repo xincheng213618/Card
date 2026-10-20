@@ -24,7 +24,7 @@ public sealed partial class GameEngine
             action.Type == CardActionType.Response && action.EffectiveKind == CardKind.Dodge &&
             action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null) &&
         action.PhysicalCards.Any(cost => cost.CardId == cardId) &&
-        action.ConversionChain.Any(source => ViewAsRule(source)?.CostDestination == SkillProgramCardDestination.DrawPileTop);
+        action.ConversionChain.Any(source => ViewAsRule(source)?.CostDestination is SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.DrawPileBottom);
 
     private bool IsProgramResponseCardUse(CharacterState responder, CardKind effectiveKind) =>
         effectiveKind == CardKind.Dodge && ActiveFactionDefense is null &&
@@ -88,7 +88,7 @@ public sealed partial class GameEngine
 
     private CardLocation NormalizeProgramViewAsCostDestination(Card card, CardLocation from, CardLocation to, CardMoveReason reason)
     {
-        if (to != CardLocation.Processing || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) return to;
+        if (to != CardLocation.Processing || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain)) return to;
         var use = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Action?.PhysicalCards.Any(cost => cost.CardId == card.Id) == true);
         return IsProgramAlternativeCost(use?.Action, card.Id) && use!.Action!.PhysicalCards.Single(cost => cost.CardId == card.Id).From == from
             ? CardLocation.DrawPile : to;

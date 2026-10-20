@@ -47,7 +47,7 @@ public sealed partial class GameEngine
         if (choices.All(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline") &&
             !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest) &&
-            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest) && !(HasZonghuProgramSlash(_players[actorSeat], nearest) || HasHuanpeiProgramSlash(_players[actorSeat], nearest)))
+            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasTousuiProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest) && !(HasZonghuProgramSlash(_players[actorSeat], nearest) || HasHuanpeiProgramSlash(_players[actorSeat], nearest)))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);
@@ -86,7 +86,7 @@ public sealed partial class GameEngine
                 });
             }
         }
-        choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats).Concat(KenshangProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats)));
+        choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats).Concat(KenshangProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats)).Concat(TousuiProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats)));
         choices.Add(new(new ChoiceId($"nearest.{frame.Id}.{draft.ActorSeat}.decline"), "失去1点体力。", [], [],
             new Dictionary<string, string> { ["program-action"] = "nearest-legal-slash", ["request-option"] = "decline", ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) }));
         return choices;
@@ -285,7 +285,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Nearest legal Slash owning draft lost its exact cursor or frozen actors.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && !draft.AwaitingFaction &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision || decision.PlayerSeat != draft.ActorSeat ||
-                 !AssistedChoicesEqual(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(decision))))).Choices, NearestLegalSlashChoices(frame))))
+                 !AssistedChoicesEqual(TousuiProgramNativeDecision(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(decision)))))).Choices, NearestLegalSlashChoices(frame))))
                 throw new InvalidOperationException("Nearest legal Slash prompt changed its actual material choices.");
         }
         if (paused.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&

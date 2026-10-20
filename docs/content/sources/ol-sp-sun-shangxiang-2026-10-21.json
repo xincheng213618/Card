@@ -1,0 +1,96 @@
+{
+  "generalId": "ol:sp-sun-shangxiang",
+  "edition": "ordinary Sanguosha OL SP, current 2015-04-29 revision",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "faction": "shu",
+    "gender": "Female",
+    "baseHp": 3,
+    "currentHeroId": 103
+  },
+  "completeSkills": [
+    {
+      "name": "良助",
+      "id": "ol:liangzhu",
+      "text": "当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。"
+    },
+    {
+      "name": "返乡",
+      "id": "ol:fanxiang",
+      "text": "觉醒技，准备阶段，若场上有你发动过“良助”令其摸牌且已受伤的角色，你增加1点体力上限并回复1点体力，失去“良助”并获得“枭姬”。"
+    }
+  ],
+  "derivedSkill": {
+    "id": "classic:xiaoji",
+    "reusedExistingImplementation": true
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/103",
+      "bytes": 29149,
+      "sha256": "3B5E4EA280F0C5FB0BD8EB4404614EFB8E03FA4C37052BD3B997DE7C05728F4E"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=103",
+      "bytes": 889,
+      "sha256": "DB5922FE9F6E0F102856ACC1EAEFEFB7ACDF91D47F38A89F1BD14AB4F06D9837"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20150427_5623_2409",
+      "bytes": 29558,
+      "sha256": "7BC1188C621541D1EBB477E04D1B593ED96065BA3EA07B2642F1A91AA02B7AC8"
+    }
+  ],
+  "applicableRevision": {
+    "url": "https://www.sanguosha.com/news/20150427_5623_2409",
+    "title": "SP孙尚香4月29日调整公告",
+    "publishedAt": "2015-04-27 13:51:26",
+    "effectiveFrom": "2015-04-29 maintenance",
+    "before": "Originally retained Wu Sun Shangxiang Jieyin/Xiaoji with faction switched to Shu.",
+    "after": "Liangzhu + Fanxiang; other old SP settings retained.",
+    "currentBodyVs2015": "Current hero says after actual recovery; current Fanxiang states MaxHp+1 then recover1. Use current hero wording for exact sequencing. Formal adjustment confirms same full two-skill revision.",
+    "boundedLatestSearch": "Fresh official-domain searches for SP孙尚香 良助/返乡/调整 returned current hero + 2015-04-27 adjustment and 2016 official operations guide; no later superseding full revision found. This is bounded, not a claim all historical notices were exhausted.",
+    "originalFirstRelease": "Not established; do not invent first release date. 2015-04-29 is effective date of the complete current revision."
+  },
+  "officialTips": [
+    "Includes SP孙尚香 herself: both draw1 and draw2 may be chosen after her own Play recovery.",
+    "Formal adjustment explicitly: 任何角色（包括SP孙尚香自己）出牌阶段濒死后自己喝酒、队友出桃也可触发。",
+    "The recovering character must be in their own Play; Huatuo Qingnang healing another character in Huatuo Play does not qualify.",
+    "A multi-point recovery is one recovery occurrence; current wording does not say 每回复1点. 2016 official repost expressly distinguishes recovery count from HP-point count.",
+    "Helping herself with branch1 does not add a branch2 assisted record; branch2 may help herself and thereby enable Fanxiang."
+  ],
+  "engineeringDecisions": [
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Use current after-recovery wording: one actual positive native Recovery occurrence creates one offer even if it restores multiple HP. Exclude damage, HP setting, maximum-HP changes, prevented/zero healing. Qualify only when recovered seat equals the real currently recorded actual Play actor; include self and real dying-rescue recovery inside that actor own Play."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Branch2 records the stable helped seat after its accepted native Draw2 really executes and returns, even when the native draw is replaced and ActualDrawIds is empty. Ordinary card gain does not count. Branch1 never records a helped seat even when she herself recovered."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Helped seats persist across Liangzhu source loss/regrant; Fanxiang is once per owner and named skill for the game. At actual own Preparation an alive currently wounded helped seat qualifies; lock accepted awakening before effects."
+    },
+    {
+      "origin": "existing-native-sequence",
+      "rule": "Fanxiang uses the existing native changeMaximumHp+1 and Recover1 instructions, allowing their children to fully return. Its terminal step removes active Liangzhu grants, calls native grantSkills for classic:xiaoji and standard SkillAwakened, then emits the existing native skill-replacement fact."
+    }
+  ],
+  "officialFaqConfirmed": false,
+  "scopeNote": "Official current hero and 2015 full revision agree on complete two-skill scope. The old announcement prose includes point-count wording; use current hero after-recovery wording and the explicit native occurrence contract. No global schema, epoch or content package version increase.",
+  "art": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10300.png",
+    "asset": "src/CardGame.Wpf/Assets/official-ol-sp-sun-shangxiang.png",
+    "rootVisualInspection": true,
+    "width": 750,
+    "height": 950,
+    "bytes": 970965,
+    "sha256": "8901fc5f69f65d62fcbba5ab755334fd69210b9f644af72af37c2cf000677012"
+  },
+  "status": "source-verified-and-implemented",
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/SpSunShangxiangOlChecks.cs",
+    "method": "SpSunShangxiangOlChecks.ActualRecoveryHelpAndFanxiang"
+  }
+}

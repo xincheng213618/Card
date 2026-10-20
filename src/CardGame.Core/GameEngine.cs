@@ -1392,6 +1392,8 @@ public sealed partial class GameEngine
 
         return action switch
         {
+            "tousui-request-open" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
+                Accept(() => TryBeginTousuiQinglongSlash(ActiveQinglongCrescentBlade!, selected)),
             "kenshang-request-open" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
                 Accept(() => TryBeginKenshangQinglongSlash(ActiveQinglongCrescentBlade!, selected)),
             "round-once-cardless-forced-slash" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
@@ -1515,6 +1517,8 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitSlashPromptAnswer(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("response") == "tousui-request-open")
+            return Accept(() => TryBeginTousuiBorrowedSlash(ActiveBorrowedSword!, selected));
         if (selected.Parameters.GetValueOrDefault("response") == "kenshang-request-open")
             return Accept(() => TryBeginKenshangBorrowedSlash(ActiveBorrowedSword!, selected));
         if (selected.Parameters.GetValueOrDefault("response") == "round-once-cardless-forced-slash")
@@ -6581,7 +6585,7 @@ public sealed partial class GameEngine
         var canRequestFactionSlash = includeFactionSlash && CanRequestBorrowedSwordFactionSlash(pending);
         if (!keepCurrentRequest && slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
             TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
-            KenshangBorrowedSlashChoices(pending).Count == 0 &&
+            KenshangBorrowedSlashChoices(pending).Count == 0 && TousuiBorrowedSlashChoices(pending).Count == 0 &&
             RoundOnceCardlessForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
             !ChainedStateBasicForcedSlashRules(weaponOwner, slashTarget, false).Any() &&
             !DrawFundedDistinctBasicForcedSlashRules(weaponOwner, slashTarget, false).Any() &&
@@ -6680,6 +6684,7 @@ public sealed partial class GameEngine
         choices.AddRange(ChainedStateBasicForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false));
         choices.AddRange(RoundOnceCardlessForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false));
         choices.AddRange(KenshangBorrowedSlashChoices(pending));
+        choices.AddRange(TousuiBorrowedSlashChoices(pending));
         choices.AddRange(TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false));
         choices.Add(new PromptChoice(
             new ChoiceId("borrowed-sword.give-weapon"),
@@ -7434,12 +7439,12 @@ public sealed partial class GameEngine
 
         if (attack.SuccessfulDodgeResponses == 0)
         {
-            attack.SetRequiredDodgeResponses(FreezeShortRangeSlashResponseRequirement(resolutionId, source.Seat, target.Seat, playedCardKind, GetRequiredResponseCount(
+            attack.SetRequiredDodgeResponses(TousuiRequiredDodge(resolutionId, FreezeShortRangeSlashResponseRequirement(resolutionId, source.Seat, target.Seat, playedCardKind, GetRequiredResponseCount(
                 source,
                 source.Seat,
                 target.Seat,
                 playedCardKind,
-                CardKind.Dodge)));
+                CardKind.Dodge))));
         }
 
         if (!ignoresArmor &&
@@ -8719,7 +8724,7 @@ public sealed partial class GameEngine
             !TieredRoundZeroForcedSlashRules(source, target, true).Any() &&
             !ChainedStateBasicForcedSlashRules(source, target, true).Any() &&
             !DrawFundedDistinctBasicForcedSlashRules(source, target, true).Any() && !HasRequestedDeckBasicSource(source, CardKind.Slash) && !HasSiruiForcedSlash(source,target,pending) && !(HasWeijieForcedSlash(source, target, pending) || (HasZonghuForcedSlash(source, target, pending) || HasHuanpeiForcedSlash(source, target, pending))) &&
-            KenshangQinglongSlashChoices(pending).Count == 0)
+            KenshangQinglongSlashChoices(pending).Count == 0 && TousuiQinglongSlashChoices(pending).Count == 0)
         {
             RestoreFactionRequestAfterQinglongChoice(attack.ResolutionId);
             return false;
@@ -8793,6 +8798,7 @@ public sealed partial class GameEngine
         choices.AddRange(ChainedStateBasicForcedSlashChoices(source, target, attack.ResolutionId, true));
         choices.AddRange(RoundOnceCardlessForcedSlashChoices(source, target, attack.ResolutionId, true));
         choices.AddRange(KenshangQinglongSlashChoices(pending));
+        choices.AddRange(TousuiQinglongSlashChoices(pending));
         choices.AddRange(TieredRoundZeroForcedSlashChoices(source, target, attack.ResolutionId, true));
         choices.Add(new PromptChoice(
             new ChoiceId($"qinglong.skip.resolution-{attack.ResolutionId}"),
@@ -8832,6 +8838,7 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
+        if (TryBeginTousuiQinglongSlash(pending, selected)) return;
         if (TryBeginKenshangQinglongSlash(pending, selected)) return;
         if (TryResolveRoundOnceCardlessForcedSlash(selected, false)) return;
         if (TryResolveTieredRoundZeroForcedSlash(selected, false)) return;
@@ -10674,6 +10681,10 @@ public sealed partial class GameEngine
         else if (useSlash && GetZhangbaSlashPairs(owner).FirstOrDefault() is { } pair)
         {
             ResolveBorrowedSwordZhangbaSlashChoice(pending, pair);
+        }
+        else if (useSlash && TousuiBorrowedSlashChoices(pending).FirstOrDefault() is { } tousui)
+        {
+            TryBeginTousuiBorrowedSlash(pending, tousui);
         }
         else if (useSlash && KenshangBorrowedSlashChoices(pending).FirstOrDefault() is { } kenshang)
         {
@@ -14585,7 +14596,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId))
         {
             return actions;
         }
@@ -14621,7 +14632,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -17853,7 +17864,7 @@ public sealed partial class GameEngine
         AssertWeijieRequests();
         AssertZonghuRequests();
         AssertSelectedForeignCardSlashes();
-        var coreDecision = HuanpeiInvariantDecision(ZonghuInvariantDecision(WeijieInvariantDecision((KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) ??
+        var coreDecision = HuanpeiInvariantDecision(ZonghuInvariantDecision(WeijieInvariantDecision((TousuiNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? TousuiNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) ??
             ChainedStateBasicInvariantDecision(DrawFundedDistinctBasicInvariantDecision(RequestedDeckBasicInvariantDecision())))));
         var coreTop = HuanpeiInvariantTop(ZonghuInvariantTop(WeijieInvariantTop(ChainedStateBasicInvariantTop(DrawFundedDistinctBasicInvariantTop(RequestedDeckBasicInvariantTop())))));
         var responseHealthCursor = ProjectTypedResponseCompletionHealthCursor();
@@ -17964,6 +17975,7 @@ public sealed partial class GameEngine
         AssertChosenAssaults();
         AssertTianChouNativeUses();
         AssertKenshangRequests();
+        AssertTousuiRequests();
         AssertNonBasicSlashPolicies();
         AssertProgramVirtualOrdinaryTricks();
         AssertDamageTargetDuels();
@@ -18378,9 +18390,11 @@ public sealed partial class GameEngine
                     decision.Choices.Count != physicalSlashChoices.Count + 1 + (canRequestFactionSlash ? 1 : 0) +
                         TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count +
                         RoundOnceCardlessForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count +
-                        KenshangQinglongSlashChoices(qinglong).Count ||
+                        KenshangQinglongSlashChoices(qinglong).Count + TousuiQinglongSlashChoices(qinglong).Count ||
                     !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "kenshang-request-open").ToArray(),
                         KenshangQinglongSlashChoices(qinglong)) ||
+                    !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "tousui-request-open").ToArray(),
+                        TousuiQinglongSlashChoices(qinglong)) ||
                     !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "tiered-round-zero-forced-slash").ToArray(),
                         TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true)) ||
                     !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "round-once-cardless-forced-slash").ToArray(),
@@ -19510,7 +19524,7 @@ public sealed partial class GameEngine
                                   (coreDecision is { } programDecision &&
                                    (hasCardProgramPrompt || hasBeforeDamageProgramPrompt) &&
                                    !_players[programDecision.PlayerSeat].IsHuman) ||
-                                 (KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) is { } kenshangOriginal &&
+                                 (TousuiNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? TousuiNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveQinglongCrescentBlade?.Attack.ResolutionId ?? 0) ?? KenshangNativeOriginalDecision(ActiveBorrowedSword?.ResolutionId ?? 0)) is { } kenshangOriginal &&
                                  !_players[kenshangOriginal.PlayerSeat].IsHuman ||
                                  IsAiProgramJudgmentReplacementPending() ||
                                  IsAiProgramJudgmentPending();

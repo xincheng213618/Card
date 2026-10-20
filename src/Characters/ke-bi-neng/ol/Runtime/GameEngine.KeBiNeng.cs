@@ -39,7 +39,7 @@ public sealed partial class GameEngine
         var actions = BuildKeBiNengPingduanBasicActions(f);
         ReplaceRuntimeTop(f = f with { KeBiNengPingduan = f.KeBiNengPingduan! with { BasicActions = actions } });
         var actor = f.KeBiNengPingduan!.ActorSeat;
-        if (actions.Count == 0 && KenshangProgramSlashChoices(f, actor,
+        if (actions.Count == 0 && !HasTousuiProgramSlash(_players[actor], _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat)) && KenshangProgramSlashChoices(f, actor,
                 _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat).ToArray()).Count == 0 && !HasWeijieGenericBasic(f) && !(HasZonghuGenericBasic(f) || HasHuanpeiGenericBasic(f)))
             FinishKeBiNeng(f, "no-legal-basic-use");
         else PublishKeBiNeng(f);
@@ -61,6 +61,7 @@ public sealed partial class GameEngine
         {
             choices.AddRange(r.BasicActions.Select((a, i) => new PromptChoice(new($"pingduan.{f.Id}.basic.{i}"), a.Description, KeBiNengMaterials(a), a.TargetSeats, KeBiNengArgs(i.ToString(CultureInfo.InvariantCulture)))));
             choices.AddRange(KenshangProgramSlashChoices(f, r.ActorSeat, _players.Where(p => p.IsAlive && p.Seat != r.ActorSeat).Select(p => p.Seat).ToArray()));
+            choices.AddRange(TousuiProgramSlashChoices(f, r.ActorSeat, _players.Where(p => p.IsAlive && p.Seat != r.ActorSeat).Select(p => p.Seat).ToArray()));
         }
         else if (r.Stage is KeBiNengPingduanStage.RecastChoice or KeBiNengPingduanStage.EquipmentChoice)
             choices.AddRange(r.Cards.Select(c => new PromptChoice(new($"pingduan.{f.Id}.{r.Stage}.{c.CardId}"), (r.Stage == KeBiNengPingduanStage.RecastChoice ? "重铸" : "交付") + "【" + CardCatalog.Get(c.EffectiveKind).DisplayName + "】", [c.CardId], [], KeBiNengArgs(c.CardId.ToString(CultureInfo.InvariantCulture)))));

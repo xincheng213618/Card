@@ -1092,7 +1092,7 @@ public sealed partial class SimpleAiBrain
         var candidates = prompt.Choices.Select(choice =>
         {
             var action = choice.Parameters.GetValueOrDefault("action");
-            var usesKenshang = action == "kenshang-request-open" && choice.Cards.Count == 0 &&
+            var usesKenshang = (action is "kenshang-request-open" or "tousui-request-open") && choice.Cards.Count == 0 &&
                 choice.Targets.SequenceEqual([targetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture);
             var usesOwnSlash = usesKenshang || action == "qinglong-slash" || action == "tiered-round-zero-forced-slash" &&
                 choice.Parameters.GetValueOrDefault("forced-use") == "qinglong" && choice.Cards.Count == 0 &&
@@ -1101,7 +1101,7 @@ public sealed partial class SimpleAiBrain
             var continuesAttack = usesOwnSlash || requestsFactionSlash;
             var cardCost = usesOwnSlash && choice.Cards.Count == 1 && ownedCards.TryGetValue(choice.Cards[0], out var card)
                 ? CardCatalog.Get(card.Kind).HandKeepValue
-                : usesKenshang ? ownedCards.Values.Select(card => CardCatalog.Get(card.Kind).HandKeepValue).Order().Take(2).Sum() : 0;
+                : usesKenshang ? ownedCards.Values.Select(card => CardCatalog.Get(card.Kind).HandKeepValue).Order().Take(action == "tousui-request-open" ? 1 : 2).Sum() : 0;
             var score = continuesAttack
                 ? hostility * 1.2d + (target.Hp <= 1 ? 45d : 0d) - cardCost * .45d - (requestsFactionSlash ? 2d : 0d)
                 : 0d;

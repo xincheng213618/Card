@@ -1118,6 +1118,8 @@ public enum SkillProgramEffectOp
     ResolveMouLuBuLiyu = 31601,
     ResolveMouDiaoChanLijian = 31700,
     ResolveMouDiaoChanBiyue = 31701,
+    ResolveSpSunShangxiangLiangzhu = 32300,
+    CompleteSpSunShangxiangFanxiang = 32301,
     IssueMouFaZhengXuanhuo = 31800,
     TakeMouFaZhengXuanhuoGain = 31801,
     ResolveMouFaZhengEnyuan = 31802,
@@ -1127,6 +1129,11 @@ public enum SkillProgramEffectOp
     ResolveMouGuoHuaiJingceStart = 32000,
     ResolveMouGuoHuaiJingcePrediction = 32001,
     ResolveMouGuoHuaiJingceReward = 32002,
+    ResolveMouGuoYouZhiBique = 32400,
+    ResolveMouGuoYouZhiZhongchun = 32401,
+    ResolveTousuiDodgeRequirement = 32200,
+    ResolveXumingDamagePromise = 32201,
+    ResolveXumingIssuedTurnEndUses = 32202,
     ResolveMouGanNingQixi = 31900,
     ResolveMouGanNingFenwei = 31901,
     ResolveMouGanNingWeiTarget = 31902,
@@ -2731,8 +2738,11 @@ public sealed class SkillProgramCatalog
                             ? conversion.KenshangUse == true
                                 ? activation.MinCards != 2 || activation.MaxCards != int.MaxValue ||
                                   !activation.SourceZones.SequenceEqual(conversion.SourceZones)
-                                : activation.MinCards < 1 || activation.MaxCards != int.MaxValue ||
-                                  !activation.SourceZones.SequenceEqual([CardZoneKind.Hand])
+                                : ChengJiChengCuiComposition.IsBottomCostSlash(conversion)
+                                    ? activation.MinCards != 1 || activation.MaxCards != int.MaxValue ||
+                                      !activation.SourceZones.SequenceEqual(conversion.SourceZones)
+                                    : activation.MinCards < 1 || activation.MaxCards != int.MaxValue ||
+                                      !activation.SourceZones.SequenceEqual([CardZoneKind.Hand])
                             : activation.MinCards != conversion.InputCount ||
                               activation.MaxCards != conversion.InputCount)
                         Fail(skillPath + ".activations",
@@ -3647,7 +3657,7 @@ public sealed class SkillProgramCatalog
         if (unusedName && (!useOnly || inputCount != 1 ||
             CardUseCategoryCatalog.Get(output) is not (CardUseCategories.Basic or CardUseCategories.InstantTrick)))
             Fail(path, "game name ledgers require one physical use-only basic or ordinary trick output");
-        if (costDestination is not null && (costDestination != SkillProgramCardDestination.DrawPileTop || !useOnly))
+        if (costDestination is not null && (costDestination is not (SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.DrawPileBottom) || !useOnly))
             Fail(path + ".costDestination", "requires drawPileTop and a useOnly basic-card conversion");
         if (costDestination is not null && sourceZones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             Fail(path + ".sourceZones", "alternative-cost viewAs requires a physical hand or equipment source");
@@ -3731,7 +3741,7 @@ public sealed class SkillProgramCatalog
             costDestination is not null || conversionState is not null || usesPerPhase is not null || unusedName || useOnly ||
             allowChainedInput || sameSuit || inheritPreviousPlaySuit || unusedOutputThisTurn))
             Fail(path + ".declarationValidation", "requires one hand entity and a basic or ordinary-trick output without another cost or usage mechanism");
-        if (variableInput && kenshangUse != true && (!forPlay || forResponse || output is not CardKind.Slash ||
+        if (variableInput && kenshangUse != true && costDestination != SkillProgramCardDestination.DrawPileBottom && (!forPlay || forResponse || output is not CardKind.Slash ||
                 !sourceZones.SequenceEqual([CardZoneKind.Hand]) || sameSuit || allowChainedInput ||
                 inputCategories.Count != 0 || inputs.Count != 0 && inputs.All(kind => kind == output) ||
                 singleTrick || extended || useOnly || unusedName || excludeOwner || noDying ||
@@ -3762,6 +3772,8 @@ public sealed class SkillProgramCatalog
         LastZoneConversionSchema.Validate(parsedViewAs, path);
         HuJinDingComposition.ViewAs(path, parsedViewAs);
         KenshangConversionSchema.Validate(path, parsedViewAs);
+        if (costDestination == SkillProgramCardDestination.DrawPileBottom && !ChengJiChengCuiComposition.IsBottomCostSlash(parsedViewAs))
+            Fail(path, "bottom-cost viewAs requires a variable nonempty native HE use-only ordinary Slash without another conversion policy");
         var noDamageDisable = node.TryGetProperty("disableSkillUntilTurnEndIfNoDamage", out _)
             ? RequiredBool(node, "disableSkillUntilTurnEndIfNoDamage", path) : (bool?)null;
         if (noDamageDisable is not null)

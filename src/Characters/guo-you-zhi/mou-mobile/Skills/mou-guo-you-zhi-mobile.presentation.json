@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "mou-mobile:bique":{"name":"裨阙","description":"观看一名其他角色的手牌，可交给其没有的牌名的手牌，再可将自己的手牌数调整至实际交出的牌名数。","activationLabels":{"inspect-and-give":"裨阙：观看手牌并补阙"}},
+ "mou-mobile:zhongchun":{"name":"忠纯","description":"角色结束阶段，令其获得一张本回合由其弃置的牌，并由其选择是否使用此牌。","triggerLabels":{"own-ending":"忠纯：回收本回合弃牌","other-ending":"忠纯：为当前角色回收弃牌"}}
+}}

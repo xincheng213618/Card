@@ -14,7 +14,7 @@ public sealed partial class GameEngine
                 request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(prompt)))))).Choices, AssistedPhysicalSlashWithKenshangChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(TousuiProgramNativeDecision(KenshangProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(WeijieNativeDecision(prompt))))))).Choices, AssistedPhysicalSlashWithKenshangChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)
@@ -130,6 +130,7 @@ public sealed partial class GameEngine
         return frame.AssistedSlashRequest?.TargetSeat is { } target
             ? Array.AsReadOnly(native.Where(choice => choice.Parameters.GetValueOrDefault("request-option") != "decline")
                 .Concat(KenshangProgramSlashChoices(frame, frame.AssistedSlashRequest.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind))
+                .Concat(TousuiProgramSlashChoices(frame, frame.AssistedSlashRequest.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind))
                 .Concat(native.Where(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline")).ToArray())
             : native;
     }
@@ -141,7 +142,7 @@ public sealed partial class GameEngine
         var nativeChoices = AssistedPhysicalSlashChoices(frame);
         var choices = draft.TargetSeat is { } target
             ? Array.AsReadOnly(nativeChoices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") != "decline")
-                .Concat(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind).Concat(KenshangProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind)))
+                .Concat(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind).Concat(KenshangProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind)).Concat(TousuiProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind)))
                 .Concat(nativeChoices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline")).ToArray())
             : nativeChoices;
         var skill = _contentRegistry.GetSkill(frame.SkillId);

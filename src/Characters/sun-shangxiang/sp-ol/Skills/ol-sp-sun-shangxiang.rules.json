@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:liangzhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-own-play-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "optional": false,
+          "hpChangeOccurrence": "perEvent",
+          "effects": [
+            {
+              "op": "resolveSpSunShangxiangLiangzhu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:fanxiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "assisted-wounded-awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "completeSpSunShangxiangFanxiang",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

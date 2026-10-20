@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         CaptureQimeiHpQualification(change);
         CaptureXianfuRecoveryQualification(change);
         CaptureDianhuRecoveryQualification(change);
+        CaptureSpSunShangxiangRecovery(change);
         return change;
     }
 
@@ -43,9 +44,9 @@ public sealed partial class GameEngine
             var registered = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
                 .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
-                    !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) &&
+                    !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) && !IsSpSunShangxiangLiangzhuTrigger(GetProgramTrigger(candidate)) &&
                     !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)))
-                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change))
+                .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).Concat(CollectSpSunShangxiangRecoveryCandidates(change))
                 .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).ToArray();
             if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
@@ -70,6 +71,7 @@ public sealed partial class GameEngine
                 ? CreateQimeiHpContext(change, candidate)
                 : IsXianfuEchoTrigger(GetProgramTrigger(candidate)) ? CreateXianfuHpContext(change, candidate)
                 : IsDianhuDrawTrigger(GetProgramTrigger(candidate)) ? CreateDianhuHpContext(change, candidate)
+                : IsSpSunShangxiangLiangzhuTrigger(GetProgramTrigger(candidate)) ? CreateSpSunShangxiangRecoveryContext(change, candidate)
                 : IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) ? CreateShenwuRecoveryContext(change, candidate)
                 : IsNianRecoveryTrigger(GetProgramTrigger(candidate)) ? CreateNianRecoveryContext(change, candidate)
                 : new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,

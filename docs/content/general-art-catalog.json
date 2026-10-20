@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-guo-you-zhi-mobile",
+      "characterName": "谋郭攸之·移动版",
+      "defaultSkinId": "90900",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-674.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/90900.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-guo-you-zhi-mobile.jpg",
+          "sha256": "420706e6fa1ae9b64315db9bf2c68aa96e5e445690c3cea68b887b4452de8eeb",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "90900",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "ol-cheng-ji-cheng-cui",
+      "characterName": "成济成倅",
+      "defaultSkinId": "55100",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/551",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cheng-ji-cheng-cui.png",
+          "sha256": "1aa3e076cf11f0bae9f90e26ec3e5ff3da47cabbcbd2caa6553bc96903e21ddf",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "55100",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-sun-shangxiang",
+      "characterName": "SP孙尚香",
+      "defaultSkinId": "10300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/103",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-sun-shangxiang.png",
+          "sha256": "8901fc5f69f65d62fcbba5ab755334fd69210b9f644af72af37c2cf000677012",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "10300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-guo-huai-mobile",
       "characterName": "谋郭淮·移动版",
       "defaultSkinId": "81900",

@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:guo-you-zhi",
+  "skills": [
+    { "registrationOrder": 2420, "programBundle": "mou-guo-you-zhi-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:bique", "name": "裨阙", "description": "出牌阶段限一次，你可观看一名其他角色手牌。然后你可交给其任意张其未拥有的牌名的手牌，并可将手牌数调整至你此次交出的牌名数。", "actionForms": "Active" } },
+    { "registrationOrder": 2421, "programBundle": "mou-guo-you-zhi-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:zhongchun", "name": "忠纯", "description": "一名角色的结束阶段，你可从弃牌堆中选择一张其本回合弃置的牌，令其获得且其可使用之。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 2422, "pools": { "current": 546 }, "definition": {
+    "id": "mou:guo-you-zhi-mobile", "name": "谋郭攸之·移动版", "portraitKey": "mou-guo-you-zhi-mobile", "skillId": "mou-mobile:bique", "additionalSkillIds": ["mou-mobile:zhongchun"], "factionId": "shu", "gender": "Male", "baseHp": 3, "characterId": "character:guo-you-zhi", "variantId": "mou-mobile", "rulesetId": "sanguosha-mobile"
+  }}]
+}

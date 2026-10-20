@@ -267,7 +267,7 @@ public sealed partial class GameEngine
                 {
                     var (instance, rule) = item;
                     return (!wuyouJuewuIdentity || instance.SkillId == "wumiao:juewu" && rule.RankTwoDamageUse) &&
-                               rule.KenshangUse != true && rule.InputCount == 1 &&
+                               rule.KenshangUse != true && !(rule.VariableInputCount && rule.CostDestination == SkillProgramCardDestination.DrawPileBottom) && rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || instance.SkillId == "le:fule" && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && FuleSlashAliasAllowed(owner, forResponse) || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
@@ -446,7 +446,7 @@ public sealed partial class GameEngine
             if (location.OwnerSeat != owner.Seat) return null;
             var card = _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId);
             if (card is null ||
-                !rule.SourceZones.Contains(location.Zone) ||
+                !(rule.SourceZones.Contains(location.Zone) || IsTousuiVariableSource(owner, rule, card, location)) ||
                 IsTurnHandCardRestricted(owner, card) || HasProgramCardIdentity(owner, card) ||
                 rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card)) ||
                 rule.InputSuits.Count != 0 && !rule.InputSuits.Contains(
