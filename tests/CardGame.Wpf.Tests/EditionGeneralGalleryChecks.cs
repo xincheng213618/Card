@@ -16,7 +16,7 @@ internal static class EditionGeneralGalleryChecks
         model.OpenGeneralGalleryCommand.Execute(null);
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
-            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" or "mou:huang-gai-mobile" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" or "mou:huang-gai-mobile" or "mou:hua-xiong-mobile" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
@@ -47,6 +47,7 @@ internal static class EditionGeneralGalleryChecks
             entries.Any(entry => entry.GeneralId == "le:diao-chan") &&
             entries.Any(entry => entry.GeneralId == "mou:zhou-yu-ol") &&
             entries.Any(entry => entry.GeneralId == "mou:huang-gai-mobile") &&
+            entries.Any(entry => entry.GeneralId == "mou:hua-xiong-mobile") &&
             entries.Any(entry => entry.GeneralId == "mou:huang-yueying-ol") &&
             entries.Any(entry => entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal)) &&
             entries.Any(entry => entry.GeneralId == "ol:han-sui") &&
