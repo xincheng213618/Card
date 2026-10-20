@@ -84,6 +84,70 @@ internal static class ProgramRuntimeModuleChecks
         frames.ReplaceTop(frame with { NativeDraw = null });
         frames.Pop(frame.Id, frame.Kind);
         Require(ReferenceEquals(frames.Top, original), "Consuming the original receipt restores the original parent exactly once.");
+        CheckNativeFrameRouting(first, adapters, frames);
+    }
+
+    private static void CheckNativeFrameRouting(GameEngine engine, ProgramCapabilityRegistry adapters,
+        IProgramRuntimeFrames frames)
+    {
+        var metadata = NativeFrameRouteCatalog.Default;
+        Require(metadata.Registrations.Any(route => route.Method.DeclaringType == typeof(NativeFrameRoutingRuntime)) &&
+                metadata.Registrations.Any(route => route.Method.DeclaringType == typeof(NativeDrawAttemptRuntime)),
+            "Native routes bind actual independent implementations alongside compatibility handlers.");
+        var methods = typeof(RoutingFixture).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
+        var fixture = new NativeFrameRouteCatalog(methods.Reverse());
+        var parent = new ProgramSkillFrame(41, 0, "fixture:route", "run", "hash", 0, [], []);
+        Require(fixture.TryAdvance(engine, parent), "A declined route must allow the next matching native route.");
+        var selected = false;
+        try { fixture.TryAdvance(engine, parent with { OwnerSeat = 1 }); }
+        catch (RouteSelected) { selected = true; }
+        Require(selected, "The first matching native route must win.");
+        Require(!fixture.TryAdvance(engine, new DeferredTurnEndFrame(43, 0, 1, false, [])),
+            "Native routing cannot dispatch another frame kind as its parent.");
+        Reject(() => new NativeFrameRouteCatalog(methods.Concat(methods)));
+        var automatic = new NativeFrameAutomaticStepCatalog(fixture, methods);
+        Require(automatic.Registrations[NativeFrameAutomaticPhase.AfterOpening].Single().Matches(engine, parent) &&
+                !automatic.Registrations[NativeFrameAutomaticPhase.AfterOpening].Single().Matches(engine,
+                    new DeferredTurnEndFrame(43, 0, 1, false, [])),
+            "Automatic admission reuses the local typed route without executing its handler.");
+        Reject(() => new NativeFrameAutomaticStepCatalog(fixture, methods.Concat(methods)));
+        Require(NativeFrameAutomaticStepCatalog.Default.Registrations.Values.SelectMany(routes => routes)
+                .All(route => metadata.Registrations.Contains(route.Route)),
+            "Automatic steps reference registered implementations rather than maintaining another handler list.");
+
+        var spy = new RouteSpy();
+        var routing = new NativeFrameRoutingRuntime(frames, adapters.Get<INativeFrameRoutingFacts>(), spy,
+            adapters.Get<INativeProgramExecution>());
+        frames.Push(parent);
+        frames.Push(parent with { Id = 42 });
+        routing.AdvanceFrame(41);
+        routing.AdvanceProgram(41);
+        routing.AdvanceTop<DeferredTurnEndFrame>();
+        Reject(() => routing.AdvanceFrame(999));
+        Require(spy.Calls == 0, "Retired and suspended owners never dispatch a child as their continuation.");
+        routing.AdvanceFrame(42);
+        Require(spy.Calls == 1 && spy.FrameId == 42, "Only the selected active frame is dispatched.");
+        frames.Pop(42, parent.Kind);
+        frames.Pop(41, parent.Kind);
+    }
+
+    private sealed class RouteSpy : INativeFrameRoutes
+    {
+        internal int Calls;
+        internal long FrameId;
+        public bool TryAdvance(ResolutionFrame frame) { Calls++; FrameId = frame.Id; return true; }
+    }
+
+    private sealed class RouteSelected : Exception { }
+    [ProgramRuntimeModule]
+    private static class RoutingFixture
+    {
+        private static bool First(ProgramSkillFrame frame) => frame.OwnerSeat == 1;
+        [NativeFrameRoute(typeof(ProgramSkillFrame), 1, typeof(RoutingFixture), nameof(First))]
+        private static void Select(long id) => throw new RouteSelected();
+        [NativeFrameRoute(typeof(ProgramSkillFrame), 2)]
+        [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 1)]
+        private static void Fallback(ProgramSkillFrame frame) { }
     }
 
     private interface IFacts : IProgramSelectionQuery { int Value { get; } }

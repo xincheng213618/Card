@@ -713,6 +713,7 @@ public sealed partial class GameEngine
                 : null);
     }
 
+    [NativeFrameRoute(typeof(CardsMovedTriggerWindowFrame), 400)]
     private void ContinueCardsMovedProgramWindowCore()
     {
         if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame frame && TryAdvanceWenhePoisonLoss(frame)) return;

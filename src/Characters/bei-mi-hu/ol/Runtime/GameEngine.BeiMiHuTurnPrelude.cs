@@ -105,6 +105,8 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 30, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(BeiMiHuTurnPreludeFrame), 70)]
     private void ContinueBeiMiHuTurnPrelude()
     {
         if (_resolutionStack.LastOrDefault() is not BeiMiHuTurnPreludeFrame parent ||

@@ -165,6 +165,7 @@ public sealed partial class GameEngine
     private bool BeforeDamageHasNoSource(BeforeDamageProgramWindowFrame frame) =>
         frame.Continuation == BeforeDamageProgramContinuation.Attack && CurrentDamageAttempt?.IsSourceLess == true;
 
+    [NativeFrameRoute(typeof(BeforeDamageProgramWindowFrame), 410)]
     private void ContinueBeforeDamageProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame frame)

@@ -5,85 +5,14 @@ public sealed partial class GameEngine
     // The public Advance path, program child returns and rule-window continuations
     // meet here. Domain handlers retain their existing order and rules logic.
     // A child frame suspends its parent; it is never dispatched as that parent.
-    private void AdvanceRuntimeTop<TFrame>() where TFrame : ResolutionFrame
-    {
-        if (_resolutionStack.LastOrDefault() is TFrame frame)
-            AdvanceRuntimeFrame(frame.Id);
-    }
+    private void AdvanceRuntimeTop<TFrame>() where TFrame : ResolutionFrame =>
+        GetRuntimeModule<NativeFrameRoutingRuntime>().AdvanceTop<TFrame>();
 
-    // A program effect may finish synchronously before its caller returns.
-    // Preserve the executor's quiet return for a retired or suspended program;
-    // concrete typed child receipts validate their owner before reaching here.
-    private void AdvanceRuntimeProgram(long frameId)
-    {
-        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame && frame.Id == frameId)
-            AdvanceRuntimeFrame(frameId);
-    }
+    private void AdvanceRuntimeProgram(long frameId) =>
+        GetRuntimeModule<NativeFrameRoutingRuntime>().AdvanceProgram(frameId);
 
-    private void AdvanceRuntimeFrame(long frameId)
-    {
-        var index = _resolutionStack.FindLastIndex(frame => frame.Id == frameId);
-        if (index < 0)
-            throw new InvalidOperationException($"Runtime continuation {frameId} has no owner.");
-        if (index != _resolutionStack.Count - 1) return;
-        switch (_resolutionStack[index])
-        {
-            case WushuangIntermissionFrame: ContinueWushuangIntermission(frameId); break;
-            case NativeDrawAttemptFrame: ContinueNativeDrawAttempt(frameId); break;
-            case CardUseFrame { SoleIncomingRangeDraw: not null }: ContinueSoleIncomingRangeDraw(frameId); break;
-            case CardUseFrame { NativeCardEffectDraw: not null }: ContinueNativeDrawTwo(frameId); break;
-            case CardUseFrame { GuanduCardEffect: not null }: ContinueGuanduCardEffect(frameId); break;
-            case CardUseFrame { WumiaoFlood: not null }: ContinueWumiaoFlood(frameId); break;
-            case CardUseFrame { DragonBoatCardEffect: not null }: ContinueDragonBoatCardEffect(frameId); break;
-            case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
-            case QiaoZhouPreparationFrame: ContinueQiaoZhouPreparation(frameId); break;
-            case IdentityAppearanceFrame appearance: AdvanceIdentityAppearance(appearance); break;
-            case FriendDuelResponseFrame: ContinueFriendDuelResponse(frameId); break;
-            case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
-            case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
-            case CardUseFrame { MouZhitianPayment: not null }: ContinueMouZhitianFirePayment(frameId); break;
-            case CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false }: ContinueGuoSiNativePayment(frameId); break;
-            case CardUseFrame { DenglouNative: not null, DenglouCostDrained: false }: ContinueDenglouNativePayment(frameId); break;
-            case CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false }: ContinueHistoricalEndingPayment(frameId); break;
-            case CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false }: ContinueRoundPileAlcoholUse(frameId); break;
-            case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
-            case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
-            case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
-            case ProgramSkillFrame:
-                if (ProgramContinuations.Value.TryResume(this, frameId)) return;
-                var host = new ProgramSkillHost(this);
-                new SkillProgramExecutor().Run(frameId, host, host);
-                break;
-            case ForeignActualTurnStartWindowFrame: ContinueForeignActualTurnStartCore(); break;
-            case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
-            case SlashTargetBenefitWindowFrame: ContinueSlashTargetBenefitWindowCore(); break;
-            case FirstSlashDuelLegacyWindowFrame: ContinueFirstSlashDuelLegacyWindow(); break;
-            case PindianRevealWindowFrame: ContinuePindianRevealWindow(); break;
-            case WuLuKangPindianFrame: ContinueWuLuKangWindow(frameId); break;
-            case DouyuWindowFrame: ContinueDouyuWindow(frameId); break;
-            case SlashTargetPenaltyWindowFrame: ContinueSlashTargetPenaltyWindow(); break;
-            case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
-            case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
-            case HpChangedTriggerWindowFrame: ContinueHpChangedProgramWindowCore(); break;
-            case RecoveryReplacementFrame: ContinueRecoveryReplacement(); break;
-            case EquipmentRecastFrame: ContinueEquipmentRecast(frameId); break;
-            case DrawPhaseObligationFrame: ContinueDrawPhaseObligation(frameId); break;
-            case RoundEndingBoundaryFrame: ContinueRoundEndingBoundary(frameId); break;
-            case ActualPhaseEndFrame: ContinueActualPhaseEnd(frameId); break;
-            case DrawFundedDistinctBasicFrame: ContinueDrawFundedDistinctBasic(frameId); break;
-            case ChainedStateBasicFrame: ContinueChainedStateBasic(frameId); break;
-            case CardsMovedTriggerWindowFrame: ContinueCardsMovedProgramWindowCore(); break;
-            case BeforeDamageProgramWindowFrame: ContinueBeforeDamageProgramWindowCore(); break;
-            case ProgramDeathTriggerWindowFrame: ContinueOwnerDiedProgramWindowCore(); break;
-            case ProgramKillTriggerWindowFrame: ContinueKillDiedProgramWindowCore(); break;
-            case ProgramJudgmentTriggerWindowFrame: ContinueProgramJudgmentWindowCore(); break;
-            case TurnEndingBoundaryFrame: ContinueTurnEndingBoundaryCore(); break;
-            case PlayPhaseStartingBoundaryFrame: ContinuePlayPhaseStartingBoundaryCore(); break;
-            case DeferredTurnEndFrame: ContinueDeferredTurnEndCore(); break;
-            default:
-                throw new InvalidOperationException("The requested frame has no runtime continuation handler.");
-        }
-    }
+    private void AdvanceRuntimeFrame(long frameId) =>
+        GetRuntimeModule<NativeFrameRoutingRuntime>().AdvanceFrame(frameId);
 
     private void PushRuntimeFrame(ResolutionFrame frame)
     {
@@ -252,47 +181,10 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is WushuangIntermissionFrame intermission)
-        { AdvanceRuntimeFrame(intermission.Id); AdvanceRulesAndPublishState(); return; }
+        if (GetRuntimeModule<NativeFrameAutomaticRuntime>().TryAdvance(NativeFrameAutomaticPhase.BeforeOpening)) return;
         if (_pendingDecision is null && _resolutionStack.Count == 0 && TryBeginWushuangOpening())
         { AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is WuLuKangPindianFrame wuLuKang) { AdvanceRuntimeFrame(wuLuKang.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is DouyuWindowFrame douyu)
-        { AdvanceRuntimeFrame(douyu.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NativeDrawAttemptFrame nativeDraw)
-        { AdvanceRuntimeFrame(nativeDraw.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is BeiMiHuTurnPreludeFrame beforeTurn)
-        { AdvanceRuntimeFrame(beforeTurn.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is IdentityAppearanceFrame appearance)
-        { AdvanceRuntimeFrame(appearance.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is PindianRevealWindowFrame reveal)
-        { AdvanceRuntimeFrame(reveal.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit)
-        { AdvanceRuntimeFrame(legacyBenefit.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is FriendDuelResponseFrame friendResponse)
-        { ContinueFriendDuelResponse(friendResponse.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ChainedStateBasicFrame chained)
-        { AdvanceRuntimeFrame(chained.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is DrawFundedDistinctBasicFrame drawFunded)
-        { AdvanceRuntimeFrame(drawFunded.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is SlashTargetPenaltyWindowFrame penalty)
-        { AdvanceRuntimeFrame(penalty.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is SlashTargetBenefitWindowFrame benefit)
-        { AdvanceRuntimeFrame(benefit.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
-        { AdvanceRuntimeFrame(actualTargets.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } paidCounter)
-        { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
-        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
-        { AdvanceRuntimeFrame(paidFire.Id); AdvanceRulesAndPublishState(); return; }
-        if (_resolutionStack.LastOrDefault() is RoundEndingBoundaryFrame roundEnd && _pendingDecision is null)
-        { AdvanceRuntimeFrame(roundEnd.Id); AdvanceRulesAndPublishState(); return; }
-        if (_resolutionStack.LastOrDefault() is ActualPhaseEndFrame phaseEnd && _pendingDecision is null)
-        { AdvanceRuntimeFrame(phaseEnd.Id); AdvanceRulesAndPublishState(); return; }
-        if (_resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw)
-        { AdvanceRuntimeFrame(draw.Id); AdvanceRulesAndPublishState(); return; }
-        if (_resolutionStack.LastOrDefault() is EquipmentRecastFrame recast)
-        { AdvanceRuntimeFrame(recast.Id); AdvanceRulesAndPublishState(); return; }
+        if (GetRuntimeModule<NativeFrameAutomaticRuntime>().TryAdvance(NativeFrameAutomaticPhase.AfterOpening)) return;
         if (_resolutionStack.LastOrDefault() is RecoveryReplacementFrame recoveryReplacement)
         {
             if (_pendingDecision is { Kind: DecisionKind.RecoveryReplacement } decision)
@@ -315,8 +207,7 @@ public sealed partial class GameEngine
             else if (!_players[_pendingDecision.PlayerSeat].IsHuman) AnswerCardDeclaration(_pendingDecision.Choices.Single(choice => choice.Parameters.GetValueOrDefault("declaration-answer") == "pass"));
             AdvanceRulesAndPublishState(); return;
         }
-        if (_resolutionStack.LastOrDefault() is CardDeclarationFrame declaration)
-        { AdvanceRuntimeFrame(declaration.Id); AdvanceRulesAndPublishState(); return; }
+        if (GetRuntimeModule<NativeFrameAutomaticRuntime>().TryAdvance(NativeFrameAutomaticPhase.AfterDeclarationChallenge)) return;
         if (_pendingDecision is { Kind: DecisionKind.ProgramTrigger } programTriggerDecision)
         {
             if (!_players[programTriggerDecision.PlayerSeat].IsHuman)
@@ -331,12 +222,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (_resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame &&
-            _pendingDecision is null)
-        {
-            AdvanceRuntimeTop<ProgramJudgmentTriggerWindowFrame>();
-            return;
-        }
+        if (GetRuntimeModule<NativeFrameAutomaticRuntime>().TryAdvance(NativeFrameAutomaticPhase.BeforeJudgmentDecision)) return;
 
         if (_pendingDecision is
             {

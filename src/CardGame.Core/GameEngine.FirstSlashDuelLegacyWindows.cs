@@ -78,6 +78,8 @@ public sealed partial class GameEngine
             !CompleteProgramEventHistory().OfType<FirstSlashDuelBenefitIssuedEvent>().Any(e => e.Receipt.CardUseFrameId == use.Id &&
                 e.Receipt.Source == new CardConversionSource(c.SkillId, c.BindingId, c.OwnerSeat, c.SkillInstanceId));
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 60, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(FirstSlashDuelLegacyWindowFrame), 250)]
     private void ContinueFirstSlashDuelLegacyWindow()
     {
         while (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame w)

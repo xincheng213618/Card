@@ -114,6 +114,7 @@ public sealed partial class GameEngine
         AssertEndingHistoricalUses(f); if(r.Complete){FinishProgramSkill(f,true);return true;} if(r.UseReturn is not null)throw new InvalidOperationException("Historical Use must return once after its complete owning Use.");
         if(_pendingDecision is null)PublishHistoricalEndingChoice(f);return true;
     }
+    [NativeFrameRoute(typeof(CardUseFrame), 160, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.HistoricalEndingPayment))]
     private void ContinueHistoricalEndingPayment(long id)
     {
         var use=LifecycleCardUse(id)!; AssertHistoricalEndingUse(use);

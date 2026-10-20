@@ -39,6 +39,7 @@ public sealed partial class GameEngine
         if (!_players[parent.OwnerSeat].IsAlive) { EndTurn(); return; }
         ContinueTurnAfterForeignActualContests(_players[parent.OwnerSeat]);
     }
+    [NativeFrameRoute(typeof(ForeignActualTurnStartWindowFrame), 220)]
     private void ContinueForeignActualTurnStartCore()
     {
         while (_resolutionStack.LastOrDefault() is ForeignActualTurnStartWindowFrame parent)

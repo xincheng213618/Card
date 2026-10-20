@@ -71,6 +71,8 @@ public sealed partial class GameEngine
         if(deduction>0)AdvanceEventRulesAndQueueFact(new IdentityHpDeductionPreventedEvent(id,player.Seat,deduction,entry,damageSource));
         AdvanceEventRulesAndQueueFact(new IdentityGeneralAppearedEvent(id,receipt));AdvanceIdentityAppearance((IdentityAppearanceFrame)_resolutionStack.Last());
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 40, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(IdentityAppearanceFrame), 90)]
     private void AdvanceIdentityAppearance(IdentityAppearanceFrame frame)
     {
         RequireIdentityAppearance(frame);

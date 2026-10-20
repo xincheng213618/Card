@@ -53,6 +53,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameRoute(typeof(CardUseFrame), 30, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.NativeCardEffectDraw))]
     private void ContinueNativeDrawTwo(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame { NativeCardEffectDraw: { } receipt } use || use.Id != id ||

@@ -233,6 +233,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(((ChainedStateBasicFrame)_resolutionStack.Last()) with { Payment = p });
         AdvanceEventRulesAndQueueFact(new ChainedStateBasicPaidEvent(p)); ContinueChainedStateBasic(id);
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 80, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(ChainedStateBasicFrame), 390)]
     private void ContinueChainedStateBasic(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ChainedStateBasicFrame frame || frame.Id != id || _pendingDecision is not null) return;

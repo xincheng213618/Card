@@ -14,6 +14,7 @@ public sealed partial class GameEngine
         MoveCard(chosen, CardLocation.DrawPile, CardLocation.DiscardPile, CardMoveReasons.FireAttackDiscard);
         ContinueMouZhitianFirePayment(pending.Id); return true;
     }
+    [NativeFrameRoute(typeof(CardUseFrame), 130, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.MouZhitianPayment))]
     private void ContinueMouZhitianFirePayment(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame { MouZhitianPayment: { } receipt } use || use.Id != id ||

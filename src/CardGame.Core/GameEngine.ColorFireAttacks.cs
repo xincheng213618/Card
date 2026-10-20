@@ -85,6 +85,8 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 140, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(CardUseFrame), 120, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.ColorFireAttackPayment))]
     private void ContinueColorFireAttackPayment(long useId)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame pending || pending.Id != useId ||

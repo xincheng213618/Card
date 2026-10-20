@@ -147,6 +147,8 @@ public sealed partial class GameEngine
                 HasRuntimeSkillInstance(_players[c.OwnerSeat], c.SkillId, c.SkillInstanceId);
         return receipt.Stage == SlashTargetBenefitStage.CancellationQualified && receipt.SettlementBinding == c.BindingId && ValidSlashTargetBenefitReceipt(receipt);
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 110, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(SlashTargetBenefitWindowFrame), 240)]
     private void ContinueSlashTargetBenefitWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is SlashTargetBenefitWindowFrame w)

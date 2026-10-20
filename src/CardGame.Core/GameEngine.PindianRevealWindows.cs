@@ -46,6 +46,8 @@ public sealed partial class GameEngine
                 card.Rank <= _players[c.OwnerSeat].Markers.GetValueOrDefault(PlayerMarkerKind.RaoShe)) && _players[c.OwnerSeat].IsAlive &&
             GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe }];
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 50, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(PindianRevealWindowFrame), 260)]
     private void ContinuePindianRevealWindow()
     {
         while (_resolutionStack.LastOrDefault() is PindianRevealWindowFrame w)

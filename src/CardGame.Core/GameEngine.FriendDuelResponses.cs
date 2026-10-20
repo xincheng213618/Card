@@ -61,6 +61,8 @@ public sealed partial class GameEngine
         duel.ResponderSeat == f.ResponderSeat && duel.OpponentSeat == f.OpponentSeat && LifecycleCardUse(f.CardUseFrameId) is { } use &&
         use.FriendRecastDuel == f.Origin && use.FriendRecastDuelResponses == f.PreviousResponses + 1 &&
         f.PreviousResponses >= 0 && use.FriendRecastDuelResponses <= f.Origin.RecastCount && IsFriendRecastDuelUse(use.Id);
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 70, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(FriendDuelResponseFrame), 100)]
     private void ContinueFriendDuelResponse(long id)
     {
         if (_resolutionStack.LastOrDefault() is not FriendDuelResponseFrame f || f.Id != id || !IsFriendResponseParent(f))

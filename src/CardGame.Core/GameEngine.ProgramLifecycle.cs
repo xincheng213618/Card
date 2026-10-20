@@ -3309,6 +3309,7 @@ public sealed partial class GameEngine
             Facts: candidateFacts ?? frame.Facts)
         { EarnedBenefit = frame.Items[frame.ItemIndex].EarnedBenefit, PrepDiscardPromise = frame.Items[frame.ItemIndex].PrepDiscardPromise, FixedDistanceDebt = frame.Items[frame.ItemIndex].FixedDistanceDebt });
 
+    [NativeFrameRoute(typeof(TurnEndingBoundaryFrame), 450)]
     private void ContinueTurnEndingBoundaryCore()
     {
         while (_resolutionStack.LastOrDefault() is TurnEndingBoundaryFrame frame)
@@ -3434,6 +3435,7 @@ public sealed partial class GameEngine
             Facts: candidateFacts ?? frame.Facts)
         { QingzhongPhase = frame.QingzhongStartingPhase, WeiluPhase = frame.WeiluStartingPhase };
 
+    [NativeFrameRoute(typeof(PlayPhaseStartingBoundaryFrame), 460)]
     private void ContinuePlayPhaseStartingBoundaryCore() =>
         ProgramTriggerWindowDriver.Run(new PlayStartingTriggerWindowHost(this));
 
@@ -3452,6 +3454,7 @@ public sealed partial class GameEngine
     private void AdvancePlayPhaseStartingCursor(PlayPhaseStartingBoundaryFrame frame) =>
         GetRuntimeModule<ProgramWindowCursorRuntime>().AdvancePlayPhaseStartingCursor(frame);
 
+    [NativeFrameRoute(typeof(ProgramLifecycleTriggerWindowFrame), 310)]
     private void ContinueProgramLifecycleWindowCore() =>
         ProgramTriggerWindowDriver.Run(new LifecycleTriggerWindowHost(this));
 

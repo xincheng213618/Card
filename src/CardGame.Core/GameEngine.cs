@@ -12834,74 +12834,11 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("A damage trigger candidate has no configured program.");
     }
 
-    private void AdvanceDamageTriggerCandidate(DamageTriggerWindowFrame window)
-    {
-        if (ActiveDamageTrigger is not { } current || current.Id != window.Id)
-        {
-            throw new InvalidOperationException("The completed damage trigger window is not current.");
-        }
-        window = current;
+    private void AdvanceDamageTriggerCandidate(DamageTriggerWindowFrame window) =>
+        DamageAdjacency.AdvanceDamageTriggerCandidate(window);
 
-        var nextIndex = window.CandidateIndex + 1;
-        // A nested program damage death can determine the winner before the final
-        // trigger candidate. Close this window now so the host never stops at
-        // Winner != None with live frames, Processing cards or a new prompt.
-        if (_winner != Winner.None) nextIndex = window.Candidates.Count;
-        window = SetDamageTriggerWindowCursor(window.Id, nextIndex);
-        AdvanceEventRulesAndQueueFact(new DamageTriggerWindowAdvancedEvent(
-            window.Id,
-            window.CandidateIndex,
-            window.CandidateIndex >= window.Candidates.Count));
-        if (window.CandidateIndex >= window.Candidates.Count)
-        {
-            CompleteDamageTriggerWindow(window);
-        }
-    }
-
-    private void CompleteDamageTriggerWindow(DamageTriggerWindowFrame window)
-    {
-        if (ActiveDamageTrigger is not { } current || current.Id != window.Id)
-        {
-            throw new InvalidOperationException("The damage trigger window is not ready to complete.");
-        }
-        window = current;
-
-        var attack = GetDamageTriggerAttack(window);
-        SetDamageTriggerWindowStep(window.Id, ResolutionFrameStep.Completed);
-        var target = _players[attack.TargetSeat];
-        PopResolutionFrame(window.Id, ResolutionFrameKind.DamageTriggerWindow);
-        if (window.TriggerWindow == SkillProgramTriggerWindow.DamageAppliedBeforeDying)
-        {
-            if (target.Hp <= 0 && target.IsAlive)
-            {
-                BeginDying(attack, window.ParentFrameId, target,
-                    _players[attack.SourceSeat]);
-                return;
-            }
-            if (TryBeginDamageTriggerWindow(attack, window.ParentFrameId,
-                    SkillProgramTriggerWindow.AfterDamageApplied))
-            {
-                return;
-            }
-        }
-        if (target.Hp <= 0 && target.IsAlive &&
-            !attack.HasResolvedDyingForDamage(window.ParentFrameId))
-        {
-            BeginDying(attack, window.ParentFrameId, target, _players[attack.SourceSeat]);
-            return;
-        }
-
-        AdvanceEventRulesAndQueueFact(new AfterDamageEvent(
-            window.ParentFrameId,
-            attack.SourceSeat,
-            attack.TargetSeat,
-            attack.DamageAmount,
-            target.Hp,
-            GetDamageNature(attack)) { SourceLess = attack.IsSourceLess });
-
-        PopResolutionFrame(window.ParentFrameId, ResolutionFrameKind.Damage);
-        CompleteDamageAttack(attack);
-    }
+    private void CompleteDamageTriggerWindow(DamageTriggerWindowFrame window) =>
+        DamageAdjacency.CompleteDamageTriggerWindow(window);
 
     private IReadOnlyList<DamageTriggerCandidate> CollectDamageTriggerCandidates(
         IDamageAttempt attack,
@@ -17672,26 +17609,8 @@ public sealed partial class GameEngine
                    } && dyingParentId == dying.FrameId;
     }
 
-    private ResolutionFrame? DamageCursorEffectiveTop(bool includeNestedObservers = false)
-    {
-        var index = _resolutionStack.Count - 1;
-        while (index >= 1 && (RequestedDeckBasicFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) || DrawFundedDistinctBasicFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) || ChainedStateBasicFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) || DamageFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               ProvenanceClaimTurnedOverEdge(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               CharacterTurnedOverFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               HulaoActivityFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               ShenwuTrickFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               HellSoulFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               WenheChaosFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               NativeDrawAttemptRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               RecoveryReplacementFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               PileEquipmentFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               RandomEquipmentFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
-               RecoveryReplacementDamageObserverRidesOn(index) ||
-               CharacterTurnedOverDamageObserverRidesOn(index) ||
-               includeNestedObservers && DamageObserverRidesOn(_resolutionStack[index], _resolutionStack[index - 1])))
-            index--;
-        return index >= 0 ? _resolutionStack[index] : null;
-    }
+    private ResolutionFrame? DamageCursorEffectiveTop(bool includeNestedObservers = false) =>
+        DamageAdjacency.DamageCursorEffectiveTop(includeNestedObservers);
 
     private static bool DamageObserverRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.DamageObserverRidesOn(ride,beneath);
@@ -17699,66 +17618,17 @@ public sealed partial class GameEngine
     // Project only the contiguous, typed post-event chain owned by this damage
     // candidate. Receipt/payment validation remains with each owning frame's
     // invariant; cursor ancestry must not depend on which skill produced it.
-    private ProgramSkillFrame? TypedDamageProgramObserver(long windowId)
-    {
-        var index = _resolutionStack.Count - 1;
-        while (index > 0)
-        {
-            var child = _resolutionStack[index];
-            var parent = _resolutionStack[index - 1];
-            if (!TypedDamagePostEventEdge(parent, child)) break;
-            index--;
-        }
-        if (index < 1 || _resolutionStack[index] is not ProgramSkillFrame root ||
-            _resolutionStack[index - 1] is not DamageTriggerWindowFrame window || window.Id != windowId ||
-            !DamageProgramMatchesWindow(root, window))
-            return null;
-        return root;
-    }
+    private ProgramSkillFrame? TypedDamageProgramObserver(long windowId) =>
+        DamageAdjacency.TypedDamageProgramObserver(windowId);
 
-    private bool DamageProgramMatchesWindow(ProgramSkillFrame root, DamageTriggerWindowFrame window)
-    {
-        var windowIndex = _resolutionStack.FindIndex(frame => frame.Id == window.Id);
-        return windowIndex > 0 && _resolutionStack[windowIndex - 1] is DamageFrame damage &&
-            damage.Id == window.ParentFrameId && damage.SourceSeat == window.SourceSeat && damage.TargetSeat == window.TargetSeat &&
-            window.CandidateIndex >= 0 && window.CandidateIndex < window.Candidates.Count &&
-            TypedDamageObserverCandidateMatches(root, window.Candidates[window.CandidateIndex].ToProgramCandidate()) &&
-            root.WindowContext is { } context && context.Window == window.TriggerWindow &&
-            context.ParentFrameId == window.Id && context.DamageFrameId == damage.Id &&
-            (context.SourceSeat is null || context.SourceSeat == damage.SourceSeat) &&
-            context.TargetSeat == damage.TargetSeat && context.Amount == damage.Amount && context.Amount > 0;
-    }
+    private bool DamageProgramMatchesWindow(ProgramSkillFrame root, DamageTriggerWindowFrame window) =>
+        DamageAdjacency.DamageProgramMatchesWindow(root, window);
 
     private bool TypedDamageObserverCandidateMatches(ProgramSkillFrame frame, ProgramTriggerCandidate candidate) =>
-        MountObserverCandidateMatches(frame, candidate) &&
-        frame.WindowContext is { } context && context.OwnerSeat == frame.OwnerSeat &&
-        _contentRegistry.Skills.TryGetValue(frame.SkillId, out var skill) &&
-        skill.Program is { } program && program.GameplayHash == frame.GameplayHash &&
-        program.Triggers.Any(trigger => trigger.Id == frame.TriggerId && trigger.Window == context.Window);
+        DamageAdjacency.TypedDamageObserverCandidateMatches(frame, candidate);
 
-    private bool TypedDamagePostEventEdge(ResolutionFrame parent, ResolutionFrame child)
-    {
-        if (child is HpChangedTriggerWindowFrame poisonHealth && IsWenhePoisonHealthChild(parent, poisonHealth)) return true;
-        if (child is DyingFrame poisonDying && IsWenhePoisonDyingChild(parent, poisonDying)) return true;
-        if (child is ProgramSkillFrame observer && observer.WindowContext is { } context && context.ParentFrameId == parent.Id)
-        {
-            if (parent is CardsMovedTriggerWindowFrame moved && moved.Contexts is { } contexts &&
-                moved.CandidateIndex >= 0 && moved.CandidateIndex < moved.Candidates.Count && contexts.Count == moved.Candidates.Count)
-                return context == contexts[moved.CandidateIndex] && context.MovementBatch == moved.Batch &&
-                    context.Window is SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived &&
-                    TypedDamageObserverCandidateMatches(observer, moved.Candidates[moved.CandidateIndex]);
-            if (parent is HpChangedTriggerWindowFrame hp && hp.CandidateIndex >= 0 && hp.CandidateIndex < hp.Candidates.Count &&
-                hp.Contexts.Count == hp.Candidates.Count)
-                return context == hp.Contexts[hp.CandidateIndex] && context.HpChange == hp.Change &&
-                    context.Window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged &&
-                    TypedDamageObserverCandidateMatches(observer, hp.Candidates[hp.CandidateIndex]);
-            return false;
-        }
-        if (parent is not ProgramSkillFrame producer) return false;
-        if (child is CardsMovedTriggerWindowFrame movement)
-            return ProgramMovementReturnMatches(producer, movement);
-        return child is HpChangedTriggerWindowFrame changed && ProgramHpReturnMatches(producer, changed);
-    }
+    private bool TypedDamagePostEventEdge(ResolutionFrame parent, ResolutionFrame child) =>
+        DamageAdjacency.TypedDamagePostEventEdge(parent, child);
 
     private static bool ProgramMovementReturnMatches(ProgramSkillFrame producer, CardsMovedTriggerWindowFrame movement,
         bool allowFactionRequestCost = false) =>
@@ -17772,113 +17642,15 @@ public sealed partial class GameEngine
         bool allowFactionRequestCost = false) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.HasAlternateProgramMovementReturn(movement,allowFactionRequestCost);
 
-    private readonly record struct DamageCursorProjection(
-        ResolutionFrame? Top, bool HasPaidObserverSubtree, long? OwnedDyingId = null);
 
-    private DamageCursorProjection ResolveDamageCursor(DamageTriggerWindowFrame window)
-    {
-        if (_resolutionStack.LastOrDefault() is DamageTriggerWindowFrame top && top.Id == window.Id)
-            return new(top, false);
-        if (TypedDamageProgramObserver(window.Id) is { } program)
-            return new(program, false);
-        var recovery = ProjectTypedRecoveryDamageCursor(window.Id);
-        if (recovery.IsMalformed)
-            throw new InvalidOperationException("A recovery observer has an invalid frame-owned return.");
-        if (recovery.Root is { } recoveryRoot)
-            return new(recoveryRoot, false, recovery.OwnedDyingId);
-        if (HasMalformedDamagePostEventEdge(window.Id))
-        {
-            // Dying compatibility receipts cannot lend authority to a rejected
-            // root/candidate edge in the active damage subtree.
-            if (ActiveDying is not null)
-                throw new InvalidOperationException("A dying damage subtree must retain its exact frozen observer chain.");
-            return default;
-        }
+    private DamageCursorProjection ResolveDamageCursor(DamageTriggerWindowFrame window) =>
+        DamageAdjacency.ResolveDamageCursor(window);
 
-        if (MouLixianDamageCursorRoot(window, out var lixianDyingId) is { } lixianRoot)
-            return new(lixianRoot, false, lixianDyingId);
-        if (AlcoholSlashReplacementDamageCursorRoot(window, out var replacementDyingId) is { } replacementRoot)
-            return new(replacementRoot, true, replacementDyingId);
-        if (RandomDamageTargetSkillDamageCursorRoot(window, out var randomSkillDyingId) is { } randomSkillRoot)
-            return new(randomSkillRoot, true, randomSkillDyingId);
-        if (DamageTargetSkillRoundDamageCursorRoot(window, out var roundSkillDyingId) is { } roundSkillRoot)
-            return new(roundSkillRoot, true, roundSkillDyingId);
+    private bool HasMalformedDamagePostEventEdge(long windowId) =>
+        DamageAdjacency.HasMalformedDamagePostEventEdge(windowId);
 
-        // Complex paid operations carry additional producer receipts (e.g. a
-        // judgment, card use or death subtree). Keep those semantic proofs on
-        // their owning capabilities; ordinary typed movement/HP observers above
-        // do not run this compatibility path. Evaluate it only once per invariant.
-        var paidObserverSubtree = RuntimeHooks.MatchesObserver(ProgramObserverProofPhase.PaidDamage, window.Id);
-        var includeNestedObservers = paidObserverSubtree ||
-            RuntimeHooks.MatchesObserver(ProgramObserverProofPhase.NestedDamage, window.Id) ||
-            _resolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
-                frame.ConvertingGift is { Observe: true } && frame.WindowContext?.ParentFrameId == window.Id);
-        return new(DamageCursorEffectiveTop(includeNestedObservers), paidObserverSubtree);
-    }
-
-    private bool HasMalformedDamagePostEventEdge(long windowId)
-    {
-        var windowIndex = _resolutionStack.FindIndex(frame => frame.Id == windowId);
-        if (windowIndex < 0) return true;
-        for (var index = windowIndex + 1; index < _resolutionStack.Count; index++)
-        {
-            var parent = _resolutionStack[index - 1];
-            var child = _resolutionStack[index];
-            if (parent is ProgramSkillFrame producer)
-            {
-                if (child is CardsMovedTriggerWindowFrame movement)
-                {
-                    // A paid faction request may belong to a Program frame;
-                    // its dedicated return replaces, rather than supplements,
-                    // the ordinary instruction return. Other alternatives have
-                    // different owning frame types and cannot ride this edge.
-                    var paidFactionReturn = movement.ResumeFactionRequestCostFrameId == producer.Id &&
-                        movement.ResumeProgramFrameId is null && producer.PaidFactionRequestCostRecovery is { } receipt &&
-                        ActiveFactionCardRequest is { } request && PaidFactionRequestMatches(request, receipt) &&
-                        HasPaidFactionRequestCostRecovery(request);
-                    if (!ProgramMovementReturnMatches(producer, movement, paidFactionReturn))
-                        return true;
-                }
-                if (child is HpChangedTriggerWindowFrame hp)
-                {
-                    var paidFactionReturn = hp.Continuation == PostEventContinuation.FactionRequestCost &&
-                        producer.PaidFactionRequestCostRecovery is { } receipt && ActiveFactionCardRequest is { } request &&
-                        PaidFactionRequestMatches(request, receipt) && HasPaidFactionRequestCostRecovery(request);
-                    if (!ProgramHpReturnMatches(producer, hp, paidFactionReturn)) return true;
-                }
-            }
-            if (child is not ProgramSkillFrame program) continue;
-            // Receipt-specific compatibility must never re-admit a malformed
-            // candidate edge rejected by the common typed projection.
-            if (parent is DamageTriggerWindowFrame damage && !DamageProgramMatchesWindow(program, damage) ||
-                parent is CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame && !TypedDamagePostEventEdge(parent, child))
-                return true;
-        }
-        return false;
-    }
-
-    private bool DamageFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) => ride switch
-    {
-        // Movement and HP-change windows legitimately ride on the in-flight
-        // program frame their continuation suspended at; a verified ride does
-        // not displace the underlying damage cursor.
-        CardsMovedTriggerWindowFrame { ResumePaidCardUseFrameId: not null } movement =>
-            beneath is CardUseFrame paidUse && IsPaidCardUseMovementReturn(paidUse, movement),
-        CardsMovedTriggerWindowFrame movement =>
-            beneath is RecoveryReplacementFrame
-                ? movement.ResumeRecoveryReplacementFrameId == beneath.Id && movement.Batch.ParentFrameId == beneath.Id
-                : movement.Batch.AwaitingProgramFrameId == beneath.Id ||
-                  movement.Batch.AwaitingProgramFrameId is null && movement.Batch.ParentFrameId == beneath.Id,
-        HpChangedTriggerWindowFrame changed when changed.Continuation == PostEventContinuation.WenyiDamageHealth =>
-            beneath is DamageFrame damage && IsWenyiDamageHealthReturn(damage, changed),
-        HpChangedTriggerWindowFrame changed when changed.Continuation == PostEventContinuation.AmountSupport =>
-            IsAmountSupportHealthChild(beneath, changed),
-        HpChangedTriggerWindowFrame changed => beneath is RecoveryReplacementFrame
-            ? changed.Continuation == PostEventContinuation.RecoveryReplacement &&
-              changed.ResumeFrameId == beneath.Id && changed.Change.ParentFrameId == beneath.Id
-            : changed.ResumeFrameId == beneath.Id,
-        _ => false
-    };
+    private bool DamageFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
+        DamageAdjacency.DamageFrameRidesOn(ride, beneath);
 
     private void AssertCoreInvariants()
     {

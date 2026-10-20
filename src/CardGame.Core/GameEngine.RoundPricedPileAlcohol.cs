@@ -111,6 +111,7 @@ public sealed partial class GameEngine
         ContinueRoundPileAlcoholUse(useId);
     }
 
+    [NativeFrameRoute(typeof(CardUseFrame), 170, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.RoundPileAlcoholPayment))]
     private void ContinueRoundPileAlcoholUse(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != id || use.RoundPileAlcoholReturn is not { })

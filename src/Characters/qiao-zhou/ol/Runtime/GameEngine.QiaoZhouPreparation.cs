@@ -30,6 +30,7 @@ public sealed partial class GameEngine
         QiaoZhouPreparationCards(f).Select(card => new PromptChoice(new($"qiao-zhou-preparation.{f.Id}.{card.Id}"),
             $"星卜：弃置【{card.DisplayName}】{card.RankText}", [card.Id], [],
             new Dictionary<string, string> { ["program-action"] = "qiao-zhou-preparation" })).ToArray());
+    [NativeFrameRoute(typeof(QiaoZhouPreparationFrame), 80)]
     private void ContinueQiaoZhouPreparation(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not QiaoZhouPreparationFrame f || f.Id != frameId) return;

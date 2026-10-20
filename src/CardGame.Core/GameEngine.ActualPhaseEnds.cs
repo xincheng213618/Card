@@ -38,6 +38,8 @@ public sealed partial class GameEngine
         PushRuntimeFrame(frame); AdvanceRuntimeFrame(frame.Id); return true;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 160, NativeFrameAutomaticPending.RequireNoneAfterFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(ActualPhaseEndFrame), 370)]
     private void ContinueActualPhaseEnd(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ActualPhaseEndFrame frame || frame.Id != frameId ||

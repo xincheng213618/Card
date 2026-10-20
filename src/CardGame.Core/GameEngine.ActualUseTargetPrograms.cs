@@ -91,6 +91,8 @@ public sealed partial class GameEngine
             parent.Candidates[parent.CandidateIndex] == candidate && parent.Contexts[parent.CandidateIndex].ActualUseTarget == use;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 120, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(ActualUseTargetWindowFrame), 230)]
     private void ContinueActualUseTargetWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame parent)

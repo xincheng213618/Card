@@ -258,6 +258,7 @@ public sealed partial class GameEngine
         AdvanceRulesAndPublishState(); return true;
     }
 
+    [NativeFrameRoute(typeof(CardUseFrame), 60, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.DragonBoatCardEffect))]
     private void ContinueDragonBoatCardEffect(long id)
     {
         while (_resolutionStack.LastOrDefault() is CardUseFrame { DragonBoatCardEffect: { } r } use && use.Id == id)

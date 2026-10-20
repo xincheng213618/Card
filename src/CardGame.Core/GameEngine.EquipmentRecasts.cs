@@ -32,6 +32,8 @@ public sealed partial class GameEngine
         ContinueEquipmentRecast(frame.Id);
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 180, NativeFrameAutomaticPending.Ignore, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(EquipmentRecastFrame), 340)]
     private void ContinueEquipmentRecast(long frameId)
     {
         while (_resolutionStack.LastOrDefault() is EquipmentRecastFrame frame && frame.Id == frameId)

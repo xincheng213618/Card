@@ -97,6 +97,8 @@ public sealed partial class GameEngine
         _winner == Winner.None && _players[c.OwnerSeat].IsAlive && _players[r.TargetSeat].IsAlive &&
         LifecycleCardUse(r.CardUseFrameId)!.TargetSeats.Contains(r.TargetSeat) &&
         HasRuntimeSkillInstance(_players[c.OwnerSeat], c.SkillId, c.SkillInstanceId);
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 100, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(SlashTargetPenaltyWindowFrame), 290)]
     private void ContinueSlashTargetPenaltyWindow()
     {
         while (_resolutionStack.LastOrDefault() is SlashTargetPenaltyWindowFrame w)

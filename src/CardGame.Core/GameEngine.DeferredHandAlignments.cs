@@ -60,6 +60,7 @@ public sealed partial class GameEngine
     }
     private void ContinueDeferredTurnEnd() => AdvanceRuntimeTop<DeferredTurnEndFrame>();
 
+    [NativeFrameRoute(typeof(DeferredTurnEndFrame), 470)]
     private void ContinueDeferredTurnEndCore()
     {
         while(_resolutionStack.LastOrDefault() is DeferredTurnEndFrame parent)

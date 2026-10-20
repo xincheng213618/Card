@@ -93,6 +93,8 @@ public sealed partial class GameEngine
         public override void Skip(WuLuKangPindianFrame w, ProgramTriggerCandidate c) => Engine.ReplaceRuntimeTop(w with { CandidateIndex = w.CandidateIndex + 1 });
         public override ProgramTriggerWindowFlow Close(WuLuKangPindianFrame w) { Engine.CloseWuLuKangWindow(w); return ProgramTriggerWindowFlow.Yield; }
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 0, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(WuLuKangPindianFrame), 270)]
     private void ContinueWuLuKangWindow(long id)
     { if (_resolutionStack.LastOrDefault() is WuLuKangPindianFrame w && w.Id == id) { AssertWuLuKangWindows(); ProgramTriggerWindowDriver.Run(new WuLuKangWindowHost(this)); } }
     private void CloseWuLuKangWindow(WuLuKangPindianFrame w)

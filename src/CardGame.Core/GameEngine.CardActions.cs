@@ -537,6 +537,7 @@ public sealed partial class GameEngine
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardActions.GetCardActionWindow(frame);
 
+    [NativeFrameRoute(typeof(ProgramCardTriggerWindowFrame), 300)]
     private void ContinueProgramCardWindowCore() =>
         ProgramTriggerWindowDriver.Run(new CardActionTriggerWindowHost(this));
 

@@ -81,6 +81,8 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 130, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(NullificationWindowFrame), 110, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.CounterspellPayment))]
     private void ContinuePolicyCounterspellPayment(long windowId)
     {
         if (_resolutionStack.LastOrDefault() is not NullificationWindowFrame frame || frame.Id != windowId ||

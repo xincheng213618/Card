@@ -160,6 +160,7 @@ public sealed partial class GameEngine
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: frame.Facts);
 
+    [NativeFrameRoute(typeof(ProgramDeathTriggerWindowFrame), 420)]
     private void ContinueOwnerDiedProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ProgramDeathTriggerWindowFrame frame)
@@ -318,6 +319,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameRoute(typeof(ProgramKillTriggerWindowFrame), 430)]
     private void ContinueKillDiedProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ProgramKillTriggerWindowFrame frame)

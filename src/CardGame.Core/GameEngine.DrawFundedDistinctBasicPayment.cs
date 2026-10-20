@@ -50,6 +50,8 @@ public sealed partial class GameEngine
         ContinueDrawFundedDistinctBasic(id);
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 90, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(DrawFundedDistinctBasicFrame), 380)]
     private void ContinueDrawFundedDistinctBasic(long frameId)
     {
         while (_resolutionStack.LastOrDefault() is DrawFundedDistinctBasicFrame frame && frame.Id == frameId && _pendingDecision is null)

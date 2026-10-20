@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         }
         return false;
     }
+    [NativeFrameRoute(typeof(CardUseFrame), 20, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.SoleIncomingRangeDraw))]
     private void ContinueSoleIncomingRangeDraw(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame { SoleIncomingRangeDraw: { } receipt } use || use.Id != id || _pendingDecision is not null)

@@ -274,6 +274,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(choices);
     }
 
+    [NativeFrameRoute(typeof(RecoveryReplacementFrame), 330)]
     private void ContinueRecoveryReplacement()
     {
         if (_resolutionStack.LastOrDefault() is not RecoveryReplacementFrame frame) return;

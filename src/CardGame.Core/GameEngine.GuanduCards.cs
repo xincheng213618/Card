@@ -156,6 +156,7 @@ public sealed partial class GameEngine
         }
         finally { PopResolutionFrame(recoveryId, ResolutionFrameKind.Recovery); }
     }
+    [NativeFrameRoute(typeof(CardUseFrame), 40, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.GuanduCardEffect))]
     private void ContinueGuanduCardEffect(long id)
     {
         while (_resolutionStack.LastOrDefault() is CardUseFrame { GuanduCardEffect: { } r } use && use.Id == id)

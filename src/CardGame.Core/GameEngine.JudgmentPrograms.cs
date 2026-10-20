@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -89,6 +89,8 @@ public sealed partial class GameEngine
                first.TargetKind is { } kind && GetProgramTargetSeats(owner.Seat, kind).Count > 0;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.BeforeJudgmentDecision, 0, NativeFrameAutomaticPending.RequireNoneAfterFrame, NativeFrameAutomaticPublish.None)]
+    [NativeFrameRoute(typeof(ProgramJudgmentTriggerWindowFrame), 440)]
     private void ContinueProgramJudgmentWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame frame)

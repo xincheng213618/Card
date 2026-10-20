@@ -99,6 +99,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [NativeFrameRoute(typeof(HpChangedTriggerWindowFrame), 320)]
     private void ContinueHpChangedProgramWindowCore() =>
         ProgramTriggerWindowDriver.Run(new HpChangedTriggerWindowHost(this));
 

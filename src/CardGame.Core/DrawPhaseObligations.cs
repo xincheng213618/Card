@@ -73,6 +73,8 @@ public sealed partial class GameEngine
         PushRuntimeFrame(frame); AdvanceRuntimeFrame(frame.Id); return true;
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 170, NativeFrameAutomaticPending.Ignore, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(DrawPhaseObligationFrame), 350)]
     private void ContinueDrawPhaseObligation(long frameId)
     {
         while (_resolutionStack.LastOrDefault() is DrawPhaseObligationFrame frame && frame.Id == frameId)

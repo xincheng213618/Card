@@ -174,6 +174,8 @@ public sealed partial class GameEngine
     private bool CanChallengeDeclaration(int seat, int owner) => seat != owner && _players[seat].IsAlive &&
         !GetSkillBindingShard(_players[seat]).ProgramInstances.Any(instance => instance.Program.CannotChallengeDeclarations);
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterDeclarationChallenge, 0, NativeFrameAutomaticPending.Ignore, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(CardDeclarationFrame), 190)]
     private void ContinueCardDeclaration(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame frame || frame.Id != id) return;
@@ -207,6 +209,7 @@ public sealed partial class GameEngine
         if (frame.Stage == CardDeclarationStage.Returning) ReturnCardDeclaration(frame);
     }
 
+    [NativeFrameRoute(typeof(CardDeclarationChallengeFrame), 200)]
     private void ContinueCardDeclarationChallenge(long id)
     {
         if (_resolutionStack.LastOrDefault() is not CardDeclarationChallengeFrame child || child.Id != id) return;

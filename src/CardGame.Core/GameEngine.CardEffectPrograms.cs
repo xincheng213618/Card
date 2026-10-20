@@ -42,6 +42,7 @@ public sealed partial class GameEngine
             frame.FinalDesignatedTargetSeats.Count == 1 && frame.FinalDesignatedTargetSeats[0] == candidate.OwnerSeat &&
             (frame.DelayedReturn is not null || frame.Action.ActorSeat != candidate.OwnerSeat);
     }
+    [NativeFrameRoute(typeof(CardEffectBeforeApplyFrame), 180)]
     private void ContinueCardEffectBeforeApply()
     {
         while (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame frame)

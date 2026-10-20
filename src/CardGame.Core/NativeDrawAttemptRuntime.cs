@@ -113,6 +113,8 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
         frames.Advance(attempt.Id);
     }
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 20, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(NativeDrawAttemptFrame), 10)]
     internal void ContinueNativeDrawAttempt(long id)
     {
         if (frames.Top is not NativeDrawAttemptFrame attempt || attempt.Id != id ||

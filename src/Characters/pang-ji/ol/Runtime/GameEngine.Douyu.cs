@@ -163,6 +163,8 @@ public sealed partial class GameEngine
         }
         ReplaceRuntimeTop(window with { CandidateIndex = window.CandidateIndex + 1 });
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 10, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(DouyuWindowFrame), 280)]
     private void ContinueDouyuWindow(long id)
     { if (_resolutionStack.LastOrDefault() is not DouyuWindowFrame w || w.Id != id) return; AssertDouyuWindows(); ProgramTriggerWindowDriver.Run(new DouyuTriggerWindowHost(this)); }
     private void CloseDouyuWindow(DouyuWindowFrame w)

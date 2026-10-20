@@ -27,7 +27,11 @@ Checkpoint 保存初始化和接受命令，在当前实现中重放；恢复校
 
 ## 帧调度
 
-`GameEngine.Runtime.cs` 调度当前栈顶。`PushRuntimeFrame` 检查父关系，replace 保留 ID 和运行类型，完成操作仅弹出预期栈顶。子帧完成后使用类型化返回，父帧保留原费用、目标、事实和游标。
+`GameEngine.Runtime.cs` 的兼容入口转到 `NativeFrameRoutingRuntime`，由它检查帧是否存在且位于栈顶；暂停中的父帧不分派。`NativeFrameRouteCatalog` 按处理器旁的 `[NativeFrameRoute]` 注册及显式顺序选择首个匹配项，普通程序仍先运行续接，再进入执行器。用牌的各个已支付分支保留原条件与优先序。新增原生续接在所属模块注册，无需扩充中央帧 `switch`。
+
+主循环的普通原生帧准入也由处理器旁的 `[NativeFrameAutomaticStep]` 和 `NativeFrameAutomaticRuntime` 负责，四个固定阶段槽保留开局、声明质疑和判定决策前后的原顺序。待决检查的先后、不检查待决的原生步骤以及判定窗口无需额外发布的策略分别保存；自动准入仍调用完整显式路由，不改变用牌多重回执的优先序。
+
+`PushRuntimeFrame` 检查父关系，replace 保留 ID 和运行类型，完成操作仅弹出预期栈顶。子帧完成后使用类型化返回，父帧保留原费用、目标、事实和游标。`DamageAdjacencyRuntime` 拥有伤害候选推进和观察者链遍历；`NativeHealthRecoveryRuntime` 拥有原生回复回执与回复后伤害邻接证明；`ResponseCompletionRuntime` 拥有响应支付账单、移动和健康子帧及返回。它们通过窄事实及操作口读取原帧，不缓存另一份待决状态。
 
 程序先运行适用的 `[ProgramContinuation]`，再进入 `SkillProgramExecutor`。注册分为三个位置：
 

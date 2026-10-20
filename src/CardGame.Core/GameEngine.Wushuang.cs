@@ -83,6 +83,8 @@ public sealed partial class GameEngine
         var f = new WushuangIntermissionFrame(++_resolutionSequence, false, previous.Seat, skipped);
         PushRuntimeFrame(f); ContinueWushuangIntermission(f.Id); return true;
     }
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.BeforeOpening, 0, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(WushuangIntermissionFrame), 0)]
     private void ContinueWushuangIntermission(long frameId)
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault() is not WushuangIntermissionFrame f || f.Id != frameId) return;

@@ -254,6 +254,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeFrameRoute(typeof(CardUseFrame), 50, typeof(NativeFrameRouteConditions), nameof(NativeFrameRouteConditions.WumiaoFlood))]
     private void ContinueWumiaoFlood(long id)
     {
         while (_resolutionStack.LastOrDefault() is CardUseFrame { WumiaoFlood: { } r } use && use.Id == id)

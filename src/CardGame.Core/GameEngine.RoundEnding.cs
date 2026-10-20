@@ -32,6 +32,8 @@ public sealed partial class GameEngine
         batch.TurnNumber == parent.ActualTurnNumber && batch.AwaitingProgramFrameId is null &&
         (batch.ParentFrameId == parent.Id || parent.InheritedMovementBatchIds.Contains(batch.Id));
 
+    [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 150, NativeFrameAutomaticPending.RequireNoneAfterFrame, NativeFrameAutomaticPublish.AfterAdvance)]
+    [NativeFrameRoute(typeof(RoundEndingBoundaryFrame), 360)]
     private void ContinueRoundEndingBoundary(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not RoundEndingBoundaryFrame frame || frame.Id != frameId ||
