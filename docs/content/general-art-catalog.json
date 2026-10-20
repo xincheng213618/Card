@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "wumiao-lu-kang",
+      "characterName": "武陆抗",
+      "defaultSkinId": "123401",
+      "skins": [
+        {
+          "id": "123401",
+          "name": "经典形象",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123401.png",
+          "sourcePage": "https://x.sanguosha.com/hero/234.html",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-lu-kang.png",
+          "sha256": "76e41c798c0379e9d9b68aa62f998e38c09a38cb80e405702dc61c427867a24c",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "mou-chen-gong-mobile",
       "characterName": "谋陈宫·移动版",
       "defaultSkinId": "62400",
