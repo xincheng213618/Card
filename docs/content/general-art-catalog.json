@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-lu-meng-mobile",
+      "characterName": "谋吕蒙·移动版",
+      "defaultSkinId": "64000",
+      "skins": [
+        {
+          "id": "64000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64000.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-meng-mobile.jpg",
+          "sha256": "23f33e844f8f9f0a51d39bceb1d4e6857809b17867a6c4563ec4cafd4e89edbf",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "mou-hua-xiong-mobile",
       "characterName": "谋华雄·移动版",
       "defaultSkinId": "69000",
