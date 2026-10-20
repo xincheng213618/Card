@@ -179,6 +179,9 @@ internal sealed class MouXiahouShiScene(MouXiahouShiSpec spec, GameEngine game, 
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(spec));
         GameOptions options;
+        if (spec.RecoveryReplacement) options = new() { Seed = 17, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = "identity:classic-mxhs-replacement",
+            UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 12 };
+        else
         {
             var hp = spec.HeroSeat == 0 ? 3 : 6;
             var setup = new ShanheBattleSetup(7, 1, "mxhs-" + spec.Name, Owner, hp, 0, 0, 0, 0, [], spec.Hand, spec.Equipment,
@@ -188,6 +191,7 @@ internal sealed class MouXiahouShiScene(MouXiahouShiSpec spec, GameEngine game, 
                 ShanheBattle = setup, UseInteractiveSetup = false, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 12 };
         }
         var scene = new MouXiahouShiScene(spec, GameEngine.CreateStandard(options, registry), registry); scene.Accept(new StartGameCommand());
+        if (spec.RecoveryReplacement) { scene.Reach(() => scene.P is { PlayerSeat: 0, Kind: DecisionKind.SelectGeneral }); scene.Accept(new SelectGeneralCommand(0, Owner, scene.G.Revision, scene.P!.PromptId)); }
         scene.Play(); return scene;
     }
     private sealed class Fixture(MouXiahouShiSpec spec) : IGameContentPackage
@@ -218,25 +222,33 @@ internal sealed class MouXiahouShiScene(MouXiahouShiSpec spec, GameEngine game, 
             if (spec.ConditionalMinimum > 0) defs.Add(new JsonObject { ["id"] = Conditional, ["revision"] = 1,
                 ["hpSkillGrants"] = new JsonArray(new[] { Yanyu, Qiaoshi }.Where(id => id == Yanyu && spec.Yanyu || id == Qiaoshi && spec.Qiaoshi)
                     .Select(id => (JsonNode)new JsonObject { ["id"] = "healthy-" + id, ["skillId"] = id, ["minimumHp"] = spec.ConditionalMinimum }).ToArray()) });
-            if (spec.RecoveryReplacement) defs.Add(N("{\"id\":\"fixture:mxhs-redirect\",\"revision\":1,\"cardPolicies\":[{\"id\":\"native-ally-recovery\",\"kind\":\"redirectOwnTurnFactionRecovery\",\"factionId\":\"wu\",\"value\":1,\"providerDrawCount\":1}]}"));
+            if (spec.RecoveryReplacement)
+            {
+                defs.Add(N("{\"id\":\"fixture:mxhs-redirect\",\"revision\":1,\"cardPolicies\":[{\"id\":\"native-lord-recovery\",\"kind\":\"redirectOwnTurnFactionRecovery\",\"factionId\":\"wu\",\"ownerRole\":\"lord\",\"value\":1,\"providerDrawCount\":1}]}"));
+                defs.Add(N("{\"id\":\"fixture:mxhs-lord-projection\",\"revision\":1,\"lordSkillProjection\":true}"));
+            }
             var labels = defs.ToDictionary(n => n!["id"]!.GetValue<string>(), n => new { name = n!["id"]!.GetValue<string>(), description = "谋夏侯氏真实原生小局",
                 optionLabels = n!["id"]!.GetValue<string>() == Watch ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() });
             var catalog = SkillProgramCatalog.Load(JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.RulesSchemaVersion, skills = defs }), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = labels }));
-            foreach (var (id, p) in catalog.Programs) b.AddSkill(new(id, labels[id].name, labels[id].description) { Program = p, ProgramPresentation = catalog.Presentations[id] });
+            foreach (var (id, p) in catalog.Programs) b.AddSkill(new(id, labels[id].name, labels[id].description) { Program = p, ProgramPresentation = catalog.Presentations[id],
+                Tags = id == "fixture:mxhs-redirect" ? SkillTag.Lord : SkillTag.None });
             string[] Skills(int seat)
             {
                 var ids = new List<string>(); if (seat == 0) ids.Add(Driver); else ids.Add(Quiet);
                 if (watches.Count > 0) ids.Add(Watch);
                 if (seat == spec.HeroSeat) { if (spec.ConditionalMinimum > 0) ids.Add(Conditional); else { if (spec.Yanyu) ids.Add(Yanyu); if (spec.Qiaoshi) ids.Add(Qiaoshi); } }
                 if (seat == 0 && spec.InsertPlay) ids.Add("ol:dianjun");
-                if (seat == 1 && spec.RecoveryReplacement) ids.Add("fixture:mxhs-redirect");
+                if (spec.RecoveryReplacement) ids.Add(seat == 0 ? "fixture:mxhs-redirect" : "fixture:mxhs-lord-projection");
                 return ids.ToArray();
             }
             b.AddGeneral(new(Owner, "谋夏侯氏真实检查人", "", "standard:none", spec.RecoveryReplacement ? "wu" : "shu", spec.HeroSeat == 0 ? 3 : 6, Skills(0)));
             foreach (var (id, seat) in new[] { (Ally, 1), (EnemyA, 2), (EnemyB, 3) })
-                b.AddGeneral(new(id, "实际其他角色", "", "standard:none", "wu", spec.HeroSeat == seat ? 3 : 12, Skills(seat)));
-            b.AddDeck(new(Deck, "固定真实点数牌堆", 0, 0, []) { PhysicalCards = Enumerable.Range(0, 48).Select(_ => new ContentDeckPhysicalCard("fixture:mxhs-card-Dodge", Suit.Spade, 7)).ToArray() });
-            b.AddMode(new(ShanheBattleSetup.BattleModeId, "谋夏侯氏原生小局", 4, 4, new Dictionary<string, int>(), Deck, GeneralPoolIds: [Owner, Ally, EnemyA, EnemyB], ModeKind: ContentModeKind.Team,
+                b.AddGeneral(new(id, "实际其他角色", "", "standard:none", "wu", spec.HeroSeat == seat ? 3 : spec.RecoveryReplacement ? 6 : 12, Skills(seat))
+                { InitialHp = spec.RecoveryReplacement ? 1 : null });
+            b.AddDeck(new(Deck, "固定真实点数牌堆", spec.RecoveryReplacement ? 2 : 0, 0, []) { PhysicalCards = Enumerable.Range(0, 48).Select(_ => new ContentDeckPhysicalCard("fixture:mxhs-card-Dodge", Suit.Spade, 7)).ToArray() });
+            if (spec.RecoveryReplacement) b.AddMode(new("identity:classic-mxhs-replacement", "真实主公投影回复替代", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, Deck, GeneralCandidateCount: 4, GeneralPoolIds: [Owner, Ally, EnemyA, EnemyB]));
+            else b.AddMode(new(ShanheBattleSetup.BattleModeId, "谋夏侯氏原生小局", 4, 4, new Dictionary<string, int>(), Deck, GeneralPoolIds: [Owner, Ally, EnemyA, EnemyB], ModeKind: ContentModeKind.Team,
                 TeamCounts: new Dictionary<string, int> { [ShanheBattleSetup.PlayerTeamId] = 2, [ShanheBattleSetup.EnemyTeamId] = 2 }));
         }
     }

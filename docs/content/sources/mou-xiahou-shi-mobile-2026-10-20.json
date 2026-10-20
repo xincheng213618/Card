@@ -1,5 +1,5 @@
 {
-  "status": "source-and-engineering-verified-runtime-pending",
+  "status": "implemented-and-verified",
   "checkedOn": "2026-10-20",
   "name": "谋夏侯氏·移动版",
   "generalId": "mou:xiahou-shi-mobile",
@@ -156,8 +156,8 @@
     "unmodifiedOfficialBytes": true,
     "visualSubjectVerifiedBySourceAuditor": true,
     "rootVisualInspectionPending": false,
-    "wpfRenderingVerified": false,
-    "inspection": "Root and source auditor viewed the exact original: a dark-haired woman in flowing red and white clothes stands in clear shallow blue water, holding a purple lotus above her head; petals, rocks and green shore flowers remain in the full original frame. Official bytes are unmodified; WPF verification is pending.",
+    "wpfRenderingVerified": true,
+    "inspection": "Root and source auditor viewed the exact original: a dark-haired woman in flowing red and white clothes stands in clear shallow blue water, holding a purple lotus above her head; petals, rocks and green shore flowers remain in the full original frame. Official bytes are unmodified; Root also inspected the actual WPF general-gallery render: the correct portrait, identity, three health icons and both complete skills are visible.",
     "rootVisualInspectionPassed": true,
     "localPath": "src/CardGame.Wpf/Assets/official-mou-xiahou-shi-mobile.jpg"
   },
@@ -201,17 +201,29 @@
   "verificationLimits": [
     "All two current mainland official skills and API identity were checked in full. Formal launch and a later permanent acquisition notice were independently located.",
     "No authenticated client replay or character-specific primary FAQ was used. The explicit boundary decisions above are project engineering contracts, not official or user-selected rulings.",
-    "Source audit only; no implementation behavior, focused checks, routine checks or application render has been verified for this batch."
+    "Complete production rules and focused native command behavior checks passed, followed by the bounded routine scope. Root inspected the rendered WPF gallery. This does not claim an authenticated-client rules ruling or a manual full run."
   ],
   "validation": {
-    "status": "pending",
+    "status": "passed",
     "sourceReview": "passed-with-explicit-project-engineering-contracts",
     "officialPortraitHashAndDimensions": "passed",
     "sourceAuditorPortraitVisualInspection": "passed",
     "rootPortraitVisualInspection": "passed",
-    "wpfRendering": "pending",
-    "focused": "pending",
-    "routine": "pending",
+    "wpfRendering": "passed-root-actually-viewed",
+    "focused": {
+      "status": "passed",
+      "scope": "targeted",
+      "coreChecks": 27,
+      "wpfChecks": 1,
+      "durationMs": 31180
+    },
+    "routine": {
+      "status": "passed",
+      "scope": "routine",
+      "coreChecks": 246,
+      "wpfChecks": 40,
+      "durationMs": 96008
+    },
     "manualFullRun": false
   }
 }

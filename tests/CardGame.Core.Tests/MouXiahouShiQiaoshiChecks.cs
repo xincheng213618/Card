@@ -86,10 +86,11 @@ internal static class MouXiahouShiQiaoshiChecks
         DrawOnce(death, paid, 0); death.Cold();
 
         var replacement = MouXiahouShiScene.Start(new("native-faction-recovery-replacement") { Qiaoshi = true, RecoveryReplacement = true });
-        const int provider = 1;
-        replacement.Need(replacement.V(provider).Hp == 1 && replacement.V(provider).Hp < replacement.V(provider).MaxHp &&
-            replacement.V(provider).TeamId == replacement.V().TeamId,
-            "A genuine living wounded public ally supplies native faction recovery replacement and independently chooses as the actual damage source.");
+        var provider = Enumerable.Range(1, 3).Single(seat => replacement.V(seat).Role == Role.Loyalist);
+        replacement.Need(replacement.V().Role == Role.Lord && replacement.G.CreateSnapshot(provider).Players[0].Role == Role.Lord &&
+            replacement.V(provider).Hp == 1 && replacement.V(provider).Hp < replacement.V(provider).MaxHp &&
+            replacement.E<LordSkillProjectionChangedEvent>().Any(e => e.Added && e.OwnerSeat == provider && e.SkillId == "fixture:mxhs-redirect" && e.Source.LordSeat == 0),
+            "A genuine loyalist's native lord-skill projection qualifies its recovery policy. Its actual source decision sees the real public Lord as the Qiaoshi owner.");
         replacement.Use("foreign-one", provider);
         replacement.Reach(() => replacement.P is { PlayerSeat: 0, Kind: DecisionKind.RecoveryReplacement });
         var redirect = replacement.E<MouXiahouShiQiaoshiStartedEvent>().Single();
@@ -101,7 +102,7 @@ internal static class MouXiahouShiQiaoshiChecks
         var hp = replacement.V().Hp; var hand = replacement.V().HandCount; replacement.Private(); replacement.RejectPrompt(); replacement.Cold();
         replacement.Answer(c => c.Parameters.GetValueOrDefault("recovery-action") == "redirect" && c.Targets.SequenceEqual([provider]));
         replacement.Play();
-        replacement.Need(replacement.V().Hp == hp && hp == 2 && replacement.E<RecoveryReplacementChosenEvent>().Single() is
+        replacement.Need(replacement.V().Hp == hp && hp == replacement.V().MaxHp - 1 && replacement.E<RecoveryReplacementChosenEvent>().Single() is
             { RecoveringSeat: 0, BeneficiarySeat: var beneficiary, ReplacedAmount: 1 } && beneficiary == provider &&
             replacement.E<MouXiahouShiQiaoshiRecoveryReturnedEvent>().Count(e => e.FrameId == redirect.FrameId) == 1 &&
             !replacement.E<RecoveryAppliedEvent>().Any(e => e.TargetSeat == 0) &&
