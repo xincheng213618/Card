@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {
         if (MouCaoPiCannotRespondTo(responderSeat, sourceSeat)) return true;
+        if (MouLzCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
             sourceSeat == responderSeat || !targetSeats.Contains(responderSeat) ||
             !_players[sourceSeat].IsAlive || !_players[responderSeat].IsAlive)

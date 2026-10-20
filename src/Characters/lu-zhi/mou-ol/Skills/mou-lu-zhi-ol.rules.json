@@ -1,0 +1,10 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou-ol:sibing","revision":1,"triggers":[
+  {"id":"red-press","window":"cardUseTargetsFinalized","ownerRelation":"actor","optional":false,"effects":[{"op":"resolveMouLuZhiSibingPress","target":"owner"}]},
+  {"id":"undamaged-retaliation","window":"cardUseCompleted","ownerRelation":"target","singleActionInstance":true,"optional":false,"effects":[{"op":"resolveMouLuZhiSibingRetaliation","target":"owner"}]}
+ ]},
+ {"id":"mou-ol:liance","revision":1,"triggers":[
+  {"id":"hand-lost","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","usageScope":"round","usageLimit":1,"namedUsageGroup":"draw-to-max","optional":true,"effects":[{"op":"resolveMouLuZhiLiance","target":"owner"}]},
+  {"id":"hand-gained","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","usageScope":"round","usageLimit":1,"namedUsageGroup":"draw-to-max","optional":true,"effects":[{"op":"resolveMouLuZhiLiance","target":"owner"}]}
+ ]}
+]}

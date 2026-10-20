@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-xiu",
+  "skills": [
+    {
+      "registrationOrder": 2480,
+      "programBundle": "mou-zhang-xiu-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:qiulie",
+        "name": "仇猎",
+        "description": "限定技，回合开始时，你可选择一名其他角色。本回合你的每个阶段开始时，你可弃置一张牌视为对其使用一张【杀】。其可弃置一张基本牌或武器牌令此【杀】无效。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2481,
+      "programBundle": "mou-zhang-xiu-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:zhuijiao",
+        "name": "追剿",
+        "description": "锁定技，你使用【杀】时，若你使用的上一张牌未造成伤害，则你摸一张牌并令此【杀】伤害+1，此【杀】结算后，若仍未造成伤害，你弃置一张牌。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2482,
+      "pools": {
+        "current": 552
+      },
+      "definition": {
+        "id": "mou:zhang-xiu-ol",
+        "name": "谋张绣·OL",
+        "portraitKey": "mou-zhang-xiu-ol",
+        "skillId": "mou-ol:qiulie",
+        "additionalSkillIds": [
+          "mou-ol:zhuijiao"
+        ],
+        "factionId": "qun",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:zhang-xiu",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

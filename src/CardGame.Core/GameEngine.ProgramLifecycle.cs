@@ -2169,6 +2169,7 @@ public sealed partial class GameEngine
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
         if (IsIssuedMoDiaoChanCandidate(candidate, context)) return true;
+        if (IsMouLzDirectCandidate(candidate, context)) return true;
         if (!CanMouXiahouShiCandidate(candidate, context)) return false;
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedMouPtTargets(candidate, context)) return true;
@@ -2212,6 +2213,7 @@ public sealed partial class GameEngine
         if (IsIssuedRuanHuiCandidate(candidate)) return CanRunIssuedRuanHuiCandidate(candidate, context);
         if (IsIssuedKenshangCandidate(candidate)) return CanRunIssuedKenshangCandidate(candidate, context);
         if (IsIssuedFulueCandidate(candidate)) return CanRunIssuedFulueCandidate(candidate, context);
+        if (CanRunIssuedMouZhangXiuOl(candidate, context)) return true;
         if (CanRunIssuedMouSunJianOlHulie(candidate, context)) return true;
         if (IsIssuedMiuyanCandidate(candidate)) return CanRunIssuedMiuyanCandidate(candidate, context);
         if (_contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program?.Triggers.Any(t => t.Id == candidate.BindingId && t.Effects is [{ Op: SkillProgramEffectOp.RewardHejiUnconvertedUse }]) == true) return IsIssuedWuJingHejiReward(candidate, context);

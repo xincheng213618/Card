@@ -1,0 +1,108 @@
+{
+  "generalId": "mou:zhang-xiu-ol",
+  "officialName": "谋张绣",
+  "edition": "普通OL谋攻篇",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "faction": "qun",
+    "gender": "Male",
+    "maximumHp": 4,
+    "initialHp": 4,
+    "officialHeroGid": 687
+  },
+  "currentPrimary": {
+    "url": "https://www.sanguosha.com/hero/687",
+    "skills": [
+      {
+        "name": "仇猎",
+        "id": "mou-ol:qiulie",
+        "text": "限定技，回合开始时，你可选择一名其他角色。本回合你的每个阶段开始时，你可弃置一张牌视为对其使用一张【杀】。其可弃置一张基本牌或武器牌令此【杀】无效。"
+      },
+      {
+        "name": "追剿",
+        "id": "mou-ol:zhuijiao",
+        "text": "锁定技，你使用【杀】时，若你使用的上一张牌未造成伤害，则你摸一张牌并令此【杀】伤害+1，此【杀】结算后，若仍未造成伤害，你弃置一张牌。"
+      }
+    ]
+  },
+  "identityApi": "https://www.sanguosha.com/api/v1/hero/info?gid=687",
+  "formalFirstRelease": {
+    "url": "https://www.sanguosha.com/news/20250122_3654_3513",
+    "publishedAt": "2025-01-27 17:01:11",
+    "availableFrom": "2025-01-28 00:15:00",
+    "fullTextAgreement": "两项当前完整正文与正式公告完全相同，仅牌名括号格式归一。"
+  },
+  "revisionCheck": {
+    "queries": [
+      "site:sanguosha.com/news \"谋张绣\" \"追剿\" \"调整\"",
+      "site:sanguosha.com/news \"谋张绣\" \"仇猎\" \"修改\"",
+      "site:sanguosha.com/news \"谋张绣\" \"追剿\" \"2026\""
+    ],
+    "result": "有界官网检索未找到替代两技的完整正式改版，当前官网与首发正式正文一致。不据此宣称不存在任何其他公告。"
+  },
+  "differentProduct": {
+    "url": "https://www.sanguosha.com/news/20240711_7303_0918",
+    "edition": "十周年/一将成名",
+    "printedSkills": [
+      "附袭",
+      "豪义"
+    ],
+    "explanation": "2024年同名公告属于另一产品，不能替换普通OL hero687的仇猎、追剿。"
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68700.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-zhang-xiu-ol.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1051735,
+    "sha256": "4e23cc44d9eac0d1411845319cc4cecd524306fed7d031aa312bf38193d550aa",
+    "visuallyInspectedBy": "root",
+    "observedDescription": "黑金铠、长发持枪，白披风雪山战场。"
+  },
+  "engineeringInterpretations": [
+    {
+      "topic": "第一张牌与前张顺序",
+      "decision": "本项目由主代理确定：没有上一张本人真实使用牌时不满足追剿；按真实Use开始时原生声明事实的完整历史顺序取前张，不按完成先后或帧ID排序，不在回合/阶段边界清空。含原生响应中的使用，排除纯打出。",
+      "authority": "项目工程解释，非用户裁定或官方FAQ。"
+    },
+    {
+      "topic": "资格冻结与伤害归属",
+      "decision": "当前杀进入真实Use时，按前张截至该时点已有的实际原牌伤害冻结追剿资格，不倒推未来伤害。闪、无懈作为独立响应Use，不借用其父杀或锦囊的伤害。对当前杀的加伤留在原Use，完成所有目标/效果及子结算后无实际伤害才真正弃置一张HE。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "六个阶段与限定次数",
+      "decision": "回合开始选择他人即消耗限定次数；准备、判定、摸牌、出牌、弃牌、结束均依原生实际阶段机会，额外实际阶段可再询问，不能用同阶段重授/重复技能实例重开同一个机会。选择和已付款分别留真实来源与内容哈希；未来阶段需仍持有相应来源。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "真实付款和合法使用",
+      "decision": "使用原生可弃HE，不以重铸代替弃置；目标防守只可弃基本牌或武器牌，含可弃装备区武器。弃牌及离装备、恢复、濒死等子结算完成后再推进；没有正文未授予的距离或次数豁免，当前不能合法发出杀时不先付代价。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "整张杀无效",
+      "decision": "原目标真实接受并支付防守弃牌后，原本同一张杀整体无效，包括后置合法增加的目标；保留原本付款、使用/目标/响应窗口、整次完成与已接受回程，不发假伤害或标准无效事件。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "失源及终局",
+      "decision": "已付弃牌所发真实杀、已签发追剿的真实摸牌及完成弃牌，沿自身拥有帧收据继续，不重复付费；死亡和胜负终局遵循原生截止。限定消耗与前张真实Use不因失去/重授刷新。",
+      "authority": "项目工程解释，非官方FAQ。"
+    }
+  ],
+  "officialFaqConfirmed": false,
+  "faqSearch": {
+    "queries": [
+      "site:sanguosha.com \"追剿\" \"第一张\"",
+      "site:sanguosha.com \"追剿\" \"上一张\" \"顺序\"",
+      "site:sanguosha.com \"谋张绣\" \"FAQ\""
+    ],
+    "result": "一次有界追加查询均无结果，以上工程解释不冒称官方补充规则。"
+  },
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouZhangXiuOlChecks.cs",
+    "method": "ActualPhasesAndPreviousTrueUse",
+    "filter": "Mou Zhang Xiu OL: actual phases and previous true Use"
+  }
+}

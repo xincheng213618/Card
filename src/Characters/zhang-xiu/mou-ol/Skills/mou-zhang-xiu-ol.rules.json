@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:qiulie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "choose-hunt",
+          "window": "turnStartBeforeNormalFlow",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouZhangXiuQiulie",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "hunt-judgment",
+          "window": "judgmentPhaseStarting",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "hunt-draw",
+          "window": "drawPhaseStarting",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "hunt-play",
+          "window": "playPhaseStarting",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "hunt-discard",
+          "window": "discardPhaseStarting",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "hunt-ending",
+          "window": "turnEnding",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "defend-hunt",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "defendMouZhangXiuQiulieSlash",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:zhuijiao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "previous-undamaged",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouZhangXiuZhuijiao",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "complete-undamaged",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "singleActionInstance": true,
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "completeMouZhangXiuZhuijiao",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

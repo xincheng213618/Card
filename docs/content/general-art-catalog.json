@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-lu-xun-mobile",
+      "characterName": "谋陆逊·移动版",
+      "defaultSkinId": "78500",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-590.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/78500.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-xun-mobile.jpg",
+          "sha256": "534b249bf5bd9ec80a9e402168f5114e87d1a7868a94293bf40d35437a1f699a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "78500",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-lu-zhi-ol",
+      "characterName": "谋卢植·OL",
+      "defaultSkinId": "69200",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/692",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-zhi-ol.png",
+          "sha256": "288f75d4b412a341fb0d7a5b7954191585fe446823f58c58be9d9abebe5f47cc",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "69200",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-zhang-xiu-ol",
+      "characterName": "谋张绣·OL",
+      "defaultSkinId": "68700",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/687",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhang-xiu-ol.png",
+          "sha256": "4e23cc44d9eac0d1411845319cc4cecd524306fed7d031aa312bf38193d550aa",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "68700",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-gongsun-zan-ol",
       "characterName": "谋公孙瓒·OL",
       "defaultSkinId": "64800",

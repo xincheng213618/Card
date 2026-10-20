@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:qianxun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "record-and-hold",
+          "window": "cardEffectBeforeApply",
+          "ownerRelation": "target",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordMouLuXunQianxun",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "use-recorded-trick",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "useMouLuXunRecordedTrick",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:lianying",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-turn-loss-distribution",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "distributeMouLuXunLianying",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5386,6 +5386,7 @@ public sealed partial class GameEngine
 
     private void ResolveIronChainEffect(NullificationWindowFrame pending)
     {
+        if (ResolveMouLuXunMultiIronChain(pending)) return;
         SetCardUseStep(pending.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
         var changes = new List<string>(pending.TargetSeats.Count);
         foreach (var targetSeat in pending.TargetSeats)
@@ -5408,6 +5409,11 @@ public sealed partial class GameEngine
                 target.IsChained));
         }
 
+        CompleteIronChainEffect(pending, changes);
+    }
+
+    private void CompleteIronChainEffect(NullificationWindowFrame pending, List<string> changes)
+    {
         AdvanceEventRulesAndQueueFact(new IronChainResolvedEvent(
             pending.ParentFrameId,
             pending.SourceSeat,
@@ -5422,6 +5428,7 @@ public sealed partial class GameEngine
         var finishedIronChain = GetNullificationEffectCard(pending);
         if (!HasUnstartedExtraCardEffect(pending.ParentFrameId) &&
             !SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain) && !SkipDiouFinishedMovement(pending.ParentFrameId, finishedIronChain) &&
+            !IsProgramVirtualOrdinaryTrickUse(pending.ParentFrameId) &&
             !(IsSiruiOutsideGeneralWeaponMaterial(pending.ParentFrameId,finishedIronChain.Id) || IsMouLixianRemovedMaterial(pending.ParentFrameId,finishedIronChain.Id)))
             MoveCard(finishedIronChain, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.IronChainFinished);
         FinishCardUse(pending.ParentFrameId, GetNullificationEffectCard(pending), pending.EffectCardKind);
@@ -6186,6 +6193,7 @@ public sealed partial class GameEngine
         }
 
         var picker = _players[group.TargetSeats[group.TargetIndex]];
+        if (TryBeginMouLuXunGroupEffect(group)) return;
         var processing = _cardZones.CardsAt(CardLocation.Processing);
         var revealed = group.RevealedCardIds
             .Select(cardId => processing.Single(card => card.Id == cardId))
@@ -6297,6 +6305,7 @@ public sealed partial class GameEngine
         if (TryBeginExtraCardEffectRound(group.ResolutionId)) return;
 
         if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) &&
+            !IsProgramVirtualOrdinaryTrickUse(group.ResolutionId) &&
             !IsClaimedUseCardEntity(group.ResolutionId, group.Card.Id) && !IsSiruiOutsideGeneralWeaponMaterial(group.ResolutionId,group.Card.Id))
         {
             var cardLocation = _cardZones.GetLocation(group.Card.Id);
@@ -6336,6 +6345,7 @@ public sealed partial class GameEngine
         }
 
         var target = _players[group.TargetSeats[group.TargetIndex]];
+        if (TryBeginMouLuXunGroupEffect(group)) { AdvanceRulesAndPublishState(); return; }
         if (target.IsAlive && target.HasHpValue &&
             !IsCardEffectIneffective(group.ResolutionId, target.Seat) &&
             target.Hp < target.MaxHp)
@@ -6432,6 +6442,21 @@ public sealed partial class GameEngine
             AddLog("ArmorEffect", $"{target.Name} 的【藤甲】令【{CardCatalog.Get(group.Card.Kind).DisplayName}】对其无效。", target.Seat, group.SourceSeat);
             AdvanceEventRulesAndQueueFact(new ArmorEffectAppliedEvent(
                 group.ResolutionId, CardKind.Tengjia, group.SourceSeat, target.Seat, group.Card.Kind));
+            SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack);
+            return;
+        }
+        if (TryBeginMouLuXunGroupEffect(group)) return;
+        ContinueGroupAttackResponseAfterEffect(group);
+    }
+
+    private void ContinueGroupAttackResponseAfterEffect(GroupCardHandle group)
+    {
+        var target = _players[group.TargetSeats[group.TargetIndex]];
+        var attack = group.CurrentAttack ?? throw new InvalidOperationException("A resumed group effect lost its exact target attack.");
+        if (_winner != Winner.None) { FinishGroupAttack(group); return; }
+        if (!target.IsAlive)
+        {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             CompleteAttack(attack);
             return;
@@ -13860,6 +13885,7 @@ public sealed partial class GameEngine
         if (TryBeginExtraCardEffectRound(group.ResolutionId)) return;
 
         if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) &&
+            !IsProgramVirtualOrdinaryTrickUse(group.ResolutionId) &&
             !IsClaimedUseCardEntity(group.ResolutionId, group.Card.Id) && !IsSiruiOutsideGeneralWeaponMaterial(group.ResolutionId,group.Card.Id))
         {
             var cardLocation = _cardZones.GetLocation(group.Card.Id);
@@ -18530,6 +18556,8 @@ public sealed partial class GameEngine
             { AssertWeijieRequests(); }
             else if (HasFriendDuelResponseObserver(pendingAttack.ResolutionId))
             { AssertFriendEventFrames(); }
+            else if (HasNativeGroupEffectAttackObserver(pendingAttack))
+            { AssertCardEffectProgramState(); }
             else if (ProgramCardAttack is not null)
             {
                 // The generic window owns the pending attack until all effects finish.
@@ -19404,6 +19432,7 @@ public sealed partial class GameEngine
             !HasLeCaiYongFeibaiUseContinuation(ActiveCardAttack.ResolutionId) &&
             !HasWuZglUseContinuation(ActiveCardAttack.ResolutionId) &&
             !HasLeCaoZhiWenlanUseContinuation(ActiveCardAttack.ResolutionId) &&
+            !HasMouLzDirectUseContinuation(ActiveCardAttack.ResolutionId) &&
             !HasPaidFactionRequestCostRecovery(ActiveFactionCardRequest) && !HasDyingSuitsSuspendedAttack(ActiveCardAttack.ResolutionId))
         {
             throw new InvalidOperationException("An active card resolution must have exactly one response continuation.");

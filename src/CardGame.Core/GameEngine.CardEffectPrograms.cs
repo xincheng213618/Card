@@ -10,7 +10,13 @@ public sealed partial class GameEngine
         var designated = action.EffectiveKind == CardKind.BorrowedSword
             ? action.TargetSeats.Where((_,i) => i % 2 == 0).Distinct().ToArray()
             : action.EffectiveDesignatedTargetSeats.Distinct().ToArray();
-        if (designated.Length != 1) return false;
+        if (designated.Length != 1)
+            return pending.TargetSeats.Count == 1 && UsesSequentialTrickTargets(pending.ActionKind) &&
+                BeginCardEffectPrograms(action, pending.TargetSeats, pending, null, perTargetOnly: true);
+        // Group cards enter their exact target boundary after their native
+        // group cursor is created, not at the common whole-use nullification.
+        if (pending.ActionKind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage or
+            LegalActionKind.PeachGarden or LegalActionKind.FiveGrains) return false;
         return BeginCardEffectPrograms(action,designated,pending,null);
     }
     private bool TryBeginDelayedCardEffectPrograms(CharacterState owner,Card card,CardKind kind)
@@ -22,16 +28,19 @@ public sealed partial class GameEngine
         var action = new CardActionContext(0,null,CardActionType.Use,owner.Seat,owner.Seat,null,null,null,kind,[owner.Seat],[],[],[owner.Seat]);
         return BeginCardEffectPrograms(action,[owner.Seat],null,continuation);
     }
-    private bool BeginCardEffectPrograms(CardActionContext action,IReadOnlyList<int> designated,NullificationWindowFrame? ordinary,DelayedEffectContinuation? delayed)
+    private bool BeginCardEffectPrograms(CardActionContext action, IReadOnlyList<int> designated, NullificationWindowFrame? ordinary,
+        DelayedEffectContinuation? delayed, NativeTrickTargetEffectReturn? nativeTargetReturn = null, bool perTargetOnly = false)
     {
         var candidates = CollectSharedCardActionCandidates(action,SkillProgramTriggerWindow.CardEffectBeforeApply,designated,null)
+            .Where(candidate => !perTargetOnly || HasPerTargetTrickEffectBinding(candidate))
             .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId,StringComparer.Ordinal)
             .ThenBy(c => c.SkillInstanceId,StringComparer.Ordinal).ThenBy(c => c.TriggerId,StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;
-        var id = ++_resolutionSequence; var parentId = ordinary?.ParentFrameId ?? delayed!.ParentFrameId;
+        var id = ++_resolutionSequence; var parentId = ordinary?.ParentFrameId ?? delayed?.ParentFrameId ?? (nativeTargetReturn!.WenheProgramFrameId ?? nativeTargetReturn.UseId);
         candidates = candidates.Select(c => c with { FrozenContext = c.FrozenContext! with {
-            ParentFrameId = id, CardUse = c.FrozenContext!.CardUse! with { ParentCardUseFrameId = parentId } } }).ToArray();
-        PushRuntimeFrame(new CardEffectBeforeApplyFrame(id,parentId,action,Array.AsReadOnly(designated.ToArray()),Array.AsReadOnly(candidates),ordinary,delayed));
+            ParentFrameId = id, CardUse = c.FrozenContext!.CardUse! with { ParentCardUseFrameId = nativeTargetReturn?.UseId ?? parentId } } }).ToArray();
+        PushRuntimeFrame(new CardEffectBeforeApplyFrame(id,parentId,action,Array.AsReadOnly(designated.ToArray()),Array.AsReadOnly(candidates),ordinary,delayed)
+        { NativeTargetReturn = nativeTargetReturn });
         AdvanceRuntimeFrame(id); return true;
     }
     private bool CanRunCardEffectCandidate(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context)
@@ -50,7 +59,8 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id,ResolutionFrameKind.CardEffectBeforeApply);
-                if (frame.OrdinaryReturn is {} ordinary)
+                if (frame.NativeTargetReturn is not null) ReturnNativeTrickTargetEffect(frame);
+                else if (frame.OrdinaryReturn is {} ordinary)
                 {
                     var parent = _resolutionStack.LastOrDefault();
                     if (parent is not CardUseFrame use || use.Id != ordinary.ParentFrameId || use.Action?.ActionId != frame.Action.ActionId)
@@ -108,11 +118,17 @@ public sealed partial class GameEngine
             var candidate = frame.CandidateIndex >= 0 && frame.CandidateIndex < frame.Candidates.Count ? frame.Candidates[frame.CandidateIndex] : null;
             var context = candidate?.FrozenContext;
             if (frame.FinalDesignatedTargetSeats.Count != 1 || frame.FinalDesignatedTargetSeats.Distinct().Count() != 1 ||
-                (frame.OrdinaryReturn is null) == (frame.DelayedReturn is null) || candidate is null ||
+                ((frame.OrdinaryReturn is null ? 0 : 1) + (frame.DelayedReturn is null ? 0 : 1) +
+                    (frame.NativeTargetReturn is null ? 0 : 1)) != 1 || candidate is null ||
                 context?.Window != SkillProgramTriggerWindow.CardEffectBeforeApply || context.ParentFrameId != frame.Id ||
-                context.CardUse?.ParentCardUseFrameId != frame.ParentFrameId || context.CardUse.CardActionId != frame.Action.ActionId)
+                context.CardUse?.ParentCardUseFrameId != (frame.NativeTargetReturn?.UseId ?? frame.ParentFrameId) || context.CardUse.CardActionId != frame.Action.ActionId)
                 throw new InvalidOperationException("Actual effect window lost its exact frozen candidate or return.");
-            if (frame.OrdinaryReturn is {} ordinary)
+            if (frame.NativeTargetReturn is not null)
+            {
+                if (index < 1 || _resolutionStack[index - 1].Id != frame.ParentFrameId || !ValidNativeTrickTargetEffect(frame))
+                    throw new InvalidOperationException("A real per-target trick effect lost its native owning cursor.");
+            }
+            else if (frame.OrdinaryReturn is {} ordinary)
             {
                 if (index < 1 || _resolutionStack[index-1] is not CardUseFrame use || use.Id != frame.ParentFrameId ||
                     ordinary.ParentFrameId != use.Id || use.Action?.ActionId != frame.Action.ActionId || IsDelayedCard(ordinary.EffectCardKind) ||

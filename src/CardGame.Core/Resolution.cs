@@ -65,7 +65,8 @@ public enum ResolutionFrameKind
     BeiMiHuTurnPrelude = 23200,
     QiaoZhouPreparation = 26220,
     LeCaoZhiWenlanDirectDuelWindow = 29081,
-    MoDiaoChanDirectDuelWindow = 31400
+    MoDiaoChanDirectDuelWindow = 31400,
+    MouLuZhiOlDirectWindow = 32900
 }
 
 public enum ResolutionFrameStep
@@ -105,6 +106,7 @@ internal interface IProgramChildResolutionFrame
 [JsonDerivedType(typeof(FirstSlashDuelLegacyWindowFrame), "first-slash-duel-legacy-window")]
 [JsonDerivedType(typeof(WenlanDirectDuelWindowFrame), "le-cao-zhi-wenlan-direct-duel-window")]
 [JsonDerivedType(typeof(MoDiaoChanDirectDuelWindowFrame), "mo-diao-chan-direct-duel-window")]
+[JsonDerivedType(typeof(MouLuZhiOlDirectWindowFrame), "mou-lu-zhi-ol-direct-window")]
 [JsonDerivedType(typeof(PindianRevealWindowFrame), "pindian-reveal-window")]
 [JsonDerivedType(typeof(DouyuWindowFrame), "douyu-window")]
 [JsonDerivedType(typeof(WuLuKangPindianFrame), "wu-lu-kang-pindian")]

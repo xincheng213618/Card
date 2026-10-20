@@ -1,0 +1,43 @@
+{
+  "generalId": "mou:lu-zhi-ol",
+  "officialName": "谋卢植",
+  "product": "三国杀OL",
+  "checkedAt": "2026-10-21",
+  "identity": { "officialGid": 692, "faction": "qun", "gender": "Male", "initialHp": 3, "maxHp": 4 },
+  "identityEvidence": "正式上新公告明确记为群、男、3/4。当前API hp4、initial_hp0及网页元信息的0体力不是用来覆盖正式初始体力的可靠字段。此身份与已有移动版明任/贞良分开。",
+  "skills": [
+    { "id": "mou-ol:sibing", "name": "司兵", "text": "每回合限一次，当你使用伤害牌指定唯一目标时，你可以弃置任意张红色牌令目标弃置等量红色手牌，否则不能响应该牌；以你为目标的伤害牌结算完成后，若未对你造成伤害，你可以弃置一张黑色牌并视为使用一张【杀】。" },
+    { "id": "mou-ol:liance", "name": "敛策", "text": "每轮限一次，当你的手牌数变化后，若为全场最少，你可将手牌摸至体力上限，然后本回合下一次有角色造成伤害时，此伤害+1。" }
+  ],
+  "primarySources": [
+    { "url": "https://www.sanguosha.com/hero/692", "kind": "current official full skill page", "supports": "两技全文和实际原图DOM地址" },
+    { "url": "https://www.sanguosha.com/api/v1/hero/info?gid=692", "kind": "official identity API", "supports": "角色身份692、谋卢植、群、史诗及最大体力4；initial_hp0不替代正式表3/4" },
+    { "url": "https://www.sanguosha.com/news/20251202_8548_4513", "title": "12.6-12.14 周年盛典祈福魔曹操、环淑君来袭 限时双倍重置 庆典祈愿谋公孙瓒上新", "publishedAt": "2025-12-05 17:03:01", "firstFormalAvailabilityFound": "2025-12-06 00:15:00", "supports": "充值32800元宝赠谋卢植，明确群男3/4和两技完整正文，与现行武将页一致" }
+  ],
+  "revisionAudit": "有界检索未发现晚于正式上新且覆盖此现行正文的官方改版或第一方FAQ。二手攻略对分号两侧次数限制的解释有冲突，不作为官方裁定。",
+  "userSelectedRulings": [
+    { "topic": "司兵分号两侧的计次范围", "selectedAt": "2026-10-21", "questionId": "call_53abbefd758540729b1056864398549a", "answer": "仅红牌压制每回合一次，反击按每次合格事件触发", "authority": "user-selected; not official FAQ" }
+  ],
+  "implementationInterpretations": [
+    "红色压制的发动者可以选择真实手牌、装备牌中的任意数量（含0）；目标自行选择等量红色手牌，或接受原牌对自己的响应禁止。零成本自动满足等量0，不捏造弃置事件，已接受的压制仍消耗本实际回合一次。",
+    "费用按当前原生有效花色判红黑，执行原生逻辑弃置并结清装备离区恢复、移牌、体力和技能变化等子结算；木牛附带溢出的粮不冒充主材料。响应禁止只属于该原生Use和原目标，不扩散到后来增加的目标或嵌套另一Use。",
+    "反击条件只检查原牌是否真正对当前技能拥有者造成过正伤害，不因原牌伤害了别的目标而排除。黑色真实费用后使用普通零材料杀，由使用者选择当前原生合法目标；正文没有要求攻击原伤害来源，也没有授予距离、次数或禁止目标的额外豁免。",
+    "StartVirtualDuel沿原生真实程序、指令索引和有序参与者捕获与返回，不制造CardUseDeclared或CardActionAccepted。原生打出的杀不伪装成新的使用。",
+    "伤害牌范围采用当前模式中的三种杀、七种直接造成伤害的普通锦囊及闪电；间接令他人用杀或单纯体力流失的牌不因此列为伤害牌。闪电原使用与后来判定伤害是不同结算身份。",
+    "敛策同时观察真实手牌获得及失去批次，按同一真实牌区前后数量变化、存活角色手牌最小值（允许并列）判定。两入口共用技能拥有者、命名技能与实际轮次的一次预算；拒绝不消费，重授不重置。",
+    "敛策原生请求摸至体力上限，保留实际摸牌、替代获得和短缺结果。全部摸牌及其子结算返回后才签发本实际回合下一次有角色来源的伤害+1。无来源伤害不消费；采用项目现有下一伤害管线在防具和护甲前消费，完全防止也不退还，非声称官方特别FAQ。",
+    "同一元素传播链只把下一伤害新增值计入被消费的那一次原生伤害实例，后续传播回到原继承伤害。实际回合以ActualTurnCursorReturned为终点，原TurnEnded之后仍合法插入的出牌阶段不提前使本回合权益到期。",
+    "新机会需要当前有效技能来源；真实支付、接受摸牌及其子链保持原来源和拥有帧，之后失源不重复费用或抹去已发生事实。已签发的有期限加伤不因技能移除提前撤销。死亡和终局仍服从原生截止。"
+  ],
+  "portrait": {
+    "exactHeroDomSrc": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69200.png",
+    "normalizedUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/69200.png",
+    "formalOriginalLink": "https://wwwoss.sanguosha.com/uploads/202512/yFBZfvJOuGumdtB8.png?x-oss-process=image/quality,q_80",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-lu-zhi-ol.png",
+    "sha256": "288f75d4b412a341fb0d7a5b7954191585fe446823f58c58be9d9abebe5f47cc",
+    "bytes": 998014, "width": 750, "height": 950,
+    "visuallyInspected": true,
+    "witness": "白发长须、金甲紫披风，双手持鞘剑，雨中旗帜；实际DOM原画，代理和整合者均目检。"
+  },
+  "behaviorCheck": "tests/CardGame.Core.Tests/MouLuZhiOlChecks.cs"
+}

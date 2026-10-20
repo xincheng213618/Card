@@ -67,6 +67,7 @@ public sealed partial class GameEngine
 
     private SkillProgramEffect ValidateVirtualOrdinaryTrickInstruction(ProgramSkillFrame frame)
     {
+        if (IsMouLuXunVirtualParent(frame)) return MouLuXunVirtualInstruction(frame);
         if (!IsExactOwnVirtualOrdinaryTrickProgram(frame) || frame.InstructionIndex <= 0)
             throw new InvalidOperationException("A virtual ordinary trick lost its exact owning phase program.");
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!)
@@ -349,6 +350,7 @@ public sealed partial class GameEngine
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;
+        if (ReturnMouLuXunNativeUse(use)) return;
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != origin.ParentProgramFrameId ||
             frame.InstructionIndex != origin.InstructionIndex || frame.OwnerSeat != origin.OwnerSeat ||
             frame.SkillId != origin.SkillId || frame.TriggerId != origin.BindingId ||

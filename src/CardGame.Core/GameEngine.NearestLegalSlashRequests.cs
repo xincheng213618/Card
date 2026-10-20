@@ -29,13 +29,15 @@ public sealed partial class GameEngine
         return ExecuteParticipantReserve(effect, active);
     }
 
-    private SkillProgramStepOutcome RequestLegalSlashByNearestActor(ProgramSkillFrame frame, int actorSeat, int hpAmount)
+    private SkillProgramStepOutcome RequestLegalSlashByNearestActor(ProgramSkillFrame frame, int actorSeat, int hpAmount, bool trickEffectReturned = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.NearestLegalSlashRequest is not null || active.AssistedSlashRequest is not null || actorSeat == active.OwnerSeat && !IsExactWenheChaos(active))
             throw new InvalidOperationException("A nearest legal Slash requires one clean other actor.");
         if ((!_players[active.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[active.OwnerSeat], active.SkillId, active.SkillInstanceId)) && !IsExactWenheChaos(active))
         { CancelProgramBindingAndCleanup(active, "技能来源已失效，剩余结算取消。"); return SkillProgramStepOutcome.AwaitChild; }
+        ReplaceRuntimeTop(active = active with { SelectedTargetSeats = Array.AsReadOnly(new[] { actorSeat }) });
+        if (!trickEffectReturned && TryBeginMouLuXunWenheTarget(active, actorSeat, hpAmount)) return SkillProgramStepOutcome.AwaitChild;
         var nearest = GetNearestLivingCharacterSeats(actorSeat);
         active = active with
         {
@@ -311,6 +313,8 @@ public sealed partial class GameEngine
             if (frame.NearestLegalSlashRequest is { } draft) return draft.ActorSeat == actor;
             return child switch
             {
+                CardEffectBeforeApplyFrame { NativeTargetReturn.WenheProgramFrameId: var parentId } window =>
+                    parentId == frame.Id && window.NativeTargetReturn.TargetSeat == actor && ValidNativeTrickTargetEffect(window),
                 ChainedStateBasicFrame paid => IsChainedStateBasicProgramSelection(frame, effect, paid),
                 DrawFundedDistinctBasicFrame paid => IsDrawFundedDistinctBasicProgramSelection(frame, effect, paid),
                 CardUseFrame { RoundOnceCardlessProgramRequest: not null } use => RoundOnceCardlessProgramRequestRidesOn(use, frame),

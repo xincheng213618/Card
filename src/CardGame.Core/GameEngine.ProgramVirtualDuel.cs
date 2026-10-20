@@ -125,6 +125,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A virtual Duel instruction cannot declare its actual use twice.");
             RecordCurrentTurnUseKinds(active.Id, sourceSeat, null, CardKind.Duel, false, active.InstructionIndex);
         }
+        if (TryBeginMouLzDirectDesignation(active.Id)) return SkillProgramStepOutcome.AwaitChild;
         BeginDuelResponse(ActiveDuel);
         return SkillProgramStepOutcome.AwaitChild;
     }

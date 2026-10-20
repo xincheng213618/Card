@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "mou-ol:sibing":{"name":"司兵","description":"每回合一次红牌压制；每次未受目标伤害后均可弃黑牌使用杀。","triggerLabels":{"red-press":"司兵：弃红牌压制","undamaged-retaliation":"司兵：弃黑牌反击"}},
+ "mou-ol:liance":{"name":"敛策","description":"每轮一次，手牌变化后为全场最少时可摸至体力上限，再令本回合下次有来源伤害+1。","triggerLabels":{"hand-lost":"敛策：手牌减少","hand-gained":"敛策：手牌增加"}}
+}}

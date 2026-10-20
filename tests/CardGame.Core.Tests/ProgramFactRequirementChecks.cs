@@ -27,6 +27,14 @@ internal static class ProgramFactRequirementChecks
                     .RequiredFacts == ProgramTrackedFact.None,
             "Moving an operation to another entry source must preserve the historical opt-in boundary.");
 
+        var wholeUses = Dependencies(Program(SkillProgramEffectOp.ResolveMouZhangXiuZhuijiao, activation: false));
+        var wrongEntryWholeUses = Dependencies(Program(SkillProgramEffectOp.ResolveMouZhangXiuZhuijiao, activation: true));
+        Require(wholeUses.RequiredFacts == ProgramTrackedFact.WholeActualUseDeclaration &&
+                wholeUses.TracksWholeActualTurnUseOrdinal && wholeUses.TracksCurrentTurnUseKinds &&
+                wrongEntryWholeUses.RequiredFacts == ProgramTrackedFact.None && !wrongEntryWholeUses.TracksWholeActualTurnUseOrdinal &&
+                !empty.TracksWholeActualTurnUseOrdinal && !empty.TracksCurrentTurnUseKinds,
+            "A triggered whole-use declaration demand enables the existing native ledger, while another entry source or catalog remains isolated.");
+
         var combined = Dependencies(triggerOnly, activationOnly, phaseOnly);
         Require(combined.RequiredFacts == Dependencies(activationOnly).RequiredFacts &&
                 empty.RequiredFacts == ProgramTrackedFact.None,
@@ -46,8 +54,8 @@ internal static class ProgramFactRequirementChecks
 
         foreach (var invalid in new[]
                  {
-                     new ProgramFactRequirements(Triggered: (ProgramTrackedFact)8),
-                     new ProgramFactRequirements(Activated: (ProgramTrackedFact)16)
+                     new ProgramFactRequirements(Triggered: (ProgramTrackedFact)16),
+                     new ProgramFactRequirements(Activated: (ProgramTrackedFact)32)
                  })
         {
             var rejected = false;
