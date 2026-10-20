@@ -192,9 +192,11 @@ public enum PlayerMarkerKind
     MouLixianAvailableNames = 28960,
     MouLixianUsedNames = 28961,
     MouHuaXiongWei = 29100,
+    MouGanNingWei = 31900,
     MouMengHuoCharge = 30900,
     MouLiuChengChui = 29400,
     MouChenGongCe = 29600,
+    MouFaZhengXuan = 31800,
     GuanduGrain = 44000
 }
 
@@ -212,6 +214,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.MouLixianAvailableNames => "理贤牌名",
         PlayerMarkerKind.MouLixianUsedNames => "理贤已用牌名",
         PlayerMarkerKind.MouHuaXiongWei => "威",
+        PlayerMarkerKind.MouGanNingWei => "威",
         PlayerMarkerKind.MouMengHuoCharge => "蓄力",
         PlayerMarkerKind.MouLiuChengChui => "椎",
         PlayerMarkerKind.MouChenGongCe => "策",
@@ -220,6 +223,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.QuxiQian => "歉",
         PlayerMarkerKind.XunyiYi => "义",
         PlayerMarkerKind.QingyuanPartner => "轻缘",
+        PlayerMarkerKind.MouFaZhengXuan => "眩",
         PlayerMarkerKind.LuanZhan => "乱战",
         PlayerMarkerKind.RaoShe => "饶舌",
         PlayerMarkerKind.MeiYing => "梅影",

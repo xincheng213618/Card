@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "mou-mobile:qixi":{"name":"奇袭","description":"出牌阶段限一次，令其他角色猜测你手牌最多的花色；猜错后可继续且不重复。猜对展示全部手牌，最后弃置其区域里至多猜错次数张牌。","activationLabels":{"guess-suits":"奇袭：令目标猜测花色"}},
+ "mou-mobile:fenwei":{"name":"奋威","authorityName":"威","description":"限定技，将至多三张牌分别置为角色的威并摸等量牌。威的持有者成为锦囊目标时，令其获得威或弃威并取消该目标。","activationLabels":{"place-wei":"奋威：分配至多三张威"},"triggerLabels":{"spend-wei":"奋威：获得威或取消当前目标"}}
+}}

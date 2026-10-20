@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:gan-ning",
+ "skills":[
+  {"registrationOrder":2370,"programBundle":"mou-gan-ning-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:qixi","name":"奇袭","description":"出牌阶段限一次，你可以选择一名其他角色，令其猜测你手牌中某种花色的牌最多（或之一）。若其猜错，你可令其再次猜测（其无法选择此阶段已猜测过的花色）；否则你展示所有手牌。然后你弃置其区域内X张牌。（X为其此阶段猜错的次数，若不足则全弃）","actionForms":"Active"}},
+  {"registrationOrder":2371,"programBundle":"mou-gan-ning-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:fenwei","name":"奋威","description":"限定技，出牌阶段，你可以将至多三张牌置于任意名角色的武将牌上（每名角色各一张），称为“威”，然后你摸等量的牌。有“威”的角色成为锦囊牌的目标时，你须选择一项：1.令其获得“威”牌；2.弃置其“威”牌，取消其作为此锦囊牌的目标。","actionForms":"Active","executionForms":"Trigger","tags":"Limited"}}
+ ],
+ "generals":[{"registrationOrder":2372,"pools":{"current":541},"definition":{"id":"mou:gan-ning-mobile","name":"谋甘宁·移动版","portraitKey":"mou-gan-ning-mobile","skillId":"mou-mobile:qixi","additionalSkillIds":["mou-mobile:fenwei"],"factionId":"wu","gender":"Male","baseHp":4,"characterId":"character:gan-ning","variantId":"mou-mobile","rulesetId":"sanguosha-mobile"}}]
+}

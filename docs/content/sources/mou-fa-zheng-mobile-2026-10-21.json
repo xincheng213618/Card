@@ -1,0 +1,110 @@
+{
+  "generalId": "mou:fa-zheng-mobile",
+  "edition": "Sanguosha Mobile / 谋攻篇",
+  "checkedOn": "2026-10-21",
+  "identity": {
+    "heroPageId": 511,
+    "officialGeneralId": 622,
+    "faction": "蜀",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "completeSkills": [
+    {
+      "name": "眩惑",
+      "desc": "出牌阶段限一次，你可以交给一名没有“眩”标记的其他角色一张牌并令其获得“眩”标记。有“眩”标记的角色于摸牌阶段外获得牌时，你随机获得其一张手牌（每个“眩”标记最多令你获得五张牌）。"
+    },
+    {
+      "name": "恩怨",
+      "desc": "锁定技，准备阶段，你令有“眩”标记的角色执行以下效果：自其获得“眩”标记开始，若你获得其至少三张牌，则你移除其“眩”标记，然后交给其三张牌；否则其流失1点体力值，然后你回复1点体力并移除其“眩”标记。"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-511.html",
+      "evidenceSha256": "7178156C9850A0DCF450EF3CF5340163B7BCB452BFCA667745C87AEE9C06AE14"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1539.html",
+      "evidenceSha256": "9476FCCC1310B510553F8A7FE9526C977493E9ABF2DB7A6760A3921F31AB845F"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "heroId": 511,
+      "generalId": 622,
+      "agreement": "Current hero and API full text agree."
+    }
+  ],
+  "release": {
+    "publishedAt": "2023-06-02 17:30:16",
+    "availableFrom": "2023-06-03",
+    "source": "https://www.sanguosha.cn/pc/news-detail-1539.html",
+    "method": "Tian Gong Bao Ku first release"
+  },
+  "versionScope": "Current official mobile full text. Classic and boundary Fa Zheng are separate editions. No differing released official revision identified by the bounded source search.",
+  "officialFaqConfirmed": false,
+  "engineeringDecisions": [
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Extraction is excluded whenever native movement timing says Draw, regardless of whose actual turn it is. Snapshot this native timing before observers."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Xuan marks retain exact issuer/mark/gift sequence provenance; no second mark on an already marked target. Initial gift cannot retroactively trigger its new mark."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "The cap5 ledger counts only actual random Xuanhuo gains into the issuer Hand. Enyuan separately counts all actual direct transfers from the target owned zones into original issuer Hand since the mark, not just this skill. Public discard then later obtain is not attributed to the old target."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Enyuan give3 is compulsory native HE payment, taking all available transferable entities if fewer than3. Its threshold branch first removes the mark. The low branch completes native LoseHp1 children, then native Recover1 children, then removes the mark, without extra success conditions."
+    },
+    {
+      "origin": "accepted-project-interpretation",
+      "rule": "Already paid effects continue after original source loss. Future extraction requires currently holding Xuanhuo. Issued marks and counts persist for Enyuan and do not reset on source regrant."
+    },
+    {
+      "origin": "implementation-order",
+      "rule": "Preparation freezes original issuer active mark roster in native owner-relative action order. Later death skips that target; no replacement roster entry. Each extraction rolls the current actual marked Hand only when its accepted native gain trigger begins."
+    }
+  ],
+  "faqSearch": {
+    "domains": [
+      "sanguosha.cn"
+    ],
+    "queries": [
+      "谋法正 眩惑 摸牌阶段",
+      "谋法正 恩怨 三张"
+    ],
+    "result": "Only current primary hero text located; no official FAQ contradiction located. This does not claim exhaustive absence."
+  },
+  "validation": {
+    "status": "focused-native-gallery-and-routine-passed",
+    "method": "MouFaZhengMobileChecks.NativeMarksRandomGainAndEnyuan",
+    "filter": "Mou Fa Zheng: native marks random gain and Enyuan",
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "galleryVisualInspection": "Root inspected both top and bottom actual gallery renders: correct namespaced portrait, HP, complete two-skill text and reachable scrolling.",
+    "manualFullRun": false,
+    "routine": {
+      "runner": "tools/Test-Changed.ps1",
+      "scope": "routine defaults from tools/VerificationScopes.psd1",
+      "status": "passed",
+      "durationMs": 113854,
+      "manualFullRun": false
+    }
+  },
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/62200.jpg",
+    "officialPage": "https://www.sanguosha.cn/pc/hero-detail-511.html",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-fa-zheng-mobile.jpg",
+    "sha256": "7d8b4211f6c1b768bb2f5b81060db2f18d3be7ed4b67ed4a3e357181bb13d326",
+    "bytes": 343269,
+    "width": 530,
+    "height": 750,
+    "visuallyInspectedByRoot": true,
+    "description": "Official original image opened and inspected by root: red-haired man in red/brown robes with gold shoulder armor, beads, papers and scrolls",
+    "observedInHeroDom": true
+  },
+  "status": "source-verified-implemented-and-validated"
+}

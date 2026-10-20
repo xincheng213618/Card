@@ -2475,6 +2475,7 @@ public sealed partial class GameEngine
                     : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) ? IsIssuedJieyanCandidate(candidate, context)
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
+                    : IsMouFaZhengGainTrigger(trigger) ? MouFaZhengQualification(candidate, context) is not null
                     : IsDuFuRenYiseTrigger(trigger) ? CurrentDuFuRenGains(candidate, context) is not null
                     : IsBianFuRenWanweiTrigger(trigger) ? BianFuRenLoss(context, owner.Seat) is not null
                     : IsXiangxuMinimumTrigger(trigger) ? IsXiangxuMinimumCandidate(candidate, context)

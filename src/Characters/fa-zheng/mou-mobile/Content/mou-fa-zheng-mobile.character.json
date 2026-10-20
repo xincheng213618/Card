@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:fa-zheng",
+  "skills": [
+    {
+      "registrationOrder": 2360,
+      "programBundle": "mou-fa-zheng-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:xuanhuo",
+        "name": "眩惑",
+        "description": "出牌阶段限一次，你可以交给一名没有“眩”标记的其他角色一张牌并令其获得“眩”标记。有“眩”标记的角色于摸牌阶段外获得牌时，你随机获得其一张手牌（每个“眩”标记最多令你获得五张牌）。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2361,
+      "programBundle": "mou-fa-zheng-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:enyuan",
+        "name": "恩怨",
+        "description": "锁定技，准备阶段，你令有“眩”标记的角色执行以下效果：自其获得“眩”标记开始，若你获得其至少三张牌，则你移除其“眩”标记，然后交给其三张牌；否则其流失1点体力值，然后你回复1点体力并移除其“眩”标记。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2362,
+      "pools": {
+        "current": 540
+      },
+      "definition": {
+        "id": "mou:fa-zheng-mobile",
+        "name": "谋法正·移动版",
+        "portraitKey": "mou-fa-zheng-mobile",
+        "skillId": "mou-mobile:xuanhuo",
+        "additionalSkillIds": [
+          "mou-mobile:enyuan"
+        ],
+        "factionId": "shu",
+        "gender": "Male",
+        "baseHp": 3,
+        "characterId": "character:fa-zheng",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

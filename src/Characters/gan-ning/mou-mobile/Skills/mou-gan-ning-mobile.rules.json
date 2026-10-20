@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou-mobile:qixi","revision":1,"activations":[{"id":"guess-suits","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerPhase":1,"usesPerTurn":null,"effects":[{"op":"resolveMouGanNingQixi","target":"owner"}]}]},
+ {"id":"mou-mobile:fenwei","revision":1,"activations":[{"id":"place-wei","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerGame":1,"usesPerTurn":null,"effects":[{"op":"resolveMouGanNingFenwei","target":"owner"}]}],"triggers":[{"id":"spend-wei","window":"cardUseBeforeTargetEffects","ownerRelation":"observer","cardCategories":["trick"],"optional":false,"effects":[{"op":"resolveMouGanNingWeiTarget","target":"owner"}]}]}
+]}

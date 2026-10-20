@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-fa-zheng-mobile",
+      "characterName": "谋法正·移动版",
+      "defaultSkinId": "62200",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-511.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/62200.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-fa-zheng-mobile.jpg",
+          "sha256": "7d8b4211f6c1b768bb2f5b81060db2f18d3be7ed4b67ed4a3e357181bb13d326",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "62200",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-gan-ning-mobile",
+      "characterName": "谋甘宁·移动版",
+      "defaultSkinId": "64300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-513.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64300.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-gan-ning-mobile.jpg",
+          "sha256": "18da60130ff66d8cd2f13b9ae8af7b62c86f98789b3547b140d5906bc0d56a73",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "64300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-huang-yueying-mobile",
       "characterName": "谋黄月英·移动版",
       "defaultSkinId": "64700",

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:xuanhuo",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give-xuan",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "issueMouFaZhengXuanhuo",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "marked-outside-draw-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "optional": false,
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "takeMouFaZhengXuanhuoGain",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:enyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "settle-xuan",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouFaZhengEnyuan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

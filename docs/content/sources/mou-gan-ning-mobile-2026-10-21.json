@@ -1,0 +1,85 @@
+{
+  "checkedOn": "2026-10-21",
+  "status": "source-verified-implemented-and-validated",
+  "name": "谋甘宁·移动版",
+  "generalId": "mou:gan-ning-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": {
+    "officialHeroId": 513,
+    "officialGeneralId": 643,
+    "faction": "wu",
+    "gender": "Male",
+    "initialHp": 4,
+    "maxHp": 4
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-513.html",
+      "role": "Current complete two-skill text, mobile identity and exact original portrait src. Fresh HTTP body reconfirmed on the checked date; SHA256 AC93DD6963336EAC8E443E7874974DA85FA99ED44BD0B098C714EB3E472BA628."
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Official mobile general643 reproduces both complete skill bodies and the four-HP identity. It agrees with the current hero page."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1568.html",
+      "title": "7月15日周年庆活动",
+      "published": "2023-07-14 17:30:00",
+      "firstAvailability": "2023-07-15",
+      "role": "The formal notice explicitly launches Mou Gan Ning in 天工宝库. Historical first-release evidence, not a current acquisition or price claim."
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-mobile:qixi",
+      "name": "奇袭",
+      "text": "出牌阶段限一次，你可以选择一名其他角色，令其猜测你手牌中某种花色的牌最多（或之一）。若其猜错，你可令其再次猜测（其无法选择此阶段已猜测过的花色）；否则你展示所有手牌。然后你弃置其区域内X张牌。（X为其此阶段猜错的次数，若不足则全弃）"
+    },
+    {
+      "id": "mou-mobile:fenwei",
+      "name": "奋威",
+      "text": "限定技，出牌阶段，你可以将至多三张牌置于任意名角色的武将牌上（每名角色各一张），称为“威”，然后你摸等量的牌。有“威”的角色成为锦囊牌的目标时，你须选择一项：1.令其获得“威”牌；2.弃置其“威”牌，取消其作为此锦囊牌的目标。"
+    }
+  ],
+  "versionSeparation": [
+    "This is the mobile general513/general643, distinct from Classic black-card Qixi, Boundary multi-target Fenwei and OL God Gan Ning.",
+    "The current mobile hero and official API agree on the complete repeated-guess and physical-Wei rules. A bounded official-domain revision search found no contradictory formal replacement. No unofficial FAQ or custom test draft is promoted to official authority."
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/skins/64300.jpg",
+    "officialPage": "https://www.sanguosha.cn/pc/hero-detail-513.html",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-gan-ning-mobile.jpg",
+    "sha256": "18da60130ff66d8cd2f13b9ae8af7b62c86f98789b3547b140d5906bc0d56a73",
+    "bytes": 367447,
+    "width": 530,
+    "height": 750,
+    "visuallyInspectedByRoot": true,
+    "description": "Official original image opened and inspected by root: green-cloaked armored warrior with raised broad blade and broken chains amid a burning fleet"
+  },
+  "engineeringContracts": [
+    "The following are explicit repository engineering interpretations of the complete short official text, not official FAQ rulings or additional user-selected answers.",
+    "At each real guess, compare the four ordinary suits against the skill owner's current actual Hand, using the native effective suit. Every tied maximum is correct; with an empty Hand all four are tied at zero. The target privately selects only a suit, without learning hidden entity IDs or counts. The owner separately chooses continue or stop after each wrong guess. An already guessed suit cannot be offered again in this actual Play. A correct guess, and only a correct guess, publishes the complete then-current Hand through the existing immutable reveal event.",
+    "After the guessing finishes, the source actually chooses and discards current Hand, Equipment or Judgment entities one at a time, up to the number of wrong guesses. Hidden opposing Hand choices remain native opaque slots. If fewer currently legal region entities remain, all available entities are discarded. Each physical move and native removal, Silver Lion recovery, HP, gain and skill child fully returns before the next selection; no final-Hand-count edits or recast substitute is used.",
+    "Fenwei's placement uses actual owned Hand or Equipment entities and zero to three distinct living recipients, including self. Each recipient can hold only one actual Wei at a time. Each selected original entity moves into a source-qualified native PublicPersistentPile on that recipient. Only entities actually arriving in that pile count toward the corresponding native draw; a special equipment carrier destroyed OutsideGame produces no fictional deposited Wei or draw. Zero placement is legal and still consumes the accepted limited activation.",
+    "Wei is a permanent actual public entity, with the original issuer owner, skill instance, gameplay hash and placement movement retained. It survives loss of the skill. Future intervention requires that exact original issuer source to be active; a different instance cannot take over the earlier entity. Already accepted target choices and paid native child returns retain their original source. Native death cleanup and terminal cutoff remain authoritative.",
+    "At the existing native before-target-effects window, the source freezes the same original Trick Use, action and ordered actual target set, then handles each owned Wei target independently. A returned Wei is genuinely obtained into that living recipient's Hand. The alternate branch genuinely discards that Wei, drains its children, and marks only that same original target ineffective. It does not cancel the whole AOE, change actor/provider, fabricate a new Use, or pay another target's Wei. Targetless actions create no fabricated target.",
+    "The limited budget is the native owner plus named-skill game usage. Qixi uses the native per-actual-Play limit. Source loss/regrant does not refund an accepted limited use or a paid entity. Pending selections, per-target cursors, actual draw outcomes and payment ranges remain on the owning ProgramSkillFrame; public piles reuse the existing checkpointed physical-zone registry rather than a parallel pending container.",
+    "NPC guessing consults only the published unguessed suits and actual game RNG. It does not inspect the opposing hidden Hand. Public piles and the Wei marker display actual remaining physical entities to all viewers."
+  ],
+  "validation": {
+    "status": "focused-native-gallery-and-routine-passed",
+    "focusedFilter": "Mou Gan Ning Mobile:",
+    "manualFullRun": false,
+    "plannedMainFlow": "One actual Shanhe small game: two physical Wei placements and native Draw2; a genuine two-target Iron Chain returns one Wei and discards the other to cancel only its target, with Cold between targets; then a real opposing AI independently activates Qixi, the human makes a wrong and a correct suit guess, the AI independently continues, and the source truly discards the corresponding region card.",
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "galleryVisualInspection": "Root inspected both top and bottom actual gallery renders: correct namespaced portrait, HP, complete two-skill text and reachable scrolling.",
+    "routine": {
+      "runner": "tools/Test-Changed.ps1",
+      "scope": "routine defaults from tools/VerificationScopes.psd1",
+      "status": "passed",
+      "durationMs": 113854,
+      "manualFullRun": false
+    }
+  }
+}
