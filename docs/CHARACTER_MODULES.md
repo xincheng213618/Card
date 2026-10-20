@@ -48,6 +48,10 @@ Runtime 文件按技能组织：独立规则保存在所属技能的 Runtime 类
 
 descriptor 的 `FactRequirements` 按 `Triggered`、`Activated` 分别声明逻辑弃牌、真实阶段与原生用牌处理区来源的采集需求。`ProgramInstructionFeatures` 和 `SkillProgramDependencies` 从整个冻结内容目录聚合，包括本局无人持有或暂不可用的技能；不改为只看当前存活武将。原生协议仍决定事实产生时机、实体与行动身份，并保留非操作来源的精确需求条件。
 
+新增 descriptor 的 `Resources(SkillProgramEffect)` 沿用 [ProgramOperationDescriptorBase](../src/CardGame.Core/ProgramOperationDefinitions.cs) 的抽象合同，可由共享基类实现或由具体操作实现；[连策描述符](../src/Characters/lu-zhi/mou-ol/Runtime/MouLuZhiOlPrograms.cs)已有触发窗口、事实需求及处理器的完整组合。私有测试规则也经过同一加载器：例如 `modifiers` 的 `priority` 是必填整数，单个修正项也不能省略；可复用[现有夹具](../tests/CardGame.Core.Tests/MouLuZhiOlChecks.cs)中的完整规则形状。无需为这些既有合同新增一套静态检查。
+
+专用子结算接入前，直接使用[结算返回中的签名及源码入口](RESOLUTION_PROTOCOLS.md)核对续接、摸牌结果和回复子帧类型；不根据其他帧的相似字段名猜测 API。普通武将仍优先复用已有 DSL，无须因这些范例改写在制技能。
+
 ## 规则观察与资格检查
 
 事件规则在实现方法旁使用 `[ProgramRuleObserver(phase, order)]` 注册。`BeforeEvent` 在事实进入输出队列前运行，`AfterEvent` 在入队后运行，`BeforeStatePublish` 在打开原有状态窗口前运行。无参数方法用于同步状态；单个事件参数会按事件类型过滤。递归产生的事实仍先完整处理后返回父调用。

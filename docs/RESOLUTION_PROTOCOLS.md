@@ -10,6 +10,21 @@
 
 注册表共享不可变元数据和开放类型化委托，不捕获某一对局或程序帧；重复窗口、错误签名和未知窗口会失败。程序内部指令恢复与牌移动返回继续使用 `[ProgramContinuation]`，窗口返回协议负责已经完成的触发子帧。
 
+续接入口的现有签名如下；`Movement` 接收所属程序帧，移动凭据仍在该帧上，不接收 `long` 或另造的返回上下文。
+
+| 注册入口 | 方法签名 | 现有实现 |
+| --- | --- | --- |
+| `ProgramContinuationKind.Resume` | `bool Handler(long frameId)` 或 `bool Handler(ProgramSkillFrame frame)` | [谦逊续接](../src/Characters/lu-xun/mou-mobile/Runtime/GameEngine.MouQianxun.cs) |
+| `ProgramContinuationKind.Movement` / `MovementTail` | `bool Handler(ProgramSkillFrame frame)` | 同上；两个阶段可转入同一个内部续接方法 |
+| `ProgramWindowReturn` | `void Handler(ProgramSkillFrame frame, bool completed)` | [共享窗口返回](../src/CardGame.Core/ProgramWindowReturnRuntime.cs) |
+| `ProgramNativeDrawReturn` | `void Handler(ProgramSkillFrame frame, NativeDrawOutcome outcome)` | [连策摸牌发起与返回](../src/Characters/lu-zhi/mou-ol/Runtime/GameEngine.Liance.cs) |
+
+`ProgramContinuation` 在同一方法上只能声明一次；需要接入 Resume 和 Movement 时分别声明两个上述签名的入口。`bool` 表示是否接管本次分派；顺序在同类注册内唯一，不照搬范例已占用的序号。签名以[续接发现器](../src/CardGame.Core/GameEngine.ProgramContinuations.cs)和[摸牌返回发现器](../src/CardGame.Core/ProgramNativeDrawReturns.cs)为准，无须再向中央列表追加同一处理器。
+
+原生摸牌沿用 `BeginOperationProgramDraw` 和 `NativeDrawOutcome`。实际移动记录的 `CardMovementRecord.Sequence` 为 `int`，摸牌结果的 `SequenceBefore`、`SequenceAfter` 为 `long`，`AttemptFrameId` 为 `long?`；保存摸牌区间的回执沿用结果类型，不收窄成 `int`，本次没有 attempt 时保持 `null`。完整类型见[摸牌结果](../src/CardGame.Core/NativeDrawAttempts.cs)和[移动记录](../src/CardGame.Core/CardZones.cs)。
+
+回复替换子帧的续接种类在 `recovery.Return.Continuation`，继续推进的拥有帧 ID 在 `recovery.Return.ResumeFrameId`，请求来源在 `recovery.Attempt.Completion`，而不是 `recovery.Continuation`。复用[现有恢复协议](../src/CardGame.Core/RecoveryReplacement.cs)及[已支付装备回复的父边证明](../src/Characters/zhang-xiu/mou-ol/Runtime/GameEngine.MouZhangXiuOlObservers.cs)，继续核对本机制自己的父帧、付款和来源，不能只凭返回枚举取得续接资格。
+
 原生用牌在弹帧前按 `[NativeUseValidation]` 验证，再执行全部 `[NativeUsePreparation]` 并捕获返回事实；弹帧后按 `[NativeUseReturn]` 推进。布尔回调表示已独占处理，普通回调按顺序继续。准备结果只在本次调用的返回上下文中存活，不能写成另一套引擎 pending 状态，也不能重复消费该上下文。
 
 准备处理器可声明成对的返回方法及返回顺序；只有本次准备成功，配对返回才参与弹帧后的独占分派。`NativeUseReturnContext` 保存本次用牌、已经捕获的返回事实及各准备结果，并拒绝第二次返回。回调仍需核对其原生拥有者、来源及已完成费用。
