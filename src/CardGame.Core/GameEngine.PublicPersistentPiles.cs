@@ -237,7 +237,7 @@ public sealed partial class GameEngine
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 70)]
     private void CleanupLostPublicPersistentPiles()
     {
-        foreach (var source in _publicPersistentPiles.Values.Where(source => !IsIssuedMouGanNingPile(source) && !IsIssuedMouXiahouDunPile(source) && !IsIssuedBaoXinMutaoPile(source) && (!_players[source.OwnerSeat].IsAlive ||
+        foreach (var source in _publicPersistentPiles.Values.Where(source => !(_players[source.OwnerSeat].IsAlive && IsIssuedMouGszHuPile(source)) && !IsIssuedMouGanNingPile(source) && !IsIssuedMouXiahouDunPile(source) && !IsIssuedBaoXinMutaoPile(source) && (!_players[source.OwnerSeat].IsAlive ||
             !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source))).ToArray())
         {
             var retainMetadata = RetainIssuedJiyunPile(source);

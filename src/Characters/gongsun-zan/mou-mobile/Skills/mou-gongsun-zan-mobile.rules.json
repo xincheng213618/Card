@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:yicong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-charge",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouGongsunZanMobile",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "round-charge-and-hu",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "roundTurnSeatCount" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            {
+              "op": "resolveMouGongsunZanYicong",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "round-fence",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "expireMouGongsunZanRound",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:qiaomeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "slash-damage-reward",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouGongsunZanQiaomeng",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

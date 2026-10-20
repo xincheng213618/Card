@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     // The native action already froze and validated its exact source before payment.
     // Source-loss cleanup may remove a now-empty pile while paid children are suspended.
     private bool IsOwnPublicPileActionCost(CardActionContext action, CardActionCost cost) =>
-        IsNativePublicPileOriginalActionCost(action, cost) || action.PhysicalCards is [var only] && only == cost &&
+        IsMouGszHuActionCost(action, cost) || IsNativePublicPileOriginalActionCost(action, cost) || action.PhysicalCards is [var only] && only == cost &&
         cost.From.Zone == CardZoneKind.PublicPersistentPile && cost.From.OwnerSeat == action.ProviderSeat &&
         action.ConversionChain.Any(source => source.OwnerSeat == action.ProviderSeat &&
             ViewAsRule(source) is { SourcePileSkillId: { } skill, InputCount: 1, OutputKind: CardKind.Slash } &&
@@ -68,7 +68,7 @@ public sealed partial class GameEngine
 
     private bool IsOwnPublicPileCard(CharacterState owner, Card card) =>
         _cardZones.GetLocation(card.Id) is { Zone: CardZoneKind.PublicPersistentPile } location &&
-        location.OwnerSeat == owner.Seat;
+        location.OwnerSeat == owner.Seat && !IsMouGszHuCard(owner, card.Id);
 
     private bool MatchesOwnPublicPileConversion(CharacterState owner, Card card,
         IndexedSkillProgramInstance instance, SkillProgramViewAs rule)
@@ -101,8 +101,9 @@ public sealed partial class GameEngine
         GetOwnPublicPileConversionCards(owner).SingleOrDefault(card => card.Id == cardId);
 
     private void ValidateOwnPublicPileConversionCommit(CardConversionSource? source,
-        CharacterState provider, IReadOnlyList<Card> materials, bool forResponse)
+        CharacterState provider, IReadOnlyList<Card> materials, bool forResponse, CardKind? effectiveKind = null)
     {
+        if (ValidateMouGszHuConversion(provider, materials, source, forResponse, effectiveKind)) return;
         if (source is null && materials is [var original] &&
             (IsNativePublicPileOriginalChoice(provider, original, original.Kind, forResponse) ||
              !forResponse && IsFriendYangmingOriginalUseChoice(provider, original, original.Kind))) return;

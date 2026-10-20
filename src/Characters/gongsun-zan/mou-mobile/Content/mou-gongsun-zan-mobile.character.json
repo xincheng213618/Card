@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gongsun-zan",
+  "skills": [
+    {
+      "registrationOrder": 2540,
+      "programBundle": "mou-gongsun-zan-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yicong",
+        "name": "义从",
+        "description": "蓄力技（2/4）。每轮开始时，你可以消耗任意点蓄力点并选择一项：1.直至本轮结束，你计算与其他角色的距离-1，然后你将牌堆中的X张【杀】置于武将牌上（X为你本次消耗的蓄力点数）；2.直至本轮结束，其他角色计算与你的距离+1，然后你将牌堆中的X张【闪】置于武将牌上。你以此法置于武将牌上的牌称为“扈”，且你至多拥有四张“扈”，你可以将“扈”当做你的手牌使用或打出。",
+        "executionForms": "Trigger, State"
+      }
+    },
+    {
+      "registrationOrder": 2541,
+      "programBundle": "mou-gongsun-zan-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:qiaomeng",
+        "name": "趫猛",
+        "description": "你使用【杀】对一名角色造成伤害后，若你拥有技能“义从”，你可选择一项：1.弃置其区域内的一张牌并摸一张牌；2.获得3蓄力点。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2542,
+      "pools": {
+        "current": 558
+      },
+      "definition": {
+        "id": "mou:gongsun-zan-mobile",
+        "factionId": "qun",
+        "rulesetId": "sanguosha-mobile",
+        "name": "谋公孙瓒·移动版",
+        "portraitKey": "mou-gongsun-zan-mobile",
+        "additionalSkillIds": [
+          "mou-mobile:qiaomeng"
+        ],
+        "baseHp": 4,
+        "characterId": "character:gongsun-zan",
+        "skillId": "mou-mobile:yicong",
+        "gender": "Male",
+        "variantId": "mou-mobile"
+      }
+    }
+  ]
+}

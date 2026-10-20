@@ -7223,7 +7223,7 @@ public sealed partial class GameEngine
         if (!CanUseZhangbaSerpentSpear(source) ||
             physicalCards.Count != 2 ||
             physicalCards.Select(card => card.Id).Distinct().Count() != 2 ||
-            physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id))) ||
+            physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id)) && !IsMouGszHuCard(source, card.Id)) ||
             !CanUseVirtualSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,physicalCards), effectiveColor:PhysicalGroupColor(source,physicalCards), effectiveRank:ZhangbaSpecificSlashRank(source,physicalCards), physicalCardIds:physicalCards.Select(c=>c.Id).ToArray()))
         {
             throw new InvalidOperationException("Zhangba Serpent Spear became illegal before resolution.");
@@ -15602,6 +15602,7 @@ public sealed partial class GameEngine
     private CardLocation FindOwnedCardLocation(CharacterState actor, Card card)
     {
         if (TryNativePublicPilePaymentLocation(actor, card, out var originalPile)) return originalPile;
+        if (IsMouGszHuCard(actor, card.Id)) return _cardZones.GetLocation(card.Id);
         if (IsFuRongSelectedDiscard(actor.Seat, card.Id) || IsQingyaSelectedDiscard(actor.Seat, card.Id) || IsDuanJiongSaoguSelectedDiscard(actor.Seat, card.Id)) return CardLocation.DiscardPile;
         if (IsSelectedRequestedDeckBasicMaterial(actor.Seat, card.Id)) return CardLocation.DrawPile;
         if (UnclaimedDeclarationPayment(actor.Seat, card.Id) is { } paid) return paid.Cost.From;
@@ -17075,10 +17076,10 @@ public sealed partial class GameEngine
         => ConvertRuleValue(EvaluateHandLimit(player));
 
     private IReadOnlyList<Card> GetPlayableCards(CharacterState player) =>
-        AppendQingyaDiscardCards(player, AppendDuanJiongSaoguDiscardCards(player, AppendFuRongDiscardCards(player, AppendRequestedDeckBasicCards(player, AvailableDeclarationCard(player) is {} declared ? GetHand(player).Append(declared).ToArray() :
+        AppendMouGszHuPlayable(player, AppendQingyaDiscardCards(player, AppendDuanJiongSaoguDiscardCards(player, AppendFuRongDiscardCards(player, AppendRequestedDeckBasicCards(player, AvailableDeclarationCard(player) is {} declared ? GetHand(player).Append(declared).ToArray() :
         UsesFormalWoodenOx && GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
             ? GetHand(player).Concat(GetWoodenOxGrain(player)).ToArray()
-            : GetHand(player)))));
+            : GetHand(player))))));
 
     private IReadOnlyList<Card> GetEquipment(CharacterState player) =>
         GetEquipment(player.Seat);

@@ -138,7 +138,8 @@ public sealed partial class GameEngine
         var identityLocation = _cardZones.GetLocation(card.Id);
         var identityHand = identityLocation == CardLocation.Hand(owner.Seat);
         var identityGrain = identityLocation == CardLocation.WoodenOxGrain(owner.Seat);
-        if (!identityHand && !identityGrain && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
+        var identityHu = IsMouGszHuCard(owner, card.Id);
+        if (!identityHand && !identityGrain && !identityHu && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
         if (identityHand && WuyouIdentity(owner, card) is { } wuyou) return [wuyou];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
         if (identityHand && ShiluIdentity(owner, card) is { } shilu) return [shilu];
@@ -151,7 +152,7 @@ public sealed partial class GameEngine
         return bindings.ProgramInstances
             .Where(instance => instance.Program.CardIdentities.Count != 0)
             .SelectMany(instance => instance.Program.CardIdentities
-                .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
+                .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || identityHu && identity.Zones.Contains(CardZoneKind.Hand) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
                                     identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash && identity.Zones.Contains(CardZoneKind.Hand)) &&
                                    identity.Condition.Evaluate(context) &&
                                    (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(inputKind)) &&
@@ -249,7 +250,7 @@ public sealed partial class GameEngine
         }
 
         var location = _cardZones.GetLocation(card.Id);
-        var zone = location == CardLocation.Hand(owner.Seat)
+        var zone = location == CardLocation.Hand(owner.Seat) || IsMouGszHuCard(owner, card.Id)
             ? CardZoneKind.Hand
             : location == CardLocation.Equipment(owner.Seat)
                 ? CardZoneKind.Equipment
@@ -347,7 +348,7 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
-        var eligibleHand = GetHand(owner).Concat(GetEquipment(owner))
+        var eligibleHand = GetHand(owner).Concat(MouGszHuCards(owner)).Concat(GetEquipment(owner))
             .Concat(_cardZones.CardsAt(CardLocation.WoodenOxGrain(owner.Seat)))
             .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
             .OrderBy(card => card.Id)
@@ -367,7 +368,7 @@ public sealed partial class GameEngine
                      rule.Condition.Evaluate(context)))
         {
             var candidates = eligibleHand.Where(card =>
-                (rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) ||
+                (rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) || MouGszHuHandSource(owner, card, rule.SourceZones) ||
                     rule.RoundDistinctBasicUse is not null && IsRoundDistinctBasicMaterial(owner, card)) &&
                 (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card))) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
@@ -446,7 +447,7 @@ public sealed partial class GameEngine
             if (location.OwnerSeat != owner.Seat) return null;
             var card = _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId);
             if (card is null ||
-                !(rule.SourceZones.Contains(location.Zone) || IsTousuiVariableSource(owner, rule, card, location)) ||
+                !(rule.SourceZones.Contains(location.Zone) || MouGszHuHandSource(owner, card, rule.SourceZones) || IsTousuiVariableSource(owner, rule, card, location)) ||
                 IsTurnHandCardRestricted(owner, card) || HasProgramCardIdentity(owner, card) ||
                 rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card)) ||
                 rule.InputSuits.Count != 0 && !rule.InputSuits.Contains(
@@ -517,6 +518,7 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(responder, card),CapturePhysicalCardColor(responder.Seat,card))).ToArray();
         PrepareWuZhangFeiResponseRanks(responder, selection.OutputKind, current.Cards, current.Source, actorSeat);
         PrepareLeCaoZhiWenlanResponse(responder, selection.OutputKind, current.Cards);
+        PrepareMouGszHuResponse(responder, current.Cards, selection.OutputKind, current.Source, actorSeat);
         PrepareLeiluanResponsePayment(responder, current, resolutionId);
         PrepareXieweiResponsePayment(responder, current, resolutionId, actorSeat);
         var xieweiPayment = IsXieweiSelection(current);
@@ -830,7 +832,7 @@ public sealed partial class GameEngine
                 return null;
             if (selected is not null && candidates.Contains(selected))
             {
-                ValidateOwnPublicPileConversionCommit(selected, provider, [responseCard], forResponse: true);
+                ValidateOwnPublicPileConversionCommit(selected, provider, [responseCard], forResponse: true, effectiveKind: effectiveKind);
                 return selected;
             }
             throw new InvalidOperationException("The selected response conversion is no longer legal.");

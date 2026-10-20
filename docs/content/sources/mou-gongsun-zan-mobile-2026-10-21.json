@@ -1,0 +1,86 @@
+{
+  "generalId": "mou:gongsun-zan-mobile",
+  "officialName": "谋公孙瓒",
+  "product": "三国杀移动版",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "officialHeroId": 587,
+    "gameGeneralId": 699,
+    "faction": "qun",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-587.html",
+      "role": "current-hero-and-actual-portrait-dom",
+      "sha256": "0E74734D2CF4A5941C892D7CC845BE449584703D91597C7A861E759AA7A578BB"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2195.html",
+      "role": "formal-current-yicong-description-revision",
+      "publishedAt": "2025-11-21 16:00:57",
+      "effectiveAt": "2025-11-21 17:00",
+      "sha256": "3437ED88026387BBA777670C3D6D7EA4B7802C54632763268345CEE851A14C63"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1889.html",
+      "role": "first-release-announcement",
+      "title": "8月10日七夕活动",
+      "publishedAt": "2024-08-09 17:30:00",
+      "availableFrom": "2024-08-10",
+      "sha256": "B7D3FFD7A2EABAA355A8B50EA2D45051971DA1BF89A338D97236320D57F83630"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "official-identity-and-current-skill-api",
+      "selection": "data entry id587, general_id699",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27"
+    }
+  ],
+  "completeOfficialSkills": [
+    {
+      "id": "mou-mobile:yicong",
+      "name": "义从",
+      "authority": "Formal news2195 调整后, taking precedence over the older current hero/API wording.",
+      "text": "蓄力技（2/4）。每轮开始时，你可以消耗任意点蓄力点并选择一项：1.直至本轮结束，你计算与其他角色的距离-1，然后你将牌堆中的X张【杀】置于武将牌上（X为你本次消耗的蓄力点数）；2.直至本轮结束，其他角色计算与你的距离+1，然后你将牌堆中的X张【闪】置于武将牌上。你以此法置于武将牌上的牌称为“扈”，且你至多拥有四张“扈”，你可以将“扈”当做你的手牌使用或打出。"
+    },
+    {
+      "id": "mou-mobile:qiaomeng",
+      "name": "趫猛",
+      "authority": "Current hero587 and current official API agree.",
+      "text": "你使用【杀】对一名角色造成伤害后，若你拥有技能“义从”，你可选择一项：1.弃置其区域内的一张牌并摸一张牌；2.获得3蓄力点。"
+    }
+  ],
+  "versionSelection": {
+    "formalSection": "二、技能描述调整内容",
+    "difference": "The formal revision replaces undefined 至多x点 with 任意点 and expressly defines X as the consumed amount. It states the directional distance effect before the Deck-to-Hu move and uses 当做你的手牌使用或打出 rather than the older 视为你的牌 wording still present on the hero/API.",
+    "effectReworkClaimed": false,
+    "laterContradictoryFormalRevisionLocated": false,
+    "releaseEvidence": "The first announcement explicitly says 谋公孙瓒上线 and 8月10日上新. The API created_at value is ingestion metadata and is not substituted for first availability.",
+    "otherEditionExcluded": "Classic and boundary Yicong/Qiaomeng, and OL Mou Jiaodi/Baojing, are separate identities. The mobile rule does not restrict Qiaomeng to black Slash or discarded mounts."
+  },
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/69900.jpg",
+    "actualDomSrc": "/storage/uploads/images/69900.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-gongsun-zan-mobile.jpg",
+    "width": 2480,
+    "height": 3508,
+    "bytes": 3325125,
+    "sha256": "705B34A64E2593E562CAE23A71650E2915794F42E499AE73BA33F66BB42C3B03",
+    "visualInspection": "Root integration agent inspected the actual official image: long dark hair, silver and gold armor with white fur, a rearing white horse, spear and bow, cavalry on a snowy battlefield."
+  },
+  "engineeringInterpretations": [
+    "The following choices are project engineering interpretations of the complete official text, not an official FAQ or additional user-selected rulings.",
+    "任意点 permits expenditure0. An accepted choice still issues its directional distance contribution even with no charge or when the four-Hu capacity is full. Actual spent charge is frozen once and cannot be refunded or paid twice by child returns.",
+    "The selected distance contribution is issued before actual Deck movement and remains until that same actual Round ends. It affects directed distance, not weapon attack range. Source loss does not revoke an already issued contribution early.",
+    "Matching entities are taken in current native Deck order, top first. Slash means the legal current-mode Slash family. The actual moved count is bounded by requested charge, remaining capacity4 and real matching stock. No entity is invented to satisfy a shortage.",
+    "Stored Hu does not expire at Round end. Source loss preserves the actual pile entities; future access requires the exact currently active Yicong source. Regrant does not reset the owner-named initial2/max4 charge ledger or erase prior payment facts.",
+    "Hu stays in its actual public pile until native payment. Original Use and pure Played retain their native distinction. Otherwise legal single, fixed-multiple, variable-multiple and equipment-origin Hand-material conversions use their actual current source qualification, actor/provider/requester and material invoice. Hu is not globally added to Hand count, hand limit, discards, gifts or Pindian.",
+    "The public-pile original-card path has an independent exact Yicong access source. It does not borrow another skill identity, quota or conversion provenance. Converted mixed Hand/Hu material payments freeze each real origin on the owning native frame.",
+    "Qiaomeng qualifies once per actual positive Slash damage occurrence and requires current Yicong at a new offer. Its discard branch uses native Hand/Equipment/Judgment legality and actual logical-discard proof, drains all real recovery, movement and skill-change children, then requests native Draw1. An empty or protected target does not produce a free discard-branch draw; the charge branch remains available.",
+    "The charge branch grants3 up to the stable maximum4. An already accepted paid child chain completes under the existing native source-loss, death and terminal-return boundaries, without repaying material or adding a fictitious draw."
+  ],
+  "behaviorCheck": "tests/CardGame.Core.Tests/MouGongsunZanMobileChecks.cs::RealHuOriginalPlayedAndHandConversionsWithRoundChargeCold"
+}

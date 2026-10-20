@@ -39,17 +39,17 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<NativePublicPileCardSelection> GetNativePublicPileOriginalCards(NativePublicPileCardRequest request)
     {
-        if (!HasLiFengCapability || !IsValidPlayerSeat(request.ActorSeat) || !IsValidPlayerSeat(request.ProviderSeat) ||
+        if ((!HasLiFengCapability && !HasMouGszMobile) || !IsValidPlayerSeat(request.ActorSeat) || !IsValidPlayerSeat(request.ProviderSeat) ||
             !_players[request.ActorSeat].IsAlive || !_players[request.ProviderSeat].IsAlive || _winner != Winner.None)
             return [];
         if (_resolutionStack.Any(f => f.NativePublicPilePayment is { SequenceAfter: 0 } pending &&
                 pending.Request.ProviderSeat == request.ProviderSeat && pending.Request != request)) return [];
-        return ShuliangOriginalGrainChoices(request).Where(selection => selection.Request == request &&
+        return ShuliangOriginalGrainChoices(request).Concat(MouGszHuOriginalChoices(request)).Where(selection => selection.Request == request &&
             selection.AccessSource.OwnerSeat == request.ProviderSeat && selection.Pile.OwnerSeat == request.ProviderSeat &&
             Enum.IsDefined(selection.Card.Kind) && _cardZones.GetLocation(selection.Card.Id) == selection.Pile.Location &&
             PublicPileCards(selection.Pile).Any(c => c == selection.Card) &&
             (request.RequiredKind is null || MatchesRequiredCard(selection.Card.Kind, request.RequiredKind.Value)) &&
-            IsShuliangOriginalGrainChoice(request, selection)).DistinctBy(selection => selection.Card.Id).ToArray();
+            (IsShuliangOriginalGrainChoice(request, selection) || IsMouGszHuOriginalChoice(request, selection))).DistinctBy(selection => selection.Card.Id).ToArray();
     }
 
     private NativePublicPileCardSelection RequireNativePublicPileOriginalCard(NativePublicPileCardRequest request,
@@ -110,12 +110,12 @@ public sealed partial class GameEngine
                     a.MaxCardCount <= 1 && (a.PlayedCardKind ?? s.Card.Kind) is var kind &&
                     (kind == s.Card.Kind || s.Card.Kind == CardKind.Slash && kind == CardKind.FireSlash && HasZhuqueFan(actor)))
                 .Select(a => a with { NativePublicPileSource = s.AccessSource,
-                    Description = $"【输粮】{a.Description}" })).ToArray();
+                    Description = $"【{_contentRegistry.GetSkill(s.AccessSource.SkillId).Name}】{a.Description}" })).ToArray();
     }
 
     private bool IsNativePublicPileOriginalChoice(CharacterState owner, Card card, CardKind kind, bool response)
     {
-        if (!HasLiFengCapability || card.Id <= 0 ||
+        if ((!HasLiFengCapability && !HasMouGszMobile) || card.Id <= 0 ||
             _cardZones.GetLocation(card.Id) is not { Zone: CardZoneKind.PublicPersistentPile } location ||
             location.OwnerSeat != owner.Seat) return false;
         var prepared = _resolutionStack.LastOrDefault(f => f.NativePublicPilePayment is { SequenceAfter: 0 } p &&
@@ -141,6 +141,7 @@ public sealed partial class GameEngine
     private void PrepareNativePublicPileResponsePayment(CharacterState provider, Card card,
         CardKind kind, CardConversionSource? conversion)
     {
+        if (PrepareMouGszHuResponse(provider, [card], kind, conversion)) return;
         if (conversion is not null || card.Id <= 0 || _cardZones.GetLocation(card.Id).Zone != CardZoneKind.PublicPersistentPile ||
             _resolutionStack.Any(f => f.NativePublicPilePayment is { SequenceAfter: 0 } p &&
                 p.Request.ProviderSeat == provider.Seat && p.Card.Id == card.Id)) return;
@@ -154,6 +155,7 @@ public sealed partial class GameEngine
 
     private void PrepareNativePublicPileUse(CardUseFrame use)
     {
+        PrepareMouGszHuUse(use);
         if (use.Action is not { Type: CardActionType.Use, PhysicalCards: [var cost], ConversionChain.Count: 0 } action ||
             cost.From.Zone != CardZoneKind.PublicPersistentPile) return;
         if (IsFriendYangmingOriginalUseParent(use)) return;
@@ -208,7 +210,8 @@ public sealed partial class GameEngine
             entered.From, entered.Sequence, entered.Reason, paid.Source, paid.Request.ActorSeat, paid.Request.ProviderSeat,
             paid.Request.RequesterSeat, paid.Request.ResponderSeat, paid.Request.Direction, paid.ActualTurn, paid.TurnOwnerSeat,
             paid.Request.RequestCursor, paid.Request.RequestEpoch));
-        RecordShuliangGrainPayment(paid);
+        if (paid.Source.SkillId == "ol:shuliang") RecordShuliangGrainPayment(paid);
+        else if (!IsMouGszHuOriginalPayment(paid)) throw new InvalidOperationException("An original public-pile payment lost its independently authorized source.");
         if (paid.ActionId is { } actionId)
             AdvanceEventRulesAndQueueFact(new NativePublicPileOriginalBoundEvent(id, actionId, entered.CardId, entered.Sequence));
     }

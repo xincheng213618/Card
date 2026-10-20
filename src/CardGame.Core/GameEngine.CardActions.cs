@@ -101,7 +101,7 @@ public sealed partial class GameEngine
                 : null;
         }
         ValidateOwnPublicPileConversionCommit(conversion, _players[provider],
-            physicalIds.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id)).ToArray(), forResponse: false);
+            physicalIds.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id)).ToArray(), forResponse: false, effectiveKind: effectiveKind);
         var conversionChain = new List<CardConversionSource>();
         if (conversion is not null) conversionChain.Add(conversion);
         if (additionalConversions is not null)
