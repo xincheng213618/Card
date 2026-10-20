@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-guo",
+  "skills": [
+    {
+      "registrationOrder": 2272,
+      "programBundle": "le-zhuge-guo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:xidi",
+        "name": "羲笛",
+        "description": "锁定技，游戏开始时，你的初始手牌增加“笛”标记且不计入手牌上限。准备阶段和结束阶段，你观看牌堆顶的X张牌（X为你手中“笛”牌张数且至少为1），然后以任意顺序放回牌堆顶或牌堆底。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2273,
+      "programBundle": "le-zhuge-guo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "le:chengyan",
+        "name": "乘烟",
+        "description": "你使用【杀】或普通锦囊牌指定其他角色为目标后，可以摸一张牌并展示。若展示牌为【杀】或普通锦囊牌，将使用牌的效果改为展示牌的效果；否则摸一张牌并标记为“笛”。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2274,
+      "pools": { "current": 524 },
+      "definition": {
+        "id": "le:zhuge-guo",
+        "name": "乐诸葛果",
+        "portraitKey": "le-zhuge-guo",
+        "skillId": "le:xidi",
+        "additionalSkillIds": ["le:chengyan"],
+        "factionId": "shu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:zhuge-guo",
+        "variantId": "le",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

@@ -96,14 +96,14 @@ public sealed partial class GameEngine
     private void ResolveWumiaoFloodEffect(NullificationWindowFrame pending)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != pending.ParentFrameId ||
-            use.CardKind != CardKind.WumiaoFlood || pending.ActionKind != LegalActionKind.WumiaoFlood ||
-            pending.EffectCardKind != use.CardKind || use.WumiaoFlood is not null ||
-            GetNullificationTargetSeat(pending) is not { } target || use.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[use.TargetIndex] != target || use.Action is not { Type: CardActionType.Use } action)
+            LeChengyanNativeEffectKind(use) != CardKind.WumiaoFlood || pending.ActionKind != LegalActionKind.WumiaoFlood ||
+            pending.EffectCardKind != LeChengyanNativeEffectKind(use) || use.WumiaoFlood is not null ||
+            GetNullificationTargetSeat(pending) is not { } target || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[use.TargetIndex] != target || use.Action is not { Type: CardActionType.Use } action)
             throw new InvalidOperationException("Wumiao Flood lost its exact resolved target and owning use.");
         if (!_players[target].IsAlive)
         {
-            FinishCardUse(use.Id, GetNullificationEffectCard(pending), use.CardKind);
+            FinishCardUse(use.Id, GetNullificationEffectCard(pending), LeChengyanNativeEffectKind(use));
             return;
         }
         var receipt = new WumiaoFloodReceipt(action.ActionId, pending.Id, target, use.TargetIndex,
@@ -114,7 +114,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new WumiaoFloodEffectStartedEvent(use.Id, action.ActionId, pending.Id,
             target, use.TargetIndex, receipt.ExtraEffectOrdinal));
         if (!IsExtraCardEffectRound(use.Id))
-            AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, use.CardKind, use.SourceSeat, target));
+            AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, LeChengyanNativeEffectKind(use), use.SourceSeat, target));
         var card = GetNullificationEffectCard(pending);
         var attack = new CardAttackHandle(this, use.Id, use.SourceSeat, target, card,
             playedCardKind: CardKind.WumiaoFlood, damageNatureOverride: DamageNature.Thunder,
@@ -126,7 +126,7 @@ public sealed partial class GameEngine
     private bool TryCompleteWumiaoFloodAttack(CardAttackHandle attack)
     {
         if (LifecycleCardUse(attack.ResolutionId) is not { WumiaoFlood: { } receipt } use) return false;
-        if (use.CardKind != CardKind.WumiaoFlood || attack.EffectiveCardKind != use.CardKind ||
+        if (LeChengyanNativeEffectKind(use) != CardKind.WumiaoFlood || attack.EffectiveCardKind != LeChengyanNativeEffectKind(use) ||
             use.Action?.ActionId != receipt.ActionId || attack.CardUserSeat != use.SourceSeat ||
             use.TargetIndex != receipt.TargetIndex || ActiveDying is not null ||
             _resolutionStack.LastOrDefault()?.Id != use.Id)
@@ -356,10 +356,10 @@ public sealed partial class GameEngine
     private void AssertWumiaoFlood(CardUseFrame use)
     {
         if (use.WumiaoFlood is not { } r) return;
-        if (use.CardKind != CardKind.WumiaoFlood || use.Action is not { Type: CardActionType.Use } action ||
+        if (LeChengyanNativeEffectKind(use) != CardKind.WumiaoFlood || use.Action is not { Type: CardActionType.Use } action ||
             action.ActionId != r.ActionId || action.ActorSeat != use.SourceSeat || action.EffectiveKind != use.CardKind ||
-            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[r.TargetIndex] != r.TargetSeat || !Enum.IsDefined(r.Stage) || r.ExtraEffectOrdinal < 0 ||
+            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[r.TargetIndex] != r.TargetSeat || !Enum.IsDefined(r.Stage) || r.ExtraEffectOrdinal < 0 ||
             ProgramEventHistory<WumiaoFloodEffectStartedEvent>().Count(e => e.UseId == use.Id && e.ActionId == r.ActionId &&
                 e.NullificationId == r.NullificationFrameId && e.TargetSeat == r.TargetSeat &&
                 e.TargetIndex == r.TargetIndex && e.ExtraEffectOrdinal == r.ExtraEffectOrdinal) != 1)

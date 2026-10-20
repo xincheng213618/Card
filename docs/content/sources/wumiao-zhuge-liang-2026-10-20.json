@@ -1,0 +1,72 @@
+{
+  "checkedOn": "2026-10-20",
+  "status": "implemented",
+  "name": "武诸葛亮",
+  "generalId": "wumiao:zhuge-liang",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "identity": {
+    "officialHeroId": 230,
+    "gender": "Male",
+    "faction": "shu",
+    "initialHp": 4,
+    "maxHp": 7,
+    "title": "忠武良弼"
+  },
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/230.html",
+      "role": "Current official hero. Both displayed skins have the same complete three skills."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20230707_9812_5709",
+      "role": "Formal introduction, published 2023-07-07 21:30:04. Section fourteen explicitly gives Shu, male, 4/7 HP and all three skills.",
+      "firstAvailability": "2023-07-08 00:00:00"
+    }
+  ],
+  "skills": [
+    {
+      "id": "wumiao:jincui",
+      "name": "尽瘁",
+      "text": "锁定技，游戏开始时，你将手牌摸至7张。准备阶段，你的体力值调整为与牌堆中点数为7的游戏牌数量相等（至少为1）。然后你观看牌堆顶X张牌，将这些牌以任意顺序放回牌堆顶或牌堆底（X为你的体力值）。"
+    },
+    {
+      "id": "wumiao:qingshi",
+      "name": "情势",
+      "text": "你于出牌阶段内使用一张牌时（每种牌名每回合限1次），若手牌中有同名牌，你可以选择一项：1.令此牌对其中1个目标造成的伤害值+1；2.令任意名其他角色各摸1张牌；3.摸3张牌，然后此技能本回合失效。"
+    },
+    {
+      "id": "wumiao:zhizhe",
+      "name": "智哲",
+      "text": "限定技，出牌阶段，你可以“复制”一张手牌。此牌因你使用或打出进入弃牌堆时，改为将此牌收回手牌且本回合不能再使用或打出。"
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123001.png",
+    "asset": "src/CardGame.Wpf/Assets/official-wumiao-zhuge-liang.png",
+    "sha256": "5000a4a10bdff4277f91763534d32e9b89214c7b310f14d011553f53e9b1141d",
+    "width": 574,
+    "height": 761,
+    "origin": "Classic portrait linked by the current official hero page; downloaded and visually inspected by the integrating agent."
+  },
+  "engineeringContracts": [
+    "The following details consistently instantiate the complete official text. They are engineering interpretations, not claimed official FAQs or user-selected rulings.",
+    "Jincui's opening effect makes a real native draw request for the shortfall to seven Hand cards. An existing Hand of seven or more does not discard cards or manufacture a draw request. Native replacement draws remain distinct from actual draw entities.",
+    "During actual Preparation, Jincui counts printed rank-seven entities currently in the draw pile, and sets HP to that count with a minimum of one and the native maximum-HP clamp. Setting HP is neither HP Loss nor Recovery. Native HP-change children finish before privately viewing and ordering the current-HP number of top cards through the existing top-reorder service.",
+    "Qingshi's unqualified Play phase is implemented as the skill owner's own actual Play phase. A true native Use, including a native response classified as Use in that phase, can trigger it; a pure Played response cannot. The per-name allowance is consumed when the optional skill is accepted, not when it is declined. Native canonical naming treats the Slash variants as the same basic card name.",
+    "At Qingshi's committed-use trigger, the current remaining Hand is checked using the existing native effective Hand identity. Actual materials of this Use are excluded. The first branch selects one actual target of that exact Use and adds one to the corresponding native damage amount; normal propagated elemental damage carries the finalized amount without adding the same bonus again.",
+    "Qingshi's second branch privately chooses any subset of living other characters, including the empty subset, then drains a genuine Draw1 and all children for each selected living recipient. The accepted queue remains on the owning ProgramSkillFrame. Losing the source or the source dying does not cancel an already accepted gift to a living recipient; native terminal cutoff remains authoritative.",
+    "Qingshi's third branch makes a real Draw3 request. Only after its native draw and children return does this named skill become disabled for the remainder of the whole actual turn. The accepted per-name history and disable are not refreshed by source loss and regrant.",
+    "Zhizhe leaves the selected real Hand card in place and creates a distinct generated physical entity with the copied card's printed native card data, including kind, suit and rank. Unrelated external skill marks are not duplicated. The existing generated-card zone and restore mechanism owns the new entity; there is no parallel copy zone.",
+    "Only a copy causally entering the discard pile as the native completion of its original owner's Use or Played response is returned to that original owner's Hand. Physical provider and actual paid-material movement identify that owner, allowing actor/provider separation in genuine supplied responses. Ordinary discard, recast, another character's later Use and an equipment's later replacement do not themselves satisfy this causal completion condition.",
+    "A delayed card may return when its actual delayed-card resolution finishes, provided the latest corresponding placement is traced to that original owner's native Use material. The destination replacement is an actual entity movement to Hand and is signed before movement children run; native action and response completion validate that same exact returned material invoice.",
+    "The copy's issued effect survives loss of Zhizhe. After an actual return, the copied entity cannot be used or played again for the rest of the whole actual turn, including after transfer, while ordinary discard and recast remain legal. The ban expires at ActualTurnCursorReturned rather than raw TurnEnded, so inserted phases of that same turn retain it. The game-limited activation uses the existing owner/named-skill usage ledger and is not refreshed by regrant.",
+    "Pending selections, ordered recipients, native draw outcomes, HP-setting receipts and movement boundaries remain on their owning frame. Exposed receipt collections are copied and frozen; new committed rule events are scalar. Player projections expose privately viewed top cards only to the actual viewer."
+  ],
+  "validation": {
+    "status": "focused-main-flow-passed",
+    "focusedFilter": "Wu Zhuge Liang:",
+    "checks": 2,
+    "scope": "Real opening/HP setting and ordering; all Qingshi branches; real generated copied Use and pure Played return and actual-turn expiry; representative pending cold recovery."
+  }
+}

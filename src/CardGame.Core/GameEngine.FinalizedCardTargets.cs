@@ -11,6 +11,7 @@ public sealed partial class GameEngine
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) return true;
+        if (HasLeZhugeGuoCapability && (IsSlashCard(kind) || IsOrdinaryTrick(kind))) return true;
         if (HasMouLiuChengCapability && (IsSlashCard(kind) || IsMouLiuChengNonDamageOrdinary(kind))) return true;
         if (HasZixiEffectsCapability && ZixiEffectsKind(kind)) return true;
         if (HasSoleIncomingEffectCapability && ExtraEffectCardKind(kind)) return true;

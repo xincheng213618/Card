@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:lieren",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "unique-slash-contest",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "startCardActionPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "eventTarget"
+              },
+              "resultBind": "contest",
+              "visibility": "public"
+            },
+            {
+              "op": "recordMouZhuRongLieren",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "won-slash-damage",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "mouZhuRongLierenOther"
+            },
+            {
+              "op": "selectMouZhuRongLierenTarget",
+              "target": "owner"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:juxiang",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "barbarian-target-immunity",
+          "kind": "excludeGlobalTarget",
+          "cardKinds": [
+            "barbarianAssault"
+          ]
+        },
+        {
+          "id": "claim-resolved-barbarian",
+          "kind": "claimResolvedGlobalCard",
+          "cardKinds": [
+            "barbarianAssault"
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "outside-assault-gift",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "giftMouZhuRongOutsideAssault",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

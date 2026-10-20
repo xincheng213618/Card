@@ -100,22 +100,22 @@ public sealed partial class GameEngine
     private void ResolveWenheCardEffect(NullificationWindowFrame pending)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != pending.ParentFrameId ||
-            !IsWenheCard(use.CardKind) || pending.EffectCardKind != use.CardKind || pending.ActionKind != WenheCardAction(use.CardKind) ||
+            !IsWenheCard(LeChengyanNativeEffectKind(use)) || pending.EffectCardKind != LeChengyanNativeEffectKind(use) || pending.ActionKind != WenheCardAction(LeChengyanNativeEffectKind(use)) ||
             use.SourceSeat != pending.SourceSeat || use.CardId != pending.EffectCardId || use.Action is not { Type: CardActionType.Use } action ||
             action.ActorSeat != use.SourceSeat || action.EffectiveKind != use.CardKind || use.WenheCardEffect is not null ||
-            GetNullificationTargetSeat(pending) is not { } seat || use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count || use.TargetSeats[use.TargetIndex] != seat ||
-            use.CardKind is CardKind.BeamSwap or CardKind.WenheChaos && seat != use.SourceSeat ||
-            use.CardKind is CardKind.StarShift or CardKind.HandRedistribution && seat == use.SourceSeat)
+            GetNullificationTargetSeat(pending) is not { } seat || use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count || LeChengyanNativeTargets(use)[use.TargetIndex] != seat ||
+            !IsLeChengyanEffectUse(use.Id) && (LeChengyanNativeEffectKind(use) is CardKind.BeamSwap or CardKind.WenheChaos && seat != use.SourceSeat ||
+            LeChengyanNativeEffectKind(use) is CardKind.StarShift or CardKind.HandRedistribution && seat == use.SourceSeat))
             throw new InvalidOperationException("A Wenhe effect lost its exact once-resolved native nullification and target cursor.");
         SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
         if (!_players[seat].IsAlive || !_players[use.SourceSeat].IsAlive ||
-            use.CardKind == CardKind.StarShift && (!_players[seat].HasHpValue || !_players[use.SourceSeat].HasHpValue || _players[seat].Hp < 1 || _players[use.SourceSeat].Hp < 1))
-        { FinishCardUse(use.Id, GetNullificationEffectCard(pending), use.CardKind); return; }
+            LeChengyanNativeEffectKind(use) == CardKind.StarShift && (!_players[seat].HasHpValue || !_players[use.SourceSeat].HasHpValue || _players[seat].Hp < 1 || _players[use.SourceSeat].Hp < 1))
+        { FinishCardUse(use.Id, GetNullificationEffectCard(pending), LeChengyanNativeEffectKind(use)); return; }
 
-        var receipt = new WenheCardEffectReceipt(action.ActionId, pending.Id, use.CardKind, seat, use.TargetIndex,
-            use.CardKind == CardKind.WenheChaos ? WenheCardEffectStage.AwaitingChaos : WenheCardEffectStage.Children, _movementSequence)
+        var receipt = new WenheCardEffectReceipt(action.ActionId, pending.Id, LeChengyanNativeEffectKind(use), seat, use.TargetIndex,
+            LeChengyanNativeEffectKind(use) == CardKind.WenheChaos ? WenheCardEffectStage.AwaitingChaos : WenheCardEffectStage.Children, _movementSequence)
             { MovementAfter = _movementSequence };
-        receipt = use.CardKind switch
+        receipt = LeChengyanNativeEffectKind(use) switch
         {
             CardKind.StarShift => PlanWenheStarShift(use, receipt),
             CardKind.HandRedistribution => PlanWenheHandRedistribution(use, receipt),
@@ -123,10 +123,10 @@ public sealed partial class GameEngine
             _ => receipt
         };
         ReplaceRuntimeTop(use = use with { Step = ResolutionFrameStep.ResolvingEffect, WenheCardEffect = receipt });
-        AdvanceEventRulesAndQueueFact(new WenheCardPlanIssuedEvent(use.Id, action.ActionId, pending.Id, use.CardKind,
+        AdvanceEventRulesAndQueueFact(new WenheCardPlanIssuedEvent(use.Id, action.ActionId, pending.Id, LeChengyanNativeEffectKind(use),
             use.SourceSeat, seat, receipt.Materials.Count, receipt.SourceHandCount, receipt.SourceHpBefore, receipt.TargetHpBefore, receipt.SourceHpAfter, receipt.TargetHpAfter));
-        if (use.CardKind == CardKind.WenheChaos) { BeginWenheCardChaos(use); return; }
-        if (use.CardKind == CardKind.StarShift)
+        if (LeChengyanNativeEffectKind(use) == CardKind.WenheChaos) { BeginWenheCardChaos(use); return; }
+        if (LeChengyanNativeEffectKind(use) == CardKind.StarShift)
         {
             var source = _players[use.SourceSeat]; var target = _players[seat];
             source.Hp = receipt.SourceHpAfter!.Value; target.Hp = receipt.TargetHpAfter!.Value;
@@ -142,18 +142,18 @@ public sealed partial class GameEngine
             {
                 var destinations = moving.ToDictionary(m => m.CardId, m => m.To);
                 MoveProgramCardsFromMultipleSources(moving.Select(m => m.CardId).ToArray(), CardLocation.Processing,
-                    WenheRedistributionReason(use.CardKind), (batchId, records) =>
+                    WenheRedistributionReason(LeChengyanNativeEffectKind(use)), (batchId, records) =>
                     {
                         var current = LifecycleCardUse(use.Id)!;
                         UpdateLifecycleCardUse(use.Id, f => f with { WenheCardEffect = current.WenheCardEffect! with
                             { MovementBatchId = batchId, MovementAfter = records[^1].Sequence } });
                     }, (card, _) => destinations[card.Id],
-                    disclosure: use.CardKind == CardKind.HandRedistribution ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
+                    disclosure: LeChengyanNativeEffectKind(use) == CardKind.HandRedistribution ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
             }
         }
         use = LifecycleCardUse(use.Id)!; receipt = use.WenheCardEffect!;
         AdvanceEventRulesAndQueueFact(new WenheCardEffectAppliedEvent(use.Id, receipt.ActionId, receipt.NullificationFrameId,
-            use.CardKind, receipt.Materials.Count(m => m.From != m.To), receipt.MovementBefore, receipt.MovementAfter));
+            LeChengyanNativeEffectKind(use), receipt.Materials.Count(m => m.From != m.To), receipt.MovementBefore, receipt.MovementAfter));
         ContinueWenheCardEffect(use.Id);
     }
 
@@ -204,11 +204,11 @@ public sealed partial class GameEngine
     private void CompleteWenheCardChaos(long useId)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame { WenheCardEffect: { Stage: WenheCardEffectStage.AwaitingChaos, Applied: false } receipt } use ||
-            use.Id != useId || use.CardKind != CardKind.WenheChaos || receipt.ActionId != use.Action?.ActionId || _pendingDecision is not null)
+            use.Id != useId || LeChengyanNativeEffectKind(use) != CardKind.WenheChaos || receipt.ActionId != use.Action?.ActionId || _pendingDecision is not null)
             throw new InvalidOperationException("Wenhe Chaos cannot return to a different or already completed native trick.");
         AdvanceEventRulesAndQueueFact(new WenheCardChaosReturnedEvent(useId, receipt.ActionId, receipt.NullificationFrameId));
         ReplaceRuntimeTop(use with { WenheCardEffect = receipt = receipt with { Applied = true, Stage = WenheCardEffectStage.Children } });
-        AdvanceEventRulesAndQueueFact(new WenheCardEffectAppliedEvent(useId, receipt.ActionId, receipt.NullificationFrameId, use.CardKind, 0, receipt.MovementBefore, receipt.MovementAfter));
+        AdvanceEventRulesAndQueueFact(new WenheCardEffectAppliedEvent(useId, receipt.ActionId, receipt.NullificationFrameId, LeChengyanNativeEffectKind(use), 0, receipt.MovementBefore, receipt.MovementAfter));
         ContinueWenheCardEffect(useId);
     }
 
@@ -222,7 +222,7 @@ public sealed partial class GameEngine
             TryBeginHpChangedProgramWindow(id, PostEventContinuation.WenheCardEffect) || TryBeginCardsMovedProgramWindow(id)) return;
         use = LifecycleCardUse(id)!; AssertWenheCardReceipt(use);
         UpdateLifecycleCardUse(id, f => f with { WenheCardEffect = null });
-        FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), use.CardKind);
+        FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), LeChengyanNativeEffectKind(use));
     }
 
     private bool IsWenheCardEffectMovement(CardUseFrame use, CardMovementBatchContext batch)
@@ -230,7 +230,7 @@ public sealed partial class GameEngine
         if (use.WenheCardEffect is not { Applied: true, Stage: WenheCardEffectStage.Children, MovementBatchId: { } batchId } receipt ||
             batch.Id != batchId || batch.ParentFrameId != use.Id || batch.Movements.Count == 0 ||
             batch.Movements.Count != receipt.Materials.Count(m => m.From != m.To) || batch.Movements[0].Sequence != receipt.MovementBefore + 1 || batch.Movements[^1].Sequence != receipt.MovementAfter) return false;
-        return batch.Movements.All(move => _cardMovements.Contains(move) && move.Reason == WenheRedistributionReason(use.CardKind) &&
+        return batch.Movements.All(move => _cardMovements.Contains(move) && move.Reason == WenheRedistributionReason(LeChengyanNativeEffectKind(use)) &&
             receipt.Materials.Count(m => m.CardId == move.CardId && m.PrintedKind == move.CardKind && m.From == move.From && m.To == move.To && m.From != m.To) == 1);
     }
     private bool IsWenheCardEffectMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame movement) =>
@@ -269,8 +269,8 @@ public sealed partial class GameEngine
     private void AssertWenheCardReceipt(CardUseFrame use)
     {
         if (use.WenheCardEffect is not { } r) return;
-        if (!IsWenheCard(use.CardKind) || r.Kind != use.CardKind || use.Action?.ActionId != r.ActionId || r.NullificationFrameId <= 0 ||
-            r.TargetIndex != use.TargetIndex || use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count || use.TargetSeats[use.TargetIndex] != r.TargetSeat ||
+        if (!IsWenheCard(LeChengyanNativeEffectKind(use)) || r.Kind != LeChengyanNativeEffectKind(use) || use.Action?.ActionId != r.ActionId || r.NullificationFrameId <= 0 ||
+            r.TargetIndex != use.TargetIndex || use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count || LeChengyanNativeTargets(use)[use.TargetIndex] != r.TargetSeat ||
             !Enum.IsDefined(r.Stage) || r.Materials is not System.Collections.IList { IsReadOnly: true } || r.Materials.Select(m => m.CardId).Distinct().Count() != r.Materials.Count ||
             r.MovementBefore < 0 || r.MovementAfter < r.MovementBefore || r.MovementAfter > _movementSequence ||
             ProgramEventHistory<WenheCardPlanIssuedEvent>().Count(e => e.CardUseFrameId == use.Id && e.ActionId == r.ActionId && e.NullificationFrameId == r.NullificationFrameId &&
@@ -279,10 +279,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Wenhe lost its frozen random plan, exact action, target or original material set.");
         if (r.Stage == WenheCardEffectStage.AwaitingChaos)
         {
-            if (use.CardKind != CardKind.WenheChaos || r.Applied || r.Materials.Count != 0 || r.MovementBatchId is not null) throw new InvalidOperationException("Wenhe Chaos lost its native child return.");
+            if (LeChengyanNativeEffectKind(use) != CardKind.WenheChaos || r.Applied || r.Materials.Count != 0 || r.MovementBatchId is not null) throw new InvalidOperationException("Wenhe Chaos lost its native child return.");
             return;
         }
-        if (!r.Applied || use.CardKind == CardKind.WenheChaos && ProgramEventHistory<WenheCardChaosReturnedEvent>().Count(e =>
+        if (!r.Applied || LeChengyanNativeEffectKind(use) == CardKind.WenheChaos && ProgramEventHistory<WenheCardChaosReturnedEvent>().Count(e =>
                 e.CardUseFrameId == use.Id && e.ActionId == r.ActionId && e.NullificationFrameId == r.NullificationFrameId) != 1 ||
             ProgramEventHistory<WenheCardEffectAppliedEvent>().Count(e => e.CardUseFrameId == use.Id && e.ActionId == r.ActionId &&
                 e.NullificationFrameId == r.NullificationFrameId && e.Kind == r.Kind && e.MovedCards == r.Materials.Count(m => m.From != m.To) && e.MovementBefore == r.MovementBefore && e.MovementAfter == r.MovementAfter) != 1 ||

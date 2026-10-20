@@ -129,7 +129,7 @@ public sealed partial class GameEngine
     {
         if (use.NativeCardEffectDraw is not { } receipt) return;
         if (!HasNativeDrawAttemptCapability || receipt.NullificationFrameId <= 0 ||
-            receipt.EffectCardKind != CardKind.DrawTwo || use.CardKind != CardKind.DrawTwo ||
+            receipt.EffectCardKind != CardKind.DrawTwo || LeChengyanNativeEffectKind(use) != CardKind.DrawTwo ||
             !IsValidPlayerSeat(receipt.RecipientSeat) || receipt.TargetIndex != use.TargetIndex || !Enum.IsDefined(receipt.Stage) ||
             ProgramEventHistory<NativeCardEffectDrawStartedEvent>().Count(e => e.UseFrameId == use.Id &&
                 e.NullificationFrameId == receipt.NullificationFrameId && e.EffectCardId == receipt.EffectCardId &&

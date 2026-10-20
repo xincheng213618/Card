@@ -386,7 +386,7 @@ public sealed partial class GameEngine
             // commit the opposite polarity. Acceptance checks it again.
             if (trigger.RequiredPolarity is { } polarity &&
                 GetProgramConversionPolarity(owner.Seat, binding.SkillId) != polarity) continue;
-            if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) continue;
+            if (trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan or SkillProgramEffectOp.SelectMouZhuRongLierenTarget)) continue;
             if (trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.CollectJiyunCompletedUseEntities or SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit or SkillProgramEffectOp.ResolveChenglieRedHolderOutcome or SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse)) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) ||
                 ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice)) continue;
@@ -502,6 +502,7 @@ public sealed partial class GameEngine
         CollectIssuedBiguoCandidates(action, window, result);
         CollectIssuedMouGuquCandidates(action, window, result);
         CollectIssuedDiouCandidates(action, window, result);
+        CollectIssuedMouZhuRongLieren(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -605,6 +606,7 @@ public sealed partial class GameEngine
             SettleDamageMarkerBudgetTargets(frame.ParentFrameId);
         var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
+        if (TryStartLeChengyanEffect(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnLiuYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnCuiYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnZhuJunLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
@@ -944,6 +946,7 @@ public sealed partial class GameEngine
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.GuoSiNative is { } paid &&
                            paid.Material == cost.CardId && _resolutionStack.OfType<ProgramSkillFrame>().Any(program =>
                                program.WindowContext?.ParentFrameId == frame.Id && GuoSiNativeRidesOn(program, use)))) &&
+                     !IsWuZglReturnedCopyCost(frame.Action, cost) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
                      !TryGetSiruiDestroyedResponseCost(frame.Action,cost.CardId,out _) &&
                      !(frame.Action.Type == CardActionType.Use && IsJiyunClaimedUseEntity(frame.ParentFrameId, cost.CardId)) &&

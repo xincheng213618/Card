@@ -51,8 +51,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Alliance feast lost its native card use.");
         var targetSeat = GetNullificationTargetSeat(pending) ??
             throw new InvalidOperationException("Alliance feast requires one exact nullification target.");
-        if (use.CardKind != CardKind.AllianceFeast || use.Action is not { } action ||
-            use.TargetSeats[use.TargetIndex] != targetSeat || use.AllianceFeastChoice is not null)
+        if (LeChengyanNativeEffectKind(use) != CardKind.AllianceFeast || use.Action is not { } action ||
+            LeChengyanNativeTargets(use)[use.TargetIndex] != targetSeat || use.AllianceFeastChoice is not null)
             throw new InvalidOperationException("Alliance feast lost its native target cursor.");
         SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
         if (!_players[targetSeat].IsAlive)
@@ -89,8 +89,8 @@ public sealed partial class GameEngine
     private bool HasHulaoAllianceFeastPrompt() =>
         _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IncomingCard: CardKind.AllianceFeast } decision &&
         _resolutionStack.LastOrDefault() is CardUseFrame { AllianceFeastChoice: { } choice } use &&
-        use.CardKind == CardKind.AllianceFeast && use.TargetIndex == choice.TargetIndex &&
-        use.TargetSeats[use.TargetIndex] == choice.TargetSeat && decision.PlayerSeat == choice.TargetSeat;
+        LeChengyanNativeEffectKind(use) == CardKind.AllianceFeast && use.TargetIndex == choice.TargetIndex &&
+        LeChengyanNativeTargets(use)[use.TargetIndex] == choice.TargetSeat && decision.PlayerSeat == choice.TargetSeat;
 
     [ProgramAnswer("hulao-alliance-feast")]
     private void ResolveHulaoAllianceFeastChoice(PromptChoice selected)
@@ -112,7 +112,7 @@ public sealed partial class GameEngine
         {
             var amount = ApplyIssuedCardRecoveryModifiers(use.Id, use.SourceSeat, target.Seat, 1);
             if (!TryQueueRecoveryReplacement(use.Id, use.SourceSeat, target.Seat, amount,
-                new(RecoveryAttemptProducer.CardUse, CardId: use.CardId, CardKind: use.CardKind, Policies: [])))
+                new(RecoveryAttemptProducer.CardUse, CardId: use.CardId, CardKind: LeChengyanNativeEffectKind(use), Policies: [])))
             {
                 var recoveryId = BeginRecovery(use.Id, use.SourceSeat, target.Seat, amount);
                 try
@@ -159,9 +159,9 @@ public sealed partial class GameEngine
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(use => use.AllianceFeastChoice is not null))
         {
             var choice = use.AllianceFeastChoice!;
-            if (use.CardKind != CardKind.AllianceFeast || use.Action?.ActionId != choice.ActionId ||
-                use.TargetIndex != choice.TargetIndex || use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
-                use.TargetSeats[use.TargetIndex] != choice.TargetSeat || !HasHulaoAllianceFeastPrompt() ||
+            if (LeChengyanNativeEffectKind(use) != CardKind.AllianceFeast || use.Action?.ActionId != choice.ActionId ||
+                use.TargetIndex != choice.TargetIndex || use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+                LeChengyanNativeTargets(use)[use.TargetIndex] != choice.TargetSeat || !HasHulaoAllianceFeastPrompt() ||
                 _resolutionStack.LastOrDefault()?.Id != use.Id ||
                 _pendingDecision!.Choices.Count != 2 || _pendingDecision.Choices.Any(option =>
                     option.Parameters.GetValueOrDefault("program-action") != "hulao-alliance-feast"))

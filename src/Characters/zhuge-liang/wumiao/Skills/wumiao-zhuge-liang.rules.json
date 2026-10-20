@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "wumiao:jincui", "revision": 1, "triggers": [
+      { "id": "opening-seven", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "initializeWuZhugeLiangJincui", "target": "owner" }] },
+      { "id": "preparation-seven", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "effects": [{ "op": "resolveWuZhugeLiangJincui", "target": "owner" }] }
+    ] },
+    { "id": "wumiao:qingshi", "revision": 1, "triggers": [
+      { "id": "same-name-use", "window": "cardUseCommitted", "ownerRelation": "actor", "includeResponseUses": true, "singleActionInstance": true, "optional": true, "effects": [{ "op": "resolveWuZhugeLiangQingshi", "target": "owner" }] }
+    ] },
+    { "id": "wumiao:zhizhe", "revision": 1, "activations": [
+      { "id": "copy-hand", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"], "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1, "effects": [{ "op": "resolveWuZhugeLiangZhizhe", "target": "owner" }] }
+    ] }
+  ]
+}

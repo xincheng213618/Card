@@ -137,7 +137,7 @@ public sealed partial class GameEngine
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(frame => frame.ColorFireAttack is not null))
         {
             var receipt = use.ColorFireAttack!;
-            if (use.CardKind != CardKind.FireAttack || use.Action?.ActionId != receipt.ActionId ||
+            if (LeChengyanNativeEffectKind(use) != CardKind.FireAttack || use.Action?.ActionId != receipt.ActionId ||
                 receipt.Source.OwnerSeat != use.SourceSeat || string.IsNullOrWhiteSpace(receipt.Source.SkillId) ||
                 string.IsNullOrWhiteSpace(receipt.Source.BindingId) || string.IsNullOrWhiteSpace(receipt.Source.SkillInstanceId))
                 throw new InvalidOperationException("Color Fire Attack has an invalid issued source identity.");

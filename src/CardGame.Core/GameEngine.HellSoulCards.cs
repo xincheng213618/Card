@@ -74,8 +74,8 @@ public sealed partial class GameEngine
     {
         var use = LifecycleCardUse(pending.ParentFrameId) ?? throw new InvalidOperationException("Return soul lost its actual native card owner.");
         var seat = GetNullificationTargetSeat(pending) ?? throw new InvalidOperationException("Return soul lost its exact native target.");
-        if (use.CardKind != CardKind.ReturnSoul || use.HellSoul is not null || use.Action is not { } action ||
-            use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count || use.TargetSeats[use.TargetIndex] != seat)
+        if (LeChengyanNativeEffectKind(use) != CardKind.ReturnSoul || use.HellSoul is not null || use.Action is not { } action ||
+            use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count || LeChengyanNativeTargets(use)[use.TargetIndex] != seat)
             throw new InvalidOperationException("Return soul changed its issued native effect or target cursor.");
         SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
         if (!_players[seat].IsAlive || HellSoulOutstandingLosses(seat).Length == 0)
@@ -102,11 +102,11 @@ public sealed partial class GameEngine
         if (frame.HellSoulReturn is not { } returned || frame.SkillId != HellSoulResolutionSkill || frame.ActivationId != "card-effect" ||
             frame.TriggerId is not null || frame.SelectedCardIds.Count != 0 || !frame.SelectedTargetSeats.SequenceEqual([returned.TargetSeat]) ||
             frame.SkillInstanceId != HellSoulGrant(returned.CardUseFrameId) || frame.GameplayHash != _contentRegistry.GetSkill(frame.SkillId).Program!.GameplayHash ||
-            LifecycleCardUse(returned.CardUseFrameId) is not { CardKind: CardKind.ReturnSoul, Step: ResolutionFrameStep.ResolvingEffect,
-                HellSoul: { } current, Action: { } action } use ||
+            LifecycleCardUse(returned.CardUseFrameId) is not { Step: ResolutionFrameStep.ResolvingEffect,
+                HellSoul: { } current, Action: { } action } use || LeChengyanNativeEffectKind(use) != CardKind.ReturnSoul ||
             current.ProgramFrameId != frame.Id || current.ActionId != action.ActionId || returned.ActionId != action.ActionId ||
             current.TargetIndex != use.TargetIndex || returned.TargetIndex != use.TargetIndex || current.TargetSeat != returned.TargetSeat ||
-            use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count || use.TargetSeats[use.TargetIndex] != returned.TargetSeat ||
+            use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count || LeChengyanNativeTargets(use)[use.TargetIndex] != returned.TargetSeat ||
             use.SourceSeat != frame.OwnerSeat) return false;
         var index = _resolutionStack.FindIndex(f => f.Id == frame.Id);
         return index > 0 && _resolutionStack[index - 1].Id == use.Id &&
@@ -216,7 +216,7 @@ public sealed partial class GameEngine
         foreach (var frame in _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.HellSoulReturn is not null))
             if (!IsExactHellSoulProgram(frame)) throw new InvalidOperationException("Return soul changed its issued hidden restoration child.");
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(f => f.HellSoul is not null))
-            if (use.CardKind != CardKind.ReturnSoul || !_resolutionStack.OfType<ProgramSkillFrame>().Any(f =>
+            if (LeChengyanNativeEffectKind(use) != CardKind.ReturnSoul || !_resolutionStack.OfType<ProgramSkillFrame>().Any(f =>
                     f.Id == use.HellSoul!.ProgramFrameId && IsExactHellSoulProgram(f)))
                 throw new InvalidOperationException("Return soul lost its exact native target restoration child.");
     }

@@ -126,12 +126,12 @@ public sealed partial class GameEngine
             frame.TriggerId is not null || frame.ActivationId != "card-effect" ||
             frame.SelectedCardIds.Count != 0 || !frame.SelectedTargetSeats.SequenceEqual(new[] { receipt.ActorSeat }) ||
             frame.SkillInstanceId != ShenwuTransplantGrant(receipt.CardUseFrameId) ||
-            LifecycleCardUse(receipt.CardUseFrameId) is not { CardKind: CardKind.TransplantWood, Step: ResolutionFrameStep.ResolvingEffect,
-                ShenwuTransplant: { } state, Action: { } action } use ||
+            LifecycleCardUse(receipt.CardUseFrameId) is not { Step: ResolutionFrameStep.ResolvingEffect,
+                ShenwuTransplant: { } state, Action: { } action } use || LeChengyanNativeEffectKind(use) != CardKind.TransplantWood ||
             state.ProgramFrameId != frame.Id || state.ActionId != action.ActionId || state.ActionId != receipt.ActionId ||
             state.TargetIndex != receipt.TargetIndex || use.TargetIndex != receipt.TargetIndex ||
-            state.ActorSeat != receipt.ActorSeat || use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[use.TargetIndex] != receipt.ActorSeat || frame.OwnerSeat != use.SourceSeat ||
+            state.ActorSeat != receipt.ActorSeat || use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[use.TargetIndex] != receipt.ActorSeat || frame.OwnerSeat != use.SourceSeat ||
             frame.GameplayHash != _contentRegistry.GetSkill(ShenwuTransplantSkill).Program!.GameplayHash)
             return false;
         var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);

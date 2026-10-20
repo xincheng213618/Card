@@ -120,25 +120,25 @@ public sealed partial class GameEngine
     private void ResolveGuanduTrickEffect(NullificationWindowFrame pending)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != pending.ParentFrameId ||
-            !IsGuanduTrick(use.CardKind) || pending.EffectCardKind != use.CardKind || pending.ActionKind != GuanduCardAction(use.CardKind) ||
+            !IsGuanduTrick(LeChengyanNativeEffectKind(use)) || pending.EffectCardKind != LeChengyanNativeEffectKind(use) || pending.ActionKind != GuanduCardAction(LeChengyanNativeEffectKind(use)) ||
             use.GuanduCardEffect is not null || use.Action is not { Type: CardActionType.Use } action || use.SourceSeat != pending.SourceSeat ||
-            use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count || GetNullificationTargetSeat(pending) is not { } target ||
-            use.TargetSeats[use.TargetIndex] != target)
+            use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count || GetNullificationTargetSeat(pending) is not { } target ||
+            LeChengyanNativeTargets(use)[use.TargetIndex] != target)
             throw new InvalidOperationException("A Guandu trick lost its exact resolved native target and effect occurrence.");
-        if (!_players[target].IsAlive) { FinishCardUse(use.Id, GetNullificationEffectCard(pending), use.CardKind); return; }
+        if (!_players[target].IsAlive) { FinishCardUse(use.Id, GetNullificationEffectCard(pending), LeChengyanNativeEffectKind(use)); return; }
         var allied = GuanduAllies(use.SourceSeat, target);
-        var amount = use.CardKind == CardKind.StoreGrain || use.CardKind == CardKind.UnitedEffort && allied && _players[target].IsChained ? 1 : 0;
+        var amount = LeChengyanNativeEffectKind(use) == CardKind.StoreGrain || LeChengyanNativeEffectKind(use) == CardKind.UnitedEffort && allied && _players[target].IsChained ? 1 : 0;
         var occurrence = ProgramEventHistory<GuanduCardEffectStartedEvent>().Count(e => e.UseFrameId == use.Id && e.TargetIndex == use.TargetIndex) + 1;
-        var receipt = new GuanduCardEffectReceipt(action.ActionId, pending.Id, use.CardKind, target, use.TargetIndex, occurrence,
-            use.CardKind == CardKind.Reinforcements ? GuanduCardEffectStage.RecoveryChildren :
-            use.CardKind == CardKind.UnitedEffort && !allied ? GuanduCardEffectStage.ChainChildren : GuanduCardEffectStage.Drawing)
+        var receipt = new GuanduCardEffectReceipt(action.ActionId, pending.Id, LeChengyanNativeEffectKind(use), target, use.TargetIndex, occurrence,
+            LeChengyanNativeEffectKind(use) == CardKind.Reinforcements ? GuanduCardEffectStage.RecoveryChildren :
+            LeChengyanNativeEffectKind(use) == CardKind.UnitedEffort && !allied ? GuanduCardEffectStage.ChainChildren : GuanduCardEffectStage.Drawing)
         { AlliedBranch = allied, RequestedCount = amount, AwaitingProgramFrameId = _resolutionStack.OfType<ProgramSkillFrame>()
             .LastOrDefault() is { } parent && IsAwaitingProgramMovement(parent) ? parent.Id : null };
         ReplaceRuntimeTop(use with { Step = ResolutionFrameStep.ResolvingEffect, GuanduCardEffect = receipt });
-        AdvanceEventRulesAndQueueFact(new GuanduCardEffectStartedEvent(use.Id, action.ActionId, pending.Id, use.CardKind,
+        AdvanceEventRulesAndQueueFact(new GuanduCardEffectStartedEvent(use.Id, action.ActionId, pending.Id, LeChengyanNativeEffectKind(use),
             target, use.TargetIndex, occurrence, allied, amount));
-        if (use.CardKind == CardKind.Reinforcements) ApplyGuanduRecovery(use.Id);
-        else if (use.CardKind == CardKind.UnitedEffort && !allied)
+        if (LeChengyanNativeEffectKind(use) == CardKind.Reinforcements) ApplyGuanduRecovery(use.Id);
+        else if (LeChengyanNativeEffectKind(use) == CardKind.UnitedEffort && !allied)
         {
             _players[target].IsChained = ResolveEnteringChain(_players[target], true);
             AdvanceEventRulesAndQueueFact(new IronChainStateChangedEvent(use.Id, use.SourceSeat, target, _players[target].IsChained));
@@ -172,7 +172,7 @@ public sealed partial class GameEngine
                     TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.GuanduCardEffect) ||
                     TryBeginHpChangedProgramWindow(id, PostEventContinuation.GuanduCardEffect) || TryBeginCardsMovedProgramWindow(id)) return;
                 UpdateLifecycleCardUse(id, current => current with { GuanduCardEffect = null, NativeDraw = null });
-                FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), use.CardKind); return;
+                FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), LeChengyanNativeEffectKind(use)); return;
             }
             if (use.NativeDraw is null)
                 ReplaceRuntimeTop(use = use with { NativeDraw = new NativeDrawProducerReceipt(0, r.RequestedCount, null,
@@ -214,7 +214,7 @@ public sealed partial class GameEngine
         use.GuanduCardEffect is { Stage: GuanduCardEffectStage.RecoveryChildren, RecoveryAmount: > 0 } r &&
         attempt.SourceSeat == use.SourceSeat && attempt.TargetSeat == r.TargetSeat && attempt.Amount == r.RecoveryAmount &&
         attempt.Completion.Producer == RecoveryAttemptProducer.CardUse && attempt.Completion.CardId == use.CardId &&
-        attempt.Completion.CardKind == use.CardKind && attempt.Completion.Policies is { Count: 0 } &&
+        attempt.Completion.CardKind == LeChengyanNativeEffectKind(use) && attempt.Completion.Policies is { Count: 0 } &&
         ProgramEventHistory<GuanduCardRecoveryIssuedEvent>().Count(e => e.UseFrameId == use.Id && e.NullificationFrameId == r.NullificationFrameId &&
             e.Occurrence == r.Occurrence && e.SourceSeat == use.SourceSeat && e.TargetSeat == r.TargetSeat && e.Amount == attempt.Amount) == 1;
     private bool IsGuanduCardEffectRecoveryReturn(CardUseFrame use, RecoveryReplacementFrame frame) =>
@@ -231,11 +231,11 @@ public sealed partial class GameEngine
     private void AssertGuanduCardReceipt(CardUseFrame use)
     {
         if (use.GuanduCardEffect is not { } r) return;
-        if (!IsGuanduTrick(use.CardKind) || r.Kind != use.CardKind || use.Action?.ActionId != r.ActionId ||
-            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[r.TargetIndex] != r.TargetSeat || r.Occurrence < 1 || !Enum.IsDefined(r.Stage) || r.RequestedCount is < 0 or > 1 ||
+        if (!IsGuanduTrick(LeChengyanNativeEffectKind(use)) || r.Kind != LeChengyanNativeEffectKind(use) || use.Action?.ActionId != r.ActionId ||
+            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[r.TargetIndex] != r.TargetSeat || r.Occurrence < 1 || !Enum.IsDefined(r.Stage) || r.RequestedCount is < 0 or > 1 ||
             ProgramEventHistory<GuanduCardEffectStartedEvent>().Count(e => e.UseFrameId == use.Id && e.ActionId == r.ActionId &&
-                e.NullificationFrameId == r.NullificationFrameId && e.Kind == use.CardKind && e.TargetIndex == r.TargetIndex &&
+                e.NullificationFrameId == r.NullificationFrameId && e.Kind == LeChengyanNativeEffectKind(use) && e.TargetIndex == r.TargetIndex &&
                 e.TargetSeat == r.TargetSeat && e.Occurrence == r.Occurrence && e.AlliedBranch == r.AlliedBranch && e.RequestedCount == r.RequestedCount) != 1)
             throw new InvalidOperationException("A Guandu effect lost its exact native use, target cursor, or once-issued effect occurrence.");
         if (use.NativeDraw is { } paid && (r.Stage != GuanduCardEffectStage.Drawing || paid.ReturnKind != NativeDrawAttemptReturnKind.GuanduCardEffect ||

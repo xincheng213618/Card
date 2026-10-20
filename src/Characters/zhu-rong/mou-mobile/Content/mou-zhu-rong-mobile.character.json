@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-rong",
+  "skills": [
+    {
+      "registrationOrder": 2282,
+      "programBundle": "mou-zhu-rong-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:lieren",
+        "name": "烈刃",
+        "description": "当你使用【杀】指定一名其他角色为唯一目标后，你可与其拼点，若你赢，此【杀】结算结束后，你可对另一名其他角色造成1点伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2283,
+      "programBundle": "mou-zhu-rong-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:juxiang",
+        "name": "巨象",
+        "description": "锁定技，【南蛮入侵】对你无效；当其他角色使用的【南蛮入侵】结算结束后，你获得之。结束阶段，若你本回合未使用过【南蛮入侵】，你随机从游戏外将一张【南蛮入侵】交给一名角色。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2284,
+      "pools": {
+        "current": 526
+      },
+      "definition": {
+        "id": "mou:zhu-rong-mobile",
+        "name": "谋祝融·移动版",
+        "portraitKey": "mou-zhu-rong-mobile",
+        "skillId": "mou-mobile:lieren",
+        "additionalSkillIds": [
+          "mou-mobile:juxiang"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Female",
+        "characterId": "character:zhu-rong",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

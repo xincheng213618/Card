@@ -668,7 +668,7 @@ public sealed partial class GameEngine
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
         cards = cards.Concat(NativePublicPileSlashUseCards(owner));
-        return cards.Where(card => !IsZhaohuoPhysicalRestricted(owner.Seat, card.Id))
+        return cards.Where(card => !IsZhaohuoPhysicalRestricted(owner.Seat, card.Id) && !IsWuZglCopyBlocked(owner.Seat, card.Id))
             .Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,WuJingLiubingUseCard(owner,card,card.Kind)))).DistinctBy(card => card.Id).ToArray();
     }
 

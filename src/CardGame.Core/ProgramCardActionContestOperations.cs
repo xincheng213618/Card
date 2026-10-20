@@ -23,7 +23,9 @@ internal sealed class StartCardActionPindianDescriptor : ProgramOperationDescrip
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.StartPindian,static (e,c)=>c.StartPindian(e));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     { r.AllowOnly("op","target","opponentRef","resultBind","visibility","condition"); var opponent=r.RequiredParticipantReference("opponentRef"); if(opponent.Kind is not (ProgramParticipantRef.Actor or ProgramParticipantRef.EventTarget)) throw new InvalidOperationException("Card-action Pindian requires actor or eventTarget.");var e=new SkillProgramEffect(Op,FilterBoundCardsProgramOperationDescriptor.Owner(r),0,r.Condition(),resultBind:r.RequiredIdentifier("resultBind"),visibility:r.RequiredEnum<SkillProgramCardSetVisibility>("visibility"),opponentReference:opponent);RequireAlways(e,r.Path);return e; }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(e.OpponentReference!.Kind==ProgramParticipantRef.Actor?SkillProgramTriggerWindow.CardUseBeforeTargetEffects:SkillProgramTriggerWindow.SlashBeforeResponse),new CreatePindianResult(e.ResultBind!)];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>e.OpponentReference!.Kind == ProgramParticipantRef.Actor
+        ? [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseBeforeTargetEffects), new CreatePindianResult(e.ResultBind!)]
+        : [new RequireTriggerWindows([SkillProgramTriggerWindow.SlashBeforeResponse, SkillProgramTriggerWindow.CardUseTargetsFinalized]), new CreatePindianResult(e.ResultBind!)];
 }
 public sealed class ReplaceAllSlashTargetsHandler : ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>SkillProgramEffectOp.ReplaceAllSlashTargets;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h){h.GetCapability<ICardActionContestProgramHost>().ReplaceAllSlashTargets(f,e.SourceBind!);return SkillProgramStepOutcome.Continue;}}

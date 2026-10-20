@@ -1,0 +1,101 @@
+{
+  "formatVersion": 1,
+  "status": "implemented",
+  "generalId": "mou:zhu-rong-mobile",
+  "characterId": "character:zhu-rong",
+  "displayName": "谋祝融·移动版",
+  "edition": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "identity": {
+    "factionId": "shu",
+    "gender": "Female",
+    "baseHp": 4,
+    "officialHeroId": 565,
+    "officialGeneralId": 714
+  },
+  "verifiedAtUtc": "2026-10-20T12:51:51.316396+00:00",
+  "skills": [
+    {
+      "id": "mou-mobile:lieren",
+      "name": "烈刃",
+      "officialText": "当你使用【杀】指定一名其他角色为唯一目标后，你可与其拼点，若你赢，此【杀】结算结束后，你可对另一名其他角色造成1点伤害。"
+    },
+    {
+      "id": "mou-mobile:juxiang",
+      "name": "巨象",
+      "officialText": "锁定技，【南蛮入侵】对你无效；当其他角色使用的【南蛮入侵】结算结束后，你获得之。结束阶段，若你本回合未使用过【南蛮入侵】，你随机从游戏外将一张【南蛮入侵】交给一名角色。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-565.html",
+      "sha256": "5652BB3D0FF8D453C0DCDB63E1B58228928274D3196308C244561AA6FB92B195",
+      "bytes": 20439
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1637.html",
+      "sha256": "4006107BED934A0A8FF542E9ED75CA5966BDD8B72C79D24824A2880E273CDF11",
+      "bytes": 87691
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-1637.html",
+    "publishedAt": "2023-09-28 17:30:00",
+    "firstObtainableDate": "2023-09-29",
+    "availability": "天工宝库正式上线；后续官网活动公告仍可永久获取。"
+  },
+  "revisionAudit": {
+    "officialHeroAndApiAgree": true,
+    "boundedSearch": "Fresh official hero 565 and mobile generals API contain the same complete two skills. Official release 1637; current official returns 1781/1889/2333 corroborate permanent roster availability. No conflicting specific revision was found in this bounded official-domain search.",
+    "notAnOfficialFaq": true
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "outside physical Assault faces",
+      "decision": "At each accepted Ending gift, sample uniformly from distinct Barbarian Assault printed faces of the fixed selected deck recipe, independent of live stock depletion. A mode recipe with no Assault uses ordinary printed templates Spade7, SpadeK, Club7. Generated cards are genuine positive-ID physical entities and use the native OutsideGame→Hand movement; the random face is not publicly revealed.",
+      "authority": "Project engineering interpretation; official text specifies random outside card but does not define template distribution."
+    },
+    {
+      "topic": "paid Lieren deferred tail",
+      "decision": "A won native Pindian freezes original source instance/hash and whole Slash action/use. Its optional post-completion damage survives later skill loss/regrant and never transfers entitlement to the new instance. Both original opponent and Zhu Rong are excluded from this damage target.",
+      "authority": "Native paid continuation contract, following official order."
+    },
+    {
+      "topic": "Ending turn-history",
+      "decision": "Own genuine declared Barbarian Assault uses are recorded independent of current skill possession. Ordinary Played cards do not count as uses. The native TurnStarted occurrence identifies the actual turn, including extra turns.",
+      "authority": "Native actual-turn boundary."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/71400.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-zhu-rong-mobile.jpg",
+    "sha256": "B3FB006C2593CC4CFDABC0D4B2A276AA942E2EA0452DACC6A801FD4D472C94F1",
+    "bytes": 2796125,
+    "width": 3982,
+    "height": 5656,
+    "visualValidation": "Root downloaded and visually inspected the original official image."
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedCoreFilter": "Mou Zhu Rong Mobile:",
+    "reusedMechanisms": [
+      "native single-target Pindian and rank policies",
+      "global target immunity and resolved-card claim policies",
+      "native program Damage",
+      "native generated-card registry and movement continuation"
+    ],
+    "newBehavior": [
+      "designation contest deferred until whole Slash completion with paid source-loss return",
+      "outside-game real Assault gift and actual-turn use suppression"
+    ],
+    "checks": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "le:xidi", "revision": 1,
+      "triggers": [
+        { "id": "mark-initial-flutes", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "initializeLeZhugeGuoXidi", "target": "owner" }] },
+        { "id": "preparation-reorder", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "effects": [{ "op": "reorderLeZhugeGuoXidi", "target": "owner" }] },
+        { "id": "ending-reorder", "window": "turnEnding", "subject": "owner", "optional": false,
+          "effects": [{ "op": "reorderLeZhugeGuoXidi", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "le:chengyan", "revision": 1,
+      "triggers": [
+        { "id": "replace-use-effect", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true,
+          "effects": [{ "op": "resolveLeZhugeGuoChengyan", "target": "owner" }] }
+      ]
+    }
+  ]
+}

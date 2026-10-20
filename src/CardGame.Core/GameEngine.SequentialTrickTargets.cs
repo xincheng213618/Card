@@ -21,16 +21,17 @@ public sealed partial class GameEngine
             use = use with { SequentialTrick = new(kind, firstTargetCardId, requiredCardKind) };
             ReplaceRuntimeFrame(_resolutionStack[index].Id, use);
         }
-        return use.SequentialTrick is null ? targets : [use.TargetSeats[use.TargetIndex]];
+        return use.SequentialTrick is null ? targets : [LeChengyanNativeTargets(use)[use.TargetIndex]];
     }
 
     private bool HasRemainingSequentialTrickTargets(long frameId) => _winner == Winner.None &&
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is
             { SequentialTrick: not null } use &&
-        use.TargetSeats.Skip(use.TargetIndex + 1).Any(seat => _players[seat].IsAlive);
+        LeChengyanNativeTargets(use).Skip(use.TargetIndex + 1).Any(seat => _players[seat].IsAlive);
 
     private void MoveFinishedTrickCard(long frameId, Card card)
     {
+        if (KeepLeChengyanBorrowedMaterial(frameId)) return;
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
         if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;
@@ -44,10 +45,10 @@ public sealed partial class GameEngine
         if (index < 0 || _resolutionStack[index] is not CardUseFrame { SequentialTrick: { } continuation } use)
             return false;
         var next = use.TargetIndex + 1;
-        while (next < use.TargetSeats.Count && !_players[use.TargetSeats[next]].IsAlive) next++;
-        if (_winner != Winner.None || next == use.TargetSeats.Count)
+        while (next < LeChengyanNativeTargets(use).Count && !_players[LeChengyanNativeTargets(use)[next]].IsAlive) next++;
+        if (_winner != Winner.None || next == LeChengyanNativeTargets(use).Count)
         {
-            ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = use.TargetSeats.Count, SequentialTrick = null });
+            ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = LeChengyanNativeTargets(use).Count, SequentialTrick = null });
             return false;
         }
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
@@ -66,7 +67,7 @@ public sealed partial class GameEngine
             ActiveDuel = null;
             ClearPendingDecision();
         }
-        BeginNullificationWindow(frameId, card, use.SourceSeat, [use.TargetSeats[next]],
+        BeginNullificationWindow(frameId, card, use.SourceSeat, [LeChengyanNativeTargets(use)[next]],
             continuation.ActionKind, null, continuation.RequiredCardKind, use.CardKind);
         return true;
     }
@@ -75,10 +76,10 @@ public sealed partial class GameEngine
     {
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(frame => frame.SequentialTrick is not null))
         {
-            if (!UsesSequentialTrickTargets(use.SequentialTrick!.ActionKind) || use.TargetSeats.Count < 2 ||
-                use.TargetSeats.Distinct().Count() != use.TargetSeats.Count ||
-                use.TargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
-                use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
+            if (!UsesSequentialTrickTargets(use.SequentialTrick!.ActionKind) || LeChengyanNativeTargets(use).Count < 2 ||
+                LeChengyanNativeTargets(use).Distinct().Count() != LeChengyanNativeTargets(use).Count ||
+                LeChengyanNativeTargets(use).Any(seat => !IsValidPlayerSeat(seat)) ||
+                use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
                 !IsTieredRoundZeroUse(use.Id) &&
                 !IsProgramVirtualOrdinaryTrickUse(use.Id) && !IsDiouZeroUse(use.Id) &&
                 !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&

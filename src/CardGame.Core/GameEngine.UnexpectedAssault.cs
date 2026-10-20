@@ -25,10 +25,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Unexpected Assault lost its current target.");
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use ||
             use.Id != pending.ParentFrameId || use.CardId != pending.EffectCardId ||
-            use.CardKind != CardKind.UnexpectedAssault || pending.EffectCardKind != use.CardKind ||
+            LeChengyanNativeEffectKind(use) != CardKind.UnexpectedAssault || pending.EffectCardKind != LeChengyanNativeEffectKind(use) ||
             pending.ActionKind != LegalActionKind.UnexpectedAssault || use.SourceSeat != pending.SourceSeat ||
-            use.TargetIndex >= use.TargetSeats.Count || use.TargetSeats[use.TargetIndex] != targetSeat ||
-            use.Action is not { Type: CardActionType.Use, EffectiveKind: CardKind.UnexpectedAssault, EffectiveSuit: not null })
+            use.TargetIndex >= LeChengyanNativeTargets(use).Count || LeChengyanNativeTargets(use)[use.TargetIndex] != targetSeat ||
+            use.Action is not { Type: CardActionType.Use, EffectiveSuit: not null })
             throw new InvalidOperationException("Unexpected Assault lost its exact owning native use and suit.");
 
         var target = _players[targetSeat];
@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.TargetHandEmpty);
             return;
         }
-        if (!IsExtraCardEffectRound(use.Id)) AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, use.CardKind, use.SourceSeat, targetSeat));
+        if (!IsExtraCardEffectRound(use.Id)) AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, LeChengyanNativeEffectKind(use), use.SourceSeat, targetSeat));
         AddLog("CardUsed", $"{_players[use.SourceSeat].Name} 对 {target.Name} 使用【出其不意】，选择展示其一张手牌。",
             use.SourceSeat, targetSeat);
         BeginTargetCardSelection(pending, target, GetHand(target).Count);
@@ -59,12 +59,12 @@ public sealed partial class GameEngine
             return false;
         if (effectiveCardKind != CardKind.UnexpectedAssault || actionKind != LegalActionKind.UnexpectedAssault ||
             _resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != resolutionId ||
-            use.CardKind != effectiveCardKind || use.CardId != effectCard.Id || use.SourceSeat != sourceSeat ||
-            use.Step != ResolutionFrameStep.ResolvingEffect || use.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[use.TargetIndex] != targetSeat || targetCardFromZone != CardLocation.Hand(targetSeat) ||
+            LeChengyanNativeEffectKind(use) != effectiveCardKind || use.CardId != effectCard.Id || use.SourceSeat != sourceSeat ||
+            use.Step != ResolutionFrameStep.ResolvingEffect || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[use.TargetIndex] != targetSeat || targetCardFromZone != CardLocation.Hand(targetSeat) ||
             !_players[targetSeat].IsAlive || !GetHand(_players[targetSeat]).Any(card => card.Id == targetCard.Id) ||
             use.UnexpectedAssaultReveal?.TargetIndex == use.TargetIndex ||
-            use.Action is not { Type: CardActionType.Use, EffectiveKind: CardKind.UnexpectedAssault,
+            use.Action is not { Type: CardActionType.Use,
                 EffectiveSuit: { } useSuit } action || action.ActorSeat != sourceSeat)
             throw new InvalidOperationException("Unexpected Assault reveal lost its exact current hand, action or target cursor.");
 
@@ -97,12 +97,12 @@ public sealed partial class GameEngine
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(frame => frame.UnexpectedAssaultReveal is not null))
         {
             var receipt = use.UnexpectedAssaultReveal!;
-            if (use.CardKind != CardKind.UnexpectedAssault || receipt.CardUseFrameId != use.Id ||
-                use.Action is not { Type: CardActionType.Use, EffectiveKind: CardKind.UnexpectedAssault } action ||
+            if (LeChengyanNativeEffectKind(use) != CardKind.UnexpectedAssault || receipt.CardUseFrameId != use.Id ||
+                use.Action is not { Type: CardActionType.Use } action ||
                 action.ActionId != receipt.ActionId || action.ActorSeat != use.SourceSeat ||
                 action.EffectiveSuit != receipt.EffectiveUseSuit || receipt.SourceSeat != use.SourceSeat ||
-                receipt.TargetIndex < 0 || receipt.TargetIndex >= use.TargetSeats.Count || receipt.TargetIndex > use.TargetIndex ||
-                use.TargetSeats[receipt.TargetIndex] != receipt.TargetSeat || receipt.RevealedCardId <= 0 ||
+                receipt.TargetIndex < 0 || receipt.TargetIndex >= LeChengyanNativeTargets(use).Count || receipt.TargetIndex > use.TargetIndex ||
+                LeChengyanNativeTargets(use)[receipt.TargetIndex] != receipt.TargetSeat || receipt.RevealedCardId <= 0 ||
                 !IsValidPlayerSeat(receipt.SourceSeat) || !IsValidPlayerSeat(receipt.TargetSeat) ||
                 !Enum.IsDefined(receipt.EffectiveUseSuit) || !Enum.IsDefined(receipt.EffectiveRevealedSuit) ||
                 CompleteProgramEventHistory().OfType<UnexpectedAssaultRevealedEvent>().Count(e => e.Receipt == receipt) != 1 ||

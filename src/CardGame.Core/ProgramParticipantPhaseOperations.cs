@@ -67,7 +67,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1));
     }
     private bool IsTurnPhysicalUseForbidden(int seat, IReadOnlyList<int> ids) => IsTurnPhysicalUseForbiddenByExistingPolicies(seat, ids) || MouGuquPhysicalUseForbidden(seat, ids);
-    private bool IsTurnPhysicalUseForbiddenByExistingPolicies(int seat, IReadOnlyList<int> ids) => ids.Any(id => IsZhaohuoPhysicalRestricted(seat, id)) || IsHandCategoryMaterialRestricted(ids) || ids.Count > 0 && CaptureUsedCardSuit(seat, ids, _cardZones.CardsAt(_cardZones.GetLocation(ids[0])).Single(c => c.Id == ids[0])) is { } suit && IsTurnSuitUseForbidden(seat,suit);
+    private bool IsTurnPhysicalUseForbiddenByExistingPolicies(int seat, IReadOnlyList<int> ids) => IsWuZglUseMaterialForbidden(seat, ids) || ids.Any(id => IsZhaohuoPhysicalRestricted(seat, id)) || IsHandCategoryMaterialRestricted(ids) || ids.Count > 0 && CaptureUsedCardSuit(seat, ids, _cardZones.CardsAt(_cardZones.GetLocation(ids[0])).Single(c => c.Id == ids[0])) is { } suit && IsTurnSuitUseForbidden(seat,suit);
     private bool IsTurnSuitUseForbidden(int seat,Suit suit) => _turnCardUseEffects.ActionProhibitions.Any(p=>p.TurnNumber==_turnNumber && p.TurnSeat==_currentSeat && p.Source.OwnerSeat==seat && p.Suits?.Contains(suit)==true && p.ActionTypes.Contains(CardActionType.Use));
     private void GrantProgramTurnBoundSuitUseProhibition(ProgramSkillFrame frame,string bind)
     {

@@ -147,6 +147,7 @@ public enum SkillProgramTargetKind
     PublicTeamUnchainedEnemies = 27403,
     PublicTeamEnemiesWithFaceDownAlly = 27404,
     OtherPublicTeamAllies = 27405,
+    MouZhuRongLierenOther = 30400,
     OtherLivingNonLord = 9800, OtherLivingNotLastRoundFocus = 9801,
     ExclusiveRendeBeneficiary = 9802, OtherLivingWithoutEndingSupport = 9803,
     ExclusiveQingnangBeneficiary = 9804,
@@ -1073,6 +1074,16 @@ public enum SkillProgramEffectOp
     ArmWuHuangFuSongJiangxian = 30002,
     SettleWuHuangFuSongJiangxian = 30003,
     ReserveMouYuanShaoReward = 30100,
+    InitializeWuZhugeLiangJincui = 30300,
+    ResolveWuZhugeLiangJincui = 30301,
+    ResolveWuZhugeLiangQingshi = 30302,
+    ResolveWuZhugeLiangZhizhe = 30303,
+    InitializeLeZhugeGuoXidi = 30200,
+    ReorderLeZhugeGuoXidi = 30201,
+    ResolveLeZhugeGuoChengyan = 30202,
+    RecordMouZhuRongLieren = 30400,
+    SelectMouZhuRongLierenTarget = 30401,
+    GiftMouZhuRongOutsideAssault = 30402,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -4169,7 +4180,16 @@ public sealed class SkillProgramCatalog
             string.Equals(bingcaiOp.GetString(), "resolveMouHuangYueyingBingcai", StringComparison.OrdinalIgnoreCase) &&
             bingcaiEffects[0].TryGetProperty("target", out var bingcaiTarget) && bingcaiTarget.ValueKind == JsonValueKind.String &&
             string.Equals(bingcaiTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
-        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !huoxinSingleAction && !bingcaiSingleAction &&
+        var committedPrivateChoiceSingleAction = window == SkillProgramTriggerWindow.CardUseCommitted &&
+            node.TryGetProperty("ownerRelation", out var privateChoiceRelation) && privateChoiceRelation.ValueKind == JsonValueKind.String &&
+            string.Equals(privateChoiceRelation.GetString(), "actor", StringComparison.OrdinalIgnoreCase) &&
+            node.TryGetProperty("effects", out var privateChoiceEffects) && privateChoiceEffects.ValueKind == JsonValueKind.Array && privateChoiceEffects.GetArrayLength() == 1 &&
+            privateChoiceEffects[0].ValueKind == JsonValueKind.Object &&
+            privateChoiceEffects[0].TryGetProperty("op", out var privateChoiceOp) && privateChoiceOp.ValueKind == JsonValueKind.String &&
+            string.Equals(privateChoiceOp.GetString(), "resolveWuZhugeLiangQingshi", StringComparison.OrdinalIgnoreCase) &&
+            privateChoiceEffects[0].TryGetProperty("target", out var privateChoiceTarget) && privateChoiceTarget.ValueKind == JsonValueKind.String &&
+            string.Equals(privateChoiceTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
+        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !committedPrivateChoiceSingleAction && !huoxinSingleAction && !bingcaiSingleAction &&
             !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction && !zixiUniqueTargetSingleAction &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 node.TryGetProperty("effects", out var designatedEffects) && designatedEffects.ValueKind == JsonValueKind.Array &&
@@ -4926,7 +4946,7 @@ public sealed class SkillProgramCatalog
             ownerRelation is not (SkillProgramCardActionOwnerRelation.Target or
                 SkillProgramCardActionOwnerRelation.ConversionSource) &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-                effects.Any(effect => effect.Op is SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule)) &&
+                effects.Any(effect => effect.Op is SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule or SkillProgramEffectOp.StartCardActionPindian)) &&
             window is not (SkillProgramTriggerWindow.SlashFullyDodged or SkillProgramTriggerWindow.SlashBeforeResponse or
                 SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
                 SkillProgramTriggerWindow.JudgmentPhaseStarting or SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
@@ -5481,7 +5501,9 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) WuLuKangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouXiahouShiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuHuangFuSongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) WuZhugeLiangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouYuanShaoComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouZhuRongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

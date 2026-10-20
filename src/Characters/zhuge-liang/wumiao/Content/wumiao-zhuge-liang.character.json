@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    { "registrationOrder": 2276, "programBundle": "wumiao-zhuge-liang", "includeProgramPresentation": true, "definition": { "id": "wumiao:jincui", "name": "尽瘁", "description": "锁定技，游戏开始时，你将手牌摸至7张。准备阶段，你的体力值调整为与牌堆中点数为7的游戏牌数量相等（至少为1）。然后你观看牌堆顶X张牌，将这些牌以任意顺序放回牌堆顶或牌堆底（X为你的体力值）。", "executionForms": "Trigger", "tags": "Locked" } },
+    { "registrationOrder": 2277, "programBundle": "wumiao-zhuge-liang", "includeProgramPresentation": true, "definition": { "id": "wumiao:qingshi", "name": "情势", "description": "你于出牌阶段内使用一张牌时（每种牌名每回合限1次），若手牌中有同名牌，你可以选择一项：1.令此牌对其中1个目标造成的伤害值+1；2.令任意名其他角色各摸1张牌；3.摸3张牌，然后此技能本回合失效。", "executionForms": "Trigger" } },
+    { "registrationOrder": 2278, "programBundle": "wumiao-zhuge-liang", "includeProgramPresentation": true, "definition": { "id": "wumiao:zhizhe", "name": "智哲", "description": "限定技，出牌阶段，你可以“复制”一张手牌。此牌因你使用或打出进入弃牌堆时，改为将此牌收回手牌且本回合不能再使用或打出。", "actionForms": "Active", "tags": "Limited" } }
+  ],
+  "generals": [ { "registrationOrder": 2279, "pools": { "current": 525 }, "definition": { "id": "wumiao:zhuge-liang", "name": "武诸葛亮", "portraitKey": "wumiao-zhuge-liang", "skillId": "wumiao:jincui", "additionalSkillIds": ["wumiao:qingshi", "wumiao:zhizhe"], "factionId": "shu", "gender": "Male", "baseHp": 7, "initialHp": 4, "characterId": "character:zhuge-liang", "variantId": "wumiao", "rulesetId": "sanguosha-anniversary" } } ]
+}

@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "le-zhuge-guo",
+      "characterName": "乐诸葛果",
+      "defaultSkinId": "1133201",
+      "skins": [
+        {
+          "id": "1133201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1332.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-le-zhuge-guo.png",
+          "sha256": "b28609178c9f1ea437d4006c47c7a1ee7cbcd0567e8893fa65632efdaafe8237",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "wumiao-zhuge-liang",
+      "characterName": "武诸葛亮",
+      "defaultSkinId": "123001",
+      "skins": [
+        {
+          "id": "123001",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/230.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123001.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-zhuge-liang.png",
+          "sha256": "5000a4a10bdff4277f91763534d32e9b89214c7b310f14d011553f53e9b1141d",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "mou-zhu-rong-mobile",
+      "characterName": "谋祝融·移动版",
+      "defaultSkinId": "71400",
+      "skins": [
+        {
+          "id": "71400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-565.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/71400.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhu-rong-mobile.jpg",
+          "sha256": "b3fb006c2593cc4cfdabc0d4b2a276aa942e2ea0452dacc6a801fd4d472c94f1",
+          "pixelWidth": 3982,
+          "pixelHeight": 5656
+        }
+      ]
+    },
+    {
       "key": "mou-zhen-ji-mobile",
       "characterName": "谋甄姬·移动版",
       "defaultSkinId": "66300",

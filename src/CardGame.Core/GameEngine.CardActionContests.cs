@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     {
         if(ActiveCardAttack is not { } attack || _resolutionStack.LastOrDefault() is not PindianFrame child || _resolutionStack.Count<3 ||
            _resolutionStack[^2] is not ProgramSkillFrame parent || child.ParentFrameId!=parent.Id ||
-           parent.WindowContext is not {Window:SkillProgramTriggerWindow.CardUseBeforeTargetEffects or SkillProgramTriggerWindow.SlashBeforeResponse,CardUse:{ } use} context ||
+           parent.WindowContext is not {Window:SkillProgramTriggerWindow.CardUseBeforeTargetEffects or SkillProgramTriggerWindow.SlashBeforeResponse or SkillProgramTriggerWindow.CardUseTargetsFinalized,CardUse:{ } use} context ||
            _resolutionStack[^3] is not ProgramCardTriggerWindowFrame window || window.Id!=context.ParentFrameId || window.ParentFrameId!=attack.ResolutionId ||
            window.Action.ActionId!=use.CardActionId || window.AttackOwnerFrameId != attack.ResolutionId) return false;
         var program=_contentRegistry.GetSkill(parent.SkillId).Program!;

@@ -1,0 +1,106 @@
+{
+  "generalId": "le:zhuge-guo",
+  "checkedAt": "2026-10-20",
+  "ruleset": "sanguosha-anniversary",
+  "name": "乐诸葛果",
+  "faction": "shu",
+  "gender": "Female",
+  "baseHp": 3,
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1332.html",
+      "kind": "official-current-general-page",
+      "freshlyVerified": true,
+      "skillTextMatchesRelease": true
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250428_6442_0316.html",
+      "kind": "official-formal-release-announcement",
+      "published": "2025-04-30",
+      "availableFrom": "2025-05-01",
+      "identity": "蜀/女/3体力；玉露清音；正音雅乐",
+      "freshlyVerified": true
+    }
+  ],
+  "officialSkills": [
+    {
+      "id": "le:xidi",
+      "name": "羲笛",
+      "text": "锁定技，游戏开始时，你的初始手牌增加“笛”标记且不计入手牌上限。准备阶段和结束阶段，你观看牌堆顶的X张牌（X为你手中“笛”牌张数且至少为1），然后以任意顺序放回牌堆顶或牌堆底。"
+    },
+    {
+      "id": "le:chengyan",
+      "name": "乘烟",
+      "text": "你使用〖杀〗或普通锦囊牌指定其他角色为目标后，可以摸一张牌并展示。若展示牌为〖杀〗或普通锦囊牌，将使用牌的效果改为展示牌的效果；否则摸一张牌并标记为“笛”。"
+    }
+  ],
+  "art": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1133201.png",
+    "path": "src/CardGame.Wpf/Assets/official-le-zhuge-guo.png",
+    "sha256": "b28609178c9f1ea437d4006c47c7a1ee7cbcd0567e8893fa65632efdaafe8237",
+    "width": 574,
+    "height": 761,
+    "freshDomAndVisualReviewByIntegrator": true
+  },
+  "officialFaqConfirmed": false,
+  "userSelectedDecisions": [
+    {
+      "topic": "chengyan-use-occurrence",
+      "decision": "整次使用触发一次，替换作用于全部原目标。",
+      "origin": "Direct user answer relayed by integration owner; not an official FAQ."
+    },
+    {
+      "topic": "chengyan-borrowed-sword",
+      "decision": "由使用者为各原目标补选合法受害者；无武器或无合法受害者的目标无效果。",
+      "origin": "Direct user answer relayed by integration owner; not an official FAQ."
+    },
+    {
+      "topic": "chengyan-shown-nullification",
+      "decision": "保留原牌效果，只摸展示牌，不追加摸牌或笛标记。",
+      "origin": "Direct user answer relayed by integration owner; not an official FAQ."
+    }
+  ],
+  "engineeringDecisions": [
+    {
+      "topic": "flute-entity",
+      "decision": "笛永久附着于真实实体；当前持有羲笛者持有该实体于手牌时不计入手牌上限，离开后再获得仍保留标记。",
+      "origin": "accepted-project-interpretation"
+    },
+    {
+      "topic": "initial-hand",
+      "decision": "在原生GameStarting窗口开始时冻结实际初始手牌实体；不能把之后子结算摸到的牌混为初始牌。",
+      "origin": "existing-native-opening-contract"
+    },
+    {
+      "topic": "same-use",
+      "decision": "保留原Use、Action、实体付款、实际使用者、提供者、原目标和完成事件；仅原生效果分派读取已签发的效果计划。展示牌留在手牌，绝不另开一张虚拟使用。",
+      "origin": "accepted-project-interpretation"
+    },
+    {
+      "topic": "counterspell-and-response",
+      "decision": "原杀改为锦囊效果不新开无懈窗口；原锦囊改为杀效果保留原锦囊无懈资格，之后按杀效果响应闪。新效果不重新要求距离、次数或选目标的宣告条件。",
+      "origin": "accepted-project-interpretation"
+    },
+    {
+      "topic": "no-show-material",
+      "decision": "首Draw若被替代且无实际摸牌实体，或实际摸牌实体在子结算后已不在手牌而无法展示，则结束乘烟，不额外第二Draw或标笛；“否则”仅判断已真实展示的牌。",
+      "origin": "integration-owner-explicit-engineering-decision"
+    },
+    {
+      "topic": "second-draw-marking",
+      "decision": "仅第二次原生Draw实际从牌堆到手牌的实体获得笛；摸牌替代取得的牌不冒充摸牌材料。",
+      "origin": "accepted-project-interpretation"
+    },
+    {
+      "topic": "effect-targets",
+      "decision": "普通效果保留全部原生指定目标；借刀原有的辅助受害者不是直接被指定的牌目标，不作为替换效果的额外直接受益目标。AOE、桃园和五谷的原生整组/公池逻辑保留。",
+      "origin": "accepted-project-interpretation"
+    }
+  ],
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedFilter": "Le Zhuge Guo: native reorder and same Use effects",
+    "newPendingRestoreCoverage": "One genuine first-draw cardsGained child checkpoint restore; no duplicate replay/privacy matrix.",
+    "scenes": 5
+  }
+}

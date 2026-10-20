@@ -80,7 +80,7 @@ public sealed partial class GameEngine
             paid.Add(entered);
             if (IsExchangedCardClaim(a.ActionId, cost.CardId)) continue;
             var finished = _cardMovements.LastOrDefault(m => m.CardId == cost.CardId && m.Sequence > entered.Sequence &&
-                m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == ResponseCompletionFinishReason(entered, continuation))
+                m.From == CardLocation.Processing && (m.To == CardLocation.DiscardPile || IsWuZglReturnedCopyCost(a, cost, m)) && m.Reason == ResponseCompletionFinishReason(entered, continuation))
                 ?? throw new InvalidOperationException("A completed response still owes its exact native finish movement.");
             paid.Add(finished);
         }
@@ -176,7 +176,7 @@ public sealed partial class GameEngine
         if (!IsResponseCompletionEntry(window.Action, r.OriginalContinuation, r.ParentFrameId, cost, enter)) return false;
         if (IsExchangedCardClaim(window.Action.ActionId, cost.CardId)) return records.Length == 1;
         return records is [_, var finish] && finish.Sequence > enter.Sequence && finish.From == CardLocation.Processing &&
-            finish.To == CardLocation.DiscardPile && finish.Reason == ResponseCompletionFinishReason(enter, r.OriginalContinuation);
+            (finish.To == CardLocation.DiscardPile || IsWuZglReturnedCopyCost(window.Action, cost, finish)) && finish.Reason == ResponseCompletionFinishReason(enter, r.OriginalContinuation);
     }
 
     private bool IsResponseCompletionProgramDuelParent(ProgramSkillFrame frame, ProgramCardContinuation continuation)

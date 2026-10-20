@@ -160,30 +160,30 @@ public sealed partial class GameEngine
     private void ResolveDragonBoatTrickEffect(NullificationWindowFrame pending)
     {
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || use.Id != pending.ParentFrameId ||
-            !IsDragonBoatTrick(use.CardKind) || pending.EffectCardKind != use.CardKind ||
-            pending.ActionKind != DragonBoatCardAction(use.CardKind) || use.DragonBoatCardEffect is not null ||
+            !IsDragonBoatTrick(LeChengyanNativeEffectKind(use)) || pending.EffectCardKind != LeChengyanNativeEffectKind(use) ||
+            pending.ActionKind != DragonBoatCardAction(LeChengyanNativeEffectKind(use)) || use.DragonBoatCardEffect is not null ||
             use.Action is not { Type: CardActionType.Use } action || use.SourceSeat != pending.SourceSeat ||
-            use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
-            GetNullificationTargetSeat(pending) is not { } target || use.TargetSeats[use.TargetIndex] != target)
+            use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            GetNullificationTargetSeat(pending) is not { } target || LeChengyanNativeTargets(use)[use.TargetIndex] != target)
             throw new InvalidOperationException("A Dragon Boat trick lost its exact native effect and target cursor.");
-        if (!_players[target].IsAlive) { FinishCardUse(use.Id, GetNullificationEffectCard(pending), use.CardKind); return; }
+        if (!_players[target].IsAlive) { FinishCardUse(use.Id, GetNullificationEffectCard(pending), LeChengyanNativeEffectKind(use)); return; }
         var rank = DragonBoatCardRank(use.SourceSeat);
-        var recipients = use.CardKind == CardKind.SameBoat
+        var recipients = LeChengyanNativeEffectKind(use) == CardKind.SameBoat
             ? _players.Where(p => p.IsAlive && DragonBoatCardAllies(target, p.Seat)).OrderBy(p => (p.Seat - target + _playerCount) % _playerCount).Select(p => p.Seat).ToArray()
-            : use.CardKind == CardKind.StriveUpstream ? [target] : Array.Empty<int>();
-        var count = use.CardKind == CardKind.SameBoat ? rank.Most ? 2 : 1 :
-            use.CardKind == CardKind.StriveUpstream ? target == use.SourceSeat ? Math.Min(5, DragonBoatCardTeamScore(use.SourceSeat)) : 1 : 0;
-        var receipt = new DragonBoatCardEffectReceipt(action.ActionId, pending.Id, use.CardKind, target,
-            use.TargetIndex, use.CardKind == CardKind.AgainstCurrent ? DragonBoatCardEffectStage.AwaitingDamage : DragonBoatCardEffectStage.Drawing)
+            : LeChengyanNativeEffectKind(use) == CardKind.StriveUpstream ? [target] : Array.Empty<int>();
+        var count = LeChengyanNativeEffectKind(use) == CardKind.SameBoat ? rank.Most ? 2 : 1 :
+            LeChengyanNativeEffectKind(use) == CardKind.StriveUpstream ? target == use.SourceSeat ? Math.Min(5, DragonBoatCardTeamScore(use.SourceSeat)) : 1 : 0;
+        var receipt = new DragonBoatCardEffectReceipt(action.ActionId, pending.Id, LeChengyanNativeEffectKind(use), target,
+            use.TargetIndex, LeChengyanNativeEffectKind(use) == CardKind.AgainstCurrent ? DragonBoatCardEffectStage.AwaitingDamage : DragonBoatCardEffectStage.Drawing)
         { Recipients = recipients, RequestedCount = count, AwaitingProgramFrameId = _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is { } parent && IsAwaitingProgramMovement(parent) ? parent.Id : null };
         ReplaceRuntimeTop(use with { Step = ResolutionFrameStep.ResolvingEffect, DragonBoatCardEffect = receipt });
         AdvanceEventRulesAndQueueFact(new DragonBoatCardEffectStartedEvent(use.Id, action.ActionId, pending.Id,
-            use.CardKind, target, use.TargetIndex, recipients.Length, count));
-        if (use.CardKind == CardKind.AgainstCurrent)
+            LeChengyanNativeEffectKind(use), target, use.TargetIndex, recipients.Length, count));
+        if (LeChengyanNativeEffectKind(use) == CardKind.AgainstCurrent)
         {
             var effectCard = GetNullificationEffectCard(pending);
             var attack = new CardAttackHandle(this, use.Id, use.SourceSeat, target, effectCard.Id == 0 ? null : effectCard,
-                playedCardKind: use.CardKind, damageNatureOverride: DamageNature.Normal, physicalCards: GetCardUsePhysicalCards(use.Id));
+                playedCardKind: LeChengyanNativeEffectKind(use), damageNatureOverride: DamageNature.Normal, physicalCards: GetCardUsePhysicalCards(use.Id));
             ActiveCardAttack = attack;
             if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
             return;
@@ -219,7 +219,7 @@ public sealed partial class GameEngine
             Action: { Type: CardActionType.Use, EffectiveKind: CardKind.AgainstCurrent, PhysicalCards.Count: 0 } action } use &&
         IsIssuedTieredRoundUse(use, true) && action.ActorSeat == use.SourceSeat && attack.CardUserSeat == use.SourceSeat &&
         MatchesDeclaredActualDamageUse(use, action.ActorSeat, use.TieredRoundConversionUse!.ActorSeat) &&
-        (use.TargetSeats.Contains(attack.TargetSeat) || attack.IsChainPropagation) && processing.Count == 0;
+        (LeChengyanNativeTargets(use).Contains(attack.TargetSeat) || attack.IsChainPropagation) && processing.Count == 0;
 
     private IReadOnlyList<Card> DragonBoatDiscardableCards(int seat) => GetHand(_players[seat]).Concat(GetEquipment(_players[seat]))
         .Where(card => !IsSelfHandCategoryDiscardForbidden(seat, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)).ToArray();
@@ -290,13 +290,13 @@ public sealed partial class GameEngine
             if (r.Stage != DragonBoatCardEffectStage.Drawing) throw new InvalidOperationException("A Dragon Boat card lost its native effect stage.");
             if (r.RecipientIndex >= r.Recipients.Count)
             {
-                if (use.CardKind == CardKind.AgainstCurrent)
+                if (LeChengyanNativeEffectKind(use) == CardKind.AgainstCurrent)
                 {
                     ReplaceRuntimeTop(use with { DragonBoatCardEffect = r with { Stage = DragonBoatCardEffectStage.FinishingAttack } });
                     var attack = new CardAttackHandle(this, id); ActiveCardAttack = attack; CompleteAttack(attack); return;
                 }
                 ReplaceRuntimeTop(use with { DragonBoatCardEffect = null, NativeDraw = null });
-                FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), use.CardKind); return;
+                FinishCardUse(id, GetTrickRepresentation(id, use.CardId, requireProcessing: true), LeChengyanNativeEffectKind(use)); return;
             }
             var recipient = r.Recipients[r.RecipientIndex];
             if (use.NativeDraw is null)
@@ -361,13 +361,13 @@ public sealed partial class GameEngine
     private void AssertDragonBoatCardReceipt(CardUseFrame use)
     {
         if (use.DragonBoatCardEffect is not { } r) return;
-        if (!IsDragonBoatTrick(use.CardKind) || r.Kind != use.CardKind || use.Action?.ActionId != r.ActionId ||
-            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= use.TargetSeats.Count ||
-            use.TargetSeats[r.TargetIndex] != r.TargetSeat || !Enum.IsDefined(r.Stage) ||
+        if (!IsDragonBoatTrick(LeChengyanNativeEffectKind(use)) || r.Kind != LeChengyanNativeEffectKind(use) || use.Action?.ActionId != r.ActionId ||
+            r.TargetIndex != use.TargetIndex || r.TargetIndex < 0 || r.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+            LeChengyanNativeTargets(use)[r.TargetIndex] != r.TargetSeat || !Enum.IsDefined(r.Stage) ||
             r.Recipients is not System.Collections.IList { IsReadOnly: true } || r.Recipients.Any(seat => !IsValidPlayerSeat(seat)) ||
             r.Recipients.Distinct().Count() != r.Recipients.Count || r.RecipientIndex < 0 || r.RecipientIndex > r.Recipients.Count ||
             r.RequestedCount is < 0 or > 5 || ProgramEventHistory<DragonBoatCardEffectStartedEvent>().Count(e => e.UseFrameId == use.Id &&
-                e.ActionId == r.ActionId && e.NullificationFrameId == r.NullificationFrameId && e.Kind == use.CardKind &&
+                e.ActionId == r.ActionId && e.NullificationFrameId == r.NullificationFrameId && e.Kind == LeChengyanNativeEffectKind(use) &&
                 e.TargetSeat == r.TargetSeat && e.TargetIndex == r.TargetIndex) != 1)
             throw new InvalidOperationException("A Dragon Boat effect lost its exact action, resolved target or immutable recipient cursor.");
         if (use.NativeDraw is { } paid && (r.Stage != DragonBoatCardEffectStage.Drawing ||
