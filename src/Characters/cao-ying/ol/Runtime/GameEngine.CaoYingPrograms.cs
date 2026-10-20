@@ -146,6 +146,7 @@ public sealed partial class GameEngine
     }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 110)]
     private bool TryAdvanceCaoYingSubtree() => _pendingDecision is null && CaoYingObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 30)]
     private IEnumerable<CardSnapshot> GetCaoYingPrivateCards(int viewer) => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewer && f.CaoYing?.Stage == CaoYingStage.Inspection).SelectMany(f => f.CaoYing!.Cards);
     private CaoYingGuessResolvedEvent[] ArmedCaoYingDamage(int source, int target) => CompleteProgramEventHistory().OfType<CaoYingGuessResolvedEvent>().Where(e => e.TurnNumber == _turnNumber && e.TurnOwner == _currentSeat && e.Source.OwnerSeat == source && e.TargetSeat == target && e.CorrectCount >= 1 && !CompleteProgramEventHistory().OfType<CaoYingDamageConsumedEvent>().Any(c => c.ProgramFrameId == e.ProgramFrameId)).ToArray();
     private int CaoYingDamage(IDamageAttempt attack) => attack.IsSourceLess ? 0 : ArmedCaoYingDamage(attack.SourceSeat, attack.TargetSeat).Length;

@@ -97,6 +97,7 @@ internal static class MatchingRecastComposition
             a.TargetRequiresEmptyEquipmentSlot || a.CategoryTargetLedgerId is not null || a.Condition.Kind != SkillProgramConditionKind.Always)
             throw new InvalidOperationException($"Invalid skill program at {path}: matching recast requires an uncapped HE group, one living target and its matching per-target phase ledger.");
     }
+    [ProgramCatalogValidation(80)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice)))

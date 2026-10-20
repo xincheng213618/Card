@@ -32,7 +32,9 @@ internal abstract class QushiDescriptor:ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op==SkillProgramEffectOp.ResolveQushiIssuedHolderEnding?[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)]:[];
 }
 internal sealed class ResolveQushiDrawAndPrivateSealDescriptor:QushiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal;}
-internal sealed class ResolveQushiIssuedHolderEndingDescriptor:QushiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiIssuedHolderEnding;}
+internal sealed class ResolveQushiIssuedHolderEndingDescriptor:QushiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiIssuedHolderEnding;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class QushiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>op;
@@ -41,6 +43,7 @@ internal sealed class QushiHandler(SkillProgramEffectOp op):ISkillProgramEffectH
 internal static class GuoTuQushiComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal or SkillProgramEffectOp.ResolveQushiIssuedHolderEnding;
+    [ProgramCatalogValidation(630)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op)))&&!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

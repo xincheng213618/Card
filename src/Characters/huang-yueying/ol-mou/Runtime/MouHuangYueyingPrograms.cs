@@ -79,11 +79,15 @@ internal interface IMouHuangYueyingHost
 }
 internal sealed class MouLixianDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHuangYueyingLixian;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, context) => context.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler { get; } = new MouLixianHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouLixianHandler : ISkillProgramEffectHandler
 {
@@ -92,11 +96,15 @@ internal sealed class MouLixianHandler : ISkillProgramEffectHandler
 }
 internal sealed class MouBingcaiDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHuangYueyingBingcai;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCommitted)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, context) => context.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler { get; } = new MouBingcaiHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouBingcaiHandler : ISkillProgramEffectHandler
 {

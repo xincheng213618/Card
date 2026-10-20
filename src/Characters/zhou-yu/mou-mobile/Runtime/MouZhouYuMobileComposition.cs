@@ -2,6 +2,7 @@ namespace CardGame.Core;
 internal static class MouZhouYuMobileComposition
 {
     internal const string Yingzi = "mou-mobile:yingzi", Fanjian = "mou-mobile:fanjian";
+    [ProgramCatalogValidation(1050)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id is not (Yingzi or Fanjian) && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => e.Op is SkillProgramEffectOp.ResolveMouZhouYuYingzi or SkillProgramEffectOp.ResolveMouZhouYuFanjian)) return;

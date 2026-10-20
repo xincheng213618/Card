@@ -64,8 +64,12 @@ internal abstract class MoQuanyuDescriptor(SkillProgramEffectOp op) : ProgramOpe
         static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new MoQuanyuHandler(op);
 }
-internal sealed class ResolveMoSunQuanQuanyuRoundChoicesDescriptor() : MoQuanyuDescriptor(SkillProgramEffectOp.ResolveMoSunQuanQuanyuRoundChoices);
-internal sealed class ResolveMoSunQuanQuanyuTargetChoiceDescriptor() : MoQuanyuDescriptor(SkillProgramEffectOp.ResolveMoSunQuanQuanyuTargetChoice);
+internal sealed class ResolveMoSunQuanQuanyuRoundChoicesDescriptor() : MoQuanyuDescriptor(SkillProgramEffectOp.ResolveMoSunQuanQuanyuRoundChoices){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveMoSunQuanQuanyuTargetChoiceDescriptor() : MoQuanyuDescriptor(SkillProgramEffectOp.ResolveMoSunQuanQuanyuTargetChoice){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class MoQuanyuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -76,6 +80,7 @@ internal sealed class MoQuanyuHandler(SkillProgramEffectOp op) : ISkillProgramEf
 
 internal static class MoQuanyuComposition
 {
+    [ProgramCatalogValidation(1270)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "ol:mo-quanyu" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

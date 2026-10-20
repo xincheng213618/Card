@@ -103,7 +103,9 @@ internal sealed class GuessRanksForDrawReplacementDescriptor : ExtraEffectsAndRa
     // deducts the actual planned normal draw. Never inspect the unrevealed deck.
 }
 internal sealed class DeathRecipientChooseSkillDescriptor : ExtraEffectsAndRankGuessDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DeathRecipientChooseSkill; }
+{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DeathRecipientChooseSkill;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
+}
 internal sealed class ExtraEffectsAndRankGuessHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

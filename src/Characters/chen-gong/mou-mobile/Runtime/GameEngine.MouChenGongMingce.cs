@@ -9,6 +9,7 @@ public sealed partial class GameEngine
     private static CardConversionSource MouChenGongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private bool MouChenGongPhaseSpent(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouChenGongMingceStartedEvent>()
         .Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == MouChenGongComposition.Mingce && e.Phase == phase);
+    [ProgramPhaseUsedProjection(30)]
     private int MouChenGongProjectedPhaseUses(int owner, string skill, int fallback) => skill == MouChenGongComposition.Mingce &&
         CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && IsRecordedActualDiscardRecoveryPhase(phase)
         ? ProgramEventHistory<MouChenGongMingceStartedEvent>().Count(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.Phase == phase) : fallback;

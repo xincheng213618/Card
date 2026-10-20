@@ -60,6 +60,7 @@ internal sealed class ZhangYanHandler(SkillProgramEffectOp op):ISkillProgramEffe
 internal static class ZhangYanComposition
 {
  internal static bool IsOperation(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.UseBlackCardAtWoundedPlayStart or SkillProgramEffectOp.ResolveLangdaoSimultaneousSlash or SkillProgramEffectOp.ObtainSujiDamagedPhaseOwnerCard;
+ [ProgramCatalogValidation(290)]
  internal static void ValidateProgram(string path,SkillProgram p)
  {
   if(p.Activations.Any(a=>a.Effects.Any(e=>IsOperation(e.Op))))throw new InvalidOperationException(path+": Zhang Yan needs native phase/action/damage windows.");

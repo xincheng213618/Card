@@ -132,5 +132,6 @@ public sealed partial class GameEngine
         if(r.Stage==RuanYuStage.Order)return p.Choices.OrderBy(c=>Array.IndexOf(RuanYuDraftBottom(r),c.Cards.Single())).First();
         return p.Choices.OrderByDescending(c=>GetHand(_players[c.Targets.Single()]).Count).ThenBy(c=>c.Targets.Single()).First();
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 60)]
     private IReadOnlyList<CardSnapshot> RuanYuPrivatelyViewedBottomCards(int viewerSeat)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{RuanYu:{Stage:RuanYuStage.Hand or RuanYuStage.Bottom or RuanYuStage.Order}r}f&&f.OwnerSeat==viewerSeat&&_pendingDecision is{IsPrivate:true,PlayerSeat:var actor}&&actor==viewerSeat?Array.AsReadOnly(r.ViewedBottom.Concat(r.OrderedBottom).Distinct().Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray()):[];
 }

@@ -56,6 +56,8 @@ public sealed record MoTianenCompletedEvent(long FrameId, MoTianenBranch Branch)
 internal interface IMoSunQuanTianenHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveMoSunQuanTianenUniqueUseDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoSunQuanTianenUniqueUse;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
@@ -63,6 +65,8 @@ internal sealed class ResolveMoSunQuanTianenUniqueUseDescriptor : ProgramOperati
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler { get; } = new MoSunQuanTianenHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MoSunQuanTianenHandler : ISkillProgramEffectHandler
 {
@@ -72,6 +76,7 @@ internal sealed class MoSunQuanTianenHandler : ISkillProgramEffectHandler
 }
 internal static class MoSunQuanTianenComposition
 {
+    [ProgramCatalogValidation(1280)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "ol:mo-tianen" && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

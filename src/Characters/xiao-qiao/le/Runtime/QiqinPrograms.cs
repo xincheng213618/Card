@@ -55,8 +55,12 @@ internal abstract class QiqinDescriptor(SkillProgramEffectOp op) : ProgramOperat
             ? SkillProgramTriggerWindow.GameStarting : SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
     public override ISkillProgramEffectHandler Handler { get; } = new QiqinHandler(op);
 }
-internal sealed class InitializeQiqinInitialEntitiesDescriptor() : QiqinDescriptor(SkillProgramEffectOp.InitializeQiqinInitialEntities);
-internal sealed class ResolveQiqinDiscardPileQinDescriptor() : QiqinDescriptor(SkillProgramEffectOp.ResolveQiqinDiscardPileQin);
+internal sealed class InitializeQiqinInitialEntitiesDescriptor() : QiqinDescriptor(SkillProgramEffectOp.InitializeQiqinInitialEntities){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveQiqinDiscardPileQinDescriptor() : QiqinDescriptor(SkillProgramEffectOp.ResolveQiqinDiscardPileQin){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class QiqinHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -67,6 +71,7 @@ internal sealed class QiqinHandler(SkillProgramEffectOp op) : ISkillProgramEffec
 }
 internal static class QiqinComposition
 {
+    [ProgramCatalogValidation(1180)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:qiqin" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

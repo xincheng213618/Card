@@ -78,9 +78,12 @@ internal sealed class ResolveMouzhuHandDemandAndAssaultDescriptor() : HeJinDescr
 internal sealed class ResolveYanhuoKillerDiscardDescriptor() : HeJinDescriptor(SkillProgramEffectOp.ResolveYanhuoKillerDiscard)
 {
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 internal static class HeJinComposition
 {
+    [ProgramCatalogValidation(230)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var active = p.Activations.Where(a => a.Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveMouzhuHandDemandAndAssault or SkillProgramEffectOp.ResolveYanhuoKillerDiscard)).ToArray();

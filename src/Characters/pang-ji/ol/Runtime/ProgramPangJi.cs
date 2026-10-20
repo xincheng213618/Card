@@ -55,8 +55,14 @@ internal abstract class PangJiDescriptor(SkillProgramEffectOp op) : ProgramOpera
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindow(op == SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian ? SkillProgramTriggerWindow.DrawPhaseEnded : SkillProgramTriggerWindow.CardUseTargetsFinalized)];
 }
-internal sealed class ResolveBiguoDrawDescriptor() : PangJiDescriptor(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian);
-internal sealed class ResolveBiguoTargetDescriptor() : PangJiDescriptor(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan);
+internal sealed class ResolveBiguoDrawDescriptor() : PangJiDescriptor(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveBiguoTargetDescriptor() : PangJiDescriptor(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class PangJiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -64,6 +70,7 @@ internal sealed class PangJiHandler(SkillProgramEffectOp op) : ISkillProgramEffe
 }
 internal static class PangJiComposition
 {
+    [ProgramCatalogValidation(830)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         DouyuComposition.ValidateProgram(path, p);

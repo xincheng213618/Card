@@ -34,6 +34,7 @@ internal static class MouXiahouShiComposition
         t.Id == "foreign-damage-source-choice" && t.Window == SkillProgramTriggerWindow.AfterDamageApplied && t.Subject == SkillProgramTriggerSubject.Owner &&
         !t.Optional && t.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && t.DamageOccurrence == SkillProgramDamageOccurrence.PerDamage && Unfiltered(t, true) &&
         t.Effects is [var e] && Plain(e, SkillProgramEffectOp.ResolveMouXiahouShiQiaoshi);
+    [ProgramCatalogValidation(1000)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var ops = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).ToArray();

@@ -70,10 +70,26 @@ internal abstract class LiFengDescriptor(SkillProgramEffectOp op) : ProgramOpera
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new LiFengHandler(op);
 }
-internal sealed class InitializeJiyunCategoryGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.InitializeJiyunCategoryGrain);
-internal sealed class ResolveJiyunPreparationDrawLeasesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases);
-internal sealed class CollectJiyunCompletedUseEntitiesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.CollectJiyunCompletedUseEntities);
-internal sealed class DistributeShuliangEndingGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.DistributeShuliangEndingGrain);
+internal sealed class InitializeJiyunCategoryGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.InitializeJiyunCategoryGrain){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
+}
+internal sealed class ResolveJiyunPreparationDrawLeasesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
+}
+internal sealed class CollectJiyunCompletedUseEntitiesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.CollectJiyunCompletedUseEntities){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
+}
+internal sealed class DistributeShuliangEndingGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.DistributeShuliangEndingGrain){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
+}
 internal sealed class LiFengHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -91,6 +107,7 @@ internal sealed class JiyunCompletedUseContract : IProgramCommittedUseContract
 internal static class LiFengComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.InitializeJiyunCategoryGrain or SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases or SkillProgramEffectOp.CollectJiyunCompletedUseEntities or SkillProgramEffectOp.DistributeShuliangEndingGrain;
+    [ProgramCatalogValidation(770)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.SelectMany(t => t.Effects).Any(e => Handles(e.Op))) return;

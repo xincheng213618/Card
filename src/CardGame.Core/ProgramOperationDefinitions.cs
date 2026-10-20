@@ -88,6 +88,11 @@ internal sealed record ReadPindianResult(string Name) : ProgramResourceOperation
 internal sealed record CreateChoiceResult(string Name, IReadOnlyList<string> Options) : ProgramResourceOperation;
 internal sealed record CreateCoverageResult(string Name) : ProgramResourceOperation;
 
+// Stack-local inputs at the existing dead-target admission point. PaidReturnAccepted
+// is the receipt decision captured before advancing the instruction cursor.
+internal readonly record struct ProgramEffectContinuationContext(
+    SkillProgramEffect Effect, ProgramSkillFrame Frame, ISkillProgramExecutionHost State, bool PaidReturnAccepted);
+
 internal interface IProgramOperationDescriptor
 {
     SkillProgramEffectOp Op { get; }
@@ -97,6 +102,8 @@ internal interface IProgramOperationDescriptor
     ProgramOperationAiPolicy AiPolicy { get; }
     bool UsesConversionPolarity => false;
     ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
+    ProgramFactRequirements FactRequirements => default;
+    bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => false;
     SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
@@ -116,7 +123,7 @@ internal sealed class ProgramOperationCatalog
         {
             if (descriptor is null || !Enum.IsDefined(descriptor.Op) ||
                 descriptor.Handler is null || descriptor.AiPolicy?.Apply is null ||
-                !Enum.IsDefined(descriptor.Interaction))
+                !Enum.IsDefined(descriptor.Interaction) || !descriptor.FactRequirements.IsValid)
                 throw new InvalidOperationException("A program operation descriptor has an incomplete contract.");
             if (descriptor.Handler.Op != descriptor.Op)
                 throw new InvalidOperationException($"Program operation '{descriptor.Op}' has a mismatched handler.");
@@ -150,6 +157,12 @@ internal sealed class ProgramOperationCatalog
         _descriptors.TryGetValue(op, out var descriptor)
             ? descriptor
             : throw new InvalidOperationException($"No composition descriptor exists for program operation '{op}'.");
+
+    internal ProgramFactRequirements FactRequirementsFor(SkillProgramEffectOp op) =>
+        _descriptors.TryGetValue(op, out var descriptor) ? descriptor.FactRequirements : default;
+
+    internal bool AllowsDeadTarget(in ProgramEffectContinuationContext context) =>
+        _descriptors.TryGetValue(context.Effect.Op, out var descriptor) && descriptor.AllowsDeadTarget(context);
 
     private static ProgramOperationCatalog Discover(Assembly assembly)
     {
@@ -346,6 +359,8 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public abstract ProgramOperationAiPolicy AiPolicy { get; }
     public virtual bool UsesConversionPolarity => false;
     public virtual ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
+    public virtual ProgramFactRequirements FactRequirements => default;
+    public virtual bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => false;
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     public abstract IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
@@ -880,6 +895,8 @@ internal sealed class SelectTargetProgramOperationDescriptor : ProgramOperationD
         effect.ActorReference is { } reference
             ? [new ReadPindianResult(reference.ResultBind!), new ReplaceSingleTarget()]
             : [new SelectSingleTarget()];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 
 internal sealed class TurnOverProgramOperationDescriptor : ProgramOperationDescriptorBase

@@ -3,6 +3,7 @@ namespace CardGame.Core;
 // Entity marks and after-Use receipts belong to these complete printed bindings.
 internal static class LeCaiYongComposition
 {
+    [ProgramCatalogValidation(910)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Id is "le:jiaowei" or "le:feibai";

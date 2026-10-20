@@ -30,6 +30,8 @@ internal sealed class TransferQuxiAtRoundOrDeathDescriptor() : DuXiDescriptor(Sk
 }
 internal sealed class RecordBixiongActualDiscardDescriptor() : DuXiDescriptor(SkillProgramEffectOp.RecordBixiongActualDiscard)
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
 }
 

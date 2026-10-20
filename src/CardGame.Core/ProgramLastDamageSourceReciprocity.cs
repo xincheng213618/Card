@@ -102,6 +102,7 @@ internal static class LastDamageSourceReciprocityComposition
             throw new InvalidOperationException($"Invalid skill program at {path}: last-damage reciprocity requires one mandatory unlimited after-damage owner/source instruction.");
     }
 
+    [ProgramCatalogValidation(70)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         var triggers = program.Triggers.Where(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.LastDamageSourceReciprocity)).ToArray();

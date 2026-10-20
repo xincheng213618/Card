@@ -58,6 +58,8 @@ internal sealed class ResolveZhaohuoFirstVictimGiftDescriptor : ProgramOperation
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 
 internal sealed class ZhaohuoHandler : ISkillProgramEffectHandler

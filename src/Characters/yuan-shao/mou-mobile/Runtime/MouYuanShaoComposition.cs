@@ -4,6 +4,7 @@ internal static class MouYuanShaoComposition
 {
     internal const string Luanji = "mou-mobile:luanji", Xueyi = "mou-mobile:xueyi", Pair = "any-hand-pair-as-arrow-barrage";
     internal static bool TargetTrigger(string skill, SkillProgramTrigger t) => skill == Xueyi && t.Id == "qun-target-reward";
+    [ProgramCatalogValidation(1060)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Triggers.SelectMany(t => t.Effects).Any(e => e.Op == SkillProgramEffectOp.ReserveMouYuanShaoReward);

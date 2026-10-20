@@ -30,6 +30,8 @@ public sealed record MouTianYuCompletedEvent(long FrameId) : IGameEvent;
 internal interface IMouTianYuHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
 internal sealed class ResolveMouTianYuZhenxiDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouTianYuZhenxi;
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
@@ -57,6 +59,7 @@ internal static class MouTianYuComposition
 {
     internal const string Zhenxi = "mou-mobile:zhenxi", Yangshi = "mou-mobile:yangshi";
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveMouTianYuZhenxi or SkillProgramEffectOp.ResolveMouTianYuYangshi;
+    [ProgramCatalogValidation(1080)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Triggers.SelectMany(t => t.Effects).Any(e => Handles(e.Op));

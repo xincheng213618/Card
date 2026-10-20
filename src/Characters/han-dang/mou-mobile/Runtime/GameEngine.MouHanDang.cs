@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         var index = Array.FindLastIndex(history, e => e is MouHanDangJiefanDisabledEvent d && d.OwnerSeat == owner);
         return index >= 0 && !history.Skip(index + 1).OfType<PlayerDiedEvent>().Any(e => e.KillerSeat == owner && e.VictimSeat != owner);
     }
+    [ProgramPhaseUsedProjection(50)]
     private int MouHanDangProjectedUses(int owner, string skill, int fallback) => skill == MouHanDangJiefan && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p
         ? MouHanDangPhaseUses(owner, p) : fallback;
     [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 30700, SkillProgramEffectOp.ResolveMouHanDangJiefan)]

@@ -18,6 +18,7 @@ internal sealed class MouBingcaiCommittedUseContract : IProgramCommittedUseContr
 
 internal static class MouHuangYueyingComposition
 {
+    [ProgramCatalogValidation(1120)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         bool HasOwnOperation(ProgramInstructionFeatures features) =>

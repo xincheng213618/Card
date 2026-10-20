@@ -54,6 +54,8 @@ internal sealed class ResolveOrdinaryCaiFuRenXianzhouDescriptor : ProgramOperati
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Gift, static (_, c) => c.PlaceSelectedEquipment());
     public override ISkillProgramEffectHandler Handler { get; } = new OrdinaryCaiFuRenXianzhouHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class OrdinaryCaiFuRenXianzhouHandler : ISkillProgramEffectHandler
 {
@@ -68,6 +70,8 @@ internal sealed class ResolveOrdinaryCaiFuRenQietingDescriptor : ProgramOperatio
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new OrdinaryCaiFuRenQietingHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class OrdinaryCaiFuRenQietingHandler : ISkillProgramEffectHandler
 {
@@ -76,6 +80,7 @@ internal sealed class OrdinaryCaiFuRenQietingHandler : ISkillProgramEffectHandle
 }
 internal static class OrdinaryCaiFuRenComposition
 {
+    [ProgramCatalogValidation(780)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => e.Op is SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting)) return;

@@ -101,6 +101,7 @@ internal static class PhaseNamePredictionComposition
                 : window != SkillProgramTriggerWindow.PlayEnding || optional))
             throw new InvalidOperationException(path + ": phase prediction requires its exact optional foreign Play start and mandatory issued phase end.");
     }
+    [ProgramCatalogValidation(60)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var p in programs.Values)

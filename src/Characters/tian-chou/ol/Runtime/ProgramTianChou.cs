@@ -59,6 +59,7 @@ internal sealed class ResolveShandaoTopAndGlobalTricksDescriptor : ProgramOperat
 }
 internal static class TianChouComposition
 {
+    [ProgramCatalogValidation(340)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveShandaoTopAndGlobalTricks)) && !p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveShandaoTopAndGlobalTricks))) return;

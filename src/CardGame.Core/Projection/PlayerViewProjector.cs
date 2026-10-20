@@ -143,8 +143,8 @@ public sealed partial class GameEngine
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
-                NamedAmbushPiles = IncludeChenglieSnapshots(IncludeQushiSealSnapshots(ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
-                PrivateWhirlPiles = AppendMouLuZhiRenPiles(ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
+                NamedAmbushPiles = ViewContributors.NamedAmbushPiles(ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
+                PrivateWhirlPiles = ViewContributors.PrivateWhirlPiles(ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.Count > 0 &&
                     _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = deferredPileCards.Count,
@@ -216,7 +216,7 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is ProgramSkillFrame program) { lastProgram = program; break; }
         IReadOnlyList<CardSnapshot> programRevealedCards = lastProgram is null
             ? Array.Empty<CardSnapshot>()
-            : GetProgramPublicCards().Concat(GainGiftPublicLostCards()).Concat(MouZhouYuMobilePublicCards()).DistinctBy(card => card.Id).ToArray();
+            : ViewContributors.Cards(ProgramViewContribution.ProgramPublicCards).DistinctBy(card => card.Id).ToArray();
         programRevealedCards = programRevealedCards.Concat(_resolutionStack.OfType<ProgramSkillFrame>()
             .Where(f => f.ExtraEffectsAndRankGuess?.Operation == SkillProgramEffectOp.GuessRanksForDrawReplacement)
             .SelectMany(f => f.ExtraEffectsAndRankGuess!.RevealedCardIds)
@@ -264,8 +264,7 @@ public sealed partial class GameEngine
             _cardZones.Count(CardLocation.DiscardPile),
             snapshots,
             visibleDecision,
-            WithoutMouZhouYuMobileCovered(WithoutChengliePrivateProcessing(_cardZones.CardsAt(CardLocation.Processing))).Count(card =>
-                !IsNishouHeldProcessingCard(card.Id) && (revealAll || !IsSimultaneousPrivateTopCard(card.Id) && !IsWuLuKangPrivatePindianCard(card.Id))),
+            ViewContributors.ProcessingCount(_cardZones.CardsAt(CardLocation.Processing), revealAll),
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
@@ -278,11 +277,11 @@ public sealed partial class GameEngine
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(TangTangPublicShownCardIds().Concat(ZhouQunPublicShownCardIds()).Select(id => ToSnapshot(GetAdvancedCard(id)) with
-                { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null })).Concat(publicRevealedCards).Concat(ChengliePublicCards()).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards()).Concat(MouZuifengPublicCards())
-                .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id) && !IsWuLuKangPrivatePindianCard(card.Id))
+            PublicRevealedCards = ViewContributors.Cards(ProgramViewContribution.PublicCardsBeforeResolution).Concat(publicRevealedCards)
+                .Concat(ViewContributors.Cards(ProgramViewContribution.PublicCardsAfterResolution))
+                .Where(card => ViewContributors.IsPublicCardVisible(card.Id, revealAll))
                 .DistinctBy(card => card.Id).ToArray(),
-            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat)).Concat(ZhouQunPrivatelyViewedTopCards(viewerSeat)).Concat(MouZuifengPrivatelyViewedCards(viewerSeat)).Concat(WuZhangFeiPrivateCards(viewerSeat)).Concat(FeibaiPrivateCards(viewerSeat))
+            PrivateRevealedCards = ViewContributors.Cards(ProgramViewContribution.PrivateCards, viewerSeat)
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),

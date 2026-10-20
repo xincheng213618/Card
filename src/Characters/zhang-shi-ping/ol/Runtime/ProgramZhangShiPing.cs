@@ -20,9 +20,13 @@ internal abstract class ZhangShiPingDescriptor(SkillProgramEffectOp operation) :
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
 internal sealed class ArmHongjiNextPhaseDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.ArmHongjiNextPhase)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)]; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)]; }
 internal sealed class ResolveHongjiGrantedPhaseDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.ResolveHongjiGrantedPhase)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindows([SkillProgramTriggerWindow.DrawPhaseEnded, SkillProgramTriggerWindow.PlayEnding])]; }
+{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindows([SkillProgramTriggerWindow.DrawPhaseEnded, SkillProgramTriggerWindow.PlayEnding])];
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class InitializeXingGuMountPileDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.InitializeXingGuMountPile)
 { public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting)]; }
 internal sealed class PlaceXingGuMountAndObtainDiamondDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.PlaceXingGuMountAndObtainDiamond)
@@ -62,6 +66,7 @@ internal static class ZhangShiPingComposition
 {
     private static bool IsOwn(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ArmHongjiNextPhase or SkillProgramEffectOp.ResolveHongjiGrantedPhase or
         SkillProgramEffectOp.InitializeXingGuMountPile or SkillProgramEffectOp.PlaceXingGuMountAndObtainDiamond;
+    [ProgramCatalogValidation(200)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.Any(t => t.Effects.Any(e => IsOwn(e.Op))) && !p.Activations.Any(a => a.Effects.Any(e => IsOwn(e.Op)))) return;

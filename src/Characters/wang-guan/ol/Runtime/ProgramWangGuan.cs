@@ -39,14 +39,21 @@ internal abstract class WangGuanDescriptor:ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(Op==SkillProgramEffectOp.ResolveMiuyanCompletedUse?SkillProgramTriggerWindow.CardUseCompleted:SkillProgramTriggerWindow.AfterDamageApplied)];
 }
 internal sealed class ResolveMiuyanCompletedUseDescriptor:WangGuanDescriptor
-{ public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMiuyanCompletedUse; public override bool UsesConversionPolarity=>true; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMiuyanCompletedUse; public override bool UsesConversionPolarity=>true;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class ResolveShiluDrawRevealIdentityDescriptor:WangGuanDescriptor
-{ public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveShiluDrawRevealIdentity; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveShiluDrawRevealIdentity; }
 internal sealed class WangGuanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 { public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IWangGuanHost>().Resolve(f,op); }
 internal static class WangGuanComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveMiuyanCompletedUse or SkillProgramEffectOp.ResolveShiluDrawRevealIdentity;
+    [ProgramCatalogValidation(440)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

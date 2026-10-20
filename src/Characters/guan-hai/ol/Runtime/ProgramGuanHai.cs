@@ -118,9 +118,17 @@ internal abstract class GuanHaiDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new GuanHaiHandler(op);
 }
-internal sealed class ResolveXieweiTwoHandBaitBasicUseDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse);
-internal sealed class ResolveYouqueMinimumBaitPindianDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian);
-internal sealed class ResolveYouqueIssuedSlashDamageBenefitDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit);
+internal sealed class ResolveXieweiTwoHandBaitBasicUseDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.GuanHai is { Paid: true } || context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveYouqueMinimumBaitPindianDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian){
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.GuanHai is { Paid: true };
+}
+internal sealed class ResolveYouqueIssuedSlashDamageBenefitDescriptor() : GuanHaiDescriptor(SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.GuanHai is { Paid: true };
+}
 internal sealed class GuanHaiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -137,6 +145,7 @@ internal sealed class XieweiCommittedUseContract : IProgramCommittedUseContract
 }
 internal static class GuanHaiComposition
 {
+    [ProgramCatalogValidation(720)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.ViewAs.Any(v => v.XieweiBaitBasicUse is not null) && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => e.Op is SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse or SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian or SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit)) return;

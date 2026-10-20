@@ -127,6 +127,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new MouLuZhiRenRemovedEvent(ren));
         }
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateWhirlPiles, 10)]
     private IReadOnlyList<PrivateWhirlPileSnapshot>? AppendMouLuZhiRenPiles(IReadOnlyList<PrivateWhirlPileSnapshot>? existing, int owner, int viewer, bool revealAll)
     {
         var ren = LiveMouLuZhiRen(owner); if (ren.Length == 0) return existing;

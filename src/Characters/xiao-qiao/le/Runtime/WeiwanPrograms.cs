@@ -86,12 +86,16 @@ internal sealed class WeiwanSelectionFilter : IProgramSelectionCardFilter
 }
 internal sealed class ResolveWeiwanQinDiscardAndSuitObtainDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new ReadSelectedTarget(), new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving), new ConsumeSelectedCards(1)];
     public override ISkillProgramEffectHandler Handler { get; } = new WeiwanHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WeiwanHandler : ISkillProgramEffectHandler
 {
@@ -101,6 +105,7 @@ internal sealed class WeiwanHandler : ISkillProgramEffectHandler
 }
 internal static class WeiwanComposition
 {
+    [ProgramCatalogValidation(1230)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:weiwan" && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

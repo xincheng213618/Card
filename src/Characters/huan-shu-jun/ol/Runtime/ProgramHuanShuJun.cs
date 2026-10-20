@@ -102,9 +102,17 @@ internal abstract class HuanShuJunDescriptor(SkillProgramEffectOp op) : ProgramO
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new HuanShuJunHandler(op);
 }
-internal sealed class ResolveHuanpeiHandAdjustmentAndBasicUseDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse);
-internal sealed class ResolveWenyiHealthOneAidDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveWenyiHealthOneAid);
-internal sealed class ResolveMiaoxinDamageDrawAndRefreshDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh);
+internal sealed class ResolveHuanpeiHandAdjustmentAndBasicUseDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse){
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWenyiHealthOneAidDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveWenyiHealthOneAid){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveMiaoxinDamageDrawAndRefreshDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class HuanShuJunHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -113,6 +121,7 @@ internal sealed class HuanShuJunHandler(SkillProgramEffectOp op) : ISkillProgram
 internal static class HuanShuJunComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse or SkillProgramEffectOp.ResolveWenyiHealthOneAid or SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh;
+    [ProgramCatalogValidation(800)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) return;

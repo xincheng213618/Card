@@ -35,6 +35,8 @@ internal sealed class InitializeShuangjiaInitialEntitiesDescriptor : ProgramOper
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting)];
     public override ISkillProgramEffectHandler Handler { get; } = new InitializeShuangjiaInitialEntitiesHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 
 internal sealed class InitializeShuangjiaInitialEntitiesHandler : ISkillProgramEffectHandler
@@ -47,6 +49,7 @@ internal sealed class InitializeShuangjiaInitialEntitiesHandler : ISkillProgramE
 
 internal static class ShuangjiaComposition
 {
+    [ProgramCatalogValidation(860)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

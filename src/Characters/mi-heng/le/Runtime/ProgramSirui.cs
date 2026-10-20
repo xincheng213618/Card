@@ -38,6 +38,7 @@ internal static class SiruiComposition
         CardKind.FireAttack, CardKind.IronChain, CardKind.BorrowedSword, CardKind.Nullification
     });
 
+    [ProgramCatalogValidation(1330)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.ViewAs.Any(r => r.EqualNameLengthUse)) return;

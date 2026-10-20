@@ -41,12 +41,16 @@ public sealed record ZixiPlacementCompletedEvent(long FrameId, bool Paid, int En
 internal interface ILeDaQiaoZixiPlacementHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveZixiQinJudgmentPlacementDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveZixiQinJudgmentPlacement;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new ZixiPlacementHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ZixiPlacementHandler : ISkillProgramEffectHandler
 {
@@ -56,6 +60,7 @@ internal sealed class ZixiPlacementHandler : ISkillProgramEffectHandler
 }
 internal static class ZixiPlacementComposition
 {
+    [ProgramCatalogValidation(1190)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:zixi" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

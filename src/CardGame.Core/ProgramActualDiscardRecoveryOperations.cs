@@ -66,6 +66,8 @@ internal sealed class PlaceCapturedEquipmentAndDrawDescriptor : ProgramOperation
 }
 internal sealed class RestoreActualDiscardBatchDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.RestoreActualDiscardBatch;
     public override ISkillProgramEffectHandler Handler { get; } = new ActualDiscardRecoveryHandler(SkillProgramEffectOp.RestoreActualDiscardBatch);
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;

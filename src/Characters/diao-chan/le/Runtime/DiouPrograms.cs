@@ -103,6 +103,7 @@ internal sealed class DiouHandler : ISkillProgramEffectHandler
 }
 internal static class LeDiaoChanDiouComposition
 {
+    [ProgramCatalogValidation(1160)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:diou" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

@@ -9,6 +9,7 @@ public sealed record DamageCounterpartAcquisitionGrantedEvent(long ProgramFrameI
 
 internal static class DamageCounterpartAcquisitionContract
 {
+    [ProgramCatalogValidation(10)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var p in programs.Values)

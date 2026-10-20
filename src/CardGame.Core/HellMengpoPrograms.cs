@@ -21,6 +21,8 @@ internal sealed class ResolveHellWanghunLossDescriptor : HellMengpoOperationDesc
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.Death;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 internal sealed class BanHellWangshiCategoryDescriptor : HellMengpoOperationDescriptor
 {

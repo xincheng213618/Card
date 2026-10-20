@@ -67,6 +67,8 @@ public sealed record MouZuifengCompletedEvent(long FrameId, bool Paid, int? Show
 internal interface IMouZhouYuZuifengHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame f); }
 internal sealed class ResolveMouZhouYuZuifengDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuZuifeng;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
@@ -81,6 +83,7 @@ internal sealed class MouZhouYuZuifengHandler : ISkillProgramEffectHandler
 }
 internal static class MouZuifengComposition
 {
+    [ProgramCatalogValidation(1130)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "mou-ol:zuifeng" && !p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveMouZhouYuZuifeng)) &&

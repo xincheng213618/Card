@@ -82,6 +82,7 @@ internal sealed class LiuZhangHandler(SkillProgramEffectOp op):ISkillProgramEffe
 }
 internal static class LiuZhangComposition
 {
+ [ProgramCatalogValidation(680)]
  internal static void ValidateProgram(string path,SkillProgram p)
  {
   var ops=p.Activations.SelectMany(a=>a.Effects).Concat(p.Triggers.SelectMany(t=>t.Effects)).Where(e=>e.Op is SkillProgramEffectOp.ResolveFengweiRoundStartDraw or SkillProgramEffectOp.ResolveFengweiActualDrawSkip or SkillProgramEffectOp.ResolveZonghuRequiredUseRequest).ToArray();if(ops.Length==0)return;

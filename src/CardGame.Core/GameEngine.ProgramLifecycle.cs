@@ -1962,6 +1962,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramViewContributor(ProgramViewContribution.ProgramPublicCards, 10)]
     private IReadOnlyList<CardSnapshot> GetProgramPublicCards()
     {
         HashSet<int>? publicIds = null;

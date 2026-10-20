@@ -70,12 +70,15 @@ internal abstract class XiangChongDescriptor : ProgramOperationDescriptorBase
 }
 internal sealed class ResolveGuyingAtomicLossChoiceDescriptor:XiangChongDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveGuyingAtomicLossChoice;}
 internal sealed class SettleGuyingPreparationDebtDescriptor:XiangChongDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.SettleGuyingPreparationDebt;}
-internal sealed class ResolveMuzhenExchangeDescriptor:XiangChongDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMuzhenExchange;}
+internal sealed class ResolveMuzhenExchangeDescriptor:XiangChongDescriptor{
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMuzhenExchange;}
 internal sealed class XiangChongHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost h)=>h.GetCapability<IXiangChongHost>().Resolve(f,e);}
 internal static class XiangChongComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveGuyingAtomicLossChoice or SkillProgramEffectOp.SettleGuyingPreparationDebt or SkillProgramEffectOp.ResolveMuzhenExchange;
+    [ProgramCatalogValidation(390)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op)))&&!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

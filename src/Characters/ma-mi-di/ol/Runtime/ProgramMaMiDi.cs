@@ -59,6 +59,7 @@ public sealed partial record CardUseFrame
 internal static class MaMiDiComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.PayBingjieTurnMaximumHp or SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards or SkillProgramEffectOp.GrowZhengdingMatchingResponse;
+    [ProgramCatalogValidation(330)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op))) && !p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op)))) return;

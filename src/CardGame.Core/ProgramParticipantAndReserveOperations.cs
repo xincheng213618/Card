@@ -46,9 +46,15 @@ internal abstract class ParticipantReserveDescriptor : ProgramOperationDescripto
         effect.Op == SkillProgramEffectOp.DamageParticipants && effect.Target == SkillProgramEffectTarget.SelectedTargets
             ? [new ReadTargetSet(0)] : effect.TargetKind is null ? WithSelectedTarget(effect) : [];
 }
-internal sealed class DamageParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DamageParticipants; }
-internal sealed class LoseHpParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpParticipants; }
-internal sealed class DiscardParticipantCardsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardParticipantCards; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
+internal sealed class DamageParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DamageParticipants;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
+internal sealed class LoseHpParticipantsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpParticipants;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
+internal sealed class DiscardParticipantCardsDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardParticipantCards; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
+}
 internal sealed class InitializePrivatePileDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializePrivatePile; }
 internal sealed class ExchangePrivatePileDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePrivatePile; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
 internal sealed class GrantAttributedNatureEffectDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantAttributedNatureEffect; }

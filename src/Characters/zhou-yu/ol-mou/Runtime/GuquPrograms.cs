@@ -71,6 +71,7 @@ internal sealed class MouZhouYuGuquHandler : ISkillProgramEffectHandler
 }
 internal static class MouZhouYuGuquComposition
 {
+    [ProgramCatalogValidation(1150)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "mou-ol:guqu" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

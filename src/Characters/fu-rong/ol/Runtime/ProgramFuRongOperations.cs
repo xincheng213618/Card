@@ -73,6 +73,7 @@ public sealed class DiscardBasicPairAndReuseHandler : ISkillProgramEffectHandler
 }
 internal static class FuRongComposition
 {
+    [ProgramCatalogValidation(140)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardBasicPairAndReuse)))

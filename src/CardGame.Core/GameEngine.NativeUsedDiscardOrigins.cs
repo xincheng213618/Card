@@ -15,7 +15,7 @@ public sealed partial class GameEngine
 {
     private void CaptureClaimedDeclarationTrueUse(DeclaredCardPayment paid)
     {
-        if (!(HasMouXiahouDunCapability || HasXieLingYuCapability || HasLiFengCapability || HasGuYinCapability) || _resolutionStack.LastOrDefault() is not
+        if (!_contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeTrueUseProcessingEntry) || _resolutionStack.LastOrDefault() is not
                 CardUseFrame { Action: { Type: CardActionType.Use } action } use ||
             paid.OwnerFrameId == use.Id ||
             use.CardKind != action.EffectiveKind || action.ActorSeat != paid.ActorSeat ||
@@ -34,7 +34,7 @@ public sealed partial class GameEngine
 
     private void CaptureNativeTrueUseProcessingEntries(CardMovementBatchContext batch)
     {
-        if (!(HasMouXiahouDunCapability || HasXieLingYuCapability || HasLiFengCapability || HasGuYinCapability) || batch.ParentFrameId is not { } parentId ||
+        if (!_contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeTrueUseProcessingEntry) || batch.ParentFrameId is not { } parentId ||
             _resolutionStack.SingleOrDefault(f => f.Id == parentId) is not { } parent) return;
         foreach (var move in batch.Movements)
         {

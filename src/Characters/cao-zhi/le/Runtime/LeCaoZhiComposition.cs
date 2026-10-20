@@ -11,6 +11,7 @@ internal static class LeCaoZhiComposition
         CardKind.SupplyShortage, CardKind.Lightning, CardKind.UnexpectedAssault
     ];
 
+    [ProgramCatalogValidation(920)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var operations = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

@@ -56,6 +56,7 @@ internal static class JuewuComposition
         return "rank-two-" + char.ToLowerInvariant(text[0]) + text[1..];
     }
 
+    [ProgramCatalogValidation(1200)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (!program.ViewAs.Any(rule => rule.RankTwoDamageUse) && program.Id != "wumiao:juewu") return;

@@ -231,6 +231,12 @@ public sealed partial class GameEngine
     { if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { ZhouQun: { Stage: ZhouQunStage.HpIssuing } r } f && e.FrameId == f.Id && e.SkillId == f.SkillId && r.Cursor < r.Targets.Count && e.TargetSeat == r.Targets[r.Cursor]) { ReplaceRuntimeTop(f with { ZhouQun = r with { Stage = ZhouQunStage.HpChildren } }); AdvanceEventRulesAndQueueFact(new ZhouQunHpPaidEvent(f.Id, r.Cursor, e.TargetSeat, e.Amount, e.RemainingHp)); } }
     [ProgramAiChoice(SkillProgramEffectOp.ResolveChenshuoRepeatedReveal, SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant)]
     private PromptChoice ChooseZhouQun(PendingDecision p, ProgramSkillFrame f) => p.Choices.FirstOrDefault(c => c.Parameters["branch"] == "hand-done") ?? p.Choices.First();
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 80)]
     private IReadOnlyList<CardSnapshot> ZhouQunPrivatelyViewedTopCards(int viewerSeat) => Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewerSeat && f.ZhouQun is { Stage: ZhouQunStage.ExchangeHand or ZhouQunStage.ExchangeTop or ZhouQunStage.ChooseWeatherCard or ZhouQunStage.ChooseWeatherRecipient }).SelectMany(f => f.ZhouQun!.Viewed).Distinct().Select(id => ToSnapshot(GetAdvancedCard(id))).ToArray());
+    [ProgramViewContributor(ProgramViewContribution.PublicCardsBeforeResolution, 30)]
+    private IEnumerable<CardSnapshot> ProjectZhouQunPublicShownCards() => ZhouQunPublicShownCardIds().Select(id =>
+        ToSnapshot(GetAdvancedCard(id)) with
+        { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null });
+
     private IEnumerable<int> ZhouQunPublicShownCardIds() => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.ZhouQun is not null).SelectMany(f => f.ZhouQun!.Revealed.Concat(f.ZhouQun.ShownCards.Select(c => c.CardId)).Concat(f.ZhouQun.ChosenCard > 0 ? [f.ZhouQun.ChosenCard] : [])).Distinct();
 }

@@ -51,12 +51,15 @@ internal sealed class RevealBottomHeartsAndDrawDescriptor():LuYuShengDescriptor(
 internal sealed class DiscardBottomHeartsForDamageReductionDescriptor():LuYuShengDescriptor(SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction)
 {public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.BeforeDamageApplied)];}
 internal sealed class RunweiDrawOrDiscardForActualPhaseDescriptor():LuYuShengDescriptor(SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.DiscardPhaseStarting)];}
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.DiscardPhaseStarting)];}
 internal sealed class LuYuShengHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ILuYuShengHost>().Execute(f,op);}
 internal static class LuYuShengComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.RevealBottomHeartsAndDraw or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction or SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase;
+    [ProgramCatalogValidation(260)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(p.Activations.Any(a=>a.Effects.Any(e=>IsOperation(e.Op))))throw new InvalidOperationException(path+": Lu Yu Sheng requires actual Draw, before-damage or Discard windows.");

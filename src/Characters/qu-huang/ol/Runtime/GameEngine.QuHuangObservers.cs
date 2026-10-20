@@ -21,8 +21,11 @@ public sealed partial class GameEngine
     }
     [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 360)]
     private bool IsQuHuangMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.QuHuang is{Paid:true}r&&e?.Op==r.Op&&p==f.PendingMovementContinuation&&p.SubjectSeat==r.TargetSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
+    [ProgramViewContributor(ProgramViewContribution.PublicProcessingExclusion, 10)]
     private bool IsNishouHeldProcessingCard(int cardId)=>HasQuHuangCapability&&_cardZones.GetLocation(cardId)==CardLocation.Processing&&_resolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.QuHuang is{Op:SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap,Paid:true}r&&r.OwnerCards.Concat(r.OtherCards).Any(c=>c.CardId==cardId)&&ProgramEventHistory<QuHuangEntityMovedEvent>().Any(e=>e.FrameId==f.Id&&e.CardId==cardId&&e.To==CardLocation.Processing&&e.Stage is QuHuangStage.HoldOwner or QuHuangStage.HoldOther&&_cardMovements.LastOrDefault(m=>m.CardId==cardId)is{}last&&last.Sequence==e.Sequence&&last.From==e.From&&last.To==e.To&&last.Reason.Value==NishouHoldReason));
+    [ProgramViewContributor(ProgramViewContribution.InvariantProcessing, 10)]
     private IReadOnlyList<Card> WithoutNishouHeldProcessingCards(IReadOnlyList<Card> processing)=>!HasQuHuangCapability?processing:Array.AsReadOnly(processing.Where(c=>!IsNishouHeldProcessingCard(c.Id)).ToArray());
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 70)]
     private IReadOnlyList<CardSnapshot> NishouPrivatelyHeldCards(int viewerSeat)=>!HasQuHuangCapability?[]:Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.QuHuang?.Op==SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap).SelectMany(f=>f.QuHuang!.OwnerCards.Concat(f.QuHuang.OtherCards)).Where(c=>c.From==CardLocation.Hand(viewerSeat)&&IsNishouHeldProcessingCard(c.CardId)).Select(c=>ToSnapshot(GetAdvancedCard(c.CardId))).ToArray());
     private bool QuHuangMovementMatches(ProgramSkillFrame f,CardMovementRecord m)
     {

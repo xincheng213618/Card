@@ -37,12 +37,16 @@ public sealed record PingluCompletedEvent(long FrameId, int ActualCount) : IGame
 internal interface ILeZhouYuPingluHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolvePingluInRangeRandomHandsDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolvePingluInRangeRandomHands;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(4));
     public override ISkillProgramEffectHandler Handler { get; } = new PingluHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class PingluHandler : ISkillProgramEffectHandler
 {
@@ -52,6 +56,7 @@ internal sealed class PingluHandler : ISkillProgramEffectHandler
 }
 internal static class PingluComposition
 {
+    [ProgramCatalogValidation(1300)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:pinglu" && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

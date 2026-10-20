@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
@@ -242,6 +242,8 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             ? [new RequireContext(ProgramContextCapability.DrawPlan),
                 new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
             : [new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 
 internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperationDescriptorBase

@@ -51,6 +51,7 @@ internal sealed class QinLangHandler(SkillProgramEffectOp operation):ISkillProgr
 internal static class QinLangComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveXianyingDrawDiscard or SkillProgramEffectOp.ResolveXianyingTurnEndUses;
+    [ProgramCatalogValidation(410)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op)))&&!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

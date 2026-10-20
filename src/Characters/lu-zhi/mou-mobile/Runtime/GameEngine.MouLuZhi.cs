@@ -26,6 +26,7 @@ public sealed partial class GameEngine
     private int MouLuZhiX(int owner, int target) => _players[owner].HasHpValue && _players[target].HasHpValue ? Math.Max(1, Math.Abs(_players[owner].Hp - _players[target].Hp)) : int.MaxValue;
     private int MouLuZhiPhaseUses(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouLuZhiStartedEvent>().Count(e =>
         e.Source.OwnerSeat == owner && e.Op == SkillProgramEffectOp.ResolveMouLuZhiZhenliangYang && e.Phase == phase);
+    [ProgramPhaseUsedProjection(70)]
     private int MouLuZhiProjectedUses(int owner, string skill, int fallback) => skill == MouLuZhiZhenliang && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase
         ? MouLuZhiPhaseUses(owner, phase) : fallback;
     private int[] MouLuZhiYangTargets(int owner, MouLuZhiRen ren, string instance) => GetProgramTargetSeats(owner, SkillProgramTargetKind.OtherLivingInAttackRange).Where(target =>

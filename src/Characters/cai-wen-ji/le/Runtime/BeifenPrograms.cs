@@ -66,6 +66,8 @@ internal sealed class ResolveBeifenLostMarkedSuitGainsDescriptor : ProgramOperat
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class LeCaiWenJiBeifenHandler : ISkillProgramEffectHandler
 {
@@ -76,6 +78,7 @@ internal sealed class LeCaiWenJiBeifenHandler : ISkillProgramEffectHandler
 
 internal static class BeifenComposition
 {
+    [ProgramCatalogValidation(1210)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:beifen" && !p.Triggers.SelectMany(t => t.Effects)

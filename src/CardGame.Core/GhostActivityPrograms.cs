@@ -43,6 +43,8 @@ internal sealed class DiscardDeathSourceCardsDescriptor : GhostActivityOperation
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
 }
 
 internal sealed class SelectRedJudgmentFireTargetDescriptor : GhostActivityOperationDescriptor

@@ -56,8 +56,16 @@ internal abstract class TaoQianDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => op == SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard ? [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)] : [];
 }
-internal sealed class ResolveZongluanDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard);
-internal sealed class ResolveWenrenDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveWenrenSequentialDraw);
+internal sealed class ResolveZongluanDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWenrenDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveWenrenSequentialDraw){
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class TaoQianHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -65,6 +73,7 @@ internal sealed class TaoQianHandler(SkillProgramEffectOp op) : ISkillProgramEff
 }
 internal static class TaoQianComposition
 {
+    [ProgramCatalogValidation(820)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         ZhaohuoComposition.ValidateProgram(path, p);

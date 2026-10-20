@@ -63,13 +63,24 @@ internal abstract class ZhaoZhongDescriptor(SkillProgramEffectOp op) : ProgramOp
     };
     public override ISkillProgramEffectHandler Handler { get; } = new ZhaoZhongHandler(op);
 }
-internal sealed class PengbiFirstActualTurnDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolvePengbiFirstActualTurn);
+internal sealed class PengbiFirstActualTurnDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolvePengbiFirstActualTurn)
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+}
 internal sealed class DiciGiftRecoveryAndNeighborChainDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain)
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override ProgramOperationLegalityPolicy LegalityPolicy { get; } = new(RequiresTargetHand: true, ExcludesOwnerAsTarget: true);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
-internal sealed class IssuedDiciNextChainChoiceDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice);
-internal sealed class BiriFirstNonDrawGainDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveBiriFirstNonDrawGain);
+internal sealed class IssuedDiciNextChainChoiceDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class BiriFirstNonDrawGainDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveBiriFirstNonDrawGain){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class ZhaoZhongHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -78,6 +89,7 @@ internal sealed class ZhaoZhongHandler(SkillProgramEffectOp op) : ISkillProgramE
 internal static class ZhaoZhongComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolvePengbiFirstActualTurn or SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain or SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice or SkillProgramEffectOp.ResolveBiriFirstNonDrawGain;
+    [ProgramCatalogValidation(810)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var ops = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).ToArray();

@@ -55,6 +55,7 @@ internal sealed class ResolvePingduanOrderedBasicRecastEquipmentDescriptor : Pro
 }
 internal static class KeBiNengComposition
 {
+    [ProgramCatalogValidation(310)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolvePingduanOrderedBasicRecastEquipment)) && !p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolvePingduanOrderedBasicRecastEquipment))) return;

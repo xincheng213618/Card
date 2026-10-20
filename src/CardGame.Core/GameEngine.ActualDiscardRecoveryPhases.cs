@@ -5,45 +5,13 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
+        _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.ActualDiscardRecoveryPhase) ||
         _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
-        HasMouZhouYuMobileCapability || HasMouMengHuoCapability || HasMouPangTongCapability || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouXiahouDunCapability || HasMouHanDangCapability || HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         IsGuanduActivity ||
-        HasMoQiangangCapability || HasMoLuBu || HasLeZhouYuPingluCapability || HasZixiPlacementCapability || HasLeXiaoQiaoWeiwanCapability || HasWuyouCapability || HasSiruiCapability || HasLeMiHengJiguCapability ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWenrenSequentialDraw) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePengbiFirstActualTurn) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi) ||
-        HasXieLingYuCapability ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian) ||
-        HasHellShiyouCapability ||
-        HasNativeDrawAttemptCapability ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveZexingShownCardChain) ||
-        TracksActualPhaseEnds ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShiluDrawRevealIdentity) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.PlaceBoundHandAsCategoryTalisman) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveSaoguConversionSweep) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMuzhenExchange) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmJingzhongNextActualPlay) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustKuangxiangHandToFour) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimLiubingUndamagingSlash) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestoreActualDiscardBatch) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AwakenZhanyuanAndOfferXili) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ObserveJuguanDrawObligation) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecordBixiongActualDiscard) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveForNextActualPhases) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmHongjiNextPhase) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferLianjuSameColorGift) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLianjuOppositeColorReturn) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGangshuAttributeIncrement) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase);
+        _contentRegistry.ProgramDependencies.UsesEqualNameLengthUse ||
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.HellShiyouIntercept) ||
+        _contentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.NativeDrawStarting) ||
+        _contentRegistry.Skills.ContainsKey(MouChenGongComposition.Zhichi);
 
     private ActualDiscardRecoveryPhaseKey? CurrentActualDiscardRecoveryPhase()
     {

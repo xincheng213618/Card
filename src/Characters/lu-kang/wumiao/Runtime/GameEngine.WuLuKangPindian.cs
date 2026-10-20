@@ -175,6 +175,7 @@ public sealed partial class GameEngine
         var input = WuLuKangActualInput(parent, seat, card, from, a.Rank, top);
         return input.CardId == card && input.From == from && input.Top == top && input.ReservationSequence == sequence;
     }
+    [ProgramViewContributor(ProgramViewContribution.ConcealedCardExclusion, 20)]
     private bool IsWuLuKangPrivatePindianCard(int id) => _resolutionStack.Any(f => f.WuLuKangContest is { Revealed: false, Cancelled: false } r &&
         (r.Replacements.Any(p => p.ReservedCardId == id) || r.Original.Any(p => p.CardId == id && p.From == CardLocation.Processing)));
     private IReadOnlyList<int> WuLuKangHeldProcessing(ResolutionFrame parent) => parent.WuLuKangContest is not { } r ? [] :

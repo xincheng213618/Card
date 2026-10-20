@@ -54,6 +54,7 @@ public sealed partial record CardUseFrame
 
 internal static class UniqueLeaderTrickTargetContract
 {
+    [ProgramCatalogValidation(20)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var (id, program) in programs)

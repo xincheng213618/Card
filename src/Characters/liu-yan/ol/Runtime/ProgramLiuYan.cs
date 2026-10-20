@@ -44,6 +44,7 @@ internal sealed class LiuYanHandler(SkillProgramEffectOp op):ISkillProgramEffect
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost h)=>h.GetCapability<ILiuYanHost>().Resolve(f,op);}
 internal static class LiuYanComposition
 {
+    [ProgramCatalogValidation(430)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         bool Handles(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.DrawTusheForActualNonEquipmentTargets or SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover;

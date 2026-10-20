@@ -42,12 +42,15 @@ internal abstract class CaoYuDescriptor:ProgramOperationDescriptorBase
 }
 internal sealed class ResolveGongjieRoundFirstGiftsDescriptor:CaoYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveGongjieRoundFirstGifts;}
 internal sealed class ResolveXiangxuMinimumTransitionDescriptor:CaoYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuMinimumTransition;}
-internal sealed class ResolveXiangxuIssuedTurnEndAdjustmentDescriptor:CaoYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment;}
+internal sealed class ResolveXiangxuIssuedTurnEndAdjustmentDescriptor:CaoYuDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment;}
 internal sealed class ResolveXiangzuDyingGiftAndRecoveryDescriptor:CaoYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangzuDyingGiftAndRecovery;}
 internal sealed class CaoYuHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<ICaoYuHost>().Resolve(f,op);}
 internal static class CaoYuComposition
 {
  internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveGongjieRoundFirstGifts or SkillProgramEffectOp.ResolveXiangxuMinimumTransition or SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment or SkillProgramEffectOp.ResolveXiangzuDyingGiftAndRecovery;
+ [ProgramCatalogValidation(610)]
  internal static void ValidateProgram(string path,SkillProgram p)
  {
   if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

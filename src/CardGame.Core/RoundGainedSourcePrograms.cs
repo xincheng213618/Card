@@ -57,6 +57,7 @@ public sealed partial record ProgramSkillFrame
 
 internal static class RoundGainedSourceContract
 {
+    [ProgramCatalogValidation(30)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var (id, program) in programs)

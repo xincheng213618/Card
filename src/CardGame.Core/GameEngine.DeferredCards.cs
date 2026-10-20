@@ -9,6 +9,7 @@ public sealed partial class GameEngine
 {
     private readonly List<DeferredPublicPileDeposit> _deferredPublicPileDeposits = [];
 
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 10)]
     private CardSnapshot[] GetPrivatelyViewedCards(int viewerSeat)
     {
         var topCards = _resolutionStack.OfType<ProgramSkillFrame>()

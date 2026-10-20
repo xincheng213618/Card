@@ -61,13 +61,20 @@ internal abstract class SunYuanDescriptor(SkillProgramEffectOp op,SkillProgramTr
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler{get;}=new SunYuanHandler(op);
 }
-internal sealed class ResolveSayingPlayStartObtainAndReplyDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply,SkillProgramTriggerWindow.PlayPhaseStarting) { }
-internal sealed class ResolveDongxinDamageDiscardAndReclaimDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim,SkillProgramTriggerWindow.AfterDamageApplied) { }
+internal sealed class ResolveSayingPlayStartObtainAndReplyDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply,SkillProgramTriggerWindow.PlayPhaseStarting) {
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.SunYuan is { Paid: true };
+}
+internal sealed class ResolveDongxinDamageDiscardAndReclaimDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim,SkillProgramTriggerWindow.AfterDamageApplied) {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.SunYuan is { Paid: true };
+}
 internal sealed class SunYuanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int target,ISkillProgramEffectHost host)=>host.GetCapability<ISunYuanHost>().Resolve(frame,op);}
 internal static class SunYuanComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply or SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim;
+    [ProgramCatalogValidation(670)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

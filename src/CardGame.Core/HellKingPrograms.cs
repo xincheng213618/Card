@@ -29,14 +29,26 @@ internal abstract class HellKingBindingDescriptor : HellKingOperationDescriptor
         Array.AsReadOnly((SelectsTarget ? new ProgramResourceOperation[] { ReplacesTarget ? new ReplaceSingleTarget() : new SelectSingleTarget() } : [])
             .Append(new CreateChoiceResult(effect.ResultBind!, Choices)).ToArray());
 }
-internal sealed class BindHellRandomOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellRandomOther; }
-internal sealed class BindHellOtherDamageSourceDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellOtherDamageSource; }
+internal sealed class BindHellRandomOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellRandomOther;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
+internal sealed class BindHellOtherDamageSourceDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellOtherDamageSource;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class BindHellPeachPoisonTargetDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellPeachPoisonTarget; }
-internal sealed class ChooseHellLowestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellLowestHpOther; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
-internal sealed class ChooseHellHighestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellHighestHpOther; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
-internal sealed class ChooseHellNextHighestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellNextHighestHpOther; protected override bool ReplacesTarget => true; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
+internal sealed class ChooseHellLowestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellLowestHpOther; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
+internal sealed class ChooseHellHighestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellHighestHpOther; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
+internal sealed class ChooseHellNextHighestHpOtherDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellNextHighestHpOther; protected override bool ReplacesTarget => true; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class ChooseHellReincarnationTargetDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHellReincarnationTarget; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
-internal sealed class RollHellElementDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.RollHellElement; protected override bool SelectsTarget => false; protected override IReadOnlyList<string> Choices => ["fire", "thunder", "none"]; }
+internal sealed class RollHellElementDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.RollHellElement; protected override bool SelectsTarget => false; protected override IReadOnlyList<string> Choices => ["fire", "thunder", "none"];
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class RollHellAssaultDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.RollHellAssault; protected override bool SelectsTarget => false; protected override IReadOnlyList<string> Choices => ["nanman", "wanjian"]; }
 internal sealed class BindHellRepeatedDamageTargetDescriptor : HellKingBindingDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.BindHellRepeatedDamageTarget; }
 internal sealed class DiscardHellRandomOtherMountDescriptor : HellKingOperationDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardHellRandomOtherMount; public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterTurnEnded)]; }
@@ -64,8 +76,12 @@ internal sealed class SetHellAllLivingChainedDescriptor : HellKingOperationDescr
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.SetHellAllLivingChained;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
-internal sealed class TurnHellFaceUpKillerDescriptor : HellKingOperationDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.TurnHellFaceUpKiller; public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)]; }
+internal sealed class TurnHellFaceUpKillerDescriptor : HellKingOperationDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.TurnHellFaceUpKiller; public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class DrawHellPreparationDescriptor : HellKingOperationDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DrawHellPreparation; public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)]; }
 internal sealed class HellKingEffectHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

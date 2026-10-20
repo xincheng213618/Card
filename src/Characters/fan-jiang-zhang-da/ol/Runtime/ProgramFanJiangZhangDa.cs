@@ -53,6 +53,7 @@ internal sealed class JueshengHandler : ISkillProgramEffectHandler
 }
 internal static class FanJiangZhangDaComposition
 {
+    [ProgramCatalogValidation(530)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var operation = p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJueshengLimitedDuel)) || p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJueshengLimitedDuel));

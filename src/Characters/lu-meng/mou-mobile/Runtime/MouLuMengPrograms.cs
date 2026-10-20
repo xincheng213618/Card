@@ -40,6 +40,8 @@ internal interface IMouLuMengHost
 }
 internal sealed class ResolveMouLuMengKejiDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuMengKeji;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [];
@@ -48,6 +50,8 @@ internal sealed class ResolveMouLuMengKejiDescriptor : ProgramOperationDescripto
 }
 internal sealed class ResolveMouLuMengDujiangDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuMengDujiang;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
@@ -56,6 +60,8 @@ internal sealed class ResolveMouLuMengDujiangDescriptor : ProgramOperationDescri
 }
 internal sealed class ResolveMouLuMengDuojingDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuMengDuojing;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>

@@ -97,6 +97,8 @@ internal sealed class ResolveDouyuPreRevealSwapAndWinDrawDescriptor : ProgramOpe
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindows([SkillProgramTriggerWindow.PindianBeforeReveal, SkillProgramTriggerWindow.PindianResultDetermined])];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class DouyuHandler : ISkillProgramEffectHandler
 {

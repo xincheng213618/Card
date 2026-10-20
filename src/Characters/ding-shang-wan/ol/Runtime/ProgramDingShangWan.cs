@@ -53,6 +53,7 @@ internal sealed class DingShangWanHandler(SkillProgramEffectOp op):ISkillProgram
 internal static class DingShangWanComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.InitializeFudaoHandRecord or SkillProgramEffectOp.DrawFudaoRecordedPair or SkillProgramEffectOp.ResolveFengyanCounterpart;
+    [ProgramCatalogValidation(220)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(p.Activations.Any(a=>a.Effects.Any(e=>IsOperation(e.Op))))throw new InvalidOperationException(path+": Ding Shang Wan requires native game-start, actual-turn-end or completed-response/damage windows.");

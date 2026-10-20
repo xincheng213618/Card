@@ -77,6 +77,8 @@ internal sealed class ResolveMoSunQuanQuanyuSlashEffectsDescriptor : ProgramOper
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new MoSunQuanSlashHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 
 internal sealed class MoSunQuanSlashHandler : ISkillProgramEffectHandler

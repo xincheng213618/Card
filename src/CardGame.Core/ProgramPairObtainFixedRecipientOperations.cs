@@ -91,6 +91,8 @@ internal sealed class SelectIssuedFixedRecipientDescriptor : PairObtainFixedReci
     public override ISkillProgramEffectHandler Handler { get; } = new SelectIssuedFixedRecipientHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.SelectTarget, static (_, _) => { });
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied), new SelectSingleTarget()];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 public sealed class ObtainOneFromEachSelectedTargetHandler : ISkillProgramEffectHandler
 {

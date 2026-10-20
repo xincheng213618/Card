@@ -63,6 +63,8 @@ internal sealed class SelectIssuedFixedRecipientWithDeathReturnDescriptor : Pair
              !trigger.Optional || trigger.UsageScope is not null || trigger.ChoiceGroup is not null || trigger.NamedUsageGroup is not null))
             throw new InvalidOperationException($"{path}: owned death return is one optional original-owner binding, not another limited debit.");
     }
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 
 public sealed class SelectIssuedFixedRecipientWithDeathReturnHandler : ISkillProgramEffectHandler

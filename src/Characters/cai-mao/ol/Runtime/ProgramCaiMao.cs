@@ -43,6 +43,7 @@ internal sealed class CaiMaoHandler(SkillProgramEffectOp op):ISkillProgramEffect
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ICaiMaoHost>().Resolve(f,op);}
 internal static class CaiMaoComposition
 {
+    [ProgramCatalogValidation(460)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         bool Handles(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.ResolveZuolianWholeRevealExchange or SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles;

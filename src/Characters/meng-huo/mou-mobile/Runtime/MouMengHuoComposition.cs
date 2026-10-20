@@ -6,6 +6,7 @@ internal static class MouMengHuoComposition
     private static bool Trigger(SkillProgramTrigger t, string id, SkillProgramTriggerWindow window, SkillProgramEffectOp op) =>
         t.Id == id && t.Window == window && !t.Optional && t.UsageLimit is null && t.UsageScope is null && t.Condition.Kind == SkillProgramTriggerConditionKind.Always &&
         t.Effects is [var e] && e.Op == op && e.Target == SkillProgramEffectTarget.Owner && e.ActorReference is null && e.TargetReference is null && e.Condition.Kind == SkillProgramConditionKind.Always;
+    [ProgramCatalogValidation(1040)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id is not (Huoshou or Zaiqi) && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) return;

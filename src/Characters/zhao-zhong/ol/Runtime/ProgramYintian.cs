@@ -53,6 +53,8 @@ internal sealed class ResolveYintianFirstRecoveryDescriptor : ProgramOperationDe
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterHpRecovered)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class YintianHandler : ISkillProgramEffectHandler
 {

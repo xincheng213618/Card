@@ -87,6 +87,7 @@ public sealed class RevealUndamagedUseTargetHandAndDiscardSameColorHandler : ISk
 internal static class CompletedUndamagedTargetRevealComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op) => op == SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor;
+    [ProgramCatalogValidation(130)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Activations.Any(a => a.Effects.Any(e => IsOperation(e.Op))))

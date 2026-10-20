@@ -53,6 +53,8 @@ internal sealed class UseSelectedActorDuelDescriptor : ProgramOperationDescripto
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect)=>
         OrderedSelectedActorDuelContract.IsOptIn(effect) ? [new ReadVirtualDuelPair()] : [new ReadSelectedTarget()];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => OrderedSelectedActorDuelContract.IsOptIn(context.Effect) && context.Frame.OrderedSelectedActorDuel is not null && context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class DamageColorDuelHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {

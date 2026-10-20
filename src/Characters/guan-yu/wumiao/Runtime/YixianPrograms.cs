@@ -48,6 +48,8 @@ internal sealed class ResolveYixianAllEquipmentObtainAndCompensateDescriptor : P
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler { get; } = new WuYixianHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WuYixianHandler : ISkillProgramEffectHandler
 {
@@ -57,6 +59,7 @@ internal sealed class WuYixianHandler : ISkillProgramEffectHandler
 }
 internal static class WuYixianComposition
 {
+    [ProgramCatalogValidation(1220)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         var owns = program.Activations.SelectMany(a => a.Effects).Concat(program.Triggers.SelectMany(t => t.Effects))

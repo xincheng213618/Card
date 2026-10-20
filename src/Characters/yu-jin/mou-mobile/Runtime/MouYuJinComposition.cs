@@ -37,6 +37,7 @@ internal static class MouYuJinComposition
         Custom(first, SkillProgramEffectOp.ResolveMouYuJinJieyue) && Custom(last, SkillProgramEffectOp.ResolveMouYuJinJieyue) &&
         Plain(grant, SkillProgramEffectOp.GrantArmor, SkillProgramEffectTarget.SelectedTarget) && grant.Amount == 1 &&
         grant.SourceBind is null && grant.ResultBind is null;
+    [ProgramCatalogValidation(950)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e =>

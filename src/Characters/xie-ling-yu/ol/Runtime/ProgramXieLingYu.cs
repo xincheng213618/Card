@@ -60,8 +60,16 @@ internal abstract class XieLingYuDescriptor(SkillProgramEffectOp op) : ProgramOp
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new XieLingYuHandler(op);
 }
-internal sealed class ResolveYuandiDiscardNamesDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveYuandiDiscardNames) { }
-internal sealed class ResolveXinyouBasicCycleDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveXinyouBasicCycle) { }
+internal sealed class ResolveYuandiDiscardNamesDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveYuandiDiscardNames) {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.XieLingYu is { Paid: true } || context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveXinyouBasicCycleDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveXinyouBasicCycle) {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.XieLingYu is { Paid: true };
+}
 internal sealed class XieLingYuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -70,6 +78,7 @@ internal sealed class XieLingYuHandler(SkillProgramEffectOp op) : ISkillProgramE
 internal static class XieLingYuComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveYuandiDiscardNames or SkillProgramEffectOp.ResolveXinyouBasicCycle;
+    [ProgramCatalogValidation(760)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) return;

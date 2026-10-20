@@ -87,6 +87,7 @@ internal sealed class QianZhaoHandler(SkillProgramEffectOp op) : ISkillProgramEf
 }
 internal static class QianZhaoComposition
 {
+    [ProgramCatalogValidation(210)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var ops = new[] { SkillProgramEffectOp.ResolveWeifuJudgment, SkillProgramEffectOp.OfferWeifuCategoryTargets, SkillProgramEffectOp.ResolveKuansaiTargetChoice };

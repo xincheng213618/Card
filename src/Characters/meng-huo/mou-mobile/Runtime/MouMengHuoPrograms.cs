@@ -51,9 +51,15 @@ internal abstract class MouMengHuoDescriptor : ProgramOperationDescriptorBase
     public override ISkillProgramEffectHandler Handler => new MouMengHuoHandler(Op);
 }
 internal sealed class ResolveMouMengHuoAttributionDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouMengHuoAttribution; }
-internal sealed class ObtainMouMengHuoBarbarianDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainMouMengHuoBarbarian; }
+internal sealed class ObtainMouMengHuoBarbarianDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainMouMengHuoBarbarian;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class GainMouMengHuoChargeDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.GainMouMengHuoCharge; }
-internal sealed class ResolveMouMengHuoZaiqiDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouMengHuoZaiqi; }
+internal sealed class ResolveMouMengHuoZaiqiDescriptor : MouMengHuoDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouMengHuoZaiqi;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class MouMengHuoHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

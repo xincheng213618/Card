@@ -101,12 +101,16 @@ internal sealed class AccrueMouLiuChengChuiDescriptor : ProgramOperationDescript
 }
 internal sealed class ResolveMouLiuChengCompletionDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLiuChengCompletion;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(0));
     public override ISkillProgramEffectHandler Handler { get; } = new MouLiuChengHandler(SkillProgramEffectOp.ResolveMouLiuChengCompletion);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouLiuChengHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

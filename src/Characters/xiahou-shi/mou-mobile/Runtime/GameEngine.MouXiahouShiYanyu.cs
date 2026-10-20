@@ -14,6 +14,7 @@ public sealed partial class GameEngine
         .Count(e => !e.Support && e.Source.OwnerSeat == owner && e.Source.SkillId == MouXiahouShiComposition.Yanyu && e.Phase == phase);
     private int MouXiahouShiTurnDiscards(int owner, MouXiahouShiTurnKey turn) => ProgramEventHistory<MouXiahouShiYanyuDiscardPaidEvent>()
         .Count(e => e.Source.OwnerSeat == owner && e.Source.SkillId == MouXiahouShiComposition.Yanyu && e.Turn == turn && ValidMouXiahouShiPaidHistory(e));
+    [ProgramPhaseUsedProjection(40)]
     private int MouXiahouShiProjectedPhaseUses(int owner, string skill, int fallback) => skill == MouXiahouShiComposition.Yanyu &&
         CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && IsRecordedActualDiscardRecoveryPhase(phase)
         ? MouXiahouShiPhaseUses(owner, phase) : fallback;

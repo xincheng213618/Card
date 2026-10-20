@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(reduced);
         if (WuZhangFeiRankCount(reduced.RankMask) >= after) CompleteWuZhangFeiCycle(reduced, dying.Id);
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 100)]
     private CardSnapshot[] WuZhangFeiPrivateCards(int viewer) => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewer)
         .SelectMany(f => f.WuZhangFeiUse is { Stage: WuZhangFeiUseStage.Selecting } sample
             ? sample.Sample.Select(id => ToSnapshot(GetAdvancedCard(id)))

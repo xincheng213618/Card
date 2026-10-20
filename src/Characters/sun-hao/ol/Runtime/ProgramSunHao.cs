@@ -70,6 +70,7 @@ internal static class SunHaoComposition
             t.SourceZones.Count != 0 || t.DestinationZones.Count != 0 || t.Suits.Count != 0 || t.DamageOccurrence is not null || t.RequireDamageSource is not null || t.MovementOccurrence is not null)
             throw new InvalidOperationException("Sun Hao requires his exact optional normal-draw addition and mandatory issued committed-use discard.");
     }
+    [ProgramCatalogValidation(510)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var own = p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op))) || p.CardPolicies.Any(x => x.Kind is SkillProgramCardPolicyKind.OtherWuTreatedWoundedDuringOwnTurn or SkillProgramCardPolicyKind.EmptyHandDamageTakenBonus);

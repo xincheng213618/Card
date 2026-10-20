@@ -63,6 +63,7 @@ internal sealed class HuiyunHandler:ISkillProgramEffectHandler
 }
 internal static class HuBanComposition
 {
+    [ProgramCatalogValidation(560)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack)))return;

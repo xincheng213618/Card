@@ -56,10 +56,24 @@ internal abstract class WuZhugeLiangDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(8));
     public override ISkillProgramEffectHandler Handler => new WuZhugeLiangHandler(Op);
 }
-internal sealed class InitializeWuZhugeLiangJincuiDescriptor : WuZhugeLiangDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeWuZhugeLiangJincui; }
-internal sealed class ResolveWuZhugeLiangJincuiDescriptor : WuZhugeLiangDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangJincui; }
-internal sealed class ResolveWuZhugeLiangQingshiDescriptor : WuZhugeLiangDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangQingshi; }
-internal sealed class ResolveWuZhugeLiangZhizheDescriptor : WuZhugeLiangDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangZhizhe; }
+internal sealed class InitializeWuZhugeLiangJincuiDescriptor : WuZhugeLiangDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeWuZhugeLiangJincui;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWuZhugeLiangJincuiDescriptor : WuZhugeLiangDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangJincui;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWuZhugeLiangQingshiDescriptor : WuZhugeLiangDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangQingshi;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWuZhugeLiangZhizheDescriptor : WuZhugeLiangDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangZhizhe;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class WuZhugeLiangHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

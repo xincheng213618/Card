@@ -44,6 +44,7 @@ public sealed partial class GameEngine
             var owner=_players[died.VictimSeat];foreach(var l in owner.QirangEntityLeases??[])AdvanceEventRulesAndQueueFact(new QirangEntityLeaseEndedEvent(owner.Seat,l.CardId,l.GainSequence,"owner-died"));owner.QirangEntityLeases=null;owner.YuhuaDelayDebts=null;owner.YuhuaActiveQuota=null;
         }
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 40)]
     private CardSnapshot[] GetZhugeGuoPrivatelyViewedCards(int viewer)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{ZhugeGuo.Stage:ZhugeGuoStage.YuhuaInspect,TopReorder:{}top}f&&f.OwnerSeat==viewer&&_pendingDecision is{Kind:DecisionKind.ProgramTopReorder,PlayerSeat:var seat}&&seat==viewer?top.ViewedCardIds.Select(id=>ToSnapshot(_cardZones.CardsAt(CardLocation.DrawPile).Single(c=>c.Id==id))).ToArray():[];
     private bool ZhugeGuoFirstChild(ProgramSkillFrame root,ResolutionFrame child)
     {

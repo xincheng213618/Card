@@ -57,6 +57,7 @@ public sealed record ZhangYiDianjunCleanupIssuedEvent(long FrameId, int OwnerSea
 internal static class ZhangYiComposition
 {
     private static bool IsZhangYi(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveDianjunActualTurnEnd or SkillProgramEffectOp.ResolveKangruiFirstOwnTurnDamage;
+    [ProgramCatalogValidation(160)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Activations.Any(a => a.Effects.Any(e => IsZhangYi(e.Op))))

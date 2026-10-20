@@ -4,6 +4,8 @@ namespace CardGame.Core;
 internal interface IChengGongYingHost { SkillProgramStepOutcome Adjust(ProgramSkillFrame frame); }
 internal sealed class AdjustKuangxiangHandToFourDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.AdjustKuangxiangHandToFour;
     public override ISkillProgramEffectHandler Handler { get; } = new ChengGongYingHandler();
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
@@ -52,6 +54,7 @@ public sealed partial record JudgmentFrame
 
 internal static class ChengGongYingComposition
 {
+    [ProgramCatalogValidation(350)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (!program.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.AdjustKuangxiangHandToFour)) && !program.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.AdjustKuangxiangHandToFour))) return;

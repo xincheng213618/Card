@@ -52,6 +52,7 @@ public sealed partial class GameEngine
         var wei = _players.Count(p => p.IsAlive && GetEffectiveFactionId(p) == "wei");
         return grant.SkillId == "guandu:zezhu" ? qun > wei : wei > qun;
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 20)]
     private IEnumerable<CardSnapshot> GuanduShicaiPrivatelyViewedCards(int viewerSeat) => IsGuanduActivity &&
         viewerSeat == _currentSeat && _phase == TurnPhase.Play && GuanduSkillEnabled(_players[viewerSeat], "guandu:shicai") &&
         _cardZones.CardsAt(CardLocation.DrawPile).LastOrDefault() is { } top ? new[] { ToSnapshot(top) } : [];

@@ -113,6 +113,7 @@ internal static class DirectedDistanceDebtComposition
         };
         if (!valid) throw new InvalidOperationException(path + ": short-range or distance debt lost its exact real-use/actual-Ending entry.");
     }
+    [ProgramCatalogValidation(50)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var program in programs.Values)

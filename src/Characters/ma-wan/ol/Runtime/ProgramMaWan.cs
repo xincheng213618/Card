@@ -65,6 +65,7 @@ public sealed partial record CardUseFrame
 
 internal static class MaWanComposition
 {
+    [ProgramCatalogValidation(170)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferHunjiangPhaseSlashTargets)) ||

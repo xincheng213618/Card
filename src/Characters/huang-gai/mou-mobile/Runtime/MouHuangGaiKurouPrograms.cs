@@ -87,6 +87,7 @@ internal sealed partial class ProgramAiEstimateContext
 
 internal static class MouHuangGaiKurouComposition
 {
+    [ProgramCatalogValidation(890)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         var uses = program.Activations.SelectMany(a => a.Effects).Concat(program.Triggers.SelectMany(t => t.Effects))

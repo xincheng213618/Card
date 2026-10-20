@@ -46,6 +46,8 @@ internal abstract class ZhangLingOperationDescriptor : ProgramOperationDescripto
 }
 internal sealed class PlaceBoundHandAsCategoryTalismanDescriptor : ZhangLingOperationDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.PlaceBoundHandAsCategoryTalisman;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new ReadSingleCardSet(effect.SourceBind!), new RequireOwnedCardSet(effect.SourceBind!, SkillProgramEffectTarget.Owner, 1, [CardZoneKind.Hand]), new ReadSelectedTarget(), new GiftCardSet(effect.SourceBind!)];

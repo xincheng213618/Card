@@ -36,7 +36,9 @@ internal abstract class RuanHuiDescriptor : ProgramOperationDescriptorBase
         SkillProgramEffectOp.ArmJingzhongNextActualPlay => SkillProgramTriggerWindow.DiscardPhaseEnded, _ => SkillProgramTriggerWindow.DiscardPileReceived })];
 }
 internal sealed class ResolveMingchaRevealDrawChoiceDescriptor : RuanHuiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMingchaRevealDrawChoice; }
-internal sealed class ArmJingzhongNextActualPlayDescriptor : RuanHuiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ArmJingzhongNextActualPlay; }
+internal sealed class ArmJingzhongNextActualPlayDescriptor : RuanHuiDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ArmJingzhongNextActualPlay; }
 internal sealed class ObtainJingzhongUsedEntitiesDescriptor : RuanHuiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainJingzhongUsedEntities; }
 internal sealed class RuanHuiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

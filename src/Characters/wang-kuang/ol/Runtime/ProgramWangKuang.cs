@@ -55,6 +55,7 @@ internal sealed class ResolveRenxiaOppositeAtPlayEndingDescriptor() : WangKuangD
 internal static class WangKuangComposition
 {
     private static bool Own(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveRenxiaRepeatedBranch or SkillProgramEffectOp.ResolveRenxiaOppositeAtPlayEnding;
+    [ProgramCatalogValidation(270)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => Own(e.Op))) && !p.Triggers.Any(t => t.Effects.Any(e => Own(e.Op)))) return;

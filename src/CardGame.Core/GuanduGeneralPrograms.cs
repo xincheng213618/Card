@@ -100,6 +100,8 @@ internal sealed class ResolveGuanduZhongjieDescriptor : GuanduGeneralDescriptor
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveGuanduZhongjie;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
 }
 internal sealed class ResolveGuanduSuishiDyingDescriptor : GuanduGeneralDescriptor
 {

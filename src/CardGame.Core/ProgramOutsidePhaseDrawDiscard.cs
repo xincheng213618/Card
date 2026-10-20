@@ -120,9 +120,13 @@ internal abstract class OutsidePhaseDrawDiscardDescriptor : ProgramOperationDesc
             ? SkillProgramTriggerWindow.CardsGained : SkillProgramTriggerWindow.DiscardPileReceived)];
 }
 internal sealed class DrawAfterActualOutsideDrawDescriptor : OutsidePhaseDrawDiscardDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DrawAfterActualOutsideDraw; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DrawAfterActualOutsideDraw; }
 internal sealed class DiscardAfterActualOutsideDiscardDescriptor : OutsidePhaseDrawDiscardDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardAfterActualOutsideDiscard; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardAfterActualOutsideDiscard; }
 public abstract class OutsidePhaseDrawDiscardHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -137,6 +141,7 @@ internal static class OutsidePhaseDrawDiscardComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op) => op is
         SkillProgramEffectOp.DrawAfterActualOutsideDraw or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard;
+    [ProgramCatalogValidation(110)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Activations.Any(a => a.Effects.Any(e => IsOperation(e.Op))))

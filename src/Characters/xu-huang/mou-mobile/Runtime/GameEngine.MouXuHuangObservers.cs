@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramPhaseUsedProjection(20)]
     private int MouXuHuangProjectedPhaseUses(int owner, string skill, int fallback) => skill == MouXuHuangComposition.Duanliang &&
         CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && IsRecordedActualDiscardRecoveryPhase(phase)
             ? ProgramEventHistory<MouXuHuangMouyiStartedEvent>().Count(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.Phase == phase) : fallback;

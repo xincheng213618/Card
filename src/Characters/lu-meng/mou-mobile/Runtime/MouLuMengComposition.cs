@@ -39,6 +39,7 @@ internal static class MouLuMengComposition
         t.Subject is null && t.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor && t.SingleActionInstance && !t.IncludeResponseUses &&
         t.UsageScope is null && t.UsageLimit is null && t.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
         t.Effects is [var e] && Plain(e, SkillProgramEffectOp.ResolveMouLuMengDuojing);
+    [ProgramCatalogValidation(940)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e =>

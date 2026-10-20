@@ -20,6 +20,7 @@ internal static class MouXuHuangComposition
         t.CardKinds.Count == 0 && t.CardCategories.Count == 0 && t.DamageCardKinds.Count == 0 && t.MovementReasons.Count == 0 &&
         t.SourceSkillId is null && t.SourceViewAsId is null && !t.IncludeResponseUses && !t.SingleActionInstance &&
         t.Effects is [var e] && Plain(e, SkillProgramEffectOp.ResolveMouXuHuangShipo);
+    [ProgramCatalogValidation(970)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op));

@@ -112,6 +112,7 @@ internal sealed class WuLuXunXiongmuHandler(SkillProgramEffectOp op) : ISkillPro
 internal static class XiongmuComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveWuLuXunXiongmu or SkillProgramEffectOp.ResolveWuLuXunXiongmuFirstDamage;
+    [ProgramCatalogValidation(1170)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "wumiao:xiongmu" && !p.Triggers.Any(t => t.Effects.Any(e => IsOperation(e.Op))) &&

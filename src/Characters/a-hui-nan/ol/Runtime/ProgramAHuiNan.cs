@@ -40,6 +40,7 @@ internal sealed class AHuiNanHandler:ISkillProgramEffectHandler
 }
 internal static class AHuiNanComposition
 {
+    [ProgramCatalogValidation(420)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         static bool Has(SkillProgramEffect e)=>e.Op==SkillProgramEffectOp.ResolveJuemanFirstBasicTurnEnd;

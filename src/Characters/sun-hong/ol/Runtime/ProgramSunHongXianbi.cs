@@ -60,6 +60,8 @@ public sealed record ZenrunTargetBlockedEvent(long FrameId, CardConversionSource
 internal interface ISunHongXianbiHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveXianbiHandAdjustmentAndRandomReturnsDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveXianbiHandAdjustmentAndRandomReturns;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
@@ -76,6 +78,7 @@ internal sealed class ResolveXianbiHandAdjustmentAndRandomReturnsHandler : ISkil
 }
 internal static class SunHongComposition
 {
+    [ProgramCatalogValidation(740)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveZenrunNativeDrawReplacement)))

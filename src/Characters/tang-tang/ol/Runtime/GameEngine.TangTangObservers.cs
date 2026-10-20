@@ -108,6 +108,11 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 27530)] private bool AdvanceTangTangChildren() => _pendingDecision is null && TangTangObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private IEnumerable<CardSnapshot> TangTangPrivatelyViewedCards(int viewerSeat) => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewerSeat && f.TangTang?.Stage == TangTangStage.TakeCards)
         .SelectMany(f => f.TangTang!.Viewed.Where(id => _cardZones.Contains(CardLocation.Hand(f.TangTang.Peer), id))).Distinct().Select(id => ToSnapshot(GetAdvancedCard(id)));
+    [ProgramViewContributor(ProgramViewContribution.PublicCardsBeforeResolution, 20)]
+    private IEnumerable<CardSnapshot> ProjectTangTangPublicShownCards() => TangTangPublicShownCardIds().Select(id =>
+        ToSnapshot(GetAdvancedCard(id)) with
+        { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null });
+
     private IEnumerable<int> TangTangPublicShownCardIds() => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.TangTang is { Paid: true, Shown: not null })
         .Where(f => _cardZones.Contains(CardLocation.Hand(f.OwnerSeat), f.TangTang!.Shown!.CardId) || _cardZones.Contains(CardLocation.Equipment(f.OwnerSeat), f.TangTang!.Shown!.CardId)).Select(f => f.TangTang!.Shown!.CardId).Distinct();
 }

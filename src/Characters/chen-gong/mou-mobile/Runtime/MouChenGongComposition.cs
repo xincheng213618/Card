@@ -37,6 +37,7 @@ internal static class MouChenGongComposition
         p.Triggers[1] is { Id: "prevent-later-damage", Window: SkillProgramTriggerWindow.BeforeDamageApplied, Subject: SkillProgramTriggerSubject.DamageTarget, Optional: false } prevent &&
         prevent.DamageOccurrence is null && prevent.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && Unfiltered(prevent) &&
         prevent.Effects is [var e] && Plain(e, SkillProgramEffectOp.PreventCurrentDamage);
+    [ProgramCatalogValidation(980)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if ((p.Id == Mingce || p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) && !IsMingce(p))

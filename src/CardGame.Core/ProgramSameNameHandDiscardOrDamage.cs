@@ -71,6 +71,7 @@ public sealed class OfferSameNameHandDiscardOrDamageHandler : ISkillProgramEffec
 }
 internal static class SameNameHandDiscardOrDamageComposition
 {
+    [ProgramCatalogValidation(120)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage)))

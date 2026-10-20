@@ -49,6 +49,8 @@ public sealed class ResolveSaoguConversionSweepHandler : ISkillProgramEffectHand
 }
 internal sealed class ResolveSaoguConversionSweepDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveSaoguConversionSweep;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override ISkillProgramEffectHandler Handler { get; } = new ResolveSaoguConversionSweepHandler();
@@ -58,6 +60,7 @@ internal sealed class ResolveSaoguConversionSweepDescriptor : ProgramOperationDe
 }
 internal static class DuanJiongComposition
 {
+    [ProgramCatalogValidation(320)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveSaoguConversionSweep)) && !p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveSaoguConversionSweep))) return;

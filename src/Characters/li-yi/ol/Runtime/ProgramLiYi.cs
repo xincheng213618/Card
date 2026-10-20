@@ -54,13 +54,18 @@ internal abstract class ChanshuangDescriptor(SkillProgramEffectOp op):ProgramOpe
  public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
 }
 internal sealed class ResolveChanshuangSimultaneousChoicesDescriptor():ChanshuangDescriptor(SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];}
+{
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
+public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];}
 internal sealed class ResolveChanshuangEndingDescriptor():ChanshuangDescriptor(SkillProgramEffectOp.ResolveChanshuangEnding)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];}
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];}
 internal sealed class ChanshuangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ILiYiHost>().Resolve(f,op);}
 internal static class LiYiComposition
 {
+ [ProgramCatalogValidation(660)]
  internal static void ValidateProgram(string path,SkillProgram p)
  {
   bool Own(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding;

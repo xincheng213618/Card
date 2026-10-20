@@ -62,9 +62,15 @@ internal abstract class JiguDescriptor(SkillProgramEffectOp op) : ProgramOperati
     public override ISkillProgramEffectHandler Handler { get; } = new JiguHandler(op);
 }
 internal sealed class InitializeJiguInitialEntitiesDescriptor()
-    : JiguDescriptor(SkillProgramEffectOp.InitializeJiguInitialEntities);
+    : JiguDescriptor(SkillProgramEffectOp.InitializeJiguInitialEntities)
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+}
 internal sealed class ResolveJiguDamageEquipmentDrawDescriptor()
-    : JiguDescriptor(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw);
+    : JiguDescriptor(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw)
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+}
 internal sealed class JiguHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -76,6 +82,7 @@ internal sealed class JiguHandler(SkillProgramEffectOp op) : ISkillProgramEffect
 
 internal static class JiguComposition
 {
+    [ProgramCatalogValidation(840)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var operations = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

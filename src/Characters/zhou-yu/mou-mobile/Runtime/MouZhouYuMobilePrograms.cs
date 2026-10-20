@@ -40,8 +40,14 @@ internal abstract class MouZhouYuMobileDescriptor : ProgramOperationDescriptorBa
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler => new MouZhouYuMobileHandler(Op);
 }
-internal sealed class ResolveMouZhouYuYingziDescriptor : MouZhouYuMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuYingzi; }
-internal sealed class ResolveMouZhouYuFanjianDescriptor : MouZhouYuMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuFanjian; }
+internal sealed class ResolveMouZhouYuYingziDescriptor : MouZhouYuMobileDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuYingzi; }
+internal sealed class ResolveMouZhouYuFanjianDescriptor : MouZhouYuMobileDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuFanjian;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class MouZhouYuMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

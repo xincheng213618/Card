@@ -67,6 +67,7 @@ internal sealed class YangFuHandler(SkillProgramEffectOp op) : ISkillProgramEffe
 internal static class YangFuComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveBingzhongExtraTargets or SkillProgramEffectOp.ResolveBingzhongAfterDamageDraw or SkillProgramEffectOp.ResolveSuyiEquipmentThenSlash;
+    [ProgramCatalogValidation(490)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op))) && !p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op)))) return;

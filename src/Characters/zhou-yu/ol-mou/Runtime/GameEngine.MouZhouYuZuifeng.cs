@@ -84,10 +84,12 @@ public sealed partial class GameEngine
             r.Stage == MouZuifengStage.HandViewChoice ? "醉锋：观看其完整手牌并公开其中一张。" :
             r.Stage == MouZuifengStage.AlcoholChoice ? "醉锋：你可将刚才展示的原牌当酒对其使用。" : "醉锋：弃置一个花色的唯一手牌，选择一名有手牌的角色。", r.TargetSeat < 0 ? f.OwnerSeat : r.TargetSeat);
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 90)]
     private IEnumerable<CardSnapshot> MouZuifengPrivatelyViewedCards(int viewerSeat) => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(f => f.OwnerSeat == viewerSeat && f.MouZuifeng is { Stage: MouZuifengStage.HandViewChoice })
         .SelectMany(f => f.MouZuifeng!.Viewed.Where(v => _cardZones.GetLocation(v.CardId) == CardLocation.Hand(f.MouZuifeng.TargetSeat))
             .Select(v => ToSnapshot(GetAdvancedCard(v.CardId))));
+    [ProgramViewContributor(ProgramViewContribution.PublicCardsAfterResolution, 40)]
     private IEnumerable<CardSnapshot> MouZuifengPublicCards() => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(f => f.MouZuifeng?.ShownId is not null).Select(f => ToSnapshot(GetAdvancedCard(f.MouZuifeng!.ShownId!.Value)));
     [ProgramAnswer("mou-zuifeng")]

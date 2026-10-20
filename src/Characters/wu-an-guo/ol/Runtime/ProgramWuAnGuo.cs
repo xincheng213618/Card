@@ -39,6 +39,7 @@ internal sealed class ResolveLiyongUsedSuitDeckAndDuelDescriptor : ProgramOperat
 }
 internal static class WuAnGuoComposition
 {
+    [ProgramCatalogValidation(280)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveLiyongUsedSuitDeckAndDuel)) &&

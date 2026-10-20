@@ -60,12 +60,24 @@ internal abstract class ZhouQunDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new ZhouQunHandler(op);
 }
-internal sealed class ChenshuoDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveChenshuoRepeatedReveal);
-internal sealed class TianhouDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant);
-internal sealed class LieshuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveLieshuEndingLoss);
-internal sealed class NingwuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment);
-internal sealed class ZhouyuNeighborsDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveZhouyuThunderNeighbors);
-internal sealed class YanshuangDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveYanshuangEndingLoss);
+internal sealed class ChenshuoDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveChenshuoRepeatedReveal){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
+internal sealed class TianhouDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
+internal sealed class LieshuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveLieshuEndingLoss){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
+internal sealed class NingwuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
+internal sealed class ZhouyuNeighborsDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveZhouyuThunderNeighbors){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
+internal sealed class YanshuangDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveYanshuangEndingLoss){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
+}
 internal sealed class ZhouQunHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -76,6 +88,7 @@ internal static class ZhouQunComposition
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveChenshuoRepeatedReveal or SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant or SkillProgramEffectOp.ResolveLieshuEndingLoss or SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment or SkillProgramEffectOp.ResolveZhouyuThunderNeighbors or SkillProgramEffectOp.ResolveYanshuangEndingLoss;
     internal static SkillProgramTriggerWindow Window(SkillProgramEffectOp op) => op switch
     { SkillProgramEffectOp.ResolveChenshuoRepeatedReveal => SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment => SkillProgramTriggerWindow.CardUseTargetsFinalized, SkillProgramEffectOp.ResolveZhouyuThunderNeighbors => SkillProgramTriggerWindow.AfterDamageApplied, _ => SkillProgramTriggerWindow.TurnEnding };
+    [ProgramCatalogValidation(750)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op))) && p.Id != "ol:zhouyu") return;

@@ -17,6 +17,7 @@ public sealed partial class GameEngine
     private int MouLuMengArmorHandLimit(CharacterState owner) => HasRuntimeSkill(owner, MouKeji) ? owner.Armor : 0;
     private int MouKejiPhaseUses(int owner) => _programPhaseUses.GetValueOrDefault((owner, MouKeji, "discard-hand")) +
         _programPhaseUses.GetValueOrDefault((owner, MouKeji, "lose-hp"));
+    [ProgramPhaseUsedProjection(10)]
     private int MouLuMengProjectedPhaseUses(int owner, string skill, int ordinary) =>
         skill == MouKeji && MouLuMengAwakened(owner) ? MouKejiPhaseUses(owner) : ordinary;
     private ActualDiscardRecoveryPhaseKey MouLuMengPhase() => CurrentActualDiscardRecoveryPhase() is { } phase && IsRecordedActualDiscardRecoveryPhase(phase)

@@ -55,6 +55,7 @@ internal static class KenshangConversionSchema
 internal static class KenshangComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveKenshangTargetRewrite or SkillProgramEffectOp.DrawForKenshangShortDamage;
+    [ProgramCatalogValidation(360)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         var rules=p.ViewAs.Where(r=>r.KenshangUse==true).ToArray();

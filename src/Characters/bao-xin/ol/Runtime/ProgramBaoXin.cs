@@ -53,6 +53,7 @@ internal sealed class BaoXinHandler(SkillProgramEffectOp op):ISkillProgramEffect
 internal static class BaoXinComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveBaoXinMutao or SkillProgramEffectOp.ResolveBaoXinYimou;
+    [ProgramCatalogValidation(620)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op)))&&!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

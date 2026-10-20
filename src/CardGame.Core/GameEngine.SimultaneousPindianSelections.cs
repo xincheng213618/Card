@@ -3,6 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly CardMoveReason SimultaneousTopReservationReason = new("skill.pindian.reserve-top");
+    [ProgramViewContributor(ProgramViewContribution.ConcealedCardExclusion, 10)]
     private bool IsSimultaneousPrivateTopCard(int id) => _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SimultaneousPindian is { Revealed: false } r && r.TopReceipts.Any(t => t.CardId == id));
     private CardLocation SimultaneousOriginalLocation(SimultaneousPindianReceipt r,PindianRevealedCard card) =>
         r.TopReceipts.Any(t => t.Seat == card.Seat && t.CardId == card.CardId) ? CardLocation.Processing : CardLocation.Hand(card.Seat);

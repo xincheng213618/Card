@@ -44,6 +44,10 @@ internal sealed class SkillProgramDependencies
         UsesDrawPhaseDrawCountHandLimit = programs.Any(program => program.Modifiers.Any(modifier =>
             modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnDrawPhaseDrawCountHalfFloor));
         var resolver = ProgramInstructionResolver.Default;
+        RequiredFacts = triggers.Aggregate(ProgramTrackedFact.None, (facts, trigger) =>
+                facts | resolver.Features(trigger).FactRequirements.Triggered) |
+            programs.SelectMany(program => program.Activations).Aggregate(ProgramTrackedFact.None,
+                (facts, activation) => facts | resolver.Features(activation).FactRequirements.Activated);
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
         TracksActualTurnUseOrdinal = UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionActualTurnUseOrdinalIs) ||
             triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse));
@@ -145,6 +149,8 @@ internal sealed class SkillProgramDependencies
     internal bool UsesAnyLivingTurnStart { get; }
     internal bool UsesActualTurnDeathBenefits { get; }
     internal bool UsesActualPlayPhaseUseLedger { get; }
+    internal ProgramTrackedFact RequiredFacts { get; }
+    internal bool RequiresFact(ProgramTrackedFact fact) => (RequiredFacts & fact) != ProgramTrackedFact.None;
     internal bool TracksCurrentTurnUseKinds { get; }
     internal bool TracksActualTurnUseOrdinal { get; }
     internal bool TracksCurrentRoundActualUses { get; }

@@ -157,5 +157,6 @@ public sealed partial class GameEngine
         if(r.Stage==LiuBaStage.Bottom)return p.Choices.OrderByDescending(c=>CardCatalog.Get(GetAdvancedCard(c.Cards.Single()).Kind).HandKeepValue).ThenBy(c=>c.Cards.Single()).First();
         return p.Choices.OrderByDescending(c=>c.Targets is[var seat]?_aiBrains[f.OwnerSeat].ScoreProgramTarget(CreateSnapshot(f.OwnerSeat),seat,new SkillProgramAiHint(1,0,0,0,0,0,false,false)):c.Cards is[var id]?-CardCatalog.Get(GetAdvancedCard(id).Kind).HandKeepValue:0).ThenBy(c=>c.Id.Value,StringComparer.Ordinal).First();
     }
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 50)]
     private IReadOnlyList<CardSnapshot> LiuBaPrivatelyViewedBottomCards(int viewerSeat)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{LiuBa:{Stage:LiuBaStage.Coins or LiuBaStage.Bottom}r}f&&f.OwnerSeat==viewerSeat&&_pendingDecision is{IsPrivate:true,PlayerSeat:var actor}&&actor==viewerSeat?r.ViewedBottom.Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray():[];
 }

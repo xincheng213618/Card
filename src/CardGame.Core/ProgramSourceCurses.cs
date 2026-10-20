@@ -130,6 +130,7 @@ internal sealed class SourceCurseHandler(SkillProgramEffectOp op) : ISkillProgra
 }
 internal static class SourceCurseComposition
 {
+    [ProgramCatalogValidation(40)]
     internal static void ValidatePrograms(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var owner in programs.Values)

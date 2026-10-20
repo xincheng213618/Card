@@ -48,6 +48,7 @@ internal sealed class LiuBaHandler(SkillProgramEffectOp op):ISkillProgramEffectH
 internal static class LiuBaComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.IssueTongduHandGift or SkillProgramEffectOp.ReturnTongduOriginalCardAtPlayEnd or SkillProgramEffectOp.RecastZhubiAndMarkActualDraw or SkillProgramEffectOp.ExchangeZhubiCoinsAtEnding;
+    [ProgramCatalogValidation(570)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op)))&&!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

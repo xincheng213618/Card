@@ -163,7 +163,9 @@ internal sealed class InitializeOriginalHandEntitiesDescriptor : OriginalHandEnt
 internal sealed class OfferOriginalHandLossBenefitDescriptor : OriginalHandEntityDescriptorBase
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.OfferOriginalHandLossBenefit; }
 internal sealed class InheritOriginalHandBonusesDescriptor : OriginalHandEntityDescriptorBase
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.InheritOriginalHandBonuses; }
+{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.InheritOriginalHandBonuses;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
+}
 internal sealed class AwakenWhenOriginalHandEmptyDescriptor : OriginalHandEntityDescriptorBase
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.AwakenWhenOriginalHandEmpty; }
 public abstract class OriginalHandEntityHandler : ISkillProgramEffectHandler

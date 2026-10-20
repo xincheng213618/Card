@@ -22,6 +22,8 @@ internal sealed class LoseDeathSourceSkillsProgramOperationDescriptor : ProgramO
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 
 public sealed class LoseDeathSourceSkillsSkillProgramEffectHandler : ISkillProgramEffectHandler

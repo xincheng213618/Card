@@ -23,12 +23,16 @@ internal sealed class DrawNianMengtaiEndingDescriptor : NianActivityOperationDes
 }
 internal sealed class DiscardNianRuizhiRemainderDescriptor : NianActivityOperationDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardNianRuizhiRemainder;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow), new ReadCardSet("ruizhi-hand"), new ReadCardSet("ruizhi-equipment")];
 }
 internal sealed class RecoverNianJingjueLossDescriptor : NianActivityOperationDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.RecoverNianJingjueLoss;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
 }

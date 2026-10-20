@@ -58,6 +58,8 @@ internal interface IWuLuKangDixianHost
 { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveWuLuKangDixianDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuLuKangDixian;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [];
@@ -65,6 +67,8 @@ internal sealed class ResolveWuLuKangDixianDescriptor : ProgramOperationDescript
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(8));
     public override ISkillProgramEffectHandler Handler { get; } = new WuLuKangDixianHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WuLuKangDixianHandler : ISkillProgramEffectHandler
 {

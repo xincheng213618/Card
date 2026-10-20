@@ -52,6 +52,8 @@ internal interface IWuZhangFeiMovementHost
 { SkillProgramStepOutcome ResolveMovementDamage(ProgramSkillFrame frame); }
 internal sealed class ResolveWuZhangFeiMovementDamageDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhangFeiMovementDamage;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];

@@ -42,9 +42,13 @@ internal abstract class MouLuZhiDescriptor : ProgramOperationDescriptorBase
         _ => []
     };
 }
-internal sealed class InitializeMouLuZhiMingrenDescriptor : MouLuZhiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeMouLuZhiMingren; }
+internal sealed class InitializeMouLuZhiMingrenDescriptor : MouLuZhiDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeMouLuZhiMingren; }
 internal sealed class ExchangeMouLuZhiMingrenDescriptor : MouLuZhiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeMouLuZhiMingren; }
-internal sealed class ResolveMouLuZhiZhenliangYangDescriptor : MouLuZhiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuZhiZhenliangYang; }
+internal sealed class ResolveMouLuZhiZhenliangYangDescriptor : MouLuZhiDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuZhiZhenliangYang; }
 internal sealed class ResolveMouLuZhiZhenliangYinDescriptor : MouLuZhiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuZhiZhenliangYin; }
 internal sealed class MouLuZhiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

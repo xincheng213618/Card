@@ -61,6 +61,8 @@ internal sealed class ResolveYiseOwnedGainDescriptor() : DuFuRenDescriptor(Skill
 }
 internal sealed class GiveForNextActualPhasesDescriptor() : DuFuRenDescriptor(SkillProgramEffectOp.GiveForNextActualPhases)
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,SkillProgramTriggerWindow.AfterDamageApplied])];
 }
@@ -72,6 +74,7 @@ internal sealed class DuFuRenHandler(SkillProgramEffectOp operation) : ISkillPro
 internal static class DuFuRenComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveYiseOwnedGain or SkillProgramEffectOp.GiveForNextActualPhases;
+    [ProgramCatalogValidation(180)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Activations.Any(a => a.Effects.Any(e => IsOperation(e.Op)))) throw new InvalidOperationException($"{path}: Du Fu Ren requires its native gain/preparation/off-turn damage boundaries.");

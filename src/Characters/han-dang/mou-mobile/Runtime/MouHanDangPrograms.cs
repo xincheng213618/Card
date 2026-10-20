@@ -44,11 +44,15 @@ internal abstract class MouHanDangDescriptor : ProgramOperationDescriptorBase
 }
 internal sealed class ResolveMouHanDangGongqiDescriptor : MouHanDangDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHanDangGongqi;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
 }
 internal sealed class ResolveMouHanDangJiefanDescriptor : MouHanDangDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHanDangJiefan;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new ReadSelectedTarget()];
 }

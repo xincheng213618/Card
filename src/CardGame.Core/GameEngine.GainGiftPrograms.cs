@@ -232,6 +232,7 @@ public sealed partial class GameEngine
         f.GainGiftReceipt is { Stage: not GainGiftStage.Choosing } r && r.InstructionIndex == f.InstructionIndex &&
         effect?.Op == r.Operation && effect == GainGiftPausedEffect(f) && pending.SubjectSeat == f.OwnerSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+    [ProgramViewContributor(ProgramViewContribution.ProgramPublicCards, 20)]
     private IEnumerable<CardSnapshot> GainGiftPublicLostCards() => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(f => f.GainGiftReceipt is { Stage: GainGiftStage.RedDrawChildren, LossIndex: > 0 })
         .Select(f => f.GainGiftReceipt!.RedLosses[f.GainGiftReceipt.LossIndex - 1].Card);

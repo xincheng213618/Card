@@ -89,6 +89,8 @@ internal abstract class GainGiftDescriptor : ProgramOperationDescriptorBase
 }
 internal sealed class GiveAfterBatchGainDescriptor : GainGiftDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GiveAfterBatchGain;
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Gift, static (_, _) => { });

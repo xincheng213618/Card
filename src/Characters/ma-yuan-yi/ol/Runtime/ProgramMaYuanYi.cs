@@ -49,6 +49,7 @@ internal sealed class MaYuanYiHandler(SkillProgramEffectOp op):ISkillProgramEffe
 internal static class MaYuanYiComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing or SkillProgramEffectOp.ResolveWangjingBingOpponentDraw or SkillProgramEffectOp.ResolveMoucuanAwakening or SkillProgramEffectOp.ResolveBinghuoEndingJudgment;
+    [ProgramCatalogValidation(550)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

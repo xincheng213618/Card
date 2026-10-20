@@ -57,8 +57,14 @@ internal abstract class GuYinDescriptor(SkillProgramEffectOp op) : ProgramOperat
             ? SkillProgramTriggerWindow.GameStarting : SkillProgramTriggerWindow.CardsMoved)];
     public override ISkillProgramEffectHandler Handler { get; } = new GuYinHandler(op);
 }
-internal sealed class InitializeGuYinInitialEntitiesDescriptor() : GuYinDescriptor(SkillProgramEffectOp.InitializeGuYinInitialEntities);
-internal sealed class ResolveGuYinInitialEntityDiscardDrawDescriptor() : GuYinDescriptor(SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw);
+internal sealed class InitializeGuYinInitialEntitiesDescriptor() : GuYinDescriptor(SkillProgramEffectOp.InitializeGuYinInitialEntities){
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveGuYinInitialEntityDiscardDrawDescriptor() : GuYinDescriptor(SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class GuYinHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -68,6 +74,7 @@ internal sealed class GuYinHandler(SkillProgramEffectOp op) : ISkillProgramEffec
 }
 internal static class GuYinComposition
 {
+    [ProgramCatalogValidation(1260)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "le:guyin" && !p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects))

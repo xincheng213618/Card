@@ -60,6 +60,8 @@ internal sealed class LeZhouFeiXianshuCardFilter : IProgramSelectionCardFilter
 
 internal sealed class ResolveXianshuGiftDrawAndHealthDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth;
     public override ProgramOperationAiPolicy AiPolicy { get; } =
         new(ProgramOperationAiSemantic.GiveSelected, static (_, context) => context.PublicControlValue(2));
@@ -68,6 +70,8 @@ internal sealed class ResolveXianshuGiftDrawAndHealthDescriptor : ProgramOperati
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new ReadSelectedTarget(), new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving),
             new ConsumeSelectedCards(1)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 
 internal sealed class LeZhouFeiXianshuHandler : ISkillProgramEffectHandler
@@ -79,6 +83,7 @@ internal sealed class LeZhouFeiXianshuHandler : ISkillProgramEffectHandler
 
 internal static class XianshuComposition
 {
+    [ProgramCatalogValidation(1320)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         var handles = program.Activations.SelectMany(a => a.Effects).Concat(program.Triggers.SelectMany(t => t.Effects))

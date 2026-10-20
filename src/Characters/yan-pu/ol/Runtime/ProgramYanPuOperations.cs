@@ -61,6 +61,7 @@ internal sealed class YanPuHandler(SkillProgramEffectOp op) : ISkillProgramEffec
 internal static class YanPuComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op) => op is SkillProgramEffectOp.GiveCardSkipDrawForEnding or SkillProgramEffectOp.ResolveHuantuEnding or SkillProgramEffectOp.DrawDyingExitRoundDistance;
+    [ProgramCatalogValidation(150)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Activations.Any(a => a.Effects.Any(e => IsOperation(e.Op)))) throw new InvalidOperationException($"{path}: YanPu requires actual triggered boundaries.");

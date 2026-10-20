@@ -66,6 +66,8 @@ internal interface IMouChenGongHost
 }
 internal sealed class ResolveMouChenGongMingceGiftDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouChenGongMingceGift;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [];
@@ -73,15 +75,21 @@ internal sealed class ResolveMouChenGongMingceGiftDescriptor : ProgramOperationD
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (e, c) =>
     { c.PublicControlValue(4); c.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.SelectedTarget, 1, e.Condition)); });
     public override ISkillProgramEffectHandler Handler { get; } = new MouChenGongGiftHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ResolveMouChenGongMingceReleaseDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouChenGongMingceRelease;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Damage, static (_, c) => c.PublicControlValue(6));
     public override ISkillProgramEffectHandler Handler { get; } = new MouChenGongReleaseHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouChenGongGiftHandler : ISkillProgramEffectHandler
 {

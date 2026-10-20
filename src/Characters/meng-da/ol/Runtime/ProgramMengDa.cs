@@ -35,6 +35,8 @@ public sealed record GoudeCompletedEvent(long FrameId):IGameEvent;
 internal interface IMengDaHost{SkillProgramStepOutcome Resolve(ProgramSkillFrame f);}
 internal sealed class ResolveGoudeActualTurnEndDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveGoudeActualTurnEnd;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
     public override ISkillProgramEffectHandler Handler{get;}=new GoudeHandler();
@@ -48,6 +50,7 @@ internal sealed class GoudeHandler:ISkillProgramEffectHandler
 }
 internal static class MengDaComposition
 {
+    [ProgramCatalogValidation(450)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveGoudeActualTurnEnd)))return;

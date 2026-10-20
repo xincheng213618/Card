@@ -112,6 +112,8 @@ internal sealed class ResolvePrepDiscardOrImmediateDrawDescriptor : ProgramOpera
             trigger.Effects is not [{ Op: SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw }])
             throw new InvalidOperationException($"{path}: immediate preparation discard is one own optional actual Prep instruction.");
     }
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.PrepDiscard?.TargetPayment is not null && context.PaidReturnAccepted;
 }
 public sealed class ResolvePrepDiscardOrImmediateDrawHandler : ISkillProgramEffectHandler
 {

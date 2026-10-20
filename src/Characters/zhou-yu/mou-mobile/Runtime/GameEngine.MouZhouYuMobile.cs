@@ -148,7 +148,10 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new MouZhouYuMobileCompletedEvent(f.Id, r.PaymentSequence > 0, r.Answer));
         ReplaceRuntimeTop(f = f with { MouZhouYuMobile = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
+    [ProgramViewContributor(ProgramViewContribution.InvariantProcessing, 30)]
+    [ProgramViewContributor(ProgramViewContribution.PublicProcessing, 20)]
     private IReadOnlyList<Card> WithoutMouZhouYuMobileCovered(IReadOnlyList<Card> cards) => !HasMouZhouYuMobileCapability ? cards : Array.AsReadOnly(cards.Where(c => !_resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.MouZhouYuMobile is { Revealed: false } r && r.CardId == c.Id)).ToArray());
+    [ProgramViewContributor(ProgramViewContribution.ProgramPublicCards, 30)]
     private IReadOnlyList<CardSnapshot> MouZhouYuMobilePublicCards() => !HasMouZhouYuMobileCapability ? [] : Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.MouZhouYuMobile is { Revealed: true, CardId: > 0 }).Select(f => ToSnapshot(GetAdvancedCard(f.MouZhouYuMobile!.CardId))).DistinctBy(c => c.Id).ToArray());
     [ProgramAiChoice(SkillProgramEffectOp.ResolveMouZhouYuFanjian)]
     private PromptChoice AiMouZyMobile(PendingDecision p, ProgramSkillFrame f)

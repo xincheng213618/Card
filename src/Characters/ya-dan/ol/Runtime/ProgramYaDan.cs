@@ -60,6 +60,8 @@ internal interface IYaDanHost{SkillProgramStepOutcome Resolve(ProgramSkillFrame 
 
 internal sealed class QingyaBetweenDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
     public override ISkillProgramEffectHandler Handler{get;}=new QingyaHandler(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards);
@@ -68,6 +70,8 @@ internal sealed class QingyaBetweenDescriptor:ProgramOperationDescriptorBase
 }
 internal sealed class QingyaNextPhaseDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
     public override ISkillProgramEffectHandler Handler{get;}=new QingyaHandler(SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse);
@@ -81,6 +85,7 @@ internal sealed class QingyaHandler(SkillProgramEffectOp op):ISkillProgramEffect
 }
 internal static class YaDanComposition
 {
+    [ProgramCatalogValidation(470)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>e.Op is SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards or SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse))&&

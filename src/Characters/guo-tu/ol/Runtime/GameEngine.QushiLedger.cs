@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         var seals=LiveQushiSeals().Where(s=>s.HolderSeat==holderSeat).ToArray();if(seals.Length==0)return null;
         return Array.AsReadOnly(seals.GroupBy(s=>s.Source.OwnerSeat).Select(g=>new NamedAmbushPileSnapshot("ol:qushi","趋",g.Count(),revealAll||g.Key==viewerSeat?Array.AsReadOnly(g.Select(s=>new NamedAmbushPrivateEntrySnapshot(ToSnapshot(GetAdvancedCard(s.CardId)),s.PrintedKind)).ToArray()):null)).ToArray());
     }
+    [ProgramViewContributor(ProgramViewContribution.NamedAmbushPiles, 10)]
     private IReadOnlyList<NamedAmbushPileSnapshot>? IncludeQushiSealSnapshots(IReadOnlyList<NamedAmbushPileSnapshot>? ordinary,int holder,int viewer,bool revealAll)
     {
         var own=ProjectQushiSeals(holder,viewer,revealAll);if(own is null)return ordinary;

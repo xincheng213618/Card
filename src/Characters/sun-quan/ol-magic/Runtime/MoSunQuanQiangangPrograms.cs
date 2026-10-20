@@ -30,12 +30,16 @@ public sealed record MoQiangangCompletedEvent(long FrameId) : IGameEvent;
 internal interface IMoSunQuanQiangangHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveMoSunQuanQiangangEntryDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoSunQuanQiangangEntry;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(5));
     public override ISkillProgramEffectHandler Handler { get; } = new MoSunQuanQiangangHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MoSunQuanQiangangHandler : ISkillProgramEffectHandler
 {
@@ -45,6 +49,7 @@ internal sealed class MoSunQuanQiangangHandler : ISkillProgramEffectHandler
 }
 internal static class MoSunQuanQiangangComposition
 {
+    [ProgramCatalogValidation(1290)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "ol:mo-qiangang" && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

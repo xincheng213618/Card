@@ -15,6 +15,7 @@ public sealed partial class GameEngine
         !ProgramEventHistory<MouXiahouDunMobileGanglieSpentEvent>().Any(e => e.OwnerSeat == seat && e.TargetSeat == p.Seat)).Select(p => p.Seat).ToArray();
     private int MouXiahouDunPhaseUses(int seat, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouXiahouDunMobileStartedEvent>().Count(e =>
         e.Source.OwnerSeat == seat && e.Op == SkillProgramEffectOp.ResolveMouXiahouDunGanglie && e.Phase == phase);
+    [ProgramPhaseUsedProjection(60)]
     private int MouXiahouDunProjectedUses(int seat, string skill, int fallback) => skill == MouXiahouDunGanglie && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase
         ? MouXiahouDunPhaseUses(seat, phase) : fallback;
     [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 31200, SkillProgramEffectOp.ResolveMouXiahouDunGanglie)]

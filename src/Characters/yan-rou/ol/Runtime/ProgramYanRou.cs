@@ -41,6 +41,7 @@ internal sealed class YanRouHandler(SkillProgramEffectOp op):ISkillProgramEffect
 internal static class YanRouComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.DiscardSlashUserForUncancelable or SkillProgramEffectOp.RecoverAndDrawByTurnDamage;
+    [ProgramCatalogValidation(240)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(p.Activations.Any(a=>a.Effects.Any(e=>IsOperation(e.Op))))throw new InvalidOperationException(path+": Yan Rou requires actual finalized Slash or original Ending windows.");

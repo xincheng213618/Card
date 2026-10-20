@@ -41,7 +41,9 @@ internal abstract class LiushiEffectDescriptor : ProgramOperationDescriptorBase
 internal sealed class ApplyLiushiEffectDescriptor : LiushiEffectDescriptor
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ApplyLiushiEffect; }
 internal sealed class ClearLiushiEffectDescriptor : LiushiEffectDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ClearLiushiEffect; }
+{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ClearLiushiEffect;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiushiDrawPayment is not null;
+}
 internal sealed class LiushiEffectHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

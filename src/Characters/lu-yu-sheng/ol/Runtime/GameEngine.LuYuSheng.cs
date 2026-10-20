@@ -91,6 +91,7 @@ public sealed partial class GameEngine
     }
     private int LuYuShengRunweiHandLimitBonus(int actorSeat)=>_phase==TurnPhase.Discard&&CurrentActualDiscardRecoveryPhase()is{Kind:ActualDiscardRecoveryPhaseKind.Discard}p&&p.ActorSeat==actorSeat?
         ProgramEventHistory<LuYuShengRunweiPhaseIssuedEvent>().Where(e=>e.Phase==p).Sum(e=>e.Delta):0;
+    [ProgramViewContributor(ProgramViewContribution.PublicCardsAfterResolution, 30)]
     private IReadOnlyList<CardSnapshot> CurrentLuYuShengRevealedCards()=>Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.LuYuSheng is not null).SelectMany(f=>f.LuYuSheng!.BottomCards).Distinct().Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray());
     private void IssueLuYuShengDraw(ProgramSkillFrame f,int count)
     {

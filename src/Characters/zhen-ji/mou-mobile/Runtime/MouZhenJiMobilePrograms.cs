@@ -24,12 +24,16 @@ public sealed record MouZhenJiLuoshenCompletedEvent(long FrameId, int ProcessedC
 internal interface IMouZhenJiLuoshenHost { SkillProgramStepOutcome Start(ProgramSkillFrame frame); }
 internal sealed class ResolveMouZhenJiLuoshenDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhenJiLuoshen;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(4));
     public override ISkillProgramEffectHandler Handler { get; } = new MouZhenJiLuoshenHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouZhenJiLuoshenHandler : ISkillProgramEffectHandler
 {

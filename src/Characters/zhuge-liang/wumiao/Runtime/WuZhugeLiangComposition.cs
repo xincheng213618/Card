@@ -11,6 +11,7 @@ internal static class WuZhugeLiangComposition
         t.SourceSkillId is null && t.SourceViewAsId is null && t.UsageScope is null && t.ChoiceGroup is null && t.Priority == 0 &&
         t.DamageOccurrence is null && t.MovementOccurrence is null && !t.OnlyDesignatedCardTargets && !t.AllowNoEventTarget &&
         !t.EvaluateConditionAtResolution && !t.NoDyingAtActivation;
+    [ProgramCatalogValidation(1020)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!new[] { Jincui, Qingshi, Zhizhe }.Contains(p.Id) && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) return;

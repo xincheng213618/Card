@@ -39,6 +39,7 @@ internal sealed class ResolveXingwuDepositAndBurstDescriptor():DaQiaoXiaoQiaoDes
 internal sealed class MaintainLuoyanPileSkillsDescriptor():DaQiaoXiaoQiaoDescriptor(SkillProgramEffectOp.MaintainLuoyanPileSkills){}
 internal static class DaQiaoXiaoQiaoComposition
 {
+    [ProgramCatalogValidation(520)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         bool Own(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.ResolveXingwuDepositAndBurst or SkillProgramEffectOp.MaintainLuoyanPileSkills;

@@ -33,6 +33,8 @@ internal static partial class WuLuKangComposition
     private static bool KegouTrigger(SkillProgramTrigger t, string id, SkillProgramTriggerWindow window, SkillProgramTurnOwnerScope scope) =>
         t.Id == id && t.Window == window && t.TurnOwnerScope == scope && t.Subject == SkillProgramTriggerSubject.Owner && t.Optional && WuUnfiltered(t) &&
         t.Effects is [var e] && WuPlain(e, SkillProgramEffectOp.ResolveWuLuKangKegou);
+    [ProgramCatalogValidation(990)]
+    [ProgramCatalogValidation(90)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if ((p.Id is Shenduan or Kegou or Dixian || p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) &&

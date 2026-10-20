@@ -113,9 +113,13 @@ internal abstract class KongShuDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new KongShuHandler(op);
 }
-internal sealed class ResolveLeiluanLastHandUseBenefitDescriptor() : KongShuDescriptor(SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit) { }
+internal sealed class ResolveLeiluanLastHandUseBenefitDescriptor() : KongShuDescriptor(SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit) {
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class ResolveFuchaoCurrentTurnChainDescriptor() : KongShuDescriptor(SkillProgramEffectOp.ResolveFuchaoCurrentTurnChain) { }
-internal sealed class ResolveFuchaoRoundEndingDrawAndDiscardDescriptor() : KongShuDescriptor(SkillProgramEffectOp.ResolveFuchaoRoundEndingDrawAndDiscard) { }
+internal sealed class ResolveFuchaoRoundEndingDrawAndDiscardDescriptor() : KongShuDescriptor(SkillProgramEffectOp.ResolveFuchaoRoundEndingDrawAndDiscard) {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+ }
 internal sealed class KongShuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -137,6 +141,7 @@ internal sealed class LeiluanCommittedUseContract : IProgramCommittedUseContract
 internal static class KongShuComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit or SkillProgramEffectOp.ResolveFuchaoCurrentTurnChain or SkillProgramEffectOp.ResolveFuchaoRoundEndingDrawAndDiscard;
+    [ProgramCatalogValidation(710)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.ViewAs.Any(v => v.LeiluanBasicUse is not null) && !p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op))) && !p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op)))) return;

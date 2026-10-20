@@ -49,6 +49,7 @@ internal sealed class WenYangHandler(SkillProgramEffectOp op):ISkillProgramEffec
 internal static class WenYangComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveLvliActualDamageChoice or SkillProgramEffectOp.ResolveWenYangAwakening or SkillProgramEffectOp.ResolveQingjiaoWholeHandExchange or SkillProgramEffectOp.ResolveQingjiaoIssuedEndingDiscard;
+    [ProgramCatalogValidation(540)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

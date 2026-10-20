@@ -32,15 +32,21 @@ internal interface IMouYuJinHost
 }
 internal sealed class ResolveMouYuJinXiayuanDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouYuJinXiayuan;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantArmor, static (_, c) => c.PublicControlValue(0));
     public override ISkillProgramEffectHandler Handler { get; } = new MouYuJinHandler(SkillProgramEffectOp.ResolveMouYuJinXiayuan);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ResolveMouYuJinJieyueDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouYuJinJieyue;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
@@ -48,6 +54,8 @@ internal sealed class ResolveMouYuJinJieyueDescriptor : ProgramOperationDescript
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Gift, static (_, c) => c.PublicControlValue(0));
     public override ISkillProgramEffectHandler Handler { get; } = new MouYuJinHandler(SkillProgramEffectOp.ResolveMouYuJinJieyue);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouYuJinHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

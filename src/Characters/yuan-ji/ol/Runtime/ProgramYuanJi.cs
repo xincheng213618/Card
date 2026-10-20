@@ -42,6 +42,7 @@ internal sealed class YuanJiHandler(SkillProgramEffectOp op):ISkillProgramEffect
 internal static class YuanJiComposition
 {
  internal static bool IsOp(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair or SkillProgramEffectOp.ResolveJinghuaRoundDraw or SkillProgramEffectOp.ResolveJinghuaTurnReturn or SkillProgramEffectOp.ResolveShuiyueTurnDraw or SkillProgramEffectOp.ResolveShuiyueRoundReturn;
+ [ProgramCatalogValidation(700)]
  internal static void ValidateProgram(string path,SkillProgram p)
  {
   if(!p.Triggers.SelectMany(t=>t.Effects).Concat(p.Activations.SelectMany(a=>a.Effects)).Any(e=>IsOp(e.Op)))return;

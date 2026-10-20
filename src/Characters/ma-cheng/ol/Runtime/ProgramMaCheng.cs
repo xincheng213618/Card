@@ -46,12 +46,15 @@ internal abstract class MaChengDescriptor:ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(Op==SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards?SkillProgramTriggerWindow.CardUseTargetsFinalized:SkillProgramTriggerWindow.CardUseCompleted)];
 }
 internal sealed class ResolveChenglieExtraTargetsAndHiddenCardsDescriptor:MaChengDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards;}
-internal sealed class ResolveChenglieRedHolderOutcomeDescriptor:MaChengDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieRedHolderOutcome;}
+internal sealed class ResolveChenglieRedHolderOutcomeDescriptor:MaChengDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieRedHolderOutcome;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class MaChengHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IMaChengHost>().Resolve(f,op);}
 internal static class MaChengComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards or SkillProgramEffectOp.ResolveChenglieRedHolderOutcome;
+    [ProgramCatalogValidation(730)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.SelectMany(t=>t.Effects).Concat(p.Activations.SelectMany(a=>a.Effects)).Any(e=>Handles(e.Op)))return;

@@ -44,6 +44,7 @@ internal sealed class MouCaoPiHandler(SkillProgramEffectOp op) : ISkillProgramEf
 internal static class MouCaoPiComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is >= SkillProgramEffectOp.MouCaoPiGainSong and <= SkillProgramEffectOp.MouCaoPiRemoveWeiSkills;
+    [ProgramCatalogValidation(1340)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (!program.Activations.SelectMany(item => item.Effects).Concat(program.Triggers.SelectMany(item => item.Effects)).Any(effect => Handles(effect.Op))) return;

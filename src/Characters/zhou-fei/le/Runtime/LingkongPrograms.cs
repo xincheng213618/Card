@@ -78,9 +78,13 @@ internal abstract class LingkongDescriptor(SkillProgramEffectOp op) : ProgramOpe
 }
 
 internal sealed class InitializeLingkongInitialEntitiesDescriptor()
-    : LingkongDescriptor(SkillProgramEffectOp.InitializeLingkongInitialEntities);
+    : LingkongDescriptor(SkillProgramEffectOp.InitializeLingkongInitialEntities){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class MarkLingkongFirstOutsideDrawGainDescriptor()
-    : LingkongDescriptor(SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain);
+    : LingkongDescriptor(SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 
 internal sealed class LingkongHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
@@ -93,6 +97,7 @@ internal sealed class LingkongHandler(SkillProgramEffectOp op) : ISkillProgramEf
 
 internal static class LingkongComposition
 {
+    [ProgramCatalogValidation(850)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

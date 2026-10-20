@@ -43,6 +43,8 @@ internal sealed class ResolveOlMoRumoRoundPenaltyDescriptor : ProgramOperationDe
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.RoundEnding)];
     public override ISkillProgramEffectHandler Handler { get; } = new OlMoRumoHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 
 internal sealed class OlMoRumoHandler : ISkillProgramEffectHandler
@@ -54,6 +56,7 @@ internal sealed class OlMoRumoHandler : ISkillProgramEffectHandler
 
 internal static class OlMoRumoComposition
 {
+    [ProgramCatalogValidation(1240)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Id != "ol:mo-rumo" && !program.Triggers.SelectMany(t => t.Effects)

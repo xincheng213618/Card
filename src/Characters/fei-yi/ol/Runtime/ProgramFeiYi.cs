@@ -57,6 +57,7 @@ internal sealed class FeiYiHandler(SkillProgramEffectOp op):ISkillProgramEffectH
 internal static class FeiYiComposition
 {
     internal static bool IsOperation(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.YanruParityDrawDiscard or SkillProgramEffectOp.RevealSingletonAndArmRankEffects;
+    [ProgramCatalogValidation(190)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         foreach(var a in p.Activations.Where(a=>a.Effects.Any(e=>IsOperation(e.Op))))

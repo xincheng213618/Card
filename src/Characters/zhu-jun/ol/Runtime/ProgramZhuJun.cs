@@ -61,6 +61,7 @@ internal static class ZhuJunComposition
             t.OnlyDesignatedCardTargets || t.AllowOwnDiscardPhaseEnded || t.EvaluateConditionAtResolution || t.IgnoreOwnSkillMovements || t.MovementDiscardOnly)
             throw new InvalidOperationException(path + ": Cuipo requires the mandatory actual-use actor, including genuine response uses, with one exact native instruction.");
     }
+    [ProgramCatalogValidation(300)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse)) && !p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse))) return;

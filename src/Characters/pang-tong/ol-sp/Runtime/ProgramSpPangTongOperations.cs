@@ -35,7 +35,9 @@ internal sealed class ResolveGuolunRevealOptionalAtomicExchangeDescriptor():SpPa
 internal sealed class ResolveSongsangLimitedOtherDeathDescriptor():SpPangTongDescriptor(SkillProgramEffectOp.ResolveSongsangLimitedOtherDeath)
 {public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CharacterDied)];}
 internal sealed class DrawAfterActualPlayDrawInvocationDescriptor():SpPangTongDescriptor(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsGained)];}
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsGained)];}
 internal static class SpPangTongComposition
 {
  internal static bool Own(SkillProgramEffectOp op)=>(int)op is >=24700 and <=24702;

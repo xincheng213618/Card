@@ -43,8 +43,12 @@ internal abstract class TanbanDescriptor(SkillProgramEffectOp op) : ProgramOpera
         new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new TanbanHandler(op);
 }
-internal sealed class InitializeTanbanInitialEntitiesDescriptor() : TanbanDescriptor(SkillProgramEffectOp.InitializeTanbanInitialEntities);
-internal sealed class SwapTanbanHandMarksDescriptor() : TanbanDescriptor(SkillProgramEffectOp.SwapTanbanHandMarks);
+internal sealed class InitializeTanbanInitialEntitiesDescriptor() : TanbanDescriptor(SkillProgramEffectOp.InitializeTanbanInitialEntities){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class SwapTanbanHandMarksDescriptor() : TanbanDescriptor(SkillProgramEffectOp.SwapTanbanHandMarks){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class TanbanHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -56,6 +60,7 @@ internal sealed class TanbanHandler(SkillProgramEffectOp op) : ISkillProgramEffe
 
 internal static class TanbanComposition
 {
+    [ProgramCatalogValidation(880)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

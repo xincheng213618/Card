@@ -71,25 +71,37 @@ internal abstract class MouXiahouShiDescriptor : ProgramOperationDescriptorBase
 }
 internal sealed class ResolveMouXiahouShiYanyuDiscardDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiYanyuDiscard;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new ConsumeSelectedCards(1)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.DiscardSelected, static (e, c) =>
     { c.DiscardSelected(new(SkillProgramEffectOp.DiscardSelected, SkillProgramEffectTarget.Owner, 1, e.Condition)); c.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 1, e.Condition)); c.PublicControlValue(3); });
     public override ISkillProgramEffectHandler Handler { get; } = new MouXiahouShiDiscardHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ResolveMouXiahouShiYanyuSupportDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiYanyuSupport;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(6));
     public override ISkillProgramEffectHandler Handler { get; } = new MouXiahouShiSupportHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ResolveMouXiahouShiQiaoshiDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiQiaoshi;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied), new RequireContext(ProgramContextCapability.Damage)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler { get; } = new MouXiahouShiQiaoshiHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouXiahouShiDiscardHandler : ISkillProgramEffectHandler
 {

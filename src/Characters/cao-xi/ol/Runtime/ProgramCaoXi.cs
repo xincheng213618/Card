@@ -48,13 +48,16 @@ internal abstract class CaoXiDescriptor(SkillProgramEffectOp operation) : Progra
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
 internal sealed class ResolveGangshuAttributeIncrementDescriptor() : CaoXiDescriptor(SkillProgramEffectOp.ResolveGangshuAttributeIncrement)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)]; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)]; }
 internal sealed class ResolveJianxuanRepeatedDrawDescriptor() : CaoXiDescriptor(SkillProgramEffectOp.ResolveJianxuanRepeatedDraw)
 { public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)]; }
 
 internal static class CaoXiComposition
 {
     private static bool Own(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveGangshuAttributeIncrement or SkillProgramEffectOp.ResolveJianxuanRepeatedDraw;
+    [ProgramCatalogValidation(250)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => Own(e.Op))) && !p.Triggers.Any(t => t.Effects.Any(e => Own(e.Op)))) return;

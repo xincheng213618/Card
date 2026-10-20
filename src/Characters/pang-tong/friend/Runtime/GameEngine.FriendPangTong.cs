@@ -322,6 +322,7 @@ public sealed partial class GameEngine
             receipt.Stage == FriendPangTongStage.Movement && (frame.PendingMovementContinuation is null || receipt.Before > receipt.After || receipt.After > _movementSequence))
             throw new InvalidOperationException("Friend Pang Tong lost its frozen cards, ordered exchange or one-use receipt.");
     }
+    [ProgramViewContributor(ProgramViewContribution.PublicCardsAfterResolution, 20)]
     private IEnumerable<CardSnapshot> FriendPangTongPublicCards() => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(frame => frame.FriendPangTong?.Operation == SkillProgramEffectOp.UseFriendDeckSuitsAtPlayEnd)
         .SelectMany(frame => _cardZones.CardsAt(FriendYangmingLocation(frame))).Select(ToSnapshot);

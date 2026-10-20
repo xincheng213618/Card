@@ -45,6 +45,8 @@ public sealed partial record CardUseFrame
 internal interface IWeijieHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame frame);}
 internal sealed class ResolveWeijieRequiredBasicRequestDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
+
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
     public override ISkillProgramEffectHandler Handler {get;}=new WeijieHandler();
@@ -59,6 +61,7 @@ internal sealed class WeijieHandler:ISkillProgramEffectHandler
 }
 internal static class GuoTuWeijieComposition
 {
+    [ProgramCatalogValidation(640)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Activations.Any(a=>a.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest))&&!p.Triggers.Any(t=>t.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest)))return;

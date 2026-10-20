@@ -65,11 +65,14 @@ internal abstract class LiuPanDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
 }
 internal sealed class ResolvePijingTargetTogglesAndRandomGiftsDescriptor:LiuPanDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolvePijingTargetTogglesAndRandomGifts;}
-internal sealed class ResolvePijingNextSoleTargetChoiceDescriptor:LiuPanDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice;}
+internal sealed class ResolvePijingNextSoleTargetChoiceDescriptor:LiuPanDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class LiuPanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<ILiuPanHost>().Resolve(f,op);}
 internal static class LiuPanComposition
 {
+    [ProgramCatalogValidation(580)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         static bool Own(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolvePijingTargetTogglesAndRandomGifts or SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice;

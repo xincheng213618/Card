@@ -57,7 +57,9 @@ internal abstract class MoLuBuDescriptor : ProgramOperationDescriptorBase
         _ => [new ReadSelectedTarget(), new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)]
     };
 }
-internal sealed class InitializeMoLuBuQiDescriptor : MoLuBuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeMoLuBuQiAndOpeningPlay; }
+internal sealed class InitializeMoLuBuQiDescriptor : MoLuBuDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeMoLuBuQiAndOpeningPlay; }
 internal sealed class ResolveMoLuBuDuoqiDescriptor : MoLuBuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoLuBuDuoqi; }
 internal sealed class EnterMoLuBuKuangmoDescriptor : MoLuBuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.EnterMoLuBuKuangmo; }
 internal sealed class ResolveMoLuBuKuangmoDeathDescriptor : MoLuBuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoLuBuKuangmoDeath; }
@@ -70,6 +72,7 @@ internal static class MoLuBuComposition
 {
     internal const string Duoqi = "ol:mo-duoqi", Kuangmo = "ol:mo-kuangmo", Gangquan = "ol:mo-gangquan";
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.InitializeMoLuBuQiAndOpeningPlay or SkillProgramEffectOp.ResolveMoLuBuDuoqi or SkillProgramEffectOp.EnterMoLuBuKuangmo or SkillProgramEffectOp.ResolveMoLuBuKuangmoDeath;
+    [ProgramCatalogValidation(1100)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var owned = p.Id is Duoqi or Kuangmo or Gangquan;

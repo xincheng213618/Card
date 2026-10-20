@@ -61,6 +61,7 @@ internal static class YangFengComposition
             t.UsageScope != SkillUsageScope.Game || t.UsageLimit != 1 || t.MarkerCost is not null || t.Condition is not { Kind: SkillProgramTriggerConditionKind.Not, Children: [{ Kind: SkillProgramTriggerConditionKind.OwnerKilledThisTurn }] })
             throw new InvalidOperationException(path + ": Qujia requires one optional game-limited actual own-turn end after a turn with no owner-attributed kill.");
     }
+    [ProgramCatalogValidation(400)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op))) && !p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op)))) return;

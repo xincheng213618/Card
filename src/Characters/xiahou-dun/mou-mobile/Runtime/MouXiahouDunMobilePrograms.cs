@@ -38,8 +38,12 @@ internal abstract class MouXiahouDunMobileDescriptor : ProgramOperationDescripto
         _ => []
     };
 }
-internal sealed class ResolveMouXiahouDunGanglieDescriptor : MouXiahouDunMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouDunGanglie; }
-internal sealed class CollectMouXiahouDunQingjianDescriptor : MouXiahouDunMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.CollectMouXiahouDunQingjian; }
+internal sealed class ResolveMouXiahouDunGanglieDescriptor : MouXiahouDunMobileDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouDunGanglie; }
+internal sealed class CollectMouXiahouDunQingjianDescriptor : MouXiahouDunMobileDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.CollectMouXiahouDunQingjian; }
 internal sealed class DistributeMouXiahouDunQingjianDescriptor : MouXiahouDunMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DistributeMouXiahouDunQingjian; }
 internal sealed class MouXiahouDunMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

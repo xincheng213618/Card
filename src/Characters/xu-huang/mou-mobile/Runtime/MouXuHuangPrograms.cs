@@ -84,11 +84,19 @@ internal abstract class MouXuHuangDescriptor : ProgramOperationDescriptorBase
     public override ISkillProgramEffectHandler Handler => new MouXuHuangHandler(Op);
 }
 internal sealed class ResolveMouXuHuangDuanliangDescriptor : MouXuHuangDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXuHuangDuanliang; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXuHuangDuanliang;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class ResolveMouXuHuangShipoDescriptor : MouXuHuangDescriptor
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXuHuangShipo;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouXuHuangHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

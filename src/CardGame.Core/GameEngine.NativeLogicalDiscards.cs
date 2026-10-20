@@ -35,26 +35,7 @@ public sealed partial record ProgramSkillFrame
 public sealed partial class GameEngine
 {
     private bool TracksNativeLogicalDiscards =>
-        HasMouLuZhiCapability || HasMouXiahouDunCapability || HasMouMengHuoCapability || HasMouHanDangCapability || HasMouPangTongCapability || HasMouZhenJiLuoshenCapability || HasMouXiahouShiCapability || HasWuLuKangCapability ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinXiayuan) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouTianYuZhenxi) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouLuMengKeji) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard) ||
-        HasMoTianenCapability || HasXieLingYuCapability || HasGuYinCapability || HasWuZishengMovementCapability ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardNianRuizhiRemainder) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecoverNianJingjueLoss) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXianbiHandAdjustmentAndRandomReturns) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveFuchaoRoundEndingDrawAndDiscard) ||
-        HasLeXiaoQiaoWeiwanCapability || HasLiYiCapability ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQiejianLastHandLoss);
+        _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeLogicalDiscard);
 
     private NativeLogicalDiscardInvocationDraft? CaptureNativeLogicalDiscardInvocation(int initiatorSeat,
         int executorSeat, IReadOnlyList<int> cardIds, CardMoveReason reason, long? parentFrameId = null)

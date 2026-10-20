@@ -105,6 +105,7 @@ internal static class PairedHandRecastComposition
             a.Condition.Kind != SkillProgramConditionKind.Always)
             throw new InvalidOperationException($"Invalid skill program at {path}: paired hand recast requires one phase-limited real-hand card, one other living nonempty-hand target and its sole unconditional operation.");
     }
+    [ProgramCatalogValidation(100)]
     internal static void ValidateProgram(string path, SkillProgram program)
     {
         if (program.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.PairedHandRecast)))

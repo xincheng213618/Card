@@ -322,6 +322,7 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ResolveLeCaiYongFeibai)]
     private PromptChoice SelectAiFeibaiSample(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderByDescending(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.OwnerSeat])).ThenBy(c => c.Cards.Single()).First();
+    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 110)]
     private CardSnapshot[] FeibaiPrivateCards(int viewer) => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewer &&
         f.LeCaiYongFeibai is { Stage: FeibaiStage.Selecting }).SelectMany(f => f.LeCaiYongFeibai!.Sample.Select(id => ToSnapshot(GetAdvancedCard(id)))).ToArray();
 

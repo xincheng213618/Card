@@ -22,6 +22,7 @@ internal static class MouLiuChengComposition
     private static bool Exact(SkillProgramTrigger t, SkillProgramEffectOp op) => t.Effects is [var e] && e.Op == op && e.Target == SkillProgramEffectTarget.Owner &&
         e.Condition.Kind == SkillProgramConditionKind.Always && e.Amount == 0 && e.TargetReference is null && e.ActorReference is null &&
         e.CardOwnerRef is null && e.ChooserRef is null && e.SourceBind is null && e.ResultBind is null && e.NumberExpression is null && e.Zones.Count == 0 && !e.AllowDecline && !e.AwaitMovementTriggers;
+    [ProgramCatalogValidation(960)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects)).Any(e =>

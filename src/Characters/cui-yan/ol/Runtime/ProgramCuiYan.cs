@@ -42,6 +42,7 @@ internal sealed class CuiYanHandler(SkillProgramEffectOp op):ISkillProgramEffect
 internal static class CuiYanComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveShutongFinalizedUse or SkillProgramEffectOp.ResolveZhijieActualTurnEnd;
+    [ProgramCatalogValidation(650)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

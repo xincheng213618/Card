@@ -11,7 +11,10 @@ internal abstract class WuJingDescriptor(SkillProgramEffectOp op) : ProgramOpera
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
 }
 internal sealed class UseHejiAtCompletedSingleTargetDescriptor() : WuJingDescriptor(SkillProgramEffectOp.UseHejiAtCompletedSingleTarget);
-internal sealed class ClaimLiubingUndamagingSlashDescriptor() : WuJingDescriptor(SkillProgramEffectOp.ClaimLiubingUndamagingSlash);
+internal sealed class ClaimLiubingUndamagingSlashDescriptor() : WuJingDescriptor(SkillProgramEffectOp.ClaimLiubingUndamagingSlash)
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+}
 internal sealed class RewardHejiUnconvertedUseDescriptor() : WuJingDescriptor(SkillProgramEffectOp.RewardHejiUnconvertedUse);
 internal sealed class WuJingHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
@@ -67,6 +70,7 @@ public sealed record WuJingCompletedEvent(long FrameId, bool Applied) : IGameEve
 internal static class WuJingComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.UseHejiAtCompletedSingleTarget or SkillProgramEffectOp.RewardHejiUnconvertedUse or SkillProgramEffectOp.ClaimLiubingUndamagingSlash;
+    [ProgramCatalogValidation(380)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op))) && !p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op)))) return;

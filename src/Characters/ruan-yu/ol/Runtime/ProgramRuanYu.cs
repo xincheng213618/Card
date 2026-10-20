@@ -62,6 +62,7 @@ internal static class RuanYuComposition
             t.UsageScope is not null||t.UsageLimit is not null||t.DynamicUsageLimit is not null||t.NamedUsageGroup is not null||t.ChoiceGroup is not null||t.OrderGroup is not null||t.MarkerCost is not null||t.SourceSkillId is not null||t.SourceViewAsId is not null||t.CardKinds.Count!=0||t.CardCategories.Count!=0||t.SourceZones.Count!=0||t.DestinationZones.Count!=0||t.Suits.Count!=0||t.DamageCardKinds.Count!=0||t.MovementReasons.Count!=0||t.ExcludedMovementReasons.Count!=0||t.ExcludedReasons.Count!=0||t.JudgmentReasons.Count!=0||t.JudgmentSource is not null||t.DamageOccurrence is not null||t.MovementOccurrence is not null||t.RequireDamageSource is not null||t.RequireNoCardConversion is not null||t.GainPhaseQualification is not null||t.AllowNoEventTarget||t.NoDyingAtActivation||t.DeferredTurnEndOnly||t.OnlyDesignatedCardTargets||t.AllowOwnDiscardPhaseEnded||t.EvaluateConditionAtResolution||t.IgnoreOwnSkillMovements||t.MovementDiscardOnly)
             throw new InvalidOperationException(path+": Miaoxian red requires one exact mandatory actual-Use actor instruction, including genuine response Uses, with prepayment physical qualification.");
     }
+    [ProgramCatalogValidation(600)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

@@ -37,12 +37,15 @@ internal abstract class PeiYuanShaoDescriptor:ProgramOperationDescriptorBase
 }
 internal sealed class OfferFulueSingleTargetOptionDescriptor:PeiYuanShaoDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.OfferFulueSingleTargetOption;}
 internal sealed class RequestFulueZeroDamageCounterSlashDescriptor:PeiYuanShaoDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash;}
-internal sealed class ResolveFulueCounterOptionDescriptor:PeiYuanShaoDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFulueCounterOption;}
+internal sealed class ResolveFulueCounterOptionDescriptor:PeiYuanShaoDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFulueCounterOption;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class PeiYuanShaoHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IPeiYuanShaoHost>().Resolve(f,op);}
 internal static class PeiYuanShaoComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.OfferFulueSingleTargetOption or SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash or SkillProgramEffectOp.ResolveFulueCounterOption;
+    [ProgramCatalogValidation(370)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op))))return;

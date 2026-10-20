@@ -43,8 +43,13 @@ internal abstract class WuLuXunZhangcaiDescriptor(SkillProgramEffectOp op) : Pro
         static (_, context) => context.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new WuLuXunZhangcaiHandler(op);
 }
-internal sealed class ResolveWuLuXunZhangcaiDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunZhangcai);
-internal sealed class ResolveWuLuXunRuxianDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunRuxian);
+internal sealed class ResolveWuLuXunZhangcaiDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunZhangcai){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveWuLuXunRuxianDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunRuxian)
+{
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+}
 internal sealed class WuLuXunZhangcaiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -55,6 +60,7 @@ internal sealed class WuLuXunZhangcaiHandler(SkillProgramEffectOp op) : ISkillPr
 }
 internal static class WuLuXunZhangcaiComposition
 {
+    [ProgramCatalogValidation(1140)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

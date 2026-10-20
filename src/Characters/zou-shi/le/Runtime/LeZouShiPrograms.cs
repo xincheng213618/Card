@@ -57,8 +57,12 @@ internal abstract class LeZouShiDescriptor(SkillProgramEffectOp op) : ProgramOpe
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new LeZouShiHandler(op);
 }
-internal sealed class InitializeYunzhengInitialEntitiesDescriptor() : LeZouShiDescriptor(SkillProgramEffectOp.InitializeYunzhengInitialEntities);
-internal sealed class ResolveHuoxinNonEquipmentUseDescriptor() : LeZouShiDescriptor(SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse);
+internal sealed class InitializeYunzhengInitialEntitiesDescriptor() : LeZouShiDescriptor(SkillProgramEffectOp.InitializeYunzhengInitialEntities){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
+internal sealed class ResolveHuoxinNonEquipmentUseDescriptor() : LeZouShiDescriptor(SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse){
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class LeZouShiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -80,6 +84,7 @@ internal sealed class HuoxinCommittedUseContract : IProgramCommittedUseContract
 }
 internal static class LeZouShiComposition
 {
+    [ProgramCatalogValidation(870)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var ops = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

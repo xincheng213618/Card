@@ -18402,7 +18402,8 @@ public sealed partial class GameEngine
         AssertProgramVirtualOrdinaryTricks();
         AssertDamageTargetDuels();
         AssertQinglongInsertions();
-        var processing = WithoutMouZhouYuMobileCovered(WithoutChengliePrivateProcessing(WithoutNishouHeldProcessingCards(_cardZones.CardsAt(CardLocation.Processing))));
+        var processing = ViewContributors.FilterProcessing(ProgramViewContribution.InvariantProcessing,
+            _cardZones.CardsAt(CardLocation.Processing));
         var hasActiveCardResolution = HasLeChengyanBorrowedPrompt() || HasWenhePoisonFireAttackPrompt() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasDragonBoatDiscardPrompt() || _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
             ActiveQinglongFollowup is not null || ActiveBorrowedSword is not null ||
             ActiveGroupCard is not null ||

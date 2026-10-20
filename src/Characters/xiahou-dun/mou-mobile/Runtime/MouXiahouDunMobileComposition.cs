@@ -1,6 +1,7 @@
 namespace CardGame.Core;
 internal static class MouXiahouDunMobileComposition
 {
+    [ProgramCatalogValidation(1090)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var operations = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

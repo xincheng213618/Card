@@ -4,6 +4,7 @@ internal static class MouPangTongComposition
     internal const string Lianhuan = "mou-mobile:lianhuan", Niepan = "mou-mobile:niepan";
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ArmMouPangTongLianhuan or SkillProgramEffectOp.ResolveMouPangTongLianhuanTargets or SkillProgramEffectOp.UpgradeMouPangTongLianhuan;
     private static bool Own(SkillProgramEffect e, SkillProgramEffectOp op) => e.Op == op && e.Target == SkillProgramEffectTarget.Owner && e.ActorReference is null && e.TargetReference is null && e.Condition.Kind == SkillProgramConditionKind.Always;
+    [ProgramCatalogValidation(1030)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id is not (Lianhuan or Niepan) && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => Handles(e.Op))) return;

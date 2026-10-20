@@ -66,8 +66,14 @@ internal abstract class TangTangDescriptor(SkillProgramEffectOp op) : ProgramOpe
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new TangTangHandler(op);
 }
-internal sealed class ResolveZexingShownCardChainDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZexingShownCardChain) { }
-internal sealed class ResolveZhiyiGainColorBenefitDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZhiyiGainColorBenefit) { }
+internal sealed class ResolveZexingShownCardChainDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZexingShownCardChain) {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.TangTang is { Paid: true };
+}
+internal sealed class ResolveZhiyiGainColorBenefitDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZhiyiGainColorBenefit) {
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.TangTang is { Paid: true };
+}
 internal sealed class TangTangHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -76,6 +82,7 @@ internal sealed class TangTangHandler(SkillProgramEffectOp op) : ISkillProgramEf
 internal static class TangTangComposition
 {
     internal static bool Handles(SkillProgramEffectOp op) => op is SkillProgramEffectOp.ResolveZexingShownCardChain or SkillProgramEffectOp.ResolveZhiyiGainColorBenefit;
+    [ProgramCatalogValidation(690)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Activations.Any(a => a.Effects.Any(e => Handles(e.Op))) && !p.Triggers.Any(t => t.Effects.Any(e => Handles(e.Op)))) return;

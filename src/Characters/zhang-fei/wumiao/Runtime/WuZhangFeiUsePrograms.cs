@@ -57,6 +57,8 @@ internal sealed class ResolveWuZhangFeiUseSampleDescriptor : ProgramOperationDes
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(8));
     public override ISkillProgramEffectHandler Handler { get; } = new WuZhangFeiUseHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WuZhangFeiUseHandler : ISkillProgramEffectHandler
 {

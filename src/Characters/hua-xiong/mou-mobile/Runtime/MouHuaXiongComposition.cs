@@ -26,6 +26,7 @@ internal static class MouHuaXiongComposition
     private static bool PlainProgram(SkillProgram p) => p.Modifiers.Count == 0 && p.CardPolicies.Count == 0 && p.CardIdentities.Count == 0 &&
         p.HpSkillGrants.Count == 0 && p.EquipmentSuitSkillGrants.Count == 0 && p.DamageModifiers.Count == 0 && p.BooleanStates.Count == 0 &&
         p.Contributions.Count == 0 && !p.LordSkillProjection && !p.CannotChallengeDeclarations;
+    [ProgramCatalogValidation(930)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

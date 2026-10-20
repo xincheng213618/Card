@@ -43,13 +43,19 @@ internal abstract class LiWanDescriptor : ProgramOperationDescriptorBase
             _ => SkillProgramTriggerWindow.TurnEnding })];
 }
 internal sealed class OfferLianjuSameColorGiftDescriptor : LiWanDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.OfferLianjuSameColorGift; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.OfferLianjuSameColorGift; }
 internal sealed class ResolveLianjuOppositeColorReturnDescriptor : LiWanDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveLianjuOppositeColorReturn; }
+{
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveLianjuOppositeColorReturn; }
 internal sealed class DrawSilvMarkedCardAfterDamageDescriptor : LiWanDescriptor
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DrawSilvMarkedCardAfterDamage; }
 internal sealed class ReturnDiscardedSilvEntityDescriptor : LiWanDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ReturnDiscardedSilvEntity; }
+{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ReturnDiscardedSilvEntity;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
+}
 internal sealed class LiWanHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

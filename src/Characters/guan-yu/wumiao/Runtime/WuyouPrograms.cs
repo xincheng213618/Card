@@ -62,12 +62,16 @@ public sealed record WuyouDeclarationBoundEvent(long DeclarationId, long OwnerFr
 internal interface IWuGuanYuWuyouHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame); }
 internal sealed class ResolveWuyouContributionAndNamedReturnDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuyouContributionAndNamedReturn;
     public override ProgramOperationAiPolicy AiPolicy { get; } =
         new(ProgramOperationAiSemantic.GiveSelected, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new WuyouHandler();
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WuyouHandler : ISkillProgramEffectHandler
 {
@@ -85,6 +89,7 @@ internal static class WuyouComposition
         CardKind.FiveGrains, CardKind.Dismantlement, CardKind.Snatch, CardKind.FireAttack, CardKind.IronChain,
         CardKind.BorrowedSword, CardKind.Nullification, CardKind.Indulgence, CardKind.SupplyShortage, CardKind.Lightning
     });
+    [ProgramCatalogValidation(1310)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (p.Id != "wumiao:wuyou" && !p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects))

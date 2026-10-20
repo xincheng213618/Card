@@ -45,6 +45,7 @@ internal sealed class CaoTengHandler(SkillProgramEffectOp op):ISkillProgramEffec
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ICaoTengHost>().Resolve(f,op);}
 internal static class CaoTengComposition
 {
+    [ProgramCatalogValidation(480)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         bool Handles(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveYongzuDistinctBenefits or SkillProgramEffectOp.ResolveCaoTengJianxiongDrawAndClaim;

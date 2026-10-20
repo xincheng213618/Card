@@ -54,6 +54,8 @@ internal sealed class ResolveWuZhangFeiXianlueDescriptor : ProgramOperationDescr
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Reveal,
         static (_, context) => context.PublicControlValue(4));
     public override ISkillProgramEffectHandler Handler { get; } = new WuZhangFeiXianlueHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class WuZhangFeiXianlueHandler : ISkillProgramEffectHandler
 {

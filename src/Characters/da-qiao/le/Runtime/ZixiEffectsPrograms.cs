@@ -77,6 +77,8 @@ internal sealed class ResolveZixiUniqueTargetJudgmentEffectsDescriptor : Program
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(4));
     public override ISkillProgramEffectHandler Handler { get; } = new ZixiEffectsHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ZixiEffectsHandler : ISkillProgramEffectHandler
 {
@@ -86,6 +88,7 @@ internal sealed class ZixiEffectsHandler : ISkillProgramEffectHandler
 }
 internal static class ZixiEffectsComposition
 {
+    [ProgramCatalogValidation(1250)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Triggers.Where(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects)).ToArray();

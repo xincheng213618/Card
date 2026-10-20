@@ -40,14 +40,19 @@ internal abstract class QuHuangDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler=>new QuHuangHandler(Op);
 }
-internal sealed class ResolveQiejianLastHandLossDescriptor:QuHuangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQiejianLastHandLoss;}
+internal sealed class ResolveQiejianLastHandLossDescriptor:QuHuangDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQiejianLastHandLoss;}
 internal sealed class ResolveNishouEquipmentLossChoiceDescriptor:QuHuangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveNishouEquipmentLossChoice;}
-internal sealed class ResolveNishouIssuedCurrentPhaseSwapDescriptor:QuHuangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap;}
+internal sealed class ResolveNishouIssuedCurrentPhaseSwapDescriptor:QuHuangDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap;}
 internal sealed class QuHuangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IQuHuangHost>().Resolve(f,op);}
 internal static class QuHuangComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveQiejianLastHandLoss or SkillProgramEffectOp.ResolveNishouEquipmentLossChoice or SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap;
+    [ProgramCatalogValidation(590)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         if(!p.Triggers.Any(t=>t.Effects.Any(e=>Handles(e.Op)))&&!p.Activations.Any(a=>a.Effects.Any(e=>Handles(e.Op))))return;

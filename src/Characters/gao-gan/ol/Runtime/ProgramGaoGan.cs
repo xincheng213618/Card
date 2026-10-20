@@ -18,6 +18,8 @@ public sealed record JuguanSkippedDrawExpiredEvent(int OwnerSeat, int ActualTurn
 
 internal sealed class ObserveJuguanDrawObligationDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObserveJuguanDrawObligation;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 internal static class MouLuZhiComposition
 {
+    [ProgramCatalogValidation(1110)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var effects = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects));

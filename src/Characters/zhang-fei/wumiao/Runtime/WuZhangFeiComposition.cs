@@ -4,6 +4,7 @@ namespace CardGame.Core;
 // Reject transplanted or partially reconfigured bindings at content load time.
 internal static class WuZhangFeiComposition
 {
+    [ProgramCatalogValidation(900)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         var reserved = p.Id is "wumiao:zisheng" or "wumiao:xianlue" or "wumiao:haoxian";

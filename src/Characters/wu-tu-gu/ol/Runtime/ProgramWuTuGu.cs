@@ -32,6 +32,7 @@ internal sealed class WuTuGuHandler(SkillProgramEffectOp op):ISkillProgramEffect
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IWuTuGuHost>().Resolve(f,op);}
 internal static class WuTuGuComposition
 {
+    [ProgramCatalogValidation(500)]
     internal static void ValidateProgram(string path,SkillProgram p)
     {
         bool Own(SkillProgramEffect e)=>e.Op is SkillProgramEffectOp.ArmHanyongNativeGroupDamage or SkillProgramEffectOp.AccumulateRanshangFirePoint or SkillProgramEffectOp.ResolveRanshangEndingHpLoss;

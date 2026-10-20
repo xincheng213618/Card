@@ -35,6 +35,12 @@ src/Characters/wang-can/
 
 这是运行能力接口的组合边界。结算状态仍属于引擎与对应帧，适配器不保存另一套 pending 状态，不自行提交命令或通知 UI。已有实现专用接口的测试宿主仍可通过通用宿主的默认能力解析使用自身实现。
 
+模块的目录级组合契约通过 `[ProgramCatalogValidation(order)]` 标注在原静态校验方法旁。方法接收整个 `IReadOnlyDictionary<string, SkillProgram>`，或接收 `(string path, SkillProgram program)`；加载器按注册顺序校验，逐程序方法保留目录内原枚举顺序和首个失败。新增契约不再向 `SkillProgramCatalog.ValidateTriggerSources` 追加人物调用。这些校验只在定义加载时执行。
+
+目标已死亡时的效果资格由 descriptor 的 `AllowsDeadTarget(in ProgramEffectContinuationContext)` 声明，默认拒绝。通用执行器仍先验证所属帧、技能实例、内容指纹以及 owner-death 续接许可，再查询该操作。上下文携带原效果、推进后的原帧和当前宿主；`PaidReturnAccepted` 保留游标推进前已经确认的支付返回判断。该策略不会代替付款、原生回执或父帧校验，也不授予失技续接权限。
+
+descriptor 的 `FactRequirements` 按 `Triggered`、`Activated` 分别声明逻辑弃牌、真实阶段与原生用牌处理区来源的采集需求。`ProgramInstructionFeatures` 和 `SkillProgramDependencies` 从整个冻结内容目录聚合，包括本局无人持有或暂不可用的技能；不改为只看当前存活武将。原生协议仍决定事实产生时机、实体与行动身份，并保留非操作来源的精确需求条件。
+
 ## 规则观察与资格检查
 
 事件规则在实现方法旁使用 `[ProgramRuleObserver(phase, order)]` 注册。`BeforeEvent` 在事实进入输出队列前运行，`AfterEvent` 在入队后运行，`BeforeStatePublish` 在打开原有状态窗口前运行。无参数方法用于同步状态；单个事件参数会按事件类型过滤。递归产生的事实仍先完整处理后返回父调用。
@@ -64,6 +70,10 @@ src/Characters/wang-can/
 修改已有物理用牌动作的能力使用 `[ProgramCardAction]`，分别在程序动作生成之前和之后接入。它复用已有可信动作构建器参数，不把这些可变参数开放给只读选择模块；新增能力不再向通用动作方法追加人物函数调用。
 
 ## 子结算推进与帧检查
+
+公开的阶段已用次数通过 `[ProgramPhaseUsedProjection(order)]` 注册只读 `int(int ownerSeat, string skillId, int previous)` 投影。各投影按顺序接收前值，全部执行；`0` 是有效覆盖，不能作为未处理而短路。元数据共享，委托只绑定本局引擎，不新增运行或存档状态。
+
+玩家视图使用 `[ProgramViewContributor(contribution, order)]` 注册原有位置的公开牌、私看牌、人物牌堆和处理区变换。不同渠道保留原顺序、去重位置及最终冻结边界；来源方法和私有性证明继续由所属人物维护。`InvariantProcessing`、`PublicProcessing` 和各类排除条件不可互换：盖牌、秘密交换牌及暂存手牌即使 `revealAll` 也不计公共处理区，同时拼点及武陆抗的诊断可见性仍由原渠道控制。
 
 子结算推进和续接权限在所属机制的方法旁使用 `[ProgramRuntimeHook(phase, order)]` 注册。推进方法无参数并返回 `bool`，按阶段内的显式顺序运行，首个返回 `true` 的方法结束本轮分派。`BeforeDeclaration`、`BeforeResponseHealth`、`AfterResponseHealth` 保留原调度位置，不能跨过声明、响应体力子帧或其他原生结算分支移动。
 

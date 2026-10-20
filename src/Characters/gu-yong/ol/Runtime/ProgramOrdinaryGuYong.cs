@@ -41,6 +41,8 @@ internal interface IOrdinaryGuYongHost
 }
 internal sealed class ResolveOrdinaryGuYongBingyiDescriptor : ProgramOperationDescriptorBase
 {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
+
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi;
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
@@ -48,6 +50,8 @@ internal sealed class ResolveOrdinaryGuYongBingyiDescriptor : ProgramOperationDe
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new OrdinaryGuYongBingyiHandler();
+
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class OrdinaryGuYongBingyiHandler : ISkillProgramEffectHandler
 {
@@ -56,6 +60,7 @@ internal sealed class OrdinaryGuYongBingyiHandler : ISkillProgramEffectHandler
 }
 internal static class OrdinaryGuYongComposition
 {
+    [ProgramCatalogValidation(790)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {
         if (!p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects)).Any(e => e.Op == SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi)) return;

@@ -38,7 +38,11 @@ internal abstract class MouPangTongDescriptor : ProgramOperationDescriptorBase
     public override ISkillProgramEffectHandler Handler => new MouPangTongHandler(Op);
 }
 internal sealed class ArmMouPangTongLianhuanDescriptor : MouPangTongDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ArmMouPangTongLianhuan; }
-internal sealed class ResolveMouPangTongLianhuanTargetsDescriptor : MouPangTongDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouPangTongLianhuanTargets; }
+internal sealed class ResolveMouPangTongLianhuanTargetsDescriptor : MouPangTongDescriptor {
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
+ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouPangTongLianhuanTargets;
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
+}
 internal sealed class UpgradeMouPangTongLianhuanDescriptor : MouPangTongDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.UpgradeMouPangTongLianhuan; }
 internal sealed class MouPangTongHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
