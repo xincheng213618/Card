@@ -66,6 +66,7 @@ public static class GeneralGalleryCatalog
                 "sp" => "sp",
                 "mou" => "mou",
                 "friend" => "friend",
+                "wumiao" => "wumiao",
                 // New formal variants need an explicit assignment; never guess from a shared name.
                 _ => "other"
             };

@@ -1067,6 +1067,12 @@ public enum SkillProgramEffectOp
     ResolveMouXiahouShiYanyuDiscard = 29800,
     ResolveMouXiahouShiYanyuSupport = 29801,
     ResolveMouXiahouShiQiaoshi = 29802,
+    ResolveMouZhenJiLuoshen = 29900,
+    ResolveWuHuangFuSongChaozhen = 30000,
+    ResolveWuHuangFuSongLianjie = 30001,
+    ArmWuHuangFuSongJiangxian = 30002,
+    SettleWuHuangFuSongJiangxian = 30003,
+    ReserveMouYuanShaoReward = 30100,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -2671,7 +2677,7 @@ public sealed class SkillProgramCatalog
                         Fail(skillPath + ".activations",
                             $"viewAs '{effect.SourceBind}' requires exactly {conversion.InputCount} selected cards");
                     if (effect.OutputKind == CardKind.ArrowBarrage &&
-                        (!conversion.SameSuit || !activation.SelectedCardsSameSuit ||
+                        (activation.SelectedCardsSameSuit != conversion.SameSuit ||
                          activation.MinTargets != 0 || activation.MaxTargets != 0 ||
                          activation.SourceZones.Count != 1 || activation.SourceZones[0] != CardZoneKind.Hand))
                         Fail(skillPath + ".activations",
@@ -3621,7 +3627,7 @@ public sealed class SkillProgramCatalog
         if (sameSuit && inputCount < 2)
             Fail(path + ".sameSuit", "sameSuit requires multiple physical inputs");
         if (tieredRound is null && !singleTrick && output == CardKind.ArrowBarrage &&
-            (!sameSuit || inputCount != 2 || !forPlay || forResponse))
+            (inputCount != 2 || !forPlay || forResponse))
             Fail(path, "arrowBarrage viewAs requires two same-suit hand cards for play only");
         if (inputCount > 1 && inputCategories.Count != 0)
             Fail(path + ".inputCategories", "multi-card viewAs does not support category input filters");
@@ -5474,6 +5480,8 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) MouChenGongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuKangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouXiahouShiComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) WuHuangFuSongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouYuanShaoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

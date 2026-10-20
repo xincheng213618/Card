@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-zhen-ji-mobile",
+      "characterName": "谋甄姬·移动版",
+      "defaultSkinId": "66300",
+      "skins": [
+        {
+          "id": "66300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-501.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/66300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhen-ji-mobile.png",
+          "sha256": "6a46ee68521ba09b4caddfa6a2b2ab7198a86e651748f72e2cb23e5c903da6ba",
+          "pixelWidth": 529,
+          "pixelHeight": 749
+        }
+      ]
+    },
+    {
+      "key": "wumiao-huangfu-song",
+      "characterName": "武皇甫嵩",
+      "defaultSkinId": "123301",
+      "skins": [
+        {
+          "id": "123301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/233.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123301.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wumiao-huangfu-song.png",
+          "sha256": "07ac62260247db4882681951b86bd6ca9f08efc1c69ed40365fdf80b63e83e36",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "mou-yuan-shao-mobile",
+      "characterName": "谋袁绍·移动版",
+      "defaultSkinId": "69400",
+      "skins": [
+        {
+          "id": "69400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-507.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/69400.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-yuan-shao-mobile.jpg",
+          "sha256": "7b3da3e8b29f51442268f232a7de9b893e1c6d040b493184c9e96b69415387d2",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "mou-xiahou-shi-mobile",
       "characterName": "谋夏侯氏·移动版",
       "defaultSkinId": "71200",

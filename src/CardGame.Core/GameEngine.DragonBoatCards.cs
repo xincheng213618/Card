@@ -106,7 +106,7 @@ public sealed partial class GameEngine
             return;
         }
         if (kind == CardKind.RealgarWine && (actor.HasAlcoholEffect ||
-            !(HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion) || SiruiIgnoresAlcoholLimit(actor, conversion) || CanUseJianjiOrdinaryAlcohol(actor, card.Id) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) ||
+            !(HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion) || SiruiIgnoresAlcoholLimit(actor, conversion) || CanUseJianjiOrdinaryAlcohol(actor, card.Id) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) ||
                 HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))) return;
         foreach (var target in _players.Where(p => p.IsAlive && (kind switch

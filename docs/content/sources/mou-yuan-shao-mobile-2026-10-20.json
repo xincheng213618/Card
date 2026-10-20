@@ -1,0 +1,110 @@
+{
+  "formatVersion": 1,
+  "status": "implemented-and-verified",
+  "generalId": "mou:yuan-shao-mobile",
+  "characterId": "character:yuan-shao",
+  "displayName": "谋袁绍·移动版",
+  "edition": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "officialHeroId": 507,
+    "officialGeneralId": 694
+  },
+  "verifiedAtUtc": "2026-10-20T12:05:51.572251+00:00",
+  "skills": [
+    {
+      "id": "mou-mobile:luanji",
+      "name": "乱击",
+      "officialText": "出牌阶段限一次，你可以将两张手牌当【万箭齐发】使用。其他角色因响应你使用的【万箭齐发】而打出【闪】时，你摸一张牌（每回合你至多以此法获得3张牌）。"
+    },
+    {
+      "id": "mou-mobile:xueyi",
+      "name": "血裔",
+      "officialText": "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。你使用牌指定其他群势力角色为目标后，你摸一张牌（每回合你至多以此法获得2张牌）。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-507.html",
+      "sha256": "61A47338897FEBD5EB55AA32C922DC8DE0EA294E6BB21DE5ADD9DCBC6EDD7DB1",
+      "bytes": 19549,
+      "fetchedAtUtc": "2026-10-20T11:57:15.106483+00:00"
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041,
+      "fetchedAtUtc": "2026-10-20T11:57:15.604152+00:00"
+    },
+    {
+      "key": "first-release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1568.html",
+      "sha256": "CE811C0D2D98ECD224BAB641C521E4CA5BB981B8DD2AD05BE879E26B17D06CE4",
+      "bytes": 112164,
+      "publishedAt": "2023-07-14 17:30:00",
+      "obtainableFrom": "2023-07-15"
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-1568.html",
+    "publishedAt": "2023-07-14 17:30:00",
+    "firstObtainableDate": "2023-07-15",
+    "availability": "Anniversary limited sale, permanent general acquisition; not a trial-only roster entry."
+  },
+  "revisionAudit": {
+    "officialHeroAndApiAgree": true,
+    "conflictingApplicableRevisionLocated": false,
+    "boundedSearch": [
+      "site:www.sanguosha.cn/pc/news-detail \"谋袁绍上线\"",
+      "site:www.sanguosha.cn \"谋袁绍\" \"乱击\" \"调整\""
+    ],
+    "latestLocatedDescriptionCorrection": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "imageSHA256": "411A068609351931E47F91FCFDE8F2B04B7451C9769C117B4D6D1C635ADDD16C",
+      "visuallyInspectedBySourceAgent": true,
+      "result": "No Luanji or Xueyi row; no conflicting applicable correction found."
+    },
+    "officialCharacterSpecificFAQConfirmed": false,
+    "absenceIsNotExhaustiveProof": true
+  },
+  "portrait": {
+    "officialUrl": "https://www.sanguosha.cn/storage/uploads/images/69400.jpg",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-yuan-shao-mobile.jpg",
+    "sha256": "7B3DA3E8B29F51442268F232A7DE9B893E1C6D040B493184C9E96B69415387D2",
+    "width": 530,
+    "height": 750,
+    "rootReportedOriginalImageVisualInspection": true,
+    "sourceAgentImageInspection": false,
+    "galleryValidation": "pending-root-final-batch"
+  },
+  "implementationContract": [
+    "Luanji pays exactly two actual Hand entities with any printed suits; it is one normal native Arrow Barrage use once per native Play. Same-suit versions retain their declared SameSuit policy.",
+    "Luanji rewards real other-provider Dodge responses to this owner's Arrow Barrage, including physical Arrow Barrage, not only the conversion. Pure Slash defense, Nullification or another actor's Arrow Barrage does not qualify.",
+    "Xueyi uses native Lord/projection qualification and live effective faction population for hand limit. Designation rewards freeze actual other-Qun main targets at native finalization; Borrowed Sword records only its main weapon-holder targets.",
+    "Targets newly announced by a native redirect/extension append to the native target window. Acquiring the source inside an earlier target window does not retroactively issue old targets.",
+    "Each skill has an independent whole actual-turn counter keyed by named skill and recipient, preserved across source instances. Counters count real native drawn DrawPile-to-Hand entities; a short/empty draw does not burn the missing material quota. Replacement obtained entities retain their existing native replacement semantics and are not relabelled as drawn cards.",
+    "The reward uses existing generic native Draw and its own recovery/movement/skill descendants. No custom pending state, parallel use-ID sidecar or detached fake action is introduced."
+  ],
+  "validation": {
+    "productionBuild": "passed",
+    "focusedCore": "passed",
+    "routine": "passed",
+    "manualFull": "not-requested",
+    "sharedAnySuitConversion": "passed-native-behavior-check",
+    "officialPortraitGallery": "passed-root-viewed",
+    "status": "passed",
+    "focusedCoreChecks": 11,
+    "focusedWpfChecks": 1,
+    "routineCoreChecks": 246,
+    "routineWpfChecks": 39,
+    "routineDurationMs": 71490,
+    "manualFullRun": false,
+    "portraitAndFullSkillTextViewed": true
+  }
+}

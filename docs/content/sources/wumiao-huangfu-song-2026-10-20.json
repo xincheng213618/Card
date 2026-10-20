@@ -1,0 +1,79 @@
+{
+  "checkedOn": "2026-10-20",
+  "status": "implemented-and-verified",
+  "name": "武皇甫嵩",
+  "generalId": "wumiao:huangfu-song",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "identity": {
+    "officialHeroId": 233,
+    "gender": "Male",
+    "faction": "qun",
+    "initialHp": 1,
+    "maxHp": 4,
+    "title": "襄武翼汉"
+  },
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/233.html",
+      "role": "Current official hero; both skins give the same complete three skills."
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250529_4419_4814.html",
+      "role": "Formal introduction, published 2025-05-30. The identity table explicitly states male, Qun and 1/4 HP.",
+      "firstAvailability": "2025-05-31 00:00:00"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20251023_9416_3913.html",
+      "role": "Official maintenance note includes the fix for Chaozhen failing on the first turn's entry into Dying; it does not replace the skill text."
+    }
+  ],
+  "skills": [
+    {
+      "id": "wumiao:chaozhen",
+      "name": "朝镇",
+      "text": "准备阶段或当你进入濒死状态时，你可以从场上或牌堆中获得一张点数最小的牌。若你获得的是A，你回复1点体力且此技能本回合失效。"
+    },
+    {
+      "id": "wumiao:lianjie",
+      "name": "连捷",
+      "text": "你使用手牌指定目标后，若此牌点数小于等于你其他手牌，则你可以将一名角色手牌中点数最小的一张牌放置于牌堆底（每回合每名角色限放置一次）。若如此做，你将手牌摸至体力上限，以此法摸的牌本回合无距离和次数限制。"
+    },
+    {
+      "id": "wumiao:jiangxian",
+      "name": "将贤",
+      "text": "限定技，出牌阶段，你可以令本回合使用因“连捷”摸的牌造成伤害时，此伤害+X（X为你本回合造成伤害的次数且至多为5）。若如此做，回合结束后失去“连捷”或“朝镇”。"
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123301.png",
+    "asset": "src/CardGame.Wpf/Assets/official-wumiao-huangfu-song.png",
+    "sha256": "07ac62260247db4882681951b86bd6ca9f08efc1c69ed40365fdf80b63e83e36",
+    "width": 574,
+    "height": 761,
+    "origin": "The official hero page's classic portrait; downloaded and visually inspected by the integrating agent."
+  },
+  "engineeringContracts": [
+    "These details consistently instantiate the complete official text; they are engineering interpretations, not claimed official FAQs or user-selected rulings.",
+    "Chaozhen's field is living characters' public equipment and judgment zones. Its printed positive-rank minimum is taken over their union with the draw pile. Hidden hands, private piles, Processing and discard are excluded. Public equal minima are selectable; equal minimum deck cards use the topmost matching entity without exposing its face or deck position in the chooser's card list.",
+    "Chaozhen obtains an actual entity rather than reporting a native draw. Only an actually obtained Ace disables the skill for this whole actual turn and then requests native Recover1. The disable is issued before movement children; native recovery, replacement, HP change and Dying return normally.",
+    "Lianjie uses a true Use's native effective rank and actual actor/provider/material invoice. One or more real materials all paid from that actor's own Hand qualify as using Hand cards. Zero material and foreign provision do not. Native no-point appearances have rank zero; native Zhangba retains its existing rank-sum contract.",
+    "At targets-finalized, compare the frozen Use rank against all current remaining Hand cards' effective ranks, including cards acquired in cost children. Used materials are excluded. An empty remaining Hand satisfies the universal comparison. The victim may be self. Each owner/victim pair can actually bottom one minimum Hand entity per whole actual turn; source loss and regrant do not reset this history.",
+    "Bottoming is a genuine concealed Hand-to-draw-pile movement, followed by placing that exact entity at the real bottom. Ties use native owned-card choices with hidden foreign hand slots. All movement children precede drawing up to current max HP.",
+    "Only NativeDrawOutcome.ActualDrawIds receive Lianjie entity permission. Replacement obtains do not. The permission is signed in the native return callback before CardsGained children can immediately use a drawn entity. It follows each entity for the remainder of the actual turn, survives loss of the original source and expires at ActualTurnCursorReturned, not raw TurnEnded.",
+    "A permitted Use must have at least one real material and all of its actual materials issued to this actor by Lianjie this turn, with the actor also the native provider. Multiple-material conversions follow the same all-material rule. Distance and ordinary use-count limits are bypassed through existing native queries; ordinary target prohibitions and other card legality remain in force, and a permitted Slash does not spend the ordinary Slash quota.",
+    "Jiangxian's game-limited activation arms this actual turn. Positive native damage already caused by this owner in that turn is counted before the new attempt, capped at five; HP Loss is not damage. The bonus applies to an issued all-material Lianjie Use with that actor as the source. Native elemental propagation carries the already-finalized amount without adding this same bonus a second time.",
+    "After raw TurnEnded, Jiangxian's paid obligation privately chooses one still-owned named Lianjie or Chaozhen and removes all its currently enabled grants. This owed settlement survives loss of the Jiangxian source itself. Native terminal/death cutoff remains authoritative. Game-limited usage is not refreshed by regrant.",
+    "Pending choices, movement boundaries, native draw outcomes and recovery continuations remain on the owning ProgramSkillFrame; admitted Use material/rank facts remain on the owning CardUseFrame. New event payloads are scalar."
+  ],
+  "validation": {
+    "status": "passed",
+    "focusedCoreChecks": 11,
+    "focusedWpfChecks": 1,
+    "routineCoreChecks": 246,
+    "routineWpfChecks": 39,
+    "routineDurationMs": 71490,
+    "manualFullRun": false,
+    "portraitAndFullSkillTextViewed": true
+  }
+}

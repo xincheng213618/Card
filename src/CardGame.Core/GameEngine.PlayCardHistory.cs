@@ -133,7 +133,7 @@ public sealed partial class GameEngine
                         AddProgramTargetCountSlashActions(actions, actor, usedCard, targets, name, kind, source);
                     }
                     else if (kind == CardKind.Peach && IsRuleWounded(actor) ||
-                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (HasWuLuKangDixianMaterialPrivilege(actor, kind, [card.Id], source) || SiruiIgnoresAlcoholLimit(actor, source) || !actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
+                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (HasWuHfOrDixianMaterialPrivilege(actor, kind, [card.Id], source) || SiruiIgnoresAlcoholLimit(actor, source) || !actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
                         actions.Add(new LegalAction(kind == CardKind.Peach ? LegalActionKind.Peach : LegalActionKind.Alcohol,
                             card.Id, kind == CardKind.Peach ? actor.Seat : null,
                             DescribeConversion(source, $"将【{card.DisplayName}】当作【{name}】使用"),

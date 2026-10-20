@@ -69,11 +69,11 @@ public sealed partial class GameEngine
                         $"program:{c.SkillId}:{c.BindingId}:{c.SkillInstanceId}", c, facts));
             }).OrderBy(i => (i.Candidate!.OwnerSeat - parent.OwnerSeat + _players.Count) % _players.Count)
                 .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal).ToArray();
-            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items)))) });
+            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items))))) });
         }
         if (parent.AfterTurnEnded.CurrentChild is null)
         {
-            var withLateXiangxu = IncludeXiangxuAfterTurnEndedItems(parent, parent.AfterTurnEnded.Items);
+            var withLateXiangxu = IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, parent.AfterTurnEnded.Items));
             if (!ReferenceEquals(withLateXiangxu, parent.AfterTurnEnded.Items))
                 ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = parent.AfterTurnEnded with { Items = withLateXiangxu } });
         }

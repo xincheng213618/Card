@@ -6665,7 +6665,7 @@ public sealed partial class GameEngine
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (HasWuyouMaterialPrivilege(weaponOwner, kind, physicalCardIds) || physicalCardIds is null && allowAnyPhysicalSuit && HasPublicWuyouContributionPotential(weaponOwner) || HasSiruiSlashDistance(weaponOwner,kind,physicalCardIds,conversionSource) || IsWithinSpecificSlashRange(weaponOwner,target,kind,effectiveRank) || HasRoundGainedBasicBonus(weaponOwner, kind, physicalCardIds ?? []) ||
+              (HasWuHfOrWuyouMaterialPrivilege(weaponOwner, kind, physicalCardIds) || physicalCardIds is null && allowAnyPhysicalSuit && HasPublicWuyouContributionPotential(weaponOwner) || HasSiruiSlashDistance(weaponOwner,kind,physicalCardIds,conversionSource) || IsWithinSpecificSlashRange(weaponOwner,target,kind,effectiveRank) || HasRoundGainedBasicBonus(weaponOwner, kind, physicalCardIds ?? []) ||
                physicalCardIds is null && allowAnyPhysicalSuit && HasPotentialRoundGainedBasicMaterials(weaponOwner, kind) ||
                (HasProvenanceUseDistance(weaponOwner, physicalCardIds) || HasGrantedPhaseEntityDistance(weaponOwner, physicalCardIds)) || allowAnyPhysicalSuit && (HasPotentialProvenanceSlash(weaponOwner) || HasPotentialGrantedPhaseSlash(weaponOwner)) || HasSlashUseDistanceBySuit(weaponOwner,kind,physicalSuit) || allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasSlashUseDistanceBySuit(weaponOwner,kind,EffectiveSuit(weaponOwner,c))) || HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
                allowAnyPhysicalSuit && HasPotentialRankSlashRange(weaponOwner,target,kind)) &&
@@ -6688,7 +6688,7 @@ public sealed partial class GameEngine
             {
                 var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
-                        (HasWuyouMaterialPrivilege(weaponOwner, variant.EffectiveKind, [card.Id]) || IsSiruiPhysicalSlashKind(weaponOwner,card,variant.EffectiveKind) || HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
+                        (HasWuHfOrWuyouMaterialPrivilege(weaponOwner, variant.EffectiveKind, [card.Id]) || IsSiruiPhysicalSlashKind(weaponOwner,card,variant.EffectiveKind) || HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6919,7 +6919,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(HasWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(HasWuHfOrWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -7186,7 +7186,7 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         var countedTowardSlashLimit =
-            !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedWuLuKangDixianUse(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedSiruiUse(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !HasIssuedDongxinEntitySlashQuota(resolutionId, source.Seat) && !HasIssuedMouZhaJiangUse(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) && _phase == TurnPhase.Play && source.Seat == _currentSeat;
+            !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasWuHfOrDixianIssuedUse(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedSiruiUse(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !HasIssuedDongxinEntitySlashQuota(resolutionId, source.Seat) && !HasIssuedMouZhaJiangUse(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) && _phase == TurnPhase.Play && source.Seat == _currentSeat;
         if (countedTowardSlashLimit)
         {
             RecordSlashUseDebit(resolutionId, source.Seat);
@@ -7421,7 +7421,7 @@ public sealed partial class GameEngine
         CompleteZhangYanSujiPayment(resolutionId);
         CompleteWuJingHejiPayment(resolutionId);
         CompleteSelectedForeignCardSlashPayment(resolutionId);
-        var countedTowardSlashLimit = countsTowardSlashLimit && !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasIssuedWuLuKangDixianUse(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedSiruiUse(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !HasIssuedDongxinEntitySlashQuota(resolutionId, source.Seat) && !HasIssuedMouZhaJiangUse(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) &&
+        var countedTowardSlashLimit = countsTowardSlashLimit && !(LifecycleCardUse(resolutionId)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(resolutionId, source.Seat) && !HasWuHfOrDixianIssuedUse(resolutionId, source.Seat) && !HasIssuedRoundGainedBasicBonus(resolutionId, source.Seat) && !HasIssuedHuiyunFollowup(resolutionId, source.Seat) && !HasIssuedSiruiUse(resolutionId, source.Seat) && !HasIssuedChanshuangSlash(resolutionId, source.Seat) && !HasIssuedDongxinEntitySlashQuota(resolutionId, source.Seat) && !HasIssuedMouZhaJiangUse(resolutionId, source.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(source, conversionSource) &&
                                      _phase == TurnPhase.Play && source.Seat == _currentSeat;
         if (countedTowardSlashLimit)
         {
@@ -7523,6 +7523,7 @@ public sealed partial class GameEngine
         if (PrepareProgramSlashTargets(attack)) return;
         if (TryBeginAcceptedSlashActorHandLimitTargetPrograms(attack)) return;
         if (TryBeginMouLiuChengLateSlashTargets(attack)) return;
+        if (TryBeginMouYuanShaoLateSlashTarget(attack)) return;
         ContinueSlashAfterFinalizedTargets(attack);
     }
 
@@ -14652,7 +14653,7 @@ public sealed partial class GameEngine
         target.IsAlive &&
         target.Seat != source.Seat &&
         (ignoreDistance || existingUseFrameId is { } siruiUseId && HasIssuedSiruiUse(siruiUseId, source.Seat) || HasSunHaoCanshiIssuedDistance(existingUseFrameId, source.Seat, target.Seat) || HasIssuedWuJingHejiDistance(existingUseFrameId, source.Seat) || existingUseFrameId is not null && HasWeifuUseDistance(source, effectiveKind, existingUseFrameId) || HasIssuedFuRongDistance(existingUseFrameId, source.Seat) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || IsQigongIssuedDistance(existingUseFrameId, source.Seat) || HasIssuedNonBasicSlashDistance(existingUseFrameId) || existingUseFrameId is { } roundUseId && HasIssuedRoundGainedBasicBonus(roundUseId, source.Seat) ||
-         HasWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : []), existingUseFrameId) ||
+         HasWuHfOrWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : []), existingUseFrameId) ||
          existingUseFrameId is null && HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || HasIssuedSelectedForeignCardSlashDistance(existingUseFrameId, source.Seat) || HasIssuedKuangfuDistance(existingUseFrameId, source.Seat) || HasIssuedJudgedRankSlashDistance(existingUseFrameId, source.Seat) || (HasIssuedProvenanceUseDistance(existingUseFrameId, source.Seat) || HasIssuedGrantedPhaseEntityDistance(existingUseFrameId, source.Seat)) || (HasProvenanceUseDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : [])) || HasGrantedPhaseEntityDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : []))) || HasSlashUseDistanceBySuit(source,effectiveKind,EffectiveSuit(source,slashCard)) || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind, existingUseFrameId) ||
          GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedDistance(source, slashCard, existingUseFrameId) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
@@ -14685,7 +14686,7 @@ public sealed partial class GameEngine
         target.IsAlive &&
         target.Seat != source.Seat &&
         CanSpendSlashUse(source, target, ignoresCount: !countsTowardLimit || HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) &&
-        (ignoreDistance || HasWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds) || GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedAvailable(source, physicalSuit) || HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? []) || (HasProvenanceUseDistance(source, physicalCardIds) || HasGrantedPhaseEntityDistance(source, physicalCardIds)) || HasSlashUseDistanceBySuit(source,effectiveKind,physicalSuit) || HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (ignoreDistance || HasWuHfOrWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds) || GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedAvailable(source, physicalSuit) || HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? []) || (HasProvenanceUseDistance(source, physicalCardIds) || HasGrantedPhaseEntityDistance(source, physicalCardIds)) || HasSlashUseDistanceBySuit(source,effectiveKind,physicalSuit) || HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
          IgnoresSlashUseDistance(source) ||
          IsWithinSpecificSlashRange(source, target, effectiveKind, effectiveRank)) &&
         !IsSlashProhibited(target);
@@ -14799,7 +14800,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuLuKangDixianGrant(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -15198,7 +15199,7 @@ public sealed partial class GameEngine
         foreach (var supplyShortage in playableCards.Where(card => card.Kind == CardKind.SupplyShortage))
         {
             var ignoresDistance = HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
-                CardKind.SupplyShortage) || HasFuRongDiscardDistance(actor, CardKind.SupplyShortage, [supplyShortage.Id]) || HasProvenanceUseDistance(actor, supplyShortage) || HasWuLuKangDixianMaterialPrivilege(actor, CardKind.SupplyShortage, [supplyShortage.Id]);
+                CardKind.SupplyShortage) || HasFuRongDiscardDistance(actor, CardKind.SupplyShortage, [supplyShortage.Id]) || HasProvenanceUseDistance(actor, supplyShortage) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.SupplyShortage, [supplyShortage.Id]);
             var distanceLimit = GetCardUseDistanceLimit(actor, CardKind.SupplyShortage);
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
@@ -15238,7 +15239,7 @@ public sealed partial class GameEngine
                                  player.Seat != actor.Seat &&
                                  !player.JudgmentAreaAbolished &&
                                  (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage, excludedEquipmentId: converted.Id) ||
-                                  HasWuLuKangDixianMaterialPrivilege(actor, CardKind.SupplyShortage, [converted.Id], conversionSource) ||
+                                  HasWuHfOrDixianMaterialPrivilege(actor, CardKind.SupplyShortage, [converted.Id], conversionSource) ||
                                   HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
                                       CardKind.SupplyShortage) || HasProvenanceUseDistance(actor, converted) ||
                                   GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit) &&
@@ -15309,7 +15310,7 @@ public sealed partial class GameEngine
         if (actor.HasHpValue && (!actor.HasAlcoholEffect || IsFuRongDiscardQuery(actor, selectedPhysicalCardId)))
         {
             foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol &&
-                         (HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || IsFuRongDiscardQuery(actor, card.Id) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+                         (HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || IsFuRongDiscardQuery(actor, card.Id) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                           HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]))))
             {
                 actions.Add(new LegalAction(
@@ -15320,9 +15321,9 @@ public sealed partial class GameEngine
             }
             foreach (var card in playableCards.Concat(GetEquipment(actor)).DistinctBy(card => card.Id)
                          .Where(IncludesPhysicalCard)
-                         .Where(card => HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+                         .Where(card => HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                              HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
-                foreach (var conversion in GetProgramViewAsConversions(actor, card, CardKind.Alcohol, forResponse: false).Where(conversion => CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]) || HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion)))
+                foreach (var conversion in GetProgramViewAsConversions(actor, card, CardKind.Alcohol, forResponse: false).Where(conversion => CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion)))
                     actions.Add(new LegalAction(LegalActionKind.Alcohol, card.Id, null,
                         DescribeConversion(conversion, $"将【{card.DisplayName}】当作【酒】使用"),
                         PlayedCardKind: CardKind.Alcohol)
@@ -15390,7 +15391,7 @@ public sealed partial class GameEngine
         foreach (var snatch in playableCards.Where(card => card.Kind == CardKind.Snatch))
         {
             var ignoresDistance = HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
-                CardKind.Snatch) || HasFuRongDiscardDistance(actor, CardKind.Snatch, [snatch.Id]) || HasProvenanceUseDistance(actor, snatch) || HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Snatch, [snatch.Id]);
+                CardKind.Snatch) || HasFuRongDiscardDistance(actor, CardKind.Snatch, [snatch.Id]) || HasProvenanceUseDistance(actor, snatch) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Snatch, [snatch.Id]);
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
@@ -15428,7 +15429,7 @@ public sealed partial class GameEngine
                                  player.IsAlive &&
                                  player.Seat != actor.Seat &&
                                  (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.Snatch, excludedEquipmentId: converted.Id) ||
-                                  HasWuLuKangDixianMaterialPrivilege(actor, CardKind.Snatch, [converted.Id], conversionSource) ||
+                                  HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Snatch, [converted.Id], conversionSource) ||
                                   ignoresDistance ||
                                   GetCombatDistance(actor.Seat, player.Seat) == 1) &&
                                  !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.Snatch) &&
@@ -16062,6 +16063,7 @@ public sealed partial class GameEngine
             .Concat(GetCurrentTurnHeartSlashBonuses(attack))
             .Concat(GetShownEntityUseDamageBenefits(attack))
             .Concat(GetArmedGameDamageBonuses(attack))
+            .Concat(WuHfDamageBonuses(attack))
             .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + XionghuoActualDamageBonus(attack) + FirstSlashDuelDamage(attack) + FinalTargetSlashDamage(attack) + RecordedSuitSlashDamage(attack) + FrozenNextSlashDamage(attack) + MoQuanyuDamageBonus(attack) + CaoYingDamage(attack) + AdoptedChildSlashDamage(attack) + ZhangYiKangruiDamageBonus(attack) + ChengGongYingKuangxiangDamageBonus(attack) + DuFuRenYiseDamageBonus(attack) + YintianDamageBonus(attack) + ZhangYanLangdaoDamageBonus(attack) + FulueDamageBonus(attack) +
             ZhuJunCuipoDamageBonus(attack) + WuTuGuHanyongDamageBonus(attack) + SunHaoChouhaiDamageBonus(attack) + FengweiDamageBonus(attack) + (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0) +
@@ -16948,7 +16950,7 @@ public sealed partial class GameEngine
         if (TryCompleteWenheSurvival()) return;
         if (TryCompleteGuanduBattle()) return;
         if (TryCompleteDragonBoatRace()) return;
-        if (HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasMouXiahouShiCapability || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        if (HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuHuangFuSongCapability || HasMouXiahouShiCapability || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -17558,9 +17560,9 @@ public sealed partial class GameEngine
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != owner.Seat &&
               (CanSpendSlashUse(owner, target, ignoresCount: false, kind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) ||
-               allowAnyPhysicalSuit && effectiveRank is null && (HasPotentialJudgedRankSlashQuota(owner.Seat, kind) || HasWuLuKangDixianGrant(owner.Seat)) ||
+               allowAnyPhysicalSuit && effectiveRank is null && (HasPotentialJudgedRankSlashQuota(owner.Seat, kind) || HasWuHfOrDixianPotential(owner.Seat)) ||
                allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind)) &&
-              (HasWuyouMaterialPrivilege(owner, kind, physicalCardIds) || allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind) || HasRoundGainedBasicBonus(owner, kind, physicalCardIds ?? []) || HasSlashUseDistanceBySuit(owner,kind,physicalSuit) || allowAnyPhysicalSuit && HasSlashUseDistanceBySuit(owner,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
+              (HasWuHfOrWuyouMaterialPrivilege(owner, kind, physicalCardIds) || allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind) || HasRoundGainedBasicBonus(owner, kind, physicalCardIds ?? []) || HasSlashUseDistanceBySuit(owner,kind,physicalSuit) || allowAnyPhysicalSuit && HasSlashUseDistanceBySuit(owner,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
                IgnoresSlashUseDistance(owner) ||
                IsWithinSpecificSlashRange(owner,target,kind,effectiveRank) || allowAnyPhysicalSuit && HasPotentialRankSlashRange(owner,target,kind)) &&
               !IsSlashProhibited(target)
@@ -20594,6 +20596,7 @@ public sealed partial class GameEngine
             existing = existing is null ? "檀板" : existing + " / 檀板";
         if (HasXianEntityMark(cardId))
             existing = existing is null ? "弦" : existing + " / 弦";
+        if (WuHfEntityMark(cardId) is { } lianjieLabel) existing = existing is null ? lianjieLabel : existing + " / " + lianjieLabel;
         if (FulePublicLabel(cardId) is { } fuLabel)
             existing = existing is null ? fuLabel : existing + " / " + fuLabel;
         if (IsDiouCarrier(cardId))

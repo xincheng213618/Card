@@ -1,0 +1,114 @@
+{
+  "generalId": "mou:zhen-ji-mobile",
+  "characterId": "character:zhen-ji",
+  "name": "谋甄姬·移动版",
+  "variantId": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "checkedAt": "2026-10-20",
+  "officialIdentity": {
+    "apiId": 501,
+    "generalId": 663,
+    "factionId": "wei",
+    "gender": "Female",
+    "baseHp": 3
+  },
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-501.html",
+      "role": "Current identity and both complete skills, freshly fetched successfully",
+      "sha256": "3F4E459AB258EA37A5C5647FC6DD10228514DFFF101FF57AF41DF1CC322BF445"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Current official API entry id501/general663, both complete skills and Wei/female/3HP",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1486.html",
+      "role": "Formal launch announcement, published March31 for April1 activities",
+      "sha256": "8BC953898457E1EBB88B89BCD78B6A8B93B9FC1A894463FB45C7AA60085E3D27"
+    }
+  ],
+  "formalLaunch": {
+    "publishedAt": "2023-03-31 17:30:00",
+    "availableFrom": "2023-04-01"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:luoshen",
+      "name": "洛神",
+      "officialText": "准备阶段,你可以选择一名角色，自其开始×名不同的其他角色依次展示一张手牌（×为场上存活人数的一半，向上取整），若为黑色，你获得之，且此牌本回合不计入手牌上限。若为红色，其弃置之。",
+      "displayNormalization": "The official multiplication glyph used for the variable is rendered as X; gameplay is unchanged."
+    },
+    {
+      "id": "mou-mobile:qingguo",
+      "name": "倾国",
+      "officialText": "你可以将一张黑色手牌当【闪】使用或打出。"
+    }
+  ],
+  "versionSelection": {
+    "currentHeroAndAPIAgree": true,
+    "selected": "Current mobile sequential hand-reveal Luoshen and black-hand Dodge Qingguo.",
+    "doNotSubstitute": "Classic and boundary repeated black judgments are separate variants. Classic Luoshen wording corrections do not replace this mobile version.",
+    "boundedRevisionSearch": "Official-domain Mou Zhen Ji Luoshen/revision searches plus the current hero/API and formal launch found no applicable conflicting formal revision. This is not an exhaustive absence claim.",
+    "officialFAQConfirmed": false,
+    "communityUsedAsAuthority": false
+  },
+  "art": {
+    "officialPageURL": "https://www.sanguosha.cn/pc/hero-detail-501.html",
+    "officialAPIImageURL": "https://www.sanguosha.cn/storage/uploads/images/pic/663.jpg",
+    "officialFullPortraitURL": "https://www.sanguosha.cn/storage/uploads/images/66300.png",
+    "repositoryPath": "src/CardGame.Wpf/Assets/official-mou-zhen-ji-mobile.png",
+    "sha256": "6A46EE68521BA09B4CADDFA6A2B2AB7198A86E651748F72E2CB23E5C903DA6BA",
+    "width": 529,
+    "height": 749,
+    "inspection": "The integrating root separately verified the current official DOM and visually inspected the full original portrait."
+  },
+  "engineeringDecisions": [
+    {
+      "id": "seated-route",
+      "status": "accepted-project-interpretation",
+      "officialFAQ": false,
+      "decision": "Choose any living starting character, including self. Walk increasing seat order cyclically from that seat, skip the owner, and freeze ceil(living/2) distinct living others when the start is accepted. Empty hands and later deaths consume their frozen positions and are skipped without replacement."
+    },
+    {
+      "id": "participant-reveal",
+      "status": "accepted-project-interpretation",
+      "officialFAQ": false,
+      "decision": "Each participant privately chooses one actual Hand card and publicly shows it before the consequence. Freeze its effective suit/color at revelation. Black is really obtained; the participant executes its red discard at the skill owner's initiation. Respect native discard prohibitions without substituting another card."
+    },
+    {
+      "id": "accepted-continuation",
+      "status": "accepted-project-interpretation",
+      "officialFAQ": false,
+      "decision": "After accepting the seated route, source loss does not revoke it. Finish issued movement and its children before proceeding. Owner death or terminal victory stops future participant operations. Never retrieve a revealed entity that has left its actual Hand source."
+    },
+    {
+      "id": "entity-exemption",
+      "status": "existing-shared-mechanism",
+      "officialFAQ": false,
+      "decision": "Only black entities actually received into the owner's Hand receive the shared exact-card actual-turn hand-limit exemption. Reuse its native store and expiry. The legacy judgment-origin slot is 0 because this is a reveal/gain; no judgment frame or judgment event is fabricated."
+    }
+  ],
+  "implementation": {
+    "operation": "ResolveMouZhenJiLuoshen",
+    "pendingOwner": "ProgramSkillFrame.MouZhenJiLuoshen",
+    "collections": "Defensively copy the seat route on its owning receipt. New events are scalar. Native ProgramCardsRevealedEvent provides the existing frozen public card payload.",
+    "qingguoReuse": "Existing Spade/Club Hand-as-Dodge viewAs with forResponse=true covers native use and played responses.",
+    "schemaOrPackageVersionRaised": false
+  },
+  "verification": {
+    "status": "passed",
+    "focusedFilter": "Mou Zhen Ji Mobile: seated reveal color movement hand limit cold",
+    "newCoverage": "Frozen seat order, true black obtain/red discard, representative restore in a native gain child, exact obtained entity beyond the ordinary native discard hand limit.",
+    "reuseCoverage": "Existing conversion and response checks cover Qingguo; no duplicate privacy, shape or replay matrix.",
+    "focusedCoreChecks": 11,
+    "focusedWpfChecks": 1,
+    "routineCoreChecks": 246,
+    "routineWpfChecks": 39,
+    "routineDurationMs": 71490,
+    "manualFullRun": false,
+    "portraitAndFullSkillTextViewed": true
+  },
+  "status": "implemented-and-verified"
+}

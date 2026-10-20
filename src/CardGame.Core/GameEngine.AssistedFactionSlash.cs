@@ -147,7 +147,7 @@ public sealed partial class GameEngine
 
     private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true, IReadOnlyList<int>? physicalCardIds = null) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
-        (HasWuyouMaterialPrivilege(_players[actorSeat], kind, physicalCardIds) ||
+        (HasWuHfOrWuyouMaterialPrivilege(_players[actorSeat], kind, physicalCardIds) ||
          allowPotentialRank && physicalCardIds is null && HasPotentialWuyouFactionSlash(_players[actorSeat], kind) ||
          (HasQigongFactionDistance(actorSeat, targetSeat) || HasWuJingFactionDistance(actorSeat, targetSeat) ? true : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == fixedFrameId) is { FixedTargetSlash: { } fixedDraft } fixedFrame &&

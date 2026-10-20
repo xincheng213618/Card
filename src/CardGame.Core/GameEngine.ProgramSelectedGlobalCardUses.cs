@@ -11,7 +11,7 @@ public sealed partial class GameEngine
             !HasExactNextActualUseProgramSelection(active, ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)) ||
             selection.OutputKind != CardKind.ArrowBarrage ||
             selection.Cards.Count != 2 ||
-            selection.Cards[0].Suit != selection.Cards[1].Suit ||
+            ViewAsRule(selection.Source) is { SameSuit: true } && selection.Cards[0].Suit != selection.Cards[1].Suit ||
             !CanUseGlobalCard(owner, CardKind.ArrowBarrage) ||
             !selection.Cards.All(card => GetHand(owner).Any(held => held.Id == card.Id)))
             throw new InvalidOperationException(
@@ -20,10 +20,8 @@ public sealed partial class GameEngine
         var targets = Enumerable.Range(1, _playerCount - 1)
             .Select(offset => _players[(owner.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive &&
-                // The two cards share one suit, so the virtual Arrow Barrage
-                // carries that suit into suit-based target shields.
-                !IsCardTargetProhibited(player, CardKind.ArrowBarrage, selection.Cards[0].Suit, PhysicalGroupColor(owner, selection.Cards)) &&
-                !HasBeneficiarySuitShield(owner.Seat, player.Seat, EffectiveSuit(owner, selection.Cards[0])))
+                !IsCardTargetProhibited(player, CardKind.ArrowBarrage, PhysicalGroupSuit(owner, selection.Cards), PhysicalGroupColor(owner, selection.Cards)) &&
+                !HasBeneficiarySuitShield(owner.Seat, player.Seat, PhysicalGroupSuit(owner, selection.Cards)))
             .Select(player => player.Seat)
             .ToArray();
         var adjusted = ApplyNextActualUseGlobalRemoval(active, targets, out var changedTargets);

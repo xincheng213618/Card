@@ -2199,6 +2199,7 @@ public sealed partial class GameEngine
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
         if (IsIssuedXiangxuEndingCandidate(candidate, context)) return true;
+        if (IsIssuedWuHfEnding(candidate, context)) return true;
         if (IsIssuedRuanYuXingzuoEndingCandidate(candidate, context)) return true;
         if (IsIssuedRuanYuMiaoxianRedCandidate(candidate, context)) return true;
         if (IsIssuedNishouCandidate(candidate, context)) return true;
