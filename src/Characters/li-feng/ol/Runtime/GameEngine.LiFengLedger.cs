@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string JiyunInitialReason = "skill-program.li-feng.jiyun.initial", JiyunDrawReason = "skill-program.li-feng.jiyun.draw", JiyunCollectReason = "skill-program.li-feng.jiyun.collect", ShuliangGiftReason = "skill-program.li-feng.shuliang.gift";
     private bool HasLiFengCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeJiyunCategoryGrain) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectJiyunCompletedUseEntities) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DistributeShuliangEndingGrain);
-    private static CardConversionSource LiFengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource LiFengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_feng_ol_LiFengLedger.LiFengSource(f);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 27591)]
     private bool CanOfferLiFeng(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {

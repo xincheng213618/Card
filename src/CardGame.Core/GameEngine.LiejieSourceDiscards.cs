@@ -26,7 +26,8 @@ public sealed record LiejieDiscardPendingState(int SourceSeat, int MaximumCount)
 public sealed partial class GameEngine
 {
     private long LiejieMoveSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static string LiejieDiscardReason(ProgramSkillFrame frame) => $"skill-program.{frame.SkillId}.liejie-discard";
+    private static string LiejieDiscardReason(ProgramSkillFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LiejieSourceDiscards.LiejieDiscardReason(frame);
 
     private bool IsLiejieDiscardDestination(CardMovementRecord movement) =>
         movement.To == CardLocation.DiscardPile || movement.From.Zone == CardZoneKind.Equipment &&

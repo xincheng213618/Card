@@ -7,8 +7,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string EquipmentSlotNamedTier = "equipment-slot-named-tier";
-    private static string EquipmentSlotNamedLabel(EquipmentSlot slot) => slot switch
-    { EquipmentSlot.Weapon => "武器", EquipmentSlot.Armor => "防具", EquipmentSlot.OffensiveHorse => "进攻坐骑", EquipmentSlot.DefensiveHorse => "防御坐骑", _ => "宝物" };
+    private static string EquipmentSlotNamedLabel(EquipmentSlot slot) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wo_long_feng_chu_ol_WoLongFengChuUses.EquipmentSlotNamedLabel(slot);
     private bool IsEquipmentSlotNamedSkill(string skill) => _contentRegistry.Skills.GetValueOrDefault(skill)?.Program?.Activations
         .Any(a => ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.PayEquipmentSlotForNamedUse)) == true;
     private EquipmentSlotNamedUsePayment? UnconsumedEquipmentSlotPayment(CardConversionSource source) => CompleteProgramEventHistory()
@@ -95,10 +95,10 @@ public sealed partial class GameEngine
         BeginEquipmentSlotNamedUse(actor, source, kind, qinglong ? EquipmentSlotNamedUseIntent.Qinglong : EquipmentSlotNamedUseIntent.BorrowedSword,
             _pendingDecision!, null, choice); return true;
     }
-    private static string EquipmentSlotNamedTargetSignature(LegalAction? action, PromptChoice? choice) => Convert.ToHexString(SHA256.HashData(
-        Encoding.UTF8.GetBytes(string.Join(',', action?.TargetSeats ?? choice?.Targets ?? []) + ":" + action?.TargetCardId)));
-    private static string EquipmentSlotNamedDecisionSignature(PendingDecision decision) => Convert.ToHexString(SHA256.HashData(
-        Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(decision))));
+    private static string EquipmentSlotNamedTargetSignature(LegalAction? action, PromptChoice? choice) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wo_long_feng_chu_ol_WoLongFengChuUses.EquipmentSlotNamedTargetSignature(action,choice);
+    private static string EquipmentSlotNamedDecisionSignature(PendingDecision decision) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wo_long_feng_chu_ol_WoLongFengChuUses.EquipmentSlotNamedDecisionSignature(decision);
     private bool EquipmentSlotNamedChoiceIsPayable(CharacterState actor, CardConversionSource source, CardKind kind,
         EquipmentSlotNamedUseIntent intent, IReadOnlyList<int> targets, EquipmentSlot slot)
     {

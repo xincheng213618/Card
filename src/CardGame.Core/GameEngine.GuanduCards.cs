@@ -6,14 +6,8 @@ public sealed partial class GameEngine
         { CardKind.StoreGrain, CardKind.Reinforcements, CardKind.UnitedEffort });
     private static bool IsGuanduCard(CardKind kind) => kind == CardKind.Intoxication || IsGuanduTrick(kind);
     private static bool IsGuanduTrick(CardKind kind) => GuanduOrdinaryTrickKinds.Contains(kind);
-    private static LegalActionKind GuanduCardAction(CardKind kind) => kind switch
-    {
-        CardKind.Intoxication => LegalActionKind.Intoxication,
-        CardKind.StoreGrain => LegalActionKind.StoreGrain,
-        CardKind.Reinforcements => LegalActionKind.Reinforcements,
-        CardKind.UnitedEffort => LegalActionKind.UnitedEffort,
-        _ => throw new InvalidOperationException("This is not a Guandu card.")
-    };
+    private static LegalActionKind GuanduCardAction(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduCards.GuanduCardAction(kind);
     private bool GuanduIntoxicationTargetSpent(int target) => ProgramEventHistory<GuanduIntoxicationCommittedEvent>()
         .Any(e => e.ActualTurnNumber == _turnNumber && e.TargetSeat == target);
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 220)]

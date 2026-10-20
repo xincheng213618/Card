@@ -127,8 +127,8 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
-    private static bool SameNameHandChoicesEqual(PromptChoice a, PromptChoice b) => a.Id == b.Id && a.Cards.SequenceEqual(b.Cards) &&
-        a.Targets.SequenceEqual(b.Targets) && a.Parameters.OrderBy(p => p.Key).SequenceEqual(b.Parameters.OrderBy(p => p.Key));
+    private static bool SameNameHandChoicesEqual(PromptChoice a, PromptChoice b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SameNameHandDiscardOrDamage.SameNameHandChoicesEqual(a,b);
     [ProgramContinuation(ProgramContinuationKind.Resume, 170)]
     private bool ResumeSameNameHandDiscardOrDamage(long id)
     {

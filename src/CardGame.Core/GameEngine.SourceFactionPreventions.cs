@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string SourceFactionPreventionUsage(string stateId, string faction) => $"source-faction:{stateId}:{faction}";
+    private static string SourceFactionPreventionUsage(string stateId, string faction) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SourceFactionPreventions.SourceFactionPreventionUsage(stateId,faction);
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 60)]
     private bool CanRunSourceFactionPrevention(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
@@ -74,7 +75,8 @@ public sealed partial class GameEngine
             e.Source == new CardConversionSource(root.SkillId, GetProgramBindingId(root), root.OwnerSeat, root.SkillInstanceId));
     }
 
-    private static bool IsSourceFactionYieldTransfer(SkillProgramEffect effect) => TurnDrawDebtComposition.IsSourceFactionYieldTransfer(effect);
+    private static bool IsSourceFactionYieldTransfer(SkillProgramEffect effect) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SourceFactionPreventions.IsSourceFactionYieldTransfer(effect);
 
     private ProgramSkillFrame? SourceFactionYieldObserverRoot(long beforeDamageId)
     {

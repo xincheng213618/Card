@@ -7,7 +7,8 @@ public sealed partial class GameEngine
 
 
     private const string QirangGainReason="skill-program.qirang.deck-trick";
-    private static CardConversionSource ZhugeGuoSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource ZhugeGuoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_guo_ol_ZhugeGuoPrograms.ZhugeGuoSource(f);
     private bool TryQirangEquipmentParent(int owner,ProgramSkillWindowContext context,out CardUseFrame use)
     {
         use=null!;

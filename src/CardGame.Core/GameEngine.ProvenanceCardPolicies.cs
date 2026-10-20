@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool IsProvenanceOwnedZone(CardLocation location,int owner)=>location.OwnerSeat==owner && location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
+    private static bool IsProvenanceOwnedZone(CardLocation location,int owner) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProvenanceCardPolicies.IsProvenanceOwnedZone(location,owner);
     partial void TryFreezeProvenanceCounterspellSource(CharacterState owner,IReadOnlyList<int> physicalCardIds,ref CardConversionSource? source) => source=FreezeProvenanceCounterspellSource(owner,physicalCardIds);
     private CardConversionSource? FreezeProvenanceCounterspellSource(CharacterState owner,IReadOnlyList<int> ids)=>FreezeProvenanceCardSource(owner,ids);
     private bool HasProvenanceCounterspellMaterials(CharacterState owner,IReadOnlyList<int> validIds)=>validIds.Any(id=>FreezeProvenanceCardSource(owner,[id]) is not null);

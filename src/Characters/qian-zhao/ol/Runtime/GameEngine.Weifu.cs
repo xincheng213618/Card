@@ -2,9 +2,10 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string WeifuDiscardReason = "skill-program.qian-zhao.weifu.discard", WeifuDrawReason = "skill-program.qian-zhao.weifu.draw";
+    private const string WeifuDiscardReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.WeifuDiscardReason, WeifuDrawReason = "skill-program.qian-zhao.weifu.draw";
     private const string WeifuJudgmentReason = "weifu", WeifuJudgmentBind = "weifu-final-result";
-    private static CardConversionSource QianZhaoSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource QianZhaoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qian_zhao_ol_Weifu.QianZhaoSource(f);
     private SkillProgramStepOutcome BeginWeifu(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);

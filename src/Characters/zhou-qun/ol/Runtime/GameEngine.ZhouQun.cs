@@ -4,8 +4,10 @@ public sealed partial class GameEngine
 {
     private const string ChenshuoRevealReason = "skill-program.zhou-qun.chenshuo.reveal", ChenshuoGainReason = "skill-program.zhou-qun.chenshuo.gain", TianhouExchangeReason = "skill-program.zhou-qun.tianhou.exchange", ZhouQunCleanupReason = "skill-program.zhou-qun.cleanup";
     private bool HasZhouQunCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveChenshuoRepeatedReveal) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLieshuEndingLoss) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZhouyuThunderNeighbors) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYanshuangEndingLoss);
-    private static CardConversionSource ZhouQunSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static int ZhouQunNameLength(CardKind kind) => IsSlashCard(kind) ? 1 : kind == CardKind.BorrowedSword ? 2 : CardCatalog.Get(kind).DisplayName.Length;
+    private static CardConversionSource ZhouQunSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_qun_ol_ZhouQun.ZhouQunSource(f);
+    private static int ZhouQunNameLength(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_qun_ol_ZhouQun.ZhouQunNameLength(kind);
     private int[] ZhouQunNeighbors(int seat)
     {
         // A just-dead damaged participant still anchors the two directions;

@@ -16,7 +16,7 @@ public sealed partial class GameEngine
     private bool HasJudgedRankSlashCapability =>
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.GrantJudgedRankSplitSlashTurnPolicy);
     private static bool IsOtherActualBasicDiscardTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.DrawFromOtherActualBasicDiscard }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_JudgedRankSlashPolicies.IsOtherActualBasicDiscardTrigger(trigger);
     private bool OtherActualBasicDiscardAlreadyIssued(int owner, string skill) =>
         ProgramEventHistory<OtherActualBasicDiscardDrawIssuedEvent>().Any(e =>
             e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.ActualTurnNumber == _turnNumber &&

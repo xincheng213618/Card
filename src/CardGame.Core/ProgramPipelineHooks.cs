@@ -121,7 +121,7 @@ internal sealed class ProgramPipelineHookCatalog
 
     private static void ValidateSignature(MethodInfo method, (Type DelegateType, Type[] Parameters, Type ReturnType) contract)
     {
-        if (method.IsStatic || method.IsGenericMethod || method.ContainsGenericParameters ||
+        if (method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) || method.IsGenericMethod || method.ContainsGenericParameters ||
             method.ReturnType != contract.ReturnType)
             throw InvalidSignature(method);
         var parameters = method.GetParameters();
@@ -158,7 +158,7 @@ internal sealed class ProgramPipelineHooks
     internal ProgramPipelineHooks(ProgramPipelineHookCatalog catalog, GameEngine engine)
     {
         T[] Bind<T>(ProgramPipelinePhase phase) where T : class => catalog.Phases[phase]
-            .Select(registration => registration.Method.CreateDelegate(registration.DelegateType, engine))
+            .Select(registration => engine.BindRuntimeHandler(registration.Method, registration.DelegateType))
             .Select(bound => (T)(object)bound)
             .ToArray();
         _includeTriggerCandidate = Bind<ProgramTriggerCandidateIncluder>(ProgramPipelinePhase.IncludeTriggerCandidate);

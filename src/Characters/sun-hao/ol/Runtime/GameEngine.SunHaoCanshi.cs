@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string SunHaoCanshiDiscardReason="skill-program.sun-hao.canshi.discard";
-    private static CardConversionSource SunHaoSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource SunHaoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_hao_ol_SunHaoCanshi.SunHaoSource(f);
     [ProgramCapability] private sealed class SunHaoCapability(GameEngine engine):ISunHaoHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>engine.BeginSunHao(f,op); }
     private bool SunHaoCanshiUseKind(CardActionContext a)=>a.Type==CardActionType.Use ? IsSlashCard(a.EffectiveKind)||IsOrdinaryTrick(a.EffectiveKind) :

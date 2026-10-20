@@ -3,10 +3,9 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     [ProgramCapability]
-    private sealed class BuZhiSelectionQueries(GameEngine engine) : IBuZhiSelectionQueries
+    private sealed class BuZhiSelectionQueries(GameEngine engine) : ISelectionRoleQueries
     {
-        public bool Allows(int targetSeat, SkillProgramActivation activation) =>
-            engine.BuZhiActivationTargetAllowed(engine._players[targetSeat], activation);
+        public Role Role(int seat) => engine._players[seat].Role;
     }
 
 }

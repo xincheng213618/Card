@@ -5,9 +5,11 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string MouLixianSkill = "mou-ol:lixian", MouBingcaiSkill = "mou-ol:bingcai";
-    private static CardConversionSource MouHuangYueyingSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouHuangYueyingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_yueying_ol_mou_MouHuangYueyingBingcai.MouHuangYueyingSource(f);
     private static readonly CardKind[] MouLixianAdditionalNames = [CardKind.Snatch, CardKind.Dismantlement, CardKind.IronChain];
-    private static bool IsMouHuangYueyingDamageCardKind(CardKind kind) => IsSlashCard(kind) || kind is CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.WumiaoFlood or CardKind.UnexpectedAssault;
+    private static bool IsMouHuangYueyingDamageCardKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_yueying_ol_mou_MouHuangYueyingBingcai.IsMouHuangYueyingDamageCardKind(kind);
     private CardKind MouHuangYueyingOwnedKind(CharacterState owner, Card card) => GetProgramCardIdentityMatches(owner, card).FirstOrDefault()?.Identity.OutputKind ?? card.Kind;
 
     [ProgramCapability]

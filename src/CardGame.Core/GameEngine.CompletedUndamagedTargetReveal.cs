@@ -19,10 +19,10 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash);
     // Native immediate damage tricks. A separate program Damage child is not damage caused by its ancestral Use.
-    private static bool IsCompletedUndamagedDamageUse(CardKind kind) => IsSlashCard(kind) || kind is
-        CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault;
+    private static bool IsCompletedUndamagedDamageUse(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CompletedUndamagedTargetReveal.IsCompletedUndamagedDamageUse(kind);
     private static string CompletedUndamagedDiscardReason(ProgramSkillFrame f) =>
-        $"skill-program.{f.SkillId}.completed-undamaged-target.discard";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CompletedUndamagedTargetReveal.CompletedUndamagedDiscardReason(f);
 
     private bool HasExactCompletedUndamagedPublicPileCost(CardUseFrame use, CardActionContext action)
     {
@@ -254,11 +254,10 @@ public sealed partial class GameEngine
         }
         IssueCompletedUndamagedTargetReveal(f);
     }
-    private static bool CompletedUndamagedChoiceEquals(PromptChoice a, PromptChoice b) => a.Id == b.Id &&
-        a.Cards.SequenceEqual(b.Cards) && a.Targets.SequenceEqual(b.Targets) &&
-        a.Parameters.OrderBy(p => p.Key).SequenceEqual(b.Parameters.OrderBy(p => p.Key));
-    private static CardColor? CompletedUndamagedColor(Suit suit) => suit switch
-    { Suit.Heart or Suit.Diamond => CardColor.Red, Suit.Spade or Suit.Club => CardColor.Black, _ => null };
+    private static bool CompletedUndamagedChoiceEquals(PromptChoice a, PromptChoice b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CompletedUndamagedTargetReveal.CompletedUndamagedChoiceEquals(a,b);
+    private static CardColor? CompletedUndamagedColor(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CompletedUndamagedTargetReveal.CompletedUndamagedColor(suit);
     private void IssueCompletedUndamagedTargetReveal(ProgramSkillFrame f)
     {
         var r = f.CompletedUndamagedTargetReveal!; var target = r.TargetSeat!.Value;

@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string MouChenGongGiftReason = "skill-program.mou-mobile:mingce.give", MouChenGongDrawReason = "skill-program.mou-mobile:mingce.Draw";
     private bool HasMouChenGongCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouChenGongMingceGift) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouChenGongMingceRelease) || _contentRegistry.Skills.ContainsKey(MouChenGongComposition.Zhichi);
-    private static CardConversionSource MouChenGongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouChenGongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_chen_gong_mou_mobile_MouChenGongMingce.MouChenGongSource(f);
     private bool MouChenGongPhaseSpent(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouChenGongMingceStartedEvent>()
         .Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == MouChenGongComposition.Mingce && e.Phase == phase);
     [ProgramPhaseUsedProjection(30)]

@@ -142,7 +142,8 @@ public sealed partial class GameEngine
         p = p with { ActionId = action.ActionId }; UpdateXieweiPayment(nativeUseId, p);
         AdvanceEventRulesAndQueueFact(new XieweiOutputBoundEvent(p.Id, p.UseId, p.ActionId, p.ActorSeat, p.OwnerSeat, p.RequesterSeat, p.Kind, true));
     }
-    private static bool XieweiActionCosts(XieweiNativePayment p, CardActionContext a) => a.ConversionChain.Contains(p.Source) && a.PhysicalCards.Select(c => (c.CardId, c.CardKind, c.From)).OrderBy(c => c.CardId).SequenceEqual(p.Materials.Select(c => (c.CardId, c.Kind, c.From)).OrderBy(c => c.CardId));
+    private static bool XieweiActionCosts(XieweiNativePayment p, CardActionContext a) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guan_hai_ol_XieweiPayments.XieweiActionCosts(p,a);
     private bool ValidXieweiPayment(XieweiNativePayment p)
     {
         if (p.Materials.Count != 2 || p.Materials.Select(c => c.CardId).Distinct().Count() != 2 || p.Materials.Any(c => c.From != CardLocation.Hand(p.OwnerSeat)) || p.Source.OwnerSeat != p.OwnerSeat || p.Pile.OwnerSeat != p.OwnerSeat || p.Pile.SkillId != p.Source.SkillId || p.Pile.SkillInstanceId != p.Source.SkillInstanceId ||

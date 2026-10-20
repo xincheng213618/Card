@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private readonly Dictionary<int, (int Turn, HashSet<CardKind> Kinds)> _usedProgramBasicCardNames = [];
 
-    private static CardKind ProgramBasicCardName(CardKind kind) => IsSlashCard(kind) ? CardKind.Slash : kind;
+    private static CardKind ProgramBasicCardName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlternativeViewAsCosts.ProgramBasicCardName(kind);
 
     private void RecordProgramUsedBasicCard(int actorSeat, CardKind effectiveKind)
     {

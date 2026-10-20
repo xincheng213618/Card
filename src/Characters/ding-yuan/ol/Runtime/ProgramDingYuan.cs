@@ -114,7 +114,8 @@ public sealed partial class GameEngine
     private bool TracksDingYuan => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PrepareAdoptedChildAppointment) == true;
     private int? AdoptedChildHolder => _players.Where(player => player.IsAlive && player.Markers.GetValueOrDefault(PlayerMarkerKind.AdoptedChild) > 0)
         .Select(player => (int?)player.Seat).SingleOrDefault();
-    private static string AdoptedChildGrantId(int seat) => $"marker:adopted-child:{seat}";
+    private static string AdoptedChildGrantId(int seat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ding_yuan_ol_ProgramDingYuan.AdoptedChildGrantId(seat);
 
     [ProgramCapability]
     private sealed class DingYuanProgramCapability(GameEngine engine) : IDingYuanProgramHost

@@ -2,7 +2,8 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static bool CaoYingDamageKind(CardKind kind) => IsSlashCard(kind) || kind is CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault;
+    private static bool CaoYingDamageKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_ying_ol_Lingren.CaoYingDamageKind(kind);
     private CaoYingGuessResolvedEvent[] ArmedCaoYingDamage(int source, int target) => CompleteProgramEventHistory().OfType<CaoYingGuessResolvedEvent>().Where(e => e.TurnNumber == _turnNumber && e.TurnOwner == _currentSeat && e.Source.OwnerSeat == source && e.TargetSeat == target && e.CorrectCount >= 1 && !CompleteProgramEventHistory().OfType<CaoYingDamageConsumedEvent>().Any(c => c.ProgramFrameId == e.ProgramFrameId)).ToArray();
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 80)]
     private int CaoYingDamage(IDamageAttempt attack) => attack.IsSourceLess ? 0 : ArmedCaoYingDamage(attack.SourceSeat, attack.TargetSeat).Length;

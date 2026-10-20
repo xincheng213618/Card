@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget);
 
 
-    private const string SoleProtectionCostReason = "skill-program.sole-target-protection.cost";
+    private const string SoleProtectionCostReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.SoleProtectionCostReason;
     private const string SoleProtectionQuarantineReason = "skill-program.sole-target-protection.quarantine";
     private bool HasSoleTargetProtectionCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget);
     private bool HasSoleTargetProtectionParticipant => HasSoleTargetProtectionCapability &&

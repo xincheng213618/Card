@@ -396,26 +396,8 @@ public sealed partial class GameEngine
 
     private static IReadOnlyList<IReadOnlyList<Card>> EnumerateCardCombinations(
         IReadOnlyList<Card> cards,
-        int count)
-    {
-        var result = new List<IReadOnlyList<Card>>();
-        var selected = new Card[count];
-        void Visit(int sourceIndex, int selectedIndex)
-        {
-            if (selectedIndex == count)
-            {
-                result.Add(Array.AsReadOnly(selected.ToArray()));
-                return;
-            }
-            for (var index = sourceIndex; index <= cards.Count - (count - selectedIndex); index++)
-            {
-                selected[selectedIndex] = cards[index];
-                Visit(index + 1, selectedIndex + 1);
-            }
-        }
-        Visit(0, 0);
-        return result;
-    }
+        int count) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardConversions.EnumerateCardCombinations(cards,count);
 
     private ProgramMultiCardViewAsSelection? FindProgramMultiCardViewAsSelection(
         CharacterState owner,
@@ -697,14 +679,8 @@ public sealed partial class GameEngine
 
     private static void AddConversionParameters(
         IDictionary<string, string> parameters,
-        CardConversionSource source)
-    {
-        parameters["conversion-skill-id"] = source.SkillId;
-        parameters["conversion-binding-id"] = source.BindingId;
-        parameters["conversion-owner-seat"] = source.OwnerSeat.ToString(
-            System.Globalization.CultureInfo.InvariantCulture);
-        parameters["conversion-instance-id"] = source.SkillInstanceId;
-    }
+        CardConversionSource source) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardConversions.AddConversionParameters(parameters,source);
 
     private IEnumerable<PromptChoice> CreateConversionChoiceVariants(
         CharacterState owner,

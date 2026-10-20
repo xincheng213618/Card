@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMouMengHuoCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouMengHuoZaiqi);
-    private static CardConversionSource MouMhSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouMhSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_meng_huo_mou_mobile_MouMengHuo.MouMhSource(f);
     private int MouMhCharge(int owner) => _players[owner].Markers.GetValueOrDefault(PlayerMarkerKind.MouMengHuoCharge);
     private MouMengHuoTurnKey? MouMhTurn()
     {

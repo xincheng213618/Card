@@ -21,7 +21,8 @@ public sealed partial class GameEngine
         {var stamp=long.MinValue/4+ ++_daQiaoXiaoQiaoQualificationRevision;if(stamp==existingStamp)stamp=long.MinValue/4+ ++_daQiaoXiaoQiaoQualificationRevision;cached=(key,stamp);_daQiaoXiaoQiaoQualificationCache[owner.Seat]=cached;}
         return cached.Stamp;
     }
-    private static string DaQiaoXiaoQiaoDerivedId(int seat,DaQiaoXiaoQiaoLuoyanSource r)=>$"luoyan:{seat}:{r.CapabilityGrantId.Length}:{r.CapabilityGrantId}:{r.CapabilitySkillInstanceId.Length}:{r.CapabilitySkillInstanceId}:{r.LeafSkillId}";
+    private static string DaQiaoXiaoQiaoDerivedId(int seat,DaQiaoXiaoQiaoLuoyanSource r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_xiao_qiao_ol_DaQiaoXiaoQiaoLuoyan.DaQiaoXiaoQiaoDerivedId(seat,r);
     private bool _synchronizingDaQiaoXiaoQiaoLuoyan;
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27340)]
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish,27340)]

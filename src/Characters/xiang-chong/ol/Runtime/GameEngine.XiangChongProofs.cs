@@ -62,7 +62,8 @@ public sealed partial class GameEngine
     [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 820)]
     private bool IsXiangChongRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.XiangChong is{}r&&ValidXiang(f)&&XiangSilverLionSeats(r).Contains(recovery.Attempt.TargetSeat)&&recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Amount==1&&
         _cardMovements.Any(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardKind==CardKind.SilverLion&&m.From==CardLocation.Equipment(recovery.Attempt.TargetSeat)&&m.Reason==recovery.Attempt.Completion.MoveReason);
-    private static IEnumerable<int> XiangSilverLionSeats(XiangChongReceipt r)=>r.Payments.Concat(r.Replaced is{}p?[p]:Array.Empty<XiangChongCard>()).Where(c=>c.Kind==CardKind.SilverLion&&c.From.Zone==CardZoneKind.Equipment&&c.From.OwnerSeat is not null).Select(c=>c.From.OwnerSeat!.Value);
+    private static IEnumerable<int> XiangSilverLionSeats(XiangChongReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiang_chong_ol_XiangChongProofs.XiangSilverLionSeats(r);
     private bool XiangFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
         if(f.XiangChong is not{Paid:true}r||!ValidXiang(f))return false;

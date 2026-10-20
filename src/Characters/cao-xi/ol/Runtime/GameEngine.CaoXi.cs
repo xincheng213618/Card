@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string CaoXiDrawReason = "skill-program.cao-xi.jianxuan.draw";
-    private static CardConversionSource CaoXiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource CaoXiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_xi_ol_CaoXi.CaoXiSource(f);
     private static readonly SkillRuleQuery[] CaoXiQueries = [SkillRuleQuery.AttackRange, SkillRuleQuery.DrawCount, SkillRuleQuery.SlashLimit];
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 26810)]
     private bool CanOfferCaoXi(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)

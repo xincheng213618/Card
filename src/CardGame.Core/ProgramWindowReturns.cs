@@ -37,11 +37,15 @@ internal sealed class ProgramWindowReturnCatalog
         foreach (var method in methods)
         {
             if (method.GetCustomAttribute<ProgramWindowReturnAttribute>() is not { } registration) continue;
-            if (method.DeclaringType != typeof(GameEngine) || method.IsStatic || method.IsGenericMethod ||
+            if (method.DeclaringType != typeof(GameEngine) && !ProgramRuntimeModuleCatalog.IsDeclared(method.DeclaringType) ||
+                method.DeclaringType == typeof(GameEngine) && method.IsStatic || method.IsGenericMethod ||
                 method.ReturnType != typeof(void) || !method.GetParameters().Select(parameter => parameter.ParameterType)
                     .SequenceEqual([typeof(ProgramSkillFrame), typeof(bool)]) || registration.Windows.Count == 0)
                 throw new InvalidOperationException($"Program window return '{method.Name}' has an invalid host signature.");
-            var callback = method.CreateDelegate<Action<GameEngine, ProgramSkillFrame, bool>>();
+            var callback = method.DeclaringType == typeof(GameEngine)
+                ? method.CreateDelegate<Action<GameEngine, ProgramSkillFrame, bool>>()
+                : (Action<GameEngine, ProgramSkillFrame, bool>)((engine, frame, completed) =>
+                    ((Action<ProgramSkillFrame, bool>)engine.BindRuntimeHandler(method, typeof(Action<ProgramSkillFrame, bool>)))(frame, completed));
             entries.AddRange(registration.Windows.Select(window => new Registration(window, method.Name, callback)));
         }
         return new(entries);
@@ -60,6 +64,5 @@ internal sealed class ProgramWindowReturnCatalog
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramWindowReturnCatalog> ProgramWindowReturns = new(() =>
-        ProgramWindowReturnCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.NonPublic)), true);
+        ProgramWindowReturnCatalog.Discover(RuntimeModuleMethods), true);
 }

@@ -12,13 +12,8 @@ public sealed partial class GameEngine
         // Appearance is otherwise read from the actual one-card conversion, never its output name.
         return CaptureAlcoholResponseRank(provider, effectiveKind, costs) ?? ApplyProgramUseAppearance(provider, card, source).Rank;
     }
-    private static string WuLuXunZhangcaiBinding(SkillProgramTriggerWindow window) => window switch
-    {
-        SkillProgramTriggerWindow.CardUseCommitted => "accepted-use",
-        SkillProgramTriggerWindow.CardResponseAccepted => "accepted-response",
-        SkillProgramTriggerWindow.CardSupplyCompleted => "accepted-supply",
-        _ => ""
-    };
+    private static string WuLuXunZhangcaiBinding(SkillProgramTriggerWindow window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_xun_wumiao_WuLuXunZhangcai.WuLuXunZhangcaiBinding(window);
     private void CaptureWuLuXunZhangcai(CardActionContext action, SkillProgramTriggerWindow window)
     {
         if (!HasWuLuXunZhangcaiCapability || action.ActionId <= 0 || !IsValidPlayerSeat(action.ActorSeat) ||
@@ -78,12 +73,8 @@ public sealed partial class GameEngine
         AddLog("SkillTriggered", $"{_players[f.OwnerSeat].Name} 发动【彰才】，摸 {q.DrawCount} 张牌。", f.OwnerSeat);
         ContinueWuLuXunZhangcai(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
-    private static WuLuXunZhangcaiStartedEvent WuLuXunZhangcaiStart(long id, WuLuXunZhangcaiReceipt r)
-    {
-        var q = r.Qualification;
-        return new(id, q.Source, q.GameplayHash, r.WindowId, r.NativeParentId, q.ActionId, q.Window,
-            q.EffectiveKind, q.EffectiveRank, q.RemainingEights, q.DrawCount, q.RuxianFrameId, q.ActualTurn, q.TurnOwner, q.MovementSequence);
-    }
+    private static WuLuXunZhangcaiStartedEvent WuLuXunZhangcaiStart(long id, WuLuXunZhangcaiReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_xun_wumiao_WuLuXunZhangcai.WuLuXunZhangcaiStart(id,r);
     private bool WuLuXunZhangcaiWindowMatches(ProgramCardTriggerWindowFrame w, WuLuXunZhangcaiQualification q)
     {
         var action = q.Window == SkillProgramTriggerWindow.CardSupplyCompleted && w.CardSupplyCompletion is not null

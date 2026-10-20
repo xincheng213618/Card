@@ -12,8 +12,8 @@ public sealed partial class GameEngine
             a.PhysicalCards.Select(c => c.CardId).Order().SequenceEqual(ids.Order());
         return !accepted && ids.Any(id => IsWuZglCopyBlocked(actor, id));
     }
-    private static bool WuZglNativeInputReason(CardMoveReason r) => r == CardMoveReasons.Use || r == CardMoveReasons.Respond || r == CardMoveReasons.Nullification ||
-        r == CardMoveReasons.IronChainUse || r == CardMoveReasons.EquipmentUse || r.Value == "conversion.declaration.pay";
+    private static bool WuZglNativeInputReason(CardMoveReason r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_liang_wumiao_WuZhugeLiang_Copies.WuZglNativeInputReason(r);
     private CardMovementRecord? WuZglCopyReturnEntry(Card card, CardLocation from, CardMoveReason reason)
     {
         if (WuZglCopyFact(card.Id) is not { } copy || !_players[copy.Source.OwnerSeat].IsAlive) return null;

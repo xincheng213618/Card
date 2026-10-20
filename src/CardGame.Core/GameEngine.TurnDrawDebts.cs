@@ -7,8 +7,8 @@ public sealed partial class GameEngine
 
     // This new opt-in classification deliberately does not change the older
     // damage-card predicates used by other content.
-    private static bool IsTurnDebtDamageCard(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or
-        CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.Lightning;
+    private static bool IsTurnDebtDamageCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TurnDrawDebts.IsTurnDebtDamageCard(kind);
 
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 270)]
     private void ObserveTurnDrawDebtUse(IGameEvent payload)

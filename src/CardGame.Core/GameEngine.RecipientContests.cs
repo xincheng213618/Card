@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string RecipientContestGiftReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian}";
+    private static string RecipientContestGiftReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientContests.RecipientContestGiftReason(f);
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 10, SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian)]
     private bool CanStartRecipientContest(CharacterState owner) => owner.IsAlive && GetHand(owner).Count > 0;
     private SkillProgramStepOutcome BeginRecipientContest(ProgramSkillFrame supplied, int recipient, string bind)

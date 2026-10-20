@@ -16,7 +16,7 @@ internal static class ProgramInteractionChecks
             "Reflection enumeration must not change interaction registration or precedence.");
 
         var production = ProgramInteractionCatalog.Discover(
-            Methods(typeof(GameEngine)).Concat(Methods(typeof(ProgramAiChoiceSelector))));
+            ProgramRuntimeModuleCatalog.Default.Methods.Concat(Methods(typeof(ProgramAiChoiceSelector))));
         foreach (var method in production.Answers.Values.Concat(production.Prefixes.Values)
                      .Concat(production.AiChoices.Values).Concat(production.BeforeAnswers).Distinct())
         {

@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private long PublicPileCashOutSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static string PublicPileCashOutReason(ProgramSkillFrame frame, string step) =>
-        $"skill-program.{frame.SkillId}.{frame.PublicPileCashOut!.Operation}.{step}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPileCashOut.PublicPileCashOutReason(frame,step);
 
     private bool PublicPileStorageCard(int owner, string skill, string instance, Card card, CardLocation location) =>
         location.OwnerSeat == owner && location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&

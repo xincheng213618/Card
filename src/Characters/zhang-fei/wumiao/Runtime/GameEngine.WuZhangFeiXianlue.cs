@@ -8,7 +8,8 @@ public sealed partial class GameEngine
     private const string WuZhangFeiXianlue = "wumiao:xianlue";
     private const string WuZhangFeiXianlueDrawReason = "skill-program.wu-zhang-fei.xianlue.draw";
     private bool HasWuZhangFeiXianlueCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWuZhangFeiXianlue);
-    private static int WuZhangFeiRankCount(int mask) => BitOperations.PopCount((uint)mask);
+    private static int WuZhangFeiRankCount(int mask) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiXianlue.WuZhangFeiRankCount(mask);
     private WuZhangFeiRankCycleChangedEvent WuZhangFeiCycle(int owner) =>
         ProgramEventHistory<WuZhangFeiRankCycleChangedEvent>().LastOrDefault(e => e.OwnerSeat == owner) ?? new(owner, 1, 0, 13, 0, "initial", 0);
     private bool CanObserveWuZhangFeiHand(int owner, int target) => HasWuZhangFeiXianlueCapability &&

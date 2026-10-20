@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 30)]
@@ -7,7 +7,8 @@ public sealed partial class GameEngine
 
 
  private bool HasXinPiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawBothAfterYinjuActualTargetUse)||_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ArmYinjuActualTurnRelation);
- private static CardConversionSource XinPiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource XinPiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xin_pi_ol_XinPiProofs.XinPiSource(f);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 540)]
  private void ObserveXinPiEvent(IGameEvent payload)
  {
@@ -20,7 +21,8 @@ public sealed partial class GameEngine
   }
   if(payload is TurnEndedEvent){foreach(var p in _players){p.YinjuRelation=null;p.ChijieUsedActualTurn=null;}}
  }
- private static IReadOnlyList<int> XinPiMainTargets(CardUseFrame u)=>u.CardKind==CardKind.BorrowedSword?Array.AsReadOnly(u.Action!.TargetSeats.Where((_,i)=>i%2==0).ToArray()):u.TargetSeats;
+ private static IReadOnlyList<int> XinPiMainTargets(CardUseFrame u) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xin_pi_ol_XinPiProofs.XinPiMainTargets(u);
  private CardUseFrame? ExactXinPiNativeWindow(ProgramSkillWindowContext w,bool completed)
  {
   if(w.CardUse is not{}identity||_resolutionStack.SingleOrDefault(f=>f.Id==w.ParentFrameId)is not ProgramCardTriggerWindowFrame window||window.CompletedResponseReturn is not null||window.ParentFrameId!=identity.ParentCardUseFrameId||GetCardActionWindow(window)!=(completed?SkillProgramTriggerWindow.CardUseCompleted:SkillProgramTriggerWindow.CardUseTargetsFinalized)||LifecycleCardUse(window.ParentFrameId)is not{Action:{Type:CardActionType.Use}a}u||a.ActionId!=identity.CardActionId||!SameOverflowAction(a,window.Action)||!HasExactAcceptedActualHandGainUse(u,a))return null;

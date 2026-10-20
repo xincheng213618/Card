@@ -3,8 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly CardZoneKind[] DamageTargetMountZones = [CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment];
-    private static bool IsPrintedMount(CardKind kind) => EquipmentCatalog.IsEquipment(kind) &&
-        EquipmentCatalog.Get(kind).Slot is EquipmentSlot.OffensiveHorse or EquipmentSlot.DefensiveHorse;
+    private static bool IsPrintedMount(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetMountPrograms.IsPrintedMount(kind);
     private CardUseFrame? ActualDamageTargetMountUse(int ownerSeat, ProgramSkillWindowContext context)
     {
         if (context is not { Window: SkillProgramTriggerWindow.AfterDamageApplied, Amount: > 0, SourceSeat: { } source, TargetSeat: { } target } ||

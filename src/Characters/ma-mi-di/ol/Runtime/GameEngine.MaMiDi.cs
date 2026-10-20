@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string MaMiDiDiscardReason = "skill-program.ma-mi-di.bingjie.discard";
     private bool HasMaMiDiCapability => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrowZhengdingMatchingResponse) == true;
-    private static CardConversionSource MaMiDiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MaMiDiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_mi_di_ol_MaMiDi.MaMiDiSource(f);
     [ProgramCapability] private sealed class MaMiDiCapability(GameEngine engine) : IMaMiDiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginMaMiDi(f, op); }
     private bool ExactMaMiDiPlay(ProgramTriggerCandidate candidate, ProgramSkillWindowContext c) =>

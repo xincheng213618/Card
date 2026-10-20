@@ -8,7 +8,8 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuHuangFuSongLianjie) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ArmWuHuangFuSongJiangxian);
     private WuHuangFuSongTurn WuHfTurn() => new(_turnNumber, _currentSeat);
     private bool WuHfTurnOpen(WuHuangFuSongTurn t) => t == WuHfTurn() && !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == t.Number && e.OwnerSeat == t.OwnerSeat);
-    private static CardConversionSource WuHfSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuHfSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huangfu_song_wumiao_WuHuangFuSong.WuHfSource(f);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 30000, SkillProgramEffectOp.ResolveWuHuangFuSongChaozhen, SkillProgramEffectOp.ResolveWuHuangFuSongLianjie, SkillProgramEffectOp.SettleWuHuangFuSongJiangxian)]
     private bool CanOfferWuHuangFuSong(ProgramTriggerCandidate candidate, SkillProgramTrigger t, ProgramSkillWindowContext c)
     {

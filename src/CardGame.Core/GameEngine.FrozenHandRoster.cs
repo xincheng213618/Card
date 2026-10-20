@@ -28,9 +28,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new FrozenHandRosterStartedEvent(f.Id,r.Source,r.GameplayHash,r.ParentFrameId,r.Turn,hand,seats));
         PublishFrozenHandRoster(f);return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static Dictionary<string,string> FrozenHandParameters(ProgramSkillFrame f,string branch)=>new()
-    { ["program-action"]="frozen-hand-roster",["frame-id"]=f.Id.ToString(CultureInfo.InvariantCulture),["branch"]=branch,
-      ["cursor"]=f.FrozenHandRoster!.Cursor.ToString(CultureInfo.InvariantCulture) };
+    private static Dictionary<string,string> FrozenHandParameters(ProgramSkillFrame f,string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FrozenHandRoster.FrozenHandParameters(f,branch);
     private int FrozenHandRosterChooser(ProgramSkillFrame f)=>f.FrozenHandRoster!.Stage=="participant" ? f.FrozenHandRoster.Seats[f.FrozenHandRoster.Cursor] : f.OwnerSeat;
     private IReadOnlyList<PromptChoice> FrozenHandRosterChoices(ProgramSkillFrame f)
     {

@@ -132,7 +132,8 @@ internal sealed class ProgramNativeReturnCatalog
         method.GetParameters().Select(parameter => parameter.ParameterType).SequenceEqual(types);
     private static void RequireInstance(MethodInfo method)
     {
-        if (method.IsStatic || method.IsAbstract || method.IsGenericMethod || method.ContainsGenericParameters)
+        if (method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) ||
+            method.IsAbstract || method.IsGenericMethod || method.ContainsGenericParameters)
             throw Invalid(method);
     }
     private static InvalidOperationException Invalid(MethodInfo method) =>
@@ -243,8 +244,8 @@ internal sealed class ProgramNativeReturns
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramNativeReturnCatalog> NativeReturnMetadata = new(() =>
-        new(typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        new(RuntimeModuleMethods), true);
     private ProgramNativeReturns? _nativeReturns;
     private ProgramNativeReturns NativeReturns => _nativeReturns ??= new(NativeReturnMetadata.Value,
-        (method, type) => method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 }

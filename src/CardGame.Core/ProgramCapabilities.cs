@@ -37,15 +37,21 @@ internal sealed class ProgramCapabilityCatalog
             if (!type.IsClass || !type.IsSealed || type.IsAbstract || type.IsGenericType || type.ContainsGenericParameters)
                 throw Invalid(type, "must be a sealed, non-generic class");
             var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (constructors is not [var constructor] ||
-                !constructor.GetParameters().Select(parameter => parameter.ParameterType).SequenceEqual([typeof(GameEngine)]))
-                throw Invalid(type, "requires exactly one constructor accepting only GameEngine");
-            var contracts = type.GetInterfaces().Where(contract => contract != typeof(IProgramSelectionQuery))
+            var independent = ProgramRuntimeModuleCatalog.IsDeclared(type);
+            if (independent)
+                _ = new ProgramRuntimeModuleCatalog([type]);
+            else if (constructors is not [var legacyConstructor] ||
+                !legacyConstructor.GetParameters().Select(parameter => parameter.ParameterType).SequenceEqual([typeof(GameEngine)]))
+                throw Invalid(type, "requires exactly one constructor accepting only GameEngine, or an explicit independent runtime module");
+            var contracts = type.GetInterfaces().Where(contract => contract != typeof(IProgramSelectionQuery) &&
+                    contract != typeof(IProgramRuntimeOperations))
                 .OrderBy(contract => contract.FullName, StringComparer.Ordinal).ToArray();
             if (contracts.Length == 0 || contracts.Any(contract => contract.ContainsGenericParameters ||
                     contract == typeof(ISkillProgramExecutionHost) || contract == typeof(ISkillProgramEffectHost)))
                 throw Invalid(type, "requires dedicated capability interfaces, separate from the shared program host");
-            var registration = new Registration(type, Array.AsReadOnly(contracts), engine => Construct(constructor, engine));
+            var registration = new Registration(type, Array.AsReadOnly(contracts), independent
+                ? engine => engine.GetRuntimeModuleInstance(type)
+                : engine => Construct(constructors[0], engine));
             foreach (var contract in contracts)
                 if (!byContract.TryAdd(contract, registration))
                     throw new InvalidOperationException($"Program capability '{contract.FullName}' is registered by both " +
@@ -89,26 +95,37 @@ internal sealed class ProgramCapabilityRegistry(GameEngine engine, ProgramCapabi
         ? capability
         : throw new NotSupportedException($"No program capability is registered for '{typeof(T).FullName}'.");
 
+    internal object Get(Type contract) => TryGet(contract, out var capability) ? capability :
+        throw new NotSupportedException($"No program capability is registered for '{contract.FullName}'.");
+
     internal bool TryGet<T>([NotNullWhen(true)] out T? capability) where T : class
     {
-        if (!catalog.TryResolve(typeof(T), out var registration))
+        var found = TryGet(typeof(T), out var instance);
+        capability = (T?)instance;
+        return found;
+    }
+
+    private bool TryGet(Type contract, [NotNullWhen(true)] out object? capability)
+    {
+        if (!catalog.TryResolve(contract, out var registration))
         {
             capability = null;
             return false;
         }
         if (!_instances.TryGetValue(registration.Implementation, out var instance))
             _instances.Add(registration.Implementation, instance = registration.Create(engine));
-        capability = (T)instance;
+        capability = instance;
         return true;
     }
 }
 
 public sealed partial class GameEngine
 {
-    // Discovery is limited to explicit registrations in this engine's own type.
-    // Nested adapters retain the private rules boundary without exposing state.
+    // Legacy nested adapters and explicit independent modules share one contract
+    // directory; independent hook/capability entry points share one match instance.
     private static readonly Lazy<ProgramCapabilityCatalog> ProgramCapabilityMetadata = new(() =>
-        new(typeof(GameEngine).GetNestedTypes(BindingFlags.NonPublic)), true);
+        new(typeof(GameEngine).GetNestedTypes(BindingFlags.NonPublic).Concat(
+            ProgramRuntimeModuleCatalog.Default.Registrations.Select(registration => registration.Type))), true);
     private ProgramCapabilityRegistry? _programCapabilities;
     private ProgramCapabilityRegistry ProgramCapabilities =>
         _programCapabilities ??= new(this, ProgramCapabilityMetadata.Value);

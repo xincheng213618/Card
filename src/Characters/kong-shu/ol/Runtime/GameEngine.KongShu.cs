@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string LeiluanDrawReason = "skill-program.kong-shu.leiluan.draw", LeiluanGainReason = "skill-program.kong-shu.leiluan.gain", FuchaoDrawReason = "skill-program.kong-shu.fuchao.draw", FuchaoDiscardReason = "skill-program.kong-shu.fuchao.discard";
-    private static CardConversionSource KongShuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource KongShuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_kong_shu_ol_KongShu.KongShuSource(f);
     [ProgramCapability] private sealed class KongShuCapability(GameEngine engine) : IKongShuHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginKongShu(f, op); }
     private SkillProgramStepOutcome BeginKongShu(ProgramSkillFrame supplied, SkillProgramEffectOp op)

@@ -5,7 +5,8 @@ public sealed partial class GameEngine
 {
     private const string DeruTakeReason = "skill-program.yuan-huan.deru.take", DeruFillReason = "skill-program.yuan-huan.deru.fill",
         DeruRecoverReason = "skill-program.yuan-huan.deru.recover", LinjieDiscardReason = "skill-program.yuan-huan.linjie.discard", LinjieDrawReason = "skill-program.yuan-huan.linjie.draw";
-    private static CardConversionSource YuanHuanSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource YuanHuanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_huan_ol_YuanHuan.YuanHuanSource(f);
     [ProgramCapability]
     private sealed class YuanHuanCapability(GameEngine engine) : IYuanHuanHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginYuanHuan(f, op); }

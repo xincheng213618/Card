@@ -6,7 +6,8 @@ public sealed partial class GameEngine
 {
     private bool HasSiruiCapability => _contentRegistry.ProgramDependencies.UsesEqualNameLengthUse;
 
-    private static int SiruiNameLength(CardKind kind) => CardCatalog.Get(kind).DisplayName.EnumerateRunes().Count();
+    private static int SiruiNameLength(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_mi_heng_le_SiruiQueries.SiruiNameLength(kind);
     private bool IsSiruiSource(CardConversionSource? source) => source is { SkillId: "le:sirui" } &&
         ViewAsRule(source) is { EqualNameLengthUse: true };
 

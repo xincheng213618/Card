@@ -4,8 +4,10 @@ public sealed partial class GameEngine
 {
     private const string GuYinDrawReason = "skill-program.le-zhou-yu.guyin.draw";
     private bool HasGuYinCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeGuYinInitialEntities);
-    private static CardConversionSource GuYinSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static bool IsGuYinDiscardTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw }];
+    private static CardConversionSource GuYinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_le_LeZhouYuGuYin.GuYinSource(f);
+    private static bool IsGuYinDiscardTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_le_LeZhouYuGuYin.IsGuYinDiscardTrigger(t);
 
     private int ApplyGuYinInitialHandSize(CharacterState player, int ordinaryCount)
     {

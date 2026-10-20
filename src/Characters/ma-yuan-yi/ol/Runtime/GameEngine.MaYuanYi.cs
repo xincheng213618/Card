@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string JibingStoreReason="skill-program.ma-yuan-yi.jibing.store",WangjingDrawReason="skill-program.ma-yuan-yi.wangjing.draw",BinghuoBind="ma-yuan-yi-binghuo";
     private bool HasMaYuanYiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing);
-    private static CardConversionSource MaYuanYiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource MaYuanYiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_yuan_yi_ol_MaYuanYi.MaYuanYiSource(f);
     [ProgramCapability] private sealed class MaYuanYiCapability(GameEngine e):IMaYuanYiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginMaYuanYi(f,op); }
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27370)]

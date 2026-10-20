@@ -26,15 +26,10 @@ public sealed partial record CardMovementBatchContext
 public sealed partial class GameEngine
 {
     private static bool SameGameStartingNativeMovementOrigin(GameStartingNativeMovementOrigin? left, GameStartingNativeMovementOrigin? right) =>
-        ReferenceEquals(left, right) || left is not null && right is not null && left.WindowFrameId == right.WindowFrameId &&
-        left.ProgramFrameId == right.ProgramFrameId && left.InstructionIndex == right.InstructionIndex && left.GameplayHash == right.GameplayHash &&
-        left.Source == right.Source && left.Operation == right.Operation && left.BatchId == right.BatchId && left.RecipientSeat == right.RecipientSeat &&
-        left.SequenceBefore == right.SequenceBefore && left.SequenceAfter == right.SequenceAfter && left.Kind == right.Kind &&
-        left.ActualTurnOwnerSeat == right.ActualTurnOwnerSeat && left.Materials.SequenceEqual(right.Materials);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GameStartingNativeMovementInvoices.SameGameStartingNativeMovementOrigin(left,right);
 
     private static bool SameGameStartingMovementDrawOrigin(GameStartingMovementDrawOrigin? left, GameStartingMovementDrawOrigin? right) =>
-        ReferenceEquals(left, right) || left is not null && right is not null && left.DrawChild == right.DrawChild &&
-        SameGameStartingNativeMovementOrigin(left.MovementRoot, right.MovementRoot);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GameStartingNativeMovementInvoices.SameGameStartingMovementDrawOrigin(left,right);
 
     [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 26705)]
     private void CaptureGameStartingNativeGift(DingShangWanMovementIssuedEvent issued)

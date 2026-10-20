@@ -41,7 +41,8 @@ public sealed partial class GameEngine
         }
         return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static Dictionary<string,string> YaDanArgs(string branch)=>new(){["program-action"]="ya-dan-qingya",["branch"]=branch};
+    private static Dictionary<string,string> YaDanArgs(string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ya_dan_ol_YaDan.YaDanArgs(branch);
     private IReadOnlyList<PromptChoice> YaDanChoices(ProgramSkillFrame f)
     {
         var r=f.YaDan!;

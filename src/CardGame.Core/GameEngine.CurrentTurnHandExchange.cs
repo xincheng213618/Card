@@ -7,9 +7,9 @@ public sealed partial class GameEngine
 {
     private int CurrentTurnHandExchangeSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static string CurrentTurnHandExchangeReason(ProgramSkillFrame frame, string part) =>
-        $"skill-program.{frame.SkillId}.{SkillProgramEffectOp.OfferCurrentTurnHandExchange}.{part}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CurrentTurnHandExchange.CurrentTurnHandExchangeReason(frame,part);
     private static CardConversionSource CurrentTurnHandExchangeSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CurrentTurnHandExchange.CurrentTurnHandExchangeSource(frame);
 
     private TurnEndingBoundaryFrame RequireCurrentTurnHandExchangeParent(ProgramSkillFrame frame)
     {

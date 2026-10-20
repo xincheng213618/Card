@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string RoundDamageCardHistorySkillId = "system:round-damage-card-history";
-    private const string RoundDamageCardUsagePrefix = "card-name";
+    private const string RoundDamageCardUsagePrefix = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MouLuMeng.RoundDamageCardUsagePrefix;
 
     private readonly HashSet<int> _roundTurnSeats = [];
     private int _roundNumber;
@@ -30,12 +30,10 @@ public sealed partial class GameEngine
         _roundTurnSeats.Add(current.Seat);
     }
 
-    private static bool IsDamageCardKind(CardKind kind) => kind is
-        CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or
-        CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
-        CardKind.FireAttack or CardKind.WumiaoFlood;
+    private static bool IsDamageCardKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MouLuMeng.IsDamageCardKind(kind);
 
     private static string GetRoundDamageCardUsageId(CardKind kind) =>
-        $"{RoundDamageCardUsagePrefix}.{kind}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MouLuMeng.GetRoundDamageCardUsageId(kind);
 
 }

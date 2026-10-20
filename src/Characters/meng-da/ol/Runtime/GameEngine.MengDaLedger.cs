@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasGoudeCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd);
-    private static CardConversionSource MengDaSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource MengDaSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_meng_da_ol_MengDaLedger.MengDaSource(f);
     private IReadOnlyList<int> GoudeFactionSeats(int owner)
     {
         var faction=GetEffectiveFactionId(_players[owner]);

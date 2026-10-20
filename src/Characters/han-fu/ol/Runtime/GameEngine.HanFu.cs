@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private const string ShuziGiftReason = "skill-program.han-fu.shuzi.gift", ShuziReturnReason = "skill-program.han-fu.shuzi.return", ShuziBoardReason = "skill-program.han-fu.shuzi.board",
         KuangshouDrawReason = "skill-program.han-fu.kuangshou.draw", KuangshouDiscardReason = "skill-program.han-fu.kuangshou.discard";
-    private static CardConversionSource HanFuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource HanFuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_han_fu_ol_HanFu.HanFuSource(f);
     private HanFuMaterial HanFuMaterialFor(int id)
     {
         var card = GetAdvancedCard(id); var from = _cardZones.GetLocation(id);

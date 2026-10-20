@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static string ActualTurnViewAsUsageId(SkillProgramViewAs rule) =>
-        $"view-as-actual-turn:{rule.UsageGroup ?? rule.Id}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActualTurnViewAs.ActualTurnViewAsUsageId(rule);
 
     private bool CanUseActualTurnLimitedViewAs(IndexedSkillProgramInstance instance, SkillProgramViewAs rule, CharacterState owner) =>
         rule.UsesPerActualTurn is not { } limit ||

@@ -30,7 +30,8 @@ public sealed partial class GameEngine
         return amount;
     }
 
-    private static string MaximumHpReplacementUsage(string policyId) => "card-maximum-hp-replacement:" + policyId;
+    private static string MaximumHpReplacementUsage(string policyId) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardDamageMaximumHpReplacement.MaximumHpReplacementUsage(policyId);
 
     private bool TryReplaceCardDamageWithMaximumHpLoss(IDamageAttempt attack, out bool pending)
     {

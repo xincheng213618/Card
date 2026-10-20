@@ -8,7 +8,8 @@ public sealed partial class GameEngine
     private const string OlMoRumoBinding = "no-damage-round-ending";
     private bool HasOlMoRumoCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveOlMoRumoRoundPenalty);
-    private static string OlMoRumoInstance(long entryId) => "ol:mo-rumo@" + entryId.ToString(CultureInfo.InvariantCulture);
+    private static string OlMoRumoInstance(long entryId) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules__shared_OlMoRumo.OlMoRumoInstance(entryId);
 
     // Entry is synchronous. The issuing operation owns all its cost children
     // and must reach its exact already-paid entering stage before this call.

@@ -40,7 +40,8 @@ public sealed partial class GameEngine
         }
         if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}prompt&&r.Stage is HuiyunStage.OptionChoice or HuiyunStage.HandUseChoice&&(prompt.PlayerSeat!=(r.Stage==HuiyunStage.OptionChoice?f.OwnerSeat:HuiyunCurrent(r).TargetSeat)||!AssistedChoicesEqual(prompt.Choices,HuiyunChoices(f))))throw new InvalidOperationException("Huiyun lost its exact currently published private target choice.");
     }
-    private static CardMoveReason HuiyunNativePaymentReason(HuiyunNativeInvoice n)=>n.Plan.Kind==LegalActionKind.Equip?CardMoveReasons.EquipmentUse:n.Plan.Kind==LegalActionKind.IronChain?CardMoveReasons.IronChainUse:CardMoveReasons.Use;
+    private static CardMoveReason HuiyunNativePaymentReason(HuiyunNativeInvoice n) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hu_ban_ol_HuiyunObservers.HuiyunNativePaymentReason(n);
     private bool HasHuiyunCompletedUseObserver(long useId)
     {
         var index=_resolutionStack.FindIndex(f=>f.Id==useId);

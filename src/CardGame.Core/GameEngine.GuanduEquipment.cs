@@ -5,7 +5,8 @@ public sealed record GuanduChariotDestroyedEvent(int CardId, int MovementSequenc
 
 public sealed partial class GameEngine
 {
-    private static string? GuanduEquipmentSkillGrantId(Card card) => card.Kind == CardKind.ThunderChariot ? $"equipment:guandu:{card.Id}" : null;
+    private static string? GuanduEquipmentSkillGrantId(Card card) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduEquipment.GuanduEquipmentSkillGrantId(card);
     private bool ResolveGuanduEquipmentSkillGrant(Card card, CardLocation from, CardLocation to)
     {
         if (GuanduEquipmentSkillGrantId(card) is not { } grant) return false;
@@ -15,7 +16,7 @@ public sealed partial class GameEngine
         return true;
     }
     private static bool IsGuanduThunderChariotDeparture(Card card, CardLocation from, CardLocation to) =>
-        card.Kind == CardKind.ThunderChariot && from.Zone == CardZoneKind.Equipment && from != to;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduEquipment.IsGuanduThunderChariotDeparture(card,from,to);
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 44002)]
     private void RecordGuanduChariotDestruction(IGameEvent payload)
     {

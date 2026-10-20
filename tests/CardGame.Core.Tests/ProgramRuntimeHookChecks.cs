@@ -48,7 +48,7 @@ internal static class ProgramRuntimeHookChecks
         Require(catalog.Hooks.Values.Concat(catalog.Invariants.Values).Concat(catalog.RecoveryParents.Values)
                 .All(rows => rows is IList<ProgramRuntimeRegistration> list && list.IsReadOnly),
             "Shared metadata lists must be frozen.");
-        _ = ProgramRuntimeHookCatalog.Discover(typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
+        _ = ProgramRuntimeHookCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
     }
 
     public static void InvalidMetadataRejected()

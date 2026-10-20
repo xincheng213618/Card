@@ -14,7 +14,8 @@ public sealed partial class GameEngine
         for(var i=0;i<opportunities.Count;i++)AdvanceEventRulesAndQueueFact(new HuiyunOpportunityIssuedEvent(f.Id,i,opportunities[i]));
         ContinueHuiyun(f.Id);return SkillProgramStepOutcome.AwaitChild;
     }
-    private static HuiyunOpportunity HuiyunCurrent(HuiyunReceipt r)=>r.Opportunities[r.Index];
+    private static HuiyunOpportunity HuiyunCurrent(HuiyunReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hu_ban_ol_Huiyun.HuiyunCurrent(r);
     private IReadOnlyList<PromptChoice> HuiyunChoices(ProgramSkillFrame f)
     {
         var r=f.Huiyun!;var o=HuiyunCurrent(r);var args=new Dictionary<string,string>{{"program-action","huiyun"},{"frame-id",f.Id.ToString(CultureInfo.InvariantCulture)}};

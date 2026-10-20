@@ -8,7 +8,8 @@ public sealed partial class GameEngine
  private bool HasLiYiCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveChanshuangEnding);
  private bool HasLiYiVirtualStoneAxe(CharacterState player,int? excludedEquipmentId=null,EquipmentSlot? excludedEquipmentSlot=null)=>player.IsAlive&&HasCardPolicy(player,SkillProgramCardPolicyKind.EmptyWeaponStoneAxe)&&!GetEquipment(player).Any(c=>c.Id!=excludedEquipmentId&&(excludedEquipmentSlot is null||EquipmentCatalog.Get(c.Kind).Slot!=excludedEquipmentSlot)&&EquipmentCatalog.Get(c.Kind).Slot==EquipmentSlot.Weapon);
  private CardConversionSource ChanshuangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
- private static string ChanshuangHash<T>(T value)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value))));
+ private static string ChanshuangHash<T>(T value) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_yi_ol_LiYiQueries.ChanshuangHash<T>(value);
  private IGameEvent[] ChanshuangActualTurnHistory()
  {
   if(!HasLiYiCapability||_turnNumber<1||_turnProgression.TurnNumber!=_turnNumber)return [];
@@ -30,9 +31,10 @@ public sealed partial class GameEngine
   }
   return mask;
  }
- private static int ChanshuangItemCount(ChanshuangReceipt r)=>r.Operation==SkillProgramEffectOp.ResolveChanshuangEnding?System.Numerics.BitOperations.PopCount((uint)r.FrozenMask):2;
- private static ChanshuangVote ChanshuangItem(ProgramSkillFrame f)
- {var r=f.Chanshuang!;return r.Operation==SkillProgramEffectOp.ResolveChanshuangEnding?new(f.OwnerSeat,(ChanshuangOption)(r.Cursor+1)):r.Votes[r.Cursor];}
+ private static int ChanshuangItemCount(ChanshuangReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_yi_ol_LiYiQueries.ChanshuangItemCount(r);
+ private static ChanshuangVote ChanshuangItem(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_yi_ol_LiYiQueries.ChanshuangItem(f);
  private int ChanshuangChooser(ProgramSkillFrame f)=>f.Chanshuang is{Stage:ChanshuangStage.Votes,Votes.Count:1}r?r.PeerSeat:f.Chanshuang!.Stage==ChanshuangStage.Votes?f.OwnerSeat:ChanshuangItem(f).Seat;
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27481)]
  private bool CanOfferChanshuangEnding(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>t.Effects is not[{Op:SkillProgramEffectOp.ResolveChanshuangEnding}]||context.Window==SkillProgramTriggerWindow.TurnEnding&&context.OwnerSeat==c.OwnerSeat&&context.SourceSeat==c.OwnerSeat&&_currentSeat==c.OwnerSeat&&_turnProgression.OwnerSeat==c.OwnerSeat&&CurrentChanshuangMask(c.OwnerSeat)!=0;

@@ -6,8 +6,8 @@ public sealed partial class GameEngine
     private static readonly CardMoveReason BaoGainReason = new("skill-program.converted-nonbasic-slash.obtain");
     private static readonly CardMoveReason BaoCostReason = new("skill-program.chosen-assault.cost");
     private static readonly CardMoveReason BaoOutcomeReason = new("skill-program.chosen-assault.random-discard");
-    private static bool IsBaoOperation(SkillProgramEffectOp op) => op is SkillProgramEffectOp.TakeConvertedSlashTargetAndResetLimitedSkill or
-        SkillProgramEffectOp.PayTwoForChosenAssaultAndApplyTargetOutcomes or SkillProgramEffectOp.DyingRecipientChooseReplaceOrGrantThenRecover;
+    private static bool IsBaoOperation(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bao_san_niang_ol_Bao2025.IsBaoOperation(op);
     private CardConversionSource BaoSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
     private bool BaoSourceCurrent(ProgramSkillFrame f) => _players[f.OwnerSeat].IsAlive && HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 320)]

@@ -24,7 +24,8 @@ public sealed partial class GameEngine
     }
     private CardKind? GuanduLastDamageCard(int seat) => ProgramEventHistory<GuanduDamagingCardRecordedEvent>()
         .LastOrDefault(e => e.TargetSeat == seat)?.Kind;
-    private static string GuanduKindName(CardKind kind) => char.ToLowerInvariant(kind.ToString()[0]) + kind.ToString()[1..];
+    private static string GuanduKindName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduGeneralNativeCards.GuanduKindName(kind);
 
     private bool IsGuanduChoiceResult(ProgramSkillFrame f, ProgramChoiceResultBinding binding)
     {

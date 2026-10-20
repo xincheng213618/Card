@@ -49,30 +49,7 @@ public sealed partial class GameEngine
     // (dead seats are skipped, the target endpoint always counts). Equal arcs
     // contribute their union.
     private int[] SaodiBetweenSeats(int ownerSeat, int targetSeat)
-    {
-        var clockwise = CollectAliveSeatsOnArc(ownerSeat, targetSeat, step: 1);
-        var counterClockwise = CollectAliveSeatsOnArc(ownerSeat, targetSeat, step: -1);
-        int ArcLength(List<int> arc) => arc.Count + 1;
-        if (ArcLength(clockwise) < ArcLength(counterClockwise))
-            return clockwise.Order().ToArray();
-        if (ArcLength(counterClockwise) < ArcLength(clockwise))
-            return counterClockwise.Order().ToArray();
-        return clockwise.Concat(counterClockwise).Distinct().Order().ToArray();
-    }
-
-    private List<int> CollectAliveSeatsOnArc(int ownerSeat, int targetSeat, int step)
-    {
-        var seats = new List<int>();
-        var seat = ownerSeat;
-        do
-        {
-            seat = (seat + step + _playerCount) % _playerCount;
-            if (seat == targetSeat) break;
-            if (_players[seat].IsAlive) seats.Add(seat);
-        }
-        while (seat != ownerSeat);
-        return seats;
-    }
+        => ((SaodiSeatingRuntime)GetRuntimeModuleInstance(typeof(SaodiSeatingRuntime))).BetweenSeats(ownerSeat, targetSeat);
 
     // One added target must be a legal recipient of the pending card, mirroring
     // the shared original-target checks. Distance never disqualifies an

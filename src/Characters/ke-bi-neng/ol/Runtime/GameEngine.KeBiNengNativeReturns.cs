@@ -2,11 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool SameKeBiNengAction(LegalAction a, LegalAction b) => a.Kind == b.Kind && a.CardId == b.CardId && a.TargetSeat == b.TargetSeat &&
-        a.PlayedCardKind == b.PlayedCardKind && a.TargetCardId == b.TargetCardId && a.ConversionSource == b.ConversionSource && a.EquipmentKind == b.EquipmentKind &&
-        a.ProgramSkillId == b.ProgramSkillId && a.ProgramActivationId == b.ProgramActivationId && a.RoundOnceCardlessBasicUse == b.RoundOnceCardlessBasicUse &&
-        a.TieredRoundZeroUse == b.TieredRoundZeroUse && a.DrawFundedDistinctBasicUse == b.DrawFundedDistinctBasicUse && a.ChainedStateBasicUse == b.ChainedStateBasicUse &&
-        a.TargetSeats.SequenceEqual(b.TargetSeats) && KeBiNengMaterials(a).SequenceEqual(KeBiNengMaterials(b)) && (a.AdditionalConversionSources ?? []).SequenceEqual(b.AdditionalConversionSources ?? []);
+    private static bool SameKeBiNengAction(LegalAction a, LegalAction b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ke_bi_neng_ol_KeBiNengNativeReturns.SameKeBiNengAction(a,b);
     private bool KeBiNengPaymentRidesOn(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing, SelectedBasicAction: { ConversionSource: { } source } action } r || !ValidKeBiNeng(f)) return false;

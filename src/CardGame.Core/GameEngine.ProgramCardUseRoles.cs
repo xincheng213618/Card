@@ -22,9 +22,7 @@ public sealed partial class GameEngine
     // character who is already that card's sole designated target, which is how a Slash passes on
     // to another character without moving away from the original target.
     private static bool IsProgramCardUseRoleOwner(int ownerSeat, CardActionContext action, bool ownerMayBeTarget) =>
-        action.ActorSeat == ownerSeat ||
-        ownerMayBeTarget && action.EffectiveDesignatedTargetSeats.Contains(ownerSeat) &&
-        action.EffectiveKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardUseRoles.IsProgramCardUseRoleOwner(ownerSeat,action,ownerMayBeTarget);
 
     private IReadOnlyList<int> GetProgramCardUseRoleTargets(ProgramSkillFrame frame, bool ownerMayBeTarget = false)
     {

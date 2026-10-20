@@ -17,7 +17,8 @@ public sealed partial class GameEngine
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 27040)]
     private void ObserveKeBiNengAlcoholExpiry(IGameEvent payload)
     { if (payload is TurnEndedEvent ended) ExpireKeBiNengPingduanAlcohol(ended.TurnNumber, ended.ActorSeat); }
-    private static CardConversionSource KeBiNengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource KeBiNengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ke_bi_neng_ol_KeBiNeng.KeBiNengSource(f);
     [ProgramCapability]
     private sealed class KeBiNengCapability(GameEngine engine) : IKeBiNengProgramHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame frame) => engine.BeginKeBiNeng(frame); }
@@ -49,8 +50,10 @@ public sealed partial class GameEngine
     private IReadOnlyList<KeBiNengPingduanCard> KeBiNengEquipmentCards(ProgramSkillFrame f) => Array.AsReadOnly(GetEquipment(f.KeBiNengPingduan!.ActorSeat)
         .Where(c => !IsActiveProgramSourceEquipmentCard(f.OwnerSeat, f.SkillId, f.SkillInstanceId, c))
         .OrderBy(c => c.Id).Select(c => new KeBiNengPingduanCard(c.Id, _cardZones.GetLocation(c.Id), c.Kind)).ToArray());
-    private static Dictionary<string, string> KeBiNengArgs(string option) => new() { ["program-action"] = "ke-bi-neng-pingduan", ["option"] = option };
-    private static IReadOnlyList<int> KeBiNengMaterials(LegalAction a) => a.MinCardCount > 0 || a.MaxCardCount > 1 ? a.SelectableCardIds : a.CardId is > 0 ? [a.CardId.Value] : [];
+    private static Dictionary<string, string> KeBiNengArgs(string option) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ke_bi_neng_ol_KeBiNeng.KeBiNengArgs(option);
+    private static IReadOnlyList<int> KeBiNengMaterials(LegalAction a) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ke_bi_neng_ol_KeBiNeng.KeBiNengMaterials(a);
     private IReadOnlyList<PromptChoice> KeBiNengChoices(ProgramSkillFrame f)
     {
         var r = f.KeBiNengPingduan!; var choices = new List<PromptChoice>();

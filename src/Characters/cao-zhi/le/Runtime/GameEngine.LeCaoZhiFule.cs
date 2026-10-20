@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private const string LeCaoZhiFuleSkill = "le:fule";
     private const string FuleInitialBinding = "mark-initial-entities";
     private bool HasLeCaoZhiFuleCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeLeCaoZhiFule);
-    private static CardConversionSource FuleSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource FuleSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_zhi_le_LeCaoZhiFule.FuleSource(f);
 
     private FuEntityNameSnapshot? CaptureLeCaoZhiFuEntity(int cardId)
     {

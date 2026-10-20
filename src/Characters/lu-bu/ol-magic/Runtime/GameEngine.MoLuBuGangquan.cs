@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool IsMoGangquanSource(CardConversionSource? s) => s?.SkillId == MoLuBuComposition.Gangquan && s.BindingId == "qi-equipment-fire-slash";
+    private static bool IsMoGangquanSource(CardConversionSource? s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_bu_ol_magic_MoLuBuGangquan.IsMoGangquanSource(s);
     private bool CanUseMoGangquan(CharacterState owner, IndexedSkillProgramInstance instance, SkillProgramViewAs rule, bool forResponse, bool dyingUse)
     {
         if (instance.SkillId != MoLuBuComposition.Gangquan) return true;

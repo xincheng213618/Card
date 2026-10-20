@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string BingzhongDrawReason = "skill-program.yang-fu.bingzhong.draw", SuyiEquipmentBind = "suyi-equipment";
-    private static CardConversionSource YangFuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource YangFuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yang_fu_ol_YangFu.YangFuSource(f);
     private YangFuReceipt NewYangFuReceipt(ProgramSkillFrame f, SkillProgramEffectOp op, YangFuStage stage, int target, int x,
         int? ordinal = null, CardUseFrame? use = null) => new(YangFuSource(f), f.GameplayHash, op, _turnNumber, f.WindowContext?.ParentFrameId ?? 0,
             target, x, ordinal, use?.Id, use?.Action?.ActionId, stage, use?.TargetSeats ?? [], [], _movementSequence, _movementSequence);

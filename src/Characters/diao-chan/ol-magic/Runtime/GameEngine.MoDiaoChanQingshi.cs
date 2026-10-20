@@ -14,8 +14,8 @@ public sealed partial class GameEngine
         return cohort is null || ProgramEventHistory<MoDiaoChanCardGrantedEvent>().Where(e => e.CohortId == cohort.CohortId)
             .All(e => _cardZones.GetLocation(e.CardId) != CardLocation.Hand(e.RecipientSeat));
     }
-    private static bool IsMoDcSingleDamageKind(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or
-        CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.Lightning or CardKind.AgainstCurrent;
+    private static bool IsMoDcSingleDamageKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_ol_magic_MoDiaoChanQingshi.IsMoDcSingleDamageKind(kind);
     private CardKind[] MoDcModeDamageKinds() => LeCaoZhiModeNamePool().Where(IsMoDcSingleDamageKind).ToArray();
     private void StartMoDcCohort(ProgramSkillFrame f)
     {

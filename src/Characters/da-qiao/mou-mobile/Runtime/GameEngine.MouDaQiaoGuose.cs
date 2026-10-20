@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private bool HasMouDaQiao => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouDaQiaoGuose);
     private int MouDaQiaoGuoseLimit => _modeDefinition.ModeKind == ContentModeKind.Identity ? 4 : 2;
-    private static CardConversionSource MouDaQiaoSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouDaQiaoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_mou_mobile_MouDaQiaoGuose.MouDaQiaoSource(f);
     private int MouDaQiaoGuoseUses(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouDaQiaoGuoseReservedEvent>().Count(e => e.Source.OwnerSeat == owner && e.Phase == phase);
     [ProgramPhaseUsedProjection(80)]
     private int MouDaQiaoProjectedPhaseUses(int owner, string skill, int fallback) => skill == MouDaQiaoComposition.Guose && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p ? MouDaQiaoGuoseUses(owner, p) : fallback;

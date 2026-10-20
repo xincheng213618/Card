@@ -3,10 +3,12 @@ public sealed partial class GameEngine
 {
     private const string ZhuJunDrawReason = "skill-program.zhu-jun.cuipo.draw";
     private bool HasZhuJunCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveCuipoActualTurnUse);
-    private static int ZhuJunCardNameLength(CardKind kind) => IsSlashCard(kind) ? 1 : kind == CardKind.BorrowedSword ? 2 : CardCatalog.Get(kind).DisplayName.Length;
+    private static int ZhuJunCardNameLength(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhu_jun_ol_ZhuJun.ZhuJunCardNameLength(kind);
     // Delayed Lightning is not an ordinary damage trick. Borrowed Sword's
     // subsequent Slash is a separate card; Unexpected Assault itself deals damage.
-    private static bool IsZhuJunDamageCard(CardKind kind) => IsSlashCard(kind) || kind is CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault;
+    private static bool IsZhuJunDamageCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhu_jun_ol_ZhuJun.IsZhuJunDamageCard(kind);
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 27030)]
     private void ObserveZhuJunActualUse(IGameEvent payload)
     {

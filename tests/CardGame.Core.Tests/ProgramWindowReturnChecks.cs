@@ -44,7 +44,7 @@ internal static class ProgramWindowReturnChecks
         RequireThrows(() => new ReturnCatalog([new(SkillProgramTriggerWindow.GameStarting, "missing", null!)]));
         try { ((IList<ReturnCatalog.Registration>)catalog.Registrations)[0] = catalog.Registrations[0]; throw new Exception("Return metadata was mutable."); }
         catch (NotSupportedException) { }
-        var methods = typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
+        var methods = ProgramRuntimeModuleCatalog.Default.Methods;
         var forward = ReturnCatalog.Discover(methods);
         var reverse = ReturnCatalog.Discover(methods.Reverse());
         Require(forward.Registrations.Select(item => (item.Window, item.Method))
@@ -64,8 +64,7 @@ internal static class ProgramWindowReturnChecks
         var game = GameEngine.CreateStandard(new GameOptions
         { Seed = 7, PlayerCount = 5, ModeId = "identity:standard-5", AdvanceAfterHumanCommands = false },
             CardGame.Content.Standard.StandardContentRegistry.CreateWithClassicGenerals());
-        var catalog = ReturnCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
+        var catalog = ReturnCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
         var frame = new ProgramSkillFrame(41, 0, Skill, "run", "hash", 0, [], []);
         var before = JsonSerializer.Serialize(game.ResolutionStack);
         foreach (var window in new[]

@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static bool ChenglieChildren(ChenglieStage s)=>s is ChenglieStage.RevealChildren or ChenglieStage.ExchangeChildren or ChenglieStage.AssignmentChildren or ChenglieStage.GiftChildren or ChenglieStage.RecoveryChildren or ChenglieStage.CleanupChildren;
+    private static bool ChenglieChildren(ChenglieStage s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_cheng_ol_ChenglieObservers.ChenglieChildren(s);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27560)]private void AssertMaCheng(ProgramSkillFrame f)
     {
         if(f.Chenglie is not{}r)return;var use=RequireChenglieParent(f);var op=r.Outcome?SkillProgramEffectOp.ResolveChenglieRedHolderOutcome:SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards;

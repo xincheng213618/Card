@@ -4,7 +4,8 @@ public sealed partial class GameEngine
     private const string JiaweiDiscard = "skill-program.yang-feng.jiawei.discard", JiaweiOwnerGain = "skill-program.yang-feng.jiawei.owner-gain",
         JiaweiTargetGain = "skill-program.yang-feng.jiawei.target-gain", JiaweiCleanup = "skill-program.yang-feng.jiawei.cleanup",
         QujiaGain = "skill-program.yang-feng.qujia.gain", JiaweiRevealBind = "jiawei-public-top";
-    private static CardConversionSource YangFengSource(ProgramSkillFrame f) => new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource YangFengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yang_feng_ol_YangFeng.YangFengSource(f);
     private int YangFengCompletedTurns(int owner, int cutoff) => CompleteProgramEventHistory().Take(cutoff).OfType<TurnEndedEvent>().Count(e => e.ActorSeat == owner);
     [ProgramCapability]
     private sealed class YangFengCapability(GameEngine engine) : IYangFengHost

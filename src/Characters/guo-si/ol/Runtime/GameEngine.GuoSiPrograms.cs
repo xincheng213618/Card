@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string TanbeiGainReason="skill-program.tanbei.gain";
- private static CardConversionSource GuoSiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource GuoSiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_si_ol_GuoSiPrograms.GuoSiSource(f);
  private SkillProgramStepOutcome ExecuteGuoSi(SkillProgramEffectOp op,ProgramSkillFrame supplied)
  {
   var f=GetActiveProgramFrame(supplied.Id);if(f.GuoSi is not null||f.InstructionIndex!=1||_phase!=TurnPhase.Play||_currentSeat!=f.OwnerSeat||!_players[f.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId))throw new InvalidOperationException("Guo Si requires the unpaid actual own Play source.");

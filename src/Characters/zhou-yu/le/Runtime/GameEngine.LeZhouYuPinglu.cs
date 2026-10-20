@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     private bool HasLeZhouYuPingluCapability => _contentRegistry.ProgramDependencies
         .HasActivationOperation(SkillProgramEffectOp.ResolvePingluInRangeRandomHands);
     private static CardConversionSource PingluSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_le_LeZhouYuPinglu.PingluSource(frame);
 
     [ProgramCapability]
     private sealed class LeZhouYuPingluCapability(GameEngine engine) : ILeZhouYuPingluHost

@@ -78,8 +78,8 @@ public sealed partial class GameEngine
         BeginJizhiOrNullificationWindow(useId, card, actor.Seat, LifecycleCardUse(useId)!.TargetSeats,
             p.ActionKind, p.TargetCardId, p.RequiredKind, p.Kind);
     }
-    private static bool SameMouLiuChengPlan(MouLiuChengUsePlan a, MouLiuChengUsePlan b) => a.Kind == b.Kind && a.ActionKind == b.ActionKind &&
-        a.TargetCardId == b.TargetCardId && a.RequiredKind == b.RequiredKind && a.Adjusted == b.Adjusted && a.Targets.SequenceEqual(b.Targets);
+    private static bool SameMouLiuChengPlan(MouLiuChengUsePlan a, MouLiuChengUsePlan b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_cheng_mou_mobile_MouLiuChengNative.SameMouLiuChengPlan(a,b);
     private CardActionContext PrepareMouLiuChengAction(CardActionContext action)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { MouLiuChengCompletion: { Stage: MouLiuChengStage.NativeIssuing } r } f)

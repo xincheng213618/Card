@@ -160,8 +160,7 @@ public sealed partial class GameEngine
     }
 
     private static HashSet<string> VisiblePredictionSkillIds(PlayerSnapshot player) =>
-        (player.Skills ?? []).Concat(player.SecondarySkills ?? []).Select(skill => skill.ContentId)
-            .OfType<string>().ToHashSet(StringComparer.Ordinal);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicDamagePrediction.VisiblePredictionSkillIds(player);
 
     private Func<int, int, int>? CreatePublicSourceOccurrenceDamageBonus(int viewerSeat)
     {

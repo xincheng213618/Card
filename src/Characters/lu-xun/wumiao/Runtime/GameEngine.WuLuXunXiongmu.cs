@@ -9,7 +9,8 @@ public sealed partial class GameEngine
     private const string XiongmuPutReason = "skill-program.wu-lu-xun.xiongmu.put";
     private const string XiongmuObtainReason = "skill-program.wu-lu-xun.xiongmu.obtain";
     private bool HasWuXiongmuCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuLuXunXiongmu);
-    private static CardConversionSource WuXiongmuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuXiongmuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_xun_wumiao_WuLuXunXiongmu.WuXiongmuSource(f);
     [ProgramCapability]
     private sealed class WuLuXunXiongmuCapability(GameEngine engine) : IWuLuXunXiongmuHost
     {

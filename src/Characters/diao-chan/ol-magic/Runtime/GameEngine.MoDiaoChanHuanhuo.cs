@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMoDiaoChan => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMoDiaoChanHuanhuoRound) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMoDiaoChanQingshiPrep);
-    private static CardConversionSource MoDcSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MoDcSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_ol_magic_MoDiaoChanHuanhuo.MoDcSource(f);
     private int? MoDcDueTurn(MoDiaoChanPromiseEvent p) => CompleteProgramEventHistory().OfType<TurnStartedEvent>()
         .Skip(p.AfterTurnStartOrdinal).FirstOrDefault(t => t.ActorSeat == p.TargetSeat)?.TurnNumber;
     private MoDiaoChanPromiseEvent[] ActiveMoDcPromises(int actor) => !HasMoDiaoChan || !HasOngoingWholeActualUseTurn || actor != _turnProgression.OwnerSeat ||

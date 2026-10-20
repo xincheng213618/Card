@@ -3,9 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool SameRandomAreaStep(RandomAreaAcquisitionStepReceipt a, RandomAreaAcquisitionStepReceipt b) =>
-        a.SeatIndex == b.SeatIndex && a.TargetSeat == b.TargetSeat && a.SelectedZone == b.SelectedZone && a.RandomBefore == b.RandomBefore && a.RandomAfter == b.RandomAfter &&
-        a.MovementBatchId == b.MovementBatchId && a.SequenceBefore == b.SequenceBefore && a.SequenceAfter == b.SequenceAfter &&
-        a.EligibleZones.SequenceEqual(b.EligibleZones) && a.Materials.SequenceEqual(b.Materials) && a.Movements.SequenceEqual(b.Movements);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RandomAreaAcquisitionProofs.SameRandomAreaStep(a,b);
     private bool ValidRandomAreaStep(ProgramSkillFrame frame, RandomAreaAcquisitionStepReceipt step)
     {
         if (step.SeatIndex < 0 || step.SeatIndex >= frame.RandomAreaAcquisition!.OtherSeats.Count || frame.RandomAreaAcquisition.OtherSeats[step.SeatIndex] != step.TargetSeat ||

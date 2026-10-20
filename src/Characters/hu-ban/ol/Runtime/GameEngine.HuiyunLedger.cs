@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasHuBanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack);
-    private static CardConversionSource HuiyunSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource HuiyunSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hu_ban_ol_HuiyunLedger.HuiyunSource(f);
     private void IssueHuiyunUse(long id,CardActionContext? a)
     {
         if(!HasHuBanCapability||a is not{Type:CardActionType.Use,EffectiveKind:CardKind.FireAttack}||a.ConversionChain.SingleOrDefault(s=>s.SkillId=="ol:huiyun"&&s.BindingId=="huiyun-fire-attack")is not{}source)return;

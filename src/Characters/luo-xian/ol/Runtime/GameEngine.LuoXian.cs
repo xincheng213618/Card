@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static CardConversionSource DailiSource(ProgramSkillFrame frame) => new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+    private static CardConversionSource DailiSource(ProgramSkillFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_luo_xian_ol_LuoXian.DailiSource(frame);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 26420)]
     private bool CanOfferDaili(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDailiTurnEnd) ||

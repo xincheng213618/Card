@@ -439,33 +439,24 @@ public sealed partial class GameEngine
         });
     }
 
-    private static bool IsProgramAttackRangeCoverageDecreased(ProgramSkillFrame frame, string bind)
-    {
-        var result = frame.AttackRangeCoverageBindings.Single(item => item.Name == bind);
-        return result.AfterCount < result.BeforeCount;
-    }
+    private static bool IsProgramAttackRangeCoverageDecreased(ProgramSkillFrame frame, string bind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.IsProgramAttackRangeCoverageDecreased(frame,bind);
 
     private static bool MatchesProgramCardCategory(
         CardKind kind,
-        IReadOnlyList<SkillProgramCardCategory> categories)
-    {
-        return categories.Any(category => MatchesSkillProgramCardCategory(kind, category));
-    }
+        IReadOnlyList<SkillProgramCardCategory> categories) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.MatchesProgramCardCategory(kind,categories);
 
     // "Trick" keeps matching every trick; "InstantTrick" excludes delayed tricks (Indulgence, SupplyShortage, Lightning).
     private static bool MatchesSkillProgramCardCategory(CardKind kind, SkillProgramCardCategory category) =>
-        category != SkillProgramCardCategory.InstantTrick
-            ? GetProgramCardCategory(kind) == category
-            : GetProgramCardCategory(kind) == SkillProgramCardCategory.Trick &&
-              CardUseCategoryCatalog.Get(kind) is not CardUseCategories.DelayedTrick;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.MatchesSkillProgramCardCategory(kind,category);
     
 
     private static bool MatchesProgramCardFilter(
         CardKind kind,
         IReadOnlyList<SkillProgramCardCategory> categories,
         IReadOnlyList<CardKind> kinds) =>
-        (categories.Count == 0 || MatchesProgramCardCategory(kind, categories)) &&
-        (kinds.Count == 0 || kinds.Contains(kind));
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.MatchesProgramCardFilter(kind,categories,kinds);
 
     /// <summary>Equipment gifts cannot replace an equipped card: the matching slot must be free.</summary>
     private bool CanEnterEquipmentSlot(int recipientSeat, Card card) =>
@@ -474,15 +465,6 @@ public sealed partial class GameEngine
             EquipmentCatalog.Get(equipped.Kind).Slot == EquipmentCatalog.Get(card.Kind).Slot) <
         _players[recipientSeat].EquipmentSlotCapacity(EquipmentCatalog.Get(card.Kind).Slot);
 
-    private static SkillProgramCardCategory GetProgramCardCategory(CardKind kind)
-    {
-        return EquipmentCatalog.IsEquipment(kind)
-            ? SkillProgramCardCategory.Equipment
-            : CardCatalog.Get(kind).CategoryName switch
-            {
-                "基本牌" => SkillProgramCardCategory.Basic,
-                "锦囊牌" => SkillProgramCardCategory.Trick,
-                _ => throw new InvalidOperationException($"Card kind '{kind}' has no supported skill-program category.")
-            };
-    }
+    private static SkillProgramCardCategory GetProgramCardCategory(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.GetProgramCardCategory(kind);
 }

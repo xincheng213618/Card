@@ -15,18 +15,14 @@ public sealed partial class GameEngine
     private bool _turnDefaultStatLedgerStarted;
     private bool TracksTurnDefaultStats => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.AllocateCurrentTurnDefaultStats);
-    private static IReadOnlyList<int> NewTurnDefaultSlots() => Array.AsReadOnly(new[] { 1, 2, 3, 4 });
+    private static IReadOnlyList<int> NewTurnDefaultSlots() =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TurnDefaultStats.NewTurnDefaultSlots();
     private static IReadOnlyDictionary<TurnDefaultStatKind, TurnDefaultStatAssignment> EmptyTurnDefaultAssignments() =>
         new System.Collections.ObjectModel.ReadOnlyDictionary<TurnDefaultStatKind, TurnDefaultStatAssignment>(new Dictionary<TurnDefaultStatKind, TurnDefaultStatAssignment>());
-    private static TurnDefaultStatKind FirstTurnDefaultStat(SkillProgramTriggerWindow window) => window switch {
-        SkillProgramTriggerWindow.DrawPhaseStarting => TurnDefaultStatKind.DrawCount,
-        SkillProgramTriggerWindow.PlayPhaseStarting => TurnDefaultStatKind.AttackRange,
-        SkillProgramTriggerWindow.DiscardPhaseStarting => TurnDefaultStatKind.HandLimit,
-        _ => throw new InvalidOperationException("A default-stat allocation has no phase boundary.") };
-    private static string TurnDefaultStatName(TurnDefaultStatKind stat) => stat switch {
-        TurnDefaultStatKind.DrawCount => "摸牌数", TurnDefaultStatKind.AttackRange => "攻击范围",
-        TurnDefaultStatKind.SlashLimit => "杀使用次数", TurnDefaultStatKind.HandLimit => "手牌上限",
-        _ => throw new InvalidOperationException("Unknown default-stat kind.") };
+    private static TurnDefaultStatKind FirstTurnDefaultStat(SkillProgramTriggerWindow window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TurnDefaultStats.FirstTurnDefaultStat(window);
+    private static string TurnDefaultStatName(TurnDefaultStatKind stat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TurnDefaultStats.TurnDefaultStatName(stat);
     private static TurnDefaultStatState EmptyTurnDefaultState(CardConversionSource source, string hash) =>
         new(source, hash, 0, false, NewTurnDefaultSlots(), 0, EmptyTurnDefaultAssignments(), NewTurnDefaultSlots());
     private void RecordTurnDefaultStatFact(IGameEvent fact)

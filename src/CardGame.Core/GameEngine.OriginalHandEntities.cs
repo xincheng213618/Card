@@ -44,7 +44,7 @@ public sealed partial class GameEngine
         _originalHandPermanentBonuses.Values.Where(b => b.RecipientSeat == owner && b.SourceSkillId == skill && b.StateId == stateId)
             .OrderBy(b => b.BonusId).ToArray();
     private static bool IsOriginalHandTrigger(SkillProgramTrigger trigger, SkillProgramEffectOp op) =>
-        trigger.Effects is [var effect] && effect.Op == op;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OriginalHandEntities.IsOriginalHandTrigger(trigger,op);
     private OriginalHandLossEligibleEvent? OriginalHandLossEligibility(int owner, string skill, string state, string binding, long sequence) =>
         CompleteProgramEventHistory().OfType<OriginalHandLossEligibleEvent>().SingleOrDefault(e => e.OwnerSeat == owner &&
             e.SkillId == skill && e.StateId == state && e.BindingId == binding && e.MovementSequence == sequence);

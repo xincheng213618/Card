@@ -3,8 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool IsThirdPartyHandGainTrigger(SkillProgramTrigger trigger) =>
-        trigger.Window == SkillProgramTriggerWindow.CardsGained &&
-        trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ThirdPartyHandGains.IsThirdPartyHandGainTrigger(trigger);
 
     // Offers one candidate per observed movement: a living character's hand card
     // passing to a different character's zone. The observing owner is decoupled
@@ -41,7 +40,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsOwnerSourceHandGainTrigger(SkillProgramTrigger trigger) =>
-        trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerOwnerSourceHandGain;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ThirdPartyHandGains.IsOwnerSourceHandGainTrigger(trigger);
 
     // Offers one candidate per observed movement of the observing owner's own hand
     // card into another living character's hand; the owner is the movement source.

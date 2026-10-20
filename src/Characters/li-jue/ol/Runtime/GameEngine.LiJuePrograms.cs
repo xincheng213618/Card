@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string YisuanGainReason="skill-program.yisuan.actual-used-trick";
- private static CardConversionSource LiJueSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource LiJueSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_jue_ol_LiJuePrograms.LiJueSource(f);
  private bool LiJueCurrentSource(ProgramSkillFrame f)=>_players[f.OwnerSeat].IsAlive&&_players[f.OwnerSeat].HasHpValue&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 440)]
  private bool CanOfferLiJue(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)

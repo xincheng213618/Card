@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private bool HasLeDiaoChanTanbanCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.InitializeTanbanInitialEntities);
     private static CardConversionSource TanbanSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_le_LeDiaoChanTanban.TanbanSource(frame);
 
     // One shared binary mark belongs to each physical entity, not to a holder or
     // grant. Losing/reacquiring a source never restores an old initial mark.

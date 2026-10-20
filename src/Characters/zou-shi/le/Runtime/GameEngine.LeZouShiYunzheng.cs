@@ -6,7 +6,7 @@ public sealed partial class GameEngine
         .HasTriggerOperation(SkillProgramEffectOp.InitializeYunzhengInitialEntities) || _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse);
     private static CardConversionSource YunzhengSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zou_shi_le_LeZouShiYunzheng.YunzhengSource(frame);
 
     // The physical mark outlives its original holder, zone and granting instance.
     private bool HasYunzhengEntityMark(int cardId) => HasLeZouShiCapability &&

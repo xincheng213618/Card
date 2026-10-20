@@ -4,9 +4,10 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string ZonghuOpen="zonghu-request",ZonghuChoice="zonghu-choice",ZonghuGiftReason="skill-program.liu-zhang.zonghu.give";
+    private const string ZonghuOpen=global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuOpen,ZonghuChoice="zonghu-choice",ZonghuGiftReason="skill-program.liu-zhang.zonghu.give";
     private bool HasZonghuCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveZonghuRequiredUseRequest);
-    private static CardConversionSource ZonghuSource(ProgramSkillFrame f)=>new(f.SkillId,f.ActivationId,f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource ZonghuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuSource(f);
     private bool ZonghuTurnOpen(int seat)=>_setupComplete&&_turnNumber>0&&_turnNumber==_turnProgression.TurnNumber&&!ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.OwnerSeat==_turnProgression.OwnerSeat);
     private bool ZonghuSpent(int seat)=>ProgramEventHistory<ZonghuCostPaidEvent>().Any(e=>e.Source.OwnerSeat==seat&&e.ActualTurn==_turnNumber&&e.ActualTurnOwner==_turnProgression.OwnerSeat);
     private IEnumerable<(CardConversionSource Source,string Hash)> ZonghuSources(CharacterState actor)
@@ -56,8 +57,10 @@ public sealed partial class GameEngine
         var targets=RoundOnceCardlessProgramTargets(p,provider,effect.Op);if(targets.Length==0)return null;
         return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>ZonghuIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>ZonghuIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>ZonghuIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner=>ZonghuIntent.FixedSlash,_=>ZonghuIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
     }
-    private static bool ZonghuIsDying(ZonghuNeed n)=>n.Intent==ZonghuIntent.Dying;
-    private static bool ZonghuIsPlayed(ZonghuNeed n)=>n.Intent is ZonghuIntent.Duel or ZonghuIntent.Group or ZonghuIntent.FactionDodge or ZonghuIntent.FactionSlashPlayed;
+    private static bool ZonghuIsDying(ZonghuNeed n) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuIsDying(n);
+    private static bool ZonghuIsPlayed(ZonghuNeed n) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuIsPlayed(n);
     private IEnumerable<(CardKind Kind,int Target)> ZonghuOutputs(ZonghuNeed n)
     {
         if(n.ProviderSeat!=n.ActorSeat||n.RequesterSeat is not null||n.Intent is ZonghuIntent.Dying or ZonghuIntent.Group or ZonghuIntent.Duel or ZonghuIntent.FactionDodge or ZonghuIntent.FactionSlashPlayed or ZonghuIntent.FactionSlashUse)yield break;
@@ -104,6 +107,6 @@ public sealed partial class GameEngine
         if(p is null||!HasZonghuCapability||p.Choices.Any(c=>c.Parameters.ContainsKey(ZonghuOpen))||CaptureZonghuNeed(p)is not{}n||!ZonghuSources(_players[p.PlayerSeat]).Any()||!ZonghuVictims(p.PlayerSeat).Any()||!ZonghuOutputs(n).Any())return p;
         if(p.PromptId==default)p=p with{PromptId=CreatePromptId()};var choices=p.Choices.ToList();foreach(var(source,_)in ZonghuSources(_players[p.PlayerSeat])){var args=new Dictionary<string,string>{{ZonghuOpen,"open"}};AddConversionParameters(args,source);choices.Add(new(new($"zonghu.{n.RequestFrameId}.{source.SkillInstanceId}"),"发动【宗护】：交给他人牌，视为本人使用杀或闪",[],[],args));}return p with{Choices=Array.AsReadOnly(choices.ToArray())};
     }
-    private static PendingDecision ZonghuNativeDecision(PendingDecision p)
-    { p=HuanpeiNativeDecision(p);return p.Choices.Any(c=>c.Parameters.ContainsKey(ZonghuOpen))?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey(ZonghuOpen)).ToArray())}:p; }
+    private static PendingDecision ZonghuNativeDecision(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuNativeDecision(p);
 }

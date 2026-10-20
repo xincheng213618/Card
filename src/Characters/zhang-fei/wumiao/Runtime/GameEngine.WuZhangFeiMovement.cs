@@ -3,10 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string WuZishengSkill = "wumiao:zisheng";
-    private const string WuZishengMovementBinding = "retaliate-foreign-cards";
+    private const string WuZishengMovementBinding = global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiMovement.WuZishengMovementBinding;
     private bool HasWuZishengMovementCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuZhangFeiMovementDamage);
-    private static bool IsWuZishengMovementTrigger(SkillProgramTrigger t) => t.Id == WuZishengMovementBinding &&
-        t.Window == SkillProgramTriggerWindow.CardsMoved && t.Effects is [{ Op: SkillProgramEffectOp.ResolveWuZhangFeiMovementDamage }];
+    private static bool IsWuZishengMovementTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiMovement.IsWuZishengMovementTrigger(t);
     private WuZishengMovementSource[] CaptureWuZishengMovementSources() => !HasWuZishengMovementCapability || !_setupComplete ? [] :
         _players.Where(p => p.IsAlive).SelectMany(p => GetSkillBindingShard(p).ProgramInstances
             .Where(i => i.SkillId == WuZishengSkill && i.Program.Triggers.Any(IsWuZishengMovementTrigger))
@@ -287,8 +287,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Zisheng's exact suspended ancestor dying token or native cursor changed.");
     }
 
-    private static string WuZishengCursorHash(ResolutionFrame frame) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-        System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(frame))));
+    private static string WuZishengCursorHash(ResolutionFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiMovement.WuZishengCursorHash(frame);
     private WuZishengSuspendedDying? CaptureWuZishengAncestorDying(ProgramSkillFrame f)
     {
         if (ActiveDying is not { } dying) return null;

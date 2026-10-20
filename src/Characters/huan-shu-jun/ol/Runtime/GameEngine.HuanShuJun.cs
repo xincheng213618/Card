@@ -9,7 +9,8 @@ public sealed partial class GameEngine
     private const string HuanpeiDiscardReason = "skill-program.huan-shu-jun.huanpei.discard";
     private const string MiaoxinDrawReason = "skill-program.huan-shu-jun.miaoxin.draw";
     private bool HasHuanShuJunCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWenyiHealthOneAid) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh);
-    private static CardConversionSource HuanShuJunSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource HuanShuJunSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_HuanShuJun.HuanShuJunSource(f);
     [ProgramCapability] private sealed class HuanShuJunCapability(GameEngine e) : IHuanShuJunHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => e.BeginHuanShuJun(f, op); }
     private SkillProgramStepOutcome BeginHuanShuJun(ProgramSkillFrame supplied, SkillProgramEffectOp op)

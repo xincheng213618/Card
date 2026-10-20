@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private const string CaoTengJianxiongDrawReason="skill-program.cao-teng.jianxiong.draw";
     private const string CaoTengJianxiongClaimReason="skill-program.cao-teng.jianxiong.claim";
     private bool HasCaoTengCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYongzuDistinctBenefits)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveCaoTengJianxiongDrawAndClaim);
-    private static CardConversionSource CaoTengSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource CaoTengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_teng_ol_CaoTeng.CaoTengSource(f);
     [ProgramCapability]private sealed class CaoTengCapability(GameEngine engine):ICaoTengHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>engine.BeginCaoTeng(f,op);}
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27300)]
     private bool CanOfferCaoTeng(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>

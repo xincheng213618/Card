@@ -127,15 +127,8 @@ public sealed partial class GameEngine
             .Count(item => _cardZones.GetLocation(item.id) == cards.SourceLocations[item.index]);
     }
 
-    private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) => target switch
-    {
-        SkillProgramEffectTarget.Owner => frame.OwnerSeat,
-        SkillProgramEffectTarget.Activator => frame.ActivatingSeat ?? frame.OwnerSeat,
-        SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
-        SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
-            throw new InvalidOperationException("A program option lost its card-action actor."),
-        _ => throw new InvalidOperationException("Unsupported program option chooser.")
-    };
+    private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramChoices.ResolveProgramEffectTarget(frame,target);
 
     [ProgramAiChoice(SkillProgramEffectOp.ChooseOption)]
     private PromptChoice SelectAiProgramOption(PendingDecision decision, ProgramSkillFrame frame)

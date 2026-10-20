@@ -151,8 +151,8 @@ public sealed partial class GameEngine
         if(program?.ConvertingGift is not {Observe:false,Stage:"damage"} d || d.RecipientSeat!=victimSeat || damage.SourceSeat!=program.OwnerSeat)return;
         ReplaceRuntimeFrame(program.Id,program with{ConvertingGift=d with{ExactDamageDeath=true}});
     }
-    private static TurnEndingBoundaryItem CreateGiftRetentionEndingItem(GiftHandRetentionObligation due)=>
-        new(TurnEndingBoundaryItemKind.GiftRetention,0,$"program:{due.Source.SkillId}:{due.Source.BindingId}:{due.Source.SkillInstanceId}:due:{due.Id}",RetentionId:due.Id,RetentionOwnerSeat:due.Source.OwnerSeat);
+    private static TurnEndingBoundaryItem CreateGiftRetentionEndingItem(GiftHandRetentionObligation due) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ConvertingGifts.CreateGiftRetentionEndingItem(due);
     private void AppendGiftRetentionEndingItems(List<TurnEndingBoundaryItem> items)
     {
         foreach(var due in _giftHandRetentionObligations.Where(d=>d.CreatedTurn==_turnNumber).OrderBy(d=>d.Id))

@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool IsTangTangOwnedZone(CardLocation from) => from.OwnerSeat is not null && from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
+    private static bool IsTangTangOwnedZone(CardLocation from) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tang_tang_ol_TangTangGains.IsTangTangOwnedZone(from);
     private IReadOnlyList<TangTangOwnedOrigin>? CaptureTangTangOwnedOrigins(IEnumerable<CardLocation> sources) => !HasTangTangZhiyi ? null :
         Array.AsReadOnly(sources.Where(IsTangTangOwnedZone).Distinct().SelectMany(from => _cardZones.CardsAt(from)
             .Select(c => new TangTangOwnedOrigin(c.Id, from.OwnerSeat!.Value, from, GetProgramEffectiveSuit(_players[from.OwnerSeat.Value], c)))).ToArray());

@@ -3,14 +3,16 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string GameHandHpUsage(string state, int target) => $"game-hand-hp:{state}:target:{target}";
+    private static string GameHandHpUsage(string state, int target) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GameTargetHandHpChoices.GameHandHpUsage(state,target);
     // The issued public fact is the durable whole-game ledger. ResetSkill may
     // clear ordinary usages; it cannot erase an already issued target action.
     private bool HasIssuedGameHandHpTarget(int owner, string skill, string state, int target) =>
         CompleteProgramEventHistory().OfType<GameTargetHandHpChoiceIssuedEvent>().Any(e => e.OwnerSeat == owner && e.SkillId == skill && e.StateId == state && e.TargetSeat == target);
     private bool CanSelectGameHandHpTarget(int owner, string skill, string state, int target) => IsValidPlayerSeat(target) &&
         _players[owner].IsAlive && _players[target].IsAlive && GetHand(_players[target]).Count != _players[target].Hp && !HasIssuedGameHandHpTarget(owner, skill, state, target);
-    private static string GameHandHpReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.ResolveGameTargetHandHpChoice}";
+    private static string GameHandHpReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GameTargetHandHpChoices.GameHandHpReason(f);
     private Card[] GameHandHpDiscardCards(ProgramSkillFrame f) => GetHand(_players[f.GameTargetHandHp!.TargetSeat]).Concat(GetEquipment(f.GameTargetHandHp.TargetSeat))
         .Where(c => !IsForeignEquipmentDiscardPrevented(f.GameTargetHandHp.TargetSeat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard) &&
             (f.GameTargetHandHp.TargetSeat != f.OwnerSeat || !IsActiveProgramSourceEquipmentCard(f.OwnerSeat, f.SkillId, f.SkillInstanceId, c))).ToArray();

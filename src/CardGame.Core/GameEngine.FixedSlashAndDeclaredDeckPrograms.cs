@@ -197,15 +197,8 @@ public sealed partial class GameEngine
         return new PromptChoice(new($"declared-deck.{frame.Id}.{criterion}"), $"声明{label}", [], [], p);
     }).ToArray();
 
-    private static bool MatchesDeclaredDeckCriterion(Card card, string criterion) => criterion switch
-    {
-        "basic" => GetProgramCardCategory(card.Kind) == SkillProgramCardCategory.Basic,
-        "trick" => GetProgramCardCategory(card.Kind) == SkillProgramCardCategory.Trick,
-        "equipment" => GetProgramCardCategory(card.Kind) == SkillProgramCardCategory.Equipment,
-        "red" => card.Suit is Suit.Heart or Suit.Diamond,
-        "black" => card.Suit is Suit.Spade or Suit.Club,
-        _ => throw new InvalidOperationException("Unknown declared deck criterion.")
-    };
+    private static bool MatchesDeclaredDeckCriterion(Card card, string criterion) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FixedSlashAndDeclaredDeckPrograms.MatchesDeclaredDeckCriterion(card,criterion);
 
     private IReadOnlyList<PromptChoice> DeclaredDeckRecipientChoices(ProgramSkillFrame frame) =>
         _players.Where(player => player.IsAlive && player.Gender == GeneralGender.Male).Select(player =>

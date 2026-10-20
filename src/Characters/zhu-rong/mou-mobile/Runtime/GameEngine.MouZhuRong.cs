@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private bool HasMouZhuRong => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiftMouZhuRongOutsideAssault);
     private int MouZhuRongTurnOrdinal => ProgramEventHistory<TurnStartedEvent>().Count();
-    private static CardConversionSource MouZhuRongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouZhuRongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhu_rong_mou_mobile_MouZhuRong.MouZhuRongSource(f);
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 30400,
         SkillProgramEffectOp.RecordMouZhuRongLieren, SkillProgramEffectOp.SelectMouZhuRongLierenTarget, SkillProgramEffectOp.GiftMouZhuRongOutsideAssault)]

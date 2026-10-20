@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private const string LeZhouFeiXianshuGiftReason = "skill-program.le-zhou-fei.xianshu.gift";
     private const string LeZhouFeiXianshuDrawReason = "skill-program.le-zhou-fei.xianshu.draw";
     private static CardConversionSource LeZhouFeiXianshuSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_fei_le_LeZhouFeiXianshu.LeZhouFeiXianshuSource(frame);
 
     [ProgramCapability]
     private sealed class LeZhouFeiXianshuCapability(GameEngine engine) :

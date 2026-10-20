@@ -185,7 +185,8 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         IssueDragonBoatGeneralDraw(frame, choice.Targets.Single(), frame.SkillId == "dragonboat:tunjiang" ? 2 : 1);
     }
-    private static CardMoveReason DragonBoatGeneralDrawReason(string skillId) => new("skill-program." + skillId + ".draw");
+    private static CardMoveReason DragonBoatGeneralDrawReason(string skillId) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DragonBoatGenerals.DragonBoatGeneralDrawReason(skillId);
     private void IssueDragonBoatGeneralDraw(ProgramSkillFrame frame, int recipient, int count)
     {
         if (frame.DragonBoatGeneral is not { Stage: DragonBoatGeneralStage.Choosing } receipt || !_players[recipient].IsAlive)

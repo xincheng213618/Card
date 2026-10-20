@@ -2,10 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static PromptChoice BaguaSkipChoice(bool factionDefense = false) => new(
-        new ChoiceId(factionDefense ? "faction-defense.bagua-skip" : "respond.bagua-skip"),
-        "不发动【八卦阵】，继续选择是否打出【闪】。", [], [],
-        new Dictionary<string, string> { ["response"] = "bagua-skip" });
+    private static PromptChoice BaguaSkipChoice(bool factionDefense = false) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BaguaResponses.BaguaSkipChoice(factionDefense);
 
     private void SkipBaguaResponseCore()
     {

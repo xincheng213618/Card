@@ -5,9 +5,10 @@ public sealed partial class GameEngine
     private readonly List<OrderedPrintedSkillLossLease> _orderedPrintedSkillLossLeases = [];
     private bool _orderedPrintedSkillLossStateStarted;
     private static bool IsOrderedPrintedSkillLossTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.LoseFirstPrintedSkillsUntilTurnEndAndDraw }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OrderedPrintedSkillLoss.IsOrderedPrintedSkillLossTrigger(trigger);
     private long OrderedPrintedLossMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static string OrderedPrintedLossDrawReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.ordered-printed-skill-loss.draw";
+    private static string OrderedPrintedLossDrawReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OrderedPrintedSkillLoss.OrderedPrintedLossDrawReason(f);
 
     private int? OrderedPrintedLossActualTurnOwner() => _turnNumber > 0 && _turnProgression.TurnNumber == _turnNumber &&
         IsValidPlayerSeat(_turnProgression.OwnerSeat) && CompleteProgramEventHistory().OfType<TurnStartedEvent>()

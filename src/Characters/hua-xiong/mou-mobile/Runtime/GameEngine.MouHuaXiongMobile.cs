@@ -4,7 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string MouYaowu = MouHuaXiongComposition.Yaowu, MouYangwei = MouHuaXiongComposition.Yangwei;
-    private static CardConversionSource MouHuaXiongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouHuaXiongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hua_xiong_mou_mobile_MouHuaXiongMobile.MouHuaXiongSource(f);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 29100)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 29100)]
     private bool KeepPaidMouHuaXiong(ProgramSkillFrame f)

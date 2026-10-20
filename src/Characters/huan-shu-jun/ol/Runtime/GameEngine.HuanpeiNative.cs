@@ -11,7 +11,8 @@ public sealed partial class GameEngine
             ProgramEventHistory<HuanpeiOutputChosenEvent>().Count(e => e.FrameId == p.ProgramFrameId && e.Kind == p.Kind && e.TargetCount == p.Targets.Count) == 1 &&
             ProgramEventHistory<HuanpeiTargetChosenEvent>().Where(e => e.FrameId == p.ProgramFrameId).OrderBy(e => e.Index).Select(e => e.TargetSeat).SequenceEqual(p.Targets);
     }
-    private static bool SameHuanpeiPayment(HuanpeiPaidOrigin a, HuanpeiPaidOrigin b) => a.ProgramFrameId == b.ProgramFrameId && a.Source == b.Source && a.GameplayHash == b.GameplayHash && a.Round == b.Round && a.ActualTurn == b.ActualTurn && a.TurnOwner == b.TurnOwner && a.Request == b.Request && a.FrozenHandCount == b.FrozenHandCount && a.FrozenHp == b.FrozenHp && a.AdjustmentCount == b.AdjustmentCount && a.SequenceBefore == b.SequenceBefore && a.SequenceAfter == b.SequenceAfter && a.Kind == b.Kind && a.Targets.SequenceEqual(b.Targets);
+    private static bool SameHuanpeiPayment(HuanpeiPaidOrigin a, HuanpeiPaidOrigin b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_HuanpeiNative.SameHuanpeiPayment(a,b);
     private CardActionContext PrepareHuanpeiAction(CardActionContext a, HuanpeiPaidOrigin? p) => p is null ? a :
         CaptureFactionAction(new CardActionContext(a.ActionId, a.ParentActionId, a.Type, a.ActorSeat, a.ProviderSeat, a.RequesterSeat, a.ResponderSeat, a.OpponentSeat, a.EffectiveKind, a.TargetSeats, a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats, effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: null));
     private void IssueHuanpeiUse(CardUseFrame use, HuanpeiPaidOrigin? p)

@@ -5,14 +5,16 @@ public sealed partial class GameEngine
 {
     private const string MouGnDiscard = "skill-program.mou-mobile:qixi.discard", MouGnStore = "skill-program.mou-mobile:fenwei.store", MouGnDraw = "skill-program.mou-mobile:fenwei.draw", MouGnObtain = "skill-program.mou-mobile:fenwei.obtain", MouGnSpend = "skill-program.mou-mobile:fenwei.discard";
     private static readonly Suit[] MouGnSuits = [Suit.Spade, Suit.Heart, Suit.Club, Suit.Diamond];
-    private static CardConversionSource MouGnSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouGnSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_gan_ning_mou_mobile_MouGanNingMobile.MouGnSource(f);
     private bool HasMouGanNingMobile => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouGanNingFenwei);
     [ProgramCapability] private sealed class MouGanNingCapability(GameEngine g) : IMouGanNingHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => g.BeginMouGn(f, op); }
     private bool IsIssuedMouGanNingPile(PublicPersistentPileSource p) => p.SkillId == MouGanNingMobileComposition.Fenwei && p.Capacity == 1 &&
         ProgramEventHistory<MouGanNingWeiPlacedEvent>().Any(e => e.RecipientSeat == p.OwnerSeat && e.To == p.Location && p.SkillInstanceId == MouGnPileInstance(e.FrameId, e.RecipientSeat) &&
             _publicPersistentPiles.GetValueOrDefault((p.OwnerSeat, p.SkillId, p.SkillInstanceId)) == p && _cardMovements.Any(m => m.Sequence == e.Sequence && m.CardId == e.CardId && m.From == e.From && m.To == e.To && m.Reason.Value == MouGnStore));
-    private static string MouGnPileInstance(long id, int seat) => $"mou-gan-ning:{id}:{seat}";
+    private static string MouGnPileInstance(long id, int seat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_gan_ning_mou_mobile_MouGanNingMobile.MouGnPileInstance(id,seat);
     private MouGanNingWeiPlacedEvent? MouGnWei(int target, int? owner = null, string? instance = null) => ProgramEventHistory<MouGanNingWeiPlacedEvent>().LastOrDefault(e => e.RecipientSeat == target &&
         (owner is null || e.Source.OwnerSeat == owner) && (instance is null || e.Source.SkillInstanceId == instance) && _cardZones.GetLocation(e.CardId) == e.To &&
         _publicPersistentPiles.GetValueOrDefault((target, MouGanNingMobileComposition.Fenwei, MouGnPileInstance(e.FrameId, target))) is { } pile && IsIssuedMouGanNingPile(pile));

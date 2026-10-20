@@ -46,7 +46,8 @@ internal sealed class ProgramActionCatalog
             var handler = method.GetCustomAttribute<ProgramActionHandlerAttribute>();
             var augmentation = method.GetCustomAttribute<ProgramCardActionAttribute>();
             if (source is null && handler is null && augmentation is null) continue;
-            if (method.IsStatic || method.IsGenericMethod || method.ContainsGenericParameters) throw Invalid(method);
+            if (method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) ||
+                method.IsGenericMethod || method.ContainsGenericParameters) throw Invalid(method);
             if (source is not null)
             {
                 if (!Enum.IsDefined(source.Phase) || source.Order < 0 || method.ReturnType != typeof(IEnumerable<LegalAction>) ||
@@ -160,9 +161,8 @@ internal sealed class ProgramActionRouter
 
 public sealed partial class GameEngine
 {
-    private static readonly Lazy<ProgramActionCatalog> ProgramActionMetadata = new(() => new(typeof(GameEngine).GetMethods(
-        BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+    private static readonly Lazy<ProgramActionCatalog> ProgramActionMetadata = new(() => new(RuntimeModuleMethods), true);
     private ProgramActionRouter? _programActions;
     private ProgramActionRouter ProgramActions => _programActions ??= new(ProgramActionMetadata.Value,
-        (method, type) => method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 }

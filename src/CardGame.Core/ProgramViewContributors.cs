@@ -164,9 +164,8 @@ internal sealed class ProgramViewContributors
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramViewContributionCatalog> ViewContributionMetadata = new(() =>
-        ProgramViewContributionCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramViewContributionCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramViewContributors? _viewContributors;
     private ProgramViewContributors ViewContributors => _viewContributors ??= new(ViewContributionMetadata.Value,
-        row => row.Method.IsStatic ? row.Method.CreateDelegate(row.DelegateType) : row.Method.CreateDelegate(row.DelegateType, this));
+        row => BindRuntimeHandler(row.Method, row.DelegateType));
 }

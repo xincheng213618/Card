@@ -7,7 +7,8 @@ public sealed partial class GameEngine
     private const string KuangfuEquipmentReason = "skill-program.kuangfu.equipment-cost";
     private const string KuangfuHandReason = "skill-program.kuangfu.no-damage-hand-cost";
     private const string KuangfuDrawReason = "skill-program.kuangfu.own-equipment-draw";
-    private static CardConversionSource KuangfuSource(ProgramSkillFrame f) => new(f.SkillId, f.ActivationId!, f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource KuangfuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_Kuangfu.KuangfuSource(f);
     private bool KuangfuGameEnded() => _winner != Winner.None || _status == EngineStatus.Completed;
     private bool KuangfuUnpaidSourceCurrent(ProgramSkillFrame f) => !KuangfuGameEnded() && _players[f.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);

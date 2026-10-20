@@ -12,7 +12,7 @@ public sealed partial class GameEngine
     private bool HasMoTianenCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveMoSunQuanTianenUniqueUse);
     private static CardConversionSource MoTianenSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanTianen.MoTianenSource(f);
     private bool MoTianenBranchSpent(int owner, int turn, int turnOwner, MoTianenBranch branch) =>
         ProgramEventHistory<MoTianenBranchIssuedEvent>().Any(e => e.Source.OwnerSeat == owner &&
             e.ActualTurn == turn && e.TurnOwner == turnOwner && e.Branch == branch);

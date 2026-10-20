@@ -84,9 +84,7 @@ public sealed partial class GameEngine
         damage.TargetSeat == attack.TargetSeat && damage.Amount == attack.DamageAmount && damage.Nature == attack.Nature &&
         root.AttackReturn is not null && attack.DamageWasApplied;
     private static bool SuitPlacementBeforeDamageEdge(BeforeDamageProgramWindowFrame before, ProgramSkillFrame root) =>
-        root.AttackAttempt is { } attack && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == root.Id &&
-        before.Continuation == BeforeDamageProgramContinuation.Attack && before.SourceSeat == attack.SourceSeat &&
-        before.TargetSeat == attack.TargetSeat && before.Amount == attack.DamageAmount && before.Nature == attack.Nature && root.AttackReturn is not null;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SuitPreventionBenefitObservers.SuitPlacementBeforeDamageEdge(before,root);
     private bool SuitPlacementPipelineEdge(int index)
     {
         var child = _resolutionStack[index]; var parent = _resolutionStack[index - 1];

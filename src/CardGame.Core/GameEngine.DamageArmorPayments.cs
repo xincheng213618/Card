@@ -84,10 +84,7 @@ public sealed partial class GameEngine
 
     private static bool DamageAppliedMatchesArmorPayment(DamageAppliedEvent applied,
         DamageArmorPaymentReceipt payment) =>
-        applied.ArmorPayment == payment && applied.SourceSeat == payment.SourceSeat &&
-        applied.TargetSeat == payment.TargetSeat && applied.Amount == payment.DamageAmount &&
-        applied.RemainingHp == payment.HpAfter && applied.Nature == payment.Nature &&
-        applied.SourceLess == payment.SourceLess;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageArmorPayments.DamageAppliedMatchesArmorPayment(applied,payment);
 
     private bool IsIssuedDamageArmorPayment(DamageFrame damage) =>
         IsValidDamageArmorPayment(damage, requireApplied: true) &&

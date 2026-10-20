@@ -7,7 +7,8 @@ public sealed partial class GameEngine
 
 
     private bool HasLiuPanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePijingTargetTogglesAndRandomGifts);
-    private static CardConversionSource PijingSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource PijingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_pan_ol_PijingLedger.PijingSource(f);
     private bool TryGetPijingUse(ProgramSkillWindowContext context,out CardUseFrame use,out ProgramCardTriggerWindowFrame window)
     {
         use=null!;window=null!;

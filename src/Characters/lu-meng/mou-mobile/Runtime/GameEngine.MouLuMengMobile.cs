@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private bool HasMouLuMengCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouLuMengKeji) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLuMengDujiang) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLuMengDuojing);
-    private static CardConversionSource MouLuMengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouLuMengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_meng_mou_mobile_MouLuMengMobile.MouLuMengSource(f);
     private ActualDiscardRecoveryPhaseKey MouLuMengPhase() => CurrentActualDiscardRecoveryPhase() is { } phase && IsRecordedActualDiscardRecoveryPhase(phase)
         ? phase : throw new InvalidOperationException("Mobile Lu Meng requires the recorded actual phase, including inserted phases.");
 

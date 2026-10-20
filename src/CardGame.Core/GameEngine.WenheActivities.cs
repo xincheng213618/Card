@@ -121,9 +121,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new WenheRoundRuleChangedEvent(round.RoundNumber, rule));
         AddLog("WenheRule", $"第{round.RoundNumber}轮规则：{WenheRuleName(rule)}。", round.ActorSeat);
     }
-    private static string WenheRuleName(WenheRuleKind rule) => rule switch { WenheRuleKind.Chaos => "乱武", WenheRuleKind.Bounty => "重赏",
-        WenheRuleKind.LastStand => "破釜沉舟", WenheRuleKind.Equipment => "横刀跃马", WenheRuleKind.Sweep => "横扫千军",
-        WenheRuleKind.Famine => "饿莩载道", WenheRuleKind.Poison => "宴安鸩毒", _ => throw new ArgumentOutOfRangeException(nameof(rule)) };
+    private static string WenheRuleName(WenheRuleKind rule) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_WenheActivities.WenheRuleName(rule);
 
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 270)]
     private int WenheSweepActualDamageBonus(IDamageAttempt attack) =>

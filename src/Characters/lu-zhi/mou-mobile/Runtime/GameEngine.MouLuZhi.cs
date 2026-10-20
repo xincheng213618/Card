@@ -7,7 +7,8 @@ public sealed partial class GameEngine
     private const string MouLuZhiDiscardReason = "skill-program.mou-mobile:zhenliang.discard", MouLuZhiDrawReason = "skill-program.mou-mobile:lu-zhi.draw";
     private bool HasMouLuZhiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeMouLuZhiMingren) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouLuZhiZhenliangYang);
-    private static CardConversionSource MouLuZhiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouLuZhiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_zhi_mou_mobile_MouLuZhi.MouLuZhiSource(f);
     private MouLuZhiRen[] LiveMouLuZhiRen(int owner)
     {
         if (!HasMouLuZhiCapability || !_cardZones.HasPrivatePersistentCards(owner)) return [];

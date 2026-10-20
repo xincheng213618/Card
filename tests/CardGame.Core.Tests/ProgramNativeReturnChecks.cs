@@ -63,7 +63,7 @@ internal static class ProgramNativeReturnChecks
         catch (InvalidOperationException error) when (ReferenceEquals(error, first.Failure)) { }
         Require(first.Trace.SequenceEqual(new[] { "refresh", "validate:8" }), "A validation exception must propagate unchanged before preparation or pop.");
 
-        _ = new ProgramNativeReturnCatalog(typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
+        _ = new ProgramNativeReturnCatalog(ProgramRuntimeModuleCatalog.Default.Methods);
     }
 
     public static void InvalidNativeReturnMetadataFailsBeforeDispatch()

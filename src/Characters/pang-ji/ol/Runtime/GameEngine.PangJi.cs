@@ -8,7 +8,8 @@ public sealed partial class GameEngine
     private const string BiguoObtainReason = "skill-program.pang-ji.biguo.obtain";
     private const string BiguoResultBind = "biguo-contest", BiguoGainBind = "biguo-category-gain";
     private bool HasPangJiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveDouyuPreRevealSwapAndWinDraw);
-    private static CardConversionSource PangJiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource PangJiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pang_ji_ol_PangJi.PangJiSource(f);
     private bool BiguoTurnOpen(int turn, int owner) => turn > 0 && turn == _turnNumber && _turnProgression.TurnNumber == turn && _turnProgression.OwnerSeat == owner && !ProgramEventHistory<TurnEndedEvent>().Any(e => e.TurnNumber == turn && e.ActorSeat == owner) && !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == turn && e.OwnerSeat == owner);
     [ProgramCapability] private sealed class PangJiCapability(GameEngine engine) : IPangJiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginPangJi(f, op); }

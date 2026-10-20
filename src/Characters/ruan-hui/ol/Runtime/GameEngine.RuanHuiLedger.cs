@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private bool HasRuanHuiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMingchaRevealDrawChoice) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmJingzhongNextActualPlay);
-    private static CardConversionSource RuanHuiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource RuanHuiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ruan_hui_ol_RuanHuiLedger.RuanHuiSource(f);
     private ActualDiscardRecoveryPhaseKey? RuanHuiPlay => CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p ? p : null;
     private ActualDiscardRecoveryPhaseKey? JingzhongDuePhase(JingzhongLeaseEvent lease) => ProgramEventHistory<ActualDiscardRecoveryPhaseStartedEvent>()
         .Select(e => e.Phase).FirstOrDefault(p => p.Token > lease.AfterPhaseToken && p.ActorSeat == lease.RecipientSeat && p.Kind == ActualDiscardRecoveryPhaseKind.Play);

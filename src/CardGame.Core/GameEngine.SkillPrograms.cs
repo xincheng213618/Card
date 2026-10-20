@@ -3,11 +3,9 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramLegalityCatalog> ProgramLegalityMetadata = new(() =>
-        ProgramLegalityCatalog.Discover(typeof(GameEngine).GetMethods(
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static |
-            System.Reflection.BindingFlags.NonPublic)), true);
+        ProgramLegalityCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramLegalityRouter? _programLegality;
-    private ProgramLegalityRouter ProgramLegality => _programLegality ??= new(ProgramLegalityMetadata.Value, this);
+    private ProgramLegalityRouter ProgramLegality => _programLegality ??= new(ProgramLegalityMetadata.Value, this, ResolveRuntimeHandlerTarget);
 
     private const string SimpleProgramPindianResultBind = "__active-pindian-result";
 
@@ -771,13 +769,7 @@ public sealed partial class GameEngine
 
     private static bool BoundEquipmentUseMatches(ProgramSkillFrame frame, SkillProgramEffect? effect,
         ProgramMovementContinuation pending, CardUseFrame use) =>
-        effect is { Op: SkillProgramEffectOp.UseBoundCardByTarget } &&
-        pending.BeforeCount == 0 && pending.CoverageResultBind is null && pending.SubjectSeat == use.SourceSeat &&
-        (effect.Target == SkillProgramEffectTarget.Owner && use.SourceSeat == frame.OwnerSeat ||
-         effect.Target == SkillProgramEffectTarget.SelectedTarget && frame.SelectedTargetSeats is [var target] && target == use.SourceSeat) &&
-        frame.CardSetBindings.SingleOrDefault(binding => binding.Name == effect.SourceBind) is
-            { Visibility: SkillProgramCardSetVisibility.Public, CardIds: [var id] } &&
-        use.CardId == id && use.PhysicalCardIds is [var material] && material == id && EquipmentCatalog.IsEquipment(use.CardKind);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SkillPrograms.BoundEquipmentUseMatches(frame,effect,pending,use);
 
     private bool IsBoundEquipmentAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect,
         ProgramMovementContinuation pending)
@@ -829,10 +821,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsAwaitingProgramMovement(ProgramSkillFrame frame) =>
-        frame.PendingMovementContinuation is not null ||
-        frame.InspectedHandSlash is { Stage: InspectedHandSlashStage.HpChildren or InspectedHandSlashStage.DiscardChildren } ||
-        frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Using } ||
-        frame.SelectedCardPayment is not null && frame.SelectedCardPaymentResult is null;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SkillPrograms.IsAwaitingProgramMovement(frame);
 
     private void AssertProgramSkillState()
     {
@@ -1321,25 +1310,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private static PromptChoice CreateProgramPlayChoice(LegalAction action)
-    {
-        var parameters = new Dictionary<string, string>
-        {
-            ["action"] = "use-program-skill",
-            ["skill-id"] = action.ProgramSkillId!,
-            ["activation-id"] = action.ProgramActivationId!,
-            ["min-card-count"] = action.MinCardCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["max-card-count"] = action.MaxCardCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["min-target-count"] = action.MinTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["max-target-count"] = action.MaxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
-        };
-        if (action.ProgramSkillOwnerSeat is { } ownerSeat)
-            parameters["skill-owner-seat"] = ownerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        return new PromptChoice(
-            new ChoiceId($"play.program.{action.ProgramSkillId!.Length}:{action.ProgramSkillId}.{action.ProgramActivationId}" +
-                (action.ProgramSkillOwnerSeat is { } seat ? $".owner-{seat}" : string.Empty)),
-            action.Description, [], [], parameters);
-    }
+    private static PromptChoice CreateProgramPlayChoice(LegalAction action) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SkillPrograms.CreateProgramPlayChoice(action);
 }
 
 public sealed record ProgramSkillStartedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId) : IGameEvent;

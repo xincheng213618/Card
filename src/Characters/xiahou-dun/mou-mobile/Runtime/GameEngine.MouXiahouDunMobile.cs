@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string MouXiahouDunCollectReason = "skill-program.mou-mobile:qingjian.collect", MouXiahouDunGiftReason = "skill-program.mou-mobile:qingjian.give";
     private bool HasMouXiahouDunCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectMouXiahouDunQingjian) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouXiahouDunGanglie);
-    private static CardConversionSource MouXiahouDunSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouXiahouDunSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiahou_dun_mou_mobile_MouXiahouDunMobile.MouXiahouDunSource(f);
     private SkillProgramStepOutcome StartMouXiahouDunMobile(ProgramSkillFrame supplied, SkillProgramEffectOp op)
     {
         var f = GetActiveProgramFrame(supplied.Id);

@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string WeiwanObtainReason = "skill-program.le-xiao-qiao.weiwan.obtain";
     private static readonly Suit[] WeiwanSuits = [Suit.Spade, Suit.Heart, Suit.Club, Suit.Diamond];
     private bool HasLeXiaoQiaoWeiwanCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain);
-    private static CardConversionSource WeiwanSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WeiwanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiao_qiao_le_LeXiaoQiaoWeiwan.WeiwanSource(f);
     private ActualDiscardRecoveryPhaseKey? WeiwanPlay(int actor)
     {
         var phase = CurrentActualDiscardRecoveryPhase();

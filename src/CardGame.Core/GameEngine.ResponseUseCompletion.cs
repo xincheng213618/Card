@@ -39,16 +39,12 @@ public sealed partial class GameEngine
     }
 
     private static bool IsNullificationResponseProgramWindow(ProgramCardTriggerWindowFrame frame) =>
-        frame.Continuation == ProgramCardContinuation.NullificationResponse ||
-        frame.CompletedResponseReturn?.Kind == ProgramCompletedResponseKind.Nullification;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsNullificationResponseProgramWindow(frame);
 
     // The existing response action remains a Response for accepted-response observers.
     // Only explicit opt-in completion observers see responses that the game calls uses.
     private static bool IsCompletedResponseUse(CardActionContext action, ProgramCardContinuation continuation) =>
-        action.Type == CardActionType.Response && action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
-        action.ResponderSeat == action.ActorSeat &&
-        (continuation == ProgramCardContinuation.NullificationResponse && action.EffectiveKind == CardKind.Nullification ||
-         continuation == ProgramCardContinuation.Dodge && action.EffectiveKind == CardKind.Dodge);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action,continuation);
 
     private bool IsCompletedResponseParentConsistent(ProgramCardTriggerWindowFrame window)
     {
@@ -68,10 +64,7 @@ public sealed partial class GameEngine
             window.Action.OpponentSeat == attack.SourceSeat && window.Action.ParentActionId == use.Action?.ActionId;
     }
     private static bool IsCompletedResponseUse(CardActionContext action, ProgramCompletedResponseKind kind) =>
-        action.Type == CardActionType.Response && action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
-        action.ResponderSeat == action.ActorSeat &&
-        (kind == ProgramCompletedResponseKind.Nullification && action.EffectiveKind == CardKind.Nullification ||
-         kind == ProgramCompletedResponseKind.Dodge && action.EffectiveKind == CardKind.Dodge);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action,kind);
 
     private bool HasResponseUseCompletionObserver(CardActionContext action, ProgramCardContinuation continuation) =>
         IsCompletedResponseUse(action, continuation) && (_programPipelineHooks.ObservesResponseUseCompletion(action) || HasJiyunResponseCompletion(action, continuation) || _players.Any(owner => owner.IsAlive &&

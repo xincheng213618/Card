@@ -3,8 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string BeiMiHuDrawReason="program.bei-mi-hu.guju-draw";
-    private static bool IsBeiMiHuOp(SkillProgramEffectOp op)=>(int)op is >=23200 and <=23205;
-    private static SkillProgramEffectOp? BeiMiHuOperation(SkillProgramTrigger t)=>t.Effects.Count==1 && IsBeiMiHuOp(t.Effects[0].Op)?t.Effects[0].Op:null;
+    private static bool IsBeiMiHuOp(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bei_mi_hu_ol_BeiMiHuPrograms.IsBeiMiHuOp(op);
+    private static SkillProgramEffectOp? BeiMiHuOperation(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bei_mi_hu_ol_BeiMiHuPrograms.BeiMiHuOperation(t);
     private CardConversionSource BeiMiHuSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private int BeiMiHuRound=>CompleteProgramEventHistory().OfType<RoundStartedEvent>().LastOrDefault()?.RoundNumber??_roundNumber;
     private int BeiMiHuReceiptTurn(ProgramSkillFrame f)=>f.WindowContext?.BeforeTurnPreludeProof?.UpcomingTurnNumber??_turnNumber;

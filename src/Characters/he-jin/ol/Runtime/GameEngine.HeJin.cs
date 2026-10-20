@@ -4,8 +4,9 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string HeJinGiftReason = "skill-program.he-jin.mouzhu.give", HeJinDiscardReason = "skill-program.he-jin.yanhuo.discard";
-    private static CardConversionSource HeJinSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private const string HeJinGiftReason = "skill-program.he-jin.mouzhu.give", HeJinDiscardReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.HeJinDiscardReason;
+    private static CardConversionSource HeJinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_he_jin_ol_HeJin.HeJinSource(f);
     private SkillProgramStepOutcome BeginHeJinMouzhu(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);

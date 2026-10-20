@@ -168,11 +168,10 @@ internal sealed class ProgramCardUsePayments
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramCardUsePaymentCatalog> CardUsePaymentMetadata = new(() =>
-        ProgramCardUsePaymentCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramCardUsePaymentCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramCardUsePayments? _cardUsePayments;
     private ProgramCardUsePayments CardUsePayments => _cardUsePayments ??= new(CardUsePaymentMetadata.Value,
-        row => row.Method.IsStatic ? row.Method.CreateDelegate(row.DelegateType) : row.Method.CreateDelegate(row.DelegateType, this));
+        row => BindRuntimeHandler(row.Method, row.DelegateType));
 
     // The built-in committed-Slash test stays between the two registered groups
     // to retain its original short-circuit position at movement-return sites.

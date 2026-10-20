@@ -12,9 +12,12 @@ public sealed partial class GameEngine
         return !(features.HasOperation(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest) && BlackGiftGameIssued(owner.Seat, program.Id));
     }
 
-    private static CardConversionSource RecipientConsequencesSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static string BlackGiftReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest}.gift";
-    private static string BlackGiftDiscardReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest}.discard";
+    private static CardConversionSource RecipientConsequencesSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.RecipientConsequencesSource(f);
+    private static string BlackGiftReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftReason(f);
+    private static string BlackGiftDiscardReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftDiscardReason(f);
     private bool BlackGiftMaterialLegal(int owner, Card card) => _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner) &&
         EffectiveSuit(_players[owner], card) is Suit.Spade or Suit.Club;
 
@@ -56,8 +59,10 @@ public sealed partial class GameEngine
             [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard,
             canSelect: (_, c) => !f.BlackGiftContest.SelectedDiscardIds.Contains(c.Id));
     }
-    private static int? BlackGiftWinner(PindianResult p) => p.SourceRank == p.OpponentRank ? null : p.SourceWon ? p.SourceSeat : p.OpponentSeat;
-    private static int[] BlackGiftLosers(PindianResult p) => new[] { p.SourceSeat, p.OpponentSeat }.Where(s => s != BlackGiftWinner(p)).ToArray();
+    private static int? BlackGiftWinner(PindianResult p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftWinner(p);
+    private static int[] BlackGiftLosers(PindianResult p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftLosers(p);
 
     private IReadOnlyList<PromptChoice> BlackGiftChoices(ProgramSkillFrame f)
     {
@@ -68,8 +73,8 @@ public sealed partial class GameEngine
             : BlackGiftDiscardOptions(f).Select(c => new PromptChoice(new($"black-gift.{f.Id}.discard-{c.Cards.Single()}"), c.Label,
                 c.Cards, [], BlackGiftParameters(f, "discard")))).ToArray());
     }
-    private static Dictionary<string, string> BlackGiftParameters(ProgramSkillFrame f, string stage) => new()
-    { ["program-action"] = "black-gift-contest", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["stage"] = stage };
+    private static Dictionary<string, string> BlackGiftParameters(ProgramSkillFrame f, string stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftParameters(f,stage);
     private void PublishBlackGiftChoice(ProgramSkillFrame f)
     {
         if (RecipientConsequencesGameEnded()) return;
@@ -124,7 +129,8 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
-    private static string BlackGiftResultBind(ProgramSkillFrame f) => $"black-gift-result-{f.Id}";
+    private static string BlackGiftResultBind(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_BlackGiftContests.BlackGiftResultBind(f);
     private bool BlackGiftResultMatches(ProgramSkillFrame f, out PindianResult result)
     {
         result = null!; var r = f.BlackGiftContest!;

@@ -3,9 +3,12 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasXieLingYuCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYuandiDiscardNames) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXinyouBasicCycle);
-    private static CardConversionSource XieLingYuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static int XieLingYuNameBit(CardKind kind) => ProgramBasicCardName(kind) switch { CardKind.Slash => 1, CardKind.Dodge => 2, CardKind.Peach => 4, CardKind.Alcohol => 8, _ => 0 };
-    private static CardKind[] XieLingYuNames(int mask) => new[] { CardKind.Slash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol }.Where(k => (mask & XieLingYuNameBit(k)) != 0).ToArray();
+    private static CardConversionSource XieLingYuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xie_ling_yu_ol_XieLingYuLedger.XieLingYuSource(f);
+    private static int XieLingYuNameBit(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xie_ling_yu_ol_XieLingYuLedger.XieLingYuNameBit(kind);
+    private static CardKind[] XieLingYuNames(int mask) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xie_ling_yu_ol_XieLingYuLedger.XieLingYuNames(mask);
     private void CaptureXieLingYuMovementBatch(CardMovementBatchContext batch)
     {
         if (!HasXieLingYuCapability || batch.TurnNumber <= 0) return;

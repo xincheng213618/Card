@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string DingShangWanDrawReason="skill-program.ding-shang-wan.draw",FudaoGiftReason="skill-program.ding-shang-wan.fudao.give",
-        FudaoDiscardReason="skill-program.ding-shang-wan.fudao.discard",FengyanGiftReason="skill-program.ding-shang-wan.fengyan.give",FengyanDiscardReason="skill-program.ding-shang-wan.fengyan.discard";
+        FudaoDiscardReason=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.FudaoDiscardReason,FengyanGiftReason="skill-program.ding-shang-wan.fengyan.give",FengyanDiscardReason=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.FengyanDiscardReason;
     private CardConversionSource DingShangWanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private FudaoHandRecordedEvent? DingShangWanRecord(int owner,string skill,string hash)=>ProgramEventHistory<FudaoHandRecordedEvent>().SingleOrDefault(e=>e.Source.OwnerSeat==owner&&e.Source.SkillId==skill&&e.GameplayHash==hash);
     [ProgramCapability] private sealed class DingShangWanCapability(GameEngine e):IDingShangWanHost
@@ -142,7 +142,8 @@ public sealed partial class GameEngine
         foreach(var shuffle in shuffles)AdvanceEventRulesAndQueueFact(new DingShangWanReshuffleCapturedEvent(id,shuffle.BatchId,shuffle.Before,shuffle.After,shuffle.Movements.Count));
         AdvanceEventRulesAndQueueFact(new DingShangWanMovementIssuedEvent(id,r.Stage,r.Payer,r.Recipient,r.Before,after,count));
     }
-    private static bool IsDingShangWanDrawStage(DingShangWanStage stage)=>stage is DingShangWanStage.OpeningDraw or DingShangWanStage.PairOwnerDraw or DingShangWanStage.PairTargetDraw or DingShangWanStage.FengOwnerDraw or DingShangWanStage.FengTargetDraw;
+    private static bool IsDingShangWanDrawStage(DingShangWanStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ding_shang_wan_ol_DingShangWan.IsDingShangWanDrawStage(stage);
     private bool DrainDingShangWan(ProgramSkillFrame f)=>TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);
     private void ContinueDingShangWan(long id)
     {

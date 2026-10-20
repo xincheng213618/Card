@@ -5,10 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksRedOwnedLoss => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRedLossAndDraw);
-    private static bool OwnedLossZone(CardZoneKind zone) => zone is CardZoneKind.Hand or CardZoneKind.Equipment or
-        CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or
-        CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or
-        CardZoneKind.PublicPersistentPile or CardZoneKind.PrivateTurnHold;
+    private static bool OwnedLossZone(CardZoneKind zone) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GainGiftPrograms.OwnedLossZone(zone);
     private RedOwnedLossMaterial? CaptureRedOwnedLoss(Card card, CardLocation from, CardLocation to, long sequence)
     {
         // Freeze the original owner's effective suit at issuance, before equipment
@@ -64,7 +62,8 @@ public sealed partial class GameEngine
     }
     private Card[] TransferableGainGiftCards(int owner) => GetHand(_players[owner]).Concat(GetEquipment(_players[owner]))
         .Where(c => !c.IsGeneralWeapon).OrderBy(c => c.Id).ToArray();
-    private static CardConversionSource GainGiftSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource GainGiftSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GainGiftPrograms.GainGiftSource(f);
     private SkillProgramStepOutcome ExecuteGainGift(ProgramSkillFrame supplied, SkillProgramEffect effect)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -125,8 +124,8 @@ public sealed partial class GameEngine
         choices.Add(new(new($"gain-gift.{f.Id}.{r.GivenTargets.Count}.finish"), r.GivenTargets.Count == 0 ? "不发动弘援。" : "结束弘援。", [], [], GainGiftParameters(f, "finish")));
         return Array.AsReadOnly(choices.ToArray());
     }
-    private static Dictionary<string, string> GainGiftParameters(ProgramSkillFrame f, string branch) => new()
-    { ["program-action"] = "gain-after-batch", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch };
+    private static Dictionary<string, string> GainGiftParameters(ProgramSkillFrame f, string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GainGiftPrograms.GainGiftParameters(f,branch);
     private void PublishGainGiftChoice(ProgramSkillFrame f)
     {
         var choices = GainGiftChoices(f); var skill = _contentRegistry.GetSkill(f.SkillId);

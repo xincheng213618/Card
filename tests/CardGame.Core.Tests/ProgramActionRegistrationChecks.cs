@@ -19,13 +19,14 @@ internal static class ProgramActionRegistrationChecks
             Require(catalog.Augmentations[phase].SequenceEqual(reversed.Augmentations[phase]),
                 "Card-action augmentation precedence must not depend on reflection enumeration.");
 
-        var production = new ProgramActionCatalog(Methods(typeof(GameEngine)));
+        var production = new ProgramActionCatalog(ProgramRuntimeModuleCatalog.Default.Methods);
         foreach (var method in production.Sources.Values.SelectMany(items => items)
                      .Concat(production.Handlers.Values.SelectMany(items => items))
                      .Concat(production.Augmentations.Values.SelectMany(items => items)))
         {
-            var signature = Expression.GetDelegateType(method.GetParameters().Select(parameter => parameter.ParameterType)
-                .Prepend(method.DeclaringType!).Append(method.ReturnType).ToArray());
+            var parameters = method.GetParameters().Select(parameter => parameter.ParameterType);
+            if (!method.IsStatic) parameters = parameters.Prepend(method.DeclaringType!);
+            var signature = Expression.GetDelegateType(parameters.Append(method.ReturnType).ToArray());
             Require(method.CreateDelegate(signature).Method == method,
                 "Every production action registration must bind directly, including out-parameter handlers.");
         }

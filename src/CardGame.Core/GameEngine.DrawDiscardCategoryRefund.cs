@@ -4,7 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private long DrawDiscardCategorySequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static string DrawDiscardCategoryReason(ProgramSkillFrame f, string part) => $"skill-program.{f.SkillId}.draw-discard-category.{part}";
+    private static string DrawDiscardCategoryReason(ProgramSkillFrame f, string part) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DrawDiscardCategoryRefund.DrawDiscardCategoryReason(f,part);
     private bool DrawDiscardCategoryTargetAvailable(int owner, string skill, string stateId, int target) =>
         IsValidPlayerSeat(target) && _players[target].IsAlive && !CompleteProgramEventHistory()
             .OfType<DrawDiscardCategoryTargetBannedEvent>().Any(e => e.OwnerSeat == owner && e.SkillId == skill &&

@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     private const string MouKurouSkill = "mou-mobile:kurou";
     private const string MouKurouGiftReason = "skill-program.mou-mobile.kurou.give";
     private static CardConversionSource MouKurouSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_gai_mou_mobile_MouHuangGaiKurou.MouKurouSource(frame);
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 29050,
         SkillProgramEffectOp.ResolveMouHuangGaiKurouGift)]
@@ -363,7 +363,8 @@ public sealed partial class GameEngine
 
     private CardKind MouKurouGiftKind(CharacterState owner, Card card, CardLocation from) =>
         from.Zone == CardZoneKind.Hand ? AdvancedEffectiveHandKind(owner, card) : card.Kind;
-    private static int MouKurouGiftLoss(CardKind kind) => kind is CardKind.Peach or CardKind.Alcohol ? 2 : 1;
+    private static int MouKurouGiftLoss(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_gai_mou_mobile_MouHuangGaiKurou.MouKurouGiftLoss(kind);
     private sealed record MouKurouAiCandidate(int CardId, int RecipientSeat, ProgramAiEstimate Estimate);
 
     private bool MouKurouRecoveryIsPubliclyCertain(GameSnapshot snapshot, int ownerSeat)

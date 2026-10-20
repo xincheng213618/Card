@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasBaoXinCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveBaoXinMutao)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBaoXinYimou);
-    private static CardConversionSource BaoXinSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource BaoXinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bao_xin_ol_BaoXinQualifications.BaoXinSource(f);
     private BaoXinYimouQualification? BaoXinQualification(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context)
     {
         if(!HasBaoXinCapability||candidate.SkillId!="ol:yimou"||candidate.BindingId!="near-damage"||context.Window!=SkillProgramTriggerWindow.AfterDamageApplied||context.OwnerSeat!=candidate.OwnerSeat||context.OccurrenceIndex!=candidate.OccurrenceIndex||context.Amount<=0||_resolutionStack.OfType<DamageTriggerWindowFrame>().SingleOrDefault(w=>w.Id==context.ParentFrameId)is not{}window||window.ParentFrameId!=context.DamageFrameId||window.TriggerWindow!=context.Window||window.CandidateIndex<0||window.CandidateIndex>=window.Candidates.Count||window.Candidates[window.CandidateIndex].ToProgramCandidate()!=candidate||_resolutionStack.OfType<DamageFrame>().SingleOrDefault(d=>d.Id==window.ParentFrameId)is not{}damage||damage.TargetSeat!=context.TargetSeat||damage.Amount!=context.Amount)return null;

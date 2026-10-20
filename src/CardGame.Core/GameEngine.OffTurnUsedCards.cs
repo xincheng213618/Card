@@ -17,13 +17,7 @@ public sealed partial class GameEngine
             ? _turnProgression.OwnerSeat : null;
 
     private static bool IsOffTurnNativeCompletion(CardMovementRecord m, OffTurnUsedCardKind kind) =>
-        m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && (kind switch
-        {
-            OffTurnUsedCardKind.CardUse => m.Reason == CardMoveReasons.UseFinished || m.Reason == CardMoveReasons.IronChainFinished,
-            OffTurnUsedCardKind.DodgeUse => m.Reason == CardMoveReasons.ResponseFinished,
-            OffTurnUsedCardKind.NullificationUse => m.Reason == CardMoveReasons.NullificationFinished,
-            _ => false
-        });
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OffTurnUsedCards.IsOffTurnNativeCompletion(m,kind);
 
     // Capture while the owning use is live. Multi-material native completion may
     // issue several batches: only the final batch anchors the single opportunity.

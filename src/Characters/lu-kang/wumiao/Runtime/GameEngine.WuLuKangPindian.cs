@@ -7,8 +7,10 @@ public sealed partial class GameEngine
         WuLuKangBottomReason = "skill-program.wu-lu-kang.shenduan.bottom", WuLuKangDrawReason = "skill-program.wu-lu-kang.shenduan.draw";
     private bool HasWuLuKangCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuLuKangShenduan) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuLuKangKegou) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWuLuKangDixian);
-    private static CardConversionSource WuLuKangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static CardConversionSource WuLuKangSource(ProgramTriggerCandidate c) => new(c.SkillId, c.BindingId, c.OwnerSeat, c.SkillInstanceId);
+    private static CardConversionSource WuLuKangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_kang_wumiao_WuLuKangPindian.WuLuKangSource(f);
+    private static CardConversionSource WuLuKangSource(ProgramTriggerCandidate c) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_kang_wumiao_WuLuKangPindian.WuLuKangSource(c);
     private bool CanWuLuKangDiscardForPindian(CharacterState owner) => owner.IsAlive && CardPolicies(owner, SkillProgramCardPolicyKind.PindianDiscardForMaximumDeck).Any(binding =>
         GetHand(owner).Count > 0 || GetEquipment(owner).Any(card => !IsForeignEquipmentDiscardPrevented(owner.Seat, card, CardLocation.Equipment(owner.Seat), OwnedCardMoveIntent.Discard) &&
             !IsActiveProgramSourceEquipmentCard(owner.Seat, binding.Source.SkillId, binding.Source.SkillInstanceId, card)));

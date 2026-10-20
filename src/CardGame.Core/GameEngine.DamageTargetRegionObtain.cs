@@ -11,11 +11,11 @@ public sealed partial class GameEngine
                 DuelDamageExpression: DamageTargetDuelDamageExpression.ObtainedCardCount }];
 
     private static int DamageTargetObtainedCount(ProgramDamageTargetObtain receipt) =>
-        receipt.RegionObtain?.ActualObtainedCount ?? (receipt.Receipt is null ? 0 : 1);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetRegionObtain.DamageTargetObtainedCount(receipt);
     private static bool DamageTargetObtainedEquipment(ProgramDamageTargetObtain receipt) =>
-        receipt.RegionObtain?.ContainsEquipment ?? (receipt.Receipt?.IsEquipment == true);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetRegionObtain.DamageTargetObtainedEquipment(receipt);
     private static long DamageTargetObtainAnchor(ProgramDamageTargetObtain receipt) =>
-        receipt.RegionObtain?.Movements.FirstOrDefault()?.MovementSequence ?? receipt.ObtainMovementSequence ?? 0;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetRegionObtain.DamageTargetObtainAnchor(receipt);
 
     private IReadOnlyList<PromptChoice> DamageTargetRegionObtainChoices(ProgramSkillFrame frame)
     {
@@ -69,10 +69,8 @@ public sealed partial class GameEngine
     }
 
     private static bool SameDamageTargetRegionReceipt(ProgramDamageTargetRegionObtainReceipt left,
-        ProgramDamageTargetRegionObtainReceipt right) => left.SelectedZone == right.SelectedZone &&
-        left.RecipientSeat == right.RecipientSeat && left.SequenceBefore == right.SequenceBefore &&
-        left.SequenceAfter == right.SequenceAfter && left.MovementBatchId == right.MovementBatchId && left.Paid == right.Paid &&
-        left.Materials.SequenceEqual(right.Materials) && left.Movements.SequenceEqual(right.Movements);
+        ProgramDamageTargetRegionObtainReceipt right) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetRegionObtain.SameDamageTargetRegionReceipt(left,right);
 
     private bool IsValidDamageTargetRegionObtain(ProgramSkillFrame frame, ProgramDamageTargetObtain draft)
     {

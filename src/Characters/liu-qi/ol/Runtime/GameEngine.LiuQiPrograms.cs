@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string WenjiGiftReason="skill-program.wenji.gift",TunjiangDrawReason="skill-program.tunjiang.draw";
- private static CardConversionSource LiuQiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource LiuQiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_qi_ol_LiuQiPrograms.LiuQiSource(f);
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 380)]
  private bool CanOfferLiuQi(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {

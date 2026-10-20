@@ -11,7 +11,7 @@ public sealed partial class GameEngine
         _sourceCurses.SingleOrDefault(c => c.TargetSeat == seat && _cardZones.GetLocation(c.CardId) == c.Location);
     private long SourceCurseMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static bool SameSourceCurse(SourceCurseDeposit a, SourceCurseDeposit b) =>
-        (a with { ActualDrawCount = 0 }) == (b with { ActualDrawCount = 0 });
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SourceCurses.SameSourceCurse(a,b);
     private IReadOnlyList<SourceCurseSnapshot>? CreateSourceCurseSnapshots(int seat)
     {
         var cards = _sourceCurses.Where(c => c.TargetSeat == seat).Select(c =>

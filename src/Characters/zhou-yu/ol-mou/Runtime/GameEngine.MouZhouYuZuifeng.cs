@@ -7,7 +7,8 @@ public sealed partial class GameEngine
     private const string MouZuifengSkill = "mou-ol:zuifeng";
     private const string MouZuifengBinding = "unique-suit-view-and-wine";
     private const string MouZuifengDiscardReason = "skill-program.mou-zhou-yu.zuifeng.discard";
-    private static CardConversionSource MouZuifengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouZuifengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_ol_mou_MouZhouYuZuifeng.MouZuifengSource(f);
     private bool HasMouZuifengCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouZhouYuZuifeng);
     [ProgramCapability]
     private sealed class MouZhouYuZuifengCapability(GameEngine engine) : IMouZhouYuZuifengHost

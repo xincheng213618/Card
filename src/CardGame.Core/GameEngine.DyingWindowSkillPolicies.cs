@@ -53,6 +53,6 @@ public sealed partial class GameEngine
     // New color policies must interpret an absent suit and physical cost as
     // colorless without rewriting that legacy action or its replay invariants.
     private static bool? ActualTargetPolicyColor(CardActionContext action) =>
-        action.PhysicalCards.Count == 0 && action.EffectiveSuit is null or Suit.None ? null : action.EffectiveIsRed;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DyingWindowSkillPolicies.ActualTargetPolicyColor(action);
 
 }

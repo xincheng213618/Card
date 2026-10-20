@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string ZexingTakeReason = "skill-program.tang-tang.zexing.take", ZexingGiftReason = "skill-program.tang-tang.zexing.gift", ZhiyiDrawReason = "skill-program.tang-tang.zhiyi.draw";
-    private static CardConversionSource TangTangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource TangTangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tang_tang_ol_TangTang.TangTangSource(f);
     private IReadOnlyList<Card> TangTangTransferCards(int chooser, int holder) => GetHand(_players[holder]).Concat(GetEquipment(holder)).Where(c =>
         !c.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(chooser, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Transfer)).ToArray();
     private TangTangEntity TangTangEntityAt(int holder, int id)

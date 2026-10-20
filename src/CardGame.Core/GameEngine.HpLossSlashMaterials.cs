@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         Math.Min(_players.Count(p => p.IsAlive && p.Seat != owner.Seat), original + ConvertRuleValue(EvaluateCardTargetCount(owner, kind)) - 1 +
             (CurrentNextActualUseAdjustment(owner.Seat) is not null ? 1 : 0));
     private static SkillProgramEffect? HpLossSlashProgramProducer(ProgramExecutionPlan plan) =>
-        ConvertedCardSelectionSource.HpLossProducer(plan);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_HpLossSlashMaterials.HpLossSlashProgramProducer(plan);
     private HpLossSlashSelection? FreezeHpLossSlashSelection(CharacterState owner, ProgramExecutionPlan plan, IReadOnlyList<int> targets) =>
         targets.Count > plan.Activation!.MaxTargets && HpLossSlashProgramProducer(plan) is { OutputKind: { } kind } &&
         HpLossSlashTargetSource(owner) is { } policy ? new(policy.Source, policy.Hash, HpLossSlashMaximum(owner, kind), kind) : null;

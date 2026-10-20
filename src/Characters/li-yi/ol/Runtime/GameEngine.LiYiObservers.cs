@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private static bool ChanshuangChildren(ChanshuangStage s)=>s is ChanshuangStage.CostChildren or ChanshuangStage.DrawChildren or ChanshuangStage.NativeChildren;
+ private static bool ChanshuangChildren(ChanshuangStage s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_yi_ol_LiYiObservers.ChanshuangChildren(s);
  [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27480)]
  private void AssertLiYi(ProgramSkillFrame f)
  {

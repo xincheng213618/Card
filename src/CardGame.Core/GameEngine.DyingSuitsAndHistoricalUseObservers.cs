@@ -2,8 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string DyingSuitsCursorHash<T>(T value) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-        System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(value))));
+    private static string DyingSuitsCursorHash<T>(T value) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DyingSuitsAndHistoricalUseObservers.DyingSuitsCursorHash<T>(value);
     private DyingSuitsOriginalCursor CaptureDyingSuitsOriginalCursor(DyingFrame dying, ProgramLifecycleTriggerWindowFrame entry)
     {
         var parent = _resolutionStack.Single(f => f.Id == dying.ParentFrameId);

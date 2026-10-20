@@ -29,9 +29,8 @@ public sealed partial class GameEngine
         }
         return null;
     }
-    private static bool MountObserverCandidateMatches(ProgramSkillFrame p,ProgramTriggerCandidate c)=>
-        p.OwnerSeat==c.OwnerSeat && p.SkillId==c.SkillId && p.TriggerId==c.BindingId && p.SkillInstanceId==c.SkillInstanceId &&
-        p.GameplayHash==c.GameplayHash && p.WindowContext?.OccurrenceIndex==c.OccurrenceIndex;
+    private static bool MountObserverCandidateMatches(ProgramSkillFrame p,ProgramTriggerCandidate c) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetMountObserver.MountObserverCandidateMatches(p,c);
     private bool PaidMountObserverEdge(int index)
     {
         var child=_resolutionStack[index];var parent=_resolutionStack[index-1];

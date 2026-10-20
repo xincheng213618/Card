@@ -3,9 +3,11 @@ public sealed partial class GameEngine
 {
     private const string FulueObtainReason="skill-program.pei-yuan-shao.fulue.obtain";
     private const string FulueCounterBind="fulue-counter";
-    private static FulueOption OtherFulueOption(FulueOption option)=>option==FulueOption.Damage?FulueOption.Obtain:FulueOption.Damage;
+    private static FulueOption OtherFulueOption(FulueOption option) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pei_yuan_shao_ol_Fulue.OtherFulueOption(option);
     private bool FulueOptionAvailable(CardConversionSource source,int turn,FulueOption option)=>!ProgramEventHistory<FulueOptionExecutedEvent>().Any(e=>e.Entry.Source.OwnerSeat==source.OwnerSeat&&e.Entry.Source.SkillId==source.SkillId&&e.Entry.ActualTurn==turn&&e.Entry.Option==option);
-    private static bool FulueCardKind(CardKind kind)=>IsCompletedUndamagedDamageUse(kind);
+    private static bool FulueCardKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pei_yuan_shao_ol_Fulue.FulueCardKind(kind);
     private CardUseFrame? FulueContextUse(ProgramTriggerCandidate c,ProgramSkillWindowContext context)
     {
         if(context.CardUse is not{}card||context.OwnerSeat!=c.OwnerSeat||LifecycleCardUse(card.ParentCardUseFrameId)is not{Action:{Type:CardActionType.Use}action}use||

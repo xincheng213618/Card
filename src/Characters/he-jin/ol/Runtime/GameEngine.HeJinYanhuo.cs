@@ -96,10 +96,8 @@ public sealed partial class GameEngine
         // The receipt remains until the frame is popped, keeping the original dead Dying suspended through the return.
         FinishProgramSkill(f, true);
     }
-    private static string HeJinDeathReturnHash(HeJinYanhuoReceipt r) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-        System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(new { r.Source, r.GameplayHash, r.InstructionIndex,
-            r.DeathWindowId, r.CandidateIndex, r.WindowStep, r.Candidate, r.OriginalDeath, r.OriginalDying, r.OriginalDamage, r.OriginalAttackOwnerFrameId,
-            r.ActualTurn, r.TurnOwnerSeat, r.KillerSeat, r.Limit }))));
+    private static string HeJinDeathReturnHash(HeJinYanhuoReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_he_jin_ol_HeJinYanhuo.HeJinDeathReturnHash(r);
     private bool IsOriginalDyingSuspendedByHeJinYanhuo(DyingFrame dying) => IsValidPlayerSeat(dying.VictimSeat) && !_players[dying.VictimSeat].IsAlive &&
         _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.HeJinYanhuo?.OriginalDying?.FrameId == dying.Id && ValidHeJinYanhuo(f));
 }

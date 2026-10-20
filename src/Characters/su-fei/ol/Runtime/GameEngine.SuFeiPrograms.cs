@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string SuFeiDrawReason="skill-program.lianpian.draw",SuFeiGiftReason="skill-program.lianpian.gift";
- private static CardConversionSource SuFeiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource SuFeiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_su_fei_ol_SuFeiPrograms.SuFeiSource(f);
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 450)]
  private bool CanOfferSuFei(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext w)
  {

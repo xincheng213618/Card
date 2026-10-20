@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private bool HasLiWanCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferLianjuSameColorGift) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawSilvMarkedCardAfterDamage);
-    private static CardConversionSource LiWanSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource LiWanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_li_wan_ol_LiWanLedger.LiWanSource(f);
 
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 26720)]
     private void ObserveLiWanActualUseAndEnding(IGameEvent fact)

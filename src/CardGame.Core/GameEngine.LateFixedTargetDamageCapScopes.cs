@@ -23,8 +23,7 @@ public sealed partial class GameEngine
                 GetCardAttackState(attack.ResolutionId).RecipientDamageScope);
 
     private static string FixedDamageCapChainHash(IReadOnlyList<int> targets) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-            string.Join(",", targets.Select(seat => seat.ToString(CultureInfo.InvariantCulture)))))).ToLowerInvariant();
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LateFixedTargetDamageCapScopes.FixedDamageCapChainHash(targets);
 
     // This runs only while the completed native DamageFrame still owns its
     // exact parent. History alone cannot recover that parent for zero-Armor damage.

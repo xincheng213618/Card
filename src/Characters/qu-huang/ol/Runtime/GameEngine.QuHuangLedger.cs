@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasQuHuangCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQiejianLastHandLoss)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveNishouEquipmentLossChoice);
-    private static CardConversionSource QuHuangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource QuHuangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qu_huang_ol_QuHuangLedger.QuHuangSource(f);
     private bool IsQuHuangMovementTrigger(SkillProgramTrigger t)=>t.Window==SkillProgramTriggerWindow.CardsMoved&&t.Effects is[{ }e]&&e.Op is SkillProgramEffectOp.ResolveQiejianLastHandLoss or SkillProgramEffectOp.ResolveNishouEquipmentLossChoice;
     private void CaptureQuHuangEquipmentBatch(CardMovementBatchContext batch,ProgramSkillFrame? originProgram)
     {

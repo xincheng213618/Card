@@ -2,13 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static LegalActionKind DelayedPlacementActionKind(CardKind kind) => kind switch
-    {
-        CardKind.Indulgence => LegalActionKind.Indulgence,
-        CardKind.SupplyShortage => LegalActionKind.SupplyShortage,
-        CardKind.Lightning => LegalActionKind.Lightning,
-        _ => throw new InvalidOperationException("A delayed placement continuation requires a delayed trick.")
-    };
+    private static LegalActionKind DelayedPlacementActionKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DelayedPlacementTargetPrograms.DelayedPlacementActionKind(kind);
 
     private bool TryBeginFinalizedDelayedPlacementPrograms(long frameId, Card card,
         LegalActionKind actionKind)

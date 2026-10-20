@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string MouXiayuanCostReason = "skill-program.mou-mobile:xiayuan.MoveBoundCards";
     private bool HasMouYuJinCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinXiayuan) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinJieyue);
-    private static CardConversionSource MouYuJinSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouYuJinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yu_jin_mou_mobile_MouYuJinXiayuan.MouYuJinSource(f);
     private Card[] MouXiayuanLegalCosts(int owner) => GetHand(_players[owner]).Where(c =>
         !IsSelfHandCategoryDiscardForbidden(owner, c, CardLocation.Hand(owner), OwnedCardMoveIntent.Discard)).ToArray();
     private DamageFrame? MouXiayuanDamage(ProgramSkillWindowContext c) =>

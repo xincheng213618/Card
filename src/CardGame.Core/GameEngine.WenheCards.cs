@@ -43,14 +43,12 @@ public sealed partial class GameEngine
 {
     private static readonly IReadOnlyList<CardKind> WenheOrdinaryTrickKinds = Array.AsReadOnly(new[]
         { CardKind.StarShift, CardKind.BeamSwap, CardKind.HandRedistribution, CardKind.WenheChaos });
-    private static bool IsWenheCard(CardKind kind) => kind is CardKind.StarShift or CardKind.BeamSwap or CardKind.HandRedistribution or CardKind.WenheChaos;
-    private static LegalActionKind WenheCardAction(CardKind kind) => kind switch
-    {
-        CardKind.StarShift => LegalActionKind.StarShift, CardKind.BeamSwap => LegalActionKind.BeamSwap,
-        CardKind.HandRedistribution => LegalActionKind.HandRedistribution, CardKind.WenheChaos => LegalActionKind.WenheChaos,
-        _ => throw new InvalidOperationException("The card is not a Wenhe ordinary trick.")
-    };
-    private static CardMoveReason WenheRedistributionReason(CardKind kind) => new($"card.effect.wenhe.{kind}");
+    private static bool IsWenheCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_WenheCards.IsWenheCard(kind);
+    private static LegalActionKind WenheCardAction(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_WenheCards.WenheCardAction(kind);
+    private static CardMoveReason WenheRedistributionReason(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_WenheCards.WenheRedistributionReason(kind);
 
     private bool CanBeWenheAdditionalTarget(CardUseFrame use, CharacterState target)
     {

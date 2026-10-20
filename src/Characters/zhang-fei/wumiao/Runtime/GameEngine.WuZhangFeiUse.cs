@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     private const string WuZhangFeiSampleReason = "skill-program.wu-zhang-fei.zisheng.obtain";
     private bool HasWuZhangFeiUseCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuZhangFeiUseSample);
     private static CardConversionSource WuZhangFeiSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiUse.WuZhangFeiSource(f);
 
     // Called while the accepted physical materials still have their original
     // appearance. This is a scalar rules fact, never a parallel pending action.

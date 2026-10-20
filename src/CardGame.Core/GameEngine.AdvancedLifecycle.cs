@@ -113,7 +113,8 @@ public sealed partial class GameEngine
 
     private Card GetAdvancedCard(int id) => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id);
     private CardKind AdvancedEffectiveHandKind(CharacterState owner, Card card) => GetProgramCardIdentityMatches(owner, card).FirstOrDefault()?.Identity.OutputKind ?? card.Kind;
-    private static bool AdvancedIsOrdinaryTrick(CardKind kind) => CardCatalog.Get(kind).CategoryName == "锦囊牌" && !IsDelayedCard(kind);
+    private static bool AdvancedIsOrdinaryTrick(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AdvancedLifecycle.AdvancedIsOrdinaryTrick(kind);
     private void SetEquipmentSlotCapacity(CharacterState player, EquipmentSlot slot, int capacity)
     {
         if (capacity < 0 || capacity > 5) throw new InvalidOperationException("Equipment slot capacity must be between zero and five.");

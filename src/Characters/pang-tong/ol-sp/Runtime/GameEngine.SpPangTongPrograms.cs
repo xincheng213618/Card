@@ -5,7 +5,7 @@ public sealed partial class GameEngine
  private const string GuolunExchangeReason="skill-program.guolun.exchange",SpPangTongDrawReason="skill-program.sp-pang-tong.draw";
  private static CardConversionSource SpPangTongSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
  private bool SpPangTongCurrent(ProgramSkillFrame f)=>_winner==Winner.None&&_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
- private bool SpPangTongActivationTargetAllowed(CharacterState target,SkillProgramActivation activation)=>!ProgramInstructionResolver.Default.Features(activation).HasOperation(SkillProgramEffectOp.ResolveGuolunRevealOptionalAtomicExchange)||target.IsAlive&&GetHand(target).Count>0;
+ private bool SpPangTongActivationTargetAllowed(CharacterState target,SkillProgramActivation activation)=>GuolunRuntime.AllowsTarget(target.Seat,activation,ProgramSelectionQueries);
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 510)]
  private bool CanOfferSpPangTong(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext w)
  {
@@ -23,7 +23,7 @@ public sealed partial class GameEngine
   AdvanceEventRulesAndQueueFact(new SpPangTongStartedEvent(f.Id,r.Source,r.GameplayHash,r.Instruction,r.Turn,r.ParentId,op));
   if(op==SkillProgramEffectOp.ResolveGuolunRevealOptionalAtomicExchange)
   {
-   if(f.TriggerId is not null||f.WindowContext is not null||f.SelectedCardIds.Count!=0||f.SelectedTargetSeats is not[var target]||target==f.OwnerSeat||!IsValidPlayerSeat(target)||!_players[target].IsAlive||GetHand(_players[target]).Count==0)throw new InvalidOperationException("Guolun lost its real selected other hand owner.");
+   if(f.TriggerId is not null||f.WindowContext is not null||f.SelectedCardIds.Count!=0||f.SelectedTargetSeats is not[var target]||target==f.OwnerSeat||!IsValidPlayerSeat(target)||!GuolunRuntime.HasLivingHandTarget(target,ProgramCapabilities.Get<ISelectionParticipantQueries>()))throw new InvalidOperationException("Guolun lost its real selected other hand owner.");
    ReplaceRuntimeTop(f=f with{SpPangTong=r with{Target=target,OriginalHand=GetHand(_players[target]).Select(c=>c.Id).ToArray()}});PublishSpPangTong(f);return SkillProgramStepOutcome.AwaitChoice;
   }
   if(f.WindowContext is not{}w)throw new InvalidOperationException("SP Pang Tong needs its original native window.");

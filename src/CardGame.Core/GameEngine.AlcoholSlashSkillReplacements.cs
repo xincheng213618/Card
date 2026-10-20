@@ -3,10 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool IsAlcoholSlashSkillReplacementTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.ReplaceOwnSkillsAfterAlcoholSlashDamage }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlcoholSlashSkillReplacements.IsAlcoholSlashSkillReplacementTrigger(trigger);
 
     private static string AlcoholSlashReplacementGrantSource(int owner, string skill, string instance) =>
-        $"acquired:alcohol-slash-replacement:{owner}:{skill}:{instance}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlcoholSlashSkillReplacements.AlcoholSlashReplacementGrantSource(owner,skill,instance);
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 941)]
     private bool CanOfferAlcoholSlashSkillReplacement(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int ownerSeat)
@@ -130,15 +130,10 @@ public sealed partial class GameEngine
                 e.Window == SkillProgramTriggerWindow.AfterDamageApplied) == 1;
     }
 
-    private static bool SamePermanentGrantIdentity(SkillGrant left, SkillGrant right) => left.GrantId == right.GrantId &&
-        left.SkillId == right.SkillId && left.SkillInstanceId == right.SkillInstanceId && left.SourceId == right.SourceId;
+    private static bool SamePermanentGrantIdentity(SkillGrant left, SkillGrant right) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlcoholSlashSkillReplacements.SamePermanentGrantIdentity(left,right);
     private static bool SameAlcoholSlashReplacementReceipt(AlcoholSlashSkillReplacementReceipt left, AlcoholSlashSkillReplacementReceipt right) =>
-        left.ProgramFrameId == right.ProgramFrameId && left.InstructionIndex == right.InstructionIndex && left.Source == right.Source &&
-        left.GameplayHash == right.GameplayHash && left.DamageWindowId == right.DamageWindowId && left.DamageFrameId == right.DamageFrameId &&
-        left.CardUseFrameId == right.CardUseFrameId && left.CardActionId == right.CardActionId && left.TargetSeat == right.TargetSeat &&
-        left.DamageAmount == right.DamageAmount && left.Nature == right.Nature && left.AlcoholBonus == right.AlcoholBonus &&
-        left.GrantedGrant == right.GrantedGrant && left.SharedInstanceGrant == right.SharedInstanceGrant && left.GrantAdded == right.GrantAdded &&
-        left.LostSkillIds.SequenceEqual(right.LostSkillIds) && left.RemovedGrants.SequenceEqual(right.RemovedGrants) && left.RevokedGrants.SequenceEqual(right.RevokedGrants);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlcoholSlashSkillReplacements.SameAlcoholSlashReplacementReceipt(left,right);
 
     // This is a chronological revocation of an OLD grant, not a forever ban on the skill ID.
     private bool WasGrantPermanentlyRevokedAfterLoss(int ownerSeat, SkillGrant grant, IGameEvent originalLoss)

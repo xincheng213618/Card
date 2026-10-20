@@ -9,7 +9,7 @@ public sealed partial class GameEngine
  [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 70)]
  private bool CanActivateZhangJi(int owner,SkillProgramActivation a)=>true;
  private bool ZhangJiActivationTargetAllowed(CharacterState owner,CharacterState target,SkillProgramActivation a)=>
-  !ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.ResolveTargetChosenRankJudgment) || target.Seat!=owner.Seat && GetEquipment(target).Count<GetEquipment(owner).Count;
+  LuemingRuntime.AllowsTarget(owner.Seat,target.Seat,a,ProgramSelectionQueries);
  private SkillProgramStepOutcome BeginZhangJiOperation(ProgramSkillFrame supplied,SkillProgramEffectOp op)
  {
   var f=GetActiveProgramFrame(supplied.Id);var equip=op==SkillProgramEffectOp.UseDistinctDeckEquipmentByLueMingHistory;

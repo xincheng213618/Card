@@ -4,10 +4,11 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string MouHanDangGongqi = "mou-mobile:gongqi", MouHanDangJiefan = "mou-mobile:jiefan";
-    private const string MouHanDangDiscardReason = "skill-program.mou-mobile:han-dang.discard", MouHanDangDrawReason = "skill-program.mou-mobile:jiefan.Draw";
+    private const string MouHanDangDiscardReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.MouHanDangDiscardReason, MouHanDangDrawReason = "skill-program.mou-mobile:jiefan.Draw";
     private bool HasMouHanDangCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHanDangGongqi) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouHanDangJiefan);
-    private static CardConversionSource MouHanDangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouHanDangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_han_dang_mou_mobile_MouHanDang.MouHanDangSource(f);
     private Card[] MouHanDangDiscardCards(int seat) => GetHand(_players[seat]).Concat(GetEquipment(_players[seat])).Where(c =>
         !IsSelfHandCategoryDiscardForbidden(seat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).OrderBy(c => c.Id).ToArray();
     private SkillProgramStepOutcome StartMouHanDang(ProgramSkillFrame supplied, bool gongqi)

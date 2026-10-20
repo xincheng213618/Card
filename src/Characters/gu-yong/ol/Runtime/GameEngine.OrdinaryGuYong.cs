@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string OrdinaryBingyiShownBind = "ordinary-bingyi-shown-hand";
     private bool HasOrdinaryGuYongCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi);
     private bool IsOrdinaryGuYongBingyiTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi }];
-    private static CardConversionSource OrdinaryGuYongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource OrdinaryGuYongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_gu_yong_ol_OrdinaryGuYong.OrdinaryGuYongSource(f);
     private bool OrdinaryBingyiPhaseSpent(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<OrdinaryBingyiShownEvent>().Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == "ol:bingyi" && e.Phase == phase);
     private bool IsOrdinaryBingyiDiscard(CardMovementRecord m, int owner) => _cardMovements.Contains(m) && GetProgramDiscardSource(m) is { OwnerSeat: { } seat, Zone: CardZoneKind.Hand or CardZoneKind.Equipment } && seat == owner;
 

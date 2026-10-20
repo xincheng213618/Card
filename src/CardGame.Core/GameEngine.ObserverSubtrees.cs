@@ -71,10 +71,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsObserverSkillsChangedEdge(ResolutionFrame parent, ResolutionFrame child) =>
-        child is ProgramLifecycleTriggerWindowFrame changed && parent is ProgramSkillFrame owner &&
-        changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-        changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram &&
-        changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ObserverSubtrees.IsObserverSkillsChangedEdge(parent,child);
 
     private bool IsPaidRescueObserverSuffix(int child, DyingFrame dying) =>
         IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||

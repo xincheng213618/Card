@@ -1,8 +1,10 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static CardConversionSource LianZhuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static string LianZhuReason(LianZhuStage stage) => "skill-program.lianzhu." + stage;
+    private static CardConversionSource LianZhuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_dong_bai_ol_DongBaiPrograms.LianZhuSource(f);
+    private static string LianZhuReason(LianZhuStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_dong_bai_ol_DongBaiPrograms.LianZhuReason(stage);
     private SkillProgramStepOutcome BeginLianZhu(ProgramSkillFrame supplied, int recipient)
     {
         var f = GetActiveProgramFrame(supplied.Id);

@@ -83,7 +83,8 @@ public sealed partial class GameEngine
     private SkillProgramEffect LianZhuPausedEffect(ProgramSkillFrame frame) => ProgramInstructionResolver.Default
         .Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
     private bool UsesRecipientHpLianZhu(ProgramSkillFrame frame) => LianZhuPausedEffect(frame).NumberExpression == SkillProgramNumberExpression.RecipientCurrentHp;
-    private static int LianZhuChoiceAmount(LianZhuReceipt receipt) => receipt.CountPolicy?.Amount ?? 2;
+    private static int LianZhuChoiceAmount(LianZhuReceipt receipt) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LianZhuCounts.LianZhuChoiceAmount(receipt);
 
     private ProgramSkillFrame FreezeLianZhuChoiceAmount(ProgramSkillFrame frame)
     {

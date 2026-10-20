@@ -2,8 +2,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMouGuoHuaiMobile => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouGuoHuaiJingceStart);
-    private static CardConversionSource MouGhSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static bool IsMouGuoHuaiGainTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.ResolveMouGuoHuaiJingceReward }];
+    private static CardConversionSource MouGhSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_huai_mou_mobile_Jingce_Ledger.MouGhSource(f);
+    private static bool IsMouGuoHuaiGainTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_huai_mou_mobile_Jingce_Ledger.IsMouGuoHuaiGainTrigger(t);
     private bool LiveMouGhSource(CardConversionSource source, string hash) => _players[source.OwnerSeat].IsAlive && HasRuntimeSkillInstance(_players[source.OwnerSeat], source.SkillId, source.SkillInstanceId) && _contentRegistry.GetSkill(source.SkillId).Program?.GameplayHash == hash;
     private IEnumerable<MouGuoHuaiPredictionIssuedEvent> UnverifiedMouGhPredictions() => ProgramEventHistory<MouGuoHuaiPredictionIssuedEvent>().Where(p =>
         ProgramEventHistory<MouGuoHuaiPredictionPlacedEvent>().Any(e => e.PredictionId == p.PredictionId && e.CardId == p.CardId && e.To == CardLocation.DrawPile) &&

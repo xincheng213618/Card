@@ -4,7 +4,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string DrawFundedBasicChoiceMarker = "draw-funded-basic";
+    private const string DrawFundedBasicChoiceMarker = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DrawFundedDistinctBasicOffers.DrawFundedBasicChoiceMarker;
     private const string DrawFundedBasicDrawReason = "skill-program.draw-funded-distinct-basic.draw";
     private sealed record DrawFundedBasicNeed(DrawFundedDistinctBasicIntent Intent, long? ParentFrameId,
         long? RequestFrameId, long? ParentActionId, int Cursor, int? FixedTargetSeat);
@@ -225,9 +225,10 @@ public sealed partial class GameEngine
         var choices = DrawFundedDistinctBasicResponseChoices(prompt, need);
         return choices.Count == 0 ? prompt : prompt with { Choices = Array.AsReadOnly(prompt.Choices.Concat(choices).ToArray()) };
     }
-    private static bool IsDrawFundedDistinctBasicAnswer(PromptChoice choice) => choice.Parameters.ContainsKey(DrawFundedBasicChoiceMarker);
-    private static PendingDecision DrawFundedDistinctBasicNativeDecision(PendingDecision prompt) => ZonghuNativeDecision(prompt with
-    { Choices = Array.AsReadOnly(prompt.Choices.Where(c => !IsDrawFundedDistinctBasicAnswer(c)).ToArray()) });
+    private static bool IsDrawFundedDistinctBasicAnswer(PromptChoice choice) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DrawFundedDistinctBasicOffers.IsDrawFundedDistinctBasicAnswer(choice);
+    private static PendingDecision DrawFundedDistinctBasicNativeDecision(PendingDecision prompt) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DrawFundedDistinctBasicOffers.DrawFundedDistinctBasicNativeDecision(prompt);
     private bool HasDrawFundedDistinctBasicDodge(CharacterState actor) => IsProgramResponseCardUse(actor, CardKind.Dodge) && DrawFundedDistinctBasicRules(actor, CardKind.Dodge, true).Any();
     private bool HasDrawFundedDistinctBasicDyingResponse(CharacterState actor) => ActiveDying is { } d &&
         DrawFundedDistinctBasicRules(actor, dyingUse: true).Any(r => DrawFundedDistinctBasicNativeResponseLegal(actor,

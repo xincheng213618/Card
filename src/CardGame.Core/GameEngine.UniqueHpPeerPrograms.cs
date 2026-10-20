@@ -7,8 +7,10 @@ public sealed partial class GameEngine
     private long RecipientContestSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private bool RecipientContestUnissuedSource(ProgramSkillFrame f) => _winner == Winner.None && _players[f.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
-    private static string UniqueHpPeerCostReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer}";
-    private static string UniqueHpPeerDrawReason(ProgramSkillFrame f, int seat) => $"skill-program.{f.SkillId}.unique-hp-peer.draw.{seat}";
+    private static string UniqueHpPeerCostReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_UniqueHpPeerPrograms.UniqueHpPeerCostReason(f);
+    private static string UniqueHpPeerDrawReason(ProgramSkillFrame f, int seat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_UniqueHpPeerPrograms.UniqueHpPeerDrawReason(f,seat);
     private IEnumerable<(Card Card, CardLocation From)> UniqueHpPeerLegalCards(ProgramSkillFrame f, int actor) =>
         new[] { CardLocation.Hand(actor), CardLocation.Equipment(actor) }.SelectMany(from => _cardZones.CardsAt(from)
             .Where(c => !IsForeignEquipmentDiscardPrevented(actor, c, from, OwnedCardMoveIntent.Discard) &&

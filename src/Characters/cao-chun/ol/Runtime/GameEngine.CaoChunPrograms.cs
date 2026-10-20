@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string ShanjiaDrawReason="skill-program.shanjia.draw",ShanjiaDiscardReason="skill-program.shanjia.discard";
- private static CardConversionSource CaoChunSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource CaoChunSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_chun_ol_CaoChunPrograms.CaoChunSource(f);
  private bool CaoChunSourceCurrent(ProgramSkillFrame f)=>_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  private SkillProgramStepOutcome ExecuteCaoChun(ProgramSkillFrame supplied,SkillProgramEffectOp op)
  {

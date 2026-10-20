@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static string NamedUseLedgerId(SkillProgramViewAs rule) =>
-        $"view-as-name:{rule.NameLedgerId}:{ProgramBasicCardName(rule.OutputKind)}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedUseConversions.NamedUseLedgerId(rule);
 
     private bool IsNamedUseConversionAvailable(CharacterState owner,
         IndexedSkillProgramInstance instance, SkillProgramViewAs rule) =>

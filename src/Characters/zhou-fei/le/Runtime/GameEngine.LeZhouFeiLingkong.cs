@@ -6,9 +6,9 @@ public sealed partial class GameEngine
         .HasTriggerOperation(SkillProgramEffectOp.InitializeLingkongInitialEntities) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain);
     private static CardConversionSource LingkongSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_fei_le_LeZhouFeiLingkong.LingkongSource(f);
     private static bool IsLingkongGainTrigger(SkillProgramTrigger t) =>
-        t.Effects is [{ Op: SkillProgramEffectOp.MarkLingkongFirstOutsideDrawGain }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_fei_le_LeZhouFeiLingkong.IsLingkongGainTrigger(t);
     private bool HasLingkongEntityMark(int cardId) => HasLeZhouFeiLingkongCapability &&
         (ProgramEventHistory<LingkongInitialEntityMarkedEvent>().Any(e => e.CardId == cardId) ||
          ProgramEventHistory<LingkongGainEntityMarkedEvent>().Any(e => e.CardId == cardId));

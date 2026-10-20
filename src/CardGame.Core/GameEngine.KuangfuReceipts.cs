@@ -62,7 +62,8 @@ public sealed partial class GameEngine
             r.DiscardedHandIds.All(id => _cardMovements.Count(m => m.Sequence > r.OutcomeBefore && m.Sequence <= r.OutcomeAfter && m.CardId == id &&
                 m.From == CardLocation.Hand(f.OwnerSeat) && m.To == CardLocation.DiscardPile && m.Reason.Value == KuangfuHandReason) == 1);
     }
-    private static bool IsKuangfuPending(ProgramSkillFrame f) => f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } p && p.SubjectSeat == f.OwnerSeat;
+    private static bool IsKuangfuPending(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_KuangfuReceipts.IsKuangfuPending(f);
     [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 50)]
     private bool IsKuangfuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome && pending == f.PendingMovementContinuation &&

@@ -51,9 +51,7 @@ public sealed partial class GameEngine
         card.Kind == CardKind.Alcohol && _cardZones.GetLocation(card.Id) == CardLocation.WoodenOxGrain(owner.Seat) && HasAlcoholKingIdentityPolicy(owner);
 
     private static bool HasDyingAlcoholProducer(SkillProgramTrigger trigger) =>
-        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseBoundCardAsDyingAlcohol) ||
-        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseVirtualDyingAlcohol) ||
-        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AlcoholIdentityPolicies.HasDyingAlcoholProducer(trigger);
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 840)]
     private bool CanRunProgramDyingAlcoholPolicy(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int responder)

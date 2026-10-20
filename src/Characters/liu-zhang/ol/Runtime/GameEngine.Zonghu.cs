@@ -8,8 +8,10 @@ public sealed partial class GameEngine
  [ProgramCapability]private sealed class LiuZhangCapability(GameEngine e):ILiuZhangHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>op==SkillProgramEffectOp.ResolveZonghuRequiredUseRequest?e.ResolveZonghu(f):e.ResolveFengwei(f,op);}
  [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount,27512,SkillProgramEffectOp.ResolveZonghuRequiredUseRequest)]
  private bool IsZonghuOrdinaryActivation(ProgramActivationLegalityContext c)=>c.Activation.Id=="native-use-request"&&c.OwnerSeat==_currentSeat&&_phase==TurnPhase.Play&&ZonghuSources(c.Owner).Any()&&ZonghuVictims(c.OwnerSeat).Any()&&ZonghuOutputs(ZonghuPlayNeed(c.OwnerSeat)).Any();
- private static string ZonghuDecisionHash(PendingDecision p)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(p))));
- private static bool SameZonghuNeed(ZonghuNeed a,ZonghuNeed b)=>JsonSerializer.Serialize(a)==JsonSerializer.Serialize(b);
+ private static string ZonghuDecisionHash(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_Zonghu.ZonghuDecisionHash(p);
+ private static bool SameZonghuNeed(ZonghuNeed a,ZonghuNeed b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_Zonghu.SameZonghuNeed(a,b);
  private bool IsZonghuAnswer(ChoiceId id)=>_pendingDecision?.Choices.Any(c=>c.Id==id&&(c.Parameters.ContainsKey(ZonghuOpen)||c.Parameters.ContainsKey(ZonghuChoice)))==true;
  private CommandResult SubmitZonghuAnswer(int actor,PromptId prompt,ChoiceId id)
  {

@@ -150,9 +150,8 @@ public sealed partial class GameEngine
     };
 
     private static readonly Lazy<ProgramDamageHookCatalog> DamageHookMetadata = new(() =>
-        ProgramDamageHookCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic), DamageHookDelegateType), true);
+        ProgramDamageHookCatalog.Discover(RuntimeModuleMethods, DamageHookDelegateType), true);
     private ProgramDamageHooks? _damageHooks;
     private ProgramDamageHooks DamageHooks => _damageHooks ??= new(DamageHookMetadata.Value,
-        row => row.Method.IsStatic ? row.Method.CreateDelegate(row.DelegateType) : row.Method.CreateDelegate(row.DelegateType, this));
+        row => BindRuntimeHandler(row.Method, row.DelegateType));
 }

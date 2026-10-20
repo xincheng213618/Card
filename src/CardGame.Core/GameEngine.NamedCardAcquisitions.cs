@@ -5,7 +5,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static string NamedAcquisitionReason(ProgramSkillFrame f) =>
-        $"skill-program.{f.SkillId}.{SkillProgramEffectOp.LoseSkillsAndObtainNamedCard}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedCardAcquisitions.NamedAcquisitionReason(f);
     private IEnumerable<(Card Card, CardLocation From)> PublicNamedCardCandidates(CardKind kind)
     {
         foreach (var p in _players.Where(p => p.IsAlive))

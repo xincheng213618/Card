@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         _turnNumber == _turnProgression.TurnNumber && !ProgramEventHistory<ActualTurnCursorReturnedEvent>()
             .Any(e => e.ActualTurn == _turnNumber && e.OwnerSeat == _turnProgression.OwnerSeat);
     private static bool IsYintianRecoveryTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.ResolveYintianFirstRecovery }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhao_zhong_ol_Yintian.IsYintianRecoveryTrigger(trigger);
 
     // Capture even when nobody currently has Yintian. Acquiring it later cannot
     // turn the second positive recovery into this actual turn's first recovery.

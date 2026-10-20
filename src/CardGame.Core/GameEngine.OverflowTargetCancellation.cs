@@ -5,12 +5,10 @@ public sealed partial class GameEngine
     private const string OverflowMaterialReason = "skill-program.overflow-target-cancellation.give";
     private long OverflowMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static IReadOnlyList<int> OverflowPrimaryTargets(CardKind kind, IReadOnlyList<int> targets) =>
-        kind == CardKind.BorrowedSword ? Array.AsReadOnly(targets.Where((_, index) => index % 2 == 0).ToArray()) : targets;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OverflowTargetCancellation.OverflowPrimaryTargets(kind,targets);
 
     private static IReadOnlyList<int> OverflowRetainedTargets(CardKind kind, int owner, IReadOnlyList<int> targets) =>
-        Array.AsReadOnly(kind == CardKind.BorrowedSword
-            ? targets.Chunk(2).Where(pair => pair.Length == 2 && pair[0] == owner).SelectMany(pair => pair).ToArray()
-            : targets.Where(target => target == owner).ToArray());
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OverflowTargetCancellation.OverflowRetainedTargets(kind,owner,targets);
 
     private bool TryGetOverflowTargetUse(int owner, ProgramSkillWindowContext context,
         out CardUseFrame use, out ProgramCardTriggerWindowFrame window)

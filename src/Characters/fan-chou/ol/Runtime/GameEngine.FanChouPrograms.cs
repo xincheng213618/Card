@@ -10,10 +10,11 @@ public sealed partial class GameEngine
         HasFanChouCapability;
 
 
- private const string FanChouDiscardReason="skill-program.xingluan.recipient.discard";
+ private const string FanChouDiscardReason=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.FanChouDiscardReason;
  private const string FanChouDrawReason="skill-program.xingluan.fallback-draw",FanChouFieldReason="skill-program.xingluan.field-gain",FanChouDeckReason="skill-program.xingluan.deck-gain",FanChouGiftReason="skill-program.xingluan.recipient-gift";
  private bool HasFanChouCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseXingluanRankSixBenefit);
- private static CardConversionSource FanChouSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource FanChouSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_fan_chou_ol_FanChouPrograms.FanChouSource(f);
  private bool FanChouSourceCurrent(ProgramSkillFrame f)=>_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  private bool TryFanChouUse(int owner,ProgramSkillWindowContext context,out FanChouUseProof proof)
  {

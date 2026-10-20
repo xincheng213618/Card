@@ -19,7 +19,8 @@ public sealed partial class GameEngine
         _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, "诱阙：选择点数最小的饵拼点。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), [], f.OwnerSeat) { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running; AdvanceRulesAndPublishState();
     }
-    private static string YouqueResultBind(ProgramSkillFrame f) => "youque-result-" + f.Id;
+    private static string YouqueResultBind(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guan_hai_ol_Youque.YouqueResultBind(f);
     [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit)]
     private void ReturnYouqueDraw(ProgramSkillFrame f, NativeDrawOutcome o)
     {

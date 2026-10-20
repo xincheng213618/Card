@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasZhaoZhongCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePengbiFirstActualTurn) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYintianFirstRecovery) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiriFirstNonDrawGain);
-    private static CardConversionSource ZhaoZhongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource ZhaoZhongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhao_zhong_ol_ZhaoZhongLedger.ZhaoZhongSource(f);
     private bool ZhaoZhongActualTurnOpen => _turnNumber > 0 && _turnNumber == _turnProgression.TurnNumber && !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == _turnNumber && e.OwnerSeat == _turnProgression.OwnerSeat);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 28110)]
     private bool CanOfferZhaoZhong(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)

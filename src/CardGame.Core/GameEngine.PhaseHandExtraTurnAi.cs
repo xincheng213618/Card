@@ -6,8 +6,7 @@ public sealed partial class GameEngine
     // stored declaration. The runtime still rechecks its own real payment.
     private static ProgramAiPublicContext WithPhaseHandExtraTurnTargetPricing(
         ProgramAiPublicContext context, SkillProgram program, SkillProgramTrigger trigger) =>
-        ProgramPhaseHandExtraTurnAi.IsLinkedPayment(program, trigger)
-            ? context with { PricePhaseHandExtraTurnTarget = true } : context;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseHandExtraTurnAi.WithPhaseHandExtraTurnTargetPricing(context,program,trigger);
 
     private ProgramAiEstimate IncludePhaseHandExtraTurnDeclarationForAi(ProgramAiEstimate baseline,
         CharacterState owner, string skillId, string skillInstanceId, SkillProgram program,

@@ -10,7 +10,8 @@ public sealed partial class GameEngine
     private const string LeXidi = "le:xidi", LeChengyan = "le:chengyan", LeChengyanDrawReason = "skill-program.le:chengyan.draw";
     private bool HasLeZhugeGuoCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLeZhugeGuoChengyan) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeLeZhugeGuoXidi);
-    private static CardConversionSource LeZhugeGuoSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource LeZhugeGuoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_guo_le_LeZhugeGuoXidi.LeZhugeGuoSource(f);
     private bool HasLeXidiEntityMark(int cardId) => HasLeZhugeGuoCapability && cardId > 0 && ProgramEventHistory<LeXidiEntityMarkedEvent>().Any(e => e.CardId == cardId);
     private bool IsLeXidiHandLimitExempt(CharacterState owner, int cardId) => HasRuntimeSkill(owner, LeXidi) &&
         _cardZones.GetLocation(cardId) == CardLocation.Hand(owner.Seat) && HasLeXidiEntityMark(cardId);

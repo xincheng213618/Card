@@ -20,11 +20,8 @@ public sealed partial class GameEngine
                 grantId, "special:xingtian-axe-effect", grantId, grantId));
     }
 
-    private static string? EquipmentSkillGrantId(Card card) => card.Kind switch
-    {
-        CardKind.XingtianAxe => $"equipment:xingtian:{card.Id}",
-        _ => HulaoEquipmentSkillGrantId(card) ?? ShenwuEquipmentSkillGrantId(card) ?? GuanduEquipmentSkillGrantId(card)
-    };
+    private static string? EquipmentSkillGrantId(Card card) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_EquipmentSkills.EquipmentSkillGrantId(card);
 
     private bool IsActiveProgramSourceEquipmentCard(
         int ownerSeat, string skillId, string skillInstanceId, Card card)

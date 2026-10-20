@@ -15,7 +15,7 @@ public sealed partial class GameEngine
     private bool HasLeCaoZhiWenlanCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveLeCaoZhiWenlan);
     private static WenlanSource WenlanFrameSource(ProgramSkillFrame f) =>
-        new(new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId), f.GameplayHash);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_zhi_le_LeCaoZhiWenlan.WenlanFrameSource(f);
 
     private WenlanSource? CurrentWenlanSource(int owner, SkillProgramTriggerWindow window)
     {
@@ -210,8 +210,8 @@ public sealed partial class GameEngine
     private bool CanOfferLeCaoZhiWenlan(ProgramTriggerLegalityContext gate) => gate.Owner.IsAlive &&
         WenlanQualificationFor(gate.Candidate, gate.Context) is { } q &&
         !ProgramEventHistory<WenlanStartedEvent>().Any(e => e.Qualification.SecondEntryId == q.SecondEntryId);
-    private static CardKind[] WenlanNames(WenlanActionAcceptedEvent entry) => entry.Capture.FuEntity is not { } fu || entry.Capture.MaterialCount != 1
-        ? [] : (fu.AliasKind is { } alias ? new[] { fu.PrintedKind, alias } : [fu.PrintedKind]).Distinct().Order().ToArray();
+    private static CardKind[] WenlanNames(WenlanActionAcceptedEvent entry) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_zhi_le_LeCaoZhiWenlan.WenlanNames(entry);
     private WenlanActionAcceptedEvent WenlanEntry(long id)
     { var raw = ProgramEventHistory<WenlanActionAcceptedEvent>().Single(e => e.EntryId == id); return WenlanEntries(raw.OwnerSeat).Single(e => e.EntryId == id); }
     private bool WenlanWindowMatches(ProgramCardTriggerWindowFrame window, WenlanPairQualification q) =>

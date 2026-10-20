@@ -3,14 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
 
-    internal static string LuochongOptionDisplayName(string optionId) => optionId switch
-    {
-        "recover" => "回复1点体力",
-        "loseHp" => "失去1点体力",
-        "discardTwo" => "弃置两张牌",
-        "drawTwo" => "摸两张牌",
-        _ => throw new InvalidOperationException($"Unknown Luochong option '{optionId}'.")
-    };
+    internal static string LuochongOptionDisplayName(string optionId) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_teng_fang_lan_ol_Luochong_Programs.LuochongOptionDisplayName(optionId);
 
     private static bool IsLuochongOptionId(string optionId) => LuochongOptionIds.Contains(optionId);
 

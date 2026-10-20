@@ -35,22 +35,7 @@ public sealed partial class GameEngine
     // pair. A revoke erases every grant emitted before it; a later re-grant
     // starts a fresh entry, so "直到你对其造成伤害后" survives cold recovery.
     private IReadOnlyList<ProgramDirectedDistanceGrantedEvent> ActiveDirectedDistanceGrants(int ownerSeat, int targetSeat)
-    {
-        var active = new List<ProgramDirectedDistanceGrantedEvent>();
-        foreach (var fact in CompleteProgramEventHistory())
-        {
-            switch (fact)
-            {
-                case ProgramDirectedDistanceGrantedEvent grant when grant.OwnerSeat == ownerSeat && grant.TargetSeat == targetSeat:
-                    active.Add(grant);
-                    break;
-                case ProgramDirectedDistanceRevokedEvent revoke when revoke.OwnerSeat == ownerSeat && revoke.TargetSeat == targetSeat:
-                    active.Clear();
-                    break;
-            }
-        }
-        return active;
-    }
+        => ((ZhuitaoDistanceRuntime)GetRuntimeModuleInstance(typeof(ZhuitaoDistanceRuntime))).ActiveGrants(ownerSeat, targetSeat);
 
     // Shared consumption: every active directed grant against the queried pair
     // joins the outgoing distance as an additive contribution, bounded to the
@@ -58,18 +43,8 @@ public sealed partial class GameEngine
     [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 10)]
     private RuleQueryEvaluation ApplyProgramDirectedDistance(CharacterState source, CharacterState target,
         RuleQueryEvaluation original)
-    {
-        if (source.Seat == target.Seat ||
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ZhuitaoMarkTarget))
-            return original;
-        var grants = ActiveDirectedDistanceGrants(source.Seat, target.Seat);
-        if (grants.Count == 0)
-            return original;
-        return RuleQueryService.Evaluate(SkillRuleQuery.OutgoingDistance, new(1, int.MaxValue),
-            [new RuleQueryBaseTerm("distance:before-program-directed", ConvertRuleValue(original))],
-            grants.Select((grant, index) => (RuleQueryContribution)new FiniteRuleQueryContribution(
-                $"program-directed:{grant.FrameId}:{index}", SkillRuleOperation.Add, grant.Amount)).ToArray());
-    }
+        => ((ZhuitaoDistanceRuntime)GetRuntimeModuleInstance(typeof(ZhuitaoDistanceRuntime)))
+            .ApplyDistance(source.Seat, target.Seat, original);
 
     [ProgramCapability]
     private sealed class TianYuProgramCapability(GameEngine engine) : ITianYuProgramHost

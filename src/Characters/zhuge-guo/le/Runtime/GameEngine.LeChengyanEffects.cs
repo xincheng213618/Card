@@ -24,8 +24,10 @@ public sealed partial class GameEngine
 {
     // CardKind and Action remain the paid declaration. This query is used only
     // by native effect continuations, never by legality, quotas or Use ledgers.
-    private static CardKind LeChengyanNativeEffectKind(CardUseFrame use) => use.LeChengyanEffect is { Started: true, Finished: false } p ? p.EffectKind : use.CardKind;
-    private static IReadOnlyList<int> LeChengyanNativeTargets(CardUseFrame use) => use.LeChengyanEffect is { Started: true, Finished: false } p ? p.Targets : use.TargetSeats;
+    private static CardKind LeChengyanNativeEffectKind(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_guo_le_LeChengyanEffects.LeChengyanNativeEffectKind(use);
+    private static IReadOnlyList<int> LeChengyanNativeTargets(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_guo_le_LeChengyanEffects.LeChengyanNativeTargets(use);
     private bool IsLeChengyanEffectUse(long id) => LifecycleCardUse(id) is { LeChengyanEffect: { Started: true, Finished: false } } u && ValidLeChengyanEffect(u);
     private bool ValidLeChengyanEffect(CardUseFrame u) => u.LeChengyanEffect is { } p && u.Action is { Type: CardActionType.Use } a &&
         a.ActionId == p.ActionId && a.ActorSeat == p.Source.OwnerSeat && u.SourceSeat == a.ActorSeat &&

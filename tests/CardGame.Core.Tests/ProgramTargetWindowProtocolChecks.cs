@@ -64,7 +64,7 @@ internal static class ProgramTargetWindowProtocolChecks
         Reject(typeof(InvalidOrder), "positive order");
         Reject(typeof(InvalidSignature), "invalid handler signature");
         Reject(typeof(OptionalParameter), "invalid handler signature");
-        var production = ProgramTargetWindowCatalog.Discover(typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
+        var production = ProgramTargetWindowCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
         Need(production.Stages.Values.All(rows => rows.Count > 0), "Every production target stage has its module-owned subscription declarations.");
 
         static void Reject(Type type, string expected)

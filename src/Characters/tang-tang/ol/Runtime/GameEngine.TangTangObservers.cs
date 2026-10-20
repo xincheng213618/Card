@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool TangTangMoving(TangTangStage stage) => stage is TangTangStage.TakeChildren or TangTangStage.GiftChildren or TangTangStage.DrawChildren;
+    private static bool TangTangMoving(TangTangStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tang_tang_ol_TangTangObservers.TangTangMoving(stage);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 27530)]
     private void AssertTangTang(ProgramSkillFrame f)
     {

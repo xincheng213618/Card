@@ -5,8 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private long SequentialDiscardMovementSequence => _cardMovements.Count == 0 ? 0 : _cardMovements[^1].Sequence;
-    private static bool IsSequentialDiscardOp(SkillProgramEffectOp op) => op is
-        SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected;
+    private static bool IsSequentialDiscardOp(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SequentialDiscardPrograms.IsSequentialDiscardOp(op);
     private SkillProgramEffect SequentialDiscardEffect(ProgramSkillFrame frame) =>
         ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
     private string SequentialDiscardReason(ProgramSkillFrame frame) => $"skill-program.{frame.SkillId}.{SequentialDiscardEffect(frame).Op}";

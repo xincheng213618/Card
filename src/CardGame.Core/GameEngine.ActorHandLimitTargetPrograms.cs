@@ -83,19 +83,8 @@ public sealed partial class GameEngine
         ProgramInstructionResolver.Default.FindTrigger(program, candidate.TriggerId)?.Effects.Any(effect =>
             effect.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty) == true;
 
-    private static CardActionContext ActorHandLimitTargetCollectionAction(CardUseFrame use)
-    {
-        var action = use.Action!;
-        if (action.TargetSeats.SequenceEqual(use.TargetSeats)) return action;
-        // A paid Slash tail can redirect after its one original finalize. This
-        // projection belongs only to the new collector, never to an old window.
-        return new(action.ActionId, action.ParentActionId, action.Type, action.ActorSeat,
-            action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat,
-            action.EffectiveKind, use.TargetSeats, action.PhysicalCards, action.ConversionChain,
-            action.EffectiveKind == CardKind.BorrowedSword
-                ? use.TargetSeats.Where((_, index) => index % 2 == 0).ToArray() : use.TargetSeats,
-            action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed, action.FactionOrigin);
-    }
+    private static CardActionContext ActorHandLimitTargetCollectionAction(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActorHandLimitTargetPrograms.ActorHandLimitTargetCollectionAction(use);
 
     private bool HasIssuedActorHandLimitTargetCandidate(CardUseFrame use,
         ProgramCardTriggerCandidate candidate)

@@ -29,6 +29,7 @@
         'character manifests preserve ordered registration and package isolation',
         'committed use contracts preserve immutable registration and response-use validation',
         'program capability registration isolates adapters and preserves typed host compatibility',
+        'program runtime modules share match instances and reject engine dependencies',
         'program rule observer registration preserves ordered recursive boundaries',
         'Round ending: old round movement children and actual turn identity cold',
         'Native draw attempt: private decision and actual result cold',

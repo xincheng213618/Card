@@ -3,9 +3,12 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static CardConversionSource DyingSuitsSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
-    private static string DyingSuitsDrawReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach}.draw";
-    private static string DyingSuitsDiscardReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach}.discard";
+    private static CardConversionSource DyingSuitsSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DyingSuitsPeachPrograms.DyingSuitsSource(f);
+    private static string DyingSuitsDrawReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DyingSuitsPeachPrograms.DyingSuitsDrawReason(f);
+    private static string DyingSuitsDiscardReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DyingSuitsPeachPrograms.DyingSuitsDiscardReason(f);
     private bool HasIssuedDyingSuitsRound(int owner, string skill) => CompleteProgramEventHistory().OfType<DyingSuitsDrawIssuedEvent>()
         .Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.ActualRound == _roundNumber);
     private int[] DyingSuitsRecipients(int owner, int victim) => _players.Where(p => p.IsAlive && p.Seat != owner && p.Seat != victim).Select(p => p.Seat).ToArray();

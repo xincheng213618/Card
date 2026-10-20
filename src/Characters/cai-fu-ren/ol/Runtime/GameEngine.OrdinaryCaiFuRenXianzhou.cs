@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasOrdinaryCaiFuRenCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting);
-    private static CardConversionSource OrdinaryCaiFuRenSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource OrdinaryCaiFuRenSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_fu_ren_ol_OrdinaryCaiFuRenXianzhou.OrdinaryCaiFuRenSource(f);
 
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 27595, SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou)]
     private bool CanActivateOrdinaryCaiFuRenXianzhou(ProgramActivationLegalityContext c) => c.Owner.IsAlive && _phase == TurnPhase.Play && c.OwnerSeat == _currentSeat && HasPayableAllEquipmentDonation(c.OwnerSeat, c.Program.Id, "ordinary-xianzhou");

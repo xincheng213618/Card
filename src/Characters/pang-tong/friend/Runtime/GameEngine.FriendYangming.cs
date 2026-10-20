@@ -5,8 +5,8 @@ public sealed partial class GameEngine
 {
     private bool HasFriendYangmingQuota(CharacterState owner) => _resolutionStack.LastOrDefault() is
         ProgramSkillFrame { FriendPangTong.Stage: FriendPangTongStage.Use } frame && frame.OwnerSeat == owner.Seat;
-    private static CardLocation FriendYangmingLocation(ProgramSkillFrame frame) => new(CardZoneKind.PublicPersistentPile,
-        frame.OwnerSeat, "friend.yangming." + frame.Id.ToString(CultureInfo.InvariantCulture));
+    private static CardLocation FriendYangmingLocation(ProgramSkillFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pang_tong_friend_FriendYangming.FriendYangmingLocation(frame);
     private SkillProgramStepOutcome BeginFriendYangming(ProgramSkillFrame frame)
     {
         var suits = EventsSinceLastBoundary(payload => payload is TurnStartedEvent).OfType<CardMovedEvent>()

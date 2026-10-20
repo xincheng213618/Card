@@ -7,10 +7,8 @@ public sealed partial class GameEngine
     private long MatchingRecastSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private MatchingRecastMaterial[] MatchingRecastMaterials(int seat) => new[] { CardZoneKind.Hand, CardZoneKind.Equipment }
         .SelectMany(zone => _cardZones.CardsAt(new(zone, seat)).Select(c => new MatchingRecastMaterial(c.Id, c.Kind, new(zone, seat), c.IsGeneralWeapon))).ToArray();
-    private static bool MatchingRecastGroup(IReadOnlyList<MatchingRecastMaterial> materials) => materials.Count >= 2 &&
-        materials.Select(m => m.CardId).Distinct().Count() == materials.Count &&
-        (materials.All(m => EquipmentCatalog.IsEquipment(m.PrintedKind)) ||
-         materials.All(m => ProgramBasicCardName(m.PrintedKind) == ProgramBasicCardName(materials[0].PrintedKind)));
+    private static bool MatchingRecastGroup(IReadOnlyList<MatchingRecastMaterial> materials) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MatchingRecasts.MatchingRecastGroup(materials);
     private bool ValidMatchingRecastSelection(int seat, IReadOnlyList<int> ids)
     {
         var available = MatchingRecastMaterials(seat);
@@ -20,11 +18,12 @@ public sealed partial class GameEngine
         m.From.OwnerSeat == p.Seat && m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
         _cardZones.GetLocation(m.CardId) == m.From && _cardZones.CardsAt(m.From)
             .Any(c => c.Id == m.CardId && c.Kind == m.PrintedKind && c.IsGeneralWeapon == m.IsGeneralWeapon));
-    private static bool MatchingRecastPeerCursor(ProgramMatchingRecastReceipt r) => r.Stage is
-        MatchingRecastStage.PeerCostChildren or MatchingRecastStage.PeerDrawChildren;
-    private static MatchingRecastParticipantReceipt CurrentMatchingRecast(ProgramMatchingRecastReceipt r) => MatchingRecastPeerCursor(r) ? r.Peer : r.Owner;
+    private static bool MatchingRecastPeerCursor(ProgramMatchingRecastReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MatchingRecasts.MatchingRecastPeerCursor(r);
+    private static MatchingRecastParticipantReceipt CurrentMatchingRecast(ProgramMatchingRecastReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MatchingRecasts.CurrentMatchingRecast(r);
     private static ProgramMatchingRecastReceipt WithCurrentMatchingRecast(ProgramMatchingRecastReceipt r, MatchingRecastParticipantReceipt p) =>
-        MatchingRecastPeerCursor(r) ? r with { Peer = p } : r with { Owner = p };
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_MatchingRecasts.WithCurrentMatchingRecast(r,p);
 
     private SkillProgramStepOutcome BeginMatchingRecast(ProgramSkillFrame supplied, int peerSeat, string ledgerId)
     {

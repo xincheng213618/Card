@@ -41,8 +41,7 @@ public sealed partial class GameEngine
     }
 
     private static int OwnedHandSelectedRankSum(ProgramOwnedHandRankSumSelection draft) =>
-        draft.CandidateCardIds.Select((id, index) => (id, rank: draft.CandidateRanks[index]))
-            .Where(c => draft.SelectedCardIds.Contains(c.id)).Sum(c => c.rank);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OwnedHandRankSumPrograms.OwnedHandSelectedRankSum(draft);
 
     private IReadOnlyList<PromptChoice> OwnedHandRankSumChoices(ProgramSkillFrame frame)
     {

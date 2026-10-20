@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
  private void StoreZonghuResponse(ZonghuPaidOrigin p)
  {var owner=_resolutionStack.Single(f=>f.Id==p.Need.OwnerFrameId);ReplaceRuntimeFrame(owner.Id,owner switch{CardUseFrame u=>u with{ZonghuResponseOrigin=p},ProgramSkillFrame f=>f with{ZonghuResponseOrigin=p},_=>throw new InvalidOperationException("Zonghu response lost its typed incoming native owner.")});}
- private static ZonghuPaidOrigin? ZonghuResponseOrigin(ResolutionFrame f)=>f switch{CardUseFrame u=>u.ZonghuResponseOrigin,ProgramSkillFrame p=>p.ZonghuResponseOrigin,_=>null};
+ private static ZonghuPaidOrigin? ZonghuResponseOrigin(ResolutionFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuResponses.ZonghuResponseOrigin(f);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27512)]
  private void ObserveZonghuResponse(CardActionAcceptedEvent accepted)
  {

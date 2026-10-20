@@ -6,11 +6,13 @@ public sealed partial class GameEngine
 {
     private const string SunRuOlRefreshDiscardReason = "skill-program.sun-ru.ol.weimian.discard";
     private const string SunRuOlRefreshDrawReason = "skill-program.sun-ru.ol.weimian.draw";
-    private static int SunRuOlBitCount(int mask) => System.Numerics.BitOperations.PopCount((uint)mask);
+    private static int SunRuOlBitCount(int mask) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_ru_ol_SunRuOlWeimian.SunRuOlBitCount(mask);
     private static EquipmentSlot[] SunRuOlSlots => Enum.GetValues<EquipmentSlot>();
-    private static string SunRuOlSlotName(EquipmentSlot s) => s switch
-    { EquipmentSlot.Weapon => "武器栏", EquipmentSlot.Armor => "防具栏", EquipmentSlot.OffensiveHorse => "进攻坐骑栏", EquipmentSlot.DefensiveHorse => "防御坐骑栏", _ => "宝物栏" };
-    private static string SunRuOlBenefitName(int b) => b switch { 1 => "恢复一个装备栏", 2 => "回复1点体力", 3 => "弃置所有手牌，摸四张牌", _ => throw new InvalidOperationException() };
+    private static string SunRuOlSlotName(EquipmentSlot s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_ru_ol_SunRuOlWeimian.SunRuOlSlotName(s);
+    private static string SunRuOlBenefitName(int b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_ru_ol_SunRuOlWeimian.SunRuOlBenefitName(b);
     private int SunRuOlAvailableSlotMask(int seat) => SunRuOlSlots.Select((slot, index) => _players[seat].EquipmentSlotCapacity(slot) > 0 ? 1 << index : 0).Aggregate(0, (a, b) => a | b);
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 26110, SkillProgramEffectOp.AbolishEquipmentSlotsForDistinctBenefits)]
     private bool CanActivateSunRuOlWeimian(int ownerSeat) => SunRuOlAvailableSlotMask(ownerSeat) != 0;

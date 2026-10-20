@@ -6,8 +6,8 @@ public sealed partial class GameEngine
         .HasTriggerOperation(SkillProgramEffectOp.WanweiObtainMatchingLostCard) == true ||
         _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.YuejianRevealAndClaimUsedCard) == true;
 
-    private static bool IsBianFuRenOwnedZone(CardLocation from) => from.OwnerSeat is not null &&
-        from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
+    private static bool IsBianFuRenOwnedZone(CardLocation from) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bian_fu_ren_ol_BianFuRenMovements.IsBianFuRenOwnedZone(from);
 
     // Called by the original typed transfer producer at its HE -> Processing
     // payment. Contributions own an action id rather than a live stack frame.
@@ -330,13 +330,10 @@ public sealed partial class GameEngine
     }
 
     private static bool BianFuRenNativeUseFinish(CardMovementRecord movement) =>
-        movement.From == CardLocation.Processing && movement.To == CardLocation.DiscardPile &&
-        (movement.Reason == CardMoveReasons.UseFinished || movement.Reason == CardMoveReasons.IronChainFinished);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bian_fu_ren_ol_BianFuRenMovements.BianFuRenNativeUseFinish(movement);
 
     private static bool BianFuRenNativeUsePayment(CardMovementRecord movement) =>
-        // Eligibility comes from the typed producer captured on its owning use,
-        // never from a later guess based on the reason string or current source.
-        movement.To == CardLocation.Processing;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bian_fu_ren_ol_BianFuRenMovements.BianFuRenNativeUsePayment(movement);
 
     private IEnumerable<ProgramTriggerCandidate> CollectBianFuRenLossCandidates(CardMovementBatchContext batch)
     {

@@ -3,7 +3,8 @@ public sealed record DuFuRenOwnedOriginEvent(long MovementSequence, int OwnerSea
 public sealed record DuFuRenTransferProducerEvent(long EntrySequence, long ProducerId, int OwnerSeat, int RecipientSeat) : IGameEvent;
 public sealed partial class GameEngine
 {
-    private static bool IsDuFuRenOwnedZone(CardLocation from) => from.OwnerSeat is not null && from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
+    private static bool IsDuFuRenOwnedZone(CardLocation from) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_du_fu_ren_ol_DuFuRenGains.IsDuFuRenOwnedZone(from);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 26520)]
     private bool QualifyDuFuRen(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context) =>
         IsDuFuRenYiseTrigger(t) ? CurrentDuFuRenGains(c, context) is not null && _players[context.TargetSeat!.Value].IsAlive :

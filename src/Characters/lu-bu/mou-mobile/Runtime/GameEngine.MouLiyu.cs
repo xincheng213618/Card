@@ -19,7 +19,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new MouLuBuLiyuStartedEvent(f.Id, r.Source, r.GameplayHash, r.WindowId, r.DamageFrameId, r.OuterUseId, r.OuterActionId, r.VictimSeat, r.DamageAmount, r.ActualTurn));
         PublishMouLb(f); return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static int MouLbCategory(CardKind kind) => GetProgramCardCategory(kind) switch { SkillProgramCardCategory.Basic => 1, SkillProgramCardCategory.Equipment => 4, _ => 2 };
+    private static int MouLbCategory(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_bu_mou_mobile_MouLiyu.MouLbCategory(kind);
     private IReadOnlyList<PromptChoice> MouLbChoices(ProgramSkillFrame f)
     {
         var r = f.MouLuBuLiyu!; var choices = new List<PromptChoice>();

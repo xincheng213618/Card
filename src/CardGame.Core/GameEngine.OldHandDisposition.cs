@@ -28,8 +28,8 @@ public sealed partial class GameEngine
         { FinishOldHandDisposition(f); return SkillProgramStepOutcome.AwaitChild; }
         PublishOldHandDisposition(f); return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static Dictionary<string,string> OldHandParameters(ProgramSkillFrame f, string branch) => new()
-    { ["program-action"] = "old-hand-disposition", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch };
+    private static Dictionary<string,string> OldHandParameters(ProgramSkillFrame f, string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OldHandDisposition.OldHandParameters(f,branch);
     private int[] RemainingOldHandIds(ProgramSkillFrame f) => f.OldHandDisposition!.OldIds.Except(f.OldHandDisposition.DisposedIds)
         .Where(id => _cardZones.GetLocation(id) == CardLocation.Hand(f.OwnerSeat)).ToArray();
     private IReadOnlyList<PromptChoice> OldHandChoices(ProgramSkillFrame f)

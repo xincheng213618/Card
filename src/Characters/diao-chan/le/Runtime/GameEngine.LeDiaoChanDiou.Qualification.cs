@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private const string DiouSkill = "le:diou", DiouBinding = "completed-tanban-use";
     private bool HasDiouCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveDiouTanbanUse);
     private static CardConversionSource DiouSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_le_LeDiaoChanDiou_Qualification.DiouSource(f);
 
     private void CaptureDiouQualification(ResolutionFrame supplied, CardActionContext action)
     {

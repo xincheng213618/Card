@@ -147,8 +147,8 @@ public sealed partial class GameEngine
         BeginJizhiOrNullificationWindow(useId, card, actor.Seat, LifecycleCardUse(useId)!.TargetSeats,
             p.ActionKind, p.TargetCardId, p.RequiredKind, p.Kind);
     }
-    private static bool SameDiouPlan(DiouUsePlan a, DiouUsePlan b) => a.Kind == b.Kind && a.ActionKind == b.ActionKind &&
-        a.TargetCardId == b.TargetCardId && a.RequiredKind == b.RequiredKind && a.Adjusted == b.Adjusted && a.Targets.SequenceEqual(b.Targets);
+    private static bool SameDiouPlan(DiouUsePlan a, DiouUsePlan b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_le_LeDiaoChanDiou_Native.SameDiouPlan(a,b);
     private CardActionContext PrepareDiouAction(CardActionContext action)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { Diou: { Stage: DiouStage.NativeIssuing } r } f)

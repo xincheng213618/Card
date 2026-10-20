@@ -3,8 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private long GiftedSlashSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static string GiftedSlashGiftReason(string skill) => $"skill-program.{skill}.{SkillProgramEffectOp.GiveBoundHandAsSlashWithUseReward}.gift";
-    private static string GiftedSlashDrawReason(string skill) => $"skill-program.{skill}.{SkillProgramEffectOp.RewardGiftedSlashUse}.draw";
+    private static string GiftedSlashGiftReason(string skill) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GiftedSlashUseRewards.GiftedSlashGiftReason(skill);
+    private static string GiftedSlashDrawReason(string skill) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GiftedSlashUseRewards.GiftedSlashDrawReason(skill);
     private bool TracksGiftedSlash => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardGiftedSlashUse);
 
     private bool ExactGiftedSlashGiftActivation(ProgramSkillFrame frame)

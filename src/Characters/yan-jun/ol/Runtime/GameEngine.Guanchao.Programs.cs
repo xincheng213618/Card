@@ -34,17 +34,8 @@ public sealed partial class GameEngine
         return ranks;
     }
 
-    private static bool MatchesGuanchaoPattern(IReadOnlyList<int?> ranks, bool ascending)
-    {
-        int? previous = null;
-        foreach (var rank in ranks)
-        {
-            if (rank is not { } value) return false;
-            if (previous is { } before && (ascending ? before >= value : before <= value)) return false;
-            previous = value;
-        }
-        return true;
-    }
+    private static bool MatchesGuanchaoPattern(IReadOnlyList<int?> ranks, bool ascending) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yan_jun_ol_Guanchao_Programs.MatchesGuanchaoPattern(ranks,ascending);
 
     // 观潮 launch: the owner commits this play phase to one strict pattern.
     private SkillProgramStepOutcome GuanchaoProgramChoosePattern(ProgramSkillFrame frame, SkillProgramEffect effect)

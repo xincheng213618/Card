@@ -22,12 +22,13 @@ public sealed partial class GameEngine
         ?.PhaseNamePredictionPhase?.PhaseInstanceId ?? _cardUseDebitPhaseInstanceId;
     private const string PhasePredictionCostReason = "program.phase-name-prediction.cost";
     private const string PhasePredictionClaimReason = "program.phase-name-prediction.claim";
-    private static CardKind PredictionName(CardKind kind) => kind is CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : kind;
+    private static CardKind PredictionName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseNamePrediction.PredictionName(kind);
     private bool PredictionConsumed(PhaseNamePredictionPolicy p) => CompleteProgramEventHistory().Any(e =>
         e is PhaseNamePredictionSettledEvent s && s.OriginalFrameId == p.Origin.FrameId ||
         e is PhaseNamePredictionExpiredEvent x && x.OriginalFrameId == p.Origin.FrameId);
     private static bool IsPhaseNamePredictionResolver(ProgramTriggerCandidate c, SkillProgram p) =>
-        p.Triggers.Single(t => t.Id == c.BindingId).Effects is [{ Op: SkillProgramEffectOp.SettlePhaseNamePrediction }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseNamePrediction.IsPhaseNamePredictionResolver(c,p);
     private PhaseNamePredictionMaterial[] PredictionMaterials(long frameId, int seat) =>
         BuildOwnedCardPaymentChoices(frameId, seat, seat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard)
             .Where(c => c.Cards.Count == 1).Select(c => c.Cards[0]).Distinct()

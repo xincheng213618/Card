@@ -122,14 +122,7 @@ public sealed partial class GameEngine
         ProgramAttackRangeAid aid,
         CardMoveReason reason,
         string action) =>
-        new()
-        {
-            ["program-action"] = action,
-            ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["responder-index"] = aid.ResponderIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["target-seat"] = aid.TargetSeat.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["move-reason"] = reason.Value
-        };
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramAttackRangeAid.AttackRangeAidParameters(frame,aid,reason,action);
 
     private void ResolveProgramAttackRangeAid(
         ProgramSkillFrame frame,

@@ -106,7 +106,7 @@ public sealed partial class GameEngine
     }
 
     private static int ShenwuPlayerHealthBonus(ShenwuActivityDefinition activity) =>
-        (activity.PlayerTier >= (activity.Edition == 0 ? 2 : 3) ? 1 : 0) + (activity.PlayerTier >= 5 ? 1 : 0);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuActivities.ShenwuPlayerHealthBonus(activity);
 
     private void InitializeShenwuHealth(CharacterState player)
     {

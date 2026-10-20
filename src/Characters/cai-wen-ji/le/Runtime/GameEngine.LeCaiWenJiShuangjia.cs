@@ -2,32 +2,16 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool HasLeCaiWenJiShuangjiaCapability => _contentRegistry.ProgramDependencies
-        .HasTriggerOperation(SkillProgramEffectOp.InitializeShuangjiaInitialEntities);
+    private ShuangjiaMarkRuntime ShuangjiaMarks =>
+        (ShuangjiaMarkRuntime)GetRuntimeModuleInstance(typeof(ShuangjiaMarkRuntime));
+    private bool HasLeCaiWenJiShuangjiaCapability => ShuangjiaMarks.HasCapability;
     private static CardConversionSource ShuangjiaSource(ProgramSkillFrame frame) =>
         new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
 
     // The physical mark outlives its original holder, zone and granting instance.
-    private bool HasShuangjiaEntityMark(int cardId) => HasLeCaiWenJiShuangjiaCapability &&
-        ProgramEventHistory<ShuangjiaInitialEntityMarkedEvent>().Any(e => e.CardId == cardId);
-    private bool HasShuangjiaHandEntityMark(int ownerSeat, int cardId) =>
-        IsValidPlayerSeat(ownerSeat) && _cardZones.GetLocation(cardId) == CardLocation.Hand(ownerSeat) &&
-        HasShuangjiaEntityMark(cardId);
+    private bool HasShuangjiaEntityMark(int cardId) => ShuangjiaMarks.HasEntityMark(cardId);
     private bool IsShuangjiaHandLimitExempt(CharacterState owner, int cardId) =>
-        HasLeCaiWenJiShuangjiaCapability && HasRuntimeSkill(owner, "le:shuangjia") &&
-        HasShuangjiaHandEntityMark(owner.Seat, cardId);
-    [ProgramDistanceRule(ProgramDistanceStage.IncomingContributions, 30)]
-    private IEnumerable<RuleQueryContribution> ShuangjiaIncomingDistanceContributions(int targetSeat)
-    {
-        if (!HasLeCaiWenJiShuangjiaCapability || !IsValidPlayerSeat(targetSeat) ||
-            !_players[targetSeat].IsAlive || !HasRuntimeSkill(_players[targetSeat], "le:shuangjia")) yield break;
-        // "Own" is HE here; Judgment and private/public piles are not equipment or Hand.
-        var count = GetHand(_players[targetSeat]).Concat(GetEquipment(_players[targetSeat]))
-            .Count(card => HasShuangjiaEntityMark(card.Id));
-        if (count > 0)
-            yield return new FiniteRuleQueryContribution($"shuangjia:{targetSeat}:marked-owned-incoming-distance",
-                SkillRuleOperation.Add, Math.Min(5, count));
-    }
+        ShuangjiaMarks.IsHandLimitExempt(owner.Seat, cardId);
 
     private ProgramLifecycleTriggerWindowFrame CaptureShuangjiaInitialEntities(ProgramLifecycleTriggerWindowFrame window)
     {

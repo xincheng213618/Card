@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool HasLvQianCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecordWeiluActualDamageSource);
- private static CardConversionSource LvQianSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource LvQianSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lv_qian_ol_LvQianObservers.LvQianSource(f);
  private bool LvQianSourceCurrent(CardConversionSource source,string hash)=>IsValidPlayerSeat(source.OwnerSeat)&&_players[source.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[source.OwnerSeat],source.SkillId,source.SkillInstanceId)&&_contentRegistry.GetSkill(source.SkillId).Program?.GameplayHash==hash;
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 520)]
  private void ObserveLvQianTurnBoundary(IGameEvent payload)

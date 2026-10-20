@@ -6,8 +6,8 @@ public sealed partial class GameEngine
 {
     private const string XingGuStoreReason = "skill-program.zhang-shi-ping.xinggu.initial";
     private const string XingGuDiamondReason = "skill-program.zhang-shi-ping.xinggu.diamond";
-    private static bool IsXingGuMount(Card card) => EquipmentCatalog.IsEquipment(card.Kind) &&
-        EquipmentCatalog.Get(card.Kind).Slot is EquipmentSlot.OffensiveHorse or EquipmentSlot.DefensiveHorse;
+    private static bool IsXingGuMount(Card card) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_shi_ping_ol_ZhangShiPingXingGu.IsXingGuMount(card);
     private IReadOnlyList<PromptChoice> XingGuPlacementChoices(int owner, string instance)
     {
         if (!_players[owner].IsAlive || _publicPersistentPiles.GetValueOrDefault((owner, "ol:xinggu", instance)) is not { } pile) return [];

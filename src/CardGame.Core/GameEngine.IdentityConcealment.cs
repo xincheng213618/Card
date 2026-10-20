@@ -23,8 +23,9 @@ public sealed partial record ProgramSkillWindowContext
 }
 public sealed partial class GameEngine
 {
-    internal const string IdentityConcealedGeneralId="concealment:ol";
-    private static GeneralDefinition IdentityConcealedGeneral()=>new(IdentityConcealedGeneralId,"隐匿","",[]);
+    internal const string IdentityConcealedGeneralId=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_IdentityConcealment.IdentityConcealedGeneralId;
+    private static GeneralDefinition IdentityConcealedGeneral() =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_IdentityConcealment.IdentityConcealedGeneral();
     private bool GeneralHasIdentityConcealment(GeneralDefinition general)=>_modeDefinition.ModeKind==ContentModeKind.Identity &&
         general.Skills.Select(s=>s.ContentId).OfType<string>().Any(id=>_contentRegistry!.Skills.GetValueOrDefault(id)?.Program?.Triggers.Any(t=>
             t.Window==SkillProgramTriggerWindow.IdentityGeneralAppeared && t.Effects.Any(e=>e.Op==SkillProgramEffectOp.AfterActualIdentityAppearanceRecover))==true);

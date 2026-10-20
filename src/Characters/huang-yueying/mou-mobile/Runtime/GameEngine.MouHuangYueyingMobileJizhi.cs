@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private bool HasMouHuangYueyingMobile => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingJizhi) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.PlaceMouHuangYueyingQicaiEquipment);
-    private static CardConversionSource MouHySource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouHySource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_yueying_mou_mobile_MouHuangYueyingMobileJizhi.MouHySource(f);
     [ProgramCapability]
     private sealed class MouHuangYueyingMobileCapability(GameEngine g) : IMouHuangYueyingMobileHost, IMouHuangYueyingMobileQuery
     {

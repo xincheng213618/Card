@@ -6,7 +6,8 @@ public sealed partial class GameEngine
 {
     private const string FirstSlashDuelDrawReason = "skill-program.first-slash-duel.draw";
     private bool HasFirstSlashDuelBenefitCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit);
-    private static bool IsFirstSlashDuelKind(CardKind kind) => IsSlashCard(kind) || kind == CardKind.Duel;
+    private static bool IsFirstSlashDuelKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FirstSlashDuelBenefits.IsFirstSlashDuelKind(kind);
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 260)]
     private void ObserveFirstSlashDuelDeclaration(IGameEvent payload)
     {
@@ -83,9 +84,8 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<PromptChoice> FirstSlashDuelChoices(ProgramSkillFrame f) => Array.AsReadOnly(new[] {
         FirstSlashDuelChoice(f, "draw", "摸X张牌"), FirstSlashDuelChoice(f, "damage", "令此牌伤害+X") });
-    private static PromptChoice FirstSlashDuelChoice(ProgramSkillFrame f, string branch, string label) => new(
-        new($"first-slash-duel.{f.Id}.{branch}"), label, [], [], new Dictionary<string, string> {
-            ["program-action"] = "first-slash-duel-benefit", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch });
+    private static PromptChoice FirstSlashDuelChoice(ProgramSkillFrame f, string branch, string label) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FirstSlashDuelBenefits.FirstSlashDuelChoice(f,branch,label);
     [ProgramAnswer("first-slash-duel-benefit")]
     private void ResolveFirstSlashDuelChoice(PromptChoice selected)
     {

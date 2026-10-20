@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool XianbiChildren(XianbiStage stage) => stage is XianbiStage.DiscardChildren or XianbiStage.DrawChildren or XianbiStage.ObtainChildren;
+    private static bool XianbiChildren(XianbiStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_hong_ol_SunHongObservers.XianbiChildren(stage);
     private bool ValidXianbi(ProgramSkillFrame f)
     {
         if (f.Xianbi is not { } r || f.InstructionIndex != 1 || f.SkillId != "ol:xianbi" ||

@@ -4,14 +4,16 @@ public sealed record MouFaZhengActualGainEvent(long MarkId, long BatchId, long S
 public sealed partial class GameEngine
 {
     private bool HasMouFaZhengCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.TakeMouFaZhengXuanhuoGain);
-    private static CardConversionSource MouFaZhengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouFaZhengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_fa_zheng_mou_mobile_MouFaZhengLedger.MouFaZhengSource(f);
     private IEnumerable<MouFaZhengMarkEvent> MouFaZhengMarks() => ProgramEventHistory<MouFaZhengMarkEvent>().Where(m => !ProgramEventHistory<MouFaZhengRemovedEvent>().Any(e => e.MarkId == m.MarkId));
     private int MouFaZhengExtracted(long mark) => ProgramEventHistory<MouFaZhengObtainedEvent>().Where(e => e.MarkId == mark).Sum(e => e.Actual);
     private int MouFaZhengReceived(long mark) => ProgramEventHistory<MouFaZhengActualGainEvent>().Count(e => e.MarkId == mark);
     private bool IsLiveMouFaZhengSource(MouFaZhengMarkEvent mark) => _players[mark.Source.OwnerSeat].IsAlive && _players[mark.TargetSeat].IsAlive &&
         HasRuntimeSkill(_players[mark.Source.OwnerSeat], MouFaZhengComposition.Xuanhuo) &&
         _contentRegistry.GetSkill(mark.Source.SkillId).Program?.GameplayHash == mark.GameplayHash;
-    private static bool IsMouFaZhengGainTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.TakeMouFaZhengXuanhuoGain }];
+    private static bool IsMouFaZhengGainTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_fa_zheng_mou_mobile_MouFaZhengLedger.IsMouFaZhengGainTrigger(t);
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 31800)]
     private void SynchronizeMouFaZhengMarks()
     {

@@ -75,7 +75,8 @@ public sealed partial class GameEngine
             _cardMovements.LastOrDefault(m => m.CardId == g.CardId && m.To == CardLocation.Hand(owner) &&
                 ActualHandGainOriginalSource(m) != CardLocation.Hand(owner))?.Sequence == g.GainSequence)
         .Select(g => g.CardId).ToArray();
-    private static CardConversionSource ActualHandGainSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource ActualHandGainSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActualHandGainPrograms.ActualHandGainSource(f);
     private bool IsActualHandGainOwnDrawBatch(CardMovementBatchContext batch, int owner, string skill, string hash)
     {
         if (batch.OriginOwnerSeat != owner || batch.OriginSkillId != skill || batch.OriginSkillInstanceId is not { } instance ||
@@ -106,8 +107,7 @@ public sealed partial class GameEngine
                 m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(owner)).Select(m => m.CardId).SequenceEqual(paid.PaidIds);
     }
     private static SkillProgramCardCategory ActualHandGainCategory(CardKind kind) =>
-        new[] { SkillProgramCardCategory.Basic, SkillProgramCardCategory.Trick, SkillProgramCardCategory.Equipment }
-            .Single(c => MatchesSkillProgramCardCategory(kind, c));
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActualHandGainPrograms.ActualHandGainCategory(kind);
     private bool SameCategoryGiftUsed(int owner, string skill, int turn, SkillProgramCardCategory category) =>
         CompleteProgramEventHistory().OfType<SameCategoryDeckGiftIssuedEvent>()
             .Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.ActualTurn == turn && e.Category == category);
@@ -195,8 +195,8 @@ public sealed partial class GameEngine
         choices.Add(new(new($"same-category-deck.{f.Id}.decline"), "不发动应援。", [], [], ActualHandGainParameters(f, "decline")));
         return Array.AsReadOnly(choices.ToArray());
     }
-    private static Dictionary<string, string> ActualHandGainParameters(ProgramSkillFrame f, string branch) => new()
-    { ["program-action"] = "actual-hand-gain-category", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch };
+    private static Dictionary<string, string> ActualHandGainParameters(ProgramSkillFrame f, string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActualHandGainPrograms.ActualHandGainParameters(f,branch);
     private void PublishActualHandGainChoice(ProgramSkillFrame f)
     {
         var choices = ActualHandGainChoices(f); var skill = _contentRegistry.GetSkill(f.SkillId);

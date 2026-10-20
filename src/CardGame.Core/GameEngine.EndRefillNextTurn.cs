@@ -8,7 +8,8 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome RefillAndScheduleNextTurnSelfOnly(ProgramSkillFrame f) => engine.BeginEndRefillNextTurn(f);
     }
-    private static string EndRefillReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.end-refill-next-turn.draw";
+    private static string EndRefillReason(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_EndRefillNextTurn.EndRefillReason(f);
     private bool IsExactOwnAfterTurnEndedProgram(ProgramSkillFrame f) =>
         f.WindowContext is { Window: SkillProgramTriggerWindow.AfterTurnEnded } context &&
         _resolutionStack.OfType<DeferredTurnEndFrame>().SingleOrDefault(p => p.Id == context.ParentFrameId) is { } parent &&
@@ -146,11 +147,7 @@ public sealed partial class GameEngine
         RequireEndRefillNextTurnReceipt(f); return true;
     }
     private static bool SameEndRefillReceipt(EndRefillNextTurnReceipt a, EndRefillNextTurnReceipt b) =>
-        a.WindowFrameId == b.WindowFrameId && a.Source == b.Source && a.GameplayHash == b.GameplayHash &&
-        a.ActualTurnNumber == b.ActualTurnNumber && a.ActualTurnOwnerSeat == b.ActualTurnOwnerSeat && a.Stage == b.Stage &&
-        a.TargetSeat == b.TargetSeat && a.FrozenHandCount == b.FrozenHandCount && a.FrozenMaxHp == b.FrozenMaxHp &&
-        a.DrawRequested == b.DrawRequested && a.DrawActual == b.DrawActual && a.MovementBefore == b.MovementBefore &&
-        a.MovementAfter == b.MovementAfter && a.Targets.SequenceEqual(b.Targets);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_EndRefillNextTurn.SameEndRefillReceipt(a,b);
     private void ConsumeEndRefillNextTurn(CharacterState current)
     {
         if (!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly)) return;

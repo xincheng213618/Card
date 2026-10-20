@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string DuFuRenGiftReason = "skill-program.du-fu-ren.shunshi.gift";
-    private static CardConversionSource DuFuRenSource(ProgramSkillFrame f) => new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource DuFuRenSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_du_fu_ren_ol_DuFuRen.DuFuRenSource(f);
     [ProgramCapability]
     private sealed class DuFuRenCapability(GameEngine engine) : IDuFuRenHost
     { public SkillProgramStepOutcome Execute(ProgramSkillFrame f,SkillProgramEffectOp op) => engine.BeginDuFuRen(f,op); }

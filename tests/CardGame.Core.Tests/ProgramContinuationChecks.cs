@@ -36,7 +36,7 @@ internal static class ProgramContinuationChecks
         Reject(() => new Catalog([new((ProgramContinuationKind)999, 1, "unknown-kind", (_, _) => true, null)]));
         Reject(() => new Catalog([]));
 
-        var methods = typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
+        var methods = ProgramRuntimeModuleCatalog.Default.Methods;
         var forward = Catalog.Discover(methods);
         var reversed = Catalog.Discover(methods.Reverse());
         Require(forward.Registrations.Select(item => (item.Kind, item.Order, item.Method))

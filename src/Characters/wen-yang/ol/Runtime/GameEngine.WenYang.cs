@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string WenYangHandDiscard="skill-program.wen-yang.qingjiao.hand-discard",WenYangEndingDiscard="skill-program.wen-yang.qingjiao.ending-discard",WenYangGain="skill-program.wen-yang.qingjiao.obtain",WenYangDraw="skill-program.wen-yang.lvli.draw";
     private bool HasWenYangCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingjiaoWholeHandExchange);
-    private static CardConversionSource WenYangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource WenYangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wen_yang_ol_WenYang.WenYangSource(f);
     private int WenYangAwakeningLevel(int owner)=>ProgramEventHistory<WenYangAwakenedEvent>().Where(e=>e.OwnerSeat==owner).Select(e=>e.Level).DefaultIfEmpty(0).Max();
     private bool WenYangHasAwakened(int owner,int level)=>ProgramEventHistory<WenYangAwakenedEvent>().Any(e=>e.OwnerSeat==owner&&e.Level==level);
     [ProgramCapability]private sealed class WenYangCapability(GameEngine e):IWenYangHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginWenYang(f,op);}

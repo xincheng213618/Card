@@ -9,13 +9,13 @@ public sealed partial class GameEngine
     private bool HasZhaohuoCapability => _contentRegistry?.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveZhaohuoFirstVictimGift) == true;
     private static bool IsZhaohuoTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.ResolveZhaohuoFirstVictimGift }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tao_qian_ol_Zhaohuo.IsZhaohuoTrigger(trigger);
     private bool ZhaohuoActualTurnOpen => _setupComplete && _turnNumber > 0 &&
         _turnProgression.TurnNumber == _turnNumber &&
         !ProgramEventHistory<TurnEndedEvent>().Any(e => e.TurnNumber == _turnNumber && e.ActorSeat == _turnProgression.OwnerSeat) &&
         !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == _turnNumber && e.OwnerSeat == _turnProgression.OwnerSeat);
     private static CardConversionSource ZhaohuoSource(ProgramSkillFrame f) =>
-        new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tao_qian_ol_Zhaohuo.ZhaohuoSource(f);
 
     // DamageApplied precedes before-dying/recovery and other after-damage
     // children. Capture once here, including empty-Hand victims and turns in

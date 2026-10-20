@@ -26,7 +26,8 @@ public sealed partial record CardUseFrame
 public sealed partial class GameEngine
 {
     private const string HellSoulResolutionSkill = "hell:return-soul-resolution";
-    private static string HellSoulGrant(long id) => $"card-use:hell-return-soul:{id}";
+    private static string HellSoulGrant(long id) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_HellSoulCards.HellSoulGrant(id);
     private string HellSoulGrantSource(long id) => $"turn:{_turnNumber}:{_currentSeat}:card-use:hell-return-soul:{id}";
 
     private HellWanghunGrantLostEvent[] HellSoulOutstandingLosses(int seat)

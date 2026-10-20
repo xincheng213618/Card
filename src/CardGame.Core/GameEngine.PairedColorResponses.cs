@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) && query.Category == SkillProgramCardCategory.Trick;
 
 
-    private const string PairedColorDiscardReason = "skill-program.paired-color-response.discard";
+    private const string PairedColorDiscardReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardOrigins.PairedColorDiscardReason;
     private const string PairedColorObtainReason = "skill-program.paired-color-response.obtain";
     private long PairedColorSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
 

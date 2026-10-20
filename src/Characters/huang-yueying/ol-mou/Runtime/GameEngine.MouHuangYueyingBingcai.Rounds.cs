@@ -36,8 +36,7 @@ public sealed partial class GameEngine
     }
 
     private static MouBingcaiExtraEffectIssuedEvent MouBingcaiIssuedEvent(long useId, long actionId, MouBingcaiExtraEffectGrant g) =>
-        new(g.FrameId, useId, actionId, g.Source, g.GameplayHash, g.WindowId, g.BasicKind, g.RecastInvocationId,
-            g.MaterialId, g.PrintedKind, g.EffectiveKind, g.From, g.BatchId, g.Before, g.After, g.MovementSequence);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huang_yueying_ol_mou_MouHuangYueyingBingcai_Rounds.MouBingcaiIssuedEvent(useId,actionId,g);
 
     private bool HasUnstartedMouBingcaiExtraEffect(long id) => LifecycleCardUse(id) is
         { MouBingcaiRounds: { } r, Action: { Type: CardActionType.Use } a } use &&

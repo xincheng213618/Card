@@ -4,8 +4,9 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string ZhenyingDiscardReason = "skill-program.hao-pu.zhenying.discard", ZhenyingDrawReason = "skill-program.hao-pu.zhenying.draw";
-    private static CardConversionSource ZhenyingSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private const string ZhenyingDiscardReason = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.ZhenyingDiscardReason, ZhenyingDrawReason = "skill-program.hao-pu.zhenying.draw";
+    private static CardConversionSource ZhenyingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hao_pu_ol_HaoPu.ZhenyingSource(f);
     private ZhenyingHandPlan FreezeZhenyingHand(int seat)
     {
         var hand = GetHand(_players[seat]);
@@ -31,10 +32,12 @@ public sealed partial class GameEngine
         PublishZhenyingChoice(f);
         return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static ZhenyingHandPlan ZhenyingPlan(ZhenyingReceipt r) => r.SelectionIndex == 0 ? r.OwnerPlan : r.OtherPlan;
+    private static ZhenyingHandPlan ZhenyingPlan(ZhenyingReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hao_pu_ol_HaoPu.ZhenyingPlan(r);
     private static ZhenyingReceipt WithZhenyingPlan(ZhenyingReceipt r, ZhenyingHandPlan plan) =>
-        r.SelectionIndex == 0 ? r with { OwnerPlan = plan } : r with { OtherPlan = plan };
-    private static int ZhenyingKeptCount(ZhenyingHandPlan p) => Math.Min(p.OriginalIds.Count, Math.Max(p.DesiredCount ?? 0, p.ProtectedIds?.Count ?? 0));
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hao_pu_ol_HaoPu.WithZhenyingPlan(r,plan);
+    private static int ZhenyingKeptCount(ZhenyingHandPlan p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hao_pu_ol_HaoPu.ZhenyingKeptCount(p);
     private IReadOnlyList<PromptChoice> ZhenyingChoices(ProgramSkillFrame f)
     {
         var r = f.Zhenying!; var p = ZhenyingPlan(r);

@@ -18,8 +18,8 @@ public sealed partial class GameEngine
             engine.BeginExtraEffectsAndRankGuess(effect, frame);
     }
     private CardConversionSource ExtraEffectsSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static bool ExtraEffectCardKind(CardKind kind) => CardCatalog.Get(kind).CategoryName == "基本牌" ||
-        CardCatalog.Get(kind).CategoryName == "锦囊牌" && !IsDelayedCard(kind);
+    private static bool ExtraEffectCardKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ExtraEffectsAndRankGuessing.ExtraEffectCardKind(kind);
     private bool TryGetExtraEffectUse(int owner, ProgramSkillWindowContext? context, out CardUseFrame use)
     {
         use = null!;

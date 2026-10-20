@@ -9,8 +9,10 @@ public sealed partial class GameEngine
 
     private const string LiuYanDrawReason="skill-program.liu-yan.tushe.draw";
     private bool HasLiuYanCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawTusheForActualNonEquipmentTargets);
-    private static CardConversionSource LiuYanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
-    private static bool LiuYanBasic(CardKind k)=>IsSlashCard(k)||k is CardKind.Dodge or CardKind.Peach or CardKind.Alcohol;
+    private static CardConversionSource LiuYanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_yan_ol_LiuYan.LiuYanSource(f);
+    private static bool LiuYanBasic(CardKind k) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_yan_ol_LiuYan.LiuYanBasic(k);
     private bool LiuYanNoBasicHand(CharacterState p)=>GetHand(p).All(c=>!LiuYanBasic(AdvancedEffectiveHandKind(p,c)));
     [ProgramCapability]private sealed class LiuYanCapability(GameEngine e):ILiuYanHost,ILiuYanSelectionQuery
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginLiuYan(f,op);public bool CanUse(int owner,Card card,string skill)=>e.LiuYanLimuMaterialLegal(e._players[owner],card,skill);}

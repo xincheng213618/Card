@@ -24,8 +24,7 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLuBuWushuangBonus);
 
     private static bool UsesDamageNatureCondition(SkillProgramTriggerCondition condition) =>
-        condition.Kind == SkillProgramTriggerConditionKind.DamageNatureIs ||
-        condition.Children.Any(UsesDamageNatureCondition);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamagePreventionPrograms.UsesDamageNatureCondition(condition);
 
     private bool TryVisitRangePreventionChainTarget(IDamageAttempt attack)
     {

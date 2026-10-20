@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string NeifaDrawReason="skill-program.neifa.draw",NeifaFieldReason="skill-program.neifa.field",NeifaDiscardReason="skill-program.neifa.discard",NeifaEquipmentReason="skill-program.neifa.equipment-draw";
- private static CardConversionSource NeifaSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource NeifaSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_tan_yuan_shang_ol_YuanTanYuanShangPrograms.NeifaSource(f);
  private bool NeifaSourceCurrent(ProgramSkillFrame f)=>_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 520)]
  private bool CanOfferNeifa(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext w)

@@ -9,7 +9,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome BeginLowHandPublicDraft(ProgramSkillFrame frame) => engine.BeginLowHandPublicDraft(frame);
     }
 
-    private static string DefenseNameUsage(string ledger, CardKind kind) => $"declared-name:{ledger}:{ProgramBasicCardName(kind)}";
+    private static string DefenseNameUsage(string ledger, CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedDefenseAndPublicDraft.DefenseNameUsage(ledger,kind);
     private CardUseFrame NamedDefenseUse(ProgramSkillFrame frame)
     {
         var context = frame.WindowContext;
@@ -127,9 +128,7 @@ public sealed partial class GameEngine
     }
 
     private static PromptChoice NamedDraftChoice(ProgramSkillFrame frame, string action, string label, int? card = null, int? slot = null, CardKind? name = null, int? seat = null) =>
-        new(new ChoiceId($"named-draft.{frame.Id}.{action}.{card?.ToString() ?? slot?.ToString() ?? name?.ToString() ?? seat?.ToString() ?? "none"}"), label,
-            card is { } id ? [id] : [], seat is { } target ? [target] : [], new Dictionary<string, string>
-            { ["program-action"] = action, ["frame-id"] = frame.Id.ToString(), ["slot-index"] = slot?.ToString() ?? "", ["card-name"] = name?.ToString() ?? "" });
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedDefenseAndPublicDraft.NamedDraftChoice(frame,action,label,card,slot,name,seat);
 
     private void PublishNamedDraftPrompt(ProgramSkillFrame frame, int chooser, string text, IReadOnlyList<PromptChoice> choices, bool privacy)
     {

@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string WangYunPlanMoveReason="program.wang-yun.plan-payment";
-    private static bool WangYunMaterial(Card card)=>IsSlashCard(card.Kind) || EquipmentCatalog.IsEquipment(card.Kind);
+    private static bool WangYunMaterial(Card card) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_yun_ol_WangYunPrograms.WangYunMaterial(card);
     private bool WangYunActivationCardAllowed(SkillProgramActivation a,Card card)=>WangYunActivationCardAllowed(_currentSeat,a,card);
     private bool WangYunActivationCardAllowed(int ownerSeat,SkillProgramActivation a,Card card)
     {
@@ -19,7 +20,8 @@ public sealed partial class GameEngine
     private bool WangYunActivationMatches(ProgramSkillFrame f,SkillProgramEffectOp op)=>f.TriggerId is null && f.WindowContext is null && f.InstructionIndex==1 &&
         f.OwnerSeat==_currentSeat && _phase==TurnPhase.Play && _contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash &&
         ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).Instructions is[var instruction] && instruction.Op==op;
-    private static Dictionary<string,string> WangYunArgs(ProgramSkillFrame f,string branch)=>new(){["program-action"]="wang-yun-plan",["frame-id"]=f.Id.ToString(CultureInfo.InvariantCulture),["branch"]=branch};
+    private static Dictionary<string,string> WangYunArgs(ProgramSkillFrame f,string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_yun_ol_WangYunPrograms.WangYunArgs(f,branch);
     private int WangYunChooser(ProgramSkillFrame f)=>f.WangYunPlan?.Stage=="branch"?f.WangYunPlan.Actor:f.OwnerSeat;
     private void PublishWangYun(ProgramSkillFrame f)
     {

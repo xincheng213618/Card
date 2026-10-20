@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string WuZglDraw = "skill-program.wumiao:zhuge-liang.draw", WuZglCopy = "skill-program.wumiao:zhizhe.copy";
     private bool HasWuZhugeLiangCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeWuZhugeLiangJincui) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuZhugeLiangQingshi) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWuZhugeLiangZhizhe);
-    private static CardConversionSource WuZglSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuZglSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhuge_liang_wumiao_WuZhugeLiang.WuZglSource(f);
     private bool WuZglTurnOpen(int turn, int owner) => turn == _turnNumber && owner == _currentSeat && !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == turn && e.OwnerSeat == owner);
     private CardActionContext? WuZglAction(ProgramSkillWindowContext c) => c.CardUse is { } id
         ? _resolutionStack.OfType<CardUseFrame>().Select(f => f.Action).FirstOrDefault(a => a?.ActionId == id.CardActionId) ??

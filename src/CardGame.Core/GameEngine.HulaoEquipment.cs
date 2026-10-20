@@ -4,17 +4,11 @@ public sealed record HulaoInitialEquipmentPlacedEvent(int BossSeat) : IGameEvent
 
 public sealed partial class GameEngine
 {
-    private static string? HulaoEquipmentSkillId(CardKind kind) => kind switch
-    {
-        CardKind.WushuangHalberd => "hulao:wushuang-halberd",
-        CardKind.PurpleGoldCrown => "hulao:purple-gold-crown",
-        CardKind.RedCottonRobe => "hulao:red-cotton-robe",
-        CardKind.LionBelt => "hulao:lion-belt",
-        _ => null
-    };
+    private static string? HulaoEquipmentSkillId(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_HulaoEquipment.HulaoEquipmentSkillId(kind);
 
     private static string? HulaoEquipmentSkillGrantId(Card card) =>
-        HulaoEquipmentSkillId(card.Kind) is null ? null : $"equipment:hulao:{card.Id}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_HulaoEquipment.HulaoEquipmentSkillGrantId(card);
 
     private bool ResolveHulaoEquipmentSkillGrant(Card card, CardLocation from, CardLocation to)
     {

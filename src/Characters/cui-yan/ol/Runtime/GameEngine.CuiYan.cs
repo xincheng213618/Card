@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string CuiYanDrawReason="skill-program.cui-yan.shutong.draw";
-    private static CardConversionSource CuiYanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource CuiYanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cui_yan_ol_CuiYan.CuiYanSource(f);
     [ProgramCapability]private sealed class CuiYanCapability(GameEngine e):ICuiYanHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginCuiYan(f,op);}
     private ProgramCardTriggerWindowFrame? CurrentCuiYanUseWindow(ProgramTriggerCandidate c,ProgramSkillWindowContext context)
     {

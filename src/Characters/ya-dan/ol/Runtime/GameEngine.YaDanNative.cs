@@ -23,8 +23,8 @@ public sealed partial class GameEngine
         BuildLegalActions(_players[f.OwnerSeat],includeProgramActions:false,selectedPhysicalCardId:entity.CardId))
         .Where(a=>a.CardId is>0&&f.YaDan.Entities.Any(e=>e.CardId==a.CardId)&&a.ConversionSource is null&&(a.AdditionalConversionSources?.Count??0)==0&&
             a.Kind is not(LegalActionKind.Recast or LegalActionKind.UseProgramSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.RevealGeneral or LegalActionKind.EndPlay)).ToArray());
-    private static QingyaAction FreezeQingyaAction(LegalAction a)=>new(a.Kind,a.CardId!.Value,a.PlayedCardKind,a.TargetCardId,
-        a.TargetSeats.Count>0?a.TargetSeats:a.TargetSeat is{}seat?[seat]:[]);
+    private static QingyaAction FreezeQingyaAction(LegalAction a) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ya_dan_ol_YaDanNative.FreezeQingyaAction(a);
     private void AnswerQingyaNativeUse(ProgramSkillFrame f,PromptChoice choice)
     {
         if(choice.Parameters.GetValueOrDefault("branch")=="decline"){FinishYaDan(f);return;}

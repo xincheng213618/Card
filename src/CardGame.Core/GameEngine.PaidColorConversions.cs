@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string PaidColorDiscardReason = "program.paid-color-conversion.discard";
-    private static bool HasActualRedOrBlackSuit(Suit suit) => suit is Suit.Spade or Suit.Club or Suit.Heart or Suit.Diamond;
+    private static bool HasActualRedOrBlackSuit(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PaidColorConversions.HasActualRedOrBlackSuit(suit);
 
     private bool MatchesPaidColorDrawOwner(ProgramSkillFrame root)
     {

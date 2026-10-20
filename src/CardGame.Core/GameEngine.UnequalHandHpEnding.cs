@@ -15,7 +15,8 @@ public sealed partial class GameEngine
     private bool CanOfferUnequalHandHp(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int owner) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveUnequalHandHpEnding) ||
         context.Window == SkillProgramTriggerWindow.PlayEnding && owner == _currentSeat && _players[owner].IsAlive && UnequalHandHpTargets(owner).Length > 0;
-    private static string UnequalHandHpReason(ProgramSkillFrame f, string step) => $"skill-program.{f.SkillId}.unequal-hand-hp.{step}";
+    private static string UnequalHandHpReason(ProgramSkillFrame f, string step) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_UnequalHandHpEnding.UnequalHandHpReason(f,step);
     private SkillProgramStepOutcome BeginUnequalHandHpEnding(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);

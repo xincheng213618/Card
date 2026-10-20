@@ -34,9 +34,10 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation) ||
         HasTangTangZhiyi || HasYuanJiCapability || HasSanwenCapability;
     private long OutsidePhaseMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static bool IsOutsidePhaseOperation(SkillProgramEffectOp op) => OutsidePhaseDrawDiscardComposition.IsOperation(op);
+    private static bool IsOutsidePhaseOperation(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OutsidePhaseDrawDiscard.IsOutsidePhaseOperation(op);
     private static string OutsidePhaseMovementReason(ProgramSkillFrame f, bool draw) =>
-        $"skill-program.{f.SkillId}.outside-phase-{(draw ? "draw" : "discard")}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OutsidePhaseDrawDiscard.OutsidePhaseMovementReason(f,draw);
 
     private NativeDrawInvocationDraft? CaptureNativeDrawInvocation(int owner, int requested, CardMoveReason reason,
         CardConversionSource? directProducer)

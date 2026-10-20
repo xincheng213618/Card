@@ -4,11 +4,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static GameOptions FreezeShanheBattleOptions(GameOptions options)
-    {
-        if (options.ShanheBattle is not { } setup) return options;
-        return options with { ShanheBattle = ShanheBattleSetup.Freeze(setup) };
-    }
+    private static GameOptions FreezeShanheBattleOptions(GameOptions options) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShanheCampaigns.FreezeShanheBattleOptions(options);
 
     private static void ValidateShanheBattleOptions(GameOptions options, ContentRegistry registry, ContentModeDefinition mode)
     {

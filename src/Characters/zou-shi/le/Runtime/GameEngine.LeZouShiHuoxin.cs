@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string HuoxinObtainReason = "skill-program.le-zou-shi.huoxin.obtain";
-    private static CardConversionSource HuoxinSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource HuoxinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zou_shi_le_LeZouShiHuoxin.HuoxinSource(f);
     private bool TryGetHuoxinUse(int owner, ProgramSkillWindowContext context, out ProgramCardTriggerWindowFrame window)
     {
         window = null!;

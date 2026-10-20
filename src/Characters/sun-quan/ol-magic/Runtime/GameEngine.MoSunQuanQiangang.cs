@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private bool HasMoQiangangCapability => _contentRegistry.ProgramDependencies
         .HasActivationOperation(SkillProgramEffectOp.ResolveMoSunQuanQiangangEntry);
     private static CardConversionSource MoQiangangSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanQiangang.MoQiangangSource(f);
 
     private bool TryGetMoQiangangOrigin(int ownerSeat, out CardConversionSource source, out string gameplayHash)
     {

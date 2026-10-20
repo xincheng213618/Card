@@ -3,8 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string OwnTrickDrawReason = "program.own-multi-target-trick.draw";
-    private static int ActualTrickTargetCount(CardUseFrame use) => (use.CardKind == CardKind.BorrowedSword
-        ? use.TargetSeats.Where((_, i) => i % 2 == 0) : use.TargetSeats).Distinct().Count();
+    private static int ActualTrickTargetCount(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OwnTrickDrawTargets.ActualTrickTargetCount(use);
     private bool HasOwnMultiTargetTrickDraw => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick);
     private bool OwnMultiTargetTrickCandidate(ProgramTriggerCandidate c) => GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick);
     private bool HasOwnMultiTargetTrickSelfTarget(CardUseFrame use, int seat) => HasOwnMultiTargetTrickDraw &&

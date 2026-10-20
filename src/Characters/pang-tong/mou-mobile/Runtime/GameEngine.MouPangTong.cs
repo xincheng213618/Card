@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMouPangTongCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouPangTongLianhuanTargets);
-    private static CardConversionSource MouPtSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouPtSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pang_tong_mou_mobile_MouPangTong.MouPtSource(f);
     private bool MouPtUpgraded(int owner) => ProgramEventHistory<MouPangTongUpgradedEvent>().Any(e => e.Source.OwnerSeat == owner);
     private bool HasMouPangTongExpandedTargets(CharacterState owner) => HasRuntimeSkill(owner, MouPangTongComposition.Lianhuan) && MouPtUpgraded(owner.Seat);
     private CardUseFrame? MouPtUse(ProgramSkillWindowContext c) => c.CardUse is { } card ? _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Action?.ActionId == card.CardActionId) : null;

@@ -5,8 +5,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasSunYuanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim);
-    private static CardConversionSource SunYuanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
-    private static string SunYuanHash<T>(T value)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value))));
+    private static CardConversionSource SunYuanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_yuan_ol_SunYuanQueries.SunYuanSource(f);
+    private static string SunYuanHash<T>(T value) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_yuan_ol_SunYuanQueries.SunYuanHash<T>(value);
     private bool SunYuanParent(ProgramSkillFrame f)
     {
         if(f.TriggerId is null||f.WindowContext is not{}c||c.OwnerSeat!=f.OwnerSeat)return false;

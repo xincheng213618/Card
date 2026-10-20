@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     private bool HasLeCaiYongJiaoweiCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.InitializeLeCaiYongJiaowei);
     private static CardConversionSource JiaoweiSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_yong_le_LeCaiYongJiaowei.JiaoweiSource(frame);
     private bool HasXianEntityMark(int cardId) => HasLeCaiYongJiaoweiCapability && cardId > 0 &&
         ProgramEventHistory<XianEntityMarkedEvent>().Any(mark => mark.CardId == cardId &&
             ProgramEventHistory<XianMarkingCompletedEvent>().Any(done => done.FrameId == mark.FrameId && done.Origin == mark.Origin));
@@ -113,7 +113,7 @@ public sealed partial class GameEngine
     private bool JiaoweiActualTurnIsOpen(int turn) => _setupComplete && turn > 0 && turn == _turnNumber &&
         HasOngoingWholeActualUseTurn && ProgramEventHistory<TurnStartedEvent>().LastOrDefault()?.TurnNumber == turn;
     private static bool IsJiaoweiOwnedZone(CardLocation location, int owner) =>
-        location.OwnerSeat == owner && location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_yong_le_LeCaiYongJiaowei.IsJiaoweiOwnedZone(location,owner);
     private IReadOnlyList<JiaoweiLossSource> CaptureJiaoweiLossSources(IEnumerable<CardLocation> locations)
     {
         if (!HasLeCaiYongJiaoweiCapability || !JiaoweiActualTurnIsOpen(_turnNumber)) return [];

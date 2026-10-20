@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private const string RuanYuExchangeReason="skill-program.ruan-yu.xingzuo.exchange",MiaoxianDrawReason="skill-program.ruan-yu.miaoxian.draw";
     private bool HasRuanYuCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXingzuoPrivateBottomExchange)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMiaoxianUniqueRedUseDraw);
-    private static CardConversionSource RuanYuSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource RuanYuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ruan_yu_ol_RuanYu.RuanYuSource(f);
     [ProgramCapability]private sealed class RuanYuCapability(GameEngine e):IRuanYuHost {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginRuanYu(f,op);}
     private SkillProgramStepOutcome BeginRuanYu(ProgramSkillFrame supplied,SkillProgramEffectOp op)
     {

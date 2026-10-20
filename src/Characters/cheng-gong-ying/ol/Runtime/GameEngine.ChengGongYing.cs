@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string KuangxiangDrawReason = "skill-program.cheng-gong-ying.kuangxiang.draw", KuangxiangDiscardReason = "skill-program.cheng-gong-ying.kuangxiang.discard";
     private bool HasChengGongYingCapability => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustKuangxiangHandToFour) == true;
-    private static CardConversionSource ChengGongYingSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource ChengGongYingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cheng_gong_ying_ol_ChengGongYing.ChengGongYingSource(f);
     [ProgramCapability] private sealed class ChengGongYingCapability(GameEngine engine) : IChengGongYingHost
     { public SkillProgramStepOutcome Adjust(ProgramSkillFrame frame) => engine.BeginChengGongYing(frame); }
     private bool ChengGongYingParent(ProgramTriggerCandidate candidate, ProgramSkillWindowContext c) =>

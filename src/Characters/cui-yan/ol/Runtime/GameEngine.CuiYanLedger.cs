@@ -10,7 +10,8 @@ public sealed partial class GameEngine
     private bool CuiYanActualTurnOpen=>_setupComplete&&_turnNumber>0&&_turnProgression.TurnNumber==_turnNumber&&!ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.OwnerSeat==_turnProgression.OwnerSeat);
     // This is a skill-local semantic projection. Older consumers retain the
     // same-suit-multiple-material CaptureUsedCardSuit contract unchanged.
-    private static Suit CuiYanTrueUseSuit(IReadOnlyList<int> ids,Suit? nativeSuit)=>ids.Count==1?nativeSuit??Suit.None:Suit.None;
+    private static Suit CuiYanTrueUseSuit(IReadOnlyList<int> ids,Suit? nativeSuit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cui_yan_ol_CuiYanLedger.CuiYanTrueUseSuit(ids,nativeSuit);
     private void CaptureCuiYanUseTargets(CardUseFrame use)
     {
         if(!HasCuiYanCapability||!CuiYanActualTurnOpen||!ProgramEventHistory<CardUseDeclaredEvent>().Any(e=>e.ResolutionId==use.Id)||use.Action is{Type:not CardActionType.Use})return;

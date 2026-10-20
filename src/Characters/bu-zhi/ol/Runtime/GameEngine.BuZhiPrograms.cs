@@ -24,7 +24,7 @@ public sealed partial class GameEngine
         var f=GetActiveProgramFrame(supplied.Id);
         if(f.BuZhi is not null || !BuZhiInitialParentMatches(f,gainLoss))throw new InvalidOperationException("Native gain/loss or equipment choice lost its original program binding.");
         var target=gainLoss?(int?)null:f.SelectedTargetSeats.Single();
-        if(target is{}s && (!_players[s].IsAlive || GetEquipment(_players[s]).Count==0))throw new InvalidOperationException("Equipment choice lost its initial equipped recipient.");
+        if(target is{}s && !DingpanRuntime.HasEquippedLivingTarget(s,ProgramCapabilities.Get<ISelectionParticipantQueries>()))throw new InvalidOperationException("Equipment choice lost its initial equipped recipient.");
         var r=new BuZhiReceipt{Source=new(f.SkillId,f.ActivationId!,f.OwnerSeat,f.SkillInstanceId),GameplayHash=f.GameplayHash,ParentFrameId=f.WindowContext?.ParentFrameId??0,
             BatchId=f.WindowContext?.MovementBatch?.Id,Turn=_turnNumber,InstructionIndex=f.InstructionIndex,Target=target,Stage=gainLoss?"beneficiary":"draw"};
         ReplaceRuntimeTop(f=f with{BuZhi=r});AdvanceEventRulesAndQueueFact(new BuZhiStartedEvent(f.Id,r.Source,r.GameplayHash,r.ParentFrameId,r.BatchId,r.Turn,r.Target));

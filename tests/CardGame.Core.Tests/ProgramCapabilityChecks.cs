@@ -9,7 +9,8 @@ internal static class ProgramCapabilityChecks
         var content = StandardContentRegistry.Create();
         var firstGame = GameEngine.CreateStandard(new GameOptions { Seed = 7 }, content);
         var secondGame = GameEngine.CreateStandard(new GameOptions { Seed = 7 }, content);
-        var types = typeof(GameEngine).GetNestedTypes(BindingFlags.NonPublic);
+        var types = typeof(GameEngine).GetNestedTypes(BindingFlags.NonPublic).Concat(
+            ProgramRuntimeModuleCatalog.Default.Registrations.Select(registration => registration.Type)).ToArray();
         var production = new ProgramCapabilityCatalog(types);
         var reversed = new ProgramCapabilityCatalog(types.Reverse());
         Require(production.Registrations.Select(item => item.Implementation)

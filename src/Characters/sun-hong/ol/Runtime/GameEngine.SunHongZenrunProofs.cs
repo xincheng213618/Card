@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool ZenrunChildren(ZenrunStage stage) => stage is ZenrunStage.TakeChildren or ZenrunStage.CompensationChildren;
+    private static bool ZenrunChildren(ZenrunStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_hong_ol_SunHongZenrunProofs.ZenrunChildren(stage);
     private bool ValidZenrun(ProgramSkillFrame f)
     {
         if (f.Zenrun is not { } r || f.InstructionIndex != 1 || f.SkillId != "ol:zenrun" ||

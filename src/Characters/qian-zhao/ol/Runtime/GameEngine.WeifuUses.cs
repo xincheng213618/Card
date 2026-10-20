@@ -92,8 +92,8 @@ public sealed partial class GameEngine
                 CreateCardActionProgramContext(action, window, 0, r.ActorSeat, r.ActorSeat, CaptureProgramTriggerFacts(_players[r.ActorSeat], action))));
         }
     }
-    private static bool WeifuCanAddTargets(CardUseFrame use) => GetProgramCardCategory(use.CardKind) == SkillProgramCardCategory.Basic ||
-        IsOrdinaryTrick(use.CardKind);
+    private static bool WeifuCanAddTargets(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qian_zhao_ol_WeifuUses.WeifuCanAddTargets(use);
     private bool HasIssuedWeifuCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context)
     {
         if (c.SkillId != "ol:weifu" || context is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } card } ||

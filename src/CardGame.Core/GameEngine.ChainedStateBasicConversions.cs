@@ -4,7 +4,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string ChainedStateBasicMarker = "chained-state-basic";
+    private const string ChainedStateBasicMarker = global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ChainedStateBasicConversions.ChainedStateBasicMarker;
     private sealed record ChainedStateBasicNeed(ChainedStateBasicIntent Intent, long? ParentFrameId,
         long? RequestFrameId, long? ParentActionId, int Cursor, int? FixedTargetSeat);
 
@@ -181,10 +181,11 @@ public sealed partial class GameEngine
     private bool HasChainedStateBasicProgramSlash(CharacterState actor, IEnumerable<int> targets) => ChainedStateBasicRules(actor).Any(r =>
         targets.Any(t => IsValidPlayerSeat(t) && _players[t].IsAlive && !HasBeneficiarySuitShield(actor.Seat, t, Suit.None) &&
             CanUseSlashTarget(actor, _players[t], new(0, r.Rule.OutputKind, Suit.None, 0), effectiveKind: r.Rule.OutputKind, noEffectiveRank: true, physicalCardIds: [])));
-    private static bool IsChainedStateBasicAnswer(PromptChoice choice) => choice.Parameters.ContainsKey(ChainedStateBasicMarker);
+    private static bool IsChainedStateBasicAnswer(PromptChoice choice) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ChainedStateBasicConversions.IsChainedStateBasicAnswer(choice);
     private bool IsChainedStateBasicAnswer(ChoiceId id) => _pendingDecision?.Choices.Any(c => c.Id == id && IsChainedStateBasicAnswer(c)) == true;
-    private static PendingDecision ChainedStateBasicNativeDecision(PendingDecision prompt) => ZonghuNativeDecision(prompt with
-    { Choices = Array.AsReadOnly(prompt.Choices.Where(c => !IsChainedStateBasicAnswer(c)).ToArray()) });
+    private static PendingDecision ChainedStateBasicNativeDecision(PendingDecision prompt) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ChainedStateBasicConversions.ChainedStateBasicNativeDecision(prompt);
     private CommandResult SubmitChainedStateBasicAnswer(int actorSeat, PromptId promptId, ChoiceId choiceId)
     {
         if (!_started) return Reject(CommandErrorCode.NotStarted, "游戏尚未开始。");

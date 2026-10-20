@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
  private void StoreWeijieResponse(WeijiePaidOrigin p)
  {var owner=_resolutionStack.Single(f=>f.Id==p.Need.OwnerFrameId);ReplaceRuntimeFrame(owner.Id,owner switch{CardUseFrame u=>u with{WeijieResponseOrigin=p},ProgramSkillFrame f=>f with{WeijieResponseOrigin=p},_=>throw new InvalidOperationException("Weijie response lost its typed incoming native owner.")});}
- private static WeijiePaidOrigin? WeijieResponseOrigin(ResolutionFrame f)=>f switch{CardUseFrame u=>u.WeijieResponseOrigin,ProgramSkillFrame p=>p.WeijieResponseOrigin,_=>null};
+ private static WeijiePaidOrigin? WeijieResponseOrigin(ResolutionFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieResponses.WeijieResponseOrigin(f);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27462)]
  private void ObserveWeijieResponse(CardActionAcceptedEvent accepted)
  {

@@ -18,7 +18,7 @@ internal static class ProgramLegalityChecks
                 "Trigger ordering must be independent of reflection enumeration.");
         // Validate every production signature and precedence, including gates
         // whose content is absent from this small dispatch fixture.
-        ProgramLegalityCatalog.Discover(Methods(typeof(GameEngine)));
+        ProgramLegalityCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
 
         foreach (var names in new[]
                  {

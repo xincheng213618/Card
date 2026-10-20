@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string YouqueDiscardReason = "skill-program.guan-hai.youque.discard", YouqueDrawReason = "skill-program.guan-hai.youque.draw";
-    private static CardConversionSource GuanHaiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource GuanHaiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guan_hai_ol_GuanHai.GuanHaiSource(f);
     private IEnumerable<PublicPersistentPileSource> XieweiPiles(int owner) => PublicPileSources(owner).Where(s => s.SkillId == "ol:xiewei");
     [ProgramCapability] private sealed class GuanHaiCapability(GameEngine engine) : IGuanHaiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginGuanHai(f, op); }

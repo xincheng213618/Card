@@ -13,7 +13,7 @@ public sealed partial class GameEngine
             engine.BeginPhaseStartCardControl(frame, PhaseStartCardControlKind.StartingEquipment, null);
     }
     private static string PhaseStartControlReason(PhaseStartCardControlKind kind) =>
-        kind == PhaseStartCardControlKind.OtherPlayRestriction ? "skill-program.other-play-restriction.cost" : "skill-program.starting-equipment.move";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseStartCardControl.PhaseStartControlReason(kind);
     private CardConversionSource PhaseStartControlSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private Card[] OtherPlayRestrictionCosts(int owner) => GetHand(_players[owner]).Concat(GetEquipment(_players[owner])).Where(card =>
         !IsSelfHandCategoryDiscardForbidden(owner, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard) &&

@@ -5,7 +5,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static int DualGeneralMaxHp(GeneralDefinition primary, GeneralDefinition secondary) =>
-        (primary.BaseHp + secondary.BaseHp) / 2;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NationalSkills.DualGeneralMaxHp(primary,secondary);
 
     private void InitializeDualGeneralHealth()
     {
@@ -72,26 +72,7 @@ public sealed partial class GameEngine
     }
 
     private static GeneralSkillDefinition ToRuntimeSkillDefinition(ContentSkillDefinition skill) =>
-        new GeneralSkillDefinition(
-            skill.Name,
-            skill.Description)
-        {
-            ContentId = skill.Id,
-            Tags = skill.Tags,
-            ExecutionForms = skill.ExecutionForms,
-            ActionForms = skill.ActionForms,
-            SelectionWeights = skill.SelectionWeights,
-            RevealWeights = skill.RevealWeights,
-            ViewAsOpportunities = skill.Program?.ViewAs
-                .Where(rule => rule.Condition.Kind == SkillProgramConditionKind.Always &&
-                               rule.InputCount == 1 &&
-                               rule.SourceZones.Contains(CardZoneKind.Hand) &&
-                               rule.InputCategories.Count == 0)
-                .Select(rule => new SkillViewAsOpportunity(
-                    rule.OutputKind, rule.InputKinds, rule.InputSuits,
-                    rule.ForPlay, rule.ForResponse))
-                .ToArray()
-        };
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NationalSkills.ToRuntimeSkillDefinition(skill);
 
     private IEnumerable<GeneralSkillDefinition> OwnedRuntimeSkills(
         CharacterState player,

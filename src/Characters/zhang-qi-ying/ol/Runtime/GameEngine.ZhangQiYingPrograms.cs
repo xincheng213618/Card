@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
  private static readonly PlayerMarkerKind[] FaluTokens=[PlayerMarkerKind.Ziwei,PlayerMarkerKind.Houtu,PlayerMarkerKind.Yuqing,PlayerMarkerKind.Gouchen];
  private const string ZhenyiGainReason="skill-program.zhenyi.three-categories";
- private static CardConversionSource ZhangQiYingSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource ZhangQiYingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_qi_ying_ol_ZhangQiYingPrograms.ZhangQiYingSource(f);
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 480)]
  private bool CanOfferZhangQiYing(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {

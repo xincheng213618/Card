@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static CardConversionSource XunyiSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_fu_zhao_lei_mobile_WangFuZhaoLei.XunyiSource(frame);
     private bool TracksXunyi => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SettleXunyiDamagePoint) == true;
     private IEnumerable<XunyiRelationGrant> XunyiRelations() => CompleteProgramEventHistory().OfType<XunyiRelationChangedEvent>()
         .GroupBy(e => (e.Relation.Source.OwnerSeat, e.Relation.Source.SkillId, e.Relation.Source.SkillInstanceId)).Select(g => g.Last().Relation);
@@ -98,11 +98,12 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(frame.Id, holder, marker, total - before, total, frame.OwnerSeat, "skill-program.xunyi.marker"));
     }
 
-    private static int XunyiBranches(XunyiDamageReceipt receipt) => (receipt.DiscardRecipientSeat is null ? 0 : 1) + (receipt.DrawRecipientSeat is null ? 0 : 1);
-    private static int XunyiStepCount(XunyiDamageReceipt receipt) => checked(receipt.ActualAmount * XunyiBranches(receipt));
+    private static int XunyiBranches(XunyiDamageReceipt receipt) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_fu_zhao_lei_mobile_WangFuZhaoLei.XunyiBranches(receipt);
+    private static int XunyiStepCount(XunyiDamageReceipt receipt) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_fu_zhao_lei_mobile_WangFuZhaoLei.XunyiStepCount(receipt);
     private static (int Seat, bool Draw) XunyiStep(XunyiDamagePending pending) =>
-        pending.Receipt.DrawRecipientSeat is { } draw && (pending.Receipt.DiscardRecipientSeat is null || pending.StepIndex % XunyiBranches(pending.Receipt) == 1)
-            ? (draw, true) : (pending.Receipt.DiscardRecipientSeat!.Value, false);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_fu_zhao_lei_mobile_WangFuZhaoLei.XunyiStep(pending);
     private IReadOnlyList<PromptChoice> XunyiChoices(ProgramSkillFrame frame)
     {
         var seat = XunyiStep(frame.Xunyi!).Seat;

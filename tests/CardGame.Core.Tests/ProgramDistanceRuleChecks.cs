@@ -81,13 +81,14 @@ internal static class ProgramDistanceRuleChecks
         Reject(typeof(OptionalArgument), "invalid handler signature");
         Reject(typeof(GenericQuery), "invalid handler signature");
         Reject(typeof(RefArgument), "invalid handler signature");
-        var production = ProgramDistanceCatalog.Discover(Methods(typeof(GameEngine)));
+        var production = ProgramDistanceCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
         Need(production.Registrations.All(pair => pair.Value.Count > 0), "Every migrated native distance position retains its declared contributors.");
         var productionMethods = typeof(GameEngine).Assembly.GetTypes().SelectMany(Methods)
             .Where(method => method.GetCustomAttributes<ProgramDistanceRuleAttribute>().Any()).ToArray();
-        Need(productionMethods.All(method => method.DeclaringType == typeof(GameEngine)) &&
+        Need(productionMethods.All(method => method.DeclaringType == typeof(GameEngine) ||
+                ProgramRuntimeModuleCatalog.IsDeclared(method.DeclaringType)) &&
             production.Registrations.Values.SelectMany(rows => rows).Select(row => row.Method).Distinct().Count() == productionMethods.Length,
-            "Every production distance declaration must belong to GameEngine and enter the actual discovery catalog; another partial type must not hide a contributor.");
+            "Every production distance declaration must belong to the legacy engine or an explicit independent module and enter the actual discovery catalog; another partial type must not hide a contributor.");
 
         static void Reject(Type type, string expected)
         {

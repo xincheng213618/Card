@@ -41,8 +41,8 @@ public sealed partial class GameEngine
     }
 
     private static IReadOnlyDictionary<string, string> GiftChoiceParameters(ProgramSkillFrame frame,
-        string resultBind, string action) => new Dictionary<string, string>
-        { ["program-action"] = action, ["frame-id"] = frame.Id.ToString(), ["result-bind"] = resultBind };
+        string resultBind, string action) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ActionCategoryGifts.GiftChoiceParameters(frame,resultBind,action);
 
     [ProgramAnswer("different-action-category-gift", "different-action-category-decline")]
     private void ResolveDifferentActionCategoryGift(PromptChoice choice)

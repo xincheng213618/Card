@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private const string TongduGiftReason="skill-program.liu-ba.tongdu.gift",TongduReturnReason="skill-program.liu-ba.tongdu.return",LiuBaExchangeReason="skill-program.liu-ba.zhubi.exchange";
     private bool HasLiuBaCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.RecastZhubiAndMarkActualDraw)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.IssueTongduHandGift);
-    private static CardConversionSource LiuBaSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource LiuBaSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_ba_ol_LiuBa.LiuBaSource(f);
     [ProgramCapability]private sealed class LiuBaCapability(GameEngine e):ILiuBaHost,ILiuBaSelectionQuery
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginLiuBa(f,op);public int MaximumHp(int ownerSeat)=>e._players[ownerSeat].MaxHp;}
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27390)]

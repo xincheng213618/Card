@@ -42,7 +42,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsBianFuRenOperation(SkillProgramEffectOp operation) =>
-        operation is SkillProgramEffectOp.WanweiObtainMatchingLostCard or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_bian_fu_ren_ol_BianFuRenPrograms.IsBianFuRenOperation(operation);
 
     private void ValidateBianFuRenTrigger(SkillProgramTrigger trigger, SkillProgramEffectOp operation)
     {

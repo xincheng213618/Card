@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string HuanShuJunDecisionHash(PendingDecision p) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(p)))).ToLowerInvariant();
+    private static string HuanShuJunDecisionHash(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_HuanShuJunObservers.HuanShuJunDecisionHash(p);
     private bool HuanShuJunPaidOrPreparing(ProgramSkillFrame f) => f.HuanShuJun is not null && HuanShuJunComposition.Handles(f.HuanShuJun.Op) && f.HuanShuJun.Source == HuanShuJunSource(f) && f.HuanShuJun.GameplayHash == f.GameplayHash && ProgramEventHistory<HuanShuJunStartedEvent>().Count(e => e.FrameId == f.Id && e.Source == f.HuanShuJun.Source && e.GameplayHash == f.GameplayHash && e.Op == f.HuanShuJun.Op && e.WindowId == f.HuanShuJun.WindowId) == 1;
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 28100)]
     private void AssertHuanShuJun(ProgramSkillFrame f)

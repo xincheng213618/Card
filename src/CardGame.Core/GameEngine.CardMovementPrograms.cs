@@ -12,8 +12,7 @@ public sealed partial class GameEngine
             : new(_turnProgression.OwnerSeat, _phase, _currentSeat);
 
     private static bool IsGainPhaseQualified(SkillProgramTrigger trigger, int ownerSeat, CardMovementTiming? timing) =>
-        trigger.GainPhaseQualification is null || timing is not null &&
-        (timing.Phase != TurnPhase.Draw || timing.PhaseActorSeat != ownerSeat);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardMovementPrograms.IsGainPhaseQualified(trigger,ownerSeat,timing);
 
     private readonly Stack<long> _suppressedCardMovedEventBatchIds = new();
 

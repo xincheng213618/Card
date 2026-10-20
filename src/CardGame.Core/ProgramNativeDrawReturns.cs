@@ -17,14 +17,20 @@ public sealed partial class GameEngine
         Action<GameEngine, ProgramSkillFrame, NativeDrawOutcome>>> ProgramNativeDrawReturns = new(() =>
     {
         var returns = new Dictionary<SkillProgramEffectOp, Action<GameEngine, ProgramSkillFrame, NativeDrawOutcome>>();
-        foreach (var method in typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic))
+        foreach (var method in RuntimeModuleMethods)
         {
             if (method.GetCustomAttribute<ProgramNativeDrawReturnAttribute>() is not { } registration) continue;
-            if (registration.Operations.Count == 0 || method.IsGenericMethod || method.ReturnType != typeof(void) ||
+            if (registration.Operations.Count == 0 ||
+                method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) ||
+                method.IsGenericMethod || method.ReturnType != typeof(void) ||
                 !method.GetParameters().Select(p => p.ParameterType).SequenceEqual(
                     [typeof(ProgramSkillFrame), typeof(NativeDrawOutcome)]))
                 throw new InvalidOperationException("A native program draw return has an invalid signature.");
-            var callback = method.CreateDelegate<Action<GameEngine, ProgramSkillFrame, NativeDrawOutcome>>();
+            var callback = method.DeclaringType == typeof(GameEngine)
+                ? method.CreateDelegate<Action<GameEngine, ProgramSkillFrame, NativeDrawOutcome>>()
+                : (Action<GameEngine, ProgramSkillFrame, NativeDrawOutcome>)((engine, frame, outcome) =>
+                    ((Action<ProgramSkillFrame, NativeDrawOutcome>)engine.BindRuntimeHandler(method,
+                        typeof(Action<ProgramSkillFrame, NativeDrawOutcome>)))(frame, outcome));
             foreach (var op in registration.Operations)
                 if (!Enum.IsDefined(op) || !returns.TryAdd(op, callback))
                     throw new InvalidOperationException("A native program draw return has an unknown or duplicate operation.");

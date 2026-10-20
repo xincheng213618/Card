@@ -27,7 +27,8 @@ public sealed partial class GameEngine
         BeginJizhiOrNullificationWindow(use, card, f.OwnerSeat, [target], LegalActionKind.Duel, playedCardKind: CardKind.Duel);
     }
     private long MouLbOriginAnchor(ProgramSkillFrame f) => ProgramEventHistory<MouLuBuLiyuObtainedEvent>().First(e => e.FrameId == f.Id).Sequence;
-    private static bool IsMouLbDuelOrigin(ProgramDamageTargetDuelOrigin o) => o.SkillId == MouLuBuMobileComposition.Liyu && o.BindingId == "obtain-draw-and-choose";
+    private static bool IsMouLbDuelOrigin(ProgramDamageTargetDuelOrigin o) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_bu_mou_mobile_MouLuBuMobileNative.IsMouLbDuelOrigin(o);
     private bool MatchesMouLbDuelParent(ProgramSkillFrame f, ProgramDamageTargetDuelOrigin o) => IsMouLbDuelOrigin(o) && ValidMouLb(f) &&
         f.MouLuBuLiyu is { Stage: MouLuBuLiyuStage.DuelIssued, Paid: true, CategoryMask: 7, DuelTarget: { } target } r &&
         o.ParentProgramFrameId == f.Id && o.InstructionIndex == f.InstructionIndex && o.ReceiptSequence == MouLbOriginAnchor(f) &&

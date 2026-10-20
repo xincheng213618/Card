@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private int _duXiSuitProjectionEventCount = -1;
     private IGameEvent? _duXiSuitProjectionLastFact;
     private IReadOnlyDictionary<int, int> _duXiSuitProjection = new Dictionary<int, int>();
-    private static int DuXiSuitBit(Suit suit) => suit switch { Suit.Spade => 1, Suit.Heart => 2, Suit.Club => 4, Suit.Diamond => 8, _ => 0 };
+    private static int DuXiSuitBit(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_du_xi_ol_DuXiBixiong.DuXiSuitBit(suit);
     private IEnumerable<CardMovementRecord> DuXiBixiongMovements(CardMovementBatchContext batch, int owner)
     {
         if (batch.DiscardRecoveryPhase is not { Kind: ActualDiscardRecoveryPhaseKind.Discard } phase ||

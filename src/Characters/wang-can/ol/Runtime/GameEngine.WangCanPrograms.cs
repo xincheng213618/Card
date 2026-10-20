@@ -1,9 +1,12 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private static CardConversionSource WangCanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
- private static CardLocation WangCanLease(int owner)=>new(CardZoneKind.PrivateReserve,owner);
- private static string WangCanReason(WangCanStage stage)=>stage switch{WangCanStage.SanwenDiscard=>"skill-program.sanwen.discard",WangCanStage.SanwenDraw=>"skill-program.sanwen.draw",WangCanStage.QiaiGift=>"skill-program.qiai.give",WangCanStage.DenglouViewChildren=>"skill-program.denglou.private-lease",WangCanStage.DenglouGain=>"skill-program.denglou.obtain",WangCanStage.DenglouDiscard=>"skill-program.denglou.unusable-discard",WangCanStage.DenglouCancel=>"skill-program.denglou.cancel-cleanup",_=>"skill-program.wangcan.no-movement"};
+ private static CardConversionSource WangCanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_can_ol_WangCanPrograms.WangCanSource(f);
+ private static CardLocation WangCanLease(int owner) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_can_ol_WangCanPrograms.WangCanLease(owner);
+ private static string WangCanReason(WangCanStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_can_ol_WangCanPrograms.WangCanReason(stage);
  private SkillProgramStepOutcome ExecuteWangCan(SkillProgramEffectOp op,ProgramSkillFrame supplied)
  {
   var f=GetActiveProgramFrame(supplied.Id);var source=WangCanSource(f);

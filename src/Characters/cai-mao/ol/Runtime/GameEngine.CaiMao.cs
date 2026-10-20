@@ -4,7 +4,8 @@ public sealed partial class GameEngine
     private const string CaiMaoExchangeReason="skill-program.cai-mao.zuolian.exchange";
     private const string CaiMaoRevealPrefix="cai-mao.reveal.";
     private bool HasCaiMaoCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveZuolianWholeRevealExchange)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles);
-    private static CardConversionSource CaiMaoSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource CaiMaoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_mao_ol_CaiMao.CaiMaoSource(f);
     [ProgramCapability]private sealed class CaiMaoCapability(GameEngine e):ICaiMaoHost
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginCaiMao(f,op);}
     private SkillProgramStepOutcome BeginCaiMao(ProgramSkillFrame supplied,SkillProgramEffectOp op)

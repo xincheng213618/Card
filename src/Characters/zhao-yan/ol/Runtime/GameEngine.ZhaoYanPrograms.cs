@@ -107,7 +107,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsTongxieMember(ProgramTongxieArmedEvent arm, int seat) =>
-        arm.MemberSeats.Contains(seat);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhao_yan_ol_ZhaoYanPrograms.IsTongxieMember(arm,seat);
 
     // Follow-up candidates: the other alive members with at least one hand
     // slash, in seat order after the slash user; the original target never
@@ -335,8 +335,7 @@ public sealed partial class GameEngine
     }
 
     private static int[] ParseTongxieArmSeats(string? seats) =>
-        string.IsNullOrEmpty(seats) ? [] : seats.Split(',').Select(seat =>
-            int.Parse(seat, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhao_yan_ol_ZhaoYanPrograms.ParseTongxieArmSeats(seats);
 
     private string DescribeTongxieMembers(IReadOnlyList<int> members) =>
         string.Join("、", members.Select(seat => _players[seat].Name));

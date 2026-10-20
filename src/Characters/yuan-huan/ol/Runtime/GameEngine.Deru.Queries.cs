@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static int DeruNameBit(CardKind kind) => ProgramBasicCardName(kind) switch { CardKind.Slash => 1, CardKind.Dodge => 2, CardKind.Peach => 4, CardKind.Alcohol => 8, _ => 0 };
+    private static int DeruNameBit(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_huan_ol_Deru_Queries.DeruNameBit(kind);
     private int DeruActualNames(int seat) => GetHand(_players[seat]).Aggregate(0, (mask, card) => mask | DeruNameBit(AdvancedEffectiveHandKind(_players[seat], card)));
     private void IssueDeruTake(ProgramSkillFrame f)
     {

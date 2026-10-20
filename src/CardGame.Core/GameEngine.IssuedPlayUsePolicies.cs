@@ -65,7 +65,8 @@ public sealed partial class GameEngine
         _issuedPlayPhaseUseProhibitions.Add(new(source, frame.OwnerSeat, _turnNumber, _cardUseDebitPhaseInstanceId, action.ActionId));
         AdvanceEventRulesAndQueueFact(new IssuedCardNoResponseEvent(issued));
     }
-    private static bool IsEligibleIssuedNoResponseCard(CardKind kind) => CardCatalog.Get(kind).CategoryName == "基本牌" || IsOrdinaryTrick(kind);
+    private static bool IsEligibleIssuedNoResponseCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_IssuedPlayUsePolicies.IsEligibleIssuedNoResponseCard(kind);
 
     [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 140)]
     private bool DistanceCardUseExemption140HasFirstActualPlayUseDistance(ProgramCardDistanceQuery q) =>

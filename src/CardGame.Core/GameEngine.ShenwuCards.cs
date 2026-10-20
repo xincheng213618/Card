@@ -24,7 +24,8 @@ public sealed partial record CardUseFrame
 public sealed partial class GameEngine
 {
     private const string ShenwuTransplantSkill = "shenwu:transplant-wood-resolution";
-    private static string ShenwuTransplantGrant(long id) => $"card-use:shenwu-transplant:{id}";
+    private static string ShenwuTransplantGrant(long id) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuCards.ShenwuTransplantGrant(id);
     private string ShenwuTransplantSource(long id) => $"turn:{_turnNumber}:{_currentSeat}:card-use:shenwu-transplant:{id}";
 
     private void AddShenwuTrickActions(List<LegalAction> actions, CharacterState actor,

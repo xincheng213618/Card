@@ -1,7 +1,13 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- // Absent metadata preserves every existing owner-HP grant without querying population.
- private bool MatchesTangZiWoundedGrant(CharacterState owner,SkillProgramHpSkillGrant rule)=>rule.MinimumLivingWounded is not{}minimum ||
-  owner.IsAlive && !owner.IdentityConcealed && _players.Count(p=>p.IsAlive && IsRuleWounded(p))>=minimum;
+ private bool MatchesTangZiWoundedGrant(CharacterState owner,SkillProgramHpSkillGrant rule)=>
+  XingzhaoRuntime.MatchesWoundedGrant(owner.Seat,rule,ProgramSelectionQueries);
+
+ [ProgramCapability]
+ private sealed class SelectionWoundedQueries(GameEngine engine) : ISelectionWoundedQueries
+ {
+  public bool IdentityConcealed(int seat)=>engine._players[seat].IdentityConcealed;
+  public bool IsRuleWounded(int seat)=>engine.IsRuleWounded(engine._players[seat]);
+ }
 }

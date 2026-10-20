@@ -160,8 +160,8 @@ public sealed partial class GameEngine
         };
     }
 
-    private static TieredRoundConversionUseReceipt? TieredRoundResponseReceipt(ResolutionFrame owner) => owner switch
-    { NullificationWindowFrame n => n.TieredRoundResponseUse, CardUseFrame use => use.TieredRoundResponseUse, _ => null };
+    private static TieredRoundConversionUseReceipt? TieredRoundResponseReceipt(ResolutionFrame owner) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TieredRoundZeroResponses.TieredRoundResponseReceipt(owner);
 
     private CardActionContext RequireTieredRoundIssuedResponseAction(ResolutionFrame owner)
     {

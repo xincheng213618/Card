@@ -6,7 +6,7 @@ public sealed partial class GameEngine
 {
     private const string ForeignSelectedCardSlashDrawReason = "skill-program.foreign-selected-card-slash.outcome-draw";
     private static CardConversionSource SelectedForeignSlashSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, frame.ActivationId!, frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ForeignSelectedCardSlash.SelectedForeignSlashSource(frame);
     private bool SelectedForeignSlashEnded => _winner != Winner.None || _status == EngineStatus.Completed;
 
     private bool CanUseSelectedForeignSlashMaterial(int issuer, int actor, Card card, CardLocation from) =>

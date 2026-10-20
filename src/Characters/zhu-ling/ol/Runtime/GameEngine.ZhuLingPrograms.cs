@@ -19,12 +19,8 @@ public sealed partial class GameEngine
     internal static IReadOnlyList<CardKind> ZhanyiBasicDamageKinds { get; } =
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
-    private static string ZhanyiCategoryName(SkillProgramCardCategory category) => category switch
-    {
-        SkillProgramCardCategory.Basic => "基本牌",
-        SkillProgramCardCategory.Trick => "锦囊牌",
-        _ => "装备牌"
-    };
+    private static string ZhanyiCategoryName(SkillProgramCardCategory category) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhu_ling_ol_ZhuLingPrograms.ZhanyiCategoryName(category);
 
     private IReadOnlyList<Card> ZhanyiOwnedCategoryCards(int ownerSeat, SkillProgramCardCategory category) =>
         GetHand(_players[ownerSeat]).Concat(_cardZones.CardsAt(CardLocation.Equipment(ownerSeat)))

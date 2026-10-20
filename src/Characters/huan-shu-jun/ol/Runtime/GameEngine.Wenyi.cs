@@ -126,5 +126,6 @@ public sealed partial class GameEngine
         if (f.HuanShuJun is not { Op: SkillProgramEffectOp.ResolveWenyiHealthOneAid, Paid: true, Stage: HuanShuJunStage.NativeIssuing, Native: null }) throw new InvalidOperationException("Only Wenyi's exact paid but unissued Peach can take the native failure return.");
         ClearPendingDecision(); RestoreWenyiRecipient(f, true);
     }
-    private static bool SameHuanShuJunAction(CardActionContext a, CardActionContext b) => System.Text.Json.JsonSerializer.Serialize(a) == System.Text.Json.JsonSerializer.Serialize(b);
+    private static bool SameHuanShuJunAction(CardActionContext a, CardActionContext b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_Wenyi.SameHuanShuJunAction(a,b);
 }

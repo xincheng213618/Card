@@ -4,9 +4,10 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string WeijieOpen="weijie-request",WeijieChoice="weijie-choice",WeijieDiscardReason="skill-program.guo-tu.weijie.discard";
+    private const string WeijieOpen=global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieOpen,WeijieChoice="weijie-choice",WeijieDiscardReason="skill-program.guo-tu.weijie.discard";
     private bool HasWeijieCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest);
-    private static CardConversionSource WeijieSource(ProgramSkillFrame f)=>new(f.SkillId,f.ActivationId,f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource WeijieSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieSource(f);
     private bool WeijieTurnOpen(int seat)=>_setupComplete&&_turnNumber>0&&_turnNumber==_turnProgression.TurnNumber&&seat!=_turnProgression.OwnerSeat&&!ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.OwnerSeat==_turnProgression.OwnerSeat);
     private bool WeijieSpent(int seat)=>ProgramEventHistory<WeijieCostPaidEvent>().Any(e=>e.Source.OwnerSeat==seat&&e.ActualTurn==_turnNumber&&e.ActualTurnOwner==_turnProgression.OwnerSeat);
     private IEnumerable<(CardConversionSource Source,string Hash)> WeijieSources(CharacterState actor)
@@ -52,8 +53,10 @@ public sealed partial class GameEngine
         var targets=RoundOnceCardlessProgramTargets(p,provider,effect.Op);if(targets.Length==0)return null;
         return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>WeijieIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>WeijieIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>WeijieIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner=>WeijieIntent.FixedSlash,_=>WeijieIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
     }
-    private static bool WeijieIsDying(WeijieNeed n)=>n.Intent==WeijieIntent.Dying;
-    private static bool WeijieIsPlayed(WeijieNeed n)=>n.Intent is WeijieIntent.Duel or WeijieIntent.Group or WeijieIntent.FactionDodge or WeijieIntent.FactionSlashPlayed;
+    private static bool WeijieIsDying(WeijieNeed n) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieIsDying(n);
+    private static bool WeijieIsPlayed(WeijieNeed n) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieIsPlayed(n);
     private IEnumerable<(CardKind Kind,int Target)> WeijieOutputs(WeijieNeed n)
     {
         var kinds=n.Intent==WeijieIntent.WenyiPeach?new[]{CardKind.Peach}:WeijieIsDying(n)?new[]{CardKind.Peach,CardKind.Alcohol}:n.Intent is WeijieIntent.Dodge or WeijieIntent.FactionDodge||n.Intent==WeijieIntent.Group&&ActiveGroupCard!.RequiredCardKind==CardKind.Dodge?new[]{CardKind.Dodge}:n.Intent==WeijieIntent.GenericBasic?new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash,CardKind.Peach,CardKind.Alcohol}:new[]{CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash};
@@ -104,5 +107,6 @@ public sealed partial class GameEngine
         if(p is null||!HasWeijieCapability||p.Choices.Any(c=>c.Parameters.ContainsKey(WeijieOpen))||CaptureWeijieNeed(p)is not{}n||!WeijieSources(_players[p.PlayerSeat]).Any()||!WeijieVictims(p.PlayerSeat).Any()||!WeijieOutputs(n).Any())return p;
         if(p.PromptId==default)p=p with{PromptId=CreatePromptId()};var choices=p.Choices.ToList();foreach(var(source,_)in WeijieSources(_players[p.PlayerSeat])){var args=new Dictionary<string,string>{{WeijieOpen,"open"}};AddConversionParameters(args,source);choices.Add(new(new($"weijie.{n.RequestFrameId}.{source.SkillInstanceId}"),"发动【诿解】：弃置距离1的他人一张暗手牌尝试提供基本牌",[],[],args));}return p with{Choices=Array.AsReadOnly(choices.ToArray())};
     }
-    private static PendingDecision WeijieNativeDecision(PendingDecision p)=>p.Choices.Any(c=>c.Parameters.ContainsKey(WeijieOpen))?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>!c.Parameters.ContainsKey(WeijieOpen)).ToArray())}:p;
+    private static PendingDecision WeijieNativeDecision(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieNativeDecision(p);
 }

@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMouZhouYuMobileCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouZhouYuFanjian) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouZhouYuYingzi);
-    private static CardConversionSource MouZyMobileSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouZyMobileSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_mou_mobile_MouZhouYuMobile.MouZyMobileSource(f);
     private MouZhouYuMobileTurn? MouZyMobileTurn()
     {
         var h = CompleteProgramEventHistory().ToArray();
@@ -40,7 +41,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { MouZhouYuMobile = r });
         AdvanceEventRulesAndQueueFact(new MouZhouYuMobileStartedEvent(f.Id, r.Source, r.GameplayHash, turn, phase, target)); PublishMouZyMobile(f); return SkillProgramStepOutcome.AwaitChoice;
     }
-    private static string MouZyMobileSuitName(Suit s) => s switch { Suit.Spade => "黑桃", Suit.Heart => "红桃", Suit.Club => "梅花", Suit.Diamond => "方块", _ => "无花色" };
+    private static string MouZyMobileSuitName(Suit s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_mou_mobile_MouZhouYuMobile.MouZyMobileSuitName(s);
     private PromptChoice MouZyMobileChoice(ProgramSkillFrame f, string branch, string text, int? card = null, Suit? declared = null) =>
         new(new($"mou-zhou-yu-mobile.{f.Id}.{branch}.{card}.{declared}"), text, card is { } id ? [id] : [], [], new Dictionary<string, string>
         { ["program-action"] = "mou-zhou-yu-fanjian", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch, ["declared-suit"] = declared?.ToString() ?? "" });

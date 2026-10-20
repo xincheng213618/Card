@@ -1,14 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private static bool SameQigongNativeReceipt(QigongNativeReceipt? left,QigongNativeReceipt? right)
- {
-  if(left is null||right is null)return left is null&&right is null;
-  return SameOverflowAction(left.OriginalAction,right.OriginalAction)&&
-   (left.OriginalAction.DesignatedTargetSeats is null)==(right.OriginalAction.DesignatedTargetSeats is null)&&
-   (left.OriginalAction.DesignatedTargetSeats is null||left.OriginalAction.DesignatedTargetSeats.SequenceEqual(right.OriginalAction.DesignatedTargetSeats!))&&
-   (left with{OriginalAction=right.OriginalAction})==right;
- }
+ private static bool SameQigongNativeReceipt(QigongNativeReceipt? left,QigongNativeReceipt? right) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lv_kuang_lv_xiang_ol_LvKuangLvXiangNativeUses.SameQigongNativeReceipt(left,right);
  private IReadOnlyList<PromptChoice> QigongSlashChoices(ProgramSkillFrame f)
  {
   var r=f.LvKuangLvXiang!;if(!IsValidPlayerSeat(r.Actor)||!_players[r.Actor].IsAlive||!_players[r.Target].IsAlive)return [];var actor=_players[r.Actor];var target=_players[r.Target];var result=new List<PromptChoice>();

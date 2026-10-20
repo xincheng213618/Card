@@ -26,15 +26,8 @@ public sealed partial class GameEngine
     // This predicate receives the current attempt's participants. In particular,
     // it never treats the placeholder seat of source-less damage as a source.
     private static bool MatchesPerOccurrenceSourceDamageModifier(SkillProgramDamageModifier modifier,
-        bool sourceHasHp, int sourceHp, int sourceHandCount, int sourceToTargetDistance, int roundNumber) => modifier.Condition switch
-    {
-        SkillProgramDamageModifierCondition.SourceHandBelowHp => sourceHasHp && sourceHandCount < sourceHp,
-        SkillProgramDamageModifierCondition.SourceToTargetDistanceGreaterThan =>
-            modifier.DistanceThreshold is { } threshold && sourceToTargetDistance > threshold,
-        SkillProgramDamageModifierCondition.SourceRoundIsOdd => roundNumber > 0 && roundNumber % 2 == 1,
-        SkillProgramDamageModifierCondition.SourceRoundIsEven => roundNumber > 0 && roundNumber % 2 == 0,
-        _ => false
-    };
+        bool sourceHasHp, int sourceHp, int sourceHandCount, int sourceToTargetDistance, int roundNumber) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PassiveRulePolicies.MatchesPerOccurrenceSourceDamageModifier(modifier,sourceHasHp,sourceHp,sourceHandCount,sourceToTargetDistance,roundNumber);
 
     [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 60)]
     private RuleQueryEvaluation ApplyPersistentOutgoingDistancePolicy(CharacterState source, CharacterState target,

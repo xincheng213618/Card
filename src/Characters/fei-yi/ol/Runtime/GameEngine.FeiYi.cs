@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string FeiYiDrawReason="skill-program.fei-yi.draw";
-    private const string FeiYiDiscardReason="skill-program.fei-yi.yanru.discard";
+    private const string FeiYiDiscardReason=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.FeiYiDiscardReason;
     private CardConversionSource FeiYiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private bool FeiYiSourceCurrent(ProgramSkillFrame f)=>_winner==Winner.None&&_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId);
     [ProgramCapability]

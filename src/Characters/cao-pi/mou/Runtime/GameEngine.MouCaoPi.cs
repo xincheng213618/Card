@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string MouCaoPiDrawReason = "skill-program.mou-cao-pi.xingshang.draw";
-    private static CardConversionSource MouCaoPiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouCaoPiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_pi_mou_MouCaoPi.MouCaoPiSource(f);
     private int Song(int seat) => _players[seat].Markers.GetValueOrDefault(PlayerMarkerKind.CaoPiSong);
 
     [ProgramCapability]

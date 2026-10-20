@@ -79,8 +79,7 @@ internal static class ProgramTargetRuleChecks
         Reject(typeof(OptionalQuery), "invalid handler signature");
         Reject(typeof(GenericQuery), "invalid handler signature");
         Reject(typeof(RefQuery), "invalid handler signature");
-        var production = ProgramTargetRuleCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+        var production = ProgramTargetRuleCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
         Need(production.Registrations.Values.All(rows => rows.Count > 0), "All production target points retain owning module declarations.");
 
         void Check(Func<bool> query, bool expected, string[] trace)

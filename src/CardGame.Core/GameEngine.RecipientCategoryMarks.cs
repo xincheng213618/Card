@@ -9,20 +9,17 @@ public sealed partial class GameEngine
     private readonly Dictionary<RecipientCategoryMarkKey, RecipientCategoryMarkToken> _recipientCategoryMarks = new();
     private bool _recipientCategoryMarkLedgerStarted;
     private bool TracksRecipientCategoryMarks => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveHandAndGrantCategoryMark);
-    private static RecipientCategoryMarkKind RecipientMarkKind(SkillProgramEffectOp op) => op switch {
-        SkillProgramEffectOp.SpendCategoryMarkForDyingRecovery => RecipientCategoryMarkKind.Rescue,
-        SkillProgramEffectOp.SpendCategoryMarkForAreaDiscard => RecipientCategoryMarkKind.Discard,
-        SkillProgramEffectOp.SpendCategoryMarkForSlashTargets => RecipientCategoryMarkKind.ExtraTargets,
-        _ => throw new InvalidOperationException("A gift has no predetermined category mark.") };
-    private static PlayerMarkerKind RecipientPublicMarker(RecipientCategoryMarkKind kind) => kind switch {
-        RecipientCategoryMarkKind.Rescue => PlayerMarkerKind.CategoryLei,
-        RecipientCategoryMarkKind.Discard => PlayerMarkerKind.CategoryFu,
-        _ => PlayerMarkerKind.CategorySong };
-    private static CardConversionSource RecipientMarkSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static string RecipientMarkReason(ProgramSkillFrame f, string suffix) => $"skill-program.{f.SkillId}.recipient-category.{suffix}";
+    private static RecipientCategoryMarkKind RecipientMarkKind(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientCategoryMarks.RecipientMarkKind(op);
+    private static PlayerMarkerKind RecipientPublicMarker(RecipientCategoryMarkKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientCategoryMarks.RecipientPublicMarker(kind);
+    private static CardConversionSource RecipientMarkSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientCategoryMarks.RecipientMarkSource(f);
+    private static string RecipientMarkReason(ProgramSkillFrame f, string suffix) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientCategoryMarks.RecipientMarkReason(f,suffix);
     private long RecipientMarkSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static Dictionary<string, string> RecipientMarkParameters(ProgramSkillFrame f, string action) => new()
-    { ["program-action"] = "recipient-category-mark", ["mark-action"] = action, ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture) };
+    private static Dictionary<string, string> RecipientMarkParameters(ProgramSkillFrame f, string action) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecipientCategoryMarks.RecipientMarkParameters(f,action);
 
     private IReadOnlyList<ProgramTriggerCandidate> IncludeRecipientCategoryGiftObservers(CharacterState drawOwner, IReadOnlyList<ProgramTriggerCandidate> existing)
     {

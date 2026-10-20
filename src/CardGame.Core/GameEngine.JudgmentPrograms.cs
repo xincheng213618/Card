@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -239,8 +239,7 @@ public sealed partial class GameEngine
     }
 
     private static PromptChoice ProgramJudgmentChoice(string action, string label) =>
-        new(new ChoiceId($"program-judgment-trigger.{action}"), label, [], [],
-            new Dictionary<string, string> { ["action"] = "program-judgment-trigger-" + action });
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_JudgmentPrograms.ProgramJudgmentChoice(action,label);
 
     private CommandResult SubmitProgramJudgmentTriggerAnswer(
         int actorSeat,

@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class MouGuquCapability(GameEngine engine) : IMouZhouYuGuquHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame frame) => engine.BeginMouGuqu(frame); }
-    private static CardConversionSource MouGuquFrameSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouGuquFrameSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_yu_ol_mou_MouZhouYuGuqu.MouGuquFrameSource(f);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 29021, SkillProgramEffectOp.ResolveMouZhouYuGuqu)]
     private bool CanOfferMouGuqu(ProgramTriggerLegalityContext gate) => IsIssuedMouGuquCandidate(gate.Candidate, gate.Context);
     private bool IsIssuedMouGuquCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>

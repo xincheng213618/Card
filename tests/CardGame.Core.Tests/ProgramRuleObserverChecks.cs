@@ -39,8 +39,7 @@ internal static class ProgramRuleObserverChecks
 
         // Discover the actual built-ins too: a dropped phase or duplicate order
         // must fail at construction, before a command mutates match state.
-        _ = ProgramRuleObserverCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
+        _ = ProgramRuleObserverCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
     }
 
     public static void InvalidRegistrationsFailBeforeDispatch()

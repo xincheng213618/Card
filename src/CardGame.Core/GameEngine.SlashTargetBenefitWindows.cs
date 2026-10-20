@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool HasSlashTargetBenefitCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferSlashTargetBenefit);
     private static bool IsSlashTargetBenefitWindow(SkillProgramTriggerWindow w) =>
-        w is SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SlashTargetBenefitWindows.IsSlashTargetBenefitWindow(w);
     private ActualUseTargetIdentity? FreezeSlashTargetBenefitUse(CardAttackHandle attack, int? designatedTarget = null)
     {
         var target = designatedTarget ?? attack.TargetSeat;

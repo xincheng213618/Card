@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool HasCaoYuCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGongjieRoundFirstGifts)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXiangxuMinimumTransition)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXiangzuDyingGiftAndRecovery);
- private static CardConversionSource CaoYuSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource CaoYuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_yu_ol_CaoYuLedger.CaoYuSource(f);
  private bool CaoYuActualTurnOpen(int turn,int owner)=>turn>0&&turn==_turnNumber&&turn==_turnProgression.TurnNumber&&owner==_turnProgression.OwnerSeat&&!ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e=>e.ActualTurn==turn&&e.OwnerSeat==owner);
  private bool CaoYuHistory(int owner,string skill,int recipient)=>ProgramEventHistory<CaoYuRecipientHistoryEvent>().Any(e=>e.OwnerSeat==owner&&e.SkillId==skill&&e.RecipientSeat==recipient);
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27440)]

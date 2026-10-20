@@ -2,8 +2,10 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static CardConversionSource RandomAreaSource(ProgramSkillFrame frame) => new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
-    private static CardMoveReason RandomAreaReason(ProgramSkillFrame frame, int index) => new($"skill-program.{frame.SkillId}.random-area-acquisition.{frame.Id}.{index}.obtain");
+    private static CardConversionSource RandomAreaSource(ProgramSkillFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RandomAreaAcquisition.RandomAreaSource(frame);
+    private static CardMoveReason RandomAreaReason(ProgramSkillFrame frame, int index) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RandomAreaAcquisition.RandomAreaReason(frame,index);
     private bool ExactRandomAreaParent(ProgramSkillFrame frame, out DamageTriggerWindowFrame window, out DamageFrame damage)
     {
         window = null!; damage = null!;

@@ -1,9 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static SkillRuleQuery? DuFuRenPhaseQuery(ActualDiscardRecoveryPhaseKind kind) => kind switch
-    { ActualDiscardRecoveryPhaseKind.Draw => SkillRuleQuery.DrawCount, ActualDiscardRecoveryPhaseKind.Play => SkillRuleQuery.SlashLimit,
-        ActualDiscardRecoveryPhaseKind.Discard => SkillRuleQuery.HandLimit, _ => null };
+    private static SkillRuleQuery? DuFuRenPhaseQuery(ActualDiscardRecoveryPhaseKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_du_fu_ren_ol_DuFuRenPhases.DuFuRenPhaseQuery(kind);
     private bool DuFuRenGrantConsumed(long id, ActualDiscardRecoveryPhaseKind kind) => ProgramEventHistory<DuFuRenPhaseIssuedEvent>()
         .Any(e => e.GrantId == id && e.Phase.Kind == kind);
     private void ConsumeDuFuRenPhase(ActualDiscardRecoveryPhaseKind kind, int ownerSeat)

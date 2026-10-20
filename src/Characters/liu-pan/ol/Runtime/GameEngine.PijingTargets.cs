@@ -2,10 +2,8 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static IReadOnlyList<int> PijingFoldTargets(IReadOnlyList<int> original,IReadOnlyList<PijingToggle> toggles,CardKind kind)
-    {
-        var targets=original.ToList();foreach(var toggle in toggles){if(!toggle.Remove){targets.AddRange(toggle.Pair);continue;}var at=kind==CardKind.BorrowedSword?Enumerable.Range(0,targets.Count/2).Select(i=>i*2).FirstOrDefault(i=>targets[i]==toggle.Seat,-1):targets.IndexOf(toggle.Seat);if(at<0)throw new InvalidOperationException("Pijing cannot remove an absent original target.");targets.RemoveRange(at,kind==CardKind.BorrowedSword?2:1);}return Array.AsReadOnly(targets.ToArray());
-    }
+    private static IReadOnlyList<int> PijingFoldTargets(IReadOnlyList<int> original,IReadOnlyList<PijingToggle> toggles,CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_pan_ol_PijingTargets.PijingFoldTargets(original,toggles,kind);
     private IReadOnlyList<PijingToggle> PijingInitialOptions(CardUseFrame use,IReadOnlyList<PijingToggle> selected)
     {
         var targets=PijingFoldTargets(use.TargetSeats,selected,use.CardKind);var current=use with{TargetSeats=targets,Action=CloneDesignatedExtraTargetAction(use.Action!,targets)};var result=new List<PijingToggle>();var mains=use.CardKind==CardKind.BorrowedSword?targets.Where((_,i)=>i%2==0):targets;

@@ -328,7 +328,7 @@ public sealed partial class GameEngine
     }
 
     private static CardUseEffectSource CreateProgramTurnEffectSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardUseModules.CreateProgramTurnEffectSource(frame);
 
     [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 130)]
     private bool DistanceCardUseExemption130HasUnlimitedTurnRuleModifier(ProgramCardDistanceQuery q) =>

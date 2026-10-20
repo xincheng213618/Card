@@ -2,9 +2,12 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool HasYuanJiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJinghuaRoundDraw)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShuiyueTurnDraw);
- private static CardConversionSource YuanJiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
- private static bool IsYuanJiReturnOp(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveJinghuaTurnReturn or SkillProgramEffectOp.ResolveShuiyueRoundReturn;
- private static bool IsYuanJiMarkDraw(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveJinghuaRoundDraw or SkillProgramEffectOp.ResolveShuiyueTurnDraw;
+ private static CardConversionSource YuanJiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_ji_ol_YuanJiLedger.YuanJiSource(f);
+ private static bool IsYuanJiReturnOp(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_ji_ol_YuanJiLedger.IsYuanJiReturnOp(op);
+ private static bool IsYuanJiMarkDraw(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_ji_ol_YuanJiLedger.IsYuanJiMarkDraw(op);
  private void CaptureYuanJiAtomicLoss(CardMovementBatchContext batch)
  {
   if(!HasYuanJiCapability||!_setupComplete||batch.TurnNumber<1||_winner!=Winner.None)return;

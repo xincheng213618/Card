@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly PlayerMarkerKind[] SimaHuiSeals=[PlayerMarkerKind.DragonSeal,PlayerMarkerKind.PhoenixSeal];
-    private static bool IsSimaHuiOp(SkillProgramEffectOp op)=>(int)op is >=23500 and <=23505;
+    private static bool IsSimaHuiOp(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sima_hui_ol_SimaHuiPrograms.IsSimaHuiOp(op);
     private CardConversionSource SimaHuiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private SimaHuiReceipt NewSimaHuiReceipt(ProgramSkillFrame f,string stage)=>new(){Source=SimaHuiSource(f),GameplayHash=f.GameplayHash,ParentFrameId=f.WindowContext?.ParentFrameId??f.ParentFrameId??0,
         ActualTurn=f.WindowContext?.BeforeTurnPreludeProof?.UpcomingTurnNumber??_turnNumber,InstructionIndex=f.InstructionIndex,Stage=stage};

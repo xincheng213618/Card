@@ -5,7 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMoLuBu => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeMoLuBuQiAndOpeningPlay);
-    private static CardConversionSource MoLuBuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MoLuBuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_bu_ol_magic_MoLuBuQi.MoLuBuSource(f);
     private bool HasMoLuBuQi(int id) => HasMoLuBu && id > 0 && ProgramEventHistory<MoLuBuQiMarkedEvent>().Any(e => e.CardId == id);
     private ProgramLifecycleTriggerWindowFrame CaptureMoLuBuInitialQi(ProgramLifecycleTriggerWindowFrame f)
     {

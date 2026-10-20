@@ -3,9 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramRuleObserverCatalog> ProgramRuleObserverRegistrations = new(() =>
-        ProgramRuleObserverCatalog.Discover(typeof(GameEngine).GetMethods(
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static |
-            System.Reflection.BindingFlags.NonPublic)), true);
+        ProgramRuleObserverCatalog.Discover(RuntimeModuleMethods), true);
     private readonly ProgramRuleObservers _programRuleObservers;
 
     // Rule observers settle before the fact enters committed-observer output.

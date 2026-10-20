@@ -98,7 +98,7 @@ internal static class ProgramCardLegalityChecks
         Reject(typeof(OptionalArgument), "invalid handler signature");
         Reject(typeof(GenericQuery), "invalid handler signature");
         Reject(typeof(RefArgument), "invalid handler signature");
-        var production = ProgramCardLegalityCatalog.Discover(typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+        var production = ProgramCardLegalityCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
         Need(production.Registrations.Values.All(rows => rows.Count > 0), "Every production native stage retains its module-owned policies.");
 
         static void Reject(Type type, string expected)

@@ -5,8 +5,10 @@ public sealed partial class GameEngine
 {
     private const string SaoguDiscardReason = "skill-program.duan-jiong.saogu.discard", SaoguDrawReason = "skill-program.duan-jiong.saogu.draw";
     private bool HasDuanJiongSaoguCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveSaoguConversionSweep);
-    private static CardConversionSource DuanJiongSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static int SaoguSuitBit(Suit suit) => suit switch { Suit.Spade => 1, Suit.Heart => 2, Suit.Club => 4, Suit.Diamond => 8, _ => 0 };
+    private static CardConversionSource DuanJiongSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_duan_jiong_ol_DuanJiong.DuanJiongSource(f);
+    private static int SaoguSuitBit(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_duan_jiong_ol_DuanJiong.SaoguSuitBit(suit);
     private int SaoguDiscardedSuitMask(int actor, ActualDiscardRecoveryPhaseKey phase) => CompleteProgramEventHistory().OfType<DuanJiongSaoguDiscardSuitEvent>()
         .Where(e => e.OwnerSeat == actor && e.Phase == phase).Aggregate(0, (bits, e) => bits | SaoguSuitBit(e.Suit));
     private void CaptureDuanJiongSaoguBatch(CardMovementBatchContext batch)

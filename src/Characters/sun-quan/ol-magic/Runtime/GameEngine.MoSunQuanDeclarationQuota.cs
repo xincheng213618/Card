@@ -3,9 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool IsMoQuanyuTrueSlashDeclaration(DeclaredCardPayment paid, CardDeclarationParentReturn parent) =>
-        IsSlashCard(paid.DeclaredKind) && parent.Purpose is
-            (CardDeclarationPurpose.Use or CardDeclarationPurpose.BorrowedSword or CardDeclarationPurpose.ProvidedSlash or
-             CardDeclarationPurpose.BorrowedSwordProvidedSlash or CardDeclarationPurpose.QinglongProvidedSlash);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanDeclarationQuota.IsMoQuanyuTrueSlashDeclaration(paid,parent);
 
     private DeclaredCardPayment CaptureMoQuanyuDeclarationQuota(DeclaredCardPayment paid,
         CardDeclarationParentReturn parent, IReadOnlyList<int> targets)

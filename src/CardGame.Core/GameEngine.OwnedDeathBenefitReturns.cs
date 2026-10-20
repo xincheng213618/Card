@@ -94,8 +94,7 @@ public sealed partial class GameEngine
     }
 
     private static string OwnedDeathBenefitReturnHash(ProgramOwnedDeathBenefitReturn receipt) =>
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
-            System.Text.Json.JsonSerializer.Serialize(receipt))));
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OwnedDeathBenefitReturns.OwnedDeathBenefitReturnHash(receipt);
 
     private bool IsOriginalDyingSuspendedByOwnedDeathBenefit(DyingFrame dying) =>
         IsValidPlayerSeat(dying.VictimSeat) && !_players[dying.VictimSeat].IsAlive && _resolutionStack.OfType<ProgramSkillFrame>().Any(f =>

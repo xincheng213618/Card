@@ -5,8 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksDamageTargetBudgetTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddDamageMarkerBudgetTargets);
-    private static bool DamageBudgetCard(CardActionContext a) => IsSlashCard(a.EffectiveKind) ||
-        IsOrdinaryTrick(a.EffectiveKind) && a.EffectiveIsRed == false;
+    private static bool DamageBudgetCard(CardActionContext a) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetBudget.DamageBudgetCard(a);
     private CardConversionSource BudgetSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 230)]
     private bool CanOfferDamageTargetBudget(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)

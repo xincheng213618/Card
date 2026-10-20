@@ -6,12 +6,10 @@ public sealed partial class GameEngine
 {
     private long PairedHandRecastSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static PairedHandRecastParticipantReceipt CurrentPairedRecast(ProgramPairedHandRecastReceipt r) =>
-        r.Cursor == 0 ? r.Owner : r.Cursor == 1 ? r.Partner :
-            throw new InvalidOperationException("A completed pair has no current recast participant.");
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PairedHandRecast.CurrentPairedRecast(r);
     private static ProgramPairedHandRecastReceipt WithCurrentPairedRecast(ProgramPairedHandRecastReceipt r,
-        PairedHandRecastParticipantReceipt participant) => r.Cursor == 0 ? r with { Owner = participant } :
-        r.Cursor == 1 ? r with { Partner = participant } :
-            throw new InvalidOperationException("A completed pair cannot replace a current participant.");
+        PairedHandRecastParticipantReceipt participant) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PairedHandRecast.WithCurrentPairedRecast(r,participant);
     private PairedHandRecastMaterial[] PairedHandMaterials(int seat) => GetHand(_players[seat])
         .Select(card => new PairedHandRecastMaterial(card.Id, card.Kind, CardLocation.Hand(seat))).ToArray();
     private bool PairedRecastMaterialStillOwned(PairedHandRecastParticipantReceipt participant) =>

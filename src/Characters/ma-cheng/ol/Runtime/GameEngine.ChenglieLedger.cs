@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private bool HasMaChengCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards);
     private const string ChenglieRevealReason="skill-program.ma-cheng.chenglie.reveal",ChenglieSwapOutReason="skill-program.ma-cheng.chenglie.swap-out",ChenglieSwapInReason="skill-program.ma-cheng.chenglie.swap-in",ChenglieAssignReason="skill-program.ma-cheng.chenglie.assign",ChenglieGiftReason="skill-program.ma-cheng.chenglie.give",ChenglieCleanupReason="skill-program.ma-cheng.chenglie.finished";
-    private static CardConversionSource ChenglieSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource ChenglieSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_cheng_ol_ChenglieLedger.ChenglieSource(f);
     private bool TryGetChenglieUse(ProgramSkillWindowContext c,out CardUseFrame use,out ProgramCardTriggerWindowFrame window)
     {
         use=null!;window=null!;

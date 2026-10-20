@@ -8,7 +8,8 @@ public sealed partial class GameEngine
     private const string ZongluanDiscardReason = "skill-program.tao-qian.zongluan.discard";
     private const string WenrenDrawReason = "skill-program.tao-qian.wenren.draw";
     private bool HasTaoQianCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZhaohuoFirstVictimGift) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWenrenSequentialDraw);
-    private static CardConversionSource TaoQianSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource TaoQianSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tao_qian_ol_TaoQian.TaoQianSource(f);
     [ProgramCapability] private sealed class TaoQianCapability(GameEngine engine) : ITaoQianHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginTaoQian(f, op); }
     private SkillProgramStepOutcome BeginTaoQian(ProgramSkillFrame supplied, SkillProgramEffectOp op)

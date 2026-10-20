@@ -13,12 +13,13 @@ public sealed partial class GameEngine
 
 
     private const string MouLiuChengDrawReason = "skill-program.mou-mobile:liu-cheng.draw";
-    private static CardConversionSource MouLiuChengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouLiuChengSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_cheng_mou_mobile_MouLiuChengCompletion.MouLiuChengSource(f);
     private bool HasMouLiuChengCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLiuChengCompletion);
     private bool MouLiuChengKind(string skill, CardKind kind) => skill == MouLiuChengComposition.Lueying ? IsSlashCard(kind) :
         skill == MouLiuChengComposition.Yingwu && IsMouLiuChengNonDamageOrdinary(kind);
-    private static bool IsMouLiuChengNonDamageOrdinary(CardKind kind) => IsOrdinaryTrick(kind) && kind is not
-        (CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault or CardKind.AgainstCurrent or CardKind.WumiaoFlood);
+    private static bool IsMouLiuChengNonDamageOrdinary(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_cheng_mou_mobile_MouLiuChengCompletion.IsMouLiuChengNonDamageOrdinary(kind);
     private bool MouLiuChengTrueUse(CardActionContext a) => a.Type == CardActionType.Use ||
         a.Type == CardActionType.Response && a.EffectiveKind == CardKind.Nullification && IsCompletedResponseUse(a, ProgramCardContinuation.NullificationResponse);
     private void CaptureMouLiuChengCompletion(CardActionContext action, SkillProgramTriggerWindow window)

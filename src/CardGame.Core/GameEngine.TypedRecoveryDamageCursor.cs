@@ -214,13 +214,7 @@ public sealed partial class GameEngine
     }
 
     private static bool TypedPaidDyingEntryReturnMatches(DyingFrame dying, ProgramLifecycleTriggerWindowFrame entry) =>
-        entry.Window == SkillProgramTriggerWindow.DyingEntering && entry.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry &&
-        entry.ResumeDyingFrameId == dying.Id && entry.OwnerSeat == dying.VictimSeat &&
-        entry.ResumeProgramFrameId is null && entry.ResumeDrawPhaseObligationFrameId is null && entry.ProgramTarget is null &&
-        entry.CharacterStateContinuation is null && entry.ResumeCardId is null && entry.ResumeCardKind is null &&
-        entry.ParticipantFacts is { } facts && facts.GetValueOrDefault(dying.VictimSeat) == entry.Facts &&
-        entry.CandidateIndex >= 0 && entry.CandidateIndex <= entry.Candidates.Count &&
-        dying.AttemptedSelfDyingBindings.Contains("window:dying-entering");
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TypedRecoveryDamageCursor.TypedPaidDyingEntryReturnMatches(dying,entry);
 
     private bool TypedPaidDyingEntryObserverMatches(ProgramLifecycleTriggerWindowFrame entry, ProgramSkillFrame observer,
         IReadOnlyList<IGameEvent> history)
@@ -261,8 +255,8 @@ public sealed partial class GameEngine
             ResolveProgramEffectTarget(producer, effect.Target)) == change.TargetSeat;
     }
 
-    private static bool IsTypedRecoveryTargetSupported(RecoverProgramInstruction instruction) => instruction.Target is
-        SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.Actor or SkillProgramEffectTarget.SelectedTarget or SkillProgramEffectTarget.SelectedTargets;
+    private static bool IsTypedRecoveryTargetSupported(RecoverProgramInstruction instruction) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TypedRecoveryDamageCursor.IsTypedRecoveryTargetSupported(instruction);
 
     private bool UnsupportedTypedRecoveryTargetIsMalformed(ProgramSkillFrame producer, RecoverProgramInstruction instruction, int actualTarget)
     {
@@ -402,9 +396,8 @@ public sealed partial class GameEngine
             : recovery.Stage != RecoveryReplacementStage.Choosing && index >= 0 && index < recovery.Attempt.Candidates.Count &&
               recovery.OriginalRecovered == 0 && TypedRecoveryChosenCandidateMatches(recovery, history));
 
-    private static bool IsRecoveryCursorPrimitive(ProgramSkillInstruction? instruction) => instruction is
-        DrawProgramInstruction or RecoverProgramInstruction or LoseHpProgramInstruction or DamageProgramInstruction or
-        ChangeMaximumHpProgramInstruction or GrowMaximumHpAndHpProgramInstruction;
+    private static bool IsRecoveryCursorPrimitive(ProgramSkillInstruction? instruction) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_TypedRecoveryDamageCursor.IsRecoveryCursorPrimitive(instruction);
 
     private SkillProgramEffect? TypedRecoveryPausedEffect(ProgramSkillFrame producer)
     {

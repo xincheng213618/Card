@@ -710,6 +710,7 @@ var tests = new (string Name, Action Body)[]
     ("program action registration preserves source and command boundaries", ProgramActionRegistrationChecks.RegistrationAndDispatchPreserveBoundaries),
     ("character manifests preserve ordered registration and package isolation", CharacterContentCatalogChecks.OrderedRegistrationAndPackageIsolation),
     ("program capability registration isolates adapters and preserves typed host compatibility", ProgramCapabilityChecks.RegistrationAndIsolationPreserveBoundaries),
+    ("program runtime modules share match instances and reject engine dependencies", ProgramRuntimeModuleChecks.IndependentFactoriesShareMatchInstancesAndRejectEngineDependencies),
     ("program rule observer registration preserves ordered recursive boundaries", ProgramRuleObserverChecks.RegistrationPreservesOrderReentrancyAndIsolation),
     ("program rule observer registration rejects invalid metadata", ProgramRuleObserverChecks.InvalidRegistrationsFailBeforeDispatch),
     ("program legality registration preserves ordered capability gates", ProgramLegalityChecks.RegistrationAndDispatchPreserveBoundaries),

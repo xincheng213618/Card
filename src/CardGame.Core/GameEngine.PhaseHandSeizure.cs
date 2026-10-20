@@ -16,9 +16,9 @@ public sealed partial class GameEngine
     private CardConversionSource PhaseHandSeizureSource(ProgramSkillFrame frame) =>
         new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
     private static string PhaseHandSeizureReason(ProgramSkillFrame frame, string part) =>
-        $"skill-program.{frame.SkillId}.{SkillProgramEffectOp.DiscardTurnOverAndTakeHand}.{part}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseHandSeizure.PhaseHandSeizureReason(frame,part);
     private static string PhaseHandDebtReturnReason(ProgramSkillFrame frame) =>
-        $"skill-program.{frame.SkillId}.{SkillProgramEffectOp.ReturnIssuedPhaseHandDebt}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PhaseHandSeizure.PhaseHandDebtReturnReason(frame);
     private bool IsPhaseHandSeizureCost(int owner, string skill, Card card) =>
         _cardZones.GetLocation(card.Id) is { OwnerSeat: var seat, Zone: CardZoneKind.Hand or CardZoneKind.Equipment } location && seat == owner &&
         !IsSelfHandCategoryDiscardForbidden(owner, card, location, OwnedCardMoveIntent.Discard) &&

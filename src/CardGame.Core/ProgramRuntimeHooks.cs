@@ -86,7 +86,8 @@ internal sealed class ProgramRuntimeHookCatalog
                     throw new InvalidOperationException($"Runtime hook '{method.Name}' requires a valid phase and positive order.");
                 var permission = IsPermission(attribute.Phase);
                 var parameterTypes = permission ? new[] { typeof(ProgramSkillFrame) } : Type.EmptyTypes;
-                if (method.IsStatic || !ValidSignature(method, typeof(bool), parameterTypes)) throw Invalid(method);
+                if (method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) ||
+                    !ValidSignature(method, typeof(bool), parameterTypes)) throw Invalid(method);
                 var registration = new ProgramRuntimeRegistration(method,
                     permission ? typeof(Func<ProgramSkillFrame, bool>) : typeof(Func<bool>));
                 if (!hooks[attribute.Phase].TryAdd(attribute.Order, registration))
@@ -202,9 +203,8 @@ internal sealed partial class ProgramRuntimeHooks
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramRuntimeHookCatalog> RuntimeHookMetadata = new(() =>
-        ProgramRuntimeHookCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramRuntimeHookCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramRuntimeHooks? _runtimeHooks;
     private ProgramRuntimeHooks RuntimeHooks => _runtimeHooks ??= new(RuntimeHookMetadata.Value,
-        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 }

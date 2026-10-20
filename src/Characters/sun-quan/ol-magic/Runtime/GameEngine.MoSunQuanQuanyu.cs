@@ -7,8 +7,10 @@ public sealed partial class GameEngine
     private const string MoQuanyuDrawReason = "skill-program.mo-sun-quan.quanyu.draw";
     private const int MoQuanyuAllEffects = 63;
     private bool HasMoSunQuanQuanyuCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMoSunQuanQuanyuRoundChoices);
-    private static int MoQuanyuBit(MoQuanyuEffect effect) => effect == MoQuanyuEffect.None ? 0 : 1 << ((int)effect - 1);
-    private static CardConversionSource MoQuanyuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static int MoQuanyuBit(MoQuanyuEffect effect) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanQuanyu.MoQuanyuBit(effect);
+    private static CardConversionSource MoQuanyuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanQuanyu.MoQuanyuSource(f);
     private MoQuanyuEffect MoQuanyuCurrentChoice(int issuer, int participant) => !HasMoSunQuanQuanyuCapability ? MoQuanyuEffect.None :
         ProgramEventHistory<MoQuanyuChoiceRevealedEvent>().LastOrDefault(e => e.IssuerSeat == issuer &&
             e.ParticipantSeat == participant && e.RoundNumber == _roundNumber)?.Effect ?? MoQuanyuEffect.None;
@@ -105,9 +107,8 @@ public sealed partial class GameEngine
         foreach (var p in r.Participants) AdvanceEventRulesAndQueueFact(new MoQuanyuParticipantFrozenEvent(f.Id,
             p.Index, p.Seat, p.HistoryMask, p.AvailableMask));
     }
-    private static string MoQuanyuEffectName(MoQuanyuEffect e) => e switch
-    { MoQuanyuEffect.Baihong => "白虹", MoQuanyuEffect.Qingming => "青冥", MoQuanyuEffect.Bixie => "辟邪",
-      MoQuanyuEffect.Zidian => "紫电", MoQuanyuEffect.Baili => "百里", MoQuanyuEffect.Liuxing => "流星", _ => "本轮无可选项" };
+    private static string MoQuanyuEffectName(MoQuanyuEffect e) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_quan_ol_magic_MoSunQuanQuanyu.MoQuanyuEffectName(e);
     private IReadOnlyList<PromptChoice> MoQuanyuChoices(ProgramSkillFrame f)
     {
         var r = f.MoQuanyu!;

@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static bool SunYuanMovementStage(SunYuanStage s)=>s is SunYuanStage.ObtainChildren or SunYuanStage.DiscardChildren or SunYuanStage.ReclaimChildren or SunYuanStage.NativeChildren;
+    private static bool SunYuanMovementStage(SunYuanStage s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_yuan_ol_SunYuanObservers.SunYuanMovementStage(s);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27490)]
     private void AssertSunYuan(ProgramSkillFrame f)
     {

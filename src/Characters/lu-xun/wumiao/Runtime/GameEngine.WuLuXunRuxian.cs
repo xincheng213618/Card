@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasWuLuXunRuxianCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWuLuXunRuxian);
-    private static CardConversionSource WuLuXunActionSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuLuXunActionSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lu_xun_wumiao_WuLuXunRuxian.WuLuXunActionSource(f);
     private int WuLuXunRuxianUsage(int ownerSeat) => !HasWuLuXunRuxianCapability ? 0 : _skillRuntimeState.GetUsage(ownerSeat,
         "wumiao:ruxian", _contentRegistry.GetSkill("wumiao:ruxian").Program!.Activations.Single().UsageGroup, SkillUsageScope.Game);
     private bool WuLuXunRuxianSpent(int ownerSeat) => WuLuXunRuxianUsage(ownerSeat) > 0;

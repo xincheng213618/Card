@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string XingwuDepositReason="skill-program.da-qiao-xiao-qiao.xingwu.deposit",XingwuPileReason="skill-program.da-qiao-xiao-qiao.xingwu.pile-remove",XingwuHandReason="skill-program.da-qiao-xiao-qiao.xingwu.hand-discard",XingwuEquipmentReason="skill-program.da-qiao-xiao-qiao.xingwu.equipment-discard";
-    private static CardConversionSource DaQiaoXiaoQiaoSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource DaQiaoXiaoQiaoSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_xiao_qiao_ol_DaQiaoXiaoQiao.DaQiaoXiaoQiaoSource(f);
     [ProgramCapability]private sealed class DaQiaoXiaoQiaoCapability(GameEngine e):IDaQiaoXiaoQiaoHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,bool maintain)=>e.BeginDaQiaoXiaoQiao(f,maintain);}
     private bool DaQiaoXiaoQiaoParent(ProgramSkillFrame f)=>f.WindowContext is{Window:SkillProgramTriggerWindow.DiscardPhaseStarting}c&&c.OwnerSeat==f.OwnerSeat&&_currentSeat==f.OwnerSeat&&_phase==TurnPhase.Discard&&
         _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w=>w.Id==c.ParentFrameId)is{Window:SkillProgramTriggerWindow.DiscardPhaseStarting,Continuation:ProgramLifecycleContinuation.CompleteDiscardPhase}p&&p.OwnerSeat==f.OwnerSeat&&p.CandidateIndex>=0&&p.CandidateIndex<p.Candidates.Count&&MountObserverCandidateMatches(f,p.Candidates[p.CandidateIndex]);

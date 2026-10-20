@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private CardConversionSource SimaHuiIssuer(ProgramSkillFrame f)=>new("ol:jianjie","seals",f.OwnerSeat,f.SkillInstanceId);
-    private static string SimaHuiSealSource(CardConversionSource issuer,PlayerMarkerKind marker)=>$"sima-hui:seal:{issuer.OwnerSeat}:{issuer.SkillInstanceId}:{marker}";
+    private static string SimaHuiSealSource(CardConversionSource issuer,PlayerMarkerKind marker) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sima_hui_ol_Jianjie_Programs.SimaHuiSealSource(issuer,marker);
     private int? SimaHuiHolder(CardConversionSource issuer,PlayerMarkerKind marker)=>CompleteProgramEventHistory().OfType<SimaHuiSealMovedEvent>().LastOrDefault(e=>e.Issuer==issuer && e.Marker==marker)?.Holder;
     private int SimaHuiOwnTurns(int owner)=>CompleteProgramEventHistory().OfType<TurnStartedEvent>().Count(e=>e.ActorSeat==owner);
     private void SetSimaHuiSeal(ProgramSkillFrame f,CardConversionSource issuer,PlayerMarkerKind marker,int? from,int? to)

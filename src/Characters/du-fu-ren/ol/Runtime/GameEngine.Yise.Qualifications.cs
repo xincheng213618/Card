@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasDuFuRenYise => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYiseOwnedGain) == true;
-    private static bool IsDuFuRenYiseTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.ResolveYiseOwnedGain }];
+    private static bool IsDuFuRenYiseTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_du_fu_ren_ol_Yise_Qualifications.IsDuFuRenYiseTrigger(t);
     private void CaptureDuFuRenOwnedOrigin(CardMovementRecord m)
     {
         if (!HasDuFuRenYise || !IsDuFuRenOwnedZone(m.From) || m.From == m.To || !_cardMovements.Contains(m) ||

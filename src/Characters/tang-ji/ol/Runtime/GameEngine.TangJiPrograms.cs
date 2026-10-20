@@ -38,10 +38,8 @@ public sealed partial class GameEngine
 
     private const int ProgramKanggeTurnDrawCap = 3;
 
-    private static string SuitName(Suit suit) => suit switch
-    {
-        Suit.Spade => "黑桃", Suit.Heart => "红桃", Suit.Club => "梅花", _ => "方块"
-    };
+    private static string SuitName(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tang_ji_ol_TangJiPrograms.SuitName(suit);
 
     [ProgramCapability]
     private sealed class TangJiProgramCapability(GameEngine engine) : ITangJiProgramHost

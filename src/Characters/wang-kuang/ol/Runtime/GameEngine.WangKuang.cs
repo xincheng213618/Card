@@ -5,9 +5,11 @@ public sealed partial class GameEngine
 {
     private const string RenxiaDrawReason = "skill-program.wang-kuang.renxia.draw", RenxiaDiscardReason = "skill-program.wang-kuang.renxia.discard";
     private bool HasWangKuangCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveRenxiaRepeatedBranch);
-    private static CardConversionSource WangKuangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WangKuangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_kuang_ol_WangKuang.WangKuangSource(f);
     private WangKuangRenxiaPhaseKey WangKuangCurrentPhase(int owner) => new(_turnNumber, owner, _cardUseDebitPhaseInstanceId);
-    private static bool IsWangKuangDamageCardKind(CardKind kind) => IsDamageCardKind(kind) || kind == CardKind.UnexpectedAssault;
+    private static bool IsWangKuangDamageCardKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_kuang_ol_WangKuang.IsWangKuangDamageCardKind(kind);
     private bool WangKuangHandHasDamage(int owner) => GetHand(_players[owner]).Any(c => IsWangKuangDamageCardKind(AdvancedEffectiveHandKind(_players[owner], c)));
     private IReadOnlyList<WangKuangRenxiaCard> WangKuangDiscardable(int owner, string instance) => Array.AsReadOnly(GetHand(_players[owner]).Concat(GetEquipment(owner))
         .Where(c => !IsForeignEquipmentDiscardPrevented(owner, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard) &&

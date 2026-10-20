@@ -30,7 +30,7 @@ public sealed partial class GameEngine
             rule.Id == receipt.Source.RuleId && rule.SkillId == frame.SkillId) == true;
 
     private static string HpConditionalGrantId(int ownerSeat, HpConditionalSkillGrantSource source) =>
-        $"hp-conditional:{ownerSeat}:{source.CapabilityGrantId.Length}:{source.CapabilityGrantId}:{source.CapabilitySkillInstanceId.Length}:{source.CapabilitySkillInstanceId}:{source.RuleId}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_HpConditionalSkillGrants.HpConditionalGrantId(ownerSeat,source);
 
     // Pure qualification also rejects a stale derived grant between a source/HP
     // mutation and the next explicit rule-progression synchronization.

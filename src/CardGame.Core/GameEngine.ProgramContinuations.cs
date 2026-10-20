@@ -16,8 +16,7 @@ internal sealed class ProgramContinuationAttribute(ProgramContinuationKind kind,
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramContinuationCatalog> ProgramContinuations = new(() =>
-        ProgramContinuationCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.NonPublic)), true);
+        ProgramContinuationCatalog.Discover(RuntimeModuleMethods), true);
 
     internal sealed class ProgramContinuationCatalog
     {
@@ -56,7 +55,8 @@ public sealed partial class GameEngine
             {
                 if (method.GetCustomAttribute<ProgramContinuationAttribute>() is not { } registration) continue;
                 var parameters = method.GetParameters();
-                if (method.DeclaringType != typeof(GameEngine) || method.IsStatic || method.IsGenericMethod ||
+                if (method.DeclaringType != typeof(GameEngine) && !ProgramRuntimeModuleCatalog.IsDeclared(method.DeclaringType) ||
+                    method.DeclaringType == typeof(GameEngine) && method.IsStatic || method.IsGenericMethod ||
                     method.ReturnType != typeof(bool) || parameters.Length != 1 ||
                     parameters[0].ParameterType != typeof(ProgramSkillFrame) &&
                     (registration.Kind != ProgramContinuationKind.Resume || parameters[0].ParameterType != typeof(long)))
@@ -65,10 +65,15 @@ public sealed partial class GameEngine
                 Func<GameEngine, long, bool>? resume = null;
                 Func<GameEngine, ProgramSkillFrame, bool>? movement = null;
                 if (parameters[0].ParameterType == typeof(long))
-                    resume = method.CreateDelegate<Func<GameEngine, long, bool>>();
+                    resume = method.DeclaringType == typeof(GameEngine)
+                        ? method.CreateDelegate<Func<GameEngine, long, bool>>()
+                        : (engine, id) => ((Func<long, bool>)engine.BindRuntimeHandler(method, typeof(Func<long, bool>)))(id);
                 else
                 {
-                    var invoke = method.CreateDelegate<Func<GameEngine, ProgramSkillFrame, bool>>();
+                    var invoke = method.DeclaringType == typeof(GameEngine)
+                        ? method.CreateDelegate<Func<GameEngine, ProgramSkillFrame, bool>>()
+                        : (Func<GameEngine, ProgramSkillFrame, bool>)((engine, frame) =>
+                            ((Func<ProgramSkillFrame, bool>)engine.BindRuntimeHandler(method, typeof(Func<ProgramSkillFrame, bool>)))(frame));
                     if (registration.Kind == ProgramContinuationKind.Resume)
                         resume = (engine, frameId) => invoke(engine, engine.GetActiveProgramFrame(frameId));
                     else movement = invoke;

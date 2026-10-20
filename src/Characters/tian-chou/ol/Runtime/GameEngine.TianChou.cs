@@ -4,7 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string TianChouTopReason = "skill-program.tian-chou.shandao.top";
-    private static CardConversionSource TianChouSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource TianChouSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tian_chou_ol_TianChou.TianChouSource(f);
     private bool TianChouHasCards(int seat) => _players[seat].IsAlive && GetHand(_players[seat]).Concat(GetEquipment(seat)).Any();
     [ProgramCapability] private sealed class TianChouCapability(GameEngine e) : ITianChouHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f) => e.BeginTianChou(f); }

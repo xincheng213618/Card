@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static string PreparationReason(ProgramSkillFrame f, string step) => $"skill-program.{f.SkillId}.public-pile-preparation.{step}";
+    private static string PreparationReason(ProgramSkillFrame f, string step) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPilePreparation.PreparationReason(f,step);
     private long PreparationSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private bool PreparationGameEnded() => _status == EngineStatus.Completed && _phase == TurnPhase.Finished && _winner != Winner.None &&
         CompleteProgramEventHistory().OfType<GameEndedEvent>().Count(e => e.Winner == _winner &&

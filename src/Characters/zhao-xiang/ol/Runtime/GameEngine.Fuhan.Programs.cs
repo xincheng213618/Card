@@ -18,7 +18,8 @@ public sealed partial class GameEngine
             parent.Window==c.Window && parent.Continuation==ProgramLifecycleContinuation.NormalTurnStart && parent.CandidateIndex>=0 && parent.CandidateIndex<parent.Candidates.Count &&
             MountObserverCandidateMatches(f,parent.Candidates[parent.CandidateIndex]);
     }
-    private static string ZhaoXiangPoolFingerprint(IReadOnlyList<string> ids)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join('\n',ids))));
+    private static string ZhaoXiangPoolFingerprint(IReadOnlyList<string> ids) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhao_xiang_ol_Fuhan_Programs.ZhaoXiangPoolFingerprint(ids);
     private SkillProgramStepOutcome ExchangeFiveShuBySpentMeiYing(ProgramSkillFrame supplied)
     {
         var f=GetActiveProgramFrame(supplied.Id);

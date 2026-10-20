@@ -29,8 +29,8 @@ public sealed partial class GameEngine
         if (r.Stage == SimultaneousPindianStage.Claiming) return r.Claims!.Claims[r.Claims.Index].OwnerSeat;
         var pair = SimultaneousResult(f); return SimultaneousNonwinners(pair)[r.ConsequenceIndex];
     }
-    private static int[] SimultaneousNonwinners(PindianResult p) => p.SourceRank == p.OpponentRank ? [p.SourceSeat, p.OpponentSeat] :
-        p.SourceWon ? [p.OpponentSeat] : [p.SourceSeat];
+    private static int[] SimultaneousNonwinners(PindianResult p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SimultaneousPindian.SimultaneousNonwinners(p);
     private PindianResult SimultaneousResult(ProgramSkillFrame f)
     {
         var r = f.SimultaneousPindian!; var source = r.Cards.Single(c => c.Seat == f.OwnerSeat); var opponent = r.Cards.Single(c => c.Seat == r.Opponents[r.ComparisonIndex]);

@@ -2,8 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static (string Id, string Name) ZhouQunWeather(Suit suit) => suit switch
-    { Suit.Heart => ("ol:lieshu", "烈暑"), Suit.Diamond => ("ol:ningwu", "凝雾"), Suit.Spade => ("ol:zhouyu", "骤雨"), Suit.Club => ("ol:yanshuang", "严霜"), _ => ("", "无天气") };
+    private static (string Id, string Name) ZhouQunWeather(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhou_qun_ol_ZhouQunWeather.ZhouQunWeather(suit);
     private bool TryReturnZhouQunPaidPreparation(ProgramLifecycleTriggerWindowFrame frame)
     {
         if (!HasZhouQunCapability || frame.Window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || frame.Continuation != ProgramLifecycleContinuation.NormalTurnStart || frame.OwnerSeat != _currentSeat || frame.OwnerSeat != _turnProgression.OwnerSeat || frame.CandidateIndex != frame.Candidates.Count || _resolutionStack.Count != 0 || _winner == Winner.None && _players[frame.OwnerSeat].IsAlive) return false;

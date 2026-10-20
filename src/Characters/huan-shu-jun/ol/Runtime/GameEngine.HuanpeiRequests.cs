@@ -4,7 +4,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private const string HuanpeiOpen = "huanpei-open";
+    private const string HuanpeiOpen = global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_HuanpeiRequests.HuanpeiOpen;
     private static readonly CardKind[] HuanpeiKinds = [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol];
     private HuanpeiNativeRequest? CaptureHuanpeiRequest(PendingDecision p, ResolutionFrame? suppliedTop = null)
     {
@@ -105,7 +105,8 @@ public sealed partial class GameEngine
         if (p is null || p.Choices.Any(c => c.Parameters.ContainsKey(HuanpeiOpen))) return p;
         var choices = HuanpeiResponseChoices(p); return choices.Count == 0 ? p : p with { Choices = Array.AsReadOnly(p.Choices.Concat(choices).ToArray()) };
     }
-    private static PendingDecision HuanpeiNativeDecision(PendingDecision p) => p with { Choices = Array.AsReadOnly(p.Choices.Where(c => !c.Parameters.ContainsKey(HuanpeiOpen)).ToArray()) };
+    private static PendingDecision HuanpeiNativeDecision(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huan_shu_jun_ol_HuanpeiRequests.HuanpeiNativeDecision(p);
     private bool IsHuanpeiAnswer(ChoiceId id) => _pendingDecision?.Choices.Any(c => c.Id == id && c.Parameters.ContainsKey(HuanpeiOpen)) == true;
     private CommandResult SubmitHuanpeiAnswer(int actor, PromptId prompt, ChoiceId id)
     {

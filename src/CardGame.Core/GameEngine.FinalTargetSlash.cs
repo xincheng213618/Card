@@ -3,17 +3,9 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool HasFinalTargetSlashEffects(IEnumerable<SkillProgramEffect> effects) =>
-        effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
-            SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or SkillProgramEffectOp.RevealRecordedSuitSlash or
-            SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule or
-            SkillProgramEffectOp.ResolveMouTianYuZhenxi);
-    private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
-    {
-        ProgramFinalTargetComparison.TargetHandAtMostActor => facts.EventTargetHandCount <= facts.CurrentHandCount,
-        ProgramFinalTargetComparison.TargetHpAtLeastActor => facts.EventTargetHp >= facts.CurrentHp,
-        ProgramFinalTargetComparison.Always => true,
-        _ => throw new InvalidOperationException("Unknown frozen final target comparison.")
-    };
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FinalTargetSlash.HasFinalTargetSlashEffects(effects);
+    private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FinalTargetSlash.MatchesFinalTargetComparison(comparison,facts);
     private void IssueFinalTargetSlashReceipt(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized,

@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool KongShuMoving(KongShuStage stage) => stage is KongShuStage.BenefitDrawChildren or KongShuStage.BenefitGainChildren or KongShuStage.RoundDrawChildren or KongShuStage.RoundDiscardChildren;
+    private static bool KongShuMoving(KongShuStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_kong_shu_ol_KongShuObservers.KongShuMoving(stage);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 27550)]
     private void AssertKongShu(ProgramSkillFrame f)
     {

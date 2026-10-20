@@ -44,9 +44,7 @@ public sealed partial class GameEngine
         return q is null ? null : context with { MouLiuChengAccrual = q };
     }
     private static bool SameMouLiuChengAccrual(MouLiuChengAccrualClaim? a, MouLiuChengAccrualClaim? b) =>
-        a is not null && b is not null && a.Source == b.Source && a.GameplayHash == b.GameplayHash && a.UseId == b.UseId &&
-        a.ActionId == b.ActionId && a.ActorSeat == b.ActorSeat && a.EffectiveKind == b.EffectiveKind && a.Phase == b.Phase &&
-        a.NotificationOrdinal == b.NotificationOrdinal && a.Targets.SequenceEqual(b.Targets);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_cheng_mou_mobile_MouLiuChengAccrual.SameMouLiuChengAccrual(a,b);
     private bool MouLiuChengCandidateMatches(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context,
         ProgramCardTriggerWindowFrame window)
     {

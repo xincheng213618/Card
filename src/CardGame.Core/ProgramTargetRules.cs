@@ -153,9 +153,8 @@ internal sealed class ProgramTargetRules
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramTargetRuleCatalog> TargetRuleMetadata = new(() =>
-        ProgramTargetRuleCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramTargetRuleCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramTargetRules? _targetRules;
     private ProgramTargetRules TargetRules => _targetRules ??= new(TargetRuleMetadata.Value,
-        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 }

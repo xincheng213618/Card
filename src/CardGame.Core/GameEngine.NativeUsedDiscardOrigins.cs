@@ -74,8 +74,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsNativeUseFinishReason(CardMoveReason reason) =>
-        reason == CardMoveReasons.UseFinished || reason == CardMoveReasons.IronChainFinished ||
-        reason == CardMoveReasons.FireAttackFinished || reason == CardMoveReasons.DelayedCardFinish;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NativeUsedDiscardOrigins.IsNativeUseFinishReason(reason);
 
     private bool IsNativeTrueUseDiscardMovement(CardMovementBatchContext batch, CardMovementRecord move)
     {

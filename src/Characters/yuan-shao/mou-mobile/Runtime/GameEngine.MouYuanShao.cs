@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasMouYuanShaoCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReserveMouYuanShaoReward);
-    private static bool IsMouYuanShaoTargetTrigger(string skill, SkillProgramTrigger trigger) => MouYuanShaoComposition.TargetTrigger(skill, trigger);
+    private static bool IsMouYuanShaoTargetTrigger(string skill, SkillProgramTrigger trigger) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yuan_shao_mou_mobile_MouYuanShao.IsMouYuanShaoTargetTrigger(skill,trigger);
     [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 30100)]
     private void CaptureMouYuanShaoTurn(TurnStartedEvent turn)
     {

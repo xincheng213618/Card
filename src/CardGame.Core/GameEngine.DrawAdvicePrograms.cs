@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private long DrawAdviceSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static string DrawAdviceReason(string skill, string action) =>
-        $"skill-program.{skill}.{SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp}.{action}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DrawAdvicePrograms.DrawAdviceReason(skill,action);
 
     private bool ExactDrawAdviceParent(ProgramSkillFrame frame)
     {

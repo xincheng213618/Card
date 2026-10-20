@@ -3,9 +3,9 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static CardConversionSource SequentialDeckKindGrowthSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SequentialDeckKindGrowth.SequentialDeckKindGrowthSource(frame);
     private static string SequentialDeckKindGrowthReason(long frameId, int step) =>
-        $"skill-program.sequential-deck-kind-growth.{frameId}.{step}.gain";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SequentialDeckKindGrowth.SequentialDeckKindGrowthReason(frameId,step);
 
     private bool HasSequentialDeckKindGrowthParent(ProgramSkillFrame frame)
     {
@@ -137,9 +137,7 @@ public sealed partial class GameEngine
         ValidSequentialDeckKindGrowth(frame);
 
     private static bool SameSequentialDeckKindGrowthStep(SequentialDeckKindGrowthStepReceipt left, SequentialDeckKindGrowthStepReceipt right) =>
-        left.Index == right.Index && left.CardId == right.CardId && left.BatchId == right.BatchId &&
-        left.SequenceBefore == right.SequenceBefore && left.SequenceAfter == right.SequenceAfter &&
-        left.ActualObtained == right.ActualObtained && left.Movements.SequenceEqual(right.Movements);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SequentialDeckKindGrowth.SameSequentialDeckKindGrowthStep(left,right);
 
     private bool ValidSequentialDeckKindGrowthStep(long frameId, int owner, CardKind kind, SequentialDeckKindGrowthStepReceipt step)
     {

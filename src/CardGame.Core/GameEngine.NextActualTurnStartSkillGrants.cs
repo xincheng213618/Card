@@ -18,18 +18,8 @@ public sealed partial class GameEngine
             .Select(grant => (Recipient: recipient, Grant: grant))).ToArray();
 
     private static void RequireIssuedNextActualTurnStartSkillGrant(int recipientSeat, SkillGrant grant,
-        IReadOnlyList<IGameEvent> history)
-    {
-        var expiry = grant.NextActualTurnStartExpiry!;
-        if (grant.GrantId != $"{grant.SourceId}:{grant.SkillId}" ||
-            history.OfType<TurnStartedEvent>().Count(fact => fact.TurnNumber == expiry.GrantedTurnNumber &&
-                fact.ActorSeat == expiry.GrantedTurnOwnerSeat) != 1 ||
-            history.OfType<ProgramTurnSkillsGrantedEvent>().Count(issued =>
-                issued.RecipientSeat == recipientSeat && issued.GrantSourceId == grant.SourceId &&
-                issued.TurnExpiry is null && issued.NextActualTurnStartExpiry == expiry &&
-                issued.GrantedSkillIds.Contains(grant.SkillId, StringComparer.Ordinal)) != 1)
-            throw new InvalidOperationException("A next-start skill expiry lost its exact independent issued grant.");
-    }
+        IReadOnlyList<IGameEvent> history) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NextActualTurnStartSkillGrants.RequireIssuedNextActualTurnStartSkillGrant(recipientSeat,grant,history);
 
     // No binding-backed state may carry an expired skill into this new turn.
     // Keep the receipt on the disabled owning grant until TurnStarted is queued;

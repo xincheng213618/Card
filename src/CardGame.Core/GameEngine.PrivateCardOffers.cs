@@ -11,8 +11,10 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome ResolveGameTargetHandHp(ProgramSkillFrame f, string state) => engine.BeginGameTargetHandHp(f, state);
     }
     private long PrivateOfferSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
-    private static string PrivateOfferReason(ProgramSkillFrame f, string segment) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.ResolveDeferredPrivateCardOffer}.{segment}";
-    private static CardConversionSource PrivateOfferSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static string PrivateOfferReason(ProgramSkillFrame f, string segment) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PrivateCardOffers.PrivateOfferReason(f,segment);
+    private static CardConversionSource PrivateOfferSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PrivateCardOffers.PrivateOfferSource(f);
     private SkillProgramStepOutcome DepositPrivateCardOffer(ProgramSkillFrame supplied, string bind, string resolver)
     {
         var f = GetActiveProgramFrame(supplied.Id);

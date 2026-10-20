@@ -2,10 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool IsResponseCompletionContinuation(ProgramCardContinuation continuation) => continuation is
-        ProgramCardContinuation.Dodge or ProgramCardContinuation.DuelSlash or ProgramCardContinuation.GroupResponse or
-        ProgramCardContinuation.FactionDefenseDodge or ProgramCardContinuation.FactionSlashDuelSlash or
-        ProgramCardContinuation.FactionSlashGroupResponse or ProgramCardContinuation.NullificationResponse;
+    private static bool IsResponseCompletionContinuation(ProgramCardContinuation continuation) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseCompletion.IsResponseCompletionContinuation(continuation);
 
     // A native cost child can grant the first observer. Collect live bindings
     // after those children return, rather than using a premature live-owner gate.
@@ -90,12 +88,9 @@ public sealed partial class GameEngine
     // Extended Nullification uses the ordinary multi-card Respond/ResponseFinished
     // route; the single native counterspell uses Nullification/NullificationFinished.
     private static bool IsResponseCompletionEntryReason(CardActionContext action, ProgramCardContinuation continuation, CardMoveReason reason) =>
-        continuation == ProgramCardContinuation.NullificationResponse
-            ? reason == CardMoveReasons.Nullification || action.ConversionChain.Count > 0 && reason == CardMoveReasons.Respond
-            : reason == CardMoveReasons.Respond;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseCompletion.IsResponseCompletionEntryReason(action,continuation,reason);
     private static CardMoveReason ResponseCompletionFinishReason(CardMovementRecord entered, ProgramCardContinuation continuation) =>
-        entered.Reason == CardMoveReasons.Nullification || entered.Reason.Value == "conversion.declaration.pay" &&
-        continuation == ProgramCardContinuation.NullificationResponse ? CardMoveReasons.NullificationFinished : CardMoveReasons.ResponseFinished;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseCompletion.ResponseCompletionFinishReason(entered,continuation);
 
     private bool IsResponseCompletionEntry(CardActionContext action, ProgramCardContinuation continuation,
         long parentFrameId, CardActionCost cost, CardMovementRecord moved)
@@ -140,24 +135,14 @@ public sealed partial class GameEngine
             !history.OfType<CardDeclarationRevealedEvent>().Any(e => e.DeclarationId == paid.DeclarationId && !e.Succeeded);
     }
 
-    private static CardResponseCompletedEvent ResponseCompletionFact(ProgramCardTriggerWindowFrame window)
-    {
-        var r = window.ResponseCompletion!; var a = window.Action;
-        return new(a.ActionId, r.ParentFrameId, r.AttackOwnerFrameId, r.CompletionActorSeat, a.ProviderSeat,
-            a.EffectiveKind, r.OriginalContinuation, r.ActualTurnNumber, r.ActualTurnOwnerSeat, a.ActorSeat);
-    }
+    private static CardResponseCompletedEvent ResponseCompletionFact(ProgramCardTriggerWindowFrame window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseCompletion.ResponseCompletionFact(window);
 
     // This is an observer projection, never a second accepted Use/Response. A
     // faction provider actually plays the supplied card; the original principal
     // still owns the native response and every old completed-use continuation.
-    private static CardActionContext ResponseCompletionActorAction(ProgramCardTriggerWindowFrame window)
-    {
-        var a = window.Action; var r = window.ResponseCompletion!;
-        if (r.CompletionActorSeat == a.ActorSeat) return a;
-        return new(a.ActionId, a.ParentActionId, a.Type, r.CompletionActorSeat, a.ProviderSeat, a.RequesterSeat,
-            r.CompletionActorSeat, a.OpponentSeat, a.EffectiveKind, a.TargetSeats, a.PhysicalCards, a.ConversionChain,
-            a.DesignatedTargetSeats, a.EffectiveSuit, a.EffectiveRank, a.EffectiveIsRed, a.FactionOrigin);
-    }
+    private static CardActionContext ResponseCompletionActorAction(ProgramCardTriggerWindowFrame window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseCompletion.ResponseCompletionActorAction(window);
 
     private bool IsResponseCompletionCostFinished(ProgramCardTriggerWindowFrame window, CardActionCost cost)
     {

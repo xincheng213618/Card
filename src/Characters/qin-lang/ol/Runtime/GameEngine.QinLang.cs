@@ -5,8 +5,10 @@ public sealed partial class GameEngine
 {
     private const string QinLangDrawReason="skill-program.qin-lang.xianying.draw",QinLangDiscardReason="skill-program.qin-lang.xianying.discard";
     private bool HasQinLangCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXianyingDrawDiscard);
-    private static CardConversionSource QinLangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
-    private static bool SameQinLangSource(CardConversionSource a,CardConversionSource b)=>a.SkillId==b.SkillId&&a.OwnerSeat==b.OwnerSeat&&a.SkillInstanceId==b.SkillInstanceId;
+    private static CardConversionSource QinLangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qin_lang_ol_QinLang.QinLangSource(f);
+    private static bool SameQinLangSource(CardConversionSource a,CardConversionSource b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qin_lang_ol_QinLang.SameQinLangSource(a,b);
     private bool QinLangCountUsed(int owner,int round,int count)=>ProgramEventHistory<QinLangXianyingDiscardPaidEvent>().Any(e=>e.Source.OwnerSeat==owner&&e.RoundNumber==round&&e.Count==count);
     private bool QinLangGrantConsumed(long id)=>ProgramEventHistory<QinLangXianyingGrantConsumedEvent>().Any(e=>e.GrantFrameId==id);
     private IEnumerable<QinLangXianyingGrantedEvent> OutstandingQinLangGrants(int turn)=>ProgramEventHistory<QinLangXianyingGrantedEvent>().Where(e=>e.ActualTurn==turn&&!QinLangGrantConsumed(e.FrameId));
@@ -61,8 +63,10 @@ public sealed partial class GameEngine
         }
         ContinueQinLang(f.Id);return SkillProgramStepOutcome.AwaitChild;
     }
-    private static CardKind QinLangName(CardKind kind)=>IsSlashCard(kind)?CardKind.Slash:kind;
-    private static bool QinLangImitable(CardKind kind)=>IsSlashCard(kind)||kind is CardKind.Peach or CardKind.Alcohol||IsOrdinaryTrick(kind)&&kind!=CardKind.Nullification;
+    private static CardKind QinLangName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qin_lang_ol_QinLang.QinLangName(kind);
+    private static bool QinLangImitable(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qin_lang_ol_QinLang.QinLangImitable(kind);
     private IReadOnlyList<PromptChoice> QinLangChoices(ProgramSkillFrame f)
     {
         var r=f.QinLangXianying!;Dictionary<string,string> Args(string branch)=>new(){["program-action"]="qin-lang-xianying",["branch"]=branch,["frame-id"]=f.Id.ToString(CultureInfo.InvariantCulture)};

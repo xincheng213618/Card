@@ -4,7 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string XiangGift="skill-program.xiang-chong.guying.gift",XiangDebt="skill-program.xiang-chong.guying.debt",XiangReturn="skill-program.xiang-chong.guying.return",MuzhenGift="skill-program.xiang-chong.muzhen.gift",MuzhenClaim="skill-program.xiang-chong.muzhen.claim";
-    private static CardConversionSource XiangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource XiangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiang_chong_ol_XiangChong.XiangSource(f);
     private int XiangDebtCount(int owner)
     {
         var through=ProgramEventHistory<XiangChongDebtConsumedEvent>().Where(e=>e.OwnerSeat==owner).Select(e=>e.ThroughFrameId).DefaultIfEmpty(0).Max();
@@ -58,7 +59,8 @@ public sealed partial class GameEngine
     }
     private bool XiangLostStillAvailable(ProgramSkillFrame f)=>f.XiangChong is{Lost:{}lost,LossDestination:{}to}r&&_cardZones.GetLocation(lost.CardId)==to&&to!=CardLocation.OutsideGame&&to!=CardLocation.Hand(f.OwnerSeat)&&to!=CardLocation.Equipment(f.OwnerSeat)&&
         _cardMovements.Last(m=>m.CardId==lost.CardId).Sequence==r.LossSequence;
-    private static Dictionary<string,string> XiangArgs(string branch)=>new(){{"program-action","xiang-chong"},{"branch",branch}};
+    private static Dictionary<string,string> XiangArgs(string branch) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiang_chong_ol_XiangChong.XiangArgs(branch);
     private IReadOnlyList<PromptChoice> XiangChoices(ProgramSkillFrame f)
     {
         var r=f.XiangChong!;var choices=new List<PromptChoice>();

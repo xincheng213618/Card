@@ -40,16 +40,11 @@ public sealed partial class GameEngine
 {
     private static readonly IReadOnlyList<CardKind> DragonBoatOrdinaryTrickKinds = Array.AsReadOnly(new[]
         { CardKind.SameBoat, CardKind.StriveUpstream, CardKind.AgainstCurrent });
-    private static bool IsDragonBoatCard(CardKind kind) => kind is CardKind.Zong or CardKind.RealgarWine or
-        CardKind.SameBoat or CardKind.StriveUpstream or CardKind.AgainstCurrent;
+    private static bool IsDragonBoatCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DragonBoatCards.IsDragonBoatCard(kind);
     private static bool IsDragonBoatTrick(CardKind kind) => DragonBoatOrdinaryTrickKinds.Contains(kind);
-    private static LegalActionKind DragonBoatCardAction(CardKind kind) => kind switch
-    {
-        CardKind.Zong => LegalActionKind.Zong, CardKind.RealgarWine => LegalActionKind.RealgarWine,
-        CardKind.SameBoat => LegalActionKind.SameBoat, CardKind.StriveUpstream => LegalActionKind.StriveUpstream,
-        CardKind.AgainstCurrent => LegalActionKind.AgainstCurrent,
-        _ => throw new InvalidOperationException("This is not a Dragon Boat card.")
-    };
+    private static LegalActionKind DragonBoatCardAction(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DragonBoatCards.DragonBoatCardAction(kind);
     private bool DragonBoatCardAllies(int first, int second) => _players[first].TeamId is { } team && team == _players[second].TeamId;
     private bool IsDragonBoatRealgarWineQuotaUse(CardUseFrame use, CardActionContext action) =>
         IsDragonBoatActivity && use.CardKind == CardKind.RealgarWine && action.EffectiveKind == CardKind.RealgarWine &&

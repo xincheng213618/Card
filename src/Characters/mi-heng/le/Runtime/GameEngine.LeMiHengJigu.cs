@@ -7,9 +7,9 @@ public sealed partial class GameEngine
         .HasTriggerOperation(SkillProgramEffectOp.InitializeJiguInitialEntities) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw);
     private static CardConversionSource JiguSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_mi_heng_le_LeMiHengJigu.JiguSource(f);
     private static bool IsJiguDamageTrigger(SkillProgramTrigger t) =>
-        t.Effects is [{ Op: SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_mi_heng_le_LeMiHengJigu.IsJiguDamageTrigger(t);
     private bool HasJiguEntityMark(int cardId) => HasLeMiHengJiguCapability &&
         ProgramEventHistory<JiguInitialEntityEvent>().Any(e => e.CardId == cardId);
     private bool HasJiguEntityMark(int ownerSeat, int cardId) =>
@@ -131,9 +131,8 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
-    private static JiguActivationPaidEvent JiguPayment(long id, JiguReceipt r) => new(id, r.Source,
-        r.GameplayHash, r.DamageFrameId, r.DamageWindowId, r.RoundNumber, r.ActualTurn, r.TurnOwner,
-        r.MarkedHandCount, r.EquipmentCount, r.EmptySlotCount, r.StartedSeatCount, r.UseNumber, r.DisabledForRound);
+    private static JiguActivationPaidEvent JiguPayment(long id, JiguReceipt r) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_mi_heng_le_LeMiHengJigu.JiguPayment(id,r);
 
     [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw)]
     private void ReturnJiguDraw(ProgramSkillFrame f, NativeDrawOutcome outcome)

@@ -44,7 +44,8 @@ public sealed partial class GameEngine
   if(TryBeginProgramCardWindow(attack,action,SkillProgramTriggerWindow.CardResponseAccepted,[attack.SourceSeat],ProgramCardContinuation.Dodge))return;
   if(HasResponseUseCompletionObserver(action,ProgramCardContinuation.Dodge)||HasCardResponseCompletedObserver(action,ProgramCardContinuation.Dodge))ContinueAcceptedCardResponse(attack,action,ProgramCardContinuation.Dodge);else CompleteSuccessfulDodgeResponse(attack);
  }
- private static RoundOnceCardlessBasicUseReceipt? RoundOnceCardlessResponseReceipt(ResolutionFrame owner)=>owner switch{CardUseFrame use=>use.RoundOnceCardlessBasicResponse,ProgramSkillFrame program=>program.RoundOnceCardlessBasicResponse,_=>null};
+ private static RoundOnceCardlessBasicUseReceipt? RoundOnceCardlessResponseReceipt(ResolutionFrame owner) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RoundOnceCardlessNativeResponses.RoundOnceCardlessResponseReceipt(owner);
  private bool IsIssuedRoundOnceCardlessResponse(ResolutionFrame owner,CardActionContext action)
  {
   if(!IsIssuedRoundOnceCardlessBasicUse(RoundOnceCardlessResponseReceipt(owner),owner,action)||action.Type!=CardActionType.Response||action.TargetSeats.Count!=0||action.ActorSeat!=action.ResponderSeat)return false;

@@ -26,8 +26,7 @@ public sealed partial class GameEngine
                 item.Action.PhysicalCards.All(cost => cost.CardKind == item.Action.EffectiveKind));
 
     private static bool IsOtherLastHandLossTrigger(SkillProgramTrigger trigger) =>
-        trigger.Window == SkillProgramTriggerWindow.CardsMoved &&
-        trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerOtherLastHandLoss;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pan_shu_ol_PanShuPrograms.IsOtherLastHandLossTrigger(trigger);
 
     // 燕尔 candidates: a living character's last hand card leaving their hand
     // during their own play phase; the observing owner is decoupled from the
@@ -61,12 +60,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private static bool LostLastHandCard(CardMovementBatchContext batch, int sourceSeat)
-    {
-        var location = CardLocation.Hand(sourceSeat);
-        var count = batch.SourceCounts.FirstOrDefault(item => item.Location == location);
-        return count is not null && count.CountBefore > 0 && count.CountAfter == 0;
-    }
+    private static bool LostLastHandCard(CardMovementBatchContext batch, int sourceSeat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pan_shu_ol_PanShuPrograms.LostLastHandCard(batch,sourceSeat);
 
     private IReadOnlySet<SkillProgramCardCategory> CardIdsCategorySet(IReadOnlyList<int> cardIds)
     {

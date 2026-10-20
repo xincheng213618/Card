@@ -146,10 +146,8 @@ public sealed partial class GameEngine
                 ? fact.ActualTurnActorUseOrdinal : null;
     }
 
-    private static int ActualTurnSuitBit(Suit? suit) => suit switch
-    {
-        Suit.Spade => 1, Suit.Heart => 2, Suit.Club => 4, Suit.Diamond => 8, _ => 0
-    };
+    private static int ActualTurnSuitBit(Suit? suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CurrentTurnUseKinds.ActualTurnSuitBit(suit);
 
     private (int HandSuits, int Categories) CurrentTurnUseKinds(int actorSeat)
     {

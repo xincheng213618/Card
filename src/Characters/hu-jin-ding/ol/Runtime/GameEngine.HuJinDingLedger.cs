@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasQingyuanCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SelectQingyuanOpeningPartner);
-    private static CardConversionSource HuJinDingSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource HuJinDingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hu_jin_ding_ol_HuJinDingLedger.HuJinDingSource(f);
     private IEnumerable<QingyuanPartnerSelectedEvent> QingyuanPartners(int owner, string skill, string instance) => ProgramEventHistory<QingyuanPartnerSelectedEvent>()
         .Where(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.Source.SkillInstanceId == instance);
     private bool IsLiveQingyuanPartner(QingyuanPartnerSelectedEvent p) => _players[p.PartnerSeat].IsAlive && _players[p.Source.OwnerSeat].IsAlive &&
@@ -38,7 +39,8 @@ public sealed partial class GameEngine
             if (previous != count) AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(0, player.Seat, marker, count - previous, count, null, "skill-program.qingyuan.marker"));
         }
     }
-    private static bool IsQingyuanGainTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.TakeRandomQingyuanHandAfterGain }];
+    private static bool IsQingyuanGainTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hu_jin_ding_ol_HuJinDingLedger.IsQingyuanGainTrigger(t);
     private void CaptureQingyuanGainBatch(CardMovementBatchContext batch)
     {
         if (!HasQingyuanCapability || batch.TurnNumber < 1) return;

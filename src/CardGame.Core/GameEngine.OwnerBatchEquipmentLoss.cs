@@ -9,22 +9,9 @@ public sealed partial class GameEngine
         CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger,
-        IReadOnlyList<int> matchingIndexes)
-    {
-        if (!UsesOwnerBatchEquipmentLoss(trigger.Condition)) return facts;
-        if (trigger.Window != SkillProgramTriggerWindow.CardsMoved ||
-            trigger.MovementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch ||
-            trigger.MovementDiscardOnly || !trigger.SourceZones.Contains(CardZoneKind.Equipment))
-            throw new InvalidOperationException("Equipment-loss facts require an actual owner movement batch.");
-        var equipment = CardLocation.Equipment(candidate.OwnerSeat);
-        var count = matchingIndexes.Select(index => batch.Movements[index])
-            .Where(move => move.From == equipment && move.To != equipment)
-            .Select(move => move.CardId).Distinct().Count();
-        return facts with { MovedEquipmentCardCount = count };
-    }
+        IReadOnlyList<int> matchingIndexes) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OwnerBatchEquipmentLoss.CaptureOwnerBatchEquipmentLoss(facts,batch,candidate,trigger,matchingIndexes);
 
     private static bool UsesOwnerBatchEquipmentLoss(SkillProgramTriggerCondition condition) =>
-        condition.Left?.Kind == SkillProgramTriggerValueKind.MovedEquipmentCardCount ||
-        condition.Right?.Kind == SkillProgramTriggerValueKind.MovedEquipmentCardCount ||
-        condition.Children.Any(UsesOwnerBatchEquipmentLoss);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_OwnerBatchEquipmentLoss.UsesOwnerBatchEquipmentLoss(condition);
 }

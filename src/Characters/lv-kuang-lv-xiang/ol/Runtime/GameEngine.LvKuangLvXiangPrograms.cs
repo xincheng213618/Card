@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private const string LiehouReason="skill-program.liehou.hand-relay";
- private static CardConversionSource LvKuangLvXiangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource LvKuangLvXiangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lv_kuang_lv_xiang_ol_LvKuangLvXiangPrograms.LvKuangLvXiangSource(f);
  private bool LvKuangLvXiangCurrent(ProgramSkillFrame f)=>_winner==Winner.None&&_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  private bool LvKuangLvXiangActivationTargetAllowed(CharacterState target,SkillProgramActivation a,int ownerSeat)=>!ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.ResolveLiehouRangeHandRelay)||target.IsAlive&&target.Seat!=ownerSeat&&GetHand(target).Count>0&&IsWithinAttackRange(ownerSeat,target.Seat);
  private bool QigongOriginal(ProgramTriggerCandidate c,ProgramSkillWindowContext w,out CardUseFrame original,bool requireLivingTarget=true)
@@ -35,7 +36,8 @@ public sealed partial class GameEngine
    foreach(var choice in BuildOwnedCardPaymentChoices(f.Id,f.OwnerSeat,f.OwnerSeat,[CardZoneKind.Hand],OwnedCardMoveIntent.Transfer))result.Add(LvChoice(f,"give",$"give-{choice.Cards.Single()}-{p.Seat}","交给"+p.Name+"一张手牌",choice.Cards,[p.Seat],choice.Parameters));
   return Array.AsReadOnly(result.Select(PromptChoiceProjection.Freeze).ToArray());
  }
- private static int[] LvKuangLvXiangValidTargets(ProgramSkillFrame f,IReadOnlyList<PromptChoice> choices)=>f.LvKuangLvXiang is{Stage:"slash"}r?[r.Target]:choices.SelectMany(c=>c.Targets).Distinct().ToArray();
+ private static int[] LvKuangLvXiangValidTargets(ProgramSkillFrame f,IReadOnlyList<PromptChoice> choices) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_lv_kuang_lv_xiang_ol_LvKuangLvXiangPrograms.LvKuangLvXiangValidTargets(f,choices);
  private int LvChooser(ProgramSkillFrame f)=>f.LvKuangLvXiang!.Stage switch{"receive"=>f.LvKuangLvXiang.Target,"slash"=>f.LvKuangLvXiang.Actor,_=>f.OwnerSeat};
  private void PublishLvKuangLvXiang(ProgramSkillFrame f)
  {

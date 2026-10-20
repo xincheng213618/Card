@@ -4,7 +4,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string EquipmentDonationMoveReason = "program.all-equipment-donation.give";
-    private static string EquipmentDonationUsage(string id) => $"equipment-donation:{id}";
+    private static string EquipmentDonationUsage(string id) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_EquipmentDonationPrograms.EquipmentDonationUsage(id);
     private long EquipmentDonationSequence => _cardMovements.Count == 0 ? 0 : _cardMovements[^1].Sequence;
     private SkillProgramStepOutcome AwaitEquipmentDonationMovements(long frameId)
     {

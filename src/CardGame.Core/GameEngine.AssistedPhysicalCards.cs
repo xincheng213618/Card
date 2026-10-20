@@ -30,11 +30,7 @@ public sealed partial class GameEngine
     }
 
     private static bool AssistedChoicesEqual(IReadOnlyList<PromptChoice> actual, IReadOnlyList<PromptChoice> expected) =>
-        actual.Count == expected.Count && actual.Zip(expected).All(pair =>
-            pair.First.Id == pair.Second.Id && pair.First.Description == pair.Second.Description &&
-            pair.First.Cards.SequenceEqual(pair.Second.Cards) && pair.First.Targets.SequenceEqual(pair.Second.Targets) &&
-            pair.First.ContentIds.SequenceEqual(pair.Second.ContentIds) &&
-            pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_AssistedPhysicalCards.AssistedChoicesEqual(actual,expected);
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
         (HasPublicWuyouContributionPotential(_players[actorSeat]) || HasWeiwanUseDistance(_players[actorSeat], target, CardKind.Slash) || (HasBeifenPreUsePrivilege(_players[actorSeat]) || HasMouZhaJiangPreUsePrivilege(_players[actorSeat])) || HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash) || HasLiYiProspectiveWeaponSlashTarget(_players[actorSeat], target) || SlashKinds.Any(k=>HasSiruiSlashDistance(_players[actorSeat],k)))).Select(target => target.Seat).ToArray();

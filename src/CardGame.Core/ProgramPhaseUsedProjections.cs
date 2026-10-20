@@ -58,10 +58,8 @@ internal sealed class ProgramPhaseUsedProjections
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramPhaseUsedProjectionCatalog> PhaseUsedProjectionMetadata = new(() =>
-        ProgramPhaseUsedProjectionCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramPhaseUsedProjectionCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramPhaseUsedProjections? _phaseUsedProjections;
     private ProgramPhaseUsedProjections PhaseUsedProjections => _phaseUsedProjections ??= new(PhaseUsedProjectionMetadata.Value,
-        method => method.IsStatic ? method.CreateDelegate<Func<int, string, int, int>>() :
-            method.CreateDelegate<Func<int, string, int, int>>(this));
+        method => (Func<int, string, int, int>)BindRuntimeHandler(method, typeof(Func<int, string, int, int>)));
 }

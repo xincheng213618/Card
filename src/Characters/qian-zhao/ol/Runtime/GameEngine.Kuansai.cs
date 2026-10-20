@@ -14,7 +14,8 @@ public sealed partial class GameEngine
         { Action: { Type: CardActionType.Use } action } use && action.ActionId == c.CardActionId && action.EffectiveKind == use.CardKind &&
         !EquipmentCatalog.IsEquipment(use.CardKind) && _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w =>
             w.Id == context.ParentFrameId && w.ParentFrameId == use.Id && w.Action.ActionId == action.ActionId) ? use : null;
-    private static IReadOnlyList<int> KuansaiActualTargets(CardUseFrame use) => Array.AsReadOnly(use.Action!.EffectiveDesignatedTargetSeats.Distinct().ToArray());
+    private static IReadOnlyList<int> KuansaiActualTargets(CardUseFrame use) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_qian_zhao_ol_Kuansai.KuansaiActualTargets(use);
     private bool CanKuansaiRecover(int owner) => _players[owner].IsAlive && _players[owner].HasHpValue && _players[owner].Hp < _players[owner].MaxHp;
     private IReadOnlyList<Card> KuansaiGiftCards(int chooser, int owner) => chooser == owner || !_players[chooser].IsAlive || !_players[owner].IsAlive ? [] :
         Array.AsReadOnly(GetHand(_players[chooser]).Concat(GetEquipment(chooser)).Where(c => !c.IsGeneralWeapon &&

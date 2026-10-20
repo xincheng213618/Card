@@ -7,7 +7,8 @@ public sealed partial class GameEngine
     private const string WuYixianObtainReason = "skill-program.wu-guan-yu.yixian.obtain";
     private const string WuYixianDrawReason = "skill-program.wu-guan-yu.yixian.draw";
     private const string WuYixianUsage = "all-equipment";
-    private static CardConversionSource WuYixianSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuYixianSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guan_yu_wumiao_WuGuanYuYixian.WuYixianSource(f);
     [ProgramCapability]
     private sealed class WuYixianCapability(GameEngine engine) : IWuYixianHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame frame) => engine.BeginWuYixian(frame); }

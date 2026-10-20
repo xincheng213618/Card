@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string QiqinObtainReason = "skill-program.le-xiao-qiao.qiqin.obtain";
     private bool HasLeXiaoQiaoQiqinCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeQiqinInitialEntities);
-    private static CardConversionSource QiqinSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource QiqinSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiao_qiao_le_LeXiaoQiaoQiqin.QiqinSource(f);
     private bool HasQiqinEntityMark(int id) => HasLeXiaoQiaoQiqinCapability && ProgramEventHistory<QiqinInitialEntityMarkedEvent>().Any(e => e.CardId == id);
     private bool HasQiqinHandEntityMark(int owner, int id) => IsValidPlayerSeat(owner) &&
         _cardZones.GetLocation(id) == CardLocation.Hand(owner) && HasQiqinEntityMark(id);

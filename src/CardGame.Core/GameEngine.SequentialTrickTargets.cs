@@ -2,13 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool UsesSequentialTrickTargets(LegalActionKind kind) => kind is
-        LegalActionKind.DrawTwo or LegalActionKind.Dismantlement or LegalActionKind.Snatch or
-        LegalActionKind.WumiaoFlood or LegalActionKind.FireAttack or LegalActionKind.Duel or LegalActionKind.UnexpectedAssault or LegalActionKind.AllianceFeast or
-        LegalActionKind.SowBeans or LegalActionKind.TransplantWood or LegalActionKind.ReturnSoul or
-        LegalActionKind.StarShift or LegalActionKind.HandRedistribution or
-        LegalActionKind.SameBoat or LegalActionKind.StriveUpstream or LegalActionKind.AgainstCurrent or
-        LegalActionKind.StoreGrain or LegalActionKind.Reinforcements or LegalActionKind.UnitedEffort;
+    private static bool UsesSequentialTrickTargets(LegalActionKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SequentialTrickTargets.UsesSequentialTrickTargets(kind);
 
     private IReadOnlyList<int> FreezeSequentialTrickTarget(long frameId, IReadOnlyList<int> targets,
         LegalActionKind kind, int? firstTargetCardId, CardKind? requiredCardKind)

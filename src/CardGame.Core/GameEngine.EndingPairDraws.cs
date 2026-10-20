@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private long EndingPairSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private CardConversionSource EndingPairSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static string EndingPairRoundUsage(string state) => "ending-hand-divergence:" + state;
+    private static string EndingPairRoundUsage(string state) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_EndingPairDraws.EndingPairRoundUsage(state);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 770)]
     private bool CanRunEndingPair(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context) =>
         t.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) is not { } e ||

@@ -160,7 +160,8 @@ internal sealed class ProgramLegalityCatalog
         new($"Program legality '{method.DeclaringType?.Name}.{method.Name}' has an invalid registration or signature.");
 }
 
-internal sealed class ProgramLegalityRouter(ProgramLegalityCatalog catalog, object session)
+internal sealed class ProgramLegalityRouter(ProgramLegalityCatalog catalog, object session,
+    Func<MethodInfo, object?>? resolveTarget = null)
 {
     internal bool CanActivate(ProgramActivationLegalityPhase phase, ProgramActivationLegalityContext context) =>
         Evaluate(catalog.Activations(phase), context, context.Features);
@@ -177,7 +178,7 @@ internal sealed class ProgramLegalityRouter(ProgramLegalityCatalog catalog, obje
             var applies = gate.Operations.Count == 0;
             for (var operation = 0; !applies && operation < gate.Operations.Count; operation++)
                 applies = features.HasOperation(gate.Operations[operation]);
-            if (applies && !gate.Invoke(session, context)) return false;
+            if (applies && !gate.Invoke(resolveTarget is null ? session : resolveTarget(gate.Method), context)) return false;
         }
         return true;
     }

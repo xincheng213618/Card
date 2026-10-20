@@ -269,16 +269,11 @@ public sealed partial class GameEngine
     private static void AddFiniteContribution(
         ICollection<RuleQueryContribution> contributions,
         string sourceId,
-        int value)
-    {
-        if (value != 0)
-            contributions.Add(new FiniteRuleQueryContribution(sourceId, SkillRuleOperation.Add, value));
-    }
+        int value) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RuleQueries.AddFiniteContribution(contributions,sourceId,value);
 
     private static int ConvertRuleValue(RuleQueryEvaluation evaluation) =>
-        evaluation.Value is UnlimitedRuleQueryValue
-            ? int.MaxValue
-            : ((FiniteRuleQueryValue)evaluation.Value).Value;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RuleQueries.ConvertRuleValue(evaluation);
 
     private int GetSlashUseLimit(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
         ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot));

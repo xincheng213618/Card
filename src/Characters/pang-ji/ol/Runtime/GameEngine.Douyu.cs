@@ -7,8 +7,10 @@ public sealed partial class GameEngine
     private const string DouyuDrawReason = "skill-program.pang-ji.douyu.draw";
     private bool HasDouyuCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveDouyuPreRevealSwapAndWinDraw);
-    private static CardConversionSource DouyuSource(ProgramTriggerCandidate c) => new(c.SkillId, c.BindingId, c.OwnerSeat, c.SkillInstanceId);
-    private static CardConversionSource DouyuSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource DouyuSource(ProgramTriggerCandidate c) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pang_ji_ol_Douyu.DouyuSource(c);
+    private static CardConversionSource DouyuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_pang_ji_ol_Douyu.DouyuSource(f);
     private ResolutionFrame DouyuParent(long id) => _resolutionStack.Single(f => f.Id == id &&
         (f is PindianFrame || f is ProgramSkillFrame { SimultaneousPindian: not null }));
 

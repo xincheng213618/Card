@@ -2,10 +2,9 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private bool IsBuZhiActivation(SkillProgramActivation a)=>
-        ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.ResolveRebelCountEquipmentChoice);
-    private int? BuZhiPhaseLimit(CharacterState owner,SkillProgramActivation a)=>IsBuZhiActivation(a)?_players.Count(p=>p.IsAlive && p.Role==Role.Rebel):a.UsesPerPhase;
-    private bool BuZhiActivationTargetAllowed(CharacterState target,SkillProgramActivation a)=>!IsBuZhiActivation(a) || target.IsAlive && GetEquipment(target).Count>0;
+    private bool IsBuZhiActivation(SkillProgramActivation a)=>DingpanRuntime.IsActivation(a);
+    private int? BuZhiPhaseLimit(CharacterState owner,SkillProgramActivation a)=>DingpanRuntime.PhaseLimit(a,ProgramSelectionQueries);
+    private bool BuZhiActivationTargetAllowed(CharacterState target,SkillProgramActivation a)=>DingpanRuntime.AllowsTarget(target.Seat,a,ProgramSelectionQueries);
     private bool BuZhiPaidEquipmentEntitlement(ProgramSkillFrame f)=>f.BuZhi is{BatchId:null,Target:{}target} &&
         IsValidPlayerSeat(target) && _players[target].IsAlive && ValidBuZhi(f) &&
         CompleteProgramEventHistory().OfType<BuZhiMovementPaidEvent>().Count(e=>e.FrameId==f.Id && e.Target==target && e.ReturnStage=="branch" && e.CardIds.Count==0)==1;

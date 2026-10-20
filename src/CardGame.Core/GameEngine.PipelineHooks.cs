@@ -4,11 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    // Scans the same partial-class surface as the rule observers: character
-    // Runtime files are compiled into this assembly and register themselves.
+    // Legacy engine handlers and explicit independent modules share the same
+    // immutable discovery surface; phase/order still belongs to each handler.
     private static readonly Lazy<ProgramPipelineHookCatalog> ProgramPipelineHookRegistrations = new(
         () => ProgramPipelineHookCatalog.Discover(
-            typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)),
+            RuntimeModuleMethods),
         true);
     private readonly ProgramPipelineHooks _programPipelineHooks;
 }

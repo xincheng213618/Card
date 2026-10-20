@@ -90,13 +90,8 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("An issued extra effect lacks its original native effect continuation.");
     }
-    private static CardAttackState ResetExtraCardEffectAttack(CardAttackState original) => original with {
-        Active = true, CixiongDoubleSwordsResolved = true, DamageWasApplied = false, DamageAmountFinalized = false,
-        BeforeDamageProgramsResolved = false, ResolvedDyingDamageFrameId = null, ChainedTargetSeats = [], ChainedTargetIndex = 0,
-        IsChainPropagation = false, SuccessfulDodgeResponses = 0, IceSwordAttempted = false, QilinBowAttempted = false,
-        FactionDefenseAttempted = false, FactionSlashAttempted = false, DamageRedirected = false, RecipientDamageScope = null,
-        DamageTransferFollowup = null
-    };
+    private static CardAttackState ResetExtraCardEffectAttack(CardAttackState original) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ExtraCardEffectRounds.ResetExtraCardEffectAttack(original);
     private bool ContinueExtraCardEffectFangtian(CardAttackHandle attack)
     {
         if (ContinueSoleIncomingFangtian(attack)) return true;

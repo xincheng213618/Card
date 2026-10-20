@@ -9,7 +9,8 @@ public sealed partial class GameEngine
         var consumer=_players[seat].SkillGrants.Grants.FirstOrDefault(g=>g.SkillInstanceId==consumerInstance);
         return ReferencedPublicPileSources(seat,sourceSkill,consumerInstance).Where(s=>s.SkillInstanceId==consumerInstance || consumer is not null && _players[seat].SkillGrants.Grants.Any(g=>g.SkillId==s.SkillId&&g.SkillInstanceId==s.SkillInstanceId&&g.SourceId==consumer.SourceId)).Where(s=>PublicPileCards(s).Count==1);
     }
-    private static bool? SuitColor(Suit? suit)=>suit is Suit.Heart or Suit.Diamond ? true : suit is Suit.Club or Suit.Spade ? false : null;
+    private static bool? SuitColor(Suit? suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPileColors.SuitColor(suit);
     private bool? PileColor(PublicPersistentPileSource s)=>SuitColor(EffectiveSuit(_players[s.OwnerSeat],PublicPileCards(s).Single()));
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 120)]
     private bool CanActivatePublicPileColor(CharacterState owner,string skill,ProgramInstructionFeatures features)

@@ -166,7 +166,7 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramEffect? NextActualUseSelectedProducer(ProgramExecutionPlan plan) =>
-        AdjustedUseSelection.Producer(plan);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NextActualUseTargetAdjustments.NextActualUseSelectedProducer(plan);
 
 
 

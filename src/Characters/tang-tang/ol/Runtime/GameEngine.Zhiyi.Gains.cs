@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasTangTangZhiyi => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZhiyiGainColorBenefit) == true;
-    private static bool IsTangTangZhiyiTrigger(SkillProgramTrigger t) => t.Effects is [{ Op: SkillProgramEffectOp.ResolveZhiyiGainColorBenefit }];
+    private static bool IsTangTangZhiyiTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_tang_tang_ol_Zhiyi_Gains.IsTangTangZhiyiTrigger(t);
     private bool ZhiyiAvailable(int owner) => !ProgramEventHistory<ZhiyiOpportunityPaidEvent>().Any(e => e.OwnerSeat == owner && e.ActualTurn == _turnNumber && e.TurnOwner == _turnProgression.OwnerSeat);
     private IEnumerable<ProgramTriggerCandidate> CollectTangTangZhiyiCandidates(CardMovementBatchContext batch) => batch.TangTangGains is not { Count: > 0 } gains ? [] :
         gains.GroupBy(g => g.OwnerSeat).Where(g => _players[g.Key].IsAlive && ZhiyiAvailable(g.Key)).SelectMany(g => CollectProgramTriggerCandidates(_players[g.Key], SkillProgramTriggerWindow.CardsMoved)

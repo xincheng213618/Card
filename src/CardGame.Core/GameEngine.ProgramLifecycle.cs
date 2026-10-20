@@ -5,14 +5,13 @@ public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramInteractionCatalog> ProgramInteractionMetadata = new(() =>
         ProgramInteractionCatalog.Discover(
-            typeof(GameEngine).GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static |
-                System.Reflection.BindingFlags.NonPublic)
+            RuntimeModuleMethods
                 .Concat(typeof(ProgramAiChoiceSelector).GetMethods(
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))), true);
     private ProgramInteractionRouter? _programInteractions;
     private ProgramInteractionRouter ProgramInteractions => _programInteractions ??= new(
         ProgramInteractionMetadata.Value,
-        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this),
+        BindRuntimeHandler,
         ResolveProgramActivationChoice);
 
     [ProgramAnswerBefore(1)]
@@ -210,7 +209,7 @@ public sealed partial class GameEngine
     }
 
     private static string GetProgramBindingId(ProgramSkillFrame frame) =>
-        frame.TriggerId ?? frame.ActivationId;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramLifecycle.GetProgramBindingId(frame);
 
     private void SetProgramCardSet(
         long frameId,
@@ -1951,16 +1950,8 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.Continue;
     }
 
-    private static IEnumerable<int[]> EnumerateProgramCardOrders(IReadOnlyList<int> ids)
-    {
-        if (ids.Count == 0) { yield return []; yield break; }
-        for (var index = 0; index < ids.Count; index++)
-        {
-            var rest = ids.Where((_, current) => current != index).ToArray();
-            foreach (var suffix in EnumerateProgramCardOrders(rest))
-                yield return [ids[index], .. suffix];
-        }
-    }
+    private static IEnumerable<int[]> EnumerateProgramCardOrders(IReadOnlyList<int> ids) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramLifecycle.EnumerateProgramCardOrders(ids);
 
     [ProgramViewContributor(ProgramViewContribution.ProgramPublicCards, 10)]
     private IReadOnlyList<CardSnapshot> GetProgramPublicCards()
@@ -3087,22 +3078,11 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private static bool MatchesPlayEndingTurnOwnerScope(SkillProgramTurnOwnerScope scope, bool ownSeat) => scope switch
-    {
-        SkillProgramTurnOwnerScope.Own => ownSeat,
-        // AnyLiving collects the trigger once for its owner and lets the shared
-        // PlayEnding eligibility accept both the own and the foreign phase end.
-        SkillProgramTurnOwnerScope.AnyLiving => true,
-        _ => !ownSeat,
-    };
+    private static bool MatchesPlayEndingTurnOwnerScope(SkillProgramTurnOwnerScope scope, bool ownSeat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramLifecycle.MatchesPlayEndingTurnOwnerScope(scope,ownSeat);
 
     private static bool IsGuanduForeignDrawTrigger(SkillProgramTrigger trigger) =>
-        trigger.Window == SkillProgramTriggerWindow.DrawPhaseStarting && trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
-        trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional && trigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Additive &&
-        trigger.Condition.Kind == SkillProgramTriggerConditionKind.Always && trigger.UsageScope is null && trigger.UsageLimit is null &&
-        trigger.ChoiceGroup is null && trigger.Effects is
-            [{ Op: SkillProgramEffectOp.ResolveGuanduJieliang, Target: SkillProgramEffectTarget.Owner,
-                TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramLifecycle.IsGuanduForeignDrawTrigger(trigger);
 
     private IReadOnlyList<ProgramTriggerCandidate> IncludeGuanduForeignDrawObservers(CharacterState subject,
         IReadOnlyList<ProgramTriggerCandidate> existing, out IReadOnlyDictionary<int, SkillProgramTriggerFacts>? participants)
@@ -4884,7 +4864,7 @@ public sealed partial class GameEngine
                 .ToArray();
 
     private static string SelfDyingBindingKey(string skillId, string bindingId, string skillInstanceId) =>
-        $"{skillId}\u001f{bindingId}\u001f{skillInstanceId}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramLifecycle.SelfDyingBindingKey(skillId,bindingId,skillInstanceId);
 
     private bool TryBeginMandatorySelfDyingProgram(DyingFrame dying)
     {

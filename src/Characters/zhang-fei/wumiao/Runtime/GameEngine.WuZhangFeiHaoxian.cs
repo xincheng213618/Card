@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string WuHaoxianBinding = "collect-rank-three";
     private const string WuHaoxianRecycleReason = "skill-program.wumiao-zhang-fei.haoxian.recycle";
     private const string WuHaoxianObtainReason = "skill-program.wumiao-zhang-fei.haoxian.obtain";
-    private static CardConversionSource WuHaoxianSource(ProgramSkillFrame f) => new(f.SkillId, f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource WuHaoxianSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_fei_wumiao_WuZhangFeiHaoxian.WuHaoxianSource(f);
     [ProgramCapability]
     private sealed class WuZhangFeiHaoxianCapability(GameEngine engine) : IWuZhangFeiHaoxianHost
     { public SkillProgramStepOutcome ResolveHaoxian(ProgramSkillFrame frame) => engine.BeginWuHaoxian(frame); }

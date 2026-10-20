@@ -2,10 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static bool WeiwanDeclarationIsTrueUse(CardDeclarationParentReturn parent) => parent.Purpose is
-        CardDeclarationPurpose.Use or CardDeclarationPurpose.Dodge or CardDeclarationPurpose.Counterspell or
-        CardDeclarationPurpose.Recovery or CardDeclarationPurpose.BorrowedSword or CardDeclarationPurpose.ProvidedSlash or
-        CardDeclarationPurpose.BorrowedSwordProvidedSlash or CardDeclarationPurpose.QinglongProvidedSlash;
+    private static bool WeiwanDeclarationIsTrueUse(CardDeclarationParentReturn parent) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiao_qiao_le_LeXiaoQiaoWeiwan_UsePolicies.WeiwanDeclarationIsTrueUse(parent);
     private bool ValidWeiwanLease(WeiwanTurnLease lease)
     {
         if (lease.Source.SkillId != "le:weiwan" || lease.Source.BindingId != "discard-qin-obtain-suits" ||

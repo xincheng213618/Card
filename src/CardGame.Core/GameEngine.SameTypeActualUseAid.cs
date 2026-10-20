@@ -8,11 +8,10 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget);
     // 2018 official-site community tutorial is auxiliary classification evidence.
     // This is an opt-in engineering interpretation, not a new global card category.
-    private static bool IsSameTypeAidEffectiveCard(CardKind kind) => IsSlashCard(kind) ||
-        kind is CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage;
+    private static bool IsSameTypeAidEffectiveCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SameTypeActualUseAid.IsSameTypeAidEffectiveCard(kind);
     private static bool IsSameTypeAidCard(CardKind paid, CardKind effective) =>
-        CardCatalog.Get(paid).CategoryName == CardCatalog.Get(effective).CategoryName &&
-        ProgramBasicCardName(paid) != ProgramBasicCardName(effective);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SameTypeActualUseAid.IsSameTypeAidCard(paid,effective);
     private CardConversionSource SameTypeAidSource(ProgramSkillFrame f) =>
         new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
 

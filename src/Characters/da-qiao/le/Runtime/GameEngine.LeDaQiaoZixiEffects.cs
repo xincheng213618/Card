@@ -14,8 +14,10 @@ public sealed partial class GameEngine
     private const string ZixiEffectsDrawReason = "skill-program.le-da-qiao.zixi.draw";
     private const string ZixiEffectsObtainReason = "skill-program.le-da-qiao.zixi.obtain";
     private bool HasZixiEffectsCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects);
-    private static CardConversionSource ZixiEffectsSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static bool ZixiEffectsKind(CardKind kind) => GetProgramCardCategory(kind) == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind);
+    private static CardConversionSource ZixiEffectsSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_le_LeDaQiaoZixiEffects.ZixiEffectsSource(f);
+    private static bool ZixiEffectsKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_le_LeDaQiaoZixiEffects.ZixiEffectsKind(kind);
     private IReadOnlyList<Card> ZixiJudgmentAreaCards(int target)
     {
         // Native judgment results temporarily share the physical Judgment zone,

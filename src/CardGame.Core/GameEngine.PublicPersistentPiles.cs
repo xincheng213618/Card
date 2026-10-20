@@ -63,7 +63,8 @@ public sealed partial class GameEngine
         return trigger.Condition.Evaluate(facts with { PublicPersistentPileCounts = null, OwnedZoneCounts = facts.OwnedZoneCounts with { PublicPersistentPile = count } }, frame.SkillId, frame.SkillInstanceId);
     }
 
-    private static string PublicPileCardLabel(Card card) => card.DisplayName + " " + GetSuitDisplayName(card.Suit) + card.RankText;
+    private static string PublicPileCardLabel(Card card) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPersistentPiles.PublicPileCardLabel(card);
 
     private void PublishPublicPileChoice(ProgramSkillFrame frame)
     {

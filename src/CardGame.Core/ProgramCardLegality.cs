@@ -206,11 +206,10 @@ internal sealed class ProgramCardLegality
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramCardLegalityCatalog> CardLegalityMetadata = new(() =>
-        ProgramCardLegalityCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramCardLegalityCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramCardLegality? _cardLegality;
     private ProgramCardLegality CardLegality => _cardLegality ??= new(CardLegalityMetadata.Value,
-        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 
     private bool IsProgramMaterialUseForbidden(int actorSeat, CardKind kind, IEnumerable<int> cardIds, bool response = false) =>
         CardLegality.IsMaterialForbidden(new(actorSeat, kind, cardIds, response));

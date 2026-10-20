@@ -113,9 +113,8 @@ internal sealed class ProgramTargetWindowProtocols
 public sealed partial class GameEngine
 {
     private static readonly Lazy<ProgramTargetWindowCatalog> TargetWindowMetadata = new(() =>
-        ProgramTargetWindowCatalog.Discover(typeof(GameEngine).GetMethods(
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic)), true);
+        ProgramTargetWindowCatalog.Discover(RuntimeModuleMethods), true);
     private ProgramTargetWindowProtocols? _targetWindowProtocols;
     private ProgramTargetWindowProtocols TargetWindowProtocols => _targetWindowProtocols ??= new(TargetWindowMetadata.Value,
-        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this));
+        BindRuntimeHandler);
 }

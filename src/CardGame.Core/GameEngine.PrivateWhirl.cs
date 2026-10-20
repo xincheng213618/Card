@@ -6,8 +6,10 @@ public sealed partial class GameEngine
     // entity, pending cost or continuation. Ordinary matches never scan its history.
     private bool _hasIssuedPrivateWhirl;
     private bool HasPrivateWhirlCapability => _hasIssuedPrivateWhirl;
-    private static CardConversionSource WhirlSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
-    private static CardLocation WhirlLocation(CardConversionSource source) => new(CardZoneKind.PrivatePersistentPile, source.OwnerSeat, $"private-whirl:{source.SkillId}:{source.SkillInstanceId}");
+    private static CardConversionSource WhirlSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PrivateWhirl.WhirlSource(f);
+    private static CardLocation WhirlLocation(CardConversionSource source) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PrivateWhirl.WhirlLocation(source);
     private PrivateWhirlDeposit[] LiveWhirl(int owner, string? skill = null, string? instance = null)
     {
         if (!HasPrivateWhirlCapability || !_cardZones.HasPrivatePersistentCards(owner)) return [];

@@ -28,7 +28,8 @@ public sealed partial class GameEngine
     }
     private bool FriendXuanjianIgnoresDistance(CharacterState owner, CardConversionSource? source) => source?.SkillId == "equipment:xuanjian" &&
         HasRuntimeSkill(owner, "friend:gongli-xu-shu") && HasFriendTrioAlly(owner, "pang-tong");
-    private static bool IsFriendTrioOperation(SkillProgramEffectOp op) => op is >= SkillProgramEffectOp.BeginFriendPrediction and <= SkillProgramEffectOp.GainFriendCategoryMark;
+    private static bool IsFriendTrioOperation(SkillProgramEffectOp op) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FriendTrio.IsFriendTrioOperation(op);
     private PlayerMarkerKind FriendCategoryMarker(CardKind kind) => EquipmentCatalog.IsEquipment(kind) ? PlayerMarkerKind.QihuiEquipment :
         MatchesProgramCardCategory(kind, [SkillProgramCardCategory.Basic]) ? PlayerMarkerKind.QihuiBasic : PlayerMarkerKind.QihuiTrick;
     private bool IsFriendActualCardUse(CardActionContext? action) => action is not null &&
@@ -133,8 +134,8 @@ public sealed partial class GameEngine
     }
     private string FriendCategoryValue(CardKind kind) => FriendCategoryMarker(kind) switch
     { PlayerMarkerKind.QihuiBasic => "basic", PlayerMarkerKind.QihuiEquipment => "equipment", _ => "trick" };
-    private static string FriendValueLabel(string v) => v switch
-    { "basic" => "基本牌", "trick" => "锦囊牌", "equipment" => "装备牌", "red" => "红色", "black" => "黑色", _ => v };
+    private static string FriendValueLabel(string v) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_FriendTrio.FriendValueLabel(v);
     private int FriendPredictionCount(ProgramSkillFrame f) => Math.Clamp(_friendPredictionCounts.GetValueOrDefault((f.OwnerSeat, f.SkillInstanceId), 3) +
         (HasRuntimeSkill(_players[f.OwnerSeat], "friend:gongli-zhuge-liang") && HasFriendTrioAlly(_players[f.OwnerSeat], "pang-tong") ? 1 : 0), 1, 7);
     private IReadOnlyList<PromptChoice> FriendTrioChoices(ProgramSkillFrame f)

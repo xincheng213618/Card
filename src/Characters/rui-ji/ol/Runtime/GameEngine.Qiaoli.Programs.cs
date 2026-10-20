@@ -48,16 +48,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new IssuedCardNoResponseEvent(issued));
     }
 
-    private static int QiaoliWeaponRange(IReadOnlyList<Card> physicalCards)
-    {
-        foreach (var card in physicalCards)
-        {
-            if (!EquipmentCatalog.IsEquipment(card.Kind)) continue;
-            var definition = EquipmentCatalog.Get(card.Kind);
-            if (definition.Slot == EquipmentSlot.Weapon) return definition.WeaponAttackRange ?? 1;
-        }
-        return 1;
-    }
+    private static int QiaoliWeaponRange(IReadOnlyList<Card> physicalCards) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_rui_ji_ol_Qiaoli_Programs.QiaoliWeaponRange(physicalCards);
 
     // 巧力 first-option payoff: only the skill-committed Duel damaging its
     // designated target without chain propagation counts.

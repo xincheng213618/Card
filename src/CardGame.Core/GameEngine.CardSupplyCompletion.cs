@@ -36,20 +36,10 @@ public sealed partial class GameEngine
         PushRuntimeFrame(window); AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>(); return true;
     }
 
-    private static CardActionContext CardSupplyCompletionActorAction(ProgramCardTriggerWindowFrame window)
-    {
-        var a = window.Action; var r = window.CardSupplyCompletion!;
-        // This trusted observer projection remains a Use. It is not a new accepted
-        // response and does not change who owns the underlying Slash's Use.
-        return new(a.ActionId, a.ParentActionId, a.Type, r.ProviderSeat, r.ProviderSeat, a.RequesterSeat, a.ResponderSeat,
-            a.OpponentSeat, a.EffectiveKind, a.TargetSeats, a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats,
-            a.EffectiveSuit, a.EffectiveRank, a.EffectiveIsRed, a.FactionOrigin);
-    }
-    private static CardSupplyCompletedEvent CardSupplyCompletionFact(ProgramCardTriggerWindowFrame window)
-    {
-        var r = window.CardSupplyCompletion!;
-        return new(window.Id, r.ActionId, r.ParentFrameId, r.RequesterSeat, r.ProviderSeat, r.EffectiveKind, r.ActualTurnNumber, r.ActualTurnOwnerSeat);
-    }
+    private static CardActionContext CardSupplyCompletionActorAction(ProgramCardTriggerWindowFrame window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardSupplyCompletion.CardSupplyCompletionActorAction(window);
+    private static CardSupplyCompletedEvent CardSupplyCompletionFact(ProgramCardTriggerWindowFrame window) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardSupplyCompletion.CardSupplyCompletionFact(window);
     private bool IsCardSupplyCompletionCostPaid(ProgramCardTriggerWindowFrame window, CardActionCost cost) =>
         window.CardSupplyCompletion is { } r && window.Action.PhysicalCards.Contains(cost) && r.NativeCosts.Where(m => m.CardId == cost.CardId).ToArray() is [var moved] &&
         IsCardSupplyCompletionEntry(window.Action, r.ParentFrameId, r.RequestOwnerFrameId, cost, moved);

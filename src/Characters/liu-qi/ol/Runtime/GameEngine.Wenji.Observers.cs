@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private static string WenjiName(CardKind kind)=>CardCatalog.Get(kind).DisplayName;
+ private static string WenjiName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_qi_ol_Wenji_Observers.WenjiName(kind);
  private bool IsWenjiResponseForbidden(CardActionContext originalUse,int responderSeat)
  {
   if(!_hasIssuedLiuQi||originalUse.Type!=CardActionType.Use||!IsValidPlayerSeat(originalUse.ActorSeat)||responderSeat==originalUse.ActorSeat||originalUse.ActorSeat!=_currentSeat||_turnNumber<1)return false;

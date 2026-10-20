@@ -84,7 +84,8 @@ public sealed partial class GameEngine
         : GetHand(_players[seat]).Concat(GetEquipment(_players[seat]))).ToArray();
     private Card[] GuanduDiscardable(int chooser, int owner) => GuanduOwnedCards(owner).Where(c =>
         !IsSelfHandCategoryDiscardForbidden(owner, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).ToArray();
-    private static IReadOnlyList<int> FreezeGuanduSeats(IEnumerable<int> seats) => Array.AsReadOnly(seats.ToArray());
+    private static IReadOnlyList<int> FreezeGuanduSeats(IEnumerable<int> seats) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduGenerals.FreezeGuanduSeats(seats);
 
     private SkillProgramStepOutcome BeginGuanduGeneral(ProgramSkillFrame supplied, SkillProgramEffectOp operation)
     {

@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private readonly Dictionary<(int Owner, string Skill, string Instance), PublicPersistentPileSource> _publicPersistentPiles = [];
     private bool SupportsMultiplePublicPiles => HasMouGuoHuaiMobile || HasMouGanNingMobile || HasMouXiahouDunCapability || HasLiFengCapability || HasGuanHaiCapability || _contentRegistry.ProgramDependencies.UsesOwnPublicPileConversions || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing) || RiceCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.PlaceBoundHandAsCategoryTalisman) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreNonBasicOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreArbitraryOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundHandInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundCardsInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CashOutPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeXingGuMountPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveXingwuDepositAndBurst) || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveBaoXinMutao);
-    private static string PublicPileIdentity(string skill, string instance) => $"{skill.Length}:{skill}{instance.Length}:{instance}";
+    private static string PublicPileIdentity(string skill, string instance) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPileSources.PublicPileIdentity(skill,instance);
     private IEnumerable<PublicPersistentPileSource> PublicPileSources(int seat) => _publicPersistentPiles.Values.Where(s => s.OwnerSeat == seat);
     private PublicPersistentPileSource? SinglePublicPileSource(int seat)
     {
@@ -18,7 +19,8 @@ public sealed partial class GameEngine
         }
         return single;
     }
-    private static CardLocation PublicPileLocation(int seat) => new(CardZoneKind.PublicPersistentPile, seat);
+    private static CardLocation PublicPileLocation(int seat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PublicPileSources.PublicPileLocation(seat);
     private IReadOnlyList<Card> PublicPileCards(PublicPersistentPileSource source) => _cardZones.CardsAt(source.Location);
     // Legacy scalar view is populated only when it can describe exactly one source.
     private IReadOnlyList<Card> PublicPileCards(int seat) => SinglePublicPileSource(seat) is { } source ? PublicPileCards(source) : [];

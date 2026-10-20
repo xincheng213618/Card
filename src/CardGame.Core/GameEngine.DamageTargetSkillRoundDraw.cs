@@ -3,8 +3,10 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly CardMoveReason DamageTargetSkillRoundDrawReason = new("program.damage-target-skill.round-draw");
-    private static ProgramSkillGrantIdentity RoundSkillIdentity(SkillGrant grant) => new(grant.GrantId, grant.SkillId, grant.SkillInstanceId, grant.SourceId);
-    private static bool SameRoundSkillIdentity(SkillGrant grant, ProgramSkillGrantIdentity identity) => RoundSkillIdentity(grant) == identity;
+    private static ProgramSkillGrantIdentity RoundSkillIdentity(SkillGrant grant) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetSkillRoundDraw.RoundSkillIdentity(grant);
+    private static bool SameRoundSkillIdentity(SkillGrant grant, ProgramSkillGrantIdentity identity) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetSkillRoundDraw.SameRoundSkillIdentity(grant,identity);
     private IEnumerable<SkillGrant> OwnedAndRestorableRoundSkillGrants(CharacterState owner, string skillId)
     {
         foreach (var grant in owner.SkillGrants.Grants.Where(g => g.SkillId == skillId)) yield return grant;

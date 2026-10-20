@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string MiuyanGainReason="skill-program.wang-guan.miuyan.gain",ShiluDrawReason="skill-program.wang-guan.shilu.draw",ShiluRevealBind="shilu-public-hand";
-    private static CardConversionSource WangGuanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource WangGuanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_guan_ol_WangGuan.WangGuanSource(f);
     [ProgramCapability] private sealed class WangGuanCapability(GameEngine e):IWangGuanHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginWangGuan(f,op); }
     private SkillProgramStepOutcome BeginWangGuan(ProgramSkillFrame input,SkillProgramEffectOp op)

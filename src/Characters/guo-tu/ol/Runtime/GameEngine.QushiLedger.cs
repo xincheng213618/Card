@@ -3,7 +3,8 @@ public sealed partial class GameEngine
 {
     private bool HasQushiCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal);
     private const string QushiDrawReason="skill-program.guo-tu.qushi.draw",QushiSealReason="skill-program.guo-tu.qushi.seal",QushiRemoveReason="skill-program.guo-tu.qushi.remove",QushiDeathReason="skill-program.guo-tu.qushi.holder-death";
-    private static CardConversionSource QushiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource QushiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_QushiLedger.QushiSource(f);
     private bool ValidQushiSeal(QushiSeal s)=>s.Source.SkillId=="ol:qushi"&&s.Source.BindingId=="draw-seal"&&IsValidPlayerSeat(s.HolderSeat)&&s.HolderSeat!=s.Source.OwnerSeat&&s.Location==new CardLocation(CardZoneKind.PrivatePersistentPile,s.HolderSeat,$"qushi:{s.SealId}")&&_contentRegistry.GetSkill(s.Source.SkillId).Program?.GameplayHash==s.GameplayHash&&ProgramEventHistory<QushiStartedEvent>().Count(e=>e.FrameId==s.SealId&&e.Source==s.Source&&e.GameplayHash==s.GameplayHash&&e.Op==SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal)==1&&_cardMovements.Count(m=>m.Sequence==s.MovementSequence&&m.CardId==s.CardId&&m.CardKind==s.PrintedKind&&m.From==CardLocation.Hand(s.Source.OwnerSeat)&&m.To==s.Location&&m.Reason.Value==QushiSealReason)==1;
     private QushiSeal[] LiveQushiSeals()=>!HasQushiCapability?[]:ProgramEventHistory<QushiSealPlacedEvent>().Select(e=>e.Seal).Where(s=>ValidQushiSeal(s)&&!ProgramEventHistory<QushiSealRemovedEvent>().Any(e=>e.SealId==s.SealId)&&_cardZones.GetLocation(s.CardId)==s.Location).ToArray();
     private IReadOnlyList<NamedAmbushPileSnapshot>? ProjectQushiSeals(int holderSeat,int viewerSeat,bool revealAll)

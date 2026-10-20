@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private static CardMoveReason SoleIncomingRangeDrawReason(SoleIncomingEffectGrant grant) => new($"skill-program.{grant.Source.SkillId}.sole-incoming-range.draw");
+    private static CardMoveReason SoleIncomingRangeDrawReason(SoleIncomingEffectGrant grant) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_SoleIncomingRangeDraw.SoleIncomingRangeDrawReason(grant);
     private bool TryBeginSoleIncomingAttackRangeDraw(CardAttackHandle attack)
     {
         if (LifecycleCardUse(attack.ResolutionId) is not { SoleIncomingEffects: { } rounds } use || rounds.DrawIndex >= rounds.Grants.Count)

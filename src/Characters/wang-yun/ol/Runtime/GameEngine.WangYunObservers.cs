@@ -1,9 +1,8 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static bool WangYunOriginsEqual(WangYunNativeUseOrigin a,WangYunNativeUseOrigin b)=>a.ProgramFrameId==b.ProgramFrameId && a.InstructionIndex==b.InstructionIndex && a.Source==b.Source &&
-        a.GameplayHash==b.GameplayHash && a.Turn==b.Turn && a.PhaseInstance==b.PhaseInstance && a.Kind==b.Kind && a.UseId==b.UseId && a.ActionId==b.ActionId && a.Actor==b.Actor &&
-        a.OutputKind==b.OutputKind && a.Before==b.Before && a.After==b.After && a.PaymentCompleted==b.PaymentCompleted && a.RoundOncePayment==b.RoundOncePayment && a.Materials.SequenceEqual(b.Materials) && a.Targets.SequenceEqual(b.Targets);
+    private static bool WangYunOriginsEqual(WangYunNativeUseOrigin a,WangYunNativeUseOrigin b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_yun_ol_WangYunObservers.WangYunOriginsEqual(a,b);
     private void BindWangYunNativeUse(long useId)
     {
         if(!HasWangYunPlanCapability && !HasWangYunTrickCapability)return;

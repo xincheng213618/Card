@@ -8,8 +8,10 @@ public sealed partial class GameEngine
  [ProgramCapability]private sealed class WeijieCapability(GameEngine e):IWeijieHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f)=>e.ResolveWeijie(f);}
  [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount,27462,SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest)]
  private bool IsWeijieOrdinaryActivation(ProgramActivationLegalityContext context)=>false;
- private static string WeijieDecisionHash(PendingDecision p)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(p))));
- private static bool SameWeijieNeed(WeijieNeed a,WeijieNeed b)=>JsonSerializer.Serialize(a)==JsonSerializer.Serialize(b);
+ private static string WeijieDecisionHash(PendingDecision p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_Weijie.WeijieDecisionHash(p);
+ private static bool SameWeijieNeed(WeijieNeed a,WeijieNeed b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_Weijie.SameWeijieNeed(a,b);
  private bool IsWeijieAnswer(ChoiceId id)=>_pendingDecision?.Choices.Any(c=>c.Id==id&&(c.Parameters.ContainsKey(WeijieOpen)||c.Parameters.ContainsKey(WeijieChoice)))==true;
  private CommandResult SubmitWeijieAnswer(int actor,PromptId prompt,ChoiceId id)
  {

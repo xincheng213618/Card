@@ -4,13 +4,8 @@ public sealed partial class GameEngine
 {
     private static readonly IReadOnlySet<CardKind> DragonBoatTraditionalBasicKinds = new HashSet<CardKind>
         { CardKind.Slash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol };
-    private static string DragonBoatBasicViewAsFamily(SkillProgramViewAs rule)
-    {
-        var node = System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(rule))!.AsObject();
-        foreach (var name in new[] { nameof(SkillProgramViewAs.Id), nameof(SkillProgramViewAs.OutputKind),
-            nameof(SkillProgramViewAs.ForPlay), nameof(SkillProgramViewAs.ForResponse) }) node.Remove(name);
-        return node.ToJsonString();
-    }
+    private static string DragonBoatBasicViewAsFamily(SkillProgramViewAs rule) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DragonBoatBasicConversions.DragonBoatBasicViewAsFamily(rule);
 
     [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 43000)]
     private void AddDragonBoatBasicConversionActions(List<LegalAction> actions, CharacterState actor,

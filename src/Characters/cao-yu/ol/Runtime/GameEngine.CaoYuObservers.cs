@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private static bool CaoYuChildren(CaoYuStage stage)=>stage is CaoYuStage.GongjieGiftChildren or CaoYuStage.GongjieDrawChildren or CaoYuStage.XiangxuDrawChildren or CaoYuStage.XiangxuDiscardChildren or CaoYuStage.XiangxuRecoveryChildren or CaoYuStage.XiangzuGiftChildren or CaoYuStage.XiangzuRecoveryChildren;
+ private static bool CaoYuChildren(CaoYuStage stage) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_yu_ol_CaoYuObservers.CaoYuChildren(stage);
  private bool CaoYuParent(ProgramSkillFrame f)
  {
   if(f.CaoYu is not{}r||f.WindowContext is not{}c||c.ParentFrameId!=r.WindowId)return false;var i=_resolutionStack.FindIndex(x=>x.Id==f.Id);if(i<1||_resolutionStack[i-1].Id!=r.WindowId)return false;

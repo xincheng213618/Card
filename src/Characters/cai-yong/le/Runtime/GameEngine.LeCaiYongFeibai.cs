@@ -10,8 +10,10 @@ public sealed partial class GameEngine
     private const string FeibaiObtainReason = "skill-program.le-cai-yong.feibai.obtain";
     private const string FeibaiDrawReason = "skill-program.le-cai-yong.feibai.draw";
     private bool HasLeCaiYongFeibaiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLeCaiYongFeibai);
-    private static CardConversionSource FeibaiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static int FeibaiNameLength(CardKind kind) => CardCatalog.Get(kind).DisplayName.EnumerateRunes().Count();
+    private static CardConversionSource FeibaiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_yong_le_LeCaiYongFeibai.FeibaiSource(f);
+    private static int FeibaiNameLength(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_cai_yong_le_LeCaiYongFeibai.FeibaiNameLength(kind);
     private bool FeibaiDisabled(int owner, int turn) => ProgramEventHistory<FeibaiDisabledEvent>().Any(e => e.OwnerSeat == owner && e.ActualTurn == turn);
     private long? FeibaiSetupEpoch => _turnNumber == 0 && _phase == TurnPhase.NotStarted &&
         _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Where(window => window.Window == SkillProgramTriggerWindow.GameStarting &&

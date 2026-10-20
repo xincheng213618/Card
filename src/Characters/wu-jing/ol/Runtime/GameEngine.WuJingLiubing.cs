@@ -4,7 +4,7 @@ public sealed partial class GameEngine
     private bool HasWuJingLiubing => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimLiubingUndamagingSlash) == true;
     private bool WuJingOwnsLiubing(int actor) => IsValidPlayerSeat(actor) && _players[actor].IsAlive && (GetSkillBindingShard(_players[actor])?.GetInstanceTriggers(SkillProgramTriggerWindow.DiscardPileReceived) ?? []).Any(b => b.Trigger.Effects is [{ Op: SkillProgramEffectOp.ClaimLiubingUndamagingSlash }]);
     private static bool WuJingPhysicalSlash(Card card, CardKind kind, IReadOnlyList<int> ids, IReadOnlyList<CardConversionSource>? conversions) =>
-        card.Id > 0 && ids is [var id] && id == card.Id && IsSlashCard(card.Kind) && kind == card.Kind && conversions is null or { Count: 0 };
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wu_jing_ol_WuJingLiubing.WuJingPhysicalSlash(card,kind,ids,conversions);
     private bool WuJingFirstPhysicalSlash(int actor) => !ProgramEventHistory<WuJingActualPhysicalSlashEvent>().Any(e => e.ActualTurn == _turnNumber && e.TurnOwner == _currentSeat && e.ActorSeat == actor);
     private Suit? WuJingLiubingUsedSuit(int actorSeat, Card card, CardKind effectiveKind, IReadOnlyList<int> ids, IReadOnlyList<CardConversionSource>? conversions, Suit? ordinary) =>
         HasWuJingLiubing && _turnNumber > 0 && WuJingOwnsLiubing(actorSeat) && WuJingPhysicalSlash(card, effectiveKind, ids, conversions) && WuJingFirstPhysicalSlash(actorSeat) ? Suit.Diamond : ordinary;

@@ -16,7 +16,7 @@ public sealed partial class GameEngine
     }
 
     private static bool IsNeighborDiscardTopTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NeighborDiscardOpportunities.IsNeighborDiscardTopTrigger(trigger);
     private IEnumerable<IGameEvent> NeighborDiscardHistory() => _events.Select(e => e.Payload).Concat(_pendingEvents);
 
     private void CaptureNeighborDiscardOpportunity(long batchId, int actualTurn,

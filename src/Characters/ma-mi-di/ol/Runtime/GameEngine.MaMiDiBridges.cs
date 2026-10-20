@@ -51,7 +51,8 @@ public sealed partial class GameEngine
         var current = CreateCardActionProgramContext(w.Action, SkillProgramTriggerWindow.CardUseTargetsFinalized, w.Id, candidate.OwnerSeat, candidate.OpponentSeat, c.Facts ?? CaptureProgramTriggerFacts(_players[candidate.OwnerSeat], w.Action));
         return current with { CardUse = current.CardUse! with { ParentCardUseFrameId = w.ParentFrameId } };
     }
-    private static bool? MaMiDiActionColor(CardActionContext a) => a.PhysicalCards.Count == 0 ? SuitColor(a.EffectiveSuit) : a.EffectiveIsRed ?? SuitColor(a.EffectiveSuit);
+    private static bool? MaMiDiActionColor(CardActionContext a) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_mi_di_ol_MaMiDiBridges.MaMiDiActionColor(a);
     private MaMiDiResponseLinkedEvent? BuildMaMiDiResponseLink(ProgramCardTriggerWindowFrame w)
     {
         if (w.ResponseCompletion is not { } completion || !ValidResponseCompletionParent(w) || w.Action is not { Type: CardActionType.Response } a) return null;
@@ -94,6 +95,6 @@ public sealed partial class GameEngine
             frozen.ResponseKind != w.Action.EffectiveKind || card.ParentCardUseFrameId != w.ParentFrameId || !IsValidPlayerSeat(frozen.IncomingActor)) return false;
         window = w; link = frozen; return true;
     }
-    private static bool MaMiDiCandidateMatches(ProgramTriggerCandidate a, ProgramTriggerCandidate b) => a.OwnerSeat == b.OwnerSeat && a.SkillId == b.SkillId &&
-        a.BindingId == b.BindingId && a.SkillInstanceId == b.SkillInstanceId && a.GameplayHash == b.GameplayHash && a.OccurrenceIndex == b.OccurrenceIndex;
+    private static bool MaMiDiCandidateMatches(ProgramTriggerCandidate a, ProgramTriggerCandidate b) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_mi_di_ol_MaMiDiBridges.MaMiDiCandidateMatches(a,b);
 }

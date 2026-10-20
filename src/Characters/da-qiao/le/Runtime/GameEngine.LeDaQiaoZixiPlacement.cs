@@ -7,8 +7,10 @@ public sealed partial class GameEngine
     private const string ZixiPlacementReason = "skill-program.le-da-qiao.zixi.place";
     private static readonly IReadOnlyList<CardKind> ZixiSlots = Array.AsReadOnly(new[] { CardKind.Indulgence, CardKind.SupplyShortage, CardKind.Lightning });
     private bool HasZixiPlacementCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZixiQinJudgmentPlacement);
-    private static CardConversionSource ZixiPlacementSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static string ZixiSlotName(CardKind kind) => kind switch { CardKind.Indulgence => "indulgence", CardKind.SupplyShortage => "supplyShortage", CardKind.Lightning => "lightning", _ => throw new InvalidOperationException("Unknown Qin judgment slot.") };
+    private static CardConversionSource ZixiPlacementSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_le_LeDaQiaoZixiPlacement.ZixiPlacementSource(f);
+    private static string ZixiSlotName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_da_qiao_le_LeDaQiaoZixiPlacement.ZixiSlotName(kind);
 
     // Membership persists only along the actual uninterrupted Judgment residency.
     // The printed kind never becomes a delayed trick and is never rewritten here.

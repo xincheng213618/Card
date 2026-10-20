@@ -5,8 +5,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string HuoJunDiscardReason = "skill-program.huo-jun.fenrui.discard";
-    private static string HuoJunSlotName(EquipmentSlot s) => s switch {
-        EquipmentSlot.Weapon => "武器栏", EquipmentSlot.Armor => "防具栏", EquipmentSlot.OffensiveHorse => "进攻坐骑栏", EquipmentSlot.DefensiveHorse => "防御坐骑栏", _ => "宝物栏" };
+    private static string HuoJunSlotName(EquipmentSlot s) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_huo_jun_ol_HuoJunFenrui.HuoJunSlotName(s);
     private CardConversionSource HuoJunSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     [ProgramCapability]
     private sealed class HuoJunProgramCapability(GameEngine e) : IHuoJunProgramHost

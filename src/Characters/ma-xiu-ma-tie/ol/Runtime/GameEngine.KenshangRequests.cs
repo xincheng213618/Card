@@ -82,7 +82,8 @@ public sealed partial class GameEngine
     {
         AdvanceEventRulesAndQueueFact(new KenshangRequestStartedEvent(r.OwnerFrameId,r.InstructionIndex,r.RequestOp,r.ActorSeat,r.TargetSeat,r.Source,r.GameplayHash,r.OriginalDecision.PromptId,r.OriginalDecision.Revision,KenshangOriginalDecisionHash(r.OriginalDecision)));PublishKenshangRequest(r);
     }
-    private static string KenshangOriginalDecisionHash(PendingDecision decision)=>Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(decision))));
+    private static string KenshangOriginalDecisionHash(PendingDecision decision) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_ma_xiu_ma_tie_ol_KenshangRequests.KenshangOriginalDecisionHash(decision);
     private KenshangRequestReceipt? CurrentKenshangRequest()=>_resolutionStack.LastOrDefault()switch
     {ProgramSkillFrame{KenshangRequest:{}r}=>r,CardUseFrame{KenshangRequest:{}r}=>r,ResponseWindowFrame response when LifecycleCardUse(response.ParentFrameId)is{KenshangRequest:{}r}=>r,_=>null};
     private bool ValidKenshangRequest(KenshangRequestReceipt r)

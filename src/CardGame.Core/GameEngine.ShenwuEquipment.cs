@@ -9,14 +9,10 @@ public sealed partial class GameEngine
     private bool ShenwuRobeDirectedTargetProhibited(ProgramDirectedTargetQuery query) =>
         IsShenwuRobeTargetProhibited(query.ActorSeat, query.TargetSeat, query.Kind);
 
-    private static string? ShenwuEquipmentSkillId(CardKind kind) => kind switch
-    {
-        CardKind.ShuraInfernoHalberd => "shenwu:shura-inferno-halberd",
-        CardKind.DelusionCrown => "shenwu:delusion-crown",
-        _ => null
-    };
+    private static string? ShenwuEquipmentSkillId(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuEquipment.ShenwuEquipmentSkillId(kind);
     private static string? ShenwuEquipmentSkillGrantId(Card card) =>
-        ShenwuEquipmentSkillId(card.Kind) is null ? null : $"equipment:shenwu:{card.Id}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuEquipment.ShenwuEquipmentSkillGrantId(card);
     private bool ResolveShenwuEquipmentSkillGrant(Card card, CardLocation from, CardLocation to)
     {
         if (ShenwuEquipmentSkillId(card.Kind) is not { } skill) return false;
@@ -107,25 +103,10 @@ public sealed partial class GameEngine
         }
         AdvanceEventRulesAndQueueFact(new ShenwuEquipmentInitializedEvent(selected.Length));
     }
-    private static (CardKind Kind, CardKind? Replaces)? ShenwuGodEquipment(string? family) => family switch
-    {
-        "character:guan-yu" => (CardKind.GhostDragonCrescentBlade, CardKind.QinglongCrescentBlade),
-        "character:lu-meng" => (CardKind.NationalStyleRobe, null),
-        "character:zhou-yu" => (CardKind.CrimsonSoulZither, CardKind.ZhuqueFan),
-        "character:zhuge-liang" => (CardKind.QimenEightTrigrams, CardKind.BaguaFormation),
-        "character:cao-cao" => (CardKind.DustlessGoldenSpear, CardKind.DefensiveHorse),
-        "character:lu-bu" => (CardKind.ShuraInfernoHalberd, CardKind.FangtianHalberd),
-        "character:sima-yi" => (CardKind.DelusionCrown, null),
-        "character:zhao-yun" => (CardKind.ScarletBloodSword, CardKind.QinggangSword),
-        _ => null
-    };
-    private static string? ShenwuLegacyGodFamily(string id) => id switch
-    {
-        "classic:shen-guan-yu" => "character:guan-yu", "classic:shen-lu-meng" => "character:lu-meng",
-        "classic:shen-zhou-yu" => "character:zhou-yu", "classic:shen-cao-cao" => "character:cao-cao",
-        "classic:shen-lu-bu" => "character:lu-bu", "classic:shen-sima-yi" => "character:sima-yi",
-        _ => null
-    };
+    private static (CardKind Kind, CardKind? Replaces)? ShenwuGodEquipment(string? family) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuEquipment.ShenwuGodEquipment(family);
+    private static string? ShenwuLegacyGodFamily(string id) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuEquipment.ShenwuLegacyGodFamily(id);
 
     [ProgramDistanceRule(ProgramDistanceStage.DistanceBaseTerms, 20)]
     private void AddShenwuDistanceBaseTerms(ProgramDistanceQuery query, List<RuleQueryBaseTerm> terms)

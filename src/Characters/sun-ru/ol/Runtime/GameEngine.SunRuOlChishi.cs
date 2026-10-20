@@ -10,13 +10,13 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome RewardCurrentTurnLastZoneLoss(ProgramSkillFrame f) => e.BeginSunRuOlChishi(f);
         public SkillProgramStepOutcome AbolishEquipmentSlotsForDistinctBenefits(ProgramSkillFrame f) => e.BeginSunRuOlWeimian(f);
     }
-    private static bool IsSunRuOlChishiTrigger(SkillProgramTrigger t) => t.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardCurrentTurnLastZoneLoss);
+    private static bool IsSunRuOlChishiTrigger(SkillProgramTrigger t) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_ru_ol_SunRuOlChishi.IsSunRuOlChishiTrigger(t);
     private bool SunRuOlActualTurn(SunRuOlTurnToken t) => t.TurnNumber > 0 && t.TurnNumber == _turnNumber &&
         t.OwnerSeat == _turnProgression.OwnerSeat && IsValidPlayerSeat(t.OwnerSeat) &&
         ProgramEventHistory<TurnStartedEvent>().Any(e => e.TurnNumber == t.TurnNumber && e.ActorSeat == t.OwnerSeat);
-    private static bool SunRuOlLostLastZone(CardMovementBatchContext batch, int seat) => batch.SourceCounts.Any(c =>
-        c.Location.OwnerSeat == seat && c.Location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment &&
-        c.CountBefore > 0 && c.CountAfter == 0 && batch.Movements.Any(m => m.From == c.Location && m.To != m.From));
+    private static bool SunRuOlLostLastZone(CardMovementBatchContext batch, int seat) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_sun_ru_ol_SunRuOlChishi.SunRuOlLostLastZone(batch,seat);
     private CardMovementBatchContext CaptureSunRuOlChishiBatch(CardMovementBatchContext batch)
     {
         if (!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardCurrentTurnLastZoneLoss)) return batch;

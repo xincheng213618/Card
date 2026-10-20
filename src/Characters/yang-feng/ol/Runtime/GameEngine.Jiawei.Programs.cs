@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static bool IsJiaweiDamageCard(CardKind kind) => IsSlashCard(kind) || kind is CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.Lightning or CardKind.UnexpectedAssault;
+    private static bool IsJiaweiDamageCard(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yang_feng_ol_Jiawei_Programs.IsJiaweiDamageCard(kind);
     private IReadOnlyList<YangFengMaterial> JiaweiDiscardCandidates(ProgramSkillFrame f,int target) => Array.AsReadOnly(
         BuildOwnedCardPaymentChoices(f.Id,f.OwnerSeat,target,[CardZoneKind.Hand,CardZoneKind.Equipment,CardZoneKind.Judgment],OwnedCardMoveIntent.Discard,
             canSelect:(zone,card)=>!IsSelfHandCategoryDiscardForbidden(f.OwnerSeat,card,new(zone,target),OwnedCardMoveIntent.Discard))

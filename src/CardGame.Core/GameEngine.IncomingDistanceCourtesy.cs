@@ -9,7 +9,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome BeginIncomingDistanceCourtesy(ProgramSkillFrame f, IncomingDistanceCourtesyKind kind) =>
             engine.BeginIncomingDistanceCourtesy(f, kind);
     }
-    private static string IncomingDistanceCourtesyReason(ProgramSkillFrame f, int step) => $"skill-program.{f.SkillId}.incoming-distance-courtesy.{step}";
+    private static string IncomingDistanceCourtesyReason(ProgramSkillFrame f, int step) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_IncomingDistanceCourtesy.IncomingDistanceCourtesyReason(f,step);
     private bool ExactIncomingDistanceEndingParent(ProgramSkillFrame f) =>
         f.TriggerId is not null && f.WindowContext is { Window: SkillProgramTriggerWindow.TurnEnding } c &&
         c.OwnerSeat == f.OwnerSeat && c.SourceSeat == _currentSeat && c.TargetSeat == _currentSeat &&

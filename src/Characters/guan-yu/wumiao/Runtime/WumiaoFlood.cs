@@ -233,8 +233,7 @@ public sealed partial class GameEngine
             r.NullificationFrameId, b.BatchId, b.ParentBatchId, b.MovementCount));
     }
     private static bool WumiaoFloodDiscardEntryMatches(WumiaoFloodDiscardMovement entry, CardMovementRecord movement) =>
-        entry.CardId == movement.CardId && entry.PrintedKind == movement.CardKind && entry.From == movement.From &&
-        entry.To == movement.To && entry.Reason == movement.Reason && entry.MovementSequence == movement.Sequence;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_guan_yu_wumiao_WumiaoFlood.WumiaoFloodDiscardEntryMatches(entry,movement);
     private bool IsWumiaoFloodPrimaryDiscardMovement(WumiaoFloodReceipt r, CardMovementRecord movement) =>
         movement.Sequence == r.DiscardSequence && movement.CardId == r.DiscardCardId &&
         movement.CardKind == r.DiscardPrintedKind && movement.From == r.DiscardFrom && movement.To == r.DiscardTo &&

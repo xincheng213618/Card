@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string MouXuHuangObtainReason = "skill-program.mou-mobile:duanliang.obtain";
     private bool HasMouXuHuangCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouXuHuangDuanliang) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouXuHuangShipo);
-    private static CardConversionSource MouXuHuangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouXuHuangSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xu_huang_mou_mobile_MouXuHuangDuanliang.MouXuHuangSource(f);
     private bool MouXuHuangPhaseSpent(int owner, ActualDiscardRecoveryPhaseKey phase) =>
         ProgramEventHistory<MouXuHuangMouyiStartedEvent>().Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == MouXuHuangComposition.Duanliang && e.Phase == phase);
     [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 29500, SkillProgramEffectOp.ResolveMouXuHuangDuanliang)]

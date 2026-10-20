@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string ShisuanGiftReason = "skill-program.niu-fu.shisuan.gift", ZonglueTakeReason = "skill-program.niu-fu.zonglue.obtain";
     private static readonly CardZoneKind[] NiuFuZones = [CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment];
-    private static CardConversionSource NiuFuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource NiuFuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_niu_fu_ol_NiuFu.NiuFuSource(f);
     private IDamageAttempt? NiuFuOriginalAttack(long damageId) => _resolutionStack.OfType<DamageFrame>().SingleOrDefault(d => d.Id == damageId) is { } d ?
         _resolutionStack.SingleOrDefault(x => x.Id == d.ParentFrameId) switch
         {

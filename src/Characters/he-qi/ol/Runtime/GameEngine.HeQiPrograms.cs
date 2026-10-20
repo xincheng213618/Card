@@ -3,12 +3,12 @@ public sealed partial class GameEngine
 {
     private static CardConversionSource HeQiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private static string HeQiReason(HeQiStage stage)=>"skill-program.he-qi."+stage;
-    private int HeQiEmptySlots(int seat)=>Enum.GetValues<EquipmentSlot>().Sum(slot=>Math.Max(0,_players[seat].EquipmentSlotCapacity(slot)-GetEquipment(_players[seat]).Count(c=>EquipmentCatalog.Get(c.Kind).Slot==slot)));
-    private bool HeQiTargetAllowed(int owner,int target)=>target!=owner && _players[target].IsAlive && !HasSayingRoundRange(target,owner) && GetCombatDistance(target,owner)>GetAttackRange(target);
-    private bool IsHeQiActivation(SkillProgramActivation a)=>ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.RevealJointHandsAndDiscardDodges);
+    private int HeQiEmptySlots(int seat)=>ShanxiRuntime.EmptySlots(seat,ProgramSelectionQueries);
+    private bool HeQiTargetAllowed(int owner,int target)=>ShanxiRuntime.AllowsTarget(owner,target,ProgramSelectionQueries);
+    private bool IsHeQiActivation(SkillProgramActivation a)=>ShanxiRuntime.IsActivation(a);
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 40)]
-    private bool HeQiActivationAllowed(CharacterState owner,SkillProgramActivation a)=>!IsHeQiActivation(a) || HeQiEmptySlots(owner.Seat)>0;
-    private bool HeQiActivationTargetAllowed(CharacterState owner,CharacterState target,SkillProgramActivation a)=>!IsHeQiActivation(a) || HeQiTargetAllowed(owner.Seat,target.Seat);
+    private bool HeQiActivationAllowed(CharacterState owner,SkillProgramActivation a)=>ShanxiRuntime.AllowsActivation(owner.Seat,a,ProgramSelectionQueries);
+    private bool HeQiActivationTargetAllowed(CharacterState owner,CharacterState target,SkillProgramActivation a)=>ShanxiRuntime.AllowsActivationTarget(owner.Seat,target.Seat,a,ProgramSelectionQueries);
     private SkillProgramStepOutcome BeginHeQi(ProgramSkillFrame supplied,int target)
     {
         var f=GetActiveProgramFrame(supplied.Id);

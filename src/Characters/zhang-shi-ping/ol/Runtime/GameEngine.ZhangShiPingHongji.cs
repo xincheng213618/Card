@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasHongjiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmHongjiNextPhase);
-    private static CardConversionSource ZhangShiPingSource(ProgramSkillFrame f) => new(f.SkillId, "lifecycle", f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource ZhangShiPingSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_zhang_shi_ping_ol_ZhangShiPingHongji.ZhangShiPingSource(f);
     [ProgramCapability]
     private sealed class ZhangShiPingCapability(GameEngine engine) : IZhangShiPingProgramHost
     {

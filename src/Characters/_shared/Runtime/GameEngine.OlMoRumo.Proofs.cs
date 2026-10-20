@@ -48,8 +48,7 @@ public sealed partial class GameEngine
     }
 
     private static ProgramTriggerCandidate OlMoRumoCandidate(ProgramSkillFrame frame) =>
-        new(frame.OwnerSeat, frame.SkillId, frame.TriggerId ?? "", frame.SkillInstanceId, frame.GameplayHash, 0,
-            frame.WindowContext?.OccurrenceIndex ?? 0);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules__shared_OlMoRumo_Proofs.OlMoRumoCandidate(frame);
 
     private bool OlMoRumoCandidateSource(ProgramTriggerCandidate candidate) =>
         candidate.SkillId == OlMoRumoSkill && candidate.BindingId == OlMoRumoBinding && candidate.Priority == 0 &&

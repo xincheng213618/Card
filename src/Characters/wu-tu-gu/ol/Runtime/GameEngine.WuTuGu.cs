@@ -2,7 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasWuTuGuCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ArmHanyongNativeGroupDamage)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AccumulateRanshangFirePoint)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveRanshangEndingHpLoss);
-    private static CardConversionSource WuTuGuSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource WuTuGuSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wu_tu_gu_ol_WuTuGu.WuTuGuSource(f);
     [ProgramCapability]private sealed class WuTuGuCapability(GameEngine e):IWuTuGuHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginWuTuGu(f,op);}
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27320)]
     private bool CanOfferWuTuGu(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>

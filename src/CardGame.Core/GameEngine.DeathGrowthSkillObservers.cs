@@ -42,9 +42,8 @@ public sealed partial class GameEngine
     {
         if (frame.DeathGrowthSkill is not null) RequireDeathGrowthSkill(frame);
     }
-    private static string DeathGrowthCursorHash(ResolutionFrame frame) => Convert.ToHexString(
-        System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
-            System.Text.Json.JsonSerializer.Serialize(frame, frame.GetType()))));
+    private static string DeathGrowthCursorHash(ResolutionFrame frame) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DeathGrowthSkillObservers.DeathGrowthCursorHash(frame);
     // Structural only: ActiveDying must never be consulted while proving its suspended cursor.
     private bool ExactDeathGrowthOriginalCursor(ProgramSkillFrame f, DeathFrame death)
     {

@@ -65,8 +65,8 @@ public sealed partial class GameEngine
         var m=_turnCardUseEffects.RuleModifiers.SingleOrDefault(m=>m.GrantSequence==sequence);
         return m is not null&&m.ParentFrameId==f.Id&&m.EffectIndex==index&&m.TurnNumber==p.TurnNumber&&m.TurnSeat==p.TurnOwnerSeat&&m.Source==CreateProgramTurnEffectSource(f)&&m.Query==query&&m.Operation==SkillRuleOperation.Add&&m.Amount==amount&&m.AffectedSeat is null&&(m.CardKinds?.Count??0)==0&&m.PaidHpLossOrigin==CreatePaidHpLossModifierOrigin(f,p);
     }
-    private static ProgramHpLossModifierOrigin CreatePaidHpLossModifierOrigin(ProgramSkillFrame f,ProgramPaidHpLossReceipt p)=>
-        new(f.Id,p.InstructionIndex,p.ResultBind,p.OwnerSeat,p.SkillId,p.BindingId,p.SkillInstanceId,p.GameplayHash,p.UsageGroup,p.TurnNumber,p.TurnOwnerSeat,p.Requested,p.HpBefore,p.HpAfter,p.ActualLost);
+    private static ProgramHpLossModifierOrigin CreatePaidHpLossModifierOrigin(ProgramSkillFrame f,ProgramPaidHpLossReceipt p) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_PaidHpLossPrograms.CreatePaidHpLossModifierOrigin(f,p);
     private void AssertPaidHpLossModifiers()
     {
         foreach(var m in _turnCardUseEffects.RuleModifiers.Where(m=>m.PaidHpLossOrigin is not null))

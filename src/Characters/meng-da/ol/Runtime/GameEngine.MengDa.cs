@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private const string GoudeDrawReason="skill-program.meng-da.goude.draw",GoudeDiscardReason="skill-program.meng-da.goude.discard";
+    private const string GoudeDrawReason="skill-program.meng-da.goude.draw",GoudeDiscardReason=global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramDiscardTopPlacement.GoudeDiscardReason;
     [ProgramCapability]private sealed class MengDaCapability(GameEngine e):IMengDaHost
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f)=>e.BeginGoude(f);}
     private SkillProgramStepOutcome BeginGoude(ProgramSkillFrame input)
@@ -42,7 +42,8 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=GoudePrivateChoice(f),TargetSeat=f.Goude!.TargetSeat,Choices=choices,SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
     }
-    private static bool GoudePrivateChoice(ProgramSkillFrame f)=>f.Goude!.Stage==GoudeStage.DiscardCard;
+    private static bool GoudePrivateChoice(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_meng_da_ol_MengDa.GoudePrivateChoice(f);
     [ProgramAnswer("meng-da-goude")]
     private void AnswerGoude(PromptChoice choice)
     {

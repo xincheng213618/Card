@@ -7,7 +7,8 @@ public sealed partial class GameEngine
 
 
  private bool HasHuaManCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PaySouyingDirectionalSoleTarget);
- private static CardConversionSource HuaManSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+ private static CardConversionSource HuaManSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_hua_man_ol_HuaManObservers.HuaManSource(f);
  private bool HuaManCurrent(ProgramSkillFrame f)=>_players[f.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&_contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash==f.GameplayHash;
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 550)]
  private void ObserveAcceptedHuaManUse(CardActionAcceptedEvent accepted) => ObserveHuaManAcceptedUse(accepted.Action);

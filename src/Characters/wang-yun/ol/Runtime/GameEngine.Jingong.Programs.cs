@@ -17,7 +17,8 @@ public sealed partial class GameEngine
             f.SkillInstanceId==source.SkillInstanceId && r.CardId==card.Id && r.From==_cardZones.GetLocation(card.Id) &&
             ActivityRuntimeProgram(p).ViewAs.SingleOrDefault(v=>v.Id==source.BindingId) is{}rule && r.Samples.Contains(rule.OutputKind);
     }
-    private static string WangYunSamplesFingerprint(IReadOnlyList<CardKind> samples)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join(',',samples.Select(k=>(int)k)))));
+    private static string WangYunSamplesFingerprint(IReadOnlyList<CardKind> samples) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_wang_yun_ol_Jingong_Programs.WangYunSamplesFingerprint(samples);
     private SkillProgramStepOutcome UseThreeRandomTricksFromSelectedMaterial(ProgramSkillFrame supplied)
     {
         var f=GetActiveProgramFrame(supplied.Id);

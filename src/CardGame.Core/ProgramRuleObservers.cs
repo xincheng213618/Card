@@ -45,7 +45,7 @@ internal sealed class ProgramRuleObserverCatalog
             var attributes = method.GetCustomAttributes<ProgramRuleObserverAttribute>().ToArray();
             if (attributes.Length == 0) continue;
             var parameters = method.GetParameters();
-            if (method.IsStatic || method.IsGenericMethod || method.ContainsGenericParameters ||
+            if (method.IsStatic && !ProgramRuntimeModuleCatalog.IsDeclaredStaticHandler(method) || method.IsGenericMethod || method.ContainsGenericParameters ||
                 method.ReturnType != typeof(void) || parameters.Length > 1 ||
                 parameters.Length == 1 && (!typeof(IGameEvent).IsAssignableFrom(parameters[0].ParameterType) ||
                     parameters[0].IsOptional || parameters[0].ParameterType.IsByRef))
@@ -86,7 +86,7 @@ internal sealed class ProgramRuleObserverCatalog
     }
 
     private static InvalidOperationException InvalidSignature(MethodInfo method) =>
-        new($"Rule observer '{method.DeclaringType?.Name}.{method.Name}' has an invalid handler signature; expected an instance void method with no parameters or one required game-event parameter.");
+        new($"Rule observer '{method.DeclaringType?.Name}.{method.Name}' has an invalid handler signature; expected an instance or declared-module static void method with no parameters or one required game-event parameter.");
 }
 
 // Bind every callback once per engine. Invocation stays synchronous and depth

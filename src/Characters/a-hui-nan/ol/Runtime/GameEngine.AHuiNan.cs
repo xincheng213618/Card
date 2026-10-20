@@ -4,9 +4,11 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string AHuiNanDrawReason="skill-program.a-hui-nan.jueman.draw";
-    private static bool AHuiNanBasicKind(CardKind kind)=>IsSlashCard(kind)||kind is CardKind.Dodge or CardKind.Peach or CardKind.Alcohol;
+    private static bool AHuiNanBasicKind(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_a_hui_nan_ol_AHuiNan.AHuiNanBasicKind(kind);
     private bool HasAHuiNanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveJuemanFirstBasicTurnEnd);
-    private static CardConversionSource AHuiNanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
+    private static CardConversionSource AHuiNanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_a_hui_nan_ol_AHuiNan.AHuiNanSource(f);
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27200)]
     private void ObserveAHuiNanBasicUses(IGameEvent payload)
     {

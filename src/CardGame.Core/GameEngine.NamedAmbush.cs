@@ -6,10 +6,12 @@ public sealed partial class GameEngine
     private const string NamedAmbushRecordReason = "skill-program.named-ambush.record";
     private const string NamedAmbushRemoveReason = "skill-program.named-ambush.remove";
     private bool HasNamedAmbushCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.NullifyMatchingHandUse);
-    private static CardKind AmbushCardName(CardKind kind) => kind is CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : kind;
-    private static CardConversionSource AmbushSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static CardLocation AmbushLocation(CardConversionSource source) => new(CardZoneKind.PrivatePersistentPile, source.OwnerSeat,
-        $"named-ambush:{source.SkillId}:{source.SkillInstanceId}");
+    private static CardKind AmbushCardName(CardKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedAmbush.AmbushCardName(kind);
+    private static CardConversionSource AmbushSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedAmbush.AmbushSource(f);
+    private static CardLocation AmbushLocation(CardConversionSource source) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NamedAmbush.AmbushLocation(source);
     private NamedAmbushDeposit[] LiveAmbushDeposits(int owner, string? skill = null, string? instance = null)
     {
         if (!HasNamedAmbushCapability || !_cardZones.HasPrivatePersistentCards(owner)) return [];

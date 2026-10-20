@@ -5,8 +5,10 @@ public sealed partial class GameEngine
 {
     private const string MouXiahouShiDiscardReason = "skill-program.mou-mobile:yanyu.discard", MouXiahouShiDrawReason = "skill-program.mou-mobile:yanyu.Draw",
         MouXiahouShiSupportDrawReason = "skill-program.mou-mobile:yanyu.support.Draw", MouXiahouShiQiaoshiDrawReason = "skill-program.mou-mobile:qiaoshi.Draw";
-    private static CardConversionSource MouXiahouShiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private static bool MouXiahouShiSlash(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+    private static CardConversionSource MouXiahouShiSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiahou_shi_mou_mobile_MouXiahouShiYanyu.MouXiahouShiSource(f);
+    private static bool MouXiahouShiSlash(CardKind k) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_xiahou_shi_mou_mobile_MouXiahouShiYanyu.MouXiahouShiSlash(k);
     private int MouXiahouShiPhaseUses(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouXiahouShiYanyuStartedEvent>()
         .Count(e => !e.Support && e.Source.OwnerSeat == owner && e.Source.SkillId == MouXiahouShiComposition.Yanyu && e.Phase == phase);
     private int MouXiahouShiTurnDiscards(int owner, MouXiahouShiTurnKey turn) => ProgramEventHistory<MouXiahouShiYanyuDiscardPaidEvent>()

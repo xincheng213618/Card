@@ -22,9 +22,7 @@ public sealed partial class GameEngine
         };
 
     private static bool PaidCardUseHpFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
-        beneath is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash } use &&
-        ride is HpChangedTriggerWindowFrame hp && hp.Change.ParentFrameId == use.Id &&
-        hp.ResumeFrameId == use.Id && hp.Continuation == PostEventContinuation.RecoveryPaidCardUse;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_RecoveryReplacementDamageRides.PaidCardUseHpFrameRidesOn(ride,beneath);
 
     [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 20)]
     [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 110)]

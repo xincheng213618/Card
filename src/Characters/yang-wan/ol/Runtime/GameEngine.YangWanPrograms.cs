@@ -45,10 +45,8 @@ public sealed partial class GameEngine
     // commands exactly like the 闭境 marked-card map.
     private readonly Dictionary<long, int> _zhuihuanArmChoices = [];
 
-    private static int SuitMask(Suit suit) => suit switch
-    {
-        Suit.Spade => 1, Suit.Heart => 2, Suit.Club => 4, Suit.Diamond => 8, _ => 0
-    };
+    private static int SuitMask(Suit suit) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_yang_wan_ol_YangWanPrograms.SuitMask(suit);
 
     [ProgramCapability]
     private sealed class YangWanProgramCapability(GameEngine engine) : IYangWanProgramHost

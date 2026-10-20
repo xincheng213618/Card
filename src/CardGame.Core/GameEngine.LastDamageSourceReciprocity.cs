@@ -5,13 +5,12 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static string LastDamageSourceReason(ProgramSkillFrame f, bool draw) =>
-        $"skill-program.{f.SkillId}.last-damage-source.{(draw ? "draw" : "discard")}";
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LastDamageSourceReciprocity.LastDamageSourceReason(f,draw);
     private long LastDamageSourceMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static bool IsLastDamageSourceTrigger(SkillProgramTrigger trigger) =>
-        trigger.Effects is [{ Op: SkillProgramEffectOp.LastDamageSourceReciprocity }];
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LastDamageSourceReciprocity.IsLastDamageSourceTrigger(trigger);
     private static LastDamageSourceReciprocityDirection LastDamageSourceDirection(SkillProgramTrigger trigger) =>
-        trigger.Subject == SkillProgramTriggerSubject.DamageSource
-            ? LastDamageSourceReciprocityDirection.DrawOwner : LastDamageSourceReciprocityDirection.DiscardSource;
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_LastDamageSourceReciprocity.LastDamageSourceDirection(trigger);
 
     private int? RecordedLastDamageSource(int owner, string skillId, string stateId) =>
         CompleteProgramEventHistory().OfType<LastDamageSourceRecordedEvent>().LastOrDefault(e =>

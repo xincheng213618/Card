@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static CardConversionSource CappedConversionSource(ProgramSkillFrame f) =>
-        new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CappedConversionBenefits.CappedConversionSource(f);
 
     private bool ExactCappedConversionParent(ProgramSkillFrame f, out DamageTriggerWindowFrame window)
     {

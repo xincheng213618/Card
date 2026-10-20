@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string MouDiaoChanLijian = "mou-mobile:lijian", MouDiaoChanBiyue = "mou-mobile:biyue";
     private const string MouDiaoChanCostReason = "skill-program.mou-mobile:lijian.discard";
-    private static CardConversionSource MouDiaoChanSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private static CardConversionSource MouDiaoChanSource(ProgramSkillFrame f) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_diao_chan_mou_mobile_MouDiaoChanMobile.MouDiaoChanSource(f);
     [ProgramCapability] private sealed class MouDiaoChanMobileCapability(GameEngine engine) : IMouDiaoChanMobileHost
     { public SkillProgramStepOutcome Start(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.StartMouDiaoChanMobile(f, op); }
     private Card[] MouDiaoChanCosts(int owner) => GetHand(_players[owner]).Concat(GetEquipment(_players[owner])).Where(c =>
