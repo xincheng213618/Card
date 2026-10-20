@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:ganglie": {
+      "name": "刚烈",
+      "description": "出牌阶段限一次，你可以选择任意名本局游戏中对你造成过伤害的角色，对其造成2点伤害。（每局每名角色限一次）。",
+      "activationLabels": {
+        "retaliate-all": "选择任意名伤害过你的角色"
+      }
+    },
+    "mou-mobile:qingjian": {
+      "name": "清俭",
+      "description": "锁定技。当一张牌非因使用而进入弃牌堆时，若你的“清俭”牌不足X张（X为你的体力值-1，至少为1），你将之置于你的武将牌上，称为“清俭”牌；出牌阶段结束时，你将这些牌分配给任意角色。",
+      "authorityName": "清俭",
+      "triggerLabels": {
+        "collect-non-use": "收取非使用入弃牌",
+        "distribute-qingjian": "分配清俭牌"
+      }
+    }
+  }
+}

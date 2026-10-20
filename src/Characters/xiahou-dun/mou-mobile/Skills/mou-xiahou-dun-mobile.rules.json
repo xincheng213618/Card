@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:ganglie",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "retaliate-all",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouXiahouDunGanglie",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:qingjian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "collect-non-use",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "collectMouXiahouDunQingjian",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "distribute-qingjian",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "distributeMouXiahouDunQingjian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

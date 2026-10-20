@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-dun",
+  "skills": [
+    {
+      "registrationOrder": 2327,
+      "programBundle": "mou-xiahou-dun-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:ganglie",
+        "name": "刚烈",
+        "description": "出牌阶段限一次，你可以选择任意名本局游戏中对你造成过伤害的角色，对其造成2点伤害。（每局每名角色限一次）。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2328,
+      "programBundle": "mou-xiahou-dun-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:qingjian",
+        "name": "清俭",
+        "description": "锁定技。当一张牌非因使用而进入弃牌堆时，若你的“清俭”牌不足X张（X为你的体力值-1，至少为1），你将之置于你的武将牌上，称为“清俭”牌；出牌阶段结束时，你将这些牌分配给任意角色。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2329,
+      "pools": {
+        "current": 534
+      },
+      "definition": {
+        "id": "mou:xiahou-dun-mobile",
+        "name": "谋夏侯惇·移动版",
+        "portraitKey": "mou-xiahou-dun-mobile",
+        "skillId": "mou-mobile:ganglie",
+        "additionalSkillIds": [
+          "mou-mobile:qingjian"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:xiahou-dun",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

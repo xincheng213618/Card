@@ -155,6 +155,7 @@ public sealed partial class GameEngine
         CaptureQingyuanGainBatch(completed);
         CaptureNativePublicPilePaymentBatch(completed);
         CaptureNativeTrueUseProcessingEntries(completed);
+        RecordMouXiahouDunDiscardOrigins(completed);
         CaptureGuYinDiscardBatch(completed, batch.GuYinSources);
         CaptureJiyunMovementBatch(completed);
         CaptureXieLingYuMovementBatch(completed);
@@ -404,6 +405,7 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.CollectMouXiahouDunQingjian)) return MatchingMouXiahouDunDiscardIndexes(batch);
         var features = ProgramInstructionResolver.Default.Features(trigger);
         if (features.HasOperation(SkillProgramEffectOp.ReturnDiscardedSilvEntity) ||
             features.HasOperation(SkillProgramEffectOp.ObtainJingzhongUsedEntities)) return [];

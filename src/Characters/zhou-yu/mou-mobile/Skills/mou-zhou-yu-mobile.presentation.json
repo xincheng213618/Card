@@ -1,0 +1,7 @@
+{
+ "schemaVersion":3,
+ "skills":{
+  "mou-mobile:yingzi":{"name":"英姿","description":"锁定技，摸牌阶段，手牌不少于2、体力不少于2、拥有装备三项各令你多摸1且本回合手牌上限+1。"},
+  "mou-mobile:fanjian":{"name":"反间","description":"出牌阶段，扣置本回合未扣置过花色的一张手牌并声明花色。对方猜一致/不一致或翻面，再展示并获得此牌。猜错失去1体力；猜对或选择翻面使反间失效到本回合结束。","activationLabels":{"cover-and-declare":"反间：选择角色后私选手牌和声明花色"}}
+ }
+}

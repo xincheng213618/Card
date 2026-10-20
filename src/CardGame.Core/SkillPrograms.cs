@@ -1099,6 +1099,11 @@ public enum SkillProgramEffectOp
     ObtainMouMengHuoBarbarian = 30901,
     GainMouMengHuoCharge = 30902,
     ResolveMouMengHuoZaiqi = 30903,
+    ResolveMouZhouYuYingzi = 31100,
+    ResolveMouZhouYuFanjian = 31101,
+    ResolveMouXiahouDunGanglie = 31200,
+    CollectMouXiahouDunQingjian = 31201,
+    DistributeMouXiahouDunQingjian = 31202,
     InitializeMouLuZhiMingren = 31000,
     ExchangeMouLuZhiMingren = 31001,
     ResolveMouLuZhiZhenliangYang = 31002,
@@ -5523,9 +5528,11 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) WuZhugeLiangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouPangTongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouMengHuoComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouZhouYuMobileComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouYuanShaoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZhuRongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouTianYuComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouXiahouDunMobileComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MoLuBuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouLuZhiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);

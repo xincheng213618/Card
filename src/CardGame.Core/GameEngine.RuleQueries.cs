@@ -177,6 +177,7 @@ public sealed partial class GameEngine
                     GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.HandLimit) ?? Math.Max(0, player.Hp))
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-mobile:yingzi:hand-limit", MouZyMobileHandLimit(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:lu-yu-sheng:runwei:hand-limit", LuYuShengRunweiHandLimitBonus(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:cao-teng:yongzu:hand-limit", CaoTengYongzuHandLimitBonus(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:hand-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.HandLimit));

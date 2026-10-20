@@ -1,0 +1,7 @@
+{
+ "schemaVersion":62,
+ "skills":[
+  {"id":"mou-mobile:yingzi","revision":1,"triggers":[{"id":"three-condition-draw","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"resolveMouZhouYuYingzi","target":"owner"}]}]},
+  {"id":"mou-mobile:fanjian","revision":1,"activations":[{"id":"cover-and-declare","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","sourceZones":["hand"],"usesPerTurn":null,"effects":[{"op":"resolveMouZhouYuFanjian","target":"owner"}]}]}
+ ]
+}

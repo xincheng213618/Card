@@ -155,6 +155,8 @@ public static partial class GeneralArt
             ["ol-mo-lu-bu"] = "official-ol-mo-lu-bu.png",
             ["mou-meng-huo-mobile"] = "official-mou-meng-huo-mobile.jpg",
             ["mou-lu-zhi-mobile"] = "official-mou-lu-zhi-mobile.jpg",
+            ["mou-zhou-yu-mobile"] = "official-mou-zhou-yu-mobile.jpg",
+            ["mou-xiahou-dun-mobile"] = "official-mou-xiahou-dun-mobile.jpg",
             ["wumiao-guan-yu"] = "official-wumiao-guan-yu.png",
             ["le-cai-wen-ji"] = "official-le-cai-wen-ji.png",
             ["le-cai-yong"] = "official-le-cai-yong.png",

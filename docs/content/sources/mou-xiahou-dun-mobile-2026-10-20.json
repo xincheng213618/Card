@@ -1,0 +1,110 @@
+{
+  "generalId": "mou:xiahou-dun-mobile",
+  "characterId": "character:xiahou-dun",
+  "name": "谋夏侯惇·移动版",
+  "variantId": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "checkedAt": "2026-10-20",
+  "officialIdentity": {
+    "apiId": 583,
+    "generalId": 716,
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-583.html",
+      "role": "Fresh complete current rules and real full portrait DOM",
+      "sha256": "73B465668D03FC2532D6A6C1E709BBD813BEFB8CE3BB0341BDC9409F01E4E5A5"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1852.html",
+      "role": "Formal wording clarification, June21 17:00 effective",
+      "sha256": "11C437F3317E8ADDEF43DC3F749A9C2F410199E0E81AD15A9328B671A88113A0"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1847.html",
+      "role": "Formal June8 Duanwu first availability",
+      "sha256": "12723189758A6B740E4BEDC5D804A8DB40DFF27C9475C23FA05B928FD682120E"
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-mobile:ganglie",
+      "name": "刚烈",
+      "officialText": "出牌阶段限一次，你可以选择任意名本局游戏中对你造成过伤害的角色，对其造成2点伤害。（每局每名角色限一次）。"
+    },
+    {
+      "id": "mou-mobile:qingjian",
+      "name": "清俭",
+      "officialText": "锁定技。当一张牌非因使用而进入弃牌堆时，若你的“清俭”牌不足X张（X为你的体力值-1，至少为1），你将之置于你的武将牌上，称为“清俭”牌；出牌阶段结束时，你将这些牌分配给任意角色。"
+    }
+  ],
+  "formalLaunch": {
+    "publishedAt": "2024-06-07 17:30:00",
+    "availableFrom": "2024-06-08",
+    "officialText": "谋夏侯惇上线，端午礼盒获得"
+  },
+  "versionSelection": {
+    "officialRevisionUrl": "https://www.sanguosha.cn/pc/news-detail-1852.html",
+    "publishedAt": "2024-06-20 09:46:09",
+    "effectiveAt": "2024-06-21 17:00:00",
+    "before": {
+      "ganglie": "出牌阶段限一次，你可以选择一名本局游戏中对你造成过伤害的角色，对其造成2点伤害。（每局每名角色限一次）。",
+      "qingjianLockedExplicit": false
+    },
+    "after": {
+      "ganglie": "一名改为任意名；每局每名角色限一次不变",
+      "qingjianLockedExplicit": true
+    },
+    "officialScope": "公告明示只调整描述，不改变强度和实际效果；当前hero/API已为调整后正文。",
+    "boundedFurtherSearch": "Official-domain Mou Xiahou Dun/Qingjian/skill-adjustment searches found this applicable 2024 clarification and no conflicting later formal text. This is not an exhaustive absence claim.",
+    "officialFAQConfirmed": false,
+    "communityUsedAsAuthority": false
+  },
+  "engineeringDecisions": [
+    {
+      "basis": "accepted-project-interpretation",
+      "topic": "Ganglie acceptance",
+      "decision": "Freeze all selected qualifying historical attackers at complete-roster acceptance, spend each once per game immediately, then resolve genuine native Damage2 in current-owner action order. Later dead targets are skipped; source loss or nonterminal owner death does not cancel the accepted native queue. All genuine positive sourced DamageApplied facts in this game qualify, including before acquiring the skill; source-less damage does not invent an attacker."
+    },
+    {
+      "basis": "accepted-project-interpretation",
+      "topic": "Non-Use materials",
+      "decision": "Reuse native true-Use Processing-entry and exact finish proofs to exclude real Uses, defending Dodge Uses and Nullification Uses including declared/conversion materials. Pure Played, judgment, recast and other genuine non-Use arrivals are eligible; do not classify solely by reason-name text."
+    },
+    {
+      "basis": "accepted-project-interpretation",
+      "topic": "Live Qingjian cap",
+      "decision": "Handle each native movement in stable sequence; each accepted claim requires current total Qingjian entities below max(1,current real HP-1). Undefined HP does not provide an invented arithmetic capacity. Public-pile storage capacity is only a technical container bound; it does not replace the live rule cap."
+    },
+    {
+      "basis": "accepted-project-interpretation",
+      "topic": "Play-end distribution",
+      "decision": "At the actual owner Play-end window freeze the complete current source pile entity roster; distribute each still-present entity through real transfers to any living recipient, including self, before returning the phase. Inserted Plays have their own real Play ends. Loss of the source does not discard an already accepted distribution pile; native child returns remain on the owning frame."
+    },
+    {
+      "basis": "accepted-project-interpretation",
+      "topic": "Native Use origin sampling",
+      "decision": "Sample the existing native true-Use discard classification at real movement-batch completion while its original native parent is live. Freeze scalar batch, sequence and entity facts; delayed discard-trigger qualification reads the exact issued fact, so a completed Dodge response is not reclassified after its parent advances."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/71600.jpg",
+    "observedOn": "https://www.sanguosha.cn/pc/hero-detail-583.html",
+    "width": 2480,
+    "height": 3508,
+    "bytes": 4139772,
+    "sha256": "49923E3CD7CBE273FC19E4C391D6697CF6BACCC5541629E2ABC77AE2AD3426CD",
+    "visualInspection": "Root inspected blue-and-gold armoured mounted general with blade and red banner; full official original.",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-xiahou-dun-mobile.jpg"
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedMethod": "MouXiahouDunMobileChecks.NativeRetaliationAndNonUseDistribution",
+    "checksPassed": 1,
+    "scope": "Genuine sourced damage history; two-recipient native Damage2; actual Slash/Dodge/Peach Use exclusion; sequential non-Use discard claims at HP2 then HP3; complete Play-end real entity distribution to ally and self with one pending-choice cold restore."
+  },
+  "status": "implemented-focused-verified"
+}

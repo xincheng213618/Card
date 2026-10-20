@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:zhou-yu",
+ "skills":[
+  {"registrationOrder":2321,"programBundle":"mou-zhou-yu-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:yingzi","name":"英姿","description":"锁定技，摸牌阶段，你以下的数值每满足一项，你多摸一张牌，且本回合手牌上限+1：1.你的手牌数不少于2；2.你的体力值不低于2；3.你装备区的牌数不低于1。","executionForms":"Trigger","tags":"Locked"}},
+  {"registrationOrder":2322,"programBundle":"mou-zhou-yu-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:fanjian","name":"反间","description":"出牌阶段，你可以选择一名其他角色、扣置一张本回合未以此法扣置过的花色的手牌，并声明一个花色，其须选择一项：1.猜测此牌花色与声明花色是否一致；2.其翻面，且此技能失效直到回合结束。然后你展示此牌令其获得之。若其选择猜测，则：若猜对，此技能失效直到回合结束；若猜错，其失去1点体力。","actionForms":"Active"}}
+ ],
+ "generals":[{"registrationOrder":2323,"pools":{"current":533},"definition":{"id":"mou:zhou-yu-mobile","name":"谋周瑜·移动版","portraitKey":"mou-zhou-yu-mobile","skillId":"mou-mobile:yingzi","additionalSkillIds":["mou-mobile:fanjian"],"factionId":"wu","gender":"Male","baseHp":3,"characterId":"character:zhou-yu","variantId":"mou-mobile","rulesetId":"sanguosha-mobile"}}]
+}

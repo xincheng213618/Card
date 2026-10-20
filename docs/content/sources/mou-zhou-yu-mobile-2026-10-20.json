@@ -1,0 +1,87 @@
+{
+  "checkedOn": "2026-10-20",
+  "status": "implemented-focused-verified",
+  "name": "谋周瑜·移动版",
+  "generalId": "mou:zhou-yu-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": {
+    "officialHeroId": 500,
+    "officialGeneralId": 662,
+    "faction": "wu",
+    "gender": "Male",
+    "initialHp": 3,
+    "maxHp": 3
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-500.html",
+      "role": "Fresh complete current official skills; both displayed mode tabs agree."
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Fresh item500/general662 identifies Wu male3HP and reproduces both complete current skills."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1463.html",
+      "title": "老友季活动",
+      "published": "2023-03-02 17:30:00",
+      "firstAvailability": "2023-03-03",
+      "role": "Formal release announcement explicitly launches Mou Zhou Yu;天工宝库section dates its first release March3. Historical evidence, not a current sale claim."
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-mobile:yingzi",
+      "name": "英姿",
+      "text": "锁定技，摸牌阶段，你以下的数值每满足一项，你多摸一张牌，且本回合手牌上限+1：1.你的手牌数不少于2；2.你的体力值不低于2；3.你装备区的牌数不低于1。"
+    },
+    {
+      "id": "mou-mobile:fanjian",
+      "name": "反间",
+      "text": "出牌阶段，你可以选择一名其他角色、扣置一张本回合未以此法扣置过的花色的手牌，并声明一个花色，其须选择一项：1.猜测此牌花色与声明花色是否一致；2.其翻面，且此技能失效直到回合结束。然后你展示此牌令其获得之。若其选择猜测，则：若猜对，此技能失效直到回合结束；若猜错，其失去1点体力。"
+    }
+  ],
+  "versionSeparation": [
+    "Current complete mobile hero500 Yingzi/Fanjian version,3HP. The already implemented OL general uses Zuifeng/Guqu and4HP; it is a different product and shares no skill IDs or receipt types.",
+    "Classic Yingzi/Fanjian and Boundary draw1/maxHP Handlimit/reveal-discard-suit Fanjian are distinct versions; none substitutes for the mobile private declaration and actual-turn suit budget.",
+    "A bounded first-party search found no later named correction replacing these current two skills; no claim of exhaustive historical absence."
+  ],
+  "portrait": {
+    "status": "official-avatar-verified-full-portrait-unresolved",
+    "heroDom": "Both current large-image swiper containers are empty; no large portrait src is exposed.",
+    "apiPic": {
+      "url": "https://www.sanguosha.cn/storage/uploads/images/pic/662.jpg",
+      "httpStatus": 404
+    },
+    "verifiedApiAvatar": {
+      "url": "https://www.sanguosha.cn/storage/uploads/images/pic_index/662.jpg",
+      "width": 84,
+      "height": 84,
+      "bytes": 9196,
+      "sha256": "e5f75ade853810ba9e1c08db06743166e6ec0e8eea36c6a480e161c75460cec1",
+      "visuallyInspected": true,
+      "description": "Black-haired male with headpiece and white clothing; official API icon only.",
+      "localAsset": "src/CardGame.Wpf/Assets/official-mou-zhou-yu-mobile.jpg"
+    },
+    "note": "No guessed larger URL and no substituted OL/Wumiao image. Rules implementation proceeds with the exact documented first-party artwork limitation."
+  },
+  "engineeringContracts": [
+    "These instantiate the full text with existing native services. They are engineering interpretations, not official FAQs or additional user-selected rulings.",
+    "At the actual native DrawPhaseStarting resolution, freeze three Boolean conditions: Handcount>=2, HP>=2, Equipmentcount>=1. SumK adds to the original normal-draw adjustment and independently issues HandLimit+K for this actual turn. Subsequent Hand/HP/equipment changes do not recompute the issued contribution. Real draw replacement/shortfall remains native and does not erase the separate issued Handlimit effect.",
+    "Fanjian outer activation selects exactly one other living target and no cards, followed by the owner private actual Hand-card and declaration selector. This is the ordinary native private-payment pattern, not a zero-material skill: one real eligible Hand entity must physically move to Processing with FaceDown disclosure before any target question. Its source, real entity, frozen effective suit, declaration and movement invoice stay on the owning ProgramSkillFrame.",
+    "The actual covered effective suit consumes a named-skill actual-turn budget, independently of the declared suit. Declare one of Spade/Heart/Club/Diamond, including a suit absent from Hand. A genuinely suitless physical entity retains its neutral actual suit and consumes that one neutral budget entry; no fifth declared suit is invented.",
+    "The real target independently chooses same, different, or native TurnOver. Its prompt contains the declaration but no card ID or face. The AI target uses only its public choice options and deterministic RNG, never the hidden paid actual suit or source Hand. Native TurnOver toggles the existing face state rather than forcing every target face down. The turnover choice issues the skill-disabled state for the actual turn before draining its native children.",
+    "After those children, publicly reveal and actually move the original covered entity to the still-living recipient. Drain gift/gain/skill/HP children before checking a guess. A correct guess issues the actual-turn disable; a wrong guess then requests genuine native HP Loss1, including the existing HP/identity/Dying/rescue/death protocol. A turnover answer incurs no guess loss.",
+    "The spent-suit and disabled ledgers belong to owner+namedskill+actual-turn identity. Source loss/regrant during that turn does not refresh them. Raw TurnEnded may be followed by a real inserted Play, so only the native ActualTurnCursorReturned boundary closes the actual turn. A different actual turn starts fresh budgets.",
+    "Accepted real covered-card obligations retain their original source/hash and paid invoice through ordinary source loss. A nonterminal source death does not manufacture a refund; existing native terminal cutoff remains authoritative. Dead-recipient cleanup moves any still-covered Processing entity through real native discard and child return, never grants Hand to a dead recipient. Completed payment, reveal/gift or HP Loss cannot repeat on resumed children.",
+    "The covered entity is excluded from public Processing projection until its actual reveal. Owner private material choices and target private answer choices use their actual viewer snapshots. Revealed-card projection starts only at the real reveal stage; all new rule events carry scalar immutable fields, while the existing reveal collection uses committed event projection.",
+    "Public numeric Handlimit uses the issued contribution without a live-skill gate. Full implementation does not add a once-per-Play cap or replace the turn-wide real-suit restriction with the declaration suit."
+  ],
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedFilter": "Mou Zhou Yu Mobile:",
+    "manualFullRun": false,
+    "checksPassed": 1
+  }
+}

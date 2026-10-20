@@ -216,7 +216,7 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is ProgramSkillFrame program) { lastProgram = program; break; }
         IReadOnlyList<CardSnapshot> programRevealedCards = lastProgram is null
             ? Array.Empty<CardSnapshot>()
-            : GetProgramPublicCards().Concat(GainGiftPublicLostCards()).DistinctBy(card => card.Id).ToArray();
+            : GetProgramPublicCards().Concat(GainGiftPublicLostCards()).Concat(MouZhouYuMobilePublicCards()).DistinctBy(card => card.Id).ToArray();
         programRevealedCards = programRevealedCards.Concat(_resolutionStack.OfType<ProgramSkillFrame>()
             .Where(f => f.ExtraEffectsAndRankGuess?.Operation == SkillProgramEffectOp.GuessRanksForDrawReplacement)
             .SelectMany(f => f.ExtraEffectsAndRankGuess!.RevealedCardIds)
@@ -264,7 +264,7 @@ public sealed partial class GameEngine
             _cardZones.Count(CardLocation.DiscardPile),
             snapshots,
             visibleDecision,
-            WithoutChengliePrivateProcessing(_cardZones.CardsAt(CardLocation.Processing)).Count(card =>
+            WithoutMouZhouYuMobileCovered(WithoutChengliePrivateProcessing(_cardZones.CardsAt(CardLocation.Processing))).Count(card =>
                 !IsNishouHeldProcessingCard(card.Id) && (revealAll || !IsSimultaneousPrivateTopCard(card.Id) && !IsWuLuKangPrivatePindianCard(card.Id))),
             _revision)
         {

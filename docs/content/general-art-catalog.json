@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-zhou-yu-mobile",
+      "characterName": "谋周瑜·移动版",
+      "defaultSkinId": "662-avatar",
+      "skins": [
+        {
+          "id": "662-avatar",
+          "name": "官网头像",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-500.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/pic_index/662.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhou-yu-mobile.jpg",
+          "sha256": "e5f75ade853810ba9e1c08db06743166e6ec0e8eea36c6a480e161c75460cec1",
+          "pixelWidth": 84,
+          "pixelHeight": 84
+        }
+      ]
+    },
+    {
+      "key": "mou-xiahou-dun-mobile",
+      "characterName": "谋夏侯惇·移动版",
+      "defaultSkinId": "71600",
+      "skins": [
+        {
+          "id": "71600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-583.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/71600.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-xiahou-dun-mobile.jpg",
+          "sha256": "49923e3cd7cbe273fc19e4c391d6697cf6baccc5541629e2abc77ae2ad3426cd",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508
+        }
+      ]
+    },
+    {
       "key": "mou-lu-zhi-mobile",
       "characterName": "谋卢植·移动版",
       "defaultSkinId": "64600",
