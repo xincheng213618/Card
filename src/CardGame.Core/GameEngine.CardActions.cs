@@ -716,6 +716,7 @@ public sealed partial class GameEngine
                 !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesMouZhijueUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesMouLiuChengNativeAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesMouXuHuangNativeAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesChosenAssaultUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
@@ -912,6 +913,7 @@ public sealed partial class GameEngine
                    MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesMouZhijueUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesMouLiuChengNativeAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesMouXuHuangNativeAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesChosenAssaultUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse

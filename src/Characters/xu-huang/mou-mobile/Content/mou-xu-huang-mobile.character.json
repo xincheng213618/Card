@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-huang",
+  "skills": [
+    {
+      "registrationOrder": 2244,
+      "programBundle": "mou-xu-huang-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:duanliang",
+        "name": "断粮",
+        "description": "出牌阶段限一次，你可以与一名其他角色进行“谋弈”：围城断粮：你将一张牌堆顶的牌当做【兵粮寸断】对其使用且无距离限制。若其判定区已有【兵粮寸断】，则改为获得其一张牌。擂鼓进军：你视为对其使用一张【决斗】。"
+      }
+    },
+    {
+      "registrationOrder": 2245,
+      "programBundle": "mou-xu-huang-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:shipo",
+        "name": "势迫",
+        "description": "结束阶段，你可以令一名体力值少于你的角色或所有判定区有【兵粮寸断】的其他角色选择一项：1. 交给你一张手牌；2. 受到1点伤害。若你以此法获得了牌，则你可以将其中任意张牌交给一名其他角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2246,
+      "pools": {
+        "current": 517
+      },
+      "definition": {
+        "id": "mou:xu-huang-mobile",
+        "name": "谋徐晃·移动版",
+        "portraitKey": "mou-xu-huang-mobile",
+        "skillId": "mou-mobile:duanliang",
+        "additionalSkillIds": [
+          "mou-mobile:shipo"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:xu-huang",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

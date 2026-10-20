@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:duanliang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "private-mouyi",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouXuHuangDuanliang",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:shipo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-gift-or-damage",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouXuHuangShipo",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

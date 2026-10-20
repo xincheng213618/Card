@@ -1,0 +1,236 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋徐晃·移动版",
+  "generalId": "mou:xu-huang-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "sources": {
+    "hero": {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-441.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/hero-detail-441.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 22380,
+      "sha256": "a75cdfc932fc1811a7c948f0ac7fba00d663983eb4d52f0d4704ac816c7bd02d",
+      "fetchedAtUtc": "2026-10-20T06:11:49.753435+00:00"
+    },
+    "formalChange": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1297.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1297.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 18170,
+      "sha256": "6fbc3ffc536e80bf92bfc71b345048ae1ef91c7894c7ef4351761893a581ecea",
+      "fetchedAtUtc": "2026-10-20T06:11:49.902570+00:00"
+    },
+    "permanentLaunch": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 26011,
+      "sha256": "deb21831965f2fc9ff50b59d3de3bc08dd7b84b1a9995e01c737bc95044514f5",
+      "fetchedAtUtc": "2026-10-20T06:11:50.133423+00:00"
+    },
+    "api": {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+      "fetchedAtUtc": "2026-10-20T07:20:41.701795+00:00"
+    }
+  },
+  "officialIdentity": {
+    "generalId": "mou:xu-huang-mobile",
+    "characterId": "character:xu-huang",
+    "variantId": "mou-mobile",
+    "rulesetId": "sanguosha-mobile",
+    "officialName": "谋·徐晃",
+    "heroPageId": 441,
+    "internalGeneralId": 620,
+    "faction": "wei",
+    "gender": "Male",
+    "hp": 4
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:duanliang",
+      "name": "断粮",
+      "text": "出牌阶段限一次，你可以与一名其他角色进行“谋弈”：围城断粮：你将一张牌堆顶的牌当做【兵粮寸断】对其使用且无距离限制。若其判定区已有【兵粮寸断】，则改为获得其一张牌。擂鼓进军：你视为对其使用一张【决斗】。",
+      "source": "https://www.sanguosha.cn/pc/news-detail-1297.html",
+      "sha256": "7ec35f346fbbb6925da4e3b9f958e73ded70ef64df542269ca0f6bf8badaf952",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:shipo",
+      "name": "势迫",
+      "text": "结束阶段，你可以令一名体力值少于你的角色或所有判定区有【兵粮寸断】的其他角色选择一项：1. 交给你一张手牌；2. 受到1点伤害。若你以此法获得了牌，则你可以将其中任意张牌交给一名其他角色。",
+      "source": "https://www.sanguosha.cn/pc/news-detail-1297.html",
+      "sha256": "c34b9c9e1c43961a9f1c449e15262b8f03c0cd1a2d3371eda13dcd34bceefe59",
+      "initiallyOwned": true
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "formalChange": {
+    "published": "2022-08-23 17:20:54",
+    "effective": "2022-08-24 11:00",
+    "finding": "1297 formal corrected Shipo matches current hero/API gift-Hand-or-real-damage plus optional redistribution. The older discard-or-owner-draw Shipo in the same notice is explicitly original and must not be mixed into the current implementation. Duanliang is unchanged in that formal before/after notice."
+  },
+  "firstPermanentAvailability": {
+    "date": "2022-07-09",
+    "source": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+    "finding": "1257 names Mou Xu Huang among the permanent 群英绘壁 rewards; May experience trials are not formal permanent availability. Historical offers are not claimed current."
+  },
+  "artwork": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/skins/62000.jpg",
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/62000.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 375622,
+    "sha256": "035e3320e30959903a429dbe147f783ed929669048ad4f0c522418fdb197ccc2",
+    "fetchedAtUtc": "2026-10-20T06:11:50.362599+00:00",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "wpfRenderingVerified": true,
+    "inspection": "Root viewed the exact original530x750 portrait: a stern bearded man in blue headgear and scarf, black and gold armor and blue tassels, holding a long double-ended poleaxe before burning buildings, yellow banners, smoke and embers. Original full framing and lower official watermark retained. No image edit was applied.",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-xu-huang-mobile.jpg",
+    "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-441.html"
+  },
+  "engineeringDecisions": [
+    {
+      "id": "mouyi-private-matrix",
+      "selection": "Each attacker chooses siege or advance; defender privately chooses block-siege or block-advance. Matching defense fails; the other defense succeeds. Reveal both commitments together. Local defense labels explain their effects rather than claiming an unverified official label.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete formal skill body and existing native settlement contracts; not an official FAQ or a user-selected ruling."
+    },
+    {
+      "id": "siege-native-top-legality",
+      "selection": "Inspect and freeze actual top only after strategy success and native refill children. Verify genuine SupplyShortage target/appearance legality before declaration and payment. An illegal top stays unconsumed in DrawPile; no alternate outcome. An accepted use later nullified is paid and retires normally.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete formal skill body and existing native settlement contracts; not an official FAQ or a user-selected ruling."
+    },
+    {
+      "id": "strategy-activation-eligibility",
+      "selection": "Any living other may participate, independently of hidden top and later consequence legality. Accepting consumes one activation in that exact actual own Play, including failure, source loss/regrant or unavailable consequence.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete formal skill body and existing native settlement contracts; not an official FAQ or a user-selected ruling."
+    },
+    {
+      "id": "shipo-frozen-action-order",
+      "selection": "At accepted mode, freeze exactly one strictly lower-HP other or the complete effective-SupplyShortage other roster in native action order relative to the Ending owner. Later HP or Judgment changes do not reselect it; skip only an actually dead recipient.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete formal skill body and existing native settlement contracts; not an official FAQ or a user-selected ruling."
+    },
+    {
+      "id": "shipo-accepted-source-lifetime",
+      "selection": "After acceptance, source loss or nonterminal owner death does not cancel the frozen obligations. Already issued native children return once. A living later recipient cannot give to a dead owner, so only real sourced damage1 remains legal. A dead owner cannot redistribute. Native winner cutoff stops resolution. Preserve exact owning receipts and narrow dead-owner guards, not a global permission.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete formal skill body and existing native settlement contracts; not an official FAQ or a user-selected ruling."
+    }
+  ],
+  "engineeringInterpretations": [
+    "The current official hero and the formal 2022-08-24 revision agree on the complete current two-skill version. The older discard-or-owner-draw Shipo is not mixed into it.",
+    "Duanliang is not pindian and does not require a Hand card. Private strategy commitments stay on the owning frame; public committed facts contain no strategy bit until the common reveal. Viewer snapshots and AI public valuations cannot inspect the other commitment or hidden deck top.",
+    "On successful siege, an existing effective SupplyShortage in Judgment changes the consequence to exact native HEJ obtain. It does not consume top. Otherwise one real physical top entity is used as SupplyShortage, preserving its suit/rank/printed provenance, with distance exemption only and normal native prohibitions, nullification, delayed placement and later judgment.",
+    "Successful advance is a genuine zero-material Duel Use, not a bare program-owned Slash-exchange helper. It preserves native declaration, acceptance, targets, nullification, responses, damage, recovery, dying and exactly-once whole-use completion.",
+    "Shipo recipients give only actual Hand entities or suffer genuine normal damage1 from the original owner. Armor, prevention, damage conversion, HP changes, rescue and death use native processing. Equipment or another private zone cannot pay the Hand clause.",
+    "Optional redistribution permits any nonempty subset of the exact entities actually obtained through this Shipo and still in the owner Hand, to exactly one living other. Initial Hand, unrelated child draws, departed entities and normalized OutsideGame cards are excluded. Use private incremental selection rather than enumerating all subsets, and one native atomic FaceDown transfer.",
+    "All pending state belongs to its exact native ProgramSkillFrame/typed child return. Collection-bearing facts must be frozen before commit. No global rules epoch, RulesVersion, schema bump or per-general package bump is introduced.",
+    "The signed native origin freezes effective color together with suit, rank, printed kind and original DrawPile material location. A genuine empty-material Duel signs its neutral appearance. Current policies cannot silently replace a signed accepted appearance.",
+    "After successful Advance only, existing next-use target grants may offer their native legal optional target plans. No grant adds no extra confirmation. The immutable selected plan stays on the owning receipt and is signed by scalar target facts. Later native target additions and repeated effects finish the whole genuine Duel before its exact typed parent return."
+  ],
+  "verificationLimits": [
+    "Official hero/API and formal revised skill text were checked, preserving both complete skills. The exact official portrait was hashed, dimension-checked and visually inspected. No authenticated mobile client or character-specific official FAQ was used.",
+    "Focused behavior, relevant shared mechanisms, actual WPF gallery rendering and bounded routine checks passed. No manual Full run or complete foreground match. Engineering interpretations are explicitly separate from official wording and user-selected rulings."
+  ],
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed-with-explicit-engineering-boundaries",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "focused": {
+      "corePassed": 38,
+      "wpfPassed": 1,
+      "durationMs": 34687
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 64100
+    },
+    "manualFullRun": false,
+    "focusedCheckNames": [
+      "Guandu generals: Choulue native Duel FireAttack and cold children",
+      "Wenhe activity: real eight seats private draft and cold restore",
+      "Wenhe cards: real additional targets retire receipts and pay once cold",
+      "Shanhe team draw aura: source death loss before issue and frozen paid request cold",
+      "actual phase end: six actual phases typed cold returns skip and restoration",
+      "Native recast invocation: paid loss death and zero draw cold",
+      "Le Diao Chan: retained show native basic trick delayed equipment cold",
+      "Le Diao Chan: true response Played exclusion actual turn show OR name cold",
+      "Le Diao Chan: paid native children source loss death carrier retirement cold",
+      "Le Cai Yong: true Dodge Null parents Played exclusion cold",
+      "Le Cao Zhi: alternate native names real materials delayed responses cold",
+      "Le Cao Zhi: fixed accepted pairs nested Played cross turn source cold",
+      "Mou Yu Jin Mobile: paid discard source loss self rescue death native return cold",
+      "Mou Liu Cheng Mobile: native alternating Dismantlement Slash parents privacy legality cold",
+      "Mou Xu Huang Mobile: sealed four cell strategy private actual Play quota cold",
+      "Mou Xu Huang Mobile: real top SupplyShortage obtain native zero Duel legality children cold",
+      "Mou Xu Huang Mobile: actual Ending frozen full Shipo roster Hand or native damage cold",
+      "Mou Xu Huang Mobile: exact obtained subset one recipient paid source loss death cold",
+      "Pang Ji: simultaneous Pindian paid children and source rights cold",
+      "Fan Jiang Zhang Da: lifetime Slash and both Duel directions replay",
+      "Fan Jiang Zhang Da: whole multi target extra effects and temporary expiry replay",
+      "Fan Jiang Zhang Da: paid armor children source loss death and permanent spend replay",
+      "He Jin: DonorPrivateGiftActualComparisonAndPhaseQuotaCold",
+      "committed use contracts preserve immutable registration and response-use validation",
+      "character manifests preserve ordered registration and package isolation",
+      "Simultaneous Pindian: typed claims and common material ownership cold",
+      "Actor hand limit penalty: real uses stack and change actual discard",
+      "Original target addition rights quota armor and cold",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "skill program multi-target triggers wait for every Liuli redirection",
+      "turn-ending boundary orders Jushou Jujian Biyue and replays",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "Liu Yan: actual targets post-payment and effective hand replay",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  },
+  "rootIndependentReview": {
+    "baselineHead": "f3f501aee57d470f58380932c8dc6e87e74edbce",
+    "currentHeroAndFormalRevisionReopenedViaWeb": true,
+    "completeTwoSkillScopeConfirmed": true,
+    "originalOfficialPortraitActuallyViewed": true,
+    "latestLocatedWordingTable": "The previously inspected complete official 2404 table contains neither Duanliang nor Shipo; this bounded finding is not a claim that no later rule explanation exists.",
+    "identityApiSha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+    "identityApiFetchedAtUtc": "2026-10-20T07:20:41.701795+00:00"
+  },
+  "latestLocatedWordingAnnouncement": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+    "published": "2026-10-15 10:18:17",
+    "effective": "2026-10-16 12:00",
+    "tableUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+    "tableSha256": "411a068609351931e47f91fcfde8f2b04b7451c9769c117b4d6d1c635addd16c",
+    "tableVisuallyInspected": true,
+    "finding": "The complete official table was previously visually inspected during this source review; neither 断粮 nor 势迫 appears. This bounded finding is not an authenticated-client or character-specific FAQ claim."
+  }
+}
