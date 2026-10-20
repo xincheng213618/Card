@@ -127,6 +127,7 @@ public sealed partial class GameEngine
             qualifications.Any(q => !ValidRoundGainedQualification(use, q))) throw new InvalidOperationException("A round-source qualification lost its exact acquired materials, policy or native Use.");
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 4)]
     private void CollectIssuedRoundGainedUseCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window is not (SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCommitted) ||

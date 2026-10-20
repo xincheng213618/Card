@@ -45,7 +45,8 @@ internal abstract class MaChengDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(2));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(Op==SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards?SkillProgramTriggerWindow.CardUseTargetsFinalized:SkillProgramTriggerWindow.CardUseCompleted)];
 }
-internal sealed class ResolveChenglieExtraTargetsAndHiddenCardsDescriptor:MaChengDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards;}
+internal sealed class ResolveChenglieExtraTargetsAndHiddenCardsDescriptor:MaChengDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards;}
 internal sealed class ResolveChenglieRedHolderOutcomeDescriptor:MaChengDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChenglieRedHolderOutcome;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }

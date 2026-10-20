@@ -39,6 +39,10 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Bagua response: failed judgment hand Dodge and cold replay", BaguaResponseChecks.FailedJudgmentReturnsToDodgeAndColdReplay),
+    ("Bagua response: decline armor and red judgment retain hand Dodge", BaguaResponseChecks.DeclineAndRedJudgmentKeepHandDodgeOptional),
+    ("Wushuang mode: native shop growth acquired skills replacement and replay", WushuangModeChecks.NativeShopGrowthAcquiredSkillsReplacementAndReplay),
+    ("Wushuang mode: explicit clock expires paid child and cold replay", WushuangModeChecks.ExplicitClockExpiresPaidChildAndColdReplay),
     ("Guandu mode: frozen roster private rotating draft tier five military deck", GuanduModeChecks.RealPackageFreezesRosterRotatesPrivateDraftAndDealsTierFiveMilitaryDeck),
     ("Guandu mode: scoped options and historical checkpoint shape", GuanduModeChecks.GuanduOptionsRemainScopedAndOldCheckpointShapeStaysUnchanged),
     ("Guandu mode: enemy hand friendly penalty and native commander victory", GuanduModeChecks.NativeKillsTransferEnemyHandPunishFriendlyKillsAndDeferCommanderVictory),
@@ -500,6 +504,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Fa Zheng: native marks random gain and Enyuan", CardGame.Core.Tests.MouFaZhengMobileChecks.NativeMarksRandomGainAndEnyuan),
     ("Mou Lu Bu Mobile: actual double response multi-obtain and victim branches Cold", CardGame.Core.Tests.MouLuBuMobileChecks.ActualDoubleResponseMultiObtainAndVictimBranchesCold),
     ("Mou Gan Ning Mobile: real repeated guesses and independent Wei targets Cold", CardGame.Core.Tests.MouGanNingMobileChecks.RealRepeatedGuessesAndIndependentWeiTargetsCold),
+    ("Mou Guo Huai Mobile: ordered real predictions and next actual start none Cold", CardGame.Core.Tests.MouGuoHuaiMobileChecks.OrderedRealPredictionsAndNextActualStartNoneCold),
     ("Wu Huangfu Song: Lianjie actual draw privileges Jiangxian damage end loss cold", CardGame.Core.Tests.WuHuangFuSongChecks.LianjieActualDrawPrivilegesJiangxianDamageAndEndLossCold),
     ("Le Cai Yong: initial Xian actual loss binary protection Armor expiry cold", CardGame.Core.Tests.LeCaiYongChecks.InitialXianActualLossBinaryProtectionArmorAndExpiryCold),
     ("Le Cai Yong: effective names previous Use private samples cold", CardGame.Core.Tests.LeCaiYongChecks.FeibaiEffectiveNamesPreviousUsePrivateSamplesAndCold),
@@ -674,6 +679,7 @@ var tests = new (string Name, Action Body)[]
     ("Ma Wan: SimultaneousPrivateCommitmentsUnanimousSupplementActualDrawAndCold", MaWanChecks.SimultaneousPrivateCommitmentsUnanimousSupplementActualDrawAndCold),
     ("Zhang Yi: ActualEndDamageDrawRecoveryExtraPlayQuotasAndPaidSourceLossCold", ZhangYiChecks.ActualEndDamageDrawRecoveryExtraPlayQuotasAndPaidSourceLossCold),
     ("Luo Xian: ZeroEvenOwnOtherEndsAndSkippedFaceDownTurnCold", LuoXianChecks.ZeroEvenOwnOtherEndsAndSkippedFaceDownTurnCold),
+    ("Hand reveal privacy: FireAttack and Gongxin close before opaque Dismantlement cold", LuoXianChecks.TemporaryRevealsReturnToOpaqueTargetSlotsCold),
     ("Yan Pu: ActualForeignDrawGiftEndingBranchesRoundQuotaAndSourceLossCold", YanPuChecks.ActualForeignDrawGiftEndingBranchesRoundQuotaAndSourceLossCold),
     ("Du Xi: ActualUnequalPairDrawModifiersRoundTransferAndSameHolderCold", DuXiChecks.ActualUnequalPairDrawModifiersRoundTransferAndSameHolderCold),
     ("Fu Rong: RealDiscardOrderNativeQuotaAndColdReturns", FuRongChecks.RealDiscardOrderNativeQuotaAndColdReturns),
@@ -856,6 +862,7 @@ var tests = new (string Name, Action Body)[]
     ("Damage judgment suit payment four suits and exact claims", BoundaryCaiWenJiChecks.DamageJudgmentBeforePaymentFourSuitsAndExactClaims),
     ("Random reveal color Fire Attack HE payment and children cold", BoundaryWolongZhugeLiangChecks.RandomRevealColorHePaymentAndChildrenCold),
     ("Actual turn use kinds per Play draw child and actual turn expiry", BoundaryGuoHuaiChecks.EachPlayEndingDrawUsesActualTurnHistoryAndReturnsFromGainChild),
+    ("Guo Huai Jingce: shared suits and types distinguish own and foreign Play endings", BoundaryGuoHuaiChecks.StandardAndBoundaryShareSuitAndTypeBenefitsButKeepDifferentEndingScopes),
     ("Discarded provenance virtual Alcohol face children and zero entity", BoundaryCaoZhiChecks.VirtualAlcoholWaitsForFaceChildrenAndUsesNoPhysicalEntity),
     ("Granted entity extra phase distance claim children and cold", BoundaryLiaoHuaChecks.ExtraPhaseEntityDistanceAndClaimChildrenAreExact),
     ("Next actual-use paid wins refresh one target token and original claims", BoundaryJianYongChecks.NextActualUsePaidWinsRefreshSingleTargetTokenAndClaimOriginalCards),

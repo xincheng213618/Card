@@ -26,6 +26,7 @@ public sealed record MouXiahouShiQiaoshiRecoveryReturnedEvent(long FrameId, int 
     int RequestedRecovery) : IGameEvent;
 internal sealed class ResolveMouXiahouShiQiaoshiDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
 
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiQiaoshi;

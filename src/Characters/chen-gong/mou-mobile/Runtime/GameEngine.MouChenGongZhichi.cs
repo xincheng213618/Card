@@ -15,7 +15,7 @@ public sealed partial class GameEngine
     private bool ValidMouChenGongProtection(MouChenGongZhichiProtection p) => p.Source.SkillId == MouChenGongComposition.Zhichi &&
         p.Source.BindingId == "arm-protection" && p.DamageTargetSeat == p.Source.OwnerSeat && IsValidPlayerSeat(p.Source.OwnerSeat) &&
         p.WindowId > 0 && p.DamageFrameId > 0 && p.AttackResolutionId > 0 && p.ActualTurnOrdinal > 0 && OriginalMouChenGongProtectionTurn(p) &&
-        _contentRegistry.GetSkill(p.Source.SkillId).Program is { } program && program.GameplayHash == p.GameplayHash && MouChenGongComposition.IsZhichi(program) &&
+        _contentRegistry.GetSkill(p.Source.SkillId).Program is { } program && program.GameplayHash == p.GameplayHash &&
         ProgramEventHistory<MouChenGongZhichiIssuedEvent>().Count(e => e.Protection == p) == 1 &&
         ProgramEventHistory<DamageTriggerWindowOpenedEvent>().Count(e => e.ResolutionId == p.WindowId && e.DamageFrameId == p.DamageFrameId &&
             e.TargetSeat == p.Source.OwnerSeat && e.Candidates.Any(c => c.ToProgramCandidate() is { } candidate && candidate.OwnerSeat == p.Source.OwnerSeat &&
@@ -44,7 +44,7 @@ public sealed partial class GameEngine
             var candidate = candidates.OrderBy(c => c.SkillInstanceId, StringComparer.Ordinal).First();
             var attack = GetDamageTriggerAttack(window);
             if (_contentRegistry.GetSkill(candidate.SkillId).Program is not { } program || program.GameplayHash != candidate.GameplayHash ||
-                !MouChenGongComposition.IsZhichi(program) || attack.TargetSeat != window.TargetSeat ||
+                attack.TargetSeat != window.TargetSeat ||
                 _resolutionStack.SingleOrDefault(f => f.Id == window.ParentFrameId) is not DamageFrame damage || damage.TargetSeat != window.TargetSeat ||
                 ProgramEventHistory<DamageRequestedEvent>().Count(e => e.ResolutionId == damage.Id && e.SourceSeat == damage.SourceSeat &&
                     e.TargetSeat == damage.TargetSeat && e.Amount == damage.Amount && e.Nature == damage.Nature) != 1)

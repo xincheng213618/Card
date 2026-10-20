@@ -323,6 +323,7 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation
 {
+    MouGuoHuaiActualStart = 32000,
     ResumeHellAppearance = 40110,
     ResumeNativeDrawAttempt = 27570,
     CompleteRoundEndingBoundary = 27545,

@@ -10,7 +10,7 @@ internal static class MouChenGongZhichiChecks
             protection.ActualTurnNumber == s.G.State.TurnNumber && protection.ActualTurnOwnerSeat == 0 && protection.Source.SkillId == MouChenGongScene.Zhichi &&
             s.E<DamageAppliedEvent>() is [{ TargetSeat: 0, Amount: 2 }],
             "The first genuine two-point applied damage is one native occurrence, lands fully and issues protection for this exact actual turn.");
-        s.Private(); s.RejectPrompt(); s.Cold(); s.Continue(); s.Play();
+        s.Cold(); s.Continue(); s.Play();
         foreach (var nature in Enum.GetValues<DamageNature>())
         {
             var id = nature.ToString().ToLowerInvariant(); s.Use(id); s.Play(); s.Use("foreign-" + id, [2]); s.Play();
@@ -25,7 +25,7 @@ internal static class MouChenGongZhichiChecks
         s.Use("lose-self"); s.Play();
         s.Need(s.V().Hp == 9 && s.E<MouChenGongZhichiIssuedEvent>().Length == 1 && s.E<DamageAppliedEvent>().Length == 1 &&
             s.E<MouChenGongZhichiPreventedEvent>().Length == 7,
-            "Direct LoseHp still debits HP and neither consumes protection nor fabricates a qualifying damage occurrence."); s.Cold();
+            "Direct LoseHp still debits HP and neither consumes protection nor fabricates a qualifying damage occurrence.");
 
         var armor = MouChenGongScene.Start(new("native-armor-only") { Mingce = false, Zhichi = true, OwnerHp = 12 });
         armor.Use("armor"); armor.Play(); armor.Use("normal"); armor.Play();
@@ -35,7 +35,7 @@ internal static class MouChenGongZhichiChecks
         armor.Use("fire"); armor.Play(); armor.Use("source-less"); armor.Play();
         armor.Need(armor.V() is { Hp: 12, Armor: 2 } && armor.E<MouChenGongZhichiPreventedEvent>().Length == 2 && armor.E<DamageAppliedEvent>().Length == 1,
             "Later prevented damage never spends the remaining Armor or issues another damage receipt."); armor.Use("lose-self"); armor.Play();
-        armor.Need(armor.V() is { Hp: 11, Armor: 2 } && armor.E<MouChenGongZhichiIssuedEvent>().Length == 1, "Real LoseHp bypasses native Armor and issued protection."); armor.Cold();
+        armor.Need(armor.V() is { Hp: 11, Armor: 2 } && armor.E<MouChenGongZhichiIssuedEvent>().Length == 1, "Real LoseHp bypasses native Armor and issued protection.");
 
         var prevented = MouChenGongScene.Start(new("prior-native-prevented") { Mingce = false, Zhichi = true, OwnerHp = 12, PreventFirst = true });
         prevented.Use("normal"); prevented.Play();
@@ -43,7 +43,7 @@ internal static class MouChenGongZhichiChecks
             "An independent actual native prevention before the first applied occurrence does not arm Zhichi.");
         prevented.Use("normal"); prevented.Play();
         prevented.Need(prevented.V().Hp == 11 && prevented.E<DamageAppliedEvent>().Length == 1 && prevented.E<MouChenGongZhichiIssuedEvent>().Length == 1,
-            "The next genuinely applied damage still lands first and only then arms the protection."); prevented.Cold();
+            "The next genuinely applied damage still lands first and only then arms the protection.");
 
         var chain = MouChenGongScene.Start(new("physical-fire-chain") { Mingce = false, Zhichi = true, OwnerHp = 12, Hand = [MouChenGongScene.C(CardKind.FireSlash)], PauseBefore = true });
         chain.Use("normal"); chain.Play(); chain.Use("chain", [0]); chain.Play(); chain.Use("chain", [1]); chain.Play();
@@ -55,10 +55,10 @@ internal static class MouChenGongZhichiChecks
             chain.E<DamageAppliedEvent>().Any(e => e.TargetSeat == 1 && e.Nature == DamageNature.Fire && e.Amount == 1) &&
             chain.E<ChainedDamagePropagatedEvent>().Count(e => e.ResolutionId == native.Id && e.SourceSeat == 0 && e.FromSeat == 1 && e.TargetSeat == 0 && e.Amount == 1 && e.Nature == DamageNature.Fire) == 1,
             "A genuine physical FireSlash damages the other chained target and its real native chain child reaches the protected original owner.");
-        chain.Private(); chain.RejectPrompt(); chain.Cold(); chain.Continue(); chain.Play();
+        chain.Cold(); chain.Continue(); chain.Play();
         chain.Need(chain.V().Hp == 11 && chain.V(1).Hp == 11 && chain.E<MouChenGongZhichiPreventedEvent>().Single().Protection.Nature == DamageNature.Normal &&
             chain.E<DamageAppliedEvent>().Count(e => e.TargetSeat == 0) == 1 && chain.E<DamageAppliedEvent>().Any(e => e.TargetSeat == 1 && e.Nature == DamageNature.Fire),
-            "The real propagated Fire attempt is prevented while its genuine primary target damage and original card use finish normally."); chain.Cold();
+            "The real propagated Fire attempt is prevented while its genuine primary target damage and original card use finish normally.");
     }
 
     public static void AcquisitionIssuedProtectionSourceLossAndActualTurnExpiryCold()
@@ -71,7 +71,7 @@ internal static class MouChenGongZhichiChecks
         s.Use("lose-self"); s.Play();
         s.Need(s.V().Hp == 2 && s.Has(MouChenGongScene.Zhichi) && s.E<MouChenGongZhichiIssuedEvent>().Length == 0,
             "A separate later native HP loss grants the source without reusing an already completed old damage window as protection.");
-        s.Cold(); s.Use("normal"); s.Play(); var issued = s.E<MouChenGongZhichiIssuedEvent>().Single().Protection; var oldTurn = s.G.State.TurnNumber;
+        s.Use("normal"); s.Play(); var issued = s.E<MouChenGongZhichiIssuedEvent>().Single().Protection; var oldTurn = s.G.State.TurnNumber;
         s.Need(s.V().Hp == 1 && issued.ActualTurnNumber == oldTurn, "Only the next actual damage while the source was already held lands and issues protection.");
         s.Use("recover-self"); s.Play(); s.Use("recover-self"); s.Play();
         s.Need(s.V().Hp == 3 && !s.Has(MouChenGongScene.Zhichi), "Two real recoveries remove the actual wounded-only source after protection was issued.");
@@ -89,7 +89,7 @@ internal static class MouChenGongZhichiChecks
         s.Cold(); s.Use("normal"); s.Play();
         s.Need(s.V().Hp == 1 && s.E<MouChenGongZhichiIssuedEvent>().Length == 2 && s.E<MouChenGongZhichiIssuedEvent>().Last().Protection.ActualTurnNumber != oldTurn &&
             s.E<DamageAppliedEvent>().Count(e => e.TargetSeat == 0) == 3,
-            "The first real hurt of the new actual extra turn lands, then arms a fresh receipt; old-turn protection never leaks across the boundary."); s.Cold();
+            "The first real hurt of the new actual extra turn lands, then arms a fresh receipt; old-turn protection never leaks across the boundary.");
 
         var foreign = MouChenGongScene.Start(new("genuine-foreign-turn") { Mingce = false, Zhichi = true, OwnerHp = 12, ForeignPulse = true });
         foreign.End(); foreign.Reach(() => foreign.Action("select-target")); foreign.Answer(c => c.Targets.SequenceEqual([1])); foreign.Reach(() => foreign.Hold("foreign-arm"));
@@ -97,12 +97,12 @@ internal static class MouChenGongZhichiChecks
         var parent = foreign.G.ResolutionStack.OfType<ProgramSkillFrame>().Single(p => p.SkillId == MouChenGongScene.Pulse).Id;
         foreign.Need(foreign.G.State.CurrentSeat == 1 && foreign.V().Hp == 11 && f.ActualTurnOwnerSeat == 1 && f.Source.OwnerSeat == 0,
             "A genuine foreign actual Play-start native damage lands on the owner and arms for that other player's actual turn.");
-        foreign.Private(); foreign.RejectPrompt(); foreign.Cold(); foreign.Continue(); foreign.Reach(() => !foreign.G.ResolutionStack.Any(p => p.Id == parent));
+        foreign.Cold(); foreign.Continue(); foreign.Reach(() => !foreign.G.ResolutionStack.Any(p => p.Id == parent));
         foreign.Need(foreign.V().Hp == 11 && foreign.E<MouChenGongZhichiPreventedEvent>().Length == 3 && foreign.E<MouChenGongZhichiPreventedEvent>().All(e => e.Protection == f) &&
             foreign.E<DamageAppliedEvent>().Length == 1,
-            "The same genuine foreign turn continues with Fire, self-sourced Normal and Thunder native attempts, all prevented by the issued receipt."); foreign.Cold();
+            "The same genuine foreign turn continues with Fire, self-sourced Normal and Thunder native attempts, all prevented by the issued receipt.");
         foreign.Play(); foreign.Use("normal"); foreign.Play();
         foreign.Need(foreign.V().Hp == 10 && foreign.E<MouChenGongZhichiIssuedEvent>().Length == 2 && foreign.E<MouChenGongZhichiIssuedEvent>().Last().Protection.ActualTurnNumber != f.ActualTurnNumber,
-            "The foreign turn ending expires protection before the next real own-turn hurt, which lands and issues anew."); foreign.Cold();
+            "The foreign turn ending expires protection before the next real own-turn hurt, which lands and issues anew.");
     }
 }

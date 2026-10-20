@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool ExactYinjuBeforeCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext context,out YinjuTurnRelation relation,out BeforeDamageProgramWindowFrame window)
@@ -17,6 +17,7 @@ public sealed partial class GameEngine
   foreach(var t in p.Triggers.Where(t=>t.Window==SkillProgramTriggerWindow.BeforeDamageApplied&&t.Effects is[{Op:SkillProgramEffectOp.PreventYinjuDamageAndRecover}]))
   {var c=new ProgramTriggerCandidate(sourceSeat,r.Source.SkillId,t.Id,r.Source.SkillInstanceId,r.GameplayHash,t.Priority);yield return new(c,CaptureProgramTriggerFacts(_players[sourceSeat])with{EventTargetHp=_players[targetSeat].Hp});}
  }
+ [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 17)]
  private void CollectIssuedYinjuCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
  {
   if(window!=SkillProgramTriggerWindow.CardUseTargetsFinalized||action.Type!=CardActionType.Use||CurrentYinju(action.ActorSeat)is not{}r||_resolutionStack.OfType<CardUseFrame>().LastOrDefault(u=>u.Action?.ActionId==action.ActionId)is not{}use||!XinPiMainTargets(use).Contains(r.TargetSeat)||!HasExactAcceptedActualHandGainUse(use,action))return;

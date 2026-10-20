@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool _hasIssuedZhugeGuoState;

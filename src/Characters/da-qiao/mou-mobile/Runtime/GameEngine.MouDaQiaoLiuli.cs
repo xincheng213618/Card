@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         var last = ProgramEventHistory<MouDaQiaoLiuliMarkGrantedEvent>().LastOrDefault();
         return last is not null && !ProgramEventHistory<MouDaQiaoLiuliMarkConsumedEvent>().Any(e => e.GrantId == last.GrantId) ? last : null;
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.UnissuedTurnStartObligation, 1)]
     private bool HasUnissuedMouDaQiaoPhase(int owner) => HasMouDaQiaoLiuli && LiveMouDaQiaoMark() is { } grant && grant.RecipientSeat == owner &&
         _players[owner].IsAlive && !ProgramEventHistory<MouDaQiaoLiuliPhaseIssuedEvent>().Any(e => e.GrantId == grant.GrantId);
     private bool PaidMouDaQiaoLiuli(ProgramSkillFrame f) => f.SkillId == MouDaQiaoComposition.Liuli && f.TriggerId == "redirect-slash" &&
@@ -74,6 +75,7 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ResolveMouDaQiaoLiuliHeart)]
     private PromptChoice AiMouDaQiaoHeart(PendingDecision p, ProgramSkillFrame f) => p.Choices.FirstOrDefault(c => c.Targets is [var target] && AreProgramDistributionAllies(_players[f.OwnerSeat], _players[target])) ?? p.Choices.Last();
 
+    [ProgramPipelineHook(ProgramPipelinePhase.IncludeTriggerCandidate, 3)]
     private IReadOnlyList<ProgramTriggerCandidate> IncludeMouDaQiaoPhaseCandidates(CharacterState owner, SkillProgramTriggerWindow window, IReadOnlyList<ProgramTriggerCandidate> ordinary)
     {
         if (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || !HasMouDaQiaoLiuli) return ordinary;
@@ -97,6 +99,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new MouDaQiaoLiuliPhaseIssuedEvent(f.Id, r.GrantId, f.OwnerSeat, _turnNumber, c.ParentFrameId));
         return ScheduleProgramPhase(f, TurnPhase.Play, SkillProgramPhaseContinuation.BeforeNormalPreparation);
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ContinueDetachedProgramBinding, 1)]
     private bool IsReturningMouDaQiaoLiuliPhase(ProgramSkillFrame f) => f.MouDaQiaoLiuliPhase is { } r &&
         ProgramEventHistory<ProgramPhaseScheduledEvent>().Any(e => e.FrameId == f.Id && !e.Started && e.Phase == TurnPhase.Play) &&
         ProgramEventHistory<MouDaQiaoLiuliPhaseIssuedEvent>().Count(e => e.FrameId == f.Id && e.GrantId == r.GrantId && e.RecipientSeat == f.OwnerSeat && e.ActualTurn == r.ActualTurn) == 1;

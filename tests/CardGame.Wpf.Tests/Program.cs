@@ -76,9 +76,11 @@ internal static class Program
             Check("table shortcuts execute once per key press and preserve modal drafts", TableShortcutChecks.SinglePressActions);
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
+            Check("skill quantity activation and effect choices share the lower action dock", () => DockSkillChoiceUiChecks.QuantityActivationAndEffectsUseSameDock(output));
             Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("custom general roster categories search within eligible series and reset across modes", () => GeneralRosterCategoryChecks.SeriesSearchAndModeBoundaries(output));
+            Check("Bagua response UI: armor choice judgment then hand Dodge", () => BaguaResponseUiChecks.ArmorChoicePrecedesJudgmentAndHandDodge(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Wumiao Flood UI: ordered portraits undo aim and native commit", () => WumiaoFloodUiChecks.OrderedPortraitTargetsUndoAimAndCommit(output));
@@ -96,6 +98,8 @@ internal static class Program
             Check("Opening customization UI: identities roster and hand confirmation", () => OpeningCustomizationUiChecks.RolesRosterAndHandConfirmation(output));
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
+            Check("Wushuang UI: entry shop and independent cold restore", () => WushuangUiChecks.EntryShopAndIndependentColdRestore(output));
+            Check("Wushuang UI: full skill slots require visible replacement", () => WushuangUiChecks.FullSkillSlotsRequireVisibleReplacement(output));
             Check("Jiange activity UI: faction tier rules AI teammate and real setup", () => CheckJiangeActivity(output));
             Check("Shanhe campaign UI: story map choices and independent cold restore", () => ShanheCampaignUiChecks.StoryMapChoicesAndIndependentColdRestore(output));
             Check("Shanhe campaign UI: actual encounter save routing and stale map choices", () => ShanheCampaignUiChecks.ActualEncounterSaveRoutingAndStaleMapChoices(output));
@@ -130,6 +134,9 @@ internal static class Program
             Check("identity dual generals show consecutive choices portraits and both skill sources", () => IdentityDualGeneralUiChecks.SelectionAndTable(output));
             Check("Interaction motion: native lifecycle reversal and preference cancellation", InteractionMotionChecks.NativeLifecyclePreservesLayoutAndRetiresAnimations);
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
+            Check("Automatic targets UI: unique card and conversion drafts", AutomaticTargetSelectionChecks.CardAndConversionDraftsSelectOnlyUniqueTargets);
+            Check("Automatic targets UI: active skill material legality and prompt defaults", AutomaticTargetSelectionChecks.ActiveSkillDraftsFollowMaterialLegality);
+            Check("Automatic rescue UI: unavailable rescue passes and real choices remain", () => AutomaticRescuePassChecks.UnavailableRescuePass(output));
             Check("own public pile conversion: real Bing rail and response source", OwnPublicPileConversionUiChecks.RealBingPlayRailAndPublishedResponseSource);
             Check("Liu Ba UI: private coins and bottom exchange", LiuBaCoinUiChecks.RealMintPrivateBottomExchangeAndReversibleChoice);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
@@ -147,6 +154,7 @@ internal static class Program
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
             Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
+            Check("Target card UI: single hidden hand card resolves once without second picker", () => TargetCardChecks.OnlyHandCard(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", () => NationalSeatChecks.PrivacyAndReveal(output));
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));
             Check("failed writes preserve saves and failed reads initialize a new game", () => PersistenceChecks.FailedWritesPreserveSavesAndFailedLoadsInitializeGame(output));
@@ -229,7 +237,9 @@ internal static class Program
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:nian-2016") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:dragon-boat-2018") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:guandu-2023") &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 8 &&
+               vm.VisibleTableModes.Any(mode => mode.ModeId == WushuangMode.ModeId && mode.PlayerCount == 2) &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).ToHashSet().SetEquals(
+                   ["经典身份", "双将身份", "公开阵营", "双将试验", "五阶 PVE", "五阶生存", "五阶竞舟", "五阶军争", "限时单挑"]) &&
                vm.StartingRoles.Any(role => role.Role is null) &&
                vm.StartingRoles.Where(role => role.Role.HasValue).Select(role => role.Role!.Value).ToHashSet()
                    .SetEquals([Role.Lord, Role.Loyalist, Role.Rebel, Role.Renegade]) && vm.SelectedStartingRole.Role is null,

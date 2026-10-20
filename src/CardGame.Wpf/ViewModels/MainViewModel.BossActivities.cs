@@ -4,7 +4,7 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
-    private ContentRegistry SelectedModeRegistry => SelectedTableMode is { } selected &&
+    private ContentRegistry SelectedModeRegistry => IsWushuangModeSelection ? WushuangRegistry.Value : SelectedTableMode is { } selected &&
         !_contentRegistry.Modes.ContainsKey(selected.ModeId) && _game?.ContentRegistry is { } restored &&
         restored.Modes.ContainsKey(selected.ModeId) ? restored : _contentRegistry;
     private ContentModeDefinition? SelectedModeDefinition => SelectedTableMode is { } selected
@@ -17,7 +17,8 @@ public sealed partial class MainViewModel
     private bool IsBossActivitySnapshot => CurrentModeDefinition?.BossActivity is not null;
 
     private static IReadOnlyList<StartingTeamOption> StartingTeamsFor(ContentModeDefinition? mode) =>
-        mode?.Id == "campaign:shanhe-battle"
+        mode?.Id == WushuangMode.ModeId ? [new("挑战者", WushuangMode.PlayerTeamId, "独自迎战一名 AI 对手")]
+        : mode?.Id == "campaign:shanhe-battle"
             ? [new("义军", "team:shanhe-player", "从山河图地图出征；当前节点决定实际敌军与友军人数")]
         : mode?.GuanduActivity is not null ? GuanduStartingTeams : mode?.DragonBoatActivity is not null ? DragonBoatStartingTeams : mode?.ShenwuActivity is { } shenwu
             ? [new("联合军", shenwu.PlayerTeamId, "你与两名人机搭档挑战凶兽首领和两名烛阴")]

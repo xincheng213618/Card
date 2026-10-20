@@ -20,6 +20,8 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
             ? player.IsHuman ? $"你（{player.GeneralName}）" : $"{Number(player.Seat)}号位 {player.GeneralName}"
             : "未指定角色";
         var description = prompt.Prompt;
+        var baguaActivation = prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua-skip");
+        if (baguaActivation) description = "是否发动【八卦阵】进行判定？";
         foreach (var player in snapshot.Players.Where(player => !player.IsHuman).OrderByDescending(player => player.Name.Length))
             if (!string.IsNullOrEmpty(player.Name)) description = description.Replace(player.Name, Name(player.Seat), StringComparison.Ordinal);
         var source = prompt.SourceSeat;
@@ -89,6 +91,8 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
 
     private static string ResponseTitle(PendingDecision prompt)
     {
+        if (prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua-skip"))
+            return "等待你选择是否发动【八卦阵】";
         if (prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash)
         {
             if (!IsResponseCardPrompt(prompt)) return string.Empty;

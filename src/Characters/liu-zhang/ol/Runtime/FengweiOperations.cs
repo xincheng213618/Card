@@ -10,5 +10,6 @@ public sealed record FengweiDamageReceipt(long AttackId,int TargetSeat,int Curso
 public sealed record FengweiDamageFrozenEvent(long AttackId,int TargetSeat,int Cursor,int InheritedAmount,int Bonus,long InvoiceId):IGameEvent;
 public sealed record FengweiDamageRebasedEvent(long AttackId,int TargetSeat,int Cursor,int InheritedAmount):IGameEvent;
 public sealed record FengweiDamageTransferredEvent(long AttackId,int OriginalSeat,int TargetSeat,int Cursor,long WindowId):IGameEvent;
-internal sealed class ResolveFengweiRoundStartDrawDescriptor:LiuZhangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFengweiRoundStartDraw;}
+internal sealed class ResolveFengweiRoundStartDrawDescriptor:LiuZhangDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFengweiRoundStartDraw;}
 internal sealed class ResolveFengweiActualDrawSkipDescriptor:LiuZhangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFengweiActualDrawSkip;}

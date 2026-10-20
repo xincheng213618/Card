@@ -27,7 +27,7 @@ public sealed partial class MainViewModel
     private bool IsWenheActivitySnapshot => CurrentModeDefinition?.WenheActivity is not null;
     public bool IsWenheActivityTable => IsWenheActivitySnapshot;
     public bool IsWenheAspirationSelection => SelectedModeDefinition?.WenheActivity is { EnableAspirations: true };
-    public bool ShowModeSetupText => IsTeamModeSelection || IsWenheActivityModeSelection;
+    public bool ShowModeSetupText => IsWushuangModeSelection || IsTeamModeSelection || IsWenheActivityModeSelection;
     public bool IsWenheGuide => IsNewGameSetupOpen ? IsWenheActivityModeSelection : IsWenheActivitySnapshot;
 
     private static string WenheActivityLobbyDescription => "八人各自求生 · 七名AI对手\n玩家默认五阶 · 七种轮次规则与个人排名";

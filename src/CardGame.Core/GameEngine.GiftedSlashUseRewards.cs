@@ -150,6 +150,7 @@ public sealed partial class GameEngine
         AssertGiftedSlashPolicyOrigin(benefit.Policy);
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 2)]
     private void CollectIssuedGiftedSlashRewardCandidates(CardActionContext action, SkillProgramTriggerWindow window,
         List<ProgramCardTriggerCandidate> result)
     {

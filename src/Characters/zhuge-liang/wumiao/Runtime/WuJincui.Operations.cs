@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
 internal sealed class InitializeWuZhugeLiangJincuiDescriptor : WuZhugeLiangDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
  public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeWuZhugeLiangJincui;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);

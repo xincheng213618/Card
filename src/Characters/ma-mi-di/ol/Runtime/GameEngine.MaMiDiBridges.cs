@@ -1,6 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 10)]
     private void CollectIssuedBingjieCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window != SkillProgramTriggerWindow.CardUseTargetsFinalized || action.Type != CardActionType.Use || !(IsSlashCard(action.EffectiveKind) || IsOrdinaryTrick(action.EffectiveKind)) ||

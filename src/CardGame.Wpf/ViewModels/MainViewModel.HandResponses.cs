@@ -27,6 +27,12 @@ public sealed partial class MainViewModel
 
     public bool IsHandResponsePending => IsHandResponsePrompt(_snapshot);
 
+    private bool IsBaguaActivationPending => IsHandResponsePending && _snapshot.PendingDecision!.Choices.Any(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "bagua-skip");
+    private PromptChoice? BaguaActivationChoice => IsBaguaActivationPending
+        ? _snapshot.PendingDecision!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") is
+            "bagua" or "faction-defense-bagua") : null;
+
     private IEnumerable<CardSnapshot> HandResponseMaterials => _snapshot.Players
         .Where(player => player.IsHuman)
         .SelectMany(player => player.Hand.Concat(player.WoodenOxGrain ?? []));
@@ -36,6 +42,8 @@ public sealed partial class MainViewModel
         get
         {
             if (!IsHandResponsePending) return null;
+            if (IsBaguaActivationPending) return _snapshot.PendingDecision!.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "bagua-skip");
             if (IsCardPaymentSelectionPending && CardPaymentDeclineChoice is { } paymentDecline) return paymentDecline;
             var choices = _snapshot.PendingDecision!.Choices.Where(choice => choice.Cards.Count == 0 &&
                 (_snapshot.PendingDecision.Kind switch
@@ -59,6 +67,7 @@ public sealed partial class MainViewModel
         get
         {
             if (!IsHandResponsePending) return _handResponseExtraChoices = [];
+            if (IsBaguaActivationPending) return _handResponseExtraChoices = [];
             if (IsStoneAxeSelectionPending || IsOwnedCardSelectionPending) return _handResponseExtraChoices = [];
             var choices = _snapshot.PendingDecision!.Choices;
             if (IsCardPaymentSelectionPending)
@@ -96,7 +105,7 @@ public sealed partial class MainViewModel
     // Ambiguous effects continue to use the explicit central candidates.
     private PromptChoice? HandResponseChoice(int? cardId)
     {
-        if (!IsHandResponsePending || cardId is null ||
+        if (!IsHandResponsePending || IsBaguaActivationPending || cardId is null ||
             !HandResponseMaterials.Any(card => card.Id == cardId)) return null;
         var choices = _snapshot.PendingDecision!.Choices
             .Where(choice => choice.Cards.Count == 1 && choice.Cards[0] == cardId).Take(2).ToArray();
@@ -104,7 +113,7 @@ public sealed partial class MainViewModel
     }
 
     private PromptChoice? SelectedHandResponse => IsCardPaymentSelectionPending ? SelectedCardPaymentChoice : HandResponseChoice(_selectedCardId);
-    private string HandResponseButtonText => IsStoneAxeSelectionPending ? "是" : IsCardPaymentSelectionPending ? "确 定" : _snapshot.PendingDecision?.Kind switch
+    private string HandResponseButtonText => IsBaguaActivationPending ? "发动八卦" : IsStoneAxeSelectionPending ? "是" : IsCardPaymentSelectionPending ? "确 定" : _snapshot.PendingDecision?.Kind switch
     {
         DecisionKind.RespondDodge => IsSelectedResponseConversion(CardKind.Dodge) ? "当作闪打出" : "打出闪",
         DecisionKind.RespondSlash => IsSelectedResponseConversion(CardKind.Slash) ? "当作杀打出" : "打出杀",
@@ -121,7 +130,9 @@ public sealed partial class MainViewModel
         HandResponseMaterials.Single(card => card.Id == choice.Cards[0]).Kind is { } physical &&
         (required == CardKind.Slash ? physical is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : physical != required);
 
-    private string HandResponseHint => IsStoneAxeSelectionPending
+    private string HandResponseHint => IsBaguaActivationPending
+        ? "是否发动【八卦阵】？红色判定视为打出【闪】；不发动或判定失败后，可以继续选择手牌出闪。"
+        : IsStoneAxeSelectionPending
         ? $"贯石斧 · 选择两张手牌或装备（已选 {_paymentCardIds.Count}/2）· 点击「是」弃牌发动，点击「否」放弃；Esc 取消选牌。"
         : IsCardPaymentSelectionPending ? CardPaymentSelectionHint +
             (CardPaymentDeclineChoice is not null ? $"点击「{ActionDockCancelText}」放弃本次支付。" : string.Empty)
@@ -133,7 +144,9 @@ public sealed partial class MainViewModel
           (HandResponseExtraChoices.Count > 0 ? "其他技能、装备或响应方式在中央。" : string.Empty)) +
           (HandResponseDeclineChoice is not null ? $"点击「{ActionDockCancelText}」放弃本次响应。" : string.Empty);
 
-    private string HandResponseUnavailableHint(int cardId) => _snapshot.PendingDecision!.Choices.Count(choice =>
+    private string HandResponseUnavailableHint(int cardId) => IsBaguaActivationPending
+        ? "请先选择是否发动【八卦阵】。"
+        : _snapshot.PendingDecision!.Choices.Count(choice =>
         choice.Cards.Count == 1 && choice.Cards[0] == cardId) > 1
         ? "这张牌有多种响应方式，请在中央选择具体效果。"
         : "这张牌不能用于本次响应；请使用亮起的手牌或中央选项。";
@@ -155,7 +168,7 @@ public sealed partial class MainViewModel
 
     private void ConfirmHandResponse()
     {
-        if (SelectedHandResponse is { } choice) SubmitHandResponse(choice);
+        if ((BaguaActivationChoice ?? SelectedHandResponse) is { } choice) SubmitHandResponse(choice);
     }
 
     private void CancelAction()

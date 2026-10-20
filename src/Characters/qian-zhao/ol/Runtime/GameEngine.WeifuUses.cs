@@ -77,6 +77,7 @@ public sealed partial class GameEngine
         r.Grants.All(g => g.Source.OwnerSeat == r.ActorSeat && g.ActualTurn == r.ActualTurn && g.TurnOwnerSeat == r.TurnOwnerSeat && g.Category == r.Category &&
             ProgramEventHistory<WeifuGrantedEvent>().Count(e => e == g) == 1 && ProgramEventHistory<WeifuGrantConsumedEvent>().Count(e =>
                 e.GrantFrameId == g.FrameId && e.UseId == use.Id && e.ActionId == a.ActionId && e.ActorSeat == r.ActorSeat && e.Category == r.Category && !e.Counterspell) == 1);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 16)]
     private void CollectIssuedWeifuCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window != SkillProgramTriggerWindow.CardUseTargetsFinalized || _resolutionStack.LastOrDefault() is not CardUseFrame { WeifuUse: { Offered: false } r } use ||

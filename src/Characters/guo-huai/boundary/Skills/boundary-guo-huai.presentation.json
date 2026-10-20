@@ -3,8 +3,8 @@
   "skills": {
     "boundary:jingce-current": {
       "name": "精策",
-      "description": "每个角色的回合内，你每使用一种花色的手牌，本回合的手牌上限便+1；每个角色的出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。",
-      "triggerChoices": { "play-ending-type-draw": "按本回合实际使用牌的类型数摸牌" }
+      "description": "每个角色的回合内，你每使用一种花色的手牌，本回合的手牌上限便+1；每个角色的出牌阶段结束时，你可以摸X张牌（X为你本回合使用过的牌的类型数）。",
+      "triggerChoices": { "play-ending-type-draw": "按本回合使用过的牌的类型数摸牌" }
     }
   }
 }

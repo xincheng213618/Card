@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    WushuangIntermission = 61000,
     WuLuKangPindian = 29700,
     NativeDrawAttempt = 27570,
     DouyuWindow = 28134,
@@ -81,6 +82,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(WushuangIntermissionFrame), "wushuang-intermission")]
 [JsonDerivedType(typeof(NativeDrawAttemptFrame), "native-draw-attempt")]
 [JsonDerivedType(typeof(RoundEndingBoundaryFrame), "round-ending-boundary")]
 [JsonDerivedType(typeof(ActualPhaseEndFrame), "actual-phase-end")]
@@ -129,6 +131,13 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(ProgramDeathTriggerWindowFrame), "program-death-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
+
+/// <summary>Surface for module-owned child frames that carry a live parent frame id.</summary>
+internal interface IProgramChildResolutionFrame
+{
+    long ParentFrameId { get; }
+}
+
 public abstract partial record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,

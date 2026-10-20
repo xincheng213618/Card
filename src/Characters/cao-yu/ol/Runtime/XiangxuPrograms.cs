@@ -6,7 +6,8 @@ public sealed record CaoYuMinimumDeathRecordedEvent(long OpportunityId,long Deat
 public sealed record CaoYuMinimumArmedEvent(long FrameId,long OpportunityId,CardConversionSource Source,string GameplayHash):IGameEvent;
 public sealed record CaoYuOpportunityConsumedEvent(long FrameId,long OpportunityId,CardConversionSource ResolverSource,bool Adjust):IGameEvent;
 public sealed record CaoYuXiangxuComparisonEvent(long FrameId,long OpportunityId,int ReferenceSeat,int OwnHand,int ReferenceHand,string Branch,int Requested):IGameEvent;
-internal sealed class ResolveXiangxuMinimumTransitionDescriptor:CaoYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuMinimumTransition;}
+internal sealed class ResolveXiangxuMinimumTransitionDescriptor:CaoYuDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuMinimumTransition;}
 internal sealed class ResolveXiangxuIssuedTurnEndAdjustmentDescriptor:CaoYuDescriptor {
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
 public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment;}

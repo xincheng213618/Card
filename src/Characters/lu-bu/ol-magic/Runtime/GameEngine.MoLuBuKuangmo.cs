@@ -52,6 +52,7 @@ public sealed partial class GameEngine
         IsPaidMoKuangmoOrigin(entry.EntryId, entry.Origin, entry.OriginGameplayHash) && (entry.EntryRound >= 1 ||
         entry.EntryRound == 0 && ProgramEventHistory<MoLuBuOpeningStartedEvent>().Any(opening => opening.Source.OwnerSeat == entry.OwnerSeat &&
             opening.ActualTurn == entry.ActualTurn && entry.TurnOwner == entry.OwnerSeat));
+    [ProgramPipelineHook(ProgramPipelinePhase.IncludeTriggerCandidate, 2)]
     private IReadOnlyList<ProgramTriggerCandidate> IncludeMoLuBuDeathCandidates(CharacterState owner, SkillProgramTriggerWindow window, IReadOnlyList<ProgramTriggerCandidate> ordinary)
     {
         if (!HasMoLuBu || window != SkillProgramTriggerWindow.CharacterDied) return ordinary;

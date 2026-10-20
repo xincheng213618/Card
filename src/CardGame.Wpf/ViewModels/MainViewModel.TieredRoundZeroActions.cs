@@ -67,6 +67,7 @@ public sealed partial class MainViewModel
             _isSelectingActiveSkillCards = action.TargetSeats.Count > 0;
             if (_isSelectingActiveSkillCards)
             {
+                SelectOnlyActiveSkillTarget();
                 RefreshCurrentView();
                 return;
             }

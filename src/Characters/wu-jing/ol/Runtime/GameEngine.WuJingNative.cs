@@ -81,6 +81,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new WuJingHejiReturnedEvent(f.Id, origin.UseId));
         ReplaceRuntimeTop(f with { WuJing = r with { Stage = WuJingStage.NativeChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) }); return true;
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 15)]
     private void CollectIssuedWuJingHejiReward(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window != SkillProgramTriggerWindow.CardUseCompleted || _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Action?.ActionId == action.ActionId) is not { WuJingHeji: { Rewarded: false, Origin: { RewardEligible: true } origin }, Action.ConversionChain.Count: 0 } use || !IsWuJingHejiUse(use) || !_players[origin.Source.OwnerSeat].IsAlive) return;

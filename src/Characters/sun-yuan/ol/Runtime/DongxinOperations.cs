@@ -6,6 +6,7 @@ public sealed record DongxinEntityAcquiredEvent(long FrameId,CardConversionSourc
 public sealed record DongxinEntityDepartedEvent(long GrantFrameId,int RecipientSeat,int CardId,long Sequence):IGameEvent;
 public sealed record DongxinEntityUseBoundEvent(DongxinUseReceipt Receipt):IGameEvent;
 internal sealed class ResolveDongxinDamageDiscardAndReclaimDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveDongxinDamageDiscardAndReclaim,SkillProgramTriggerWindow.AfterDamageApplied) {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
 
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.SunYuan is { Paid: true };

@@ -8,7 +8,7 @@ public sealed partial class MainViewModel
 {
     private IReadOnlyList<LegalAction> _supplementalActiveSkillActions = [];
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
-    public string ActionDockCancelText => IsStoneAxeSelectionPending ? "否" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
+    public string ActionDockCancelText => IsBaguaActivationPending ? "不发动" : IsStoneAxeSelectionPending ? "否" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
         ? "放 弃" : "取 消";
     public int HumanSkillColumns => HumanSkillCards.Count > 4 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;

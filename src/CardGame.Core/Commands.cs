@@ -97,6 +97,12 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
 [JsonDerivedType(typeof(UseProgramSkillCommand), "use-program-skill")]
 [JsonDerivedType(typeof(TickNianClockCommand), "nian-clock")]
+[JsonDerivedType(typeof(TickWushuangClockCommand), "wushuang-clock")]
+[JsonDerivedType(typeof(BuyWushuangOfferCommand), "wushuang-buy")]
+[JsonDerivedType(typeof(RerollWushuangShopCommand), "wushuang-refresh")]
+[JsonDerivedType(typeof(UpgradeWushuangShopCommand), "wushuang-upgrade")]
+[JsonDerivedType(typeof(FinishWushuangShopCommand), "wushuang-finish")]
+[JsonDerivedType(typeof(ToggleWushuangShopLockCommand), "wushuang-lock")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>

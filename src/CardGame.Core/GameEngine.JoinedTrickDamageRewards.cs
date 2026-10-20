@@ -34,6 +34,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 3)]
     private void CollectIssuedJoinedTrickDamageRewardCandidates(CardActionContext action, SkillProgramTriggerWindow window,
         List<ProgramCardTriggerCandidate> result)
     {

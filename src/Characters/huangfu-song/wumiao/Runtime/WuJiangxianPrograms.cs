@@ -5,6 +5,7 @@ public sealed record WuHuangFuSongJiangxianSettledEvent(long FrameId, int OwnerS
 public sealed record WuHuangFuSongSkillRemovedEvent(long FrameId, int OwnerSeat, string SkillId, string GrantId) : IGameEvent;
 internal sealed class ArmWuHuangFuSongJiangxianDescriptor : WuHuangFuSongDescriptor
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;
     public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
  public override SkillProgramEffectOp Op => SkillProgramEffectOp.ArmWuHuangFuSongJiangxian; public override ISkillProgramEffectHandler Handler { get; } = new WuHuangFuSongArmHandler(); }
 internal sealed class SettleWuHuangFuSongJiangxianDescriptor : WuHuangFuSongDescriptor

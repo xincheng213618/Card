@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescriptorBase
 {

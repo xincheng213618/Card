@@ -37,6 +37,7 @@ internal static class MouChenGongComposition
         p.Triggers[1] is { Id: "prevent-later-damage", Window: SkillProgramTriggerWindow.BeforeDamageApplied, Subject: SkillProgramTriggerSubject.DamageTarget, Optional: false } prevent &&
         prevent.DamageOccurrence is null && prevent.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && Unfiltered(prevent) &&
         prevent.Effects is [var e] && Plain(e, SkillProgramEffectOp.PreventCurrentDamage);
+    // SkillProgramCatalog validates immutable definition shape once; runtime keeps dynamic receipts and hashes.
     [ProgramCatalogValidation(980)]
     internal static void ValidateProgram(string path, SkillProgram p)
     {

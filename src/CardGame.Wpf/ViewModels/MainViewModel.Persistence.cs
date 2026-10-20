@@ -44,7 +44,7 @@ public sealed partial class MainViewModel
     {
         _saveStore = saveStore ?? new FileGameSaveStore();
         SaveGameCommand = new RelayCommand(() => { if (!IsTutorialActive) SaveCurrentGame(GameSaveSlot.Manual); }, () => !IsTutorialActive);
-        LoadManualGameCommand = new RelayCommand(() => { if (!IsTutorialActive) LoadGame(GameSaveSlot.Manual); }, () => HasManualSave && !IsTutorialActive);
+        LoadManualGameCommand = new RelayCommand(() => { if (!IsTutorialActive) LoadGame(GameSaveSlot.Manual, wushuang: IsWushuangTable); }, () => HasManualSave && !IsTutorialActive);
         ContinueGameCommand = new RelayCommand(() => { if (!IsTutorialActive) LoadGame(GameSaveSlot.Automatic); }, () => HasAutomaticSave && !IsTutorialActive);
         _saveTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(1) };
         _saveTimer.Tick += OnSaveTick;
@@ -53,6 +53,7 @@ public sealed partial class MainViewModel
 
     private CommandResult SubmitCommand(GameCommand command)
     {
+        command = PrepareWushuangClockCommand(command);
         command = PrepareNianClockCommand(command);
         if (!AllowsTutorialCommand(command))
         {
@@ -92,6 +93,8 @@ public sealed partial class MainViewModel
                     if (!IsShanheBattleSession) CaptureCompletedHistory();
                 }
                 SyncNianClockAfterCommand();
+                SyncWushuangClockAfterCommand();
+                if (IsWushuangTable) RefreshWushuangPresentation();
             }
         }
         if (!result.Accepted)
@@ -118,6 +121,7 @@ public sealed partial class MainViewModel
     /// <summary>Flush the current committed boundary before closing; failure leaves it pending for retry.</summary>
     public bool FlushPendingSave()
     {
+        FlushWushuangClock();
         if (IsShanheBattleSession) return SaveShanheProgress();
         _saveTimer?.Stop();
         if (IsTutorialActive) return true;
@@ -129,18 +133,20 @@ public sealed partial class MainViewModel
         if (IsShanheBattleSession) return SaveShanheProgress();
         try
         {
+            FlushWushuangClock();
             FlushNianClock();
             var save = new GameSaveFile(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow,
                 IsAutoAdvance, _game.CreateCheckpoint())
             { PlaybackSpeedId = SelectedPlaybackSpeed.Id };
-            _saveStore.Write(slot, save);
+            (IsWushuangTable ? _wushuangSaveStore! : _saveStore).Write(slot, save);
             if (slot == GameSaveSlot.Automatic) _autoSavePending = false;
             RefreshSaveSlots();
+            RefreshWushuangSaveSlot();
             if (slot == GameSaveSlot.Manual) _loadFailed = false;
             if (!_loadFailed)
             {
                 HasSaveError = false;
-                SaveStatus = $"{(slot == GameSaveSlot.Automatic ? "已自动保存" : "已手动保存")} · {save.SavedAtUtc.ToLocalTime():HH:mm:ss}";
+                SaveStatus = $"{(IsWushuangTable ? "单骑无双独立存档 · " : string.Empty)}{(slot == GameSaveSlot.Automatic ? "已自动保存" : "已手动保存")} · {save.SavedAtUtc.ToLocalTime():HH:mm:ss}";
             }
             return true;
         }
@@ -154,12 +160,14 @@ public sealed partial class MainViewModel
         }
     }
 
-    private void LoadGame(GameSaveSlot slot)
+    private void LoadGame(GameSaveSlot slot, bool wushuang = false)
     {
         SaveShanheBeforeOrdinaryGame();
         try
         {
-            var save = _saveStore.Read(slot);
+            var save = (wushuang ? _wushuangSaveStore! : _saveStore).Read(slot);
+            if (wushuang && save.Checkpoint?.ModeId != WushuangMode.ModeId)
+                throw new InvalidDataException("这个存档不是单骑无双对局。");
             if (save.FormatVersion != GameSaveFile.CurrentFormatVersion || save.Checkpoint?.Options is not { } options)
                 throw new InvalidDataException("存档数据不完整或版本不受支持。");
             if (options.HumanSeat != 0)
@@ -212,6 +220,7 @@ public sealed partial class MainViewModel
             _saveTimer?.Start();
             CaptureCompletedHistory();
             SyncNianClockAfterCommand();
+            SyncWushuangClockAfterCommand();
         }
         catch (Exception exception)
         {
@@ -342,11 +351,11 @@ public sealed partial class MainViewModel
         try
         {
             var automatic = _saveStore.GetSavedAt(GameSaveSlot.Automatic);
-            var manual = _saveStore.GetSavedAt(GameSaveSlot.Manual);
+            var manual = (IsWushuangTable ? _wushuangSaveStore! : _saveStore).GetSavedAt(GameSaveSlot.Manual);
             HasAutomaticSave = automatic is not null;
             HasManualSave = manual is not null;
             AutomaticSaveText = automatic is { } autoTime ? $"自动保存 · {autoTime.ToLocalTime():MM-dd HH:mm}" : "暂无自动存档";
-            ManualSaveText = manual is { } manualTime ? $"手动保存 · {manualTime.ToLocalTime():MM-dd HH:mm}" : "暂无手动存档";
+            ManualSaveText = manual is { } manualTime ? $"{(IsWushuangTable ? "单骑无双 · " : string.Empty)}手动保存 · {manualTime.ToLocalTime():MM-dd HH:mm}" : "暂无手动存档";
             RaisePropertyChanged(nameof(HasAnySave));
             ((RelayCommand)ContinueGameCommand).NotifyCanExecuteChanged();
             ((RelayCommand)LoadManualGameCommand).NotifyCanExecuteChanged();

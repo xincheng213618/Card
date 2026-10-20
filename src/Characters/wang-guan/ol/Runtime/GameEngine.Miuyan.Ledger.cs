@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         _contentRegistry.GetSkill(c.SkillId).Program?.Triggers.Any(t=>t.Id==c.BindingId&&t.Effects is[{Op:SkillProgramEffectOp.ResolveMiuyanCompletedUse}])==true;
     private bool CanRunIssuedMiuyanCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext context)=>MiuyanCandidateUse(c,context)is{}use&&
         !ProgramEventHistory<WangGuanStartedEvent>().Any(e=>e.Op==SkillProgramEffectOp.ResolveMiuyanCompletedUse&&e.NativeId==use.Id);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 14)]
     private void CollectIssuedMiuyanCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
     {
         if(window!=SkillProgramTriggerWindow.CardUseCompleted||_resolutionStack.LastOrDefault()is not CardUseFrame{MiuyanUse:{}r}use||action.ActionId!=r.ActionId||!MiuyanUseProof(use))return;

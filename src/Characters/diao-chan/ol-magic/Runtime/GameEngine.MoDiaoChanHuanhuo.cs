@@ -13,11 +13,12 @@ public sealed partial class GameEngine
     private int MoDcRemaining(int actor) => ActiveMoDcPromises(actor).Select(p => 2 - ProgramEventHistory<MoDiaoChanUseClaimedEvent>().Count(e => e.Claim.PromiseId == p.PromiseId)).DefaultIfEmpty(0).Max();
 
     // Only command progression calls this; view/query code merely reads the signed lock.
+    [ProgramPipelineHook(ProgramPipelinePhase.PreparePlayPhaseDecision, 1)]
     private void PrepareMoDiaoChanHandSelection(CharacterState actor)
     {
         if (!HasMoDiaoChan || ActiveMoDcPromises(actor.Seat).Length == 0 || CurrentActualDiscardRecoveryPhase() is not { } phase) return;
         var hand = GetHand(actor).Select(c => c.Id).ToHashSet();
-        var actions = BuildLegalActionsCore(actor, includeProgramActions: true, selectedPhysicalCardId: null, nativeOriginalCard: null, ignoreMoDiaoChanSelection: true);
+        var actions = BuildLegalActionsCore(actor, includeProgramActions: true, selectedPhysicalCardId: null, nativeOriginalCard: null, ignoreForcedHandSelection: true);
         var pool = actions.Where(a => a.Kind is not (LegalActionKind.EndPlay or LegalActionKind.UseProgramSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.Recast))
             .SelectMany(a => a.CardId is { } id ? new[] { id } : a.SelectableCardIds ?? []).Where(hand.Contains).Distinct().Order().ToArray();
         var old = ProgramEventHistory<MoDiaoChanLockEvent>().LastOrDefault(e => e.ActorSeat == actor.Seat && e.ActualTurn == _turnNumber);
@@ -26,6 +27,7 @@ public sealed partial class GameEngine
         var lockId = ProgramEventHistory<MoDiaoChanLockEvent>().Select(e => e.LockId).DefaultIfEmpty().Max() + 1;
         AdvanceEventRulesAndQueueFact(new MoDiaoChanLockEvent(lockId, actor.Seat, _turnNumber, phase.Token, index < 0 ? 0 : pool[index], pool.Length, index, before, _random.State));
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ForcedPlayHandSelection, 1)]
     private ForcedHandSelectionSnapshot? MoDiaoChanHandSelection(int actor)
     {
         if (ActiveMoDcPromises(actor).Length == 0 || CurrentActualDiscardRecoveryPhase() is not { } phase ||
@@ -96,6 +98,7 @@ public sealed partial class GameEngine
     private bool IsIssuedMoDiaoChanCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) => MoDcCompletedClaim(c, context) is { } q &&
         !ProgramEventHistory<MoDiaoChanStartedEvent>().Any(e => e.Source == q.Source && _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == e.FrameId && f.MoDiaoChan?.ActionId == q.ActionId)) &&
         !ProgramEventHistory<MoDiaoChanUseSettledEvent>().Any(e => e.PromiseId == q.PromiseId && e.ActionId == q.ActionId);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 23)]
     private void CollectIssuedMoDiaoChanCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (!HasMoDiaoChan || window != SkillProgramTriggerWindow.CardUseCompleted || _resolutionStack.LastOrDefault()?.MoDiaoChanClaims is not { } claims) return;
@@ -106,6 +109,7 @@ public sealed partial class GameEngine
                 CreateCardActionProgramContext(action, window, q.Ordinal, q.Source.OwnerSeat, -1, CaptureProgramTriggerFacts(_players[q.Source.OwnerSeat], action))));
         }
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ObservesResponseUseCompletion, 3)]
     private bool HasIssuedMoDiaoChanResponse(CardActionContext action) => HasMoDiaoChan && _resolutionStack.Any(f => f.MoDiaoChanClaims?.Any(q => q.ActionId == action.ActionId && q.ParentFrameId == f.Id &&
         ProgramEventHistory<MoDiaoChanUseClaimedEvent>().Count(e => e.Claim == q) == 1) == true);
 

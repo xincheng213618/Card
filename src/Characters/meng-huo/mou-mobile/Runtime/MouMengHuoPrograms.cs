@@ -56,6 +56,7 @@ internal sealed class ObtainMouMengHuoBarbarianDescriptor : MouMengHuoDescriptor
 }
 internal sealed class GainMouMengHuoChargeDescriptor : MouMengHuoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.GainMouMengHuoCharge; }
 internal sealed class ResolveMouMengHuoZaiqiDescriptor : MouMengHuoDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
  public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouMengHuoZaiqi;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);

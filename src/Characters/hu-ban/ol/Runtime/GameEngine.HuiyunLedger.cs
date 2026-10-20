@@ -63,6 +63,7 @@ public sealed partial class GameEngine
         return current.OwnerSeat==c.OwnerSeat&&current.SkillId==c.SkillId&&current.TriggerId==c.BindingId&&current.SkillInstanceId==c.SkillInstanceId&&current.GameplayHash==c.GameplayHash&&CreateCardActionProgramContext(window,current)==context&&ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==u.Id)==1?u:null;
     }
     private bool CanRunIssuedHuiyunCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext context)=>HuiyunCandidateUse(c,context)is{}u&&_players[c.OwnerSeat].IsAlive&&HasHuiyunOption(c.OwnerSeat,u.HuiyunOrigin!.RoundNumber)&&HuiyunOpportunities(u).Count>0&&!ProgramEventHistory<HuiyunStartedEvent>().Any(e=>e.Origin.UseId==u.Id);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 19)]
     private void CollectIssuedHuiyunCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
     {
         if(window!=SkillProgramTriggerWindow.CardUseCompleted||_resolutionStack.LastOrDefault()is not CardUseFrame{HuiyunOrigin:{}r}u||action.ActionId!=r.ActionId||!HuiyunUseProof(u)||!_players[r.Source.OwnerSeat].IsAlive||!HasHuiyunOption(r.Source.OwnerSeat,r.RoundNumber)||HuiyunOpportunities(u).Count==0)return;

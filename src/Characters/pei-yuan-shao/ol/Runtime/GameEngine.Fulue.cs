@@ -43,6 +43,7 @@ public sealed partial class GameEngine
             _players[entry.UserSeat].IsAlive&&_players[entry.TargetSeat].IsAlive&&!ProgramEventHistory<FulueCounterRequestedEvent>().Any(e=>e.Invoice.OriginalUseId==use.Id&&e.Invoice.Source==entry.Source)&&
             ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==use.Id)==1;
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 13)]
     private void CollectIssuedFulueCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
     {
         if(_resolutionStack.LastOrDefault()is not CardUseFrame use||use.Action?.ActionId!=action.ActionId)return;

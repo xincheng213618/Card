@@ -3,9 +3,18 @@
   "skills": [
     {
       "id": "classic:jingce",
-      "revision": 2,
+      "revision": 3,
       "minimumRulesVersion": 172,
-      "modifiers": [],
+      "modifiers": [
+        {
+          "id": "actual-turn-hand-suits",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "currentTurnUsedHandSuitCount",
+          "priority": 0,
+          "condition": { "kind": "always" }
+        }
+      ],
       "viewAs": [],
       "activations": [],
       "triggers": [
@@ -14,18 +23,7 @@
           "window": "playEnding",
           "subject": "owner",
           "optional": true,
-          "condition": {
-            "kind": "all",
-            "children": [
-              { "kind": "classicIdentityMode" },
-              {
-                "kind": "compare",
-                "left": { "kind": "cardsUsedThisTurn" },
-                "operator": "greaterThanOrEqual",
-                "right": { "kind": "currentHp" }
-              }
-            ]
-          },
+          "turnOwnerScope": "own",
           "priority": 0,
           "usageScope": "phase",
           "usageLimit": 1,
@@ -33,7 +31,7 @@
             {
               "op": "draw",
               "target": "owner",
-              "amount": 2
+              "numberExpression": "currentTurnUsedCardCategoryCount"
             }
           ]
         }

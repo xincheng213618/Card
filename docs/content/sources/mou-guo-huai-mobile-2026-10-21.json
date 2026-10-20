@@ -1,0 +1,51 @@
+{
+  "checkedOn": "2026-10-21",
+  "status": "complete-production-and-native-main-flow-ready-awaiting-root-verification",
+  "name": "谋郭淮·移动版",
+  "generalId": "mou:guo-huai-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": { "officialHeroId": 607, "officialGeneralId": 819, "faction": "wei", "gender": "Male", "initialHp": 4, "maxHp": 4 },
+  "sources": [
+    { "url": "https://www.sanguosha.cn/pc/hero-detail-607.html", "role": "Current complete Jingce body, identity and exact portrait src81900.jpg. Fresh original main-domain HTML SHA256 A51C37CAC71BC2C047FEEEB74357E9AF361E06D1509F4408AA377B094E873321." },
+    { "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=", "role": "Freshly fetched current mobile hero607/general819 confirms Wei, male, four HP and the same complete unique skill. The record creation date is2025-02-28, not the activity's actual shop opening time." },
+    { "url": "https://www.sanguosha.cn/pc/news-detail-2020.html", "title": "3月1日老友季活动", "published": "2025-02-28 17:30:00", "firstAvailability": "2025-03-03 18:00", "role": "The formal notice announces Mou Guo Huai in the2025 season prediction-coin exchange shop. Its specific shop-update section says March3 at18:00; the March1 activity title is not substituted for that specific availability. Historical first release only, not a current price or availability claim." }
+  ],
+  "skills": [
+    { "id": "mou-mobile:jingce", "name": "精策", "text": "锁定技，回合开始时，若你的武将牌上没有“精策”牌，则你清除未验证的预测记录，然后将牌堆顶的三张牌置于你的武将牌上，称为“精策”牌。回合结束时，你预测将获得这些“精策”牌的角色（或预测这些“精策”牌不被任何角色获得），然后根据预测顺序将这些牌分别置为牌堆顶的第三、六、九张牌（若牌堆剩余牌数不足，则将无法达到的牌按预测顺序置于牌堆底）。若你预测正确，则你分别摸一、二、三张牌。" }
+  ],
+  "versionSeparation": [
+    "This is the mobile hero607/general819. Classic and Boundary Guo Huai's end-Play used-card-count Jingce remain separate existing skills.",
+    "The fresh current official hero and API agree. Bounded searches found no later formal replacement of this full skill body. Player forum advice, test-server summaries and media are not used as rule authority."
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/81900.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-guo-huai-mobile.jpg",
+    "width": 530,
+    "height": 750,
+    "bytes": 552622,
+    "sha256": "00c15f7ad6f58419b82f531e13f0dc753076aaef8a5876d8665a0a1357d047f5",
+    "visuallyInspected": true,
+    "description": "Root opened the actual official original: a blue/purple-robed, fur-cloaked strategist holding a sword amid snow."
+  },
+  "userSelectedContracts": [
+    { "topic": "Prediction of nobody obtaining a card", "decision": "到本人下次回合开始仍无人获得时，判定成功并摸对应数量的牌", "implementation": "Freeze the old none prediction at the first subsequent real own TurnStarted. If no earlier real Hand acquisition occurred, it succeeds and requests its true native Draw1/2/3, consumes that prediction, then the ordinary clear-and-store steps proceed. Obtaining the old original during this reward draw cannot retrospectively change the already frozen result." }
+  ],
+  "engineeringContracts": [
+    "These are explicit engineering interpretations used to connect the entire short official body to existing native capabilities, not official FAQ rulings. Only the none-result rule above was explicitly selected by the user.",
+    "The actual TurnStarted fact freezes every still-unverified old prediction before any native opening child can move its original. A narrow existing lifecycle window then runs after native opening/identity/Hengye preludes and before round, foreign-start, face-down skip and normal Preparation. It resolves successful none rewards and all native children first, consumes those records, clears the remaining due unverified records, and stores up to the actual top three if the owner's Jingce pile is empty. Ordinary unrelated Preparation bindings are not moved earlier.",
+    "Stored Jingce cards are real public persistent-pile entities, not a hand-size counter or generated cards. Their public faces were exposed by the actual placement. Native empty-stock refill and actual shortage apply; storing top cards is not represented as a draw.",
+    "At the real own end-of-turn window the player privately selects any surviving Jingce entity first, then a living recipient or nobody, and repeats. This freely chosen prediction order, not the original top-three order, defines the third/sixth/ninth positions and rewards one/two/three. Once issued, the already public entities, forecast recipients and positions are scalar facts. Unknown surrounding stock faces are not exposed.",
+    "Return the original entities to the actual draw pile, preserving the old stock's relative order. Evaluate each position in prediction order using only the stock already present plus that returning entity. An unavailable position puts that entity below the existing stock in prediction order. Thus original remaining one cannot reach position three and all three return at bottom; original remaining two allows the first at position three but the next two at bottom. Later unreturned cards are never used as imaginary position fillers. Final ordering uses the native exact-current-partition reorder API and actual movement invoices.",
+    "A prediction is verified at the original entity's first actual arrival in a real role's Hand after placement, from any genuine source zone and by native draw or other acquisition. Same-owner Hand round-trips are excluded by the native actual-gain source contract. Direct Equipment or held/pile placement does not pretend to be Hand acquisition. A recipient match produces exactly one native reward request; a different recipient, or any real Hand recipient for a none forecast, immediately makes that forecast fail. Later transfers cannot verify or reward it again.",
+    "The predictor and actual acquiring role may differ. The issued CardsGained candidate carries the exact atomic batch, movement index, entity, first-acquisition sequence, source/hash and forecast identity through a typed context. Generic owner-hand gains do not substitute for this cross-role invoice.",
+    "New rewards and the next-start binding require the current live original Jingce source. Losing or regranting a different instance does not invent, reset or take over old forecast facts. An already accepted real movement or reward-draw continuation preserves its source and completes without repaying after skill loss. Dead roles receive no new Hand card and native terminal cutoff remains authoritative.",
+    "All pending card/recipient selections, ordered materials, reward queues and native outcomes are immutable collections on the owning ProgramSkillFrame. Completed scalar prediction history is the durable ledger, with no use-ID pending sidecar. AI forecasting uses public turn order and normal draw assumptions only, never unknown stock identities or private opposing hands."
+  ],
+  "validation": {
+    "status": "focused-check-ready-not-yet-executed",
+    "focusedFilter": "Mou Guo Huai Mobile:",
+    "manualFullRun": false,
+    "plannedMainFlow": "One real fixed-stock small game chooses a nonoriginal forecast order, validates a different role's first actual gain and Draw1, fails one none forecast on real gain, and succeeds the remaining none forecast for native Draw3 at the next actual own start. It restores once during an actual private recipient choice. A second short-stock instance of the same helper verifies actual third/bottom/bottom placement with exactly two old stock cards."
+  }
+}

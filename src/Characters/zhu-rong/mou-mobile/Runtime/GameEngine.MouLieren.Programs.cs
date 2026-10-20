@@ -42,6 +42,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.Continue;
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 25)]
     private void CollectIssuedMouZhuRongLieren(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window != SkillProgramTriggerWindow.CardUseCompleted || action.Type != CardActionType.Use || !IsSlashCard(action.EffectiveKind)) return;

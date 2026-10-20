@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-guo-huai-mobile",
+      "characterName": "谋郭淮·移动版",
+      "defaultSkinId": "81900",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-607.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/81900.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-guo-huai-mobile.jpg",
+          "sha256": "00c15f7ad6f58419b82f531e13f0dc753076aaef8a5876d8665a0a1357d047f5",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "81900",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-fa-zheng-mobile",
       "characterName": "谋法正·移动版",
       "defaultSkinId": "62200",

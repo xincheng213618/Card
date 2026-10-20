@@ -21,4 +21,5 @@ public sealed record SunHaoCanshiReceipt(CardConversionSource Source, string Gam
     public IReadOnlyList<int> WoodenOxGrain { get => _grain; init => _grain = Array.AsReadOnly(value.ToArray()); }
 }
 internal sealed class GrantSunHaoCanshiDrawObligationDescriptor() : SunHaoDescriptor(SkillProgramEffectOp.GrantSunHaoCanshiDrawObligation, SkillProgramTriggerWindow.DrawPhaseStarting) { }
-internal sealed class ResolveSunHaoCanshiUseDiscardDescriptor() : SunHaoDescriptor(SkillProgramEffectOp.ResolveSunHaoCanshiUseDiscard, SkillProgramTriggerWindow.CardUseCommitted) { }
+internal sealed class ResolveSunHaoCanshiUseDiscardDescriptor() : SunHaoDescriptor(SkillProgramEffectOp.ResolveSunHaoCanshiUseDiscard, SkillProgramTriggerWindow.CardUseCommitted) {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger; }

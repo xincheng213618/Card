@@ -316,6 +316,11 @@
                         <StackPanel VerticalAlignment="Top" Margin="2,14,0,0">
                             <TextBlock Text="{Binding TableArenaTitle}" Foreground="#F0D59F" FontSize="12" />
                             <TextBlock Text="{Binding AliveText}" Foreground="#E5D4B5" FontSize="11" Margin="0,7,0,0" />
+                            <StackPanel Visibility="{Binding IsWushuangTable, Converter={StaticResource BoolToVisibility}}" Margin="0,12,0,0">
+                                <TextBlock x:Name="WushuangCountdown" Text="{Binding WushuangClockText}" Foreground="#FFD39C" FontSize="29" FontWeight="Bold" AutomationProperties.Name="单骑无双剩余时间" />
+                                <TextBlock Text="{Binding WushuangProgressText}" Foreground="#D7C8A5" FontSize="10" TextWrapping="Wrap" Margin="0,5,0,6" />
+                                <Button x:Name="WushuangOpenShopButton" Content="虎符商店" Command="{Binding OpenWushuangShopCommand}" Style="{StaticResource ToolbarButton}" Padding="8,7" />
+                            </StackPanel>
                         </StackPanel>
                         <ItemsControl x:Name="TopSeatRing" Grid.Column="1" ItemsSource="{Binding TopSeats}" ItemTemplate="{StaticResource RingSeatTemplate}" Margin="12,0,12,5">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -1378,6 +1383,10 @@
                                 <TextBlock Text="{Binding SelectedTableMode.Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
+                        <StackPanel Orientation="Horizontal" Margin="4,4,4,8" Visibility="{Binding IsWushuangModeSelection, Converter={StaticResource BoolToVisibility}}">
+                            <Button Content="继续单骑无双" Command="{Binding ContinueWushuangCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding HasWushuangSave, Converter={StaticResource BoolToVisibility}}" Padding="14,8" />
+                            <Button Content="读取无双手动存档" Command="{Binding LoadWushuangManualGameCommand}" Style="{StaticResource QuietButton}" Visibility="{Binding HasWushuangManualSave, Converter={StaticResource BoolToVisibility}}" Padding="14,8" />
+                        </StackPanel>
                         <StackPanel Visibility="{Binding IsClassicIdentityModeSelection, Converter={StaticResource BoolToVisibility}}">
                             <TextBlock Text="牌堆扩展" Foreground="#CFB985" FontSize="13" Margin="4,16,0,8" />
                             <ListBox x:Name="DeckChoices" ItemsSource="{Binding DeckOptions}" SelectedItem="{Binding SelectedDeck}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="选择牌堆扩展">
@@ -1553,6 +1562,9 @@
         </Border>
         <Border x:Name="ShanheOverlay" Background="#F00B1519" Panel.ZIndex="300" Visibility="{Binding IsShanheOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" FocusManager.IsFocusScope="True" IsVisibleChanged="TableOverlay_IsVisibleChanged">
             <Viewbox Stretch="Uniform" StretchDirection="DownOnly"><controls:ShanheCampaignPanel x:Name="ShanhePanel" /></Viewbox>
+        </Border>
+        <Border x:Name="WushuangShopOverlay" Background="#9A120D08" Panel.ZIndex="310" Visibility="{Binding IsWushuangShopOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" FocusManager.IsFocusScope="True" IsVisibleChanged="TableOverlay_IsVisibleChanged">
+            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="18"><controls:WushuangShopPanel x:Name="WushuangShopPanel" /></Viewbox>
         </Border>
     </Grid>
 </Window>

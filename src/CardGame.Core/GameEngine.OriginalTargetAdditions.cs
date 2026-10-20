@@ -49,6 +49,7 @@ public sealed partial class GameEngine
         action.TargetSeats.Contains(targetSeat) && receipt.Grants.Any(g => g.Source.OwnerSeat == action.ActorSeat && g.TargetSeat == targetSeat &&
             g.IssuedDirectedEffects.HasFlag(DirectedTurnCardPolicyEffect.IgnoreArmor));
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 1)]
     private void CollectIssuedOriginalTargetCandidates(CardActionContext action, SkillProgramTriggerWindow window,
         List<ProgramCardTriggerCandidate> result)
     {

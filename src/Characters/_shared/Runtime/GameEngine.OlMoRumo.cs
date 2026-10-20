@@ -39,6 +39,7 @@ public sealed partial class GameEngine
         return AppendMoLuBuKuangMarker(ownerSeat, result);
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.IncludeTriggerCandidate, 1)]
     private IReadOnlyList<ProgramTriggerCandidate> IncludeOlMoRumoRoundCandidates(CharacterState owner,
         SkillProgramTriggerWindow window, IReadOnlyList<ProgramTriggerCandidate> ordinary)
     {

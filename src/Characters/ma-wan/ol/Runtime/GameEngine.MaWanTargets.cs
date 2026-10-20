@@ -15,6 +15,7 @@ public sealed partial class GameEngine
             grant.Source, grant.TargetSeat, grant.ActualTurnNumber, grant.PhaseInstanceId));
     }
 
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 9)]
     private void CollectIssuedMaWanHunjiangCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (window != SkillProgramTriggerWindow.CardUseTargetsFinalized || _resolutionStack.LastOrDefault() is not

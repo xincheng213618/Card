@@ -7,6 +7,7 @@ public sealed record ZexingOptionChosenEvent(long FrameId, int Peer, int Option)
 public sealed record ZexingHandViewedEvent(long FrameId, int ViewerSeat, int Peer, int Count) : IGameEvent;
 public sealed record ZexingHpLossIssuedEvent(long FrameId, int Peer, int Before, int After) : IGameEvent;
 internal sealed class ResolveZexingShownCardChainDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZexingShownCardChain) {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;
     public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
 
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.TangTang is { Paid: true };

@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         if (f.SkillId != MouChenGongComposition.Mingce || f.TriggerId != "release-plan" || f.ActivationId != f.TriggerId || f.InstructionIndex != 1 ||
             f.SelectedCardIds.Count != 0 || f.SelectedTargetSeats.Count != 0 || f.WindowContext is not { Window: SkillProgramTriggerWindow.PlayPhaseStarting } c ||
             c.OwnerSeat != f.OwnerSeat || c.SourceSeat != f.OwnerSeat || c.TargetSeat != f.OwnerSeat ||
-            _contentRegistry.GetSkill(f.SkillId).Program is not { } p || p.GameplayHash != f.GameplayHash || !MouChenGongComposition.IsMingce(p) ||
+            _contentRegistry.GetSkill(f.SkillId).Program is not { } p || p.GameplayHash != f.GameplayHash ||
             _resolutionStack.OfType<PlayPhaseStartingBoundaryFrame>().SingleOrDefault(w => w.Id == c.ParentFrameId) is not { } parent ||
             parent.OwnerSeat != f.OwnerSeat || parent.ItemIndex < 0 || parent.ItemIndex >= parent.Items.Count ||
             parent.Items[parent.ItemIndex].Candidate is not { } candidate || !MountObserverCandidateMatches(f, candidate)) return false;

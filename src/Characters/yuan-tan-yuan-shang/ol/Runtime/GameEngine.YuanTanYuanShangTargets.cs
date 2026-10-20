@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private IReadOnlyList<int> NeifaPrimaryShape(CardUseFrame use)=>use.CardKind==CardKind.BorrowedSword?Array.AsReadOnly(use.Action!.TargetSeats.ToArray()):use.CardKind==CardKind.DrawTwo&&use.TargetSeats.Count==0?Array.AsReadOnly(new[]{use.Action!.ActorSeat}):Array.AsReadOnly(use.TargetSeats.ToArray());
@@ -9,6 +9,7 @@ public sealed partial class GameEngine
   var index=_resolutionStack.FindIndex(f=>f.Id==w.Id);if(index<1||_resolutionStack[index-1].Id!=native.Id)return false;use=native;return true;
  }
  private bool HasIssuedNeifaCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext w)=>ExactNeifaCandidate(c,w,out _);
+ [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 8)]
  private void CollectIssuedNeifaCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
  {
   if(window!=SkillProgramTriggerWindow.CardUseTargetsFinalized||action.Type!=CardActionType.Use||CurrentNeifa(action.ActorSeat)is not{NonBasicBranch:true}state||_resolutionStack.OfType<CardUseFrame>().LastOrDefault(u=>u.Action?.ActionId==action.ActionId)is not{}use||!HasExactAcceptedActualHandGainUse(use,action))return;

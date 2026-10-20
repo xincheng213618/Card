@@ -28,6 +28,7 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case WushuangIntermissionFrame: ContinueWushuangIntermission(frameId); break;
             case NativeDrawAttemptFrame: ContinueNativeDrawAttempt(frameId); break;
             case CardUseFrame { SoleIncomingRangeDraw: not null }: ContinueSoleIncomingRangeDraw(frameId); break;
             case CardUseFrame { NativeCardEffectDraw: not null }: ContinueNativeDrawTwo(frameId); break;
@@ -89,6 +90,8 @@ public sealed partial class GameEngine
         // These child kinds have live owners. A zero judgment parent denotes the
         // normal turn judgment boundary. Program trigger contexts can also refer
         // to completed facts, so they are validated by their typed return path.
+        // Module-owned child frames expose their parent through the
+        // IProgramChildResolutionFrame surface instead of a central arm here.
         var parentId = frame switch
         {
             NativeDrawAttemptFrame child => child.Context.ParentFrameId,
@@ -99,8 +102,7 @@ public sealed partial class GameEngine
             ActualUseTargetWindowFrame child => child.ParentFrameId,
             SlashTargetBenefitWindowFrame child => child.ParentFrameId,
             FirstSlashDuelLegacyWindowFrame child => child.ParentFrameId,
-            WenlanDirectDuelWindowFrame child => child.ParentFrameId,
-            MoDiaoChanDirectDuelWindowFrame child => child.ParentFrameId,
+            IProgramChildResolutionFrame child => child.ParentFrameId,
             PindianRevealWindowFrame child => child.ParentFrameId,
             WuLuKangPindianFrame child => child.ParentFrameId,
             DouyuWindowFrame child => child.ParentFrameId,
@@ -250,6 +252,10 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is WushuangIntermissionFrame intermission)
+        { AdvanceRuntimeFrame(intermission.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.Count == 0 && TryBeginWushuangOpening())
+        { AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is WuLuKangPindianFrame wuLuKang) { AdvanceRuntimeFrame(wuLuKang.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is DouyuWindowFrame douyu)
         { AdvanceRuntimeFrame(douyu.Id); AdvanceRulesAndPublishState(); return; }
@@ -561,8 +567,7 @@ public sealed partial class GameEngine
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
             frame.OwnerSeat, context.Window, Activated: true, Completed: completed));
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
-        if (TryReturnMoDcLegacyBinding(frame, completed)) return;
-        if (TryReturnWenlanDirectDuelBinding(frame, completed)) return;
+        if (_programPipelineHooks.ReturnCompletedProgramBinding(frame, completed)) return;
         if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame)
         {
             CompleteFirstLegacyBenefitCandidate(new(frame.OwnerSeat, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,

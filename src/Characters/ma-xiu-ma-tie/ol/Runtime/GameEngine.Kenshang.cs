@@ -42,6 +42,7 @@ public sealed partial class GameEngine
             !HasBeneficiarySuitShield(use.SourceSeat,t.Seat,action.EffectiveSuit)&&!IsSelfTargetForbiddenAction(actor,use.CardKind,[t.Seat]))
             .Select(t=>t.Seat).ToArray();
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 12)]
     private void CollectIssuedKenshangCandidates(CardActionContext a,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
     {
         if(window is not(SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseCompleted)||_resolutionStack.LastOrDefault()is not CardUseFrame{Kenshang:{}r}u||u.Action?.ActionId!=a.ActionId||!KenshangUseProof(u)||!_players[r.Source.OwnerSeat].IsAlive||window==SkillProgramTriggerWindow.CardUseCommitted&&r.Offered||window==SkillProgramTriggerWindow.CardUseCompleted&&(r.DrawIssued||KenshangDamageTotal(u)>=r.MaterialCount))return;

@@ -17,6 +17,7 @@ public sealed partial class GameEngine
     private bool HasSunHaoCanshiResponseObligation(CardActionContext action,ProgramCardContinuation continuation)=>HasSunHaoCanshiCapability&&
         continuation==ProgramCardContinuation.NullificationResponse&&action.Type==CardActionType.Response&&action.EffectiveKind==CardKind.Nullification&&
         IsValidPlayerSeat(action.ActorSeat)&&_players[action.ActorSeat].IsAlive&&CurrentSunHaoGrants(action.ActorSeat).Count>0;
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 18)]
     private void CollectIssuedSunHaoCanshiCandidates(CardActionContext action,SkillProgramTriggerWindow window,List<ProgramCardTriggerCandidate> result)
     {
         if(!HasSunHaoCanshiCapability||window!=SkillProgramTriggerWindow.CardUseCommitted||!SunHaoCanshiUseKind(action)||_winner!=Winner.None||!_players[action.ActorSeat].IsAlive)return;

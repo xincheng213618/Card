@@ -10,6 +10,57 @@ internal static class BoundaryGuoHuaiChecks
     private const string Mode = "identity:classic-boundary-guo-huai-fixture";
     private const string DrawReason = "skill-program." + Skill + ".Draw";
 
+    public static void StandardAndBoundaryShareSuitAndTypeBenefitsButKeepDifferentEndingScopes()
+    {
+        foreach (var classic in new[] { true, false })
+        {
+            var skill = classic ? "classic:jingce" : Skill;
+            var (game, registry) = Create(classic: classic, foreignPlay: true);
+            ReachPlay(game); Stock(game);
+            PlayKind(game, LegalActionKind.Equip); ReachPlay(game);
+            PlayKind(game, LegalActionKind.DrawTwo); ReachPlay(game);
+            PlayKind(game, LegalActionKind.Slash, 1); ReachPlay(game);
+            var player = game.CreateSnapshot(0).Players[0];
+            Require(player.HandLimit == player.Hp + 3 &&
+                game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Count(e => e.SourceSeat == 0) == 3 && player.Hp > 3,
+                "Both editions add three distinct hand suits to the limit while using fewer cards than current HP.");
+            EndPlay(game); ReachJingce(game, skill);
+            Require(P(game)!.Prompt.Contains("3 种类型", StringComparison.Ordinal) &&
+                P(game)!.Prompt.Contains("摸 3 张牌", StringComparison.Ordinal),
+                "The real optional prompt explains the type-count draw instead of the removed HP threshold.");
+            Cold(game, registry); Activate(game, skill); ReachDiscard(game);
+            Require(DrawMoves(game, skill).Length == 3 &&
+                P(game)!.RequiredCardCount == game.State.Players[0].HandCount - player.Hp - 3,
+                "Both editions draw three real cards and discard using the same live suit-based limit.");
+            var retained = game.CreateSnapshot(0).Players[0].Hand.First(c => c.Kind == CardKind.Nullification).Id;
+            var discard = P(game)!;
+            Accept(game, new DiscardCardsCommand(0, discard.ValidCardIds.Where(id => id != retained)
+                .Take(discard.RequiredCardCount).ToArray(), discard.PromptId, game.Revision));
+            Reach(game, p => game.State.CurrentSeat != 0 && p.PlayerSeat == 0 && p.Kind == DecisionKind.Nullification &&
+                p.Choices.Any(c => c.Cards.Contains(retained)));
+            var foreignSeat = game.State.CurrentSeat;
+            var foreignTurn = game.State.TurnNumber;
+            Answer(game, c => c.Cards.Contains(retained));
+            var offered = false;
+            for (var step = 0; step < 240 && !game.Events.Any(e =>
+                     e.Payload is TurnEndedEvent ended && ended.ActorSeat == foreignSeat && ended.TurnNumber == foreignTurn); step++)
+            {
+                if (P(game)?.SkillPrompt?.SkillId == skill)
+                {
+                    Require(!classic && !offered, "Only boundary Jingce offers a draw at another character's Play ending, once.");
+                    offered = true;
+                    Require(P(game)!.Prompt.Contains("摸 1 张牌", StringComparison.Ordinal),
+                        "The foreign turn counts its own single Nullification type rather than the previous turn's three types.");
+                    Cold(game, registry); Activate(game, skill);
+                }
+                else Advance(game);
+            }
+            Require(game.Events.Any(e => e.Payload is TurnEndedEvent ended && ended.ActorSeat == foreignSeat && ended.TurnNumber == foreignTurn) &&
+                offered == !classic && DrawMoves(game, skill).Length == (classic ? 3 : 4),
+                "An actual foreign turn preserves the standard own-ending restriction and the boundary any-ending benefit.");
+        }
+    }
+
     public static void EachPlayEndingDrawUsesActualTurnHistoryAndReturnsFromGainChild()
     {
         var (game, registry) = Create(extraPlay: true, observers: true); ReachPlay(game); Stock(game);
@@ -68,11 +119,11 @@ internal static class BoundaryGuoHuaiChecks
         return (game, registry);
     }
     private static CurrentTurnCardUseKindsRecordedEvent[] Facts(GameEngine game) => game.Events.Select(e => e.Payload).OfType<CurrentTurnCardUseKindsRecordedEvent>().ToArray();
-    private static CardMovementRecord[] DrawMoves(GameEngine game) => game.CardMovements.Where(m => m.Reason.Value == DrawReason).ToArray();
+    private static CardMovementRecord[] DrawMoves(GameEngine game, string skill = Skill) => game.CardMovements.Where(m => m.Reason.Value == "skill-program." + skill + ".Draw").ToArray();
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void ReachPlay(GameEngine game) => Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void ReachDiscard(GameEngine game) => Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.DiscardCards);
-    private static void ReachJingce(GameEngine game) => Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate"));
+    private static void ReachJingce(GameEngine game, string skill = Skill) => Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == skill && c.Parameters.GetValueOrDefault("program-action") == "activate"));
     private static void EndPlay(GameEngine game) => Accept(game, new EndPlayPhaseCommand(0, game.Revision, P(game)!.PromptId));
     private static void Stock(GameEngine game) { Use(game, "stock"); ReachPlay(game); }
     private static void Use(GameEngine game, string id, IReadOnlyList<int>? targets = null) => Accept(game, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], game.Revision, P(game)!.PromptId));
@@ -83,7 +134,7 @@ internal static class BoundaryGuoHuaiChecks
         Accept(game, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision, P(game)!.PromptId,
             action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource });
     }
-    private static void Activate(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
+    private static void Activate(GameEngine game, string skill = Skill) => Answer(game, c => c.Parameters.GetValueOrDefault("skill-id") == skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate) { var p = P(game)!; Accept(game, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, game.Revision)); }

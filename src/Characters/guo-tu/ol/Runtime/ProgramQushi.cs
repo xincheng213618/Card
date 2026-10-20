@@ -31,7 +31,8 @@ internal abstract class QushiDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(2));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op==SkillProgramEffectOp.ResolveQushiIssuedHolderEnding?[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)]:[];
 }
-internal sealed class ResolveQushiDrawAndPrivateSealDescriptor:QushiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal;}
+internal sealed class ResolveQushiDrawAndPrivateSealDescriptor:QushiDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiDrawAndPrivateSeal;}
 internal sealed class ResolveQushiIssuedHolderEndingDescriptor:QushiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQushiIssuedHolderEnding;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }

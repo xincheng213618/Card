@@ -37,4 +37,5 @@ public sealed record ZonghuUseIssuedEvent(long AttemptId,long UseId,long ActionI
 public sealed record ZonghuResponseIssuedEvent(long AttemptId,long OwnerFrameId,long ActionId,int ActorSeat,int ProviderSeat,int? RequesterSeat,CardKind OutputKind,ProgramCardContinuation Continuation):IGameEvent;
 public sealed record ZonghuUseReturnedEvent(long AttemptId,long UseId,long ActionId):IGameEvent;
 public sealed record ZonghuProgramReturn(ZonghuPaidOrigin Origin,long UseId,long ActionId,bool Returned=false);
-internal sealed class ResolveZonghuRequiredUseRequestDescriptor:LiuZhangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveZonghuRequiredUseRequest;}
+internal sealed class ResolveZonghuRequiredUseRequestDescriptor:LiuZhangDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveZonghuRequiredUseRequest;}

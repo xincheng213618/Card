@@ -4,7 +4,6 @@ public sealed partial class GameEngine
 {
  private const string FengweiDrawReason="skill-program.liu-zhang.fengwei.draw";
  private bool HasFengweiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveFengweiRoundStartDraw);
- private bool HasLiuZhangCapability=>HasFengweiCapability||HasZonghuCapability;
  private static CardConversionSource FengweiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
  private bool FengweiLive(CharacterState p)=>p.IsAlive&&GetSkillBindingShard(p).ProgramInstances.Any(i=>i.SkillId=="ol:fengwei"&&i.Program.Triggers.Any(t=>t.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveFengweiRoundStartDraw)));
  private int? FengweiMarkedHand(int seat)=>ProgramEventHistory<FengweiAcquiredEvent>().Where(e=>e.Source.OwnerSeat==seat&&e.Round==_roundNumber&&_cardZones.GetLocation(e.CardId)==CardLocation.Hand(seat)).Select(e=>(int?)e.CardId).FirstOrDefault();

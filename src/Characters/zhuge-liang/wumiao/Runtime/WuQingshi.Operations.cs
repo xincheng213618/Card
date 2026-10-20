@@ -6,6 +6,7 @@ public sealed record WuZhugeLiangQingshiDamageEvent(long FrameId, CardConversion
 public sealed record WuZhugeLiangQingshiTargetEvent(long FrameId, int Index, int Seat) : IGameEvent;
 public sealed record WuZhugeLiangQingshiDisabledEvent(long FrameId, int OwnerSeat, int ActualTurn, int TurnOwner) : IGameEvent;
 internal sealed class ResolveWuZhugeLiangQingshiDescriptor : WuZhugeLiangDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
  public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveWuZhugeLiangQingshi;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);

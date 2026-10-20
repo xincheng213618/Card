@@ -133,6 +133,7 @@ public sealed partial class GameEngine
     private bool IsIssuedDiouCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>
         _players[c.OwnerSeat].IsAlive && CompletedDiouClaim(c, context) is { } q &&
         !ProgramEventHistory<DiouStartedEvent>().Any(e => e.Claim.Source == q.Source && e.Claim.ActionId == q.ActionId);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 24)]
     private void CollectIssuedDiouCandidates(CardActionContext action, SkillProgramTriggerWindow window,
         List<ProgramCardTriggerCandidate> result)
     {
@@ -149,6 +150,7 @@ public sealed partial class GameEngine
                     q.Source.OwnerSeat, -1, CaptureProgramTriggerFacts(_players[q.Source.OwnerSeat], action))));
         }
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ObservesResponseUseCompletion, 2)]
     private bool HasIssuedDiouResponse(CardActionContext action) => HasDiouCapability && _resolutionStack.Any(f =>
         f.DiouClaims?.Any(q => q.NativeParentId == f.Id && q.ActionId == action.ActionId &&
             _players[q.Source.OwnerSeat].IsAlive && ValidDiouClaim(q, action)) == true);

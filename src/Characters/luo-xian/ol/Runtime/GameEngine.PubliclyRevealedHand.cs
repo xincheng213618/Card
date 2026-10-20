@@ -18,9 +18,8 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<PublicHandEntityRevealedEvent>()
             .GroupBy(e => (e.OwnerSeat, e.Card.Id, e.HandEntryMovementSequence)).Select(g => g.Last())
             .Where(e => CurrentHandEntry(e.OwnerSeat, e.Card.Id) == e.HandEntryMovementSequence);
-    [ProgramViewContributor(ProgramViewContribution.PublicCardsBeforeResolution, 10)]
-    private IReadOnlyList<CardSnapshot> GetPubliclyRevealedHandCards() =>
-        Array.AsReadOnly(CurrentPublicHandReveals().Select(e => e.Card with { PublicHandOwnerSeat = e.OwnerSeat }).OrderBy(c => c.Id).ToArray());
+    // "Shown before" is a historical fact for Daili, not continuing permission
+    // to see a hand entity or identify its later opaque selection slot.
     private int PubliclyRevealedHandCount(int owner) => CurrentPublicHandReveals().Count(e => e.OwnerSeat == owner);
 
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 26420)]

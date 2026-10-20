@@ -92,7 +92,8 @@ public sealed class CardViewModel : ObservableObject
     }
     public string CardHint => $"{Name} · {SuitGlyph}{Rank}\n{KindLabel}\n\n{Description}" +
         (HasIdentity ? $"\n\n{IdentitySkillName}：此牌视为【{IdentityLabel}】" : string.Empty) +
-        (string.IsNullOrWhiteSpace(PublicHandOwnerLabel) ? string.Empty : $"\n\n{PublicHandOwnerLabel}的展示手牌") +
+        (string.IsNullOrWhiteSpace(PublicHandOwnerLabel) ? string.Empty :
+            $"\n\n{PublicHandOwnerLabel}在本次结算中展示的手牌。") +
         (HasOriginalHandTag ? $"\n\n标记：{OriginalHandTag}" : string.Empty) +
         (string.IsNullOrWhiteSpace(AvailabilityText) ? string.Empty : $"\n\n当前：{AvailabilityText}");
 

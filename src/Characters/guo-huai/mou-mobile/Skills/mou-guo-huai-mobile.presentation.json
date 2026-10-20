@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"mou-mobile:jingce":{"name":"精策","authorityName":"精策","description":"回合开始取牌堆顶三张置为精策；回合结束逐张预测获得者并置入牌堆第3、6、9张，猜中分别摸1、2、3张。预测无人获得的牌，于本人下次实际回合开始仍无人获得时验证成功。","triggerLabels":{"start-jingce":"精策：验证到期预测并存入顶牌","predict-jingce":"精策：按顺序预测三张实体牌","verify-first-gain":"精策：首次实际获得验证"}}}}

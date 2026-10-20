@@ -49,10 +49,12 @@ public sealed partial class MainViewModel
         _orderedSkillTargetChoiceIds.UnionWith(_skillTargetChoices.Where(choice =>
             choice.Parameters.GetValueOrDefault("target-kind") is nameof(SkillProgramTargetKind.LivingPairDistinct) or
                 nameof(SkillProgramTargetKind.OtherLivingMale)).Select(choice => choice.Id));
-        if (_skillTargetPromptId != prompt?.PromptId || !IsSkillTargetSelectionPending ||
+        var changedPrompt = _skillTargetPromptId != prompt?.PromptId;
+        if (changedPrompt || !IsSkillTargetSelectionPending ||
             !_skillTargetChoices.Any(choice => CanExtendSkillTargets(choice, _selectedSkillTargetSeats)))
             _selectedSkillTargetSeats.Clear();
         _skillTargetPromptId = IsSkillTargetSelectionPending ? prompt!.PromptId : null;
+        if (changedPrompt) SelectOnlyPromptSkillTarget();
     }
 
     private PromptChoice? SkillTargetDeclineChoice

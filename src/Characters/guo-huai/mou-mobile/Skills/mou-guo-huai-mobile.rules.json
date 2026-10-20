@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[{"id":"mou-mobile:jingce","revision":1,"triggers":[
+ {"id":"start-jingce","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"resolveMouGuoHuaiJingceStart","target":"owner"}]},
+ {"id":"predict-jingce","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":false,"effects":[{"op":"resolveMouGuoHuaiJingcePrediction","target":"owner"}]},
+ {"id":"verify-first-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"resolveMouGuoHuaiJingceReward","target":"owner"}]}
+]}]}

@@ -95,7 +95,8 @@ public sealed partial record ProgramSkillFrame
 public sealed record WenlanDirectDuelWindowFrame(long Id, long ParentFrameId,
     WenlanDirectDuelReceipt Duel, ProgramTriggerCandidate Candidate,
     ProgramSkillWindowContext Context, WenlanPairQualification Qualification)
-    : ResolutionFrame(Id, ResolutionFrameKind.LeCaoZhiWenlanDirectDuelWindow, ResolutionFrameStep.ResolvingEffect);
+    : ResolutionFrame(Id, ResolutionFrameKind.LeCaoZhiWenlanDirectDuelWindow, ResolutionFrameStep.ResolvingEffect),
+      IProgramChildResolutionFrame;
 public sealed record WenlanDirectDuelAcceptedEvent(long ProducerFrameId, int InstructionIndex,
     long EntryId, int SourceSeat, int TargetSeat, CardConversionSource ProducerSource,
     string ProducerGameplayHash) : IGameEvent;

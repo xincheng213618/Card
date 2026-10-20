@@ -82,7 +82,10 @@ public sealed partial class MainViewModel
                 group.Key.Zone switch { CardZoneKind.Hand => "手牌区", CardZoneKind.Equipment => "装备区", _ => "判定区" },
                 severalOwners ? _snapshot.Players.Single(player => player.Seat == group.Key.Owner).GeneralName : string.Empty,
                 publicPlay && group.Key.Zone == CardZoneKind.Hand
-                    ? $"{_snapshot.Players.Single(player => player.Seat == group.Key.Owner).HandCount} 张暗牌 · 点击展开" : string.Empty,
+                    ? _snapshot.Players.Single(player => player.Seat == group.Key.Owner).HandCount is var count && count == 1
+                        ? "1 张暗牌 · 点击选择"
+                        : $"{count} 张暗牌 · 点击展开选择牌位"
+                    : string.Empty,
                 Array.AsReadOnly(group.Select(entry => entry.Choice).ToArray()),
                 publicPlay ? SelectPublicTargetChoiceCommand : SelectSkillChoiceCommand, publicPlay)).ToArray();
         if (!_targetCardRegions.Select(region => (region.Zone, region.OwnerSeat, region.OwnerName, region.Hint, region.Command, region.IsPublicPlay))

@@ -2,7 +2,6 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool HasTangTangCapability => HasTangTangZexing || HasTangTangZhiyi;
     private static bool IsTangTangOwnedZone(CardLocation from) => from.OwnerSeat is not null && from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
     private IReadOnlyList<TangTangOwnedOrigin>? CaptureTangTangOwnedOrigins(IEnumerable<CardLocation> sources) => !HasTangTangZhiyi ? null :
         Array.AsReadOnly(sources.Where(IsTangTangOwnedZone).Distinct().SelectMany(from => _cardZones.CardsAt(from)

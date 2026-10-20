@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using CardGame.Core;
 using CardGame.Content.Standard;
 using CardGame.Wpf;
@@ -97,7 +98,97 @@ internal static class TargetCardChecks
         RegionChoices(output);
         SkillRegionChoices(output);
         NativeEquipmentRegionChoices(output);
+        NativeEquipmentRegionChoices(output, equipmentOnly: true);
     }
+
+    public static void OnlyHandCard(string output)
+    {
+        foreach (var effect in new[] { "standard:dismantlement", "standard:snatch" })
+        {
+            var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture(effect, "standard:bagua");
+            while (game.CreateSnapshot(0).Players[1].HandCount > 1)
+            {
+                Accept(new UseProgramSkillCommand(0, "fixture:published-play-choice-driver", "strip", [], [1],
+                    game.Revision, game.PendingDecision!.PromptId));
+                var choice = game.PendingDecision!.Choices.First(candidate => candidate.Cards.Count == 0);
+                Accept(new AnswerPromptCommand(0, game.PendingDecision.PromptId, choice.Id, game.Revision));
+                ReachPlay();
+            }
+            var handCard = game.CreateSnapshot(0, revealAll: true).Players[1].Hand.Single();
+            var armorId = game.CreateSnapshot(0).Players[1].Equipment.Single().Id;
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+            using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry)
+                { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            ChooseHand();
+            var retired = game;
+            var oldPrompt = model.TargetCardChoices.Single();
+            var retiredRevision = retired.Revision;
+            // Loading a replacement before the callback runs must retire its work.
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            var replacementRevision = game.Revision;
+            Pump();
+            Program.Assert(retired.Revision == retiredRevision && game.Revision == replacementRevision,
+                "A queued sole-card answer must not affect a replaced game or its retired prompt.");
+
+            var commandsBefore = game.AcceptedCommands.Count;
+            ChooseHand();
+            Pump();
+            Program.AdvanceToDecision(model);
+            var newCommands = game.AcceptedCommands.Skip(commandsBefore).ToArray();
+            Program.Assert(newCommands.Count(command => command is PlayCardCommand) == 1 &&
+                newCommands.Count(command => command is AnswerPromptCommand) == 1 &&
+                !model.IsTargetCardSelectionPending && !model.HasTargetCardPicker && !model.HasSelection &&
+                game.CreateSnapshot(0).Players[1].HandCount == 0 &&
+                game.CreateSnapshot(0).Players[1].Equipment.Single().Id == armorId &&
+                game.CardMovements.Count(move => move.CardId == handCard.Id && move.From == CardLocation.Hand(1)) == 1 &&
+                (effect == "standard:snatch"
+                    ? game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == handCard.Id)
+                    : game.CardMovements.Any(move => move.CardId == handCard.Id && move.To == CardLocation.DiscardPile)),
+                "Clicking the only hand card must finish exactly one native use and answer without a second picker or touching equipment.");
+            var completedRevision = game.Revision;
+            model.SelectTargetCardChoiceCommand.Execute(oldPrompt);
+            Pump();
+            Program.Assert(game.Revision == completedRevision,
+                "A retired sole-card callback or choice must not repeat a completed target effect.");
+            var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+            Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
+                "The automatic sole opaque choice must remain a normal replayable answer command.");
+            var window = new MainWindow(model);
+            try { Program.Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, $"target-only-hand-finished-{effect.Split(':')[1]}.png")); }
+            finally { window.Content = null; window.Close(); }
+
+            void ChooseHand()
+            {
+                var action = game.GetHumanLegalActions().First(candidate => candidate.TargetSeat == 1 && candidate.TargetCardId is null &&
+                    candidate.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch);
+                model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == action.CardId));
+                model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 1));
+                Program.Assert(model.TargetCardRegions.Single(region => region.Zone == CardZoneKind.Hand).Hint == "1 张暗牌 · 点击选择",
+                    "A sole hand card must advertise selection instead of another expansion step.");
+                model.SelectPublicTargetChoiceCommand.Execute(model.PublicTargetChoices.Single(choice => !choice.Parameters.ContainsKey("target-card-id")));
+                Program.AdvanceToDecision(model);
+                Program.Assert(model.IsTargetCardSelectionPending && model.TargetCardChoices.Count == 1,
+                    "The shortcut must use the real native effect-time prompt before answering after commit.");
+            }
+            void Accept(GameCommand command)
+            {
+                var result = game.Submit(command);
+                Program.Assert(result.Accepted, result.Error?.Message ?? "The sole-hand fixture command failed.");
+            }
+            void ReachPlay()
+            {
+                for (var step = 0; step < 48 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                    Accept(new AdvanceOneStepCommand(game.Revision));
+                Program.Assert(game.PendingDecision?.Kind == DecisionKind.PlayCard, "The sole-hand fixture lost its Play boundary.");
+            }
+        }
+    }
+
+    private static void Pump() => Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
 
     private static void RegionChoices(string output)
     {
@@ -181,6 +272,10 @@ internal static class TargetCardChecks
                     Program.Assert(model.IsTargetCardSelectionPending && model.TargetCardChoices.Count == handBefore &&
                         model.TargetCardChoices.All(choice => choice.Cards.Count == 0),
                         "The explicit hand option must preserve the native private opaque-slot prompt.");
+                    var revisionBeforePump = engine.Revision;
+                    Pump();
+                    Program.Assert(handBefore > 1 && model.IsTargetCardSelectionPending && engine.Revision == revisionBeforePump,
+                        "Several opaque cards must remain a human choice instead of silently picking one.");
                     model.SelectTargetCardChoiceCommand.Execute(model.TargetCardChoices.Last());
                     Program.AdvanceToDecision(model);
                 }
@@ -270,7 +365,7 @@ internal static class TargetCardChecks
         finally { window.Content = null; window.Close(); }
     }
 
-    private static void NativeEquipmentRegionChoices(string output)
+    private static void NativeEquipmentRegionChoices(string output, bool equipmentOnly = false)
     {
         var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture("standard:slash", "classic:ice-sword", true,
             new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage(),
@@ -283,6 +378,20 @@ internal static class TargetCardChecks
                 Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Could not advance the native equipment fixture.");
             Program.Assert(game.PendingDecision?.Kind == kind, $"The native equipment fixture did not reach {kind}.");
         }
+        if (equipmentOnly)
+        {
+            while (game.CreateSnapshot(0).Players[1].HandCount > 0)
+            {
+                Program.Assert(game.Submit(new UseProgramSkillCommand(0, "fixture:published-play-choice-driver",
+                    "strip", [], [1], game.Revision, game.PendingDecision!.PromptId)).Accepted,
+                    "Could not empty the Ice Sword target's hand through the fixture's native discard skill.");
+                var handChoice = game.PendingDecision!.Choices.First(choice => choice.Cards.Count == 0);
+                Program.Assert(game.Submit(new AnswerPromptCommand(0, game.PendingDecision.PromptId,
+                    handChoice.Id, game.Revision)).Accepted, "Could not discard the fixture target's hand card.");
+                Reach(DecisionKind.PlayCard);
+            }
+        }
+        var stage = equipmentOnly ? "equipment-only" : "mixed";
         var weapon = game.CreateSnapshot(0).Players[0].Hand.First(card => card.Kind == CardKind.IceSword);
         Play(game.GetHumanLegalActions().First(action => action.CardId == weapon.Id));
         Reach(DecisionKind.PlayCard);
@@ -297,13 +406,33 @@ internal static class TargetCardChecks
         try
         {
             var root = (FrameworkElement)window.Content;
-            foreach (var zone in new[] { CardZoneKind.Hand, CardZoneKind.Equipment })
+            Program.Render(root, 1440, 920, Path.Combine(output, $"target-native-equipment-{stage}-activation.png"));
+            var activation = model.DockSkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "ice-sword-activate");
+            var decline = model.DockSkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage");
+            var dock = (ItemsControl)window.FindName("DockSkillChoices");
+            var activationButton = Program.Find<Button>(dock).Single(button => ReferenceEquals(button.CommandParameter, activation));
+            Program.Assert(model.HasDockSkillChoices && model.DockSkillChoices.Count == 2 && !model.HasCenterChoices &&
+                !model.HasTargetCardPicker && model.TargetCardRegions.Count == 0 &&
+                ((FrameworkElement)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed &&
+                activationButton.IsEnabled && activationButton.ActualHeight > 0 &&
+                Program.Find<Button>(dock).Any(button => ReferenceEquals(button.CommandParameter, decline) && button.IsEnabled),
+                "Ice Sword must first show activation and decline in the lower action dock, with no central card picker.");
+            var activationRevision = game.Revision;
+            var movementCount = game.CardMovements.Count;
+            typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(activationButton, null);
+            Program.Assert(game.Revision == activationRevision + 1 && game.CardMovements.Count == movementCount &&
+                game.AcceptedCommands.Last() is AnswerPromptCommand activationAnswer && activationAnswer.Choice == activation.Id &&
+                !model.HasDockSkillChoices && model.HasCenterChoices && model.HasTargetCardPicker,
+                "The actual activation button must open the first-card picker once, before any card is discarded.");
+            CardZoneKind[] expectedRegions = equipmentOnly ? [CardZoneKind.Equipment] : [CardZoneKind.Hand, CardZoneKind.Equipment];
+            foreach (var zone in expectedRegions)
             {
-                Program.Render(root, 1440, 920, Path.Combine(output, $"target-native-equipment-{zone}.png"));
+                Program.Render(root, 1440, 920, Path.Combine(output, $"target-native-equipment-{stage}-{zone}.png"));
                 Program.Assert(model.ChoiceSnapshot.PendingDecision is { Kind: DecisionKind.IceSword, SkillPrompt: null } &&
-                    model.TargetCardRegions.Select(region => region.Zone).SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
-                    model.UngroupedCenterSkillChoices.All(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0),
-                    "Native weapon effects must share the picker while keeping their decline action outside its card regions.");
+                    model.TargetCardRegions.Select(region => region.Zone).SequenceEqual(expectedRegions) &&
+                    model.UngroupedCenterSkillChoices.Count == 0 && !model.HasDockSkillChoices,
+                    "An activated weapon must show only its mandatory card regions, without activation or decline buttons.");
                 var choice = model.TargetCardRegions.Single(region => region.Zone == zone).Choices[0];
                 var button = Program.Find<Button>(Program.Find<TargetCardPicker>(root).Single())
                     .Single(button => ReferenceEquals(button.CommandParameter, choice));
@@ -314,8 +443,8 @@ internal static class TargetCardChecks
             }
             Program.AdvanceToDecision(model);
             Program.Assert(game.CreateSnapshot(0).Players[1].Equipment.Count == 0 &&
-                game.CardMovements.Count(move => move.Reason == CardMoveReasons.IceSwordDiscard) == 2,
-                "The grouped native equipment effect must discard exactly one hand card and one equipment card.");
+                game.CardMovements.Count(move => move.Reason == CardMoveReasons.IceSwordDiscard) == expectedRegions.Length,
+                "Ice Sword must finish after exactly two cards, or its only remaining equipment card.");
             var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
             Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
                 "Native equipment selection must retain the original replay boundary.");

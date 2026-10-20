@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(card.Id, CardKind.Slash, actor.Seat, targets[0], IgnoresArmor: armor)); foreach (var t in targets) NotifyAiOfSlash(actor, _players[t]); BeginNextFangtianHalberdTarget(pending);
     }
     private XieweiNativePayment? IssuedXieweiPayment(CardActionContext action) => _resolutionStack.OfType<CardUseFrame>().SelectMany(u => u.XieweiPayments ?? []).SingleOrDefault(p => p.Paid && p.ActionId == action.ActionId && XieweiActionCosts(p, action) && ValidXieweiPayment(p));
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 6)]
     private void CollectIssuedXieweiCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> candidates)
     {
         if (window != SkillProgramTriggerWindow.CardUseCommitted || IssuedXieweiPayment(action) is not { } p || ProgramEventHistory<XieweiCommittedEvent>().Any(e => e.PaymentId == p.Id)) return;

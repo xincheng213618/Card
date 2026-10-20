@@ -542,12 +542,13 @@ public sealed partial class SimpleAiBrain
         bool incomingIgnoresArmor,
         bool legalDodgeAvailable,
         bool legalConditionalBaguaAvailable = false,
-        PublicDamagePrediction? incomingPrediction = null)
+        PublicDamagePrediction? incomingPrediction = null,
+        bool legalBaguaAvailable = true)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var dodgeProfile = CardCatalog.Get(CardKind.Dodge);
         var hasDodge = legalDodgeAvailable;
-        var hasBagua = !incomingIgnoresArmor &&
+        var hasBagua = legalBaguaAvailable && !incomingIgnoresArmor &&
                        (legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation));
         var critical = IsCriticalPublicResponse(self, incomingPrediction);
         var hpPressure = PublicResponseHpPressure(self, incomingPrediction);
@@ -670,11 +671,13 @@ public sealed partial class SimpleAiBrain
         int ownerSeat,
         bool hasDodge,
         int thoughtSequence,
-        bool legalConditionalBaguaAvailable = false)
+        bool legalConditionalBaguaAvailable = false,
+        bool legalBaguaAvailable = true)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var owner = view.Players.Single(player => player.Seat == ownerSeat);
-        var hasBagua = legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
+        var hasBagua = legalBaguaAvailable &&
+                       (legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation));
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
         var urgency = owner.Hp <= 1 ? 25d : Math.Max(0, owner.MaxHp - owner.Hp) * 5d;
@@ -1183,6 +1186,8 @@ public sealed partial class SimpleAiBrain
                 score,
                 retainsDamage
                     ? "比较伤害收益、目标体力与公开关系后保留原伤害。"
+                    : choice.Parameters.GetValueOrDefault("action") == "ice-sword-activate"
+                        ? "结合目标公开牌量与伤害价值，先发动寒冰剑再依次选牌。"
                     : choice.Cards.Count == 0
                         ? "仅把暗手牌视为不透明牌位，结合目标牌量与伤害价值评估。"
                         : "公开装备可以按牌面保留价值参与寒冰剑弃牌选择。");

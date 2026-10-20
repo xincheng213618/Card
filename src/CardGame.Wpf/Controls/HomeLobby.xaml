@@ -196,14 +196,17 @@
                         </Button>
                     </Grid>
                     <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <UniformGrid Columns="3" HorizontalAlignment="Center">
                         <Button x:Name="ActivityBattleButton" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="activity" Style="{StaticResource LobbyButton}" Padding="32,8" AutomationProperties.Name="活动场，合作挑战与八人生存，玩家默认五阶">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="活动场 · 五阶战场" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="合作挑战  /  八人生存" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" Margin="18,0,0,0" /></StackPanel>
+                            <StackPanel><TextBlock Text="活动场 · 五阶战场" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="合作挑战  /  八人生存" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
                         </Button>
                         <Button x:Name="ShanheCampaignButton" Command="{Binding OpenShanheCommand}" Style="{StaticResource LobbyButton}" Padding="32,8" Margin="16,0,0,0" AutomationProperties.Name="山河图，有剧情的单机征程">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="山河图 · 剧情征程" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="选路奇遇  /  战法构筑" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" Margin="18,0,0,0" /></StackPanel>
+                            <StackPanel><TextBlock Text="山河图 · 剧情征程" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" /><TextBlock Text="选路奇遇  /  战法构筑" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
                         </Button>
-                        </StackPanel>
+                        <Button x:Name="WushuangBattleButton" Command="{Binding OpenWushuangModeCommand}" Style="{StaticResource LobbyButton}" Padding="24,8" Margin="16,0,0,0" AutomationProperties.Name="单骑无双，15 分钟单机 1v1 AI，初始战法和两个额外技能">
+                            <StackPanel><TextBlock Text="单骑无双 · 限时单挑" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22"/><TextBlock Text="1v1 AI  /  虎符商店  /  两个额外技能" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                        </Button>
+                        </UniformGrid>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" Margin="0,5,0,0" />
                         <TextBlock Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" />
                     </StackPanel>
@@ -215,6 +218,7 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource LobbyButton}" Command="{Binding CancelNewGameSetupCommand}" Padding="20,11" Background="#9B613622" BorderBrush="#B7975A" AutomationProperties.Name="返回当前牌桌" TabIndex="8"><TextBlock Text="返 回 牌 桌" FontFamily="KaiTi" FontSize="19" /></Button>
                         <Button x:Name="ContinueSavedGameButton" Style="{StaticResource LobbyButton}" Command="{Binding ContinueGameCommand}" Padding="16,11" Margin="12,0,0,0" Visibility="{Binding HasAutomaticSave, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding AutomaticSaveText}" AutomationProperties.Name="继续上次对局" TabIndex="9"><TextBlock Text="继续上次对局" FontSize="13" /></Button>
+                        <Button x:Name="ContinueWushuangButton" Style="{StaticResource LobbyButton}" Command="{Binding ContinueWushuangCommand}" Padding="16,11" Margin="12,0,0,0" Visibility="{Binding HasWushuangSave, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="继续单骑无双独立存档"><TextBlock Text="继续单骑无双" FontSize="13"/></Button>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource UtilityButton}" Command="{Binding LoadManualGameCommand}" ToolTip="{Binding ManualSaveText}" AutomationProperties.Name="读取手动存档" TabIndex="10"><StackPanel><TextBlock Text="&#xE8F1;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="存档" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>

@@ -111,7 +111,7 @@ internal static class ZeroMaterialTargetAdjustmentChecks
     {
         var before = State(game); var all = game.GetHumanLegalActions();
         var actor = ((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", Flags)!.GetValue(game)!)[0];
-        var narrow = (IReadOnlyList<LegalAction>)typeof(GameEngine).GetMethod("BuildLegalActions", Flags)!.Invoke(game, [actor, true, (int?)0])!;
+        var narrow = (IReadOnlyList<LegalAction>)typeof(GameEngine).GetMethod("BuildLegalActions", Flags)!.Invoke(game, [actor, true, (int?)0, false])!;
         Require(JsonSerializer.Serialize(narrow) == JsonSerializer.Serialize(all.Where(a => a.CardId == 0).ToArray()) && before == State(game),
             "Wide and exact entity0 queries retain identical ordered JSON, all four private views, revision, commands, events, frames and movements.");
         Require(all.Where(a => a.CardId == 0).Select(a => (a.Kind, a.PlayedCardKind, a.ConversionSource, a.TargetCardId, Targets: string.Join(',', a.TargetSeats))).Distinct().Count() == all.Count(a => a.CardId == 0),
@@ -122,7 +122,10 @@ internal static class ZeroMaterialTargetAdjustmentChecks
     private static void Contest(GameEngine game)
     {
         var card = V(game, 0).Hand.First(c => c.Suit == Suit.Heart).Id;
-        Accept(game, new UseProgramSkillCommand(0, Adjustment, "contest", [card], [1], game.Revision, P(game)!.PromptId)); Play(game);
+        Accept(game, new UseProgramSkillCommand(0, Adjustment, "contest", [card], [1], game.Revision, P(game)!.PromptId));
+        Reach(game, p => Has(p, "action", "pindian-source-card"));
+        Answer(game, c => c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([card]));
+        Play(game);
         Require(F<PindianResultDeterminedEvent>(game).Single().Result.SourceWon && F<NextActualUseTargetAdjustmentGrantedEvent>(game).Length == 1,
             "The adjustment comes from a real accepted winning Pindian with actual hand payment.");
     }

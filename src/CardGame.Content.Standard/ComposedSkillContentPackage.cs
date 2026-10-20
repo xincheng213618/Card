@@ -168,6 +168,8 @@ public static class ComposedSkillContentRegistry
         ArgumentNullException.ThrowIfNull(checkpoint);
         ArgumentNullException.ThrowIfNull(checkpoint.ContentPackages);
         ArgumentNullException.ThrowIfNull(checkpoint.Options);
+        if (checkpoint.Options.ModeId == WushuangMode.ModeId)
+            return StandardWushuangContentRegistry.Create();
         if (checkpoint.Options.ShanheBattle is { } shanhe)
             return StandardShanheCampaignCatalog.CreateBattleRegistry(shanhe);
         bool Includes(IGameContentPackage package) => checkpoint.ContentPackages.Contains(

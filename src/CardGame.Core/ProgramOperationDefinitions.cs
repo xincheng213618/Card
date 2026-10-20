@@ -93,6 +93,15 @@ internal sealed record CreateCoverageResult(string Name) : ProgramResourceOperat
 internal readonly record struct ProgramEffectContinuationContext(
     SkillProgramEffect Effect, ProgramSkillFrame Frame, ISkillProgramExecutionHost State, bool PaidReturnAccepted);
 
+/// <summary>Which program dependency kinds an operation relies on for a given engine fact emission.</summary>
+[Flags]
+internal enum ProgramDependencyKinds
+{
+    None = 0,
+    Trigger = 1,
+    Activation = 2
+}
+
 internal interface IProgramOperationDescriptor
 {
     SkillProgramEffectOp Op { get; }
@@ -104,6 +113,8 @@ internal interface IProgramOperationDescriptor
     ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     ProgramFactRequirements FactRequirements => default;
     bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => false;
+    /// <summary>Declares that emitting ActualTurnCursorReturnedEvent is required whenever this operation is referenced.</summary>
+    ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.None;
     SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
@@ -163,6 +174,21 @@ internal sealed class ProgramOperationCatalog
 
     internal bool AllowsDeadTarget(in ProgramEffectContinuationContext context) =>
         _descriptors.TryGetValue(context.Effect.Op, out var descriptor) && descriptor.AllowsDeadTarget(context);
+
+    // Aggregates the declarative TracksActualTurnCursorReturn markers over the operations this
+    // game's frozen content actually references, so modules opt in without a central name list.
+    internal bool TracksActualTurnCursorReturn(SkillProgramDependencies dependencies)
+    {
+        ArgumentNullException.ThrowIfNull(dependencies);
+        foreach (var descriptor in _descriptors.Values)
+        {
+            var kinds = descriptor.TracksActualTurnCursorReturn;
+            if (kinds == ProgramDependencyKinds.None) continue;
+            if (kinds.HasFlag(ProgramDependencyKinds.Trigger) && dependencies.HasTriggerOperation(descriptor.Op)) return true;
+            if (kinds.HasFlag(ProgramDependencyKinds.Activation) && dependencies.HasActivationOperation(descriptor.Op)) return true;
+        }
+        return false;
+    }
 
     private static ProgramOperationCatalog Discover(Assembly assembly)
     {
@@ -360,6 +386,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public virtual bool UsesConversionPolarity => false;
     public virtual ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     public virtual ProgramFactRequirements FactRequirements => default;
+    public virtual ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.None;
     public virtual bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => false;
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;

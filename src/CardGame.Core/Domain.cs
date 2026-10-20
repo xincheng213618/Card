@@ -192,6 +192,7 @@ public enum PlayerMarkerKind
     MouLixianAvailableNames = 28960,
     MouLixianUsedNames = 28961,
     MouHuaXiongWei = 29100,
+    MouGuoHuaiJingce = 32000,
     MouGanNingWei = 31900,
     MouMengHuoCharge = 30900,
     MouLiuChengChui = 29400,
@@ -214,6 +215,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.MouLixianAvailableNames => "理贤牌名",
         PlayerMarkerKind.MouLixianUsedNames => "理贤已用牌名",
         PlayerMarkerKind.MouHuaXiongWei => "威",
+        PlayerMarkerKind.MouGuoHuaiJingce => "精策",
         PlayerMarkerKind.MouGanNingWei => "威",
         PlayerMarkerKind.MouMengHuoCharge => "蓄力",
         PlayerMarkerKind.MouLiuChengChui => "椎",
@@ -1109,6 +1111,9 @@ public sealed record GameSnapshot(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GuanduActivitySnapshot? GuanduActivity { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public WushuangSnapshot? Wushuang { get; init; }
 }
 
 public sealed record EngineRunResult(

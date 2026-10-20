@@ -128,7 +128,7 @@ public partial class MainWindow : Window
     }
 
     private static bool IsNavigationOverlayOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
-        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsShanheOpen;
+        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsShanheOpen || vm.IsWushuangShopOpen;
 
     // Root navigation panels cover both startup overlays; the log and result
     // panels also cover the opening cards inside the table surface.
@@ -284,7 +284,7 @@ public partial class MainWindow : Window
         QueueOverlayFocus(overlay, ref previous);
     }
 
-    private FrameworkElement CurrentFocusSurface(MainViewModel viewModel) => viewModel.IsShanheOpen ? ShanheOverlay :
+    private FrameworkElement CurrentFocusSurface(MainViewModel viewModel) => viewModel.IsWushuangShopOpen ? WushuangShopOverlay : viewModel.IsShanheOpen ? ShanheOverlay :
             viewModel.IsSettingsOpen ? SettingsOverlay :
             viewModel.IsHistoryOpen ? HistoryOverlay :
             viewModel.IsGeneralGalleryOpen ? GeneralGalleryOverlay :
@@ -381,7 +381,8 @@ public partial class MainWindow : Window
             target.Focus();
             return;
         }
-        if (ReferenceEquals(surface, ShanheOverlay)) surface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        if (ReferenceEquals(surface, WushuangShopOverlay)) surface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        else if (ReferenceEquals(surface, ShanheOverlay)) surface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         else if (ReferenceEquals(surface, SettingsOverlay)) SettingsSoundToggle.Focus();
         else if (ReferenceEquals(surface, HistoryOverlay)) HistoryPanel.FocusHistory();
         else if (ReferenceEquals(surface, GeneralGalleryOverlay)) GeneralGallery.FocusCurrentView();
@@ -454,6 +455,12 @@ public partial class MainWindow : Window
         // Shortcut ownership follows the same top surface as deferred focus.
         // A retained lower panel must not intercept the visible panel's keys.
         var surface = CurrentFocusSurface(viewModel);
+        if (ReferenceEquals(surface, WushuangShopOverlay))
+        {
+            if (key == Key.Escape && modifiers == ModifierKeys.None) { viewModel.CloseWushuangShopCommand.Execute(null); return true; }
+            if (key == Key.F5 && modifiers == ModifierKeys.None) { viewModel.SaveGameCommand.Execute(null); return true; }
+            return key == Key.Enter && modifiers == ModifierKeys.Control;
+        }
         if (ReferenceEquals(surface, ShanheOverlay))
         {
             if (key == Key.Escape && modifiers == ModifierKeys.None)

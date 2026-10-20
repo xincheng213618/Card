@@ -5,9 +5,6 @@ public sealed partial class GameEngine
 {
     private const string MouXiahouShiDiscardReason = "skill-program.mou-mobile:yanyu.discard", MouXiahouShiDrawReason = "skill-program.mou-mobile:yanyu.Draw",
         MouXiahouShiSupportDrawReason = "skill-program.mou-mobile:yanyu.support.Draw", MouXiahouShiQiaoshiDrawReason = "skill-program.mou-mobile:qiaoshi.Draw";
-    private bool HasMouXiahouShiCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouXiahouShiYanyuDiscard) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouXiahouShiYanyuSupport) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouXiahouShiQiaoshi);
     private static CardConversionSource MouXiahouShiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private static bool MouXiahouShiSlash(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
     private int MouXiahouShiPhaseUses(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouXiahouShiYanyuStartedEvent>()

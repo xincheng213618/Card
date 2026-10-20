@@ -20,6 +20,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<int> BiguoDesignatedTargets(CardActionContext action) => action.EffectiveKind == CardKind.BorrowedSword
         ? action.TargetSeats.Where((_, i) => i % 2 == 0).ToArray()
         : GetImplicitSelfCardUseTargets(action.EffectiveKind, action.ActorSeat, action.EffectiveDesignatedTargetSeats);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 21)]
     private void CollectIssuedBiguoCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> candidates)
     {
         if (window != SkillProgramTriggerWindow.CardUseTargetsFinalized) return;

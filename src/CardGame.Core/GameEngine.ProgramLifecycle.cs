@@ -369,7 +369,7 @@ public sealed partial class GameEngine
         if (parent.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
             _phase = TurnPhase.Draw;
         PushRuntimeFrame(parent);
-        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame) && !IsReturningMouDaQiaoLiuliPhase(frame))
+        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame) && !_programPipelineHooks.ContinueDetachedProgramBinding(frame))
         {
             CompleteDetachedProgramBinding(frame, completed: false);
             AdvanceProgramLifecycleCursor(parent);
@@ -2137,9 +2137,7 @@ public sealed partial class GameEngine
     {
         var candidates = IncludeYuanJiIssuedReturns(owner, window, Array.AsReadOnly(
             CollectProgramTriggerCandidates(owner, window).Where(c => !GetProgramTrigger(c).Effects.Any(e => IsYuanJiReturnOp(e.Op))).ToArray()));
-        candidates = IncludeOlMoRumoRoundCandidates(owner, window, candidates);
-        candidates = IncludeMoLuBuDeathCandidates(owner, window, candidates);
-        candidates = IncludeMouDaQiaoPhaseCandidates(owner, window, candidates);
+        candidates = _programPipelineHooks.IncludeTriggerCandidate(owner, window, candidates);
         if (candidates.Count == 0) return candidates;
         return candidates
             .Where(candidate =>
@@ -2475,6 +2473,7 @@ public sealed partial class GameEngine
                     : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) ? IsIssuedJieyanCandidate(candidate, context)
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
+                    : IsMouGuoHuaiGainTrigger(trigger) ? MouGuoHuaiGainQualification(candidate, context) is not null
                     : IsMouFaZhengGainTrigger(trigger) ? MouFaZhengQualification(candidate, context) is not null
                     : IsDuFuRenYiseTrigger(trigger) ? CurrentDuFuRenGains(candidate, context) is not null
                     : IsBianFuRenWanweiTrigger(trigger) ? BianFuRenLoss(context, owner.Seat) is not null
@@ -2887,7 +2886,13 @@ public sealed partial class GameEngine
         RecordPublicPileColorOffer(candidate,context);
         var skill = _contentRegistry!.GetSkill(candidate.SkillId);
         var facts = context.Facts;
-        var prompt = context.Window == SkillProgramTriggerWindow.PlayEnding &&
+        var typeDrawCount = context.Window == SkillProgramTriggerWindow.PlayEnding &&
+            GetProgramTrigger(candidate).Effects is [{ Op: SkillProgramEffectOp.Draw,
+                NumberExpression: SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount }]
+            ? facts?.CurrentTurnUsedCardCategoryCount : null;
+        var prompt = typeDrawCount is { } count
+            ? $"出牌阶段结束：你本回合使用过的牌有 {count} 种类型。是否发动【{skill.Name}】摸 {count} 张牌？"
+            : context.Window == SkillProgramTriggerWindow.PlayEnding &&
             context.SourceSeat == candidate.OwnerSeat && facts is not null
             ? $"出牌阶段结束：本回合已使用 {facts.CardsUsedThisTurn} 张牌，当前体力为 {facts.CurrentHp}。是否发动【{skill.Name}】？"
             : GetProgramTrigger(candidate).Effects is [{ Op: SkillProgramEffectOp.OfferRiceAfterDamagePoint }]
@@ -2959,7 +2964,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginTurnStartProgramWindow(CharacterState owner)
     {
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) && !HasUnissuedMouDaQiaoPhase(owner.Seat)) return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) && !_programPipelineHooks.HasUnissuedTurnStartObligation(owner.Seat)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = TracksForeignTurnStartPrograms
             ? CollectForeignTurnStartCandidates(owner, facts)
@@ -3520,6 +3525,9 @@ public sealed partial class GameEngine
                 AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value);
                 break;
             case ProgramLifecycleContinuation.CompleteGameStarting:
+                break;
+            case ProgramLifecycleContinuation.MouGuoHuaiActualStart:
+                ContinueTurnAfterHengye(_players[frame.OwnerSeat]);
                 break;
             case ProgramLifecycleContinuation.NormalTurnStart:
                 if (TryReturnZhouQunPaidPreparation(frame)) break;

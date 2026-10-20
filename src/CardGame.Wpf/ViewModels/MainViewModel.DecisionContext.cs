@@ -18,6 +18,8 @@ public sealed partial class MainViewModel
             return string.Empty;
         if ((prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash) && !DecisionContext.IsResponseCardPrompt(prompt))
             return string.Empty;
+        if (prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua-skip"))
+            return "待发动八卦";
         return prompt.Kind switch
         {
             DecisionKind.RespondDodge or DecisionKind.RespondSlash =>

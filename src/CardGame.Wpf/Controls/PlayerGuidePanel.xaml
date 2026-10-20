@@ -116,6 +116,10 @@
                     </ScrollViewer>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsGuideBasics, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel Margin="0,0,12,0">
+                            <StackPanel x:Name="WushuangBasics" Visibility="{Binding IsWushuangGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="单骑无双 · 本地规则" Style="{StaticResource GuideHeading}" />
+                                <TextBlock Text="{Binding WushuangRulesText}" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
                             <StackPanel x:Name="WenheBasics" Visibility="{Binding IsWenheGuide, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="八人各自求生，按存活名次排名" Style="{StaticResource GuideHeading}" />
                                 <TextBlock Text="{Binding WenheBasicsText}" Style="{StaticResource GuideBody}" />

@@ -32,9 +32,9 @@ public sealed partial class MainViewModel
     public bool IsGuideBasics => SelectedGuideSection?.Key == "basics";
     public bool IsGuideCards => SelectedGuideSection?.Key == "cards";
     public bool IsGuideKeys => SelectedGuideSection?.Key == "keys";
-    public bool IsTeamGuide => (IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot) && !IsDragonBoatGuide && !IsGuanduGuide;
+    public bool IsTeamGuide => (IsNewGameSetupOpen ? IsTeamModeSelection : IsTeamSnapshot) && !IsDragonBoatGuide && !IsGuanduGuide && !IsWushuangGuide;
     public bool IsNationalGuide => IsNewGameSetupOpen ? IsNationalModeSelection : IsNationalSnapshot;
-    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide && !IsWenheGuide && !IsDragonBoatGuide && !IsGuanduGuide;
+    public bool IsIdentityGuide => !IsTeamGuide && !IsNationalGuide && !IsWenheGuide && !IsDragonBoatGuide && !IsGuanduGuide && !IsWushuangGuide;
     public string CurrentGuideTitle { get => _currentGuideTitle; private set => SetProperty(ref _currentGuideTitle, value); }
     public string CurrentGuideBody { get => _currentGuideBody; private set => SetProperty(ref _currentGuideBody, value); }
     public string GuideIdentity { get => _guideIdentity; private set => SetProperty(ref _guideIdentity, value); }
@@ -109,12 +109,19 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(IsWenheGuide));
         RaisePropertyChanged(nameof(IsDragonBoatGuide));
         RaisePropertyChanged(nameof(IsGuanduGuide));
+        RaisePropertyChanged(nameof(IsWushuangGuide));
         GuideIdentity = IsNewGameSetupOpen
-            ? $"开局选择：{SelectedTableMode.Name} · {(IsWenheActivityModeSelection ? "各自求生" : IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
+            ? $"开局选择：{SelectedTableMode.Name} · {(IsWushuangModeSelection ? "单机 1v1 AI" : IsWenheActivityModeSelection ? "各自求生" : IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
               (IsClassicIdentityModeSelection && SelectedDeck is not null ? $" · {SelectedDeck.Name}" : string.Empty)
             : IdentityObjective;
         string[] steps;
-        if (IsGuanduGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        if (IsWushuangGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
+        {
+            CurrentGuideTitle = "单骑无双 · 限时单机决战";
+            CurrentGuideBody = WushuangRulesText;
+            steps = ["选择一名武将，独自迎战 AI。", "在牌桌左上查看总倒计时，点击「虎符商店 / 升级」进行整备。", "原武将技能不占额外技能槽；第三个额外技能必须替换已有的一个。"];
+        }
+        else if (IsGuanduGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
         {
             CurrentGuideTitle = "官渡之战 · 两军主帅对决";
             CurrentGuideBody = IsNewGameSetupOpen ? TeamModeSetupText : GeneralSelectionSubtitle;
@@ -307,7 +314,7 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
                 DecisionKind.CixiongDoubleSwords => ("处理雌雄双股剑", new[] { "使用者以杀指定异性目标后，可选择发动雌雄双股剑。", "发动后目标从自己的手牌中精确弃一张，或令使用者摸一张牌；随后继续原杀响应。" }),
 
                 DecisionKind.QinglongCrescentBlade => ("决定是否发动青龙偃月刀", new[] { "目标已经用足够的闪抵消此杀；中央列出你当前可以使用的每一张精确杀，刘备也可选择激将。", "发动后只对同一目标开启一张新杀，不受本回合普通出杀次数和距离限制；激将提供者支付实体牌，新杀被闪抵消时仍可再次发动。" }),
-                DecisionKind.IceSword => ("选择寒冰剑弃牌", new[] { "你可以保留原伤害，或防止全部伤害并依次弃置目标至多两张手牌/装备。", "目标手牌只显示为不透明牌位；一旦发动，若第二张牌仍可弃置就必须继续选择。" }),
+                DecisionKind.IceSword => ("处理寒冰剑", new[] { "先在下方操作区选择发动或不发动；不发动则保留原伤害。", "发动后在中央牌区依次弃置目标至多两张手牌/装备，防止全部伤害；目标手牌仅显示牌背，若第二张仍可弃置就必须继续选择。" }),
                 DecisionKind.QilinBow => ("决定是否发动麒麟弓", new[] { "你的杀即将对目标造成伤害；中央只列出其装备区中当前公开的坐骑。", "选择一张坐骑会先将其弃置，再继续原伤害；也可以跳过。" }),
 
 

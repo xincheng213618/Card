@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     // StartVirtualDuel deliberately owns its attack on the producing Program
     // frame. Its real instruction is the identity; it has no CardUse/Action to
     // manufacture. This adapter returns only after that native attack finishes.
+    [ProgramPipelineHook(ProgramPipelinePhase.CaptureVirtualDuelLegacy, 1)]
     private void CaptureWenlanDirectDuel(ProgramSkillFrame supplied, int source, int target)
     {
         if (!HasLeCaoZhiWenlanCapability || CurrentWenlanSource(source, SkillProgramTriggerWindow.CardUseCompleted) is not { } owned) return;
@@ -161,6 +162,7 @@ public sealed partial class GameEngine
             WenlanWindowMatches(window, r.Qualification) && DesignatedExtraTargetCandidateMatches(new(f.OwnerSeat, f.SkillId, f.TriggerId!,
                 f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority, context.OccurrenceIndex), context, window);
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ReturnCompletedProgramBinding, 2)]
     private bool TryReturnWenlanDirectDuelBinding(ProgramSkillFrame f, bool completed)
     {
         if (_resolutionStack.LastOrDefault() is not WenlanDirectDuelWindowFrame w || f.WindowContext?.ParentFrameId != w.Id) return false;

@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramPipelineHook(ProgramPipelinePhase.CaptureVirtualDuelLegacy, 3)]
     private void CaptureMoDcLegacyDuel(ProgramSkillFrame f, int actor, int target)
     {
         if (!HasMoDiaoChan || ActiveMoDcPromises(actor).Length == 0 || CurrentActualDiscardRecoveryPhase() is not { } phase) return;
@@ -70,6 +71,7 @@ public sealed partial class GameEngine
             ProgramEventHistory<MoDiaoChanLegacyDuelReturnedEvent>().Count(e => e.EntryId == w.Duel.EntryId && e.ProducerFrameId == p.Id) != 1) return null;
         return w.Claim;
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ReturnCompletedProgramBinding, 1)]
     private bool TryReturnMoDcLegacyBinding(ProgramSkillFrame child, bool completed)
     {
         if (_resolutionStack.LastOrDefault() is not MoDiaoChanDirectDuelWindowFrame w || child.WindowContext?.ParentFrameId != w.Id) return false;

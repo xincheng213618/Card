@@ -479,31 +479,7 @@ public sealed partial class GameEngine
                     binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
             }
         }
-        CollectIssuedOriginalTargetCandidates(action, window, result);
-        CollectIssuedGiftedSlashRewardCandidates(action, window, result);
-        CollectIssuedJoinedTrickDamageRewardCandidates(action, window, result);
-        CollectIssuedRoundGainedUseCandidates(action, window, result);
-        CollectIssuedLeiluanCandidates(action, window, result);
-        CollectIssuedXieweiCandidates(action, window, result);
-        CollectIssuedChenglieCandidates(action, window, result);
-        CollectIssuedNeifaCandidates(action, window, result);
-        CollectIssuedMaWanHunjiangCandidates(action, window, result);
-        CollectIssuedBingjieCandidates(action, window, result);
-        CollectPaidMouPtTargets(action, window, result);
-        CollectIssuedKenshangCandidates(action, window, result);
-        CollectIssuedFulueCandidates(action, window, result);
-        CollectIssuedMiuyanCandidates(action, window, result);
-        CollectIssuedWuJingHejiReward(action, window, result);
-        CollectIssuedWeifuCandidates(action, window, result);
-        CollectIssuedYinjuCandidates(action, window, result);
-        CollectIssuedSunHaoCanshiCandidates(action, window, result);
-        CollectIssuedHuiyunCandidates(action, window, result);
-        CollectIssuedPijingNextUseCandidates(action, window, result);
-        CollectIssuedBiguoCandidates(action, window, result);
-        CollectIssuedMouGuquCandidates(action, window, result);
-        CollectIssuedMoDiaoChanCandidates(action, window, result);
-        CollectIssuedDiouCandidates(action, window, result);
-        CollectIssuedMouZhuRongLieren(action, window, result);
+        _programPipelineHooks.CollectIssuedCardTrigger(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);

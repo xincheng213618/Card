@@ -17,5 +17,6 @@ public sealed record SayingSlashIssuedEvent(long FrameId,long UseId,long ActionI
 public sealed record SayingSlashMaterialPaidEvent(long UseId,long ActionId,int CardId,CardLocation From,CardLocation To,long Sequence):IGameEvent;
 public sealed record SayingSlashReturnedEvent(long FrameId,long UseId,long ActionId):IGameEvent;
 internal sealed class ResolveSayingPlayStartObtainAndReplyDescriptor():SunYuanDescriptor(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply,SkillProgramTriggerWindow.PlayPhaseStarting) {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.SunYuan is { Paid: true };
 }

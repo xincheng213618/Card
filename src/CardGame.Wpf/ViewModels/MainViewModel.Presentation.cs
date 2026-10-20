@@ -357,6 +357,7 @@ public sealed partial class MainViewModel
     }
     public string AliveText => IsShanheBattleSession
         ? $"义军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shanhe-player")} · 敌军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:shanhe-enemy")} 存活"
+        : IsWushuangTable ? $"你与 1 名 AI 对手 · {Seats.Count(seat => seat.IsAlive)} / 2 人存活"
         : IsGuanduActivitySnapshot ? GuanduAliveText : IsDragonBoatActivitySnapshot ? DragonBoatActivityAliveText : IsWenheActivitySnapshot ? WenheActivityAliveText : IsHellActivitySnapshot ? HellActivityAliveText : IsNianActivitySnapshot ? NianActivityAliveText : IsShenwuActivitySnapshot ? ShenwuActivityAliveText : IsBossActivitySnapshot && CurrentModeDefinition?.BossActivity is { } boss
         ? $"联合军 {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.PlayerTeamId)} · {BossActivityEnemyLabel} {Seats.Count(seat => seat.IsAlive && seat.TeamId == boss.EnemyTeamId)} 存活 · {BossActivityStageText}"
         : IsActivitySnapshot
@@ -509,7 +510,7 @@ public sealed partial class MainViewModel
         : IsOwnedCardSelectionPending ? CanConfirmOwnedCardSelection
         : IsSkillTargetSelectionPending ? SelectedSkillTargetChoice is not null
         : IsCardPaymentSelectionPending ? SelectedCardPaymentChoice is not null
-        : IsHandResponsePending ? SelectedHandResponse is not null && Hand.Any(card => card.Id == _selectedCardId && card.IsPlayable)
+        : IsHandResponsePending ? IsBaguaActivationPending || SelectedHandResponse is not null && Hand.Any(card => card.Id == _selectedCardId && card.IsPlayable)
         : IsActiveSkillSelectionPending ? CanConfirmActiveSkill : CanPlaySelected || CanPlaySelectedAsSlash;
     public bool CanActFromHand => CanEndTurn || IsDiscardSelectionPending || IsHandResponsePending || IsSkillTargetSelectionPending || IsOwnedCardSelectionPending;
     public bool HasAlternateSlash => CanPlaySelected && CanPlaySelectedAsSlash;
@@ -666,7 +667,7 @@ public sealed partial class MainViewModel
 
     private bool CanAutomaticallyAdvance => IsAutoAdvance && CanStepAi &&
         !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen &&
-        !IsSettingsOpen && !IsLogOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible && !IsReserveDialogOpen;
+        !IsSettingsOpen && !IsLogOpen && !IsWushuangShopOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible && !IsReserveDialogOpen;
 
     private void ResetPresentation()
     {
@@ -937,6 +938,7 @@ public sealed partial class MainViewModel
     {
         if (_disposed) return;
         FlushNianClock();
+        FlushWushuangClock();
         FlushPreferences();
         if (_preferencesTimer is not null)
         {
@@ -946,6 +948,7 @@ public sealed partial class MainViewModel
         FlushMatchHistory();
         FlushPendingSave();
         DisposeNianClock();
+        DisposeWushuangClock();
         _disposed = true;
         PropertyChanged -= OnOpeningPresentationChanged;
         SoundsReset?.Invoke(this, EventArgs.Empty);

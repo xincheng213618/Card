@@ -45,6 +45,7 @@ public sealed partial record CardUseFrame
 internal interface IWeijieHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame frame);}
 internal sealed class ResolveWeijieRequiredBasicRequestDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;
     public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
 
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest;

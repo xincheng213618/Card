@@ -1,0 +1,1566 @@
+{
+  "verifiedOn": "2026-10-21",
+  "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "sourceSha256": "9d2b017d7112c1d5999d61b48600945b4139fe237d840a38784623114706de9f",
+  "tables": [
+    "hd_1v1_rogue.Tactics",
+    "hd_roguelike.Root.Tactics"
+  ],
+  "note": "Public client configuration entries; presence does not independently prove live server availability or random weights. Quality is item rarity, not player experience or shop level.",
+  "shopSeconds": 20,
+  "timeLimitSeconds": 900,
+  "tactics": [
+    {
+      "id": 2001,
+      "name": "醉拳",
+      "description": "【酒】【杀】不能被抵消",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2002,
+      "name": "好身法",
+      "description": "【闪】不计入手牌上限",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2003,
+      "name": "藏桃户",
+      "description": "【桃】不计入手牌上限",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2004,
+      "name": "虚焰",
+      "description": "【火攻】弃置改为展示",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2005,
+      "name": "眼线",
+      "description": "【过河拆桥】时目标手牌可见",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2006,
+      "name": "强取豪夺",
+      "description": "【顺手牵羊】时目标手牌可见",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2007,
+      "name": "横江锁",
+      "description": "【铁索连环】能指定任意个目标",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2008,
+      "name": "草船借箭",
+      "description": "【无懈可击】获得抵消的锦囊牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2009,
+      "name": "偷袭",
+      "description": "黑桃【杀】无次数限制",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2010,
+      "name": "关刀之脊",
+      "description": "方片【杀】无距离限制",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2011,
+      "name": "锦囊计",
+      "description": "手牌上限+X（X为本回合摸牌阶段摸牌数的一半）",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2132,
+      "name": "皮囊",
+      "description": "手牌上限+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2133,
+      "name": "皮囊Ⅱ",
+      "description": "手牌上限+2",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2135,
+      "name": "皮囊Ⅲ",
+      "description": "手牌上限+5",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2019,
+      "name": "雷鸣",
+      "description": "所有角色在判定阶段都要进行一次【闪电】判定",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2020,
+      "name": "稳定体质",
+      "description": "你的体力上限固定为7，无法通过任何途径改变体力值上限",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2021,
+      "name": "牢固装备",
+      "description": "你的装备不能被其他角色弃置",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2028,
+      "name": "狭路相逢",
+      "description": "受到【决斗】伤害后回复1点体力",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2030,
+      "name": "二生三",
+      "description": "【无中生有】额外摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2033,
+      "name": "双刃",
+      "description": "你每轮首张【杀】可以额外选择1个目标",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2034,
+      "name": "双刃Ⅱ",
+      "description": "你每轮首张【杀】可以额外选择2个目标",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2036,
+      "name": "当头一棒",
+      "description": "每轮，你的首张【杀】伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2037,
+      "name": "当头一棒Ⅱ",
+      "description": "每轮，你的首张【杀】伤害+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2039,
+      "name": "铸刀",
+      "description": "你使用【杀】后可以重铸1张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2040,
+      "name": "铸刀Ⅱ",
+      "description": "你使用【杀】后可以重铸至多2张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2042,
+      "name": "三板斧",
+      "description": "你使用的每第3张【杀】伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2043,
+      "name": "三板斧Ⅱ",
+      "description": "你使用的每第3张【杀】伤害+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2045,
+      "name": "关公刃",
+      "description": "红桃【杀】伤害+2",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2048,
+      "name": "淬血",
+      "description": "你每轮【杀】首次造成伤害后摸1张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2049,
+      "name": "淬血Ⅱ",
+      "description": "你每轮【杀】首次造成伤害后摸2张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2051,
+      "name": "连击Ⅰ",
+      "description": "出牌阶段，你的出杀次数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2052,
+      "name": "连击Ⅱ",
+      "description": "出牌阶段，你的出杀次数+3",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2054,
+      "name": "体魄Ⅰ",
+      "description": "游戏开始时，你增加1点体力上限并回复等量体力",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2055,
+      "name": "体魄Ⅱ",
+      "description": "游戏开始时，你增加2点体力上限并回复等量体力",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2056,
+      "name": "体魄Ⅲ",
+      "description": "游戏开始时，你增加3点体力上限并回复等量体力",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2059,
+      "name": "摸牌Ⅰ",
+      "description": "摸牌阶段，你的摸牌数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2060,
+      "name": "摸牌Ⅱ",
+      "description": "摸牌阶段，你的摸牌数+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2064,
+      "name": "筹备",
+      "description": "游戏开始时，你获得1张随机手牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2065,
+      "name": "筹备Ⅱ",
+      "description": "游戏开始时，你获得2张随机手牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2066,
+      "name": "筹备Ⅲ",
+      "description": "游戏开始时，你获得3张随机手牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2069,
+      "name": "护甲Ⅰ",
+      "description": "每轮开始时，你获得1点护甲",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2070,
+      "name": "护甲Ⅱ",
+      "description": "每轮开始时，你获得2点护甲",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2071,
+      "name": "铁布衫",
+      "description": "游戏开始时，你获得1点护甲",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2072,
+      "name": "铁布衫Ⅱ",
+      "description": "游戏开始时，你获得2点护甲",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2073,
+      "name": "铁布衫Ⅲ",
+      "description": "游戏开始时，你获得4点护甲",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2074,
+      "name": "铁布衫Ⅳ",
+      "description": "游戏开始时，你获得6点护甲",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2076,
+      "name": "援助",
+      "description": "回合结束时，你摸1张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2077,
+      "name": "援助Ⅱ",
+      "description": "回合结束时，你摸2张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2078,
+      "name": "援助Ⅲ",
+      "description": "回合结束时，你摸3张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2079,
+      "name": "手到擒来",
+      "description": "每回合你使用第7张牌后,你摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2080,
+      "name": "手到擒来Ⅱ",
+      "description": "每回合你使用第5张牌后,你摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2081,
+      "name": "手到擒来Ⅲ",
+      "description": "每回合你使用第6张牌后,你摸2张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2082,
+      "name": "多多益善",
+      "description": "每回合你第5次摸牌后,你摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2083,
+      "name": "多多益善Ⅱ",
+      "description": "每回合你第3次摸牌后,你摸1张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2084,
+      "name": "多多益善Ⅲ",
+      "description": "每回合你第1次摸牌后,你摸2张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2085,
+      "name": "策定天下",
+      "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2086,
+      "name": "策定天下Ⅱ",
+      "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸2张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2088,
+      "name": "木牛流马",
+      "description": "摸牌阶段，你的摸牌数+2。你的手牌上限-1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2093,
+      "name": "拂衣去·杀",
+      "description": "回合开始时，你获得1张【杀】",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2094,
+      "name": "拂衣去·桃",
+      "description": "回合开始时，你获得2张【桃】",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2095,
+      "name": "拂衣去·拆",
+      "description": "回合开始时，你获得1张【过河拆桥】",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2096,
+      "name": "拂衣去·顺",
+      "description": "回合开始时，你获得1张【顺手牵羊】",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2097,
+      "name": "拂衣去·决",
+      "description": "回合开始时，你获得1张【决斗】",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2098,
+      "name": "拂衣去·锁",
+      "description": "回合开始时，你获得1张【铁索连环】",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2099,
+      "name": "拂衣去·火",
+      "description": "回合开始时，你获得1张【火攻】",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2144,
+      "name": "拂衣去·闪",
+      "description": "回合开始时，你获得1张【闪】",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2100,
+      "name": "雷火势Ⅰ",
+      "description": "每回合限一次，你使用的第一张属性【杀】伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2101,
+      "name": "雷火势Ⅱ",
+      "description": "每回合限一次，你使用的第一张属性【杀】伤害+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2103,
+      "name": "后发先至",
+      "description": "摸牌阶段，你的摸牌数-1；回合结束时，你摸3张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2104,
+      "name": "神龙摆尾",
+      "description": "你每摸9张牌，对随机敌方造成1点伤害",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2143,
+      "name": "神龙摆尾Ⅱ",
+      "description": "你每摸6张牌，对随机敌方造成1点伤害",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2105,
+      "name": "雷震Ⅰ",
+      "description": "战斗开始时，全场所有角色受到1点雷属性伤害（触发1次）",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2106,
+      "name": "雷震Ⅱ",
+      "description": "战斗开始时，全场所有角色受到2点雷属性伤害（触发1次）",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2108,
+      "name": "虎骨酒",
+      "description": "每回合，你可以额外使用1次【酒】",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2109,
+      "name": "虎骨酒Ⅱ",
+      "description": "每回合，你可以额外使用2次【酒】",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2111,
+      "name": "酣战",
+      "description": "与你【决斗】的角色每次需打出两张【杀】",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2115,
+      "name": "蓄势",
+      "description": "本回合没出杀，则下回合杀伤害+1 （最多+1）",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2127,
+      "name": "卧薪尝胆",
+      "description": "回合外每受到1次伤害，你的下次造成伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2116,
+      "name": "荆棘甲",
+      "description": "每次受到伤害后对伤害来源造成1点伤害",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2117,
+      "name": "偏转甲",
+      "description": "每次受到伤害后对随机敌方造成1点伤害",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2120,
+      "name": "应急战略",
+      "description": "回合外成为敌方角色使用牌唯一目标，随机弃置使用者1张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2121,
+      "name": "应急方案",
+      "description": "回合外成为敌方角色基本牌唯一目标，随机弃置使用者1张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2122,
+      "name": "应急战术",
+      "description": "回合外成为敌方角色锦囊牌唯一目标，随机弃置使用者1张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2128,
+      "name": "及时雨",
+      "description": "回合外失去最后一张手牌后，摸两张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2129,
+      "name": "远击技",
+      "description": "造成伤害时，若你与其距离大于1，此伤害+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2130,
+      "name": "重击技",
+      "description": "对敌方造成伤害一次大于等于3点时，摸1张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2131,
+      "name": "破釜沉舟",
+      "description": "回合外受到伤害一次大于等于3点时，对伤害来源造成等量同属性伤害。",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2147,
+      "name": "血战Ⅰ",
+      "description": "体力上限-1（最低为1），每轮开始时回复1点体力 ",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2148,
+      "name": "血战Ⅱ",
+      "description": "体力上限-1（最低为1），每轮开始时回复2点体力",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2150,
+      "name": "愈战愈勇",
+      "description": "从第3轮开始，你的【杀】造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2151,
+      "name": "愈战愈勇Ⅱ",
+      "description": "从第5轮开始，你的【杀】造成的伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2152,
+      "name": "愈战愈勇Ⅲ",
+      "description": "从第7轮开始，你的【杀】造成的伤害+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2153,
+      "name": "布阵",
+      "description": "从第3轮开始，你的摸牌数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2154,
+      "name": "布阵Ⅱ",
+      "description": "从第5轮开始，你的摸牌数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2155,
+      "name": "布阵Ⅲ",
+      "description": "从第7轮开始，你的摸牌数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2156,
+      "name": "战斗学习",
+      "description": "从第3轮开始，你的出杀次数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2157,
+      "name": "战斗学习Ⅱ",
+      "description": "从第4轮开始，你的出杀次数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2158,
+      "name": "战斗学习Ⅲ",
+      "description": "从第7轮开始，你的出杀次数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2162,
+      "name": "狂暴",
+      "description": "体力值小于等于2时，你造成的伤害+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2163,
+      "name": "狂暴Ⅱ",
+      "description": "体力值小于等于3时，你造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2164,
+      "name": "狂暴Ⅲ",
+      "description": "体力值小于等于3时，你的摸牌数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2165,
+      "name": "狂暴Ⅳ",
+      "description": "体力值小于等于5时，你的摸牌数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2166,
+      "name": "信手拈来",
+      "description": "你的手牌上限不因体力值改变而改变",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2167,
+      "name": "绝对无懈",
+      "description": "其他角色无法响应你的【无懈可击】",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2171,
+      "name": "技艺Ⅰ",
+      "description": "当你的技能直接造成伤害时，此伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2172,
+      "name": "技艺Ⅱ",
+      "description": "当你的技能直接造成伤害时，此伤害+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2174,
+      "name": "勇战Ⅰ",
+      "description": "你脱离濒死时，对所有敌方造成1点伤害",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2175,
+      "name": "勇战Ⅱ",
+      "description": "你脱离濒死时，对所有敌方造成2点伤害",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2177,
+      "name": "隔山打牛",
+      "description": "你对其他人造成伤害时，无视其护甲",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2182,
+      "name": "粮草储备",
+      "description": "游戏开始时，你回复1点体力",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2185,
+      "name": "士气剥夺",
+      "description": "敌方的体力上限-1，最低为1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2188,
+      "name": "拔刀术",
+      "description": "若上一轮你未造成任何伤害，则你本轮造成的所有伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2189,
+      "name": "拔刀术Ⅱ",
+      "description": "若上一轮造成的伤害小于3，则你本轮造成的所有伤害+1",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2190,
+      "name": "阴阳术法",
+      "description": "敌方无法响应你的伤害锦囊牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2191,
+      "name": "药理Ⅴ",
+      "description": "回复体力时，额外回复1点",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2192,
+      "name": "药理Ⅵ",
+      "description": "回复体力时，额外回复2点",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2193,
+      "name": "剔甲术",
+      "description": "对护甲造成双倍伤害",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2194,
+      "name": "精于谋略",
+      "description": "手牌数小于4时，你使用【杀】造成的伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2195,
+      "name": "精于谋略Ⅱ",
+      "description": "手牌数小于6时，你使用【杀】造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2196,
+      "name": "厚实Ⅰ",
+      "description": "每轮你前2次受到的伤害-1",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2197,
+      "name": "厚实Ⅱ",
+      "description": "每轮你前3次受到的伤害-2",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2198,
+      "name": "搬运",
+      "description": "回合开始时，获得随机敌方一张手牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2208,
+      "name": "稳定后勤",
+      "description": "摸牌阶段摸牌数固定为5",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2209,
+      "name": "稳定进攻",
+      "description": "回合内出杀次数固定为5",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2210,
+      "name": "稳定士气",
+      "description": "你的所有伤害值固定为2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2211,
+      "name": "稳定承载",
+      "description": "手牌上限等于你的体力上限",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2227,
+      "name": "弱反馈",
+      "description": "你受到1点伤害后，摸一张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2228,
+      "name": "奋进",
+      "description": "当体力大于2点，回合开始时失去1点体力并摸2张牌",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2238,
+      "name": "妙手空空",
+      "description": "你使用【顺手牵羊】无距离限制",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2239,
+      "name": "趁其不备",
+      "description": "你使用【过河拆桥】时，至多弃置目标2张牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2240,
+      "name": "趁其不备Ⅱ",
+      "description": "你使用【过河拆桥】时，至多弃置目标3张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2241,
+      "name": "丰收年",
+      "description": "你使用的【五谷丰登】仅友方角色可以获得牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2242,
+      "name": "蓄力箭",
+      "description": "你使用的【万箭齐发】其他角色需要打出2张【闪】来响应",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2243,
+      "name": "结盟",
+      "description": "你使用的【桃园结义】友方角色回复双倍体力",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2244,
+      "name": "巧取豪夺",
+      "description": "因你【借刀杀人】使用的【杀】伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2245,
+      "name": "远谋Ⅰ",
+      "description": "第3轮你的回合开始时，你回复2点体力",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2246,
+      "name": "远谋Ⅱ",
+      "description": "第3轮你的回合开始时，你回复3点体力",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2247,
+      "name": "远谋Ⅲ",
+      "description": "第2轮你的回合开始时，你回复2点体力",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2249,
+      "name": "博闻Ⅰ",
+      "description": "你的回合开始时，从牌堆中获得1张随机锦囊牌",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2250,
+      "name": "博闻Ⅱ",
+      "description": "你的回合开始时，从牌堆中获得2张随机锦囊牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2251,
+      "name": "博闻Ⅲ",
+      "description": "你的回合开始时，从牌堆中获得3张随机锦囊牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2258,
+      "name": "铁布衫",
+      "description": "获得1点护甲",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2259,
+      "name": "铁布衫Ⅱ",
+      "description": "获得2点护甲",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2260,
+      "name": "铁布衫Ⅲ",
+      "description": "获得4点护甲",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2261,
+      "name": "体魄",
+      "description": "增加1点体力上限并回复等量体力",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2262,
+      "name": "体魄Ⅱ",
+      "description": "增加2点体力上限并回复等量体力",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2263,
+      "name": "体魄Ⅲ",
+      "description": "增加3点体力上限并回复等量体力",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2264,
+      "name": "血战Ⅰ",
+      "description": "体力上限-1（最低为1），每轮开始时回复1点体力",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2265,
+      "name": "血战Ⅱ",
+      "description": "体力上限-2（最低为1），每轮开始时回复2点体力",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2266,
+      "name": "血战Ⅲ",
+      "description": "体力上限-3（最低为1），每轮开始时回复3点体力",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2281,
+      "name": "持久战Ⅱ",
+      "description": "虎符数量达到5后，每回合获得的虎符数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2282,
+      "name": "持久战Ⅳ",
+      "description": "虎符数量达到3后，出杀次数+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2283,
+      "name": "持久战Ⅲ",
+      "description": "虎符数量达到7后，摸牌数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2284,
+      "name": "持久战Ⅰ",
+      "description": "虎符数量达到3后，手牌上限+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2285,
+      "name": "兵权Ⅰ",
+      "description": "自己的自然回合获得的虎符数+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2286,
+      "name": "兵权Ⅱ",
+      "description": "每个自然回合获得的虎符数+1",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2287,
+      "name": "虎符Ⅰ",
+      "description": "立即获得1个虎符",
+      "tokens": 0,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2288,
+      "name": "虎符Ⅱ",
+      "description": "立即获得2个虎符",
+      "tokens": 0,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2289,
+      "name": "商道",
+      "description": "商店中商品展示数量+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2290,
+      "name": "刷新Ⅲ",
+      "description": "每个回合商店可免费刷新1次（仅限当前不可免费刷新时）",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2291,
+      "name": "刷新Ⅰ",
+      "description": "商店免费刷新次数+2",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2292,
+      "name": "刷新Ⅱ",
+      "description": "商店免费刷新次数+4",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2293,
+      "name": "运筹帷幄",
+      "description": "技能槽上限+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2294,
+      "name": "天降锦囊",
+      "description": "获取3张锦囊牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2295,
+      "name": "天降横财",
+      "description": "获取4张基本牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2296,
+      "name": "天降装备",
+      "description": "获取4张装备牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2297,
+      "name": "天降卡牌",
+      "description": "获取3张牌",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2221,
+      "name": "一忘皆空",
+      "description": "武将初始技能可被替换",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2226,
+      "name": "潜龙",
+      "description": "每有一个已解锁的空技能槽，则出杀次数+2",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2298,
+      "name": "断粮草Ⅱ",
+      "description": "敌方摸牌数-1，最低为2",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2299,
+      "name": "胆量剥夺",
+      "description": "敌方的出杀次数-1，最低为1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2303,
+      "name": "弱袭",
+      "description": "你的手牌数小于体力值时，造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2307,
+      "name": "赌术I",
+      "description": "你的拼点牌点数+3（最大为K）",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2308,
+      "name": "赌术II",
+      "description": "你的拼点牌点数+6（最大为K）",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2310,
+      "name": "增寿I",
+      "description": "体力上限+1（不改变当前体力) ",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2311,
+      "name": "增寿II",
+      "description": "体力上限+2（不改变当前体力) ",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2312,
+      "name": "妙技I",
+      "description": "每回合首张锦囊造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2313,
+      "name": "妙技II",
+      "description": "每回合前2张锦囊造成的伤害+1",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2315,
+      "name": "噬血I",
+      "description": "回复体力后，摸1张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2317,
+      "name": "反刺",
+      "description": "每回合首次受到伤害后对所有敌方造成1点伤害",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2319,
+      "name": "药理",
+      "description": "每回合首次回复体力时，额外回复1点",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2320,
+      "name": "药理II",
+      "description": "每回合前3次回复体力时，额外回复1点",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2333,
+      "name": "衡锋I",
+      "description": "回合内首次造成的伤害+1，回合外首次受到的伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2334,
+      "name": "衡锋II",
+      "description": "回合内首次造成的伤害+2，回合外首次受到的伤害+2",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2337,
+      "name": "双掠",
+      "description": "你使用的【顺手牵羊】额外结算一次",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2357,
+      "name": "烈变Ⅲ",
+      "description": "从第2轮开始，你的锦囊和技能造成的伤害+2",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2358,
+      "name": "烈变Ⅱ",
+      "description": "从第4轮开始，你的锦囊和技能造成的伤害+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 2
+    },
+    {
+      "id": 2359,
+      "name": "烈变",
+      "description": "从第3轮开始，你的锦囊和技能造成的伤害+1",
+      "tokens": 2,
+      "quality": 2,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2342,
+      "name": "搏命",
+      "description": "手牌上限-2，出杀次数+1",
+      "tokens": 1,
+      "quality": 1,
+      "sourceQuality": 1
+    },
+    {
+      "id": 2365,
+      "name": "机略纵横",
+      "description": "你可以重铸桃园结义，万箭齐发，闪电三张锦囊",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2366,
+      "name": "兵权Ⅲ",
+      "description": "每回合获得虎符的数量翻倍",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2367,
+      "name": "幸运数字",
+      "description": "游戏开始时随机展示一个数字，摸到点数为幸运数字的牌时额外摸一张牌",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    },
+    {
+      "id": 2368,
+      "name": "孤注一掷",
+      "description": "回合开始时你失去一点体力，本回合出杀次数+1",
+      "tokens": 3,
+      "quality": 3,
+      "sourceQuality": 3
+    },
+    {
+      "id": 2369,
+      "name": "虎符Ⅲ",
+      "description": "开局立即获得5个虎符",
+      "tokens": 4,
+      "quality": 4,
+      "sourceQuality": 4
+    }
+  ]
+}

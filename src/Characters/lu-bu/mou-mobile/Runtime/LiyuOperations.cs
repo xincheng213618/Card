@@ -32,6 +32,7 @@ public sealed record MouLuBuLiyuDuelReturnedEvent(long FrameId, long UseId, bool
 public sealed record MouLuBuLiyuCompletedEvent(long FrameId, int Selections, int ActualObtained, int CategoryMask) : IGameEvent;
 internal sealed class MouLuBuLiyuDescriptor : MouLuBuMobileDescriptor
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouLuBuLiyu;
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];

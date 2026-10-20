@@ -21,6 +21,7 @@ public sealed record MouXiahouShiYanyuDiscardPaidEvent(long FrameId, CardConvers
 public sealed record MouXiahouShiYanyuTargetAcceptedEvent(long FrameId, int TargetSeat, int FrozenDiscardCount, int RequestedDraw) : IGameEvent;
 internal sealed class ResolveMouXiahouShiYanyuDiscardDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;
     public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
 
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiYanyuDiscard;
@@ -33,6 +34,7 @@ internal sealed class ResolveMouXiahouShiYanyuDiscardDescriptor : MouXiahouShiDe
 }
 internal sealed class ResolveMouXiahouShiYanyuSupportDescriptor : MouXiahouShiDescriptor
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
 
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouShiYanyuSupport;

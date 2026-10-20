@@ -17,6 +17,7 @@
     <EmbeddedResource Include="Assets\Data\shanhe-codex-2026.json" LogicalName="CardGame.ShanheCodex2026.json" />
     <Resource Include="Assets\Generals\*.png;Assets\Generals\*.jpg" />
     <Resource Include="Assets\Table\*.png;Assets\Table\*.jpg" />
+    <Resource Include="Assets\Wushuang\*.png" />
     <EmbeddedResource Include="..\..\docs\content\table-art-catalog.json" LogicalName="CardGame.TableArtCatalog.json" />
     <Content Include="Assets\Cards\*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="Assets\Shanhe\*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

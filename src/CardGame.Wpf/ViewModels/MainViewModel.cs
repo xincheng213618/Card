@@ -68,7 +68,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         bool confirmOpeningHand = false,
         IGameExceptionReportStore? exceptionReportStore = null,
         IShanheCampaignSaveStore? shanheSaveStore = null,
-        IShanheCodexStore? shanheCodexStore = null)
+        IShanheCodexStore? shanheCodexStore = null,
+        IGameSaveStore? wushuangSaveStore = null)
     {
         NewGameCommand = new RelayCommand(() => { if (!IsTutorialActive) OpenGameSetup(); }, () => !IsTutorialActive);
         StepAiCommand = new RelayCommand(StepAi, () => CanStepAi);
@@ -125,6 +126,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 mode.GuanduActivity is not null ? GuanduLobbyDescription : mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription(mode) : mode.BossActivity is not null
                     ? BossActivityLobbyDescription(mode)
                     : "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
+        TableModes = TableModes.Append(new TableModeOption(2, "单骑无双", "单机 1v1 AI · 15 分钟\n回合成长 · 虎符商店 · 最多两个额外技能", WushuangMode.ModeId)).ToArray();
         DeckOptions =
         [
             .. (_contentRegistry.Decks.ContainsKey("classic:standard-deck")
@@ -141,6 +143,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         InitializeGeneralSelectionPresentation();
         InitializeGameSetup();
         InitializePersistence(saveStore);
+        InitializeWushuang(wushuangSaveStore);
         InitializeHistory(historyStore);
         InitializeTutorial();
         InitializePreferences(preferencesStore);
@@ -375,13 +378,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void NewGame()
     {
+        if (!_initializing && (IsWushuangTable || IsWushuangModeSelection) && !FlushPendingSave()) return;
         SaveShanheBeforeOrdinaryGame();
         if (!_initializing) ResetPersistenceMessage();
         // A predictable seed would let a modified client reconstruct every hidden
         // role and card. Tests inject fixed seeds; ordinary local games use entropy.
         var seed = _seedOverride ?? RandomNumberGenerator.GetInt32(100_000_000, 1_000_000_000);
         var game = GameEngine.CreateStandard(
-            new GameOptions
+            IsWushuangModeSelection ? StandardWushuangContentRegistry.CreateOptions(seed) with
+            {
+                ConfirmOpeningHand = _confirmOpeningHand,
+                UseInteractiveDiscard = ManualDiscardEnabled,
+                AdvanceAfterHumanCommands = false
+            } : new GameOptions
             {
                 Seed = seed,
                 HumanSeat = 0,
@@ -412,6 +421,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void ReplaceEngine(GameEngine game)
     {
+        if (IsWushuangTable && !game.IsWushuangMode && !_initializing) SaveCurrentGame(GameSaveSlot.Automatic);
         _reportedFaultedGame = null;
         _reportedException = null;
         ResetStartupPresentation();
@@ -449,7 +459,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _game.AiGeneralThoughtAdded += OnAiGeneralThoughtAdded;
         _game.StateChanged += OnStateChanged;
         ResetNianClockForEngine();
+        ResetWushuangClockForEngine();
         RefreshCurrentView();
+        RefreshWushuangPresentation();
+        RefreshSaveSlots();
         foreach (var entry in _game.Log.TakeLast(400)) OnLogAdded(entry);
         RecordPublicPlays(_game.Events);
     }
@@ -467,6 +480,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         PresentCommittedState(snapshot);
         SyncNianClockAfterCommand();
+        SyncWushuangClockAfterCommand();
     }
 
     private void OnLogAdded(GameLogEntry entry)
@@ -756,7 +770,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             SelectedCardText = "未选择手牌";
         }
 
+        var beforeForcedSelection = _selectedCardId;
         SyncForcedHandSelection();
+        if (_selectedCardId != beforeForcedSelection) SelectOnlyCardTarget();
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
 
@@ -1021,6 +1037,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         (OpenTurnHandHoldCommand as RelayCommand<SeatViewModel>)?.NotifyCanExecuteChanged();
         RefreshOpeningDeal();
         RaisePropertyChanged(nameof(TableDecisionTitle));
+        QueueUnavailableRescuePass();
+        QueueOnlyTargetHandCard();
     }
 
     private void SelectCard(CardViewModel card)
@@ -1065,15 +1083,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
 
-        var matching = GetViewLegalActions()
-            .Where(action => action.CardId == _selectedCardId && MatchesSelectedPlayConversion(action))
-            .ToArray();
-        if (matching.Length == 1 &&
-            matching[0].TargetSeats.Count == 1 &&
-            matching[0].Kind == LegalActionKind.Peach)
-        {
-            _selectedTargetSeat = matching[0].TargetSeat;
-        }
+        SelectOnlyCardTarget();
 
         foreach (var item in Hand)
         {
@@ -1128,6 +1138,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? $"未选择用于【{skillName}】的牌"
             : $"已选择 {_selectedActiveSkillCardIds.Count} 张牌用于【{skillName}】";
         RefreshEquipmentMaterialSelection();
+        SelectOnlyActiveSkillTarget();
         RefreshTargetHighlights();
     }
 
@@ -1170,6 +1181,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌、装备或判定牌"
             : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{regionalCard.DisplayName}】当【{PlayConversionCardName}】使用"
                 : $"已选择：{regionalCard.DisplayName}";
+        SelectOnlyCardTarget();
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
@@ -1784,6 +1796,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _isSelectingActiveSkillCards = true;
+            SelectOnlyActiveSkillTarget();
             RefreshCurrentView();
             return;
         }

@@ -49,6 +49,7 @@ public sealed partial record CardUseFrame
 internal interface IHuBanHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame frame);}
 internal sealed class ResolveHuiyunCompletedFireAttackDescriptor:ProgramOperationDescriptorBase
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack;
     public override ISkillProgramEffectHandler Handler{get;}=new HuiyunHandler();
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);

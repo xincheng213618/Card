@@ -55,10 +55,12 @@ internal abstract class ChanshuangDescriptor(SkillProgramEffectOp op):ProgramOpe
 }
 internal sealed class ResolveChanshuangSimultaneousChoicesDescriptor():ChanshuangDescriptor(SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices)
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Activation;
     public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
 public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];}
 internal sealed class ResolveChanshuangEndingDescriptor():ChanshuangDescriptor(SkillProgramEffectOp.ResolveChanshuangEnding)
 {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
 public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];}
 internal sealed class ChanshuangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler

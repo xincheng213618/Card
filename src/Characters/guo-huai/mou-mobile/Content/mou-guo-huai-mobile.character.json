@@ -1,0 +1,5 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:guo-huai",
+ "skills":[{"registrationOrder":2380,"programBundle":"mou-guo-huai-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:jingce","name":"精策","description":"锁定技，回合开始时，若你的武将牌上没有“精策”牌，则你清除未验证的预测记录，然后将牌堆顶的三张牌置于你的武将牌上，称为“精策”牌。回合结束时，你预测将获得这些“精策”牌的角色（或预测这些“精策”牌不被任何角色获得），然后根据预测顺序将这些牌分别置为牌堆顶的第三、六、九张牌（若牌堆剩余牌数不足，则将无法达到的牌按预测顺序置于牌堆底）。若你预测正确，则你分别摸一、二、三张牌。","executionForms":"Trigger,State","tags":"Locked"}}],
+ "generals":[{"registrationOrder":2381,"pools":{"current":542},"definition":{"id":"mou:guo-huai-mobile","name":"谋郭淮·移动版","portraitKey":"mou-guo-huai-mobile","skillId":"mou-mobile:jingce","factionId":"wei","gender":"Male","baseHp":4,"characterId":"character:guo-huai","variantId":"mou-mobile","rulesetId":"sanguosha-mobile"}}]
+}

@@ -78,6 +78,7 @@ public sealed partial class GameEngine
     }
     private LeiluanNativePayment? IssuedLeiluanPayment(CardActionContext action) => _resolutionStack.OfType<CardUseFrame>().SelectMany(u => u.LeiluanPayments ?? [])
         .SingleOrDefault(p => p.Paid && p.LastHand && LeiluanActionMatches(p, action));
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 5)]
     private void CollectIssuedLeiluanCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (!HasLeiluanCapability || window != SkillProgramTriggerWindow.CardUseCommitted || IssuedLeiluanPayment(action) is not { } p ||

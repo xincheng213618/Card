@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         f.TriggerId is null && f.ActivationId == "gift-and-plan" && f.InstructionIndex == 1 && f.WindowContext is null && f.SelectedCardIds.Count == 0 &&
         f.SelectedTargetSeats.SequenceEqual([r.RecipientSeat]) && r.Source == MouChenGongSource(f) && r.GameplayHash == f.GameplayHash &&
         IsValidPlayerSeat(r.RecipientSeat) && r.RecipientSeat != f.OwnerSeat && r.Phase.ActorSeat == f.OwnerSeat && r.Phase.Kind == ActualDiscardRecoveryPhaseKind.Play &&
-        IsRecordedActualDiscardRecoveryPhase(r.Phase) && _contentRegistry.GetSkill(f.SkillId).Program is { } p && p.GameplayHash == f.GameplayHash && MouChenGongComposition.IsMingce(p) &&
+        IsRecordedActualDiscardRecoveryPhase(r.Phase) && _contentRegistry.GetSkill(f.SkillId).Program is { } p && p.GameplayHash == f.GameplayHash &&
         ProgramEventHistory<MouChenGongMingceStartedEvent>().Count(e => e == new MouChenGongMingceStartedEvent(f.Id, r.Source, r.GameplayHash, r.Phase, r.RecipientSeat)) == 1;
     private SkillProgramStepOutcome BeginMouChenGongGift(ProgramSkillFrame supplied)
     {

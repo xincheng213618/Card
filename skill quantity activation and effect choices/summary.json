@@ -1,0 +1,32 @@
+{
+  "status": "build-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\skill quantity activation and effect choices",
+  "coreFilters": [
+    "classic Ice Sword"
+  ],
+  "wpfFilters": [
+    "opaque target-card slots"
+  ],
+  "startedAt": "2026-10-21T00:56:08.2917268+08:00",
+  "durationMs": 3050,
+  "message": "The selected scope did not build; checks were not started.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 2766,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\skill quantity activation and effect choices\\logs\\build.log"
+    }
+  ],
+  "dependencyVerificationMs": 0,
+  "dependencyRepairs": [],
+  "cleanup": {
+    "status": "registration-failed",
+    "queued": [],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": "Could not register outputs in 'C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json'. Retained 'C:\\Users\\17917\\Desktop\\Card\\skill quantity activation and effect choices'."
+  }
+}

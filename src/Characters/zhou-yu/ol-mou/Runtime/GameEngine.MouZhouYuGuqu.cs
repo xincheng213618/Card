@@ -12,6 +12,7 @@ public sealed partial class GameEngine
     private bool IsIssuedMouGuquCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>
         _players[c.OwnerSeat].IsAlive && MouGuquCompletedClaim(c, context) is { } q &&
         !ProgramEventHistory<GuquStartedEvent>().Any(e => e.Claim.Source == q.Source && e.Claim.ActionId == q.ActionId);
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 22)]
     private void CollectIssuedMouGuquCandidates(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (!HasMouGuquCapability || window != SkillProgramTriggerWindow.CardUseCompleted) return;
@@ -26,6 +27,7 @@ public sealed partial class GameEngine
                 CreateCardActionProgramContext(action, window, 0, q.Source.OwnerSeat, -1, CaptureProgramTriggerFacts(_players[q.Source.OwnerSeat], action))));
         }
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.ObservesResponseUseCompletion, 1)]
     private bool HasIssuedMouGuquResponse(CardActionContext action) => HasMouGuquCapability && _resolutionStack.Any(f =>
         f.GuquClaims?.Any(q => q.ActionId == action.ActionId && q.ParentFrameId == f.Id && _players[q.Source.OwnerSeat].IsAlive && ValidMouGuquClaim(q, action)) == true);
     private SkillProgramStepOutcome BeginMouGuqu(ProgramSkillFrame supplied)

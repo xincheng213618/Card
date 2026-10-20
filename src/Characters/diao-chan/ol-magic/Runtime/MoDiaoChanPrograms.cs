@@ -53,7 +53,8 @@ public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MoDiaoChanLegacyDuelReceipt? MoDiaoChanLegacyDuel { get; init; } }
 public sealed record MoDiaoChanDirectDuelWindowFrame(long Id, long ParentFrameId, MoDiaoChanLegacyDuelReceipt Duel,
     MoDiaoChanUseClaim Claim, ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
-    : ResolutionFrame(Id, ResolutionFrameKind.MoDiaoChanDirectDuelWindow, ResolutionFrameStep.ResolvingEffect);
+    : ResolutionFrame(Id, ResolutionFrameKind.MoDiaoChanDirectDuelWindow, ResolutionFrameStep.ResolvingEffect),
+      IProgramChildResolutionFrame;
 public sealed record MoDiaoChanLegacyDuelIssuedEvent(MoDiaoChanLegacyDuelReceipt Receipt) : IGameEvent;
 public sealed record MoDiaoChanLegacyDuelReturnedEvent(long EntryId, long ProducerFrameId, bool DamageApplied, int FinalTarget) : IGameEvent;
 public sealed record MoDiaoChanLegacyDuelResumedEvent(long EntryId, long ProducerFrameId) : IGameEvent;
@@ -87,11 +88,13 @@ internal abstract class MoDiaoChanDescriptor : ProgramOperationDescriptorBase
     };
     public override ISkillProgramEffectHandler Handler => new MoDiaoChanHandler(Op);
 }
-internal sealed class MoDiaoChanRoundDescriptor : MoDiaoChanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanHuanhuoRound;
+internal sealed class MoDiaoChanRoundDescriptor : MoDiaoChanDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger; public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanHuanhuoRound;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
 }
 internal sealed class MoDiaoChanUseDescriptor : MoDiaoChanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanHuanhuoUse; }
-internal sealed class MoDiaoChanPrepDescriptor : MoDiaoChanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanQingshiPrep;
+internal sealed class MoDiaoChanPrepDescriptor : MoDiaoChanDescriptor {
+    public override ProgramDependencyKinds TracksActualTurnCursorReturn => ProgramDependencyKinds.Trigger; public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanQingshiPrep;
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
 }
 internal sealed class MoDiaoChanRedirectDescriptor : MoDiaoChanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMoDiaoChanQingshiRedirect; }

@@ -12,6 +12,6 @@ public sealed partial class GameEngine
             SkillRuleQuery.InitialHandSize,
             new RuleQueryBounds(0, int.MaxValue),
             [new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:initial-hand-size",
-                GetShanheStartingHand(player.Seat)?.Count ?? _initialHandSize)],
+                GetShanheStartingHand(player.Seat)?.Count ?? (IsWushuangMode ? 5 : _initialHandSize))],
             CollectNumericRuleContributions(player, SkillRuleQuery.InitialHandSize));
 }

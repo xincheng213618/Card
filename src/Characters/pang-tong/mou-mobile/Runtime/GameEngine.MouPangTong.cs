@@ -101,6 +101,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new MouPangTongTargetsCompletedEvent(id, f.OwnerSeat, r.UseId, r.Targets.Count));
         ReplaceRuntimeTop(f = f with { MouPangTongTargets = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
+    [ProgramPipelineHook(ProgramPipelinePhase.CollectIssuedCardTrigger, 11)]
     private void CollectPaidMouPtTargets(CardActionContext action, SkillProgramTriggerWindow window, List<ProgramCardTriggerCandidate> result)
     {
         if (!HasMouPangTongCapability || window != SkillProgramTriggerWindow.CardUseTargetsFinalized || action.Type != CardActionType.Use || action.EffectiveKind != CardKind.IronChain ||

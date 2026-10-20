@@ -3,6 +3,8 @@
     # Character work uses focused name filters; new content does not expand this lane.
     # All retained registrations remain available for an explicitly requested manual full run.
     Core = @(
+        'Bagua response: failed judgment hand Dodge and cold replay',
+        'Wushuang mode: native shop growth acquired skills replacement and replay',
         'Guandu mode: frozen roster private rotating draft tier five military deck',
         'Guandu events: counterspell Use and played Slash keep distinct global count',
         'Dragon boat activity: opt in team only fixed draft and cold restore',
@@ -261,6 +263,7 @@
         'PeachGarden resolves a paused multi-target recovery',
         'FiveGrains reveals public cards with private draft prompts',
         'FireAttack reveals privately then resolves typed fire damage',
+        'Hand reveal privacy: FireAttack and Gongxin close before opaque Dismantlement cold',
         'dying response can pause and recover with a private Peach',
         'throwing observers are isolated after commit',
         'synchronous observers cannot advance the engine reentrantly',
@@ -284,6 +287,8 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'Bagua response UI: armor choice judgment then hand Dodge',
+        'Wushuang UI: entry shop and independent cold restore',
         'mode lobby filters real identity, team and national entries without changing the match',
         'Armor seats: real opening stacks payments accessible digits and zero hiding',
         'Guandu activity UI: two armies roles event and cold restore',
@@ -296,6 +301,7 @@
         'Hulao activity UI: forms shuffle counters and cross-mode restore',
         'table shortcuts execute once per key press and preserve modal drafts',
         'stale prompt choices cannot answer reloaded or consecutive decisions',
+        'skill quantity activation and effect choices share the lower action dock',
         'Edition general gallery: namespaced portraits and real details',
         'general gallery realizes visible rows and opens with bounded portrait cost',
         'custom general roster opens searches and previews with bounded presentation cost',
@@ -312,12 +318,15 @@
         'conversion skill rail selects published materials including chains and delayed cards',
         'conversion skill rail chooses output before materials and retires old mode buttons',
         'composed skills share the generic WPF draft and submit their stable program identity',
+        'Automatic targets UI: unique card and conversion drafts',
+        'Automatic rescue UI: unavailable rescue passes and real choices remain',
         'Program paid choices preserve actor control and opaque slots',
         'Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift',
         'declaration and general library views protect private faces',
         # Native press feedback requires idle physical input. Run it by name when
         # changing native input; ordinary background verification cannot own it.
         'opaque target-card slots render privately and commit through WPF commands',
+        'Target card UI: single hidden hand card resolves once without second picker',
         'saved UI boundaries restore and continue through actual files',
         'failed writes preserve saves and failed reads initialize a new game',
         'battle feedback exposes only committed public actions',

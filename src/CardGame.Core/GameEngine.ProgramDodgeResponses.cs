@@ -55,7 +55,8 @@ public sealed partial class GameEngine
         {
             var cards = GetResponseCards(owner, CardKind.Dodge);
             var freshChoices = ActiveFactionDefense is { } defense
-                ? CreateFactionDefenseResponseChoices(owner, defense, cards, HasBagua(owner))
+                ? CreateFactionDefenseResponseChoices(owner, defense, cards, HasBagua(owner) &&
+                    decision.Choices.Any(item => item.Parameters.GetValueOrDefault("response") == "faction-defense-bagua"))
                 : CreateResponseChoices(cards, CardKind.Dodge, decision.IncomingCard,
                     card => GetEffectiveResponseKind(owner, card, CardKind.Dodge),
                     includeBagua: decision.Choices.Any(item => item.Parameters.GetValueOrDefault("response") == "bagua"),

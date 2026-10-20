@@ -27,9 +27,9 @@ internal static class LuoXianChecks
                 E<DailiDrawPaidEvent>(game) is [{ Count: 3 }] && E<DailiTurnEndCompletedEvent>(game) is [{ ActualDrawCount: 3, RevealedCount: 3 }],
                 "Zero is even at an actual own or other completed turn, and native flip precedes exactly three real draws and public reveals.");
             var shown = Shown(game, 0);
-            Need(shown.Length == (own ? 5 : 3) && Enumerable.Range(0, 4).All(s => game.CreateSnapshot(s).PublicRevealedCards.Where(c => c.PublicHandOwnerSeat == 0).Select(c => c.Id).Order().SequenceEqual(shown.Order())) &&
+            Need(shown.Length == (own ? 5 : 3) && Enumerable.Range(0, 4).All(s => game.CreateSnapshot(s).PublicRevealedCards.Count == 0) &&
                 Enumerable.Range(1, 3).All(s => game.CreateSnapshot(s).Players[0].Hand.Count == 0),
-                "All viewers see only the same explicitly shown owner-tagged faces, including exactly three new draws; the remaining hidden hand is not exposed.");
+                "Daili retains its historical shown-hand count, while completed reveals no longer expose any hand face to viewers.");
             game = Cold(game, registry);
             Reach(game, () => E<TurnEndedEvent>(game).Count(e => e.ActorSeat == 0) >= 2);
             Need(!V(game, 0).IsFaceDown && E<DailiTurnEndIssuedEvent>(game).Length == 1,
@@ -57,7 +57,64 @@ internal static class LuoXianChecks
             "A dead completed-turn owner does not cancel the living source's paid native flip, actual three-card draw, public reveal or original end cursor.");
         _ = Cold(deadTurn, deadRegistry);
     }
-    private static int[] Shown(GameEngine game, int owner) => game.CreateSnapshot(0).PublicRevealedCards.Where(c => c.PublicHandOwnerSeat == owner).Select(c => c.Id).Order().ToArray();
+    public static void TemporaryRevealsReturnToOpaqueTargetSlotsCold()
+    {
+        var (game, registry) = Start("temporary-visibility");
+        Native(CardKind.FireAttack);
+        Reach(game, () => P(game)?.Kind == DecisionKind.FireAttackDiscard);
+        var revealed = E<FireAttackCardRevealedEvent>(game).Single().CardId;
+        Need(Enumerable.Range(0, 4).All(viewer => game.CreateSnapshot(viewer).PublicRevealedCards.Any(card => card.Id == revealed)),
+            "The actual FireAttack response window must still show its currently revealed hand card.");
+        Answer(game, choice => choice.Cards.Count == 0);
+        Play(game);
+        Concealed();
+        Need(Shown(game, 1).SequenceEqual([revealed]), "Ending the display must preserve Daili's historical shown-card fact.");
+        game = Cold(game, registry);
+        Concealed();
+
+        Accept(game, new UseProgramSkillCommand(0, "classic:gongxin", "watch-and-dispose", [], [1], game.Revision, P(game)!.PromptId));
+        Reach(game, () => Action(game, "reveal-target-hand-card-decline"));
+        Need(P(game) is { IsPrivate: true } inspection && inspection.ValidCardIds.Count == V(game, 1).HandCount &&
+            game.CreateSnapshot(2).PendingDecision is null,
+            "Gongxin must reach its actual private whole-hand inspection without exposing that prompt to another viewer.");
+        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "reveal-target-hand-card-decline");
+        Play(game);
+        Concealed();
+
+        var count = V(game, 1).HandCount;
+        Native(CardKind.Dismantlement);
+        Reach(game, () => P(game)?.Kind == DecisionKind.SelectTargetCard);
+        Need(P(game) is { IsPrivate: true } selection && selection.Choices.Count == count &&
+            selection.Choices.All(choice => choice.Cards.Count == 0 && choice.Parameters.GetValueOrDefault("action") == "target-card-slot"),
+            "After FireAttack and Gongxin, Dismantlement must publish only current opaque slots without carrying known entity faces forward.");
+        Concealed();
+        game = Cold(game, registry);
+        Answer(game, _ => true);
+        Play(game);
+        Need(V(game, 1).HandCount == count - 1, "The opaque choice must still discard exactly one actual hand card.");
+        Concealed();
+        _ = Cold(game, registry);
+
+        void Native(CardKind kind)
+        {
+            var action = game.GetHumanLegalActions().First(action => action.PlayedCardKind == kind && action.TargetSeat == 1 &&
+                action.TargetCardId is null && action.ConversionSource?.SkillId == Driver);
+            Accept(game, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision, P(game)!.PromptId,
+                action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource });
+        }
+        void Concealed()
+        {
+            Need(Enumerable.Range(0, 4).All(viewer => game.CreateSnapshot(viewer).PublicRevealedCards.Count == 0 &&
+                game.CreateSnapshot(viewer).PrivateRevealedCards is not { Count: > 0 }) &&
+                Enumerable.Range(0, 4).Where(viewer => viewer != 1).All(viewer => game.CreateSnapshot(viewer).Players[1].Hand.Count == 0),
+                "Completed viewing must leave no current public/private hand faces, even after restore or another opaque selection.");
+        }
+    }
+
+    private static int[] Shown(GameEngine game, int owner) => E<PublicHandEntityRevealedEvent>(game)
+        .Where(e => e.OwnerSeat == owner && V(game, owner).Hand.Any(card => card.Id == e.Card.Id) &&
+            !game.CardMovements.Any(move => move.CardId == e.Card.Id && move.Sequence > e.HandEntryMovementSequence && move.From != move.To))
+        .Select(e => e.Card.Id).Distinct().Order().ToArray();
     private static PlayerSnapshot V(GameEngine game, int seat) => game.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine game) => Enumerable.Range(0, 4).Select(s => game.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine game) where T : IGameEvent => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -139,6 +196,15 @@ internal static class LuoXianChecks
             """)!;
             var names = new Dictionary<string, object> { [Driver] = new { name = "真实公开手牌驱动", description = "实际展示与移动" }, [Quiet] = new { name = "安静的其他角色", description = "原生跳过出牌" } };
             var extra = new List<string> { Skill };
+            if (scenario == "temporary-visibility")
+            {
+                CharacterFixtureContent.Register(builder, "classic:shen-lu-meng");
+                extra.Add("classic:gongxin");
+                rules["skills"]![0]!["viewAs"] = JsonNode.Parse("""
+                    [{"id":"fire","inputKinds":[],"inputSuits":[],"outputKind":"fireAttack","forPlay":true,"forResponse":false,"useOnly":true,"singleCardTrickUse":true},
+                     {"id":"dismantle","inputKinds":[],"inputSuits":[],"outputKind":"dismantlement","forPlay":true,"forResponse":false,"useOnly":true,"singleCardTrickUse":true}]
+                    """);
+            }
             if (scenario == "private")
             {
                 rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""{"id":"{{Inspect}}","revision":1,"triggers":[{"id":"actual-private-inspection","window":"drawPhaseEnded","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"viewAndTakeSelectedTargetHand","target":"selectedTarget","amount":1}]}]}"""));

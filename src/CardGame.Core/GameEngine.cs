@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>
 /// A synchronous, explicit state machine. Advance runs AI turns until it reaches
@@ -323,6 +323,7 @@ public sealed partial class GameEngine
         _programCapabilities = new(this, ProgramCapabilityMetadata.Value);
         _programRuleObservers = new ProgramRuleObservers(ProgramRuleObserverRegistrations.Value,
             (method, type) => method.CreateDelegate(type, this));
+        _programPipelineHooks = new ProgramPipelineHooks(ProgramPipelineHookRegistrations.Value, this);
         _programLegality = new(ProgramLegalityMetadata.Value, this);
         _programSelections = new(ProgramSelectionMetadata.Value, ProgramSelectionQueries);
         _programSelectionValidators = new(ProgramSelectionValidationMetadata.Value, ProgramSelectionQueries);
@@ -350,6 +351,7 @@ public sealed partial class GameEngine
         _initialHandSize = deckDefinition.InitialHandSize;
         _drawPerTurn = deckDefinition.DrawPerTurn;
         SetupPlayers();
+        InitializeWushuangAutomaticHealth();
         if(HasPrivateGeneralLibraryCapability)foreach(var player in _players)player.GeneralLibraryGenderQuery=GetPrivateGeneralLibraryGender;
         SetupDeck();
         _currentSeat = GetStartingSeat();
@@ -384,11 +386,11 @@ public sealed partial class GameEngine
         _modeDefinition.Id.StartsWith("identity:classic-", StringComparison.Ordinal);
 
     private bool UsesClassicBattleRules =>
-        IsClassicIdentityMode || _options.ShanheBattle is not null || _modeDefinition.TeamActivity is not null || _modeDefinition.BossActivity is not null ||
+        IsClassicIdentityMode || IsWushuangMode || _options.ShanheBattle is not null || _modeDefinition.TeamActivity is not null || _modeDefinition.BossActivity is not null ||
         _modeDefinition.ShenwuActivity is not null || _modeDefinition.WenheActivity is not null || IsDragonBoatActivity || IsGuanduActivity;
 
     private bool UsesGeneralBaseHp =>
-        IsClassicIdentityMode || IsSurvivalMode || IsDragonBoatActivity || IsGuanduActivity;
+        IsClassicIdentityMode || IsWushuangMode || IsSurvivalMode || IsDragonBoatActivity || IsGuanduActivity;
 
     private bool UsesFormalKongchengTargeting =>
         UsesClassicBattleRules;
@@ -688,6 +690,12 @@ public sealed partial class GameEngine
                 AdvanceCommand advance => SubmitAdvance(advance, singleStep: false),
                 AdvanceOneStepCommand step => SubmitAdvance(step, singleStep: true),
                 TickNianClockCommand clock => SubmitNianClock(clock),
+                TickWushuangClockCommand clock => SubmitWushuangClock(clock),
+                BuyWushuangOfferCommand purchase => SubmitBuyWushuangOffer(purchase),
+                RerollWushuangShopCommand refresh => SubmitRerollWushuangShop(refresh),
+                UpgradeWushuangShopCommand upgrade => SubmitUpgradeWushuangShop(upgrade),
+                FinishWushuangShopCommand finishShop => SubmitFinishWushuangShop(finishShop),
+                ToggleWushuangShopLockCommand lockShop => SubmitToggleWushuangShopLock(lockShop),
                 SelectGeneralCommand selectGeneral => SubmitSelectGeneral(selectGeneral),
                 RequestGeneralRosterCommand roster => SubmitGeneralRoster(roster),
                 RevealGeneralCommand revealGeneral => SubmitRevealGeneral(revealGeneral),
@@ -1141,6 +1149,9 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.InvalidChoice, "The prompt choice has no supported response effect.");
         }
 
+        if (response == "bagua-skip" && selected.Cards.Count == 0)
+            return Accept(SkipBaguaResponseCore);
+
         if (ActiveFactionDefense is not null)
         {
             return SubmitFactionDefensePromptAnswer(selected, response);
@@ -1436,7 +1447,10 @@ public sealed partial class GameEngine
         var action = selected.Parameters.GetValueOrDefault("action");
         var valid = action switch
         {
-            "ice-sword-discard" => selected.Targets.Count == 1 && selected.Cards.Count is 0 or 1,
+            "ice-sword-discard" => ActiveIceSword.Activated &&
+                                   selected.Targets.Count == 1 && selected.Cards.Count is 0 or 1,
+            "ice-sword-activate" => !ActiveIceSword.Activated &&
+                                    selected.Targets.Count == 0 && selected.Cards.Count == 0,
             "ice-sword-damage" => !ActiveIceSword.Activated &&
                                   selected.Targets.Count == 0 &&
                                   selected.Cards.Count == 0,
@@ -1446,7 +1460,7 @@ public sealed partial class GameEngine
             ? Accept(() => HumanIceSwordCore(
                 selected,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
-            : Reject(CommandErrorCode.InvalidChoice, "寒冰剑必须选择目标当前的一张暗手牌/公开装备，或在首个窗口保留原伤害。");
+            : Reject(CommandErrorCode.InvalidChoice, "寒冰剑须先决定是否发动，发动后依次选择目标当前的暗手牌或公开装备。");
     }
 
     private CommandResult SubmitQilinBowPromptAnswer(PromptChoice selected)
@@ -1793,7 +1807,9 @@ public sealed partial class GameEngine
 );
         var delayedCardRules = ($"乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
 );
-        var modeRules = IsSurvivalMode ? "八名角色独立求生；按死亡顺序排名，最后存活者获胜，击杀获得体力上限与摸牌奖励" : IsNationalWarMode
+        var modeRules = IsWushuangMode
+            ? "单骑无双本地版：单机1v1对战AI，先手4张后手5张初牌；开局战法三选一，每个自然回合开始双方各得1虎符，新一轮另得1虎符；回合结束进入虎符商店，刷新花1虎符，支持锁定；额外武将技能最多两个，战法不占技能槽；15分钟到时按本地计分结算"
+            : IsSurvivalMode ? "八名角色独立求生；按死亡顺序排名，最后存活者获胜，击杀获得体力上限与摸牌奖励" : IsNationalWarMode
             ? $"{FormatFactionSummary(_modeDefinition)}；每名角色选择两名同势力武将，势力和武将默认暗置，明置后公开；消灭其他势力获胜"
             : IsTeamMode
                 ? $"{FormatTeamSummary(_modeDefinition)}；阵营身份和队友关系公开，击败另一阵营即获胜，{GetRoleName(GetTeamRole(GetModeTeamIds()[0]))}的首位座位先行动"
@@ -2691,6 +2707,7 @@ public sealed partial class GameEngine
         }
 
         if (options.PlayerCount is not (4 or 5 or 6 or 8) &&
+            !(options.ModeId == WushuangMode.ModeId && options.PlayerCount == 2) &&
             !(options.ShanheBattle is not null && options.PlayerCount is >= 2 and <= 8))
         {
             throw new ArgumentOutOfRangeException(
@@ -2972,6 +2989,7 @@ public sealed partial class GameEngine
     private int GetStartingSeat()
     {
         if (_options.ShanheBattle is not null) return 0;
+        if (IsWushuangMode) return _random.Next(_playerCount);
         if (IsGuanduActivity) return GuanduConfiguration!.CaoCommanderSeat;
         if (IsSurvivalMode || IsDragonBoatActivity) return _random.Next(_playerCount);
         if (_modeDefinition.BossActivity is not null || _modeDefinition.ShenwuActivity is not null) return Math.Max(0, _options.HumanSeat);
@@ -3487,6 +3505,7 @@ public sealed partial class GameEngine
 
     private void ContinueTurnAfterHengye(CharacterState current)
     {
+        if (TryBeginMouGuoHuaiActualStart(current)) return;
         if (TryBeginRoundStartingProgramWindow(current)) return;
         ContinueTurnAfterRoundPrograms(current);
     }
@@ -4073,7 +4092,7 @@ public sealed partial class GameEngine
 
     private void RunOneAiPlayDecision(CharacterState player)
     {
-        PrepareMoDiaoChanHandSelection(player);
+        _programPipelineHooks.PreparePlayPhaseDecision(player);
         var legalActions = BuildLegalActions(player);
         var view = CreateSnapshot(player.Seat);
         var (action, thought) = _aiBrains[player.Seat].ChoosePlay(view, legalActions, ++_thoughtSequence,
@@ -8568,6 +8587,7 @@ public sealed partial class GameEngine
                     ["skill"] = pending.Source.SkillId,
                     ["equipment"] = CardKind.BaguaFormation.ToString()
                 }));
+            if (provider.IsHuman) choices.Add(BaguaSkipChoice(factionDefense: true));
         }
 
         choices.Add(new PromptChoice(
@@ -9316,8 +9336,7 @@ public sealed partial class GameEngine
             $"{provider.Name} 以【八卦阵】响应【{FactionPolicyName(pending.Source)}】，但判定失败。",
             provider.Seat,
             pending.OwnerSeat);
-        pending.CandidateIndex++;
-        AdvanceFactionDefenseCandidate();
+        PublishFailedBaguaResponse(attack);
     }
 
     private void PublishOwnerDodgeDecision(CardAttackHandle attack)
@@ -10945,7 +10964,9 @@ public sealed partial class GameEngine
         var view = CreateSnapshot(provider.Seat);
         var (useDodge, useBagua, thought) = _aiBrains[provider.Seat]
             .ChooseFactionDefenseResponse(view, pending.OwnerSeat, responseCards.Count > 0, ++_thoughtSequence,
-                legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(provider));
+                legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(provider),
+                legalBaguaAvailable: decision.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "faction-defense-bagua"));
         AddThought(thought);
         var selectedDodge = useDodge ? responseCards.FirstOrDefault() : null;
         if (selectedDodge is not null && !CanUseCardAsResponse(provider, selectedDodge, CardKind.Dodge) &&
@@ -11236,7 +11257,8 @@ public sealed partial class GameEngine
             : null;
         var hasBagua = requiredCardKind == CardKind.Dodge &&
                        !attack.IgnoresArmor &&
-                       HasBagua(responder);
+                       HasBagua(responder) && _pendingDecision!.Choices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("response") == "bagua");
         var responseDecision = _pendingDecision ??
             throw new InvalidOperationException("The AI group response has no published choice.");
         PopResponseWindow(group.ResolutionId);
@@ -11258,7 +11280,8 @@ public sealed partial class GameEngine
                     attack.IgnoresArmor,
                     legalDodgeAvailable: responseCards.Count > 0,
                     legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(responder),
-                    incomingPrediction: PredictPublicIncomingDamage(attack, responder.Seat));
+                    incomingPrediction: PredictPublicIncomingDamage(attack, responder.Seat),
+                    legalBaguaAvailable: hasBagua);
             AddThought(thought);
             if (useDodge)
             {
@@ -11340,7 +11363,8 @@ public sealed partial class GameEngine
         if (ConvertedSlashSameColorResponseColor(attack) is { } requireRed)
             dodges = dodges.Where(card => IsRedSuit(EffectiveSuit(target, card)) == requireRed).ToList();
         var dodge = dodges.FirstOrDefault();
-        var hasBagua = !attack.IgnoresArmor && HasBagua(target);
+        var hasBagua = !attack.IgnoresArmor && HasBagua(target) && responseDecision.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "bagua");
 
         if (!target.IsAlive || (dodge is null && !hasBagua))
         {
@@ -11360,7 +11384,8 @@ public sealed partial class GameEngine
                     attack.IgnoresArmor,
                     legalDodgeAvailable: dodge is not null,
                     legalConditionalBaguaAvailable: HasConditionalVirtualBaguaForAi(target),
-                    incomingPrediction: PredictPublicIncomingDamage(attack, target.Seat));
+                    incomingPrediction: PredictPublicIncomingDamage(attack, target.Seat),
+                    legalBaguaAvailable: hasBagua);
             AddThought(thought);
             if (useDodge)
             {
@@ -11414,6 +11439,12 @@ public sealed partial class GameEngine
 
     private void CompleteBaguaResponse(CardAttackHandle attack, bool succeeded)
     {
+        if (!succeeded)
+        {
+            PublishFailedBaguaResponse(attack);
+            return;
+        }
+
         if (ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
             SameAttackOwner(group.CurrentAttack, attack))
         {
@@ -11425,35 +11456,28 @@ public sealed partial class GameEngine
                 group.Card.Kind,
                 requiredCardKind,
                 attack.TargetSeat,
-                UsedResponse: succeeded,
+                UsedResponse: true,
                 ResponseCardId: null,
-                ResponseCardKind: succeeded ? CardKind.Dodge : null));
+                ResponseCardKind: CardKind.Dodge));
         }
 
-        if (succeeded)
-        {
-            var continuation = ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack } responseGroup &&
+        var continuation = ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack } responseGroup &&
                                SameAttackOwner(responseGroup.CurrentAttack, attack)
-                ? ProgramCardContinuation.GroupResponse
-                : ProgramCardContinuation.Dodge;
-            if (TryBeginCardResponsePrograms(
-                    attack,
-                    _players[attack.TargetSeat],
-                    _players[attack.TargetSeat],
-                    requesterSeat: null,
-                    attack.SourceSeat,
-                    CardKind.Dodge,
-                    [],
-                    continuation))
-            {
-                return;
-            }
-            CompleteSuccessfulDodgeResponse(attack);
-        }
-        else if (!ApplyAttackDamage(attack))
+            ? ProgramCardContinuation.GroupResponse
+            : ProgramCardContinuation.Dodge;
+        if (TryBeginCardResponsePrograms(
+                attack,
+                _players[attack.TargetSeat],
+                _players[attack.TargetSeat],
+                requesterSeat: null,
+                attack.SourceSeat,
+                CardKind.Dodge,
+                [],
+                continuation))
         {
-            CompleteAttack(attack);
+            return;
         }
+        CompleteSuccessfulDodgeResponse(attack);
     }
 
     private bool? BeginJudgment(
@@ -12258,7 +12282,7 @@ public sealed partial class GameEngine
         }
 
         var choices = new List<PromptChoice>();
-        for (var slot = 0; slot < hand.Count; slot++)
+        for (var slot = 0; pending.Activated && slot < hand.Count; slot++)
         {
             choices.Add(new PromptChoice(
                 new ChoiceId($"ice-sword.hand-slot-{slot}.resolution-{attack.ResolutionId}.pick-{pending.DiscardedCardIds.Count + 1}"),
@@ -12273,7 +12297,7 @@ public sealed partial class GameEngine
                     ["pick-index"] = (pending.DiscardedCardIds.Count + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
                 }));
         }
-        foreach (var card in equipment)
+        foreach (var card in pending.Activated ? equipment : [])
         {
             choices.Add(new PromptChoice(
                 new ChoiceId($"ice-sword.equipment-{card.Id}.resolution-{attack.ResolutionId}.pick-{pending.DiscardedCardIds.Count + 1}"),
@@ -12290,6 +12314,12 @@ public sealed partial class GameEngine
         if (!pending.Activated)
         {
             choices.Add(new PromptChoice(
+                new ChoiceId($"ice-sword.activate.resolution-{attack.ResolutionId}"),
+                "发动【寒冰剑】",
+                [],
+                [],
+                new Dictionary<string, string> { ["action"] = "ice-sword-activate" }));
+            choices.Add(new PromptChoice(
                 new ChoiceId($"ice-sword.damage.resolution-{attack.ResolutionId}"),
                 $"不发动【寒冰剑】，对 {target.Name} 造成 {pending.PreventedDamageAmount} 点伤害。",
                 [],
@@ -12301,10 +12331,12 @@ public sealed partial class GameEngine
             DecisionKind.IceSword,
             source.Seat,
             pending.Activated
-                ? $"【寒冰剑】已防止伤害，请继续弃置 {target.Name} 的第二张牌。"
+                ? pending.DiscardedCardIds.Count == 0
+                    ? $"【寒冰剑】已发动，请选择弃置 {target.Name} 的第一张牌。"
+                    : $"【寒冰剑】已防止伤害，请继续弃置 {target.Name} 的第二张牌。"
                 : $"你的【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】将对 {target.Name} 造成 {pending.PreventedDamageAmount} 点伤害，是否发动【寒冰剑】？",
-            equipment.Select(card => card.Id).ToArray(),
-            [target.Seat],
+            pending.Activated ? equipment.Select(card => card.Id).ToArray() : [],
+            pending.Activated ? [target.Seat] : [],
             SourceSeat: source.Seat,
             IncomingCard: attack.EffectiveCardKind)
         {
@@ -12331,6 +12363,15 @@ public sealed partial class GameEngine
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
         var action = selected.Parameters.GetValueOrDefault("action");
+        if (action == "ice-sword-activate")
+        {
+            if (pending.Activated || selected.Cards.Count != 0 || selected.Targets.Count != 0)
+                throw new InvalidOperationException("Ice Sword activation must precede its card selections.");
+            pending.Activated = true;
+            ClearPendingDecision();
+            PublishIceSwordChoice(pending);
+            return;
+        }
         if (action == "ice-sword-damage")
         {
             if (pending.Activated || selected.Cards.Count != 0 || selected.Targets.Count != 0)
@@ -12360,7 +12401,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (action != "ice-sword-discard" ||
+        if (!pending.Activated || action != "ice-sword-discard" ||
             !selected.Targets.SequenceEqual([target.Seat]))
         {
             throw new InvalidOperationException("The Ice Sword discard choice is malformed.");
@@ -12396,9 +12437,8 @@ public sealed partial class GameEngine
         {
             if (GetIceSwordTargetCardCount(target, source.Seat) == 0)
             {
-                if (pending.Activated) { ClearPendingDecision(); FinishIceSwordPrevention(pending); }
-                else ResolveIceSwordChoice(decision.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage"));
+                ClearPendingDecision();
+                FinishIceSwordPrevention(pending);
             }
             else
             {
@@ -12408,7 +12448,6 @@ public sealed partial class GameEngine
             return;
         }
 
-        pending.Activated = true;
         AppendIceSwordLogicalDiscard(pending, discarded);
         ClearPendingDecision();
         MoveCard(
@@ -12437,7 +12476,7 @@ public sealed partial class GameEngine
         if (!SameContinuationOwner(ActiveIceSword, pending) ||
             !SameAttackOwner(ActiveCardAttack, pending.Attack) ||
             !pending.Activated ||
-            pending.DiscardedCardIds.Count is < 1 or > 2)
+            pending.DiscardedCardIds.Count > 2)
         {
             throw new InvalidOperationException("The completed Ice Sword prevention is invalid.");
         }
@@ -14746,7 +14785,7 @@ public sealed partial class GameEngine
         BuildLegalActionsCore(actor, includeProgramActions, selectedPhysicalCardId, null);
 
     private IReadOnlyList<LegalAction> BuildLegalActionsCore(CharacterState actor, bool includeProgramActions,
-        int? selectedPhysicalCardId, Card? nativeOriginalCard, bool ignoreMoDiaoChanSelection = false)
+        int? selectedPhysicalCardId, Card? nativeOriginalCard, bool ignoreForcedHandSelection = false)
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
@@ -15583,7 +15622,7 @@ public sealed partial class GameEngine
         if (nativeOriginalCard is not null) return result;
         var originalPileActions = NativePublicPileOriginalPlayActions(actor, selectedPhysicalCardId);
         var allActions = originalPileActions.Count == 0 ? result : result.Concat(originalPileActions).ToArray();
-        return ignoreMoDiaoChanSelection ? allActions : FilterMoDiaoChanHandSelection(actor, allActions);
+        return ignoreForcedHandSelection ? allActions : _programPipelineHooks.FilterPlayPhaseActions(actor, allActions);
     }
 
     private IReadOnlyList<CharacterState> GetFangtianOrderedSlashTargets(
@@ -16312,7 +16351,7 @@ public sealed partial class GameEngine
 
     private void RequestHumanPlay()
     {
-        PrepareMoDiaoChanHandSelection(_players[_currentSeat]);
+        _programPipelineHooks.PreparePlayPhaseDecision(_players[_currentSeat]);
         var legal = BuildLegalActions(_players[_currentSeat]);
         _pendingDecision = new PendingDecision(
             DecisionKind.PlayCard,
@@ -16323,7 +16362,7 @@ public sealed partial class GameEngine
         {
             PromptId = CreatePromptId(),
             Choices = CreatePlayChoices(legal),
-            ForcedHandSelection = MoDiaoChanHandSelection(_currentSeat)
+            ForcedHandSelection = _programPipelineHooks.ForcedPlayHandSelection(_currentSeat)
         };
         _status = EngineStatus.AwaitingHumanPlay;
         AdvanceRulesAndPublishState();
@@ -16647,6 +16686,7 @@ public sealed partial class GameEngine
                     ["required-card"] = responseName,
                     ["equipment"] = CardKind.BaguaFormation.ToString()
                 }));
+            if (responder?.IsHuman == true) choices.Add(BaguaSkipChoice());
         }
 
         if (isDodge && includeFactionDefense)
@@ -16922,6 +16962,12 @@ public sealed partial class GameEngine
 
     private void AdvanceAfterDeferredTurnEnd(CharacterState previous, bool skipped)
     {
+        if (TryBeginWushuangShopping(previous, skipped)) return;
+        ContinueAfterWushuangShopping(previous, skipped);
+    }
+
+    private void ContinueAfterWushuangShopping(CharacterState previous, bool skipped)
+    {
         if (TryBeginRoundEndingBoundary(previous, skipped)) return;
         CompleteActualTurnCursorAfterRoundEnding(previous, skipped);
     }
@@ -16931,7 +16977,12 @@ public sealed partial class GameEngine
         if (TryCompleteWenheSurvival()) return;
         if (TryCompleteGuanduBattle()) return;
         if (TryCompleteDragonBoatRace()) return;
-        if (HasMoLuBu || HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouXiahouShiCapability || HasMouMengHuoCapability || HasMouZhouYuMobileCapability || HasMoDiaoChan || HasMouLuBuMobile || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        // Per-general tracking opts in declaratively through descriptor TracksActualTurnCursorReturn
+        // markers; only engine-level aggregates and non-op dependencies stay listed here.
+        if (TracksRoundEnding || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || UsesTreatedWounded ||
+            _contentRegistry.ProgramDependencies.UsesLeiluanBasicUse ||
+            _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel) ||
+            ProgramOperationCatalog.Default.TracksActualTurnCursorReturn(_contentRegistry.ProgramDependencies)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -18824,6 +18875,8 @@ public sealed partial class GameEngine
             var discardChoices = decision?.Choices.Where(choice =>
                 choice.Parameters.GetValueOrDefault("action") == "ice-sword-discard").ToArray() ?? [];
             var expectedSkipCount = iceSword.Activated ? 0 : 1;
+            var expectedHandCount = iceSword.Activated ? handCount : 0;
+            var expectedEquipmentIds = iceSword.Activated ? equipmentIds : [];
             var handSlots = discardChoices
                 .Where(choice => choice.Parameters.GetValueOrDefault("target-zone") == "hand")
                 .Select(choice => choice.Parameters.GetValueOrDefault("slot-index"))
@@ -18841,19 +18894,22 @@ public sealed partial class GameEngine
                 decision.PlayerSeat != iceSwordAttack.SourceSeat ||
                 decision.SourceSeat != iceSwordAttack.SourceSeat ||
                 decision.TargetSeat != iceSwordAttack.TargetSeat ||
-                !decision.ValidCardIds.SequenceEqual(equipmentIds) ||
-                !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
-                discardChoices.Length != handCount + equipmentIds.Length ||
-                decision.Choices.Count != discardChoices.Length + expectedSkipCount ||
-                handSlots.Length != handCount ||
-                !handSlots.SequenceEqual(Enumerable.Range(0, handCount)
+                !decision.ValidCardIds.SequenceEqual(expectedEquipmentIds) ||
+                !decision.ValidTargetSeats.SequenceEqual(iceSword.Activated ? [target.Seat] : []) ||
+                discardChoices.Length != expectedHandCount + expectedEquipmentIds.Length ||
+                decision.Choices.Count != discardChoices.Length + expectedSkipCount * 2 ||
+                handSlots.Length != expectedHandCount ||
+                !handSlots.SequenceEqual(Enumerable.Range(0, expectedHandCount)
                     .Select(slot => slot.ToString(System.Globalization.CultureInfo.InvariantCulture))) ||
                 discardChoices.Any(choice => !choice.Targets.SequenceEqual([target.Seat])) ||
                 decision.Choices.Count(choice =>
                     choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage" &&
                     choice.Cards.Count == 0 &&
                     choice.Targets.Count == 0) != expectedSkipCount ||
-                iceSword.DiscardedCardIds.Count != (iceSword.Activated ? 1 : 0))
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "ice-sword-activate" &&
+                    choice.Cards.Count == 0 && choice.Targets.Count == 0) != expectedSkipCount ||
+                (iceSword.Activated ? iceSword.DiscardedCardIds.Count > 1 : iceSword.DiscardedCardIds.Count != 0))
             {
                 throw new InvalidOperationException(
                     "An Ice Sword choice must retain its private staged target-card prompt before Slash damage.");
@@ -19039,7 +19095,8 @@ public sealed partial class GameEngine
         if (!hasActiveCardResolution && _resolutionStack.Count != 0 &&
             !HasBeiMiHuTurnPreludeBoundary() && !HasQiaoZhouPreparationBoundaryFrame() && !HasForeignActualTurnStartBoundary() && !(HasActualPhaseEndBoundaryFrame() || HasRoundEndingBoundaryFrame()) && !HasProgramLifecycleBoundaryFrame() && !HasDrawPhaseObligationBoundaryFrame() && !HasTurnEndingBoundaryFrame() && !HasDeferredTurnEndBoundaryFrame() &&
             !HasPlayPhaseStartingBoundaryFrame() && !HasEquipmentRecastNativeDrawBoundary() &&
-            !HasCardsMovedProgramBoundaryFrame() && DrawFundedDistinctBasicObserverRoot() is null)
+            !HasCardsMovedProgramBoundaryFrame() && DrawFundedDistinctBasicObserverRoot() is null &&
+            !HasWushuangIntermissionBoundary())
         {
             throw new InvalidOperationException($"A completed card resolution left frames on the stack: {string.Join(", ", _resolutionStack.Select(frame => $"{frame.Id}/{frame.Kind}/{frame.Step}"))}.");
         }
@@ -20565,7 +20622,8 @@ public sealed partial class GameEngine
         if (HasLiuBaCoinEntity(cardId)) existing = existing is null ? "币" : existing + " / 币";
         if (HasMoTianenEntityMark(cardId)) existing = existing is null ? "天恩" : existing + " / 天恩";
         if (HasMoLuBuQi(cardId)) existing = existing is null ? "炁" : existing + " / 炁";
-        if (HasMoDcQingshiCard(cardId)) existing = existing is null ? "倾世" : existing + " / 倾世";
+        foreach (var pipelineLabel in _programPipelineHooks.CardEntitySkillLabels(cardId))
+            existing = existing is null ? pipelineLabel : existing + " / " + pipelineLabel;
         var dongxin = HasSunYuanCapability && ProgramEventHistory<DongxinEntityAcquiredEvent>().Any(grant =>
             grant.CardId == cardId && _cardZones.Contains(CardLocation.Hand(grant.RecipientSeat), cardId));
         if (dongxin) existing = existing is null ? "恫心" : existing + " / 恫心";

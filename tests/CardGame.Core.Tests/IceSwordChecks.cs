@@ -10,40 +10,28 @@ internal static class IceSwordChecks
         var boundary = IceSwordScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
-            throw new InvalidOperationException("Ice Sword fixture lost its first private discard prompt.");
+            throw new InvalidOperationException("Ice Sword fixture lost its activation prompt.");
         var full = game.CreateSnapshot(0, revealAll: true);
         var source = full.Players[0];
         var target = full.Players.Single(player => player.Seat == boundary.TargetSeat);
         var targetEquipmentIds = target.Equipment.Select(card => card.Id).ToArray();
-        var discardChoices = prompt.Choices.Where(IsDiscard).ToArray();
-        var handChoices = discardChoices.Where(choice =>
-            choice.Parameters.GetValueOrDefault("target-zone") == "hand").ToArray();
-        var equipmentChoices = discardChoices.Where(choice =>
-            choice.Parameters.GetValueOrDefault("target-zone") == "equipment").ToArray();
-
         Require(prompt.IsPrivate &&
                 prompt.PlayerSeat == 0 &&
                 prompt.SourceSeat == 0 &&
                 prompt.TargetSeat == boundary.TargetSeat &&
-                prompt.ValidCardIds.SequenceEqual(targetEquipmentIds) &&
-                prompt.ValidTargetSeats.SequenceEqual([boundary.TargetSeat]) &&
-                handChoices.Length == target.Hand.Count &&
-                handChoices.All(choice =>
-                    choice.Cards.Count == 0 &&
-                    choice.Targets.SequenceEqual([boundary.TargetSeat])) &&
-                equipmentChoices.SelectMany(choice => choice.Cards)
-                    .SequenceEqual(targetEquipmentIds) &&
-                prompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage") == 1 &&
+                prompt.ValidCardIds.Count == 0 && prompt.ValidTargetSeats.Count == 0 &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                    .SequenceEqual(["ice-sword-activate", "ice-sword-damage"]) &&
+                prompt.Choices.All(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0) &&
                 game.CreateSnapshot(boundary.TargetSeat).PendingDecision is null &&
                 source.Equipment.Any(card =>
                     card.Id == boundary.WeaponCardId && card.Kind == CardKind.IceSword),
-            "Ice Sword must expose opaque hand slots, exact public equipment and one damage alternative only to its source.");
+            "Ice Sword must first offer only activation and decline to its source, before publishing target cards.");
 
         var pausedCheckpoint = RoundTrip(game.CreateCheckpoint());
         var paused = GameReplay.Restore(pausedCheckpoint, registry);
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
-            "An in-flight first Ice Sword discard prompt must restore exactly.");
+            "An in-flight Ice Sword activation prompt must restore exactly.");
 
         var skipped = GameReplay.Restore(pausedCheckpoint, registry);
         var skippedPrompt = skipped.PendingDecision!;
@@ -74,7 +62,32 @@ internal static class IceSwordChecks
             "Skipping Ice Sword must preserve and apply the original Slash damage.");
 
         var used = GameReplay.Restore(pausedCheckpoint, registry);
+        var activatePrompt = used.PendingDecision!;
+        var movementCount = used.CardMovements.Count;
+        var activateResult = used.Submit(new AnswerPromptCommand(0, activatePrompt.PromptId,
+            activatePrompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "ice-sword-activate").Id,
+            used.Revision));
+        Require(activateResult.Accepted && used.PendingDecision!.PromptId != activatePrompt.PromptId &&
+                used.CardMovements.Count == movementCount &&
+                used.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == boundary.TargetSeat).Hp == target.Hp,
+            activateResult.Error?.Message ?? "Activation must open a fresh first-card prompt without moving cards or dealing damage.");
         var firstPrompt = used.PendingDecision!;
+        var discardChoices = firstPrompt.Choices.Where(IsDiscard).ToArray();
+        var handChoices = discardChoices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("target-zone") == "hand").ToArray();
+        var equipmentChoices = discardChoices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("target-zone") == "equipment").ToArray();
+        Require(firstPrompt.Kind == DecisionKind.IceSword && firstPrompt.IsPrivate &&
+                firstPrompt.ValidCardIds.SequenceEqual(targetEquipmentIds) &&
+                firstPrompt.ValidTargetSeats.SequenceEqual([boundary.TargetSeat]) &&
+                firstPrompt.Choices.Count == discardChoices.Length && handChoices.Length == target.Hand.Count &&
+                handChoices.All(choice => choice.Cards.Count == 0 && choice.Targets.SequenceEqual([boundary.TargetSeat])) &&
+                equipmentChoices.SelectMany(choice => choice.Cards).SequenceEqual(targetEquipmentIds) &&
+                used.CreateSnapshot(boundary.TargetSeat).PendingDecision is null,
+            "After activation, Ice Sword must offer only opaque hand slots and public equipment, without a decline choice.");
+        var firstPaused = GameReplay.Restore(RoundTrip(used.CreateCheckpoint()), registry);
+        Require(State(firstPaused) == State(used) && Events(firstPaused).SequenceEqual(Events(used)),
+            "An activated Ice Sword must restore its first discard stage without asking for activation again.");
         var first = firstPrompt.Choices.FirstOrDefault(choice =>
                         IsDiscard(choice) && choice.Parameters.GetValueOrDefault("target-zone") == "equipment") ??
                     firstPrompt.Choices.First(IsDiscard);
