@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:xiayuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "restore-after-armor-loss",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "usageScope": "round",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveMouYuJinXiayuan",
+              "target": "owner"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": [
+                "hand"
+              ],
+              "minimumCards": 2,
+              "maximumCards": 2,
+              "resultBind": "xiayuan-cost"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "xiayuan-cost",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "resolveMouYuJinXiayuan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:jieyue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-armor-and-gift",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "resolveMouYuJinJieyue",
+              "target": "owner"
+            },
+            {
+              "op": "grantArmor",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "resolveMouYuJinJieyue",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

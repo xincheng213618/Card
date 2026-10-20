@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:xiayuan": {
+      "name": "狭援",
+      "description": "每轮限一次，其他角色受到伤害后，若此伤害令其失去全部“护甲”，则你可以弃置两张手牌，令其获得本次伤害失去的护甲。"
+    },
+    "mou-mobile:jieyue": {
+      "name": "节钺",
+      "description": "结束阶段，你可以选择一名其他角色并令其获得1点“护甲”，然后其可以交给你一张牌。"
+    }
+  }
+}

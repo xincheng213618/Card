@@ -1,0 +1,224 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋于禁·移动版",
+  "generalId": "mou:yu-jin-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "sources": [
+    {
+      "kind": "currentHero",
+      "url": "https://www.sanguosha.cn/hero-detail-443.html",
+      "finalUrl": "https://www.sanguosha.cn/hero-detail-443.html",
+      "httpStatus": 200,
+      "bytes": 21674,
+      "sha256": "c80743ab33e9513cb50027ec4022634769f60675c0e247554e8a2ad391c28a98",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:09:53.079974+00:00"
+    },
+    {
+      "kind": "currentIdentityApi",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+      "contentType": "application/json",
+      "fetchedAtUtc": "2026-10-20T05:09:53.450183+00:00"
+    },
+    {
+      "kind": "formalLaunch",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1283.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1283.html",
+      "httpStatus": 200,
+      "bytes": 20542,
+      "sha256": "530d333255372852205f9e0062373ad238e294f04a80ddd5336ea7ac8488107e",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:09:53.694324+00:00"
+    },
+    {
+      "kind": "laterPermanentAcquisition",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1892.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1892.html",
+      "httpStatus": 200,
+      "bytes": 34315,
+      "sha256": "6c7e4efe47feb5aa37af63c5ea0dbc5cc9311fc85bf8aa8a12047f6d0669d7d5",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:09:53.924865+00:00"
+    },
+    {
+      "kind": "latestLocatedFormalWordingCorrectionNotThisGeneral",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "httpStatus": 200,
+      "bytes": 15640,
+      "sha256": "f11a43f0a1c30425e72c08ea593c6baac715741593edce0e5e64139d25ab00ac",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:09:54.149274+00:00"
+    }
+  ],
+  "firstObtainableAt": "2022-08-04",
+  "formalLaunch": {
+    "published": "2022-08-03 18:00:45",
+    "url": "https://www.sanguosha.cn/pc/news-detail-1283.html",
+    "meaning": "The official 8月4日七夕活动 announcement explicitly says 谋于禁上线，七夕礼盒获得. It establishes the permanent general launch on 2022-08-04; the earlier May2022 experience trial is not substituted for formal launch. The dated sale is not represented as a current offer."
+  },
+  "laterPermanentAcquisition": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-1892.html",
+    "published": "2024-08-16 17:37:26",
+    "availableFrom": "2024-08-16 18:00",
+    "availableUntil": "2025-07-31 23:59",
+    "meaning": "Official 群英绘壁 lists 谋于禁 and grants the permanent general after required experience. This historical activity has expired; no current availability or pricing is claimed."
+  },
+  "officialIdentity": {
+    "heroPageId": 443,
+    "generalId": 641,
+    "faction": "wei",
+    "hp": 4,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:xiayuan",
+      "name": "狭援",
+      "text": "每轮限一次，其他角色受到伤害后，若此伤害令其失去全部“护甲”，则你可以弃置两张手牌，令其获得本次伤害失去的护甲。",
+      "sha256": "932403b45a64d58a87fa8a53b2dbfd6c4544b303280bfff109d7bb26076b090d",
+      "source": "https://www.sanguosha.cn/hero-detail-443.html",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:jieyue",
+      "name": "节钺",
+      "text": "结束阶段，你可以选择一名其他角色并令其获得1点“护甲”，然后其可以交给你一张牌。",
+      "sha256": "9230e7879a5df288d1a80f913af8526af48b3770a5216e88417a33336d3fd036",
+      "source": "https://www.sanguosha.cn/hero-detail-443.html",
+      "initiallyOwned": true
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "currentVersusFormal": {
+    "heroAndIdentityApiBothSkillsAgree": true,
+    "laterLocatedCharacterRuleChange": null,
+    "boundedFinding": "No later official correction or character-specific FAQ was located for mobile 狭援 or 节钺. Current hero/API exact agreement establishes the two base skill texts; neither skill grants a hidden third skill. This is a bounded primary-source audit, not an authenticated client or exhaustive version-history claim.",
+    "latestLocatedWordingAnnouncement": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "published": "2026-10-15 10:18:17",
+      "effective": "2026-10-16 12:00",
+      "tableUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "tableSha256": "411a068609351931e47f91fcfde8f2b04b7451c9769c117b4d6d1c635addd16c",
+      "tableVisuallyInspected": true,
+      "finding": "The inspected complete official table has neither 狭援 nor 节钺. Its classic 克己 row is unrelated to this character. The announcement states wording changes do not affect actual skill effects or settlement logic."
+    }
+  },
+  "separateExistingVersions": [
+    {
+      "generalId": "classic:yu-jin",
+      "skills": [
+        "classic:yizhong"
+      ],
+      "meaning": "Classic 毅重 is a separate version."
+    },
+    {
+      "generalId": "boundary:yu-jin",
+      "skills": [
+        "boundary:zhenjun-current",
+        "boundary:yizhong-current"
+      ],
+      "meaning": "Existing OL boundary 镇军/毅重 remains separate. The new mobile Armor skill identity does not replace it."
+    }
+  ],
+  "artwork": {
+    "sourcePage": "https://www.sanguosha.cn/hero-detail-443.html",
+    "selector": "first image beneath observed #heroInfo1",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64100.jpg",
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64100.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 236776,
+    "sha256": "27f515d74874d9d08286af242fc0c79a2fcc2c87cb50025c55c634eca67e9525",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-yu-jin-mobile.jpg",
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "fetchedAtUtc": "2026-10-20T05:08:37.741769+00:00",
+    "inspection": "Viewed the exact official 530 x 750 JPEG: a stern bearded male Yu Jin in blue-and-gold armor, white scarf and flowing pale cloak, mounted on a brown warhorse, with an army camp, flags, distant cliffs and gray sky behind him. This is a complete character-and-horse portrait rather than a silhouette; the official lower watermark is retained. No redraw, crop, recoloring, resize or other image modification was applied.",
+    "wpfRenderingVerified": true
+  },
+  "inheritedProjectDecisions": [
+    {
+      "id": "armor-resource-no-cap",
+      "scope": "inherited project Armor contract",
+      "confirmed": true,
+      "effect": "Armor remains the independent native damage-payment resource without an invented upper cap. A real historical lost-Armor amount greater than20 is restored in full rather than truncated to the fixed literal GrantArmor descriptor range.",
+      "sourceLevel": "Inherited user-selected project Armor contract, not an official mobile Yu Jin FAQ or a new upper-limit statement in the character paragraph."
+    }
+  ],
+  "engineeringInterpretations": [
+    "狭援 uses the exact spelling from the official hero and API. It is optional, once per actual Round, for another recipient after a real damage segment. It is not a once-per-owner-turn effect, a response to direct HP Loss, a voluntary Armor-cost refund or an effect on the skill owner own damage.",
+    "Qualify the original issued native damage Armor payment: ArmorBefore>0, ArmorAbsorbed>0 and ArmorAfter==0. The exact damage segment must have caused all the Armor loss. Present-time Armor0 alone is insufficient, and partial Armor absorption does not qualify. A positive damage fully absorbed by Armor still qualifies even when HP loss is zero.",
+    "Freeze the restoration amount from that exact damage payment ArmorAbsorbed, together with original damage/attack/target/source identities. It is neither incoming damage amount nor the target later Armor deficit. If one independent owner has already restored Armor, another owner eligibility and amount remain based on the same original payment; grants are additive.",
+    "Accepting 狭援 consumes the native owner/named-skill Round allowance before its actual cost children can reenter. Decline is not acceptance. Multiple source instances, source loss/regrant, another actor turn and a genuine extra turn do not reset Round usage; only the existing actual Round boundary does.",
+    "Pay exactly two legal self-discardable Hand entities through true native logical discard before granting Armor. Equipment is not a Hand cost. Freeze selected entities, source/hash, Round usage and damage receipt on the owning ProgramSkillFrame; real movement, source-change, recovery, Dying or death children must not pay the cost twice or issue an unproved grant.",
+    "The native after-damage window and real Dying/rescue ordering determine when a surviving recipient can receive the benefit. A dead or unavailable recipient receives no invented Armor. After two Hand cards are actually paid, source loss or source death alone does not revoke the accepted restoration to a living recipient; drain the real children and preserve the original settlement without replaying the damage or replacing costs. The native terminal cutoff still applies, so no trailing completion fact is forced after game victory. This paid-tail rule is an engineering application of the existing project settlement contract, not an official character FAQ.",
+    "Restoration follows the project no-cap Armor contract and checked native arithmetic. The existing fixed configured GrantArmor amount1..20 is a descriptor bound, not permission to clamp a historical loss to20, fake several unrelated payments or add an Armor5 cap. A dynamic restoration must preserve the actual once-paid before/after grant fact.",
+    "节钺 is an optional trigger at an actual own Ending phase. Select exactly one distinct living other recipient, grant one real Armor first, and only then let that recipient independently decide whether to give the owner one actual card. Armor is not conditional on a successful gift or on the recipient having a card.",
+    "The optional gift is chosen by its actual beneficiary/provider. The skill owner does not inspect or choose a hidden card from the other hand. One card uses the committed native own Hand+Equipment transfer contract; it is not silently narrowed to Hand or expanded to Judgment and arbitrary persistent piles.",
+    "A refusal or no legal gift entity finishes with the already granted Armor retained and no card paid. A selected physical card moves once from its exact original owned zone to owner Hand. Native equipment removal, SilverLion recovery and WoodenOx grain spill keep their own causal receipts rather than all becoming extra gifts.",
+    "Bind the Armor grant, optional gift prompt and its paid movement to the exact original Ending frame, source/hash and recipient. Genuine extra or skipped phases use native progression; no additional once-per-turn limit or synthetic Ending is invented. Source loss/death while child effects run does not duplicate the grant or substitute a different hidden entity.",
+    "Human and AI decisions use CreateSnapshot(viewerSeat). Public Armor and consumed Round allowance may be projected, while another player hidden Hand identities and pending drafts remain private. Querying legal actions and snapshots does not consume selection RNG. Cold/replay preserves original paid cost, gift entity, Round/phase identity and typed native parent returns.",
+    "Use exact owning frames and narrow observer return proofs. Scalar rule facts use AdvanceEventRulesAndQueueFact; collection-bearing new event payloads must be detached by CommittedEventProjection. No parallel pending sidecar, rules epoch, schema or package-version change is implied by this character."
+  ],
+  "verificationLimits": [
+    "Official hero/API and dated release sources were checked; the exact official portrait was hashed, dimension-checked and visually inspected. No authenticated mobile client or character-specific official FAQ was used.",
+    "Focused native behavior and relevant shared mechanism checks, the actual WPF gallery rendering, and bounded routine checks passed. No manual Full run or complete foreground match."
+  ],
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "focused": {
+      "corePassed": 28,
+      "wpfPassed": 1,
+      "durationMs": 29233
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 65676
+    },
+    "manualFullRun": false,
+    "focusedCheckNames": [
+      "Wenhe activity: real eight seats private draft and cold restore",
+      "Shanhe Armor: full partial damage counter health delta and native Kuanggu cold",
+      "Shanhe Armor: real Iron Chain full damage HP loss and maximum replacement cold",
+      "Armor AI: public payment kinds and native replacement witnesses",
+      "native logical discard invocations preserve whole mixed and cross-prompt costs",
+      "Mou Huang Gai: paid gift source loss dying rescue frozen Use cold",
+      "Mou Lu Meng Mobile: Keji real costs independent branches Armor Hand limit rescue cold",
+      "Mou Lu Meng Mobile: Duojing final targets Armor opaque gain exact phase children cold",
+      "Mou Yu Jin Mobile: exact damage invoice Armor only unbounded historical restore cold",
+      "Mou Yu Jin Mobile: friendly owners shared invoice Round extra turn regrant cold",
+      "Mou Yu Jin Mobile: paid discard source loss self rescue death native return cold",
+      "Mou Yu Jin Mobile: Jieyue actual Ending Armor first recipient optional Hand Equipment gift cold",
+      "Round ending: pending closing extras skipped turns and population cold",
+      "Fan Jiang Zhang Da: paid armor children source loss death and permanent spend replay",
+      "committed use contracts preserve immutable registration and response-use validation",
+      "character manifests preserve ordered registration and package isolation",
+      "Shared Slash gift equipment recovery both gain children cold",
+      "committed event collections reject observer mutation",
+      "selected gift continues after recipient death",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "turn-ending boundary orders Jushou Jujian Biyue and replays",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "classic Silver Lion caps damage and recovers after leaving equipment",
+      "classic Wooden Ox stores private playable grain and replays",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  }
+}

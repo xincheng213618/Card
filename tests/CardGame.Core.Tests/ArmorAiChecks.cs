@@ -133,10 +133,10 @@ internal static class ArmorAiChecks
         j.Cold();
 
         var x = Scene.Start("maximum");
-        x.Use("armor-other", [2]);
-        x.PlayCard(CardKind.Slash, 2);
-        Need(x.V(2) is { Hp: 6, MaxHp: 7, Armor: 3 } && x.Events<DamageAppliedEvent>().Length == 0 &&
-            x.Events<CardDamageReplacedWithMaximumHpLossEvent>() is [{ Receipt.TargetSeat: 2, Receipt.Amount: 1 }],
+        x.Use("armor-other", [3]);
+        x.PlayCard(CardKind.Slash, 3);
+        Need(x.V(3) is { Hp: 6, MaxHp: 7, Armor: 3 } && x.Events<DamageAppliedEvent>().Length == 0 &&
+            x.Events<CardDamageReplacedWithMaximumHpLossEvent>() is [{ Receipt.TargetSeat: 3, Receipt.Amount: 1 }],
             "The formal first-Slash Xiaoming witness must reduce maximum HP before Armor payment, rather than spend Armor on a fictional damage segment.");
         x.Cold();
     }

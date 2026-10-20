@@ -4580,6 +4580,8 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveMouYuJinXiayuan))
+            return EstimateMouXiayuanForAi(owner, publicContext, windowContext);
         if (effects is [{ Op: SkillProgramEffectOp.ResolveMouHuangGaiKurouGift }])
             return EstimateMouKurouGiftForAi(owner, publicContext);
         if (effects.FirstOrDefault(e => e.Op is SkillProgramEffectOp.SelectAllPublicTeamTargets or
@@ -4732,6 +4734,8 @@ public sealed partial class GameEngine
     {
         var draft = frame.OwnedCardSelection ??
             throw new InvalidOperationException("The configured owned-card choice lost its draft.");
+        if (frame.MouYuJinXiayuan is not null && draft.ResultBind == "xiayuan-cost" && ValidMouXiayuan(frame))
+            return SelectAiMouXiayuanCost(decision, frame);
         if (draft.MinimumCount > 0 && draft.SelectedCardIds.Count >= draft.MinimumCount)
             return decision.Choices.Single(choice =>
                 choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");

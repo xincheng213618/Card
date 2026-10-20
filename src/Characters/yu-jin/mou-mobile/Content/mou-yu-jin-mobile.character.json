@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-jin",
+  "skills": [
+    {
+      "registrationOrder": 2231,
+      "programBundle": "mou-yu-jin-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:xiayuan",
+        "name": "狭援",
+        "description": "每轮限一次，其他角色受到伤害后，若此伤害令其失去全部“护甲”，则你可以弃置两张手牌，令其获得本次伤害失去的护甲。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2232,
+      "programBundle": "mou-yu-jin-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:jieyue",
+        "name": "节钺",
+        "description": "结束阶段，你可以选择一名其他角色并令其获得1点“护甲”，然后其可以交给你一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2233,
+      "pools": {
+        "current": 515
+      },
+      "definition": {
+        "id": "mou:yu-jin-mobile",
+        "name": "谋于禁·移动版",
+        "portraitKey": "mou-yu-jin-mobile",
+        "skillId": "mou-mobile:xiayuan",
+        "additionalSkillIds": [
+          "mou-mobile:jieyue"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:yu-jin",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}
