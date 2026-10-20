@@ -17,28 +17,12 @@ internal abstract class MouZhugeOperationDescriptor : ProgramOperationDescriptor
         Op == SkillProgramEffectOp.MouWujingDraw ? [new RequireTriggerWindow(SkillProgramTriggerWindow.DiscardPileReceived),
             new RequireContext(ProgramContextCapability.MovementSource)] : [new RequireActivationEntry()];
 }
-internal sealed class MouZhitianViewDescriptor : MouZhugeOperationDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.MouZhitianView; }
-internal sealed class MouWujingDrawDescriptor : MouZhugeOperationDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.MouWujingDraw; }
-internal sealed class MouZhijueUseDescriptor : MouZhugeOperationDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.MouZhijueUse; }
 internal sealed class MouZhugeOperationHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
         ISkillProgramEffectHost host) => host.GetCapability<IMouZhugeProgramHost>().ExecuteMouZhuge(frame, effect);
 }
-
-public sealed record MouZhijueDraft(string Stage, bool Yang, IReadOnlyList<int> PaidCardIds,
-    IReadOnlyList<CardKind> CopiedKinds, long? UseId = null, bool CausedDamage = false);
-public sealed record MouZhijueUseReturn(long ProgramFrameId, int InstructionIndex, int OwnerSeat,
-    string SkillId, string SkillInstanceId, string GameplayHash, int TurnNumber, bool Yang, CardKind Kind,
-    int PhysicalCardId, long ActionId);
-public sealed record MouZhitianFirePayment(int CardId, Suit RevealedSuit, long MovementSequence);
-public sealed record MouWujingAllowanceGrantedEvent(int OwnerSeat, long BatchId) : IGameEvent;
-public sealed record MouZhijuePolarityChangedEvent(int OwnerSeat, bool Yang) : IGameEvent;
-public sealed record MouZhijueUndamagedEvent(int OwnerSeat, int VisibleCount) : IGameEvent;
 public sealed partial record ProgramSkillFrame
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

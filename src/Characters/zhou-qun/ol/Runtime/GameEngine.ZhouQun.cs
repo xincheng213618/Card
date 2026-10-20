@@ -24,11 +24,6 @@ public sealed partial class GameEngine
         if (parent is DamageTriggerWindowFrame damage) return context.Window == damage.TriggerWindow && damage.CandidateIndex >= 0 && damage.CandidateIndex < damage.Candidates.Count && damage.Candidates[damage.CandidateIndex].ToProgramCandidate() == c;
         return parent is BeforeDamageProgramWindowFrame before && context.Window == SkillProgramTriggerWindow.BeforeDamageApplied && before.CandidateIndex >= 0 && before.CandidateIndex < before.Candidates.Count && before.Candidates[before.CandidateIndex].Candidate == c;
     }
-    private CardUseFrame? NingwuEligibleUse(int holder, ProgramSkillWindowContext context)
-    {
-        if (context is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } identity } || LifecycleCardUse(identity.ParentCardUseFrameId) is not { Action: { Type: CardActionType.Use } action } use || action.ActionId != identity.CardActionId || action.ActorSeat == holder || !IsSlashCard(action.EffectiveKind) || use.SourceSeat != action.ActorSeat || action.EffectiveDesignatedTargetSeats is not [var target] || !_players[target].IsAlive || ZhouQunNeighbors(action.ActorSeat).Contains(target)) return null;
-        return use;
-    }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 27572)]
     private bool CanOfferZhouQun(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
@@ -150,30 +145,6 @@ public sealed partial class GameEngine
     }
     private void RecordZhouQunMoves(ProgramSkillFrame f, long batch, IReadOnlyList<CardMovementRecord> records)
     { foreach (var m in records) AdvanceEventRulesAndQueueFact(new ZhouQunMovedEvent(f.Id, f.ZhouQun!.Step, batch, m.CardId, m.From, m.To, m.Reason, m.Sequence)); }
-    private void RevealNextChenshuo(ProgramSkillFrame f)
-    {
-        BeginZhouQunMovement(ref f, ZhouQunStage.RevealChildren); var r = f.ZhouQun!; var card = DrawOneToProcessing(new(ChenshuoRevealReason));
-        if (card is null) ReplaceRuntimeTop(f with { ZhouQun = r with { Repeat = false } });
-        else
-        {
-            var shown = r.Shown!; var matched = GetProgramCardCategory(card.Kind) == GetProgramCardCategory(shown.Kind) || card.Suit == shown.Suit || card.Rank == shown.Rank || ZhouQunNameLength(card.Kind) == shown.NameLength;
-            ReplaceRuntimeTop(f = f with { ZhouQun = r with { Revealed = r.Revealed.Append(card.Id).ToArray(), Repeat = matched } });
-            AdvanceEventRulesAndQueueFact(new ChenshuoTopRevealedEvent(f.Id, r.Revealed.Count, card.Id, card.Kind, card.Suit, card.Rank, ZhouQunNameLength(card.Kind), matched));
-            AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.TriggerId!, f.OwnerSeat, "chenshuo-top", [ToSnapshot(card)]));
-        }
-        CompleteZhouQunMovement(f.Id);
-    }
-    private void PayTianhouExchange(ProgramSkillFrame f)
-    {
-        var r = f.ZhouQun!; var deck = _cardZones.CardsAt(CardLocation.DrawPile).Select(c => c.Id).ToArray();
-        if (!deck.TakeLast(r.Viewed.Count).Reverse().SequenceEqual(r.Viewed) || r.SelectedHand.Count != r.SelectedTop.Count || r.SelectedHand.Any(id => _cardZones.GetLocation(id) != CardLocation.Hand(f.OwnerSeat)) || r.SelectedTop.Any(id => !r.Viewed.Contains(id))) throw new InvalidOperationException("Tianhou must exchange exact original Hand and original top entities in equal numbers.");
-        var desiredTop = r.Viewed.ToArray(); for (var i = 0; i < r.SelectedTop.Count; i++) desiredTop[Array.IndexOf(desiredTop, r.SelectedTop[i])] = r.SelectedHand[i];
-        var desired = deck.Take(deck.Length - r.Viewed.Count).Concat(desiredTop.Reverse()).ToArray(); BeginZhouQunMovement(ref f, ZhouQunStage.ExchangeChildren);
-        void Reorder() { var all = _cardZones.CardsAt(CardLocation.DrawPile).Reverse().Select(c => c.Id).ToArray(); _cardZones.ReorderDrawPileTop(all, desired.Reverse().ToArray(), []); }
-        if (r.SelectedHand.Count > 0) MoveProgramCardsFromMultipleSources(r.SelectedHand.Concat(r.SelectedTop).ToArray(), CardLocation.DrawPile, new(TianhouExchangeReason), (batch, records) => { RecordZhouQunMoves(f, batch, records); Reorder(); }, (_, from) => from == CardLocation.DrawPile ? CardLocation.Hand(f.OwnerSeat) : CardLocation.DrawPile);
-        else Reorder();
-        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { ZhouQun = f.ZhouQun! with { Viewed = desiredTop } }); CompleteZhouQunMovement(f.Id); ContinueZhouQun(f.Id);
-    }
     private bool DrainZhouQun(ProgramSkillFrame f) => TryBeginAdvancedSkillsChanged(f.Id) || TryBeginQueuedRecoveryReplacement(f.Id, f.PendingMovementContinuation is null ? PostEventContinuation.Program : PostEventContinuation.AwaitedProgramMovement) || TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) || TryBeginHpChangedProgramWindow(f.Id, f.PendingMovementContinuation is null ? PostEventContinuation.Program : PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id);
     private void ContinueZhouQun(long id)
     {

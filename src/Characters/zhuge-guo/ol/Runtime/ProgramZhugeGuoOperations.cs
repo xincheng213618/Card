@@ -1,10 +1,4 @@
 namespace CardGame.Core;
-public sealed record QirangEntityLease(CardConversionSource Source,string GameplayHash,int OwnerSeat,int CardId,CardKind PrintedKind,long EquipmentUseId,long EquipmentActionId,long GainSequence);
-public sealed record YuhuaDelayDebt(CardConversionSource Source,string GameplayHash,int OwnerSeat,int CreatedActualTurn,long EquipmentUseId,long EquipmentActionId,int CardId,long GainSequence);
-public sealed record YuhuaActiveQuota(int OwnerSeat,int ActualTurnNumber,int Count);
-public sealed record QirangEquipmentOrigin(long CardUseFrameId,CardActionContext OriginalAction,long MovementBefore);
-public sealed record QirangEquipmentOriginCapturedEvent(long CardUseFrameId,long ActionId,int OwnerSeat,int CardId,long MovementBefore):IGameEvent;
-public sealed record QirangUseQualification(QirangEntityLease Lease,long CardUseFrameId,CardActionContext OriginalAction,long MovementBefore);
 public enum ZhugeGuoStage { GainChildren,ExtraTargetChoice,YuhuaInspect }
 public sealed record ZhugeGuoReceipt(CardConversionSource Source,string GameplayHash,int InstructionIndex,int ActualTurn,long WindowId,ZhugeGuoStage Stage,
     long? UseId=null,long? ActionId=null,CardActionContext? OriginalAction=null,int? GainedCardId=null,CardKind? GainedKind=null,long Before=0,long After=0,
@@ -17,39 +11,12 @@ public sealed record ZhugeGuoReceipt(CardConversionSource Source,string Gameplay
     private readonly IReadOnlyList<int> _placedBottom=Array.AsReadOnly((PlacedBottom??[]).ToArray());
     public IReadOnlyList<int> PlacedBottom {get=>_placedBottom;init=>_placedBottom=Array.AsReadOnly((value??[]).ToArray());}
 }
-public sealed record QirangGainPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long EquipmentUseId,long EquipmentActionId,int CardId,CardKind Kind,long Before,long After):IGameEvent;
-public sealed record QirangEntityLeaseIssuedEvent(QirangEntityLease Lease):IGameEvent;
-public sealed record QirangEntityLeaseEndedEvent(int OwnerSeat,int CardId,long GainSequence,string Reason):IGameEvent;
-public sealed record QirangUseQualifiedEvent(long CardUseFrameId,long ActionId,int OwnerSeat,int CardId,long GainSequence,long MovementBefore):IGameEvent;
-public sealed record QirangExtraTargetResolvedEvent(long FrameId,long CardUseFrameId,long ActionId,int? AddedTarget):IGameEvent;
-public sealed record YuhuaDelayedDebtIssuedEvent(YuhuaDelayDebt Debt):IGameEvent;
-public sealed record YuhuaActualTurnQuotaStartedEvent(int OwnerSeat,int ActualTurnNumber,int Count):IGameEvent;
-public sealed record YuhuaPrivatePeekStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,long WindowId,int Requested,int ActualCount):IGameEvent;
-public sealed record YuhuaPrivatePeekPlacedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,long WindowId,int TopCount,int BottomCount):IGameEvent;
 internal interface IZhugeGuoProgramHost {SkillProgramStepOutcome BeginZhugeGuo(ProgramSkillFrame f,SkillProgramEffect e);}
 internal abstract class ZhugeGuoDescriptor:ProgramOperationDescriptorBase
 {
     public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-}
-internal sealed class ObtainDeckTrickForActualEquipmentUseDescriptor:ZhugeGuoDescriptor
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ObtainDeckTrickForActualEquipmentUse;
-    public override ISkillProgramEffectHandler Handler {get;}=new ZhugeGuoHandler(SkillProgramEffectOp.ObtainDeckTrickForActualEquipmentUse);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];
-}
-internal sealed class AddTargetForQirangPhysicalTrickDescriptor:ZhugeGuoDescriptor
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.AddTargetForQirangPhysicalTrick;
-    public override ISkillProgramEffectHandler Handler {get;}=new ZhugeGuoHandler(SkillProgramEffectOp.AddTargetForQirangPhysicalTrick);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];
-}
-internal sealed class InspectYuhuaTopDescriptor:ZhugeGuoDescriptor
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.InspectYuhuaTop;
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,SkillProgramTriggerWindow.TurnEnding])];
-    public override ISkillProgramEffectHandler Handler {get;}=new ZhugeGuoHandler(SkillProgramEffectOp.InspectYuhuaTop);
 }
 internal sealed class ZhugeGuoHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {

@@ -1,0 +1,5 @@
+using System.Text.Json.Serialization;
+namespace CardGame.Core;
+internal sealed class ChooseFinalJudgmentFiveByZiweiDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei){}
+internal sealed class IncreaseActualSourceDamageByYuqingDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing){}
+internal sealed class GainThreeDeckCategoriesAfterElementalDamageDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.GainThreeDeckCategoriesAfterElementalDamage){}

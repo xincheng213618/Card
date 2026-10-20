@@ -3,7 +3,6 @@ namespace CardGame.Core;
 
 public enum CaiMaoStage { Targets, Exchange, ExchangeChildren, ToggleChildren }
 public sealed record CaiMaoReveal(int HolderSeat,int CardId,CardKind PrintedKind,long HandEntry,string Bind);
-public sealed record CaiMaoExchange(int HolderSeat,int OldCardId,CardKind OldKind,long HandEntry,int NewCardId,CardKind NewKind,CardLocation Supply);
 public sealed record CaiMaoReceipt(CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,int ActualTurn,int TurnOwner,int FrozenHp,long ParentId,CaiMaoStage Stage)
 {
     public long Before {get;init;} public long After {get;init;} public int Cursor {get;init;} public bool Committed {get;init;}
@@ -21,10 +20,6 @@ public sealed record CaiMaoStartedEvent(long FrameId,CardConversionSource Source
 public sealed record CaiMaoTargetChosenEvent(long FrameId,int Index,int TargetSeat):IGameEvent;
 public sealed record CaiMaoTargetsCommittedEvent(long FrameId,int Count):IGameEvent;
 public sealed record CaiMaoHandRevealedEvent(long FrameId,int Index,CaiMaoReveal Entity):IGameEvent;
-public sealed record CaiMaoExchangeChosenEvent(long FrameId,bool Accepted):IGameEvent;
-public sealed record CaiMaoExchangeFrozenEvent(long FrameId,int Index,CaiMaoExchange Entity):IGameEvent;
-public sealed record CaiMaoExchangePaidEvent(long FrameId,long BatchId,long Before,long After,int Count):IGameEvent;
-public sealed record CaiMaoToggleIssuedEvent(long FrameId,int Index,int TargetSeat,bool Before,bool Requested,bool Actual):IGameEvent;
 public sealed record CaiMaoCompletedEvent(long FrameId,SkillProgramEffectOp Op,int Exchanges,int Toggles):IGameEvent;
 internal interface ICaiMaoHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal abstract class CaiMaoDescriptor:ProgramOperationDescriptorBase
@@ -35,10 +30,6 @@ internal abstract class CaiMaoDescriptor:ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
     public override ISkillProgramEffectHandler Handler=>new CaiMaoHandler(Op);
 }
-internal sealed class ResolveZuolianWholeRevealExchangeDescriptor:CaiMaoDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveZuolianWholeRevealExchange;}
-internal sealed class ResolveJingzhouBeforeDamageTogglesDescriptor:CaiMaoDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.BeforeDamageApplied)];}
 internal sealed class CaiMaoHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ICaiMaoHost>().Resolve(f,op);}
 internal static class CaiMaoComposition

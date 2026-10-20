@@ -1,33 +1,11 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-
-public enum MouDaQiaoGuoseStage { Selecting, Using, MovementChildren, Drawing, DrawChildren }
-public sealed record MouDaQiaoGuoseReceipt(CardConversionSource Source, string GameplayHash,
-    ActualDiscardRecoveryPhaseKey Phase, string Branch, int TargetSeat, MouDaQiaoGuoseStage Stage,
-    int? CardId = null, CardLocation? From = null, long? UseId = null, long Before = 0, long After = 0, bool Paid = false);
-public sealed record MouDaQiaoLiuliReceipt(CardConversionSource Source, string GameplayHash, long WindowId,
-    int ActualTurn, int OriginalActorSeat, int RedirectTargetSeat, int PaidCardId, Suit PaidSuit,
-    bool Choosing, int? MarkTargetSeat = null);
-public sealed record MouDaQiaoLiuliPhaseReceipt(long GrantId, CardConversionSource Source,
-    string GameplayHash, int RecipientSeat, int ActualTurn, long WindowId);
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MouDaQiaoGuoseReceipt? MouDaQiaoGuose { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MouDaQiaoLiuliReceipt? MouDaQiaoLiuli { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MouDaQiaoLiuliPhaseReceipt? MouDaQiaoLiuliPhase { get; init; }
 }
-public sealed record MouDaQiaoGuoseReservedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    ActualDiscardRecoveryPhaseKey Phase, string Branch, int TargetSeat, int PhaseLimit) : IGameEvent;
-public sealed record MouDaQiaoGuosePaidEvent(long FrameId, string Branch, int CardId, CardLocation From, CardLocation To, long MovementSequence) : IGameEvent;
-public sealed record MouDaQiaoGuoseDrawReturnedEvent(long FrameId, long? AttemptFrameId, int ActualCount, int ReplacementCount) : IGameEvent;
-public sealed record MouDaQiaoGuoseCompletedEvent(long FrameId, bool Paid) : IGameEvent;
-public sealed record MouDaQiaoLiuliCostFrozenEvent(long FrameId, CardConversionSource Source, int ActualTurn,
-    int OriginalActorSeat, int RedirectTargetSeat, int CardId, Suit Suit) : IGameEvent;
-public sealed record MouDaQiaoLiuliMarkGrantedEvent(long GrantId, CardConversionSource Source, string GameplayHash,
-    int RecipientSeat, int ActualTurn, long? PreviousGrantId) : IGameEvent;
-public sealed record MouDaQiaoLiuliPhaseIssuedEvent(long FrameId, long GrantId, int RecipientSeat, int ActualTurn, long WindowId) : IGameEvent;
-public sealed record MouDaQiaoLiuliPhaseReturnedEvent(long FrameId, long GrantId, int RecipientSeat, int ActualTurn) : IGameEvent;
-public sealed record MouDaQiaoLiuliMarkConsumedEvent(long FrameId, long GrantId) : IGameEvent;
 
 internal interface IMouDaQiaoHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp operation); }
 internal interface IMouDaQiaoQuery : IProgramSelectionQuery
@@ -66,12 +44,6 @@ internal abstract class MouDaQiaoDescriptor : ProgramOperationDescriptorBase
         _ => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)]
     };
 }
-internal sealed class ResolveMouDaQiaoGuoseDescriptor : MouDaQiaoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouDaQiaoGuose;
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
-}
-internal sealed class ResolveMouDaQiaoGuoseRemoveDescriptor : MouDaQiaoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouDaQiaoGuoseRemove; }
-internal sealed class ResolveMouDaQiaoLiuliHeartDescriptor : MouDaQiaoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouDaQiaoLiuliHeart; }
-internal sealed class InsertMouDaQiaoLiuliPlayDescriptor : MouDaQiaoDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InsertMouDaQiaoLiuliPlay; }
 internal sealed class MouDaQiaoHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

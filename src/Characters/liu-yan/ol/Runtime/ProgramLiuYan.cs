@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public enum LiuYanStage { TusheDrawChildren, LimuNative, LimuReturnedChildren, LimuRecoveryChildren }
-public sealed record LiuYanLimuUseOrigin(long ProgramFrameId,long CardUseFrameId,long ActionId,CardConversionSource Source,string GameplayHash,int ActualTurn,int PhaseInstance,int ActorSeat,int CardId,CardKind PrintedKind,CardLocation From,Suit Suit,int Rank);
 public sealed record LiuYanMaterial(int CardId,CardKind Kind,CardLocation From);
 public sealed record LiuYanReceipt(CardConversionSource Source,string GameplayHash,int InstructionIndex,int ActualTurn,int TurnOwner,SkillProgramEffectOp Operation,LiuYanStage Stage)
 {
@@ -20,11 +19,6 @@ public sealed partial record ProgramSkillFrame
 public sealed partial record CardUseFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public LiuYanLimuUseOrigin? LiuYanLimu {get;init;}}
 public sealed record LiuYanStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,int TurnOwner,SkillProgramEffectOp Operation,long ParentWindowId,long OriginalUseId,long ActionId,string TargetSignature):IGameEvent;
-public sealed record LiuYanTusheDrawnEvent(long FrameId,int OwnerSeat,int Requested,int Count,long Before,long After):IGameEvent;
-public sealed record LiuYanLimuIssuedEvent(LiuYanLimuUseOrigin Origin):IGameEvent;
-public sealed record LiuYanLimuPaidEvent(LiuYanLimuUseOrigin Origin,long Sequence):IGameEvent;
-public sealed record LiuYanLimuReturnedEvent(LiuYanLimuUseOrigin Origin):IGameEvent;
-public sealed record LiuYanLimuRecoveryIssuedEvent(long FrameId,int OwnerSeat,int Amount):IGameEvent;
 public sealed record LiuYanCompletedEvent(long FrameId,SkillProgramEffectOp Operation,int DrawCount,bool RecoveryIssued):IGameEvent;
 internal interface ILiuYanSelectionQuery:IProgramSelectionQuery {bool CanUse(int owner,Card card,string skill);}
 internal interface ILiuYanHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op);}
@@ -36,10 +30,6 @@ internal abstract class LiuYanDescriptor:ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
     public override ISkillProgramEffectHandler Handler=>new LiuYanHandler(Op);
 }
-internal sealed class DrawTusheForActualNonEquipmentTargetsDescriptor:LiuYanDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawTusheForActualNonEquipmentTargets;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];}
-internal sealed class UseLimuSelfIndulgenceAndRecoverDescriptor:LiuYanDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ConsumeSelectedCards(1)];}
 internal sealed class LiuYanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost h)=>h.GetCapability<ILiuYanHost>().Resolve(f,op);}
 internal static class LiuYanComposition
@@ -55,10 +45,3 @@ internal static class LiuYanComposition
         throw new InvalidOperationException(path+": Liu Yan requires exact optional post-target Tushe or single-diamond self Indulgence Limu without a quota.");
     }
 }
-
-[ProgramSelectionModule(ProgramSelectionStage.CardAfterDiscard,27231,SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)]
-internal sealed class LiuYanLimuCardFilter:IProgramSelectionCardFilter
-{public bool Allows(ProgramSelectionContext c,Card card,IProgramSelectionQueries q)=>q.Get<ILiuYanSelectionQuery>().CanUse(c.OwnerSeat,card,c.SkillId);}
-[ProgramSelectionModule(ProgramSelectionStage.CardSuit,27231,SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)]
-internal sealed class LiuYanLimuSuit:IProgramSelectionSuitProvider
-{public Suit GetSuit(ProgramSelectionContext c,Card card,IProgramSelectionQueries q)=>q.Get<IProgramSelectionCardState>().EffectiveSuit(c.OwnerSeat,card);}

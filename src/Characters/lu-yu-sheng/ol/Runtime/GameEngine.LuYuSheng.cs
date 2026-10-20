@@ -83,14 +83,6 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f=f with{LuYuSheng=r with{Stage=LuYuShengStage.RunweiDiscardChildren,CardId=card.Id,From=from,Before=_movementSequence,After=_movementSequence,WoodenOxGrainIds=grain},PendingMovementContinuation=new(r.Payer,0,null)});
         MoveProgramLogicalDiscard(f,r.Payer,[card.Id],new(LuYuShengRunweiDiscardReason));RecordLuYuShengMovement(f.Id);IssueLuYuShengRunwei(GetActiveProgramFrame(f.Id),1);ContinueLuYuSheng(f.Id);
     }
-    private void IssueLuYuShengRunwei(ProgramSkillFrame f,int delta)
-    {
-        var r=f.LuYuSheng!;if(r.Phase is not{Kind:ActualDiscardRecoveryPhaseKind.Discard}p||p.ActorSeat!=r.Payer||CurrentActualDiscardRecoveryPhase()!=p||!IsRecordedActualDiscardRecoveryPhase(p)||
-            r.Operation!=SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase||r.Branch!=(delta<0?"draw":"discard")||ProgramEventHistory<LuYuShengRunweiPhaseIssuedEvent>().Any(e=>e.FrameId==f.Id))throw new InvalidOperationException("Runwei requires its exact accepted real Discard phase and one committed direction.");
-        AdvanceEventRulesAndQueueFact(new LuYuShengRunweiPhaseIssuedEvent(f.Id,r.Source,p,delta));
-    }
-    private int LuYuShengRunweiHandLimitBonus(int actorSeat)=>_phase==TurnPhase.Discard&&CurrentActualDiscardRecoveryPhase()is{Kind:ActualDiscardRecoveryPhaseKind.Discard}p&&p.ActorSeat==actorSeat?
-        ProgramEventHistory<LuYuShengRunweiPhaseIssuedEvent>().Where(e=>e.Phase==p).Sum(e=>e.Delta):0;
     [ProgramViewContributor(ProgramViewContribution.PublicCardsAfterResolution, 30)]
     private IReadOnlyList<CardSnapshot> CurrentLuYuShengRevealedCards()=>Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.LuYuSheng is not null).SelectMany(f=>f.LuYuSheng!.BottomCards).Distinct().Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray());
     private void IssueLuYuShengDraw(ProgramSkillFrame f,int count)

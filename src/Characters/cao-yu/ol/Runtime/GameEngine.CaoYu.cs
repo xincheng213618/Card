@@ -82,10 +82,6 @@ public sealed partial class GameEngine
  {var r=f.CaoYu!;ReplaceRuntimeTop(f=f with{CaoYu=r with{Stage=stage,Before=_movementSequence,After=_movementSequence,Count=0,Materials=[],GrainIds=[]},PendingMovementContinuation=new(f.OwnerSeat,0,null)});if(_players[f.OwnerSeat].IsAlive&&count>0)DrawProgramCards(f.Id,f.OwnerSeat,count,null,null,SkillProgramCardSetVisibility.Private,new(reason));RecordCaoYuMovement(f.Id);ContinueCaoYu(f.Id);}
  private void RecoverCaoYu(ProgramSkillFrame f,int count,CaoYuStage stage)
  {var r=f.CaoYu!;ReplaceRuntimeTop(f=f with{CaoYu=r with{Stage=stage,Before=_movementSequence,After=_movementSequence,Count=0,Recovery=count,Materials=[],GrainIds=[]},PendingMovementContinuation=new(f.OwnerSeat,0,null)});AdvanceEventRulesAndQueueFact(new CaoYuRecoveryIssuedEvent(f.Id,stage,count));if(count>0&&_players[f.OwnerSeat].IsAlive)new ProgramSkillHost(this).Recover(f.Id,f.OwnerSeat,f.OwnerSeat,count,null,null);RecordCaoYuMovement(f.Id);ContinueCaoYu(f.Id);}
- private void AdvanceGongjieDonor(ProgramSkillFrame f)
- {var r=f.CaoYu!;ReplaceRuntimeTop(f=f with{CaoYu=r with{Index=r.Index+1,Stage=CaoYuStage.GongjieTake,Materials=[],GrainIds=[],Before=0,After=0,Count=0},PendingMovementContinuation=null});if(f.CaoYu!.Index>=r.Targets.Count)AfterGongjieGifts(f);else PublishCaoYu(f);}
- private void AfterGongjieGifts(ProgramSkillFrame f)
- {var count=ProgramEventHistory<CaoYuCardPaidEvent>().Where(e=>e.FrameId==f.Id&&e.Stage==CaoYuStage.GongjieGiftChildren&&e.Suit!=Suit.None).Select(e=>e.Suit).Distinct().Count();if(!_players[f.OwnerSeat].IsAlive){FinishCaoYu(f);return;}DrawCaoYu(f,count,CaoYuStage.GongjieDrawChildren,GongjieDrawReason);}
  private bool DrainCaoYu(ProgramSkillFrame f)=>TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginAdvancedSkillsChanged(f.Id)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id);
  private void ContinueCaoYu(long id)
  {

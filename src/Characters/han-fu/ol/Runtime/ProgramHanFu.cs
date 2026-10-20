@@ -7,8 +7,6 @@ public sealed record HanFuMovement(int Index, HanFuStage Stage, string Reason, l
 public sealed record HanFuStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, int ActualTurn, int PhaseInstance, int TargetSeat, long ParentId, long? DamageFrameId, int DamageAmount) : IGameEvent;
 public sealed record HanFuMaterialPaidEvent(long FrameId, HanFuStage Stage, int Index, HanFuMaterial Material, CardLocation To, long? MovementSequence) : IGameEvent;
 public sealed record HanFuMovementIssuedEvent(long FrameId, HanFuMovement Movement) : IGameEvent;
-public sealed record KuangshouQuotaFrozenEvent(long FrameId, int HistoryCutoff, int DamagedSeatCount, int RequiredDiscard) : IGameEvent;
-public sealed record ShuziDamageIssuedEvent(long FrameId, int SourceSeat, int TargetSeat, int Amount) : IGameEvent;
 public sealed record HanFuCompletedEvent(long FrameId) : IGameEvent;
 public sealed record HanFuReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, int InstructionIndex, int ActualTurn,
     int PhaseInstance, int TargetSeat, long ParentId, long? DamageFrameId, int DamageAmount, HanFuStage Stage,
@@ -37,8 +35,6 @@ internal abstract class HanFuDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_,_) => { });
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => Op == SkillProgramEffectOp.ResolveKuangshouDamageDrawDiscard ? [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)] : [new ConsumeSelectedCards(2), new ReadSelectedTarget()];
 }
-internal sealed class ResolveShuziExchangeDescriptor : HanFuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveShuziExchange; }
-internal sealed class ResolveKuangshouDamageDrawDiscardDescriptor : HanFuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveKuangshouDamageDrawDiscard; }
 internal sealed class HanFuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

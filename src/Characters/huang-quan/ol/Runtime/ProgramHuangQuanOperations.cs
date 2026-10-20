@@ -17,9 +17,6 @@ internal abstract class HuangQuanDescriptor:ProgramOperationDescriptorBase
  }
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op==SkillProgramEffectOp.DrawForDianhuActualOccurrence?[]:Op==SkillProgramEffectOp.ArmDianhuRelation?[new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting),new ReadSelectedTarget(),new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)]:[new ReadSelectedTarget(),new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)];
 }
-internal sealed class ArmDianhuRelationDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmDianhuRelation;}
-internal sealed class DrawForDianhuActualOccurrenceDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawForDianhuActualOccurrence;}
-internal sealed class DrawAndOfferJianjiExactCardDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawAndOfferJianjiExactCard;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}
 internal sealed class HuangQuanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
  public SkillProgramEffectOp Op=>op;

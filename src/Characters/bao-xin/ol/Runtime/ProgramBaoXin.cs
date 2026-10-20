@@ -3,7 +3,6 @@ namespace CardGame.Core;
 
 public enum BaoXinStage { StoreChildren,GiftChildren,CleanupChildren,DamageChildren,Mode,GiftCard,GiftTarget,ObtainChildren,YimouGiftChildren,DrawChildren }
 public sealed record BaoXinEntity(int CardId,CardKind Kind,CardKind EffectiveKind,CardLocation From);
-public sealed record BaoXinYimouQualification(CardConversionSource Source,string GameplayHash,long WindowId,long DamageFrameId,long AttackId,int VictimSeat,int Amount,int Distance,int? SourceSeat,int OccurrenceIndex);
 public sealed partial record DamageTriggerWindowFrame
 {
     private IReadOnlyList<BaoXinYimouQualification>? _baoXin;
@@ -31,11 +30,6 @@ public sealed record BaoXinMovementPaidEvent(long FrameId,int Step,BaoXinStage S
 public sealed record BaoXinEntityMovedEvent(long FrameId,int Step,long BatchId,int CardId,CardKind Kind,CardLocation From,CardLocation To,long Sequence):IGameEvent;
 public sealed record BaoXinRandomIssuedEvent(long FrameId,int Ordinal,int CardId,int Recipient,int Index,int CandidateCount,uint Before,uint After):IGameEvent;
 public sealed record BaoXinRandomCandidateEvent(long FrameId,int Ordinal,int Index,int CardId):IGameEvent;
-public sealed record BaoXinMutaoGiftEvent(long FrameId,int Ordinal,int CardId,int Recipient,long Sequence):IGameEvent;
-public sealed record BaoXinMutaoRetiredEvent(long FrameId,int CardId,long DepartureSequence):IGameEvent;
-public sealed record BaoXinMutaoDamageIssuedEvent(long FrameId,int SourceSeat,int TargetSeat,int SlashCount,int Amount):IGameEvent;
-public sealed record BaoXinYimouBranchEvent(long FrameId,int Branch,int VictimSeat):IGameEvent;
-public sealed record BaoXinYimouDrawIssuedEvent(long FrameId,int VictimSeat):IGameEvent;
 public sealed record BaoXinCompletedEvent(long FrameId,SkillProgramEffectOp Op):IGameEvent;
 internal interface IBaoXinHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal abstract class BaoXinDescriptor:ProgramOperationDescriptorBase
@@ -46,8 +40,6 @@ internal abstract class BaoXinDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler=>new BaoXinHandler(Op);
 }
-internal sealed class ResolveBaoXinMutaoDescriptor:BaoXinDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveBaoXinMutao;}
-internal sealed class ResolveBaoXinYimouDescriptor:BaoXinDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveBaoXinYimou;}
 internal sealed class BaoXinHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IBaoXinHost>().Resolve(f,op);}
 internal static class BaoXinComposition

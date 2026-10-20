@@ -2,7 +2,6 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasWuJingLiubing => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimLiubingUndamagingSlash) == true;
-    private bool HasWuJingHeji => _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.UseHejiAtCompletedSingleTarget) == true;
     private bool WuJingOwnsLiubing(int actor) => IsValidPlayerSeat(actor) && _players[actor].IsAlive && (GetSkillBindingShard(_players[actor])?.GetInstanceTriggers(SkillProgramTriggerWindow.DiscardPileReceived) ?? []).Any(b => b.Trigger.Effects is [{ Op: SkillProgramEffectOp.ClaimLiubingUndamagingSlash }]);
     private static bool WuJingPhysicalSlash(Card card, CardKind kind, IReadOnlyList<int> ids, IReadOnlyList<CardConversionSource>? conversions) =>
         card.Id > 0 && ids is [var id] && id == card.Id && IsSlashCard(card.Kind) && kind == card.Kind && conversions is null or { Count: 0 };

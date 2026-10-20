@@ -18,7 +18,6 @@ public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MouXiahouDunMobileReceipt? MouXiahouDunMobile { get; init; } }
 public sealed record MouXiahouDunMobileStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, ActualDiscardRecoveryPhaseKey? Phase) : IGameEvent;
 public sealed record MouXiahouDunMobileDiscardOriginEvent(long BatchId, long MovementSequence, int CardId, bool TrueUse) : IGameEvent;
-public sealed record MouXiahouDunMobileGanglieSpentEvent(long FrameId, int OwnerSeat, int TargetSeat, int Index) : IGameEvent;
 public sealed record MouXiahouDunMobileDamageIssuedEvent(long FrameId, int Index, int SourceSeat, int TargetSeat) : IGameEvent;
 public sealed record MouXiahouDunMobileCollectedEvent(long FrameId, CardConversionSource Source, int CardId, long DiscardSequence, long ClaimSequence, int Capacity) : IGameEvent;
 public sealed record MouXiahouDunMobileRosterEvent(long FrameId, int Index, int CardId, CardLocation From) : IGameEvent;
@@ -38,13 +37,6 @@ internal abstract class MouXiahouDunMobileDescriptor : ProgramOperationDescripto
         _ => []
     };
 }
-internal sealed class ResolveMouXiahouDunGanglieDescriptor : MouXiahouDunMobileDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouXiahouDunGanglie; }
-internal sealed class CollectMouXiahouDunQingjianDescriptor : MouXiahouDunMobileDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.CollectMouXiahouDunQingjian; }
-internal sealed class DistributeMouXiahouDunQingjianDescriptor : MouXiahouDunMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DistributeMouXiahouDunQingjian; }
 internal sealed class MouXiahouDunMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

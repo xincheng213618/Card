@@ -1,15 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public sealed record LiehouPayment(int CardId,CardLocation From,int Recipient,long Before,long After,long BatchId);
-public sealed record QigongFactionRequest(long FrameId,int Actor,int Target,FactionResponsePolicySource Policy);
-public sealed record QigongDeclarationRequest(int Actor,int CardId,CardConversionSource Conversion,CardKind Kind,long Before);
-public sealed record QigongNativeReceipt(long ProgramId,CardConversionSource Source,string GameplayHash,int Instruction,int Turn,long OriginalUseId,long OriginalActionId,int Actor,int Target,long UseId,long ActionId,CardActionContext OriginalAction,long Before,long After,bool Paid=false)
-{
- [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public RoundOnceCardlessBasicPaymentReceipt? RoundOncePayment{get;init;}
- [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public DrawFundedDistinctBasicPayment? DrawFundedPayment{get;init;}
- [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public ChainedStateBasicPayment? ChainedPayment{get;init;}
- [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public DeclaredCardPayment? DeclarationPayment{get;init;}
-}
 public sealed record LvKuangLvXiangReceipt(CardConversionSource Source,string GameplayHash,int Instruction,int Turn,string Stage,int Target,int Actor=-1,long? OriginalUseId=null,long? OriginalActionId=null,QigongNativeReceipt? Native=null,bool Returned=false)
 {
  private readonly IReadOnlyList<LiehouPayment> _payments=[];
@@ -27,18 +17,12 @@ public sealed record LvKuangLvXiangReceipt(CardConversionSource Source,string Ga
 public sealed partial record ProgramSkillFrame{[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public LvKuangLvXiangReceipt? LvKuangLvXiang{get;init;}}
 public sealed partial record CardUseFrame{[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public QigongNativeReceipt? Qigong{get;init;}}
 public sealed record LvKuangLvXiangStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Instruction,int Turn,int Target,long? OriginalUseId,long? OriginalActionId):IGameEvent;
-public sealed record LiehouHandPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Ordinal,int Giver,int Recipient,long Before,long After,long BatchId):IGameEvent;
-public sealed record QigongNativeIssuedEvent(QigongNativeReceipt Receipt):IGameEvent;
-public sealed record QigongNativePaidEvent(QigongNativeReceipt Receipt):IGameEvent;
-public sealed record QigongNativeReturnedEvent(long ProgramId,long UseId,long ActionId):IGameEvent;
 internal interface ILvKuangLvXiangProgramHost{SkillProgramStepOutcome ExecuteLvKuangLvXiang(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal sealed class LvKuangLvXiangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler{public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<ILvKuangLvXiangProgramHost>().ExecuteLvKuangLvXiang(f,op);}
 internal abstract class LvKuangLvXiangDescriptor(SkillProgramEffectOp op):ProgramOperationDescriptorBase
 {
  public override SkillProgramEffectOp Op=>op;public override ISkillProgramEffectHandler Handler{get;}=new LvKuangLvXiangHandler(op);public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
 }
-internal sealed class ResolveQigongActualDodgedSlashRequestDescriptor():LvKuangLvXiangDescriptor(SkillProgramEffectOp.ResolveQigongActualDodgedSlashRequest){public override IReadOnlyList<ProgramResourceOperation>Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.SlashFullyDodged)];}
-internal sealed class ResolveLiehouRangeHandRelayDescriptor():LvKuangLvXiangDescriptor(SkillProgramEffectOp.ResolveLiehouRangeHandRelay){public override IReadOnlyList<ProgramResourceOperation>Resources(SkillProgramEffect e)=>[new ReadSelectedTarget(),new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)];}
 internal static class LvKuangLvXiangComposition
 {
  internal static bool Own(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveQigongActualDodgedSlashRequest or SkillProgramEffectOp.ResolveLiehouRangeHandRelay;

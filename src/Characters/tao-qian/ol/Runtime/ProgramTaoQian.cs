@@ -26,25 +26,12 @@ public sealed record TaoQianReceipt(CardConversionSource Source, string Gameplay
     public IReadOnlyList<int> Selected { get => _selected; init => _selected = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<CardActionCost> Materials { get => _materials; init => _materials = Array.AsReadOnly(value.ToArray()); }
 }
-public sealed record ZongluanSlashOrigin(long ProgramFrameId, CardConversionSource Source, string GameplayHash,
-    int ActorSeat, long UseId, long ActionId, int ActualTurn, int TurnOwner);
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public TaoQianReceipt? TaoQian { get; init; } }
 public sealed partial record CardUseFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ZongluanSlashOrigin? ZongluanSlash { get; init; } }
 public sealed record TaoQianStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner) : IGameEvent;
 public sealed record TaoQianCompletedEvent(long FrameId, SkillProgramEffectOp Op, bool Paid) : IGameEvent;
-public sealed record ZongluanCommittedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActorSeat, int ActualTurn) : IGameEvent;
-public sealed record ZongluanSlashIssuedEvent(ZongluanSlashOrigin Origin, int TargetCount) : IGameEvent;
-public sealed record ZongluanInitialTargetEvent(long FrameId, long UseId, int Index, int TargetSeat) : IGameEvent;
-public sealed record ZongluanDirectDamageEvent(long FrameId, long UseId, long DamageFrameId, int SourceSeat, int TargetSeat, int Amount) : IGameEvent;
-public sealed record ZongluanSlashReturnedEvent(long FrameId, long UseId, long ActionId, int DamageRecipientCount) : IGameEvent;
-public sealed record ZongluanDiscardIssuedEvent(long FrameId, int DamageRecipientCount, int RequiredCount, long Before) : IGameEvent;
-public sealed record ZongluanDiscardEntityEvent(long FrameId, int Index, long BatchId, int CardId, CardKind Kind, CardLocation From, CardLocation To, long Sequence) : IGameEvent;
-public sealed record WenrenCommittedEvent(long FrameId, CardConversionSource Source, string GameplayHash, ActualDiscardRecoveryPhaseKey Phase, int RecipientCount) : IGameEvent;
-public sealed record WenrenRecipientFrozenEvent(long FrameId, int Index, int RecipientSeat) : IGameEvent;
-public sealed record WenrenRecipientEvaluatedEvent(long FrameId, int Index, int RecipientSeat, int OwnerHand, int RecipientHand, int Amount) : IGameEvent;
-public sealed record WenrenDrawReturnedEvent(long FrameId, int Index, int RecipientSeat, int RequestedCount, int ActualCount, int ReplacementCount, long Before, long After, long? AttemptId) : IGameEvent;
 
 internal interface ITaoQianHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
 internal abstract class TaoQianDescriptor(SkillProgramEffectOp op) : ProgramOperationDescriptorBase
@@ -55,16 +42,6 @@ internal abstract class TaoQianDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => op == SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard ? [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)] : [];
-}
-internal sealed class ResolveZongluanDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveZongluanPreparationSlashAndDiscard){
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class ResolveWenrenDescriptor() : TaoQianDescriptor(SkillProgramEffectOp.ResolveWenrenSequentialDraw){
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class TaoQianHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

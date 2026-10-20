@@ -1,31 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-
-public sealed record SunHaoCanshiGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn, int TurnOwner, long DrawWindowId, int X) : IGameEvent;
-public sealed record SunHaoCanshiStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, long GrantId, int ActualTurn, int TurnOwner, long WindowId, long ActionId, [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] long? UseId, int TargetCount, int GrantCount) : IGameEvent;
-public sealed record SunHaoCanshiOriginalTargetEvent(long FrameId, int Index, int TargetSeat) : IGameEvent;
-public sealed record SunHaoCanshiDiscardedEvent(long FrameId, int CardId, CardKind Kind, CardLocation From, CardLocation To, long Before, long After, int Index = 0) : IGameEvent;
-public sealed record SunHaoCanshiFrozenGrantEvent(long FrameId, int Index, long GrantId) : IGameEvent;
-public sealed record SunHaoCanshiSkippedEvent(long FrameId, int Index, long GrantId) : IGameEvent;
-public sealed record SunHaoCanshiCompletedEvent(long FrameId, bool Paid) : IGameEvent;
-public sealed record SunHaoChouhaiFrozenEvent(long AttackId, int TargetSeat, int Cursor, int InheritedAmount, int Bonus, long InvoiceId = 0) : IGameEvent;
-public sealed record SunHaoChouhaiRebasedEvent(long AttackId, int TargetSeat, int Cursor, int InheritedAmount) : IGameEvent;
-public sealed record SunHaoChouhaiTransferredEvent(long AttackId, int OriginalSeat, int TargetSeat, int Cursor, long WindowId) : IGameEvent;
-public enum SunHaoCanshiStage { SelectDiscard, DiscardChildren }
-public sealed record SunHaoCanshiReceipt(CardConversionSource Source, string GameplayHash, long GrantId, int ActualTurn, int TurnOwner, long WindowId,
-    long ActionId, [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] long? UseId, SunHaoCanshiStage Stage, IReadOnlyList<int> OriginalTargets,
-    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] SunHaoCanshiDiscardedEvent? Payment = null, int Cursor = 0)
-{
-    private IReadOnlyList<int> _targets = Array.AsReadOnly(OriginalTargets.ToArray());
-    public IReadOnlyList<int> OriginalTargets { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
-    private IReadOnlyList<long> _grants = Array.AsReadOnly(Array.Empty<long>());
-    public IReadOnlyList<long> GrantIds { get => _grants; init => _grants = Array.AsReadOnly(value.ToArray()); }
-    private IReadOnlyList<int> _grain = Array.AsReadOnly(Array.Empty<int>());
-    public IReadOnlyList<int> WoodenOxGrain { get => _grain; init => _grain = Array.AsReadOnly(value.ToArray()); }
-}
-public sealed record SunHaoChouhaiReceipt(long AttackId, int TargetSeat, int Cursor, int InheritedAmount, int Bonus,
-    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? TransferredTarget = null,
-    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] long? TransferWindowId = null, long InvoiceId = 0);
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public SunHaoCanshiReceipt? SunHaoCanshi { get; init; }
@@ -45,8 +19,6 @@ internal abstract class SunHaoDescriptor(SkillProgramEffectOp op, SkillProgramTr
     public override ProgramOperationInteraction Interaction => op == SkillProgramEffectOp.ResolveSunHaoCanshiUseDiscard ? ProgramOperationInteraction.Choice : ProgramOperationInteraction.Automatic;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
 }
-internal sealed class GrantSunHaoCanshiDrawObligationDescriptor() : SunHaoDescriptor(SkillProgramEffectOp.GrantSunHaoCanshiDrawObligation, SkillProgramTriggerWindow.DrawPhaseStarting) { }
-internal sealed class ResolveSunHaoCanshiUseDiscardDescriptor() : SunHaoDescriptor(SkillProgramEffectOp.ResolveSunHaoCanshiUseDiscard, SkillProgramTriggerWindow.CardUseCommitted) { }
 internal sealed class SunHaoHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 { public SkillProgramEffectOp Op => op; public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost host) => host.GetCapability<ISunHaoHost>().Resolve(f, op); }
 internal sealed class SunHaoCommittedUseContract : IProgramCommittedUseContract

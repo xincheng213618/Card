@@ -40,20 +40,10 @@ public sealed partial record ProgramSkillFrame
 
 public sealed record TangTangStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
     int ActualTurn, int TurnOwner, long WindowId, long PlayToken) : IGameEvent;
-public sealed record ZexingShownEvent(long FrameId, int OwnerSeat, int CardId, CardKind Kind, CardLocation From, Suit Suit) : IGameEvent;
-public sealed record ZexingPeerChosenEvent(long FrameId, int OwnerSeat, int ActualTurn, int TurnOwner, int Peer, int Index) : IGameEvent;
-public sealed record ZexingOptionChosenEvent(long FrameId, int Peer, int Option) : IGameEvent;
-public sealed record ZexingHandViewedEvent(long FrameId, int ViewerSeat, int Peer, int Count) : IGameEvent;
-public sealed record ZexingHpLossIssuedEvent(long FrameId, int Peer, int Before, int After) : IGameEvent;
 public sealed record TangTangMovementMaterialEvent(long FrameId, int Step, int Index, int CardId, CardKind Kind, CardLocation From, Suit Suit) : IGameEvent;
 public sealed record TangTangGrainEvent(long FrameId, int Step, int Index, int CardId) : IGameEvent;
 public sealed record TangTangEntityMovedEvent(long FrameId, int Step, TangTangStage Stage, long BatchId, int CardId, CardKind Kind, CardLocation From, CardLocation To, long Sequence) : IGameEvent;
 public sealed record TangTangMovementIssuedEvent(long FrameId, int Step, TangTangStage Stage, long Before, long After, int Count) : IGameEvent;
-public sealed record ZhiyiOwnedOriginEvent(long BatchId, long Sequence, int CardId, int OwnerSeat, CardLocation From, CardLocation To, Suit Suit) : IGameEvent;
-public sealed record ZhiyiTransferProducerEvent(long EntrySequence, int RecipientSeat, long ProducerId) : IGameEvent;
-public sealed record ZhiyiGainFrozenEvent(TangTangGain Gain) : IGameEvent;
-public sealed record ZhiyiOpportunityPaidEvent(long FrameId, int OwnerSeat, int ActualTurn, int TurnOwner, long BatchId) : IGameEvent;
-public sealed record ZhiyiRecipientChosenEvent(long FrameId, int RecipientSeat) : IGameEvent;
 public sealed record TangTangCompletedEvent(long FrameId, bool Applied) : IGameEvent;
 
 internal interface ITangTangHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
@@ -65,14 +55,6 @@ internal abstract class TangTangDescriptor(SkillProgramEffectOp op) : ProgramOpe
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new TangTangHandler(op);
-}
-internal sealed class ResolveZexingShownCardChainDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZexingShownCardChain) {
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.TangTang is { Paid: true };
-}
-internal sealed class ResolveZhiyiGainColorBenefitDescriptor() : TangTangDescriptor(SkillProgramEffectOp.ResolveZhiyiGainColorBenefit) {
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.TangTang is { Paid: true };
 }
 internal sealed class TangTangHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

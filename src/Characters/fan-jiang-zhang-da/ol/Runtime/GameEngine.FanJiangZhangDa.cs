@@ -4,13 +4,6 @@ public sealed partial class GameEngine
     private bool HasFanJiangZhangDaCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel);
     private bool JueshengSpent(int seat) => CompleteProgramEventHistory().OfType<JueshengSpentEvent>().Any(e => e.OwnerSeat == seat && e.SkillId == "ol:juesheng");
     private bool CanIssueJueshengDuel(int actor, int target) => CanIssueSelectedActorDuel(target, actor);
-    private bool HasYuanchouArmorBypass(long useId, int targetSeat)
-    {
-        if (!IsValidPlayerSeat(targetSeat) || LifecycleCardUse(useId) is not { Action: { Type: CardActionType.Use, EffectiveIsRed: false } action } use ||
-            !IsSlashCard(use.CardKind) || !IsSlashCard(action.EffectiveKind) || ActualTargetPolicyColor(action) != false || !use.TargetSeats.Contains(targetSeat) || action.ActorSeat != use.SourceSeat || action.ActorSeat == targetSeat) return false;
-        return HasCardPolicy(_players[action.ActorSeat], SkillProgramCardPolicyKind.BlackSlashIgnoresArmorBothDirections) ||
-            HasCardPolicy(_players[targetSeat], SkillProgramCardPolicyKind.BlackSlashIgnoresArmorBothDirections);
-    }
     [ProgramCapability] private sealed class FanJiangZhangDaCapability(GameEngine e) : IFanJiangZhangDaHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f) => e.BeginJuesheng(f); }
     [ProgramCapability] private sealed class JueshengSelectionQuery(GameEngine e) : IJueshengTargetQuery

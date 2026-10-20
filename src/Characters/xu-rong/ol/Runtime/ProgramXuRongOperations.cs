@@ -9,26 +9,6 @@ internal abstract class XuRongDescriptor:ProgramOperationDescriptorBase
  public override ISkillProgramEffectHandler Handler=>new XuRongHandler(Op);
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.Damage,static(e,c)=>c.Damage(new(SkillProgramEffectOp.Damage,SkillProgramEffectTarget.SelectedTarget,1,e.Condition)));
 }
-internal sealed class InitializeXionghuoPoolDescriptor:XuRongDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.InitializeXionghuoPool;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting)];
-}
-internal sealed class TransferXionghuoMarkDescriptor:XuRongDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.TransferXionghuoMark;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];
-}
-internal sealed class SettleXionghuoMarkedPlayDescriptor:XuRongDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.SettleXionghuoMarkedPlay;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
-}
-internal sealed class ReplenishShaJueAndClaimDyingCauseDescriptor:XuRongDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ReplenishShaJueAndClaimDyingCause;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.DyingEntering)];
-}
 internal sealed class XuRongHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
  public SkillProgramEffectOp Op=>op;

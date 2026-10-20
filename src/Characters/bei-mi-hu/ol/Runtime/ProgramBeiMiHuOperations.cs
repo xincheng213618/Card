@@ -34,25 +34,12 @@ public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public BeiMiHuReceipt? BeiMiHu {get;init;}
 }
-public sealed record BeiMiHuTargetMutation(long ProgramFrameId,long CardUseId,long ActionId,CardConversionSource Source,string GameplayHash,int Turn,string Kind)
-{
-    public CardActionContext OriginalAction {get;init;}=null!;
-    private IReadOnlyList<int> _before=Array.Empty<int>(),_after=Array.Empty<int>(),_paid=Array.Empty<int>();
-    public IReadOnlyList<int> BeforeTargets {get=>_before;init=>_before=Array.AsReadOnly(value.ToArray());}
-    public IReadOnlyList<int> AfterTargets {get=>_after;init=>_after=Array.AsReadOnly(value.ToArray());}
-    public IReadOnlyList<int> PaidMarkerSeats {get=>_paid;init=>_paid=Array.AsReadOnly(value.ToArray());}
-}
 public sealed partial record CardUseFrame
 {
     [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public BeiMiHuTargetMutation? BeiMiHuTargetMutation {get;init;}
 }
 public sealed record BeiMiHuChoiceStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,long ParentFrameId,int Turn,int Round,string Kind,IReadOnlyList<int> Candidates):IGameEvent;
 public sealed record BeiMiHuKuiPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long ParentFrameId,int Turn,int Round,string Kind,int TargetSeat,int Delta,int Remaining):IGameEvent;
-public sealed record BeiMiHuGujuDrawPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long DamageWindowId,long DamageParentId,int DamageTarget,int Turn,long Before,long After,int Actual):IGameEvent;
-public sealed record BeiMiHuAwakeningMaximumPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long ParentFrameId,int Turn,int CumulativeActualCards,int MaximumBefore,int MaximumAfter):IGameEvent;
-public sealed record BeiMiHuRecoveryIssuedEvent(long FrameId,int OwnerSeat,int Requested):IGameEvent;
-public sealed record BeiMiHuAwakeningCompletedEvent(long FrameId,int OwnerSeat,IReadOnlyList<int> MarkedSeats,string LostSkillId,string GrantedSkillId):IGameEvent;
-public sealed record BeiMiHuTargetsPaidEvent(BeiMiHuTargetMutation Receipt):IGameEvent;
 internal interface IBeiMiHuProgramHost
 {
     SkillProgramStepOutcome BeginBeiMiHuOperation(ProgramSkillFrame frame,SkillProgramEffectOp op);
@@ -70,24 +57,6 @@ internal abstract class BeiMiHuDescriptor(SkillProgramEffectOp op):ProgramOperat
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)=>ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect)=>[];
-}
-internal sealed class MarkUnmarkedOtherBeforeActualTurnDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.MarkUnmarkedOtherBeforeActualTurn)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnBeforeStart)];}
-internal sealed class MarkLowestHpUnmarkedOtherAtRoundStartDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.MarkLowestHpUnmarkedOtherAtRoundStart)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.RoundStarting)];}
-internal sealed class DrawAfterActualKuiDamageDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.DrawAfterActualKuiDamage)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];}
-internal sealed class AwakenFromActualGujuCardsDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.AwakenFromActualGujuCards)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];}
-internal sealed class ConsumeKuiCancelSoleIncomingTargetDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget)
-{
- public override ProgramContextCapability RequiredCapabilities=>ProgramContextCapability.CardAction;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];
-}
-internal sealed class ConsumeKuiAppendLegalTargetsDescriptor():BeiMiHuDescriptor(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets)
-{
- public override ProgramContextCapability RequiredCapabilities=>ProgramContextCapability.CardAction;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized),new RequireCardActionActor()];
 }
 internal static class BeiMiHuComposition
 {

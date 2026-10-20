@@ -19,48 +19,11 @@ internal abstract class ZhangShiPingDescriptor(SkillProgramEffectOp operation) :
         ? ProgramOperationInteraction.Automatic : ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
-internal sealed class ArmHongjiNextPhaseDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.ArmHongjiNextPhase)
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)]; }
-internal sealed class ResolveHongjiGrantedPhaseDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.ResolveHongjiGrantedPhase)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindows([SkillProgramTriggerWindow.DrawPhaseEnded, SkillProgramTriggerWindow.PlayEnding])];
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
-}
-internal sealed class InitializeXingGuMountPileDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.InitializeXingGuMountPile)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting)]; }
-internal sealed class PlaceXingGuMountAndObtainDiamondDescriptor() : ZhangShiPingDescriptor(SkillProgramEffectOp.PlaceXingGuMountAndObtainDiamond)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)]; }
-
-public enum HongjiStage { Choose, ExtraPhase, Returned }
-public sealed record ZhangShiPingHongjiReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    long ParentWindowId, int ActualTurn, int RecipientSeat, HongjiStage Stage, bool DrawEligible = false, bool PlayEligible = false,
-    TurnPhase Phase = TurnPhase.Draw, TurnPhase ReturnPhase = TurnPhase.Draw,
-    ActualDiscardRecoveryPhaseKey? ReturnActualPhase = null, ZhangShiPingHongjiGrantedEvent? Promise = null)
-{
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseSchedule? SuspendedSchedule { get; init; }
-    private readonly IReadOnlyList<DrawPhaseObligationFrame> _drawPhaseParents = Array.AsReadOnly(Array.Empty<DrawPhaseObligationFrame>());
-    public IReadOnlyList<DrawPhaseObligationFrame> DrawPhaseParents { get => _drawPhaseParents; init => _drawPhaseParents = Array.AsReadOnly(value.ToArray()); }
-}
-public enum XingGuStage { InitialChildren, Choose, PlacementChildren, DiamondChildren, Finished }
-public sealed record ZhangShiPingXingGuReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    long ParentWindowId, int ActualTurn, XingGuStage Stage, CardLocation PileLocation, int SequenceBefore = 0, int SequenceAfter = 0,
-    int? CardId = null, int? RecipientSeat = null, int? DiamondCardId = null);
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ZhangShiPingHongjiReceipt? ZhangShiPingHongji { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ZhangShiPingXingGuReceipt? ZhangShiPingXingGu { get; init; }
 }
-public sealed record ZhangShiPingHongjiGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, int RoundNumber, int RecipientSeat, TurnPhase Phase, long PreparationParentId) : IGameEvent;
-public sealed record ZhangShiPingHongjiConsumedEvent(long PromiseFrameId, long FrameId, CardConversionSource Source,
-    int ActualTurn, int RecipientSeat, TurnPhase Phase, long ParentWindowId) : IGameEvent;
-public sealed record ZhangShiPingHongjiReturnedEvent(long PromiseFrameId, long FrameId, int ActualTurn, int RecipientSeat, TurnPhase Phase) : IGameEvent;
-public sealed record ZhangShiPingXingGuStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, long ParentWindowId, bool Initial, CardLocation PileLocation) : IGameEvent;
-public sealed record ZhangShiPingXingGuCardStoredEvent(long FrameId, int CardId, int MovementSequence) : IGameEvent;
-public sealed record ZhangShiPingXingGuPlacementIssuedEvent(long FrameId, int CardId, int RecipientSeat, int SequenceBefore) : IGameEvent;
-public sealed record ZhangShiPingXingGuDiamondIssuedEvent(long FrameId, int OwnerSeat, int? CardId, int SequenceBefore, int SequenceAfter) : IGameEvent;
 
 internal static class ZhangShiPingComposition
 {

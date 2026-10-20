@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public sealed record YinjuTurnRelation(CardConversionSource Source,string GameplayHash,int ActualTurn,int TargetSeat,long ActivationFrameId);
 public sealed record XinPiMaterialInvoice(int CardId,CardMovementRecord Payment,long? PaymentBatchId,CardMovementRecord? Finished=null,long? FinishedBatchId=null);
 public sealed record XinPiUseOrigin(long UseId,CardActionContext Action,long Before)
 {
@@ -25,10 +24,6 @@ public sealed record XinPiReceipt(CardConversionSource Source,string GameplayHas
 public sealed record ChijieUsedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,string Branch,long UseId,long ActionId):IGameEvent;
 public sealed record ChijieUseInvalidatedEvent(ChijieInvalidationProof Proof):IGameEvent;
 public sealed record ChijieClaimPaidEvent(long FrameId,CardConversionSource Source,long UseId,long ActionId,long Before,long After,long BatchId,int Count):IGameEvent;
-public sealed record YinjuRelationArmedEvent(YinjuTurnRelation Relation):IGameEvent;
-public sealed record YinjuRecoveryPaidEvent(long FrameId,YinjuTurnRelation Relation,long WindowId,long DamageAttemptId,int SourceSeat,int TargetSeat,int Prevented,int RequestedRecovery,int HpBefore):IGameEvent;
-public sealed record YinjuUseDrawStartedEvent(long FrameId,YinjuTurnRelation Relation,long UseId,long ActionId,long WindowId):IGameEvent;
-public sealed record YinjuDrawPaidEvent(long FrameId,YinjuTurnRelation Relation,long UseId,long ActionId,int SubjectSeat,long Before,long After,int Actual):IGameEvent;
 public sealed partial class CharacterState
 {
  internal int? ChijieUsedActualTurn {get;set;}
@@ -61,11 +56,6 @@ internal abstract class XinPiDescriptor:ProgramOperationDescriptorBase
   _=>throw new InvalidOperationException("Unknown XinPi operation.")
  };
 }
-internal sealed class InvalidateRemainingActualDamageCardEffectsDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects;}
-internal sealed class ClaimCompletedUndamagedIncomingCardEntitiesDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities;}
-internal sealed class ArmYinjuActualTurnRelationDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmYinjuActualTurnRelation;}
-internal sealed class PreventYinjuDamageAndRecoverDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.PreventYinjuDamageAndRecover;}
-internal sealed class DrawBothAfterYinjuActualTargetUseDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawBothAfterYinjuActualTargetUse;}
 internal sealed class XinPiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
  public SkillProgramEffectOp Op=>op;

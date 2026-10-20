@@ -87,17 +87,6 @@ public sealed partial class GameEngine
             Array.AsReadOnly(candidates), ProgramLifecycleContinuation.ResumeYanPuDyingExit, facts[dying.VictimSeat]) { ParticipantFacts = facts, YanPuDyingExit = ret });
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>(); return true;
     }
-    private bool IsYanPuDyingExitContext(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>
-        GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance }] &&
-        context.Window == SkillProgramTriggerWindow.DyingExited && context.OwnerSeat == c.OwnerSeat &&
-        _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId) is
-            { Window: SkillProgramTriggerWindow.DyingExited, Continuation: ProgramLifecycleContinuation.ResumeYanPuDyingExit, YanPuDyingExit: { } ret } parent &&
-        ret.Round == _roundNumber && ret.Turn == _turnNumber && ret.TurnOwner == _currentSeat && parent.OwnerSeat == ret.VictimSeat &&
-        parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count && parent.Candidates[parent.CandidateIndex] == c &&
-        context.SourceSeat == ret.VictimSeat && context.TargetSeat == ret.VictimSeat && _players[ret.VictimSeat].IsAlive && _players[ret.VictimSeat].Hp > 0 &&
-        _resolutionStack.FindIndex(w => w.Id == parent.Id) is var index && index > 0 && _resolutionStack[index - 1].Id == ret.DyingParentFrameId &&
-        ProgramEventHistory<DyingResolvedEvent>().Count(e => e.ResolutionId == ret.DyingFrameId && e.VictimSeat == ret.VictimSeat && e.Survived) == 1 &&
-        !ProgramEventHistory<YanPuStartedEvent>().Any(e => e.Stage == YanPuStage.ExitDrawChildren && e.Source.OwnerSeat == c.OwnerSeat && e.Source.SkillId == c.SkillId);
     private void ReturnYanPuDyingExit(ProgramLifecycleTriggerWindowFrame frame)
     {
         var ret = frame.YanPuDyingExit ?? throw new InvalidOperationException("YanPu exit lost its original completed Dying return.");
@@ -107,9 +96,4 @@ public sealed partial class GameEngine
         if (TryBeginFactionRecoveryDebts(dying, true)) return;
         ContinueDyingAfterFactionRecoveryDebts(dying, true);
     }
-    [ProgramDistanceRule(ProgramDistanceStage.IncomingContributions, 20)]
-    private IEnumerable<RuleQueryContribution> YanPuIncomingDistanceContributions(int target) =>
-        ProgramEventHistory<YanPuRoundDistanceIssuedEvent>().Where(e => e.Round == _roundNumber && e.TargetSeat == target &&
-            _players[target].IsAlive && ProgramEventHistory<DyingResolvedEvent>().Any(d => d.ResolutionId == e.DyingFrameId && d.VictimSeat == target && d.Survived))
-        .Select(e => (RuleQueryContribution)new FiniteRuleQueryContribution($"yanpu-bihuo:{e.ProgramFrameId}", SkillRuleOperation.Add, _players.Count(p => p.IsAlive)));
 }

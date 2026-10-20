@@ -1,0 +1,3 @@
+namespace CardGame.Core;
+internal sealed class ArmXianfuRelationDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmXianfuRelation;}
+internal sealed class SettleXianfuNativeEchoDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.SettleXianfuNativeEcho;}

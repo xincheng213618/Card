@@ -10,12 +10,6 @@ internal abstract class WuJingDescriptor(SkillProgramEffectOp op) : ProgramOpera
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash ? SkillProgramTriggerWindow.DiscardPileReceived : SkillProgramTriggerWindow.CardUseCompleted)];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
 }
-internal sealed class UseHejiAtCompletedSingleTargetDescriptor() : WuJingDescriptor(SkillProgramEffectOp.UseHejiAtCompletedSingleTarget);
-internal sealed class ClaimLiubingUndamagingSlashDescriptor() : WuJingDescriptor(SkillProgramEffectOp.ClaimLiubingUndamagingSlash)
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-}
-internal sealed class RewardHejiUnconvertedUseDescriptor() : WuJingDescriptor(SkillProgramEffectOp.RewardHejiUnconvertedUse);
 internal sealed class WuJingHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -29,14 +23,6 @@ public sealed record WuJingUseSelection(CardKind Kind, bool Zhangba, bool UsesFa
     public IReadOnlyList<int> CardIds { get => _ids; init => _ids = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<CardConversionSource> Conversions { get => _sources; init => _sources = Array.AsReadOnly(value.ToArray()); }
 }
-public sealed record WuJingHejiOrigin(long ProgramFrameId, long UseId, long ActionId, long IncomingUseId, long IncomingActionId, CardConversionSource Source, string GameplayHash, int ActualTurn, int ActorSeat, int TargetSeat, CardKind Kind, bool RewardEligible)
-{
-    private IReadOnlyList<WuJingMaterial> _materials = []; private IReadOnlyList<CardConversionSource> _sources = [];
-    public IReadOnlyList<WuJingMaterial> Materials { get => _materials; init => _materials = Array.AsReadOnly(value.ToArray()); }
-    public IReadOnlyList<CardConversionSource> Conversions { get => _sources; init => _sources = Array.AsReadOnly(value.ToArray()); }
-}
-public sealed record WuJingHejiUseState(WuJingHejiOrigin Origin, bool Rewarded = false);
-public sealed record WuJingLiubingAppearance(long UseId, long ActionId, CardConversionSource Source, int ActualTurn, int TurnOwner, int ActorSeat, int CardId, CardKind Kind, Suit Suit);
 public sealed record WuJingReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Operation, long WindowId, int ActualTurn, WuJingStage Stage,
     long UseId, long ActionId, int TargetSeat, WuJingUseSelection? Selection = null, WuJingHejiOrigin? NativeOrigin = null, bool NativeCompleted = false,
     long Before = 0, long After = 0, int? RewardCardId = null)
@@ -56,14 +42,8 @@ public sealed partial record CardUseFrame
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public WuJingLiubingAppearance? WuJingLiubing { get; init; }
 }
 public sealed record WuJingActualPhysicalSlashEvent(long UseId, long ActionId, int ActualTurn, int TurnOwner, int ActorSeat, int CardId, CardKind Kind, int Ordinal) : IGameEvent;
-public sealed record WuJingLiubingAppearanceIssuedEvent(WuJingLiubingAppearance Receipt) : IGameEvent;
 public sealed record WuJingUseMaterialEvent(long UseId, long ActionId, int ActualTurn, long? PlayToken, int OriginalActor, int Index, int Count, int CardId, CardKind PrintedKind, CardLocation From, long Before) : IGameEvent;
-public sealed record WuJingLiubingSettledEvent(long UseId, long ActionId, long BatchId, long PlayToken, int FinalActor, int CardId, long MovementSequence) : IGameEvent;
 public sealed record WuJingStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Operation, long WindowId, int ActualTurn, long UseId, long ActionId, int TargetSeat) : IGameEvent;
-public sealed record WuJingHejiNativeIssuedEvent(long ProgramFrameId, long UseId, long ActionId, long IncomingUseId, long IncomingActionId, CardConversionSource Source, string GameplayHash, int ActualTurn, int ActorSeat, int TargetSeat, CardKind Kind, int MaterialCount, bool RewardEligible) : IGameEvent;
-public sealed record WuJingHejiMaterialIssuedEvent(long ProgramFrameId, long UseId, int Index, WuJingMaterial Material) : IGameEvent;
-public sealed record WuJingHejiPaidEvent(long ProgramFrameId, long UseId, long Before, long After) : IGameEvent;
-public sealed record WuJingHejiReturnedEvent(long ProgramFrameId, long UseId) : IGameEvent;
 public sealed record WuJingRewardIssuedEvent(long FrameId, long ProgramFrameId, long UseId, int? CardId, long Before, long After) : IGameEvent;
 public sealed record WuJingClaimIssuedEvent(long FrameId, long UseId, long ActionId, long BatchId, int Count, long Before, long After) : IGameEvent;
 public sealed record WuJingCompletedEvent(long FrameId, bool Applied) : IGameEvent;

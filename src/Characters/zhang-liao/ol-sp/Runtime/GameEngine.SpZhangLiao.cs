@@ -4,11 +4,6 @@ public sealed partial class GameEngine
 {
     private const string MubingReveal = "mubing-public-reveal";
     private CardConversionSource SpZhangLiaoSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private bool HasDiaolingAwakened(int seat) => ProgramEventHistory<DiaolingAwakenedEvent>().Any(e => e.OwnerSeat == seat);
-    private int MubingMilitaryCount(int seat) => ProgramEventHistory<MubingCardsAcquiredEvent>().Where(e => e.Source.OwnerSeat == seat).Sum(e => e.MilitaryCardCount);
-    private static bool IsMubingMilitaryCard(Card card) => IsSlashCard(card.Kind) ||
-        card.Kind is CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault ||
-        EquipmentCatalog.IsEquipment(card.Kind) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon;
 
     [ProgramCapability]
     private sealed class SpZhangLiaoCapability(GameEngine engine) : ISpZhangLiaoProgramHost
@@ -83,11 +78,6 @@ public sealed partial class GameEngine
             PublishSpZhangLiao(f); return;
         }
     }
-
-    private IReadOnlyList<int> MubingAvailableReveal(ProgramSkillFrame f) =>
-        GetProgramCardSet(f, MubingReveal).CardIds.Where(id => _cardZones.GetLocation(id) == CardLocation.Processing).ToArray();
-    private IReadOnlyList<int> MubingAvailableGifts(ProgramSkillFrame f) =>
-        f.SpZhangLiao!.Obtained.Where(id => _cardZones.GetLocation(id) == CardLocation.Hand(f.OwnerSeat)).ToArray();
 
     private IReadOnlyList<PromptChoice> SpZhangLiaoChoices(ProgramSkillFrame f)
     {

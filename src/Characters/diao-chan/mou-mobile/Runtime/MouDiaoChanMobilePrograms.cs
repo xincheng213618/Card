@@ -26,7 +26,6 @@ public sealed record MouDiaoChanMobileMovementEvent(long FrameId, int CardId, Ca
 public sealed record MouDiaoChanMobileDuelPlannedEvent(MouDiaoChanMobileRingOrigin Origin) : IGameEvent;
 public sealed record MouDiaoChanMobileDuelIssuedEvent(MouDiaoChanMobileRingOrigin Origin, long UseId, long ActionId) : IGameEvent;
 public sealed record MouDiaoChanMobileDuelReturnedEvent(long FrameId, int Index, long UseId) : IGameEvent;
-public sealed record MouDiaoChanMobileBiyueEvent(long FrameId, int TurnNumber, int DamagedRoles, int RequestedDraw) : IGameEvent;
 public sealed record MouDiaoChanMobileDrawReturnedEvent(long FrameId, int Requested, int Actual, int Replacement, long? AttemptId) : IGameEvent;
 internal interface IMouDiaoChanMobileHost { SkillProgramStepOutcome Start(ProgramSkillFrame frame, SkillProgramEffectOp op); }
 internal abstract class MouDiaoChanMobileDescriptor : ProgramOperationDescriptorBase
@@ -41,8 +40,6 @@ internal abstract class MouDiaoChanMobileDescriptor : ProgramOperationDescriptor
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => Op == SkillProgramEffectOp.ResolveMouDiaoChanBiyue
         ? [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)] : [];
 }
-internal sealed class MouDiaoChanLijianDescriptor : MouDiaoChanMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouDiaoChanLijian; }
-internal sealed class MouDiaoChanBiyueDescriptor : MouDiaoChanMobileDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouDiaoChanBiyue; }
 internal sealed class MouDiaoChanMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

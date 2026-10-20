@@ -6,15 +6,8 @@ public sealed partial class GameEngine
     private static bool IsBeiMiHuOp(SkillProgramEffectOp op)=>(int)op is >=23200 and <=23205;
     private static SkillProgramEffectOp? BeiMiHuOperation(SkillProgramTrigger t)=>t.Effects.Count==1 && IsBeiMiHuOp(t.Effects[0].Op)?t.Effects[0].Op:null;
     private CardConversionSource BeiMiHuSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
-    private int BeiMiHuActualCards(int owner)=>checked(CompleteProgramEventHistory().OfType<BeiMiHuGujuDrawPaidEvent>().Where(e=>e.Source.OwnerSeat==owner).Sum(e=>e.Actual));
     private int BeiMiHuRound=>CompleteProgramEventHistory().OfType<RoundStartedEvent>().LastOrDefault()?.RoundNumber??_roundNumber;
     private int BeiMiHuReceiptTurn(ProgramSkillFrame f)=>f.WindowContext?.BeforeTurnPreludeProof?.UpcomingTurnNumber??_turnNumber;
-    private int[] BeiMiHuUnmarkedOthers(int owner)=>_players.Where(p=>p.IsAlive && p.Seat!=owner && p.Markers.GetValueOrDefault(PlayerMarkerKind.Kui)==0).Select(p=>p.Seat).ToArray();
-    private int[] BeiMiHuLowestUnmarkedOthers(int owner)
-    {
-        var eligible=BeiMiHuUnmarkedOthers(owner).Where(s=>_players[s].HasHpValue).ToArray();if(eligible.Length==0)return [];
-        var hp=eligible.Min(s=>_players[s].Hp);return eligible.Where(s=>_players[s].Hp==hp).ToArray();
-    }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 390)]
     private bool CanOfferBeiMiHuLifecycle(int owner,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
     {
@@ -27,8 +20,6 @@ public sealed partial class GameEngine
             _players[owner].HasHpValue && BeiMiHuActualCards(owner)>=7;
         return true;
     }
-    private bool CanDrawAfterKuiDamage(int owner,SkillProgramTrigger trigger,int target)=>BeiMiHuOperation(trigger)!=SkillProgramEffectOp.DrawAfterActualKuiDamage ||
-        IsValidPlayerSeat(target) && _players[target].Markers.GetValueOrDefault(PlayerMarkerKind.Kui)>0;
     private bool ExactBeiMiHuLifecycleParent(ProgramSkillFrame f)
     {
         var c=f.WindowContext;return f.TriggerId is not null && c is not null && f.InstructionIndex==1 && _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(p=>p.Id==c.ParentFrameId) is{}p &&
@@ -50,40 +41,11 @@ public sealed partial class GameEngine
             _=>BeginBeiMiHuCardTargets(f,op)
         };
     }
-    private SkillProgramStepOutcome BeginBeiMiHuMark(ProgramSkillFrame f,SkillProgramEffectOp op)
-    {
-        if(!ExactBeiMiHuLifecycleParent(f) || !CanOfferBeiMiHuLifecycle(f.OwnerSeat,GetProgramTrigger(f),f.WindowContext!))throw new InvalidOperationException("Zongkui lost its actual own prelude or first-round boundary.");
-        var kind=op==SkillProgramEffectOp.MarkLowestHpUnmarkedOtherAtRoundStart?"round":"before-turn";
-        var candidates=kind=="round"?BeiMiHuLowestUnmarkedOthers(f.OwnerSeat):BeiMiHuUnmarkedOthers(f.OwnerSeat);
-        var r=NewBeiMiHuReceipt(f,kind+"-choice") with{Candidates=candidates};ReplaceRuntimeTop(f=f with{BeiMiHu=r});
-        AdvanceEventRulesAndQueueFact(new BeiMiHuChoiceStartedEvent(f.Id,r.Source,r.GameplayHash,r.ParentFrameId,r.Turn,r.Round,kind,r.Candidates));PublishBeiMiHuChoice(f);return SkillProgramStepOutcome.AwaitChoice;
-    }
     private void PayBeiMiHuKui(ProgramSkillFrame f,int target,int delta,string kind)
     {
         var r=f.BeiMiHu!;var old=_players[target].Markers.GetValueOrDefault(PlayerMarkerKind.Kui);if(delta==1?old!=0:old!=1)throw new InvalidOperationException("The accepted public binary Kui payment changed.");
         SetStrategicMarker(target,PlayerMarkerKind.Kui,f.OwnerSeat,old+delta,f);
         AdvanceEventRulesAndQueueFact(new BeiMiHuKuiPaidEvent(f.Id,r.Source,r.GameplayHash,r.ParentFrameId,r.Turn,r.Round,kind,target,delta,old+delta));
-    }
-    private SkillProgramStepOutcome BeginBeiMiHuGuju(ProgramSkillFrame f)
-    {
-        var c=f.WindowContext;var index=_resolutionStack.FindIndex(x=>x.Id==f.Id);
-        if(c is not{Window:SkillProgramTriggerWindow.AfterDamageApplied,Amount:>0,DamageFrameId:{}damage} || index<1 ||
-            _resolutionStack[index-1] is not DamageTriggerWindowFrame p || p.Id!=c.ParentFrameId || p.ParentFrameId!=damage || p.CandidateIndex<0 || p.CandidateIndex>=p.Candidates.Count ||
-            !MountObserverCandidateMatches(f,p.Candidates[p.CandidateIndex].ToProgramCandidate()) || !CanDrawAfterKuiDamage(f.OwnerSeat,GetProgramTrigger(f),p.TargetSeat) ||
-            CompleteProgramEventHistory().OfType<BeiMiHuGujuDrawPaidEvent>().Any(e=>e.DamageWindowId==p.Id && e.Source.OwnerSeat==f.OwnerSeat))throw new InvalidOperationException("Guju lost one actual applied damage on a public marked recipient.");
-        var before=_movementSequence;var r=NewBeiMiHuReceipt(f,"draw-children") with{DamageParent=damage,DamageTarget=p.TargetSeat,Before=before,After=before};
-        ReplaceRuntimeTop(f=f with{BeiMiHu=r,PendingMovementContinuation=new(f.OwnerSeat,0,null)});DrawProgramCards(f.Id,f.OwnerSeat,1,null,null,SkillProgramCardSetVisibility.Private,new(BeiMiHuDrawReason));
-        f=GetActiveProgramFrame(f.Id);var actual=_cardMovements.Count(m=>m.Sequence>before && m.Sequence<=_movementSequence && m.From==CardLocation.DrawPile && m.To==CardLocation.Hand(f.OwnerSeat) && m.Reason.Value==BeiMiHuDrawReason);
-        ReplaceRuntimeTop(f=f with{BeiMiHu=r with{After=_movementSequence,ActualDraw=actual}});
-        AdvanceEventRulesAndQueueFact(new BeiMiHuGujuDrawPaidEvent(f.Id,r.Source,r.GameplayHash,p.Id,damage,p.TargetSeat,r.Turn,before,_movementSequence,actual));
-        if(!TryBeginCardsMovedProgramWindow(f.Id))ReturnRuntimeProgramMovement(f.Id);return SkillProgramStepOutcome.AwaitChild;
-    }
-    private SkillProgramStepOutcome BeginBeiMiHuAwakening(ProgramSkillFrame f)
-    {
-        if(!ExactBeiMiHuLifecycleParent(f) || !CanOfferBeiMiHuLifecycle(f.OwnerSeat,GetProgramTrigger(f),f.WindowContext!))throw new InvalidOperationException("Baijia lost its own preparation or actual seven acquired cards.");
-        var owner=_players[f.OwnerSeat];var r=NewBeiMiHuReceipt(f,"maximum-children") with{CumulativeDraw=BeiMiHuActualCards(f.OwnerSeat),MaximumBefore=owner.MaxHp,MaximumAfter=checked(owner.MaxHp+1)};
-        ReplaceRuntimeTop(f=f with{BeiMiHu=r});ChangeProgramMaximumHp(f,1);
-        AdvanceEventRulesAndQueueFact(new BeiMiHuAwakeningMaximumPaidEvent(f.Id,r.Source,r.GameplayHash,r.ParentFrameId,r.Turn,r.CumulativeDraw,r.MaximumBefore,r.MaximumAfter));AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
     }
     private IReadOnlyList<PromptChoice> BeiMiHuChoices(ProgramSkillFrame f)
     {
@@ -141,14 +103,6 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new BeiMiHuAwakeningCompletedEvent(f.Id,f.OwnerSeat,targets,"ol:guju","ol:canshi"));AdvanceRuntimeProgram(f.Id);return true;
         }
         FinishBeiMiHu(f);return true;
-    }
-    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 170)]
-    private bool IsBeiMiHuMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation pending)=>effect?.Op==SkillProgramEffectOp.DrawAfterActualKuiDamage && f.BeiMiHu is{Stage:"draw-children"} && pending.SubjectSeat==f.OwnerSeat && pending.BeforeCount==0 && pending.CoverageResultBind is null;
-    [ProgramContinuation(ProgramContinuationKind.Movement,23202)]
-    private bool ReturnBeiMiHuMovement(ProgramSkillFrame f)
-    {
-        if(f.BeiMiHu is null)return false;if(f.PendingMovementContinuation is not{}p || !IsBeiMiHuMovement(f,BeiMiHuPausedEffect(f),p))throw new InvalidOperationException("Guju received a foreign movement return.");
-        AssertBeiMiHu(f);if(GainGiftHasFinalGameEnd() || TryDrainFireTargetMovement(f))return true;FinishBeiMiHu(f);return true;
     }
     private void FinishBeiMiHu(ProgramSkillFrame f){ReplaceRuntimeTop(f=f with{BeiMiHu=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
     [ProgramCapability]

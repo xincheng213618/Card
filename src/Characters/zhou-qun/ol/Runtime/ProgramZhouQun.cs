@@ -34,20 +34,10 @@ public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ZhouQunReceipt? ZhouQun { get; init; } }
 
 public sealed record ZhouQunStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner) : IGameEvent;
-public sealed record ChenshuoHandShownEvent(long FrameId, int Index, ZhouQunShownCard Card) : IGameEvent;
-public sealed record ChenshuoTopRevealedEvent(long FrameId, int Index, int CardId, CardKind Kind, Suit Suit, int Rank, int NameLength, bool Matched) : IGameEvent;
 public sealed record ZhouQunMoveIssuedEvent(long FrameId, int Step, ZhouQunStage Stage, long Before, long After) : IGameEvent;
 public sealed record ZhouQunMovedEvent(long FrameId, int Step, long BatchId, int CardId, CardLocation From, CardLocation To, CardMoveReason Reason, long Sequence) : IGameEvent;
-public sealed record TianhouInvokedEvent(long FrameId, CardConversionSource Source, string GameplayHash) : IGameEvent;
-public sealed record TianhouViewedEvent(long FrameId, int Index, int CardId) : IGameEvent;
-public sealed record TianhouCardShownEvent(long FrameId, int OwnerSeat, int CardId, Suit Suit) : IGameEvent;
-public sealed record TianhouWeatherGrantedEvent(long FrameId, CardConversionSource Source, int RecipientSeat, string SkillId, string GrantId, string SkillInstanceId, string GrantSourceId) : IGameEvent;
-public sealed record TianhouWeatherExpiredEvent(long FrameId, long OriginalFrameId, int RecipientSeat, string GrantId) : IGameEvent;
 public sealed record ZhouQunHpTargetEvent(long FrameId, int Index, int TargetSeat) : IGameEvent;
 public sealed record ZhouQunHpPaidEvent(long FrameId, int Index, int TargetSeat, int Amount, int RemainingHp) : IGameEvent;
-public sealed record NingwuJudgmentIssuedEvent(long FrameId, long JudgmentId, long UseId, long ActionId, int ActorSeat, int TargetSeat, int? SlashRank) : IGameEvent;
-public sealed record NingwuJudgmentReturnedEvent(long FrameId, long JudgmentId, int? CardId, int? Rank) : IGameEvent;
-public sealed record NingwuUseNullifiedEvent(long FrameId, long UseId, long ActionId, long JudgmentId, int ActorSeat, int TargetSeat, int SlashRank, int JudgmentRank) : IGameEvent;
 public sealed record ZhouQunCompletedEvent(long FrameId, bool Applied) : IGameEvent;
 
 internal interface IZhouQunHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
@@ -59,24 +49,6 @@ internal abstract class ZhouQunDescriptor(SkillProgramEffectOp op) : ProgramOper
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new ZhouQunHandler(op);
-}
-internal sealed class ChenshuoDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveChenshuoRepeatedReveal){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
-}
-internal sealed class TianhouDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveTianhouTopExchangeAndGrant){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
-}
-internal sealed class LieshuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveLieshuEndingLoss){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
-}
-internal sealed class NingwuDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveNingwuSingletonSlashJudgment){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
-}
-internal sealed class ZhouyuNeighborsDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveZhouyuThunderNeighbors){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
-}
-internal sealed class YanshuangDescriptor() : ZhouQunDescriptor(SkillProgramEffectOp.ResolveYanshuangEndingLoss){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.ZhouQun is { Paid: true };
 }
 internal sealed class ZhouQunHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

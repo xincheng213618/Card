@@ -29,25 +29,10 @@ public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public XieLingYuReceipt? XieLingYu { get; init; }
 }
-
-// History carries scalar proofs; all private selections remain on the owning program.
-public sealed record YuandiDiscardEnteredEvent(long BatchId, int ActualTurn, int TurnOwner, long MovementSequence,
-    int CardId, CardKind PrintedKind, CardKind Name, bool FromTrueUse) : IGameEvent;
-public sealed record YuandiOpportunityEvent(long BatchId, int OwnerSeat, string SkillInstanceId, string GameplayHash,
-    int ActualTurn, int TurnOwner, long CompletionSequence, int NamesMask, bool NonUse, int OccurrenceIndex) : IGameEvent;
-public sealed record YuandiPaidEvent(long FrameId, int OwnerSeat, long BatchId, int ActualTurn, int TurnOwner,
-    long CompletionSequence, int NamesMask, bool NonUse) : IGameEvent;
-public sealed record YuandiNameRemovedEvent(long FrameId, int OwnerSeat, CardKind Name, int BeforeMask, int AfterMask) : IGameEvent;
 public sealed record XieLingYuStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
     SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner, long PhaseToken) : IGameEvent;
-public sealed record XinyouMaterialFrozenEvent(long FrameId, int Index, int CardId, CardKind PrintedKind, CardKind BasicName) : IGameEvent;
-public sealed record XinyouPaidEvent(long FrameId, int OwnerSeat, int ActualTurn, int TurnOwner, long PhaseToken,
-    int NamesMask, int MaterialCount, long Before, long After) : IGameEvent;
-public sealed record XinyouMaterialDiscardedEvent(long FrameId, int Index, int CardId, long MovementSequence) : IGameEvent;
 public sealed record XieLingYuDrawReturnedEvent(long FrameId, int Request, int ActualCount, int ReplacementCount,
     long Before, long After, long? AttemptId, bool Stop) : IGameEvent;
-public sealed record XinyouGainedEntityEvent(long FrameId, int Request, int Index, int OwnerSeat, int ActualTurn,
-    int TurnOwner, int CardId, CardKind PrintedKind, long MovementSequence, bool Replacement) : IGameEvent;
 public sealed record XieLingYuCompletedEvent(long FrameId, bool Paid, int Requests) : IGameEvent;
 
 internal interface IXieLingYuHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
@@ -59,16 +44,6 @@ internal abstract class XieLingYuDescriptor(SkillProgramEffectOp op) : ProgramOp
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new XieLingYuHandler(op);
-}
-internal sealed class ResolveYuandiDiscardNamesDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveYuandiDiscardNames) {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.XieLingYu is { Paid: true } || context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class ResolveXinyouBasicCycleDescriptor() : XieLingYuDescriptor(SkillProgramEffectOp.ResolveXinyouBasicCycle) {
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.XieLingYu is { Paid: true };
 }
 internal sealed class XieLingYuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

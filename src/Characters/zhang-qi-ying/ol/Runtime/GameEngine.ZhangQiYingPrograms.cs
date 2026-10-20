@@ -4,21 +4,6 @@ public sealed partial class GameEngine
  private static readonly PlayerMarkerKind[] FaluTokens=[PlayerMarkerKind.Ziwei,PlayerMarkerKind.Houtu,PlayerMarkerKind.Yuqing,PlayerMarkerKind.Gouchen];
  private const string ZhenyiGainReason="skill-program.zhenyi.three-categories";
  private static CardConversionSource ZhangQiYingSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
- private int FaluTokenCount(int owner)=>FaluTokens.Count(m=>_players[owner].Markers.GetValueOrDefault(m)>0);
- private CardLocation? FaluDiscardOwnedSource(CardMovementRecord movement)
- {
-  if(movement.To!=CardLocation.DiscardPile)return null;
-  var origin=GetProgramDiscardSource(movement);
-  if(origin is{OwnerSeat:not null,Zone:CardZoneKind.Hand or CardZoneKind.Equipment})return origin;
-  return movement.From is{OwnerSeat:not null,Zone:CardZoneKind.WoodenOxGrain}&&IsDiscardMovementReason(movement.Reason)?movement.From:null;
- }
- private void SetFaluToken(ProgramSkillFrame f,PlayerMarkerKind marker,int value,string reason)
- {
-  var owner=_players[f.OwnerSeat];var before=owner.Markers.GetValueOrDefault(marker);if(value is <0 or >1||before is <0 or >1)throw new InvalidOperationException("Falu tokens are binary.");
-  if(before==value)return;if(value==0)owner.Markers.Remove(marker);else owner.Markers[marker]=value;
-  AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(f.Id,f.OwnerSeat,marker,value-before,value,f.OwnerSeat,"falu."+reason));
-  AdvanceEventRulesAndQueueFact(new FaluTokenChangedEvent(f.Id,f.OwnerSeat,marker,before,value,reason));
- }
  [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 480)]
  private bool CanOfferZhangQiYing(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {
@@ -58,18 +43,6 @@ public sealed partial class GameEngine
    f=GetActiveProgramFrame(f.Id);r=f.ZhangQiYing!with{After=_movementSequence};ReplaceRuntimeTop(f with{ZhangQiYing=r});AdvanceEventRulesAndQueueFact(new ZhenyiDeckGainPaidEvent(f.Id,r.Source,r.GameplayHash,r.Before,r.After,cards.Length));return SkillProgramStepOutcome.AwaitChoice;
   }
   throw new InvalidOperationException("Unknown Zhang Qi Ying operation.");
- }
- private IReadOnlyList<PromptChoice> ZhenyiJudgmentChoices(ProgramSkillFrame f)=>Array.AsReadOnly(new[]{Suit.Spade,Suit.Heart}.Select(s=>new PromptChoice(new($"zhenyi.{f.Id}.{s}"),s==Suit.Spade?"黑桃5":"红桃5",[],[],new Dictionary<string,string>{{"program-action","zhenyi-judgment"},{"suit",s.ToString()}})).ToArray());
- private void PublishZhenyiJudgment(ProgramSkillFrame f)
- {
-  ReplaceRuntimeTop(f with{Step=ResolutionFrameStep.AwaitingResponse});_pendingDecision=new(DecisionKind.ProgramTrigger,f.OwnerSeat,"将实际判定结果改为黑桃5或红桃5",[],[],f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=false,Choices=ZhenyiJudgmentChoices(f)};_status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
- }
- [ProgramAiChoice(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei)] private PromptChoice ZhenyiAiJudgment(ProgramSkillFrame f)=>ZhenyiJudgmentChoices(f).First();
- [ProgramAnswer("zhenyi-judgment")] private void ResolveZhenyiJudgment(PromptChoice choice)
- {
-  if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{ZhangQiYing:{Stage:"judgment-choice"}}f||_pendingDecision?.PlayerSeat!=f.OwnerSeat||!AssistedChoicesEqual([choice],ZhenyiJudgmentChoices(f).Where(c=>c.Id==choice.Id).ToArray()))throw new InvalidOperationException("Zhenyi judgment lost its exact actual chooser.");
-  AssertZhangQiYing(f);var j=f.WindowContext!.Judgment!;var pending=ActiveJudgment!;if(pending.Id!=j.JudgmentFrameId||GetJudgmentCard(pending)?.Id!=j.CardId||_players[f.OwnerSeat].Markers.GetValueOrDefault(PlayerMarkerKind.Ziwei)!=1)throw new InvalidOperationException("Zhenyi judgment source/result changed before payment.");
-  var receipt=new ZhenyiJudgmentOverride(f.Id,pending.Id,ZhangQiYingSource(f),f.GameplayHash,j.CardId,Enum.Parse<Suit>(choice.Parameters["suit"]),5);ClearPendingDecision();SetFaluToken(f,PlayerMarkerKind.Ziwei,0,"ziwei");ReplaceRuntimeFrame(pending.Id,pending with{ZhenyiOverride=receipt,Suit=receipt.Suit});AdvanceEventRulesAndQueueFact(new ZhenyiJudgmentOverriddenEvent(receipt));ReplaceRuntimeTop(f=f with{ZhangQiYing=null});FinishProgramSkill(f,true);
  }
  [ProgramCapability]
  private sealed class ZhangQiYingProgramCapability(GameEngine engine) : IZhangQiYingProgramHost

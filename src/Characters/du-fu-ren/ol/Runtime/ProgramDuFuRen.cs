@@ -27,23 +27,8 @@ public sealed partial record JudgmentFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DuFuRenDamageReceipt? DuFuRenDamage { get; init; }
 }
-public sealed record DuFuRenDamageReceipt(long AttackId, int ChainCursor, int TargetSeat, int InheritedAmount,
-    IReadOnlyList<long> GrantIds, int? TransferredTargetSeat = null, long? TransferWindowId = null)
-{
-    private readonly IReadOnlyList<long> _grantIds = Array.AsReadOnly(GrantIds.ToArray());
-    public IReadOnlyList<long> GrantIds { get => _grantIds; init => _grantIds = Array.AsReadOnly(value.ToArray()); }
-}
 public sealed record DuFuRenStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
     long WindowId, int Turn, int TurnOwner, DuFuRenStage Stage, long? DamageFrameId, long? BatchId) : IGameEvent;
-public sealed record DuFuRenGiftIssuedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int Turn, int TurnOwner, int RecipientSeat, int CardId, CardLocation From, long MovementSequence) : IGameEvent;
-public sealed record DuFuRenBlackIssuedEvent(long FrameId, CardConversionSource Source, long BatchId, int RecipientSeat) : IGameEvent;
-public sealed record DuFuRenBlackConsumedEvent(long GrantId, long AttackId, long DamageFrameId, int TargetSeat, int ChainCursor) : IGameEvent;
-public sealed record DuFuRenDamageIssuedEvent(long AttackId, int TargetSeat, int ChainCursor, int InheritedAmount, int Bonus) : IGameEvent;
-public sealed record DuFuRenDamageRebasedEvent(long AttackId, int TargetSeat, int ChainCursor, int InheritedAmount) : IGameEvent;
-public sealed record DuFuRenDamageTransferredEvent(long AttackId, int OriginalTargetSeat, int TargetSeat, int ChainCursor, long WindowId, int Amount) : IGameEvent;
-public sealed record DuFuRenPhaseIssuedEvent(long GrantId, ActualDiscardRecoveryPhaseKey Phase) : IGameEvent;
-public sealed record DuFuRenPhaseConfirmedEvent(ActualDiscardRecoveryPhaseKey Phase) : IGameEvent;
 public sealed record DuFuRenCompletedEvent(long FrameId, bool Applied) : IGameEvent;
 
 internal interface IDuFuRenHost { SkillProgramStepOutcome Execute(ProgramSkillFrame frame, SkillProgramEffectOp operation); }
@@ -54,17 +39,6 @@ internal abstract class DuFuRenDescriptor(SkillProgramEffectOp operation) : Prog
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(3));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
-}
-internal sealed class ResolveYiseOwnedGainDescriptor() : DuFuRenDescriptor(SkillProgramEffectOp.ResolveYiseOwnedGain)
-{
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
-}
-internal sealed class GiveForNextActualPhasesDescriptor() : DuFuRenDescriptor(SkillProgramEffectOp.GiveForNextActualPhases)
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
-        [new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,SkillProgramTriggerWindow.AfterDamageApplied])];
 }
 internal sealed class DuFuRenHandler(SkillProgramEffectOp operation) : ISkillProgramEffectHandler
 {

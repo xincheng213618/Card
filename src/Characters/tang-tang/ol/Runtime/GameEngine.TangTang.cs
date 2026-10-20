@@ -6,19 +6,10 @@ public sealed partial class GameEngine
 {
     private const string ZexingTakeReason = "skill-program.tang-tang.zexing.take", ZexingGiftReason = "skill-program.tang-tang.zexing.gift", ZhiyiDrawReason = "skill-program.tang-tang.zhiyi.draw";
     private static CardConversionSource TangTangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private bool ZexingVisited(int owner, int peer) => ProgramEventHistory<ZexingPeerChosenEvent>().Any(e => e.OwnerSeat == owner && e.Peer == peer && e.ActualTurn == _turnNumber && e.TurnOwner == _turnProgression.OwnerSeat);
     private IReadOnlyList<Card> TangTangTransferCards(int chooser, int holder) => GetHand(_players[holder]).Concat(GetEquipment(holder)).Where(c =>
         !c.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(chooser, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Transfer)).ToArray();
     private TangTangEntity TangTangEntityAt(int holder, int id)
     { var c = GetAdvancedCard(id); return new(id, c.Kind, _cardZones.GetLocation(id), GetProgramEffectiveSuit(_players[holder], c)); }
-    private bool ZexingShownStillOwned(ProgramSkillFrame f) => f.TangTang?.Shown is { } card && TangTangTransferCards(f.OwnerSeat, f.OwnerSeat).Any(c => c.Id == card.CardId);
-    private IReadOnlyList<TangTangEntity> ZexingTakeCandidates(ProgramSkillFrame f) => f.TangTang is { Shown: { } shown, Peer: >= 0 } r ?
-        TangTangTransferCards(f.OwnerSeat, r.Peer).Where(c => GetProgramEffectiveSuit(_players[r.Peer], c) != shown.Suit).Select(c => TangTangEntityAt(r.Peer, c.Id)).ToArray() : [];
-    private bool ZexingTakeAllowed(ProgramSkillFrame f) => f.TangTang is { Peer: >= 0 } r && _players[f.OwnerSeat].IsAlive && _players[r.Peer].IsAlive && GetHand(_players[r.Peer]).Count >= 2 && ZexingTakeCandidates(f).Count >= 2;
-    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 27530, SkillProgramEffectOp.ResolveZexingShownCardChain)]
-    private bool CanActivateZexing(ProgramActivationLegalityContext c) => c.Owner.IsAlive && _phase == TurnPhase.Play && c.OwnerSeat == _currentSeat &&
-        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && phase.ActorSeat == c.OwnerSeat && IsRecordedActualDiscardRecoveryPhase(phase) &&
-        TangTangTransferCards(c.OwnerSeat, c.OwnerSeat).Count > 0 && _players.Any(p => p.IsAlive && p.Seat != c.OwnerSeat && !ZexingVisited(c.OwnerSeat, p.Seat));
 
     [ProgramCapability]
     private sealed class TangTangCapability(GameEngine engine) : ITangTangHost
@@ -197,13 +188,6 @@ public sealed partial class GameEngine
     { if (f.TangTang is null) return false; ContinueTangTang(f.Id); return true; }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27530)] [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27530)]
     private bool ContinuePaidTangTang(ProgramSkillFrame f) { if (f.TangTang is not { Paid: true }) return false; AssertTangTang(f); return true; }
-    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 27530)]
-    private void CaptureZexingHpLoss(ProgramSkillHpLostEvent e)
-    {
-        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { TangTang: { Stage: TangTangStage.HpIssuing, Paid: true } r } f || e.FrameId != f.Id || e.SkillId != f.SkillId || e.TargetSeat != r.Peer || e.Amount != 1) return;
-        ReplaceRuntimeTop(f with { TangTang = r with { Stage = TangTangStage.HpChildren } });
-        AdvanceEventRulesAndQueueFact(new ZexingHpLossIssuedEvent(f.Id, r.Peer, e.RemainingHp + e.Amount, e.RemainingHp));
-    }
     [ProgramAiChoice(SkillProgramEffectOp.ResolveZexingShownCardChain, SkillProgramEffectOp.ResolveZhiyiGainColorBenefit)]
     private PromptChoice TangTangAi(PendingDecision p, ProgramSkillFrame f) => f.TangTang?.Stage == TangTangStage.PeerOption ? p.Choices.First() : p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") is not ("decline" or "unpick")) ?? p.Choices.Last();
 }

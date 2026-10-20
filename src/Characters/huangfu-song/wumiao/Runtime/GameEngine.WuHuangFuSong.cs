@@ -9,26 +9,6 @@ public sealed partial class GameEngine
     private WuHuangFuSongTurn WuHfTurn() => new(_turnNumber, _currentSeat);
     private bool WuHfTurnOpen(WuHuangFuSongTurn t) => t == WuHfTurn() && !ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e => e.ActualTurn == t.Number && e.OwnerSeat == t.OwnerSeat);
     private static CardConversionSource WuHfSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private (Card Card, CardLocation From)[] WuHfMinimumPool()
-    {
-        var locations = _players.Where(p => p.IsAlive).SelectMany(p => new[] { CardLocation.Equipment(p.Seat), CardLocation.Judgment(p.Seat) }).Append(CardLocation.DrawPile);
-        var all = locations.SelectMany(loc => _cardZones.CardsAt(loc).Where(c => c.Rank > 0).Select(c => (Card: c, From: loc))).ToArray();
-        if (all.Length == 0) return [];
-        var rank = all.Min(x => x.Card.Rank);
-        return all.Where(x => x.Card.Rank == rank && x.From != CardLocation.DrawPile)
-            .Concat(all.Where(x => x.Card.Rank == rank && x.From == CardLocation.DrawPile).TakeLast(1)).ToArray();
-    }
-    private bool WuHfChaozhenAvailable(int owner) => !ProgramEventHistory<WuHuangFuSongChaozhenDisabledEvent>().Any(e => e.OwnerSeat == owner && e.Turn == WuHfTurn()) && WuHfMinimumPool().Length > 0;
-    private bool WuHfVictimAvailable(int owner, int target) => _players[target].IsAlive && GetHand(_players[target]).Count > 0 &&
-        !ProgramEventHistory<WuHuangFuSongBottomPaidEvent>().Any(e => e.OwnerSeat == owner && e.TargetSeat == target && e.Turn == WuHfTurn());
-    private CardUseFrame? WuHfLianjieUse(int owner, ProgramSkillWindowContext c)
-    {
-        if (c.Window != SkillProgramTriggerWindow.CardUseTargetsFinalized || c.CardUse is not { } identity || identity.ActorSeat != owner ||
-            LifecycleCardUse(identity.ParentCardUseFrameId) is not { WuHuangFuSongUse: { HandUse: true, EffectiveRank: { } rank } r, Action: { } a } use ||
-            use.Id != r.UseId || a.ActionId != identity.CardActionId || a.ActorSeat != owner || a.ProviderSeat != owner || !WuHfTurnOpen(r.Turn) ||
-            a.EffectiveDesignatedTargetSeats.Count == 0 || !GetHand(_players[owner]).Where(card => !a.PhysicalCards.Any(cost => cost.CardId == card.Id)).All(card => rank <= EffectiveOwnedCardRank(_players[owner], card))) return null;
-        return _players.Any(p => WuHfVictimAvailable(owner, p.Seat)) ? use : null;
-    }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 30000, SkillProgramEffectOp.ResolveWuHuangFuSongChaozhen, SkillProgramEffectOp.ResolveWuHuangFuSongLianjie, SkillProgramEffectOp.SettleWuHuangFuSongJiangxian)]
     private bool CanOfferWuHuangFuSong(ProgramTriggerCandidate candidate, SkillProgramTrigger t, ProgramSkillWindowContext c)
     {

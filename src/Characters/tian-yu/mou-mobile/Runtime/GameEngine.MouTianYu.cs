@@ -7,8 +7,6 @@ public sealed partial class GameEngine
     private bool HasMouTianYu => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouTianYuYangshi) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouTianYuZhenxi);
     private int MouTianYuActualTurn => ProgramEventHistory<TurnStartedEvent>().Count();
-    private int MouTianYuRangeBonus(CharacterState p) => HasMouTianYu && p.IsAlive
-        ? ProgramEventHistory<MouTianYuRangeIncreasedEvent>().Count(e => e.OwnerSeat == p.Seat) : 0;
     private static CardConversionSource MouTianYuSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private static bool IsMouTianYuTargetTrigger(SkillProgramTrigger t) => t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveMouTianYuZhenxi);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 30600, SkillProgramEffectOp.ResolveMouTianYuZhenxi, SkillProgramEffectOp.ResolveMouTianYuYangshi)]
@@ -171,9 +169,5 @@ public sealed partial class GameEngine
     }
     [ProgramCapability] private sealed class MouTianYuCapability(GameEngine e) : IMouTianYuHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => e.BeginMouTianYu(f, op); }
-
-    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 30)]
-    private void AddMouTianYuRangeBonusAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
-        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-tian-yu:yangshi:attack-range", MouTianYuRangeBonus(player));
 
 }

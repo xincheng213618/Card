@@ -21,7 +21,6 @@ public sealed record MouZhouYuMobileReceipt(CardConversionSource Source, string 
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MouZhouYuMobileReceipt? MouZhouYuMobile { get; init; } }
-public sealed record MouZhouYuMobileYingziIssuedEvent(long FrameId, CardConversionSource Source, MouZhouYuMobileTurn Turn, bool Hand, bool Hp, bool Equipment, int Count) : IGameEvent;
 public sealed record MouZhouYuMobileStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, MouZhouYuMobileTurn Turn, ActualDiscardRecoveryPhaseKey Phase, int TargetSeat) : IGameEvent;
 public sealed record MouZhouYuMobileCoveredEvent(long FrameId, int CardId, CardKind PrintedKind, Suit ActualSuit, Suit DeclaredSuit, CardLocation From, CardLocation To, long Sequence) : IGameEvent;
 public sealed record MouZhouYuMobileAnsweredEvent(long FrameId, int TargetSeat, string Answer) : IGameEvent;
@@ -39,14 +38,6 @@ internal abstract class MouZhouYuMobileDescriptor : ProgramOperationDescriptorBa
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => Op == SkillProgramEffectOp.ResolveMouZhouYuYingzi ? [new RequireTriggerWindow(SkillProgramTriggerWindow.DrawPhaseStarting)] : [new ReadSelectedTarget()];
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler => new MouZhouYuMobileHandler(Op);
-}
-internal sealed class ResolveMouZhouYuYingziDescriptor : MouZhouYuMobileDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuYingzi; }
-internal sealed class ResolveMouZhouYuFanjianDescriptor : MouZhouYuMobileDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouZhouYuFanjian;
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class MouZhouYuMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

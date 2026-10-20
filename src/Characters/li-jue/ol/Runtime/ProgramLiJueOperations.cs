@@ -7,10 +7,6 @@ public sealed record LiJueUseDiscardInvoice(long BatchId,long? NativeParentId,lo
  public IReadOnlyList<CardMovementRecord> FinishedMovements {get=>_moves;init=>_moves=Array.AsReadOnly(value.ToArray());}
 }
 public sealed record LiJueReceipt(CardConversionSource Source,string GameplayHash,int InstructionIndex,int ActualTurn,long WindowId,LiJueStage Stage,int? TargetSeat=null,int? Roll=null,LiJueUseDiscardInvoice? OriginalUse=null,int MaxBefore=0,int MaxAfter=0,int HpBefore=0,int HpAfter=0,long Before=0,long After=0,int ActualGain=0);
-public sealed record YisuanNullificationQualifiedEvent(long BatchId,long WindowId,long ActionId,int OwnerSeat,int ActualTurn,int PhaseInstance,int ChainDepth,long FirstSequence,long LastSequence,bool DeferredByNamedAmbush):IGameEvent;
-public sealed record LangxiRandomResolvedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,long WindowId,int TargetSeat,int Amount):IGameEvent;
-public sealed record YisuanMaximumHpPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,long WindowId,long NativeUseId,long NativeActionId,int MaxBefore,int MaxAfter,int HpBefore,int HpAfter):IGameEvent;
-public sealed record YisuanGainPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long NativeUseId,long NativeActionId,long Before,long After,int ActualGain):IGameEvent;
 public sealed partial record ProgramSkillFrame
 {
  [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public LiJueReceipt? LiJue {get;init;}

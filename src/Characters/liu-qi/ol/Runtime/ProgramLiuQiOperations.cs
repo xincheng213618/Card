@@ -1,26 +1,16 @@
 namespace CardGame.Core;
 public enum LiuQiStage { ChooseRecipient, ChooseGift, GiftChildren, DrawChildren }
-public sealed record WenjiTurnNameGrant(CardConversionSource Source,string GameplayHash,int ActualTurn,long GiftFrameId,int RecipientSeat,int CardId,CardKind Name,long MovementSequence);
 public sealed record LiuQiPlayEntry(int ActualTurn,int OwnerSeat,int PhaseInstance,bool Skipped);
 public sealed record LiuQiForeignTargetUse(int ActualTurn,int OwnerSeat,int PhaseInstance,long CardUseFrameId,long? ActionId,int TargetSeat);
 public sealed record LiuQiReceipt(CardConversionSource Source,string GameplayHash,int InstructionIndex,int ActualTurn,long WindowId,LiuQiStage Stage,int? RecipientSeat=null,int? CardId=null,CardLocation? From=null,CardKind? Name=null,long Before=0,long After=0,int RequestedDraw=0,int ActualDraw=0);
-public sealed record WenjiGiftPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,int RecipientSeat,int CardId,CardLocation From,CardKind Name,long Before,long After):IGameEvent;
-public sealed record WenjiNameArmedEvent(WenjiTurnNameGrant Grant):IGameEvent;
 public sealed record LiuQiPlayEnteredEvent(LiuQiPlayEntry Entry):IGameEvent;
 public sealed record LiuQiForeignUseRecordedEvent(LiuQiForeignTargetUse Use):IGameEvent;
-public sealed record TunjiangDrawPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,long WindowId,int Requested,int Actual,long Before,long After):IGameEvent;
 internal interface ILiuQiProgramHost {SkillProgramStepOutcome BeginLiuQi(ProgramSkillFrame frame,SkillProgramEffect effect);}
 internal abstract class LiuQiDescriptor:ProgramOperationDescriptorBase
 {
  public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
  public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-}
-internal sealed class ReceiveWenjiGiftAndArmTurnNameDescriptor:LiuQiDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ReceiveWenjiGiftAndArmTurnName;
- public override ISkillProgramEffectHandler Handler{get;}=new LiuQiHandler(SkillProgramEffectOp.ReceiveWenjiGiftAndArmTurnName);
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
 }
 internal sealed class DrawForUnskippedUntargetedPlayDescriptor:LiuQiDescriptor
 {
@@ -57,9 +47,6 @@ public sealed partial class CharacterState
  private IReadOnlyList<LiuQiForeignTargetUse>? _liuQiForeignTargetUses;
  internal IReadOnlyList<LiuQiForeignTargetUse>? LiuQiForeignTargetUses {get=>_liuQiForeignTargetUses;set=>_liuQiForeignTargetUses=value is null?null:Array.AsReadOnly(value.ToArray());}
 }
-
-public sealed record WenjiCounterspellQualification(WenjiTurnNameGrant Grant,long WindowId,long ParentFrameId,int ChainDepth,CardActionContext Action);
-public sealed record WenjiCounterspellQualifiedEvent(long WindowId,long ParentFrameId,int ChainDepth,long ActionId,WenjiTurnNameGrant Grant):IGameEvent;
 public sealed partial record NullificationWindowFrame
 {
  [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public WenjiCounterspellQualification? WenjiCounterspell {get;init;}

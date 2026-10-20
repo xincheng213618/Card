@@ -3,11 +3,6 @@ namespace CardGame.Core;
 
 public enum RuanYuStage { Hand,Bottom,Order,FrontChildren,EndingTarget,EndingChildren,LoseHpIssuing,LoseHpChildren,RedChildren }
 public sealed record RuanYuEntity(int CardId,CardKind Kind,CardLocation From);
-public sealed record RuanYuMiaoxianPaymentSource(CardConversionSource Source,string GameplayHash,int HandRedCount,int? UniqueRedCardId,int HandBlackCount,int? UniqueBlackCardId)
-{
-    private IReadOnlyList<int> _redGrain=Array.AsReadOnly(Array.Empty<int>());
-    public IReadOnlyList<int> RedGrainIds {get=>_redGrain;init=>_redGrain=Array.AsReadOnly(value.ToArray());}
-}
 public sealed record RuanYuReceipt(CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TurnOwner,RuanYuStage Stage,int Recipient)
 {
     public bool Paid {get;init;} public int Step {get;init;} public long Before {get;init;} public long After {get;init;} public int ActualCount {get;init;}
@@ -27,15 +22,7 @@ public sealed partial record ProgramSkillFrame {[JsonIgnore(Condition=JsonIgnore
 public sealed record RuanYuStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TurnOwner):IGameEvent;
 public sealed record RuanYuMovementPaidEvent(long FrameId,int Step,RuanYuStage Stage,long Before,long After,int Count):IGameEvent;
 public sealed record RuanYuEntityMovedEvent(long FrameId,int Step,long BatchId,int CardId,CardKind Kind,CardLocation From,CardLocation To,long Sequence):IGameEvent;
-public sealed record XingzuoEndingIssuedEvent(long DebtId,CardConversionSource Source,string GameplayHash,int ActualTurn):IGameEvent;
-public sealed record XingzuoEndingConsumedEvent(long DebtId,long FrameId,long ParentId):IGameEvent;
-public sealed record XingzuoBottomOrderedEvent(long FrameId,int Index,int CardId,bool Ending):IGameEvent;
-public sealed record MiaoxianPaymentQualifiedEvent(long BatchId,long? ParentFrameId,long ActionId,CardConversionSource Source,string GameplayHash,int CardId,CardKind Kind,CardLocation From,long Sequence,int ActualTurn,bool Red,bool Black):IGameEvent;
-public sealed record MiaoxianNativeCounterspellFinishedEvent(long ActionId,long ParentFrameId,int CardId,long EntrySequence,long FinishSequence):IGameEvent;
-public sealed record MiaoxianBlackConsumedEvent(long ActionId,CardConversionSource Source,int ActualTurn,int CardId):IGameEvent;
-public sealed record MiaoxianRedDrawIssuedEvent(long FrameId,long ActionId,CardConversionSource Source,int ActualTurn):IGameEvent;
 public sealed record RuanYuCompletedEvent(long FrameId):IGameEvent;
-public sealed record XingzuoHpLossPaidEvent(long FrameId,int RemainingHp):IGameEvent;
 internal interface IRuanYuHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal abstract class RuanYuDescriptor:ProgramOperationDescriptorBase
 {
@@ -45,13 +32,8 @@ internal abstract class RuanYuDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler=>new RuanYuHandler(Op);
 }
-internal sealed class ResolveXingzuoPrivateBottomExchangeDescriptor:RuanYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXingzuoPrivateBottomExchange;}
-internal sealed class ResolveXingzuoIssuedEndingExchangeDescriptor:RuanYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveXingzuoIssuedEndingExchange;}
-internal sealed class ResolveMiaoxianUniqueRedUseDrawDescriptor:RuanYuDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMiaoxianUniqueRedUseDraw;}
 internal sealed class RuanYuHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IRuanYuHost>().Resolve(f,op);}
-internal sealed class RuanYuMiaoxianCommittedUseContract:IProgramCommittedUseContract
-{public string SkillId=>"ol:miaoxian";public void ValidateTrigger(SkillProgramTrigger trigger)=>RuanYuComposition.ValidateRedTrigger("ol:miaoxian",trigger);}
 internal static class RuanYuComposition
 {
     internal static bool Handles(SkillProgramEffectOp op)=>op is SkillProgramEffectOp.ResolveXingzuoPrivateBottomExchange or SkillProgramEffectOp.ResolveXingzuoIssuedEndingExchange or SkillProgramEffectOp.ResolveMiaoxianUniqueRedUseDraw;

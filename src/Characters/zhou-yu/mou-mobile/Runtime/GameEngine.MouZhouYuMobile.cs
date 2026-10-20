@@ -13,8 +13,6 @@ public sealed partial class GameEngine
     private bool MouZyMobileDisabled(int owner, MouZhouYuMobileTurn turn) => ProgramEventHistory<MouZhouYuMobileDisabledEvent>().Any(e => e.OwnerSeat == owner && e.Turn == turn);
     private bool MouZyMobileSuitSpent(int owner, MouZhouYuMobileTurn turn, Suit suit) => ProgramEventHistory<MouZhouYuMobileCoveredEvent>().Any(e => e.ActualSuit == suit &&
         ProgramEventHistory<MouZhouYuMobileStartedEvent>().Any(s => s.FrameId == e.FrameId && s.Source.OwnerSeat == owner && s.Turn == turn));
-    private int MouZyMobileHandLimit(int owner) => HasMouZhouYuMobileCapability && MouZyMobileTurn() is { } turn
-        ? ProgramEventHistory<MouZhouYuMobileYingziIssuedEvent>().Where(e => e.Source.OwnerSeat == owner && e.Turn == turn).Sum(e => e.Count) : 0;
     private Card[] MouZyMobileCards(int owner) => MouZyMobileTurn() is { } turn
         ? GetHand(_players[owner]).Where(c => !MouZyMobileSuitSpent(owner, turn, EffectiveSuit(_players[owner], c))).ToArray() : [];
     [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 31100, SkillProgramEffectOp.ResolveMouZhouYuFanjian)]

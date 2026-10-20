@@ -3,28 +3,7 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public enum HuanShuJunStage { AdjustHand, AdjustmentChildren, BasicChoice, WenyiChoice, WenyiPeachRequest, EquipmentGiftChildren, NativeIssuing, NativeUse, NativeChildren, FaceChildren, ChainChildren, Drawing, DrawChildren }
-public enum HuanpeiIntent { Play, OwnSlashDodge, Dying, BorrowedSword, Qinglong, ProgramSlash, ProgramNearestSlash, AssistedSlash, NearestLegalSlash, WenyiPeach, FixedSlash, KeBiNengBasic }
-public sealed record HuanpeiNativeRequest(HuanpeiIntent Intent, long? ParentFrameId, long? RequestFrameId,
-    long? ParentActionId, int ActorSeat, int Cursor, CardKind? RequiredKind, int? FixedTargetSeat,
-    PromptId OriginalPromptId, long OriginalRevision)
-{
-    public string? ParentSkillId { get; init; }
-    public string? ParentSkillInstanceId { get; init; }
-    public string? ParentGameplayHash { get; init; }
-    public SkillProgramEffectOp? ParentOperation { get; init; }
-}
 public sealed record HuanShuJunMaterial(int CardId, CardKind Kind, CardLocation From);
-public sealed record HuanpeiPaidOrigin(long ProgramFrameId, CardConversionSource Source, string GameplayHash,
-    int Round, int ActualTurn, int TurnOwner, HuanpeiNativeRequest Request, int FrozenHandCount,
-    int FrozenHp, int AdjustmentCount, long SequenceBefore, long SequenceAfter, CardKind Kind)
-{
-    private readonly IReadOnlyList<int> _targets = Array.AsReadOnly(Array.Empty<int>());
-    public IReadOnlyList<int> Targets { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
-}
-public sealed record HuanpeiUseReceipt(HuanpeiPaidOrigin Payment, long OwnerFrameId, long CardActionId);
-public sealed record HuanpeiProgramReturn(HuanpeiPaidOrigin Payment, long UseId, long ActionId, bool Returned = false);
-public sealed record WenyiNativeOrigin(long ProgramFrameId, CardConversionSource Source, string GameplayHash,
-    int ActorSeat, int ProviderSeat, int TargetSeat, CardKind Kind, long UseId, long ActionId, CardActionContext OriginalAction);
 public sealed record HuanShuJunReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
     long WindowId, int ActualTurn, int TurnOwner, HuanShuJunStage Stage)
 {
@@ -67,23 +46,6 @@ public sealed partial record CardUseFrame
 }
 public sealed record HuanShuJunStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
     SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner, int TargetSeat, int FrozenHandCount, int FrozenHp) : IGameEvent;
-public sealed record HuanpeiAdjustmentAcceptedEvent(long FrameId, int OwnerSeat, int Round, int HandCount, int Hp, int RequestedCount, long Before) : IGameEvent;
-public sealed record HuanpeiCostEntityEvent(long FrameId, int Index, int CardId, CardKind Kind, CardLocation From, long Sequence) : IGameEvent;
-public sealed record HuanpeiAdjustmentCompletedEvent(long FrameId, long Before, long After, int ActualDrawCount, int ReplacementCount) : IGameEvent;
-public sealed record HuanpeiOutputChosenEvent(long FrameId, CardKind Kind, int TargetCount) : IGameEvent;
-public sealed record HuanpeiTargetChosenEvent(long FrameId, int Index, int TargetSeat) : IGameEvent;
-public sealed record HuanpeiIssuedEvent(long PaymentFrameId, long UseId, long ActionId, int ActorSeat, CardKind Kind, HuanpeiIntent Intent) : IGameEvent;
-public sealed record HuanpeiReturnedEvent(long PaymentFrameId, long UseId, long ActionId) : IGameEvent;
-public sealed record HuanpeiRequestCapturedEvent(long FrameId, HuanpeiNativeRequest Request, string DecisionHash) : IGameEvent;
-public sealed record HuanpeiKeActionAcceptedEvent(long ParentFrameId, int Cursor, CardConversionSource ParentSource, string ParentHash, long PaymentFrameId, CardKind Kind) : IGameEvent;
-public sealed record HuanpeiCancelledEvent(long FrameId, bool Paid) : IGameEvent;
-public sealed record WenyiPaidEvent(long FrameId, int OwnerSeat, int TargetSeat, long HealthWindowId, string Branch) : IGameEvent;
-public sealed record WenyiEquipmentGivenEvent(long FrameId, int CardId, int RecipientSeat, long Sequence) : IGameEvent;
-public sealed record WenyiNativeIssuedEvent(long FrameId, long UseId, long ActionId, int ActorSeat, int ProviderSeat, int TargetSeat, CardKind Kind) : IGameEvent;
-public sealed record WenyiNativeReturnedEvent(long FrameId, long UseId, long ActionId) : IGameEvent;
-public sealed record WenyiRestorationIssuedEvent(long FrameId, int TargetSeat, bool FaceState) : IGameEvent;
-public sealed record MiaoxinBenefitIssuedEvent(long FrameId, int OwnerSeat, long DamageWindowId, int Occurrence, int DrawCount, bool RefreshWenyi) : IGameEvent;
-public sealed record MiaoxinWenyiRefreshedEvent(long FrameId, int OwnerSeat) : IGameEvent;
 public sealed record HuanShuJunDrawReturnedEvent(long FrameId, int RequestedCount, int ActualCount, int ReplacementCount, long Before, long After, long? AttemptId) : IGameEvent;
 public sealed record HuanShuJunCompletedEvent(long FrameId, SkillProgramEffectOp Op, bool Paid) : IGameEvent;
 
@@ -101,17 +63,6 @@ internal abstract class HuanShuJunDescriptor(SkillProgramEffectOp op) : ProgramO
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler { get; } = new HuanShuJunHandler(op);
-}
-internal sealed class ResolveHuanpeiHandAdjustmentAndBasicUseDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse){
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.NativeLogicalDiscard);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class ResolveWenyiHealthOneAidDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveWenyiHealthOneAid){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class ResolveMiaoxinDamageDrawAndRefreshDescriptor() : HuanShuJunDescriptor(SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class HuanShuJunHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

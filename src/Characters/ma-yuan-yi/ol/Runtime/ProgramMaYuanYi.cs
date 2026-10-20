@@ -6,13 +6,6 @@ public sealed record MaYuanYiStoredEvent(long FrameId, CardConversionSource Sour
 public sealed record MaYuanYiBingActionEvent(long ActionId, long? ParentActionId, int ActualTurn, int TurnOwner, CardActionType Type, int ActorSeat, int ProviderSeat, int? RequesterSeat, int? OpponentSeat, CardKind Kind, int CardId, CardLocation From, CardConversionSource Source, long StoredFrameId, long StoredSequence, long PaymentSequence) : IGameEvent;
 public sealed record MaYuanYiStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long ParentId, int ActualTurn, int TurnOwner, int FactionCount, int BingBefore, int MaximumBefore, int HpBefore, long? ActionId, int? OpponentSeat) : IGameEvent;
 public sealed record MaYuanYiMovementEvent(long FrameId, MaYuanYiStage Stage, long Before, long After, int Count) : IGameEvent;
-public sealed record WangjingDrawIssuedEvent(long FrameId, long ActionId, int OwnerSeat, int OpponentSeat, int OpponentHp, int HighestHp, int ActualCount) : IGameEvent;
-public sealed record MoucuanMaximumPaidEvent(long FrameId, int OwnerSeat, int MaximumBefore, int MaximumAfter, int HpBefore, int HpAfter) : IGameEvent;
-public sealed record MoucuanSkillGrantedEvent(long FrameId, int OwnerSeat) : IGameEvent;
-public sealed record BinghuoTargetIssuedEvent(long FrameId, int TargetSeat, long JudgmentId) : IGameEvent;
-public sealed record BinghuoJudgmentReturnedEvent(long FrameId, long JudgmentId, int? CardId, Suit? Suit,
-    [property: JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] long? HandoffSequence=null) : IGameEvent;
-public sealed record BinghuoDamageIssuedEvent(long FrameId, int SourceSeat, int TargetSeat, int Amount, DamageNature Nature) : IGameEvent;
 public sealed record MaYuanYiCompletedEvent(long FrameId) : IGameEvent;
 public sealed record MaYuanYiReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long ParentId, int ActualTurn, int TurnOwner, int FactionCount, int BingBefore, int MaximumBefore, int HpBefore, MaYuanYiStage Stage,
     [property: JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] long? ActionId=null,
@@ -36,14 +29,6 @@ internal abstract class MaYuanYiDescriptor(SkillProgramEffectOp op, SkillProgram
     public override ProgramOperationInteraction Interaction=>op==SkillProgramEffectOp.ResolveBinghuoEndingJudgment?ProgramOperationInteraction.Choice:ProgramOperationInteraction.Automatic;
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(2));
 }
-internal sealed class ReplaceJibingDrawWithTwoBingDescriptor():MaYuanYiDescriptor(SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing,SkillProgramTriggerWindow.DrawPhaseStarting)
-{
-    public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>{c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,2,e.Condition));c.PublicControlValue(2);});
-}
-internal sealed class ResolveWangjingBingOpponentDrawDescriptor():MaYuanYiDescriptor(SkillProgramEffectOp.ResolveWangjingBingOpponentDraw,SkillProgramTriggerWindow.CardUseTargetsFinalized)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[]; }
-internal sealed class ResolveMoucuanAwakeningDescriptor():MaYuanYiDescriptor(SkillProgramEffectOp.ResolveMoucuanAwakening,SkillProgramTriggerWindow.TurnStartBeforeNormalFlow){}
-internal sealed class ResolveBinghuoEndingJudgmentDescriptor():MaYuanYiDescriptor(SkillProgramEffectOp.ResolveBinghuoEndingJudgment,SkillProgramTriggerWindow.TurnEnding){}
 internal sealed class MaYuanYiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 { public SkillProgramEffectOp Op=>op; public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IMaYuanYiHost>().Resolve(f,op); }
 internal static class MaYuanYiComposition

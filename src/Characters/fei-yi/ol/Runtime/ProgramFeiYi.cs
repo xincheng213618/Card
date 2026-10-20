@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public enum FeiYiStage { DiscardChoice, DrawChildren, DiscardChildren, DirectionChoice, HezhongDrawChildren }
-public sealed record FeiYiSingletonTransition(int OwnerSeat,int Before,int After,int CardId,int Rank);
 public sealed partial record CardMovementBatchContext
 {
     private IReadOnlyList<FeiYiSingletonTransition>? _feiYiSingletons;
@@ -20,21 +19,11 @@ public sealed record FeiYiReceipt(CardConversionSource Source,string GameplayHas
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public FeiYiReceipt? FeiYi { get;init; } }
-public sealed record FeiYiEffectRounds(long ActionId,int Turn,int TurnOwner,int AcceptedActorSeat,ProgramTrickContinuation Trick,ExtraCardEffectState Native,int Started=0)
-{
-    private IReadOnlyList<long> _grants=[];
-    public IReadOnlyList<long> Grants { get=>_grants; init=>_grants=Array.AsReadOnly(value.ToArray()); }
-}
 public sealed partial record CardUseFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public FeiYiEffectRounds? FeiYiRounds { get;init; } }
 public sealed record FeiYiStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Operation,
     int Turn,int TurnOwner,long PhaseInstance,bool Odd,long? WindowId,long? BatchId) : IGameEvent;
-public sealed record FeiYiYanruPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Turn,int TurnOwner,long PhaseInstance,bool Odd) : IGameEvent;
 public sealed record FeiYiMovementIssuedEvent(long FrameId,FeiYiStage Stage,long Before,long After,int Count,int Minimum) : IGameEvent;
-public sealed record FeiYiRankEffectIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Turn,int TurnOwner,long BatchId,int CardId,int Rank,bool Greater) : IGameEvent;
-public sealed record FeiYiHezhongPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Turn,int TurnOwner,long BatchId,int CardId,int Rank,bool Greater) : IGameEvent;
-public sealed record FeiYiRankEffectBoundEvent(long GrantId,long UseFrameId,long ActionId,int EffectiveRank,int AcceptedActorSeat) : IGameEvent;
-public sealed record FeiYiEffectRoundStartedEvent(long UseFrameId,long ActionId,int Round) : IGameEvent;
 public sealed record FeiYiCompletedEvent(long FrameId,bool Applied) : IGameEvent;
 internal interface IFeiYiHost { SkillProgramStepOutcome Execute(ProgramSkillFrame frame,SkillProgramEffectOp op); }
 internal abstract class FeiYiDescriptor(SkillProgramEffectOp op):ProgramOperationDescriptorBase
@@ -45,10 +34,6 @@ internal abstract class FeiYiDescriptor(SkillProgramEffectOp op):ProgramOperatio
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.ChooseOption,static(_,c)=>c.PublicControlValue(5));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
 }
-internal sealed class YanruParityDrawDiscardDescriptor():FeiYiDescriptor(SkillProgramEffectOp.YanruParityDrawDiscard)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireActivationEntry()]; }
-internal sealed class RevealSingletonAndArmRankEffectsDescriptor():FeiYiDescriptor(SkillProgramEffectOp.RevealSingletonAndArmRankEffects)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)]; }
 internal sealed class FeiYiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>op;

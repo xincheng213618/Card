@@ -68,7 +68,6 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with{WangGuan=r with{Before=before,After=_movementSequence,ActualCount=count}});
         AdvanceEventRulesAndQueueFact(new WangGuanMovementIssuedEvent(id,r.Stage,before,_movementSequence,count));
     }
-    private IReadOnlyList<int> ShiluTargets(int owner)=>Array.AsReadOnly(_players.Where(p=>p.IsAlive&&p.Seat!=owner&&GetHand(p).Count>0&&IsWithinAttackRange(owner,p.Seat)).Select(p=>p.Seat).ToArray());
     private IReadOnlyList<PromptChoice> WangGuanChoices(ProgramSkillFrame f)
     {
         var r=f.WangGuan!;

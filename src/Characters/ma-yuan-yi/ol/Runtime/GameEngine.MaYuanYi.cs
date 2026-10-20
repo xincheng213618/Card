@@ -5,8 +5,6 @@ public sealed partial class GameEngine
     private const string JibingStoreReason="skill-program.ma-yuan-yi.jibing.store",WangjingDrawReason="skill-program.ma-yuan-yi.wangjing.draw",BinghuoBind="ma-yuan-yi-binghuo";
     private bool HasMaYuanYiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing);
     private static CardConversionSource MaYuanYiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
-    private IReadOnlyList<Card> JibingPileCards(CharacterState owner)=>Array.AsReadOnly(PublicPileSources(owner.Seat).Where(s=>s.SkillId=="ol:jibing"&&HasRuntimeSkillInstance(owner,s.SkillId,s.SkillInstanceId)).SelectMany(PublicPileCards).ToArray());
-    private int MoucuanFactionCount()=>_players.Select(GetEffectiveFactionId).OfType<string>().Distinct(StringComparer.Ordinal).Count();
     [ProgramCapability] private sealed class MaYuanYiCapability(GameEngine e):IMaYuanYiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginMaYuanYi(f,op); }
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27370)]
@@ -28,17 +26,6 @@ public sealed partial class GameEngine
         if(stored is null||accepted is null||accepted.Type!=e.Type||accepted.ActorSeat!=e.ActorSeat||accepted.ProviderSeat!=e.ProviderSeat||accepted.RequesterSeat!=e.RequesterSeat||accepted.OpponentSeat!=e.OpponentSeat||
             accepted.EffectiveKind!=e.Kind||accepted.PhysicalCards is not[var cost]||cost.CardId!=e.CardId||cost.From!=e.From||!accepted.ConversionChain.Contains(e.Source)||e.Source.SkillId!="ol:jibing"||e.Source.OwnerSeat!=e.ProviderSeat)return false;
         return e.PaymentSequence>e.StoredSequence&&_cardMovements.Count(m=>m.Sequence==e.PaymentSequence&&m.CardId==e.CardId&&m.From==e.From&&m.To==CardLocation.Processing)==1;
-    }
-    private (MaYuanYiBingActionEvent Fact,int Opponent)? WangjingQualification(ProgramTriggerCandidate c,ProgramSkillWindowContext context)
-    {
-        if(context.Window is not(SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted)||context.CardUse is not{}card)return null;
-        var fact=ProgramEventHistory<MaYuanYiBingActionEvent>().SingleOrDefault(e=>e.ActionId==card.CardActionId&&e.ProviderSeat==c.OwnerSeat);
-        if(fact is null||!ValidBingAction(fact))return null;
-        var opposite=fact.ActorSeat!=fact.ProviderSeat?fact.RequesterSeat:fact.Type==CardActionType.Response?fact.OpponentSeat:context.TargetSeat;
-        if(opposite is not{}seat||!IsValidPlayerSeat(seat)||!_players[seat].IsAlive||!_players[seat].HasHpValue||
-            ProgramEventHistory<WangjingDrawIssuedEvent>().Any(e=>e.ActionId==fact.ActionId&&e.OwnerSeat==c.OwnerSeat&&e.OpponentSeat==seat)||
-            _players[seat].Hp!=_players.Where(p=>p.IsAlive&&p.HasHpValue).Max(p=>p.Hp))return null;
-        return(fact,seat);
     }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27370)]
     private bool CanOfferMaYuanYi(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)
@@ -115,27 +102,6 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new BinghuoTargetIssuedEvent(f.Id,target,judgment));
         _=BeginJudgment(null,target,"binghuo",f.Id,null,JudgmentContinuationKind.ProgramSkill,sourceSeat:f.OwnerSeat,programResultBind:BinghuoBind,programResultVisibility:SkillProgramCardSetVisibility.Public);
     }
-    private bool CanBeginBinghuoJudgment(ProgramSkillFrame f,int targetSeat,string reason,string bind,SkillProgramCardSetVisibility visibility)=>f.MaYuanYi is{Stage:MaYuanYiStage.Judgment,TargetSeat:{}target,JudgmentId:not null}&&target==targetSeat&&reason=="binghuo"&&bind==BinghuoBind&&visibility==SkillProgramCardSetVisibility.Public;
-    private bool IsBinghuoJudgment(JudgmentFrame j,ProgramSkillFrame f)=>f.MaYuanYi is{Stage:MaYuanYiStage.Judgment,TargetSeat:{}target,JudgmentId:{}id}&&j.Id==id&&j.ParentFrameId==f.Id&&j.TargetSeat==target&&j.SourceSeat==f.OwnerSeat&&j.Continuation==JudgmentContinuationKind.ProgramSkill&&j.Reason=="binghuo"&&j.ProgramResultBind==BinghuoBind&&j.ProgramResultVisibility==SkillProgramCardSetVisibility.Public;
-    private bool TryReturnBinghuoJudgment(JudgmentFrame j)
-    {
-        if(_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==j.ParentFrameId)is not{MaYuanYi:{}r}f)return false;
-        if(!IsBinghuoJudgment(j,f))throw new InvalidOperationException("Binghuo received a foreign judgment return.");
-        var result=CompleteProgramEventHistory().OfType<JudgmentResolvedEvent>().Single(e=>e.ResolutionId==j.Id&&e.ParentResolutionId==f.Id&&e.TargetSeat==r.TargetSeat&&e.Reason=="binghuo");
-        var before=_movementSequence;var count=0;CardMovementRecord? handoff=null;
-        if(result.CardId is{}card&&_cardZones.GetLocation(card)==CardLocation.Processing)
-        {
-            handoff=_cardMovements.LastOrDefault(m=>m.Sequence<=before&&m.CardId==card);
-            if(handoff is null||handoff.From!=CardLocation.Judgment(j.TargetSeat)||handoff.To!=CardLocation.Processing||handoff.Reason.Value!="skill-program.judgment.result")
-                throw new InvalidOperationException("Binghuo cleanup requires the exact finalized native judgment result movement.");
-        }
-        ReplaceRuntimeTop(f=f with{MaYuanYi=r with{Stage=MaYuanYiStage.JudgmentChildren,JudgmentCardId=result.CardId,JudgmentSuit=result.Suit,JudgmentHandoffSequence=handoff?.Sequence,Before=before,After=before},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        AdvanceEventRulesAndQueueFact(new BinghuoJudgmentReturnedEvent(f.Id,j.Id,result.CardId,result.Suit,handoff?.Sequence));
-        if(handoff is not null){MoveCard(GetAdvancedCard(handoff.CardId),CardLocation.Processing,CardLocation.DiscardPile,CardMoveReasons.JudgmentFinish);count=1;}
-        FinishMaYuanYiMovement(f.Id,before,count);ContinueMaYuanYi(f.Id);return true;
-    }
-    private bool HasPaidMoucuanSourceLoss(ProgramSkillFrame f)=>f.MaYuanYi is{Op:SkillProgramEffectOp.ResolveMoucuanAwakening,Stage:MaYuanYiStage.MaximumChildren}r&&f.HpConditionalSourceReceipt is not null&&
-        !HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)&&ProgramEventHistory<MoucuanMaximumPaidEvent>().Count(e=>e.FrameId==f.Id&&e.OwnerSeat==f.OwnerSeat&&e.MaximumBefore==r.MaximumBefore&&e.MaximumAfter==r.MaximumBefore-1&&e.HpAfter==Math.Min(r.HpBefore,r.MaximumBefore-1))==1;
     private bool DrainMaYuanYi(ProgramSkillFrame f)=>HasPaidMoucuanSourceLoss(f)&&TryBeginAdvancedSkillsChanged(f.Id)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,f.PendingMovementContinuation is null?PostEventContinuation.Program:PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);
     private void ContinueMaYuanYi(long id)
     {

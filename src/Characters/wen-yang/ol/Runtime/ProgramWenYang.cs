@@ -14,14 +14,11 @@ public sealed record WenYangReceipt(CardConversionSource Source,string GameplayH
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public WenYangReceipt? WenYang { get; init; } }
 public sealed record WenYangStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TurnOwner,long? DamageId,long? DebtId,int Awakening):IGameEvent;
-public sealed record WenYangLvliIssuedEvent(long FrameId,int OwnerSeat,int ActualTurn,int TurnOwner,long DamageId,long DamageWindowId,string Branch,int Requested,int ExpectedRecovery,int HpBefore):IGameEvent;
 public sealed record WenYangAwakenedEvent(long FrameId,int OwnerSeat,int Level,int MaximumBefore,int MaximumAfter,int HpBefore,int HpAfter):IGameEvent;
 public sealed record WenYangLeafGrantedEvent(long FrameId,int OwnerSeat,string SkillId):IGameEvent;
 public sealed record WenYangMovementIssuedEvent(long FrameId,int Step,WenYangStage Stage,long Before,long After,int Count):IGameEvent;
 public sealed record WenYangEntityMovedEvent(long FrameId,int Step,int CardId,CardKind Kind,CardLocation From,CardLocation To,long Sequence):IGameEvent;
 public sealed record WenYangDrawIssuedEvent(long FrameId,int Requested,int Actual,long Before,long After):IGameEvent;
-public sealed record WenYangQingjiaoDebtIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,int TurnOwner,int Gained):IGameEvent;
-public sealed record WenYangQingjiaoDebtConsumedEvent(long DebtId,long FrameId,long ParentId,int ActualTurn):IGameEvent;
 public sealed record WenYangCompletedEvent(long FrameId,SkillProgramEffectOp Op):IGameEvent;
 
 internal interface IWenYangHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame,SkillProgramEffectOp op); }
@@ -33,14 +30,8 @@ internal abstract class WenYangDescriptor(SkillProgramEffectOp op):ProgramOperat
     public override ProgramOperationInteraction Interaction=>op==SkillProgramEffectOp.ResolveLvliActualDamageChoice?ProgramOperationInteraction.Choice:ProgramOperationInteraction.Automatic;
     public override ProgramOperationAiPolicy AiPolicy { get; }=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
 }
-internal sealed class ResolveLvliActualDamageChoiceDescriptor():WenYangDescriptor(SkillProgramEffectOp.ResolveLvliActualDamageChoice)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)]; }
 internal sealed class ResolveWenYangAwakeningDescriptor():WenYangDescriptor(SkillProgramEffectOp.ResolveWenYangAwakening)
 { public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[]; }
-internal sealed class ResolveQingjiaoWholeHandExchangeDescriptor():WenYangDescriptor(SkillProgramEffectOp.ResolveQingjiaoWholeHandExchange)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)]; }
-internal sealed class ResolveQingjiaoIssuedEndingDiscardDescriptor():WenYangDescriptor(SkillProgramEffectOp.ResolveQingjiaoIssuedEndingDiscard)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)]; }
 internal sealed class WenYangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>op;

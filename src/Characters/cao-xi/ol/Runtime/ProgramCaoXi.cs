@@ -7,31 +7,11 @@ public sealed record CaoXiNumbers(int AttackRange, int DrawCount, int SlashLimit
     public int Value(SkillRuleQuery query) => query switch { SkillRuleQuery.AttackRange => AttackRange, SkillRuleQuery.DrawCount => DrawCount, SkillRuleQuery.SlashLimit => SlashLimit, _ => throw new InvalidOperationException("Not a Gangshu number.") };
     public bool Contains(int count) => count == AttackRange || count == DrawCount || count == SlashLimit;
 }
-public sealed record CaoXiGangshuReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    long ParentWindowId, long CardUseFrameId, long ActionId, CaoXiNumbers Numbers);
-public enum CaoXiJianxuanStage { ChoosingRecipient, DrawChildren }
-public sealed record CaoXiJianxuanReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    long ParentWindowId, long DamageFrameId, int ActualTurn, CaoXiJianxuanStage Stage = CaoXiJianxuanStage.ChoosingRecipient,
-    int? RecipientSeat = null, int Cursor = 0, long Before = 0, long After = 0, int ActualDrawCount = 0);
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CaoXiGangshuReceipt? CaoXiGangshu { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CaoXiJianxuanReceipt? CaoXiJianxuan { get; init; }
 }
-public sealed record CaoXiGangshuStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    long ParentWindowId, long CardUseFrameId, long ActionId, CaoXiNumbers Numbers) : IGameEvent;
-public sealed record CaoXiGangshuIncreasedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    SkillRuleQuery Query, int BeforeValue, int AfterValue, long? GrantedInDrawPhaseToken = null, long GrantedAfterActualPhaseToken = 0) : IGameEvent;
-public sealed record CaoXiGangshuUnitExpiredEvent(long GrantFrameId, int OwnerSeat, string Reason, long NativeId) : IGameEvent;
-public sealed record CaoXiGangshuActualOffsetEvent(long NativeId, int OwnerSeat, string Kind, int Cursor) : IGameEvent;
-public sealed record CaoXiGangshuDrawCaptureEvent(ActualDiscardRecoveryPhaseKey Phase, int OwnerSeat) : IGameEvent;
-public sealed record CaoXiGangshuDrawUnitIssuedEvent(ActualDiscardRecoveryPhaseKey Phase, long GrantFrameId, CardConversionSource Source) : IGameEvent;
-public sealed record CaoXiJianxuanStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    long ParentWindowId, long DamageFrameId, int ActualTurn) : IGameEvent;
-public sealed record CaoXiJianxuanRecipientEvent(long FrameId, int RecipientSeat) : IGameEvent;
-public sealed record CaoXiJianxuanDrawPaidEvent(long FrameId, int Cursor, int RecipientSeat, int ActualDrawCount, long Before, long After) : IGameEvent;
-public sealed record CaoXiJianxuanComparedEvent(long FrameId, int Cursor, int RecipientSeat, int HandCount, CaoXiNumbers Numbers, bool Repeat) : IGameEvent;
-public sealed record CaoXiJianxuanCompletedEvent(long FrameId, int RecipientSeat, int DrawCalls) : IGameEvent;
 
 internal interface ICaoXiProgramHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp operation); }
 internal sealed class CaoXiHandler(SkillProgramEffectOp operation) : ISkillProgramEffectHandler
@@ -47,12 +27,6 @@ internal abstract class CaoXiDescriptor(SkillProgramEffectOp operation) : Progra
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
-internal sealed class ResolveGangshuAttributeIncrementDescriptor() : CaoXiDescriptor(SkillProgramEffectOp.ResolveGangshuAttributeIncrement)
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)]; }
-internal sealed class ResolveJianxuanRepeatedDrawDescriptor() : CaoXiDescriptor(SkillProgramEffectOp.ResolveJianxuanRepeatedDraw)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)]; }
 
 internal static class CaoXiComposition
 {

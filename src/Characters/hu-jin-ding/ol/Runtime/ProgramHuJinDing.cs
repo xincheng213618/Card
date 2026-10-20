@@ -7,7 +7,6 @@ public sealed record QingyuanPartnerSelectedEvent(long FrameId, CardConversionSo
 public sealed record QingyuanGainQualifiedEvent(long BatchId, CardConversionSource Source, string GameplayHash, int ActualTurn,
     int MovementIndex, int GainingSeat, long GainSequence) : IGameEvent;
 public sealed record QingyuanFirstDamageEvent(int OwnerSeat, long DamageFrameId, long DamageParentId, int Amount) : IGameEvent;
-public sealed record ZhongshenRoundBoundaryEvent(int RoundNumber, long MovementSequence) : IGameEvent;
 public sealed record QingyuanStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
     long ParentId, int ActualTurn, long? BatchId, int MovementIndex) : IGameEvent;
 public sealed record QingyuanTakePaidEvent(long FrameId, int HolderSeat, int CardId, long Before, long After, int ActualTurn) : IGameEvent;

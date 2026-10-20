@@ -29,8 +29,6 @@ internal abstract class NiuFuDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, _) => { });
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
 }
-internal sealed class ResolveShisuanRecastSourceChoiceDescriptor : NiuFuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveShisuanRecastSourceChoice; }
-internal sealed class ObtainZonglueDamageTargetZonesDescriptor : NiuFuDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainZonglueDamageTargetZones; }
 internal sealed class NiuFuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

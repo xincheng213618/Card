@@ -21,14 +21,6 @@ internal abstract class ZhangYiDescriptor(SkillProgramEffectOp operation) : Prog
         ? ProgramOperationInteraction.Automatic : ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
-internal sealed class ResolveDianjunActualTurnEndDescriptor() : ZhangYiDescriptor(SkillProgramEffectOp.ResolveDianjunActualTurnEnd)
-{
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterTurnEnded)];
-}
-internal sealed class ResolveKangruiFirstOwnTurnDamageDescriptor() : ZhangYiDescriptor(SkillProgramEffectOp.ResolveKangruiFirstOwnTurnDamage)
-{
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
-}
 
 public enum ZhangYiStage { DianjunDamage, DianjunExtraPlay, DianjunReturned, KangruiDraw, KangruiChoice, KangruiRecovery, Finished, DianjunCleanupChildren }
 public sealed record ZhangYiReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
@@ -43,16 +35,8 @@ public sealed record ZhangYiActualDamageFactEvent(int ActualTurnNumber, int Actu
     long AttackFrameId, int SourceSeat, int TargetSeat, int Amount, bool SourceLess) : IGameEvent;
 public sealed record ZhangYiResolutionStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
     long ParentWindowId, int ActualTurnNumber, int RecipientSeat, long? DamageFrameId) : IGameEvent;
-public sealed record ZhangYiKangruiDrawIssuedEvent(long FrameId, int OwnerSeat, int RecipientSeat, int ActualTurnNumber, int SequenceBefore) : IGameEvent;
-public sealed record ZhangYiKangruiChoiceEvent(long FrameId, CardConversionSource Source, int RecipientSeat, int ActualTurnNumber, string Choice, int RecoveryRequested) : IGameEvent;
-public sealed record ZhangYiKangruiArmedEvent(long FrameId, CardConversionSource Source, int RecipientSeat, int ActualTurnNumber, bool DamageBonus) : IGameEvent;
-public sealed record ZhangYiKangruiDamageConsumedEvent(long GrantFrameId, long AttackFrameId, int RecipientSeat, int TargetSeat, int ActualTurnNumber,
-    bool ChainPropagation = false, int ChainCursor = 0) : IGameEvent;
-public sealed record ZhangYiKangruiHandLimitSetEvent(long GrantFrameId, long DamageFrameId, int RecipientSeat, int ActualTurnNumber) : IGameEvent;
 public sealed record ZhangYiChainInstanceIssuedEvent(long AttackFrameId, int ChainCursor, int RecipientSeat, int InheritedAmount) : IGameEvent;
 public sealed record ZhangYiChainInstanceRebasedEvent(long AttackFrameId, int ChainCursor, int RecipientSeat, int RestoredAmount) : IGameEvent;
-public sealed record ZhangYiDianjunCleanupStartedEvent(long FrameId, int OwnerSeat, int ActualTurnNumber, int SequenceBefore) : IGameEvent;
-public sealed record ZhangYiDianjunCleanupIssuedEvent(long FrameId, int OwnerSeat, int ActualTurnNumber, int SequenceBefore, int SequenceAfter) : IGameEvent;
 
 internal static class ZhangYiComposition
 {

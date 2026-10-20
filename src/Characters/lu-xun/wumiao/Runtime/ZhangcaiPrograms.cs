@@ -26,8 +26,6 @@ public sealed record WuLuXunZhangcaiStartedEvent(long FrameId, CardConversionSou
 public sealed record WuLuXunZhangcaiDrawReturnedEvent(long FrameId, int RequestedCount,
     int ActualCount, int ReplacementCount, long Before, long After, long? AttemptId) : IGameEvent;
 public sealed record WuLuXunZhangcaiCompletedEvent(long FrameId, long ActionId) : IGameEvent;
-public sealed record WuLuXunRuxianActivatedEvent(long FrameId, CardConversionSource Source,
-    string GameplayHash, ActualDiscardRecoveryPhaseKey Phase, int ActualTurn, int TurnOwner) : IGameEvent;
 
 internal interface IWuLuXunZhangcaiHost
 {
@@ -45,10 +43,6 @@ internal abstract class WuLuXunZhangcaiDescriptor(SkillProgramEffectOp op) : Pro
 }
 internal sealed class ResolveWuLuXunZhangcaiDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunZhangcai){
     public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class ResolveWuLuXunRuxianDescriptor() : WuLuXunZhangcaiDescriptor(SkillProgramEffectOp.ResolveWuLuXunRuxian)
-{
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
 }
 internal sealed class WuLuXunZhangcaiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

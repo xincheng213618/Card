@@ -25,10 +25,6 @@ internal abstract class XiZhiCaiDescriptor:ProgramOperationDescriptorBase
   SkillProgramEffectOp.ResolveChouceFrozenJudgment=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied),new ReadFrozenSingleCardSet(e.SourceBind!)],_=>[]
  };
 }
-internal sealed class ArmXianfuRelationDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmXianfuRelation;}
-internal sealed class SettleXianfuNativeEchoDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.SettleXianfuNativeEcho;}
-internal sealed class StartChouceDamagePointJudgmentDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.StartChouceDamagePointJudgment;public override ProgramContextCapability RequiredCapabilities=>ProgramContextCapability.Judgment|ProgramContextCapability.Damage;}
-internal sealed class ResolveChouceFrozenJudgmentDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChouceFrozenJudgment;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}
 internal sealed class XiZhiCaiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
  public SkillProgramEffectOp Op=>op;

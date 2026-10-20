@@ -19,8 +19,6 @@ public sealed record LiuBaReceipt(CardConversionSource Source,string GameplayHas
 public sealed partial record ProgramSkillFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public LiuBaReceipt? LiuBa {get;init;}}
 public sealed record LiuBaStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TurnOwner,int PhaseInstance):IGameEvent;
-public sealed record TongduGiftIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int ActualTurn,int TurnOwner,int DonorSeat,int CardId,CardKind Kind,long HandEntry,long? GiftSequence):IGameEvent;
-public sealed record TongduDebtConsumedEvent(long DebtId,long FrameId,long ParentId,int ActualTurn,int PhaseInstance):IGameEvent;
 public sealed record LiuBaEntityMovedEvent(long FrameId,int Step,long BatchId,int CardId,CardKind Kind,CardLocation From,CardLocation To,long Sequence):IGameEvent;
 public sealed record LiuBaMovementIssuedEvent(long FrameId,int Step,LiuBaStage Stage,long Before,long After,int Count):IGameEvent;
 public sealed record LiuBaCoinMintedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int RecipientSeat,int CardId,long GainSequence):IGameEvent;
@@ -39,10 +37,6 @@ internal abstract class LiuBaDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler=>new LiuBaHandler(Op);
 }
-internal sealed class IssueTongduHandGiftDescriptor:LiuBaDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.IssueTongduHandGift;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];}
-internal sealed class ReturnTongduOriginalCardAtPlayEndDescriptor:LiuBaDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ReturnTongduOriginalCardAtPlayEnd;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)];}
-internal sealed class RecastZhubiAndMarkActualDrawDescriptor:LiuBaDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.RecastZhubiAndMarkActualDraw;}
-internal sealed class ExchangeZhubiCoinsAtEndingDescriptor:LiuBaDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ExchangeZhubiCoinsAtEnding;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];}
 internal sealed class LiuBaHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ILiuBaHost>().Resolve(f,op);}
 internal static class LiuBaComposition

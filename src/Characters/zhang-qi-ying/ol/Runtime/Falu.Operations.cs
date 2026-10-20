@@ -1,0 +1,4 @@
+using System.Text.Json.Serialization;
+namespace CardGame.Core;
+internal sealed class InitializeFaluSuitTokensDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.InitializeFaluSuitTokens){}
+internal sealed class GainFaluTokensAfterActualDiscardDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.GainFaluTokensAfterActualDiscard){}

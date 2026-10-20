@@ -7,39 +7,6 @@ public sealed partial class GameEngine
     private bool HasMouXiahouDunCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectMouXiahouDunQingjian) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouXiahouDunGanglie);
     private static CardConversionSource MouXiahouDunSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
-    private int MouXiahouDunQingjianCount(int seat) => PublicPileSources(seat).Where(p => p.SkillId == MouXiahouDunQingjian).Sum(p => PublicPileCards(p).Count);
-    private int MouXiahouDunQingjianCapacity(int seat) => _players[seat].HasHpValue ? Math.Max(1, _players[seat].Hp - 1) : 0;
-    private PublicPersistentPileSource? MouXiahouDunPile(int seat, string instance) => PublicPileSources(seat).SingleOrDefault(p => p.SkillId == MouXiahouDunQingjian && p.SkillInstanceId == instance);
-    private int[] MouXiahouDunGanglieTargets(int seat) => _players.Where(p => p.IsAlive &&
-        ProgramEventHistory<DamageAppliedEvent>().Any(e => !e.SourceLess && e.Amount > 0 && e.TargetSeat == seat && e.SourceSeat == p.Seat) &&
-        !ProgramEventHistory<MouXiahouDunMobileGanglieSpentEvent>().Any(e => e.OwnerSeat == seat && e.TargetSeat == p.Seat)).Select(p => p.Seat).ToArray();
-    private int MouXiahouDunPhaseUses(int seat, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouXiahouDunMobileStartedEvent>().Count(e =>
-        e.Source.OwnerSeat == seat && e.Op == SkillProgramEffectOp.ResolveMouXiahouDunGanglie && e.Phase == phase);
-    [ProgramPhaseUsedProjection(60)]
-    private int MouXiahouDunProjectedUses(int seat, string skill, int fallback) => skill == MouXiahouDunGanglie && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase
-        ? MouXiahouDunPhaseUses(seat, phase) : fallback;
-    [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 31200, SkillProgramEffectOp.ResolveMouXiahouDunGanglie)]
-    private bool CanStartMouXiahouDunGanglie(CharacterState owner) => CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase &&
-        phase.ActorSeat == owner.Seat && IsRecordedActualDiscardRecoveryPhase(phase) && MouXiahouDunPhaseUses(owner.Seat, phase) == 0 && MouXiahouDunGanglieTargets(owner.Seat).Length > 0;
-    private void RecordMouXiahouDunDiscardOrigins(CardMovementBatchContext batch)
-    {
-        if (!HasMouXiahouDunCapability) return;
-        // Capture while the native Use/response producer is still alive.
-        // Discard-trigger candidates may be consumed after that producer retires.
-        foreach (var move in batch.Movements.Where(m => m.To == CardLocation.DiscardPile && m.From != m.To))
-            AdvanceEventRulesAndQueueFact(new MouXiahouDunMobileDiscardOriginEvent(batch.Id, move.Sequence, move.CardId, IsNativeTrueUseDiscardMovement(batch, move)));
-    }
-    private int[] MatchingMouXiahouDunDiscardIndexes(CardMovementBatchContext batch) => batch.Movements.Select((m, i) => (m, i)).Where(x =>
-        x.m.To == CardLocation.DiscardPile && x.m.From != x.m.To && ProgramEventHistory<MouXiahouDunMobileDiscardOriginEvent>().Count(e =>
-            e == new MouXiahouDunMobileDiscardOriginEvent(batch.Id, x.m.Sequence, x.m.CardId, false)) == 1).Select(x => x.i).ToArray();
-    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 31200, SkillProgramEffectOp.CollectMouXiahouDunQingjian, SkillProgramEffectOp.DistributeMouXiahouDunQingjian)]
-    private bool CanOfferMouXiahouDunQingjian(ProgramTriggerLegalityContext gate)
-    {
-        if (gate.Context.Window == SkillProgramTriggerWindow.PlayEnding) return MouXiahouDunPile(gate.Owner.Seat, gate.Candidate.SkillInstanceId) is { } pile && PublicPileCards(pile).Count > 0;
-        return gate.Context is { Window: SkillProgramTriggerWindow.DiscardPileReceived, MovementBatch: { } batch, MovementIndex: { } index } && index >= 0 && index < batch.Movements.Count &&
-            MatchingMouXiahouDunDiscardIndexes(batch).Contains(index) && _cardZones.GetLocation(batch.Movements[index].CardId) == CardLocation.DiscardPile &&
-            MouXiahouDunQingjianCount(gate.Owner.Seat) < MouXiahouDunQingjianCapacity(gate.Owner.Seat);
-    }
     private SkillProgramStepOutcome StartMouXiahouDunMobile(ProgramSkillFrame supplied, SkillProgramEffectOp op)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -129,15 +96,6 @@ public sealed partial class GameEngine
         MoveCard(GetAdvancedCard(id), r.Pile.Location, CardLocation.Hand(recipient), new(MouXiahouDunGiftReason), disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new MouXiahouDunMobileGiftEvent(f.Id, r.Index, id, recipient, _movementSequence));
         SealMouXiahouDunMovements(f.Id, before); ContinueMouXiahouDunMovement(f.Id);
-    }
-    private void IssueMouXiahouDunDamage(ProgramSkillFrame f)
-    {
-        var r = f.MouXiahouDunMobile!; var index = r.Index;
-        while (index < r.Targets.Count && !_players[r.Targets[index]].IsAlive) index++;
-        if (index == r.Targets.Count || _winner != Winner.None) { FinishMouXiahouDun(f); return; }
-        ReplaceRuntimeTop(f = f with { MouXiahouDunMobile = r with { Index = index } });
-        AdvanceEventRulesAndQueueFact(new MouXiahouDunMobileDamageIssuedEvent(f.Id, index, f.OwnerSeat, r.Targets[index]));
-        BeginProgramSkillDamage(f, r.Targets[index], 2, new(ProgramParticipantRef.Owner));
     }
     private void ContinueMouXiahouDunMovement(long id)
     {

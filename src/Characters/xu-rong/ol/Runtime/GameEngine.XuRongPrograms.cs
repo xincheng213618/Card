@@ -48,14 +48,7 @@ public sealed partial class GameEngine
  private const string XuRongTakeReason="program.xionghuo.random-take",XuRongClaimReason="program.shajue2023.claim";
  private CardConversionSource XuRongSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
  private int XuRongPool(int owner)=>_players[owner].MarkerSourceCounts.GetValueOrDefault((PlayerMarkerKind.Baoli,owner));
- private bool LiveXionghuoSource(XionghuoGrant grant)=>_players[grant.Source.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[grant.Source.OwnerSeat],grant.Source.SkillId,grant.Source.SkillInstanceId)&&_contentRegistry.GetSkill(grant.Source.SkillId).Program?.GameplayHash==grant.GameplayHash;
  private IEnumerable<XionghuoGrant> XuRongSubjectGrants(int owner,int subject)=>_players[subject].XionghuoGrants.Where(g=>g.TargetSeat==subject&&g.Source.OwnerSeat==owner&&LiveXionghuoSource(g));
- [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 10)]
- private int XionghuoActualDamageBonus(IDamageAttempt attack)
- {
-  if(attack.IsSourceLess||!IsValidPlayerSeat(attack.SourceSeat)||!IsValidPlayerSeat(attack.TargetSeat)||_players[attack.TargetSeat].XionghuoGrants.Count==0)return 0;
-  return XuRongSubjectGrants(attack.SourceSeat,attack.TargetSeat).Any()?1:0;
- }
  private int XuRongHandLimitPenalty(CharacterState owner)=>owner.XuRongRestrictions.Count(r=>r.Branch==1&&r.SubjectSeat==owner.Seat&&r.ActualTurnNumber==_turnNumber&&r.ActualTurnOwner==_currentSeat);
  private bool IsXuRongSlashTargetForbidden(int actor,int target,CardKind kind)=>IsSlashCard(kind)&&_players[actor].XuRongRestrictions.Any(r=>r.Branch==0&&r.SubjectSeat==actor&&r.Source.OwnerSeat==target&&r.ActualTurnNumber==_turnNumber&&r.ActualTurnOwner==_currentSeat);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 470)]

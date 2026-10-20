@@ -6,17 +6,13 @@ public sealed partial class GameEngine
     private static CardConversionSource LiuBaSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     [ProgramCapability]private sealed class LiuBaCapability(GameEngine e):ILiuBaHost,ILiuBaSelectionQuery
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginLiuBa(f,op);public int MaximumHp(int ownerSeat)=>e._players[ownerSeat].MaxHp;}
-    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition,27390,SkillProgramEffectOp.RecastZhubiAndMarkActualDraw)]
-    private bool AllowsLiuBaRecast(ProgramActivationLegalityContext c)=>_programPhaseUses.GetValueOrDefault((c.OwnerSeat,c.SkillId,c.Activation.UsageGroup))<c.Owner.MaxHp&&_players.Any(p=>p.IsAlive&&LiuBaRecastEntities(p.Seat).Length>0);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27390)]
     private bool CanOfferLiuBa(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)
     {
         if(t.Effects is not[{ }e]||!LiuBaComposition.Handles(e.Op))return true;
         return e.Op switch {SkillProgramEffectOp.IssueTongduHandGift=>context.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow&&c.OwnerSeat==_currentSeat&&_players.Any(p=>p.IsAlive&&GetHand(p).Count>0),SkillProgramEffectOp.ReturnTongduOriginalCardAtPlayEnd=>IsIssuedTongduCandidate(c,context),SkillProgramEffectOp.ExchangeZhubiCoinsAtEnding=>IsIssuedLiuBaCoinEndingCandidate(c,context),_=>false};
     }
-    private LiuBaEntity[] LiuBaRecastEntities(int seat)=>new[]{CardLocation.Hand(seat),CardLocation.Equipment(seat)}.SelectMany(l=>_cardZones.CardsAt(l).Select(c=>new LiuBaEntity(c.Id,c.Kind,l))).OrderBy(c=>c.CardId).ToArray();
     private LiuBaEntity[] LiuBaOwnedEntities(int seat)=>new[]{CardLocation.Hand(seat),CardLocation.Equipment(seat),CardLocation.Judgment(seat),CardLocation.WoodenOxGrain(seat)}.SelectMany(l=>_cardZones.CardsAt(l).Where(c=>!(l.Zone==CardZoneKind.Equipment&&c.IsGeneralWeapon)&&!IsForeignEquipmentDiscardPrevented(seat,c,l,OwnedCardMoveIntent.Transfer)).Select(c=>new LiuBaEntity(c.Id,c.Kind,l))).OrderBy(c=>c.CardId).ToArray();
-    private LiuBaEntity[] LiuBaCoins(int seat)=>LiuBaOwnedEntities(seat).Where(e=>HasLiuBaCoinEntity(e.CardId)).ToArray();
     private SkillProgramStepOutcome BeginLiuBa(ProgramSkillFrame supplied,SkillProgramEffectOp op)
     {
         var f=GetActiveProgramFrame(supplied.Id);var context=f.WindowContext;
@@ -92,35 +88,6 @@ public sealed partial class GameEngine
     }
     private void CompleteLiuBaMovement(ProgramSkillFrame f,int count)
     {f=GetActiveProgramFrame(f.Id);var r=f.LiuBa!;ReplaceRuntimeTop(f with{LiuBa=r with{After=_movementSequence,ActualCount=count}});AdvanceEventRulesAndQueueFact(new LiuBaMovementIssuedEvent(f.Id,r.Step,r.Stage,r.Before,_movementSequence,count));ContinueLiuBa(f.Id);}
-    private void PayTongduGift(ProgramSkillFrame f,LiuBaEntity card)
-    {
-        var r=f.LiuBa!;var entry=CurrentHandEntry(r.Recipient,card.CardId)??throw new InvalidOperationException("Tongdu requires the selected original Hand entry.");PrepareLiuBaMovement(ref f,LiuBaStage.GiftChildren,[card]);
-        if(r.Recipient==f.OwnerSeat)AdvanceEventRulesAndQueueFact(new TongduGiftIssuedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.TurnOwner,r.Recipient,card.CardId,card.Kind,entry,null));
-        else MoveProgramCardsFromMultipleSources([card.CardId],CardLocation.Hand(f.OwnerSeat),new(TongduGiftReason),(batch,records)=>
-        {RecordLiuBaMovement(f,batch,records);AdvanceEventRulesAndQueueFact(new TongduGiftIssuedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.TurnOwner,r.Recipient,card.CardId,card.Kind,entry,records.Single().Sequence));});
-        CompleteLiuBaMovement(f,r.Recipient==f.OwnerSeat?0:1);
-    }
-    private void PayTongduReturn(ProgramSkillFrame f)
-    {
-        var r=f.LiuBa!;var c=new ProgramTriggerCandidate(f.OwnerSeat,f.SkillId,GetProgramBindingId(f),f.SkillInstanceId,f.GameplayHash,GetProgramTrigger(f).Priority,f.WindowContext!.OccurrenceIndex);
-        var debt=CurrentTongduDebt(c,f.WindowContext!)??throw new InvalidOperationException("Tongdu lost its original issued entity debt.");var material=LiuBaOwnedEntities(f.OwnerSeat).Where(e=>e.CardId==debt.CardId).ToArray();
-        ReplaceRuntimeTop(f=f with{LiuBa=r with{DebtId=debt.FrameId}});AdvanceEventRulesAndQueueFact(new TongduDebtConsumedEvent(debt.FrameId,f.Id,r.ParentId,r.ActualTurn,r.PhaseInstance));PrepareLiuBaMovement(ref f,LiuBaStage.ReturnChildren,material);
-        if(material.Length!=0)MoveProgramCardsFromMultipleSources([debt.CardId],CardLocation.DrawPile,new(TongduReturnReason),(batch,records)=>RecordLiuBaMovement(f,batch,records));CompleteLiuBaMovement(f,material.Length);
-    }
-    private void PayLiuBaRecast(ProgramSkillFrame f,LiuBaEntity material)
-    {
-        f=BeginFrameNativeRecastInvocation(f,f.LiuBa!.Recipient,[material.CardId]);
-        PrepareLiuBaMovement(ref f,LiuBaStage.RecastChildren,[material]);MoveProgramCardsFromMultipleSources([material.CardId],CardLocation.DiscardPile,CardMoveReasons.RecastDiscard,(batch,records)=>RecordLiuBaMovement(f,batch,records));CompleteLiuBaMovement(f,1);
-    }
-    private void PayLiuBaExchange(ProgramSkillFrame f)
-    {
-        var r=f.LiuBa!;var live=LiuBaCoins(f.OwnerSeat);if(r.Coins.Count==0||r.Coins.Count!=r.SelectedBottom.Count||r.Coins.Distinct().Count()!=r.Coins.Count||r.SelectedBottom.Distinct().Count()!=r.SelectedBottom.Count||r.Entities.Any(e=>!live.Contains(e))||!r.ViewedBottom.SequenceEqual(_cardZones.CardsAt(CardLocation.DrawPile).Take(r.ViewedBottom.Count).Select(c=>c.Id)))throw new InvalidOperationException("Liu Ba exchange requires both exact frozen original sets.");
-        var deck=_cardZones.CardsAt(CardLocation.DrawPile).Select(c=>c.Id).ToArray();var mapping=r.SelectedBottom.Select((id,i)=>(id,coin:r.Coins[i])).ToDictionary(x=>x.id,x=>x.coin);var desired=deck.Select(id=>mapping.GetValueOrDefault(id,id)).ToArray();
-        var entities=r.Entities.Concat(r.SelectedBottom.Select(id=>new LiuBaEntity(id,GetAdvancedCard(id).Kind,CardLocation.DrawPile))).ToArray();PrepareLiuBaMovement(ref f,LiuBaStage.ExchangeChildren,entities);
-        MoveProgramCardsFromMultipleSources(entities.Select(e=>e.CardId).ToArray(),CardLocation.DrawPile,new(LiuBaExchangeReason),(batch,records)=>
-        {RecordLiuBaMovement(f,batch,records);var now=_cardZones.CardsAt(CardLocation.DrawPile).Reverse().Select(c=>c.Id).ToArray();_cardZones.ReorderDrawPileTop(now,desired.Reverse().ToArray(),[]);},(card,from)=>from==CardLocation.DrawPile?CardLocation.Hand(f.OwnerSeat):CardLocation.DrawPile);
-        CompleteLiuBaMovement(f,entities.Length);
-    }
     private bool DrainLiuBa(ProgramSkillFrame f)=>TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);
     private void ContinueLiuBa(long id)
     {
@@ -157,6 +124,4 @@ public sealed partial class GameEngine
         if(r.Stage==LiuBaStage.Bottom)return p.Choices.OrderByDescending(c=>CardCatalog.Get(GetAdvancedCard(c.Cards.Single()).Kind).HandKeepValue).ThenBy(c=>c.Cards.Single()).First();
         return p.Choices.OrderByDescending(c=>c.Targets is[var seat]?_aiBrains[f.OwnerSeat].ScoreProgramTarget(CreateSnapshot(f.OwnerSeat),seat,new SkillProgramAiHint(1,0,0,0,0,0,false,false)):c.Cards is[var id]?-CardCatalog.Get(GetAdvancedCard(id).Kind).HandKeepValue:0).ThenBy(c=>c.Id.Value,StringComparer.Ordinal).First();
     }
-    [ProgramViewContributor(ProgramViewContribution.PrivateCards, 50)]
-    private IReadOnlyList<CardSnapshot> LiuBaPrivatelyViewedBottomCards(int viewerSeat)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{LiuBa:{Stage:LiuBaStage.Coins or LiuBaStage.Bottom}r}f&&f.OwnerSeat==viewerSeat&&_pendingDecision is{IsPrivate:true,PlayerSeat:var actor}&&actor==viewerSeat?r.ViewedBottom.Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray():[];
 }

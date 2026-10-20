@@ -1,17 +1,6 @@
 using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
-
-public sealed record LianjuEntityUsedEvent(int ActualTurn, int ActorSeat, long? ActionId, long UseFrameId, int CardId) : IGameEvent;
-public sealed record LianjuUseActorChangedEvent(long UseFrameId, long ActionId, long ProducerFrameId, CardConversionSource Producer,
-    string GameplayHash, int InstructionIndex, int PreviousActor, int Actor, int Provider) : IGameEvent;
-public sealed record LianjuEndingReachedEvent(int Serial, int ActualTurn, int ActorSeat, long NativePhaseToken) : IGameEvent;
-public sealed record LianjuPromiseGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int EndingSerial,
-    int ActualTurn, int RecipientSeat, bool IsRed) : IGameEvent;
-public sealed record LianjuPromiseConsumedEvent(long PromiseFrameId, long ParentFrameId, int EndingSerial) : IGameEvent;
-// These are trusted rule facts. Hidden draw identities are projected only through their owner's native card snapshots.
-public sealed record SilvEntityMarkedEvent(int CardId, CardConversionSource Source, string GameplayHash, long ProducerFrameId,
-    long GainMovementSequence) : IGameEvent;
 public sealed record LiWanStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
     long ParentId, int ActualTurn, int EndingSerial, long? PromiseFrameId, long? RefundSequence) : IGameEvent;
 public sealed record LiWanPaidEvent(long FrameId, int RecipientSeat, long Before, long After, int Count) : IGameEvent;
@@ -41,20 +30,6 @@ internal abstract class LiWanDescriptor : ProgramOperationDescriptorBase
             SkillProgramEffectOp.DrawSilvMarkedCardAfterDamage => SkillProgramTriggerWindow.AfterDamageApplied,
             SkillProgramEffectOp.ReturnDiscardedSilvEntity => SkillProgramTriggerWindow.DiscardPileReceived,
             _ => SkillProgramTriggerWindow.TurnEnding })];
-}
-internal sealed class OfferLianjuSameColorGiftDescriptor : LiWanDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.OfferLianjuSameColorGift; }
-internal sealed class ResolveLianjuOppositeColorReturnDescriptor : LiWanDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveLianjuOppositeColorReturn; }
-internal sealed class DrawSilvMarkedCardAfterDamageDescriptor : LiWanDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.DrawSilvMarkedCardAfterDamage; }
-internal sealed class ReturnDiscardedSilvEntityDescriptor : LiWanDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ReturnDiscardedSilvEntity;
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 internal sealed class LiWanHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

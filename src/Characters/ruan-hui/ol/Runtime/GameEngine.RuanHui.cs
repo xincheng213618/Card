@@ -58,7 +58,6 @@ public sealed partial class GameEngine
         else PublishRuanHui(f);
         return SkillProgramStepOutcome.AwaitChild;
     }
-    private IReadOnlyList<Card> MingchaRandomCards(int seat) => Array.AsReadOnly(GetHand(_players[seat]).Concat(GetEquipment(seat)).OrderBy(c => c.Id).ToArray());
     private IReadOnlyList<PromptChoice> RuanHuiChoices(ProgramSkillFrame f)
     {
         var r=f.RuanHui!;var result=new List<PromptChoice>();
@@ -143,9 +142,6 @@ public sealed partial class GameEngine
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f with{CardSetBindings=Array.AsReadOnly(f.CardSetBindings.Where(b=>b.Name!=MingchaBind).ToArray())});
     }
     private void FinishRuanHui(ProgramSkillFrame f){AdvanceEventRulesAndQueueFact(new RuanHuiCompletedEvent(f.Id));ReplaceRuntimeTop(f=f with{RuanHui=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
-    private bool IsMingchaNormalDrawReplacement(ProgramSkillFrame f)=>f.WindowContext is{Window:SkillProgramTriggerWindow.DrawPhaseStarting}context&&
-        ProgramEventHistory<RuanHuiStartedEvent>().Count(e=>e.FrameId==f.Id&&e.Source==RuanHuiSource(f)&&e.GameplayHash==f.GameplayHash&&e.ParentId==context.ParentFrameId&&e.Op==SkillProgramEffectOp.ResolveMingchaRevealDrawChoice)==1&&
-        ProgramEventHistory<RuanHuiDecisionEvent>().Count(e=>e.FrameId==f.Id&&e.ReplaceDraw)==1&&ProgramEventHistory<RuanHuiCompletedEvent>().Count(e=>e.FrameId==f.Id)==1;
     [ProgramContinuation(ProgramContinuationKind.Resume,27080)]
     private bool ResumeRuanHui(long id){if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{RuanHui:not null}f||f.Id!=id)return false;ContinueRuanHui(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,27080)]

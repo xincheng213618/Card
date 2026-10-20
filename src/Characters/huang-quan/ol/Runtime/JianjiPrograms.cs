@@ -1,0 +1,2 @@
+namespace CardGame.Core;
+internal sealed class DrawAndOfferJianjiExactCardDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawAndOfferJianjiExactCard;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}

@@ -7,13 +7,8 @@ public sealed record SpPangTongReceipt(CardConversionSource Source,string Gamepl
 }
 public sealed partial record ProgramSkillFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public SpPangTongReceipt? SpPangTong {get;init;}}
-public sealed record GuolunRevealedEvent(long FrameId,CardConversionSource Source,int TargetSeat,int CardId):IGameEvent;
 public sealed record SpPangTongStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Instruction,int Turn,long? ParentId,SkillProgramEffectOp Operation):IGameEvent;
 public sealed record SpPangTongSegmentPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,int Instruction,string Stage,int TargetSeat,long Before,long After,int Count,long? DrawInvocation):IGameEvent;
-public sealed record SongsangHealthIssuedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int VictimSeat,bool Wounded,int HpBefore,int MaximumBefore,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? RuleWounded=null):IGameEvent;
-public sealed record ZhanjiDrawEntitlement(CardConversionSource Source,string GameplayHash);
-public sealed record ZhanjiDrawEntitlementsCapturedEvent(long InvocationId,int OwnerSeat,long SequenceBefore,int Count):IGameEvent;
-public sealed record ZhanjiDrawSourceCapturedEvent(long InvocationId,int OwnerSeat,long SequenceBefore,ZhanjiDrawEntitlement Entitlement):IGameEvent;
 public sealed partial record NativeDrawInvocationProof
 {
  private readonly IReadOnlyList<ZhanjiDrawEntitlement>? _zhanjiEntitlements;
@@ -30,10 +25,6 @@ internal abstract class SpPangTongDescriptor(SkillProgramEffectOp op):ProgramOpe
  public override ProgramOperationInteraction Interaction=>op==SkillProgramEffectOp.ResolveGuolunRevealOptionalAtomicExchange?ProgramOperationInteraction.Choice:ProgramOperationInteraction.Automatic;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
 }
-internal sealed class ResolveGuolunRevealOptionalAtomicExchangeDescriptor():SpPangTongDescriptor(SkillProgramEffectOp.ResolveGuolunRevealOptionalAtomicExchange)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget(),new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)];}
-internal sealed class ResolveSongsangLimitedOtherDeathDescriptor():SpPangTongDescriptor(SkillProgramEffectOp.ResolveSongsangLimitedOtherDeath)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CharacterDied)];}
 internal sealed class DrawAfterActualPlayDrawInvocationDescriptor():SpPangTongDescriptor(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation)
 {
     public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);

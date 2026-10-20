@@ -1,9 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-
-public sealed record MiuyanUseInvoice(long UseId,long ActionId,CardConversionSource Source,string GameplayHash,
-    int ActualTurn,int TurnOwner,int RoundNumber,ActualDiscardRecoveryPhaseKey Phase,SkillPolarity PreviousState,SkillPolarity CurrentState,
-    int OriginalActor,int ProviderSeat,CardActionCost Material,long BeforePayment);
 public sealed partial record CardUseFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public MiuyanUseInvoice? MiuyanUse{get;init;} }
 public enum WangGuanStage { MiuyanGainChildren, ShiluDrawChildren, ShiluTarget, ShiluCard }
@@ -18,16 +14,8 @@ public sealed record WangGuanReceipt(CardConversionSource Source,string Gameplay
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public WangGuanReceipt? WangGuan{get;init;} }
-public sealed record MiuyanUseIssuedEvent(MiuyanUseInvoice Invoice):IGameEvent;
-public sealed record MiuyanPhaseHandRevealedEvent(ActualDiscardRecoveryPhaseKey Phase,long RevealFrameId,int CardId,int HolderSeat,long Entry,string RevealKind):IGameEvent;
-public sealed record MiuyanRoundDisabledEvent(long ProgramFrameId,long UseId,long ActionId,CardConversionSource Source,string GameplayHash,int RoundNumber):IGameEvent;
 public sealed record WangGuanStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,int ActualTurn,int TurnOwner,long ParentId,long NativeId,int FrozenHp):IGameEvent;
-public sealed record MiuyanClaimEntityFrozenEvent(long FrameId,int Index,WangGuanHandEntity Entity):IGameEvent;
-public sealed record MiuyanEntityObtainedEvent(long FrameId,int Index,WangGuanHandEntity Entity,long MovementSequence):IGameEvent;
 public sealed record WangGuanMovementIssuedEvent(long FrameId,WangGuanStage Stage,long Before,long After,int Count):IGameEvent;
-public sealed record ShiluHolderChosenEvent(long FrameId,int HolderSeat,long MovementCutoff):IGameEvent;
-public sealed record ShiluCandidateFrozenEvent(long FrameId,int Index,WangGuanHandEntity Entity):IGameEvent;
-public sealed record ShiluHandIdentityGrantedEvent(long FrameId,CardConversionSource Source,string GameplayHash,long DamageFrameId,int HolderSeat,int CardId,long HandEntry,long MovementCutoff):IGameEvent;
 public sealed record WangGuanCompletedEvent(long FrameId):IGameEvent;
 
 internal interface IWangGuanHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op); }
@@ -38,16 +26,6 @@ internal abstract class WangGuanDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(Op==SkillProgramEffectOp.ResolveMiuyanCompletedUse?SkillProgramTriggerWindow.CardUseCompleted:SkillProgramTriggerWindow.AfterDamageApplied)];
 }
-internal sealed class ResolveMiuyanCompletedUseDescriptor:WangGuanDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMiuyanCompletedUse; public override bool UsesConversionPolarity=>true;
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
-}
-internal sealed class ResolveShiluDrawRevealIdentityDescriptor:WangGuanDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveShiluDrawRevealIdentity; }
 internal sealed class WangGuanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 { public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IWangGuanHost>().Resolve(f,op); }
 internal static class WangGuanComposition

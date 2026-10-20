@@ -43,16 +43,6 @@ internal abstract class GuoSiDescriptor:ProgramOperationDescriptorBase
  public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
 }
-internal sealed class ChooseTanbeiTargetPactDescriptor:GuoSiDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ChooseTanbeiTargetPact;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];
-}
-internal sealed class OfferSidaoCompletedPairSnatchDescriptor:GuoSiDescriptor
-{
- public override SkillProgramEffectOp Op=>SkillProgramEffectOp.OfferSidaoCompletedPairSnatch;
- public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)];
-}
 internal sealed class GuoSiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
  public SkillProgramEffectOp Op=>op;

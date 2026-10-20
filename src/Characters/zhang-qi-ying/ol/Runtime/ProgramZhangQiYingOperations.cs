@@ -35,12 +35,6 @@ internal abstract class ZhangQiYingDescriptor(SkillProgramEffectOp op):ProgramOp
  public override ProgramOperationInteraction Interaction=>op==SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei?ProgramOperationInteraction.Choice:ProgramOperationInteraction.Automatic;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
 }
-internal sealed class InitializeFaluSuitTokensDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.InitializeFaluSuitTokens){}
-internal sealed class GainFaluTokensAfterActualDiscardDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.GainFaluTokensAfterActualDiscard){}
-internal sealed class ReorderTopByCurrentFaluTokensDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.ReorderTopByCurrentFaluTokens){}
-internal sealed class ChooseFinalJudgmentFiveByZiweiDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.ChooseFinalJudgmentFiveByZiwei){}
-internal sealed class IncreaseActualSourceDamageByYuqingDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing){}
-internal sealed class GainThreeDeckCategoriesAfterElementalDamageDescriptor():ZhangQiYingDescriptor(SkillProgramEffectOp.GainThreeDeckCategoriesAfterElementalDamage){}
 internal static class ZhangQiYingComposition
 {
  internal static bool Own(SkillProgramEffectOp op)=>(int)op is >=24400 and <=24405;

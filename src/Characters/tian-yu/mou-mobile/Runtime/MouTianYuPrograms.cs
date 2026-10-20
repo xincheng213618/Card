@@ -23,33 +23,10 @@ public sealed record MouTianYuDiscardPaidEvent(long FrameId, int OwnerSeat, int 
 public sealed record MouTianYuFieldMovedEvent(long FrameId, int CardId, CardLocation From, CardLocation To) : IGameEvent;
 public sealed record MouTianYuMovementSignedEvent(long FrameId, int CardId, CardKind Kind, CardLocation From, CardLocation To,
     CardMoveReason Reason, long Sequence) : IGameEvent;
-public sealed record MouTianYuRangeIncreasedEvent(long FrameId, int OwnerSeat, CardConversionSource Source, string GameplayHash, int RangeBefore) : IGameEvent;
 public sealed record MouTianYuSlashObtainedEvent(long FrameId, int OwnerSeat, int? CardId) : IGameEvent;
 public sealed record MouTianYuCompletedEvent(long FrameId) : IGameEvent;
 
 internal interface IMouTianYuHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
-internal sealed class ResolveMouTianYuZhenxiDescriptor : ProgramOperationDescriptorBase
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
-
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouTianYuZhenxi;
-    public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized),
-            new RequireCardActionRelation(SkillProgramCardActionOwnerRelation.Actor, [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash])];
-    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.DiscardSelected, static (_, c) => c.PublicControlValue(6));
-    public override ISkillProgramEffectHandler Handler { get; } = new MouTianYuHandler(SkillProgramEffectOp.ResolveMouTianYuZhenxi);
-}
-internal sealed class ResolveMouTianYuYangshiDescriptor : ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouTianYuYangshi;
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
-    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(5));
-    public override ISkillProgramEffectHandler Handler { get; } = new MouTianYuHandler(SkillProgramEffectOp.ResolveMouTianYuYangshi);
-}
 internal sealed class MouTianYuHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

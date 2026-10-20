@@ -12,15 +12,6 @@ public sealed partial record ProgramSkillFrame
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MouHuangYueyingMobileReceipt? MouHuangYueyingMobile { get; init; }
 }
-public sealed record MouHuangYueyingJizhiStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, long WindowId, int ActualTurn, int TurnOwnerSeat) : IGameEvent;
-public sealed record MouHuangYueyingJizhiExemptEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn, int TurnOwnerSeat, int CardId, long MovementSequence) : IGameEvent;
-public sealed record MouHuangYueyingJizhiDrawReturnedEvent(long FrameId, long? AttemptFrameId, int ActualCount, int ReplacementCount) : IGameEvent;
-public sealed record MouHuangYueyingQicaiReservedEvent(long FrameId, CardConversionSource Source, string GameplayHash, ActualDiscardRecoveryPhaseKey Phase, int RecipientSeat) : IGameEvent;
-public sealed record MouHuangYueyingQicaiEquipmentPlacedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int RecipientSeat, int CardId, CardLocation From, CardLocation To, long MovementSequence, int? ReplacedCardId) : IGameEvent;
-public sealed record MouHuangYueyingQiGrantedEvent(long GrantId, CardConversionSource Source, string GameplayHash, int RecipientSeat, long MovementSequence, long? PreviousGrantId) : IGameEvent;
-public sealed record MouHuangYueyingQiGainClaimedEvent(long GrantId, long BatchId, int MovementIndex, CardConversionSource Source, string GameplayHash, int GainingSeat, int CardId, CardLocation OriginalFrom, long GainSequence, int Remaining) : IGameEvent;
-public sealed record MouHuangYueyingQiTransferredEvent(long FrameId, long GrantId, long GainSequence, int CardId, CardLocation From, CardLocation To, long MovementSequence) : IGameEvent;
-public sealed record MouHuangYueyingQiClaimSettledEvent(long FrameId, long GrantId, long GainSequence) : IGameEvent;
 public sealed record MouHuangYueyingMobileCompletedEvent(long FrameId, SkillProgramEffectOp Operation, bool Paid) : IGameEvent;
 
 internal interface IMouHuangYueyingMobileHost
@@ -44,14 +35,6 @@ internal abstract class MouHuangYueyingMobileDescriptor : ProgramOperationDescri
         _ => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsGained)]
     };
 }
-internal sealed class ResolveMouHuangYueyingJizhiDescriptor : MouHuangYueyingMobileDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHuangYueyingJizhi;
-  public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase); }
-internal sealed class PlaceMouHuangYueyingQicaiEquipmentDescriptor : MouHuangYueyingMobileDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.PlaceMouHuangYueyingQicaiEquipment;
-  public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase); }
-internal sealed class TransferMouHuangYueyingQicaiGainsDescriptor : MouHuangYueyingMobileDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.TransferMouHuangYueyingQicaiGains; }
 internal sealed class MouHuangYueyingMobileHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

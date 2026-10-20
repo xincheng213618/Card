@@ -3,25 +3,6 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string BuZhiDrawReason="program.bu-zhi.draw",BuZhiMoveReason="program.bu-zhi.equipment";
-    private bool BuZhiMovementQualifies(CardMovementBatchContext batch,int owner)
-    {
-        var hand=CardLocation.Hand(owner);
-        // A source-side processing trip is still a real loss. Returning the same
-        // used card to its original hand is not a new acquisition.
-        return batch.NativeDrawInvocation is{}draw && draw.LastBatchId==batch.Id && draw.ParentFrameId==batch.ParentFrameId &&
-            draw.ActualTurnNumber==batch.TurnNumber && draw.OwnerSeat==owner && draw.ActualCount>=2 && ValidNativeDrawInvocation(draw) ||
-            batch.NativeBuZhiDiscardInvocation is{}discard && discard.LastBatchId==batch.Id && discard.ParentFrameId==batch.ParentFrameId &&
-            discard.ActualTurnNumber==batch.TurnNumber && discard.Source.OwnerSeat==owner && discard.ActualCount>=2 && ValidNativeBuZhiDiscardInvocation(discard) ||
-            batch.Movements.Count(m=>m.From.OwnerSeat==owner && m.From!=m.To)>=2 ||
-            batch.Movements.Count(m=>m.To==hand && ActualHandGainOriginalSource(m)!=hand)>=2;
-    }
-    private bool IsBuZhiActivation(SkillProgramActivation a)=>
-        ProgramInstructionResolver.Default.Features(a).HasOperation(SkillProgramEffectOp.ResolveRebelCountEquipmentChoice);
-    private int? BuZhiPhaseLimit(CharacterState owner,SkillProgramActivation a)=>IsBuZhiActivation(a)?_players.Count(p=>p.IsAlive && p.Role==Role.Rebel):a.UsesPerPhase;
-    private bool BuZhiActivationTargetAllowed(CharacterState target,SkillProgramActivation a)=>!IsBuZhiActivation(a) || target.IsAlive && GetEquipment(target).Count>0;
-    private bool BuZhiPaidEquipmentEntitlement(ProgramSkillFrame f)=>f.BuZhi is{BatchId:null,Target:{}target} &&
-        IsValidPlayerSeat(target) && _players[target].IsAlive && ValidBuZhi(f) &&
-        CompleteProgramEventHistory().OfType<BuZhiMovementPaidEvent>().Count(e=>e.FrameId==f.Id && e.Target==target && e.ReturnStage=="branch" && e.CardIds.Count==0)==1;
     private bool BuZhiCurrent(ProgramSkillFrame f)=>_winner==Winner.None && _players[f.OwnerSeat].IsAlive &&
         (HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId) && EnabledSkillPrograms(_players[f.OwnerSeat]).Any(p=>p.Id==f.SkillId && p.GameplayHash==f.GameplayHash) ||
          BuZhiPaidEquipmentEntitlement(f));
@@ -117,25 +98,6 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f=f with{BuZhi=f.BuZhi! with{After=_movementSequence,Actual=actual}});
         AdvanceEventRulesAndQueueFact(new BuZhiMovementPaidEvent(f.Id,next,target,before,_movementSequence,actual,[]));
         if(!TryBeginCardsMovedProgramWindow(f.Id))ReturnRuntimeProgramMovement(f.Id);
-    }
-    private void PayBuZhiEquipment(ProgramSkillFrame f,IReadOnlyList<int> ids,CardLocation destination,string next)
-    {
-        var before=_movementSequence;ReplaceRuntimeTop(f=f with{BuZhi=f.BuZhi! with{Stage="movement",ReturnStage=next,Before=before,After=before,Actual=0,PaidIds=ids},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        var logicalDiscard=destination==CardLocation.DiscardPile?CaptureNativeLogicalDiscardInvocation(f.OwnerSeat,f.OwnerSeat,ids,new(BuZhiMoveReason),f.Id):null;
-        MoveProgramCardsFromMultipleSources(ids,destination,new(BuZhiMoveReason),(_,records)=>
-        {
-            var active=GetActiveProgramFrame(f.Id);var actual=records.Count(m=>m.To==destination || destination==CardLocation.DiscardPile && m.To==CardLocation.OutsideGame);
-            ReplaceRuntimeTop(active with{BuZhi=active.BuZhi! with{After=_movementSequence,Actual=actual}});
-            AdvanceEventRulesAndQueueFact(new BuZhiMovementPaidEvent(f.Id,next,active.BuZhi!.Target!.Value,before,_movementSequence,actual,ids));
-        });
-        CompleteNativeLogicalDiscardInvocation(logicalDiscard);
-        if(!TryBeginCardsMovedProgramWindow(f.Id))ReturnRuntimeProgramMovement(f.Id);
-    }
-    private void IssueBuZhiDamage(ProgramSkillFrame f)
-    {
-        if(!BuZhiCurrent(f) || !_players[f.BuZhi!.Target!.Value].IsAlive){FinishBuZhi(f);return;}
-        ReplaceRuntimeTop(f=f with{BuZhi=f.BuZhi! with{Stage="damage-issued",DamageIssued=true}});
-        AdvanceEventRulesAndQueueFact(new BuZhiDamageIssuedEvent(f.Id,f.OwnerSeat,f.BuZhi!.Target!.Value,1));BeginProgramSkillDamage(f,f.BuZhi.Target.Value,1);
     }
     [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 90)]
     private bool IsBuZhiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op is SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit or SkillProgramEffectOp.ResolveRebelCountEquipmentChoice &&

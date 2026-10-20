@@ -10,11 +10,6 @@ public sealed record RuanHuiDecisionEvent(long FrameId, bool ReplaceDraw) : IGam
 public sealed record RuanHuiRandomEntityEvent(long FrameId, int TargetSeat, RuanHuiEntity Entity) : IGameEvent;
 public sealed record RuanHuiStepEvent(long FrameId, RuanHuiStep Step) : IGameEvent;
 public sealed record RuanHuiCompletedEvent(long FrameId) : IGameEvent;
-public sealed record JingzhongDiscardEvent(long PhaseToken, int OwnerSeat, long MovementSequence, int CardId) : IGameEvent;
-public sealed record JingzhongLeaseEvent(long FrameId, CardConversionSource Source, string GameplayHash, int RecipientSeat, long AfterPhaseToken, int ActualTurn) : IGameEvent;
-public sealed record JingzhongUseEntityEvent(long PhaseToken, long ActionId, long UseId, int OriginalActor, bool Response, int Index, int MaterialCount, int CardId, CardKind PhysicalKind, CardLocation OriginalFrom, long CapturedAfterSequence, long? PaidEntrySequence) : IGameEvent;
-public sealed record JingzhongSettledEntityEvent(long LeaseId, long PhaseToken, long ActionId, long BatchId, int CardId, long MovementSequence) : IGameEvent;
-public sealed record JingzhongClaimIssuedEvent(long FrameId, long LeaseId, long PhaseToken, long ActionId, long BatchId, int EntityCount) : IGameEvent;
 public sealed record RuanHuiReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, int InstructionIndex, long ParentId, int ActualTurn,
     RuanHuiStage Stage, IReadOnlyList<RuanHuiEntity> Entities, IReadOnlyList<RuanHuiStep> Steps, bool? ReplaceDraw = null, int? TargetSeat = null, long? LeaseId = null, long? ActionId = null, RuanHuiEntity? RandomEntity = null)
 {
@@ -35,11 +30,6 @@ internal abstract class RuanHuiDescriptor : ProgramOperationDescriptorBase
         SkillProgramEffectOp.ResolveMingchaRevealDrawChoice => SkillProgramTriggerWindow.DrawPhaseStarting,
         SkillProgramEffectOp.ArmJingzhongNextActualPlay => SkillProgramTriggerWindow.DiscardPhaseEnded, _ => SkillProgramTriggerWindow.DiscardPileReceived })];
 }
-internal sealed class ResolveMingchaRevealDrawChoiceDescriptor : RuanHuiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMingchaRevealDrawChoice; }
-internal sealed class ArmJingzhongNextActualPlayDescriptor : RuanHuiDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
- public override SkillProgramEffectOp Op => SkillProgramEffectOp.ArmJingzhongNextActualPlay; }
-internal sealed class ObtainJingzhongUsedEntitiesDescriptor : RuanHuiDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainJingzhongUsedEntities; }
 internal sealed class RuanHuiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

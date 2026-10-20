@@ -1,12 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public sealed record SanwenNamedEntity(int CardId,CardKind Name);
-public sealed record SanwenGainProof(long BatchId,int ActualTurn,int OwnerSeat,IReadOnlyList<SanwenNamedEntity> Incoming,IReadOnlyList<SanwenNamedEntity> Witnesses)
-{
- private readonly IReadOnlyList<SanwenNamedEntity> _incoming=Array.AsReadOnly(Incoming.ToArray()),_witnesses=Array.AsReadOnly(Witnesses.ToArray());
- public IReadOnlyList<SanwenNamedEntity> Incoming{get=>_incoming;init=>_incoming=Array.AsReadOnly(value.ToArray());}
- public IReadOnlyList<SanwenNamedEntity> Witnesses{get=>_witnesses;init=>_witnesses=Array.AsReadOnly(value.ToArray());}
-}
 public enum WangCanStage { SanwenDiscard, SanwenDraw, QiaiChoose, QiaiGift, DenglouViewChildren, DenglouView, DenglouGain, DenglouChoose, DenglouNative, DenglouDiscard, DenglouCancel, Completed }
 public sealed record WangCanReceipt(CardConversionSource Source,string GameplayHash,int Instruction,long WindowId,int ActualTurn,int Phase,WangCanStage Stage,SanwenGainProof? Sanwen=null,int Cursor=0,int ActualCount=0,long Before=0,long After=0,CardLocation? Lease=null,WangCanNativeReceipt? Native=null,long? DyingFrameId=null,long LeaseBefore=0,long LeaseAfter=0)
 {
@@ -49,12 +42,6 @@ internal abstract class WangCanDescriptor:ProgramOperationDescriptorBase
  public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
 }
-internal sealed class ResolveSanwenActualGainDuplicatesDescriptor:WangCanDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveSanwenActualGainDuplicates;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsGained)];}
-internal sealed class CollectQiaiLivingContributionsDescriptor:WangCanDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.CollectQiaiLivingContributions;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.DyingEntering)];}
-internal sealed class ViewDenglouTopAndUseBasicsDescriptor:WangCanDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ViewDenglouTopAndUseBasics;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];}
 internal sealed class WangCanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int t,ISkillProgramEffectHost h)=>h.GetCapability<IWangCanProgramHost>().ExecuteWangCan(op,f);}
 internal static class WangCanContract

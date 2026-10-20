@@ -7,8 +7,6 @@ public sealed partial class GameEngine
     private static CardConversionSource WenYangSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private int WenYangAwakeningLevel(int owner)=>ProgramEventHistory<WenYangAwakenedEvent>().Where(e=>e.OwnerSeat==owner).Select(e=>e.Level).DefaultIfEmpty(0).Max();
     private bool WenYangHasAwakened(int owner,int level)=>ProgramEventHistory<WenYangAwakenedEvent>().Any(e=>e.OwnerSeat==owner&&e.Level==level);
-    private int WenYangLvliLimit(int owner)=>WenYangHasAwakened(owner,1)&&owner==_currentSeat?2:1;
-    private int WenYangLvliUses(int owner)=>ProgramEventHistory<WenYangLvliIssuedEvent>().Count(e=>e.OwnerSeat==owner&&e.ActualTurn==_turnNumber&&e.TurnOwner==_currentSeat);
     [ProgramCapability]private sealed class WenYangCapability(GameEngine e):IWenYangHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginWenYang(f,op);}
     private bool WenYangDamageParent(ProgramTriggerCandidate candidate,ProgramSkillWindowContext c)
     {
@@ -24,13 +22,6 @@ public sealed partial class GameEngine
         return candidate.SkillId=="ol:beishui"&&candidate.BindingId=="actual-preparation"&&c.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow&&candidate.OwnerSeat==_currentSeat&&c.SourceSeat==candidate.OwnerSeat&&c.TargetSeat==candidate.OwnerSeat&&
             _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w=>w.Id==c.ParentFrameId)is{Window:SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,Continuation:ProgramLifecycleContinuation.NormalTurnStart}p&&p.OwnerSeat==candidate.OwnerSeat&&p.CandidateIndex>=0&&p.CandidateIndex<p.Candidates.Count&&p.Candidates[p.CandidateIndex]==candidate;
     }
-    private bool IsWenYangChoujueCandidate(ProgramTriggerCandidate candidate,ProgramSkillWindowContext c)=>IsValidPlayerSeat(candidate.OwnerSeat)&&_players[candidate.OwnerSeat].IsAlive&&WenYangChoujueParent(candidate,c);
-    private bool WenYangChoujueParent(ProgramTriggerCandidate candidate,ProgramSkillWindowContext c)=>candidate.SkillId=="ol:choujue"&&candidate.BindingId is("own-actual-turn-ended"or"foreign-actual-turn-ended")&&
-        c.Window==SkillProgramTriggerWindow.AfterTurnEnded&&c.OwnerSeat==candidate.OwnerSeat&&IsValidPlayerSeat(candidate.OwnerSeat)&&
-        _contentRegistry.GetSkill(candidate.SkillId).Program is{}program&&program.GameplayHash==candidate.GameplayHash&&GetProgramTrigger(candidate).Effects is[{Op:SkillProgramEffectOp.ResolveWenYangAwakening}]&&
-        _resolutionStack.OfType<DeferredTurnEndFrame>().SingleOrDefault(p=>p.Id==c.ParentFrameId)is{}parent&&IsActualAfterTurnEndedParent(parent)&&parent.AfterTurnEnded is{}window&&window.ItemIndex>=0&&window.ItemIndex<window.Items.Count&&window.Items[window.ItemIndex].Candidate==candidate&&
-        c.SourceSeat==parent.OwnerSeat&&c.TargetSeat==parent.OwnerSeat&&c.OccurrenceIndex==candidate.OccurrenceIndex&&c.Facts==window.Items[window.ItemIndex].Facts&&
-        (candidate.BindingId=="own-actual-turn-ended"?candidate.OwnerSeat==parent.OwnerSeat:candidate.OwnerSeat!=parent.OwnerSeat);
     private bool WenYangPlayParent(ProgramTriggerCandidate candidate,ProgramSkillWindowContext c)=>c.Window==SkillProgramTriggerWindow.PlayPhaseStarting&&c.OwnerSeat==candidate.OwnerSeat&&candidate.OwnerSeat==_currentSeat&&c.SourceSeat==candidate.OwnerSeat&&c.TargetSeat==candidate.OwnerSeat&&
         _resolutionStack.OfType<PlayPhaseStartingBoundaryFrame>().SingleOrDefault(w=>w.Id==c.ParentFrameId)is{}p&&p.OwnerSeat==candidate.OwnerSeat&&p.ItemIndex>=0&&p.ItemIndex<p.Items.Count&&p.Items[p.ItemIndex].Candidate==candidate;
     private IReadOnlyList<WenYangEntity> WenYangDiscardable(int owner,string instance,bool handOnly)=>Array.AsReadOnly(GetHand(_players[owner]).Concat(handOnly?[]:GetEquipment(owner)).Where(c=>

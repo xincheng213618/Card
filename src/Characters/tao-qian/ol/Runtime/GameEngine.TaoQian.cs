@@ -11,8 +11,6 @@ public sealed partial class GameEngine
     private static CardConversionSource TaoQianSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     [ProgramCapability] private sealed class TaoQianCapability(GameEngine engine) : ITaoQianHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginTaoQian(f, op); }
-    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 28122, SkillProgramEffectOp.ResolveWenrenSequentialDraw)]
-    private bool CanActivateWenren(ProgramActivationLegalityContext c) => c.Owner.IsAlive && _phase == TurnPhase.Play && _currentSeat == c.OwnerSeat && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p && p.ActorSeat == c.OwnerSeat && !ProgramEventHistory<WenrenCommittedEvent>().Any(e => e.Source.OwnerSeat == c.OwnerSeat && e.Phase == p);
     private SkillProgramStepOutcome BeginTaoQian(ProgramSkillFrame supplied, SkillProgramEffectOp op)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -30,8 +28,6 @@ public sealed partial class GameEngine
         PublishTaoQian(f); return SkillProgramStepOutcome.AwaitChoice;
     }
     private int TaoQianChooser(ProgramSkillFrame f) => f.TaoQian!.Stage == TaoQianStage.SlashTargets ? f.TaoQian.ActorSeat : f.OwnerSeat;
-    private int[] ZongluanTargets(int actor) => !_players[actor].IsAlive ? [] : _players.Where(p => CanUseVirtualSlashTarget(_players[actor], p, CardKind.Slash, Suit.None, countsTowardLimit: false, effectiveColor: null)).Select(p => p.Seat).ToArray();
-    private IReadOnlyList<PromptChoice> ZongluanDiscardCards(ProgramSkillFrame f) => BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.OwnerSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard, canSelect: (_, card) => !f.TaoQian!.Selected.Contains(card.Id));
     private IReadOnlyList<PromptChoice> TaoQianChoices(ProgramSkillFrame f)
     {
         var r = f.TaoQian!; var choices = new List<PromptChoice>();
@@ -93,18 +89,6 @@ public sealed partial class GameEngine
             default: throw new InvalidOperationException("Unknown Tao Qian choice.");
         }
     }
-    private void PayZongluanDiscard(ProgramSkillFrame f)
-    {
-        var r = f.TaoQian!;
-        if (!_players[f.OwnerSeat].IsAlive) { FinishTaoQian(f); return; }
-        var legal = BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.OwnerSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard).SelectMany(c => c.Cards).ToHashSet();
-        if (r.Selected.Count != r.DiscardRequired || r.Selected.Distinct().Count() != r.Selected.Count || r.Selected.Any(id => !legal.Contains(id))) throw new InvalidOperationException("Zongluan requires exactly its published real legal HE discard entities.");
-        var materials = r.Selected.Select(id => new CardActionCost(id, GetAdvancedCard(id).Kind, _cardZones.GetLocation(id))).ToArray();
-        ReplaceRuntimeTop(f = f with { TaoQian = r with { Materials = materials, Before = _movementSequence, After = _movementSequence, Stage = TaoQianStage.DiscardChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramLogicalDiscard(f, f.OwnerSeat, r.Selected, new(ZongluanDiscardReason), (batch, records) =>
-        { for (var i = 0; i < records.Count; i++) { var m = records[i]; AdvanceEventRulesAndQueueFact(new ZongluanDiscardEntityEvent(f.Id, i, batch, m.CardId, m.CardKind, m.From, m.To, m.Sequence)); } });
-        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { TaoQian = f.TaoQian! with { After = _movementSequence } }); ContinueTaoQian(f.Id);
-    }
     private bool DrainTaoQian(long id) => TryBeginQueuedRecoveryReplacement(id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.Program) || TryBeginAdvancedSkillsChanged(id) || TryBeginHpChangedProgramWindow(id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(id);
     private void ContinueTaoQian(long id)
     {
@@ -135,14 +119,6 @@ public sealed partial class GameEngine
             }
             PublishTaoQian(f); return;
         }
-    }
-    [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveWenrenSequentialDraw)]
-    private void ReturnWenrenDraw(ProgramSkillFrame supplied, NativeDrawOutcome outcome)
-    {
-        var f = GetActiveProgramFrame(supplied.Id); var r = f.TaoQian!;
-        if (!r.Paid || r.Stage != TaoQianStage.Drawing || r.Cursor >= r.Targets.Count || outcome.RecipientSeat != r.Targets[r.Cursor] || outcome.RequestedCount != r.DrawAmount) throw new InvalidOperationException("Wenren's native draw returned to a different frozen recipient or amount.");
-        ReplaceRuntimeTop(f = f with { TaoQian = r with { Stage = TaoQianStage.DrawChildren, DrawOutcome = outcome, Before = outcome.SequenceBefore, After = outcome.SequenceAfter }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        AdvanceEventRulesAndQueueFact(new WenrenDrawReturnedEvent(f.Id, r.Cursor, outcome.RecipientSeat, outcome.RequestedCount, outcome.ActualDrawIds.Count, outcome.ReplacementGainedIds.Count, outcome.SequenceBefore, outcome.SequenceAfter, outcome.AttemptFrameId)); ContinueTaoQian(f.Id);
     }
     private void FinishTaoQian(ProgramSkillFrame f)
     { var r = f.TaoQian!; ClearPendingDecision(); AdvanceEventRulesAndQueueFact(new TaoQianCompletedEvent(f.Id, r.Op, r.Paid)); ReplaceRuntimeTop(f = f with { TaoQian = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true); }

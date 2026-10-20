@@ -1,11 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public sealed record ZhaoXiangConversionPayment(long ActionId,CardConversionSource Source,string GameplayHash,int ActualTurn,int ActualActorSeat,int ProviderSeat,int? RequesterSeat,int PhysicalCardId,CardKind InputKind,CardKind OutputKind,int Removed,int Remaining):IGameEvent;
-public sealed record ZhaoXiangMeiYingGainedEvent(long ProgramFrameId,long DamageWindowId,long DamageParentId,CardConversionSource Source,int Amount,int Total):IGameEvent;
-public sealed record ZhaoXiangExchangePaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,long ParentFrameId,int Turn,int Removed,int CumulativeRemoved,string PoolFingerprint):IGameEvent;
-public sealed record ZhaoXiangExchangeSelectedEvent(long FrameId,int OwnerSeat,string OriginalGeneralId,string GeneralId,int MaximumBefore,int MaximumAfter):IGameEvent;
-public sealed record ZhaoXiangConversionDrawPaidEvent(long FrameId,long ActionId,int OwnerSeat,long Before,long After,int Actual):IGameEvent;
-public sealed record ZhaoXiangExchangeRecoveryIssuedEvent(long FrameId,int OwnerSeat,int Requested):IGameEvent;
 public sealed record ZhaoXiangReceipt
 {
     public CardConversionSource Source {get;init;}=null!;
@@ -37,31 +31,6 @@ internal interface IZhaoXiangProgramHost
     void GainMeiYingAfterActualSlashDamage(ProgramSkillFrame f);
     SkillProgramStepOutcome ExchangeFiveShuBySpentMeiYing(ProgramSkillFrame f);
     SkillProgramStepOutcome DrawAfterPaidMeiYingConversion(ProgramSkillFrame f);
-}
-internal sealed class GainMeiYingAfterActualSlashDamageDescriptor:ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.GainMeiYingAfterActualSlashDamage;
-    public override ISkillProgramEffectHandler Handler{get;}=new ZhaoXiangHandler(0);
-    public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,_)=>{});
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
-}
-internal sealed class ExchangeFiveShuBySpentMeiYingDescriptor:ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ExchangeFiveShuBySpentMeiYing;
-    public override ISkillProgramEffectHandler Handler{get;}=new ZhaoXiangHandler(1);
-    public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
-    public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.Recover,static(e,c)=>c.Recover(new(SkillProgramEffectOp.Recover,SkillProgramEffectTarget.Owner,1,e.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
-}
-internal sealed class DrawAfterPaidMeiYingConversionDescriptor:ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawAfterPaidMeiYingConversion;
-    public override ISkillProgramEffectHandler Handler{get;}=new ZhaoXiangHandler(2);
-    public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
 internal sealed class ZhaoXiangHandler(int kind):ISkillProgramEffectHandler
 {

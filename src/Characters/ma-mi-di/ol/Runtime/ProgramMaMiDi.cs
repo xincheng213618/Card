@@ -11,9 +11,6 @@ internal abstract class MaMiDiDescriptor(SkillProgramEffectOp op, SkillProgramTr
     public override ProgramOperationInteraction Interaction => op == SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards ? ProgramOperationInteraction.Choice : ProgramOperationInteraction.Automatic;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
 }
-internal sealed class PayBingjieTurnMaximumHpDescriptor() : MaMiDiDescriptor(SkillProgramEffectOp.PayBingjieTurnMaximumHp, SkillProgramTriggerWindow.PlayPhaseStarting) { }
-internal sealed class ResolveBingjieIssuedTargetDiscardsDescriptor() : MaMiDiDescriptor(SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards, SkillProgramTriggerWindow.CardUseTargetsFinalized) { }
-internal sealed class GrowZhengdingMatchingResponseDescriptor() : MaMiDiDescriptor(SkillProgramEffectOp.GrowZhengdingMatchingResponse, SkillProgramTriggerWindow.CardResponseCompleted) { }
 internal sealed class MaMiDiHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
@@ -21,8 +18,6 @@ internal sealed class MaMiDiHandler(SkillProgramEffectOp op) : ISkillProgramEffe
 }
 
 public enum MaMiDiStage { MaximumChildren, TargetChoice, TargetChildren }
-public sealed record BingjieGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int Turn, int TurnOwner, long PlayWindowId) : IGameEvent;
-public sealed record BingjieUseBoundEvent(long UseId, long ActionId, int ActorSeat, long GrantFrameId, int Turn, int TurnOwner) : IGameEvent;
 public sealed record MaMiDiStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long WindowId, int Turn, int TurnOwner, long? UseId, long? ActionId, int GrantCount, int TargetCount) : IGameEvent;
 public sealed record MaMiDiMaximumIssuedEvent(long FrameId, SkillProgramEffectOp Op, int OwnerSeat, int MaximumBefore, int MaximumAfter, int HpBefore, int HpAfter) : IGameEvent;
 public sealed record MaMiDiFrozenTargetEvent(long FrameId, int Index, int TargetSeat) : IGameEvent;
@@ -45,11 +40,6 @@ public sealed record MaMiDiReceipt(CardConversionSource Source, string GameplayH
     public IReadOnlyList<BingjieGrantedEvent> Grants { get => _grants; init => _grants = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<int> Targets { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<MaMiDiDiscardStep> Steps { get => _steps; init => _steps = Array.AsReadOnly(value.Select(s => s with { WoodenOxGrain = s.WoodenOxGrain }).ToArray()); }
-}
-public sealed record MaMiDiBingjieUseReceipt(long UseId, long ActionId, int ActorSeat, CardKind Kind, int Turn, int TurnOwner, bool Issued = false)
-{
-    private readonly IReadOnlyList<BingjieGrantedEvent> _grants = Array.AsReadOnly(Array.Empty<BingjieGrantedEvent>());
-    public IReadOnlyList<BingjieGrantedEvent> Grants { get => _grants; init => _grants = Array.AsReadOnly(value.ToArray()); }
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public MaMiDiReceipt? MaMiDi { get; init; } }

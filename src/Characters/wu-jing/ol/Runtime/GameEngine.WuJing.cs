@@ -11,9 +11,6 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(card.ParentCardUseFrameId);
         return use is { Action: { Type: CardActionType.Use } a } && a.ActionId == card.CardActionId && a.ActorSeat == card.ActorSeat && a.EffectiveKind == use.CardKind ? use : null;
     }
-    private bool WuJingHejiIncoming(CardUseFrame use) => use.Action is { Type: CardActionType.Use } a && use.TargetSeats is [var target] &&
-        a.EffectiveDesignatedTargetSeats.SequenceEqual([target]) && _players[target].IsAlive &&
-        (use.CardKind == CardKind.Duel || IsSlashCard(use.CardKind) && a.EffectiveIsRed == true);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 27130)]
     private bool QualifyWuJing(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {

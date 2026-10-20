@@ -2,7 +2,6 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool HasWuLuXunZhangcaiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuLuXunZhangcai);
     private bool HasWuLuXunRuxianCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWuLuXunRuxian);
     private static CardConversionSource WuLuXunActionSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private int WuLuXunRuxianUsage(int ownerSeat) => !HasWuLuXunRuxianCapability ? 0 : _skillRuntimeState.GetUsage(ownerSeat,
@@ -21,13 +20,6 @@ public sealed partial class GameEngine
         gate.Owner.IsAlive && _phase == TurnPhase.Play && _currentSeat == gate.OwnerSeat &&
         !WuLuXunRuxianSpent(gate.OwnerSeat) && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase &&
         phase.ActorSeat == gate.OwnerSeat && IsRecordedActualDiscardRecoveryPhase(phase);
-
-    [ProgramCapability]
-    private sealed class WuLuXunZhangcaiCapability(GameEngine engine) : IWuLuXunZhangcaiHost
-    {
-        public SkillProgramStepOutcome Zhangcai(ProgramSkillFrame frame) => engine.BeginWuLuXunZhangcai(frame);
-        public SkillProgramStepOutcome Ruxian(ProgramSkillFrame frame) => engine.ActivateWuLuXunRuxian(frame);
-    }
     private SkillProgramStepOutcome ActivateWuLuXunRuxian(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);

@@ -4,8 +4,6 @@ namespace CardGame.Core;
 
 public sealed record YuanHuanStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
     int ActualTurn, long PhaseInstance, int TargetSeat, long ParentId, long? DamageFrameId, int DamageAmount) : IGameEvent;
-// Guess and actual masks stay in the private owning frame; this public fact reveals no unchosen hand names or entities.
-public sealed record DeruGuessCommittedEvent(long FrameId) : IGameEvent;
 public sealed record YuanHuanStepIssuedEvent(long FrameId, YuanHuanStage Stage, int Index, int SubjectSeat, string Reason,
     long Before, long After, int ActualCount, int? CardId, CardLocation? From, CardLocation? To) : IGameEvent;
 public sealed record YuanHuanCompletedEvent(long FrameId) : IGameEvent;
@@ -34,8 +32,6 @@ internal abstract class YuanHuanDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, _) => { });
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => Op == SkillProgramEffectOp.ResolveLinjieSourceHandDiscard ? [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)] : [];
 }
-internal sealed class ResolveDeruBasicNamesDescriptor : YuanHuanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveDeruBasicNames; }
-internal sealed class ResolveLinjieSourceHandDiscardDescriptor : YuanHuanDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveLinjieSourceHandDiscard; }
 internal sealed class YuanHuanHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

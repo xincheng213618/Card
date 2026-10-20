@@ -3,7 +3,6 @@ namespace CardGame.Core;
 
 public enum QuHuangStage { DrawOwner,DrawOther,QiejianChoice,FieldChildren,NishouChoice,Lightning,LightningChildren,SwapTarget,HoldOwner,HoldOther,GiveOwner,GiveOther,Cleanup }
 public sealed record QuHuangEntity(int CardId,CardKind Kind,CardLocation From);
-public sealed record QuHuangNishouUseOrigin(long ProgramFrameId,long CardUseFrameId,long ActionId,CardConversionSource Source,string GameplayHash,int ActorSeat,int CardId,CardKind PrintedKind,Suit Suit,int Rank,long LossSequence);
 public sealed record QuHuangReceipt(CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TurnOwner,QuHuangStage Stage,int TargetSeat)
 {
     public bool Paid {get;init;} public int Step {get;init;} public long Before {get;init;} public long After {get;init;} public int ActualCount {get;init;}
@@ -20,16 +19,9 @@ public sealed record QuHuangReceipt(CardConversionSource Source,string GameplayH
 }
 public sealed partial record ProgramSkillFrame {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public QuHuangReceipt? QuHuang {get;init;}}
 public sealed partial record CardUseFrame {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public QuHuangNishouUseOrigin? QuHuangNishou {get;init;}}
-public sealed record NishouEquipmentLostEvent(long BatchId,int OwnerSeat,int CardId,CardKind Kind,Suit PrintedSuit,int Rank,long Sequence,ActualDiscardRecoveryPhaseKey? Phase):IGameEvent;
 public sealed record QuHuangStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long ParentId,int ActualTurn,int TargetSeat):IGameEvent;
-public sealed record QiejianRoundBlockedEvent(long FrameId,int OwnerSeat,int TargetSeat,int RoundNumber):IGameEvent;
 public sealed record QuHuangEntityMovedEvent(long FrameId,int Step,QuHuangStage Stage,long BatchId,int CardId,CardKind Kind,CardLocation From,CardLocation To,long Sequence):IGameEvent;
 public sealed record QuHuangMovementPaidEvent(long FrameId,int Step,QuHuangStage Stage,long Before,long After,int Count):IGameEvent;
-public sealed record NishouSwapDebtIssuedEvent(long DebtId,CardConversionSource Source,string GameplayHash,ActualDiscardRecoveryPhaseKey Phase):IGameEvent;
-public sealed record NishouSwapDebtConsumedEvent(long DebtId,long FrameId,long BoundaryId):IGameEvent;
-public sealed record NishouOriginalHandFrozenEvent(long FrameId,int HolderSeat,int CardId,CardKind Kind):IGameEvent;
-public sealed record NishouLightningPaidEvent(QuHuangNishouUseOrigin Origin,long Sequence):IGameEvent;
-public sealed record NishouLightningReturnedEvent(QuHuangNishouUseOrigin Origin):IGameEvent;
 public sealed record QuHuangCompletedEvent(long FrameId):IGameEvent;
 internal interface IQuHuangHost {SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal abstract class QuHuangDescriptor:ProgramOperationDescriptorBase
@@ -40,13 +32,6 @@ internal abstract class QuHuangDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override ISkillProgramEffectHandler Handler=>new QuHuangHandler(Op);
 }
-internal sealed class ResolveQiejianLastHandLossDescriptor:QuHuangDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
-public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQiejianLastHandLoss;}
-internal sealed class ResolveNishouEquipmentLossChoiceDescriptor:QuHuangDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveNishouEquipmentLossChoice;}
-internal sealed class ResolveNishouIssuedCurrentPhaseSwapDescriptor:QuHuangDescriptor {
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap;}
 internal sealed class QuHuangHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IQuHuangHost>().Resolve(f,op);}
 internal static class QuHuangComposition

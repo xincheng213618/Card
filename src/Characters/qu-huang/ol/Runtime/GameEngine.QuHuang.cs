@@ -18,9 +18,6 @@ public sealed partial class GameEngine
         if(stage==QuHuangStage.DrawOwner)PayQuHuangDraw(f,f.OwnerSeat,QuHuangStage.DrawOwner);else ContinueQuHuang(f.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
-    private QuHuangEntity[] QiejianFieldCards(ProgramSkillFrame f)=>new[]{f.OwnerSeat,f.QuHuang!.TargetSeat}.Distinct().Where(s=>_players[s].IsAlive).SelectMany(s=>new[]{CardLocation.Equipment(s),CardLocation.Judgment(s)}.SelectMany(l=>_cardZones.CardsAt(l).Where(c=>!IsForeignEquipmentDiscardPrevented(f.OwnerSeat,c,l,OwnedCardMoveIntent.Discard)&&!IsActiveProgramSourceEquipmentCard(f.OwnerSeat,f.SkillId,f.SkillInstanceId,c)).Select(c=>new QuHuangEntity(c.Id,c.Kind,l)))).ToArray();
-    private int[] NishouMinimumTargets(int owner)
-    {var alive=_players.Where(p=>p.IsAlive).ToArray();if(alive.Length==0)return [];var least=alive.Min(p=>GetHand(p).Count);return alive.Where(p=>p.Seat!=owner&&GetHand(p).Count==least).Select(p=>p.Seat).ToArray();}
     private PromptChoice QuHuangChoice(ProgramSkillFrame f,string branch,string label,int? card=null,int? seat=null)=>new(new($"qu-huang.{f.Id}.{branch}.{card??seat??-1}"),label,card is{}id?[id]:[],seat is{}s?[s]:[],new Dictionary<string,string>{{"program-action","qu-huang"},{"branch",branch}});
     private IReadOnlyList<PromptChoice> QuHuangChoices(ProgramSkillFrame f)
     {

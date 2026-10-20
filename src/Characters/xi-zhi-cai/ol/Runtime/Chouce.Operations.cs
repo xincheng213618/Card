@@ -1,0 +1,3 @@
+namespace CardGame.Core;
+internal sealed class StartChouceDamagePointJudgmentDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.StartChouceDamagePointJudgment;public override ProgramContextCapability RequiredCapabilities=>ProgramContextCapability.Judgment|ProgramContextCapability.Damage;}
+internal sealed class ResolveChouceFrozenJudgmentDescriptor:XiZhiCaiDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveChouceFrozenJudgment;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}

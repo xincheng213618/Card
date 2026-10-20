@@ -9,17 +9,6 @@ public sealed partial class GameEngine
     private static bool IsBianFuRenOwnedZone(CardLocation from) => from.OwnerSeat is not null &&
         from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;
 
-    private static bool IsBianFuRenWanweiTrigger(SkillProgramTrigger trigger) => trigger.Effects
-        .Any(effect => effect.Op == SkillProgramEffectOp.WanweiObtainMatchingLostCard);
-
-    private bool HasBianFuRenWanwei(int owner) => IsValidPlayerSeat(owner) && _players[owner].IsAlive &&
-        GetSkillBindingShard(_players[owner]).GetInstanceTriggers(SkillProgramTriggerWindow.CardsMoved)
-            .Any(binding => IsBianFuRenWanweiTrigger(binding.Trigger));
-
-    private bool HasBianFuRenYuejian(int owner) => IsValidPlayerSeat(owner) && _players[owner].IsAlive &&
-        GetSkillBindingShard(_players[owner]).GetInstanceTriggers(SkillProgramTriggerWindow.DiscardPileReceived)
-            .Any(binding => binding.Trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.YuejianRevealAndClaimUsedCard));
-
     // Called by the original typed transfer producer at its HE -> Processing
     // payment. Contributions own an action id rather than a live stack frame.
     private void RecordBianFuRenOwnedTransferProducer(CardMovementRecord movement, int recipientSeat, long producerId)
@@ -368,13 +357,6 @@ public sealed partial class GameEngine
         _cardMovements.LastOrDefault(move => move.CardId == material.CardId) is { } last &&
         last.Sequence == material.CompletionMovementSequence &&
         (material.DelayedPlacementMovementSequence == 0 ? BianFuRenNativeUseFinish(last) : BianFuRenDelayedFinish(material, last));
-
-    private int[] MatchingBianFuRenUsedDiscardIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate) =>
-        (batch.BianFuRenUsedDiscards ?? []).Where(receipt => receipt.Action.ActorSeat != candidate.OwnerSeat &&
-            receipt.Action.EffectiveDesignatedTargetSeats.Contains(candidate.OwnerSeat) &&
-            receipt.Materials.Any(BianFuRenMaterialAvailable))
-        .Select(receipt => batch.Movements.Select((move, index) => (move, index)).First(pair =>
-            receipt.Materials.Any(material => material.CompletionMovementSequence == pair.move.Sequence)).index).Distinct().ToArray();
 
     private ProgramSkillWindowContext CreateBianFuRenMovementContext(CardsMovedTriggerWindowFrame parent,
         ProgramTriggerCandidate candidate)

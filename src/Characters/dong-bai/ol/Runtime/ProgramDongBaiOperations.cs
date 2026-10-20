@@ -1,8 +1,5 @@
 namespace CardGame.Core;
 public enum LianZhuStage { GiftChildren, RecipientChoice, SelectingDiscard, DiscardChildren, DrawChildren }
-public sealed record XiaHuiCardRestriction(CardConversionSource Source, string GameplayHash, int RecipientSeat, int CardId, long MovementSequence, Suit OriginalSuit);
-public sealed record XiaHuiRestrictionGrantedEvent(XiaHuiCardRestriction Restriction) : IGameEvent;
-public sealed record XiaHuiRestrictionReleasedEvent(int RecipientSeat, int CardId, long MovementSequence, string Reason) : IGameEvent;
 public sealed record LianZhuSegmentPaidEvent(long FrameId, CardConversionSource Source, string GameplayHash, LianZhuStage Stage, int ActorSeat, long Before, long After, int Count) : IGameEvent;
 public sealed record LianZhuChoiceAmountReceipt(int RecipientHp, int Amount);
 public sealed record LianZhuChoiceAmountCapturedEvent(long FrameId, CardConversionSource Source, string GameplayHash,

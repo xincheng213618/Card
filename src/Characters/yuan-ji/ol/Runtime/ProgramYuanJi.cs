@@ -19,7 +19,6 @@ public sealed record YuanJiAcquiredEvent(long FrameId,int Index,int CardId,long 
 public sealed record YuanJiMarkClosedEvent(long ReturnFrameId,long DrawFrameId,int Index,int CardId,bool WasInHand):IGameEvent;
 public sealed record YuanJiReturnSelectedEvent(long FrameId,int Index,int CardId):IGameEvent;
 public sealed record YuanJiReturnPaidEvent(long FrameId,int Count,bool Top,long Before,long After):IGameEvent;
-public sealed record YuanJiJieyanDisabledEvent(long FrameId,int OwnerSeat,int ActualTurn,int Round,Suit FirstSuit,Suit SecondSuit):IGameEvent;
 public sealed record YuanJiCompletedEvent(long FrameId,SkillProgramEffectOp Op):IGameEvent;
 public sealed partial record ProgramSkillFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public YuanJiReceipt? YuanJi{get;init;}}
@@ -32,11 +31,6 @@ internal abstract class YuanJiDescriptor:ProgramOperationDescriptorBase
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(1));
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
-internal sealed class ResolveJieyanOppositeEndDrawPairDescriptor:YuanJiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair;}
-internal sealed class ResolveJinghuaRoundDrawDescriptor:YuanJiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveJinghuaRoundDraw;}
-internal sealed class ResolveJinghuaTurnReturnDescriptor:YuanJiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveJinghuaTurnReturn;}
-internal sealed class ResolveShuiyueTurnDrawDescriptor:YuanJiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveShuiyueTurnDraw;}
-internal sealed class ResolveShuiyueRoundReturnDescriptor:YuanJiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveShuiyueRoundReturn;}
 internal sealed class YuanJiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IYuanJiHost>().Resolve(f,op);}
 internal static class YuanJiComposition

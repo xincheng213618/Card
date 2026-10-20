@@ -26,26 +26,6 @@ public sealed partial record ProgramSkillFrame
 }
 public sealed record ZhaoZhongStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner, int TargetSeat) : IGameEvent;
 public sealed record ZhaoZhongCompletedEvent(long FrameId, SkillProgramEffectOp Op, bool Paid) : IGameEvent;
-public sealed record PengbiCommittedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn, int TurnOwner, string SkillId) : IGameEvent;
-public sealed record PengbiSkillGrantedEvent(long FrameId, int RecipientSeat, string SkillId, string GrantId, string SkillInstanceId, string SourceId) : IGameEvent;
-public sealed record PengbiOtherChosenEvent(long FrameId, int? RecipientSeat) : IGameEvent;
-public sealed record DiciAcceptedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int TargetSeat, ActualDiscardRecoveryPhaseKey Phase) : IGameEvent;
-public sealed record DiciGiftEntityEvent(long FrameId, long LeaseId, int CardId, CardKind Kind, CardLocation From, CardLocation To, long Sequence) : IGameEvent;
-public sealed record DiciRecoveryIssuedEvent(long FrameId, int TargetSeat) : IGameEvent;
-public sealed record DiciUnlinkIssuedEvent(long FrameId, int TargetSeat) : IGameEvent;
-public sealed record DiciNeighborsFrozenEvent(long FrameId, int Count) : IGameEvent;
-public sealed record DiciNeighborFrozenEvent(long FrameId, int Index, int Seat) : IGameEvent;
-public sealed record DiciNeighborIssuedEvent(long FrameId, int Index, int Seat) : IGameEvent;
-public sealed record DiciLeaseIssuedEvent(long LeaseId, CardConversionSource Source, string GameplayHash, int IssuerSeat, int TargetSeat, int Ordinal, int ActualTurn) : IGameEvent;
-public sealed record DiciLeaseDueEvent(long LeaseId, long ChangeId, int TargetSeat) : IGameEvent;
-public sealed record DiciLeaseStartedEvent(long LeaseId, long ChangeId, long ProgramFrameId) : IGameEvent;
-public sealed record DiciLeaseCancelledEvent(long LeaseId, int TargetSeat) : IGameEvent;
-public sealed record DiciNextChoiceEvent(long FrameId, long LeaseId, string Branch) : IGameEvent;
-public sealed record DiciThunderIssuedEvent(long FrameId, long LeaseId, int SourceSeat, int TargetSeat) : IGameEvent;
-public sealed record BiriPotentialGainEvent(long BatchId, long Sequence, int CardId, int RecipientSeat, int ActualTurn, int TurnOwner) : IGameEvent;
-public sealed record BiriPotentialHolderEvent(long BatchId, CardConversionSource Source, string GameplayHash) : IGameEvent;
-public sealed record BiriDrawIssuedEvent(long FrameId, long BatchId, long GainSequence, CardConversionSource Source, string GameplayHash, int ActualTurn, int TurnOwner) : IGameEvent;
-public sealed record BiriDrawReturnedEvent(long FrameId, int RequestedCount, int ActualCount, int ReplacementCount, long Before, long After, long? AttemptId) : IGameEvent;
 
 internal interface IZhaoZhongHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
 internal abstract class ZhaoZhongDescriptor(SkillProgramEffectOp op) : ProgramOperationDescriptorBase
@@ -62,24 +42,6 @@ internal abstract class ZhaoZhongDescriptor(SkillProgramEffectOp op) : ProgramOp
         _ => []
     };
     public override ISkillProgramEffectHandler Handler { get; } = new ZhaoZhongHandler(op);
-}
-internal sealed class PengbiFirstActualTurnDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolvePengbiFirstActualTurn)
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-}
-internal sealed class DiciGiftRecoveryAndNeighborChainDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveDiciGiftRecoveryAndNeighborChain)
-{
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-
-    public override ProgramOperationLegalityPolicy LegalityPolicy { get; } = new(RequiresTargetHand: true, ExcludesOwnerAsTarget: true);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class IssuedDiciNextChainChoiceDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveIssuedDiciNextChainChoice){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
-}
-internal sealed class BiriFirstNonDrawGainDescriptor() : ZhaoZhongDescriptor(SkillProgramEffectOp.ResolveBiriFirstNonDrawGain){
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.State.CanContinueAfterOwnerDeath(context.Frame);
 }
 internal sealed class ZhaoZhongHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

@@ -1,29 +1,6 @@
 using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
-
-public enum HeJinMouzhuStage { ChoosingGift, GiftChildren, ChoosingAssault, AssaultIssued }
-public sealed record HeJinMouzhuReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    int ActualTurn, int PhaseInstanceId, int ActorSeat, long StartedAt, HeJinMouzhuStage Stage = HeJinMouzhuStage.ChoosingGift,
-    int? GiftId = null, long Before = 0, long After = 0, HeJinMouzhuUseOrigin? Assault = null)
-{
-    private readonly IReadOnlyList<int> _handIds = Array.AsReadOnly(Array.Empty<int>());
-    public IReadOnlyList<int> HandIds { get => _handIds; init => _handIds = Array.AsReadOnly(value.ToArray()); }
-}
-public sealed record HeJinMouzhuUseOrigin(long ProgramFrameId, int InstructionIndex, long CardUseFrameId,
-    CardConversionSource Source, string GameplayHash, int ActualTurn, int PhaseInstanceId,
-    int ActorSeat, int TargetSeat, CardKind CardKind, bool AttackStarted = false);
-public enum HeJinYanhuoStage { ChoosingCard, DiscardChildren }
-public sealed record HeJinYanhuoSelection(int CardId, CardLocation From);
-public sealed record HeJinYanhuoReceipt(CardConversionSource Source, string GameplayHash, int InstructionIndex,
-    long DeathWindowId, int CandidateIndex, ResolutionFrameStep WindowStep, ProgramTriggerCandidate Candidate,
-    OwnedDeathCursor OriginalDeath, OwnedDeadDyingCursor? OriginalDying, OwnedOriginalDamageCursor? OriginalDamage,
-    long? OriginalAttackOwnerFrameId, int ActualTurn, int TurnOwnerSeat, int KillerSeat, int Limit,
-    HeJinYanhuoStage Stage = HeJinYanhuoStage.ChoosingCard, int Discarded = 0, long Before = 0, long After = 0)
-{
-    private readonly IReadOnlyList<HeJinYanhuoSelection> _selectedCards = Array.AsReadOnly(Array.Empty<HeJinYanhuoSelection>());
-    public IReadOnlyList<HeJinYanhuoSelection> SelectedCards { get => _selectedCards; init => _selectedCards = Array.AsReadOnly(value.ToArray()); }
-}
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public HeJinMouzhuReceipt? HeJinMouzhu { get; init; }
@@ -43,17 +20,6 @@ public sealed partial record DeathFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public HeJinDeathCards? HeJinYanhuoCards { get; init; }
 }
-public sealed record HeJinYanhuoDeathCapturedEvent(long DeathFrameId, int OwnerSeat, int HandCount, int EquipmentCount) : IGameEvent;
-public sealed record HeJinMouzhuStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, int PhaseInstanceId, int ActorSeat, long MovementSequence, int HandCount) : IGameEvent;
-public sealed record HeJinMouzhuGiftPaidEvent(long FrameId, int ActorSeat, int OwnerSeat, long Before, long After) : IGameEvent;
-public sealed record HeJinMouzhuAssaultIssuedEvent(HeJinMouzhuUseOrigin Origin) : IGameEvent;
-public sealed record HeJinMouzhuCompletedEvent(long FrameId, bool AssaultIssued) : IGameEvent;
-public sealed record HeJinYanhuoStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    long DeathFrameId, int KillerSeat, int Limit, string ReturnHash) : IGameEvent;
-public sealed record HeJinYanhuoDiscardPaidEvent(long FrameId, int Index, int KillerSeat, int CardId,
-    CardLocation From, long Before, long After) : IGameEvent;
-public sealed record HeJinYanhuoCompletedEvent(long FrameId, int Discarded) : IGameEvent;
 
 internal interface IHeJinProgramHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp operation); }
 internal sealed class HeJinHandler(SkillProgramEffectOp operation) : ISkillProgramEffectHandler
@@ -69,17 +35,6 @@ internal abstract class HeJinDescriptor(SkillProgramEffectOp operation) : Progra
     public override ISkillProgramEffectHandler Handler { get; } = new HeJinHandler(operation);
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption, static (_, c) => c.PublicControlValue(2));
-}
-internal sealed class ResolveMouzhuHandDemandAndAssaultDescriptor() : HeJinDescriptor(SkillProgramEffectOp.ResolveMouzhuHandDemandAndAssault)
-{
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new ReadSelectedTarget(), new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving)];
-}
-internal sealed class ResolveYanhuoKillerDiscardDescriptor() : HeJinDescriptor(SkillProgramEffectOp.ResolveYanhuoKillerDiscard)
-{
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.OwnerDied)];
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => true;
 }
 internal static class HeJinComposition
 {

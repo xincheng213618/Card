@@ -24,10 +24,6 @@ public sealed record MouHanDangStartedEvent(long FrameId, CardConversionSource S
 public sealed record MouHanDangBranchEvent(long FrameId, int TargetSeat, string Branch) : IGameEvent;
 public sealed record MouHanDangParticipantEvent(long FrameId, int Index, int Seat) : IGameEvent;
 public sealed record MouHanDangDiscardedEvent(long FrameId, int Index, int Seat, int CardId, CardLocation From, CardLocation To, long Sequence, Suit EffectiveSuit) : IGameEvent;
-public sealed record MouHanDangGongqiGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash, ActualDiscardRecoveryPhaseKey Phase, int CardId, Suit Suit, long PaymentSequence) : IGameEvent;
-public sealed record MouHanDangUseRestrictedEvent(long ActionId, int ActorSeat, long GrantFrameId) : IGameEvent;
-public sealed record MouHanDangJiefanDisabledEvent(long FrameId, int OwnerSeat) : IGameEvent;
-public sealed record MouHanDangJiefanRestoredEvent(int OwnerSeat, int VictimSeat) : IGameEvent;
 public sealed record MouHanDangDrawReturnedEvent(long FrameId, int TargetSeat, int RequestedCount, int ActualCount, int ReplacementCount, long? AttemptId) : IGameEvent;
 public sealed record MouHanDangCompletedEvent(long FrameId, bool Gongqi) : IGameEvent;
 public sealed record MouHanDangMovementSignedEvent(long FrameId, int CardId, CardLocation From, CardLocation To, CardMoveReason Reason, long Sequence) : IGameEvent;
@@ -41,20 +37,6 @@ internal abstract class MouHanDangDescriptor : ProgramOperationDescriptorBase
     public override ISkillProgramEffectHandler Handler => new MouHanDangHandler(Op);
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(3));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [];
-}
-internal sealed class ResolveMouHanDangGongqiDescriptor : MouHanDangDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
-
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHanDangGongqi;
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
-}
-internal sealed class ResolveMouHanDangJiefanDescriptor : MouHanDangDescriptor
-{
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
-
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveMouHanDangJiefan;
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new ReadSelectedTarget()];
 }
 internal sealed class MouHanDangHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {

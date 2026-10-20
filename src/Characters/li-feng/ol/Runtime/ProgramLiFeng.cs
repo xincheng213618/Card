@@ -4,9 +4,6 @@ namespace CardGame.Core;
 
 public enum LiFengStage { InitialChildren, PreparationTargets, PreparationDraw, PreparationChildren, CollectNext, CollectChildren, DistributionChoice, DistributionChildren }
 public sealed record LiFengEntity(int CardId, CardKind Kind, CardLocation From);
-public sealed record JiyunCompletedEntity(long LeaseId, int CardId, CardKind Kind, long PaymentSequence);
-public sealed record JiyunCompletedUseContext(CardConversionSource Source, string GameplayHash, PublicPersistentPileSource Pile,
-    long NativeUseId, long ActionId, ProgramCompletedResponseKind? ResponseKind, int EntityCount);
 public sealed partial record ProgramSkillWindowContext
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public JiyunCompletedUseContext? Jiyun { get; init; } }
 public sealed record LiFengReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op,
@@ -39,19 +36,6 @@ public sealed partial record ProgramSkillFrame
 // These facts contain no mutable collections; the owning frame freezes all cursors.
 public sealed record LiFengStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, long WindowId, int ActualTurn, int TurnOwner, PublicPersistentPileSource Pile) : IGameEvent;
 public sealed record LiFengPaidEvent(long FrameId, SkillProgramEffectOp Op) : IGameEvent;
-public sealed record JiyunInitialEntityStoredEvent(long FrameId, int Index, int CardId, CardKind PrintedKind, long MovementSequence) : IGameEvent;
-public sealed record JiyunRecipientFrozenEvent(long FrameId, int Index, int RecipientSeat) : IGameEvent;
-public sealed record JiyunRecipientLimitFrozenEvent(long FrameId, int MaximumRecipients) : IGameEvent;
-public sealed record JiyunPreparationDrawReturnedEvent(long FrameId, int Index, int RecipientSeat, int ActualCount, int ReplacementCount, long Before, long After, long? AttemptId) : IGameEvent;
-public sealed record JiyunLeaseIssuedEvent(long LeaseId, long FrameId, int RecipientIndex, CardConversionSource Source, string GameplayHash, PublicPersistentPileSource Pile, int RecipientSeat, int CardId, CardKind PrintedKind, long MovementSequence) : IGameEvent;
-public sealed record JiyunLeaseDepartedEvent(long LeaseId, long BatchId, long? ParentFrameId, int CardId, CardLocation From, CardLocation To, CardMoveReason Reason, long MovementSequence) : IGameEvent;
-public sealed record JiyunLeaseMovementEvent(long LeaseId, long BatchId, long? ParentFrameId, int CardId, CardLocation From, CardLocation To, CardMoveReason Reason, long MovementSequence, bool TrueUseDiscard) : IGameEvent;
-public sealed record JiyunCompletedUseLeaseIssuedEvent(CardConversionSource Source, string GameplayHash, PublicPersistentPileSource Pile, long NativeUseId, long ActionId, ProgramCompletedResponseKind? ResponseKind, long LeaseId, int CardId, CardKind PrintedKind, long PaymentSequence) : IGameEvent;
-public sealed record JiyunClaimedEntityEvent(long FrameId, long NativeUseId, long ActionId, ProgramCompletedResponseKind? ResponseKind, long LeaseId, int CardId, CardKind PrintedKind, CardLocation From, CardLocation To, long MovementSequence) : IGameEvent;
-public sealed record JiyunLeaseResolvedEvent(long FrameId, long ActionId, long LeaseId, bool Claimed) : IGameEvent;
-public sealed record ShuliangGrainDistributedEvent(long FrameId, int CardId, int RecipientSeat, CardLocation From, long MovementSequence) : IGameEvent;
-public sealed record ShuliangDistributionEntityFrozenEvent(long FrameId, int Index, int CardId, CardKind PrintedKind, CardLocation From) : IGameEvent;
-public sealed record ShuliangGrainPaidEvent(long ParentFrameId, long ActionId, CardConversionSource Source, int ProviderSeat, int ActualTurn, int TurnOwner, int CardId, CardLocation From, long MovementSequence, bool Played) : IGameEvent;
 public sealed record LiFengCompletedEvent(long FrameId, SkillProgramEffectOp Op, bool Paid) : IGameEvent;
 
 internal interface ILiFengHost { SkillProgramStepOutcome Resolve(ProgramSkillFrame frame, SkillProgramEffectOp op); }
@@ -70,39 +54,10 @@ internal abstract class LiFengDescriptor(SkillProgramEffectOp op) : ProgramOpera
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(1));
     public override ISkillProgramEffectHandler Handler { get; } = new LiFengHandler(op);
 }
-internal sealed class InitializeJiyunCategoryGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.InitializeJiyunCategoryGrain){
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
-}
-internal sealed class ResolveJiyunPreparationDrawLeasesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases){
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
-}
-internal sealed class CollectJiyunCompletedUseEntitiesDescriptor() : LiFengDescriptor(SkillProgramEffectOp.CollectJiyunCompletedUseEntities){
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
-}
-internal sealed class DistributeShuliangEndingGrainDescriptor() : LiFengDescriptor(SkillProgramEffectOp.DistributeShuliangEndingGrain){
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeTrueUseProcessingEntry);
-
-    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext context) => context.Frame.LiFeng is { Paid: true };
-}
 internal sealed class LiFengHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost host) => host.GetCapability<ILiFengHost>().Resolve(f, op);
-}
-internal sealed class JiyunCompletedUseContract : IProgramCommittedUseContract
-{
-    public string SkillId => "ol:jiyun";
-    public void ValidateTrigger(SkillProgramTrigger t)
-    {
-        if (t.Window != SkillProgramTriggerWindow.CardUseCompleted || !t.IncludeResponseUses || !t.AllowNoEventTarget || !t.SingleActionInstance || t.Optional || t.OwnerRelation != SkillProgramCardActionOwnerRelation.Observer || t.CardKinds.Count != 0 || t.CardCategories.Count != 0 || t.Effects is not [{ Op: SkillProgramEffectOp.CollectJiyunCompletedUseEntities, Target: SkillProgramEffectTarget.Owner }])
-            throw new InvalidOperationException("Jiyun requires the exact completed native use and original drawn entity leases.");
-    }
 }
 internal static class LiFengComposition
 {

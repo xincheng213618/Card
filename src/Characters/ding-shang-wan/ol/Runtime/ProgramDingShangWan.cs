@@ -28,7 +28,6 @@ public sealed record DingShangWanStartedEvent(long FrameId,CardConversionSource 
 public sealed record DingShangWanBranchEvent(long FrameId,string Branch,int? Recipient):IGameEvent;
 public sealed record DingShangWanMovementIssuedEvent(long FrameId,DingShangWanStage Stage,int Payer,int? Recipient,long Before,long After,int Count):IGameEvent;
 public sealed record DingShangWanReshuffleCapturedEvent(long FrameId,long BatchId,long Before,long After,int Count):IGameEvent;
-public sealed record FudaoHandRecordedEvent(long FrameId,CardConversionSource Source,string GameplayHash,int HandCount):IGameEvent;
 public sealed record DingShangWanCompletedEvent(long FrameId,bool Applied):IGameEvent;
 internal interface IDingShangWanHost { SkillProgramStepOutcome Execute(ProgramSkillFrame f,SkillProgramEffectOp op); }
 internal abstract class DingShangWanDescriptor(SkillProgramEffectOp op):ProgramOperationDescriptorBase
@@ -39,12 +38,6 @@ internal abstract class DingShangWanDescriptor(SkillProgramEffectOp op):ProgramO
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.ChooseOption,static(_,c)=>c.PublicControlValue(3));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
 }
-internal sealed class InitializeFudaoHandRecordDescriptor():DingShangWanDescriptor(SkillProgramEffectOp.InitializeFudaoHandRecord)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting)]; }
-internal sealed class DrawFudaoRecordedPairDescriptor():DingShangWanDescriptor(SkillProgramEffectOp.DrawFudaoRecordedPair)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterTurnEnded)]; }
-internal sealed class ResolveFengyanCounterpartDescriptor():DingShangWanDescriptor(SkillProgramEffectOp.ResolveFengyanCounterpart)
-{ public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindows([SkillProgramTriggerWindow.AfterDamageApplied,SkillProgramTriggerWindow.CardResponseCompleted])]; }
 internal sealed class DingShangWanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>op;

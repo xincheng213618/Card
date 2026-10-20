@@ -14,8 +14,6 @@ public sealed partial record ProgramSkillFrame
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public CuiYanReceipt? CuiYan {get;init;}}
 public sealed record CuiYanStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,long WindowId,int ActualTurn,int TurnOwner,long UseId,long ActionId,Suit Suit,bool DrawQualified):IGameEvent;
 public sealed record CuiYanFrozenTargetEvent(long FrameId,int Index,int TargetSeat):IGameEvent;
-public sealed record ShutongNextUseGrantedEvent(long FrameId,CardConversionSource Source,string GameplayHash,long UseId,long ActionId,int ActualTurn,int TurnOwner,int RecipientSeat,Suit Suit):IGameEvent;
-public sealed record ShutongNextUseConsumedEvent(long GrantFrameId,int RecipientSeat,long UseId,long ActionId,bool ResponseUse,int ActualTurn,int TurnOwner):IGameEvent;
 public sealed record CuiYanDrawIssuedEvent(long FrameId,long Before,long After,int ActualCount):IGameEvent;
 public sealed record CuiYanDamageIssuedEvent(long FrameId,int SourceSeat,int TargetSeat):IGameEvent;
 public sealed record CuiYanCompletedEvent(long FrameId):IGameEvent;
@@ -35,8 +33,6 @@ internal abstract class CuiYanDescriptor(SkillProgramEffectOp op,SkillProgramTri
     public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(2));
     public override ISkillProgramEffectHandler Handler {get;}=new CuiYanHandler(op);
 }
-internal sealed class ResolveShutongFinalizedUseDescriptor():CuiYanDescriptor(SkillProgramEffectOp.ResolveShutongFinalizedUse,SkillProgramTriggerWindow.CardUseTargetsFinalized) { }
-internal sealed class ResolveZhijieActualTurnEndDescriptor():CuiYanDescriptor(SkillProgramEffectOp.ResolveZhijieActualTurnEnd,SkillProgramTriggerWindow.AfterTurnEnded) { }
 internal sealed class CuiYanHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ICuiYanHost>().Resolve(f,op);}
 internal static class CuiYanComposition

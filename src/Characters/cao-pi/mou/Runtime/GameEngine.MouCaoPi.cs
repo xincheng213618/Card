@@ -7,8 +7,6 @@ public sealed partial class GameEngine
     private const string MouCaoPiDrawReason = "skill-program.mou-cao-pi.xingshang.draw";
     private static CardConversionSource MouCaoPiSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private int Song(int seat) => _players[seat].Markers.GetValueOrDefault(PlayerMarkerKind.CaoPiSong);
-    private bool HasMouXingshang(CharacterState owner) => HasRuntimeSkill(owner, "mou:xingshang");
-    private static bool HasPrintedMouXingshang(CharacterState owner) => owner.General.Skills.Concat(owner.SecondaryGeneral?.Skills ?? []).Any(s => s.ContentId == "mou:xingshang");
 
     [ProgramCapability]
     private sealed class MouCaoPiCapability(GameEngine engine) : IMouCaoPiHost
@@ -19,9 +17,6 @@ public sealed partial class GameEngine
     private bool CanActivateMouCaoPi(ProgramActivationLegalityContext c) => c.Owner.IsAlive && _phase == TurnPhase.Play && _currentSeat == c.OwnerSeat &&
         (c.SkillId == "mou:songwei" ? c.Owner.Role == Role.Lord && _players.Any(p => p.IsAlive && p.Seat != c.OwnerSeat && GetEffectiveFactionId(p) == "wei" && MouCaoPiGeneralGrants(p).Any()) :
         HasMouXingshang(c.Owner) && Song(c.OwnerSeat) >= 2 && (c.SkillId != "mou:fangzhu" || _players.Any(p => p.IsAlive && p.Seat != c.OwnerSeat)));
-
-    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 28000, SkillProgramEffectOp.MouCaoPiSongwei)]
-    private bool CanGainMouSongwei(ProgramTriggerLegalityContext c) => c.Owner.Role == Role.Lord && HasMouXingshang(c.Owner);
 
     private SkillProgramStepOutcome BeginMouCaoPi(ProgramSkillFrame supplied, SkillProgramEffectOp op)
     {
@@ -40,9 +35,6 @@ public sealed partial class GameEngine
     }
 
     private IEnumerable<SkillGrant> MouCaoPiGeneralGrants(CharacterState p) => p.SkillGrants.Grants.Where(g => g.IsEnabled && !g.SourceId.StartsWith("equipment:", StringComparison.Ordinal));
-    private string[] MouCaoPiPrintedSkills(CharacterState dead) => dead.General.Skills.Concat(dead.SecondaryGeneral?.Skills ?? [])
-        .Where(s => s.ContentId is { } id && !_contentRegistry.GetSkill(id).Tags.HasFlag(SkillTag.Lord))
-        .Select(s => s.ContentId!).Distinct(StringComparer.Ordinal).ToArray();
 
     private IReadOnlyList<PromptChoice> MouCaoPiChoices(ProgramSkillFrame f)
     {
@@ -141,18 +133,6 @@ public sealed partial class GameEngine
         f.MouCaoPi is { Stage: not MouCaoPiStage.Choosing } r && effect?.Op == r.Op && continuation == f.PendingMovementContinuation &&
         continuation.SubjectSeat == r.TargetSeat && continuation.BeforeCount == 0 && continuation.CoverageResultBind is null &&
         ProgramEventHistory<MouCaoPiPaidEvent>().Any(e => e.FrameId == f.Id && e.TargetSeat == r.TargetSeat && e.Option == r.Option && e.Cost == r.Cost);
-    [ProgramNativeDrawReturn(SkillProgramEffectOp.MouCaoPiXingshang)]
-    private void ReturnMouCaoPiDraw(ProgramSkillFrame f, NativeDrawOutcome outcome)
-    {
-        if (f.MouCaoPi is not { Stage: MouCaoPiStage.DrawRequest, Option: "draw" } r || f.NativeDraw is not null ||
-            outcome.RecipientSeat != r.TargetSeat || outcome.RequestedCount != 3 || outcome.ActualDrawIds.Count > 3 ||
-            outcome.SequenceBefore < r.MovementBefore || outcome.SequenceAfter < outcome.SequenceBefore ||
-            outcome.Replacement is not null && outcome.ActualDrawIds.Count != 0)
-            throw new InvalidOperationException("Xingshang lost its exact paid draw request or confused replacement gains with drawn cards.");
-        ReplaceRuntimeTop(f = f with { MouCaoPi = r with { Stage = MouCaoPiStage.DrawChildren, MovementBefore = outcome.SequenceBefore,
-            MovementAfter = outcome.SequenceAfter, ActualDraw = outcome.ActualDrawIds.Count } });
-        ContinueMouCaoPi(f.Id);
-    }
     private void ContinueMouCaoPi(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { MouCaoPi: { } r } f || f.Id != id) return;

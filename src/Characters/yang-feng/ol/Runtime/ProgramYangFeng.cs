@@ -3,17 +3,11 @@ namespace CardGame.Core;
 
 public enum YangFengStage { DiscardChoice, DiscardChildren, RevealChildren, OwnerGainChildren, TargetGainChildren, CleanupChildren, QujiaChoice, QujiaGainChildren }
 public sealed record YangFengMaterial(int CardId, CardKind PrintedKind, CardLocation From, int Slot, bool GeneralWeapon = false);
-public sealed record JiaweiRevealedEntity(YangFengMaterial Material, bool DamageCard, long RevealSequence);
 public sealed record YangFengMovement(int Index, YangFengStage Stage, string Reason, long Before, long After, int Count);
 public sealed record YangFengStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, int ActualTurn, int TurnOwner,
     int Phase, long ParentId, int TargetSeat, int HistoryCutoff, int CompletedTurns, int MaximumHp, int X, int RequiredDiscard) : IGameEvent;
-public sealed record JiaweiMaterialSelectedEvent(long FrameId, int Index, YangFengMaterial Material) : IGameEvent;
-public sealed record JiaweiEntityRevealedEvent(long FrameId, int Index, JiaweiRevealedEntity Entity) : IGameEvent;
 public sealed record YangFengMaterialMovedEvent(long FrameId, YangFengStage Stage, int Index, YangFengMaterial Material, CardLocation To, long Sequence) : IGameEvent;
 public sealed record YangFengMovementIssuedEvent(long FrameId, YangFengMovement Movement) : IGameEvent;
-public sealed record JiaweiDistanceGrantedEvent(long FrameId, int OwnerSeat, int ActualTurn) : IGameEvent;
-public sealed record QujiaChoiceIssuedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn, long ParentId, string Choice) : IGameEvent;
-public sealed record QujiaSlashBonusGrantedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn) : IGameEvent;
 public sealed record YangFengCompletedEvent(long FrameId) : IGameEvent;
 public sealed record YangFengReceipt(CardConversionSource Source, string GameplayHash, SkillProgramEffectOp Op, int ActualTurn, int TurnOwner, int Phase,
     long ParentId, int TargetSeat, int HistoryCutoff, int CompletedTurns, int MaximumHp, int X, int RequiredDiscard, YangFengStage Stage,
@@ -39,8 +33,6 @@ internal abstract class YangFengDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_,c) => c.PublicControlValue(3));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => Op == SkillProgramEffectOp.ResolveJiaweiDiscardReveal ? [new ReadSelectedTarget()] : [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterTurnEnded)];
 }
-internal sealed class ResolveJiaweiDiscardRevealDescriptor : YangFengDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveJiaweiDiscardReveal; }
-internal sealed class ResolveQujiaLimitedTurnEndDescriptor : YangFengDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveQujiaLimitedTurnEnd; }
 internal sealed class YangFengHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 { public SkillProgramEffectOp Op => op; public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IYangFengHost>().Resolve(f,op); }
 internal static class YangFengComposition

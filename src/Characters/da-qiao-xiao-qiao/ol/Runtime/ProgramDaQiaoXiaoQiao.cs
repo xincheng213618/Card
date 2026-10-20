@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-
-public sealed record DaQiaoXiaoQiaoLuoyanSource(string CapabilityGrantId,string CapabilitySkillInstanceId,string LeafSkillId);
 public sealed partial record SkillGrant
 {[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public DaQiaoXiaoQiaoLuoyanSource? DaQiaoXiaoQiaoLuoyanSource{get;init;}}
 public enum DaQiaoXiaoQiaoStage{Deposit,DepositChildren,Burst,PileCards,TurnoverChildren,HandCards,Target,CostChildren,EquipmentChildren,DamageChildren}
@@ -23,7 +21,6 @@ public sealed record DaQiaoXiaoQiaoEntityPaidEvent(long FrameId,int Step,int Car
 public sealed record DaQiaoXiaoQiaoTurnedEvent(long FrameId,bool FaceDown):IGameEvent;
 public sealed record DaQiaoXiaoQiaoDamageIssuedEvent(long FrameId,int TargetSeat,int Amount):IGameEvent;
 public sealed record DaQiaoXiaoQiaoCompletedEvent(long FrameId,string? Branch,int? TargetSeat):IGameEvent;
-public sealed record DaQiaoXiaoQiaoLuoyanChangedEvent(int OwnerSeat,string GrantId,string SkillId,string InstanceId,DaQiaoXiaoQiaoLuoyanSource Source,bool Added):IGameEvent;
 internal interface IDaQiaoXiaoQiaoHost{SkillProgramStepOutcome Resolve(ProgramSkillFrame frame,bool maintain);}
 internal sealed class DaQiaoXiaoQiaoHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IDaQiaoXiaoQiaoHost>().Resolve(f,op==SkillProgramEffectOp.MaintainLuoyanPileSkills);}
@@ -35,8 +32,6 @@ internal abstract class DaQiaoXiaoQiaoDescriptor(SkillProgramEffectOp op):Progra
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.Damage,static(_,c)=>c.PublicControlValue(3));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(op==SkillProgramEffectOp.MaintainLuoyanPileSkills?SkillProgramTriggerWindow.GameStarting:SkillProgramTriggerWindow.DiscardPhaseStarting)];
 }
-internal sealed class ResolveXingwuDepositAndBurstDescriptor():DaQiaoXiaoQiaoDescriptor(SkillProgramEffectOp.ResolveXingwuDepositAndBurst){}
-internal sealed class MaintainLuoyanPileSkillsDescriptor():DaQiaoXiaoQiaoDescriptor(SkillProgramEffectOp.MaintainLuoyanPileSkills){}
 internal static class DaQiaoXiaoQiaoComposition
 {
     [ProgramCatalogValidation(520)]

@@ -1,0 +1,3 @@
+namespace CardGame.Core;
+internal sealed class ArmDianhuRelationDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmDianhuRelation;}
+internal sealed class DrawForDianhuActualOccurrenceDescriptor:HuangQuanDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawForDianhuActualOccurrence;}

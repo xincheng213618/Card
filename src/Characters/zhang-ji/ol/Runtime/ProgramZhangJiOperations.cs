@@ -53,9 +53,6 @@ internal abstract class ZhangJiDescriptor(SkillProgramEffectOp op):ProgramOperat
  public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget(),new RequireSelectedTargetKind(op==SkillProgramEffectOp.ResolveTargetChosenRankJudgment?SkillProgramTargetKind.OtherLiving:SkillProgramTargetKind.AnyLiving)];
 }
-internal sealed class ResolveTargetChosenRankJudgmentDescriptor():ZhangJiDescriptor(SkillProgramEffectOp.ResolveTargetChosenRankJudgment)
-{public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget(),new RequireSelectedTargetKind(SkillProgramTargetKind.OtherLiving),new CreateCardSet("zhang-ji-rank",1,true),new MoveCardSet("zhang-ji-rank",null,SkillProgramCardDestination.DiscardPile)];}
-internal sealed class UseDistinctDeckEquipmentByLueMingHistoryDescriptor():ZhangJiDescriptor(SkillProgramEffectOp.UseDistinctDeckEquipmentByLueMingHistory){}
 internal static class ZhangJiComposition
 {
  internal static void ValidateActivation(string path,SkillProgramActivation a)

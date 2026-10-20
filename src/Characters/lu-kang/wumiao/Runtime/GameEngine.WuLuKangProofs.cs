@@ -39,44 +39,6 @@ public sealed partial class GameEngine
         return r.Comparisons.All(c => ProgramEventHistory<WuLuKangComparisonSettledEvent>().Count(e => e == new WuLuKangComparisonSettledEvent(parent.Id, c.Index, c.Result)) == 1 &&
             ProgramEventHistory<PindianResultDeterminedEvent>().Count(e => e.FrameId == parent.Id && e.Result == c.Result) == 1) && r.Comparisons.Select(c => c.Index).Distinct().Count() == r.Comparisons.Count;
     }
-    private bool ValidWuLuKangShenduan(ProgramSkillFrame f)
-    {
-        if (f.WuLuKangShenduan is not { } r || f.InstructionIndex != 1 || f.TriggerId != "native-pindian" || r.Source != WuLuKangSource(f) || r.GameplayHash != f.GameplayHash ||
-            f.WindowContext is not { WuLuKangPindian: { } c } context || context.ParentFrameId != r.WindowId || c != new WuLuKangPindianContext(r.ContestId, r.WindowStage, r.ComparisonIndex, r.ParticipantSeat) ||
-            _resolutionStack.SingleOrDefault(w => w.Id == r.WindowId) is not WuLuKangPindianFrame w || w.ParentFrameId != r.ContestId || w.Stage != r.WindowStage ||
-            w.ComparisonIndex != r.ComparisonIndex || w.CandidateIndex >= w.Entries.Count || !MountObserverCandidateMatches(f, w.Entries[w.CandidateIndex].Candidate) ||
-            !Enum.IsDefined(r.Stage) || r.Before < 0 || r.After < r.Before || r.After > _movementSequence ||
-            _resolutionStack.SingleOrDefault(p => p.Id == r.ContestId) is not { WuLuKangContest: { } contest } parent || !ValidWuLuKangContest(parent) ||
-            ProgramEventHistory<WuLuKangShenduanStartedEvent>().Count(e => e == new WuLuKangShenduanStartedEvent(f.Id, r.WindowId, r.ContestId, r.Source, r.GameplayHash, r.WindowStage, r.ComparisonIndex, r.ParticipantSeat)) != 1) return false;
-        var ownIndex = _resolutionStack.FindIndex(frame => frame.Id == f.Id); var windowIndex = _resolutionStack.FindIndex(frame => frame.Id == w.Id);
-        if (ownIndex != windowIndex + 1 || context.OwnerSeat != f.OwnerSeat || context.TargetSeat != f.OwnerSeat || context.SourceSeat != contest.SourceSeat ||
-            f.SelectedCardIds.Count != 0 || f.SelectedTargetSeats.Count != 0) return false;
-        if (r.Payment is { } payment && !contest.Replacements.Contains(payment)) return false;
-        if (r.WindowStage == WuLuKangPindianStage.GroupClose) return contest.Cancelled && r.Payment is null && r.Recipients.Count == 0 && r.Draw is null && r.Stage == WuLuKangShenduanStage.CancelChildren;
-        if (r.WindowStage == WuLuKangPindianStage.BeforeSourceReplacement) return r.Recipients.Count == 0 && r.Draw is null && r.RecipientIndex == 0 &&
-            r.Stage is WuLuKangShenduanStage.DiscardChoice or WuLuKangShenduanStage.DiscardChildren or WuLuKangShenduanStage.RefillChildren or WuLuKangShenduanStage.ReserveChildren or WuLuKangShenduanStage.CancelChildren;
-        if (w.Result is not { } result || r.Payment is not null || !r.Recipients.SequenceEqual(new[] { (result.SourceSeat, result.SourceRank), (result.OpponentSeat, result.OpponentRank) }.Where(i => i.Item2 == 13).Select(i => i.Item1).Distinct()) ||
-            r.RecipientIndex < 0 || r.RecipientIndex > r.Recipients.Count || r.Stage is not (WuLuKangShenduanStage.BottomChildren or WuLuKangShenduanStage.Drawing or WuLuKangShenduanStage.DrawChildren)) return false;
-        return r.Draw is not { } draw || r.Stage == WuLuKangShenduanStage.DrawChildren && draw.RecipientSeat == r.Recipients[r.RecipientIndex] && draw.RequestedCount == 1 &&
-            ProgramEventHistory<WuLuKangKDrawReturnedEvent>().Any(e => e == new WuLuKangKDrawReturnedEvent(f.Id, draw.RecipientSeat, draw.ActualDrawIds.Count, draw.ReplacementGainedIds.Count, draw.AttemptFrameId, draw.SequenceBefore, draw.SequenceAfter));
-    }
-    private bool ValidWuLuKangKegou(ProgramSkillFrame f)
-    {
-        if (f.WuLuKangKegou is not { } r || !WuLuKangKegouParent(f) || r.Source != WuLuKangSource(f) || r.GameplayHash != f.GameplayHash || r.WindowId != f.WindowContext!.ParentFrameId ||
-            !WuLuKangQualifiedAtCutoff(f.OwnerSeat, r.Qualification) || r.Qualification.ActualTurn != _turnNumber || r.Qualification.TurnOwner != _turnProgression.OwnerSeat || r.Qualification.TurnOrdinal != WuLuKangTurnOrdinal ||
-            f.WindowContext.Window == SkillProgramTriggerWindow.AfterTurnEnded && (!(r.Qualification.Used || r.Qualification.Played) || !WuLuKangActualEndedCutoff(r.Qualification)) ||
-            r.Iteration < 0 || !Enum.IsDefined(r.Stage) || r.Before < 0 || r.After < r.Before || r.After > _movementSequence ||
-            ProgramEventHistory<WuLuKangKegouStartedEvent>().Count(e => e == new WuLuKangKegouStartedEvent(f.Id, r.Source, r.GameplayHash, r.WindowId, r.Qualification)) != 1) return false;
-        if (r.PindianId is { } pair && ProgramEventHistory<WuLuKangKegouPindianIssuedEvent>().Count(e => e == new WuLuKangKegouPindianIssuedEvent(f.Id, r.Iteration, pair, r.OpponentSeat!.Value)) != 1) return false;
-        if (r.Result is { } result && (result.SourceSeat != f.OwnerSeat || result.OpponentSeat != r.OpponentSeat ||
-            ProgramEventHistory<WuLuKangKegouPindianReturnedEvent>().Count(e => e == new WuLuKangKegouPindianReturnedEvent(f.Id, r.Iteration, r.PindianId!.Value, result)) != 1 ||
-            ProgramEventHistory<PindianResultDeterminedEvent>().Count(e => e.FrameId == r.PindianId && e.Result == result) != 1)) return false;
-        if (r.NativeTargets.Count > 0 && (r.NativeTargets[0] != f.OwnerSeat || r.NativeTargets.Distinct().Count() != r.NativeTargets.Count ||
-            r.NativeTargets.Where((seat, i) => ProgramEventHistory<WuLuKangKegouSlashTargetEvent>().Count(e => e == new WuLuKangKegouSlashTargetEvent(f.Id, r.Iteration, i, seat, r.NativeTargetsAdjusted)) != 1).Any())) return false;
-        return r.Gains.Count <= 2 && r.Gains.Select(g => g.PrintedRank).Distinct().Count() == r.Gains.Count && r.Gains.All(g => g.From == CardLocation.DrawPile && g.To == CardLocation.Hand(f.OwnerSeat) &&
-            _cardMovements.Count(m => m.Sequence == g.Sequence && m.CardId == g.CardId && m.From == g.From && m.To == g.To && m.Reason.Value == WuLuKangKegouGainReason) == 1 &&
-            ProgramEventHistory<WuLuKangKegouGainPaidEvent>().Count(e => e == new WuLuKangKegouGainPaidEvent(f.Id, r.Iteration, g.CardId, g.PrintedRank, g.From, g.To, g.Sequence)) == 1);
-    }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 29700)]
     private void AssertWuLuKang(ProgramSkillFrame f)
     {

@@ -40,7 +40,6 @@ public sealed partial record ProgramSkillFrame
 public sealed partial record CardUseFrame
 { [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public XiangChongEquipmentOrigin? XiangChongGuyingEquipment { get; init; } }
 public sealed record XiangChongStartedEvent(long FrameId, CardConversionSource Source, string GameplayHash, int ActualTurn, int TurnOwner, string Branch, long PhaseToken, int Required, long LossBatchId, long LossSequence) : IGameEvent;
-public sealed record XiangChongGuyingInvokedEvent(long FrameId, int OwnerSeat, int ActualTurn, long BatchId, long LossSequence, int CardId, CardConversionSource Source) : IGameEvent;
 public sealed record XiangChongDebtConsumedEvent(long FrameId, int OwnerSeat, int Count, long ThroughFrameId) : IGameEvent;
 public sealed record XiangChongBranchPaidEvent(long FrameId, int OwnerSeat, int RecipientSeat, string Branch, long PhaseToken, long Before, long After) : IGameEvent;
 public sealed record XiangChongEntityMovedEvent(long FrameId, string Segment, int CardId, CardKind Kind, CardLocation From, CardLocation To, long Sequence) : IGameEvent;
@@ -68,11 +67,6 @@ internal abstract class XiangChongDescriptor : ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op switch
     {SkillProgramEffectOp.ResolveGuyingAtomicLossChoice=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)],SkillProgramEffectOp.SettleGuyingPreparationDebt=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)],_=>[]};
 }
-internal sealed class ResolveGuyingAtomicLossChoiceDescriptor:XiangChongDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveGuyingAtomicLossChoice;}
-internal sealed class SettleGuyingPreparationDebtDescriptor:XiangChongDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.SettleGuyingPreparationDebt;}
-internal sealed class ResolveMuzhenExchangeDescriptor:XiangChongDescriptor{
-    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveMuzhenExchange;}
 internal sealed class XiangChongHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost h)=>h.GetCapability<IXiangChongHost>().Resolve(f,e);}
 internal static class XiangChongComposition

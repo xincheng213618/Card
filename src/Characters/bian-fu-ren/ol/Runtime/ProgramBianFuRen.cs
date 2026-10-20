@@ -20,16 +20,6 @@ internal abstract class BianFuRenMovementDescriptor : ProgramOperationDescriptor
             ? SkillProgramTriggerWindow.CardsMoved : SkillProgramTriggerWindow.DiscardPileReceived)];
 }
 
-internal sealed class WanweiObtainMatchingLostCardDescriptor : BianFuRenMovementDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.WanweiObtainMatchingLostCard;
-}
-
-internal sealed class YuejianRevealAndClaimUsedCardDescriptor : BianFuRenMovementDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.YuejianRevealAndClaimUsedCard;
-}
-
 internal sealed class BianFuRenMovementHandler(SkillProgramEffectOp operation) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => operation;
@@ -103,10 +93,6 @@ public sealed partial record CardMovementBatchContext
     }
 }
 
-public sealed record WanweiAcquisitionIssuedEvent(long ProgramFrameId, long OriginalBatchId,
-    int OriginalMovementSequence, int OwnerSeat, int OtherActorSeat, bool MatchedName,
-    int MovementBefore, int MovementAfter, int ActualCount) : IGameEvent;
-
 /// <summary>Scalar producer proof; the movement ledger retains private material identities.</summary>
 public sealed record BianFuRenForeignDiscardProducerEvent(int MovementSequence, int OriginalEntrySequence,
     long ProducerFrameId, int ActorSeat, int CardOwnerSeat) : IGameEvent;
@@ -120,7 +106,3 @@ public sealed record BianFuRenOwnedTransferProducerEvent(int EntryMovementSequen
 public sealed record BianFuRenDelayedUsePlacedEvent(long NativeUseId, long ActionId, int CardId,
     int PaymentMovementSequence, int PlacementMovementSequence, int ActorSeat, int OriginalTargetSeat,
     CardKind EffectiveKind, Suit? EffectiveSuit) : IGameEvent;
-
-public sealed record YuejianAcquisitionIssuedEvent(long ProgramFrameId, long OriginalBatchId,
-    long NativeUseId, long ActionId, int OwnerSeat, int RevealedHandCount, bool DifferentSuits,
-    int MovementBefore, int MovementAfter, int ActualCount) : IGameEvent;

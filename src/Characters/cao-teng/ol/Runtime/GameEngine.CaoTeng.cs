@@ -7,18 +7,6 @@ public sealed partial class GameEngine
     private bool HasCaoTengCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveYongzuDistinctBenefits)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveCaoTengJianxiongDrawAndClaim);
     private static CardConversionSource CaoTengSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     [ProgramCapability]private sealed class CaoTengCapability(GameEngine engine):ICaoTengHost{public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>engine.BeginCaoTeng(f,op);}
-    private bool IsCaoTengQingliuDyingExitContext(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context)
-    {
-        if(GetProgramTrigger(candidate).Effects is not[{Op:SkillProgramEffectOp.ResolveQingliuFactionChoice}]||context.Window!=SkillProgramTriggerWindow.DyingExited||context.OwnerSeat!=candidate.OwnerSeat||
-            context.SourceSeat!=candidate.OwnerSeat||context.TargetSeat!=candidate.OwnerSeat||!_players[candidate.OwnerSeat].IsAlive||_players[candidate.OwnerSeat].Hp<=0||
-            _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w=>w.Id==context.ParentFrameId)is not{Window:SkillProgramTriggerWindow.DyingExited,Continuation:ProgramLifecycleContinuation.ResumeYanPuDyingExit,YanPuDyingExit:{}ret}parent||
-            ret.VictimSeat!=candidate.OwnerSeat||ret.Round!=_roundNumber||ret.Turn!=_turnNumber||ret.TurnOwner!=_currentSeat||parent.OwnerSeat!=candidate.OwnerSeat||
-            parent.CandidateIndex<0||parent.CandidateIndex>=parent.Candidates.Count||parent.Candidates[parent.CandidateIndex]!=candidate)return false;
-        var i=_resolutionStack.FindIndex(w=>w.Id==parent.Id);
-        return i>0&&_resolutionStack[i-1].Id==ret.DyingParentFrameId&&ProgramEventHistory<PlayerDyingEvent>().FirstOrDefault(e=>e.VictimSeat==candidate.OwnerSeat)?.ResolutionId==ret.DyingFrameId&&
-            ProgramEventHistory<DyingResolvedEvent>().Count(e=>e.ResolutionId==ret.DyingFrameId&&e.VictimSeat==candidate.OwnerSeat&&e.Survived)==1&&
-            !ProgramEventHistory<CaoTengFactionCompletedEvent>().Any(e=>e.Source.OwnerSeat==candidate.OwnerSeat&&!e.Setup);
-    }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27300)]
     private bool CanOfferCaoTeng(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>
         !t.Effects.Any(e=>e.Op==SkillProgramEffectOp.ResolveQingliuFactionChoice)||context.Window==SkillProgramTriggerWindow.GameStarting||IsCaoTengQingliuDyingExitContext(c,context);
@@ -106,36 +94,6 @@ public sealed partial class GameEngine
         }
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f with{CaoTeng=f.CaoTeng! with{After=_movementSequence}});AdvanceEventRulesAndQueueFact(new CaoTengBenefitAppliedEvent(f.Id,r.Cursor,_movementSequence));ContinueCaoTeng(f.Id);
     }
-    private void ApplyCaoTengFaction(ProgramSkillFrame f,string faction,bool setup)
-    {
-        ReplaceRuntimeTop(f=f with{CaoTeng=f.CaoTeng! with{Faction=faction,Stage=CaoTengStage.FactionApplying}});
-        AdvanceEventRulesAndQueueFact(new CaoTengFactionChosenEvent(f.Id,faction,setup));ApplyCaoTengFactionChange(f,faction);
-        AdvanceEventRulesAndQueueFact(new CaoTengFactionCompletedEvent(f.Id,CaoTengSource(f),faction,setup));FinishCaoTeng(GetActiveProgramFrame(f.Id));
-    }
-    private bool IsCaoTengFactionChange(ProgramSkillFrame f,string faction)=>f.CaoTeng is{Op:SkillProgramEffectOp.ResolveQingliuFactionChoice,Stage:CaoTengStage.FactionApplying}r&&r.Faction==faction&&faction is("qun" or "wei")&&
-        r.Source==CaoTengSource(f)&&r.GameplayHash==f.GameplayHash&&f.InstructionIndex==1&&!ProgramEventHistory<CaoTengFactionCompletedEvent>().Any(e=>e.FrameId==f.Id)&&CaoTengParentMatches(f)&&_resolutionStack.LastOrDefault()?.Id==f.Id&&
-        ProgramEventHistory<CaoTengFactionChosenEvent>().Count(e=>e.FrameId==f.Id&&e.Faction==faction&&e.Setup==(f.WindowContext!.Window==SkillProgramTriggerWindow.GameStarting))==1&&
-        (f.WindowContext!.Window==SkillProgramTriggerWindow.GameStarting||faction==(GetEffectiveFactionId(_players[f.OwnerSeat])=="wei"?"qun":"wei"));
-    private void GrantCaoTengSkill(ProgramSkillFrame f,int recipient)
-    {
-        var faction=GetEffectiveFactionId(_players[recipient]);if(faction is not("wei" or "qun"))return;
-        var skill=faction=="wei"?"ol:caoteng-jianxiong":"ol:tianming";_= _contentRegistry.GetSkill(skill);var r=f.CaoTeng!;
-        var source=$"caoteng-yongzu:{f.Id}:{r.Cursor}:{recipient}";var grantId=source+":"+skill;
-        var existing=GetSkillBindingShard(_players[recipient]).ActiveGrants.Where(g=>g.SkillId==skill).OrderBy(g=>g.SourceId.StartsWith("caoteng-yongzu:",StringComparison.Ordinal)?1:0).ThenBy(g=>g.SkillInstanceId,StringComparer.Ordinal).FirstOrDefault();
-        var instance=existing?.SkillInstanceId??grantId;_players[recipient].SkillGrants.Grant(new(grantId,skill,instance,source));
-        AdvanceEventRulesAndQueueFact(new CaoTengSkillGrantedEvent(f.Id,r.Cursor,recipient,skill,instance,grantId,source,_turnNumber));
-    }
-    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,27300)]private void ExpireCaoTengNextOwnTurn(TurnStartedEvent started)
-    {
-        if(!HasCaoTengCapability)return;var expired=ProgramEventHistory<CaoTengSkillExpiredEvent>().Select(e=>e.GrantId).ToHashSet(StringComparer.Ordinal);
-        foreach(var grant in ProgramEventHistory<CaoTengSkillGrantedEvent>().Where(e=>e.RecipientSeat==started.ActorSeat&&e.ActualTurn<started.TurnNumber&&!expired.Contains(e.GrantId)).ToArray())
-        {
-            var actual=_players[grant.RecipientSeat].SkillGrants.Grants.SingleOrDefault(g=>g.GrantId==grant.GrantId);
-            if(actual is not null){if(actual.SkillId!=grant.SkillId||actual.SkillInstanceId!=grant.SkillInstanceId||actual.SourceId!=grant.SourceId)throw new InvalidOperationException("Yongzu's exact grant source was replaced.");_players[grant.RecipientSeat].SkillGrants.RemoveGrant(grant.GrantId);}
-            AdvanceEventRulesAndQueueFact(new CaoTengSkillExpiredEvent(grant.GrantId,grant.RecipientSeat,started.TurnNumber));
-        }
-    }
-    private int CaoTengYongzuHandLimitBonus(int seat)=>HasCaoTengCapability?ProgramEventHistory<CaoTengHandLimitGrantedEvent>().Count(e=>e.RecipientSeat==seat):0;
     private bool DrainCaoTeng(long id)=>TryBeginQueuedRecoveryReplacement(id,PostEventContinuation.Program)||TryBeginCharacterStateProgramWindow(id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(id,PostEventContinuation.Program)||TryBeginCardsMovedProgramWindow(id)||TryBeginAdvancedSkillsChanged(id);
     private void ContinueCaoTeng(long id)
     {

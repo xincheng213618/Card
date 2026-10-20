@@ -1,7 +1,6 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private const string ZengdaoDepositReason="skill-program.zengdao.deposit",ZengdaoConsumeReason="skill-program.zengdao.consume";
  private SkillProgramStepOutcome ExecuteLvQian(ProgramSkillFrame supplied,SkillProgramEffectOp op)
  {
   var f=GetActiveProgramFrame(supplied.Id);var w=f.WindowContext;var owner=_players[f.OwnerSeat];
@@ -41,38 +40,6 @@ public sealed partial class GameEngine
   if(op!=SkillProgramEffectOp.RestoreWeiluExactPaidPlayHp)throw new InvalidOperationException("Unknown Lv Qian operation.");
   var debts=(owner.WeiluDebts??[]).Where(g=>g.Phase==phase&&g.Source.SkillId==f.SkillId&&g.Source.SkillInstanceId==f.SkillInstanceId).ToArray();
   ReplaceRuntimeTop(f=f with{LvQian=new(LvQianSource(f),f.GameplayHash,1,w.ParentFrameId,_turnNumber,LvQianStage.RecoveryChildren,Phase:phase){Targets=debts.Select(g=>g.TargetSeat).ToArray()},PendingMovementContinuation=new(f.OwnerSeat,0,null)});IssueLvQianStarted(f);PayNextWeiluTarget(f);return SkillProgramStepOutcome.AwaitChild;
- }
- private IReadOnlyList<PromptChoice> ZengdaoDamageChoices(ProgramSkillFrame f)=>Array.AsReadOnly(f.LvQian!.Choices.Select((entry,index)=>new PromptChoice(new($"zengdao.{f.Id}.{entry.CardId}"),$"移去{GetAdvancedCard(entry.CardId).DisplayName}",[entry.CardId],[],new Dictionary<string,string>{{"program-action","zengdao-damage"},{"choice",index.ToString()}})).ToArray());
- private void PublishZengdaoChoice(ProgramSkillFrame f)
- {
-  var s=_contentRegistry.GetSkill(f.SkillId);_pendingDecision=new(DecisionKind.ProgramTrigger,f.OwnerSeat,"赠刀：选择移去一张实际赠刀牌。",f.LvQian!.Choices.Select(c=>c.CardId).ToArray(),[],f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=false,Choices=ZengdaoDamageChoices(f),SkillPrompt=new(f.SkillId,s.Name,s.Name,s.Description)};ReplaceRuntimeTop(f with{Step=ResolutionFrameStep.AwaitingResponse});_status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
- }
- [ProgramAiChoice(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage)]private PromptChoice SelectZengdaoDamageChoice(ProgramSkillFrame f)=>ZengdaoDamageChoices(f).First();
- [ProgramAnswer("zengdao-damage")]private void ResolveZengdaoDamageChoice(PromptChoice choice)
- {
-  var f=(ProgramSkillFrame)_resolutionStack.Last();AssertLvQian(f);if(f.LvQian is not{Stage:LvQianStage.DamageChoice}r||_pendingDecision?.PlayerSeat!=f.OwnerSeat||!ZengdaoDamageChoices(f).Any(c=>AssistedChoicesEqual([c],[choice])))throw new InvalidOperationException("Zengdao payment lost its real recipient chooser.");ClearPendingDecision();PayZengdaoDamage(f,r.Choices[int.Parse(choice.Parameters["choice"])]);
- }
- private void PayZengdaoDamage(ProgramSkillFrame f,ZengdaoEntityChoice choice)
- {
-  var r=f.LvQian!;var grant=choice.Grant;var cardId=choice.CardId;
-  if(r.Stage!=LvQianStage.DamageChoice||!r.Choices.Contains(choice)||!IsDurableZengdaoGrant(grant)||_cardZones.GetLocation(cardId)!=grant.Location||_resolutionStack[^2]is not BeforeDamageProgramWindowFrame damageWindow||damageWindow.Id!=r.WindowId||damageWindow.Prevented||CurrentDamageAttempt is not{IsSourceLess:false,IsDelayedJudgmentDamage:false}attack||attack.ResolutionId!=r.DamageAttemptResolutionId||attack.SourceSeat!=f.OwnerSeat||attack.TargetSeat!=r.Targets.Single())throw new InvalidOperationException("Zengdao cannot substitute a grant, physical card or actual damage after the recipient chooses.");
-  var before=_movementSequence;ReplaceRuntimeTop(f=f with{LvQian=r with{Stage=LvQianStage.DamagePaymentChildren,Before=before,After=before,Grant=grant,Entities=[cardId]},PendingMovementContinuation=new(f.OwnerSeat,0,null)});MoveCard(GetAdvancedCard(cardId),grant.Location,CardLocation.DiscardPile,new(ZengdaoConsumeReason));f=GetActiveProgramFrame(f.Id);r=f.LvQian!with{After=_movementSequence,ActualCount=1};ReplaceRuntimeTop(f=f with{LvQian=r});attack.IncreaseFinalizedDamageAmount(1);ReplaceRuntimeFrame(damageWindow.Id,damageWindow with{Amount=checked(damageWindow.Amount+1)});AdvanceEventRulesAndQueueFact(new ZengdaoDamagePaidEvent(f.Id,attack.ResolutionId,grant.Source,f.OwnerSeat,damageWindow.TargetSeat,cardId,before,_movementSequence));IssueLvQianSegment(f);
- }
- private void PayNextWeiluTarget(ProgramSkillFrame f)
- {
-  var r=f.LvQian!;if(r.Cursor>=r.Targets.Count){FinishLvQian(f);return;}var target=_players[r.Targets[r.Cursor]];
-  if(r.Stage==LvQianStage.LoseHpChildren)
-  {
-   var before=target.Hp;var requested=target.IsAlive&&target.HasHpValue?Math.Max(0,before-1):0;
-   ReplaceRuntimeTop(f=f with{LvQian=r with{HpProof=new(target.Seat,requested,before,HpChangeKind.Loss)}});
-   if(requested>0)new ProgramSkillHost(this).LoseHp(f.Id,f.SkillId,target.Seat,requested);
-   f=GetActiveProgramFrame(f.Id);var lost=Math.Max(0,before-target.Hp);var debt=new WeiluPaidDebt(r.Source,r.GameplayHash,f.Id,r.Phase!,target.Seat,lost);_players[f.OwnerSeat].WeiluDebts=[..(_players[f.OwnerSeat].WeiluDebts??[]),debt];AdvanceEventRulesAndQueueFact(new WeiluHpPaidEvent(f.Id,r.Source,r.GameplayHash,r.Phase!,target.Seat,lost));
-  }
-  else
-  {
-   var debt=(_players[f.OwnerSeat].WeiluDebts??[]).SingleOrDefault(g=>g.Phase==r.Phase&&g.Source.SkillId==f.SkillId&&g.Source.SkillInstanceId==f.SkillInstanceId&&g.TargetSeat==target.Seat);if(debt is null){ReplaceRuntimeTop(f with{LvQian=r with{Cursor=r.Cursor+1}});return;}_players[f.OwnerSeat].WeiluDebts=(_players[f.OwnerSeat].WeiluDebts??[]).Where(g=>g!=debt).ToArray();AdvanceEventRulesAndQueueFact(new WeiluDebtConsumedEvent(f.Id,debt.ProducerFrameId,debt.Phase,target.Seat,debt.ActualHpLost,target.IsAlive));ReplaceRuntimeTop(f=f with{LvQian=r with{HpProof=new(target.Seat,target.IsAlive?Math.Min(debt.ActualHpLost,target.MaxHp-target.Hp):0,target.Hp,HpChangeKind.Recovery)}});if(target.IsAlive&&debt.ActualHpLost>0)new ProgramSkillHost(this).Recover(f.Id,f.OwnerSeat,target.Seat,debt.ActualHpLost,null,null);
-  }
-  f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f with{LvQian=f.LvQian!with{Cursor=r.Cursor+1}});
  }
  private void IssueLvQianStarted(ProgramSkillFrame f){var r=f.LvQian!;AdvanceEventRulesAndQueueFact(new LvQianStartedEvent(f.Id,r.Source,r.GameplayHash,r.WindowId,r.ActualTurn,r.Stage));}
  private void IssueLvQianSegment(ProgramSkillFrame f){var r=f.LvQian!;AdvanceEventRulesAndQueueFact(new LvQianSegmentPaidEvent(f.Id,r.Source,r.GameplayHash,r.Stage,r.Before,r.After,r.ActualCount,r.Targets.Single()));}

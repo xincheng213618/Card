@@ -7,30 +7,6 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome ExecuteGuanYuVariant(ProgramSkillFrame frame, SkillProgramEffectOp op) => engine.ExecuteGuanYuVariant(frame, op);
     }
-
-    private GuanPhaseFocusEvent? GuanPhaseFocus(int owner) => CompleteProgramEventHistory().OfType<GuanPhaseFocusEvent>()
-        .LastOrDefault(e => e.OwnerSeat == owner && e.TurnNumber == _turnNumber && e.PhaseSerial == _cardUseDebitPhaseInstanceId && _phase == TurnPhase.Play && _currentSeat == owner);
-    private int GuanFocusedSlashCount(GuanPhaseFocusEvent focus) => CompleteProgramEventHistory().OfType<GuanFocusedSlashEvent>()
-        .Count(e => e.OwnerSeat == focus.OwnerSeat && e.TargetSeat == focus.TargetSeat && e.TurnNumber == focus.TurnNumber && e.PhaseSerial == focus.PhaseSerial);
-    private bool GuanFocusAllowsSlash(int owner, int target) => GuanPhaseFocus(owner) is { } focus && focus.TargetSeat == target && GuanFocusedSlashCount(focus) < 3;
-    private bool GuanFocusProhibitsSlash(int owner, int target, CardKind kind) => IsSlashCard(kind) && GuanPhaseFocus(owner) is { } focus && focus.TargetSeat == target && GuanFocusedSlashCount(focus) >= 3;
-    private bool GuanSparedThisTurn(int owner, int target) => CompleteProgramEventHistory().OfType<GuanLethalSparedEvent>()
-        .Any(e => e.OwnerSeat == owner && e.TargetSeat == target && e.TurnNumber == _turnNumber);
-    private bool GuanOpeningUseExists(int owner, bool red) => CompleteProgramEventHistory().OfType<GuanOpeningUseEvent>()
-        .Any(e => e.OwnerSeat == owner && e.TurnNumber == _turnNumber && (red ? e.IsRed : e.IsBasic));
-    private bool GuanFirstBasicAvailable(CharacterState owner, CardKind kind) => HasRuntimeSkill(owner, "mou-ol:duoshou") &&
-        CardUseCategoryCatalog.Get(kind) == CardUseCategories.Basic && !GuanOpeningUseExists(owner.Seat, false);
-    private bool GuanFirstRedAvailable(CharacterState owner, Suit? suit) => suit is Suit.Heart or Suit.Diamond && HasRuntimeSkill(owner, "mou-ol:duoshou") && !GuanOpeningUseExists(owner.Seat, true);
-    private bool GuanFirstRedDistance(CharacterState owner, Card card, long? useId = null) =>
-        useId is { } id ? LifecycleCardUse(id)?.GuanFirstRedDistance == true : GuanFirstRedAvailable(owner, EffectiveSuit(owner, card));
-    private bool GuanConversionAvailable(int owner, string skill) => skill != "mou-ol:weilin" || !EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
-        .OfType<CardActionAcceptedEvent>().Any(e => e.Action.ActorSeat == owner && e.Action.Type == CardActionType.Use &&
-            e.Action.ConversionChain.Any(s => s.OwnerSeat == owner && s.SkillId == skill && s.BindingId != "weilin-hand-slash"));
-    private DemonRoundFocusEvent? DemonFocus(int target) => CompleteProgramEventHistory().OfType<DemonRoundFocusEvent>()
-        .LastOrDefault(e => e.TargetSeat == target && e.RoundNumber == _roundNumber);
-    private FactionResponsePolicySource? GetDemonDodgeRequest(CharacterState owner, CardKind kind) =>
-        kind == CardKind.Dodge && DemonFocus(owner.Seat) is { } focus && GetFactionProviderSeats(owner.Seat, "magic-any").Count > 0
-            ? new(focus.Source.SkillId, focus.Source.SkillInstanceId, "round-aid", "magic-any", kind, 0, 0) : null;
     private IReadOnlyList<int> ExclusiveSupportTargets(int recipient, string? skill = null) => CompleteProgramEventHistory().OfType<DemonSupportGrantedEvent>()
         .Where(e => e.RecipientSeat == recipient && (skill is null || e.SkillId == skill) && _players[e.OwnerSeat].IsAlive)
         .Select(e => e.OwnerSeat).Distinct().Order().ToArray();
@@ -168,43 +144,6 @@ public sealed partial class GameEngine
         }
         return SkillProgramStepOutcome.Continue;
     }
-
-    private ProgramCardIdentityMatch? WeilinIdentity(CharacterState owner, Card card)
-    {
-        if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat)) return null;
-        var suit = EffectiveSuit(owner, card);
-        if (suit == Suit.None) return null;
-        var policy = EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent).OfType<WeilinHandColorEvent>().LastOrDefault(e => e.TargetSeat == owner.Seat && e.TurnNumber == _turnNumber && e.IsRed == IsRedSuit(suit));
-        return policy is null ? null : new(_contentRegistry.GetSkill(policy.Source.SkillId).Program!,
-            new SkillProgramCardIdentity("weilin-hand-slash", [CardZoneKind.Hand], [], [], CardKind.Slash, new(SkillProgramConditionKind.Always, 0, [])),
-            policy.Source with { BindingId = "weilin-hand-slash" });
-    }
-
-    [ProgramCardLegality(ProgramCardLegalityStage.NamedConversionBan, 20)]
-    private bool GuanConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
-        !GuanConversionAvailable(query.Owner.Seat, query.Instance.SkillId);
-
-    private void ReturnDemonRoundHolds()
-    {
-        foreach (var player in _players)
-        {
-            var held = _cardZones.CardsAt(CardLocation.RoundHold(player.Seat)).ToArray();
-            if (held.Length > 0) MoveCards(held, CardLocation.RoundHold(player.Seat), player.IsAlive ? CardLocation.Hand(player.Seat) : CardLocation.DiscardPile, new("skill-program.hanguo.return"));
-        }
-    }
-
-    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 210)]
-    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 30)]
-    private bool DistancePhysicalSlash210GuanFocusAllowsSlash(ProgramSlashDistanceQuery q) =>
-        GuanFocusAllowsSlash(q.Actor.Seat, q.Target.Seat);
-
-    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 220)]
-    private bool DistancePhysicalSlash220GuanFirstRedDistance(ProgramSlashDistanceQuery q) =>
-        GuanFirstRedDistance(q.Actor, q.PhysicalCard!, q.ExistingUseFrameId);
-
-    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 40)]
-    private bool DistanceVirtualSlash40GuanFirstRedAvailable(ProgramSlashDistanceQuery q) =>
-        GuanFirstRedAvailable(q.Actor, q.PhysicalSuit);
 
 }
 

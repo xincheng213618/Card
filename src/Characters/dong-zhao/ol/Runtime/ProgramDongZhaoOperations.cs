@@ -13,39 +13,6 @@ internal abstract class DongZhaoDescriptor : ProgramOperationDescriptorBase
         static (e,c) => c.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 2, e.Condition)));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
 }
-internal sealed class XianlueRecordDescriptor : DongZhaoDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.XianlueRecord;
-    public override ISkillProgramEffectHandler Handler { get; } = new XianlueRecordHandler();
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
-}
-internal sealed class XianlueRedistributeDescriptor : DongZhaoDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.XianlueRedistribute;
-    public override ISkillProgramEffectHandler Handler { get; } = new XianlueRedistributeHandler();
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)];
-}
-internal sealed class ZaowangResolveDescriptor : DongZhaoDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ZaowangResolve;
-    public override ISkillProgramEffectHandler Handler { get; } = new ZaowangResolveHandler();
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new ReadSelectedTarget()];
-}
-public sealed class XianlueRecordHandler : ISkillProgramEffectHandler
-{
-    public SkillProgramEffectOp Op => SkillProgramEffectOp.XianlueRecord;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) => h.GetCapability<IDongZhaoProgramHost>().XianlueRecord(f);
-}
-public sealed class XianlueRedistributeHandler : ISkillProgramEffectHandler
-{
-    public SkillProgramEffectOp Op => SkillProgramEffectOp.XianlueRedistribute;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) => h.GetCapability<IDongZhaoProgramHost>().XianlueRedistribute(f);
-}
-public sealed class ZaowangResolveHandler : ISkillProgramEffectHandler
-{
-    public SkillProgramEffectOp Op => SkillProgramEffectOp.ZaowangResolve;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) => h.GetCapability<IDongZhaoProgramHost>().ZaowangResolve(f);
-}
 internal static class DongZhaoContract
 {
     internal static void ValidateTrigger(string path, SkillProgramTrigger t)

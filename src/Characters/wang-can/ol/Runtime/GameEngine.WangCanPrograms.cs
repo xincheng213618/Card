@@ -31,31 +31,6 @@ public sealed partial class GameEngine
    if(ids.Count>0){if(stage==WangCanStage.SanwenDiscard)MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(WangCanReason(stage)));else MoveProgramCardsFromMultipleSources(ids,destination,new(WangCanReason(stage)));}f=GetActiveProgramFrame(f.Id);r=f.WangCan!with{After=_movementSequence,ActualCount=_cardMovements.Count(m=>m.Sequence>before&&m.Sequence<=_movementSequence&&m.Reason.Value==WangCanReason(stage))};ReplaceRuntimeTop(f=f with{WangCan=r});IssueWangCanSegment(f);AdvanceRuntimeProgram(f.Id);
  }
  private void IssueWangCanSegment(ProgramSkillFrame f){var r=f.WangCan!;AdvanceEventRulesAndQueueFact(new WangCanSegmentPaidEvent(f.Id,r.Source,r.GameplayHash,r.Stage,r.ActualTurn,r.Stage==WangCanStage.QiaiGift?r.Seats[r.Cursor]:f.OwnerSeat,r.Before,r.After,r.ActualCount));}
- private void PaySanwenDraw(ProgramSkillFrame f)
- {
-  var r=f.WangCan!;var count=r.ActualCount*2;var before=_movementSequence;ReplaceRuntimeTop(f=f with{WangCan=r with{Stage=WangCanStage.SanwenDraw,Before=before,After=before,ActualCount=0,Cursor=count},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-  var cards=_players[f.OwnerSeat].IsAlive?DrawCards(_players[f.OwnerSeat],count,true,new(WangCanReason(WangCanStage.SanwenDraw))):[];f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{WangCan=f.WangCan!with{After=_movementSequence,ActualCount=cards.Count}});IssueWangCanSegment(f);AdvanceRuntimeProgram(f.Id);
- }
- private IReadOnlyList<PromptChoice> QiaiChoices(ProgramSkillFrame f)
- {
-  var r=f.WangCan!;if(r.Cursor>=r.Seats.Count||!_players[f.OwnerSeat].IsAlive)return [];var seat=r.Seats[r.Cursor];if(!_players[seat].IsAlive)return [];
-  return Array.AsReadOnly(BuildOwnedCardPaymentChoices(f.Id,seat,seat,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Transfer,canSelect:(_,c)=>!c.IsGeneralWeapon).Select(c=>c with{Parameters=new Dictionary<string,string>(c.Parameters){["program-action"]="wangcan",["branch"]="qiai"}}).ToArray());
- }
- private void ContinueQiai(ProgramSkillFrame f)
- {
-  var r=f.WangCan!;if(!_players[f.OwnerSeat].IsAlive||_winner!=Winner.None){FinishWangCan(f);return;}
-  while(r.Cursor<r.Seats.Count)
-  {
-   ReplaceRuntimeTop(f=f with{WangCan=r with{Stage=WangCanStage.QiaiChoose},PendingMovementContinuation=null});var choices=QiaiChoices(f);if(choices.Count>0){PublishWangCan(f,r.Seats[r.Cursor],choices,"七哀：请选择交给其的一张牌。");return;}r=r with{Cursor=r.Cursor+1};
-  }
-  FinishWangCan(f);
- }
- private void BeginDenglouLease(ProgramSkillFrame f)
- {
-  var before=_movementSequence;var lease=WangCanLease(f.OwnerSeat);ReplaceRuntimeTop(f=f with{WangCan=f.WangCan!with{Lease=lease,Before=before,After=before},PendingMovementContinuation=new(f.OwnerSeat,0,null)});var ids=new List<int>();
-  for(var i=0;i<4&&EnsureDrawPile();i++){var card=_cardZones.CardsAt(CardLocation.DrawPile)[^1];ids.Add(card.Id);MoveCard(card,CardLocation.DrawPile,lease,new(WangCanReason(WangCanStage.DenglouViewChildren)));}
-  f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{WangCan=f.WangCan!with{Entities=ids,Remaining=ids,After=_movementSequence,ActualCount=ids.Count,LeaseBefore=before,LeaseAfter=_movementSequence}});IssueWangCanSegment(f);AdvanceRuntimeProgram(f.Id);
- }
  private void PublishWangCan(ProgramSkillFrame f,int seat,IReadOnlyList<PromptChoice> choices,string text)
  {
   var def=_contentRegistry.GetSkill(f.SkillId);ReplaceRuntimeTop(f with{Step=ResolutionFrameStep.AwaitingResponse});_pendingDecision=new(DecisionKind.ProgramTrigger,seat,text,choices.SelectMany(c=>c.Cards).Distinct().ToArray(),choices.SelectMany(c=>c.Targets).Distinct().ToArray(),f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(f.SkillId,def.Name,def.Name,def.Description)};_status=_players[seat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
@@ -80,12 +55,6 @@ public sealed partial class GameEngine
   {var nonbasic=r.Remaining.Where(id=>_cardZones.GetLocation(id)==r.Lease&&GetProgramCardCategory(GetAdvancedCard(id).Kind)!=SkillProgramCardCategory.Basic).ToArray();ReplaceRuntimeTop(f=f with{WangCan=r with{Remaining=r.Remaining.Except(nonbasic).ToArray()}});PayWangCanMove(f,nonbasic,CardLocation.Hand(f.OwnerSeat),WangCanStage.DenglouGain);return;}
   IssueDenglouNativeUse(f,BuildDenglouNativeBasicUseOptions(f)[int.Parse(choice.Parameters["option"])]);
  }
- private void ContinueDenglou(ProgramSkillFrame f)
- {
-  var r=f.WangCan!;var remaining=r.Remaining.Where(id=>_cardZones.GetLocation(id)==r.Lease).ToArray();ReplaceRuntimeTop(f=f with{WangCan=r=r with{Remaining=remaining,Stage=WangCanStage.DenglouChoose,Native=null},PendingMovementContinuation=null});
-  if(!_players[f.OwnerSeat].IsAlive||_winner!=Winner.None){PayWangCanMove(f,remaining,CardLocation.DiscardPile,WangCanStage.DenglouCancel);return;}
-  if(remaining.Length==0){FinishWangCan(f);return;}var choices=WangCanChoices(f);if(choices.Count==0){PayWangCanMove(f,remaining,CardLocation.DiscardPile,WangCanStage.DenglouDiscard);return;}PublishWangCan(f,f.OwnerSeat,choices,"登楼：选择仍暂存的一张基本牌及真实使用目标。");
- }
  private bool DrainWangCan(ProgramSkillFrame f)=>TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);
  [ProgramContinuation(ProgramContinuationKind.Resume,24600)] private bool ResumeWangCan(long id)
  {
@@ -99,7 +68,6 @@ public sealed partial class GameEngine
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24600)] private bool ReturnWangCanMovement(ProgramSkillFrame f)=>f.WangCan is not null&&ResumeWangCan(f.Id);
  private void FinishWangCan(ProgramSkillFrame f){var r=f.WangCan!;if(CompleteProgramEventHistory().OfType<WangCanCompletedEvent>().Any(e=>e.FrameId==f.Id))throw new InvalidOperationException("Wang Can completed twice.");AdvanceEventRulesAndQueueFact(new WangCanCompletedEvent(f.Id,r.Source,r.GameplayHash));ReplaceRuntimeTop(f=f with{WangCan=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
- private CardSnapshot[] DenglouPrivateCards(int viewer)=>_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.OwnerSeat==viewer&&f.WangCan?.Lease is not null).SelectMany(f=>f.WangCan!.Remaining.Where(id=>_cardZones.GetLocation(id)==f.WangCan.Lease).Select(id=>ToSnapshot(GetAdvancedCard(id)))).ToArray();
  [ProgramCapability]
  private sealed class WangCanProgramCapability(GameEngine engine) : IWangCanProgramHost
  {public SkillProgramStepOutcome ExecuteWangCan(SkillProgramEffectOp op,ProgramSkillFrame f)=>engine.ExecuteWangCan(op,f);}

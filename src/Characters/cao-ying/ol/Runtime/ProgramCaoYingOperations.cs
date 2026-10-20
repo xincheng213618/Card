@@ -13,11 +13,6 @@ public sealed record CaoYingReceipt(int InstructionIndex, long WindowId, long? U
     public long MovementAfter { get; init; }
     public int DrawCount { get; init; }
 }
-public sealed record CaoYingGuessResolvedEvent(long ProgramFrameId, CardConversionSource Source,
-    int TurnNumber, int TurnOwner, long UseId, long? ActionId, int TargetSeat, int CorrectCount) : IGameEvent;
-public sealed record CaoYingDamageConsumedEvent(long ProgramFrameId, long DamageFrameId) : IGameEvent;
-public sealed record CaoYingInspectionIssuedEvent(long ProgramFrameId, int ViewerSeat, int TargetSeat, int CardCount) : IGameEvent;
-public sealed record CaoYingGrantExpiredEvent(int OwnerSeat, string GrantId) : IGameEvent;
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CaoYingReceipt? CaoYing { get; init; } }
 internal interface ICaoYingProgramHost
@@ -37,10 +32,6 @@ internal abstract class CaoYingDescriptor : ProgramOperationDescriptorBase
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         Op == SkillProgramEffectOp.GuessTargetCategoriesAndArmTurnDamage ? [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)] : [];
 }
-internal sealed class GuessTargetCategoriesAndArmTurnDamageDescriptor : CaoYingDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.GuessTargetCategoriesAndArmTurnDamage; }
-internal sealed class RandomEligibleOtherHandInspectionDescriptor : CaoYingDescriptor
-{ public override SkillProgramEffectOp Op => SkillProgramEffectOp.RandomEligibleOtherHandInspection; }
 internal sealed class CaoYingHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

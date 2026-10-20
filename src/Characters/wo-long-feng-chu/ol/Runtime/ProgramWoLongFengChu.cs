@@ -39,10 +39,6 @@ public sealed record EquipmentSlotNamedUseDraft
     public EquipmentSlotNamedUseStage Stage { get; init; }
     public EquipmentSlotNamedUsePayment? Payment { get; init; }
 }
-public enum LuanfengStage { RecoveryChild, DrawChildren }
-public sealed record LuanfengReceipt(long FrameId, CardConversionSource Source, string GameplayHash,
-    long DyingFrameId, int VictimSeat, LuanfengStage Stage, int RecoveryAmount = 0, int RestoredSlots = 0, int RequestedDraw = 0,
-    long Before = 0, long After = 0);
 public sealed partial record ProgramSkillFrame
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public EquipmentSlotNamedUseDraft? EquipmentSlotNamedUse { get; init; }
@@ -63,8 +59,6 @@ public sealed record EquipmentSlotNamedUseConsumedEvent(long PaymentFrameId) : I
 public sealed record EquipmentSlotNamedUseIssuedEvent(long PaymentFrameId, long NativeOwnerId, long CardActionId) : IGameEvent;
 public sealed record EquipmentSlotNamedUseCancelledEvent(long PaymentFrameId) : IGameEvent;
 public sealed record EquipmentSlotNamedNamesResetEvent(int OwnerSeat, long LuanfengFrameId) : IGameEvent;
-public sealed record LuanfengIssuedEvent(long FrameId, CardConversionSource Source, long DyingFrameId, int VictimSeat) : IGameEvent;
-public sealed record LuanfengSlotsRestoredEvent(long FrameId, int VictimSeat, int RestoredSlots, int RequestedDraw) : IGameEvent;
 
 internal interface IWoLongFengChuProgramHost
 { SkillProgramStepOutcome ResolveLuanfeng(ProgramSkillFrame frame); }
@@ -77,13 +71,6 @@ internal abstract class WoLongFengChuOperationDescriptor : ProgramOperationDescr
 }
 internal sealed class PayEquipmentSlotForNamedUseDescriptor : WoLongFengChuOperationDescriptor
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.PayEquipmentSlotForNamedUse; }
-internal sealed class ResolveLuanfengDyingRecoveryDescriptor : WoLongFengChuOperationDescriptor
-{
-    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveLuanfengDyingRecovery;
-    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Recover, static (_, context) => context.PublicControlValue(12));
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.DyingEntering)];
-}
 internal sealed class WoLongFengChuOperationHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;

@@ -1,0 +1,4 @@
+using System.Text.Json.Serialization;
+namespace CardGame.Core;
+internal sealed class InvalidateRemainingActualDamageCardEffectsDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects;}
+internal sealed class ClaimCompletedUndamagedIncomingCardEntitiesDescriptor:XinPiDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities;}

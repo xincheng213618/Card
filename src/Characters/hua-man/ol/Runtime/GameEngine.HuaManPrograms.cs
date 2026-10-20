@@ -53,21 +53,6 @@ public sealed partial class GameEngine
   if(stage==HuaManStage.MansiDraw){var progress=_players[f.OwnerSeat].HuaManProgress??new(0);_players[f.OwnerSeat].HuaManProgress=progress with{MansiCards=checked(progress.MansiCards+ids.Count)};AdvanceEventRulesAndQueueFact(new MansiActualCardsObtainedEvent(f.Id,r.Source,progress.MansiCards,ids.Count,progress.MansiCards+ids.Count));}
   AdvanceRuntimeProgram(f.Id);
  }
- private void CompleteZhanyuan(ProgramSkillFrame f,int? male)
- {
-  var r=f.HuaMan!;ReplaceRuntimeTop(f=f with{HuaMan=r with{Stage=HuaManStage.GrantChildren,OtherSeat=male},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-  if(_players[f.OwnerSeat].IsAlive)
-  {
-   if(male is{}seat){if(!_players[seat].IsAlive||_players[seat].Gender!=GeneralGender.Male||seat==f.OwnerSeat)throw new InvalidOperationException("Zhanyuan lost the actual chosen male.");var grantSource=$"huaman-zhanyuan:{f.OwnerSeat}:{f.SkillInstanceId}:{f.Id}";AcquireRuntimeSkills(_players[f.OwnerSeat],grantSource,["ol:xili"]);AcquireRuntimeSkills(_players[seat],grantSource,["ol:xili"]);}
-   foreach(var grant in _players[f.OwnerSeat].SkillGrants.Grants.Where(g=>g.SkillId=="ol:mansi").ToArray())_players[f.OwnerSeat].SkillGrants.RemoveGrant(grant.GrantId);
-   AdvanceEventRulesAndQueueFact(new CharacterSkillsLostEvent(f.OwnerSeat,f.OwnerSeat,Array.AsReadOnly(new[]{"ol:mansi"})));
-  }
-  AdvanceEventRulesAndQueueFact(new ZhanyuanCompletedEvent(f.Id,f.OwnerSeat,male,true));AdvanceRuntimeProgram(f.Id);
- }
- private void PayXiliIncrease(ProgramSkillFrame f)
- {
-  var r=f.HuaMan!;if(_resolutionStack[^2]is not BeforeDamageProgramWindowFrame w||w.Id!=r.WindowId||w.Prevented||CurrentDamageAttempt is not{}attack||attack.ResolutionId!=r.DamageAttemptResolutionId||attack.SourceSeat!=r.OtherSeat||attack.TargetSeat!=r.DamageTargetSeat)throw new InvalidOperationException("Paid Xili cannot borrow a later damage attempt.");attack.IncreaseFinalizedDamageAmount(1);ReplaceRuntimeFrame(w.Id,w with{Amount=checked(w.Amount+1)});AdvanceEventRulesAndQueueFact(new XiliDamageIncreasedEvent(f.Id,attack.ResolutionId,w.Id,f.OwnerSeat,w.SourceSeat,w.TargetSeat,w.Amount,w.Amount+1));PayHuaManDraw(f,f.OwnerSeat,2,HuaManStage.XiliPayerDraw);
- }
  private bool DrainHuaMan(ProgramSkillFrame f)=>TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);
  [ProgramContinuation(ProgramContinuationKind.Resume,25200)]private bool ResumeHuaMan(long id)
  {

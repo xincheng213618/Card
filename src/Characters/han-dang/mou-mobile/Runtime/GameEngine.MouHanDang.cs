@@ -10,36 +10,6 @@ public sealed partial class GameEngine
     private static CardConversionSource MouHanDangSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private Card[] MouHanDangDiscardCards(int seat) => GetHand(_players[seat]).Concat(GetEquipment(_players[seat])).Where(c =>
         !IsSelfHandCategoryDiscardForbidden(seat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).OrderBy(c => c.Id).ToArray();
-    private int MouHanDangPhaseUses(int owner, ActualDiscardRecoveryPhaseKey phase) => ProgramEventHistory<MouHanDangStartedEvent>().Count(e => !e.Gongqi && e.Source.OwnerSeat == owner && e.Phase == phase);
-    private bool MouHanDangJiefanDisabled(int owner)
-    {
-        if (!HasMouHanDangCapability) return false;
-        var history = CompleteProgramEventHistory().ToArray();
-        var index = Array.FindLastIndex(history, e => e is MouHanDangJiefanDisabledEvent d && d.OwnerSeat == owner);
-        return index >= 0 && !history.Skip(index + 1).OfType<PlayerDiedEvent>().Any(e => e.KillerSeat == owner && e.VictimSeat != owner);
-    }
-    [ProgramPhaseUsedProjection(50)]
-    private int MouHanDangProjectedUses(int owner, string skill, int fallback) => skill == MouHanDangJiefan && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p
-        ? MouHanDangPhaseUses(owner, p) : fallback;
-    [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 30700, SkillProgramEffectOp.ResolveMouHanDangJiefan)]
-    private bool CanStartMouHanDangJiefan(CharacterState owner) => !MouHanDangJiefanDisabled(owner.Seat) &&
-        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p && p.ActorSeat == owner.Seat &&
-        IsRecordedActualDiscardRecoveryPhase(p) && MouHanDangPhaseUses(owner.Seat, p) == 0;
-    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 30700, SkillProgramEffectOp.ResolveMouHanDangGongqi)]
-    private bool CanOfferMouHanDangGongqi(ProgramTriggerLegalityContext gate) => gate.Context.Window == SkillProgramTriggerWindow.PlayPhaseStarting &&
-        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p && p.ActorSeat == gate.Candidate.OwnerSeat &&
-        IsRecordedActualDiscardRecoveryPhase(p) && MouHanDangDiscardCards(p.ActorSeat).Length > 0;
-    private bool MouHanDangPlayStartParent(ProgramSkillFrame f)
-    {
-        if (f.WindowContext is not { Window: SkillProgramTriggerWindow.PlayPhaseStarting } c || c.OwnerSeat != f.OwnerSeat || f.ActivationId != f.TriggerId ||
-            f.TriggerId != "discard-for-phase-responses") return false;
-        return _resolutionStack.SingleOrDefault(x => x.Id == c.ParentFrameId) switch
-        {
-            PlayPhaseStartingBoundaryFrame p when p.OwnerSeat == f.OwnerSeat && p.ItemIndex >= 0 && p.ItemIndex < p.Items.Count && p.Items[p.ItemIndex].Candidate is { } candidate => MountObserverCandidateMatches(f, candidate),
-            ProgramLifecycleTriggerWindowFrame p when p.Window == c.Window && p.OwnerSeat == f.OwnerSeat && p.CandidateIndex >= 0 && p.CandidateIndex < p.Candidates.Count => MountObserverCandidateMatches(f, p.Candidates[p.CandidateIndex]),
-            _ => false
-        };
-    }
     private SkillProgramStepOutcome StartMouHanDang(ProgramSkillFrame supplied, bool gongqi)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -119,8 +89,6 @@ public sealed partial class GameEngine
         }
         SealMouHanDangMovements(f.Id, before); ContinueMouHanDang(f.Id);
     }
-    private IReadOnlyList<int> MouHanDangRangeSeats(int target, int first) => Array.AsReadOnly(_players.Where(p => p.IsAlive && p.Seat != target && IsWithinAttackRange(p.Seat, target))
-        .OrderBy(p => (p.Seat - first + _playerCount) % _playerCount).Select(p => p.Seat).ToArray());
     private void ContinueMouHanDang(long id)
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame { MouHanDang: { } r } f || f.Id != id) return;
@@ -141,15 +109,6 @@ public sealed partial class GameEngine
         var count = MouHanDangRangeSeats(r.TargetSeat, f.OwnerSeat).Count;
         ReplaceRuntimeTop(f = f with { MouHanDang = r with { Stage = MouHanDangStage.Drawing, RequestedDraw = count } });
         BeginOperationProgramDraw(f, r.TargetSeat, count, new(MouHanDangDrawReason));
-    }
-    [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveMouHanDangJiefan)]
-    private void ReturnMouHanDangDraw(ProgramSkillFrame f, NativeDrawOutcome d)
-    {
-        if (!ValidMouHanDang(f) || f.MouHanDang is not { Stage: MouHanDangStage.Drawing, Draw: null, Gongqi: false } r || d.RecipientSeat != r.TargetSeat || d.RequestedCount != r.RequestedDraw)
-            throw new InvalidOperationException("Jiefan requires its exact one issued native Draw return.");
-        ReplaceRuntimeTop(f = f with { MouHanDang = r with { Stage = MouHanDangStage.DrawChildren, Draw = d, Before = d.SequenceBefore, After = d.SequenceAfter }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        AdvanceEventRulesAndQueueFact(new MouHanDangDrawReturnedEvent(f.Id, r.TargetSeat, d.RequestedCount, d.ActualDrawIds.Count, d.ReplacementGainedIds.Count, d.AttemptFrameId));
-        SealMouHanDangMovements(f.Id, d.SequenceBefore); ContinueMouHanDang(f.Id);
     }
     private void FinishMouHanDang(ProgramSkillFrame f)
     {

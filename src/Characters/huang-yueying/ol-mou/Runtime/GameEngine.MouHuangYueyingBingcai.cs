@@ -7,11 +7,6 @@ public sealed partial class GameEngine
     private const string MouLixianSkill = "mou-ol:lixian", MouBingcaiSkill = "mou-ol:bingcai";
     private static CardConversionSource MouHuangYueyingSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private static readonly CardKind[] MouLixianAdditionalNames = [CardKind.Snatch, CardKind.Dismantlement, CardKind.IronChain];
-    private IReadOnlyList<CardKind> MouLixianAddedNames(int owner) => Array.AsReadOnly(ProgramEventHistory<MouLixianNameAddedEvent>().Where(e => e.OwnerSeat == owner).Select(e => e.OutputKind).Distinct().ToArray());
-    private IReadOnlyList<CardKind> MouLixianUsedNames(int owner) => Array.AsReadOnly(ProgramEventHistory<MouLixianNameUsedEvent>().Where(e => e.OwnerSeat == owner).Select(e => e.OutputKind).Distinct().ToArray());
-    private bool MouLixianPreparationUnlocked(int owner) => MouLixianAdditionalNames.All(MouLixianAddedNames(owner).Contains);
-    private bool MouLixianEndingUnlocked(int owner) => MouLixianUsedNames(owner).Count >= 3;
-    private IReadOnlyList<CardKind> MouLixianNames(int owner) => Array.AsReadOnly(new[] { CardKind.DrawTwo }.Concat(MouLixianAddedNames(owner)).Distinct().ToArray());
     private static bool IsMouHuangYueyingDamageCardKind(CardKind kind) => IsSlashCard(kind) || kind is CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.WumiaoFlood or CardKind.UnexpectedAssault;
     private CardKind MouHuangYueyingOwnedKind(CharacterState owner, Card card) => GetProgramCardIdentityMatches(owner, card).FirstOrDefault()?.Identity.OutputKind ?? card.Kind;
 

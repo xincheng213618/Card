@@ -1,0 +1,2 @@
+namespace CardGame.Core;
+internal sealed class GiveAllHandAndResolveXiashuDescriptor:KanZeDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.GiveAllHandAndResolveXiashu;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}

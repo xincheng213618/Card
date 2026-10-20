@@ -29,26 +29,7 @@ public sealed record BuZhiMovementPaidEvent(long FrameId,string ReturnStage,int 
     public IReadOnlyList<int> CardIds {get=>_ids;init=>_ids=Array.AsReadOnly(value.ToArray());}
 }
 public sealed record BuZhiBranchSelectedEvent(long FrameId,int ChooserSeat,string Branch):IGameEvent;
-public sealed record BuZhiDamageIssuedEvent(long FrameId,int SourceSeat,int TargetSeat,int Amount):IGameEvent;
 internal interface IBuZhiProgramHost {SkillProgramStepOutcome ResolveBuZhi(ProgramSkillFrame f,bool gainLoss);}
-internal sealed class OfferNativeBatchHandGainOrCardLossBenefitDescriptor:ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit;
-    public override ISkillProgramEffectHandler Handler{get;}=new BuZhiHandler(true);
-    public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
-    public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
-}
-internal sealed class ResolveRebelCountEquipmentChoiceDescriptor:ProgramOperationDescriptorBase
-{
-    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveRebelCountEquipmentChoice;
-    public override ISkillProgramEffectHandler Handler{get;}=new BuZhiHandler(false);
-    public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
-    public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)=>ParseOwnerAlways(r);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget()];
-}
 internal sealed class BuZhiHandler(bool gainLoss):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>gainLoss?SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit:SkillProgramEffectOp.ResolveRebelCountEquipmentChoice;

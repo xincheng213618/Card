@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public enum CaoTengStage { FactionChoice, FactionApplying, YongzuTarget, YongzuChoice, YongzuChildren, JianxiongDrawChildren, JianxiongClaimChildren }
-public sealed record CaoTengDamageMaterial(int CardId,CardKind Kind,long EntrySequence);
 public sealed record CaoTengReceipt(CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,int ActualTurn,long ParentId,CaoTengStage Stage)
 {
     [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public int? TargetSeat{get;init;}
@@ -15,18 +14,9 @@ public sealed record CaoTengReceipt(CardConversionSource Source,string GameplayH
 }
 public sealed partial record ProgramSkillFrame{[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public CaoTengReceipt? CaoTeng{get;init;}}
 public sealed record CaoTengStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,SkillProgramEffectOp Op,int ActualTurn,long ParentId):IGameEvent;
-public sealed record CaoTengFactionChosenEvent(long FrameId,string Faction,bool Setup):IGameEvent;
-public sealed record CaoTengFactionCompletedEvent(long FrameId,CardConversionSource Source,string Faction,bool Setup):IGameEvent;
 public sealed record CaoTengRecipientChosenEvent(long FrameId,int TargetSeat,bool SameFaction):IGameEvent;
 public sealed record CaoTengBenefitIssuedEvent(long FrameId,int Index,int RecipientSeat,string Option,int RecoveryRequested,long Before):IGameEvent;
 public sealed record CaoTengBenefitAppliedEvent(long FrameId,int Index,long After):IGameEvent;
-public sealed record CaoTengHandLimitGrantedEvent(long FrameId,int Index,int RecipientSeat):IGameEvent;
-public sealed record CaoTengSkillGrantedEvent(long FrameId,int Index,int RecipientSeat,string SkillId,string SkillInstanceId,string GrantId,string SourceId,int ActualTurn):IGameEvent;
-public sealed record CaoTengSkillExpiredEvent(string GrantId,int RecipientSeat,int ActualTurn):IGameEvent;
-public sealed record CaoTengDamageMaterialFrozenEvent(long FrameId,int Index,CaoTengDamageMaterial Material):IGameEvent;
-public sealed record CaoTengJianxiongDrawIssuedEvent(long FrameId,long Before):IGameEvent;
-public sealed record CaoTengJianxiongClaimIssuedEvent(long FrameId,long Before):IGameEvent;
-public sealed record CaoTengJianxiongClaimedEvent(long FrameId,int CardId,long Sequence):IGameEvent;
 public sealed record CaoTengCompletedEvent(long FrameId):IGameEvent;
 internal interface ICaoTengHost{SkillProgramStepOutcome Resolve(ProgramSkillFrame frame,SkillProgramEffectOp op);}
 internal abstract class CaoTengDescriptor:ProgramOperationDescriptorBase
@@ -36,11 +26,6 @@ internal abstract class CaoTengDescriptor:ProgramOperationDescriptorBase
     public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(_,c)=>c.PublicControlValue(3));
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
-internal sealed class ResolveQingliuFactionChoiceDescriptor:CaoTengDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveQingliuFactionChoice;}
-internal sealed class ResolveYongzuDistinctBenefitsDescriptor:CaoTengDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveYongzuDistinctBenefits;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];}
-internal sealed class ResolveCaoTengJianxiongDrawAndClaimDescriptor:CaoTengDescriptor
-{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveCaoTengJianxiongDrawAndClaim;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];}
 internal sealed class CaoTengHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<ICaoTengHost>().Resolve(f,op);}
 internal static class CaoTengComposition

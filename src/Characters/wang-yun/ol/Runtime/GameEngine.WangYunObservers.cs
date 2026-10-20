@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool WangYunOriginsEqual(WangYunNativeUseOrigin a,WangYunNativeUseOrigin b)=>a.ProgramFrameId==b.ProgramFrameId && a.InstructionIndex==b.InstructionIndex && a.Source==b.Source &&
@@ -91,13 +91,6 @@ public sealed partial class GameEngine
         var parent=_resolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==r.ProgramFrameId);
         ReplaceRuntimeFrame(parent.Id,parent.WangYunPlan is{}p?parent with{WangYunPlan=p with{NativeReturned=true}}:parent with{WangYunTrick=parent.WangYunTrick! with{NativeReturned=true}});
         AdvanceEventRulesAndQueueFact(new WangYunNativeUseReturnedEvent(parent.Id,r.UseId,r.ActionId,r.Kind));return true;
-    }
-    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 110)]
-    private void ObserveWangYunLianjiDamage(DamageAppliedEvent damage)
-    {
-        if(!HasWangYunPlanCapability || damage.Amount<=0 || CurrentDamageAttempt is not{}attack || LifecycleCardUse(attack.ResolutionId) is not{WangYunNativeOrigin:{Kind:"slash",PaymentCompleted:true}r}use ||
-            !ValidWangYunNativeUse(use))return;
-        AdvanceEventRulesAndQueueFact(new WangYunLianjiDamageEvent(r.ProgramFrameId,r.UseId,r.ActionId,r.Source.OwnerSeat,damage.SourceSeat,damage.TargetSeat,damage.Amount));
     }
     private bool ValidWangYun(ProgramSkillFrame f)
     {

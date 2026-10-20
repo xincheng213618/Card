@@ -12,8 +12,6 @@ internal abstract class KanZeDescriptor:ProgramOperationDescriptorBase
  {r.AllowOnly("op","target","condition");if(r.RequiredEnum<SkillProgramEffectTarget>("target")!=SkillProgramEffectTarget.SelectedTarget)throw new InvalidOperationException("KanZe requires its selected actual target.");var e=new SkillProgramEffect(Op,SkillProgramEffectTarget.SelectedTarget,0,r.Condition());RequireAlways(e,r.Path);return e;}
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new ReadSelectedTarget(),new RequireSelectedTargetKind(Op==SkillProgramEffectOp.GiveAllHandAndResolveXiashu?SkillProgramTargetKind.OtherLiving:SkillProgramTargetKind.AnyLiving),new RequireTriggerWindow(Op==SkillProgramEffectOp.GiveAllHandAndResolveXiashu?SkillProgramTriggerWindow.PlayPhaseStarting:SkillProgramTriggerWindow.TurnEnding)];
 }
-internal sealed class GiveAllHandAndResolveXiashuDescriptor:KanZeDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.GiveAllHandAndResolveXiashu;public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;}
-internal sealed class ArmKuanshiProtectionDescriptor:KanZeDescriptor {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ArmKuanshiProtection;}
 internal sealed class KanZeHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>op==SkillProgramEffectOp.GiveAllHandAndResolveXiashu?h.GetCapability<IKanZeProgramHost>().BeginXiashu(f,seat):h.GetCapability<IKanZeProgramHost>().ArmKuanshi(f,seat);}
 internal static class KanZeContract

@@ -34,10 +34,6 @@ public sealed partial class GameEngine
   if(!ExactYinjuUseCandidate(candidate,w,out var drawRelation,out var native))throw new InvalidOperationException("Yinju target draw lost its exact accepted actual native use/recipient.");
   var rDraw=new XinPiReceipt(source,f.GameplayHash,1,_turnNumber,w.ParentFrameId,XinPiStage.OwnerDrawChildren,native.Id,native.Action!.ActionId,TargetSeat:drawRelation.TargetSeat,Relation:drawRelation);ReplaceRuntimeTop(f=f with{XinPi=rDraw});AdvanceEventRulesAndQueueFact(new YinjuUseDrawStartedEvent(f.Id,drawRelation,native.Id,native.Action.ActionId,w.ParentFrameId));PayYinjuDraw(f,f.OwnerSeat);return SkillProgramStepOutcome.AwaitChild;
  }
- private void PayYinjuDraw(ProgramSkillFrame f,int seat)
- {
-  var r=f.XinPi! with{Before=_movementSequence,After=_movementSequence,Requested=1,Actual=0};ReplaceRuntimeTop(f with{XinPi=r,PendingMovementContinuation=new(seat,0,null)});var actual=DrawCards(_players[seat],1,true,new(YinjuDrawReason)).Count;r=r with{After=_movementSequence,Actual=actual};ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{XinPi=r});AdvanceEventRulesAndQueueFact(new YinjuDrawPaidEvent(f.Id,r.Relation!,r.UseId!.Value,r.ActionId!.Value,seat,r.Before,r.After,actual));AdvanceRuntimeProgram(f.Id);
- }
  private bool DrainXinPi(ProgramSkillFrame f)
  {
   var movement=f.PendingMovementContinuation is not null;var continuation=movement?PostEventContinuation.AwaitedProgramMovement:PostEventContinuation.Program;return TryBeginQueuedRecoveryReplacement(f.Id,continuation)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,continuation)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id);

@@ -12,12 +12,17 @@ src/Characters/wang-can/
     Content/ol-wang-can.character.json
     Skills/ol-wang-can.rules.json
     Skills/ol-wang-can.presentation.json
-    Runtime/GameEngine.WangCanPrograms.cs
+    Runtime/GameEngine.Sanwen.cs
+    Runtime/Sanwen.Operations.cs
 ```
 
 `Content/*.character.json` 是人物的基础资料和技能元信息声明，包含 `packageId`、人物身份、武将版本、技能名称与说明、标签、执行形式、AI 权重以及注册顺序。技能通过 `programBundle` 引用同目录 `Skills` 中的规则和展示文件；多个角色复用的规则放在 `_shared/Skills`。授予或升级后才获得的技能也要声明，不能只注册武将的初始技能。
 
 同一人物跨版本共用的专属运行代码可放在人物直属的 `Runtime` 中；多人复用的通用机制继续由 Core 管理。人物肖像和音频仍通过现有资源目录、目录表和 `portraitKey` 引用，保留素材工具与 WPF 的资源约定。
+
+Runtime 文件按技能组织：`GameEngine.<Skill>[.<职责>].cs` 保存该技能的原生规则；以技能名命名的 `Programs` 或 `Operations` 文件保存明确归属该技能的独立数据类型、操作描述和处理器。同一技能较大时可以保留多个职责文件；多个技能复用同一机制时共用其实现。人物级文件仅保留跨技能的宿主分派、组合契约和确有共享归属的部分，不要求给每个技能新建 Runtime 类型。
+
+文件级拆分沿用现有 `GameEngine` partial 和注册声明，文件名不参与技能分派。初始化字段和帧的 partial 声明保留原位置，避免在整理源码时改变初始化及序列化成员顺序。纯搬迁不新增逐人物、逐技能测试；整批核对原声明与注册身份，并复用既有机制检查及常规范围统一验证。后续独立类型迁移另行建立查询和操作边界。
 
 `CharacterContentCatalog` 发现编入内容程序集的资料，校验后按各包的 `registrationOrder` 顺序注册技能和武将。内容包只调用目录注册器，并声明共用卡牌、牌堆、模式和依赖。人物自己的 `pools` 指定其选将池及位置，经典包的当前人物池和标准演示池从这些声明生成，不再另维护人物列表。
 

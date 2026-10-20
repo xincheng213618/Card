@@ -12,14 +12,6 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<HanFuMaterial> HanFuDiscardCards(ProgramSkillFrame f) => Array.AsReadOnly(BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.OwnerSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard)
         .Select(c => HanFuMaterialFor(c.Cards.Single())).Where(m => !IsSelfHandCategoryDiscardForbidden(f.OwnerSeat,GetAdvancedCard(m.CardId),m.From,OwnedCardMoveIntent.Discard)).ToArray());
-    private IReadOnlyList<HanFuMaterial> ShuziBoardCards(int target) => Array.AsReadOnly(_players.Where(p => p.IsAlive && p.Seat != target).SelectMany(p => GetEquipment(p).Concat(GetJudgment(p)))
-        .Where(c => !c.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(_cardZones.GetLocation(c.Id).OwnerSeat!.Value, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Transfer) &&
-            CanMoveProgramCardToCorrespondingZone(c, _cardZones.GetLocation(c.Id).Zone, target)).Select(c => HanFuMaterialFor(c.Id)).ToArray());
-    private int[] KuangshouDamagedSeats(int cutoff)
-    {
-        var events = CompleteProgramEventHistory().Take(cutoff).ToArray(); var start = Array.FindLastIndex(events, e => e is TurnStartedEvent t && t.TurnNumber == _turnNumber);
-        return events.Skip(start + 1).OfType<DamageAppliedEvent>().Where(e => e.Amount > 0).Select(e => e.TargetSeat).Distinct().Order().ToArray();
-    }
     [ProgramCapability]
     private sealed class HanFuCapability(GameEngine engine) : IHanFuHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginHanFu(f,op); }
@@ -124,29 +116,6 @@ public sealed partial class GameEngine
         var selected=r.SelectedDiscard!.Append(choice.Cards.Single()).ToArray(); ReplaceRuntimeTop(f=f with { HanFu=r with { SelectedDiscard=selected } });
         if (selected.Length<r.RequiredDiscard) { PublishHanFuChoice(f); return; }
         PayHanFuCards(f,selected.Select(id=>r.DiscardCandidates!.Single(m=>m.CardId==id)).ToArray(),CardLocation.DiscardPile,KuangshouDiscardReason,HanFuStage.DiscardChildren); ContinueHanFu(f.Id);
-    }
-    private void PayShuziBoard(ProgramSkillFrame f,HanFuMaterial m)
-    {
-        var r=f.HanFu!; var card=GetAdvancedCard(m.CardId); var destination=ProgramCorrespondingZoneLocation(card,m.From.Zone,r.TargetSeat); var before=_movementSequence; int? replacedId=null;
-        ReplaceRuntimeTop(f=f with { HanFu=r with { Stage=HanFuStage.BoardChildren,Board=m },PendingMovementContinuation=new(f.OwnerSeat,0,null) });
-        if (destination.Zone==CardZoneKind.Equipment)
-        {
-            var old=GetEquipment(_players[r.TargetSeat]).SingleOrDefault(c=>EquipmentCatalog.Get(c.Kind).Slot==EquipmentCatalog.Get(card.Kind).Slot); replacedId=old?.Id;
-            if(old is not null) MoveCard(old,destination,CardLocation.DiscardPile,CardMoveReasons.EquipmentReplace);
-        }
-        MoveProgramCardsFromMultipleSources([m.CardId],destination,new(ShuziBoardReason));
-        var movement=_cardMovements.Single(move=>move.Sequence>before && move.CardId==m.CardId && move.Reason.Value==ShuziBoardReason);
-        AdvanceEventRulesAndQueueFact(new HanFuMaterialPaidEvent(f.Id,HanFuStage.BoardChildren,0,m,destination,movement.Sequence));
-        if(destination.Zone==CardZoneKind.Equipment) AdvanceEventRulesAndQueueFact(new EquipmentChangedEvent(f.Id,r.TargetSeat,EquipmentCatalog.Get(card.Kind).Slot,card.Id,card.Kind,replacedId));
-        RecordHanFuMovement(f.Id,HanFuStage.BoardChildren,ShuziBoardReason,before,1);
-    }
-    private void FreezeKuangshouDiscard(ProgramSkillFrame f)
-    {
-        var cutoff=CompleteProgramEventHistory().Count(); var seats=KuangshouDamagedSeats(cutoff); var candidates=HanFuDiscardCards(f); var required=Math.Min(seats.Length,candidates.Count);
-        ReplaceRuntimeTop(f=f with { HanFu=f.HanFu! with { Stage=HanFuStage.DiscardChoice,HistoryCutoff=cutoff,DamagedSeats=seats,RequiredDiscard=required,DiscardCandidates=candidates,SelectedDiscard=[] } });
-        AdvanceEventRulesAndQueueFact(new KuangshouQuotaFrozenEvent(f.Id,cutoff,seats.Length,required));
-        if(required==0) { PayHanFuCards(f,[],CardLocation.DiscardPile,KuangshouDiscardReason,HanFuStage.DiscardChildren); ContinueHanFu(f.Id); }
-        else PublishHanFuChoice(f);
     }
     private bool DrainHanFuChildren(long id)=>TryBeginQueuedRecoveryReplacement(id,PostEventContinuation.AwaitedProgramMovement) || TryBeginCharacterStateProgramWindow(id,CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(id,PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(id) || TryBeginAdvancedSkillsChanged(id);

@@ -6,14 +6,6 @@ public sealed record HuaManDirectionalUse(int ActualTurn,long ActionId,long Nati
  private readonly IReadOnlyList<int> _targets=Array.AsReadOnly(Array.Empty<int>());
  public IReadOnlyList<int> Targets{get=>_targets;init=>_targets=Array.AsReadOnly(value.ToArray());}
 }
-public sealed record SouyingQualification(int ActualTurn,long NativeUseId,long ActionId,int ActorSeat,int ProviderSeat,int TargetSeat,int DirectionOrdinal);
-public sealed record SouyingNativeMutation(long ProgramFrameId,CardConversionSource Source,string GameplayHash,SouyingQualification Qualification,long PaymentBefore,long PaymentAfter,int DiscardedId,long ClaimBefore=0,long ClaimAfter=0,bool Cancelled=false)
-{
- private readonly IReadOnlyList<int> _cards=Array.AsReadOnly(Array.Empty<int>());
- private readonly IReadOnlyList<int> _beforeTargets=Array.AsReadOnly(Array.Empty<int>());
- public IReadOnlyList<int> BeforeTargets{get=>_beforeTargets;init=>_beforeTargets=Array.AsReadOnly(value.ToArray());}
- public IReadOnlyList<int> ClaimedEntities{get=>_cards;init=>_cards=Array.AsReadOnly(value.ToArray());}
-}
 public enum HuaManStage{DiscardChoice,DiscardChildren,MansiDraw,ClaimChildren,XiliPayerDraw,XiliSourceDraw,MaximumChildren,RecoveryChildren,MaleChoice,GrantChildren}
 public sealed record HuaManReceipt(CardConversionSource Source,string GameplayHash,int Instruction,long WindowId,int ActualTurn,HuaManStage Stage,long Before=0,long After=0,int ActualCount=0,int? DiscardedId=null,int? OtherSeat=null,long? DamageAttemptResolutionId=null,int? DamageTargetSeat=null,SouyingQualification? Souying=null,int RecoveryRequested=0,bool Paid=false,int NativeOwnerHpBefore=0,int NativeOwnerHpAfter=0);
 public sealed partial class CharacterState
@@ -31,10 +23,6 @@ public sealed partial record CardUseFrame
 public sealed partial record ProgramSkillWindowContext{[JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]public SouyingQualification? HuaManSouying{get;init;}}
 public sealed record HuaManStartedEvent(long FrameId,CardConversionSource Source,string GameplayHash,long WindowId,int ActualTurn,SkillProgramEffectOp Operation):IGameEvent;
 public sealed record HuaManMovementPaidEvent(long FrameId,CardConversionSource Source,string GameplayHash,HuaManStage Stage,long Before,long After,int ActualCount,int SubjectSeat):IGameEvent;
-public sealed record MansiActualCardsObtainedEvent(long FrameId,CardConversionSource Source,int Before,int ActualObtained,int After):IGameEvent;
-public sealed record SouyingNativeMutationEvent(long FrameId,long NativeUseId,long ActionId,CardConversionSource Source,bool Cancelled,int ClaimedCount,long PaymentBefore,long PaymentAfter,long ClaimBefore,long ClaimAfter):IGameEvent;
-public sealed record XiliDamageIncreasedEvent(long FrameId,long DamageAttemptResolutionId,long BeforeDamageWindowId,int PayerSeat,int SourceSeat,int TargetSeat,int Before,int After):IGameEvent;
-public sealed record ZhanyuanCompletedEvent(long FrameId,int OwnerSeat,int? MaleSeat,bool LostMansi):IGameEvent;
 public sealed record HuaManCompletedEvent(long FrameId,CardConversionSource Source,string GameplayHash):IGameEvent;
 internal interface IHuaManProgramHost{SkillProgramStepOutcome ExecuteHuaMan(ProgramSkillFrame f,SkillProgramEffectOp op);}
 internal abstract class HuaManDescriptor:ProgramOperationDescriptorBase
@@ -44,12 +32,6 @@ internal abstract class HuaManDescriptor:ProgramOperationDescriptorBase
  public override ProgramOperationInteraction Interaction=>ProgramOperationInteraction.Choice;
  public override ProgramOperationAiPolicy AiPolicy{get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>c.Draw(new(SkillProgramEffectOp.Draw,SkillProgramEffectTarget.Owner,1,e.Condition)));
 }
-internal sealed class DrawAndCountMansiActualBarbarianDamageDescriptor:HuaManDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawAndCountMansiActualBarbarianDamage;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];}
-internal sealed class PaySouyingDirectionalSoleTargetDescriptor:HuaManDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.PaySouyingDirectionalSoleTarget;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];}
-internal sealed class AwakenZhanyuanAndOfferXiliDescriptor:HuaManDescriptor{
-    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase);
-public override SkillProgramEffectOp Op=>SkillProgramEffectOp.AwakenZhanyuanAndOfferXili;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];}
-internal sealed class PayXiliActualOtherOwnerDamageDescriptor:HuaManDescriptor{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.PayXiliActualOtherOwnerDamage;public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.BeforeDamageApplied)];}
 internal sealed class HuaManHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler{public SkillProgramEffectOp Op=>op;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost h)=>h.GetCapability<IHuaManProgramHost>().ExecuteHuaMan(f,op);}
 internal static class HuaManComposition
 {
