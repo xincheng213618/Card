@@ -369,7 +369,7 @@ public sealed partial class GameEngine
         if (parent.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
             _phase = TurnPhase.Draw;
         PushRuntimeFrame(parent);
-        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame))
+        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame) && !IsReturningMouDaQiaoLiuliPhase(frame))
         {
             CompleteDetachedProgramBinding(frame, completed: false);
             AdvanceProgramLifecycleCursor(parent);
@@ -2139,6 +2139,7 @@ public sealed partial class GameEngine
             CollectProgramTriggerCandidates(owner, window).Where(c => !GetProgramTrigger(c).Effects.Any(e => IsYuanJiReturnOp(e.Op))).ToArray()));
         candidates = IncludeOlMoRumoRoundCandidates(owner, window, candidates);
         candidates = IncludeMoLuBuDeathCandidates(owner, window, candidates);
+        candidates = IncludeMouDaQiaoPhaseCandidates(owner, window, candidates);
         if (candidates.Count == 0) return candidates;
         return candidates
             .Where(candidate =>
@@ -2178,10 +2179,12 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsIssuedMoDiaoChanCandidate(candidate, context)) return true;
         if (!CanMouXiahouShiCandidate(candidate, context)) return false;
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedMouPtTargets(candidate, context)) return true;
         if (IsIssuedMouChenGongZhichiCandidate(candidate, context)) return true;
+        if (IsIssuedMouDaQiaoPhaseCandidate(candidate, context)) return true;
         if (IsIssuedMoLuBuDeathCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
@@ -2954,7 +2957,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginTurnStartProgramWindow(CharacterState owner)
     {
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)) return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) && !HasUnissuedMouDaQiaoPhase(owner.Seat)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = TracksForeignTurnStartPrograms
             ? CollectForeignTurnStartCandidates(owner, facts)

@@ -838,6 +838,7 @@ public sealed partial class MainViewModel
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";
+        SyncForcedHandSelection();
         if (wasSelectingActiveSkillCards || wasSelectingPlayConversion)
         {
             _humanSkillSnapshot = null;

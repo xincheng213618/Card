@@ -756,6 +756,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             SelectedCardText = "未选择手牌";
         }
 
+        SyncForcedHandSelection();
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
 
@@ -1052,6 +1053,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ToggleActiveSkillCard(card.Id);
             return;
         }
+        if (KeepForcedHandSelection()) return;
         if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || !card.IsPlayable)
         {
             return;
@@ -1148,6 +1150,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         if (TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
+        if (KeepForcedHandSelection()) return;
         var cardId = choice.Cards[0];
         var human = _snapshot.Players.Single(player => player.IsHuman);
         var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).SingleOrDefault(card => card.Id == cardId);

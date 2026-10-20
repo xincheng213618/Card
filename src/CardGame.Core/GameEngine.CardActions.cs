@@ -114,6 +114,8 @@ public sealed partial class GameEngine
             }
             conversionChain.AddRange(additionalConversions);
         }
+        if (!MoDcHuanhuoPaymentAllowed(actorSeat, physicalIds))
+            throw new InvalidOperationException("Huanhuo requires its current selected Hand entity in this real Play use.");
         if (!IsMouGuquUseAllowed(actorSeat, effectiveKind, physicalIds, conversionChain.FirstOrDefault()))
             throw new InvalidOperationException("Guqu forbids this true Use material or conversion.");
         ConsumeProgramViewAsUsage(conversionChain);
@@ -502,6 +504,7 @@ public sealed partial class GameEngine
         CollectIssuedPijingNextUseCandidates(action, window, result);
         CollectIssuedBiguoCandidates(action, window, result);
         CollectIssuedMouGuquCandidates(action, window, result);
+        CollectIssuedMoDiaoChanCandidates(action, window, result);
         CollectIssuedDiouCandidates(action, window, result);
         CollectIssuedMouZhuRongLieren(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)

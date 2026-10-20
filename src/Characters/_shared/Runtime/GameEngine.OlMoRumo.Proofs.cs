@@ -42,7 +42,7 @@ public sealed partial class GameEngine
         if (entries.Length > 1 || entries.Any(item => item.EntryId <= 0 || item.Origin.OwnerSeat != ownerSeat || item.ActualTurn < 1 ||
                 !IsValidPlayerSeat(item.TurnOwner) ||
                 !(item.Origin.SkillId == "ol:mo-qiangang" && item.EntryRound >= 1 &&
-                    IsPaidQiangangRumoOrigin(item.EntryId, item.Origin, item.OriginGameplayHash) || IsMoLuBuRumoOrigin(item))))
+                    IsPaidQiangangRumoOrigin(item.EntryId, item.Origin, item.OriginGameplayHash) || IsMoLuBuRumoOrigin(item) || IsMoDcQingshiRumoOrigin(item))))
             throw new InvalidOperationException("OL Rumo must retain one exact permanent paid entry per owner.");
         return entries.SingleOrDefault();
     }

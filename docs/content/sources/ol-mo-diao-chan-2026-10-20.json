@@ -1,0 +1,110 @@
+{
+  "checkedOn": "2026-10-21",
+  "status": "implemented-and-verified",
+  "name": "魔貂蝉·OL",
+  "generalId": "ol:mo-diao-chan",
+  "product": "sanguosha-ol",
+  "series": "魔武将",
+  "identity": {
+    "officialHeroId": 715,
+    "faction": "qun",
+    "gender": "Female",
+    "initialHp": 3,
+    "maxHp": 3,
+    "note": "The formal launch table explicitly states Qun, female, 3HP. The current hero API hp=3 agrees; initial_hp=0 is an API sentinel and is not implemented as zero starting HP."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/715",
+      "role": "Current complete Huanhuo and Qingshi skill text and exact classic portrait reference; freshly rechecked on checkedOn."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=715",
+      "role": "Current official identity and image metadata: gid715, name魔貂蝉, Qun and hp3. The API initial_hp sentinel is interpreted against the explicit formal table."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250708_4123_3813",
+      "title": "7.12-7.20 夏日许愿魔貂蝉、管亥来袭 限时双倍重置 盛典祈愿魔吕布上新",
+      "published": "2025-07-11 17:06:17",
+      "firstAvailability": "2025-07-12 00:15:00",
+      "role": "Formal first-release identity table, both full skills and the additional common post-Rumo round-end consequence. Historical availability evidence, not a claim about the current sale channel."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260130_4153_1314",
+      "role": "Later official Magic roster context; not treated as replacement skill wording."
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:mo-huanhuo",
+      "name": "幻惑",
+      "text": "每轮开始时，你摸两张牌，然后弃置至多两张牌并选择等量其他角色。其下回合出牌阶段：强制选中一张可用的手牌；每使用一张牌后随机弃一张牌，直到其使用了两张牌后。",
+      "versionNote": "The current hero's colon/semicolon punctuation and the formal launch's continuous sentence describe the same full operation."
+    },
+    {
+      "id": "ol:mo-qingshi",
+      "name": "倾世",
+      "text": "准备阶段，你可入魔，令所有角色获得一张单目标伤害牌。其他角色使用此牌指定唯一目标时，你可弃置一张牌，重新指定牌的目标(无距离限制)。这些牌：造成伤害后，你摸一张牌；未因使用进入弃牌堆后，你获得之。（准备阶段，若这些牌均离开其手牌区，你再令所有角色获得牌。）"
+    }
+  ],
+  "commonRumoConsequence": {
+    "registeredSkillId": "ol:mo-rumo",
+    "text": "入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+    "source": "The formal launch appends this rule after Qingshi; the current hero page does not repeat it. The implementation retains the formal consequence by reusing the existing common OL Rumo registration and native round-end HP Loss.",
+    "printedSkillCount": 2
+  },
+  "versionSeparation": [
+    "This is the official OL Magic general715 with Huanhuo and Qingshi, not Classic, Boundary, Le, OL-SP or another product's 魔·貂蝉.",
+    "The August2025 幻惑欲影 announcement concerns a skin, not a new general rules revision.",
+    "A bounded first-party search found no named later replacement of these two current skills. This is not a claim that all historical corrections or live-client behavior were exhaustively inspected.",
+    "Player-submitted official-domain bug reports are not official rules rulings; claims that a client immediately forces a Use are not adopted as authoritative skill text."
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71500.png",
+    "localAsset": "src/CardGame.Wpf/Assets/official-ol-mo-diao-chan.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1054585,
+    "sha256": "91ad3d5eab4e9d2e49a4b8e33788e2182f652c28d8cb1bfa18801af227a76548",
+    "visuallyInspected": true,
+    "description": "Long dark hair, red eyes, silver crown, white-silver costume, red ribbons, pale moon and grey mist.",
+    "formalOriginal": {
+      "url": "https://sanguosha.com/uploads/202507/zi2j3QdvGK0FUri8.png",
+      "width": 750,
+      "height": 950,
+      "bytes": 921528,
+      "sha256": "345f3b3f74a894cc29c25e73f3eeddafe0da3fc849726dfd553218468fbdca38",
+      "note": "The formal announcement's actual 查看原图 link shows the same composition. Files have different bytes; pixel identity is not asserted."
+    }
+  },
+  "userSelectedContract": {
+    "choice": "每次需要锁定时随机选一张",
+    "scope": "A real RNG choice freezes the usable Hand entity whenever a lock is needed. The player still chooses legal targets and confirms Use, can invoke skills, and can end Play. Rendering, querying legal actions or restoring the same pending decision does not reroll the lock or submit an automatic Use."
+  },
+  "engineeringContracts": [
+    "These are explicit project interpretations of the complete text, approved for implementation; they are not official FAQs or additional user-selected rulings.",
+    "The permitted Qingshi acquisition kinds are the current mode's card recipe intersected with eight native single-target direct-damage kinds: Slash, FireSlash, ThunderSlash, Duel, FireAttack, UnexpectedAssault, Lightning and AgainstCurrent. Each living recipient, in native action order, independently obtains one actual matching entity from the current DrawPile by one deterministic RNG choice; an empty intersection obtains zero. This is Obtain, not Draw, does not fabricate a card or copy, and does not refill the deck or take another zone merely to satisfy the reward. The standard basic mode supplies only its actually permitted subset. AoE, multi-target Flood, indirect child-Slash effects, HP Loss, damage buffs and equipment are excluded from this local classification.",
+    "Qingshi's granted physical entities retain their association with the original Qingshi owner as they move. The latest cohort records each original recipient. At the owner's real Preparation, entry is optional only before Rumo; after entry a new cohort is mandatory when every entity in that latest cohort is outside its original recipient's actual Hand. Earlier cohort associations remain valid for damage and non-Use discard effects; refreshing does not erase them. Empty or short cohorts use the same explicit all-original-hands predicate.",
+    "A unique-target Qingshi redirection requires another real actor's actual Use and at least one granted physical material, retains the original actor/provider, and pays one real owned Hand or Equipment entity. All logical discard, movement, recovery, HP, skill and Dying children return before the owner selects a lawful replacement. Distance is waived; hard target prohibitions, actual native card shape and delayed-trick placement rules remain. No replacement Use or fake accepted action is created.",
+    "A marked entity's actual damage window yields one real native Draw1 after damage, including the native damage/chain/source attribution. Pure HP Loss is not damage. Native source-less or delayed damage retains its original attribution and permission rules rather than gaining a fabricated source.",
+    "Recapture requires an actual movement into DiscardPile while the entity is still there and not a payment or finish movement of a genuine Use. The original true-Use material invoice is frozen at its native acceptance/declaration boundary, including true response Uses; pure Played or recast is not silently promoted to Use. Recapture physically moves the entity from DiscardPile to the still-living skill owner's Hand and drains its native children.",
+    "Huanhuo's promise binds the recipient's first real TurnStarted after its issue; an extra turn counts. All of that actual turn's own Play phases share a total of two genuine Uses, including a native inserted Play after raw TurnEnded. The effect expires at ActualTurnCursorReturned, not raw TurnEnded. Skipped turns or Play phases do not shift the promise to a later turn. A Play performed during another character's actual turn does not consume this recipient's promised actual-turn budget.",
+    "Every genuinely accepted native Use during the affected Play counts once, including zero- or multi-material and true response Uses, while a pure Played response does not. Its full native resolution returns before random Hand/Equipment discard. The second Use still pays its random discard and then releases the lock. A direct native virtual Duel has no ordinary CardUse declaration; a dedicated typed producer/return receipt counts its actual issuance and completion without inventing CardUseDeclared or CardActionAccepted facts.",
+    "The private lock hint contains only the affected viewer's own physical CardId, stable lock identity, actual Play token and remaining budget. Ordinary card selection cannot switch or cancel that lock, but active-skill payment, response selection, target selection, explicit confirmation and EndPlay retain their native workflows. AI follows its real legal actions and its frozen choice; it never submits a human answer on its behalf.",
+    "Issued costs, draws, grants and native return obligations remain on the owning frame with their exact source/hash and immutable receipts. Losing the source does not refund or repeat a paid operation; dead recipients are not granted Hand cards, and native terminal cutoff remains authoritative. Collection-bearing receipt fields are copied to read-only arrays; new history events use immutable scalar fields or scalar-only nested records."
+  ],
+  "validation": {
+    "status": "focused-passed",
+    "focusedCoreFilter": "Mo Diao Chan:",
+    "focusedCoreChecks": 1,
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "portraitAndSkillScrollVisuallyInspected": true,
+    "manualFullRun": false,
+    "focusedWpfCheck": "Mo Diao Chan UI: forced hand selection waits for confirmation",
+    "routine": {
+      "corePassed": 252,
+      "wpfPassed": 39,
+      "durationSeconds": 73.743
+    }
+  }
+}

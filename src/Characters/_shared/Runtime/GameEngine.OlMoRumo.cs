@@ -16,11 +16,11 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(supplied.Id);
         if (!HasOlMoRumoCapability || _resolutionStack.LastOrDefault()?.Id != frame.Id ||
-            !(IsPaidQiangangRumoEntry(frame) || IsPaidMoKuangmoEntry(frame)))
+            !(IsPaidQiangangRumoEntry(frame) || IsPaidMoKuangmoEntry(frame) || IsPaidMoDcQingshiEntry(frame)))
             throw new InvalidOperationException("OL Rumo requires the exact paid Qiangang entry, not a generic operation or a live skill label.");
         if (OlMoRumoEntry(frame.OwnerSeat) is not null) return;
         var source = new CardConversionSource(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
-        if (!(IsPaidQiangangRumoOrigin(frame.Id, source, frame.GameplayHash) || IsPaidMoKuangmoOrigin(frame.Id, source, frame.GameplayHash)))
+        if (!(IsPaidQiangangRumoOrigin(frame.Id, source, frame.GameplayHash) || IsPaidMoKuangmoOrigin(frame.Id, source, frame.GameplayHash) || IsPaidMoDcQingshiOrigin(frame.Id, source, frame.GameplayHash)))
             throw new InvalidOperationException("OL Rumo lost the original irreversible entry payment.");
         AdvanceEventRulesAndQueueFact(new OlMoRumoEnteredEvent(frame.Id, frame.OwnerSeat, source,
             frame.GameplayHash, _roundNumber, _turnNumber, _turnProgression.OwnerSeat));

@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-da-qiao-mobile",
+      "characterName": "谋大乔·移动版",
+      "defaultSkinId": "66700",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-556.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/66700.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-da-qiao-mobile.jpg",
+          "sha256": "51d608881649e9e809c6f667746c51e2d9bccb185bc504f6e5e1c1853759aa1a",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "id": "66700",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "ol-mo-diao-chan",
+      "characterName": "魔貂蝉",
+      "defaultSkinId": "71500",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/715",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-mo-diao-chan.png",
+          "sha256": "91ad3d5eab4e9d2e49a4b8e33788e2182f652c28d8cb1bfa18801af227a76548",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "71500",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-zhou-yu-mobile",
       "characterName": "谋周瑜·移动版",
       "defaultSkinId": "662-avatar",

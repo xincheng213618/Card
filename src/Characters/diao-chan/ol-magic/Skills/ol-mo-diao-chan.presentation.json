@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:mo-huanhuo": {
+      "name": "幻惑",
+      "triggerLabels": {
+        "round-draw-and-select": "幻惑：摸牌、弃牌并选择角色",
+        "affected-use-completed": "幻惑：使用后随机弃牌"
+      },
+      "description": "每轮开始时，你摸两张牌，然后弃置至多两张牌并选择等量其他角色。其下回合出牌阶段：强制选中一张可用的手牌；每使用一张牌后随机弃一张牌，直到其使用了两张牌后。"
+    },
+    "ol:mo-qingshi": {
+      "name": "倾世",
+      "triggerLabels": {
+        "prepare-enter-or-refresh": "倾世：入魔或重新发牌",
+        "cohort-unique-target": "倾世：弃牌并重新指定目标",
+        "cohort-damage-draw": "倾世：伤害后摸牌",
+        "cohort-nonuse-recapture": "倾世：收回未因使用弃置的牌"
+      },
+      "description": "准备阶段，你可入魔，令所有角色获得一张单目标伤害牌。其他角色使用此牌指定唯一目标时，你可弃置一张牌，重新指定牌的目标（无距离限制）。这些牌：造成伤害后，你摸一张牌；未因使用进入弃牌堆后，你获得之。（准备阶段，若这些牌均离开其手牌区，你再令所有角色获得牌。）入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。"
+    }
+  }
+}

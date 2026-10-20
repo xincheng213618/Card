@@ -1,0 +1,14 @@
+{
+ "schemaVersion":62,"skills":[
+  {"id":"ol:mo-huanhuo","revision":1,"triggers":[
+   {"id":"round-draw-and-select","window":"roundStarting","subject":"owner","optional":false,"effects":[{"op":"resolveMoDiaoChanHuanhuoRound","target":"owner"}]},
+   {"id":"affected-use-completed","window":"cardUseCompleted","ownerRelation":"observer","includeResponseUses":true,"singleActionInstance":true,"optional":false,"effects":[{"op":"resolveMoDiaoChanHuanhuoUse","target":"owner"}]}
+  ]},
+  {"id":"ol:mo-qingshi","revision":1,"triggers":[
+   {"id":"prepare-enter-or-refresh","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"resolveMoDiaoChanQingshiPrep","target":"owner"}]},
+   {"id":"cohort-unique-target","window":"cardUseTargetsFinalized","ownerRelation":"observer","optional":false,"effects":[{"op":"resolveMoDiaoChanQingshiRedirect","target":"owner"}]},
+   {"id":"cohort-damage-draw","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"resolveMoDiaoChanQingshiDamage","target":"owner"}]},
+   {"id":"cohort-nonuse-recapture","window":"discardPileReceived","subject":"owner","optional":false,"effects":[{"op":"resolveMoDiaoChanQingshiDiscard","target":"owner"}]}
+  ]}
+ ]
+}

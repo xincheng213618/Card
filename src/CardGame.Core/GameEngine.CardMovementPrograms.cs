@@ -407,6 +407,7 @@ public sealed partial class GameEngine
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.CollectMouXiahouDunQingjian)) return MatchingMouXiahouDunDiscardIndexes(batch);
         var features = ProgramInstructionResolver.Default.Features(trigger);
+        if (features.HasOperation(SkillProgramEffectOp.ResolveMoDiaoChanQingshiDiscard)) return MoDcRecaptureIndexes(batch, candidate.OwnerSeat);
         if (features.HasOperation(SkillProgramEffectOp.ReturnDiscardedSilvEntity) ||
             features.HasOperation(SkillProgramEffectOp.ObtainJingzhongUsedEntities)) return [];
         if (features.HasOperation(SkillProgramEffectOp.YuejianRevealAndClaimUsedCard))

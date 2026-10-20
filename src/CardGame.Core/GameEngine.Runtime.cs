@@ -100,6 +100,7 @@ public sealed partial class GameEngine
             SlashTargetBenefitWindowFrame child => child.ParentFrameId,
             FirstSlashDuelLegacyWindowFrame child => child.ParentFrameId,
             WenlanDirectDuelWindowFrame child => child.ParentFrameId,
+            MoDiaoChanDirectDuelWindowFrame child => child.ParentFrameId,
             PindianRevealWindowFrame child => child.ParentFrameId,
             WuLuKangPindianFrame child => child.ParentFrameId,
             DouyuWindowFrame child => child.ParentFrameId,
@@ -560,6 +561,7 @@ public sealed partial class GameEngine
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
             frame.OwnerSeat, context.Window, Activated: true, Completed: completed));
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
+        if (TryReturnMoDcLegacyBinding(frame, completed)) return;
         if (TryReturnWenlanDirectDuelBinding(frame, completed)) return;
         if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame)
         {

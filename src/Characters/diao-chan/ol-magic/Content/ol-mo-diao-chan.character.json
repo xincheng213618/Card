@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:diao-chan",
+ "skills":[
+  {"registrationOrder":2339,"programBundle":"ol-mo-diao-chan","includeProgramPresentation":true,"definition":{"id":"ol:mo-huanhuo","name":"幻惑","description":"每轮开始时，你摸两张牌，然后弃置至多两张牌并选择等量其他角色。其下回合出牌阶段：强制选中一张可用的手牌；每使用一张牌后随机弃一张牌，直到其使用了两张牌后。","executionForms":"State, Trigger"}},
+  {"registrationOrder":2340,"programBundle":"ol-mo-diao-chan","includeProgramPresentation":true,"definition":{"id":"ol:mo-qingshi","name":"倾世","description":"准备阶段，你可入魔，令所有角色获得一张单目标伤害牌。其他角色使用此牌指定唯一目标时，你可弃置一张牌，重新指定牌的目标（无距离限制）。这些牌：造成伤害后，你摸一张牌；未因使用进入弃牌堆后，你获得之。（准备阶段，若这些牌均离开其手牌区，你再令所有角色获得牌。）入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。","executionForms":"State, Trigger"}}
+ ],
+ "generals":[{"registrationOrder":2341,"pools":{"current":536},"definition":{"id":"ol:mo-diao-chan","name":"魔貂蝉","portraitKey":"ol-mo-diao-chan","skillId":"ol:mo-huanhuo","additionalSkillIds":["ol:mo-qingshi"],"factionId":"qun","gender":"Female","baseHp":3,"characterId":"character:diao-chan","variantId":"magic-ol","rulesetId":"sanguosha-ol"}}]
+}

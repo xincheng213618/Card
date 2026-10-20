@@ -4073,6 +4073,7 @@ public sealed partial class GameEngine
 
     private void RunOneAiPlayDecision(CharacterState player)
     {
+        PrepareMoDiaoChanHandSelection(player);
         var legalActions = BuildLegalActions(player);
         var view = CreateSnapshot(player.Seat);
         var (action, thought) = _aiBrains[player.Seat].ChoosePlay(view, legalActions, ++_thoughtSequence,
@@ -14777,7 +14778,7 @@ public sealed partial class GameEngine
         BuildLegalActionsCore(actor, includeProgramActions, selectedPhysicalCardId, null);
 
     private IReadOnlyList<LegalAction> BuildLegalActionsCore(CharacterState actor, bool includeProgramActions,
-        int? selectedPhysicalCardId, Card? nativeOriginalCard)
+        int? selectedPhysicalCardId, Card? nativeOriginalCard, bool ignoreMoDiaoChanSelection = false)
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
@@ -15613,7 +15614,8 @@ public sealed partial class GameEngine
         var result = FilterMoGangquanActions(actor, FilterBeneficiarySuitShieldActions(actor, FilterTurnCardUseRestrictions(actor, permittedActions, nativeOriginalCard)));
         if (nativeOriginalCard is not null) return result;
         var originalPileActions = NativePublicPileOriginalPlayActions(actor, selectedPhysicalCardId);
-        return originalPileActions.Count == 0 ? result : result.Concat(originalPileActions).ToArray();
+        var allActions = originalPileActions.Count == 0 ? result : result.Concat(originalPileActions).ToArray();
+        return ignoreMoDiaoChanSelection ? allActions : FilterMoDiaoChanHandSelection(actor, allActions);
     }
 
     private IReadOnlyList<CharacterState> GetFangtianOrderedSlashTargets(
@@ -16352,6 +16354,7 @@ public sealed partial class GameEngine
 
     private void RequestHumanPlay()
     {
+        PrepareMoDiaoChanHandSelection(_players[_currentSeat]);
         var legal = BuildLegalActions(_players[_currentSeat]);
         _pendingDecision = new PendingDecision(
             DecisionKind.PlayCard,
@@ -16361,7 +16364,8 @@ public sealed partial class GameEngine
             legal.SelectMany(action => action.TargetSeats).Distinct().ToArray())
         {
             PromptId = CreatePromptId(),
-            Choices = CreatePlayChoices(legal)
+            Choices = CreatePlayChoices(legal),
+            ForcedHandSelection = MoDiaoChanHandSelection(_currentSeat)
         };
         _status = EngineStatus.AwaitingHumanPlay;
         AdvanceRulesAndPublishState();
@@ -16969,7 +16973,7 @@ public sealed partial class GameEngine
         if (TryCompleteWenheSurvival()) return;
         if (TryCompleteGuanduBattle()) return;
         if (TryCompleteDragonBoatRace()) return;
-        if (HasMoLuBu || HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouXiahouShiCapability || HasMouMengHuoCapability || HasMouZhouYuMobileCapability || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        if (HasMoLuBu || HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouXiahouShiCapability || HasMouMengHuoCapability || HasMouZhouYuMobileCapability || HasMoDiaoChan || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -20603,6 +20607,7 @@ public sealed partial class GameEngine
         if (HasLiuBaCoinEntity(cardId)) existing = existing is null ? "币" : existing + " / 币";
         if (HasMoTianenEntityMark(cardId)) existing = existing is null ? "天恩" : existing + " / 天恩";
         if (HasMoLuBuQi(cardId)) existing = existing is null ? "炁" : existing + " / 炁";
+        if (HasMoDcQingshiCard(cardId)) existing = existing is null ? "倾世" : existing + " / 倾世";
         var dongxin = HasSunYuanCapability && ProgramEventHistory<DongxinEntityAcquiredEvent>().Any(grant =>
             grant.CardId == cardId && _cardZones.Contains(CardLocation.Hand(grant.RecipientSeat), cardId));
         if (dongxin) existing = existing is null ? "恫心" : existing + " / 恫心";

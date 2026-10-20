@@ -17,7 +17,7 @@ public sealed partial class GameEngine
     private bool TryBeginSoleTargetRedirect(ProgramCardTriggerWindowFrame frame)
     {
         if (frame.SoleTargetRedirectPending is not { } request) return false;
-        if (!HasSoleTargetProtectionCapability || frame.Continuation != ProgramCardContinuation.Slash ||
+        if ((!HasSoleTargetProtectionCapability && !(HasMoDiaoChan && request.ProtectionSource.SkillId == MoDiaoChanComposition.Qingshi)) || frame.Continuation != ProgramCardContinuation.Slash ||
             frame.SoleTargetRedirectReturn is not null || LifecycleCardUse(request.CardUseFrameId) is not { Action: { } action } use ||
             frame.ParentFrameId != use.Id || frame.Action.ActionId != request.ActionId || action.ActionId != request.ActionId ||
             use.CardAttack is not { } resumeAttack || request.TargetIndex < 0 || request.TargetIndex >= use.TargetSeats.Count ||

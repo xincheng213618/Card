@@ -1,0 +1,107 @@
+{
+  "formatVersion": 1,
+  "status": "implemented-and-verified",
+  "generalId": "mou:da-qiao-mobile",
+  "characterId": "character:da-qiao",
+  "displayName": "谋大乔·移动版",
+  "edition": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "identity": {
+    "officialHeroId": 556,
+    "officialGeneralId": 667,
+    "factionId": "wu",
+    "gender": "Female",
+    "baseHp": 3
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:guose",
+      "name": "国色",
+      "officialText": "出牌阶段限四次（若不为身份场模式则改为限两次），你可以将一张方块牌当【乐不思蜀】使用，或弃置场上一张【乐不思蜀】。然后你摸一张牌。",
+      "authority": "Formal 2024-03-27 correction1795 supersedes the omitted mode qualification in current hero/API shorthand."
+    },
+    {
+      "id": "mou-mobile:liuli",
+      "name": "流离",
+      "officialText": "当你成为【杀】的目标时，你可以弃置一张牌并选择你攻击范围内的一名其他角色（不能是此【杀】的使用者），然后将此【杀】转移给该角色。每名角色的回合限一次，若你弃置的是红桃牌，你可令一名其他角色（不能是此【杀】的使用者）获得“流离”标记（若场上已有“流离”标记则改为转移给该角色）。拥有“流离”标记的角色回合开始时，执行一个额外的出牌阶段并令其移除“流离”标记。",
+      "authority": "Fresh current official hero556 and full mobile API agree."
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-556.html",
+      "sha256": "6856ECEECE1E1E480A2CAA346086FE3BABCB0B9BDA2F5C3D6F4EDBDABCEC59DB",
+      "bytes": 20947
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1593.html",
+      "sha256": "F55E08DCF1B9B3A5986740C04095B564C9D830F03E8B9503CC607B4FCDABF59C",
+      "bytes": 151312
+    },
+    {
+      "key": "correction",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1795.html",
+      "sha256": "320109986D2A36B81B5791C6A89A025A4C26DCA65C57CB475F012DC29769FA3E",
+      "bytes": 16498
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-1593.html",
+    "publishedAt": "2023-08-18 17:30:00",
+    "availableFrom": "2023-08-19",
+    "method": "First announcement explicitly says Mou Da Qiao launches through Tian Gong Bao Ku, initially excluded from Landlord pool."
+  },
+  "revisionAudit": {
+    "confirmedCorrection": "https://www.sanguosha.cn/pc/news-detail-1795.html",
+    "publishedAt": "2024-03-27 15:22:39",
+    "finding": "Official notice explicitly distinguishes Identity four from every non-Identity mode two. Fresh hero/API still omit this qualifier; do not implement four globally.",
+    "boundedUnconfirmed": "No later primary-source contradiction to the complete two-skill roster or the 1795 mode qualification found in the bounded official-domain search. This is not a claim to exhaustive FAQ coverage."
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Mode allowance and native payment",
+      "decision": "Identity mode permits four and every non-Identity mode permits two uses in each actual Play, shared by both branches. The field-removal branch pays only its chosen existing Indulgence, never an additional Diamond entity. Actual native delayed Use or logical field discard returns its own Draw1 and child windows.",
+      "authority": "Official 2024-03-27 correction1795 and complete current skill text."
+    },
+    {
+      "topic": "Liuli Heart limit",
+      "decision": "Each actual-turn once clause limits the optional Heart-derived marker grant; ordinary paid native redirects remain available. Effective suit is frozen at its real HE discard before movement children.",
+      "authority": "Engineering reading of the official sentence placement; not an official FAQ."
+    },
+    {
+      "topic": "Unique marker and phase",
+      "decision": "The marker is unique across living and dead participants. Accepted source and grant are retained after source loss. At the marked living recipient turn start one native Play is inserted before normal Preparation inside the same actual turn; the returned original grant is removed without erasing a newer transferred grant.",
+      "authority": "Native owning-frame and phase-schedule interpretation; not an official FAQ."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/66700.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-da-qiao-mobile.jpg",
+    "sha256": "51D608881649E9E809C6F667746C51E2D9BCCB185BC504F6E5E1C1853759AA1A",
+    "bytes": 4869018,
+    "width": 2480,
+    "height": 3508,
+    "visualValidation": "Root downloaded and visually inspected the official portrait."
+  },
+  "validation": {
+    "status": "focused-passed",
+    "focusedCoreFilter": "Mou Da Qiao Mobile:",
+    "focusedCoreChecks": 2,
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "portraitAndSkillScrollVisuallyInspected": true,
+    "manualFullRun": false,
+    "routine": {
+      "corePassed": 252,
+      "wpfPassed": 39,
+      "durationSeconds": 73.743
+    }
+  }
+}

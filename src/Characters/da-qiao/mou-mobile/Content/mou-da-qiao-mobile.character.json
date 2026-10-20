@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:da-qiao",
+  "skills": [
+    {
+      "registrationOrder": 2333,
+      "programBundle": "mou-da-qiao-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:guose",
+        "name": "国色",
+        "description": "出牌阶段限四次（若不为身份场模式则改为限两次），你可以将一张方块牌当【乐不思蜀】使用，或弃置场上一张【乐不思蜀】。然后你摸一张牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2334,
+      "programBundle": "mou-da-qiao-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:liuli",
+        "name": "流离",
+        "description": "当你成为【杀】的目标时，你可以弃置一张牌并选择你攻击范围内的一名其他角色（不能是此【杀】的使用者），然后将此【杀】转移给该角色。每名角色的回合限一次，若你弃置的是红桃牌，你可令一名其他角色（不能是此【杀】的使用者）获得“流离”标记（若场上已有“流离”标记则改为转移给该角色）。拥有“流离”标记的角色回合开始时，执行一个额外的出牌阶段并令其移除“流离”标记。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2335,
+      "pools": {
+        "current": 535
+      },
+      "definition": {
+        "id": "mou:da-qiao-mobile",
+        "name": "谋大乔·移动版",
+        "portraitKey": "mou-da-qiao-mobile",
+        "skillId": "mou-mobile:guose",
+        "additionalSkillIds": [
+          "mou-mobile:liuli"
+        ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:da-qiao",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

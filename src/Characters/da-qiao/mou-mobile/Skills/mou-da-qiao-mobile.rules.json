@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:guose",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "diamond-use",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 4,
+          "usageGroup": "guose",
+          "effects": [
+            {
+              "op": "resolveMouDaQiaoGuose",
+              "target": "owner"
+            }
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "cardSuits": [
+            "diamond"
+          ]
+        },
+        {
+          "id": "remove-delayed",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 4,
+          "usageGroup": "guose",
+          "effects": [
+            {
+              "op": "resolveMouDaQiaoGuoseRemove",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:liuli",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "redirect-slash",
+          "window": "slashTargetRedirecting",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "slashRedirectable"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "freezeMovedCardSuit": true,
+              "resultBind": "liuli-cost"
+            },
+            {
+              "op": "resolveMouDaQiaoLiuliHeart",
+              "target": "owner"
+            },
+            {
+              "op": "redirectCurrentAttack",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "resolveMouDaQiaoLiuliHeart",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "marked-turn-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "insertMouDaQiaoLiuliPlay",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
