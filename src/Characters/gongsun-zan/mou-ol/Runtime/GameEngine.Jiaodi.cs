@@ -101,7 +101,7 @@ public sealed partial class GameEngine
         var obtain = r.Stage == MouGongsunZanStage.Obtain; var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { MouGongsunZan = r with { Stage = obtain ? MouGongsunZanStage.ObtainChildren : MouGongsunZanStage.DiscardChildren, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         if (obtain) MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(MouGszObtainReason), disclosure: CardMovementDisclosure.FaceDown);
-        else MoveLogicalDiscard(f.OwnerSeat, r.OriginalTarget, card, from, new(MouGszDiscardReason));
+        else MoveLogicalDiscard(f.OwnerSeat, f.OwnerSeat, card, from, new(MouGszDiscardReason), parentFrameId: f.Id);
         SealMouGsz(f.Id, obtain ? "obtain" : "discard"); ContinueMouGsz(f.Id);
     }
     private void ContinueMouGsz(long id)

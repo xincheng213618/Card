@@ -27,7 +27,7 @@ public sealed partial class GameEngine
         var frame = GetActiveProgramFrame(supplied.Id);
         if (_resolutionStack.LastOrDefault()?.Id != frame.Id || frame.SequentialDeckKindGrowth is not null ||
             !HasSequentialDeckKindGrowthParent(frame) || effect.Op != SkillProgramEffectOp.AcquireDeckKindSequentiallyAndGrowOnShortfall ||
-            effect.OutputKind != CardKind.Duel || effect.NumberExpression != SkillProgramNumberExpression.OwnerMaxHp ||
+            effect.OutputKind != CardKind.Duel ||
             _turnNumber < 1 || _turnProgression.OwnerSeat != frame.OwnerSeat || _currentSeat != frame.OwnerSeat)
             throw new InvalidOperationException("Sequential deck-kind acquisition requires its exact own preparation candidate.");
         var owner = _players[frame.OwnerSeat];
