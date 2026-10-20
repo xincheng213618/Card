@@ -55,6 +55,9 @@ $ownsLock = $false
 $ownsArtifacts = $false
 $buildStarted = $false
 $routine = $false
+$projectHashes = @{}
+$dependencyRepairs = [Collections.Generic.List[object]]::new()
+$dependencyVerificationMs = 0L
 $cleanup = [ordered]@{ status = 'not-needed'; queued = @(); database = [IO.Path]::GetFullPath($CleanupDatabase); message = $null }
 
 function Assert-ArtifactOwnership {
@@ -125,6 +128,52 @@ function Invoke-LoggedStep {
     return $code
 }
 
+function Sync-TestProjectDependencies {
+    param([string] $Assembly)
+    $manifestPath = [IO.Path]::ChangeExtension($Assembly, '.deps.json')
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json -AsHashtable
+    $target = $manifest.targets[$manifest.runtimeTarget.name]
+    if ($null -eq $target) { throw "Missing runtime target in '$manifestPath'." }
+    $testOutput = [IO.Path]::GetDirectoryName($Assembly)
+    foreach ($library in $manifest.libraries.GetEnumerator()) {
+        if ($library.Value.type -ne 'project') { continue }
+        $project = ($library.Key -split '/')[0]
+        if ($project -notmatch '^[A-Za-z0-9_.-]+$' -or $project -in @('.', '..')) {
+            throw "Invalid project output name '$project'."
+        }
+        $runtime = $target[$library.Key].runtime
+        if ($null -eq $runtime) { continue }
+        foreach ($asset in $runtime.Keys) {
+            if (-not $asset.EndsWith('.dll', [StringComparison]::OrdinalIgnoreCase)) { continue }
+            if ([IO.Path]::GetFileName($asset) -ne $asset) { throw "Invalid project runtime asset '$asset'." }
+            $compiled = [IO.Path]::GetFullPath((Join-Path $ArtifactsPath "bin/$project/release/$asset"))
+            $copy = [IO.Path]::GetFullPath((Join-Path $testOutput $asset))
+            if ($compiled.Equals($copy, [StringComparison]::OrdinalIgnoreCase)) { continue }
+            foreach ($path in @($compiled, $copy)) {
+                for ($item = [IO.FileInfo]::new($path); $null -ne $item; $item = $(if ($item -is [IO.FileInfo]) { $item.Directory } else { $item.Parent })) {
+                    if ($item.Exists -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+                        throw "Linked dependency output refused: '$path'."
+                    }
+                }
+            }
+            if (-not $projectHashes.ContainsKey($compiled)) {
+                $projectHashes[$compiled] = (Get-FileHash -LiteralPath $compiled -Algorithm SHA256).Hash
+            }
+            $expected = $projectHashes[$compiled]
+            $actual = if (Test-Path -LiteralPath $copy) { (Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash } else { $null }
+            if ($actual -eq $expected) { continue }
+            # MSBuild can retain a bad copy when size and mtime still match.
+            # Repair only this build's project dependency, under its artifact lease.
+            [IO.File]::Copy($compiled, $copy, $true)
+            if ((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash -ne $expected) {
+                throw "Project dependency copy still differs from '$compiled': '$copy'."
+            }
+            $dependencyRepairs.Add([ordered]@{ source = $compiled; copy = $copy; sha256 = $expected; previousSha256 = $actual })
+            Write-Host "Repaired project dependency copy: $copy"
+        }
+    }
+}
+
 function Find-TestAssembly {
     param([string] $AssemblyName)
     $projectName = [IO.Path]::GetFileNameWithoutExtension($AssemblyName)
@@ -135,6 +184,9 @@ function Find-TestAssembly {
         -not (Test-Path -LiteralPath (Join-Path $projectOutput $runtimeName))) {
         throw "The selected project has no runnable Release output at '$assemblyPath'."
     }
+    $verification = [Diagnostics.Stopwatch]::StartNew()
+    try { Sync-TestProjectDependencies $assemblyPath }
+    finally { $script:dependencyVerificationMs += $verification.ElapsedMilliseconds }
     return $assemblyPath
 }
 
@@ -376,6 +428,8 @@ finally {
         durationMs = [int64]($ended - $started).TotalMilliseconds
         message = $message
         results = @($steps)
+        dependencyVerificationMs = $dependencyVerificationMs
+        dependencyRepairs = @($dependencyRepairs)
         cleanup = $cleanup
     }
     try {

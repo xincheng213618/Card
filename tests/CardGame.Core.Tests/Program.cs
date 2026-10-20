@@ -1217,9 +1217,7 @@ foreach (var (name, body) in tests)
     {
         failed++;
         Console.WriteLine($"[FAIL] {name}");
-        Console.WriteLine($"       {exception.GetType().Name}: {exception.Message}");
-        Console.WriteLine(exception.StackTrace);
-        if (args.Contains("--verbose", StringComparer.OrdinalIgnoreCase)) Console.WriteLine(exception);
+        Console.WriteLine(exception);
     }
     finally
     {

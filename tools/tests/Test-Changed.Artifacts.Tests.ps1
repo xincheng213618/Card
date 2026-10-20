@@ -3,7 +3,7 @@
 $ErrorActionPreference = 'Stop'
 $entry = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../Test-Changed.ps1'))
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$sandbox = Join-Path $repo '.artifacts/test-changed-parallel'
+$sandbox = Join-Path $repo '.artifacts/benchmarks/test-changed-parallel'
 $sandboxOwner = Join-Path $sandbox '.mock-owner.json'
 $artifactRoot = [IO.Path]::GetFullPath((Join-Path $repo '.artifacts'))
 $expectedSolution = Join-Path $repo 'CardGame.sln'
@@ -49,12 +49,29 @@ if ($arguments[0] -eq 'build') {
         }
         $root = $arguments[[Array]::IndexOf($arguments, '--artifacts-path') + 1]
         [ordered]@{ target = $target } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root "mock-$($state.token)-build.json")
+        $compiled = Join-Path $root 'bin/CardGame.Core/release/CardGame.Core.dll'
+        [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($compiled)) | Out-Null
+        $compiledText = 'compiled-core' + $(if ($state.scenario -eq 'copy-corrupt') { 'x' * 4MB } else { '' })
+        [IO.File]::WriteAllText($compiled, $compiledText)
+        [IO.File]::SetLastWriteTimeUtc($compiled, [datetime]'2020-01-01')
         foreach ($name in $projects) {
             $bin = Join-Path $root "bin/$name/release"
             [IO.Directory]::CreateDirectory($bin) | Out-Null
             [IO.File]::WriteAllText((Join-Path $bin "$name.dll"), 'fixture')
             [IO.File]::WriteAllText((Join-Path $bin "$name.runtimeconfig.json"), '{}')
+            $copy = Join-Path $bin 'CardGame.Core.dll'
+            $corrupt = $state.scenario -like 'copy-*'
+            [IO.File]::WriteAllText($copy, $(if ($corrupt) { 'C' + $compiledText.Substring(1) } else { $compiledText }))
+            [IO.File]::SetLastWriteTimeUtc($copy, [datetime]'2020-01-01')
+            [IO.File]::WriteAllText((Join-Path $bin 'ThirdParty.dll'), 'package-copy')
+            $manifest = @{
+                runtimeTarget = @{ name = 'fixture' }
+                targets = @{ fixture = @{ 'CardGame.Core/1.0' = @{ runtime = @{ 'CardGame.Core.dll' = @{} } }; 'ThirdParty/1.0' = @{ runtime = @{ 'ThirdParty.dll' = @{} } } } }
+                libraries = @{ 'CardGame.Core/1.0' = @{ type = 'project' }; 'ThirdParty/1.0' = @{ type = 'package' } }
+            }
+            $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $bin "$name.deps.json")
         }
+        if ($state.scenario -eq 'copy-no-source') { [IO.File]::Move($compiled, $compiled + '.absent') }
         foreach ($name in @('obj', 'renders')) {
             [IO.Directory]::CreateDirectory((Join-Path $root $name)) | Out-Null
             [IO.File]::WriteAllText((Join-Path $root "$name/fixture.txt"), 'fixture')
@@ -63,6 +80,9 @@ if ($arguments[0] -eq 'build') {
         exit $(if ($state.scenario -eq 'build-fail') { 23 } else { 0 })
 }
 $assembly = [IO.Path]::GetFullPath($arguments[0])
+$output = [IO.Path]::GetDirectoryName($assembly)
+if ([IO.File]::ReadAllText((Join-Path $output 'CardGame.Core.dll')) -ne ('compiled-core' + $(if ($state.scenario -eq 'copy-corrupt') { 'x' * 4MB } else { '' }))) { throw 'The test started with a corrupt project dependency.' }
+if ([IO.File]::ReadAllText((Join-Path $output 'ThirdParty.dll')) -ne 'package-copy') { throw 'A NuGet dependency was changed.' }
 $scope = if ($assembly.EndsWith('CardGame.Core.Tests.dll')) { 'core' } else { 'wpf' }
 $root = [IO.Path]::GetFullPath((Join-Path ([IO.Path]::GetDirectoryName($assembly)) '../../..'))
 $started = [DateTimeOffset]::UtcNow
@@ -90,7 +110,7 @@ if ($state.bothScopes) {
 "fixture $scope stdout 中文正在选择 → ✅"
 if ($state.scenario -eq 'parent-fail') { Start-Sleep -Seconds 5 }
 [Console]::Error.WriteLine("fixture $scope stderr 中文正在选择 → 🧪")
-$code = if ($state.scenario -eq 'test-fail') { 37 }
+$code = if ($state.scenario -in @('test-fail', 'copy-test-fail')) { 37 }
     elseif ($state.scenario -eq 'both-fail' -or $state.scenario -eq "$scope-fail") { if ($scope -eq 'core') { 41 } else { 43 } }
     else { 0 }
 [ordered]@{ assembly = $assembly; scope = $scope; pid = $PID; startedAt = $started.ToString('O'); endedAt = [DateTimeOffset]::UtcNow.ToString('O')
@@ -194,6 +214,27 @@ try {
     Assert-Parallel $result
     $passed++
 
+    foreach ($scenario in @('copy-corrupt', 'copy-test-fail', 'copy-no-source')) {
+        $testState.scenario = $scenario
+        $result = Invoke-Case $scenario @{ CoreFilter = @('probe'); WpfFilter = @('probe') }
+        if ($scenario -eq 'copy-no-source') {
+            Assert-Queued $result 'run-failed'
+            Assert ($result.code -ne 0 -and $result.runRecords.Count -eq 0) 'Missing compiled output must stop before any tests; never use an unverified copy.'
+        }
+        else {
+            Assert-Queued $result $(if ($scenario -eq 'copy-corrupt') { 'passed' } else { 'test-failed' })
+            Assert ($result.summary.dependencyRepairs.Count -eq 2) 'Both same-size, same-mtime project copies must be repaired before testing.'
+            if ($scenario -eq 'copy-corrupt') { Write-Host "Two 4 MiB DLL copies verified and repaired in $($result.summary.dependencyVerificationMs) ms." }
+            Assert-Parallel $result
+            foreach ($repair in $result.summary.dependencyRepairs) {
+                Assert ($repair.previousSha256 -ne $repair.sha256 -and (Get-FileHash -LiteralPath $repair.source).Hash -eq $repair.sha256 -and (Get-FileHash -LiteralPath $repair.copy).Hash -eq $repair.sha256) 'Repair evidence must match the unchanged compiled source and repaired copy.'
+            }
+            if ($scenario -eq 'copy-test-fail') { Assert (@($result.runRecords | Where-Object exitCode -ne 37).Count -eq 0) 'Repair must retain genuine test failures and exact exit codes.' }
+        }
+        $passed++
+    }
+    $testState.scenario = 'pass'
+
     $result = Invoke-Case 'only-wpf' @{ WpfFilter = @('probe') }
     Assert-Queued $result 'passed'
     Assert ($result.code -eq 0) 'The WPF-only scope must pass.'
@@ -203,6 +244,7 @@ try {
     $result = Invoke-Case 'only-core' @{ CoreFilter = @('probe') }
     Assert-Queued $result 'passed'
     Assert ($result.code -eq 0) 'The Core-only scope must pass.'
+    Assert ($result.summary.dependencyRepairs.Count -eq 0 -and [IO.File]::GetLastWriteTimeUtc((Join-Path $result.path 'bin/CardGame.Core.Tests/release/CardGame.Core.dll')) -eq [datetime]'2020-01-01') 'An identical dependency must not be rewritten.'
     Assert-Scope $result $expectedCoreProject @('CardGame.Core.Tests')
     $passed++
 
@@ -363,3 +405,4 @@ finally {
         Write-Host 'Task-owned parallel mock outputs removed.'
     }
 }
+exit 0
