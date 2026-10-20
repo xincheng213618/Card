@@ -162,6 +162,7 @@ public sealed partial class GameEngine
     private bool RequestedDeckBasicCardMatches(RequestedDeckBasicFrame view,Card card)
     {
         var r=view.Receipt;var actor=_players[r.ActorSeat];
+        if (RequestedDeckBasicActionType(r.Intent) == CardActionType.Response && !IsMouHanDangNativeResponseAllowed(actor, card)) return false;
         if (RequestedDeckBasicActionType(r.Intent) == CardActionType.Use
             ? !IsMouGuquUseAllowed(actor.Seat, card.Kind, [card.Id])
             : !IsMouGuquResponseAllowed(actor, card.Kind, [card.Id], dyingUse: r.Intent == RequestedDeckBasicIntent.Dying)) return false;

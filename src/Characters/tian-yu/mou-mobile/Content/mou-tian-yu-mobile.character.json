@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:tian-yu",
+  "skills": [
+    {
+      "registrationOrder": 2291,
+      "programBundle": "mou-tian-yu-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:zhenxi",
+        "name": "震袭",
+        "description": "每回合限一次，你使用【杀】指定目标后，可选择一项：1. 弃置其至多X张手牌（X为你与其的距离）；2. 移动其场上的一张牌。背水：其体力值为全场最高或大于你时方可选择。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2292,
+      "programBundle": "mou-tian-yu-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yangshi",
+        "name": "扬师",
+        "description": "锁定技，你受到伤害后，若你攻击范围内包含所有其他角色，你从牌堆中获得一张【杀】；否则你攻击范围+1。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2293,
+      "pools": {
+        "current": 528
+      },
+      "definition": {
+        "id": "mou:tian-yu-mobile",
+        "name": "谋田豫·移动版",
+        "portraitKey": "mou-tian-yu-mobile",
+        "skillId": "mou-mobile:zhenxi",
+        "additionalSkillIds": [
+          "mou-mobile:yangshi"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:tian-yu",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

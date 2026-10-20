@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou-mobile:gongqi", "revision": 1,
+      "modifiers": [ { "id": "range-plus-four", "query": "attackRange", "operation": "add", "value": 4, "priority": 0 } ],
+      "triggers": [ { "id": "discard-for-phase-responses", "window": "playPhaseStarting", "subject": "owner", "optional": true,
+        "effects": [ { "op": "resolveMouHanDangGongqi", "target": "owner" } ] } ] },
+    { "id": "mou-mobile:jiefan", "revision": 1,
+      "activations": [ { "id": "aid-by-range", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [ { "op": "resolveMouHanDangJiefan", "target": "owner" } ] } ] }
+  ]
+}

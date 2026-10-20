@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "status": "implemented-focused-verified",
+  "generalId": "mou:tian-yu-mobile",
+  "characterId": "character:tian-yu",
+  "displayName": "谋田豫·移动版",
+  "edition": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 4,
+    "officialHeroId": 656,
+    "officialGeneralId": 879
+  },
+  "verifiedAtUtc": "2026-10-20T13:38:56.660245+00:00",
+  "skills": [
+    {
+      "id": "mou-mobile:zhenxi",
+      "name": "震袭",
+      "officialText": "每回合限一次，你使用【杀】指定目标后，可选择一项：1. 弃置其至多X张手牌（X为你与其的距离）；2. 移动其场上的一张牌。背水：其体力值为全场最高或大于你时方可选择。"
+    },
+    {
+      "id": "mou-mobile:yangshi",
+      "name": "扬师",
+      "officialText": "锁定技，你受到伤害后，若你攻击范围内包含所有其他角色，你从牌堆中获得一张【杀】；否则你攻击范围+1。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-656.html",
+      "sha256": "D8135D7B1CC4ECFFF91B64CDC89F2CAC507575E40B7B776175F40F195E4A4481",
+      "bytes": 20322
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2281.html",
+      "sha256": "84D630A4819775068F08A1BD5A876967FACD73E1864549793782DF14D67E5682",
+      "bytes": 48368
+    },
+    {
+      "key": "permanent",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2338.html",
+      "sha256": "0F9F04FDD597E91D46B868FEE6972967DCEBAFC06C8CFA15A37B2D16D164D686",
+      "bytes": 44249
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-2281.html",
+    "publishedAt": "2026-03-27 17:30:00",
+    "availability": "2026年Q2排位赛大师段位正式奖励；6月26日公告再次明确赛季征程可获得永久武将。"
+  },
+  "revisionAudit": {
+    "officialHeroAndApiAgree": true,
+    "boundedSearch": "Fresh current hero 656, full mobile generals API, official first release 2281 and permanent availability 2338 agree on the complete current two-skill roster. No conflicting specific balance revision was found in this bounded official-domain search.",
+    "notAnOfficialFaq": true
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Zhenxi backwater order",
+      "decision": "Backwater is offered only when the original target has the greatest defined living HP (ties allowed) or HP greater than the owner. It resolves the printed discard branch first, then the field-card move branch.",
+      "authority": "Official text and ordered two-item backwater convention."
+    },
+    {
+      "topic": "Field movement",
+      "decision": "Field means Equipment/Judgment, with native legal corresponding zones and free equipment slots; Hand and held cards are excluded. The owner chooses zero through current frozen distance Hand entities through native opaque slots, then pays one logical discard batch.",
+      "authority": "Native zone and movement contract, not an official FAQ."
+    },
+    {
+      "topic": "Yangshi growth",
+      "decision": "The paid +1 attack-range increment persists for the game independently of later source loss/regrant. Each later genuine damage occurrence reevaluates current native range including equipment and other effects. Search is in the current DrawPile and includes all three native Slash kinds.",
+      "authority": "Native persistent-effect contract."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/87900.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-tian-yu-mobile.jpg",
+    "sha256": "C25295B169F4CB34917B56BD5BE562C7A95D1D0A6027A0F633D615CA6BB90B77",
+    "bytes": 188803,
+    "width": 530,
+    "height": 750,
+    "visualValidation": "Root downloaded and visually inspected the official image."
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedCoreFilter": "Mou Tian Yu Mobile:",
+    "checks": 1
+  }
+}

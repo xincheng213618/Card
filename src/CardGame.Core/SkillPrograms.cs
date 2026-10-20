@@ -1084,6 +1084,13 @@ public enum SkillProgramEffectOp
     RecordMouZhuRongLieren = 30400,
     SelectMouZhuRongLierenTarget = 30401,
     GiftMouZhuRongOutsideAssault = 30402,
+    ArmMouPangTongLianhuan = 30500,
+    ResolveMouPangTongLianhuanTargets = 30501,
+    UpgradeMouPangTongLianhuan = 30502,
+    ResolveMouTianYuZhenxi = 30600,
+    ResolveMouTianYuYangshi = 30601,
+    ResolveMouHanDangGongqi = 30700,
+    ResolveMouHanDangJiefan = 30701,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -5502,8 +5509,10 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) MouXiahouShiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuHuangFuSongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuZhugeLiangComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouPangTongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouYuanShaoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZhuRongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouTianYuComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

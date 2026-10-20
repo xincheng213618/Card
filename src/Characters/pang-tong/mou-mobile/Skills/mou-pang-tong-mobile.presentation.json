@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:lianhuan": { "name": "连环", "description": "梅花手牌每出牌阶段可当铁索连环使用一次，或不限次数重铸。一级可付1体力随机弃置未连环目标的手牌；二级可指定任意数量目标并免去体力代价。" },
+    "mou-mobile:niepan": { "name": "涅槃", "description": "限定技，濒死时弃置手牌、装备及判定牌，摸两张牌，回复至2体力，解除横置并翻至正面，升级连环。" }
+  }
+}

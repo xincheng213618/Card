@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:han-dang",
+  "skills": [
+    { "registrationOrder": 2297, "programBundle": "mou-han-dang-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:gongqi", "name": "弓骑", "description": "你的攻击范围+4。出牌阶段开始时，你可弃一张牌，若如此做，则此阶段你使用的牌其他角色只能使用或打出虚拟牌或与你弃置牌颜色相同的手牌响应。", "executionForms": "Trigger" } },
+    { "registrationOrder": 2298, "programBundle": "mou-han-dang-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:jiefan", "name": "解烦", "description": "出牌阶段限一次，你可指定一名角色，令其选择一项：1.攻击范围内含有其的角色依次弃一张牌；2.其摸此时攻击范围内有其的角色数的牌；背水：此技能失效直至你杀死一名角色。", "actionForms": "Active" } }
+  ],
+  "generals": [ { "registrationOrder": 2299, "pools": { "current": 529 }, "definition": {
+    "id": "mou:han-dang-mobile", "name": "谋韩当·移动版", "portraitKey": "mou-han-dang-mobile",
+    "skillId": "mou-mobile:gongqi", "additionalSkillIds": ["mou-mobile:jiefan"], "factionId": "wu", "baseHp": 4,
+    "gender": "Male", "characterId": "character:han-dang", "variantId": "mou-mobile", "rulesetId": "sanguosha-mobile"
+  } } ]
+}

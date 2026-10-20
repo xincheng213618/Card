@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     // CardTargetCount contributions add to the card's existing maximum. Iron
     // Chain already permits two targets before any program contribution.
     private int GetProgramIronChainTargetLimit(CharacterState actor) =>
-        checked(1 + ((FiniteRuleQueryValue)EvaluateCardTargetCount(actor, CardKind.IronChain).Value).Value);
+        HasMouPangTongExpandedTargets(actor) ? _players.Count : checked(1 + ((FiniteRuleQueryValue)EvaluateCardTargetCount(actor, CardKind.IronChain).Value).Value);
 
     private IEnumerable<IReadOnlyList<int>> EnumerateProgramIronChainTargets(
         CharacterState actor, IReadOnlyList<CharacterState> candidates)

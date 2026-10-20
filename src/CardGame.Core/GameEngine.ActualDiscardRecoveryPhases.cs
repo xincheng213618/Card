@@ -6,7 +6,7 @@ public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
         _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
-        HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
+        HasMouPangTongCapability || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouHanDangCapability || HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         IsGuanduActivity ||

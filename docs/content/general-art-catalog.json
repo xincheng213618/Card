@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-pang-tong-mobile",
+      "characterName": "谋庞统·移动版",
+      "defaultSkinId": "62300",
+      "skins": [
+        {
+          "id": "62300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-508.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/62300.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-pang-tong-mobile.jpg",
+          "sha256": "405f164894132ba5f4e5f5e80cbe919c8a29b0953bd74e53e34f911ab8a676b9",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "mou-tian-yu-mobile",
+      "characterName": "谋田豫·移动版",
+      "defaultSkinId": "87900",
+      "skins": [
+        {
+          "id": "87900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-656.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/87900.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-tian-yu-mobile.jpg",
+          "sha256": "c25295b169f4cb34917b56bd5be562c7a95d1d0a6027a0f633d615ca6bb90b77",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "mou-han-dang-mobile",
+      "characterName": "谋韩当·移动版",
+      "defaultSkinId": "62600",
+      "skins": [
+        {
+          "id": "62600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-589.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/62600.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-han-dang-mobile.jpg",
+          "sha256": "e972497b5c07693ad7949b5b420f3c8d3afc59bb432f0f40e8abf2f31b94430e",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508
+        }
+      ]
+    },
+    {
       "key": "le-zhuge-guo",
       "characterName": "乐诸葛果",
       "defaultSkinId": "1133201",

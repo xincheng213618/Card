@@ -2177,6 +2177,7 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
         if (!CanMouXiahouShiCandidate(candidate, context)) return false;
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
+        if (IsIssuedMouPtTargets(candidate, context)) return true;
         if (IsIssuedMouChenGongZhichiCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;

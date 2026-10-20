@@ -92,7 +92,7 @@ public sealed partial class GameEngine
     }
     private bool IsMouGuquResponseAllowed(CharacterState provider, CardKind kind, IReadOnlyList<int> ids,
         CardConversionSource? source = null, bool dyingUse = false) =>
-        !IsWuZglUseMaterialForbidden(provider.Seat, ids) && (MouGuquResponseUseActor(provider, kind, dyingUse) is not { } actor || IsMouGuquUseAllowed(actor, kind, ids, source));
+        (source is not null || IsMouHanDangResponseAvailable(provider, kind, ids, dyingUse)) && !IsWuZglUseMaterialForbidden(provider.Seat, ids) && (MouGuquResponseUseActor(provider, kind, dyingUse) is not { } actor || IsMouGuquUseAllowed(actor, kind, ids, source));
     private bool IsMouGuquCardlessAllowed(CharacterState actor, CardKind kind, bool forResponse, bool dyingUse = false) =>
         forResponse && !dyingUse ? IsMouGuquResponseAllowed(actor, kind, []) : IsMouGuquUseAllowed(actor.Seat, kind, []);
     private bool IsMouGuquPlayActionAllowed(CharacterState actor, LegalAction action, CardKind kind) =>

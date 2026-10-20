@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:gongqi": { "name": "弓骑", "description": "攻击范围+4；出牌阶段开始可弃一张牌，限制本阶段用牌的响应。", "triggerLabels": { "discard-for-phase-responses": "弃牌发动弓骑" } },
+    "mou-mobile:jiefan": { "name": "解烦", "description": "令指定角色选择范围内角色依次弃牌、按范围人数摸牌，或背水执行两项。", "activationLabels": { "aid-by-range": "指定解烦角色" } }
+  }
+}

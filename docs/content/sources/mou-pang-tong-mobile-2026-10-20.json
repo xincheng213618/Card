@@ -1,0 +1,40 @@
+{
+  "checkedOn": "2026-10-20",
+  "status": "implemented-focused-verified",
+  "name": "谋庞统·移动版",
+  "generalId": "mou:pang-tong-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": { "officialHeroId": 508, "officialGeneralId": 623, "faction": "shu", "gender": "Male", "initialHp": 3, "maxHp": 3 },
+  "sources": [
+    { "url": "https://www.sanguosha.cn/pc/hero-detail-508.html", "role": "Current official hero; complete level-one and level-two Lianhuan and Niepan text." },
+    { "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=", "role": "Current first-party identity API, item 508/general_id 623: Shu, male, three HP and the same complete two-skill text." },
+    { "url": "https://www.sanguosha.cn/pc/news-detail-1568.html", "role": "Formal 2023-07-14 announcement of the July15 anniversary activity explicitly launches Mou Pang Tong; historical release evidence, not a current sale claim.", "firstAvailability": "2023-07-15" },
+    { "url": "https://www.sanguosha.cn/pc/guide-info-158.html", "role": "Officially hosted guide dated 2023-11-23 reproduces both complete levels and Niepan, and explains that the upgrade removes the HP cost and two-target limit. This is an operator-hosted guide, not an official FAQ." }
+  ],
+  "skills": [
+    { "id": "mou-mobile:lianhuan", "name": "连环", "text": "一级：出牌阶段，你可以将一张梅花手牌当【铁索连环】使用（每个出牌阶段限1次），或重铸一张梅花手牌。你使用【铁索连环】时，你可以失去一点体力，若如此做，你指定一名角色为目标后，若其不处于连环状态，随机弃置其一张手牌。二级：出牌阶段，你可以将一张梅花手牌当【铁索连环】使用（每个出牌阶段限1次），或重铸一张梅花手牌。你使用【铁索连环】可以额外指定任意名目标。你使用【铁索连环】指定一名角色为目标后，若其不处于连环状态，随机弃置其一张手牌。" },
+    { "id": "mou-mobile:niepan", "name": "涅槃", "text": "限定技，当你处于濒死状态时，你可以弃置区域里的所有牌，摸两张牌，将体力回复至2点，复原武将牌，并升级“连环”。" }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/62300.jpg",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-pang-tong-mobile.jpg",
+    "width": 530,
+    "height": 750,
+    "bytes": 327089,
+    "sha256": "405f164894132ba5f4e5f5e80cbe919c8a29b0953bd74e53e34f911ab8a676b9",
+    "origin": "Actual large-image swiper src in the current hero HTML, separately downloaded and visually inspected by the integrating agent. The API's 623.jpg thumbnail is not substituted for this portrait."
+  },
+  "engineeringContracts": [
+    "The following details instantiate the complete official text through current native services. They are engineering interpretations, not claimed official FAQs or user-selected rulings.",
+    "Only an actual club Hand entity can be converted by Lianhuan. Native conversion Use and native Recast are separate commands: a true converted IronChain spends one named-skill allowance in the actual Play phase, while any number of eligible club recasts remain legal and do not consume that allowance or become card Uses. Source loss/regrant does not clear that actual-phase history. A printed IronChain is not subject to this conversion limit.",
+    "Level one's optional Loss1 belongs to the committed native IronChain Use, including printed, converted or virtual Uses. The existing native HP-loss operation resolves its HP, Dying, recovery and other children; a positive actual loss is then signed against that exact Use. Pure Played responses and Recast do not obtain a paid Use effect.",
+    "At native targets-finalized, one owning frame traverses the actual distinct target list. For each living target still not chained and with Hand cards, the native deterministic RNG selects a real Hand entity for logical discard and actual movement. Each entity movement drains all native children before the queue resumes. A target may be self; already chained or empty-Hand targets discard nothing. Original IronChain effects, nullification and chaining remain in the native Use pipeline. An actual later target-added notification freezes its then-eligible original source and adds only that newly designated target to the same native finalized window; it neither moves original candidates behind other skills nor fabricates another Use. A scalar visited receipt prevents the same owner from discarding twice for an already processed target.",
+    "An accepted paid level-one Use is retained through source loss by its original source/hash/Use proof. Pending targets and movement boundaries remain on the owning ProgramSkillFrame. Re-entry cannot pay HP or repeat the same completed target queue, and native terminal/death cutoff remains authoritative.",
+    "Level two removes the HP payment and expands the native IronChain target limit to all living characters, including self. Existing prohibitions and target legality still apply. Both printed and converted IronChain queries use the same native target enumerator; the upgraded skill must be live to offer new Uses.",
+    "Niepan uses the native own-Dying game-limited trigger. In official-text order it discards all actual Hand, Equipment and Judgment entities, draws two, requests native recovery to two with the ordinary maximum-HP clamp, clears chaining, turns face up, and only then records the permanent Lianhuan upgrade. This deliberately differs from classic/boundary Draw3 or RecoverTo3 sequences.",
+    "The issued upgrade and game-limited usage belong to the owner and named skill for the game; regrant does not reset them. Upgrade itself does not create a second skill instance or refresh the current Play phase's already spent conversion Use. Native generated-state, command/replay and content validation remain unchanged.",
+    "Only scalar rule events are added. The frame's target collection is copied and read-only. Random foreign Hand selection does not publish the unchosen hidden cards, and actual discarded cards follow native public movement disclosure."
+  ],
+  "validation": { "status": "focused-native-main-flow-passed", "focusedFilter": "Mou Pang Tong Mobile:", "checks": 2, "manualFullRun": false }
+}

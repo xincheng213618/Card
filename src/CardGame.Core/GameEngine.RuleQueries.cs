@@ -77,6 +77,7 @@ public sealed partial class GameEngine
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
         AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:attack-range", SequentialDeckKindGrowthBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:attack-range", CaoXiGangshuBonus(player, SkillRuleQuery.AttackRange));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-tian-yu:yangshi:attack-range", MouTianYuRangeBonus(player));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:attack-range", GetOriginalHandAttackRangeBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         contributions.AddRange(_turnCardUseEffects

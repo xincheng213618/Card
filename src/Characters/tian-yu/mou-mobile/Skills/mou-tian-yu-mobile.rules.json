@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:zhenxi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "designated-slash-choice",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveMouTianYuZhenxi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:yangshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-range-or-slash",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouTianYuYangshi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

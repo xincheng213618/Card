@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             {
                 var plan = ProgramInstructionResolver.Default.Resolve(instance.Program, ProgramInstructionSourceKind.Activation, activation.Id);
                 var phaseLimit = ProgramSelections.PhaseLimit(new(owner.Seat, instance.Program, plan));
-                AddLimit(phaseLimit, SkillUsageScope.Phase, MouXiahouShiProjectedPhaseUses(owner.Seat, skillId, MouChenGongProjectedPhaseUses(owner.Seat, skillId, MouXuHuangProjectedPhaseUses(owner.Seat, skillId, MouLuMengProjectedPhaseUses(owner.Seat, skillId, _programPhaseUses.GetValueOrDefault((owner.Seat, skillId, activation.UsageGroup)))))));
+                AddLimit(phaseLimit, SkillUsageScope.Phase, MouHanDangProjectedUses(owner.Seat, skillId, MouXiahouShiProjectedPhaseUses(owner.Seat, skillId, MouChenGongProjectedPhaseUses(owner.Seat, skillId, MouXuHuangProjectedPhaseUses(owner.Seat, skillId, MouLuMengProjectedPhaseUses(owner.Seat, skillId, _programPhaseUses.GetValueOrDefault((owner.Seat, skillId, activation.UsageGroup))))))));
                 AddLimit(activation.UsesPerTurn, SkillUsageScope.Turn, _programUses.GetValueOrDefault((owner.Seat, skillId, activation.UsageGroup)));
                 AddLimit(activation.UsesPerGame, SkillUsageScope.Game, _skillRuntimeState.GetUsage(owner.Seat, skillId, activation.UsageGroup, SkillUsageScope.Game));
 

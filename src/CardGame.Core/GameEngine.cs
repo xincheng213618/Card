@@ -4761,7 +4761,7 @@ public sealed partial class GameEngine
             forResponse: true);
         if (selectedSource is not null && candidates.Contains(selectedSource)) return;
         if (selectedSource is null && card.Kind == CardKind.Nullification &&
-            !HasProgramCardIdentity(responder, card)) return;
+            !HasProgramCardIdentity(responder, card) && IsMouHanDangNativeResponseAllowed(responder, card)) return;
         throw new InvalidOperationException("The selected Nullification conversion is no longer legal.");
     }
 

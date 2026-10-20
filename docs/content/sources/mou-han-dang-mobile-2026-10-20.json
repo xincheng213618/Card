@@ -1,0 +1,97 @@
+{
+  "generalId": "mou:han-dang-mobile",
+  "characterId": "character:han-dang",
+  "name": "谋韩当·移动版",
+  "variantId": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "checkedAt": "2026-10-20",
+  "officialIdentity": {
+    "apiId": 589,
+    "generalId": 626,
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-589.html",
+      "role": "Fresh current complete Gongqi/Jiefan and Wu identity",
+      "sha256": "37E2A9C5DDA31B112BD866CFECD55AB6467043B8257C58BB9C5D96D1AC870D6D"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Fresh official entry id589/general626; both full skills agree with hero, male,4HP",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1889.html",
+      "role": "Fresh formal 8 August10 Qixi activity announcement, published2024-08-09 17:30 and names Mou Han Dang as newly available"
+    }
+  ],
+  "formalLaunch": {
+    "publishedAt": "2024-08-09 17:30:00",
+    "availableFrom": "2024-08-10"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:gongqi",
+      "name": "弓骑",
+      "officialText": "你的攻击范围+4。出牌阶段开始时，你可弃一张牌，若如此做，则此阶段你使用的牌其他角色只能使用或打出虚拟牌或与你弃置牌颜色相同的手牌响应。"
+    },
+    {
+      "id": "mou-mobile:jiefan",
+      "name": "解烦",
+      "officialText": "出牌阶段限一次，你可指定一名角色，令其选择一项：1.攻击范围内含有其的角色依次弃一张牌；2.其摸此时攻击范围内有其的角色数的牌；背水：此技能失效直至你杀死一名角色。"
+    }
+  ],
+  "versionSelection": {
+    "currentHeroAndAPIAgree": true,
+    "officialFAQConfirmed": false,
+    "communityUsedAsAuthority": false,
+    "boundedRevisionSearch": "Official-domain searches for Mou Han Dang/Gongqi/Jiefan and skill adjustment found no conflicting applicable formal rule revision. This is not an exhaustive absence claim."
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Gongqi payment and phase",
+      "basis": "accepted-project-interpretation",
+      "decision": "One genuine own Hand/Equipment discard; capture effective payment color before movement. Issued response entitlement survives source loss until that exact actual Play ends. The +4 attack range is an ordinary current-skill numeric contribution."
+    },
+    {
+      "topic": "Response category",
+      "basis": "accepted-project-interpretation",
+      "decision": "Only responses to actual card Uses issued by the Gongqi actor in that actual Play are restricted. Genuine conversion-chain and zero-material virtual responses remain legal. An unchanged physical response must come from the real provider Hand and match the paid color; native equipment/pile cards are not Hand. Self responses and unrelated dying rescue are unaffected. Counterspell chains follow the directly answered prior counterspell."
+    },
+    {
+      "topic": "Backwater order and reset",
+      "basis": "accepted-project-interpretation",
+      "decision": "The designated living target chooses discard, draw, or Backwater; Backwater signs named-skill invalidation immediately as its cost and then executes both branches. A genuine native PlayerDied credited to the issuer restores it; loss/regrant does not remove the invalidation or reset the exact actual-Play budget."
+    },
+    {
+      "topic": "Range, queue and current count",
+      "basis": "accepted-project-interpretation",
+      "decision": "Native attack-range membership excludes the target itself. At the beginning of the discard branch freeze living eligible seats in action order from the skill issuer. Each uses a genuine own HE discard; later dead or unpayable seats skip without replacement. Finish each payment and children before advancing. For the draw branch, recompute eligible living coverage at that point after all discard/equipment-loss children; native Draw(count) observes ordinary replacement and stock rules."
+    },
+    {
+      "topic": "Accepted effects",
+      "basis": "accepted-project-interpretation",
+      "decision": "An accepted target branch and paid costs keep their owning typed receipt through source loss and nonterminal issuer death. Dead draw beneficiaries skip. Terminal native winner cutoff remains authoritative."
+    }
+  ],
+  "art": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-han-dang-mobile.jpg",
+    "url": "https://www.sanguosha.cn/storage/uploads/images/62600.jpg",
+    "sha256": "E972497B5C07693AD7949B5B420F3C8D3AFC59BB432F0F40E8ABF2F31B94430E",
+    "width": 2480,
+    "height": 3508,
+    "freshDOMAndVisuallyInspectedBy": "root"
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "checks": 1,
+    "focusedFilter": "Mou Han Dang Mobile:",
+    "method": "MouHanDangMobileChecks.NativeColorResponsesAndRangeAid",
+    "representativeRestore": "Native target-owned Backwater mode selection on the owning ProgramSkillFrame; no synthetic AI input.",
+    "nativeEquipmentPayment": "An injured owner discards an equipped Silver Lion for Gongqi; its real native recovery child pauses before the paid skill returns, and resumption pays the card only once.",
+    "nativeCounterspell": "The ordinary DrawTwo Use is restricted from its real native declaration even without a finalized-target subscriber. A genuine matching-red first Nullification and opposite-black counter-Nullification use their direct addressed actions; native AI pays both and the original Draw2 resolves once."
+  }
+}

@@ -490,6 +490,7 @@ public sealed partial class GameEngine
         CollectIssuedNeifaCandidates(action, window, result);
         CollectIssuedMaWanHunjiangCandidates(action, window, result);
         CollectIssuedBingjieCandidates(action, window, result);
+        CollectPaidMouPtTargets(action, window, result);
         CollectIssuedKenshangCandidates(action, window, result);
         CollectIssuedFulueCandidates(action, window, result);
         CollectIssuedMiuyanCandidates(action, window, result);
@@ -595,6 +596,7 @@ public sealed partial class GameEngine
         frame = AppendActorHandLimitTargetCandidates(frame);
         frame = AppendMouLiuChengAccrual(frame);
         frame = AppendMouYuanShaoTargets(frame);
+        frame = AppendMouPtLateTargets(frame);
         frame = DeferFirstSlashDuelCandidates(frame);
         return new(ProgramTriggerWindowFlow.Ready, frame);
     }

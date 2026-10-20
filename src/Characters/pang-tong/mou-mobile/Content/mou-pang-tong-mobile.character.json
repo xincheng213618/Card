@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-tong",
+  "skills": [
+    { "registrationOrder": 2285, "programBundle": "mou-pang-tong-mobile", "includeProgramPresentation": true, "definition": { "id": "mou-mobile:lianhuan", "name": "连环", "description": "一级：出牌阶段，你可以将一张梅花手牌当【铁索连环】使用（每个出牌阶段限1次），或重铸一张梅花手牌。你使用【铁索连环】时，你可以失去一点体力，若如此做，你指定一名角色为目标后，若其不处于连环状态，随机弃置其一张手牌。二级：出牌阶段，你可以将一张梅花手牌当【铁索连环】使用（每个出牌阶段限1次），或重铸一张梅花手牌。你使用【铁索连环】可以额外指定任意名目标。你使用【铁索连环】指定一名角色为目标后，若其不处于连环状态，随机弃置其一张手牌。", "executionForms": "Trigger" } },
+    { "registrationOrder": 2286, "programBundle": "mou-pang-tong-mobile", "includeProgramPresentation": true, "definition": { "id": "mou-mobile:niepan", "name": "涅槃", "description": "限定技，当你处于濒死状态时，你可以弃置区域里的所有牌，摸两张牌，将体力回复至2点，复原武将牌，并升级“连环”。", "executionForms": "Trigger", "tags": "Limited" } }
+  ],
+  "generals": [ { "registrationOrder": 2287, "pools": { "current": 527 }, "definition": { "id": "mou:pang-tong-mobile", "name": "谋庞统", "portraitKey": "mou-pang-tong-mobile", "skillId": "mou-mobile:lianhuan", "additionalSkillIds": ["mou-mobile:niepan"], "factionId": "shu", "gender": "Male", "baseHp": 3, "characterId": "character:pang-tong", "variantId": "mou-mobile", "rulesetId": "sanguosha-mobile" } } ]
+}

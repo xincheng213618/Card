@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private static bool HasFinalTargetSlashEffects(IEnumerable<SkillProgramEffect> effects) =>
         effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
             SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or SkillProgramEffectOp.RevealRecordedSuitSlash or
-            SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule);
+            SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule or
+            SkillProgramEffectOp.ResolveMouTianYuZhenxi);
     private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
     {
         ProgramFinalTargetComparison.TargetHandAtMostActor => facts.EventTargetHandCount <= facts.CurrentHandCount,

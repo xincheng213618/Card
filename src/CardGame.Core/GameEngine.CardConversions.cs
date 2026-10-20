@@ -745,6 +745,7 @@ public sealed partial class GameEngine
         for (var index = 0; index < sources.Count; index++)
         {
             var source = sources[index];
+            if (!IsMouHanDangPublishedResponseAllowed(owner, card, source, forResponse, dyingUse)) continue;
             var parameters = new Dictionary<string, string>(baseParameters);
             var sourceKind = source is not null && (IsSiruiSource(source) || IsJuewuSource(source)) && IsSlashCard(effectiveKind)
                 ? ViewAsRule(source)!.OutputKind : effectiveKind;
@@ -852,7 +853,7 @@ public sealed partial class GameEngine
         {
             if (selected is null && !IsWenhePhysicalPoison(provider, responseCard) && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
                 (!IsOwnPublicPileCard(provider, responseCard) || IsNativePublicPileOriginalChoice(provider, responseCard, effectiveKind, true)) &&
-                IsNativeResponseCard(responseCard, effectiveKind))
+                IsNativeResponseCard(responseCard, effectiveKind) && IsMouHanDangNativeResponseAllowed(provider, responseCard, ActiveDying is not null && effectiveKind is CardKind.Peach or CardKind.Alcohol))
                 return null;
             if (selected is not null && candidates.Contains(selected))
             {
