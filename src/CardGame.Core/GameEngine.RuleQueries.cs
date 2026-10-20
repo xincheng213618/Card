@@ -132,6 +132,7 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"issued:{player.Seat}:yang-feng:qujia:slash-limit", QujiaPermanentSlashBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:slash-limit", CaoXiGangshuBonus(player, SkillRuleQuery.SlashLimit));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:slash-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.SlashLimit));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-mobile:yangwei:slash-limit", HasMouHuaXiongWei(player.Seat) ? 1 : 0);
         if (NeifaSlashLimitBonus(player.Seat) is > 0 and var neifaBonus)
             AddFiniteContribution(contributions, $"turn:{player.Seat}:neifa:slash-limit", neifaBonus);
         if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));

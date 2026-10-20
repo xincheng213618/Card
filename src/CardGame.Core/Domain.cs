@@ -187,6 +187,7 @@ public enum PlayerMarkerKind
     OlMoRumo = 28940,
     MouLixianAvailableNames = 28960,
     MouLixianUsedNames = 28961,
+    MouHuaXiongWei = 29100,
     GuanduGrain = 44000
 }
 
@@ -200,6 +201,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.OlMoRumo => "入魔",
         PlayerMarkerKind.MouLixianAvailableNames => "理贤牌名",
         PlayerMarkerKind.MouLixianUsedNames => "理贤已用牌名",
+        PlayerMarkerKind.MouHuaXiongWei => "威",
         PlayerMarkerKind.AdoptedChild => "义子",
         PlayerMarkerKind.QuxiFeng => "丰",
         PlayerMarkerKind.QuxiQian => "歉",

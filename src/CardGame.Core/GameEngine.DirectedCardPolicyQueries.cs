@@ -6,6 +6,7 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
+        IsSlashCard(kind) && HasMouHuaXiongWei(actor.Seat) ||
         cardUseFrameId is { } wuyouUse && HasIssuedWuyouUse(wuyouUse, actor.Seat) ||
         HasWeiwanUseDistance(actor, target, kind, cardUseFrameId) || (HasBeifenUseDistance(actor, cardUseFrameId) || HasMouZhaJiangUseDistance(actor, cardUseFrameId)) || NianShouyiUnlimitedCardDistance(actor) ||
         HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
@@ -14,6 +15,7 @@ public sealed partial class GameEngine
         HasIssuedKuangfuDistance(cardUseFrameId, actor.Seat) || (cardUseFrameId is { } id && HasPhaseSuitAllowance(actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit)) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.CardUseDistanceLimit, kind) || HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
+        IsSlashCard(kind) && HasMouHuaXiongWei(actor.Seat) ||
         IsSlashCard(kind) && HasCardPolicy(actor, SkillProgramCardPolicyKind.HellSlashIgnoreArmor, kind) ||
         HasArmorBypass(actor) ||
         IsArmorIneffectiveForTurn(target) ||

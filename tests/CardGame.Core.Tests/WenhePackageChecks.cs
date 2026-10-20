@@ -38,7 +38,8 @@ internal static class WenhePackageChecks
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
-                Seed = 17, PlayerCount = 8, HumanSeat = human, HumanRole = null, ModeId = modeId,
+                // Verified setup seed keeps this base tier-deal check independent of opening-hand replacement generals.
+                Seed = 31, PlayerCount = 8, HumanSeat = human, HumanRole = null, ModeId = modeId,
                 WenheAspirationRank = 4, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false, MaxTurns = 4
             }, registry);

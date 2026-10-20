@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:yaowu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "slash-damage-benefit",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouHuaXiongYaowu",
+              "target": "owner"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              },
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "yaowu-benefit",
+                "optionId": "source-recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              },
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "yaowu-benefit",
+                "optionId": "source-draw"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "yaowu-benefit",
+                "optionId": "owner-draw"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:yangwei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "draw-and-wei",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouHuaXiongYangwei",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "resolveMouHuaXiongYangwei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

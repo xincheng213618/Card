@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-xiong",
+  "skills": [
+    {
+      "registrationOrder": 2224,
+      "programBundle": "mou-hua-xiong-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yaowu",
+        "name": "耀武",
+        "description": "锁定技，当你受到【杀】造成的伤害时，若此【杀】为红色，伤害来源回复1点体力或摸一张牌；若此【杀】不为红色，则你摸一张牌。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2225,
+      "programBundle": "mou-hua-xiong-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yangwei",
+        "name": "扬威",
+        "description": "出牌阶段限一次，你可以摸两张牌并获得“威”标记直到此阶段结束，然后此技能失效直到下个回合的结束阶段。拥有“威”标记的角色出牌阶段可以额外使用一张【杀】、使用【杀】无距离限制且无视防具。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2226,
+      "pools": {
+        "current": 513
+      },
+      "definition": {
+        "id": "mou:hua-xiong-mobile",
+        "name": "谋华雄·移动版",
+        "portraitKey": "mou-hua-xiong-mobile",
+        "skillId": "mou-mobile:yaowu",
+        "additionalSkillIds": [
+          "mou-mobile:yangwei"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:hua-xiong",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋华雄·移动版",
+  "generalId": "mou:hua-xiong-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/index.php/hero-detail-446.html",
+      "finalUrl": "https://www.sanguosha.cn/index.php/hero-detail-446.html",
+      "httpStatus": 200,
+      "bytes": 21973,
+      "sha256": "916fc0cedd1b97cb6b0c708f9ae88f9b563b24e6f07ae5556c387d6633c7e607",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T03:57:55.824364+00:00",
+      "kind": "currentHero"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+      "contentType": "application/json",
+      "fetchedAtUtc": "2026-10-20T03:57:56.010830+00:00",
+      "kind": "currentIdentityApi"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "httpStatus": 200,
+      "bytes": 26011,
+      "sha256": "deb21831965f2fc9ff50b59d3de3bc08dd7b84b1a9995e01c737bc95044514f5",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T03:57:55.779590+00:00",
+      "kind": "formalLaunch"
+    },
+    {
+      "kind": "latestLocatedFormalWordingCorrectionNotThisGeneral",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "httpStatus": 200,
+      "bytes": 15640,
+      "sha256": "f11a43f0a1c30425e72c08ea593c6baac715741593edce0e5e64139d25ab00ac",
+      "fetchedAtUtc": "2026-10-20T04:03:02.145243+00:00",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "kind": "officialWordingCorrectionTable",
+      "url": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "httpStatus": 200,
+      "bytes": 827107,
+      "sha256": "411a068609351931e47f91fcfde8f2b04b7451c9769c117b4d6d1c635addd16c",
+      "fetchedAtUtc": "2026-10-20T04:03:02.145243+00:00",
+      "contentType": "image/png"
+    },
+    {
+      "kind": "officialHostedCrossGeneralGuide",
+      "url": "https://www.sanguosha.cn/index.php/pc/guide-info-153.html",
+      "finalUrl": "https://www.sanguosha.cn/index.php/pc/guide-info-153.html",
+      "httpStatus": 200,
+      "bytes": 32912,
+      "sha256": "71012f76bd56970ad4657e75c77a036dcf16b446eb0466f28ee9555aa2bb741a",
+      "fetchedAtUtc": "2026-10-20T04:03:02.145243+00:00",
+      "contentType": "text/html; charset=UTF-8"
+    }
+  ],
+  "firstObtainableAt": "2022-07-09",
+  "formalLaunch": {
+    "published": "2022-07-08 17:30:00",
+    "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+    "meaning": "Official 群英绘壁 announced permanent acquisition for 谋华雄; the dated activity is historical release evidence, not a claim that its rewards remain available today."
+  },
+  "officialIdentity": {
+    "heroPageId": 446,
+    "generalId": 690,
+    "faction": "qun",
+    "hp": 4,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:yaowu",
+      "name": "耀武",
+      "text": "锁定技，当你受到【杀】造成的伤害时，若此【杀】为红色，伤害来源回复1点体力或摸一张牌；若此【杀】不为红色，则你摸一张牌。",
+      "sha256": "1fbf94ad4f6e6fc6361d993aedf7567f1f12832b9969e838ecebb50d898eec02"
+    },
+    {
+      "id": "mou-mobile:yangwei",
+      "name": "扬威",
+      "text": "出牌阶段限一次，你可以摸两张牌并获得“威”标记直到此阶段结束，然后此技能失效直到下个回合的结束阶段。拥有“威”标记的角色出牌阶段可以额外使用一张【杀】、使用【杀】无距离限制且无视防具。",
+      "sha256": "fd1df302a5873d6e8109b89d08fa71719397edcf5eda7264f6a20952308c07cf"
+    }
+  ],
+  "currentVersusFormal": {
+    "heroAndIdentityApiSkillsAgree": true,
+    "laterLocatedCharacterRuleChange": null,
+    "boundedFinding": "No later official Hua Xiong rule correction or character-specific FAQ was located. The 2026-10-15 wording announcement and its complete table were inspected; neither 耀武 nor 扬威 appears in that table. This is a bounded primary-source search, not an assertion that every historical client version was audited."
+  },
+  "artwork": {
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/69000.jpg",
+    "httpStatus": 200,
+    "bytes": 291220,
+    "sha256": "b5d048ad8c13d1c7fe1c4e6118d19bad8375d728553b2c8a3745c80dd7070ba0",
+    "contentType": "image/jpeg",
+    "fetchedAtUtc": "2026-10-20T03:57:56.208012+00:00",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "sourcePage": "https://www.sanguosha.cn/index.php/hero-detail-446.html",
+    "selector": "first image beneath #heroInfo1",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-hua-xiong-mobile.jpg",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/69000.jpg",
+    "inspection": "Visually inspected the unmodified official 530 x 750 JPEG: full classic Hua Xiong portrait riding a dark horse with a long gold-bladed weapon, blue armor and red flags; no silhouette, redraw, recoloring or crop.",
+    "visualSubjectVerified": true
+  },
+  "userDecisions": [
+    {
+      "id": "yangwei-cooldown-owner",
+      "confirmed": true,
+      "confirmedOn": "2026-10-20",
+      "selection": "本人下一个实际回合的结束阶段",
+      "effect": "The cooldown survives all other players actual turns. The next actual turn belonging to this owner, including a genuine extra turn, reaches its native Ending boundary before the skill becomes available again.",
+      "sourceLevel": "Explicit user decision for this implementation. The official sentence says 下个回合 but does not itself specify an owner. Player posts are corroborating context, not an official FAQ."
+    }
+  ],
+  "engineeringInterpretations": [
+    "Yaowu enters the actual native before-damage boundary for a Slash damage attempt. The phrase 受到杀造成的伤害时 is not implemented with classic Hua Xiong after-damage settlement. One qualifying damage attempt triggers once, regardless of damage amount; a distinct later damage attempt can qualify again.",
+    "Read the native effective Slash kind and effective color, including converted and virtual material appearance. Non-red includes colorless; never classify a converted Slash solely by the printed material kind. Damage-origin eligibility and any redirected/propagated-damage distinctions retain the native engine causal contract rather than a guessed reason string.",
+    "For a red Slash, its actual living source receives the ordinary legal choice of recovering one HP or drawing one real card. For a non-red Slash, the owner draws one real card. Missing or unavailable recipients do not produce fabricated recovery or card gains. Native draw/recovery children return to the exact original damage mother without reapplying damage payment.",
+    "Yangwei is one accepted activation per actual Play phase. It performs a native draw of two and grants the owner the Wei state for that actual phase: one additional normal Slash allowance, Slash use without distance restriction, and armor bypass on the actual Slash use. Ordinary target prohibitions, costs, use declarations and quota debits still apply.",
+    "The Wei effect bypasses use distance; it does not increase attack range. The official-hosted Pan Jun guide explicitly gives Yangwei as a distance-ignoring effect that does not by itself meet Gongqing attack range greater than three.",
+    "Freeze the activation, exact actual Play identity and cooldown before native draw children can reenter. Paid progression must not consume the activation twice after source loss or owner death. The already granted phase effect and the owner/named-skill cooldown persist across temporary source loss or regrant; regrant is not a reset.",
+    "Wei expires at the end of its issuing actual Play phase, including a phase ended or skipped by native state progression. A separate extra Play phase does not inherit the old phase state. Already accepted uses keep their frozen native permissions through their own child settlement.",
+    "The selected user cooldown contract is owner-specific: other actors Ending phases do not restore Yangwei. The next actual turn of the same owner, including a genuine extra turn, restores it at the native Ending boundary. A skipped or terminated phase follows the existing native turn-progression contract; do not invent a synthetic Ending event or refresh on a generic round boundary.",
+    "Yaowu explicitly enables the native action appearance and color capture dependencies even in a minimal registry. Its damage-time branch reads the accepted action effective appearance rather than re-reading an entity after movement or relying on another unrelated loaded skill to enable color capture.",
+    "Accepting Yangwei first reserves its exact activation, actual Play identity and cooldown. Its native Draw2 and all real gain children finish before the Wei grant is published. A reservation is not an observable Wei grant. If the native flow already left that issuing Play, the completed receipt records expiry instead of granting a stale permission.",
+    "Wei appears as a public player marker only after its actual grant and only in its issuing actual Play. Its already granted rights survive Yangwei source loss, while fresh activation requires an active current source and the unrecovered owner cooldown blocks regrant exploits."
+  ],
+  "supportingContext": [
+    {
+      "url": "https://www.sanguosha.cn/index.php/pc/guide-info-153.html",
+      "published": "2023-10-31 11:47:51",
+      "classification": "Official-hosted guide credited to the 咸话攻略组; cross-general distance/range explanation, not a character-specific Yangwei cooldown FAQ.",
+      "supports": "Yangwei ignores use distance rather than raising attack range."
+    },
+    {
+      "url": "https://xianhua.sanguosha.cn/postDetails?id=8446547",
+      "classification": "Player post on the official community, not official rules authority.",
+      "supports": "Describes Hua Xiong benefit as two rounds per activation."
+    },
+    {
+      "url": "https://xianhua.sanguosha.cn/postDetails?id=8015579",
+      "classification": "Player comment on the official community, not official rules authority.",
+      "supports": "Describes two rounds per burst; only corroborates the user-selected cooldown."
+    }
+  ],
+  "verificationLimits": [
+    "No authenticated mobile client, complete foreground match or official character-specific FAQ was used. Source review does not establish runtime correctness.",
+    "The current implementation selection for the ambiguous cooldown owner is the explicit user decision above; it is not falsely attributed to the hero/API repeating the same sentence."
+  ],
+  "validation": {
+    "status": "passed",
+    "focused": {
+      "corePassed": 20,
+      "wpfPassed": 1,
+      "durationMs": 26428
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 67067
+    },
+    "manualFullRun": false,
+    "visualInspection": "Inspected the unmodified official JPEG and the actual WPF gallery details render.",
+    "scopeNote": "Four focused native behavior groups and relevant retained shared mechanisms, official gallery rendering, and measured bounded routine verification. No manual full run, authenticated official client, or complete foreground match.",
+    "focusedCheckNames": [
+      "Shanhe Armor: full partial damage counter health delta and native Kuanggu cold",
+      "Shanhe Armor: real Iron Chain full damage HP loss and maximum replacement cold",
+      "actual phase end: six actual phases typed cold returns skip and restoration",
+      "Mou Huang Gai: paid gift source loss dying rescue frozen Use cold",
+      "Mou Hua Xiong Mobile: native Slash colors benefit before Armor HP cold",
+      "Mou Hua Xiong Mobile: paid benefit children source loss native return cold",
+      "Mou Hua Xiong Mobile: actual Draw paid source loss Slash privileges cold",
+      "Mou Hua Xiong Mobile: phase expiry next own Ending extra turn skip regrant cold",
+      "Le Mi Heng: native Draw replacements paid rights and privacy cold",
+      "character manifests preserve ordered registration and package isolation",
+      "Play phase temporary skills: independent sources share state and preserve permanent grants",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "Zhang Xiu Xiongluan abolishes areas and blocks hand without armor bypass",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically",
+      "Wenhe activity: real eight seats private draft and cold restore"
+    ]
+  }
+}
