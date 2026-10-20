@@ -133,7 +133,7 @@ internal static class RuleInformationUiChecks
                 { Choices = [choice, back], IsPrivate = true, SkillPrompt = new("classic:huashen", "化身", "化身", description) }
             });
             Program.Render(root, 1120, 740, null);
-            var choices = (ItemsControl)window.FindName("ScrollingSkillChoices");
+            var choices = (ItemsControl)window.FindName(model.HasDockSkillChoices ? "DockSkillChoices" : "ScrollingSkillChoices");
             Program.Assert(model.IsGeneralLibrarySelectionPending && model.ActionHint.Length == 0 && model.TableDecisionTitle == "化身" &&
                 ((TextBlock)window.FindName("DecisionDescriptionText")).Visibility == Visibility.Collapsed &&
                 ((TextBlock)window.FindName("ActionDockHint")).Visibility == Visibility.Collapsed &&

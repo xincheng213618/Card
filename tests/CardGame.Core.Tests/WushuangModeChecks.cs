@@ -36,6 +36,10 @@ internal static class WushuangModeChecks
         Play(reported);
         Require(!reported.IsFaulted && !Shop(reported).CanShop && Shop(reported).TacticIds.Count == 1,
             "Choosing a real opening tactic continues to a playable human turn without a frozen or stale shop prompt.");
+        var publicTactics = reported.CreateSnapshot(0).Players;
+        Require(publicTactics.All(player => player.WushuangTacticIds!.SequenceEqual(reported.CreateWushuangSnapshot(player.Seat)!.TacticIds)) &&
+            publicTactics.All(player => player.WushuangTacticIds is IList<int> { IsReadOnly: true }),
+            "Both acquired tactic lists are frozen public player state, separate from private shop offers and currency.");
         var nextPage = Shop(reported).Offers.Select(offer => offer.Id).ToArray();
         Require(nextPage.Length == 4 && !reported.Submit(new BuyWushuangOfferCommand(0, nextPage[0], null, reported.Revision)).Accepted,
             "The next page is prepared for in-turn preview, but cannot be purchased during play.");

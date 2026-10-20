@@ -946,6 +946,9 @@ public sealed record LegalAction
     public CardKind? PlayedCardKind { get; init; }
     public int? TargetCardId { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TargetHandCardPreselection? TargetHandPreselection { get; init; }
+
     /// <summary>Selected activation cards must all share one printed suit.</summary>
     public bool SelectedCardsSameSuit { get; init; }
     public bool SelectedCardsDistinctSuits { get; init; }

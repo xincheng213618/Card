@@ -56,7 +56,8 @@ public sealed partial class MainViewModel
                     return new EquipmentSlotViewModel(slot, card,
                         card is not null && (IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) :
                             IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) :
-                            _selectedActiveSkillCardIds.Contains(card.Id) || IsSelectedEquipmentActivation(card)),
+                            _selectedActiveSkillCardIds.Contains(card.Id) || IsSelectedEquipmentActivation(card) ||
+                            IsPlayConversionSelectionPending && _selectedCardId == card.Id),
                         IsOwnedSelectionMaterial(card?.Id) || IsCardPaymentMaterial(card?.Id) || CanSelectActiveEquipment(card));
                 });
             }).ToArray();

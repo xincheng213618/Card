@@ -43,6 +43,17 @@ internal static class ProgramDistanceRuleChecks
             rangeTerms[0].Value == 3 && rangeContributions.Count == 2,
             "Equipment-id and slot exclusions reach the virtual-weapon base stage before attack-range contributions.");
 
+        a.Trace.Clear(); a.Actor.Hp = 0;
+        var unlimitedRange = RuleQueryService.Evaluate(SkillRuleQuery.AttackRange, new(1, int.MaxValue),
+            rangeTerms, rangeContributions.Append(new UnlimitedRuleQueryContribution("native:unlimited")).ToArray());
+        var projectedRange = a.Rules.ProjectAttackRange(a.Actor, unlimitedRange);
+        Need(Value(projectedRange) == 2 && a.Trace.SequenceEqual(["range-project-unlimited", "range-project-add:0"]) &&
+            unlimitedRange.Value is UnlimitedRuleQueryValue && projectedRange.BaseTerms.Single().SourceId == "fixture:range-projected",
+            "Final range projections run after ordinary finite and unlimited arithmetic, preserving a real zero for the next ordered contributor and leaving the input immutable.");
+        a.Trace.Clear(); a.Actor.Hp = 3;
+        Need(Value(a.Rules.ProjectAttackRange(a.Actor, unlimitedRange)) == 5 && b.Trace.Count == 0,
+            "Range projections read current match state on each query without sharing another engine's delegates.");
+
         Func<Fixture, bool>[] calls =
         [
             fixture => fixture.Rules.HasCardUseExemption(fixture.CardQuery),
@@ -73,7 +84,8 @@ internal static class ProgramDistanceRuleChecks
         var empty = new ProgramDistanceRules(ProgramDistanceCatalog.Discover([]), (_, _) => throw new Exception("Unexpected empty bind."));
         Need(!empty.HasCardUseExemption(a.CardQuery) && !empty.HasConvertedSlashExemption(a.ConversionQuery) &&
             !empty.HasCardUseLimitExemption(a.Actor) && !empty.AllowsSlashDistance(ProgramDistanceStage.PhysicalSlash, a.SlashQuery) &&
-            ReferenceEquals(empty.ProjectDistance(a.Actor, a.Target, native), native), "Empty catalogs preserve native distance and deny exemptions.");
+            ReferenceEquals(empty.ProjectDistance(a.Actor, a.Target, native), native) &&
+            ReferenceEquals(empty.ProjectAttackRange(a.Actor, unlimitedRange), unlimitedRange), "Empty catalogs preserve native distance, attack range and deny exemptions.");
         Reject(typeof(Duplicate), "Duplicate distance rule order");
         Reject(typeof(InvalidStage), "valid stage");
         Reject(typeof(InvalidOrder), "positive order");
@@ -200,6 +212,20 @@ internal static class ProgramDistanceRuleChecks
         [ProgramDistanceRule(ProgramDistanceStage.AttackRangeBaseTerms, 20)]
         private void RangeLast(ProgramAttackRangeQuery query, List<RuleQueryBaseTerm> terms)
         { Need(terms[0].Value == 3, "Virtual weapon base lost its position."); Trace.Add("range-last"); }
+        [ProgramDistanceRule(ProgramDistanceStage.AttackRangeProjection, 10)]
+        private RuleQueryEvaluation RangeProjectFirst(CharacterState player, RuleQueryEvaluation prior)
+        {
+            Need(ReferenceEquals(player, Actor) && prior.Value is UnlimitedRuleQueryValue, "Final range projection must receive the actual owner and ordinary unlimited result.");
+            Trace.Add("range-project-unlimited");
+            return RuleQueryService.Evaluate(SkillRuleQuery.AttackRange, new(0, int.MaxValue), [new("fixture:range-hp", player.Hp)], []);
+        }
+        [ProgramDistanceRule(ProgramDistanceStage.AttackRangeProjection, 20)]
+        private RuleQueryEvaluation RangeProjectLast(CharacterState player, RuleQueryEvaluation prior)
+        {
+            Trace.Add($"range-project-add:{Value(prior)}");
+            return RuleQueryService.Evaluate(SkillRuleQuery.AttackRange, new(0, int.MaxValue),
+                [new("fixture:range-projected", Value(prior))], [new FiniteRuleQueryContribution("fixture:range-after", SkillRuleOperation.Add, 2)]);
+        }
         [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 10)]
         private void RangeContributionFirst(CharacterState player, List<RuleQueryContribution> contributions)
         { Need(ReferenceEquals(player, Actor), "Range owner changed."); Trace.Add("range-contribution-first"); contributions.Add(new FiniteRuleQueryContribution("fixture:range-first", SkillRuleOperation.Add, 1)); }

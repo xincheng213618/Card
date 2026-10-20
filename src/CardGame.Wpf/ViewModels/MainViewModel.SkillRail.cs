@@ -5,8 +5,13 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards() =>
-        BuildOwnedHumanSkillCards().Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
+        BuildOwnedHumanSkillCards().Where(skill => !IsWushuangTacticSkill(skill.ContentId))
+            .Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
             .Concat(BuildForeignHumanSkillCards()).ToArray();
+
+    private bool IsWushuangTacticSkill(string? skillId) => skillId is not null && IsWushuangTable &&
+        (_snapshot?.Players.SingleOrDefault(player => player.IsHuman)?.WushuangTacticIds ?? [])
+            .Any(id => WushuangTactics.ById.TryGetValue(id, out var tactic) && tactic.SkillId == skillId);
 
     private string SkillActivationProgressText(string? skillId)
     {

@@ -1,0 +1,88 @@
+{
+  "generalId": "mou:sun-jian-ol",
+  "officialName": "谋孙坚",
+  "edition": "普通OL谋攻篇",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "faction": "wu",
+    "gender": "Male",
+    "maximumHp": 5,
+    "initialHp": 4,
+    "officialHeroGid": 609
+  },
+  "currentPrimary": {
+    "url": "https://www.sanguosha.com/hero/609",
+    "skills": [
+      {
+        "name": "毅魄",
+        "text": "你的体力值变化后，若当前体力值大于0且为你首次达到，你可以选择一名角色并选择一项：1.令其摸X张牌，然后弃置一张牌；2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值且至少为1）",
+        "id": "mou-ol:yipo"
+      },
+      {
+        "name": "虎烈",
+        "text": "每回合各限一次，你使用【杀】或【决斗】仅指定一名角色为目标后，你可令此牌伤害+1。若此牌未造成伤害，你可令目标角色视为对你使用一张【杀】。",
+        "id": "mou-ol:hulie"
+      }
+    ]
+  },
+  "identityApi": "https://www.sanguosha.com/api/v1/hero/info?gid=609",
+  "formalFirstRelease": {
+    "url": "https://www.sanguosha.com/news/20240924_3695_5315",
+    "publishedAt": "2024-09-30 17:26:42",
+    "availableFrom": "2024-10-01 00:15:00",
+    "fullTextAgreement": "Both current skill bodies match formal first-release text after normalizing card brackets."
+  },
+  "revisionCheck": {
+    "queries": [
+      "site:sanguosha.com/news/ \"毅魄\"",
+      "site:sanguosha.com \"谋孙坚\" \"修改\" \"毅魄\"",
+      "site:sanguosha.com \"谋孙坚\" \"调整\" \"虎烈\""
+    ],
+    "result": "Bounded official search found pool, sales and skin notices; no replacing full-text skill revision was found. This is not a claim that no other announcement exists."
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60900.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-sun-jian-ol.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1003915,
+    "sha256": "49f82404ca98bfa05ace3573dc079a2511f704581e8dfa34eb4fd03353a03d19",
+    "visuallyInspectedBy": "root",
+    "observedDescription": "灰甲绿袍红头带，持剑武将。"
+  },
+  "userSelectedRulings": [
+    {
+      "date": "2026-10-21",
+      "topic": "虎烈各限一次",
+      "decision": "增伤、未造成伤害后的反击，两项各实际回合限一次；不是杀与决斗各一次。",
+      "authority": "用户明确选择。"
+    },
+    {
+      "date": "2026-10-21",
+      "topic": "毅魄首次到达",
+      "decision": "只记录真实体力值变化后的到达值，游戏开始时赋予初始4体力不记。",
+      "authority": "用户明确选择。"
+    }
+  ],
+  "engineeringInterpretations": [
+    {
+      "topic": "毅魄资格和持久用量",
+      "decision": "持有合格来源时真实体力变化达到尚未记录的正整数即记录，不发动也消耗该首次；按角色与技能名整局保留，失去和重获技能不刷新。仅扣护甲、只变上限而体力未变不记录。"
+    },
+    {
+      "topic": "毅魄原生摸弃",
+      "decision": "可选自己或其他存活角色，接受方式时冻结X=max(1,已损失体力)。先真实原生摸牌及其全部子结算，再由该目标选择原生HE弃牌；不足则弃全部可弃牌。已接受效果不因失去来源取消，目标死亡或终局遵循原生截止。"
+    },
+    {
+      "topic": "虎烈完整原牌与独立反击",
+      "decision": "真实杀家族或决斗在最终唯一他人目标窗口建立原Use资格；同一原Use伤害+1，决斗中任一方作为原生伤害来源均适用。整次Use及子结算完成后若没有实际伤害，独立询问反击，不要求前项曾选择；反击为原目标真正零材料杀本人，保留原生合法性、距离、次数及完整返回。"
+    },
+    {
+      "topic": "已接受返回",
+      "decision": "使用已提交的原生异角色虚拟杀生产协议、实际支付与子窗口，不伪造CardActionAccepted或Damage。原Use资格、来源、内容哈希与后续义务保存在拥有帧上；发起反击时暂挂原已完成攻击，反击完整返回后再恢复原清理游标。"
+    }
+  ],
+  "officialFaqConfirmed": false,
+  "behaviorCheck": "tests/CardGame.Core.Tests/MouSunJianOlChecks.cs",
+  "behaviorMethod": "FirstHpAndIndependentHulie"
+}

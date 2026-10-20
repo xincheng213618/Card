@@ -143,16 +143,19 @@ public sealed partial class GameEngine
     {
         var p = _wushuangPlayers[seat]; p.RefreshNumber++;
         var random = new DeterministicRandom(unchecked(_options.Seed * 397 ^ seat * 7919 ^ p.RefreshNumber * 104729));
-        var tactics = WushuangTactics.All.Where(t => !p.Tactics.Contains(t.Id) && (t.SkillId is null || _contentRegistry.Skills.ContainsKey(t.SkillId))).ToList();
+        var tactics = WushuangTactics.All.Where(t => t.IsImplemented && !p.Tactics.Contains(t.Id) &&
+            (t.SkillId is null || _contentRegistry.Skills.TryGetValue(t.SkillId, out var definition) && definition.ImplementationStatus == SkillImplementationStatus.Complete)).ToList();
         random.Shuffle(tactics); var offers = new List<WushuangShopOffer>();
         if (opening) foreach (var t in tactics.Take(3)) offers.Add(TacticOffer(t, offers.Count, 0));
         else
         {
-            var skills = new[] { "classic:wusheng", "classic:longdan", "classic:qingguo", "classic:lianying", "classic:yingzi", "classic:jizhi", "classic:zhiheng", "classic:paoxiao", "classic:tieqi", "classic:liegong", "classic:wushuang" }
-                .Where(id => _contentRegistry.Skills.TryGetValue(id, out var s) && s.ImplementationStatus == SkillImplementationStatus.Complete && !EnabledContentSkillIds(_players[seat]).Contains(id, StringComparer.Ordinal)).ToList();
+            var owned = EnabledContentSkillIds(_players[seat]).ToHashSet(StringComparer.Ordinal);
+            var skills = WushuangCatalogue.Skills.Where(item => item.SkillId is { } id &&
+                _contentRegistry.Skills.TryGetValue(id, out var s) && s.ImplementationStatus == SkillImplementationStatus.Complete &&
+                !owned.Contains(id)).ToList();
             random.Shuffle(skills);
-            if (skills.FirstOrDefault() is { } id)
-            { var s = _contentRegistry.GetSkill(id); offers.Add(new(Id(0), s.Name, s.Description, 2, id, WushuangOfferKind.Skill, 1) { Quality = 2 }); }
+            if (skills.FirstOrDefault() is { } skill)
+                offers.Add(new(Id(0), skill.Name, skill.Description, skill.Cost, skill.SkillId, WushuangOfferKind.Skill, 1) { Quality = skill.Quality });
             else offers.Add(CardOffer(CardKind.Dodge, 0));
             var cards = new[] { CardKind.Dodge, CardKind.Slash, CardKind.Peach, CardKind.Nullification, CardKind.Duel, CardKind.DrawTwo };
             offers.Add(CardOffer(cards[random.Next(cards.Length)], 1)); offers.Add(CardOffer(cards[random.Next(cards.Length)], 2));

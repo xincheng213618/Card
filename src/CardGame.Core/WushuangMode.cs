@@ -14,6 +14,13 @@ public static class WushuangMode
 public enum WushuangOfferKind { Skill, Draw, Recover, MaxHp, Tactic, Card }
 public enum WushuangShopPhase { Closed, OpeningTactic, Shopping }
 
+public sealed partial record PlayerSnapshot
+{
+    /// <summary>Public acquired tactics, independent of the private shop and extra skill slots.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? WushuangTacticIds { get; init; }
+}
+
 public sealed record WushuangShopOffer(string Id, string Name, string Description, int Cost,
     string? SkillId, WushuangOfferKind Kind, int RequiredLevel)
 {

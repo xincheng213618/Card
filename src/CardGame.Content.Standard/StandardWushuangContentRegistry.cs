@@ -23,6 +23,7 @@ public sealed class StandardWushuangContentPackage : IGameContentPackage
 
     public void Register(IContentRegistryBuilder builder)
     {
+        builder.AddSkill(new("wushuang:catalogue", "单骑无双商品配置", WushuangCatalogue.Fingerprint));
         foreach (var (bundle, id) in new[]
         {
             ("shanhe-current-jinnangji", "shanhe:current-jinnangji-2011"),

@@ -21,6 +21,7 @@ public sealed partial class MainViewModel
     private string _reservePileName = "七星";
     private bool _reserveForeignView;
     private bool _reserveTurnHandHold;
+    private bool _reservePublicView;
     private readonly List<ReserveCardViewModel> _reserveCards = [];
     private readonly HashSet<int> _reserveSelectedHand = [];
     private readonly HashSet<int> _reserveSelectedStars = [];
@@ -36,6 +37,7 @@ public sealed partial class MainViewModel
     public string ReservePileLabel => string.Join("\n", (_reservePileName + "牌").ToCharArray());
     public string ReserveDialogHint => IsReserveExchange
         ? "点击或拖动牌，在手牌与“星”之间移动；两边等量后确定。"
+        : _reservePublicView ? "武将牌上的公开牌 · 不计入手牌"
         : _reserveForeignView ? "暗置的牌 · 仅显示牌背与数量"
         : _reserveTurnHandHold ? "暂存的手牌 · 回合结束时返还 · 仅你可见"
         : "武将牌上的“星” · 仅你可见";
@@ -49,6 +51,7 @@ public sealed partial class MainViewModel
 
     public ICommand OpenPrivateReserveCommand { get; private set; } = null!;
     public ICommand OpenTurnHandHoldCommand { get; private set; } = null!;
+    public ICommand OpenPublicPileCommand { get; private set; } = null!;
     public ICommand MoveReserveCardCommand { get; private set; } = null!;
     public ICommand ConfirmReserveExchangeCommand { get; private set; } = null!;
     public ICommand CloseReserveDialogCommand { get; private set; } = null!;
@@ -59,6 +62,10 @@ public sealed partial class MainViewModel
             IsCurrentPortraitPileOwner(seat) && seat.PrivateReserveCount > 0);
         OpenTurnHandHoldCommand = new RelayCommand<SeatViewModel>(OpenTurnHandHold, seat =>
             IsCurrentPortraitPileOwner(seat) && seat.TurnHandHoldCount > 0);
+        OpenPublicPileCommand = new RelayCommand<SeatStatusViewModel>(OpenPublicPile, status =>
+            !IsReserveExchange && _snapshot.Revision == _game.Revision && status.CanInspectPile &&
+            Seats.Any(seat => seat.Seat == status.PublicPileOwnerSeat &&
+                seat.StatusBadges.Any(current => ReferenceEquals(current, status))));
         MoveReserveCardCommand = new RelayCommand<ReserveCardViewModel>(MoveReserveCard, CanMoveReserveCard);
         ConfirmReserveExchangeCommand = new RelayCommand(ConfirmReserveExchange, () => CanConfirmReserveExchange);
         CloseReserveDialogCommand = new RelayCommand(CloseReserveDialog);
@@ -157,6 +164,24 @@ public sealed partial class MainViewModel
         _reservePileName = pileName;
         _reserveForeignView = owner.Seat != _snapshot.HumanSeat;
         _reserveTurnHandHold = turnHandHold;
+        _reservePublicView = false;
+    }
+
+    private void OpenPublicPile(SeatStatusViewModel status)
+    {
+        if (!OpenPublicPileCommand.CanExecute(status)) return;
+        var owner = _snapshot.Players.Single(player => player.Seat == status.PublicPileOwnerSeat);
+        var pile = PublicOwnedPiles(owner).ElementAt(status.PublicPileIndex);
+        ClearReserveCards();
+        _reserveGame = _game;
+        _reserveRevision = _snapshot.Revision;
+        IsReserveExchange = false;
+        SetReserveDialogOwner(owner, pile.Name);
+        _reservePublicView = true;
+        foreach (var card in pile.Cards)
+            _reserveCards.Add(new(CreateViewedCard(card, privateView: false), true, false));
+        IsReserveDialogOpen = true;
+        RefreshReservePresentation();
     }
 
     private void AddReserveBacks(int count)
@@ -200,6 +225,7 @@ public sealed partial class MainViewModel
         (MoveReserveCardCommand as RelayCommand<ReserveCardViewModel>)?.NotifyCanExecuteChanged();
         (OpenPrivateReserveCommand as RelayCommand<SeatViewModel>)?.NotifyCanExecuteChanged();
         (OpenTurnHandHoldCommand as RelayCommand<SeatViewModel>)?.NotifyCanExecuteChanged();
+        (OpenPublicPileCommand as RelayCommand<SeatStatusViewModel>)?.NotifyCanExecuteChanged();
         (ConfirmReserveExchangeCommand as RelayCommand)?.NotifyCanExecuteChanged();
     }
 

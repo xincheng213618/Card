@@ -58,6 +58,8 @@ internal static class PublicPilePreparationChecks
         Reach(game, () => PileChoice(game) && game.ResolutionStack.LastOrDefault() is ProgramSkillFrame
             { PublicPilePreparation.Operation: SkillProgramEffectOp.StoreNonBasicOwnedPublicPile });
         Require(game.CreateSnapshot(2).PendingDecision is null, "The other viewer cannot see the private HE picker.");
+        Require(P(game) is { MinimumCardCount: 0 } bounds && bounds.RequiredCardCount == ids.Length,
+            "The responder sees zero-to-all remaining bounds for the shared local multi-card draft.");
         foreach (var id in ids) Choose(game, c => c.Cards.SequenceEqual([id]));
         Require(P(game)!.Choices.Count == 1 && Action(P(game).Choices.Single()) == "finish",
             "The linear picker permits every payable card with no subset explosion or artificial cap.");

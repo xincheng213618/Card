@@ -7,6 +7,16 @@ public sealed partial class GameEngine
     private PendingDecision ProjectCardPaymentCount(PendingDecision decision)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame) return decision;
+        if (frame.PileEquipment is { Stage: "store-choice" } &&
+                decision.Choices.All(choice => choice.Parameters.GetValueOrDefault("program-action") == "game-domain") ||
+            frame.PublicPilePreparation is { Stage: PublicPilePreparationStage.Choosing,
+                Operation: SkillProgramEffectOp.StoreNonBasicOwnedPublicPile } &&
+                decision.Choices.All(choice => choice.Parameters.GetValueOrDefault("program-action") == "public-pile-preparation"))
+            return decision with
+            {
+                RequiredCardCount = decision.Choices.SelectMany(choice => choice.Cards).Distinct().Count(),
+                MinimumCardCount = 0
+            };
         var action = decision.Choices.FirstOrDefault(choice => choice.Cards.Count == 1)?
             .Parameters.GetValueOrDefault("program-action");
         int? remaining = action switch

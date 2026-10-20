@@ -1188,6 +1188,118 @@
       }
     },
     {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/rogue_zhanfa_bg_1.png",
+      "width": 252,
+      "height": 252,
+      "sha256": "136879b382ab89cfe43896545dc5194f94c3effbf80633c1c57ba7081c61bf34",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.atlas?v=24685046",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.webp?v=857044027",
+      "sourceAtlasSha256": "12f92aa95201e9f06c12b243d767337b4d3c00ceed58f16e8ad569ea1790b257",
+      "sourceTextureSha256": "4ba7a9f4ade1c274e256617fdc33648516f03f5604fa2d627ea6f18727764bf5",
+      "frameKey": "rogue_zhanfa_bg_1.png",
+      "frame": {
+        "idx": 0,
+        "x": 506,
+        "y": 4,
+        "w": 252,
+        "h": 252
+      },
+      "sourceSize": {
+        "w": 252,
+        "h": 252
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 252,
+        "h": 252
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/rogue_zhanfa_bg_2.png",
+      "width": 252,
+      "height": 252,
+      "sha256": "6704a6d085e9cbf60088ae932366c93b818881cfdb2db59c375ab21a9a2e5c55",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.atlas?v=24685046",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.webp?v=857044027",
+      "sourceAtlasSha256": "12f92aa95201e9f06c12b243d767337b4d3c00ceed58f16e8ad569ea1790b257",
+      "sourceTextureSha256": "4ba7a9f4ade1c274e256617fdc33648516f03f5604fa2d627ea6f18727764bf5",
+      "frameKey": "rogue_zhanfa_bg_2.png",
+      "frame": {
+        "idx": 0,
+        "x": 270,
+        "y": 632,
+        "w": 252,
+        "h": 252
+      },
+      "sourceSize": {
+        "w": 252,
+        "h": 252
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 252,
+        "h": 252
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/rogue_zhanfa_bg_3.png",
+      "width": 252,
+      "height": 252,
+      "sha256": "a4507d2b2a7545381450065a34189e9b5bcbdee50fdfeaf665b69fa12b2357e8",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.atlas?v=24685046",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.webp?v=857044027",
+      "sourceAtlasSha256": "12f92aa95201e9f06c12b243d767337b4d3c00ceed58f16e8ad569ea1790b257",
+      "sourceTextureSha256": "4ba7a9f4ade1c274e256617fdc33648516f03f5604fa2d627ea6f18727764bf5",
+      "frameKey": "rogue_zhanfa_bg_3.png",
+      "frame": {
+        "idx": 0,
+        "x": 530,
+        "y": 632,
+        "w": 252,
+        "h": 252
+      },
+      "sourceSize": {
+        "w": 252,
+        "h": 252
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 252,
+        "h": 252
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/rogue_zhanfa_bg_4.png",
+      "width": 252,
+      "height": 252,
+      "sha256": "b9bf634b77f7e2d0199650d66b6d7e94cdde3adf6930bd06d569ee4c9fbab7fc",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.atlas?v=24685046",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/roguelike/roguelike.webp?v=857044027",
+      "sourceAtlasSha256": "12f92aa95201e9f06c12b243d767337b4d3c00ceed58f16e8ad569ea1790b257",
+      "sourceTextureSha256": "4ba7a9f4ade1c274e256617fdc33648516f03f5604fa2d627ea6f18727764bf5",
+      "frameKey": "rogue_zhanfa_bg_4.png",
+      "frame": {
+        "idx": 0,
+        "x": 536,
+        "y": 344,
+        "w": 252,
+        "h": 252
+      },
+      "sourceSize": {
+        "w": 252,
+        "h": 252
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 252,
+        "h": 252
+      }
+    },
+    {
       "file": "src/CardGame.Wpf/Assets/Wushuang/rogue_award_title.png",
       "width": 290,
       "height": 230,
@@ -1214,6 +1326,16 @@
         "w": 290,
         "h": 230
       }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/roguelike1v1_bg_l.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigPng/roguelike1v1_bg_l.png?v=1444144922",
+      "sha256": "2805d9d5ea29efb6b75d999fb74e49feaf210d03f50c43cf5c3b61a1d809db68"
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Wushuang/roguelike1v1_bg_r.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigPng/roguelike1v1_bg_r.png?v=-2131617876",
+      "sha256": "f8dbcca0dba33ef7684a631fcaececc7a984f37f55df1e9675c9a6109d06616a"
     }
   ]
 }

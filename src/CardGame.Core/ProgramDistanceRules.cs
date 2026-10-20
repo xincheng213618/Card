@@ -21,7 +21,8 @@ internal enum ProgramDistanceStage
     BorrowedSlash,
     BorrowedPhysicalSlash,
     BorrowedPaidWeaponSlash,
-    SpecificSlashExemption
+    SpecificSlashExemption,
+    AttackRangeProjection
 }
 
 internal readonly record struct ProgramDistanceQuery(CharacterState Source, CharacterState Target);
@@ -84,6 +85,7 @@ internal sealed class ProgramDistanceCatalog
         ProgramDistanceStage.DistanceProjection => typeof(Func<CharacterState, CharacterState, RuleQueryEvaluation, RuleQueryEvaluation>),
         ProgramDistanceStage.AttackRangeBaseTerms => typeof(Action<ProgramAttackRangeQuery, List<RuleQueryBaseTerm>>),
         ProgramDistanceStage.AttackRangeContributions => typeof(Action<CharacterState, List<RuleQueryContribution>>),
+        ProgramDistanceStage.AttackRangeProjection => typeof(Func<CharacterState, RuleQueryEvaluation, RuleQueryEvaluation>),
         ProgramDistanceStage.CardUseExemption => typeof(Func<ProgramCardDistanceQuery, bool>),
         ProgramDistanceStage.ConvertedSlashExemption => typeof(Func<ProgramSlashConversionDistanceQuery, bool>),
         ProgramDistanceStage.CardUseLimitExemption => typeof(Func<CharacterState, bool>),
@@ -139,6 +141,13 @@ internal sealed class ProgramDistanceRules
     {
         foreach (var callback in _callbacks[ProgramDistanceStage.AttackRangeContributions])
             ((Action<CharacterState, List<RuleQueryContribution>>)callback)(player, contributions);
+    }
+
+    internal RuleQueryEvaluation ProjectAttackRange(CharacterState player, RuleQueryEvaluation evaluation)
+    {
+        foreach (var callback in _callbacks[ProgramDistanceStage.AttackRangeProjection])
+            evaluation = ((Func<CharacterState, RuleQueryEvaluation, RuleQueryEvaluation>)callback)(player, evaluation);
+        return evaluation;
     }
 
     internal bool HasCardUseExemption(ProgramCardDistanceQuery query)

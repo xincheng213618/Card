@@ -571,6 +571,8 @@ public sealed record CardAttackState
 
 public sealed record ProgramDamageTransferReceipt(string SkillId, int OwnerSeat, int TargetSeat, bool DrawLostHp);
 
+public sealed record TargetHandCardPreselection(int TargetSeat, int SlotIndex, int HandCount, long HandMovementSequence);
+
 public sealed partial record CardUseFrame(
     long Id,
     int SourceSeat,
@@ -583,6 +585,9 @@ public sealed partial record CardUseFrame(
     IReadOnlyList<int>? PhysicalCardIds = null)
     : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TargetHandCardPreselection? TargetHandPreselection { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public NativeCardRecoveryReceipt? RecoveryApplication { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:yipo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-positive-hp",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "hpChangeOccurrence": "perEvent",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouSunJianYipo",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:hulie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "single-target-damage",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "priority": -998,
+          "optional": false,
+          "effects": [
+            {
+              "op": "offerMouSunJianHulieDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "undamaged-counter",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouSunJianHulieCounter",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

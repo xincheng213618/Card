@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-jian",
+  "skills": [
+    {
+      "registrationOrder": 2430,
+      "programBundle": "mou-sun-jian-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:yipo",
+        "name": "毅魄",
+        "description": "你的体力值变化后，若当前体力值大于0且为你首次达到，你可以选择一名角色并选择一项：1.令其摸X张牌，然后弃置一张牌；2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值且至少为1）",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2431,
+      "programBundle": "mou-sun-jian-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:hulie",
+        "name": "虎烈",
+        "description": "每回合各限一次，你使用【杀】或【决斗】仅指定一名角色为目标后，你可令此牌伤害+1。若此牌未造成伤害，你可令目标角色视为对你使用一张【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2432,
+      "pools": {
+        "current": 547
+      },
+      "definition": {
+        "id": "mou:sun-jian-ol",
+        "name": "谋孙坚·OL",
+        "portraitKey": "mou-sun-jian-ol",
+        "skillId": "mou-ol:yipo",
+        "additionalSkillIds": [
+          "mou-ol:hulie"
+        ],
+        "factionId": "wu",
+        "gender": "Male",
+        "baseHp": 5,
+        "initialHp": 4,
+        "characterId": "character:sun-jian",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

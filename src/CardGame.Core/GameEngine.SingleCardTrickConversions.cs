@@ -49,6 +49,8 @@ public sealed partial class GameEngine
             designatedTargetSeats: rule.OutputKind == CardKind.BorrowedSword &&
                 adjustedTargets && action.TargetSeats.Count >= 4
                 ? action.TargetSeats.Where((_,index)=>index%2==0).ToArray() : null);
+        if (action.TargetHandPreselection is not null)
+            UpdateLifecycleCardUse(id, frame => frame with { TargetHandPreselection = action.TargetHandPreselection });
         var actualTargets = _resolutionStack.OfType<CardUseFrame>().Single(frame=>frame.Id==id).TargetSeats;
         MoveCard(card, FindOwnedCardLocation(actor, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(id, source.SkillId, source.BindingId,

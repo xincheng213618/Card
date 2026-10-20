@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             !HasRuntimeSkillInstance(owner, frame.SkillId, frame.SkillInstanceId)) return SkillProgramStepOutcome.Continue;
         var receipt = new ProgramSequentialDeckKindGrowthReceipt(frame.Id, frame.InstructionIndex,
             SequentialDeckKindGrowthSource(frame), frame.GameplayHash, frame.WindowContext!.ParentFrameId,
-            _turnNumber, effect.OutputKind.Value, Math.Max(0, owner.MaxHp));
+            _turnNumber, effect.OutputKind.Value, SequentialDeckKindGrowthRequestedCount(effect, owner));
         ReplaceRuntimeTop(frame = frame with { SequentialDeckKindGrowth = receipt });
         AdvanceEventRulesAndQueueFact(new SequentialDeckKindGrowthStartedEvent(frame.Id, receipt.Source,
             receipt.GameplayHash, receipt.PreparationWindowId, receipt.TurnNumber, receipt.OutputKind, receipt.RequestedCount));
@@ -114,7 +114,8 @@ public sealed partial class GameEngine
             { Stage = SequentialDeckKindGrowthStage.Finished, Shortfall = shortfall, Cancelled = cancelled } });
         if (!cancelled)
             AdvanceEventRulesAndQueueFact(new SequentialDeckKindGrowthGrantedEvent(frame.Id, receipt.Source, receipt.GameplayHash,
-                receipt.PreparationWindowId, receipt.TurnNumber, receipt.OutputKind, receipt.RequestedCount, receipt.ActualObtained, shortfall));
+                receipt.PreparationWindowId, receipt.TurnNumber, receipt.OutputKind, receipt.RequestedCount, receipt.ActualObtained,
+                SequentialDeckKindGrowthGrantAmount(receipt.Source, frame.Id, shortfall)));
         AdvanceEventRulesAndQueueFact(new SequentialDeckKindGrowthCompletedEvent(frame.Id, receipt.Steps.Count,
             receipt.ActualObtained, shortfall, cancelled));
         FinishProgramSkill(frame, true);
@@ -198,11 +199,14 @@ public sealed partial class GameEngine
     {
         if (growth.ProgramFrameId <= 0 || !IsValidPlayerSeat(growth.Source.OwnerSeat) || growth.Amount < 0 ||
             growth.RequestedCount < 0 || growth.ActualObtained < 0 || growth.ActualObtained > growth.RequestedCount ||
-            growth.Amount != growth.RequestedCount - growth.ActualObtained || growth.TurnNumber < 1 ||
+            growth.TurnNumber < 1 ||
             growth.PreparationWindowId <= 0 || growth.OutputKind != CardKind.Duel ||
             _contentRegistry.GetSkill(growth.Source.SkillId).Program is not { } program || program.GameplayHash != growth.GameplayHash ||
             program.Triggers.SingleOrDefault(item => item.Id == growth.Source.BindingId) is not { } trigger ||
-            !AcquireDeckKindSequentiallyAndGrowOnShortfallDescriptor.IsTrigger(trigger)) return false;
+            !AcquireDeckKindSequentiallyAndGrowOnShortfallDescriptor.IsTrigger(trigger) ||
+            (trigger.Effects[0].NumberExpression is null && growth.RequestedCount != trigger.Effects[0].Amount) ||
+            growth.Amount != SequentialDeckKindGrowthGrantAmount(growth.Source, growth.ProgramFrameId,
+                growth.RequestedCount - growth.ActualObtained)) return false;
         var starts = ProgramEventHistory<SequentialDeckKindGrowthStartedEvent>().Where(item => item.ProgramFrameId == growth.ProgramFrameId).ToArray();
         var steps = ProgramEventHistory<SequentialDeckKindGrowthStepPaidEvent>().Where(item => item.ProgramFrameId == growth.ProgramFrameId).ToArray();
         return starts is [var start] && start == new SequentialDeckKindGrowthStartedEvent(growth.ProgramFrameId, growth.Source,

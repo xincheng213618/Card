@@ -836,6 +836,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DeferredPileTooltip = PublicStateTooltip(player),
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 StatusBadges = ProjectSeatStatuses(player),
+                WushuangTactics = (player.WushuangTacticIds ?? []).Select(id => new WushuangTacticViewModel(id)).ToArray(),
                 SkillName = player.IdentityConcealed && !player.IsHuman ? string.Empty : IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
                     : VisibleSkillNames(WenheDisplaySkills(player)),
@@ -1096,6 +1097,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
+        RefreshEquipmentMaterialSelection();
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
         RefreshTargetHighlights();
@@ -1161,7 +1163,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         if (TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
-        if (KeepForcedHandSelection()) return;
         var cardId = choice.Cards[0];
         var human = _snapshot.Players.Single(player => player.IsHuman);
         var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).SingleOrDefault(card => card.Id == cardId);
@@ -1173,10 +1174,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             (IsPlayConversionSelectionPending || !OwnPublicPileMaterials(human).Any(card => card.Id == cardId) ||
              !GetViewLegalActions().Any(action => IsNativePublicPilePlayAction(action, regionalCard)))) return;
 
+        SelectRegionalPlayCard(regionalCard);
+    }
+
+    private void SelectRegionalPlayCard(CardSnapshot regionalCard)
+    {
+        if (KeepForcedHandSelection()) return;
+        var cardId = regionalCard.Id;
         _selectedCardId = _selectedCardId == cardId ? null : cardId;
         if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
+        foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = _selectedCardId is null
             ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌、装备或判定牌"
             : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{regionalCard.DisplayName}】当【{PlayConversionCardName}】使用"
@@ -1185,6 +1194,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
+        RefreshEquipmentMaterialSelection();
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
         RefreshTargetHighlights();
@@ -1226,7 +1236,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (!IsPlayConversionSelectionPending || MatchesSelectedPlayConversion(action)))
             .Select(action => action.CardId!.Value)
             .ToHashSet();
-        foreach (var equipment in human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Where(card => playableEquipmentIds.Contains(card.Id)))
+        // Equipped materials use the equipment rail; other regions still need their own entry.
+        foreach (var equipment in human.Judgment.Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Where(card => playableEquipmentIds.Contains(card.Id)))
         {
             var isJudgment = human.Judgment.Any(card => card.Id == equipment.Id);
             var zoneName = isJudgment ? "判定牌" : human.AuthorityCards?.Any(card => card.Id == equipment.Id) == true
@@ -1281,19 +1292,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (!IsActiveSkillCardSelectionPending)
         {
             return;
-        }
-
-        foreach (var equipment in human.Equipment.Where(card => activeSkillCardIds.Contains(card.Id)))
-        {
-            var selected = _selectedActiveSkillCardIds.Contains(equipment.Id);
-            ActiveSkillEquipmentChoices.Add(new PromptChoice(
-                new ChoiceId($"active-skill.equipment-{equipment.Id}"),
-                selected
-                    ? $"✓ 已选择装备【{equipment.DisplayName}】；点击取消"
-                    : $"选择装备【{equipment.DisplayName}】",
-                [equipment.Id],
-                [],
-                new Dictionary<string, string>()));
         }
 
         var pileOwnerSeat = HumanActiveSkillAction?.ProgramSkillOwnerSeat ?? human.Seat;
@@ -1477,12 +1475,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         int? targetCardId = null;
+        int? targetHandSlot = null;
         if (choice.Parameters.TryGetValue("target-card-id", out var targetCardIdText))
         {
             if (!int.TryParse(targetCardIdText, out var parsedTargetCardId)) return;
             targetCardId = parsedTargetCardId;
         }
-        else if (choice.Parameters.GetValueOrDefault("action") is not ("dismantlement" or "snatch")) return;
+        else
+        {
+            if (choice.Parameters.GetValueOrDefault("action") is not ("dismantlement" or "snatch") ||
+                !int.TryParse(choice.Parameters.GetValueOrDefault("target-hand-slot"), out var slot)) return;
+            targetHandSlot = slot;
+        }
 
         var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
@@ -1499,7 +1503,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        SubmitSelectedPlayAction(selectedCardId, action, pending.PromptId, "公开目标牌未执行");
+        SubmitSelectedPlayAction(selectedCardId, action, pending.PromptId, "目标牌选择未执行", targetHandSlot);
     }
 
     private void SelectTargetCombinationChoice(PromptChoice choice)
@@ -1550,13 +1554,24 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                          : choice.Targets.Count == 1 && _selectedTargetSeat.HasValue && choice.Targets[0] == _selectedTargetSeat) &&
                      ConversionSourceMatchesChoice(_selectedConversionSource, choice.Parameters) &&
                      MatchesSelectedPlayChoice(choice)).ToArray();
-        var publicChoices = candidates.Where(choice => choice.Parameters.ContainsKey("target-card-id")).ToArray();
-        foreach (var choice in candidates.Where(choice =>
-                     choice.Parameters.ContainsKey("target-card-id") ||
-                     choice.Parameters.GetValueOrDefault("action") is "dismantlement" or "snatch" &&
-                     publicChoices.Any(publicChoice => publicChoice.Targets.SequenceEqual(choice.Targets))))
+        foreach (var choice in candidates)
         {
-            PublicTargetChoices.Add(choice);
+            if (choice.Parameters.ContainsKey("target-card-id")) PublicTargetChoices.Add(choice);
+            else if (choice.Parameters.GetValueOrDefault("action") is "dismantlement" or "snatch" && choice.Targets.Count == 1)
+            {
+                var target = _snapshot.Players.Single(player => player.Seat == choice.Targets[0]);
+                for (var slot = 0; slot < target.HandCount; slot++)
+                {
+                    var parameters = new Dictionary<string, string>(choice.Parameters)
+                    { ["target-hand-slot"] = slot.ToString(System.Globalization.CultureInfo.InvariantCulture) };
+                    PublicTargetChoices.Add(choice with
+                    {
+                        Id = new ChoiceId($"{choice.Id}.hand-slot-{slot}"),
+                        Description = $"选择 {target.Name} 的暗手牌位 {slot + 1}",
+                        Parameters = parameters
+                    });
+                }
+            }
         }
 
         HasPublicTargetChoices = PublicTargetChoices.Count > 0;
@@ -1665,13 +1680,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SubmitSelectedPlayAction(cardId, action, prompt.PromptId);
     }
 
-    private void SubmitSelectedPlayAction(int cardId, LegalAction action, PromptId promptId, string? rejectionPrefix = null)
+    private void SubmitSelectedPlayAction(int cardId, LegalAction action, PromptId promptId, string? rejectionPrefix = null, int? targetHandSlot = null)
     {
         var wasSelectingPlayConversion = IsPlayConversionSelectionPending;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(CreatePlayCommand(_snapshot.HumanSeat, cardId, action,
-                _snapshot.Revision, promptId));
+                _snapshot.Revision, promptId) with { TargetHandSlot = targetHandSlot });
             if (!result.Accepted)
             {
                 if (rejectionPrefix is not null) PromptText = $"{rejectionPrefix}：{result.Error?.Message}";

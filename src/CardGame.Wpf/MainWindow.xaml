@@ -187,7 +187,7 @@
                 <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border Background="#24211E" BorderBrush="#736751" BorderThickness="0,0,0,1" Padding="24,0">
+            <Border x:Name="TableHeader" Background="#24211E" BorderBrush="#736751" BorderThickness="0,0,0,1" Padding="24,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -538,7 +538,11 @@
                                             <TextBlock Text="{Binding PrivateRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPrivatelyViewedCards, Converter={StaticResource BoolToVisibility}}" />
                                             <ItemsControl x:Name="PrivatelyViewedCards" ItemsSource="{Binding PrivatelyViewedCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <TextBlock Text="{Binding TargetCardPickerTitle}" Foreground="#E3C58A" FontFamily="KaiTi" FontSize="18" TextAlignment="Center" Margin="4,2,4,12" Visibility="{Binding HasTargetCardPicker, Converter={StaticResource BoolToVisibility}}" />
-                                            <Grid Visibility="{Binding IsTargetCardSelectionPending, Converter={StaticResource BoolToVisibility}}">
+                                            <Grid>
+                                                <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTargetCardSelectionPending}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding HasTargetCardRegions}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                </Style.Triggers></Style></Grid.Style>
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                                 <TextBlock Text="手牌区" Width="18" TextWrapping="Wrap" FontFamily="KaiTi" FontSize="15" Foreground="#BCAE88" VerticalAlignment="Center" Margin="3,8,14,8" />
                                                 <ItemsControl Grid.Column="1" x:Name="TargetCardChoiceCards" ItemsSource="{Binding TargetCardChoices}" ItemTemplate="{StaticResource TargetCardChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" PreviewGotKeyboardFocus="TargetCardChoiceCards_PreviewGotKeyboardFocus" IsKeyboardFocusWithinChanged="TargetCardChoiceCards_IsKeyboardFocusWithinChanged" />
@@ -563,16 +567,6 @@
                                             <ItemsControl x:Name="EquipmentPlayChoices" ItemsSource="{Binding EquipmentPlayChoices}" ItemTemplate="{StaticResource EquipmentPlayChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <controls:TargetCardPicker />
                                             <ItemsControl ItemsSource="{Binding TargetCombinationChoices}" ItemTemplate="{StaticResource TargetCombinationChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
-                                            <ItemsControl x:Name="DeferredPublicPiles" ItemsSource="{Binding DeferredPublicPiles}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Margin="0,4,0,0">
-                                                            <TextBlock Text="{Binding Title}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" />
-                                                            <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
                                         </StackPanel>
                                     </ScrollViewer>
                                 </Grid>
@@ -896,6 +890,17 @@
                         <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
                     </Grid>
                 </Border>
+                <ScrollViewer x:Name="HumanWushuangTactics" Grid.Row="1" Panel.ZIndex="3" MaxWidth="372" MaxHeight="132" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Visibility="{Binding HumanPlayer.HasWushuangTactics, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方战法">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Style.Triggers><DataTrigger Binding="{Binding HumanPlayer.HasStatusBadges}" Value="True"><Setter Property="Margin" Value="0,0,8,44" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+                    <ItemsControl ItemsSource="{Binding HumanPlayer.WushuangTactics}" ItemTemplate="{StaticResource WushuangTacticBadgeTemplate}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Right" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </ScrollViewer>
                 <ItemsControl x:Name="HumanJudgmentStatuses" Grid.Row="2" Panel.ZIndex="2" ItemsSource="{Binding HumanPlayer.JudgmentStatuses}" ItemTemplate="{StaticResource JudgmentStatusTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Margin="8,-36,0,0" Visibility="{Binding HumanPlayer.HasJudgment, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方判定区">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -904,7 +909,7 @@
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemContainerStyle><Style TargetType="ContentPresenter"><Setter Property="Margin" Value="2,0,0,0" /></Style></ItemsControl.ItemContainerStyle>
                 </ItemsControl>
-                <Border Grid.Row="3" Grid.ColumnSpan="2" Background="#1B1814" BorderBrush="#34423F" BorderThickness="0,1,0,0" Padding="25,0">
+                <Border x:Name="TableStatusBar" Grid.Row="3" Grid.ColumnSpan="2" Background="#1B1814" BorderBrush="#34423F" BorderThickness="0,1,0,0" Padding="25,0">
                     <DockPanel>
                         <TextBlock Text="{Binding SessionSaveStatus}" DockPanel.Dock="Right" Foreground="#697F78" FontSize="10" VerticalAlignment="Center" Margin="18,0,0,0" ToolTip="{Binding SessionSaveStatus}" TextTrimming="CharacterEllipsis" MaxWidth="430" />
                         <TextBlock Text="{Binding RecentEventText}" Foreground="#92A396" FontSize="10" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
@@ -1564,7 +1569,16 @@
             <Viewbox Stretch="Uniform" StretchDirection="DownOnly"><controls:ShanheCampaignPanel x:Name="ShanhePanel" /></Viewbox>
         </Border>
         <Border x:Name="WushuangShopOverlay" Background="#9A120D08" Panel.ZIndex="310" Visibility="{Binding IsWushuangShopOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" FocusManager.IsFocusScope="True" IsVisibleChanged="TableOverlay_IsVisibleChanged">
-            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="18"><controls:WushuangShopPanel x:Name="WushuangShopPanel" /></Viewbox>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="{Binding ActualWidth, ElementName=TableSidebar}" /></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{Binding ActualHeight, ElementName=TableHeader}" />
+                    <RowDefinition />
+                    <RowDefinition Height="{Binding ActualHeight, ElementName=HandDock}" />
+                    <RowDefinition Height="{Binding ActualHeight, ElementName=TableStatusBar}" />
+                </Grid.RowDefinitions>
+                <Viewbox x:Name="WushuangShopViewport" Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" Margin="10,6"><controls:WushuangShopPanel x:Name="WushuangShopPanel" /></Viewbox>
+            </Grid>
         </Border>
     </Grid>
 </Window>

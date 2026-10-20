@@ -255,8 +255,8 @@ internal static class ActiveSkillCardTargetUiChecks
                     if (model.Hand.SingleOrDefault(card => card.Id == id) is { } card)
                         Click(BoundButton(root, model.SelectCardCommand, card));
                     else
-                        Click(BoundButton(root, model.SelectActiveSkillEquipmentChoiceCommand,
-                            model.ActiveSkillEquipmentChoices.Single(choice => choice.Cards.SequenceEqual([id]))));
+                        Click(BoundButton(root, model.SelectEquipmentMaterialCommand,
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == id)));
                     Layout(root);
                 }
                 void SelectTarget(int seat) { Click(BoundButton(root, model.SelectTargetCommand, Seat(seat))); Layout(root); }
@@ -264,8 +264,9 @@ internal static class ActiveSkillCardTargetUiChecks
                 {
                     Program.Assert(model.IsActiveSkillSelectionPending && model.HasSelection &&
                         model.Hand.Where(card => card.IsSelected).Select(card => card.Id)
-                            .Concat(model.ActiveSkillEquipmentChoices.Where(choice => choice.Description.StartsWith("✓", StringComparison.Ordinal))
-                                .SelectMany(choice => choice.Cards)).SequenceEqual([id]) &&
+                            .Concat(model.HumanEquipmentSlots.Where(slot => slot.IsSelected)
+                                .Select(slot => slot.Card!.Id)).SequenceEqual([id]) &&
+                        model.ActiveSkillEquipmentChoices.Count == 0 && !model.HasCenterChoices &&
                         model.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).SequenceEqual([target]),
                         "The bound card and portrait controls must preserve the exact physical cost and selected recipient.");
                 }

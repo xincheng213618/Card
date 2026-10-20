@@ -158,8 +158,8 @@ internal static class ActiveSkillMatchingCostUiChecks
                             if (model.Hand.SingleOrDefault(card => card.Id == id) is { } card)
                                 Click(BoundButton(root, model.SelectCardCommand, card));
                             else
-                                Click(BoundButton(root, model.SelectActiveSkillEquipmentChoiceCommand,
-                                    model.ActiveSkillEquipmentChoices.Single(choice => choice.Cards.SequenceEqual([id]))));
+                                Click(BoundButton(root, model.SelectEquipmentMaterialCommand,
+                                    model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == id)));
                             Layout(root);
                         }
                         Click(BoundButton(root, model.SelectTargetCommand, model.Seats.Single(seat => seat.Seat == 0)));
@@ -172,8 +172,9 @@ internal static class ActiveSkillMatchingCostUiChecks
                         Program.Assert(model.IsActiveSkillSelectionPending && model.HasSelection &&
                             model.ActionHint.Contains("费用牌须同名（杀含火杀、雷杀）或全部为装备", StringComparison.Ordinal) &&
                             model.Hand.Where(card => card.IsSelected).Select(card => card.Id).Order().SequenceEqual(expectedHand) &&
-                            model.ActiveSkillEquipmentChoices.Where(choice => choice.Description.StartsWith("✓", StringComparison.Ordinal))
-                                .SelectMany(choice => choice.Cards).Order().SequenceEqual(expectedEquipment) &&
+                            model.HumanEquipmentSlots.Where(slot => slot.IsSelected)
+                                .Select(slot => slot.Card!.Id).Order().SequenceEqual(expectedEquipment) &&
+                            model.ActiveSkillEquipmentChoices.Count == 0 && !model.HasCenterChoices &&
                             model.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).SequenceEqual([0]),
                             "The actual cost controls and portrait must retain precisely the prepared native physical materials and self target.");
                     }

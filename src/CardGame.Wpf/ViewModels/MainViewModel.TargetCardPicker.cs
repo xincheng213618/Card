@@ -16,7 +16,7 @@ public sealed partial class MainViewModel
     public bool HasTargetCardRegions => TargetCardRegions.Count > 0;
     public bool HasTargetCardPicker => HasTargetCardRegions || IsTargetCardSelectionPending;
     public string TargetCardPickerTitle => IsTargetCardSelectionPending && _snapshot.PendingDecision?.IncomingCard is { } incoming
-        ? $"{CardCatalog.Get(incoming).DisplayName} · 选择一张手牌"
+        ? $"{CardCatalog.Get(incoming).DisplayName} · 选择目标的一张牌"
         : HasPublicTargetChoices ? PublicTargetChoices.FirstOrDefault()?.Parameters.GetValueOrDefault("action") switch
         {
             "snatch" => "顺手牵羊 · 选择目标的一张牌",
@@ -59,7 +59,8 @@ public sealed partial class MainViewModel
         var zoneName = choice.Parameters.GetValueOrDefault("source-zone") ?? choice.Parameters.GetValueOrDefault("zone") ??
             choice.Parameters.GetValueOrDefault("target-zone");
         var zone = Enum.TryParse<CardZoneKind>(zoneName, true, out var parsed) ? parsed
-            : choice.Parameters.ContainsKey("hand-slot") ? CardZoneKind.Hand : (CardZoneKind?)null;
+            : choice.Parameters.ContainsKey("hand-slot") || choice.Parameters.GetValueOrDefault("action") == "target-card-slot"
+                ? CardZoneKind.Hand : (CardZoneKind?)null;
         if (zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)) return null;
         var owner = int.TryParse(choice.Parameters.GetValueOrDefault("card-owner-seat"), out var declaredOwner)
             ? declaredOwner : choice.Targets.Count == 1 ? choice.Targets[0] : _snapshot.PendingDecision?.TargetSeat;
@@ -69,8 +70,10 @@ public sealed partial class MainViewModel
     private void RefreshTargetCardPicker()
     {
         var publicPlay = HasPublicTargetChoices;
+        var nativeTarget = IsTargetCardSelectionPending && TargetCardChoices.Any(choice => choice.Cards.Count > 0);
         var skillChoices = CenterSkillChoices;
         IReadOnlyList<PromptChoice> source = publicPlay ? PublicTargetChoices
+            : nativeTarget ? TargetCardChoices
             : IsSkillSelectionPending && !IsOwnedCardSelectionPending && !IsHandResponsePending && !HasDockSkillChoices
                 ? skillChoices : [];
         var entries = source.Select(choice => (Choice: choice, Region: TargetChoiceRegion(choice, publicPlay)))
@@ -82,12 +85,10 @@ public sealed partial class MainViewModel
                 group.Key.Zone switch { CardZoneKind.Hand => "手牌区", CardZoneKind.Equipment => "装备区", _ => "判定区" },
                 severalOwners ? _snapshot.Players.Single(player => player.Seat == group.Key.Owner).GeneralName : string.Empty,
                 publicPlay && group.Key.Zone == CardZoneKind.Hand
-                    ? _snapshot.Players.Single(player => player.Seat == group.Key.Owner).HandCount is var count && count == 1
-                        ? "1 张暗牌 · 点击选择"
-                        : $"{count} 张暗牌 · 点击展开选择牌位"
+                    ? $"{group.Count()} 张暗牌 · 点击一张立即选择"
                     : string.Empty,
                 Array.AsReadOnly(group.Select(entry => entry.Choice).ToArray()),
-                publicPlay ? SelectPublicTargetChoiceCommand : SelectSkillChoiceCommand, publicPlay)).ToArray();
+                publicPlay ? SelectPublicTargetChoiceCommand : nativeTarget ? SelectTargetCardChoiceCommand : SelectSkillChoiceCommand, publicPlay)).ToArray();
         if (!_targetCardRegions.Select(region => (region.Zone, region.OwnerSeat, region.OwnerName, region.Hint, region.Command, region.IsPublicPlay))
                 .SequenceEqual(regions.Select(region => (region.Zone, region.OwnerSeat, region.OwnerName, region.Hint, region.Command, region.IsPublicPlay))) ||
             !_targetCardRegions.SelectMany(region => region.Choices)
@@ -97,7 +98,8 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(TargetCardRegions));
         }
         PromptChoice[] grouped = publicPlay ? [] : entries.Select(entry => entry.Choice).ToArray();
-        var ungrouped = skillChoices.Where(choice => !grouped.Contains(choice, ReferenceEqualityComparer.Instance)).ToArray();
+        var ungrouped = HasDockSkillChoices || IsOwnedCardSelectionPending ? []
+            : skillChoices.Where(choice => !grouped.Contains(choice, ReferenceEqualityComparer.Instance)).ToArray();
         if (!_ungroupedCenterSkillChoices.SequenceEqual(ungrouped, ReferenceEqualityComparer.Instance))
         {
             _ungroupedCenterSkillChoices = Array.AsReadOnly(ungrouped);

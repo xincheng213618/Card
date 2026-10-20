@@ -87,6 +87,8 @@ public sealed partial class GameEngine
                 player.HasAlcoholEffect)
             {
                 IdentityConcealed = player.IdentityConcealed,
+                WushuangTacticIds = IsWushuangMode
+                    ? Array.AsReadOnly(_wushuangPlayers.GetValueOrDefault(player.Seat)?.Tactics.ToArray() ?? []) : null,
                 Armor = player.Armor,
                 IncomingDamageCap = GetIncomingFixedDamageCap(player,
                     (primarySkills ?? []).Concat(secondarySkills ?? []).Select(skill => skill.ContentId)
@@ -358,6 +360,7 @@ public sealed partial class GameEngine
         PrivateWhirlPiles = player.PrivateWhirlPiles is { } whirls
             ? Array.AsReadOnly(whirls.Select(p => p with { Cards = FreezeViewList(p.Cards) }).ToArray()) : null,
         Markers = FreezeViewList(player.Markers),
+        WushuangTacticIds = FreezeViewList(player.WushuangTacticIds),
         ActiveEffects = FreezeViewList(player.ActiveEffects),
         WoodenOxGrain = FreezeViewList(player.WoodenOxGrain),
         BuquWounds = FreezeViewList(player.BuquWounds),

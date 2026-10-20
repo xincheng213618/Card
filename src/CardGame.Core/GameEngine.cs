@@ -841,10 +841,13 @@ public sealed partial class GameEngine
         }
 
         var actor = _players[command.ActorSeat];
-        if (TrySubmitChainedStateBasicPlay(command, out var chainedResult)) return chainedResult;
-        if (TrySubmitDrawFundedDistinctBasicPlay(command, out var drawFundedResult)) return drawFundedResult;
-        if (TrySubmitRoundOnceCardlessPlay(command, out var roundCardlessResult)) return roundCardlessResult;
-        if (TrySubmitTieredRoundZeroPlay(command, out var tieredZeroResult)) return tieredZeroResult;
+        if (command.TargetHandSlot is null)
+        {
+            if (TrySubmitChainedStateBasicPlay(command, out var chainedResult)) return chainedResult;
+            if (TrySubmitDrawFundedDistinctBasicPlay(command, out var drawFundedResult)) return drawFundedResult;
+            if (TrySubmitRoundOnceCardlessPlay(command, out var roundCardlessResult)) return roundCardlessResult;
+            if (TrySubmitTieredRoundZeroPlay(command, out var tieredZeroResult)) return tieredZeroResult;
+        }
         var card = FindOwnedPlayableCard(actor, command.CardId);
         if (card is null)
         {
@@ -870,6 +873,14 @@ public sealed partial class GameEngine
                 "The selected card and exact target list are not a legal choice for this prompt.");
         }
 
+        if (command.TargetHandSlot is { } slot)
+        {
+            if (action.Kind is not (LegalActionKind.Dismantlement or LegalActionKind.Snatch) ||
+                action.TargetCardId is not null || targets.Length != 1 || slot < 0 || slot >= GetHand(_players[targets[0]]).Count)
+                return Reject(CommandErrorCode.InvalidChoice, "The selected hidden hand slot is not a legal target-card choice.");
+            action = action with { TargetHandPreselection = new(targets[0], slot, GetHand(_players[targets[0]]).Count,
+                TargetHandMovementSequence(targets[0])) };
+        }
         return Accept(() => HumanPlayCore(actor, action, _options.AdvanceAfterHumanCommands));
     }
 
@@ -4121,7 +4132,8 @@ public sealed partial class GameEngine
                     _players[action.TargetSeat.Value],
                     card,
                     action.TargetCardId,
-                    action.PlayedCardKind);
+                    action.PlayedCardKind,
+                    action.TargetHandPreselection);
                 break;
             case LegalActionKind.Snatch:
                 if (action.TargetSeat is null)
@@ -4134,7 +4146,8 @@ public sealed partial class GameEngine
                     _players[action.TargetSeat.Value],
                     card,
                     action.TargetCardId,
-                    action.PlayedCardKind);
+                    action.PlayedCardKind,
+                    action.TargetHandPreselection);
                 break;
             case LegalActionKind.UnexpectedAssault:
                 if (action.TargetSeat is null) throw new InvalidOperationException("UnexpectedAssault requires a target.");
@@ -5027,8 +5040,21 @@ public sealed partial class GameEngine
                 return;
             }
 
-            BeginTargetCardSelection(pending, target, targetHand.Count);
-            return;
+            var use = LifecycleCardUse(pending.ParentFrameId);
+            var selected = use?.TargetHandPreselection;
+            if (selected is not null)
+                UpdateLifecycleCardUse(use!.Id, frame => frame with { TargetHandPreselection = null });
+            if (selected is not null && selected.TargetSeat == target.Seat && selected.HandCount == targetHand.Count &&
+                selected.HandMovementSequence == TargetHandMovementSequence(target.Seat) && selected.SlotIndex >= 0 && selected.SlotIndex < targetHand.Count)
+            {
+                targetCard = targetHand[selected.SlotIndex];
+                targetCardFromZone = CardLocation.Hand(target.Seat);
+            }
+            else
+            {
+                BeginTargetCardSelection(pending, target, targetHand.Count);
+                return;
+            }
         }
 
         ApplyTargetCardEffect(
@@ -5732,7 +5758,8 @@ public sealed partial class GameEngine
         CharacterState target,
         Card dismantlement,
         int? targetCardId,
-        CardKind? playedCardKind = null) =>
+        CardKind? playedCardKind = null,
+        TargetHandCardPreselection? preselection = null) =>
         BeginTargetCardEffect(
             source,
             target,
@@ -5740,14 +5767,16 @@ public sealed partial class GameEngine
             LegalActionKind.Dismantlement,
             TargetCardEffect.Discard,
             targetCardId,
-            playedCardKind);
+            playedCardKind,
+            preselection);
 
     private void ResolveSnatch(
         CharacterState source,
         CharacterState target,
         Card snatch,
         int? targetCardId,
-        CardKind? playedCardKind = null) =>
+        CardKind? playedCardKind = null,
+        TargetHandCardPreselection? preselection = null) =>
         BeginTargetCardEffect(
             source,
             target,
@@ -5755,7 +5784,8 @@ public sealed partial class GameEngine
             LegalActionKind.Snatch,
             TargetCardEffect.Take,
             targetCardId,
-            playedCardKind);
+            playedCardKind,
+            preselection);
 
     private void BeginTargetCardEffect(
         CharacterState source,
@@ -5764,7 +5794,8 @@ public sealed partial class GameEngine
         LegalActionKind actionKind,
         TargetCardEffect effect,
         int? targetCardId,
-        CardKind? playedCardKind = null)
+        CardKind? playedCardKind = null,
+        TargetHandCardPreselection? preselection = null)
     {
         var effectiveCardKind = playedCardKind ?? effectCard.Kind;
         var stillLegal = BuildLegalActions(source, selectedPhysicalCardId: effectCard.Id).Any(action =>
@@ -5798,6 +5829,8 @@ public sealed partial class GameEngine
 
         var sourceLocation = FindOwnedCardLocation(source, effectCard);
         var resolutionId = BeginCardUse(effectCard, source.Seat, [target.Seat], effectiveCardKind);
+        if (preselection is not null)
+            UpdateLifecycleCardUse(resolutionId, frame => frame with { TargetHandPreselection = preselection });
         MoveCard(
             effectCard,
             sourceLocation,

@@ -72,8 +72,38 @@ internal static class ConversionSkillSelectionChecks
                     if (equipmentId is null)
                         Click(Button(root, model.SelectCardCommand, model.Hand.Single(item => item.Id == action.CardId)));
                     else
-                        Click(Button(root, model.SelectEquipmentPlayChoiceCommand,
-                            model.EquipmentPlayChoices.Single(choice => choice.Cards.SequenceEqual([equipmentId.Value]))));
+                    {
+                        Program.Assert(!model.HasCenterChoices && model.EquipmentPlayChoices.Count == 0 &&
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId).IsSelectable,
+                            "Equipment conversion materials must use the equipment rail without a duplicate central picker.");
+                        var retired = model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId);
+                        Click(Button(root, model.SelectEquipmentMaterialCommand, retired));
+                        Layout(root);
+                        Program.Assert(model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId).IsSelected &&
+                            game.Revision == before, "Selecting conversion equipment must retain a local rail highlight without paying.");
+                        model.SelectEquipmentMaterialCommand.Execute(retired);
+                        Program.Assert(model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId).IsSelected,
+                            "A retired equipment control must not change the current draft.");
+                        Click(Button(root, model.SelectCardCommand, model.Hand.First(card => card.IsPlayable)));
+                        Layout(root);
+                        Program.Assert(model.Hand.Count(card => card.IsSelected) == 1 &&
+                            !model.HumanEquipmentSlots.Any(slot => slot.IsSelected),
+                            "Switching to a hand material must remove the previous equipment highlight.");
+                        Click(Button(root, model.SelectEquipmentMaterialCommand,
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId)));
+                        Layout(root);
+                        Program.Assert(model.Hand.All(card => !card.IsSelected) &&
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId).IsSelected,
+                            "Switching to equipment must remove the previous hand material highlight.");
+                        Click(Button(root, model.SelectEquipmentMaterialCommand,
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId)));
+                        Layout(root);
+                        Program.Assert(!model.HumanEquipmentSlots.Any(slot => slot.IsSelected) && !model.CanConfirmSelected &&
+                            !model.HasCenterChoices && game.Revision == before,
+                            "Clicking the selected conversion equipment again must clear only its draft.");
+                        Click(Button(root, model.SelectEquipmentMaterialCommand,
+                            model.HumanEquipmentSlots.Single(slot => slot.Card?.Id == equipmentId)));
+                    }
                     foreach (var seat in action.TargetSeats.Where(seat => !model.Seats.Single(item => item.Seat == seat).IsSelectedTarget))
                         model.SelectTargetCommand.Execute(model.Seats.Single(item => item.Seat == seat));
                     if (scenario.Output == CardKind.IronChain)
@@ -84,6 +114,8 @@ internal static class ConversionSkillSelectionChecks
                     AssertPrintedFaces();
                     if (scenario.Skill == "standard:longdan")
                         Program.Render(root, 1120, 740, Path.Combine(output, "conversion-original-faces-selected.png"));
+                    if (equipmentId is not null)
+                        Program.Render(root, 1120, 740, Path.Combine(output, "equipment-conversion-rail.png"));
                     VerifyCommit(model, registry, action, before, commandCount);
 
                     void AssertPrintedFaces() => Program.Assert(model.Hand.All(card =>

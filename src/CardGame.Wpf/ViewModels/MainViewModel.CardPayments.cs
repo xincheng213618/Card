@@ -87,7 +87,7 @@ public sealed partial class MainViewModel
     private static bool IsPaymentDecline(PromptChoice choice) => choice.Cards.Count == 0 &&
         choice.Targets.Count == 0 && choice.ContentIds.Count == 0 && choice.Parameters.Any(parameter =>
             parameter.Key is "program-action" or "action" or "option" or "branch" or "cost-side" or "payment-kind" &&
-            (parameter.Value is "skip" or "decline" or "cancel" or "different-action-category-decline" ||
+            (parameter.Value is "skip" or "decline" or "cancel" or "different-action-category-decline" or "slash-suit-discard" ||
              parameter.Value.EndsWith("-skip", StringComparison.Ordinal) || parameter.Value.StartsWith("decline-", StringComparison.Ordinal)));
 
     private void TogglePaymentCard(int id)

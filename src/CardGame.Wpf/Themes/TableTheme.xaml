@@ -381,6 +381,7 @@
             <Border x:Name="StatusCountBadge" Background="#282217" BorderBrush="#C9AE6F" BorderThickness="0.7" CornerRadius="5" MinWidth="12" Padding="2,0" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="{Binding HasCount, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False">
                 <TextBlock x:Name="StatusCountText" Text="{Binding CountText}" Foreground="#FFE3A4" FontSize="9" FontWeight="SemiBold" TextAlignment="Center" />
             </Border>
+            <Button x:Name="InspectPublicPileButton" Style="{StaticResource BareButton}" Background="Transparent" Command="{Binding DataContext.OpenPublicPileCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Visibility="{Binding CanInspectPile, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding Label, StringFormat=查看{0}牌堆}" />
         </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsDrawPhaseBonus}" Value="True">
@@ -392,6 +393,20 @@
                 <Setter TargetName="StatusBadgeSurface" Property="BorderBrush" Value="#A48CBB" />
             </DataTrigger>
         </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate x:Key="WushuangTacticBadgeTemplate">
+        <StackPanel Width="60" Margin="1,0" ToolTip="{Binding Tooltip}" ToolTipService.InitialShowDelay="150" AutomationProperties.Name="{Binding Tooltip}">
+            <Grid Width="46" Height="46">
+                <Image Source="{Binding Frame}" Stretch="Uniform" />
+                <Ellipse Width="33" Height="33" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse.Fill><ImageBrush ImageSource="{Binding Icon}" Stretch="UniformToFill" /></Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontFamily="SimSun" FontSize="12" TextAlignment="Center" Margin="0,2,0,0" TextWrapping="Wrap">
+                <TextBlock.Effect><DropShadowEffect Color="#160C06" BlurRadius="3" ShadowDepth="1" Opacity="1" /></TextBlock.Effect>
+            </TextBlock>
+        </StackPanel>
     </DataTemplate>
 
     <DataTemplate x:Key="SeatTemplate">
@@ -514,6 +529,13 @@
                 <TextBlock Text="{Binding RoleBadgeText}" Foreground="#FFF4E0" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
         </controls:IdentityMarkButton>
+        <Canvas Width="0" Height="0" HorizontalAlignment="Left" VerticalAlignment="Top" Panel.ZIndex="5" Visibility="{Binding ShowPortraitWushuangTactics, Converter={StaticResource BoolToVisibility}}">
+            <ScrollViewer x:Name="OpponentWushuangTactics" Canvas.Left="-192" Canvas.Top="74" Width="186" MaxHeight="132" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="对方战法">
+                <ItemsControl ItemsSource="{Binding WushuangTactics}" ItemTemplate="{StaticResource WushuangTacticBadgeTemplate}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Right" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </Canvas>
         <StackPanel x:Name="PortraitPileBadges" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,34,25,0" Panel.ZIndex="5" MaxWidth="86">
             <Button x:Name="PrivateReserveBadge" Content="{Binding PrivateReserveText}" Command="{Binding DataContext.OpenPrivateReserveCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" FontSize="11" Padding="5,2" HorizontalAlignment="Left" Margin="0,0,0,3" Visibility="{Binding HasPrivateReserve, Converter={StaticResource BoolToVisibility}}" ToolTip="武将牌上的“星”；其他角色查看时仅显示牌背" AutomationProperties.Name="{Binding PrivateReserveText}" />
             <Button x:Name="TurnHandHoldBadge" Content="{Binding TurnHandHoldText}" Command="{Binding DataContext.OpenTurnHandHoldCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" FontSize="11" Padding="5,2" HorizontalAlignment="Left" Margin="0,0,0,3" Visibility="{Binding HasTurnHandHold, Converter={StaticResource BoolToVisibility}}" ToolTip="暂存的手牌，回合结束时返还；其他角色查看时仅显示牌背" AutomationProperties.Name="{Binding TurnHandHoldText}" />

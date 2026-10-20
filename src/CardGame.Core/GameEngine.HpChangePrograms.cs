@@ -19,6 +19,7 @@ public sealed partial class GameEngine
         CaptureXianfuRecoveryQualification(change);
         CaptureDianhuRecoveryQualification(change);
         CaptureSpSunShangxiangRecovery(change);
+        CaptureMouSunJianOlHp(change);
         return change;
     }
 

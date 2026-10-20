@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 30)]

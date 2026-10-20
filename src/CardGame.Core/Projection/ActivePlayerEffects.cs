@@ -43,6 +43,10 @@ public sealed partial class GameEngine
             expiry == SkillProgramDamageModifierExpiration.NextOwnerTurnStart
                 ? ActivePlayerEffectExpiry.NextSourceTurnStart : ActivePlayerEffectExpiry.CurrentTurnEnd;
 
+        foreach (var grant in ActiveMouGszBaojing(player.Seat))
+            Add(MouGongsunZanComposition.Baojing, grant.Source.OwnerSeat,
+                $"攻击范围{grant.Amount:+0;-0}（减少至最少1），直到来源的下个实际出牌阶段开始。", ActivePlayerEffectExpiry.RuleCleared);
+
         if (WuLuKangDixianPublicDescription(player.Seat) is { } dixianDescription)
             Add(WuLuKangComposition.Dixian, player.Seat, dixianDescription, ActivePlayerEffectExpiry.RuleCleared);
 

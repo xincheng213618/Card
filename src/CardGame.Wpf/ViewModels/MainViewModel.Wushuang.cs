@@ -239,6 +239,7 @@ public sealed record WushuangShopOfferViewModel(string Id, string Name, string D
     public string DisplayName => Name.Replace("传习 · ", "", StringComparison.Ordinal);
     public System.Windows.Media.ImageSource FrameImage => WushuangArt.Get($"rogue_award_quality_bg_{Math.Clamp(Quality, 1, 4)}.png");
     public System.Windows.Media.ImageSource NameImage => WushuangArt.Get($"rogue_award_name_bg_{Math.Clamp(Quality, 1, 4)}.png");
+    public System.Windows.Media.ImageSource IconFrameImage => WushuangArt.Get($"rogue_zhanfa_bg_{Math.Clamp(Quality, 1, 4)}.png");
     public System.Windows.Media.ImageSource TypeImage => WushuangArt.Get($"rogue_award_type_icon_{(IsTactic ? 2 : IsSkill ? 3 : 4)}.png");
     public System.Windows.Media.ImageSource? Artwork => IsCard ? CardArt.Get(CardKind) : TacticId is { } id ? ShanheArt.Get(id) : null;
 }

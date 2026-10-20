@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:dulie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "sole-incoming-extra-effect-and-range-draw",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "repeatIncomingSoleCardEffectAndDrawByRange",
+              "target": "owner",
+              "amount": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:douchan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-duel-or-growth",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "acquireDeckKindSequentiallyAndGrowOnShortfall",
+              "target": "owner",
+              "outputKind": "duel",
+              "amount": 1,
+              "capGrowthByInitialPlayerCount": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

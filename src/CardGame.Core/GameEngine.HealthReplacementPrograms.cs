@@ -32,6 +32,7 @@ public sealed partial class GameEngine
             changed.Item2, changed.Item3, before, after);
         _pendingHpChanges.Add(change);
         CaptureQimeiHpQualification(change);
+        CaptureMouSunJianOlHp(change);
     }
 
     private bool ApplyAttackAsHpLoss(IDamageAttempt attack)

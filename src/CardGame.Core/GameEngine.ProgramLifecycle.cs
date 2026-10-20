@@ -534,7 +534,7 @@ public sealed partial class GameEngine
             owner.MaxHp - previous,
             owner.MaxHp,
             sourceSkillId ?? frame.SkillId)
-        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } ? hpBeforeClamp : null });
+        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } || HasMouSunJianOlHpSubject(owner.Seat) ? hpBeforeClamp : null });
     }
 
     private void GrantProgramSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds)
@@ -2212,6 +2212,7 @@ public sealed partial class GameEngine
         if (IsIssuedRuanHuiCandidate(candidate)) return CanRunIssuedRuanHuiCandidate(candidate, context);
         if (IsIssuedKenshangCandidate(candidate)) return CanRunIssuedKenshangCandidate(candidate, context);
         if (IsIssuedFulueCandidate(candidate)) return CanRunIssuedFulueCandidate(candidate, context);
+        if (CanRunIssuedMouSunJianOlHulie(candidate, context)) return true;
         if (IsIssuedMiuyanCandidate(candidate)) return CanRunIssuedMiuyanCandidate(candidate, context);
         if (_contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program?.Triggers.Any(t => t.Id == candidate.BindingId && t.Effects is [{ Op: SkillProgramEffectOp.RewardHejiUnconvertedUse }]) == true) return IsIssuedWuJingHejiReward(candidate, context);
         if (IsWuJingLiubingCandidate(candidate)) return CanRunWuJingLiubingCandidate(candidate, context);

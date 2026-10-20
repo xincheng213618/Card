@@ -50,11 +50,32 @@ internal static class WushuangUiChecks
                 vm.WushuangSkillSlots.Count == 2 && vm.WushuangSkillSlots.All(slot => slot.SkillId is null),
                 "The selected game automatically opens a free three-choice initial tactic panel.");
             Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-opening.png"));
-            vm.BuyWushuangOfferCommand.Execute(vm.WushuangOffers.First());
+            var initialTactic = vm.WushuangOffers.First(offer => offer.TacticId is { } id && WushuangTactics.ById[id].SkillId is not null);
+            vm.BuyWushuangOfferCommand.Execute(initialTactic);
             Program.Assert(!game.IsFaulted && !vm.IsWushuangShopOpen &&
                 (vm.CanStepAi || game.PendingDecision is { } next && next.SkillPrompt?.SkillId != WushuangMode.ModeId),
                 "Selecting the free tactic retires the modal and leaves either a runnable engine or a genuine next human decision.");
             Drive(vm, () => game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
+            Layout(root);
+            var tacticRail = (ScrollViewer)window.FindName("HumanWushuangTactics");
+            var dock = (FrameworkElement)window.FindName("HandDock");
+            var badge = vm.HumanPlayer!.WushuangTactics.Single();
+            Program.Assert(badge.Id == initialTactic.TacticId && badge.Icon is not null && badge.Frame.IsFrozen &&
+                vm.HumanSkillCards.All(skill => skill.ContentId != WushuangTactics.ById[badge.Id].SkillId) &&
+                game.CreateSnapshot(0).Players[0].Skills!.Any(skill => skill.ContentId == WushuangTactics.ById[badge.Id].SkillId) &&
+                vm.WushuangSkillSlots.All(slot => slot.SkillId is null),
+                "A real passive tactic keeps its executable rule but renders as an art badge, never as a skill button or an extra skill slot.");
+            Program.Assert(tacticRail.Visibility == Visibility.Visible && tacticRail.ActualHeight > 40 &&
+                tacticRail.TranslatePoint(new Point(), root).X > root.ActualWidth / 2 &&
+                tacticRail.TranslatePoint(new Point(0, tacticRail.ActualHeight), root).Y <= dock.TranslatePoint(new Point(), root).Y &&
+                vm.Seats.Single(seat => !seat.IsHuman).WushuangTactics.Count > 0,
+                "Human tactic badges sit at the right above the hand dock; the opponent has a separate public tactic rail.");
+            var opposingRail = Program.Find<ScrollViewer>(root).Single(view => view.Name == "OpponentWushuangTactics" &&
+                view.DataContext is SeatViewModel { IsHuman: false });
+            Program.Assert(opposingRail.ActualWidth > 40 && opposingRail.ActualHeight > 40 &&
+                opposingRail.TranslatePoint(new Point(), root).X > 0,
+                "The opponent's rail has real layout outside the portrait rather than collapsing under a large positive margin.");
+            Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-tactics-table.png"));
             vm.OpenWushuangShopCommand.Execute(null); Layout(root);
             var previewIds = vm.WushuangOffers.Select(item => item.Id).ToArray();
             Program.Assert(vm.IsWushuangShopOpen && !vm.IsWushuangShopInteractive && previewIds.Length == 4 &&
@@ -77,9 +98,22 @@ internal static class WushuangUiChecks
             vm.ToggleWushuangShopLockCommand.Execute(null);
             Program.Assert(game.CreateWushuangSnapshot(0)!.IsLocked, "The visible lock commits to the native private shop state.");
             Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-shop.png"));
+            var sidebar = (FrameworkElement)window.FindName("TableSidebar");
+            var shopEnd = panel.TranslatePoint(new Point(panel.ActualWidth, panel.ActualHeight), root);
+            Program.Assert(shopEnd.X <= sidebar.TranslatePoint(new Point(), root).X &&
+                shopEnd.Y <= dock.TranslatePoint(new Point(), root).Y,
+                "The shop scales inside the battlefield, aligned above the hand dock and to the left of the log sidebar.");
+            var priceSlots = Program.Find<Grid>(panel).Where(grid => grid.Name == "WushuangPriceSlot").ToArray();
+            Program.Assert(priceSlots.Length == 4 &&
+                priceSlots.Select(slot => slot.TranslatePoint(new Point(), panel).Y).Distinct().Count() == 1,
+                "All four price and sold-state slots share one baseline, independent of offer type and description length.");
+            var footerIcons = new[] { "WushuangEndIcon", "WushuangLockIcon", "WushuangRefreshIcon" }
+                .Select(name => (FrameworkElement)panel.FindName(name)).ToArray();
+            Program.Assert(footerIcons.Select(icon => icon.TranslatePoint(new Point(), panel).Y).Distinct().Count() == 1,
+                "Ending, lock and refresh icons share one footer baseline; the token cost has its own row.");
             var refresh = (Button)panel.FindName("WushuangRerollButton");
             var locked = (Button)panel.FindName("WushuangLockButton");
-            Program.Assert(refresh.TranslatePoint(new Point(), panel).Y > 560 &&
+            Program.Assert(refresh.TranslatePoint(new Point(), panel).Y > panel.ActualHeight - 130 &&
                 locked.TranslatePoint(new Point(), panel).X < refresh.TranslatePoint(new Point(), panel).X &&
                 vm.WushuangOffers.Where(item => item.Cost == 0 && !item.IsPurchased).All(item => item.PriceText == "免费" && !item.ShowsPriceIcon) &&
                 vm.WushuangOffers.Where(item => !item.IsAffordable).All(item => item.PriceForeground == "#F04436"),
@@ -99,6 +133,8 @@ internal static class WushuangUiChecks
             cold.LoadWushuangManualGameCommand.Execute(null);
             Program.Assert(!cold.HasSaveError && cold.IsWushuangTable &&
                 SnapshotJson.Serialize(Program.Engine(cold).CreateSnapshot(0)) == saved &&
+                cold.HumanPlayer!.WushuangTactics.SequenceEqual(vm.HumanPlayer!.WushuangTactics) &&
+                cold.HumanSkillCards.All(skill => skill.ContentId != WushuangTactics.ById[badge.Id].SkillId) &&
                 cold.WushuangSkillSlots.Single(slot => slot.SkillId is not null).SkillId == offer.SkillId,
                 "A new desktop configured with ordinary content cold-restores the exact duel journal, acquired skill and remaining time.");
             vm.SelectedTableMode = vm.TableModes.First(mode => mode.ModeId != WushuangMode.ModeId);
@@ -138,7 +174,7 @@ internal static class WushuangUiChecks
         var replacement = vm.WushuangOffers.First(offer => offer.SkillId is not null && offer.IsEnabled);
         Program.Assert(replacement.RequiresReplacement, "A full rack marks the skill card before a replacement purchase is selected.");
         var shop = new WushuangShopPanel { DataContext = vm };
-        Program.Render(shop, 1240, 700, Path.Combine(output, "wushuang-full-slots.png"));
+        Program.Render(shop, 1240, 650, Path.Combine(output, "wushuang-full-slots.png"));
         var before = game.CreateWushuangSnapshot(0)!;
         vm.BuyWushuangOfferCommand.Execute(replacement);
         Program.Assert(vm.IsWushuangReplacementPending && vm.WushuangReplacementTitle.Contains(replacement.Name) &&

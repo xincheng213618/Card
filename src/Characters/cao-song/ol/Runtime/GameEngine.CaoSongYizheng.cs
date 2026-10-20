@@ -61,7 +61,7 @@ public sealed partial class GameEngine
         var previous = owner.MaxHp; var hpBefore = owner.Hp;
         owner.MaxHp = checked(previous - 1); owner.Hp = Math.Min(owner.Hp, owner.MaxHp);
         AdvanceEventRulesAndQueueFact(new MaximumHpChangedEvent(owner.Seat, -1, owner.MaxHp, grant.Source.SkillId)
-        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } ? hpBefore : null });
+        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } || HasMouSunJianOlHpSubject(owner.Seat) ? hpBefore : null });
         AdvanceEventRulesAndQueueFact(new CaoSongYizhengAmountPaidEvent(parentId, grant.GrantId,
             owner.Seat, beneficiary, recovery, previous, owner.MaxHp));
     }

@@ -14,21 +14,34 @@ public sealed partial class MainViewModel
     {
         get
         {
-            if (_snapshot?.PendingDecision is not { SkillPrompt: not null, RequiredCardCount: > 0, Choices.Count: > 0 } prompt ||
+            if (_snapshot?.PendingDecision is not { SkillPrompt: not null, Choices.Count: > 0 } prompt ||
                 prompt.PlayerSeat != _snapshot.HumanSeat) return false;
             var human = _snapshot.Players.Single(player => player.Seat == _snapshot.HumanSeat);
             var owned = human.Hand.Concat(human.Equipment).Select(card => card.Id).ToHashSet();
             var cards = prompt.Choices.Where(choice => choice.Cards.Count > 0).ToArray();
-            var action = cards.FirstOrDefault()?.Parameters.GetValueOrDefault("program-action");
+            var action = (cards.FirstOrDefault() ?? prompt.Choices.FirstOrDefault(IsOwnedSelectionFinish))?
+                .Parameters.GetValueOrDefault("program-action");
             if (action is null) return false;
-            return cards.Length > 0 && prompt.Choices.All(choice => choice.Targets.Count == 0 && choice.ContentIds.Count == 0 &&
+            return (prompt.RequiredCardCount > 0 || prompt.MinimumCardCount == 0 && prompt.Choices.Any(IsOwnedSelectionFinish)) &&
+                prompt.Choices.All(choice => choice.Targets.Count == 0 && choice.ContentIds.Count == 0 &&
                 (choice.Parameters.GetValueOrDefault("program-action") == action &&
                     choice.Cards.Count == 1 && owned.Contains(choice.Cards[0]) ||
-                 choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards" && choice.Cards.Count == 0 ||
+                 IsOwnedSelectionFinish(choice) ||
                  IsPaymentDecline(choice))) &&
                 cards.Select(choice => choice.Cards[0]).Distinct().Count() == cards.Length;
         }
     }
+
+    private static bool IsOwnedSelectionFinish(PromptChoice choice) =>
+        choice.Cards.Count == 0 && choice.Targets.Count == 0 && choice.ContentIds.Count == 0 &&
+        (choice.Parameters.GetValueOrDefault("program-action") switch
+        {
+            "finish-owned-cards" => true,
+            "prep-discard-ending" => choice.Parameters.GetValueOrDefault("prep-discard-step") == "finish",
+            "public-pile-preparation" => choice.Parameters.GetValueOrDefault("pile-action") == "finish",
+            "game-domain" => choice.Parameters.GetValueOrDefault("domain-action") == "store-finish",
+            _ => false
+        });
 
     private bool IsOwnedSelectionMaterial(int? id) => IsOwnedCardSelectionPending && id is { } cardId &&
         _snapshot.PendingDecision!.Choices.Any(choice => choice.Cards.Count == 1 && choice.Cards[0] == cardId);
@@ -39,7 +52,8 @@ public sealed partial class MainViewModel
 
     private PromptChoice? OwnedCardDeclineChoice => IsOwnedCardSelectionPending
         ? _snapshot.PendingDecision!.Choices.SingleOrDefault(choice => IsPaymentDecline(choice) ||
-            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards" && choice.Parameters.GetValueOrDefault("selection-index") == "0")
+            IsOwnedSelectionFinish(choice) && (_snapshot.PendingDecision.MinimumCardCount == 0 ||
+                choice.Parameters.GetValueOrDefault("selection-index") == "0"))
         : null;
 
     private void SyncOwnedCardSelection()
@@ -68,7 +82,7 @@ public sealed partial class MainViewModel
     private string OwnedCardSelectionHint => $"{_snapshot.PendingDecision!.SkillPrompt!.Name} · 选择 " +
         (_snapshot.PendingDecision.MinimumCardCount is { } min && min != _snapshot.PendingDecision.RequiredCardCount
             ? $"{min} 至 {_snapshot.PendingDecision.RequiredCardCount}" : $"{_snapshot.PendingDecision.RequiredCardCount}") + " 张手牌或装备" +
-        $"（已选 {_selectedOwnedCardIds.Count}/{_snapshot.PendingDecision.RequiredCardCount}）· 选齐后点击「确定」；Esc 取消选择。";
+        $"（已选 {_selectedOwnedCardIds.Count}/{_snapshot.PendingDecision.RequiredCardCount}）· 选好后点击「确定」；再次点击取消单张，Esc 清空选择。";
 
     private ICommand? _selectOwnedCardEquipmentCommand;
     public ICommand SelectOwnedCardEquipmentCommand => _selectOwnedCardEquipmentCommand ??=
@@ -85,7 +99,7 @@ public sealed partial class MainViewModel
     {
         if (!CanConfirmOwnedCardSelection) return;
         var initial = _snapshot.PendingDecision!;
-        var source = initial.Choices.First(choice => choice.Cards.Count == 1).Parameters;
+        var source = initial.Choices.First(choice => choice.Cards.Count == 1 || IsOwnedSelectionFinish(choice)).Parameters;
         var action = source.GetValueOrDefault("program-action");
         var ids = _selectedOwnedCardIds.ToArray();
         ExecuteSafely(() =>
@@ -111,10 +125,7 @@ public sealed partial class MainViewModel
                 // A variable-size set completes through the current published Finish;
                 // an exact/maximal set may already have advanced to the next effect.
                 var current = _game.CreateSnapshot(_snapshot.HumanSeat);
-                var finish = current.PendingDecision?.Choices.SingleOrDefault(choice =>
-                    choice.Cards.Count == 0 &&
-                    (choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards" ||
-                     choice.Parameters.GetValueOrDefault("program-action") == action && choice.Parameters.GetValueOrDefault("prep-discard-step") == "finish") &&
+                var finish = current.PendingDecision?.Choices.SingleOrDefault(choice => IsOwnedSelectionFinish(choice) &&
                     choice.Parameters.GetValueOrDefault("frame-id") == source.GetValueOrDefault("frame-id") &&
                     choice.Parameters.GetValueOrDefault("result-bind") == source.GetValueOrDefault("result-bind"));
                 if (finish is not null && current.PendingDecision!.PlayerSeat == initial.PlayerSeat)

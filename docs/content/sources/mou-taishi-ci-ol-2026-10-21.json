@@ -1,0 +1,94 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:taishi-ci-ol",
+  "characterId": "character:taishi-ci",
+  "displayName": "谋太史慈·OL",
+  "edition": "mou-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "wu",
+    "gender": "Male",
+    "baseHp": 4,
+    "officialHeroId": 602
+  },
+  "skills": [
+    {
+      "id": "mou-ol:dulie",
+      "name": "笃烈",
+      "officialText": "每回合限一次，你成为其他角色基本牌或普通锦囊牌的唯一目标时，你可令此牌的效果结算两次，然后你摸X张牌（X为你的攻击范围且至多为5）。"
+    },
+    {
+      "id": "mou-ol:douchan",
+      "name": "斗缠",
+      "officialText": "锁定技，准备阶段，你从牌堆中获得一张【决斗】，否则你的攻击范围和出牌阶段使用【杀】的次数+1（增加次数不超过游戏人数）。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "current-hero",
+      "url": "https://www.sanguosha.com/hero/602",
+      "sha256": "3CF022B1D1748EFE90C3CB232998C0959B98F6536C5F5F7178AA6D77CF46DE46",
+      "bytes": 24801
+    },
+    {
+      "key": "current-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=602",
+      "sha256": "B4BD1475C60FED81C0979394569BFB34BAEA2C502A2E90143C7D60F4F70DF9ED",
+      "bytes": 969
+    },
+    {
+      "key": "first-release",
+      "url": "https://www.sanguosha.com/news/20240201_9705_1417",
+      "sha256": "78FFBD5E46185D0B4938C9ADEAD25FD2743A6193E98418AC4873A48F9D8D167D",
+      "bytes": 444376,
+      "publishedAt": "2024-02-08 16:31:09",
+      "firstObtainableFrom": "2024-02-09 00:15:00"
+    },
+    {
+      "key": "current-formal-availability",
+      "url": "https://www.sanguosha.com/news/20261013_4344_3613",
+      "sha256": "D5F06F7992BAB8BD55ECBBD81BD6522725D68FFE4092398BDF12FDC296266325",
+      "bytes": 614136,
+      "availabilityWindow": "2026-10-17 through 2026-10-23",
+      "entry": "谋太史慈：15传世玉玺"
+    }
+  ],
+  "revisionAudit": {
+    "currentHeroAndApiAgree": true,
+    "currentAndFirstReleaseSkillTextAgree": true,
+    "formalReleaseConfirmsMaleWuFourHp": true,
+    "conflictingApplicableRevisionLocated": false,
+    "boundedSearch": [
+      "site:sanguosha.com/news 谋太史慈 调整 笃烈",
+      "site:sanguosha.com/news 斗缠 修改",
+      "site:sanguosha.com/news 谋太史慈 2026"
+    ],
+    "absenceIsNotExhaustiveProof": true,
+    "characterSpecificOfficialFAQConfirmed": false
+  },
+  "portrait": {
+    "officialUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60200.png",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-taishi-ci-ol.png",
+    "sha256": "2C431E2C7E8B434798EB62DB28599951534CBA7958C6288E6E8DCDF7053D94F8",
+    "width": 750,
+    "height": 950,
+    "bytes": 1143090,
+    "rootReportedOriginalImageVisualInspection": true
+  },
+  "implementationContract": [
+    "Dulie directly uses the established sole-incoming native effect-repeat operation, once per whole actual turn. It repeats the native effect without fabricating a second Use. After both effects and their children, the original Use draws its current attack range capped at five.",
+    "Douchan has the OL fixed-one obtain count, unlike the separate Shanhe activity maximum-HP variant. It obtains one physical Duel from the current DrawPile, not a generated card and not a Draw operation. Its actual movement invoice and native gain/replacement children determine obtained versus otherwise.",
+    "Otherwise grants one permanent attack-range and ordinary Play Slash-quota increment. The accepted engineering interpretation freezes game population as the initial player-slot count, rather than live survivors; the total named-skill growth budget does not reset on source withdrawal, regrant or a new source instance.",
+    "At the total-growth cap, the actual shortfall remains one and the grant increment is zero. Issued grants remain permanent after source loss, following the pre-existing sequential deck-shortfall contribution contract. New preparations require an active source.",
+    "The existing owning sequential-acquisition frame retains exact preparation identity, original source and content hash, paid movement batches, and typed gain-child returns. It does not repay an obtained entity on cold restoration or source loss. Native death and terminal cutoffs remain unchanged."
+  ],
+  "behaviorCheck": {
+    "file": "tests/CardGame.Core.Tests/MouTaishiCiOlChecks.cs",
+    "method": "OneActualDuelOrInitialPopulationCappedPermanentGrowth",
+    "sharedExistingChecks": [
+      "ShanheTaishiciChecks.IncomingSoleCardRepeatsBeforeLiveRangeDrawAndReplaysCold",
+      "ShanheTaishiciChecks.PreparationSequentialDuelsGrantPersistentShortfallAndReplaysCold",
+      "ShanheTaishiciChecks.DouchanRangeFeedsDulieAndConditionalRecipesStayIsolatedCold"
+    ]
+  }
+}

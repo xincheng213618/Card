@@ -75,6 +75,9 @@ public sealed partial class SeatViewModel : ObservableObject
     public IReadOnlyList<SeatStatusViewModel> VisibleStatusBadges { get; private set; } = [];
     public bool HasStatusBadges => StatusBadges.Count > 0;
     public bool ShowPortraitStatuses => HasStatusBadges && !IsHuman;
+    public IReadOnlyList<WushuangTacticViewModel> WushuangTactics { get; set; } = [];
+    public bool HasWushuangTactics => WushuangTactics.Count > 0;
+    public bool ShowPortraitWushuangTactics => HasWushuangTactics && !IsHuman;
     private bool _statusBadgesOnLeft;
     public bool StatusBadgesOnLeft { get => _statusBadgesOnLeft; set => SetProperty(ref _statusBadgesOnLeft, value); }
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
@@ -216,6 +219,7 @@ public sealed partial class SeatViewModel : ObservableObject
         if (!EqualityComparer<string>.Default.Equals(DeferredPileTooltip, source.DeferredPileTooltip)) { DeferredPileTooltip = source.DeferredPileTooltip; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(HasAlcoholEffect, source.HasAlcoholEffect)) { HasAlcoholEffect = source.HasAlcoholEffect; changed = true; }
         if (!StatusBadges.SequenceEqual(source.StatusBadges)) { StatusBadges = source.StatusBadges; changed = true; }
+        if (!WushuangTactics.SequenceEqual(source.WushuangTactics)) { WushuangTactics = source.WushuangTactics; changed = true; }
         if (!EqualityComparer<string?>.Default.Equals(TeamId, source.TeamId)) { TeamId = source.TeamId; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsTeammate, source.IsTeammate)) { IsTeammate = source.IsTeammate; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(DecisionRoleLabel, source.DecisionRoleLabel)) { DecisionRoleLabel = source.DecisionRoleLabel; changed = true; }

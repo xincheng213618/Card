@@ -60,13 +60,20 @@ internal sealed class AcquireDeckKindSequentiallyAndGrowOnShortfallDescriptor : 
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, _) => { });
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
     {
-        reader.AllowOnly("op", "target", "outputKind", "numberExpression", "condition");
+        reader.AllowOnly("op", "target", "outputKind", "numberExpression", "amount", "capGrowthByInitialPlayerCount", "condition");
         var kind = reader.RequiredEnum<CardKind>("outputKind");
-        var expression = reader.RequiredEnum<SkillProgramNumberExpression>("numberExpression");
-        if (kind != CardKind.Duel || expression != SkillProgramNumberExpression.OwnerMaxHp)
-            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: sequential deck acquisition requires Duel and ownerMaxHp.");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0,
-            reader.Condition(), outputKind: kind, numberExpression: expression);
+        var expression = reader.Has("numberExpression")
+            ? reader.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+        var amount = reader.Has("amount") ? reader.RequiredInt("amount") : 0;
+        if (kind != CardKind.Duel || reader.Has("amount") == reader.Has("numberExpression") ||
+            (expression is not null ? expression != SkillProgramNumberExpression.OwnerMaxHp : amount is < 1 or > 20))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: sequential deck acquisition requires Duel and either ownerMaxHp or one positive fixed amount.");
+        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), amount,
+            reader.Condition(), outputKind: kind, numberExpression: expression)
+        {
+            CapGrowthByInitialPlayerCount = reader.Has("capGrowthByInitialPlayerCount")
+                ? reader.RequiredBool("capGrowthByInitialPlayerCount") : null
+        };
         RequireAlways(effect, reader.Path);
         return effect;
     }
@@ -86,8 +93,9 @@ internal sealed class AcquireDeckKindSequentiallyAndGrowOnShortfallDescriptor : 
             trigger.NamedUsageGroup is not null || trigger.ChoiceGroup is not null || trigger.GainPhaseQualification is not null ||
             trigger.RequiredPolarity is not null || trigger.MarkerCost is not null ||
             trigger.Effects[0] is not { Target: SkillProgramEffectTarget.Owner, TargetReference: null,
-                OutputKind: CardKind.Duel, NumberExpression: SkillProgramNumberExpression.OwnerMaxHp,
-                Condition.Kind: SkillProgramConditionKind.Always })
+                OutputKind: CardKind.Duel, Condition.Kind: SkillProgramConditionKind.Always } ||
+            !(trigger.Effects[0] is { NumberExpression: SkillProgramNumberExpression.OwnerMaxHp, Amount: 0 } or
+                { NumberExpression: null, Amount: > 0 and <= 20 }))
             throw new InvalidOperationException($"Invalid skill program at {path}: sequential deck acquisition/growth requires one unlimited mandatory own-preparation instruction.");
     }
 }

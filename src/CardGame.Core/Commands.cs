@@ -134,6 +134,9 @@ public sealed record PlayCardCommand(
     int? TargetCardId = null) : GameCommand(ActorSeat, ExpectedRevision)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? TargetHandSlot { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -73,11 +73,11 @@ public sealed partial class GameEngine
             .Where(item => item.Operation == SkillRuleOperation.Unlimited)
             .Select(item => new UnlimitedRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}")));
-        return RuleQueryService.Evaluate(
+        return DistanceRules.ProjectAttackRange(player, RuleQueryService.Evaluate(
             SkillRuleQuery.AttackRange,
             new RuleQueryBounds(minimumRange, int.MaxValue),
             baseTerms,
-            contributions);
+            contributions));
     }
 
     private RuleQueryEvaluation EvaluateDrawCount(CharacterState player)

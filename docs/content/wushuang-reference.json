@@ -2,13 +2,2204 @@
   "verifiedOn": "2026-10-21",
   "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
   "sourceSha256": "9d2b017d7112c1d5999d61b48600945b4139fe237d840a38784623114706de9f",
+  "clientBundleSha256": "e01e94a8c0866067169418488c4834259ee6670ca49936f2014a6d052c98101b",
+  "decodedMemberSha256": {
+    "hd_1v1_rogue.sgs": "727398eeb9bcd51a097036283e59dea633bd107e43e1592f7865be1c1787d2e4",
+    "hd_roguelike.sgs": "4a1974563d33f3c7c8d4d3ebffa4ca5c10bb5b7794401aaa3b0ae9f5476fbf6e",
+    "cha_spell.sgs": "f6968cafd1c6156a99104cec85c312d36ad79960db0272dc84b04936bfe230fa"
+  },
   "tables": [
     "hd_1v1_rogue.Tactics",
-    "hd_roguelike.Root.Tactics"
+    "hd_1v1_rogue.Spell",
+    "hd_roguelike.Root.Tactics",
+    "hd_roguelike.Root.Spell",
+    "cha_spell.GameSpells.spell"
   ],
-  "note": "Public client configuration entries; presence does not independently prove live server availability or random weights. Quality is item rarity, not player experience or shop level.",
+  "note": "Public client catalogue; not evidence of live server availability or random weights. Shared catalogue prices are not single-duel prices.",
   "shopSeconds": 20,
   "timeLimitSeconds": 900,
+  "skills": [
+    {
+      "id": 3001,
+      "spellId": 985,
+      "class": "TiaoXinPo",
+      "name": "挑衅",
+      "description": "出牌阶段限一次，你可以选择一名攻击范围内包含你的角色，然后除非其对你使用一张【杀】且此【杀】对你造成伤害，否则你弃置其一张牌，然后本阶段本技能限两次。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "985,125,218"
+    },
+    {
+      "id": 3003,
+      "spellId": 423,
+      "class": "QiCe",
+      "name": "奇策",
+      "description": "出牌阶段限一次，你可以将所有手牌当任意普通锦囊牌使用。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "423,2150"
+    },
+    {
+      "id": 3004,
+      "spellId": 218,
+      "class": "BaoBian",
+      "name": "豹变",
+      "description": "锁定技，若你的体力值：<br>•小于等于3，你视为拥有“<font href='985'>挑衅</font>”；<br>•小于等于2，你视为拥有“<font href='34'>咆哮</font>”；<br>•为1，你视为拥有“<font href='363'>神速</font>”。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "218,985,125,34"
+    },
+    {
+      "id": 3006,
+      "spellId": 3269,
+      "class": "ShuangXiongPo",
+      "name": "双雄",
+      "description": "摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成过伤害的牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "101,883,79,3269,723"
+    },
+    {
+      "id": 3008,
+      "spellId": 3260,
+      "class": "HuoJi2023",
+      "name": "火计",
+      "description": "你可以将一张红色牌当【火攻】使用。<br>你的【火攻】改为令目标展示随机手牌，你弃置与展示牌颜色相同的牌以造成伤害。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "97,847,906,3260"
+    },
+    {
+      "id": 3010,
+      "spellId": 872,
+      "class": "ZhiHengPo",
+      "name": "制衡",
+      "description": "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌，若你以此法弃置了所有手牌，你额外摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "872,53"
+    },
+    {
+      "id": 3011,
+      "spellId": 3186,
+      "class": "QiangXiPo",
+      "name": "强袭",
+      "description": "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "886,91,3186"
+    },
+    {
+      "id": 3013,
+      "spellId": 265,
+      "class": "MoShi",
+      "name": "默识",
+      "description": "结束阶段，你可以将一张手牌当你出牌阶段内使用过的第一张基本牌或普通锦囊牌使用，然后你可以将一张手牌当你出牌阶段使用过的第二张基本牌或普通锦囊牌使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "265"
+    },
+    {
+      "id": 3015,
+      "spellId": 454,
+      "class": "DanShou",
+      "name": "胆守",
+      "description": "出牌阶段，你可以弃置X张牌并选择你攻击范围内的一名其他角色（X为你本阶段发动本技能的次数），若X为：<br>•1，你弃置其一张牌；<br>•2，其交给你一张牌；<br>•3，你对其造成1点伤害；<br>•大于等于4，你与其各摸两张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "454"
+    },
+    {
+      "id": 3017,
+      "spellId": 419,
+      "class": "ShangShi",
+      "name": "伤逝",
+      "description": "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "419"
+    },
+    {
+      "id": 3018,
+      "spellId": 3261,
+      "class": "KanPo2023",
+      "name": "看破",
+      "description": "你可以将一张黑色牌当【无懈可击】使用。<br>你的【无懈可击】不能被响应。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3261,98,907"
+    },
+    {
+      "id": 3019,
+      "spellId": 3201,
+      "class": "JiAngPo",
+      "name": "激昂",
+      "description": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3201,130"
+    },
+    {
+      "id": 3020,
+      "spellId": 949,
+      "class": "JiuChiPo",
+      "name": "酒池",
+      "description": "你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "949,109"
+    },
+    {
+      "id": 3021,
+      "spellId": 57,
+      "class": "QiXi",
+      "name": "奇袭",
+      "description": "你可以将一张黑色牌当【过河拆桥】使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "57"
+    },
+    {
+      "id": 3022,
+      "spellId": 728,
+      "class": "LiYu",
+      "name": "利驭",
+      "description": "当你使用【杀】对其他角色造成伤害后，你可以获得其区域里的一张牌，若获得的牌：<br>•不为装备牌，其摸一张牌；<br>•为装备牌，你视为对由其指定的另一名角色使用一张【决斗】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "728"
+    },
+    {
+      "id": 3023,
+      "spellId": 317,
+      "class": "LongHun",
+      "name": "龙魂",
+      "description": "你可以将至多两张花色相同的牌按以下规则使用或打出：<br>•红桃当【桃】;•方片当火【杀】;<br>•梅花当【闪】;•黑桃当【无懈可击】。<br>若你以此法转化使用了两张：<br>•红色牌，此牌回复值或伤害值+1;<br>•黑色牌，你弃置当前回合角色一张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "317"
+    },
+    {
+      "id": 3024,
+      "spellId": 367,
+      "class": "JinGong",
+      "name": "矜功",
+      "description": "出牌阶段限一次，你可以将一张【杀】或装备牌当三张随机锦囊牌中的一张使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "367"
+    },
+    {
+      "id": 3025,
+      "spellId": 878,
+      "class": "WuShengPo",
+      "name": "武圣",
+      "description": "你可以将一张红色牌当【杀】使用或打出。你使用的方片【杀】无距离限制。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "878,33,76,425,473,3651"
+    },
+    {
+      "id": 3026,
+      "spellId": 38,
+      "class": "TieJi",
+      "name": "铁骑",
+      "description": "当你使用【杀】指定目标后，你可以判定，若为红色，其不能使用【闪】响应此【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "38,704,2144"
+    },
+    {
+      "id": 3027,
+      "spellId": 3123,
+      "class": "ZhuiJi2",
+      "name": "追击",
+      "description": "锁定技，你计算与体力值小于等于你的角色的距离视为1。当你使用【杀】指定距离为1的角色为目标后，其弃置一张牌或重铸其装备区里的所有牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3123,286"
+    },
+    {
+      "id": 3028,
+      "spellId": 50,
+      "class": "LuoYi",
+      "name": "裸衣",
+      "description": "摸牌阶段，你可以少摸一张牌，然后你本回合使用【杀】或【决斗】造成的伤害+1。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "50,723"
+    },
+    {
+      "id": 3029,
+      "spellId": 66,
+      "class": "WuShuang",
+      "name": "无双",
+      "description": "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "66"
+    },
+    {
+      "id": 3030,
+      "spellId": 297,
+      "class": "LieGong2016",
+      "name": "烈弓",
+      "description": "你【杀】的攻击范围为此【杀】点数。当你使用【杀】指定目标后，你可以执行以下效果：<br>•若其手牌数小于等于你，其不能抵消此【杀】；<br>•若其体力值大于等于你，此【杀】伤害值+1。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "297,71,3264"
+    },
+    {
+      "id": 3032,
+      "spellId": 100,
+      "class": "MengJin",
+      "name": "猛进",
+      "description": "当你的【杀】被目标角色【闪】抵消后，你可以弃置其一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "100,638"
+    },
+    {
+      "id": 3033,
+      "spellId": 940,
+      "class": "LongDanPo",
+      "name": "龙胆",
+      "description": "你可以将一张【杀】当【闪】、【闪】当【杀】、【酒】当【桃】、【桃】当【酒】使用或打出。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "940,37"
+    },
+    {
+      "id": 3036,
+      "spellId": 266,
+      "class": "FengPo",
+      "name": "凤魄",
+      "description": "当你在回合内首次使用【杀】或【决斗】指定一个目标后，你可以选择一项：<br>&nbsp;1.摸X张牌；2.令此牌伤害+X。<br>（X为目标角色方片手牌数）",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "266"
+    },
+    {
+      "id": 3037,
+      "spellId": 301,
+      "class": "WuShen",
+      "name": "武神",
+      "description": "锁定技，你的红桃手牌视为【杀】。你的红桃【杀】无距离和次数限制且不能被抵消。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "301"
+    },
+    {
+      "id": 3038,
+      "spellId": 446,
+      "class": "LongYin",
+      "name": "龙吟",
+      "description": "当一名角色于其出牌阶段内使用【杀】时，你可以弃置一张牌，令此【杀】不计入此阶段使用次数，若此【杀】为红色，你摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "446"
+    },
+    {
+      "id": 3040,
+      "spellId": 46,
+      "class": "QingGuo",
+      "name": "倾国",
+      "description": "你可以将一张黑色手牌当【闪】使用或打出。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "46"
+    },
+    {
+      "id": 3041,
+      "spellId": 882,
+      "class": "LeiJiPo",
+      "name": "雷击",
+      "description": "当你使用或打出【闪】或使用【闪电】时，你可以判定。当你判定后，若结果为：<br>•黑桃，你可以对一名角色造成2点雷电伤害；<br>•梅花，你回复1点体力并可以对一名角色造成1点雷电伤害。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "882,875,78,468,755"
+    },
+    {
+      "id": 3042,
+      "spellId": 64,
+      "class": "JiJiu",
+      "name": "急救",
+      "description": "在你的回合外，你可以将一张红色牌当【桃】使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "64"
+    },
+    {
+      "id": 3043,
+      "spellId": 3868,
+      "class": "AoCai1",
+      "name": "傲才",
+      "description": "当你于回合外需要使用或打出基本牌时，若你有/没有手牌，你可以观看牌堆顶两/四张牌，然后可以使用或打出其中的基本牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "221,3868"
+    },
+    {
+      "id": 3044,
+      "spellId": 225,
+      "class": "KangKai",
+      "name": "慷忾",
+      "description": "当一名角色成为【杀】的目标后，若你与其距离1以内，你可以摸一张牌，然后展示并交给其一张牌，若为装备牌且其不是你，其可以使用之。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "225"
+    },
+    {
+      "id": 3045,
+      "spellId": 235,
+      "class": "BenYu",
+      "name": "贲育",
+      "description": "当一名角色对你造成伤害后，你可以选择一项：<br>&nbsp;1.将手牌摸至X张（至多摸至五张）；<br>&nbsp;2.弃置至少X+1张手牌对其造成1点伤害。（X为其手牌数）",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "235"
+    },
+    {
+      "id": 3046,
+      "spellId": 604,
+      "class": "TianMing",
+      "name": "天命",
+      "description": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "604"
+    },
+    {
+      "id": 3047,
+      "spellId": 255,
+      "class": "KunFen",
+      "name": "困奋",
+      "description": "锁定技，结束阶段，你失去1点体力，然后摸两张牌。",
+      "tokens": 0,
+      "quality": 0,
+      "relatedSpellIds": "255"
+    },
+    {
+      "id": 3049,
+      "spellId": 65,
+      "class": "QingNang",
+      "name": "青囊",
+      "description": "出牌阶段限一次，你可以弃置一张手牌令一名角色回复1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "65"
+    },
+    {
+      "id": 3050,
+      "spellId": 108,
+      "class": "YingHun",
+      "name": "英魂",
+      "description": "准备阶段，若你已受伤，你可以选择一名其他角色并选择一项：<br>&nbsp;1.令其摸X张牌，然后弃置一张牌；<br>&nbsp;2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值）",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "108"
+    },
+    {
+      "id": 3051,
+      "spellId": 887,
+      "class": "ZaiQi2019",
+      "name": "再起",
+      "description": "摸牌阶段，若你已受伤，你可以改为亮出牌堆顶一张牌，回复与其中红桃牌数等量的体力并获得剩余牌，你每损失1点体力，便多亮出一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "887,116,3066"
+    },
+    {
+      "id": 3052,
+      "spellId": 49,
+      "class": "GangLie",
+      "name": "刚烈",
+      "description": "当你受到伤害后，你可以判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到1点伤害。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "49,720"
+    },
+    {
+      "id": 3053,
+      "spellId": 492,
+      "class": "ShiBei",
+      "name": "矢北",
+      "description": "锁定技，当你每回合首次受到伤害后，你回复1点体力，然后当你本回合再受到伤害后，你失去1点体力。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "492"
+    },
+    {
+      "id": 3054,
+      "spellId": 250,
+      "class": "LiangZhu",
+      "name": "良助",
+      "description": "当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "250"
+    },
+    {
+      "id": 3057,
+      "spellId": 3159,
+      "class": "ShiZhan",
+      "name": "势斩",
+      "description": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "3159"
+    },
+    {
+      "id": 3060,
+      "spellId": 215,
+      "class": "XueHen",
+      "name": "雪恨",
+      "description": "出牌阶段限一次，你可以弃置一张红色牌并令至多X名角色（X为你已损失体力值且至少为1）进入连环状态，然后对其中一名角色造成1点火焰伤害。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "215"
+    },
+    {
+      "id": 3062,
+      "spellId": 222,
+      "class": "DuWu",
+      "name": "黩武",
+      "description": "出牌阶段，你可以选择你攻击范围内的一名其他角色并弃置X张牌（X为其体力值），然后对其造成1点伤害。若其因此进入濒死状态，你失去1点体力且本回合本技能失效。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "222"
+    },
+    {
+      "id": 3063,
+      "spellId": 236,
+      "class": "SanYao",
+      "name": "散谣",
+      "description": "出牌阶段各限一次，你可以弃置一张牌对一名体力值/手牌数最大的角色造成1点伤害。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "236,991,3180"
+    },
+    {
+      "id": 3065,
+      "spellId": 306,
+      "class": "YeYan",
+      "name": "业炎",
+      "description": "限定技，出牌阶段，你可以选择至多三名角色，对其造成共计至多3点火焰伤害。若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "306,849"
+    },
+    {
+      "id": 3067,
+      "spellId": 784,
+      "class": "QingXian",
+      "name": "清弦",
+      "description": "当你受到伤害/回复体力后，若没有角色处于濒死状态，你可以令伤害来源/一名其他角色执行一项：<br>&nbsp;1.失去1点体力，随机使用一张装备牌；<br>&nbsp;2.回复1点体力，弃置一张装备牌。<br>若其使用或弃置的牌为梅花牌，你摸一张牌。 ",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "784"
+    },
+    {
+      "id": 3068,
+      "spellId": 751,
+      "class": "JueCe",
+      "name": "绝策",
+      "description": "结束阶段，你可以对一名没有手牌的其他角色造成1点伤害。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "751,457,637"
+    },
+    {
+      "id": 3070,
+      "spellId": 3090,
+      "class": "BoTuPo",
+      "name": "博图",
+      "description": "每轮限X次（X为存活角色数且至多为3），回合结束后，若本回合置入弃牌堆的牌包含四种花色，你可以执行一个额外回合。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3090,4058"
+    },
+    {
+      "id": 3071,
+      "spellId": 320,
+      "class": "LianPo",
+      "name": "连破",
+      "description": "你杀死过角色的回合结束后，你可以执行一个额外的回合。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "320"
+    },
+    {
+      "id": 3073,
+      "spellId": 909,
+      "class": "JiLi2020",
+      "name": "蒺藜",
+      "description": "当你每回合使用或打出第X张牌时，你可以摸X张牌。（X为你的攻击范围）",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "909"
+    },
+    {
+      "id": 3075,
+      "spellId": 484,
+      "class": "QiangZhi",
+      "name": "强识",
+      "description": "出牌阶段开始时，你可以展示一名其他角色一张手牌，然后当你本阶段使用与展示牌类型相同的牌时，你可以摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "484"
+    },
+    {
+      "id": 3076,
+      "spellId": 963,
+      "class": "GuanChao",
+      "name": "观潮",
+      "description": "出牌阶段开始时，你可以选择一项：1.严格递增；2.严格递减。当你本回合使用牌时，若你本阶段使用过的所有牌的点数满足此项，你摸一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "963"
+    },
+    {
+      "id": 3079,
+      "spellId": 503,
+      "class": "MingZhe",
+      "name": "明哲",
+      "description": "当你于回合外使用、打出、弃置或被弃置一张红色牌时，你可以摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "503,3205"
+    },
+    {
+      "id": 3080,
+      "spellId": 717,
+      "class": "JianXiongPo",
+      "name": "奸雄",
+      "description": "当你受到伤害后，你可以摸一张牌，并获得造成此伤害的牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "717,42"
+    },
+    {
+      "id": 3081,
+      "spellId": 52,
+      "class": "YiJi",
+      "name": "遗计",
+      "description": "当你受到1点伤害后，你可以观看牌堆顶的两张牌，然后将这些牌交给任意角色。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "52,724"
+    },
+    {
+      "id": 3082,
+      "spellId": 718,
+      "class": "FanKuiPo",
+      "name": "反馈",
+      "description": "当你受到1点伤害后，你可以获得伤害来源的一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "718,47,636"
+    },
+    {
+      "id": 3083,
+      "spellId": 93,
+      "class": "JieMing",
+      "name": "节命",
+      "description": "当你受到1点伤害后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "93,3128"
+    },
+    {
+      "id": 3084,
+      "spellId": 377,
+      "class": "ChouCe",
+      "name": "筹策",
+      "description": "当你受到1点伤害后，你可以判定，若结果为：<br>•红色，你令一名角色摸一张牌，若其为“先辅”目标，改为摸两张牌；<br>•黑色，你弃置一名角色区域里的一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "377,883,79"
+    },
+    {
+      "id": 3085,
+      "spellId": 730,
+      "class": "HuiTuo",
+      "name": "恢拓",
+      "description": "当你受到伤害后，你可以令一名角色判定，若结果为：<br>•红色，其回复1点体力；<br>•黑色，其摸与此伤害值等量张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "730,883,79"
+    },
+    {
+      "id": 3086,
+      "spellId": 441,
+      "class": "ChengXiang",
+      "name": "称象",
+      "description": "当你受到伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和小于等于13的牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "441"
+    },
+    {
+      "id": 3087,
+      "spellId": 460,
+      "class": "EnYuanXin",
+      "name": "恩怨",
+      "description": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：<br>&nbsp;1.交给你一张手牌；2.失去1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "460,407,930"
+    },
+    {
+      "id": 3089,
+      "spellId": 445,
+      "class": "YuCe",
+      "name": "御策",
+      "description": "当你受到伤害后，你可以展示一张手牌令伤害来源选择一项：<br>&nbsp;1.弃置一张与你展示牌类型不同的手牌；2.你回复1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "445"
+    },
+    {
+      "id": 3090,
+      "spellId": 713,
+      "class": "FanJianPo",
+      "name": "反间",
+      "description": "出牌阶段限一次，你可以展示并交给一名其他角色一张手牌，其选择一项：<br>&nbsp;1.展示所有手牌，弃置与此牌相同花色的牌；<br>&nbsp;2.失去1点体力。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "713,56"
+    },
+    {
+      "id": 3091,
+      "spellId": 426,
+      "class": "DangXian",
+      "name": "当先",
+      "description": "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "426"
+    },
+    {
+      "id": 3092,
+      "spellId": 961,
+      "class": "GuanWei",
+      "name": "观微",
+      "description": "每回合限一次，每名角色出牌阶段结束时，若其本回合使用过至少两张牌且这些牌花色均相同，你可以弃置一张牌，令其摸两张牌并执行一个额外的出牌阶段。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "961"
+    },
+    {
+      "id": 3094,
+      "spellId": 95,
+      "class": "NiePan",
+      "name": "涅槃",
+      "description": "限定技，当你处于濒死状态时，你可以弃置你区域内里的所有牌，复原你的武将牌，摸三张牌，回复至3点体力。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "95,911"
+    },
+    {
+      "id": 3095,
+      "spellId": 957,
+      "class": "TianXiangPo",
+      "name": "天香",
+      "description": "当你受到伤害时，你可以弃置一张红桃牌防止之并选择一项，令一名其他角色：<br>&nbsp;1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；<br>&nbsp;2.失去1点体力并获得你弃置的牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "957,75,382"
+    },
+    {
+      "id": 3096,
+      "spellId": 63,
+      "class": "KeJi",
+      "name": "克己",
+      "description": "若你未于本回合出牌阶段使用或打出过【杀】，你可以跳过弃牌阶段。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "63,2146"
+    },
+    {
+      "id": 3099,
+      "spellId": 9019,
+      "class": "WanShaPo",
+      "name": "完杀",
+      "description": "锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "9019,117"
+    },
+    {
+      "id": 3100,
+      "spellId": 374,
+      "class": "FuJi",
+      "name": "伏骑",
+      "description": "锁定技，与你距离为1的其他角色不能使用或打出牌响应你使用的牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "374"
+    },
+    {
+      "id": 3101,
+      "spellId": 375,
+      "class": "JiaoZi",
+      "name": "骄恣",
+      "description": "锁定技，若你的手牌数为全场唯一最多，你造成或受到的伤害值+1。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "375"
+    },
+    {
+      "id": 3103,
+      "spellId": 451,
+      "class": "AnJian",
+      "name": "暗箭",
+      "description": "锁定技，当你使用【杀】对目标角色造成伤害时，若你不在其攻击范围内，此伤害+1。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "451"
+    },
+    {
+      "id": 3104,
+      "spellId": 606,
+      "class": "JieYuan",
+      "name": "竭缘",
+      "description": "当你对其他角色造成伤害时，若其体力值大于等于你，你可以弃置一张黑色手牌令此伤害+1；<br>当其他角色对你造成伤害时，若其体力值大于等于你，你可以弃置一张红色手牌令此伤害-1。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "606"
+    },
+    {
+      "id": 3105,
+      "spellId": 127,
+      "class": "XiangLe",
+      "name": "享乐",
+      "description": "锁定技，当你成为一名角色使用【杀】的目标后，除非其弃置一张基本牌，否则令此【杀】对你无效。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "127"
+    },
+    {
+      "id": 3106,
+      "spellId": 119,
+      "class": "WeiMu",
+      "name": "帷幕",
+      "description": "锁定技，你不能成为黑色锦囊牌的目标。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "119,2117,9021,3189"
+    },
+    {
+      "id": 3107,
+      "spellId": 96,
+      "class": "BaZhen",
+      "name": "八阵",
+      "description": "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "96"
+    },
+    {
+      "id": 3109,
+      "spellId": 417,
+      "class": "YiZhong",
+      "name": "毅重",
+      "description": "锁定技，若你的装备区里没有防具牌，黑色【杀】对你无效。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "417,3897"
+    },
+    {
+      "id": 3112,
+      "spellId": 875,
+      "class": "LuoShenPo",
+      "name": "洛神",
+      "description": "准备阶段，你可以判定，若结果为黑色，你获得此牌，然后你可以重复此流程。以此法获得的牌本回合不计入手牌上限。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "875,48,79,261,421,501,883,978,3203,45,719"
+    },
+    {
+      "id": 3113,
+      "spellId": 202,
+      "class": "YongSi",
+      "name": "庸肆",
+      "description": "锁定技，摸牌阶段，你多摸X张牌；弃牌阶段开始时，你弃置X张牌。（X为全场势力数）",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "202,757,3344"
+    },
+    {
+      "id": 3115,
+      "spellId": 3033,
+      "class": "JiZhan",
+      "name": "吉占",
+      "description": "摸牌阶段开始时，你可以改为展示牌堆顶的一张牌，猜测牌堆顶下一张牌点数大于或小于此牌，然后展示之，若猜对你继续猜测，最后你获得以此法展示的牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3033"
+    },
+    {
+      "id": 3116,
+      "spellId": 401,
+      "class": "LuoYing",
+      "name": "落英",
+      "description": "当其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中任意张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "401,883,79"
+    },
+    {
+      "id": 3048,
+      "spellId": 295,
+      "class": "KuangGu2016",
+      "name": "狂骨",
+      "description": "当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "295,72,4068,250"
+    },
+    {
+      "id": 3074,
+      "spellId": 491,
+      "class": "JianYing",
+      "name": "渐营",
+      "description": "当你于出牌阶段使用牌时，若此牌的点数或花色与你本阶段使用的上一张牌相同，你可以摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "491"
+    },
+    {
+      "id": 3119,
+      "spellId": 703,
+      "class": "YaJiao",
+      "name": "涯角",
+      "description": "当你于回合外使用或打出手牌时，你可以展示牌堆顶一张牌，若这两张牌类型：<br>•相同，你可以令一名角色获得展示牌；<br>•不同，你可以弃置攻击范围内包含你的一名角色区域里的一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "703"
+    },
+    {
+      "id": 3120,
+      "spellId": 726,
+      "class": "WangXi",
+      "name": "忘隙",
+      "description": "当你对其他角色造成1点伤害后，或受到其他角色的1点伤害后，你可以与其各摸一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "726,3295,3310"
+    },
+    {
+      "id": 3125,
+      "spellId": 396,
+      "class": "FenLi",
+      "name": "奋励",
+      "description": "若你的手牌数为全场最多，你可以跳过摸牌阶段；<br>若你的体力值为全场最多，你可以跳过出牌阶段；<br>若你的装备区里有牌且数量为全场最多，你可以跳过弃牌阶段。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "396"
+    },
+    {
+      "id": 3126,
+      "spellId": 988,
+      "class": "YaShi",
+      "name": "雅士",
+      "description": "当你受到伤害后，你可以选择一项：<br>&nbsp;1.令伤害来源的非锁定技失效直到其下个回合开始；<br>&nbsp;2.对一名其他角色执行“<font href='987'>观虚</font>”的效果。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "988"
+    },
+    {
+      "id": 3127,
+      "spellId": 830,
+      "class": "XiongLuan",
+      "name": "雄乱",
+      "description": "限定技，出牌阶段，你可以指定一名其他角色并废除你的判定区和装备区，然后你本回合对其使用牌无距离和次数限制，其本回合不能使用和打出手牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "830"
+    },
+    {
+      "id": 3128,
+      "spellId": 702,
+      "class": "TiShenPo",
+      "name": "替身",
+      "description": "限定技，准备阶段，你可以回复所有体力，你每以此法回复1点体力便摸一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "702"
+    },
+    {
+      "id": 3129,
+      "spellId": 3165,
+      "class": "XiangShu",
+      "name": "襄戍",
+      "description": "限定技，结束阶段，你可以令一名已受伤角色回复X点体力并摸X张牌（X为你本回合造成的伤害值且至多为5）。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "3165"
+    },
+    {
+      "id": 3131,
+      "spellId": 356,
+      "class": "QiZhou",
+      "name": "绮胄",
+      "description": "锁定技，你根据你装备区里牌的花色数视为拥有对应技能：大于等于1，“<font href='70'>马术</font>”；大于等于2，“<font href='712'>英姿</font>”；大于等于3，“<font href='979'>短兵</font>”；为4，“<font href='708'>奋威</font>”。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "356,3242"
+    },
+    {
+      "id": 3132,
+      "spellId": 3181,
+      "class": "YuHeng2",
+      "name": "驭衡",
+      "description": "锁定技，回合开始时，你弃置任意张花色不同的牌，随机获得等量吴势力武将的技能。回合结束时，你失去以此法获得的技能，摸等量张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3181,3136"
+    },
+    {
+      "id": 3133,
+      "spellId": 35,
+      "class": "GuanXing",
+      "name": "观星",
+      "description": "准备阶段，你可以观看牌堆顶的X张牌（X为存活角色数且至多为5），然后以任意顺序置于牌堆顶或牌堆底。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "35,869"
+    },
+    {
+      "id": 3134,
+      "spellId": 36,
+      "class": "KongCheng",
+      "name": "空城",
+      "description": "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "36,2116"
+    },
+    {
+      "id": 3138,
+      "spellId": 848,
+      "class": "LianHuanSP",
+      "name": "连环",
+      "description": "每回合限三次，你可以将一张梅花手牌当【铁索连环】使用或重铸。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "848,94,910"
+    },
+    {
+      "id": 3139,
+      "spellId": 134,
+      "class": "GuZheng",
+      "name": "固政",
+      "description": "其他角色弃牌阶段结束时，你可以令其获得一张此阶段因弃置进入弃牌堆的牌，然后你可以获得剩余牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "134,3317"
+    },
+    {
+      "id": 3140,
+      "spellId": 137,
+      "class": "BeiGe",
+      "name": "悲歌",
+      "description": "当一名角色受到【杀】的伤害后，你可以弃置一张牌令其判定，若结果为：<br>•红桃，其回复1点体力；<br>•方片，其摸两张牌；<br>•梅花，伤害来源弃置两张牌；<br>•黑桃，伤害来源翻面。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "137,883,79,3106"
+    },
+    {
+      "id": 3142,
+      "spellId": 206,
+      "class": "JiLei",
+      "name": "鸡肋",
+      "description": "当你受到伤害后，你可以声明一种牌的类型，伤害来源本回合不能使用、打出或弃置你声明的此类手牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "206"
+    },
+    {
+      "id": 3144,
+      "spellId": 226,
+      "class": "ShenXian",
+      "name": "甚贤",
+      "description": "每回合限一次，当其他角色在你的回合外因弃置而失去基本牌后，你可以摸一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "226"
+    },
+    {
+      "id": 3146,
+      "spellId": 234,
+      "class": "SheFu",
+      "name": "设伏",
+      "description": "结束阶段，你可以记录一个非装备牌牌名并将一张手牌暗置于你的武将牌上，称为“伏兵”。当其他角色于你回合外使用以此法记录的手牌时，你可以移去一张“伏兵”令此牌无效。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "234"
+    },
+    {
+      "id": 3148,
+      "spellId": 240,
+      "class": "ZhenDu",
+      "name": "鸩毒",
+      "description": "每名角色出牌阶段开始时，你可以弃置一张手牌，然后其视为使用一张【酒】，若其不是你，你对其造成1点伤害。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "240"
+    },
+    {
+      "id": 3151,
+      "spellId": 272,
+      "class": "LingLong",
+      "name": "玲珑",
+      "description": "锁定技，若你的装备区里没有：<br>•武器牌，你本回合使用【杀】的限制次数+1；<br>•防具牌，你视为装备着【八卦阵】；<br>•坐骑牌，你的手牌上限+1；<br>•宝物牌，你视为拥有“<font href='871'>奇才</font>”。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "272"
+    },
+    {
+      "id": 3152,
+      "spellId": 273,
+      "class": "QiZhi",
+      "name": "奇制",
+      "description": "当你于回合内使用非装备牌指定目标后，你可以弃置另一名角色一张牌，然后令其摸一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "273"
+    },
+    {
+      "id": 3153,
+      "spellId": 275,
+      "class": "LuanZhan",
+      "name": "乱战",
+      "description": "当你造成或受到伤害后，你获得1枚“乱战”标记。当你使用【杀】或黑色普通锦囊牌指定目标后，若目标角色数小于X，你移除一半“乱战”标记（向上取整）。你使用【杀】或黑色普通锦囊牌可以多指定X个目标（X为“乱战”标记数）。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "275"
+    },
+    {
+      "id": 3154,
+      "spellId": 280,
+      "class": "GuShe",
+      "name": "鼓舌",
+      "description": "出牌阶段限一次，你可以与至多三名角色同时拼点，没赢的角色弃置一张牌或令你摸一张牌。若你没赢，你获得1枚“饶舌”标记，若标记数为7，你死亡。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "280"
+    },
+    {
+      "id": 3155,
+      "spellId": 282,
+      "class": "JueSi",
+      "name": "决死",
+      "description": "出牌阶段，你可以弃置一张【杀】并令攻击范围内一名其他角色弃置一张牌，若弃置牌不为【杀】且其体力值大于等于你，你视为对其使用【决斗】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "282"
+    },
+    {
+      "id": 3156,
+      "spellId": 283,
+      "class": "ZhenLve",
+      "name": "缜略",
+      "description": "锁定技，你的普通锦囊牌不能被抵消；你不能成为延时锦囊牌的目标。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "283"
+    },
+    {
+      "id": 3157,
+      "spellId": 3124,
+      "class": "ShiChou2",
+      "name": "誓仇",
+      "description": "你使用的【杀】可以多指定一个目标，你每损失1点体力，便可再多指定一个。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "287,3124"
+    },
+    {
+      "id": 3158,
+      "spellId": 290,
+      "class": "TuiFeng",
+      "name": "推锋",
+      "description": "当你受到1点伤害后，你可以将一张牌置于你的武将牌上，称为“锋”。准备阶段，你移去所有“锋”，摸两倍数量的牌，你本回合使用【杀】的限制次数+X（X为你本回合移去“锋”的数量）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "290"
+    },
+    {
+      "id": 3159,
+      "spellId": 292,
+      "class": "JuJia",
+      "name": "巨贾",
+      "description": "锁定技，你的初始手牌和手牌上限+X（X为你的体力上限）。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "292,1424"
+    },
+    {
+      "id": 3160,
+      "spellId": 294,
+      "class": "XiaHui",
+      "name": "黠慧",
+      "description": "锁定技，你的黑色牌不计入手牌上限。当其他角色获得你的黑色牌时，其不能使用、打出、弃置这些牌直到其体力值减少。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "294"
+    },
+    {
+      "id": 3161,
+      "spellId": 298,
+      "class": "FangHun",
+      "name": "芳魂",
+      "description": "当你使用【杀】造成伤害或受到【杀】的伤害后，你获得与伤害值等量枚“梅影”标记。你可以移除1枚“梅影”发动“<font href='37'>龙胆</font>”并摸一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "298"
+    },
+    {
+      "id": 3162,
+      "spellId": 303,
+      "class": "SheLie",
+      "name": "涉猎",
+      "description": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，然后获得每种花色的牌各一张。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "303"
+    },
+    {
+      "id": 3163,
+      "spellId": 304,
+      "class": "GongXin",
+      "name": "攻心",
+      "description": "出牌阶段限一次，你可以观看一名其他角色的手牌，然后你可以展示其中一张红桃牌并选择一项：<br>&nbsp;1.弃置此牌；2.将此牌置于牌堆顶。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "304"
+    },
+    {
+      "id": 3164,
+      "spellId": 316,
+      "class": "JueJing",
+      "name": "绝境",
+      "description": "锁定技，你的手牌上限+2。当你进入或脱离濒死状态时，你摸一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "316"
+    },
+    {
+      "id": 3168,
+      "spellId": 359,
+      "class": "SheYan",
+      "name": "舍宴",
+      "description": "当你成为一张普通锦囊牌的目标时，你可以令此牌增加一个目标或对一个目标无效（有效目标数至少为1）。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "359"
+    },
+    {
+      "id": 3172,
+      "spellId": 379,
+      "class": "ShuiMeng",
+      "name": "说盟",
+      "description": "出牌阶段结束时，你可以拼点：<br>•若你赢，你视为使用【无中生有】；<br>•若你没赢，被拼点者视为对你使用【过河拆桥】。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "379"
+    },
+    {
+      "id": 3176,
+      "spellId": 414,
+      "class": "PoJun",
+      "name": "破军",
+      "description": "当你于出牌阶段使用【杀】指定目标后，你可以将其至多X张牌移出游戏直到回合结束（X为其体力值）。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "414"
+    },
+    {
+      "id": 3177,
+      "spellId": 418,
+      "class": "JueQing",
+      "name": "绝情",
+      "description": "锁定技，你即将造成的伤害视为失去体力。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "418"
+    },
+    {
+      "id": 3178,
+      "spellId": 424,
+      "class": "ZhiYu",
+      "name": "智愚",
+      "description": "当你受到伤害后，你可以摸一张牌，然后展示所有手牌，若颜色均相同，伤害来源弃置一张手牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "424"
+    },
+    {
+      "id": 3180,
+      "spellId": 428,
+      "class": "QianXi",
+      "name": "潜袭",
+      "description": "准备阶段，你可以判定，然后选择距离为1的一名角色，其本回合不能使用或打出与判定结果颜色相同的手牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "428"
+    },
+    {
+      "id": 3181,
+      "spellId": 431,
+      "class": "LiHuo",
+      "name": "疠火",
+      "description": "你使用的普通【杀】可以视为火【杀】，若此牌造成伤害，你失去1点体力。你使用的火【杀】可以多指定一个目标。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "431"
+    },
+    {
+      "id": 3184,
+      "spellId": 438,
+      "class": "QuanJi",
+      "name": "权计",
+      "description": "当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于你的武将牌上，称为“权”。你每有一张“权”，你的手牌上限便+1。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "438"
+    },
+    {
+      "id": 3188,
+      "spellId": 449,
+      "class": "XianSi",
+      "name": "陷嗣",
+      "description": "准备阶段，你可以将至多两名角色的各一张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "449"
+    },
+    {
+      "id": 3190,
+      "spellId": 477,
+      "class": "SiDi",
+      "name": "司敌",
+      "description": "其他角色出牌阶段开始时，你可以弃置一张与你装备区里任意牌颜色相同的非基本牌，令其本阶段不能使用和打出与此牌颜色相同的牌，然后此阶段结束时，若其本阶段未使用过【杀】，你视为对其使用一张【杀】。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "477"
+    },
+    {
+      "id": 3196,
+      "spellId": 622,
+      "class": "GuiJi",
+      "name": "诡计",
+      "description": "锁定技，准备阶段，若你的判定区里有牌，随机弃置其中一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "622"
+    },
+    {
+      "id": 3197,
+      "spellId": 701,
+      "class": "YiJue",
+      "name": "义绝",
+      "description": "出牌阶段限一次，你可以弃置一张牌，然后令一名其他角色展示一张手牌。若此牌为：<br>•黑色，其本回合非锁定技失效且不能使用或打出手牌，你本回合对其使用的红桃【杀】伤害+1；<br>•红色，你获得之，然后你可以令其回复1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "701"
+    },
+    {
+      "id": 3198,
+      "spellId": 705,
+      "class": "ZhuHai",
+      "name": "诛害",
+      "description": "其他角色的结束阶段，若其本回合造成过伤害，你可以对其使用一张【杀】。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "705"
+    },
+    {
+      "id": 3199,
+      "spellId": 711,
+      "class": "ZhaXiangPo",
+      "name": "诈降",
+      "description": "锁定技，当你失去1点体力后，你摸三张牌，若在你的出牌阶段，你本回合使用【杀】的限制次数+1、使用红色【杀】无距离限制且不能被抵消。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "711,62"
+    },
+    {
+      "id": 3204,
+      "spellId": 748,
+      "class": "JiGong",
+      "name": "急攻",
+      "description": "出牌阶段开始时，你可以摸两张牌，然后你本回合手牌上限等于你本阶段造成的伤害值。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "748"
+    },
+    {
+      "id": 3205,
+      "spellId": 752,
+      "class": "XinFenCheng",
+      "name": "焚城",
+      "description": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：<br>&nbsp;1.弃置任意张牌（须比上家弃置的牌多）；<br>&nbsp;2.受到你造成的2点火焰伤害。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "752"
+    },
+    {
+      "id": 3207,
+      "spellId": 769,
+      "class": "JiShe",
+      "name": "极奢",
+      "description": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你当前每有1点体力，便可令一名角色进入连环状态。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "769"
+    },
+    {
+      "id": 3210,
+      "spellId": 777,
+      "class": "CaiShi",
+      "name": "才识",
+      "description": "摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "777"
+    },
+    {
+      "id": 3211,
+      "spellId": 778,
+      "class": "FuMian",
+      "name": "福绵",
+      "description": "准备阶段，你可以选择一项：<br>&nbsp;1.摸牌阶段，你多摸1张牌；<br>&nbsp;2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。<br>下次选择另一项时数值+1并复原本技能。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "778"
+    },
+    {
+      "id": 3213,
+      "spellId": 782,
+      "class": "ShouXi",
+      "name": "守玺",
+      "description": "当你成为【杀】的目标后，你可以声明一种非装备牌的牌名（每种牌名限一次），令使用者选择一项：<br>&nbsp;1.弃置一张你声明的牌，并获得你一张牌；<br>&nbsp;2.令此【杀】对你无效。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "782"
+    },
+    {
+      "id": 3214,
+      "spellId": 791,
+      "class": "ZhuanDui",
+      "name": "专对",
+      "description": "当你使用【杀】指定目标后，你可以与其拼点，若你赢，其不能响应此【杀】；<br>当你成为【杀】的目标后，你可以与使用者拼点，若你赢，此【杀】对你无效。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "791"
+    },
+    {
+      "id": 3218,
+      "spellId": 800,
+      "class": "WeiJing",
+      "name": "卫境",
+      "description": "每轮限一次，你可以视为使用一张【杀】或【闪】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "800"
+    },
+    {
+      "id": 3219,
+      "spellId": 815,
+      "class": "ShiCai1",
+      "name": "恃才",
+      "description": "当你每回合首次使用一种类型的牌后，你可以将之置于牌堆顶，然后摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "815"
+    },
+    {
+      "id": 3220,
+      "spellId": 818,
+      "class": "ZuiLun",
+      "name": "罪论",
+      "description": "结束阶段，你可以观看牌堆顶三张牌，然后你每满足一项条件，便获得其中一张牌，将剩余牌以任意顺序置于牌堆顶（1.本回合造成过伤害；2.本回合未弃置过牌；3.手牌数全场最少）。若均不满足，你与一名其他角色失去1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "818"
+    },
+    {
+      "id": 3221,
+      "spellId": 819,
+      "class": "FuYin",
+      "name": "父荫",
+      "description": "锁定技，当你每回合首次成为其他角色【杀】或【决斗】的目标后，若其手牌数大于等于你，此牌对你无效。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "819"
+    },
+    {
+      "id": 3222,
+      "spellId": 822,
+      "class": "QianJie",
+      "name": "谦节",
+      "description": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "822"
+    },
+    {
+      "id": 3225,
+      "spellId": 876,
+      "class": "BiYuePo",
+      "name": "闭月",
+      "description": "结束阶段，若你没有手牌，你可以摸两张牌，否则你可以摸一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "876"
+    },
+    {
+      "id": 3226,
+      "spellId": 896,
+      "class": "HunZiPo",
+      "name": "魂姿",
+      "description": "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限，回复1点体力，然后获得“<font href='712'>英姿</font>”“<font href='108'>英魂</font>”。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "896"
+    },
+    {
+      "id": 3229,
+      "spellId": 919,
+      "class": "ShenFu",
+      "name": "神赋",
+      "description": "回合结束时，若你的手牌数为：奇数，你对一名其他角色造成1点雷电伤害，若其因此死亡，你可以重复此流程；偶数，你令一名角色摸一张牌或弃置一张手牌，然后若其手牌数等于体力值，你可以重复此流程。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "919"
+    },
+    {
+      "id": 3230,
+      "spellId": 922,
+      "class": "JieYing",
+      "name": "劫营",
+      "description": "回合开始时，若全场没有“营”标记，你获得“营”。结束阶段，你可以将“营”置于一名角色的武将牌上。有“营”的角色摸牌阶段多摸一张牌、出牌阶段使用【杀】的限制次数+1、手牌上限+1。有“营”的其他角色回合结束后，你获得其所有手牌和“营”。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "922"
+    },
+    {
+      "id": 3234,
+      "spellId": 941,
+      "class": "HuJi",
+      "name": "虎骑",
+      "description": "锁定技，你计算与其他角色的距离-1。当你于回合外受到伤害后，你判定，若结果为红色，你视为对伤害来源使用一张【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "941"
+    },
+    {
+      "id": 3238,
+      "spellId": 954,
+      "class": "DuanFa",
+      "name": "断发",
+      "description": "出牌阶段，你可以弃置任意张黑色牌，然后摸等量张牌。你本阶段以此法弃置的总牌数不能大于你的体力上限。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "954"
+    },
+    {
+      "id": 3240,
+      "spellId": 984,
+      "class": "ChangBiaoPo",
+      "name": "长标",
+      "description": "出牌阶段限一次，你可以将任意张手牌当无距离限制的【杀】使用（计入使用次数），若此【杀】对目标角色造成伤害，本阶段结束时，你摸等量张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "984"
+    },
+    {
+      "id": 3244,
+      "spellId": 3032,
+      "class": "FengZi",
+      "name": "丰姿",
+      "description": "出牌阶段限一次，当你使用基本牌或普通锦囊牌时，你可以弃置一张类型相同的手牌令此牌的效果额外结算一次。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3032"
+    },
+    {
+      "id": 3246,
+      "spellId": 1507,
+      "class": null,
+      "name": "兽裔",
+      "description": "锁定技，你使用杀无距离限制且伤害+1；你的回合外，你受到锦囊牌造成的伤害时，此伤害+1。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "1507,673"
+    },
+    {
+      "id": 3247,
+      "spellId": 850,
+      "class": "LingRen",
+      "name": "凌人",
+      "description": "出牌阶段限一次，当你使用【杀】或伤害锦囊牌时，你可以猜测其中一个目标的手牌中是否有基本牌、锦囊牌或装备牌，若至少猜对：<br>•1项，此牌对其伤害+1；<br>•2项，你摸两张牌；<br>•3项，你获得“<font href='717'>奸雄</font>”“<font href='105'>行殇</font>”直到你下回合开始。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "850"
+    },
+    {
+      "id": 3248,
+      "spellId": 3050,
+      "class": "ShiYuan",
+      "name": "诗怨",
+      "description": "每回合每项限一次，当你成为其他角色使用牌的目标后：<br>&nbsp;1.若其体力值比你多，你摸三张牌；<br>&nbsp;2.若其体力值与你相同，你摸两张牌；<br>&nbsp;3.若其体力值比你少，你摸一张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3050"
+    },
+    {
+      "id": 3249,
+      "spellId": 386,
+      "class": "AoZhan",
+      "name": "鏖战",
+      "description": "锁定技，若你装备区里有：武器牌，你使用【杀】的限制次数+1；防具牌，防止你受到的超过1点的伤害；坐骑牌，你摸牌阶段多摸一张牌；宝物牌，跳过你的判定阶段。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "386"
+    },
+    {
+      "id": 3250,
+      "spellId": 3691,
+      "class": "ShanJia2025",
+      "name": "缮甲",
+      "description": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。<br>出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "868,3691"
+    },
+    {
+      "id": 3251,
+      "spellId": 904,
+      "class": "NeiFa",
+      "name": "内伐",
+      "description": "出牌阶段开始时，你可以摸两张牌或获得场上一张牌，然后弃置一张牌。若弃置的牌是：<br>•基本牌，你本回合不能使用锦囊牌和装备牌且【杀】的使用次数+X且目标+1；<br>•非基本牌，你本回合不能使用基本牌，使用普通锦囊牌的目标可+1或-1（含【借刀】），前两次使用装备牌时摸X张牌（X为手牌中因本技能不能使用的牌且至多为5）。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "904"
+    },
+    {
+      "id": 3252,
+      "spellId": 976,
+      "class": "JinZhi",
+      "name": "锦织",
+      "description": "当你需要使用或打出基本牌时，你可以弃置X张颜色相同的牌（X为你本轮发动本技能的次数），然后摸一张牌，视为你使用或打出此基本牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "976"
+    },
+    {
+      "id": 3253,
+      "spellId": 9000,
+      "class": "JuGuan",
+      "name": "拒关",
+      "description": "出牌阶段限一次，你可将一张手牌当【杀】或【决斗】使用。若受到此牌伤害的角色未在你的下回合开始前对你造成过伤害，你的下个摸牌阶段摸牌数+2。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "9000"
+    },
+    {
+      "id": 3256,
+      "spellId": 102,
+      "class": "LuanJi",
+      "name": "乱击",
+      "description": "你可以将两张花色相同的手牌当【万箭齐发】使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "102,891"
+    },
+    {
+      "id": 3257,
+      "spellId": 310,
+      "class": "GuiXin",
+      "name": "归心",
+      "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后翻面。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "310"
+    },
+    {
+      "id": 3258,
+      "spellId": 852,
+      "class": "XiongHuo",
+      "name": "凶镬",
+      "description": "游戏开始时，你获得3枚“暴戾”标记(标记上限为3)。出牌阶段，你可以交给一名其他角色1枚“暴戾”标记，你对其造成的伤害+1，且其出牌阶段开始时移除“暴戾”标记并随机执行一项：<br>&nbsp;1.受到1点火焰伤害且本回合不能使用【杀】指定你为目标；<br>&nbsp;2.失去1点体力且本回合手牌上限-1；<br>&nbsp;3.你随机获得其一张手牌和一张装备区里的牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "852"
+    },
+    {
+      "id": 3260,
+      "spellId": 296,
+      "class": "QiMou",
+      "name": "奇谋",
+      "description": "限定技，出牌阶段，你可以失去任意点体力，然后你本回合计算与其他角色的距离-X且使用【杀】的限制次数+X（X为你以此法失去的体力值）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "296"
+    },
+    {
+      "id": 3261,
+      "spellId": 278,
+      "class": "ZhengNan",
+      "name": "征南",
+      "description": "当其他角色死亡后，你可以摸三张牌，然后获得“<font href='878'>武圣</font>”“<font href='426'>当先</font>”“<font href='237'>制蛮</font>”中的一个。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "278"
+    },
+    {
+      "id": 3262,
+      "spellId": 413,
+      "class": "BuYi",
+      "name": "补益",
+      "description": "当一名角色进入濒死状态时，你可以展示其一张手牌，若为非基本牌，其弃置之并回复1点体力。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "413"
+    },
+    {
+      "id": 3263,
+      "spellId": 972,
+      "class": "WanGong",
+      "name": "挽弓",
+      "description": "锁定技，若你使用的上一张牌是基本牌，你使用【杀】无距离和次数限制且造成的伤害+1。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "972"
+    },
+    {
+      "id": 3265,
+      "spellId": 7007,
+      "class": "TaiRan",
+      "name": "泰然",
+      "description": "锁定技，结束阶段，你回复所有体力，将手牌摸至体力上限。出牌阶段开始时，你失去以此法回复的体力，弃置你以此法获得的手牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "7007"
+    },
+    {
+      "id": 3266,
+      "spellId": 353,
+      "class": "ShenJi",
+      "name": "神戟",
+      "description": "你出牌阶段使用【杀】的限制次数+1且可以多指定两个目标。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "353"
+    },
+    {
+      "id": 3267,
+      "spellId": 729,
+      "class": "QiaoMengPo",
+      "name": "趫猛",
+      "description": "当你使用【杀】对一名角色造成伤害后，你可以弃置其区域里的一张牌。若此牌为坐骑牌，你获得之。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "729"
+    },
+    {
+      "id": 3268,
+      "spellId": 114,
+      "class": "LieRen",
+      "name": "烈刃",
+      "description": "当你使用【杀】对目标角色造成伤害后，你可以与其拼点：若你赢，你获得其一张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "114"
+    },
+    {
+      "id": 3269,
+      "spellId": 402,
+      "class": "JiuShi",
+      "name": "酒诗",
+      "description": "你可以将武将牌翻至背面，视为使用一张【酒】。<br>当你受到伤害时，若你的武将牌背面朝上，你可以于受到此伤害后翻至正面。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "402"
+    },
+    {
+      "id": 3270,
+      "spellId": 213,
+      "class": "SongCi",
+      "name": "颂词",
+      "description": "每名角色限一次，出牌阶段，你可以选择一项：<br>&nbsp;1.令一名手牌数小于体力值的角色摸两张牌；<br>&nbsp;2.令一名手牌数大于体力值的角色弃置两张牌。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "213"
+    },
+    {
+      "id": 3271,
+      "spellId": 712,
+      "class": "YingZiPo",
+      "name": "英姿",
+      "description": "锁定技，摸牌阶段，你多摸一张牌。你的手牌上限为你的体力上限。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "712"
+    },
+    {
+      "id": 3272,
+      "spellId": 99,
+      "class": "TianYi",
+      "name": "天义",
+      "description": "出牌阶段限一次，你可以拼点：<br>•若你赢，你本回合使用【杀】的次数+1、无距离限制且可以多指定一个目标；<br>•若你没赢，你本回合不能使用【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "99"
+    },
+    {
+      "id": 3273,
+      "spellId": 1186,
+      "class": "BeiZhan",
+      "name": "备战",
+      "description": "回合结束后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。其下回合开始时，若其手牌数全场最多，其此回合使用牌不能指定其他角色为目标。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "1186"
+    },
+    {
+      "id": 3274,
+      "spellId": 443,
+      "class": "JingCe",
+      "name": "精策",
+      "description": "你每于回合内使用一种花色的手牌，本回合手牌上限便+1。<br>出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "443"
+    },
+    {
+      "id": 3275,
+      "spellId": 456,
+      "class": "QiuYuan",
+      "name": "求援",
+      "description": "当你成为【杀】的目标时，你可以令另一名其他角色选择一项：<br>&nbsp;1.交给你一张【闪】；<br>&nbsp;2.成为此【杀】的额外目标。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "456"
+    },
+    {
+      "id": 3276,
+      "spellId": 475,
+      "class": "LiJianNew",
+      "name": "离间",
+      "description": "出牌阶段限一次，你可以弃置一张牌令一名男性角色视为对另一名男性角色使用一张不能被抵消的【决斗】。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "475"
+    },
+    {
+      "id": 3277,
+      "spellId": 734,
+      "class": "HuoMo",
+      "name": "活墨",
+      "description": "你可以将一张黑色非基本牌置于牌堆顶，视为使用一张与你本回合使用过的牌牌名不同的基本牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "734"
+    },
+    {
+      "id": 3278,
+      "spellId": 854,
+      "class": "LangXi",
+      "name": "狼袭",
+      "description": "准备阶段，你可以对一名体力值小于等于你的其他角色造成0~2点随机伤害。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "854"
+    },
+    {
+      "id": 3279,
+      "spellId": 864,
+      "class": "SiDao",
+      "name": "伺盗",
+      "description": "出牌阶段限一次，当你对一名其他角色连续使用两张牌后，你可以将一张手牌当【顺手牵羊】对其使用（须合法）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "864"
+    },
+    {
+      "id": 3280,
+      "spellId": 889,
+      "class": "YuXu",
+      "name": "誉虚",
+      "description": "当你于出牌阶段使用牌后，你可以摸一张牌，若如此做，当你本阶段使用下一张牌后，你不能以此法摸牌且须弃置一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "889"
+    },
+    {
+      "id": 3282,
+      "spellId": 987,
+      "class": "GuanXu",
+      "name": "观虚",
+      "description": "出牌阶段限一次，你可以观看一名其他角色的手牌，并可以将其中一张手牌与牌堆顶五张牌中的一张交换，若如此做，你弃置其手牌中三张花色相同的牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "987"
+    },
+    {
+      "id": 3283,
+      "spellId": 7013,
+      "class": "ChouFa",
+      "name": "筹伐",
+      "description": "出牌阶段限一次，你可以展示一名其他角色一张手牌，其当前手牌区内与此牌类型不同的牌均视为【杀】直到其回合结束。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "7013"
+    },
+    {
+      "id": 3284,
+      "spellId": 7025,
+      "class": "CiWei",
+      "name": "慈威",
+      "description": "当其他角色于其回合内使用第二张牌时，若此牌为基本牌或普通锦囊牌，你可以弃置一张牌令此牌无效。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "7025"
+    },
+    {
+      "id": 3285,
+      "spellId": 3071,
+      "class": "ZhuiJiTJ",
+      "name": "追姬",
+      "description": "出牌阶段开始时，你可以选择一项：<br>&nbsp;1.回复1点体力，然后本阶段结束时弃置两张牌；<br>&nbsp;2.摸两张牌，然后本阶段结束时失去1点体力。",
+      "tokens": 1,
+      "quality": 1,
+      "relatedSpellIds": "3071"
+    },
+    {
+      "id": 3286,
+      "spellId": 3089,
+      "class": "JianHui",
+      "name": "奸回",
+      "description": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3089"
+    },
+    {
+      "id": 3287,
+      "spellId": 3085,
+      "class": "ZenGou",
+      "name": "谮构",
+      "description": "当你攻击范围内一名角色使用【闪】时，你可以弃置一张非基本牌或失去1点体力令此【闪】无效，然后你获得此【闪】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3085"
+    },
+    {
+      "id": 3288,
+      "spellId": 797,
+      "class": "WenJiSP",
+      "name": "问计",
+      "description": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "797"
+    },
+    {
+      "id": 3289,
+      "spellId": 975,
+      "class": "WeiYi",
+      "name": "威仪",
+      "description": "每名角色限一次，当一名角色受到伤害后，若其体力值：<br>•大于等于你，你可以令其失去1点体力；<br>•小于等于你，你可以令其回复1点体力。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "975"
+    },
+    {
+      "id": 3290,
+      "spellId": 3637,
+      "class": "ZhenDan",
+      "name": "镇胆",
+      "description": "你可以将一张非基本手牌当本轮你未使用过的基本牌使用或打出；当你受到伤害后或每轮结束时，你摸X张牌，此技能本轮失效（X为本轮所有角色执行过的回合数且至多为5）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3637"
+    },
+    {
+      "id": 3291,
+      "spellId": 3054,
+      "class": "DingCuo",
+      "name": "定措",
+      "description": "每回合限一次，当你造成或受到伤害后，你可以摸两张牌，若这两张牌颜色不同，你弃置一张手牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3054"
+    },
+    {
+      "id": 3292,
+      "spellId": 246,
+      "class": "MeiBu",
+      "name": "魅步",
+      "description": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“<font href='258'>止息</font>”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "246"
+    },
+    {
+      "id": 3293,
+      "spellId": 482,
+      "class": "BenXi",
+      "name": "奔袭",
+      "description": "锁定技，当你于回合内使用牌时，你本回合计算与其他角色的距离-1。当你于回合内使用仅指定单一目标的【杀】或普通锦囊牌时，若你与所有其他角色的距离均为1，你依次选择至多两项，令此牌：<br>&nbsp;1.目标数+1；2.无视防具；<br>&nbsp;3.不能被抵消；4.造成伤害后，你摸一张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "482"
+    },
+    {
+      "id": 3294,
+      "spellId": 955,
+      "class": "TuoGu",
+      "name": "托孤",
+      "description": "当一名角色死亡时，你可以令其选择其武将牌上的一个技能（限定技、觉醒技、主公技和包含隐匿的技能除外），你失去上次以此法获得的技能，然后获得此技能。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "955"
+    },
+    {
+      "id": 3295,
+      "spellId": 478,
+      "class": "ShenDuan",
+      "name": "慎断",
+      "description": "当你的一张黑色基本牌被弃置后，你可以将此牌当无距离限制的【兵粮寸断】使用。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "478"
+    },
+    {
+      "id": 3296,
+      "spellId": 227,
+      "class": "QiangWu",
+      "name": "枪舞",
+      "description": "出牌阶段限一次，你可以判定。然后你本回合使用比判定牌点数小的【杀】无距离限制、比判定牌点数大的【杀】无次数限制。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "227"
+    },
+    {
+      "id": 3297,
+      "spellId": 62,
+      "class": "KuRou",
+      "name": "苦肉",
+      "description": "出牌阶段，你可以失去1点体力，然后摸两张牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "62,3131"
+    },
+    {
+      "id": 3301,
+      "spellId": 3494,
+      "class": "LianTao",
+      "name": "连讨",
+      "description": "出牌阶段开始时，你可令一名其他角色选择一种颜色，然后你展示所有手牌，并依次将此颜色的手牌当【决斗】对其使用直到有一方进入濒死状态，然后你摸X张牌（X为你以此法对目标角色造成的伤害数）。若该角色没有因此受到伤害，你摸一张牌，本回合手牌上限+1且不能使用【杀】。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3494"
+    },
+    {
+      "id": 3309,
+      "spellId": 923,
+      "class": "DuoRui",
+      "name": "夺锐",
+      "description": "当你于出牌阶段对其他角色造成伤害后，若其技能未因本技能失效，你可以令其武将牌上的一个技能于下回合结束前失效，然后结束出牌阶段。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "923"
+    },
+    {
+      "id": 3310,
+      "spellId": 826,
+      "class": "ZhenGu",
+      "name": "镇骨",
+      "description": "结束阶段，你可以选择一名其他角色，本回合结束时和其下回合结束时，其将手牌调整至与你手牌数相同（至多摸至五张）。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "826"
+    },
+    {
+      "id": 3312,
+      "spellId": 3275,
+      "class": "ShiLu",
+      "name": "失路",
+      "description": "锁定技，当你受到伤害后，你摸与你体力值等量张牌并展示攻击范围内一名其他角色一张手牌，令此牌视为【杀】。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3275"
+    },
+    {
+      "id": 3313,
+      "spellId": 3481,
+      "class": "JianMie",
+      "name": "翦灭",
+      "description": "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3481"
+    },
+    {
+      "id": 3314,
+      "spellId": 3390,
+      "class": "XuanFengPo",
+      "name": "旋风",
+      "description": "当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3390"
+    },
+    {
+      "id": 3315,
+      "spellId": 3503,
+      "class": "PingDuan",
+      "name": "平端",
+      "description": "出牌阶段限一次，你可以令一名角色依次执行：<br>&nbsp;1.使用一张基本牌；<br>&nbsp;2.重铸一张锦囊牌；<br>&nbsp;3.可令你获得其装备区一张牌。<br>其每执行一项便摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3503"
+    },
+    {
+      "id": 3316,
+      "spellId": 3550,
+      "class": "BianYu",
+      "name": "鞭御",
+      "description": "锁定技，你使用【杀】造成伤害或受到【杀】的伤害后，你选择受伤角色至多X张手牌，这些牌视为无次数限制的【杀】，直到其使用非基本牌（X为其已损体力值）。然后若你或其手牌均为【杀】，你摸两张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3550"
+    },
+    {
+      "id": 3317,
+      "spellId": 3539,
+      "class": "KuangShou",
+      "name": "恇守",
+      "description": "锁定技，当你受到伤害后，你摸三张牌，然后弃置X张牌（X为本回合受到过伤害的角色数）。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3539"
+    },
+    {
+      "id": 3318,
+      "spellId": 3414,
+      "class": "DuJin",
+      "name": "独进",
+      "description": "摸牌阶段，你可以多摸X+1张牌（X为装备区里的牌数的一半且向上取整）。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3414"
+    },
+    {
+      "id": 3329,
+      "spellId": 211,
+      "class": "YanZheng",
+      "name": "严整",
+      "description": "若你的手牌数大于体力值，你可以将你装备区里的牌当【无懈可击】使用。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "211"
+    },
+    {
+      "id": 3330,
+      "spellId": 3270,
+      "class": "TouSui",
+      "name": "透髓",
+      "description": "你可以将任意张牌置于牌堆底，视为使用需等量张【闪】抵消的【杀】。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3270"
+    },
+    {
+      "id": 3331,
+      "spellId": 3748,
+      "class": "WoDan",
+      "name": "英略",
+      "description": "出牌阶段各限一次，你可以令一名角色：<br>&nbsp;1.失去1点体力，下个摸牌阶段摸牌数+2；<br>&nbsp;2.摸两张牌，下个弃牌阶段手牌上限-2。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3748"
+    },
+    {
+      "id": 3332,
+      "spellId": 3422,
+      "class": "ZhiYanPo",
+      "name": "直言",
+      "description": "你上家或你的结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。若为非装备牌且其体力值不等于你，其失去1点体力。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3422"
+    },
+    {
+      "id": 3333,
+      "spellId": 3562,
+      "class": "XiaoJie",
+      "name": "效竭",
+      "description": "当你成为【杀】的目标后，你可令你不可响应之。若如此做，你于此【杀】结算完毕后，视为使用你使用的上一张普通锦囊牌或摸一张牌。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3562"
+    },
+    {
+      "id": 3334,
+      "spellId": 3672,
+      "class": "MuTao",
+      "name": "募讨",
+      "description": "出牌阶段限一次，你可以选择一名角色，令其将手牌中所有的【杀】置于其武将牌上，然后其依次将这些【杀】随机交给由其下家开始的每一名角色，然后其对最后一名角色造成X点伤害（X为最后一名角色手牌中【杀】的数量且至多为2）。",
+      "tokens": 3,
+      "quality": 3,
+      "relatedSpellIds": "3672"
+    },
+    {
+      "id": 3335,
+      "spellId": 3725,
+      "class": "DingAn",
+      "name": "定安",
+      "description": "锁定技，当一个牌名的牌每回合第二次被使用后，若本回合未有角色进入过濒死状态，你与一名非目标角色各摸一张牌（每回合每名角色限一次），然后你对手牌最多的其他角色造成1点伤害，或令其弃置手牌中最多的同名牌。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3725"
+    },
+    {
+      "id": 3336,
+      "spellId": 3471,
+      "class": "ChunLao2024",
+      "name": "醇醪",
+      "description": "你或你相邻角色的【杀】因弃置置入弃牌堆后，将之置于你的武将牌上，称为“醇”。<br>当一名角色处于濒死状态时，你可以移去1张“醇”视为其使用一张【酒】。一名角色失去体力后，你可以将至多两张“醇”置入你的手牌中。",
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3471"
+    },
+    {
+      "id": 3337,
+      "spellId": 3596,
+      "class": null,
+      "name": null,
+      "description": null,
+      "tokens": 4,
+      "quality": 4,
+      "relatedSpellIds": "3596"
+    },
+    {
+      "id": 3338,
+      "spellId": 3331,
+      "class": "FengYan",
+      "name": "讽言",
+      "description": "锁定技，当你受到其他角色的伤害，或响应其他角色的牌后，你选择一项:<br>&nbsp;1.摸一张牌并交给其一张牌;<br>&nbsp;2.其摸一张牌并弃置两张牌。",
+      "tokens": 2,
+      "quality": 2,
+      "relatedSpellIds": "3331"
+    }
+  ],
   "tactics": [
     {
       "id": 2001,
@@ -16,7 +2207,8 @@
       "description": "【酒】【杀】不能被抵消",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2001"
     },
     {
       "id": 2002,
@@ -24,7 +2216,8 @@
       "description": "【闪】不计入手牌上限",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2002"
     },
     {
       "id": 2003,
@@ -32,7 +2225,8 @@
       "description": "【桃】不计入手牌上限",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2003"
     },
     {
       "id": 2004,
@@ -40,7 +2234,8 @@
       "description": "【火攻】弃置改为展示",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2004"
     },
     {
       "id": 2005,
@@ -48,7 +2243,8 @@
       "description": "【过河拆桥】时目标手牌可见",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2005"
     },
     {
       "id": 2006,
@@ -56,7 +2252,8 @@
       "description": "【顺手牵羊】时目标手牌可见",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2006"
     },
     {
       "id": 2007,
@@ -64,7 +2261,8 @@
       "description": "【铁索连环】能指定任意个目标",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2007"
     },
     {
       "id": 2008,
@@ -72,7 +2270,8 @@
       "description": "【无懈可击】获得抵消的锦囊牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2008"
     },
     {
       "id": 2009,
@@ -80,7 +2279,8 @@
       "description": "黑桃【杀】无次数限制",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2009"
     },
     {
       "id": 2010,
@@ -88,7 +2288,8 @@
       "description": "方片【杀】无距离限制",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2010"
     },
     {
       "id": 2011,
@@ -96,7 +2297,8 @@
       "description": "手牌上限+X（X为本回合摸牌阶段摸牌数的一半）",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2011"
     },
     {
       "id": 2132,
@@ -104,7 +2306,8 @@
       "description": "手牌上限+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2132"
     },
     {
       "id": 2133,
@@ -112,7 +2315,8 @@
       "description": "手牌上限+2",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2133"
     },
     {
       "id": 2135,
@@ -120,7 +2324,8 @@
       "description": "手牌上限+5",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2135"
     },
     {
       "id": 2019,
@@ -128,7 +2333,8 @@
       "description": "所有角色在判定阶段都要进行一次【闪电】判定",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2019"
     },
     {
       "id": 2020,
@@ -136,7 +2342,8 @@
       "description": "你的体力上限固定为7，无法通过任何途径改变体力值上限",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2020"
     },
     {
       "id": 2021,
@@ -144,7 +2351,8 @@
       "description": "你的装备不能被其他角色弃置",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2021"
     },
     {
       "id": 2028,
@@ -152,7 +2360,8 @@
       "description": "受到【决斗】伤害后回复1点体力",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2028"
     },
     {
       "id": 2030,
@@ -160,7 +2369,8 @@
       "description": "【无中生有】额外摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2030"
     },
     {
       "id": 2033,
@@ -168,7 +2378,8 @@
       "description": "你每轮首张【杀】可以额外选择1个目标",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2033"
     },
     {
       "id": 2034,
@@ -176,7 +2387,8 @@
       "description": "你每轮首张【杀】可以额外选择2个目标",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2034"
     },
     {
       "id": 2036,
@@ -184,7 +2396,8 @@
       "description": "每轮，你的首张【杀】伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2036"
     },
     {
       "id": 2037,
@@ -192,7 +2405,8 @@
       "description": "每轮，你的首张【杀】伤害+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2037"
     },
     {
       "id": 2039,
@@ -200,7 +2414,8 @@
       "description": "你使用【杀】后可以重铸1张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2039"
     },
     {
       "id": 2040,
@@ -208,7 +2423,8 @@
       "description": "你使用【杀】后可以重铸至多2张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2040"
     },
     {
       "id": 2042,
@@ -216,7 +2432,8 @@
       "description": "你使用的每第3张【杀】伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2042"
     },
     {
       "id": 2043,
@@ -224,7 +2441,8 @@
       "description": "你使用的每第3张【杀】伤害+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2043"
     },
     {
       "id": 2045,
@@ -232,7 +2450,8 @@
       "description": "红桃【杀】伤害+2",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2045"
     },
     {
       "id": 2048,
@@ -240,7 +2459,8 @@
       "description": "你每轮【杀】首次造成伤害后摸1张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2048"
     },
     {
       "id": 2049,
@@ -248,7 +2468,8 @@
       "description": "你每轮【杀】首次造成伤害后摸2张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2049"
     },
     {
       "id": 2051,
@@ -256,7 +2477,8 @@
       "description": "出牌阶段，你的出杀次数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2051"
     },
     {
       "id": 2052,
@@ -264,7 +2486,8 @@
       "description": "出牌阶段，你的出杀次数+3",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2052"
     },
     {
       "id": 2054,
@@ -272,7 +2495,8 @@
       "description": "游戏开始时，你增加1点体力上限并回复等量体力",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2054"
     },
     {
       "id": 2055,
@@ -280,7 +2504,8 @@
       "description": "游戏开始时，你增加2点体力上限并回复等量体力",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2055"
     },
     {
       "id": 2056,
@@ -288,7 +2513,8 @@
       "description": "游戏开始时，你增加3点体力上限并回复等量体力",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2056"
     },
     {
       "id": 2059,
@@ -296,7 +2522,8 @@
       "description": "摸牌阶段，你的摸牌数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2059"
     },
     {
       "id": 2060,
@@ -304,7 +2531,8 @@
       "description": "摸牌阶段，你的摸牌数+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2060"
     },
     {
       "id": 2064,
@@ -312,7 +2540,8 @@
       "description": "游戏开始时，你获得1张随机手牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2064"
     },
     {
       "id": 2065,
@@ -320,7 +2549,8 @@
       "description": "游戏开始时，你获得2张随机手牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2065"
     },
     {
       "id": 2066,
@@ -328,7 +2558,8 @@
       "description": "游戏开始时，你获得3张随机手牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2066"
     },
     {
       "id": 2069,
@@ -336,7 +2567,8 @@
       "description": "每轮开始时，你获得1点护甲",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2069"
     },
     {
       "id": 2070,
@@ -344,7 +2576,8 @@
       "description": "每轮开始时，你获得2点护甲",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2070"
     },
     {
       "id": 2071,
@@ -352,7 +2585,8 @@
       "description": "游戏开始时，你获得1点护甲",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2071"
     },
     {
       "id": 2072,
@@ -360,7 +2594,8 @@
       "description": "游戏开始时，你获得2点护甲",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2072"
     },
     {
       "id": 2073,
@@ -368,7 +2603,8 @@
       "description": "游戏开始时，你获得4点护甲",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2073"
     },
     {
       "id": 2074,
@@ -376,7 +2612,8 @@
       "description": "游戏开始时，你获得6点护甲",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2074"
     },
     {
       "id": 2076,
@@ -384,7 +2621,8 @@
       "description": "回合结束时，你摸1张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2076"
     },
     {
       "id": 2077,
@@ -392,7 +2630,8 @@
       "description": "回合结束时，你摸2张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2077"
     },
     {
       "id": 2078,
@@ -400,7 +2639,8 @@
       "description": "回合结束时，你摸3张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2078"
     },
     {
       "id": 2079,
@@ -408,7 +2648,8 @@
       "description": "每回合你使用第7张牌后,你摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2079"
     },
     {
       "id": 2080,
@@ -416,7 +2657,8 @@
       "description": "每回合你使用第5张牌后,你摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2080"
     },
     {
       "id": 2081,
@@ -424,7 +2666,8 @@
       "description": "每回合你使用第6张牌后,你摸2张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2081"
     },
     {
       "id": 2082,
@@ -432,7 +2675,8 @@
       "description": "每回合你第5次摸牌后,你摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2082"
     },
     {
       "id": 2083,
@@ -440,7 +2684,8 @@
       "description": "每回合你第3次摸牌后,你摸1张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2083"
     },
     {
       "id": 2084,
@@ -448,7 +2693,8 @@
       "description": "每回合你第1次摸牌后,你摸2张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2084"
     },
     {
       "id": 2085,
@@ -456,7 +2702,8 @@
       "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2085"
     },
     {
       "id": 2086,
@@ -464,7 +2711,8 @@
       "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸2张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2086"
     },
     {
       "id": 2088,
@@ -472,7 +2720,8 @@
       "description": "摸牌阶段，你的摸牌数+2。你的手牌上限-1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2088"
     },
     {
       "id": 2093,
@@ -480,7 +2729,8 @@
       "description": "回合开始时，你获得1张【杀】",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2093"
     },
     {
       "id": 2094,
@@ -488,7 +2738,8 @@
       "description": "回合开始时，你获得2张【桃】",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2094"
     },
     {
       "id": 2095,
@@ -496,7 +2747,8 @@
       "description": "回合开始时，你获得1张【过河拆桥】",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2095"
     },
     {
       "id": 2096,
@@ -504,7 +2756,8 @@
       "description": "回合开始时，你获得1张【顺手牵羊】",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2096"
     },
     {
       "id": 2097,
@@ -512,7 +2765,8 @@
       "description": "回合开始时，你获得1张【决斗】",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2097"
     },
     {
       "id": 2098,
@@ -520,7 +2774,8 @@
       "description": "回合开始时，你获得1张【铁索连环】",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2098"
     },
     {
       "id": 2099,
@@ -528,7 +2783,8 @@
       "description": "回合开始时，你获得1张【火攻】",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2099"
     },
     {
       "id": 2144,
@@ -536,7 +2792,8 @@
       "description": "回合开始时，你获得1张【闪】",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2144"
     },
     {
       "id": 2100,
@@ -544,7 +2801,8 @@
       "description": "每回合限一次，你使用的第一张属性【杀】伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2100"
     },
     {
       "id": 2101,
@@ -552,7 +2810,8 @@
       "description": "每回合限一次，你使用的第一张属性【杀】伤害+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2101"
     },
     {
       "id": 2103,
@@ -560,7 +2819,8 @@
       "description": "摸牌阶段，你的摸牌数-1；回合结束时，你摸3张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2103"
     },
     {
       "id": 2104,
@@ -568,7 +2828,8 @@
       "description": "你每摸9张牌，对随机敌方造成1点伤害",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2104"
     },
     {
       "id": 2143,
@@ -576,7 +2837,8 @@
       "description": "你每摸6张牌，对随机敌方造成1点伤害",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2143"
     },
     {
       "id": 2105,
@@ -584,7 +2846,8 @@
       "description": "战斗开始时，全场所有角色受到1点雷属性伤害（触发1次）",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2105"
     },
     {
       "id": 2106,
@@ -592,7 +2855,8 @@
       "description": "战斗开始时，全场所有角色受到2点雷属性伤害（触发1次）",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2106"
     },
     {
       "id": 2108,
@@ -600,7 +2864,8 @@
       "description": "每回合，你可以额外使用1次【酒】",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2108"
     },
     {
       "id": 2109,
@@ -608,7 +2873,8 @@
       "description": "每回合，你可以额外使用2次【酒】",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2109"
     },
     {
       "id": 2111,
@@ -616,7 +2882,8 @@
       "description": "与你【决斗】的角色每次需打出两张【杀】",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2111"
     },
     {
       "id": 2115,
@@ -624,7 +2891,8 @@
       "description": "本回合没出杀，则下回合杀伤害+1 （最多+1）",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2115"
     },
     {
       "id": 2127,
@@ -632,7 +2900,8 @@
       "description": "回合外每受到1次伤害，你的下次造成伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2127"
     },
     {
       "id": 2116,
@@ -640,7 +2909,8 @@
       "description": "每次受到伤害后对伤害来源造成1点伤害",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2116"
     },
     {
       "id": 2117,
@@ -648,7 +2918,8 @@
       "description": "每次受到伤害后对随机敌方造成1点伤害",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2117"
     },
     {
       "id": 2120,
@@ -656,7 +2927,8 @@
       "description": "回合外成为敌方角色使用牌唯一目标，随机弃置使用者1张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2120"
     },
     {
       "id": 2121,
@@ -664,7 +2936,8 @@
       "description": "回合外成为敌方角色基本牌唯一目标，随机弃置使用者1张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2121"
     },
     {
       "id": 2122,
@@ -672,7 +2945,8 @@
       "description": "回合外成为敌方角色锦囊牌唯一目标，随机弃置使用者1张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2122"
     },
     {
       "id": 2128,
@@ -680,7 +2954,8 @@
       "description": "回合外失去最后一张手牌后，摸两张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2128"
     },
     {
       "id": 2129,
@@ -688,7 +2963,8 @@
       "description": "造成伤害时，若你与其距离大于1，此伤害+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2129"
     },
     {
       "id": 2130,
@@ -696,7 +2972,8 @@
       "description": "对敌方造成伤害一次大于等于3点时，摸1张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2130"
     },
     {
       "id": 2131,
@@ -704,7 +2981,8 @@
       "description": "回合外受到伤害一次大于等于3点时，对伤害来源造成等量同属性伤害。",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2131"
     },
     {
       "id": 2147,
@@ -712,7 +2990,8 @@
       "description": "体力上限-1（最低为1），每轮开始时回复1点体力 ",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2147"
     },
     {
       "id": 2148,
@@ -720,7 +2999,8 @@
       "description": "体力上限-1（最低为1），每轮开始时回复2点体力",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2148"
     },
     {
       "id": 2150,
@@ -728,7 +3008,8 @@
       "description": "从第3轮开始，你的【杀】造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2150"
     },
     {
       "id": 2151,
@@ -736,7 +3017,8 @@
       "description": "从第5轮开始，你的【杀】造成的伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2151"
     },
     {
       "id": 2152,
@@ -744,7 +3026,8 @@
       "description": "从第7轮开始，你的【杀】造成的伤害+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2152"
     },
     {
       "id": 2153,
@@ -752,7 +3035,8 @@
       "description": "从第3轮开始，你的摸牌数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2153"
     },
     {
       "id": 2154,
@@ -760,7 +3044,8 @@
       "description": "从第5轮开始，你的摸牌数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2154"
     },
     {
       "id": 2155,
@@ -768,7 +3053,8 @@
       "description": "从第7轮开始，你的摸牌数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2155"
     },
     {
       "id": 2156,
@@ -776,7 +3062,8 @@
       "description": "从第3轮开始，你的出杀次数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2156"
     },
     {
       "id": 2157,
@@ -784,7 +3071,8 @@
       "description": "从第4轮开始，你的出杀次数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2157"
     },
     {
       "id": 2158,
@@ -792,7 +3080,8 @@
       "description": "从第7轮开始，你的出杀次数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2158"
     },
     {
       "id": 2162,
@@ -800,7 +3089,8 @@
       "description": "体力值小于等于2时，你造成的伤害+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2162"
     },
     {
       "id": 2163,
@@ -808,7 +3098,8 @@
       "description": "体力值小于等于3时，你造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2163"
     },
     {
       "id": 2164,
@@ -816,7 +3107,8 @@
       "description": "体力值小于等于3时，你的摸牌数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2164"
     },
     {
       "id": 2165,
@@ -824,7 +3116,8 @@
       "description": "体力值小于等于5时，你的摸牌数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2165"
     },
     {
       "id": 2166,
@@ -832,7 +3125,8 @@
       "description": "你的手牌上限不因体力值改变而改变",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2166"
     },
     {
       "id": 2167,
@@ -840,7 +3134,8 @@
       "description": "其他角色无法响应你的【无懈可击】",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2167"
     },
     {
       "id": 2171,
@@ -848,7 +3143,8 @@
       "description": "当你的技能直接造成伤害时，此伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2171"
     },
     {
       "id": 2172,
@@ -856,7 +3152,8 @@
       "description": "当你的技能直接造成伤害时，此伤害+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2172"
     },
     {
       "id": 2174,
@@ -864,7 +3161,8 @@
       "description": "你脱离濒死时，对所有敌方造成1点伤害",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2174"
     },
     {
       "id": 2175,
@@ -872,7 +3170,8 @@
       "description": "你脱离濒死时，对所有敌方造成2点伤害",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2175"
     },
     {
       "id": 2177,
@@ -880,7 +3179,8 @@
       "description": "你对其他人造成伤害时，无视其护甲",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2177"
     },
     {
       "id": 2182,
@@ -888,7 +3188,8 @@
       "description": "游戏开始时，你回复1点体力",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2182"
     },
     {
       "id": 2185,
@@ -896,7 +3197,8 @@
       "description": "敌方的体力上限-1，最低为1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2185"
     },
     {
       "id": 2188,
@@ -904,7 +3206,8 @@
       "description": "若上一轮你未造成任何伤害，则你本轮造成的所有伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2188"
     },
     {
       "id": 2189,
@@ -912,7 +3215,8 @@
       "description": "若上一轮造成的伤害小于3，则你本轮造成的所有伤害+1",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2189"
     },
     {
       "id": 2190,
@@ -920,7 +3224,8 @@
       "description": "敌方无法响应你的伤害锦囊牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2190"
     },
     {
       "id": 2191,
@@ -928,7 +3233,8 @@
       "description": "回复体力时，额外回复1点",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2191"
     },
     {
       "id": 2192,
@@ -936,7 +3242,8 @@
       "description": "回复体力时，额外回复2点",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2192"
     },
     {
       "id": 2193,
@@ -944,7 +3251,8 @@
       "description": "对护甲造成双倍伤害",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2193"
     },
     {
       "id": 2194,
@@ -952,7 +3260,8 @@
       "description": "手牌数小于4时，你使用【杀】造成的伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2194"
     },
     {
       "id": 2195,
@@ -960,7 +3269,8 @@
       "description": "手牌数小于6时，你使用【杀】造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2195"
     },
     {
       "id": 2196,
@@ -968,7 +3278,8 @@
       "description": "每轮你前2次受到的伤害-1",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2196"
     },
     {
       "id": 2197,
@@ -976,7 +3287,8 @@
       "description": "每轮你前3次受到的伤害-2",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2197"
     },
     {
       "id": 2198,
@@ -984,7 +3296,8 @@
       "description": "回合开始时，获得随机敌方一张手牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2198"
     },
     {
       "id": 2208,
@@ -992,7 +3305,8 @@
       "description": "摸牌阶段摸牌数固定为5",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2208"
     },
     {
       "id": 2209,
@@ -1000,7 +3314,8 @@
       "description": "回合内出杀次数固定为5",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2209"
     },
     {
       "id": 2210,
@@ -1008,7 +3323,8 @@
       "description": "你的所有伤害值固定为2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2210,2370"
     },
     {
       "id": 2211,
@@ -1016,7 +3332,8 @@
       "description": "手牌上限等于你的体力上限",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2211"
     },
     {
       "id": 2227,
@@ -1024,7 +3341,8 @@
       "description": "你受到1点伤害后，摸一张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2227"
     },
     {
       "id": 2228,
@@ -1032,7 +3350,8 @@
       "description": "当体力大于2点，回合开始时失去1点体力并摸2张牌",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2228"
     },
     {
       "id": 2238,
@@ -1040,7 +3359,8 @@
       "description": "你使用【顺手牵羊】无距离限制",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2238"
     },
     {
       "id": 2239,
@@ -1048,7 +3368,8 @@
       "description": "你使用【过河拆桥】时，至多弃置目标2张牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2239,2240"
     },
     {
       "id": 2240,
@@ -1056,7 +3377,8 @@
       "description": "你使用【过河拆桥】时，至多弃置目标3张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2239,2240"
     },
     {
       "id": 2241,
@@ -1064,7 +3386,8 @@
       "description": "你使用的【五谷丰登】仅友方角色可以获得牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2241"
     },
     {
       "id": 2242,
@@ -1072,7 +3395,8 @@
       "description": "你使用的【万箭齐发】其他角色需要打出2张【闪】来响应",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2242"
     },
     {
       "id": 2243,
@@ -1080,7 +3404,8 @@
       "description": "你使用的【桃园结义】友方角色回复双倍体力",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2243"
     },
     {
       "id": 2244,
@@ -1088,7 +3413,8 @@
       "description": "因你【借刀杀人】使用的【杀】伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2244"
     },
     {
       "id": 2245,
@@ -1096,7 +3422,8 @@
       "description": "第3轮你的回合开始时，你回复2点体力",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2245"
     },
     {
       "id": 2246,
@@ -1104,7 +3431,8 @@
       "description": "第3轮你的回合开始时，你回复3点体力",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2246"
     },
     {
       "id": 2247,
@@ -1112,7 +3440,8 @@
       "description": "第2轮你的回合开始时，你回复2点体力",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2247"
     },
     {
       "id": 2249,
@@ -1120,7 +3449,8 @@
       "description": "你的回合开始时，从牌堆中获得1张随机锦囊牌",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2249"
     },
     {
       "id": 2250,
@@ -1128,7 +3458,8 @@
       "description": "你的回合开始时，从牌堆中获得2张随机锦囊牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2250"
     },
     {
       "id": 2251,
@@ -1136,7 +3467,8 @@
       "description": "你的回合开始时，从牌堆中获得3张随机锦囊牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2251"
     },
     {
       "id": 2258,
@@ -1144,7 +3476,8 @@
       "description": "获得1点护甲",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2258"
     },
     {
       "id": 2259,
@@ -1152,7 +3485,8 @@
       "description": "获得2点护甲",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2259"
     },
     {
       "id": 2260,
@@ -1160,7 +3494,8 @@
       "description": "获得4点护甲",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2260"
     },
     {
       "id": 2261,
@@ -1168,7 +3503,8 @@
       "description": "增加1点体力上限并回复等量体力",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2261"
     },
     {
       "id": 2262,
@@ -1176,7 +3512,8 @@
       "description": "增加2点体力上限并回复等量体力",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2262"
     },
     {
       "id": 2263,
@@ -1184,7 +3521,8 @@
       "description": "增加3点体力上限并回复等量体力",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2263"
     },
     {
       "id": 2264,
@@ -1192,7 +3530,8 @@
       "description": "体力上限-1（最低为1），每轮开始时回复1点体力",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2264"
     },
     {
       "id": 2265,
@@ -1200,7 +3539,8 @@
       "description": "体力上限-2（最低为1），每轮开始时回复2点体力",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2265"
     },
     {
       "id": 2266,
@@ -1208,7 +3548,8 @@
       "description": "体力上限-3（最低为1），每轮开始时回复3点体力",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2266"
     },
     {
       "id": 2281,
@@ -1216,7 +3557,8 @@
       "description": "虎符数量达到5后，每回合获得的虎符数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2282,
@@ -1224,7 +3566,8 @@
       "description": "虎符数量达到3后，出杀次数+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2283,
@@ -1232,7 +3575,8 @@
       "description": "虎符数量达到7后，摸牌数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2284,
@@ -1240,7 +3584,8 @@
       "description": "虎符数量达到3后，手牌上限+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": ""
     },
     {
       "id": 2285,
@@ -1248,7 +3593,8 @@
       "description": "自己的自然回合获得的虎符数+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": ""
     },
     {
       "id": 2286,
@@ -1256,7 +3602,8 @@
       "description": "每个自然回合获得的虎符数+1",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     },
     {
       "id": 2287,
@@ -1264,7 +3611,8 @@
       "description": "立即获得1个虎符",
       "tokens": 0,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": ""
     },
     {
       "id": 2288,
@@ -1272,7 +3620,8 @@
       "description": "立即获得2个虎符",
       "tokens": 0,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2289,
@@ -1280,7 +3629,8 @@
       "description": "商店中商品展示数量+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2290,
@@ -1288,7 +3638,8 @@
       "description": "每个回合商店可免费刷新1次（仅限当前不可免费刷新时）",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": ""
     },
     {
       "id": 2291,
@@ -1296,7 +3647,8 @@
       "description": "商店免费刷新次数+2",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2292,
@@ -1304,7 +3656,8 @@
       "description": "商店免费刷新次数+4",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": ""
     },
     {
       "id": 2293,
@@ -1312,7 +3665,8 @@
       "description": "技能槽上限+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     },
     {
       "id": 2294,
@@ -1320,7 +3674,8 @@
       "description": "获取3张锦囊牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2295,
@@ -1328,7 +3683,8 @@
       "description": "获取4张基本牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2296,
@@ -1336,7 +3692,8 @@
       "description": "获取4张装备牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2297,
@@ -1344,7 +3701,8 @@
       "description": "获取3张牌",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": ""
     },
     {
       "id": 2221,
@@ -1352,7 +3710,8 @@
       "description": "武将初始技能可被替换",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2221"
     },
     {
       "id": 2226,
@@ -1360,7 +3719,8 @@
       "description": "每有一个已解锁的空技能槽，则出杀次数+2",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2226"
     },
     {
       "id": 2298,
@@ -1368,7 +3728,8 @@
       "description": "敌方摸牌数-1，最低为2",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2183"
     },
     {
       "id": 2299,
@@ -1376,7 +3737,8 @@
       "description": "敌方的出杀次数-1，最低为1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2184"
     },
     {
       "id": 2303,
@@ -1384,7 +3746,8 @@
       "description": "你的手牌数小于体力值时，造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2303"
     },
     {
       "id": 2307,
@@ -1392,7 +3755,8 @@
       "description": "你的拼点牌点数+3（最大为K）",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2307"
     },
     {
       "id": 2308,
@@ -1400,7 +3764,8 @@
       "description": "你的拼点牌点数+6（最大为K）",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2308"
     },
     {
       "id": 2310,
@@ -1408,7 +3773,8 @@
       "description": "体力上限+1（不改变当前体力) ",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2310"
     },
     {
       "id": 2311,
@@ -1416,7 +3782,8 @@
       "description": "体力上限+2（不改变当前体力) ",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2311"
     },
     {
       "id": 2312,
@@ -1424,7 +3791,8 @@
       "description": "每回合首张锦囊造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2312"
     },
     {
       "id": 2313,
@@ -1432,7 +3800,8 @@
       "description": "每回合前2张锦囊造成的伤害+1",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2313"
     },
     {
       "id": 2315,
@@ -1440,7 +3809,8 @@
       "description": "回复体力后，摸1张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2315"
     },
     {
       "id": 2317,
@@ -1448,7 +3818,8 @@
       "description": "每回合首次受到伤害后对所有敌方造成1点伤害",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2317"
     },
     {
       "id": 2319,
@@ -1456,7 +3827,8 @@
       "description": "每回合首次回复体力时，额外回复1点",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2319"
     },
     {
       "id": 2320,
@@ -1464,7 +3836,8 @@
       "description": "每回合前3次回复体力时，额外回复1点",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2320"
     },
     {
       "id": 2333,
@@ -1472,7 +3845,8 @@
       "description": "回合内首次造成的伤害+1，回合外首次受到的伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2333"
     },
     {
       "id": 2334,
@@ -1480,7 +3854,8 @@
       "description": "回合内首次造成的伤害+2，回合外首次受到的伤害+2",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": "2334"
     },
     {
       "id": 2337,
@@ -1488,7 +3863,8 @@
       "description": "你使用的【顺手牵羊】额外结算一次",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2337"
     },
     {
       "id": 2357,
@@ -1496,7 +3872,8 @@
       "description": "从第2轮开始，你的锦囊和技能造成的伤害+2",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": "2357"
     },
     {
       "id": 2358,
@@ -1504,7 +3881,8 @@
       "description": "从第4轮开始，你的锦囊和技能造成的伤害+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 2
+      "sourceQuality": 2,
+      "relatedTacticIds": "2358"
     },
     {
       "id": 2359,
@@ -1512,7 +3890,8 @@
       "description": "从第3轮开始，你的锦囊和技能造成的伤害+1",
       "tokens": 2,
       "quality": 2,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2359"
     },
     {
       "id": 2342,
@@ -1520,7 +3899,8 @@
       "description": "手牌上限-2，出杀次数+1",
       "tokens": 1,
       "quality": 1,
-      "sourceQuality": 1
+      "sourceQuality": 1,
+      "relatedTacticIds": "2342"
     },
     {
       "id": 2365,
@@ -1528,7 +3908,8 @@
       "description": "你可以重铸桃园结义，万箭齐发，闪电三张锦囊",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     },
     {
       "id": 2366,
@@ -1536,7 +3917,8 @@
       "description": "每回合获得虎符的数量翻倍",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     },
     {
       "id": 2367,
@@ -1544,7 +3926,8 @@
       "description": "游戏开始时随机展示一个数字，摸到点数为幸运数字的牌时额外摸一张牌",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     },
     {
       "id": 2368,
@@ -1552,7 +3935,8 @@
       "description": "回合开始时你失去一点体力，本回合出杀次数+1",
       "tokens": 3,
       "quality": 3,
-      "sourceQuality": 3
+      "sourceQuality": 3,
+      "relatedTacticIds": ""
     },
     {
       "id": 2369,
@@ -1560,7 +3944,8 @@
       "description": "开局立即获得5个虎符",
       "tokens": 4,
       "quality": 4,
-      "sourceQuality": 4
+      "sourceQuality": 4,
+      "relatedTacticIds": ""
     }
   ]
 }

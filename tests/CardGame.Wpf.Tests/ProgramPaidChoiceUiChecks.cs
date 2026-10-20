@@ -61,12 +61,14 @@ internal static class ProgramPaidChoiceUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         Program.Render(root, 1120, 740, Path.Combine(output, "267-program-donor-lord-reward.png"));
-        var choicePanel = (ItemsControl)window.FindName("ScrollingSkillChoices");
+        var choicePanel = (ItemsControl)window.FindName(model.HasDockSkillChoices ? "DockSkillChoices" : "ScrollingSkillChoices");
         var buttons = Program.Find<Button>(choicePanel).Where(button =>
             button.Command == model.SelectSkillChoiceCommand && button.Visibility == Visibility.Visible &&
             button.IsEnabled && button.ActualWidth > 0 && button.ActualHeight > 0).ToArray();
         Program.Assert(!model.HasPinnedPublicModuleChoices && choicePanel.ActualHeight > 0 && buttons.Length == 2,
             "The human donor must have two visible, enabled reward choices through the shared WPF surface.");
+        Program.Assert(!model.HasDockSkillChoices || model.UngroupedCenterSkillChoices.Count == 0,
+            "A donor reward shown in the lower dock must not retain duplicate central choices.");
         var before = game.CreateSnapshot(0).Players[lordSeat].HandCount;
         var revision = game.Revision;
         model.SelectSkillChoiceCommand.Execute(model.SkillChoices.Single(choice =>

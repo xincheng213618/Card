@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "mou-ol:jiaodi":{"name":"剿狄","description":"攻击范围始终等于当前体力。杀指定唯一目标时比较双方范围，范围相等执行加伤取牌与弃牌加目标两段。","triggerLabels":{"unique-slash":"剿狄：依双方攻击范围结算"}},
+ "mou-ol:baojing":{"name":"保京","description":"本出牌阶段一次，令另一角色攻击范围增减1，减至最少1，持续至本人下一出牌阶段开始。","activationLabels":{"adjust-range":"保京：调整另一角色攻击范围"}}
+}}

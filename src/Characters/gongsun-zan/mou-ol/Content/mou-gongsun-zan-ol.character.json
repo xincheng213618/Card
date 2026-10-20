@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:gongsun-zan",
+  "skills": [
+    { "registrationOrder": 2450, "programBundle": "mou-gongsun-zan-ol", "includeProgramPresentation": true,
+      "definition": { "id": "mou-ol:jiaodi", "name": "剿狄", "description": "锁定技，你的攻击范围始终等于你的当前体力值。当你使用【杀】指定唯一目标时，若目标的攻击范围小于等于你，你令此【杀】伤害+1，然后获得该角色一张手牌；若目标的攻击范围大于等于你，你弃置该角色区域内一张牌，选择一名角色成为此【杀】的额外目标。", "executionForms": "Trigger,State", "tags": "Locked" } },
+    { "registrationOrder": 2451, "programBundle": "mou-gongsun-zan-ol", "includeProgramPresentation": true,
+      "definition": { "id": "mou-ol:baojing", "name": "保京", "description": "出牌阶段限一次，你可以令一名其他角色的攻击范围+1/-1（最多减为1），直到你的下个出牌阶段开始。", "actionForms": "Active" } }
+  ],
+  "generals": [{ "registrationOrder": 2452, "pools": { "current": 549 }, "definition": {
+    "id": "mou:gongsun-zan-ol", "name": "谋公孙瓒·OL", "portraitKey": "mou-gongsun-zan-ol", "skillId": "mou-ol:jiaodi", "additionalSkillIds": ["mou-ol:baojing"], "factionId": "qun", "gender": "Male", "baseHp": 4, "characterId": "character:gongsun-zan", "variantId": "mou-ol", "rulesetId": "sanguosha-ol"
+  }}]
+}

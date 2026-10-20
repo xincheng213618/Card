@@ -1,0 +1,56 @@
+{
+  "generalId": "mou:gongsun-zan-ol",
+  "name": "谋公孙瓒·OL",
+  "product": "三国杀OL",
+  "officialGid": 648,
+  "checkedAt": "2026-10-21",
+  "identity": { "faction": "qun", "gender": "Male", "initialHp": 4, "maxHp": 4 },
+  "identityEvidence": "Current official API hp=4, initial_hp=0 (default-full sentinel); the formal launch table explicitly lists 群 / 4 / 男.",
+  "sources": [
+    { "url": "https://www.sanguosha.com/hero/648", "kind": "current hero", "supports": "Complete current 剿狄 and 保京 texts, and the actual portrait DOM src." },
+    { "url": "https://www.sanguosha.com/api/v1/hero/info?gid=648", "kind": "official identity API", "supports": "Name, faction, HP, quality and the same portrait cover URL." },
+    { "url": "https://www.sanguosha.com/news/20251202_8548_4513", "kind": "formal launch", "title": "12.6-12.14 周年盛典祈福魔曹操、环淑君来袭 限时双倍重置 庆典祈愿谋公孙瓒上新", "publishedAt": "2025-12-05 17:03:01", "firstAvailability": "2025-12-06 00:15:00", "supports": "Explicit identity and both complete skill texts, identical to the current hero page." }
+  ],
+  "skills": [
+    { "id": "mou-ol:jiaodi", "name": "剿狄", "officialText": "锁定技，你的攻击范围始终等于你的当前体力值。当你使用【杀】指定唯一目标时，若目标的攻击范围小于等于你，你令此【杀】伤害+1，然后获得该角色一张手牌；若目标的攻击范围大于等于你，你弃置该角色区域内一张牌，选择一名角色成为此【杀】的额外目标。" },
+    { "id": "mou-ol:baojing", "name": "保京", "officialText": "出牌阶段限一次，你可以令一名其他角色的攻击范围+1/-1（最多减为1），直到你的下个出牌阶段开始。" }
+  ],
+  "versionBoundary": {
+    "launchAndCurrentTextsAgree": true,
+    "laterRevisionSearch": "A bounded official search for this identity plus 调整, 剿狄 and 保京 found activity/pool changes but no later skill revision. This does not claim an exhaustive history search.",
+    "notMobileGongsunZan": "Mobile hero587/general699 has 义从/趫猛 and is a different version.",
+    "notWeiGongsunZan": "威公孙瓒 with 举袭/追讨 is a different identity."
+  },
+  "portrait": {
+    "heroDomSrc": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64800.png",
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/64800.png",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-gongsun-zan-ol.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1042932,
+    "sha256": "A83C6EE9B46D6F370E0CE7EF1FC6AAFC726D2E5F91FE4B572E704669C2900537",
+    "visuallyInspected": true,
+    "witness": "Mounted silver/purple/gold-armored warrior with bow, white horse at left, red cloak/flag and soldiers behind. The official full-image DOM URL was used."
+  },
+  "textDeterminedRules": [
+    "The two inclusive comparisons are independent: equal attack ranges perform both branches, not an exclusive choice.",
+    "Jiaodi modifies the original Slash. There is no second fabricated Use or additional material payment; its whole-Slash damage increase also applies to its added target.",
+    "The original Slash must have exactly one other designated target. Pure Played and an originally multi-target Slash do not qualify.",
+    "A legal extra target must be selected when one exists; the official final clause has no optional refusal.",
+    "Baojing is limited per actual own Play phase and expires at the next own Play phase beginning. A skipped Play is not a Play beginning, and an inserted Play is a real next Play."
+  ],
+  "engineeringInterpretationsNotOfficialFaq": [
+    "At acceptance of the native original sole-target designation, freeze the source instance/hash, original Use/action/target and both public attack ranges. Physical obtain/discard children cannot later recompute or reverse these already-accepted comparisons.",
+    "Resolve in text order: issue +1 to the original whole Slash, actually obtain one current target Hand card, drain its native children, then actually discard one current target Hand/Equipment/Judgment card and drain its children before the mandatory legal extra-target choice. Empty zones or no legal extra target skip only the unavailable action.",
+    "The explicit 始终 range is a final absolute nonnegative current-HP projection while the Jiaodi source is active, overriding weapon, ordinary Set/Add and Unlimited contributions. Actual HP0 therefore yields range0. Other players retain the existing native arithmetic.",
+    "Baojing is an issued finite +/-1 contribution. A live negative Baojing preserves a finite recipient minimum one even where a native weapon normally permits zero. Jiaodi's explicit absolute current-HP projection has priority over Baojing, including its real zero during dying; unrelated native zero or Unlimited values are not changed.",
+    "The chosen Baojing contribution remains issued after source loss until its first later actual own Play start; source regrant does not refresh its existing duration or current-phase usage.",
+    "Already-accepted Jiaodi movement children preserve the original frame/source and cannot take or discard twice after a child return or checkpoint restore. Death/terminal cutoff follows native resolution; no dead chooser is given a new private decision.",
+    "Foreign Hand selection uses native opaque slots. Actual obtained entities use face-down movement disclosure; equipment/judgment selection and logical discard keep their native visibility and recovery effects."
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouGongsunZanOlChecks.cs",
+    "method": "EqualRangeNativeSlashAndNextActualPlayExpiryCold",
+    "filter": "Mou Gongsun Zan OL:"
+  }
+}

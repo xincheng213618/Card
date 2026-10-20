@@ -50,8 +50,9 @@ public sealed partial class MainViewModel
             statuses.Add(new("破", $"被【破军】扣置的牌 {player.PojunHoldCount} 张；回合结束后回到其手牌。", player.PojunHoldCount));
         if (player.RoundHoldCount > 0)
             statuses.Add(new("撼", $"被【撼国】扣置的牌 {player.RoundHoldCount} 张；本轮结束后回到其手牌。", player.RoundHoldCount));
-        foreach (var pile in PublicOwnedPiles(player))
-            statuses.Add(new(pile.Name, $"{player.GeneralName}的公开“{pile.Name}” ×{pile.Count}：{string.Join("、", pile.Cards.Select(card => $"{card.DisplayName} {GetSuitGlyph(card.Suit)}{card.RankText}"))}", pile.Count));
+        foreach (var (pile, index) in PublicOwnedPiles(player).Select((pile, index) => (pile, index)))
+            statuses.Add(new(pile.Name, $"{player.GeneralName}的公开“{pile.Name}” ×{pile.Count}：{string.Join("、", pile.Cards.Select(card => $"{card.DisplayName} {GetSuitGlyph(card.Suit)}{card.RankText}"))}\n点击查看武将牌上的牌。", pile.Count)
+                { PublicPileOwnerSeat = player.Seat, PublicPileIndex = index });
         foreach (var pile in player.NamedAmbushPiles ?? [])
             if (pile.Count > 0)
                 statuses.Add(new(pile.PileName, $"暗置“{pile.PileName}” ×{pile.Count}；牌面与记录牌名仅拥有者可见。", pile.Count));
