@@ -39,10 +39,10 @@ public sealed partial class GameEngine
     {
         if (!IsValidPlayerSeat(ownerSeat)) return null;
         var entries = ProgramEventHistory<OlMoRumoEnteredEvent>().Where(item => item.OwnerSeat == ownerSeat).ToArray();
-        if (entries.Length > 1 || entries.Any(item => item.EntryId <= 0 || item.Origin.OwnerSeat != ownerSeat ||
-                item.Origin.SkillId != "ol:mo-qiangang" || item.EntryRound < 1 || item.ActualTurn < 1 ||
+        if (entries.Length > 1 || entries.Any(item => item.EntryId <= 0 || item.Origin.OwnerSeat != ownerSeat || item.ActualTurn < 1 ||
                 !IsValidPlayerSeat(item.TurnOwner) ||
-                !IsPaidQiangangRumoOrigin(item.EntryId, item.Origin, item.OriginGameplayHash)))
+                !(item.Origin.SkillId == "ol:mo-qiangang" && item.EntryRound >= 1 &&
+                    IsPaidQiangangRumoOrigin(item.EntryId, item.Origin, item.OriginGameplayHash) || IsMoLuBuRumoOrigin(item))))
             throw new InvalidOperationException("OL Rumo must retain one exact permanent paid entry per owner.");
         return entries.SingleOrDefault();
     }

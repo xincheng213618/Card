@@ -1,0 +1,107 @@
+{
+  "formatVersion": 1,
+  "status": "implemented-focused-verified",
+  "generalId": "ol:mo-lu-bu",
+  "characterId": "character:lu-bu",
+  "displayName": "魔吕布·OL",
+  "edition": "magic-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 4,
+    "officialGeneralId": 714
+  },
+  "verifiedAtUtc": "2026-10-20T14:05:14.838366+00:00",
+  "skills": [
+    {
+      "id": "ol:mo-duoqi",
+      "name": "夺炁",
+      "officialText": "锁定技，一号位首个回合开始前，你执行一个不能使用延时锦囊牌的额外出牌阶段。所有角色的初始手牌称为“炁”。你每回合对一名角色首次造成伤害后，你获得其一张“炁”。"
+    },
+    {
+      "id": "ol:mo-kuangmo",
+      "name": "狂魔",
+      "officialText": "出牌阶段，你可以入魔并选择一名其他角色，你与其成为“狂”角色，每回合对彼此首次造成的伤害+1；击败对方后，获得对方所有“炁”。“狂”角色死亡后，你重新指定。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。"
+    },
+    {
+      "id": "ol:mo-gangquan",
+      "name": "罡拳",
+      "officialText": "若你使用的上一张牌为“炁”，你可以将一张装备牌当指定相邻角色为目标的火【杀】使用；否则，你可以将一张锦囊牌当【决斗】使用。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.com/hero/714",
+      "sha256": "43C7FCA76EBEF0813297AD17392286EA6E1560714F0F6C96D702208477C6A534",
+      "bytes": 26706
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=714",
+      "sha256": "A4A6DE72F55C09329B907474E1E677C6CC2B2AB80C4B8CE535EDE6CF9CA9BCDE",
+      "bytes": 1582
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.com/news/20250708_4123_3813",
+      "sha256": "2394BDD43F94527B7CCDA7FA3805FFC3739350D2D508C6FAF0F0FFF8F9603C0A",
+      "bytes": 486174
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.com/news/20250708_4123_3813",
+    "publishedAt": "2025-07-11 17:06:17",
+    "permanentAvailability": "2025-07-12 00:15:00"
+  },
+  "revisionAudit": {
+    "currentHeroApiAndFormalReleaseAgree": true,
+    "boundedSearch": "No official-domain FAQ clarifying adjacency/all-neighbor targeting and the deceased original Qi collection scope was located in bounded searches; do not label community or operator-channel guidance as official FAQ.",
+    "notAnOfficialFaq": true
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Qi original ownership and closed retrieval zones",
+      "decision": "Initial physical Hand entities permanently retain their original owner cohort. Retrieval includes their current Hand, Equipment, Judgment, DrawPile or DiscardPile location, even when another player currently holds them. Processing, Wooden Ox grain and every parked/private pile or OutsideGame zone are excluded.",
+      "authority": "user-selected ruling"
+    },
+    {
+      "topic": "Gangquan neighbors",
+      "decision": "The Fire Slash fixes every currently legal living seat neighbor as its targets, independent of distance modifiers. Normal Slash quota and intrinsic prohibitions remain. A true forced Slash Use can convert; pure Played responses cannot.",
+      "authority": "Root-selected engineering interpretation informed by an operator-channel guide, not an official FAQ"
+    },
+    {
+      "topic": "Opening Play",
+      "decision": "Use a real extra actual turn with only the native Play phase; drain its lifecycle and phase-end children, then return the saved first normal seat without Preparation, Judgment, Draw, Discard or Ending phases.",
+      "authority": "Native scheduling engineering contract"
+    },
+    {
+      "topic": "Permanent reciprocal Kuang and Rumo",
+      "decision": "Entering is irreversible once accepted, and the original pair plus derived Rumo survive source loss. First mutual damage is sampled per actual turn. Native credited defeat collects all permitted original victim Qi; after the designated opponent dies the living entered owner must select a new opponent.",
+      "authority": "Official complete text and native paid-continuation contract"
+    }
+  ],
+  "secondaryOperatorGuide": {
+    "url": "https://game.xiaomi.com/viewpoint/1624366642_1754983187309_13",
+    "publisher": "三国杀小乔",
+    "creditedAuthor": "爱多i",
+    "publishedAt": "2025-08-12",
+    "classification": "Operator-channel guide, not an official FAQ"
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71400.png",
+    "localAsset": "src/CardGame.Wpf/Assets/official-ol-mo-lu-bu.png",
+    "sha256": "7BF792223EA2F7979DC49DEBBE597528B56B90DF97075FC9D15AADEC9528D399",
+    "bytes": 1407678,
+    "width": 750,
+    "height": 950,
+    "visualValidation": "Root downloaded and visually inspected the official original image."
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedCoreFilter": "OL Mo Lu Bu:",
+    "checks": 1,
+    "checksPassed": 1
+  }
+}

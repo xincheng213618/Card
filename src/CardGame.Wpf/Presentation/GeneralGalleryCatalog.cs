@@ -92,6 +92,7 @@ public static class GeneralGalleryCatalog
         groups.Add("wumiao:lu-xun", "wumiao");
         groups.Add("wumiao:zhang-fei", "wumiao");
         groups.Add("ol:mo-sun-quan", "magic");
+        groups.Add("ol:mo-lu-bu", "magic");
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");
         Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao yu-ji");
         Add("myth-fire", "dian-wei xun-yu pang-tong wolong-zhuge-liang taishi-ci yuan-shao yan-liang-wen-chou pang-de");

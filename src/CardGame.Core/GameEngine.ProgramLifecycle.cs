@@ -188,6 +188,7 @@ public sealed partial class GameEngine
         CloseCurrentPlayPhaseSkillGrants("play-phase-ended");
         _programPhaseColorRestrictions.Clear();
         ResetPlayPhaseProgramStates(_currentSeat);
+        if (TryFinishMoLuBuOpeningPlay()) return;
         if (ResumeScheduledProgramPhase()) return;
         BeginDiscardPhase();
     }
@@ -2136,6 +2137,7 @@ public sealed partial class GameEngine
         var candidates = IncludeYuanJiIssuedReturns(owner, window, Array.AsReadOnly(
             CollectProgramTriggerCandidates(owner, window).Where(c => !GetProgramTrigger(c).Effects.Any(e => IsYuanJiReturnOp(e.Op))).ToArray()));
         candidates = IncludeOlMoRumoRoundCandidates(owner, window, candidates);
+        candidates = IncludeMoLuBuDeathCandidates(owner, window, candidates);
         if (candidates.Count == 0) return candidates;
         return candidates
             .Where(candidate =>
@@ -2179,6 +2181,7 @@ public sealed partial class GameEngine
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedMouPtTargets(candidate, context)) return true;
         if (IsIssuedMouChenGongZhichiCandidate(candidate, context)) return true;
+        if (IsIssuedMoLuBuDeathCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
         if (IsIssuedYintianRecoveryCandidate(candidate, context)) return true;
         if (IsIssuedDiciChainCandidate(candidate, context)) return true;

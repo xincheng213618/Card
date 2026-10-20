@@ -6,11 +6,11 @@ public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
         _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
-        HasMouPangTongCapability || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouHanDangCapability || HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
+        HasMouMengHuoCapability || HasMouPangTongCapability || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouHanDangCapability || HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         IsGuanduActivity ||
-        HasMoQiangangCapability || HasLeZhouYuPingluCapability || HasZixiPlacementCapability || HasLeXiaoQiaoWeiwanCapability || HasWuyouCapability || HasSiruiCapability || HasLeMiHengJiguCapability ||
+        HasMoQiangangCapability || HasMoLuBu || HasLeZhouYuPingluCapability || HasZixiPlacementCapability || HasLeXiaoQiaoWeiwanCapability || HasWuyouCapability || HasSiruiCapability || HasLeMiHengJiguCapability ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWenrenSequentialDraw) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePengbiFirstActualTurn) ||

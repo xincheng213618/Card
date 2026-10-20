@@ -144,7 +144,7 @@ public sealed partial class GameEngine
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
                 NamedAmbushPiles = IncludeChenglieSnapshots(IncludeQushiSealSnapshots(ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
-                PrivateWhirlPiles = ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll),
+                PrivateWhirlPiles = AppendMouLuZhiRenPiles(ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll), player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.Count > 0 &&
                     _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = deferredPileCards.Count,

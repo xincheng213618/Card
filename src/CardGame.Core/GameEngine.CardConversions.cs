@@ -281,6 +281,7 @@ public sealed partial class GameEngine
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                CanUseSiruiConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                CanUseFuleAlias(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
+                               CanUseMoGangquan(owner, instance, rule, forResponse, dyingUse) &&
                                CanUseJuewuConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&

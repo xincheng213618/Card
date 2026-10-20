@@ -1091,6 +1091,18 @@ public enum SkillProgramEffectOp
     ResolveMouTianYuYangshi = 30601,
     ResolveMouHanDangGongqi = 30700,
     ResolveMouHanDangJiefan = 30701,
+    InitializeMoLuBuQiAndOpeningPlay = 30800,
+    ResolveMoLuBuDuoqi = 30801,
+    EnterMoLuBuKuangmo = 30802,
+    ResolveMoLuBuKuangmoDeath = 30803,
+    ResolveMouMengHuoAttribution = 30900,
+    ObtainMouMengHuoBarbarian = 30901,
+    GainMouMengHuoCharge = 30902,
+    ResolveMouMengHuoZaiqi = 30903,
+    InitializeMouLuZhiMingren = 31000,
+    ExchangeMouLuZhiMingren = 31001,
+    ResolveMouLuZhiZhenliangYang = 31002,
+    ResolveMouLuZhiZhenliangYin = 31003,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -5510,9 +5522,12 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) WuHuangFuSongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuZhugeLiangComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouPangTongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouMengHuoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouYuanShaoComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZhuRongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouTianYuComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MoLuBuComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouLuZhiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

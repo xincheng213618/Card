@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:meng-huo",
+  "skills": [
+    { "registrationOrder": 2309, "programBundle": "mou-meng-huo-mobile", "includeProgramPresentation": true, "definition": { "id": "mou-mobile:huoshou", "name": "祸首", "description": "锁定技，【南蛮入侵】对你无效；当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌造成的伤害的来源。出牌阶段开始时，你随机获得弃牌堆中一张【南蛮入侵】。出牌阶段，若你使用过【南蛮入侵】，则你此阶段不能使用【南蛮入侵】。", "executionForms": "Trigger", "tags": "Locked" } },
+    { "registrationOrder": 2310, "programBundle": "mou-meng-huo-mobile", "includeProgramPresentation": true, "definition": { "id": "mou-mobile:zaiqi", "name": "再起", "description": "蓄力技（0/7），弃牌阶段结束时，你可以选择任意名角色并扣除等量蓄力点，然后令你选择的角色各选择一项：1.令你摸一张牌；2.弃置一张牌，然后你回复1点体力。当你造成伤害后，获得1点蓄力点（每回合限获得1点蓄力点）。", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 2311, "pools": { "current": 531 }, "definition": { "id": "mou:meng-huo-mobile", "name": "谋孟获", "portraitKey": "mou-meng-huo-mobile", "skillId": "mou-mobile:huoshou", "additionalSkillIds": ["mou-mobile:zaiqi"], "factionId": "shu", "gender": "Male", "baseHp": 4, "characterId": "character:meng-huo", "variantId": "mou-mobile", "rulesetId": "sanguosha-mobile" } } ]
+}

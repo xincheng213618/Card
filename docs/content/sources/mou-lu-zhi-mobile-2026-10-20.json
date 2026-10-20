@@ -1,0 +1,93 @@
+{
+  "generalId": "mou:lu-zhi-mobile",
+  "characterId": "character:lu-zhi",
+  "name": "谋卢植·移动版",
+  "variantId": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "checkedAt": "2026-10-20",
+  "officialIdentity": {
+    "apiId": 569,
+    "generalId": 646,
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-569.html",
+      "role": "Fresh current full Mingren/Zhenliang and official identity",
+      "sha256": "CA3DC44108F88F227DCDEE0017B1F54848CB032997E2158587584CE8DD7B043D"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Fresh id569/general646; two complete skills agree with hero",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1744.html",
+      "role": "Formal January13 Laba availability announcement",
+      "sha256": "92E18E4ECBCF33950DA51C08DADD76307709FAFE6574E82A953251A411409C10"
+    }
+  ],
+  "formalLaunch": {
+    "publishedAt": "2024-01-12 17:30:00",
+    "availableFrom": "2024-01-13"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:mingren",
+      "name": "明任",
+      "officialText": "游戏开始时，你摸两张牌，然后将你的一张手牌扣置于你的武将牌上，称为“任”。结束阶段，你可以用手牌替换“任”。"
+    },
+    {
+      "id": "mou-mobile:zhenliang",
+      "name": "贞良",
+      "officialText": "转换技，阳：出牌阶段限一次，你可以选择一名攻击范围内的其他角色并弃置x张与“任”颜色相同的牌对其造成1点伤害（x为你与其体力值之差且至少为1） 阴：你的回合外，当一名角色使用或打出的牌结算结束后，若此牌与“任”类型相同，则你可令一名角色摸两张牌。"
+    }
+  ],
+  "versionSelection": {
+    "currentHeroAndAPIAgree": true,
+    "officialFAQConfirmed": false,
+    "communityUsedAsAuthority": false,
+    "boundedRevisionSearch": "Official-domain queries for Mou Lu Zhi/Mingren/Zhenliang and skill adjustment found no conflicting applicable formal revision. This is not an exhaustive absence claim."
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Private Ren and grant ownership",
+      "basis": "accepted-project-interpretation",
+      "decision": "One real Hand entity is face-down in a source-named persistent private pile; the owner sees the exact entity and other viewers only its count. Mingren and Zhenliang from the same actual skill-grant source share that Ren. Ending exchanges one current Hand entity and the old Ren through genuine movement; no draw, discard or recast is invented."
+    },
+    {
+      "topic": "Yang payment",
+      "basis": "accepted-project-interpretation",
+      "decision": "X=max(1,abs(owner HP-target HP)), requiring genuine defined HP on both sides. At target acceptance freeze X and Ren effective color; pay exactly X currently owned legal Hand/Equipment entities in one native logical discard. Finish removal/recovery/gain children before native damage1. Paid damage survives loss of the originating skill. Actual-Play quota is shared by owner and named skill across regrant instances."
+    },
+    {
+      "topic": "Yin category and completion",
+      "basis": "accepted-project-interpretation",
+      "decision": "Compare standard Basic/Trick/Equipment category of the completed effective card action with Ren type. Any character may be actor/provider, including pure Played responses and zero-entity Uses. One native action is counted once. Outside-turn scope lasts until the actual turn cursor returns, including children after raw TurnEnded. Once recipient is selected, toggle native conversion polarity and finish a genuine native Draw2, including native draw replacement and short stock."
+    },
+    {
+      "topic": "Private pile cleanup",
+      "basis": "accepted-project-interpretation",
+      "decision": "A Ren belongs to its concrete Mingren skill grant; actual grant removal or owner death removes the remaining entity through native movement. Already paid effects retain frozen ownership and payment receipts."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/64600.jpg",
+    "observedOn": "https://www.sanguosha.cn/pc/hero-detail-569.html",
+    "path": "src/CardGame.Wpf/Assets/official-mou-lu-zhi-mobile.jpg",
+    "width": 3480,
+    "height": 4923,
+    "bytes": 4872835,
+    "sha256": "234d38865526904d6c7b2c4d960364b1bcfb557574cba35e88504872c604d8e6",
+    "visualInspection": "Root directly inspected the original full portrait: white-bearded gold-crowned elder, gold shoulder armour, raised two fingers and bamboo-slip background."
+  },
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedMethod": "MouLuZhiMobileChecks.PrivateRenVariableCostAndCompletedCategories",
+    "scope": "Genuine game-start Draw2/private Ren, HP-difference two-card Yang discard/native damage, Ending exchange/representative checkpoint restore, completed zero-entity Use and pure Played category reward.",
+    "checksPassed": 1
+  },
+  "status": "implemented-focused-verified"
+}

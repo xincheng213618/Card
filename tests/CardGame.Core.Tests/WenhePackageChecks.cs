@@ -34,15 +34,16 @@ internal static class WenhePackageChecks
                 .All(kind => registry.Cards.Values.Any(card => card.LegacyKind == kind)),
             "The activity must register the actual lifecycle bundle, private-mark entry, native chaos bridge and physical card identities.");
 
+        // Keep the tier-deal fixture independent of the growing roster's legal opening replacements.
+        var draftRegistry = WithOrdinaryDraft(registry);
         foreach (var human in new[] { 0, 2 })
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
-                // Verified setup seed keeps this base tier-deal check independent of opening-hand replacement generals.
                 Seed = 31, PlayerCount = 8, HumanSeat = human, HumanRole = null, ModeId = modeId,
                 WenheAspirationRank = 4, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false, MaxTurns = 4
-            }, registry);
+            }, draftRegistry);
             Accept(game, new StartGameCommand());
             Until(game, () => game.PendingDecision is { Kind: DecisionKind.SelectGeneral } p && p.PlayerSeat == human);
             var prompt = game.PendingDecision!;
@@ -69,10 +70,40 @@ internal static class WenhePackageChecks
                 "All eight independent contestants must receive five real cards and tier-five health, with no team or foreign private aspiration leakage.");
             var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
             var reconstructed = ComposedSkillContentRegistry.CreateShowcaseForCheckpoint(checkpoint);
-            var restored = GameReplay.Restore(checkpoint, reconstructed);
-            Need(reconstructed.ContentHash == registry.ContentHash && restored.ModeId == modeId &&
+            var reconstructedDraft = WithOrdinaryDraft(reconstructed);
+            var restored = GameReplay.Restore(checkpoint, reconstructedDraft);
+            Need(reconstructed.ContentHash == registry.ContentHash && reconstructedDraft.ContentHash == draftRegistry.ContentHash && restored.ModeId == modeId &&
                 Enumerable.Range(0, 8).All(seat => SnapshotJson.Serialize(restored.CreateSnapshot(seat)) == SnapshotJson.Serialize(game.CreateSnapshot(seat))),
                 "The package-tagged checkpoint must rebuild and cold-replay the exact survival registry and all private viewer states.");
+        }
+    }
+
+    private static readonly string[] OrdinaryRoster =
+    [
+        "classic:guan-yu", "classic:zhang-fei", "classic:zhao-yun", "classic:ma-chao",
+        "classic:huang-zhong", "classic:wei-yan", "classic:xiahou-yuan", "classic:xu-chu",
+        "classic:dian-wei", "classic:lu-meng", "classic:zhou-yu", "classic:lu-xun",
+        "classic:sun-quan", "classic:sun-jian", "classic:taishi-ci", "classic:gan-ning"
+    ];
+    private static ContentRegistry WithOrdinaryDraft(ContentRegistry source)
+    {
+        Need(OrdinaryRoster.All(source.Modes["activity:wenhe-2019"].GeneralPoolIds!.Contains),
+            "The fixed ordinary setup roster must remain inside the actual official ban-filtered pool.");
+        return ContentRegistry.Build(source.Packages.Select((manifest, index) =>
+            (IGameContentPackage)new OrdinaryDraftPackage(manifest, index == 0 ? source : null)).ToArray());
+    }
+    private sealed class OrdinaryDraftPackage(PackageManifest manifest, ContentRegistry? source) : IGameContentPackage
+    {
+        public PackageManifest Manifest => manifest;
+        public void Register(IContentRegistryBuilder builder)
+        {
+            if (source is null) return;
+            foreach (var card in source.Cards.Values) builder.AddCard(card);
+            foreach (var skill in source.Skills.Values) builder.AddSkill(skill);
+            foreach (var general in source.Generals.Values) builder.AddGeneral(general);
+            foreach (var deck in source.Decks.Values) builder.AddDeck(deck);
+            foreach (var mode in source.Modes.Values) builder.AddMode(mode.Id == "activity:wenhe-2019"
+                ? mode with { GeneralPoolIds = OrdinaryRoster } : mode);
         }
     }
 

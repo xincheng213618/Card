@@ -16,11 +16,11 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(supplied.Id);
         if (!HasOlMoRumoCapability || _resolutionStack.LastOrDefault()?.Id != frame.Id ||
-            !IsPaidQiangangRumoEntry(frame))
+            !(IsPaidQiangangRumoEntry(frame) || IsPaidMoKuangmoEntry(frame)))
             throw new InvalidOperationException("OL Rumo requires the exact paid Qiangang entry, not a generic operation or a live skill label.");
         if (OlMoRumoEntry(frame.OwnerSeat) is not null) return;
         var source = new CardConversionSource(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
-        if (!IsPaidQiangangRumoOrigin(frame.Id, source, frame.GameplayHash))
+        if (!(IsPaidQiangangRumoOrigin(frame.Id, source, frame.GameplayHash) || IsPaidMoKuangmoOrigin(frame.Id, source, frame.GameplayHash)))
             throw new InvalidOperationException("OL Rumo lost the original irreversible entry payment.");
         AdvanceEventRulesAndQueueFact(new OlMoRumoEnteredEvent(frame.Id, frame.OwnerSeat, source,
             frame.GameplayHash, _roundNumber, _turnNumber, _turnProgression.OwnerSeat));
@@ -31,9 +31,13 @@ public sealed partial class GameEngine
         ? new(PlayerMarkerKind.OlMoRumo, "入魔", 1) : null;
 
     private IReadOnlyList<PlayerMarkerSnapshot>? AppendOlMoRumoMarker(int ownerSeat,
-        IReadOnlyList<PlayerMarkerSnapshot>? ordinary) => OlMoRumoMarker(ownerSeat) is { } marker
-        ? Array.AsReadOnly((ordinary ?? []).Where(item => item.Kind != PlayerMarkerKind.OlMoRumo).Append(marker)
-            .OrderBy(item => item.Kind).ToArray()) : ordinary;
+        IReadOnlyList<PlayerMarkerSnapshot>? ordinary)
+    {
+        var result = OlMoRumoMarker(ownerSeat) is { } marker
+            ? Array.AsReadOnly((ordinary ?? []).Where(item => item.Kind != PlayerMarkerKind.OlMoRumo).Append(marker)
+                .OrderBy(item => item.Kind).ToArray()) : ordinary;
+        return AppendMoLuBuKuangMarker(ownerSeat, result);
+    }
 
     private IReadOnlyList<ProgramTriggerCandidate> IncludeOlMoRumoRoundCandidates(CharacterState owner,
         SkillProgramTriggerWindow window, IReadOnlyList<ProgramTriggerCandidate> ordinary)

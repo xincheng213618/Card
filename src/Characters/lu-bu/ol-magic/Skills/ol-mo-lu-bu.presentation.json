@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:mo-duoqi": {
+      "name": "夺炁",
+      "description": "锁定技，一号位首个回合开始前，你执行一个不能使用延时锦囊牌的额外出牌阶段。所有角色的初始手牌称为“炁”。你每回合对一名角色首次造成伤害后，你获得其一张“炁”。",
+      "activationLabels": {},
+      "triggerLabels": {
+        "initial-qi-opening-play": "夺炁·开局",
+        "first-victim-damage-qi": "夺炁"
+      }
+    },
+    "ol:mo-kuangmo": {
+      "name": "狂魔",
+      "description": "出牌阶段，你可以入魔并选择一名其他角色，你与其成为“狂”角色，每回合对彼此首次造成的伤害+1；击败对方后，获得对方所有“炁”。“狂”角色死亡后，你重新指定。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+      "activationLabels": {
+        "enter-and-pair": "狂魔：入魔并指定对手"
+      },
+      "triggerLabels": {
+        "pair-death-and-qi": "狂魔·重新指定"
+      }
+    },
+    "ol:mo-gangquan": {
+      "name": "罡拳",
+      "description": "若你使用的上一张牌为“炁”，你可以将一张装备牌当指定相邻角色为目标的火【杀】使用；否则，你可以将一张锦囊牌当【决斗】使用。",
+      "activationLabels": {},
+      "triggerLabels": {}
+    }
+  }
+}

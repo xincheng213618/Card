@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-bu",
+  "skills": [
+    {
+      "registrationOrder": 2303,
+      "programBundle": "ol-mo-lu-bu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-duoqi",
+        "name": "夺炁",
+        "description": "锁定技，一号位首个回合开始前，你执行一个不能使用延时锦囊牌的额外出牌阶段。所有角色的初始手牌称为“炁”。你每回合对一名角色首次造成伤害后，你获得其一张“炁”。",
+        "executionForms": "State, Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2304,
+      "programBundle": "ol-mo-lu-bu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-kuangmo",
+        "name": "狂魔",
+        "description": "出牌阶段，你可以入魔并选择一名其他角色，你与其成为“狂”角色，每回合对彼此首次造成的伤害+1；击败对方后，获得对方所有“炁”。“狂”角色死亡后，你重新指定。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2305,
+      "programBundle": "ol-mo-lu-bu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-gangquan",
+        "name": "罡拳",
+        "description": "若你使用的上一张牌为“炁”，你可以将一张装备牌当指定相邻角色为目标的火【杀】使用；否则，你可以将一张锦囊牌当【决斗】使用。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2306,
+      "pools": {
+        "current": 530
+      },
+      "definition": {
+        "id": "ol:mo-lu-bu",
+        "name": "魔吕布",
+        "portraitKey": "ol-mo-lu-bu",
+        "skillId": "ol:mo-duoqi",
+        "additionalSkillIds": [
+          "ol:mo-kuangmo",
+          "ol:mo-gangquan"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:lu-bu",
+        "variantId": "magic-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "checkedOn": "2026-10-20",
+  "status": "implemented-focused-verified",
+  "name": "谋孟获·移动版",
+  "generalId": "mou:meng-huo-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": {
+    "officialHeroId": 557,
+    "officialGeneralId": 695,
+    "faction": "shu",
+    "gender": "Male",
+    "initialHp": 4,
+    "maxHp": 4
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-557.html",
+      "role": "Fresh complete current first-party hero text for both skills; current large portrait DOM."
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Fresh item557/general695: Shu, male,4HP; both skill texts agree with the current hero page."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1660.html",
+      "role": "Formal first-release announcement, published2023-10-20 17:30;10月21日重阳节活动 explicitly launches Mou Meng Huo.",
+      "firstAvailability": "2023-10-21",
+      "historicalAcquisition": "天工宝库",
+      "note": "Historical release evidence only; no current sale claim."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "role": "2025-04-16 timing revision notice checked for version separation; it does not list Meng Huo."
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-mobile:huoshou",
+      "name": "祸首",
+      "text": "锁定技，【南蛮入侵】对你无效；当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌造成的伤害的来源。出牌阶段开始时，你随机获得弃牌堆中一张【南蛮入侵】。出牌阶段，若你使用过【南蛮入侵】，则你此阶段不能使用【南蛮入侵】。"
+    },
+    {
+      "id": "mou-mobile:zaiqi",
+      "name": "再起",
+      "text": "蓄力技（0/7），弃牌阶段结束时，你可以选择任意名角色并扣除等量蓄力点，然后令你选择的角色各选择一项：1.令你摸一张牌；2.弃置一张牌，然后你回复1点体力。当你造成伤害后，获得1点蓄力点（每回合限获得1点蓄力点）。"
+    }
+  ],
+  "versionSeparation": [
+    "Use the complete current mobile0/7 version. Do not use an early3/7 test draft reported by secondary histories; no first-party test-draft text was established here.",
+    "Classic reveal/draw Zaiqi and Boundary red-discard/Ending free-heal Zaiqi are different variants. Their implementations are not substituted for the mobile discard-end charge and actual payment.",
+    "A bounded search found no later named first-party correction changing these complete current skills. This does not assert that every historical notice was exhaustively searched."
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/69500.jpg",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-meng-huo-mobile.jpg",
+    "width": 3982,
+    "height": 5656,
+    "bytes": 2954256,
+    "sha256": "0cc82a23f3e003448e278ccf6be1ff7bdc044130922a542fb8aea5de89990dcd",
+    "origin": "Exact current hero557 large-image src, rather than the API695.jpg thumbnail. Original full portrait independently viewed by both implementation and integrating agents."
+  },
+  "engineeringContracts": [
+    "The following instantiate the complete official text using existing native services. They are engineering interpretations, not official FAQs or user-selected rulings.",
+    "Huoshou uses the native global-target immunity policy. A genuine other actor Barbarian Use at its ordinary finalized-target window freezes the chosen source instance/hash on that exact CardUseFrame. Native group damage restores this issued source after nullification without replacing the original card actor/provider or inventing another Use. Source loss after issuance does not erase its fact. If several such owners coexist, the first accepted native candidate owns the one attribution receipt; later candidates cannot overwrite it. Existing native terminal/death cutoff remains authoritative.",
+    "A true Barbarian Use is recorded against the actual actor Play identity. When Huoshou is live, a prior true Use in that same actual Play prohibits another effective Barbarian through native query/acceptance; an already accepted matching Use remains valid during its children. Physical, converted and native virtual Uses share effective-kind restrictions; pure Played is not Use. A later inserted or normal Play has a separate identity. Losing/regranting the skill cannot clear the existing phase history.",
+    "At the owner actual Play start, select uniformly with the native deterministic RNG from current true Barbarian entities in the actual discard pile and move that exact entity to Hand. A native PlayPhaseStartingBoundary or lifecycle candidate is proved through its current source/hash. An empty eligible set creates no generated substitute or bonus draw. Actual gain/recovery/movement children return before completion.",
+    "Zaiqi begins at zero with maximum seven, stored as a public self-attributed charge marker. Each actual turn can add at most one point after genuine native caused damage; use native source and damage amount, not net HP difference. Armor absorption still accompanies a genuine DamageApplied occurrence. Prevented damage and HP Loss do not fabricate a gain. At the cap no point is actually gained. Raw TurnEnded does not expire a still-ongoing native actual turn; ActualTurnCursorReturned closes it. Charge and the gain budget persist across source loss/regrant.",
+    "At the owner actual DiscardPhaseEnded, the owner privately selects distinct living recipients, including self, up to available charge. Confirming freezes selection order and debits the complete count once before any recipient question. Skipping does not consume charge; later participant loss does not refund an accepted debit. Pending selection and ordered continuation remain on the owning ProgramSkillFrame, with copied read-only collections and scalar history facts.",
+    "Each still-living recipient independently chooses to request native Draw1 for Meng Huo or pay one actually owned discardable Hand/Equipment entity and then request native recovery1 for Meng Huo. The payment is signed by native logical-discard and physical movement receipts; redirected final destinations do not authorize invented payments. Every discard/equipment/recovery/skill/movement child drains before the skill recovery and before the next recipient. Full-HP native recovery may apply zero; an accepted real payment remains paid.",
+    "Removing an injured recipient SilverLion is its own native equipment recovery, separate from the later Zaiqi recovery. Its typed bridge requires the exact current paid SilverLion entity, Equipment origin, recipient, movement sequence/reason and native SilverLion producer or HP receipt. It does not loosen generic Program recovery proof.",
+    "Native Draw1 replacements, shortfalls, HP recovery replacements and actual child windows retain their existing services. Accepted charge/payment tails survive ordinary source loss, while owner death and terminal cutoff stop impossible future gains. A resumed child never debits charge or discards a completed entity twice.",
+    "All new rule events are scalar or hold scalar immutable records. Player-visible data comes through CreateSnapshot(viewerSeat). Recipient HE choices are private to their actual chooser; other viewers receive no unchosen hidden cards. Public charge and actual discarded entities follow existing marker/movement projection."
+  ],
+  "validation": {
+    "status": "focused-native-main-flow-passed",
+    "focusedFilter": "Mou Meng Huo Mobile:",
+    "checks": 1,
+    "manualFullRun": false
+  }
+}

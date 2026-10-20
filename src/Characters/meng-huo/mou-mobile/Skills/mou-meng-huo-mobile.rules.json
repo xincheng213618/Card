@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou-mobile:huoshou", "revision": 1,
+      "cardPolicies": [{ "id": "barbarian-immunity", "kind": "excludeGlobalTarget", "cardKinds": ["barbarianAssault"] }],
+      "triggers": [
+        { "id": "attribute-after-designation", "window": "cardUseTargetsFinalized", "ownerRelation": "observer", "cardKinds": ["barbarianAssault"], "optional": false, "effects": [{ "op": "resolveMouMengHuoAttribution", "target": "owner" }] },
+        { "id": "obtain-at-play-start", "window": "playPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "obtainMouMengHuoBarbarian", "target": "owner" }] }
+      ]
+    },
+    { "id": "mou-mobile:zaiqi", "revision": 1,
+      "triggers": [
+        { "id": "charge-after-damage", "window": "afterDamageApplied", "subject": "damageSource", "optional": false, "damageOccurrence": "perDamage", "effects": [{ "op": "gainMouMengHuoCharge", "target": "owner" }] },
+        { "id": "spend-at-discard-end", "window": "discardPhaseEnded", "subject": "owner", "turnOwnerScope": "own", "allowOwnDiscardPhaseEnded": true, "optional": false, "effects": [{ "op": "resolveMouMengHuoZaiqi", "target": "owner" }] }
+      ]
+    }
+  ]
+}

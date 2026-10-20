@@ -3444,6 +3444,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (TryBeginMoLuBuOpening()) return;
         if (TryBeginBeiMiHuActualTurnPrelude(current)) return;
         BeginRoundForTurn(current);
         BeginTurnAfterBeforeTurnPrelude(current);
@@ -3476,6 +3477,7 @@ public sealed partial class GameEngine
             $"第 {_turnNumber} 回合：{current.Name}（{GetPublicGeneralName(current)}）行动。",
             current.Seat);
         AdvanceEventRulesAndQueueFact(new TurnStartedEvent(_turnNumber, current.Seat));
+        if (TryStartMoLuBuOpeningPlay(current)) return;
         if (TryBeginIdentityAppearanceForTurn(current)) return;
         ConsumeEndRefillNextTurn(current);
         if (TryQueueHengyeRecovery(current)) return;
@@ -5059,7 +5061,7 @@ public sealed partial class GameEngine
             GroupCardEffect.ResponseAttack,
             requiredCardKind,
             physicalCards);
-        if (!RestoreExtraGroupDamageSource(group) && effectiveCard.Kind == CardKind.BarbarianAssault)
+        if (!RestoreExtraGroupDamageSource(group) && !RestoreMouMengHuoDamageSource(group) && effectiveCard.Kind == CardKind.BarbarianAssault)
         {
             var mengHuo = _players.FirstOrDefault(player =>
                 player.IsAlive && HasCardPolicy(player, SkillProgramCardPolicyKind.AttributeGlobalDamage,
@@ -6666,8 +6668,9 @@ public sealed partial class GameEngine
         CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true, bool? effectiveColor = null, int? effectiveRank = null, IReadOnlyList<int>? physicalCardIds = null, CardConversionSource? conversionSource = null) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
+              MoGangquanTargetAllowed(weaponOwner, target, kind, conversionSource, physicalCardIds) &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (HasWuHfOrWuyouMaterialPrivilege(weaponOwner, kind, physicalCardIds) || physicalCardIds is null && allowAnyPhysicalSuit && HasPublicWuyouContributionPotential(weaponOwner) || HasSiruiSlashDistance(weaponOwner,kind,physicalCardIds,conversionSource) || IsWithinSpecificSlashRange(weaponOwner,target,kind,effectiveRank) || HasRoundGainedBasicBonus(weaponOwner, kind, physicalCardIds ?? []) ||
+              (MoGangquanBorrowedDistance(weaponOwner, target, kind, physicalCardIds, conversionSource) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, kind, physicalCardIds) || physicalCardIds is null && allowAnyPhysicalSuit && HasPublicWuyouContributionPotential(weaponOwner) || HasSiruiSlashDistance(weaponOwner,kind,physicalCardIds,conversionSource) || IsWithinSpecificSlashRange(weaponOwner,target,kind,effectiveRank) || HasRoundGainedBasicBonus(weaponOwner, kind, physicalCardIds ?? []) ||
                physicalCardIds is null && allowAnyPhysicalSuit && HasPotentialRoundGainedBasicMaterials(weaponOwner, kind) ||
                (HasProvenanceUseDistance(weaponOwner, physicalCardIds) || HasGrantedPhaseEntityDistance(weaponOwner, physicalCardIds)) || allowAnyPhysicalSuit && (HasPotentialProvenanceSlash(weaponOwner) || HasPotentialGrantedPhaseSlash(weaponOwner)) || HasSlashUseDistanceBySuit(weaponOwner,kind,physicalSuit) || allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasSlashUseDistanceBySuit(weaponOwner,kind,EffectiveSuit(weaponOwner,c))) || HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
                allowAnyPhysicalSuit && HasPotentialRankSlashRange(weaponOwner,target,kind)) &&
@@ -6690,7 +6693,7 @@ public sealed partial class GameEngine
             {
                 var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
-                        (HasWuHfOrWuyouMaterialPrivilege(weaponOwner, variant.EffectiveKind, [card.Id]) || IsSiruiPhysicalSlashKind(weaponOwner,card,variant.EffectiveKind) || HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
+                        (MoGangquanBorrowedDistance(weaponOwner, slashTarget, variant.EffectiveKind, [card.Id]) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, variant.EffectiveKind, [card.Id]) || IsSiruiPhysicalSlashKind(weaponOwner,card,variant.EffectiveKind) || HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6921,7 +6924,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(HasWuHfOrWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(MoGangquanBorrowedDistance(weaponOwner, slashTarget, effectiveKind, [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -7167,7 +7170,7 @@ public sealed partial class GameEngine
             GetHand(source).Count == 1 && GetHand(source)[0].Id == slash.Id &&
             HasWeaponAbility(source, CardKind.FangtianHalberd);
         var usesProgramTargetCount = HasNextCardTargetAdjustment(source) || UsesProgramCardTargetCount(
-            source, slash, playedCardKind, targetSeats.Length);
+            source, slash, playedCardKind, targetSeats.Length) || IsMoGangquanMultiSlash(source, slash, playedCardKind, conversionSource, targetSeats);
         if (!stillLegal || (!usesFangtian && !usesProgramTargetCount))
         {
             throw new InvalidOperationException("Fangtian Halberd Slash became illegal before resolution.");
@@ -7392,6 +7395,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("Zhuque Fan is no longer available for this Fire Slash conversion.");
         }
+        target = MoGangquanFirstTarget(source, target, slash, playedCardKind, conversionSource);
         var ignoresArmor = HasCardArmorBypass(source, target, playedCardKind);
         var resolutionId = BeginCardUse(
             slash,
@@ -14242,6 +14246,9 @@ public sealed partial class GameEngine
         var resolutionId = ++_resolutionSequence;
         var adjustedTargets = _selectedNextCardTargetSeats;
         _selectedNextCardTargetSeats = null;
+        var moGangquanSource = conversionSource ?? _selectedUseConversion ?? _selectedResponseConversion;
+        targetSeats = MoGangquanNativeTargets(sourceSeat, card, playedCardKind ?? card.Kind, moGangquanSource, targetSeats);
+        if (IsMoGangquanSource(moGangquanSource)) designatedTargetSeats = targetSeats;
         targetSeats = GetImplicitSelfCardUseTargets(playedCardKind ?? card.Kind, sourceSeat, targetSeats);
         var targets = Array.AsReadOnly((adjustedTargets ?? targetSeats).ToArray());
         if (adjustedTargets is not null)
@@ -14649,6 +14656,8 @@ public sealed partial class GameEngine
         CardKind effectiveKind = CardKind.Slash,
         bool ignoreDistance = false, long? existingUseFrameId=null, bool noEffectiveRank = false, int? specificEffectiveRank = null, IReadOnlyList<int>? physicalCardIds = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
+        if (!MoGangquanTargetAllowed(source, target, effectiveKind, conversionSource, physicalCardIds ?? [slashCard.Id])) return false;
+        ignoreDistance |= IsMoGangquanSource(conversionSource);
         slashCard = WuJingLiubingUseCard(source, slashCard, effectiveKind, conversionSource, physicalCardIds, existingUseFrameId);
         if (existingUseFrameId is null && excludedEquipmentId is null && excludedEquipmentSlot is null)
             excludedEquipmentId = LiYiPaidSlashWeapon(source, physicalCardIds ?? [slashCard.Id]);
@@ -14677,6 +14686,8 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? physicalCardIds = null, bool ignoreDistance = false,
         CardConversionSource? conversionSource = null, bool actualUnconvertedPhysical = false, bool countsTowardLimit = true)
     {
+        if (!MoGangquanTargetAllowed(source, target, effectiveKind, conversionSource, physicalCardIds)) return false;
+        ignoreDistance |= IsMoGangquanSource(conversionSource);
         if (actualUnconvertedPhysical && conversionSource is null && physicalCardIds is [var physicalId])
         {
             var physical = GetAdvancedCard(physicalId);
@@ -15599,7 +15610,7 @@ public sealed partial class GameEngine
                 !IsDirectedCardTargetProhibited(actor.Seat, target, effectiveKind.Value) &&
                 !IsCardTargetProhibited(_players[target], effectiveKind.Value, declaredSuit, declaredColor));
         });
-        var result = FilterBeneficiarySuitShieldActions(actor, FilterTurnCardUseRestrictions(actor, permittedActions, nativeOriginalCard));
+        var result = FilterMoGangquanActions(actor, FilterBeneficiarySuitShieldActions(actor, FilterTurnCardUseRestrictions(actor, permittedActions, nativeOriginalCard)));
         if (nativeOriginalCard is not null) return result;
         var originalPileActions = NativePublicPileOriginalPlayActions(actor, selectedPhysicalCardId);
         return originalPileActions.Count == 0 ? result : result.Concat(originalPileActions).ToArray();
@@ -16072,7 +16083,7 @@ public sealed partial class GameEngine
             .Concat(WuHfDamageBonuses(attack))
             .Concat(WuZglQingshiDamage(attack))
             .ToArray();
-        var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + XionghuoActualDamageBonus(attack) + FirstSlashDuelDamage(attack) + FinalTargetSlashDamage(attack) + RecordedSuitSlashDamage(attack) + FrozenNextSlashDamage(attack) + MoQuanyuDamageBonus(attack) + CaoYingDamage(attack) + AdoptedChildSlashDamage(attack) + ZhangYiKangruiDamageBonus(attack) + ChengGongYingKuangxiangDamageBonus(attack) + DuFuRenYiseDamageBonus(attack) + YintianDamageBonus(attack) + ZhangYanLangdaoDamageBonus(attack) + FulueDamageBonus(attack) +
+        var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + XionghuoActualDamageBonus(attack) + FirstSlashDuelDamage(attack) + FinalTargetSlashDamage(attack) + RecordedSuitSlashDamage(attack) + FrozenNextSlashDamage(attack) + MoQuanyuDamageBonus(attack) + MoLuBuKuangDamage(attack) + CaoYingDamage(attack) + AdoptedChildSlashDamage(attack) + ZhangYiKangruiDamageBonus(attack) + ChengGongYingKuangxiangDamageBonus(attack) + DuFuRenYiseDamageBonus(attack) + YintianDamageBonus(attack) + ZhangYanLangdaoDamageBonus(attack) + FulueDamageBonus(attack) +
             ZhuJunCuipoDamageBonus(attack) + WuTuGuHanyongDamageBonus(attack) + SunHaoChouhaiDamageBonus(attack) + FengweiDamageBonus(attack) + (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0) +
             GuanduEventDamageBonus(attack) + GuanduIntoxicationDamageBonus(attack) + ShenwuNpcDamageBonus(attack) + ShenwuShuraDamageBonus(attack) + NianBaonuDamageBonus(attack) + HellArrivalDamageBonus(attack) +
             (CurrentWenheRule == WenheRuleKind.Sweep && !attack.IsChainPropagation ? 1 : 0);
@@ -16893,6 +16904,7 @@ public sealed partial class GameEngine
     {
         if (TryBeginForcedWeiluPhaseEnd()) return;
         if (TryBeginForcedPhaseHandDebtReturn()) return;
+        if (TryEndMoLuBuOpeningEarly()) return;
 
         if (TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Play, ActualPhaseEndContinuation.Discard)) return;
         if (TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Discard, ActualPhaseEndContinuation.Discard)) return;
@@ -16957,7 +16969,7 @@ public sealed partial class GameEngine
         if (TryCompleteWenheSurvival()) return;
         if (TryCompleteGuanduBattle()) return;
         if (TryCompleteDragonBoatRace()) return;
-        if (HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouXiahouShiCapability || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
+        if (HasMoLuBu || HasKongShuCapability || HasMaChengCapability || TracksRoundEnding || HasTangTangCapability || HasYuanJiCapability || HasSunYuanCapability || HasLiuZhangCapability || HasCuiYanCapability || HasLiYiCapability || HasQushiCapability || HasWeijieCapability || HasCaoYuCapability || TracksActualPhaseEnds || TracksWholeActualTurnUseOrdinal || HasWuZhugeLiangCapability || HasWuHuangFuSongCapability || HasMouLuZhiCapability || HasMouXiahouShiCapability || HasMouMengHuoCapability || UsesTreatedWounded || HasSunHaoCanshiCapability || HasHuBanCapability || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveJueshengLimitedDuel)) AdvanceEventRulesAndQueueFact(new ActualTurnCursorReturnedEvent(_turnNumber, previous.Seat));
         AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
@@ -20589,6 +20601,7 @@ public sealed partial class GameEngine
         var existing = (silv, zhongshen) switch { (true, true) => "闾 / 重身", (true, false) => "闾", (false, true) => "重身", _ => null };
         if (HasLiuBaCoinEntity(cardId)) existing = existing is null ? "币" : existing + " / 币";
         if (HasMoTianenEntityMark(cardId)) existing = existing is null ? "天恩" : existing + " / 天恩";
+        if (HasMoLuBuQi(cardId)) existing = existing is null ? "炁" : existing + " / 炁";
         var dongxin = HasSunYuanCapability && ProgramEventHistory<DongxinEntityAcquiredEvent>().Any(grant =>
             grant.CardId == cardId && _cardZones.Contains(CardLocation.Hand(grant.RecipientSeat), cardId));
         if (dongxin) existing = existing is null ? "恫心" : existing + " / 恫心";

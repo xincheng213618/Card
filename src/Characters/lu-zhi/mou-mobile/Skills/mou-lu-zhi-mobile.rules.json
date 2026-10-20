@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:mingren",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-ren",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouLuZhiMingren",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "exchange-ren",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "exchangeMouLuZhiMingren",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:zhenliang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "yang-damage",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouLuZhiZhenliangYang",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "yin-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouLuZhiZhenliangYin",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "yin-played",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouLuZhiZhenliangYin",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

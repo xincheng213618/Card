@@ -23,11 +23,13 @@ public sealed partial class GameEngine
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false, long? existingUseFrameId = null) =>
         IsBiguoCategoryForbidden(actorSeat, effectiveKind) && !IsAcceptedBiguoUse(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
         effectiveKind == CardKind.Poison ||
+        actionType == CardActionType.Use && IsMoLuBuOpeningDelayedForbidden(actorSeat, effectiveKind) ||
         IsGuanduCardActionForbidden(actorSeat, effectiveKind, actionType) ||
         IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
         MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
         ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
         IsMouLuMengPeachForbidden(actorSeat, effectiveKind, actionType) ||
+        IsMouMengHuoUseForbidden(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
         ShenwuSipuForbidsAction(actorSeat) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(

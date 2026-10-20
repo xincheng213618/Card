@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:mo-duoqi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-qi-opening-play",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMoLuBuQiAndOpeningPlay",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-victim-damage-qi",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "resolveMoLuBuDuoqi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-kuangmo",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "enter-and-pair",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "enterMoLuBuKuangmo",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "pair-death-and-qi",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMoLuBuKuangmoDeath",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-gangquan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "qi-equipment-fire-slash",
+          "inputKinds": [],
+          "inputCategories": [
+            "equipment"
+          ],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true
+        },
+        {
+          "id": "nonqi-trick-duel",
+          "inputKinds": [],
+          "inputCategories": [
+            "trick"
+          ],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        }
+      ]
+    }
+  ]
+}

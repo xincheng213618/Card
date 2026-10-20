@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:mingren": {
+      "name": "明任",
+      "description": "游戏开始时，你摸两张牌，然后将你的一张手牌扣置于你的武将牌上，称为“任”。结束阶段，你可以用手牌替换“任”。",
+      "triggerLabels": {
+        "initial-ren": "摸两张牌并扣置任",
+        "exchange-ren": "替换任"
+      }
+    },
+    "mou-mobile:zhenliang": {
+      "name": "贞良",
+      "description": "转换技，阳：出牌阶段限一次，你可以选择一名攻击范围内的其他角色并弃置X张与“任”颜色相同的牌对其造成1点伤害（X为你与其体力值之差且至少为1）。阴：你的回合外，当一名角色使用或打出的牌结算结束后，若此牌与“任”类型相同，则你可令一名角色摸两张牌。",
+      "activationLabels": {
+        "yang-damage": "阳：弃牌造成伤害"
+      },
+      "triggerLabels": {
+        "yin-use": "阴：同类使用结算后摸两张牌",
+        "yin-played": "阴：同类打出结算后摸两张牌"
+      }
+    }
+  }
+}
