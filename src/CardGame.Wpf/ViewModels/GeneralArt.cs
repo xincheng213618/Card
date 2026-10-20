@@ -366,6 +366,9 @@ public static partial class GeneralArt
             ["mou-xu-huang-mobile"] = "official-mou-xu-huang-mobile.jpg",
             ["mou-chen-gong-mobile"] = "official-mou-chen-gong-mobile.jpg",
             ["mou-xiahou-shi-mobile"] = "official-mou-xiahou-shi-mobile.jpg",
+            ["mou-zhen-ji-mobile"] = "official-mou-zhen-ji-mobile.png",
+            ["wumiao-huangfu-song"] = "official-wumiao-huangfu-song.png",
+            ["mou-yuan-shao-mobile"] = "official-mou-yuan-shao-mobile.jpg",
             ["wumiao-lu-kang"] = "official-wumiao-lu-kang.png",
             // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
             ["mou-lu-meng"] = "official-mou-lu-meng.png",

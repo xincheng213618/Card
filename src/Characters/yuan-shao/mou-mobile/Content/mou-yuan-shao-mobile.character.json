@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yuan-shao",
+  "skills": [
+    {
+      "registrationOrder": 2266,
+      "programBundle": "mou-yuan-shao-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:luanji",
+        "name": "乱击",
+        "description": "出牌阶段限一次，你可以将两张手牌当【万箭齐发】使用。其他角色因响应你使用的【万箭齐发】而打出【闪】时，你摸一张牌（每回合你至多以此法获得3张牌）。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2267,
+      "programBundle": "mou-yuan-shao-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:xueyi",
+        "name": "血裔",
+        "description": "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。你使用牌指定其他群势力角色为目标后，你摸一张牌（每回合你至多以此法获得2张牌）。",
+        "tags": "Lord, Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2268,
+      "pools": {
+        "current": 523
+      },
+      "definition": {
+        "id": "mou:yuan-shao-mobile",
+        "name": "谋袁绍·移动版",
+        "portraitKey": "mou-yuan-shao-mobile",
+        "skillId": "mou-mobile:luanji",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "mou-mobile:xueyi"
+        ],
+        "gender": "Male",
+        "characterId": "character:yuan-shao",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

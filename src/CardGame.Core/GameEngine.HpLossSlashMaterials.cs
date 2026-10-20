@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         receipt = receipt with { PaidLast = SlashTargetPenaltySequence };
         UpdateLifecycleCardUse(id, use => use with { HpLossMaterialSlashReturn = receipt });
         AdvanceEventRulesAndQueueFact(new HpLossMaterialSlashIssuedEvent(id, action.ActionId, policy.Source, policy.Hash, receipt.FrozenMaximum, parent?.Id, parent is null));
-        var counted = LifecycleCardUse(id)?.UnlimitedUse != true && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !HasIssuedWuLuKangDixianUse(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, conversion) &&
+        var counted = LifecycleCardUse(id)?.UnlimitedUse != true && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !HasWuHfOrDixianIssuedUse(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, conversion) &&
             _phase == TurnPhase.Play && owner.Seat == _currentSeat;
         if (counted) RecordSlashUseDebit(id, owner.Seat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, kind);

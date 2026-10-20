@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huangfu-song",
+  "skills": [
+    { "registrationOrder": 2261, "programBundle": "wumiao-huangfu-song", "includeProgramPresentation": true,
+      "definition": { "id": "wumiao:chaozhen", "name": "朝镇", "description": "准备阶段或当你进入濒死状态时，你可以从场上或牌堆中获得一张点数最小的牌。若你获得的是A，你回复1点体力且此技能本回合失效。", "executionForms": "Trigger" } },
+    { "registrationOrder": 2262, "programBundle": "wumiao-huangfu-song", "includeProgramPresentation": true,
+      "definition": { "id": "wumiao:lianjie", "name": "连捷", "description": "你使用手牌指定目标后，若此牌点数小于等于你其他手牌，则你可以将一名角色手牌中点数最小的一张牌放置于牌堆底（每回合每名角色限放置一次）。若如此做，你将手牌摸至体力上限，以此法摸的牌本回合无距离和次数限制。", "executionForms": "Trigger" } },
+    { "registrationOrder": 2263, "programBundle": "wumiao-huangfu-song", "includeProgramPresentation": true,
+      "definition": { "id": "wumiao:jiangxian", "name": "将贤", "description": "限定技，出牌阶段，你可以令本回合使用因“连捷”摸的牌造成伤害时，此伤害+X（X为你本回合造成伤害的次数且至多为5）。若如此做，回合结束后失去“连捷”或“朝镇”。", "executionForms": "Trigger", "actionForms": "Active", "tags": "Limited" } }
+  ],
+  "generals": [
+    { "registrationOrder": 2264, "pools": { "current": 522 }, "definition": { "id": "wumiao:huangfu-song", "name": "武皇甫嵩", "portraitKey": "wumiao-huangfu-song", "skillId": "wumiao:chaozhen", "additionalSkillIds": ["wumiao:lianjie", "wumiao:jiangxian"], "factionId": "qun", "baseHp": 4, "initialHp": 1, "gender": "Male", "characterId": "character:huangfu-song", "variantId": "wumiao", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}

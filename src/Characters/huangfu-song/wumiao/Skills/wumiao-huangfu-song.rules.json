@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "wumiao:chaozhen", "revision": 1, "triggers": [
+      { "id": "preparation-minimum", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "effects": [{ "op": "resolveWuHuangFuSongChaozhen", "target": "owner" }] },
+      { "id": "dying-minimum", "window": "dyingEntering", "subject": "owner", "optional": true, "effects": [{ "op": "resolveWuHuangFuSongChaozhen", "target": "owner" }] }
+    ] },
+    { "id": "wumiao:lianjie", "revision": 1, "triggers": [
+      { "id": "hand-use-minimum", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true, "effects": [{ "op": "resolveWuHuangFuSongLianjie", "target": "owner" }] }
+    ] },
+    { "id": "wumiao:jiangxian", "revision": 1, "activations": [
+      { "id": "arm-turn", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1, "effects": [{ "op": "armWuHuangFuSongJiangxian", "target": "owner" }] }
+    ], "triggers": [
+      { "id": "lose-after-turn", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": false, "effects": [{ "op": "settleWuHuangFuSongJiangxian", "target": "owner" }] }
+    ] }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:luanji",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "any-hand-pair-as-arrow-barrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sameSuit": false,
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false
+        }
+      ],
+      "activations": [
+        {
+          "id": "any-hand-pair-as-arrow-barrage",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "owner",
+              "sourceBind": "any-hand-pair-as-arrow-barrage",
+              "outputKind": "arrowBarrage"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "arrow-dodge-reward",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "dodge"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "reserveMouYuanShaoReward",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:xueyi",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "other-qun-hand-limit",
+          "kind": "factionHandLimitBonus",
+          "factionId": "qun",
+          "ownerRole": "lord",
+          "value": 2
+        }
+      ],
+      "triggers": [
+        {
+          "id": "qun-target-reward",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "reserveMouYuanShaoReward",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

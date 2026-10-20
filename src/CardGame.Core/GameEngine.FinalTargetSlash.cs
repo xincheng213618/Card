@@ -136,7 +136,7 @@ public sealed partial class GameEngine
         return rank > 0 ? rank : null;
     }
     private int? ZhangbaSpecificSlashRank(CharacterState actor, IReadOnlyList<Card> cards, CharacterState? provider = null) =>
-        (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, CardKind.Slash) || HasWuLuKangDixianGrant(actor.Seat)) && UsesFormalZhangbaSerpentSpear && HasWeaponAbility(provider ?? actor, CardKind.ZhangbaSerpentSpear) && cards.Count == 2
+        (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, CardKind.Slash) || HasWuLuKangDixianGrant(actor.Seat) || HasWuHuangFuSongCapability) && UsesFormalZhangbaSerpentSpear && HasWeaponAbility(provider ?? actor, CardKind.ZhangbaSerpentSpear) && cards.Count == 2
             ? Math.Min(13, cards.Sum(card => JuewuForeignHandRank(provider ?? actor, card) ?? card.Rank)) : null;
     [ProgramCapability]
     private sealed class FinalTargetSlashProgramCapability(GameEngine engine) : IFinalTargetSlashProgramHost

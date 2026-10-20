@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:luoshen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "reveal-seated-hands",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouZhenJiLuoshen",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:qingguo",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "black-hand-as-dodge",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ]
+    }
+  ]
+}

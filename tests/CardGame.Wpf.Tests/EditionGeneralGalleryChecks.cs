@@ -16,7 +16,7 @@ internal static class EditionGeneralGalleryChecks
         model.OpenGeneralGalleryCommand.Execute(null);
         var revision = Program.Engine(model).Revision;
         var entries = model.GeneralGalleryEntries.Where(entry =>
-            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" or "mou:huang-gai-mobile" or "mou:hua-xiong-mobile" or "mou:lu-meng-mobile" or "mou:yu-jin-mobile" or "mou:liu-cheng-mobile" or "mou:xu-huang-mobile" or "mou:chen-gong-mobile" or "mou:xiahou-shi-mobile" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
+            entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" or "mou:huang-gai-mobile" or "mou:hua-xiong-mobile" or "mou:lu-meng-mobile" or "mou:yu-jin-mobile" or "mou:liu-cheng-mobile" or "mou:xu-huang-mobile" or "mou:chen-gong-mobile" or "mou:xiahou-shi-mobile" or "mou:zhen-ji-mobile" or "mou:yuan-shao-mobile" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
             entry.GeneralId is "ol:han-sui" or "ol:xiahou-ba" or "classic:zhuge-dan" or "ol:he-tai-hou" or
@@ -26,6 +26,9 @@ internal static class EditionGeneralGalleryChecks
         Program.Assert(entries.Where(entry => entry.GeneralId.StartsWith("le:", StringComparison.Ordinal)).All(entry =>
                 CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId) is { Id: "le", SeriesId: "le" }),
             "Every registered Le edition belongs to its selectable Le series with its distinct edition identity.");
+        Program.Assert(entries.Where(entry => entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal)).All(entry =>
+                CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify(entry.GeneralId) is { Id: "wumiao", SeriesId: "wumiao" }),
+            "Every registered Wumiao edition belongs to its selectable Wumiao series.");
         Program.Assert(CardGame.Wpf.Presentation.GeneralGalleryCatalog.Classify("wumiao:guan-yu") is { Id: "wumiao", SeriesId: "wumiao" } &&
             model.GeneralGallerySeries.Any(series => series.Id == "wumiao"),
             "Wu Guan Yu has a selectable Wumiao series and retains his distinct edition.");
