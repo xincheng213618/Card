@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-chen-gong-mobile",
+      "characterName": "谋陈宫·移动版",
+      "defaultSkinId": "62400",
+      "skins": [
+        {
+          "id": "62400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-512.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/62400.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-chen-gong-mobile.jpg",
+          "sha256": "328bde7d54054e9ccf1260e029b3b077b9916a6fc84c1e99f53e556a6889bee7",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "mou-xu-huang-mobile",
       "characterName": "谋徐晃·移动版",
       "defaultSkinId": "62000",
