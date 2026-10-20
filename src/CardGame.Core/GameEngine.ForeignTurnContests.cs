@@ -87,7 +87,7 @@ public sealed partial class GameEngine
         return context.Window == SkillProgramTriggerWindow.OtherActualTurnStarted &&
             owner.IsAlive && owner.Hp > 0 && IsRuleWounded(owner) &&
             context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat && owner.Seat != _currentSeat &&
-            _players[_currentSeat].IsAlive && GetHand(owner).Count > 0 && GetHand(_players[_currentSeat]).Count > 0 &&
+            _players[_currentSeat].IsAlive && HasWuLuKangPindianInput(owner) && HasWuLuKangPindianInput(_players[_currentSeat]) &&
             CanBePindianTarget(owner.Seat, _currentSeat) &&
             _resolutionStack.OfType<ForeignActualTurnStartWindowFrame>().LastOrDefault() is { } parent &&
             parent.Id == context.ParentFrameId && parent.OwnerSeat == _currentSeat && parent.ActualTurnNumber == _turnNumber &&

@@ -50,7 +50,7 @@ public sealed partial class GameEngine
     private bool TryBeginDouyuPairPreReveal(PindianFrame frame, int opponentCardId, bool opponentTop)
     {
         if (frame.DouyuContest is { } existing)
-        { if (!existing.Ready || existing.Simultaneous || existing.ParentFrameId != frame.Id || existing.OriginalCards[1].CardId != opponentCardId || existing.OriginalCards[1].Top != opponentTop) throw new InvalidOperationException("Douyu cannot replace its original native pair return."); return false; }
+        { if (!existing.Ready || existing.Simultaneous || existing.ParentFrameId != frame.Id || existing.OriginalCards[1].CardId != WuLuKangActualInput(frame, frame.OpponentSeat!.Value, opponentCardId, opponentTop ? CardLocation.DrawPile : CardLocation.Hand(frame.OpponentSeat.Value), 0, opponentTop).CardId || existing.OriginalCards[1].Top != WuLuKangActualInput(frame, frame.OpponentSeat!.Value, opponentCardId, opponentTop ? CardLocation.DrawPile : CardLocation.Hand(frame.OpponentSeat.Value), 0, opponentTop).Top) throw new InvalidOperationException("Douyu cannot replace its original native pair return."); return false; }
         if (!HasDouyuCapability || frame.OpponentSeat is not { } opponent) return false;
         var opportunities = CollectDouyuOpportunities(frame.SourceSeat, [frame.SourceSeat, opponent]);
         if (opportunities.Count == 0) return false;
@@ -58,14 +58,18 @@ public sealed partial class GameEngine
         if (frame.Result is not null || frame.PindianStep != PindianStep.ChooseOpponentCard || frame.SourceCardId is not { } sourceId ||
             !HasCurrentPindianSourceCard(frame)) throw new InvalidOperationException("Douyu requires the native unconsumed pair's two real selections.");
         var from = frame.OwnedPileSource?.Pile.Location ?? (frame.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(frame.SourceSeat));
+        var sourceInput = WuLuKangActualInput(frame, frame.SourceSeat, sourceId, from, 0, frame.SourceUsesDrawPileTop);
+        from = sourceInput.From; sourceId = sourceInput.CardId;
         var sourceCard = _cardZones.CardsAt(from).Single(c => c.Id == sourceId);
         var opponentFrom = opponentTop ? CardLocation.DrawPile : CardLocation.Hand(opponent);
+        var opponentInput = WuLuKangActualInput(frame, opponent, opponentCardId, opponentFrom, 0, opponentTop);
+        opponentFrom = opponentInput.From; opponentCardId = opponentInput.CardId;
         var opponentCard = _cardZones.CardsAt(opponentFrom).Single(c => c.Id == opponentCardId);
-        if (opponentTop && _cardZones.CardsAt(CardLocation.DrawPile).Last().Id != opponentCardId) throw new InvalidOperationException("Douyu cannot choose a different private opponent top.");
-        long? reserved = frame.SourceUsesDrawPileTop ? _cardMovements.Last(m => m.CardId == sourceId && m.From == CardLocation.DrawPile && m.To == CardLocation.Processing && m.Reason.Value == "pindian.reserve-top").Sequence : null;
+        if (opponentTop && frame.WuLuKangContest is null && _cardZones.CardsAt(CardLocation.DrawPile).Last().Id != opponentCardId) throw new InvalidOperationException("Douyu cannot choose a different private opponent top.");
+        long? reserved = frame.WuLuKangContest is not null ? sourceInput.ReservationSequence : frame.SourceUsesDrawPileTop ? _cardMovements.Last(m => m.CardId == sourceId && m.From == CardLocation.DrawPile && m.To == CardLocation.Processing && m.Reason.Value == "pindian.reserve-top").Sequence : null;
         CaptureDouyuContest(frame, false, frame.SourceSeat,
-            [new(frame.SourceSeat, sourceId, sourceCard.Kind, from, CaptureAlcoholPindianRank(frame, _players[frame.SourceSeat], sourceCard, true, frame.SourceUsesDrawPileTop) ?? EffectivePindianRank(_players[frame.SourceSeat], sourceCard), frame.SourceUsesDrawPileTop, reserved),
-             new(opponent, opponentCardId, opponentCard.Kind, opponentFrom, CaptureAlcoholPindianRank(frame, _players[opponent], opponentCard, false, opponentTop) ?? EffectivePindianRank(_players[opponent], opponentCard), opponentTop, null)], opportunities);
+            [new(frame.SourceSeat, sourceId, sourceCard.Kind, from, frame.WuLuKangContest is not null ? sourceInput.Rank : CaptureAlcoholPindianRank(frame, _players[frame.SourceSeat], sourceCard, true, frame.SourceUsesDrawPileTop) ?? EffectivePindianRank(_players[frame.SourceSeat], sourceCard), sourceInput.Top, reserved),
+             new(opponent, opponentCardId, opponentCard.Kind, opponentFrom, frame.WuLuKangContest is not null ? opponentInput.Rank : CaptureAlcoholPindianRank(frame, _players[opponent], opponentCard, false, opponentTop) ?? EffectivePindianRank(_players[opponent], opponentCard), opponentInput.Top, opponentInput.ReservationSequence)], opportunities);
         return true;
     }
     private bool TryBeginDouyuSimultaneousPreReveal(ProgramSkillFrame frame)
@@ -77,9 +81,9 @@ public sealed partial class GameEngine
         var opportunities = CollectDouyuOpportunities(frame.OwnerSeat, participants); if (opportunities.Count == 0) return false;
         if (r.SelectionIndex != r.Opponents.Count || !r.Cards.Select(c => c.Seat).SequenceEqual(participants))
             throw new InvalidOperationException("Douyu cannot start before every real simultaneous participant has committed.");
-        var originals = r.Cards.Select(c => new DouyuOriginalCard(c.Seat, c.CardId, GetAdvancedCard(c.CardId).Kind,
+        var originals = r.Cards.Select(c => new DouyuOriginalCard(c.Seat, c.CardId, c.CardId <= 0 ? CardKind.Slash : GetAdvancedCard(c.CardId).Kind,
             SimultaneousOriginalLocation(r, c), c.OriginalRank, r.TopReceipts.Any(t => t.CardId == c.CardId),
-            r.TopReceipts.SingleOrDefault(t => t.CardId == c.CardId)?.ReservationMovementSequence)).ToArray();
+            r.TopReceipts.SingleOrDefault(t => t.CardId == c.CardId)?.ReservationMovementSequence)).Select(c => WuLuKangDouyuInput(frame, c)).ToArray();
         CaptureDouyuContest(frame, true, frame.OwnerSeat, originals, opportunities); return true;
     }
     private int DouyuAssignedRank(int seat, int cardId)

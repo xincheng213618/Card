@@ -8,11 +8,12 @@ public sealed partial class GameEngine
 
     private ProgramLegalityParticipant CreateProgramLegalityParticipant(int seat) =>
         new(seat, GetHand(_players[seat]).Count,
-            HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ProhibitPindianTarget));
+            HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ProhibitPindianTarget),
+            CanWuLuKangDiscardForPindian(_players[seat]));
 
     private bool CanBePindianTarget(int sourceSeat, int targetSeat) =>
         ProgramOperationLegalityPolicy.HandContest.CanSelectTarget(
-            new(sourceSeat, GetHand(_players[sourceSeat]).Count), CreateProgramLegalityParticipant(targetSeat));
+            CreateProgramLegalityParticipant(sourceSeat), CreateProgramLegalityParticipant(targetSeat));
 
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 140)]
     private bool CanPayEquipmentSlotGroup(CharacterState owner, SkillProgramActivation activation) =>

@@ -303,6 +303,7 @@ public sealed partial class GameEngine
          GuanFocusAllowsSlash(player.Seat, target.Seat) || GuanFirstBasicAvailable(player, effectiveKind) ||
          HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
              (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||
+         HasWuLuKangDixianRankPrivilege(player.Seat, effectiveRank ?? (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : WuLuKangDixianQueryRank(player, effectiveKind, physicalCardIds))) ||
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
              DirectedTurnCardPolicyEffect.BypassSlashLimit) ||

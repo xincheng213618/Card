@@ -13,7 +13,7 @@ public sealed partial class GameEngine
     [ProgramCapability] private sealed class PangJiCapability(GameEngine engine) : IPangJiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginPangJi(f, op); }
     private IReadOnlyList<PromptChoice> BiguoCosts(ProgramSkillFrame f) => BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.OwnerSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard);
-    private bool CanBiguoPindian(int owner) => _players[owner].IsAlive && GetHand(_players[owner]).Count > 0 && !_resolutionStack.Any(f => f is PindianFrame) && _players.Any(p => p.IsAlive && p.Seat != owner && CanBePindianTarget(owner, p.Seat));
+    private bool CanBiguoPindian(int owner) => _players[owner].IsAlive && HasWuLuKangPindianInput(_players[owner]) && !_resolutionStack.Any(f => f is PindianFrame) && _players.Any(p => p.IsAlive && p.Seat != owner && CanBePindianTarget(owner, p.Seat));
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 28130)]
     private bool CanOfferPangJi(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext c)
     {

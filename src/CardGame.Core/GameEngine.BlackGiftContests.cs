@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     private int[] BlackGiftSecondSeats(ProgramSkillFrame f)
     {
         var first = f.BlackGiftContest!.RecipientSeat;
-        if (!_players[first].IsAlive || GetHand(_players[first]).Count == 0) return [];
+        if (!_players[first].IsAlive || !HasWuLuKangPindianInput(_players[first])) return [];
         // “另一名角色” may be the original owner; its hand is checked after the gift.
         return _players.Where(p => p.IsAlive && p.Seat != first && CanBePindianTarget(first, p.Seat)).Select(p => p.Seat).ToArray();
     }

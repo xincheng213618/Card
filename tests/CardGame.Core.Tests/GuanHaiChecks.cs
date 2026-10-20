@@ -174,6 +174,34 @@ internal static class GuanHaiChecks
                 Pile(g, 0).Select(c => c.Id).SequenceEqual([bait[0].Id]) && g.GetHumanLegalActions().Any(a => a.SkillId == Youque),
                 "An actual tied contest consumes only its chosen bait and the opponent's card; it has no loser, counter-Slash, damage reward or invented once-per-phase cap."); _ = Cold(g, r);
         }
+        {
+            var (g, r) = Start("minimum-alcohol-king"); Use(g, "stock"); Play(g);
+            var recipe = r.GetDeck("fixture:gh-deck").PhysicalCards!;
+            // These original physical recipe IDs were created as inputIndex+1;
+            // effective Hand rank may already be K, so select printed5/9 by identity.
+            var ids = new[] { 5, 9 }.Select(rank => V(g, 0).Hand.First(c => c.Kind == CardKind.Alcohol &&
+                c.Id > 0 && c.Id <= recipe.Count && recipe[c.Id - 1].Rank == rank).Id).ToArray();
+            SubmitXiewei(g, XieweiAction(g, ids), ids, 1); Play(g); AssertStored(g, ids, 0);
+            var baits = Pile(g, 0); var low = baits.Single(c => c.Kind == CardKind.Alcohol && c.Rank == 5).Id;
+            var high = baits.Single(c => c.Kind == CardKind.Alcohol && c.Rank == 9).Id;
+            Need(r.GetSkill(Driver).Program!.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
+                r.GetSkill("wumiao:shenduan").Program is not null && Enumerable.Range(0, 4).All(v => Baits(g.CreateSnapshot(v).Players[0]).Any(c => c.Id == low)),
+                "Real printed Alcohol5/9 are deposited by Xiewei into the same original public bait pile while the owner has a live Hand/Grain King policy and the registry enables the Wu contest protocol.");
+            g = Cold(g, r); BeginYouque(g);
+            Need(P(g)!.Choices.Where(c => c.Cards.Count == 1).All(c => c.Cards.SequenceEqual([low])),
+                "The genuine minimum bait selector admits printed Alcohol5, never the higher original Alcohol9.");
+            g = Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([low])); Play(g);
+            var issued = E<YouquePindianIssuedEvent>(g).Single(); var actual = E<PindianResultDeterminedEvent>(g).Single().Result;
+            Need(issued.CardId == low && actual.SourceCardId == low && actual.SourceRank == 5 &&
+                E<YouquePindianReturnedEvent>(g).Single().SourceRank == 5 &&
+                E<WuLuKangContestStartedEvent>(g).Length == 1 && E<WuLuKangPindianInputRevealedEvent>(g).Single(e => e.Seat == 0) is { CardId: var original, Rank: 5 } && original == low &&
+                E<DouyuSwapCommittedEvent>(g).Length == 0 && E<WuLuKangKDrawIssuedEvent>(g).Length == 0 &&
+                g.CardMovements.Count(m => m.Sequence > issued.Before && m.CardId == low && m.From == issued.Pile.Location &&
+                    m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal) == 1 &&
+                !g.CardMovements.Any(m => m.Sequence > issued.Before && m.CardId == low && m.To == CardLocation.Hand(0)) &&
+                Pile(g, 0).Any(c => c.Id == high),
+                "The exact private owned-pile Alcohol source uses printed5 through native Pindian under the Wu protocol; a Hand/Grain-only King identity cannot turn that pile source into13, issue a false K reward or manufacture a Hand payment."); _ = Cold(g, r);
+        }
     }
 
     public static void YouqueWholeDiscardForeignSlashAndLatestSpadeRewardCold()
@@ -364,6 +392,7 @@ internal static class GuanHaiChecks
         public void Register(IContentRegistryBuilder b)
         {
             CharacterFixtureContent.Register(b, "ol:guan-hai"); if (scene == "hujia") CharacterFixtureContent.Register(b, "classic:cao-cao");
+            if (scene == "minimum-alcohol-king") CharacterFixtureContent.Register(b, "wumiao:lu-kang");
             static JsonNode N(string text) => JsonNode.Parse(text)!;
             static JsonObject A(string id, string effects, int minCards = 0, int maxCards = 0, int targets = 0) => new() {
                 ["id"] = id, ["minCards"] = minCards, ["maxCards"] = maxCards, ["minTargets"] = targets, ["maxTargets"] = targets,
@@ -378,6 +407,7 @@ internal static class GuanHaiChecks
                     A("stock", """{"op":"draw","target":"owner","amount":16}"""), A("wound", """{"op":"loseHp","target":"owner","amount":1}"""),
                     A("incoming", """{"op":"offerVirtualSlashOrDraw","target":"selectedTarget"}""", targets: 1),
                     A("trim-peer", """{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand"],"count":1,"destination":"discardPile","awaitMovementTriggers":true}""", targets: 1), place, duel) });
+            if (scene == "minimum-alcohol-king") defs[0]!["cardPolicies"] = N("""[{"id":"actual-hand-grain-alcohol-K","kind":"alcoholKingIdentityRank","cardKinds":["alcohol"]}]""");
             if (scene is "duel" or "barbarian" or "arrows") defs[0]!["viewAs"] = new JsonArray(new JsonObject { ["id"] = "actual-single-played-response", ["inputKinds"] = new JsonArray(), ["inputSuits"] = new JsonArray(),
                 ["outputKind"] = scene == "arrows" ? "dodge" : "slash", ["forPlay"] = false, ["forResponse"] = true, ["allowSameKind"] = true });
             defs.Add(N("{\"id\":\"" + Quiet + "\",\"revision\":1,\"triggers\":[{\"id\":\"quiet\",\"window\":\"afterNormalDraw\",\"subject\":\"owner\",\"optional\":false,\"effects\":[{\"op\":\"skipTurnPhases\",\"target\":\"owner\",\"phases\":[\"play\"]}]}]}"));
@@ -422,9 +452,9 @@ internal static class GuanHaiChecks
                 if (scene is "win" or "spade" or "dodged") skills.Add("fixture:gh-low-rank");
                 b.AddGeneral(new(peers[i - 1], "原生其他角色", "supporter", pick, scene == "hujia" && i == 1 ? "wei" : "shu", 12, skills, GeneralGender.Male));
             }
-            var kind = scene switch { "duel" => CardKind.Duel, "barbarian" => CardKind.BarbarianAssault, "arrows" => CardKind.ArrowBarrage, "lion" => CardKind.SilverLion, "ox" => CardKind.WoodenOx, "black-armor" => CardKind.RenwangShield, _ => CardKind.Crossbow };
+            var kind = scene switch { "minimum-alcohol-king" => CardKind.Alcohol, "duel" => CardKind.Duel, "barbarian" => CardKind.BarbarianAssault, "arrows" => CardKind.ArrowBarrage, "lion" => CardKind.SilverLion, "ox" => CardKind.WoodenOx, "black-armor" => CardKind.RenwangShield, _ => CardKind.Crossbow };
             b.AddCard(new("fixture:gh-card", "真实固定实体", CardCatalog.Get(kind).CategoryName, "原生实体", kind));
-            b.AddDeck(new("fixture:gh-deck", "管亥真实小牌堆", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 96).Select(i => new ContentDeckPhysicalCard("fixture:gh-card", scene == "black-armor" || scene == "spade" && i % 2 == 0 ? Suit.Spade : Suit.Heart, scene == "minimum" ? i % 2 == 0 ? 5 : 9 : 7)).ToArray() });
+            b.AddDeck(new("fixture:gh-deck", "管亥真实小牌堆", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 96).Select(i => new ContentDeckPhysicalCard("fixture:gh-card", scene == "black-armor" || scene == "spade" && i % 2 == 0 ? Suit.Spade : Suit.Heart, scene is "minimum" or "minimum-alcohol-king" ? i % 2 == 0 ? 5 : 9 : 7)).ToArray() });
             var roles = scene == "paid-death" ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 } :
                 natural ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 1, [nameof(Role.Loyalist)] = 2 } :
                 scene == "hujia" ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 2, [nameof(Role.Loyalist)] = 1 } : new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 };

@@ -222,7 +222,7 @@ public sealed partial class GameEngine
         foreach (var source in GetProgramViewAsConversions(actor, card, kind, false).Where(IsFuleAliasSource))
         foreach (var target in _players.Where(target => target.IsAlive && target.Seat != actor.Seat && !target.JudgmentAreaAbolished &&
             !HasJudgmentEffectiveCard(target, kind) && (kind != CardKind.SupplyShortage ||
-                GuanFirstRedDistance(actor, card) || HasPhaseSuitAllowance(actor, card) || HasCardDistanceExemption(actor, target, kind, excludedEquipmentId: card.Id) ||
+                HasWuLuKangDixianMaterialPrivilege(actor, kind, [card.Id], source) || GuanFirstRedDistance(actor, card) || HasPhaseSuitAllowance(actor, card) || HasCardDistanceExemption(actor, target, kind, excludedEquipmentId: card.Id) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance, kind) || HasProvenanceUseDistance(actor, card) ||
                 GetCombatDistance(actor.Seat, target.Seat) <= GetCardUseDistanceLimit(actor, kind))))
             actions.Add(new(kind == CardKind.Indulgence ? LegalActionKind.Indulgence : LegalActionKind.SupplyShortage,

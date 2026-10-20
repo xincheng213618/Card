@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     private IEnumerable<(PublicPersistentPileSource Pile, Card Card)> YouqueBaits(int owner) => XieweiPiles(owner).SelectMany(p => _cardZones.CardsAt(p.Location).Select(c => (Pile: p, Card: c)));
     private bool YouquePhaseActive(int owner) => CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p && p.ActorSeat == owner && !ProgramEventHistory<YouquePhaseDisabledEvent>().Any(e => e.OwnerSeat == owner && e.Phase == p);
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 27579, SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian)]
-    private bool CanActivateYouque(ProgramActivationLegalityContext c) => c.Owner.IsAlive && GetHand(c.Owner).Count > 0 && YouquePhaseActive(c.OwnerSeat) && YouqueBaits(c.OwnerSeat).Any() && _players.Any(p => CanBePindianTarget(c.OwnerSeat, p.Seat));
+    private bool CanActivateYouque(ProgramActivationLegalityContext c) => c.Owner.IsAlive && HasWuLuKangPindianInput(c.Owner) && YouquePhaseActive(c.OwnerSeat) && YouqueBaits(c.OwnerSeat).Any() && _players.Any(p => CanBePindianTarget(c.OwnerSeat, p.Seat));
     [ProgramCapability] private sealed class GuanHaiCapability(GameEngine engine) : IGuanHaiHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginGuanHai(f, op); }
     private SkillProgramStepOutcome BeginGuanHai(ProgramSkillFrame supplied, SkillProgramEffectOp op)
@@ -23,7 +23,7 @@ public sealed partial class GameEngine
         }
         else if (op == SkillProgramEffectOp.ResolveYouqueMinimumBaitPindian)
         {
-            if (f.TriggerId is not null || f.ActivationId != "minimum-bait-pindian" || f.SelectedCardIds.Count != 0 || f.SelectedTargetSeats is not [var peer] || !CanBePindianTarget(f.OwnerSeat, peer) || GetHand(_players[f.OwnerSeat]).Count == 0 || !YouquePhaseActive(f.OwnerSeat) || !YouqueBaits(f.OwnerSeat).Any() || !_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId)) throw new InvalidOperationException("Youque requires a real Play, original hand-bearing participants and actual bait.");
+            if (f.TriggerId is not null || f.ActivationId != "minimum-bait-pindian" || f.SelectedCardIds.Count != 0 || f.SelectedTargetSeats is not [var peer] || !CanBePindianTarget(f.OwnerSeat, peer) || !HasWuLuKangPindianInput(_players[f.OwnerSeat]) || !YouquePhaseActive(f.OwnerSeat) || !YouqueBaits(f.OwnerSeat).Any() || !_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId)) throw new InvalidOperationException("Youque requires a real Play, original hand-bearing participants and actual bait.");
             r = r with { OpponentSeat = peer, Phase = CurrentActualDiscardRecoveryPhase() };
         }
         else
@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     }
     private void PublishYouque(ProgramSkillFrame f)
     {
-        if (!_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) || !YouquePhaseActive(f.OwnerSeat) || GetHand(_players[f.OwnerSeat]).Count == 0 || !CanBePindianTarget(f.OwnerSeat, f.GuanHai!.OpponentSeat) || !YouqueBaits(f.OwnerSeat).Any()) { FinishGuanHai(f, false); return; }
+        if (!_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) || !YouquePhaseActive(f.OwnerSeat) || !HasWuLuKangPindianInput(_players[f.OwnerSeat]) || !CanBePindianTarget(f.OwnerSeat, f.GuanHai!.OpponentSeat) || !YouqueBaits(f.OwnerSeat).Any()) { FinishGuanHai(f, false); return; }
         var choices = YouqueBaitChoices(f); var skill = _contentRegistry.GetSkill(f.SkillId); ReplaceRuntimeTop(f with { Step = ResolutionFrameStep.AwaitingResponse });
         _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, "诱阙：选择点数最小的饵拼点。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), [], f.OwnerSeat) { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running; AdvanceRulesAndPublishState();
@@ -82,7 +82,7 @@ public sealed partial class GameEngine
         if (r.Stage == GuanHaiStage.Pindian)
         {
             var facts = ProgramEventHistory<PindianResultDeterminedEvent>().Where(e => e.FrameId == r.PindianId && e.SkillId == f.SkillId).ToArray();
-            if (facts is not [var fact] || (fact.Result.SourceCardId != r.BaitCardId && !IsDouyuHistoricalPairAssignment(r.PindianId, fact.Result, r.BaitCardId)) || fact.Result.SourceSeat != f.OwnerSeat || fact.Result.OpponentSeat != r.OpponentSeat || f.PindianResultBindings.SingleOrDefault(b => b.Name == YouqueResultBind(f)) is not { } binding || binding.SourceRank != fact.Result.SourceRank || binding.OpponentRank != fact.Result.OpponentRank || binding.SourceWon != fact.Result.SourceWon) throw new InvalidOperationException("Youque requires its exact completed native Pindian result.");
+            if (facts is not [var fact] || (fact.Result.SourceCardId != r.BaitCardId && !IsDouyuHistoricalPairAssignment(r.PindianId, fact.Result, r.BaitCardId) && !IsWuLuKangHistoricalPairAssignment(r.PindianId, fact.Result, r.BaitCardId)) || fact.Result.SourceSeat != f.OwnerSeat || fact.Result.OpponentSeat != r.OpponentSeat || f.PindianResultBindings.SingleOrDefault(b => b.Name == YouqueResultBind(f)) is not { } binding || binding.SourceRank != fact.Result.SourceRank || binding.OpponentRank != fact.Result.OpponentRank || binding.SourceWon != fact.Result.SourceWon) throw new InvalidOperationException("Youque requires its exact completed native Pindian result.");
             var result = fact.Result; AdvanceEventRulesAndQueueFact(new YouquePindianReturnedEvent(id, r.PindianId, result.SourceCardId, result.OpponentCardId, result.SourceRank, result.OpponentRank));
             if (result.SourceRank == result.OpponentRank) { FinishGuanHai(f, true); return; }
             var winner = result.SourceWon ? result.SourceSeat : result.OpponentSeat; var loser = result.SourceWon ? result.OpponentSeat : result.SourceSeat; var rank = loser == result.SourceSeat ? result.SourceRank : result.OpponentRank;

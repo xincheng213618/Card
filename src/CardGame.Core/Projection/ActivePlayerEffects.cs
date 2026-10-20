@@ -43,6 +43,9 @@ public sealed partial class GameEngine
             expiry == SkillProgramDamageModifierExpiration.NextOwnerTurnStart
                 ? ActivePlayerEffectExpiry.NextSourceTurnStart : ActivePlayerEffectExpiry.CurrentTurnEnd;
 
+        if (WuLuKangDixianPublicDescription(player.Seat) is { } dixianDescription)
+            Add(WuLuKangComposition.Dixian, player.Seat, dixianDescription, ActivePlayerEffectExpiry.RuleCleared);
+
         if (WuZhangFeiPublicCycleDescription(player.Seat, primarySkills, secondarySkills) is { } wuZhangFeiCycle)
             Add("wumiao:xianlue", player.Seat, wuZhangFeiCycle, ActivePlayerEffectExpiry.RuleCleared);
 

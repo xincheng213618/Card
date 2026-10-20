@@ -25,6 +25,7 @@ public enum SkillProgramCardPolicyKind
     SuppressOthersNonLockedDuringDying = 4000, ExclusiveTurnPeachUse = 4001, ProhibitBlackTrickTarget = 4002,
     PindianOpponentRandomHand = 3100,
     PindianMaximumSlashClaim = 3101,
+    PindianDiscardForMaximumDeck = 29700,
     RedirectOwnTurnFactionRecovery = 2700,
     SlashRangeFromEffectiveRank = 2100,
     PreventForeignEquipmentDiscard = 1980,

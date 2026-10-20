@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         if (!_cardMovements.Contains(m) || m.Sequence <= r.MovementBefore || m.Sequence > r.MovementAfter) return false;
         if (r.PaymentKind == "top-reserve") return r.TopReceipts.Any(t => t.CardId == m.CardId && t.ReservationMovementSequence == m.Sequence) && m.From == CardLocation.DrawPile && m.To == CardLocation.Processing && m.Reason == SimultaneousTopReservationReason;
         if (r.PaymentKind == "top-refill") return m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle;
-        if (r.PaymentKind == "reveal") return GetDouyuOriginalSimultaneousCards(f).Any(c => c.CardId == m.CardId && m.From == SimultaneousOriginalLocation(r,c)) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal;
+        if (r.PaymentKind == "reveal") return (GetDouyuOriginalSimultaneousCards(f).Any(c => c.CardId == m.CardId && m.From == SimultaneousOriginalLocation(r,c)) || f.WuLuKangContest is { SourcesReady: true } wu && wu.Assignments.Any(a => a.CardId == m.CardId && WuLuKangAssignedLocation(f, a.Seat) == m.From)) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal;
         if (r.PaymentKind == "cleanup") return r.Cards.Any(c => c.CardId == m.CardId) && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.PindianFinish;
         if (r.PaymentKind == "claim") return r.Claims!.Claims[r.Claims.Index].CardIds.Contains(m.CardId) && m.From == CardLocation.Processing &&
             m.To == CardLocation.Hand(r.PaymentSeat!.Value) && m.Reason.Value == "program.pindian.claim";
@@ -80,5 +80,5 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<int> SimultaneousHeldProcessingCards() => Array.AsReadOnly(_resolutionStack.OfType<ProgramSkillFrame>()
         .Where(f => f.SimultaneousPindian is not null && IsSimultaneousReceiptSource(f)).SelectMany(f => f.SimultaneousPindian!.Cards.Where(c => f.SimultaneousPindian.Revealed || f.SimultaneousPindian.TopReceipts.Any(t => t.CardId == c.CardId)))
-        .Select(c => c.CardId).Where(id => _cardZones.GetLocation(id) == CardLocation.Processing).Distinct().Order().ToArray());
+        .Select(c => c.CardId).Concat(_resolutionStack.Where(f => f.WuLuKangContest is not null).SelectMany(f => WuLuKangHeldProcessing(f))).Where(id => id > 0 && _cardZones.GetLocation(id) == CardLocation.Processing).Distinct().Order().ToArray());
 }

@@ -178,7 +178,7 @@ public sealed partial class GameEngine
     {
         if (LifecycleCardUse(useId) is { MouZhaJiangUse: null } use && HasMouZhaJiangCapability)
             IssueMouZhaJiangUse(use);
-        if (!HasIssuedMouZhaJiangUse(useId, actor.Seat)) actor.UsedPlayPhaseAlcoholThisTurn = true;
+        if (!HasIssuedMouZhaJiangUse(useId, actor.Seat) && !HasIssuedWuLuKangDixianUse(useId, actor.Seat)) actor.UsedPlayPhaseAlcoholThisTurn = true;
     }
     private ResolutionFrame? MouZhaJiangResponseOwner(int actor, CardKind kind)
     {

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wumiao:shenduan",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "maximum-deck-source",
+          "kind": "pindianDiscardForMaximumDeck"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "native-pindian",
+          "window": "wuLuKangPindian",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWuLuKangShenduan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:kegou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "play-start",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuKangKegou",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "used-own-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuKangKegou",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "used-other-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWuLuKangKegou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wumiao:dixian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "declare-rank",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "resolveWuLuKangDixian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

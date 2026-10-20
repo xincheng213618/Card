@@ -72,6 +72,11 @@ public sealed partial class GameEngine
     private void CommitSimultaneousSelection(ProgramSkillFrame f,int seat,PromptChoice choice)
     {
         var r = f.SimultaneousPindian!; Card card; int rank;
+        if (choice.Parameters["branch"] == "maximum")
+        {
+            if (!CanWuLuKangDiscardForPindian(_players[seat])) throw new InvalidOperationException("The discard-backed source lost its actual HE policy.");
+            ReplaceRuntimeTop(f = f with { SimultaneousPindian = r with { Cards = r.Cards.Append(new(seat, -seat - 1, 0, 0)).ToArray(), SelectionIndex = r.SelectionIndex + 1 } }); ContinueSimultaneousSelection(f); return;
+        }
         if (choice.Parameters["branch"] == "top")
         {
             if (!CanOfferSimultaneousTop(f,seat) || r.RandomSelection!.Index != r.RandomSelection.Candidates.Count || r.RandomSelection.Receipts.Any(p => p.TargetSeat == seat) ||
@@ -97,13 +102,16 @@ public sealed partial class GameEngine
     }
     private void RevealSimultaneousCommittedGroup(ProgramSkillFrame f)
     {
+        if (TryBeginWuLuKangGroupBeforeReveal(f)) return;
         if (TryBeginDouyuSimultaneousPreReveal(f)) return;
         var r = f.SimultaneousPindian!;
-        if (r.Cards.Any(c => _cardZones.GetLocation(c.CardId) != SimultaneousOriginalLocation(r,c)))
-            throw new InvalidOperationException("A simultaneous private commitment lost its original hand/top entity or allowed children to consume a reserved top.");
+        var inputs = r.Cards.Select(c => WuLuKangActualInput(f, c.Seat, c.CardId, SimultaneousOriginalLocation(r,c), c.OriginalRank, r.TopReceipts.Any(t => t.CardId == c.CardId))).ToArray();
+        if (inputs.Any(c => c.CardId <= 0 || _cardZones.GetLocation(c.CardId) != c.From))
+            throw new InvalidOperationException("A simultaneous private commitment lost its original or exactly paid replacement entity.");
         var before = _movementSequence;
-        foreach (var c in r.Cards.Where(c => !r.TopReceipts.Any(t => t.CardId == c.CardId))) MoveCard(GetAdvancedCard(c.CardId),SimultaneousOriginalLocation(r,c),CardLocation.Processing,CardMoveReasons.PindianReveal);
-        var mappedCards = ApplyDouyuSimultaneousCards(f, r.Cards);
+        foreach (var c in inputs.Where(c => c.From != CardLocation.Processing)) MoveCard(GetAdvancedCard(c.CardId),c.From,CardLocation.Processing,CardMoveReasons.PindianReveal);
+        RevealWuLuKangInputs(f); f = GetActiveProgramFrame(f.Id);
+        var mappedCards = ApplyDouyuSimultaneousCards(f, inputs.Select(c => new PindianRevealedCard(c.Seat, c.CardId, c.Rank, c.Rank)).ToArray());
         f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian!;
         ReplaceRuntimeTop(f = f with { SimultaneousPindian = r = r with { Cards = mappedCards, Stage = SimultaneousPindianStage.RevealChildren, Revealed = true,
             RevealBefore = before, RevealAfter = _movementSequence, MovementBefore = before, MovementAfter = _movementSequence, PaymentKind = "reveal" }, PendingMovementContinuation = new(f.OwnerSeat,0,null) });
@@ -114,13 +122,13 @@ public sealed partial class GameEngine
     private void AssertSimultaneousSelectionPolicies(ProgramSkillFrame f)
     {
         var r = f.SimultaneousPindian!; var selection = r.RandomSelection;
-        var originalCards = GetDouyuOriginalSimultaneousCards(f);
+        var originalCards = WuLuKangOriginalSelectedGroup(f);
         if (selection is null || selection.Candidates is not System.Collections.ObjectModel.ReadOnlyCollection<PindianRandomCandidate> ||
             selection.Receipts is not System.Collections.ObjectModel.ReadOnlyCollection<PindianRandomReceipt> || selection.Index < 0 || selection.Index > selection.Candidates.Count ||
             selection.Receipts.GroupBy(p => p.TargetSeat).Any(p => p.Count() != 1) || selection.Candidates.Any(c => c.OwnerSeat == c.TargetSeat ||
                 c.Source.OwnerSeat != c.OwnerSeat || c.OwnerSeat != f.OwnerSeat && !r.Opponents.Contains(c.OwnerSeat) || c.TargetSeat != f.OwnerSeat && !r.Opponents.Contains(c.TargetSeat)) ||
             selection.Receipts.Any(p => p.RandomBefore == p.RandomAfter || !selection.Candidates.Take(selection.Index).Any(c => c.OwnerSeat == p.OwnerSeat && c.TargetSeat == p.TargetSeat && c.Source == p.Source) ||
-                !r.Revealed && _cardZones.GetLocation(p.CardId) != CardLocation.Hand(p.TargetSeat) ||
+                !r.Revealed && !IsWuLuKangPrivateGroup(f) && _cardZones.GetLocation(p.CardId) != CardLocation.Hand(p.TargetSeat) ||
                 CompleteProgramEventHistory().OfType<PindianRandomHandCommittedEvent>().Count(e => e.FrameId == f.Id && e.OwnerSeat == p.OwnerSeat && e.TargetSeat == p.TargetSeat && e.Source == p.Source) != 1))
             throw new InvalidOperationException("A simultaneous random choice lost its private once-target entity, policy source or RNG receipt.");
         var actualSource = selection.Receipts.SingleOrDefault(p => p.TargetSeat == f.OwnerSeat)?.CardId ?? r.OriginalSourceCardId;

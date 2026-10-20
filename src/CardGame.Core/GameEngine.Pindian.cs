@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault()?.Id != parentId ||
             _resolutionStack.Any(item => item is PindianFrame) || !_players[sourceSeat].IsAlive ||
-            GetHand(_players[sourceSeat]).Count == 0 || opponentSeat is { } opponent && !CanBePindianTarget(sourceSeat, opponent))
+            !HasWuLuKangPindianInput(_players[sourceSeat]) || opponentSeat is { } opponent && !CanBePindianTarget(sourceSeat, opponent))
             throw new InvalidOperationException("Pindian requires one suspended parent and a living source with hand cards.");
         var frame = new PindianFrame(++_resolutionSequence, parentId, presentation.SkillId, presentation,
             sourceSeat, opponentSeat, sourceCardId,
@@ -33,8 +33,8 @@ public sealed partial class GameEngine
         var chooser = _players[selectingSource ? frame.SourceSeat : frame.OpponentSeat!.Value];
         var hand = GetHand(chooser);
         var targets = frame.PindianStep == PindianStep.ChooseParticipants ? _players.Where(player => player.IsAlive &&
-            player.Seat != chooser.Seat && GetHand(player).Count > 0 && CanBePindianTarget(frame.SourceSeat, player.Seat)).Select(player => player.Seat).ToArray() : [];
-        if (!chooser.IsAlive || hand.Count == 0 || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
+            player.Seat != chooser.Seat && HasWuLuKangPindianInput(player) && CanBePindianTarget(frame.SourceSeat, player.Seat)).Select(player => player.Seat).ToArray() : [];
+        if (!chooser.IsAlive || !HasWuLuKangPindianInput(chooser) || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
             !selectingSource && (chooser.Seat == frame.SourceSeat || !CanBePindianTarget(frame.SourceSeat, chooser.Seat) ||
                 !HasCurrentPindianSourceCard(frame)))
             throw new InvalidOperationException("Pindian participants no longer have legal hand cards.");
@@ -54,6 +54,11 @@ public sealed partial class GameEngine
                 choices.Add(new(new ChoiceId($"pindian.{frame.Id}.card-{card.Id}"),
                     $"以【{card.DisplayName}】（{card.Rank}）参与拼点", [card.Id], [],
                     new Dictionary<string, string> { ["action"] = "pindian-card" }));
+        }
+        if (CanWuLuKangDiscardForPindian(chooser))
+        {
+            var maximumTargets = frame.PindianStep == PindianStep.ChooseParticipants ? targets.Select(t => (int?)t) : new int?[] { null };
+            foreach (var target in maximumTargets) choices.Add(new(new($"pindian.{frame.Id}.maximum.{target}"), "弃置牌后以牌堆最大点数的牌拼点", [], target is { } seat ? [seat] : [], new Dictionary<string,string> { ["action"] = "pindian-maximum" }));
         }
         if(CanOfferPindianTopChoice(chooser))
         {
@@ -98,7 +103,7 @@ public sealed partial class GameEngine
         var top=selected.Parameters.GetValueOrDefault("action")=="pindian-top";
         var selectingSource=frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard;
         var chooser=_players[selectingSource?frame.SourceSeat:frame.OpponentSeat!.Value];
-        var selectedId=top?ReserveOrReadPindianTop(chooser,selectingSource):selected.Cards.Single();
+        var selectedId = selected.Parameters.GetValueOrDefault("action") == "pindian-maximum" ? 0 : top ? ReserveOrReadPindianTop(chooser, selectingSource) : selected.Cards.Single();
         switch (frame.PindianStep)
         {
             case PindianStep.ChooseParticipants:
@@ -121,21 +126,27 @@ public sealed partial class GameEngine
 
     private void RevealPindian(PindianFrame frame, int opponentCardId, bool opponentTop = false)
     {
+        if (TryBeginWuLuKangPairBeforeReveal(frame, opponentCardId, opponentTop)) return;
         if (TryBeginDouyuPairPreReveal(frame, opponentCardId, opponentTop)) return;
         var source = _players[frame.SourceSeat];
         var opponent = _players[frame.OpponentSeat!.Value];
         AssertOwnedPilePindianSource(frame);
         var sourceLocation = frame.OwnedPileSource?.Pile.Location ??
             (frame.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(source.Seat));
-        var sourceCard = _cardZones.CardsAt(sourceLocation).Single(card => card.Id == frame.SourceCardId);
-        var opponentCard = _cardZones.CardsAt(opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat)).Single(card => card.Id == opponentCardId);
-        var sourceIdentityRank = JuewuForeignHandRank(source, sourceCard) is not null
+        var sourceInput = WuLuKangActualInput(frame, source.Seat, frame.SourceCardId!.Value, sourceLocation, 0, frame.SourceUsesDrawPileTop);
+        var opponentInput = WuLuKangActualInput(frame, opponent.Seat, opponentCardId, opponentTop ? CardLocation.DrawPile : CardLocation.Hand(opponent.Seat), 0, opponentTop);
+        sourceLocation = sourceInput.From;
+        var sourceCard = _cardZones.CardsAt(sourceLocation).Single(card => card.Id == sourceInput.CardId);
+        var opponentCard = _cardZones.CardsAt(opponentInput.From).Single(card => card.Id == opponentInput.CardId);
+        var sourceIdentityRank = frame.WuLuKangContest is not null ? sourceInput.Rank : JuewuForeignHandRank(source, sourceCard) is not null
             ? EffectivePindianRank(source, sourceCard) : CaptureAlcoholPindianRank(frame, source, sourceCard, true, frame.SourceUsesDrawPileTop);
-        var opponentIdentityRank = JuewuForeignHandRank(opponent, opponentCard) is not null
+        var opponentIdentityRank = frame.WuLuKangContest is not null ? opponentInput.Rank : JuewuForeignHandRank(opponent, opponentCard) is not null
             ? EffectivePindianRank(opponent, opponentCard) : CaptureAlcoholPindianRank(frame, opponent, opponentCard, false, opponentTop);
-        if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, sourceLocation, CardLocation.Processing, CardMoveReasons.PindianReveal);
-        MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        if (sourceLocation != CardLocation.Processing) MoveCard(sourceCard, sourceLocation, CardLocation.Processing, CardMoveReasons.PindianReveal);
+        if (opponentInput.From != CardLocation.Processing) MoveCard(opponentCard, opponentInput.From, CardLocation.Processing, CardMoveReasons.PindianReveal);
+        RevealWuLuKangInputs(frame);
         var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));
+        frame = (PindianFrame)_resolutionStack[^1];
         result = ApplyDouyuPairResult(frame, result);
         frame = (PindianFrame)_resolutionStack[^1];
         if (TryBeginPairPindianReveal(frame,result)) return;
@@ -195,7 +206,7 @@ public sealed partial class GameEngine
             AdvanceRulesAndPublishState();
             return;
         }
-        var selected = decision.Choices.OrderByDescending(choice => choice.Parameters.GetValueOrDefault("action")=="pindian-top"?9:
+        var selected = decision.Choices.OrderByDescending(choice => choice.Parameters.GetValueOrDefault("action")=="pindian-maximum"?10:choice.Parameters.GetValueOrDefault("action")=="pindian-top"?9:
                 EffectivePindianRank(_players[decision.PlayerSeat],GetHand(_players[decision.PlayerSeat]).Single(card => card.Id == choice.Cards.Single())))
                 .ThenBy(choice => choice.Cards.FirstOrDefault()).ThenBy(choice => choice.Targets.FirstOrDefault()).First();
         ResolvePindianChoice(selected);
@@ -210,6 +221,7 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<PindianFrame>().ToArray();
         foreach (var owned in frames) AssertOwnedPilePindianSource(owned);
         if (frames.Length == 0) return;
+        if (frames.Length == 1 && IsWuLuKangPairSubtree(frames[0])) { AssertWuLuKangWindows(); AssertWuLuKangPairProcessing(frames[0]); return; }
         if (frames.Length == 1 && IsDouyuPairSubtree(frames[0])) { AssertDouyuWindows(); AssertDouyuPairSubtreeProcessing(frames[0]); return; }
         if (frames.Length == 1 && IsPairPindianRevealSubtree(frames[0])) { AssertPindianRevealWindows(); return; }
         if (frames.Length != 1 || _resolutionStack.Count < 2 || _resolutionStack[^1] != frames[0] ||
@@ -225,9 +237,9 @@ public sealed partial class GameEngine
             parentCards.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing))
             throw new InvalidOperationException("Pindian lost its parent card or acquired an unrelated processing card.");
         var paidDouyuClaim = frame.PindianStep == PindianStep.ClaimResult && frame.Result is { } paidResult &&
-            IsDouyuPairAssignment(frame, paidResult) &&
+            (IsDouyuPairAssignment(frame, paidResult) || IsWuLuKangAssignedPair(frame, paidResult)) &&
             ProgramEventHistory<PindianResultDeterminedEvent>().Count(e => e.FrameId == frame.Id && e.SkillId == frame.SkillId && e.Result == paidResult) == 1 &&
-            ProgramEventHistory<DouyuResultRecordedEvent>().Count(e => e.ContestId == frame.Id && e.ComparisonIndex == 0 && e.Result == paidResult) == 1;
+            (IsWuLuKangAssignedPair(frame, paidResult) || ProgramEventHistory<DouyuResultRecordedEvent>().Count(e => e.ContestId == frame.Id && e.ComparisonIndex == 0 && e.Result == paidResult) == 1);
         if ((!_players[frame.SourceSeat].IsAlive || frame.OpponentSeat is { } opponent && !_players[opponent].IsAlive) && !paidDouyuClaim ||
             frame.OpponentSeat == frame.SourceSeat || !_players[decision.PlayerSeat].IsAlive ||
             _status != (_players[decision.PlayerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running))
@@ -251,7 +263,7 @@ public sealed partial class GameEngine
                 ? frame.SourceSeat : frame.OpponentSeat!.Value;
             if (decision.PlayerSeat != owner ||
                 decision.SkillPrompt.SkillId != frame.SkillId ||
-                decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action")=="pindian-top"
+                decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "pindian-maximum" ? choice.Cards.Count != 0 || !CanWuLuKangDiscardForPindian(_players[owner]) : choice.Parameters.GetValueOrDefault("action")=="pindian-top"
                     ? choice.Cards.Count!=0 || !CanOfferPindianTopChoice(_players[owner])
                     : choice.Cards.Count != 1 || !GetHand(_players[owner]).Any(card => card.Id == choice.Cards[0])) ||
                 frame.PindianStep == PindianStep.ChooseOpponentCard &&

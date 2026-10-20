@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 
 /// <summary>Public facts shared by action generation, input validation and AI.</summary>
-internal readonly record struct ProgramLegalityParticipant(int Seat, int HandCount, bool ProhibitsOtherPindianTarget = false);
+internal readonly record struct ProgramLegalityParticipant(int Seat, int HandCount, bool ProhibitsOtherPindianTarget = false, bool CanPindianWithoutHand = false);
 
 /// <summary>
 /// Static operation prerequisites. They never read physical hand identities or
@@ -20,10 +20,10 @@ internal sealed record ProgramOperationLegalityPolicy(
         ExcludesOwnerAsTarget: true);
 
     internal bool CanStart(ProgramLegalityParticipant owner) =>
-        !RequiresOwnerHand || owner.HandCount > 0;
+        !RequiresOwnerHand || owner.HandCount > 0 || RequiresPindianTarget && owner.CanPindianWithoutHand;
 
     internal bool CanSelectTarget(ProgramLegalityParticipant owner, ProgramLegalityParticipant target) =>
-        (!RequiresTargetHand || target.HandCount > 0) &&
+        (!RequiresTargetHand || target.HandCount > 0 || RequiresPindianTarget && target.CanPindianWithoutHand) &&
         (!ExcludesOwnerAsTarget || target.Seat != owner.Seat) &&
         (!RequiresPindianTarget || owner.Seat == target.Seat || !target.ProhibitsOtherPindianTarget);
 

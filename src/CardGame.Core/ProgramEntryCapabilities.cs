@@ -28,6 +28,7 @@ internal static class ProgramEntryCapabilities
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
         SkillProgramTriggerWindow.NativeDrawStarting or
+        SkillProgramTriggerWindow.WuLuKangPindian or
         SkillProgramTriggerWindow.ActualPhaseEnded or
         SkillProgramTriggerWindow.IdentityGeneralAppeared or
         SkillProgramTriggerWindow.PindianBeforeReveal or

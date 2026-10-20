@@ -261,7 +261,7 @@ public sealed partial class GameEngine
             snapshots,
             visibleDecision,
             WithoutChengliePrivateProcessing(_cardZones.CardsAt(CardLocation.Processing)).Count(card =>
-                !IsNishouHeldProcessingCard(card.Id) && (revealAll || !IsSimultaneousPrivateTopCard(card.Id))),
+                !IsNishouHeldProcessingCard(card.Id) && (revealAll || !IsSimultaneousPrivateTopCard(card.Id) && !IsWuLuKangPrivatePindianCard(card.Id))),
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
@@ -276,7 +276,7 @@ public sealed partial class GameEngine
             ModeKind = _modeDefinition.ModeKind,
             PublicRevealedCards = GetPubliclyRevealedHandCards().Concat(TangTangPublicShownCardIds().Concat(ZhouQunPublicShownCardIds()).Select(id => ToSnapshot(GetAdvancedCard(id)) with
                 { PublicHandOwnerSeat = _cardZones.GetLocation(id).Zone == CardZoneKind.Hand ? _cardZones.GetLocation(id).OwnerSeat : null })).Concat(publicRevealedCards).Concat(ChengliePublicCards()).Concat(FriendPangTongPublicCards()).Concat(CurrentLuYuShengRevealedCards()).Concat(MouZuifengPublicCards())
-                .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
+                .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id) && !IsWuLuKangPrivatePindianCard(card.Id))
                 .DistinctBy(card => card.Id).ToArray(),
             PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GuanduShicaiPrivatelyViewedCards(viewerSeat)).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat)).Concat(LiuBaPrivatelyViewedBottomCards(viewerSeat)).Concat(RuanYuPrivatelyViewedBottomCards(viewerSeat)).Concat(NishouPrivatelyHeldCards(viewerSeat)).Concat(ZhouQunPrivatelyViewedTopCards(viewerSeat)).Concat(MouZuifengPrivatelyViewedCards(viewerSeat)).Concat(WuZhangFeiPrivateCards(viewerSeat)).Concat(FeibaiPrivateCards(viewerSeat))
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,

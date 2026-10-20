@@ -19,17 +19,20 @@ public sealed partial class GameEngine
                 r.SourceSeat, r.OriginalCards.Count, r.ActualTurn, r.TurnOwner, r.SequenceBefore)) != 1) return false;
         if (parent is PindianFrame p)
         {
-            if (r.Simultaneous || r.OriginalCards.Count != 2 || p.SourceSeat != r.SourceSeat || p.SourceCardId != r.OriginalCards[0].CardId ||
-                p.OpponentSeat != r.OriginalCards[1].Seat || r.OriginalCards[0].PaymentFrom != (p.OwnedPileSource?.Pile.Location ??
-                    (p.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(p.SourceSeat))) ||
-                p.SourceUsesDrawPileTop != r.OriginalCards[0].Top || r.OriginalCards[1].PaymentFrom !=
-                    (r.OriginalCards[1].Top ? CardLocation.DrawPile : CardLocation.Hand(p.OpponentSeat!.Value))) return false;
+            if (r.Simultaneous || r.OriginalCards.Count != 2 || p.SourceSeat != r.SourceSeat || p.OpponentSeat != r.OriginalCards[1].Seat) return false;
+            if (p.WuLuKangContest is not null)
+            {
+                if (r.OriginalCards.Any(c => !IsWuLuKangOriginalInput(p, c.Seat, c.CardId, c.PaymentFrom, c.Top, c.ReservationSequence))) return false;
+            }
+            else if (p.SourceCardId != r.OriginalCards[0].CardId || r.OriginalCards[0].PaymentFrom != (p.OwnedPileSource?.Pile.Location ??
+                (p.SourceUsesDrawPileTop ? CardLocation.Processing : CardLocation.Hand(p.SourceSeat))) || p.SourceUsesDrawPileTop != r.OriginalCards[0].Top ||
+                r.OriginalCards[1].PaymentFrom != (r.OriginalCards[1].Top ? CardLocation.DrawPile : CardLocation.Hand(p.OpponentSeat!.Value))) return false;
         }
         else if (parent is ProgramSkillFrame { SimultaneousPindian: { } simultaneous } f)
         {
             if (!r.Simultaneous || r.SourceSeat != f.OwnerSeat || !r.OriginalCards.Skip(1).Select(c => c.Seat).SequenceEqual(simultaneous.Opponents)) return false;
             var actualSource = simultaneous.RandomSelection?.Receipts.SingleOrDefault(paid => paid.TargetSeat == f.OwnerSeat)?.CardId ?? simultaneous.OriginalSourceCardId;
-            if (actualSource != r.OriginalCards[0].CardId || r.OriginalCards.Any(c =>
+            if (f.WuLuKangContest is not null ? r.OriginalCards.Any(c => !IsWuLuKangOriginalInput(f, c.Seat, c.CardId, c.PaymentFrom, c.Top, c.ReservationSequence)) : actualSource != r.OriginalCards[0].CardId || r.OriginalCards.Any(c =>
                 c.PaymentFrom != (c.Top ? CardLocation.Processing : CardLocation.Hand(c.Seat)) ||
                 c.Top && !simultaneous.TopReceipts.Any(t => t.Seat == c.Seat && t.CardId == c.CardId && t.ReservationMovementSequence == c.ReservationSequence))) return false;
         }
@@ -76,8 +79,8 @@ public sealed partial class GameEngine
         if (facts is not [var paid] || paid.CardId != card.CardId || paid.PrintedKind != card.PrintedKind || paid.From != card.PaymentFrom ||
             paid.AlreadyReserved != (card.PaymentFrom == CardLocation.Processing)) return false;
         return _cardMovements.Count(m => m.Sequence == paid.MovementSequence && m.CardId == card.CardId && m.CardKind == card.PrintedKind &&
-            m.To == CardLocation.Processing && (paid.AlreadyReserved ? card.Top && card.ReservationSequence == m.Sequence && m.From == CardLocation.DrawPile &&
-                m.Reason.Value is "pindian.reserve-top" or "skill.pindian.reserve-top" : m.From == card.PaymentFrom && m.Reason == CardMoveReasons.PindianReveal)) == 1;
+            m.To == CardLocation.Processing && (paid.AlreadyReserved ? card.ReservationSequence == m.Sequence && m.From == CardLocation.DrawPile &&
+                (card.Top && m.Reason.Value is "pindian.reserve-top" or "skill.pindian.reserve-top" || m.Reason.Value == WuLuKangReserveReason && _resolutionStack.SingleOrDefault(f => f.Id == contestId) is { } parent && IsWuLuKangOriginalInput(parent, card.Seat, card.CardId, card.PaymentFrom, card.Top, card.ReservationSequence)) : m.From == card.PaymentFrom && m.Reason == CardMoveReasons.PindianReveal)) == 1;
     }
     private bool IsDouyuPairAssignment(PindianFrame pair, PindianResult result) =>
         _resolutionStack.SingleOrDefault(f => f.Id == pair.Id) is PindianFrame { DouyuContest: { Paid: true, Simultaneous: false } r } active &&

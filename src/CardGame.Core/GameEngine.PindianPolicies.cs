@@ -15,7 +15,7 @@ public sealed partial class GameEngine
             rank = (int)Math.Min(13L, (long)rank + instance.Max(binding => binding.Policy.Value));
         return rank;
     }
-    private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.OwnedPileSource is not null
+    private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.WuLuKangContest is { SourcesReady: true } w ? w.Assignments[0].CardId > 0 && _cardZones.GetLocation(w.Assignments[0].CardId) == WuLuKangAssignedLocation(frame, frame.SourceSeat) : frame.SourceCardId == 0 && CanWuLuKangDiscardForPindian(_players[frame.SourceSeat]) ? true : frame.OwnedPileSource is not null
         ? IsGuanHaiPindianSource(frame, false)
         : frame.SourceUsesDrawPileTop
         ? frame.SourceCardId is { } id && _cardZones.GetLocation(id)==CardLocation.Processing && !(frame.ParentProcessingCardIds??[]).Contains(id)
@@ -30,5 +30,5 @@ public sealed partial class GameEngine
         if(reserve) MoveCard(card,CardLocation.DrawPile,CardLocation.Processing,new CardMoveReason("pindian.reserve-top"));
         return card.Id;
     }
-    private int[] CurrentPindianProcessingIds(PindianFrame frame)=>frame.Result is { } result?AvailablePindianCards(result):frame.SourceUsesDrawPileTop && frame.SourceCardId is { } id?[id]:[];
+    private int[] CurrentPindianProcessingIds(PindianFrame frame)=>frame.WuLuKangContest is not null ? WuLuKangHeldProcessing(frame).ToArray() : frame.Result is { } result?AvailablePindianCards(result):frame.SourceUsesDrawPileTop && frame.SourceCardId is { } id?[id]:[];
 }

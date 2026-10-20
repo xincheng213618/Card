@@ -9,10 +9,10 @@ public sealed partial class GameEngine
     {
         var f = GetActiveProgramFrame(supplied.Id);
         if (f.TriggerId is not null || f.InstructionIndex != 1 || f.SimultaneousPindian is not null || f.OwnerSeat != _currentSeat || _phase != TurnPhase.Play ||
-            f.SelectedCardIds is not [var id] || f.SelectedTargetSeats.Count is < 1 or > 3 || f.SelectedTargetSeats.Distinct().Count() != f.SelectedTargetSeats.Count ||
-            f.SelectedTargetSeats.Any(s => !CanBePindianTarget(f.OwnerSeat, s)) || !GetHand(_players[f.OwnerSeat]).Any(c => c.Id == id))
+            f.SelectedCardIds.Count > 1 || f.SelectedCardIds.Count == 0 && !CanWuLuKangDiscardForPindian(_players[f.OwnerSeat]) || f.SelectedTargetSeats.Count is < 1 or > 3 || f.SelectedTargetSeats.Distinct().Count() != f.SelectedTargetSeats.Count ||
+            f.SelectedTargetSeats.Any(s => !CanBePindianTarget(f.OwnerSeat, s)) || f.SelectedCardIds.Count == 1 && !GetHand(_players[f.OwnerSeat]).Any(c => c.Id == f.SelectedCardIds[0]))
             throw new InvalidOperationException("A simultaneous contest lost its exact own card, other hand participants or phase activation.");
-        var card = GetHand(_players[f.OwnerSeat]).Single(c => c.Id == id); var rank = EffectivePindianRank(_players[f.OwnerSeat], card);
+        var id = f.SelectedCardIds.SingleOrDefault(); var card = id == 0 ? null : GetHand(_players[f.OwnerSeat]).Single(c => c.Id == id); var rank = card is null ? 0 : EffectivePindianRank(_players[f.OwnerSeat], card);
         var r = new SimultaneousPindianReceipt { ProgramFrameId = f.Id, Source = SimultaneousSource(f), GameplayHash = f.GameplayHash,
             TurnNumber = _turnNumber, PhaseInstanceId = _cardUseDebitPhaseInstanceId, Opponents = f.SelectedTargetSeats,
             OriginalSourceCardId = id, Cards = [new(f.OwnerSeat, id, rank, rank)], Stage = SimultaneousPindianStage.RandomPolicies,
@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         {
             var selection = GetHand(_players[seat]).OrderBy(c => c.Id).Select(c => new PromptChoice(new($"simultaneous.{f.Id}.select.{seat}.{c.Id}"),
                 $"以【{c.DisplayName}】（{EffectivePindianRank(_players[seat],c)}）参与拼点",[c.Id],[],P("commit"))).ToList();
+            if (CanWuLuKangDiscardForPindian(_players[seat])) selection.Add(new(new($"simultaneous.{f.Id}.select.{seat}.maximum"),"弃置牌后使用牌堆最大点数的牌拼点",[],[],P("maximum")));
             if (CanOfferSimultaneousTop(f,seat)) selection.Add(new(new($"simultaneous.{f.Id}.select.{seat}.top"),"使用牌堆顶的牌拼点",[],[],P("top")));
             return Array.AsReadOnly(selection.ToArray());
         }
@@ -181,6 +182,7 @@ public sealed partial class GameEngine
                 AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(f.Id,f.SkillId,pair));
             }
             if (TryBeginDouyuSimultaneousWinDraws(f, pair)) return true;
+            if (TryBeginWuLuKangPostComparison(f, pair, r.ComparisonIndex)) return true;
             f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian!;
             if (r.Claims is null)
             {
@@ -236,19 +238,19 @@ public sealed partial class GameEngine
         if (f.SimultaneousPindian is not { } r) return;
         if (r.ProgramFrameId != f.Id || r.Source != SimultaneousSource(f) || r.GameplayHash != f.GameplayHash || f.TriggerId is not null || f.InstructionIndex != 1 ||
             r.Opponents.Count is < 1 or > 3 || r.Opponents.Distinct().Count() != r.Opponents.Count || r.Opponents.Contains(f.OwnerSeat) || !r.Opponents.SequenceEqual(f.SelectedTargetSeats) ||
-            r.Cards.Count < 1 || r.Cards[0].Seat != f.OwnerSeat || !f.SelectedCardIds.SequenceEqual([r.OriginalSourceCardId]) ||
-            r.Cards.Select(c => c.Seat).Distinct().Count() != r.Cards.Count || r.Cards.Select(c => c.CardId).Distinct().Count() != r.Cards.Count ||
-            !Enum.IsDefined(r.Stage) || r.Cards.Any(c => c.OriginalRank is < 1 or > 13 || c.Rank is < 1 or > 13) ||
+            r.Cards.Count < 1 || r.Cards[0].Seat != f.OwnerSeat || !(f.SelectedCardIds.Count == 0 && r.OriginalSourceCardId == 0 || f.SelectedCardIds.SequenceEqual([r.OriginalSourceCardId])) ||
+            r.Cards.Select(c => c.Seat).Distinct().Count() != r.Cards.Count || r.Cards.Where(c => c.CardId > 0).Select(c => c.CardId).Distinct().Count() != r.Cards.Count(c => c.CardId > 0) ||
+            !Enum.IsDefined(r.Stage) || r.Cards.Any(c => c.CardId <= 0 ? r.Revealed || c.OriginalRank != 0 || c.Rank != 0 : c.OriginalRank is < 1 or > 13 || c.Rank is < 1 or > 13) ||
             r.TurnNumber != _turnNumber || r.PhaseInstanceId != _cardUseDebitPhaseInstanceId || r.ConsequenceIndex is < 0 or > 2 ||
             r.SelectionIndex < 0 || r.SelectionIndex > r.Opponents.Count || r.ComparisonIndex < 0 || r.ComparisonIndex > r.Opponents.Count ||
             !r.Cards.Skip(1).Select(c => c.Seat).SequenceEqual(r.Opponents.Take(r.SelectionIndex)) ||
             CompleteProgramEventHistory().OfType<SimultaneousPindianStartedEvent>().Count(e => e.ProgramFrameId == f.Id && e.Source == r.Source && e.Opponents.SequenceEqual(r.Opponents)) != 1)
             throw new InvalidOperationException("The simultaneous contest lost its exact source, ordered private commitments or original activation.");
-        if (!r.Revealed && (r.Stage is not (SimultaneousPindianStage.Selecting or SimultaneousPindianStage.RandomPolicies or SimultaneousPindianStage.TopRefillChildren) || r.Cards.Count != r.SelectionIndex + 1 ||
-            r.Cards.Any(c => _cardZones.GetLocation(c.CardId) != SimultaneousOriginalLocation(r,c) || c.Rank != c.OriginalRank)))
+        if (!r.Revealed && !IsWuLuKangPrivateGroup(f) && (r.Stage is not (SimultaneousPindianStage.Selecting or SimultaneousPindianStage.RandomPolicies or SimultaneousPindianStage.TopRefillChildren) || r.Cards.Count != r.SelectionIndex + 1 ||
+            r.Cards.Any(c => c.CardId > 0 && _cardZones.GetLocation(c.CardId) != SimultaneousOriginalLocation(r,c) || c.Rank != c.OriginalRank)))
             throw new InvalidOperationException("A simultaneous private commitment moved before the shared reveal.");
         var originalCards = GetDouyuOriginalSimultaneousCards(f);
-        if (r.Revealed && (r.Stage == SimultaneousPindianStage.Selecting || r.SelectionIndex != r.Opponents.Count || r.Cards.Count != r.Opponents.Count + 1 ||
+        if (r.Revealed && !ValidWuLuKangGroupReveal(f) && (r.Stage == SimultaneousPindianStage.Selecting || r.SelectionIndex != r.Opponents.Count || r.Cards.Count != r.Opponents.Count + 1 ||
             r.RevealAfter - r.RevealBefore != r.Cards.Count - r.TopReceipts.Count || originalCards.Where(c => !r.TopReceipts.Any(t => t.CardId == c.CardId)).Any(c => _cardMovements.Count(m => m.Sequence > r.RevealBefore && m.Sequence <= r.RevealAfter &&
                 m.CardId == c.CardId && m.From == SimultaneousOriginalLocation(r,c) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.PindianReveal) != 1) ||
             CompleteProgramEventHistory().OfType<PindianCardsRevealedEvent>().Count(e => e.ParentFrameId == f.Id && e.Simultaneous &&
@@ -272,7 +274,7 @@ public sealed partial class GameEngine
     {
         var seat = SimultaneousChooser(f);
         if (f.SimultaneousPindian!.Stage == SimultaneousPindianStage.Selecting)
-            return p.Choices.OrderByDescending(c => c.Parameters["branch"] == "top" ? 9 : EffectivePindianRank(_players[seat],GetHand(_players[seat]).Single(card => card.Id == c.Cards.Single()))).ThenBy(c => c.Cards.FirstOrDefault()).First();
+            return p.Choices.OrderByDescending(c => c.Parameters["branch"] == "maximum" ? 10 : c.Parameters["branch"] == "top" ? 9 : EffectivePindianRank(_players[seat],GetHand(_players[seat]).Single(card => card.Id == c.Cards.Single()))).ThenBy(c => c.Cards.FirstOrDefault()).First();
         if (f.SimultaneousPindian.Stage == SimultaneousPindianStage.RandomPolicies) return p.Choices.Single(c => c.Parameters["branch"] == "random");
         if (f.SimultaneousPindian.Stage == SimultaneousPindianStage.Claiming) return p.Choices.Single(c => c.Parameters["branch"] == "claim");
         return AreProgramDistributionAllies(_players[seat],_players[f.OwnerSeat]) || !p.Choices.Any(c => c.Parameters["branch"] == "discard") ?

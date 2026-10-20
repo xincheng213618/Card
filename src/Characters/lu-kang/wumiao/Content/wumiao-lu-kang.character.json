@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-kang",
+  "skills": [
+    {
+      "registrationOrder": 2250,
+      "programBundle": "wumiao-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:shenduan",
+        "name": "审断",
+        "description": "你拼点时，可弃置1张牌，然后用牌堆中点数最大的牌拼点。有角色拼点后，赢的角色将其拼点牌置于牌堆底，然后本次用K拼点的角色摸1张牌堆中点数最小的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2251,
+      "programBundle": "wumiao-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:kegou",
+        "name": "克构",
+        "description": "出牌阶段开始时或你使用或打出过牌的回合结束时，你可与一名其他角色拼点。若你赢，你获得牌堆中两个点数最小的牌各1张；若你没赢，其可以视为对你使用1张【杀】，你可以继续拼点并重复上述效果。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2252,
+      "programBundle": "wumiao-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "wumiao:dixian",
+        "name": "砥贤",
+        "description": "限定技，出牌阶段，你可以选择一个点数。若牌堆中所有的牌均大于等于此点数，你摸此点数张牌，且本局游戏你使用小于等于此点数的牌无距离和次数限制。若牌堆中有牌小于此点数，你获得所有场上、牌堆和弃牌堆中点数为K的牌。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2253,
+      "pools": {
+        "current": 519
+      },
+      "definition": {
+        "id": "wumiao:lu-kang",
+        "name": "武陆抗",
+        "portraitKey": "wumiao-lu-kang",
+        "skillId": "wumiao:shenduan",
+        "additionalSkillIds": [
+          "wumiao:kegou",
+          "wumiao:dixian"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:lu-kang",
+        "variantId": "wumiao",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

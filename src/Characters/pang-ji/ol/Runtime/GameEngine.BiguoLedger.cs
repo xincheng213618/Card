@@ -57,7 +57,7 @@ public sealed partial class GameEngine
         }
         if (payload is not PindianResultDeterminedEvent e || _resolutionStack.LastOrDefault() is not PindianFrame p || p.Id != e.FrameId || p.SkillId != "ol:biguo" || !IsBiguoPindianFrame(p) || _resolutionStack.SingleOrDefault(x => x.Id == p.ParentFrameId) is not ProgramSkillFrame { PangJi: { } r } f) return;
         var result = e.Result;
-        if (result.SourceSeat != p.SourceSeat || result.OpponentSeat != p.OpponentSeat || (p.DouyuContest is null ? result.SourceCardId != p.SourceCardId : !IsDouyuPairAssignment(p, result)) || result.SourceCardId == result.OpponentCardId || ProgramEventHistory<BiguoPindianCardCategoryEvent>().Any(x => x.PindianId == p.Id)) throw new InvalidOperationException("Biguo cannot replace or classify a native Pindian pair twice.");
+        if (result.SourceSeat != p.SourceSeat || result.OpponentSeat != p.OpponentSeat || (result.SourceCardId != p.SourceCardId && !IsDouyuPairAssignment(p, result) && !IsWuLuKangAssignedPair(p, result)) || result.SourceCardId == result.OpponentCardId || ProgramEventHistory<BiguoPindianCardCategoryEvent>().Any(x => x.PindianId == p.Id)) throw new InvalidOperationException("Biguo cannot replace or classify a native Pindian pair twice.");
         var cards = new[] { (result.SourceSeat, result.SourceCardId), (result.OpponentSeat, result.OpponentCardId) };
         var categories = new List<SkillProgramCardCategory>();
         foreach (var (seat, id) in cards)

@@ -23,7 +23,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Suyi cannot replace its exact zero-entity ordinary Slash invoice.");
         IssueSuyiNative(f, use, action);
         if (_phase == TurnPhase.Play && f.OwnerSeat == _currentSeat && !IgnoresProgramSlashLimit(_players[f.OwnerSeat], r.Source) &&
-            !(LifecycleCardUse(id)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(id, f.OwnerSeat) && !HasIssuedRoundGainedBasicBonus(id, f.OwnerSeat))
+            !(LifecycleCardUse(id)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(id, f.OwnerSeat) && !HasIssuedWuLuKangDixianUse(id, f.OwnerSeat) && !HasIssuedRoundGainedBasicBonus(id, f.OwnerSeat))
         {
             RecordSlashUseDebit(id, f.OwnerSeat);
             if (GetCardUseDebit(action.ActionId) is not null) AdvanceEventRulesAndQueueFact(new SuyiSlashQuotaPaidEvent(f.Id, id, f.OwnerSeat));

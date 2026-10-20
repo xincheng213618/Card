@@ -61,8 +61,9 @@ public sealed partial class GameEngine
         var source = _players[frame.OwnerSeat];
         var opponent = _players[opponentSeat];
         if (!source.IsAlive || !opponent.IsAlive || opponentSeat == frame.OwnerSeat || !CanBePindianTarget(source.Seat, opponentSeat) ||
-            GetHand(source).Count == 0 || GetHand(opponent).Count == 0)
-            throw new InvalidOperationException("Program Pindian participants no longer have legal hand cards.");
+            GetHand(source).Count == 0 && !CanWuLuKangDiscardForPindian(source) ||
+            GetHand(opponent).Count == 0 && !CanWuLuKangDiscardForPindian(opponent))
+            throw new InvalidOperationException("Program Pindian participants no longer have a legal native source.");
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
         BeginSharedPindian(
             frame.Id,
@@ -1349,9 +1350,9 @@ public sealed partial class GameEngine
         bool skipIfNoTarget = false)
     {
         var frame = GetActiveProgramFrame(frameId);
-        var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext, marker, actorReference)
-            .Where(seat => IsProgramTargetEligible(ownerSeat, targetKind, zones, seat, marker,
-                frame.WindowContext, actorReference) && CanSelectProgramPindianOpponent(frame, seat)).ToArray();
+        var targetSeats = WuLuKangProgramSelectionSeats(frame, targetKind, zones, marker, actorReference)
+            .Where(seat => WuLuKangProgramSelectionTargetEligible(frame, targetKind, zones, seat, marker,
+                actorReference) && CanSelectProgramPindianOpponent(frame, seat)).ToArray();
         if (targetSeats.Length == 0)
         {
             if (skipIfNoTarget)
@@ -2178,6 +2179,7 @@ public sealed partial class GameEngine
         if (IsIssuedGuYinCandidate(candidate, context)) return true;
         if (IsIssuedZhaohuoCandidate(candidate, context)) return true;
         if (IsIssuedBiguoCandidate(candidate, context) || IsIssuedDouyuCandidate(candidate, context)) return true;
+        if (context.Window == SkillProgramTriggerWindow.WuLuKangPindian) return IsIssuedWuLuKangCandidate(candidate, context);
         if (IsIssuedQushiEndingCandidate(candidate, context)) return true;
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
@@ -2292,7 +2294,7 @@ public sealed partial class GameEngine
         if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.AfterInitialPayments, legality)) return false;
         if (features.ForOperation(SkillProgramEffectOp.SelectTarget).Any(effect =>
             effect.Condition.Kind != SkillProgramConditionKind.ChoiceIs &&
-            effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context, effect.Marker).Any(seat =>
+            effect.TargetKind is { } kind && !WuLuKangProgramSelectionSeats(owner.Seat, effect, plan.Instructions, context).Any(seat =>
                 effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
                 {
                     CardZoneKind.Hand => GetHand(_players[seat]).Count > 0,
@@ -2576,7 +2578,7 @@ public sealed partial class GameEngine
                   effect.MinimumTargets)))
                 return false;
             if (effect.Op == SkillProgramEffectOp.SelectTarget && effect.TargetKind is { } singleKind &&
-                !GetProgramTargetSeats(owner.Seat, singleKind, marker: effect.Marker).Any(seat =>
+                !WuLuKangProgramSelectionSeats(owner.Seat, effect, trigger.Effects).Any(seat =>
                     effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
                     {
                         CardZoneKind.Hand => GetHand(_players[seat]).Count > 0,
@@ -2610,8 +2612,8 @@ public sealed partial class GameEngine
         if (features.HasOperation(SkillProgramEffectOp.StartPindian) &&
             (context.TargetSeat is not { } opponentSeat ||
              !IsValidPlayerSeat(opponentSeat) || !owner.IsAlive || !_players[opponentSeat].IsAlive ||
-             !features.Legality.CanStart(new(owner.Seat, GetHand(owner).Count)) ||
-             !features.Legality.CanSelectTarget(new(owner.Seat, GetHand(owner).Count),
+             !features.Legality.CanStart(CreateProgramLegalityParticipant(owner.Seat)) ||
+             !features.Legality.CanSelectTarget(CreateProgramLegalityParticipant(owner.Seat),
                  CreateProgramLegalityParticipant(opponentSeat))))
             return false;
         foreach (var effect in features.AfterDamagePrerequisites.Where(effect =>
@@ -2621,7 +2623,7 @@ public sealed partial class GameEngine
             {
                 case SkillProgramEffectOp.SelectTarget:
                     if (effect.TargetKind is not { } targetKind ||
-                        GetProgramTargetSeats(owner.Seat, targetKind, context, effect.Marker).Count == 0)
+                        WuLuKangProgramSelectionSeats(owner.Seat, effect, trigger.Effects, context).Count == 0)
                         return false;
                     break;
                 case SkillProgramEffectOp.SelectSourceCard:
@@ -3933,8 +3935,8 @@ public sealed partial class GameEngine
                         selected.Targets.Count != 1 || selected.Cards.Count != 0)
                         throw new InvalidOperationException("The selected target does not match the suspended instruction.");
                     var targetSeat = selected.Targets.Single();
-                    if (!IsProgramTargetEligible(frame.OwnerSeat, targetKind, effect.Zones, targetSeat,
-                        effect.Marker, frame.WindowContext, effect.ActorReference) ||
+                    if (!WuLuKangProgramSelectionTargetEligible(frame, targetKind, effect.Zones, targetSeat,
+                        effect.Marker, effect.ActorReference) ||
                         !CanSelectProgramPindianOpponent(frame, targetSeat))
                         throw new InvalidOperationException("The selected program target is no longer legal.");
                     ClearPendingDecision();

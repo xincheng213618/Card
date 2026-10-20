@@ -1,0 +1,295 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "武陆抗",
+  "generalId": "wumiao:lu-kang",
+  "product": "sanguosha-anniversary",
+  "series": "武庙",
+  "officialIdentity": {
+    "proposedGeneralId": "wumiao:lu-kang",
+    "officialHeroId": 234,
+    "roster": {
+      "gid": 234,
+      "gender": "男",
+      "star": "SSS",
+      "resource": 123401,
+      "prefix": "武",
+      "name": "陆抗",
+      "country": "吴",
+      "country_py": "wu",
+      "level_one_general_lamp": 11,
+      "level_two_general_lamp": 76,
+      "level_one_general_lamp_txt": "限定",
+      "level_two_general_lamp_txt": "武庙",
+      "hp": 4
+    },
+    "formalTitle": "桢武熙朝",
+    "formalModes": [
+      "身份模式",
+      "欢乐成双"
+    ],
+    "maxHp": 4,
+    "gender": "Male",
+    "faction": "wu",
+    "series": "武庙",
+    "rosterEvidence": "Original saved official roster HTML, const heros JSON exact gid234. No guessed or invented API endpoint."
+  },
+  "sources": [
+    {
+      "label": "hero",
+      "url": "https://x.sanguosha.com/hero/234.html",
+      "finalUrl": "https://x.sanguosha.com/hero/234.html",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 16492,
+      "sha256": "2801823beabf3cbdf5ab32dfa1bad387ca2ea324cf2dc9d396a45023ae82703b",
+      "fetchedAtUtc": "2026-10-20T17:21:37.859044+08:00"
+    },
+    {
+      "label": "formal",
+      "url": "https://x.sanguosha.com/news/20260929_3980_1514.html",
+      "finalUrl": "https://x.sanguosha.com/news/20260929_3980_1514.html",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 371407,
+      "sha256": "2e48edc2019996cc5769247109b79e5f5899005d29b4bd5aea17ab4c5b69f700",
+      "fetchedAtUtc": "2026-10-20T17:21:37.880996+08:00"
+    },
+    {
+      "label": "roster",
+      "url": "https://x.sanguosha.com/hero/",
+      "finalUrl": "https://x.sanguosha.com/hero/",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "fetchedAtUtc": "2026-10-20T17:21:37.895559+08:00"
+    }
+  ],
+  "skills": [
+    {
+      "id": "wumiao:shenduan",
+      "name": "审断",
+      "text": "你拼点时，可弃置1张牌，然后用牌堆中点数最大的牌拼点。有角色拼点后，赢的角色将其拼点牌置于牌堆底，然后本次用K拼点的角色摸1张牌堆中点数最小的牌。",
+      "source": "https://x.sanguosha.com/hero/234.html",
+      "sha256": "b6a7dea7a8cb5c5b7620cf2191661e1bdb9b9af26df4c4e890aed7f8f6ca56a9",
+      "initiallyOwned": true
+    },
+    {
+      "id": "wumiao:kegou",
+      "name": "克构",
+      "text": "出牌阶段开始时或你使用或打出过牌的回合结束时，你可与一名其他角色拼点。若你赢，你获得牌堆中两个点数最小的牌各1张；若你没赢，其可以视为对你使用1张【杀】，你可以继续拼点并重复上述效果。",
+      "source": "https://x.sanguosha.com/hero/234.html",
+      "sha256": "dd08806abd1c2f805a8384f0945dc4b2b75eaa168a050c740be865ae5a7cfb82",
+      "initiallyOwned": true
+    },
+    {
+      "id": "wumiao:dixian",
+      "name": "砥贤",
+      "text": "限定技，出牌阶段，你可以选择一个点数。若牌堆中所有的牌均大于等于此点数，你摸此点数张牌，且本局游戏你使用小于等于此点数的牌无距离和次数限制。若牌堆中有牌小于此点数，你获得所有场上、牌堆和弃牌堆中点数为K的牌。",
+      "source": "https://x.sanguosha.com/hero/234.html",
+      "sha256": "70c39fcca92d615c01987ef6bbe057ca23ceee3b66f13c6c983e9480b7cf3b8f",
+      "initiallyOwned": true
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "formalComparison": {
+    "url": "https://x.sanguosha.com/news/20260929_3980_1514.html",
+    "publishedDate": "2026-09-30",
+    "firstFormalPermanentAvailability": "2026-10-01 00:00:00",
+    "eventEnd": "2026-10-10 23:59:59",
+    "availabilitySource": "Formal event table lists 武庙礼包/宝箱 and 珍宝商店武陆抗88宝玉. Publication date and effective event availability are different facts; old event is not claimed currently purchasable.",
+    "completeThreeClausesAgree": true,
+    "differences": [
+      "Hero uses 1/两个; formal uses 一/2个, no mechanical change.",
+      "Formal 审断 has 至于牌堆底, hero has 置于牌堆底; literal typo, not a different destination."
+    ],
+    "mechanicsRevisionFoundInBoundedOfficialAudit": false
+  },
+  "firstPermanentAvailability": {
+    "date": "2026-10-01",
+    "publishedOn": "2026-09-30",
+    "source": "https://x.sanguosha.com/news/20260929_3980_1514.html",
+    "historicalOfferNotClaimedCurrent": true
+  },
+  "officialClarificationSearch": {
+    "asOf": "2026-10-20",
+    "foundCharacterSpecificOfficialFaq": false,
+    "foundOfficialOperatorMechanicsGuide": false,
+    "foundLaterOfficialBalanceConflict": false,
+    "sourcesActuallyChecked": [
+      "Fresh hero234 all skill divs",
+      "Fresh full official roster gid234",
+      "Fresh 2026-09-30 formal full skill table",
+      "Current official news first page through 2026-10-17 activity",
+      "Current official notice first page (last listed standard version update 2026-09-23; no later Wu Lu Kang entry)",
+      "Full 2026-09-22 publication / 2026-09-23 version6.4.4 update: no 武陆抗/审断/克构/砥贤 names"
+    ],
+    "boundedQueries": [
+      "site:x.sanguosha.com 武陆抗",
+      "site:x.sanguosha.com 审断",
+      "site:x.sanguosha.com 砥贤",
+      "site:x.sanguosha.com 武陆抗 攻略",
+      "site:x.sanguosha.com 武陆抗 调整",
+      "site:x.sanguosha.com 武陆抗 修复",
+      "site:x.sanguosha.com 武陆抗 优化",
+      "site:x.sanguosha.com 武陆抗 FAQ",
+      "site:sanguosha.com 砥贤",
+      "site:club.sanguosha.com 武陆抗",
+      "site:mp.weixin.qq.com 武陆抗",
+      "武陆抗 两个点数",
+      "武陆抗 克构 不同",
+      "武陆抗 审断 平点",
+      "武陆抗 砥贤 装备",
+      "武陆抗 场上 判定区",
+      "武陆抗 空牌堆"
+    ],
+    "boundary": "This is a bounded negative search result, not proof no official clarification exists in any client tooltip, video, deleted/social post or unindexed support reply. Do not label the unresolved choices below as official FAQ.",
+    "communityCounterexamplesNotAuthority": [
+      {
+        "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E9%99%86%E6%8A%97",
+        "finding": "Community current/history rows mix test-server clauses, automatic versus optional opponent Slash and obsolete extra owner reward. Useful only as a lead; cannot override current official hero/formal text."
+      },
+      {
+        "url": "https://wiki.biligame.com/sgs/%E7%A0%A5%E8%B4%A4",
+        "finding": "Community version history records old no-field and old 危贤 variants. Neither is adopted as current primary wording."
+      }
+    ]
+  },
+  "engineeringDecisions": [
+    {
+      "id": "printed-stock-ranks",
+      "selection": "Highest/minimum stock selection and the DiXian deck predicate/collected K entities use printed ranks. Equal-ranked stock entities use current top-first order, without leaking a choice of hidden deck identities.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "paid-shenduan-source",
+      "selection": "Shenduan pays one real owned Hand or Equipment discard, settles all native movement/recovery/HP/dying/source-change children, then chooses the actual highest-rank deck entity for the original native Pindian. Native top-source refill semantics apply. A paid obligation survives skill loss; participant death uses an explicit typed cancellation and truthful cleanup rather than a fabricated tie. Preserve each original producer paid-material provenance, including owned-pile sources.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "native-pindian-results",
+      "selection": "Use the existing true pair/group producers, original contest and ordered native comparisons. Effective K means final native Pindian rank13, including native rank modifiers. A winning physical entity can be bottomed only while still available in that contest Processing zone; never recreate or pull back a card already moved by another child. All movement children return before existing claim/consequence progression. Independent Shenduan sources each retain their own qualification and effects.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "kegou-minima",
+      "selection": "A Kegou win obtains one entity of each of the two smallest distinct currently available printed ranks, or all available distinct ranks when fewer than two exist. This is an obtain, whereas Shenduan explicitly performs a genuine replaceable native draw of the minimum-ranked stock card.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "kegou-boundaries",
+      "selection": "Kegou belongs to each actual own Play-start or an actual turn-end in which this owner genuinely used or played a card. Include foreign turns, extra Play/turns and real provider/response paths; do not substitute current-turn-owner or accepted Use-only counting. A non-win includes a tie. The opponent may decline the zero-material Slash and the owner may still optionally continue by selecting a legal other participant. Preserve native Slash legality and children; no additional distance or usage waiver is invented.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "dixian-acceptance",
+      "selection": "Offer ranks1..13 without revealing the hidden deck predicate. Freeze the printed-rank predicate against the current DrawPile on accepted rank choice. An empty deck satisfies the universal predicate; the subsequent genuine requested DrawX still follows native refill/replacement/short-draw settlement. After all returned draw children, issue the successful permanent effect exactly once. AI rank selection must not inspect the hidden predicate.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "dixian-field",
+      "selection": "For the failure branch, interpret field cards as real Equipment and Judgment entities. Include DrawPile and DiscardPile, exclude Hand, held/special piles, Processing and OutsideGame. This is an explicit project interpretation of the unexpanded official term, not an official FAQ. Freeze the accepted K entity set and source locations; perform native movements and all children without pretending an outside-game normalization was a hand gain.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "dixian-permanent-use",
+      "selection": "The issued whole-game privilege survives skill loss; regrant never refreshes the limited activation. It applies only to genuine Use actions whose frozen native effective rank is positive and at most the selected threshold. Do not give unranked/zero-material cards an invented rank. Cover native physical/view-as/multiple-material/provider/forced use paths while preserving intrinsic card/target restrictions. Exempt uses do not debit ordinary Slash/Alcohol usage, and the threshold remains visible in player effects after source loss.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "group-shared-K-draw-frequency",
+      "selection": "Each actual native ordered comparison triggers the minimum-stock native draw for its participating effective-K actors, independently per qualified Shenduan source. The same shared source K can draw once per comparison in a native multi-opponent contest. Physical winning entities are bottomed only while still available in their exact contest Processing zone.",
+      "status": "accepted-user-selected-ruling",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": true,
+      "userAnswer": "按每个原生比较结果分别触发（推荐）"
+    },
+    {
+      "id": "one-pre-source-choice-per-participant",
+      "selection": "Before reveal, each participant has one replacement opportunity in the actual contest, using the first still-valid policy source, consistent with existing top-source selection. Declining or paying consumes that opportunity; a source invalidated before the offer may be skipped. Independent post-comparison skill sources still resolve separately for each native comparison.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "same-comparison-K-beneficiary-order",
+      "selection": "Within one native comparison, final-K beneficiaries resolve their native draws in the stable result order: initiating participant, then opponent. Independent skill-source windows retain their existing actual-turn action order.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "native-alcohol-identity-positions",
+      "selection": "The native Alcohol King identity keeps its existing Hand/Wooden Ox scope. Exact native stock-top or paid highest-stock sources retain their stock identity admission; an unrelated owned-pile bait keeps its native printed-rank basis rather than inheriting the separate Douyu exchange rule.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "actual-ended-qualification-cutoff",
+      "selection": "Kegou turn-end qualification freezes only the Use/Played facts up to and including that actual native TurnEnded event. Earlier children of the ending window cannot retrospectively qualify the ended turn; a surviving owner may qualify at a dead foreign turn owner's actual end.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    },
+    {
+      "id": "native-cardless-source-admission",
+      "selection": "A payable real Hand/Equipment discard-backed source may enter native pair or simultaneous Pindian without an invented hand card. Exact original skill hash, source instance and recorded actual Play admission preserve accepted selection provenance; declining without another source cancels truthfully. Independent gift, discard and card-selection costs remain mandatory.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false
+    }
+  ],
+  "pendingInterpretations": [],
+  "artwork": {
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/123401.png",
+    "sourcePage": "https://x.sanguosha.com/hero/234.html",
+    "localPath": "src/CardGame.Wpf/Assets/official-wumiao-lu-kang.png",
+    "bytes": 645849,
+    "sha256": "76e41c798c0379e9d9b68aa62f998e38c09a38cb80e405702dc61c427867a24c",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "wpfRenderingVerified": true,
+    "inspection": "Root viewed the exact original portrait: a long-haired armored swordsman with a golden crown and green ribbons, a drawn sword, blue celestial light and water, and a dawn mountain background. Original framing and bytes preserved."
+  },
+  "rootIndependentReview": {
+    "baselineHead": "5b1da4aa4077e20617befe6540f94605eefc3419",
+    "currentHeroRawThreeParagraphsExact": true,
+    "formalLaunchReopenedViaWeb": true,
+    "originalPortraitActuallyViewed": true
+  },
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed-with-explicit-project-interpretations-and-user-selected-group-K-ruling",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "manualFullRun": false,
+    "focused": "Four new behavior groups and selected native Pindian, draw, rank, privacy and replay mechanism checks passed.",
+    "routine": "Measured bounded routine Core and WPF scopes passed; no manual full verification requested.",
+    "userSelectedGroupKRuling": "One minimum native draw for each final-K participant in each native comparison, independently for each active post-comparison source.",
+    "preservation": "Verified committed candidate excludes unrelated working changes; source and official artwork match the reviewed primary records."
+  },
+  "verificationLimits": [
+    "Both complete current official hero paragraphs and formal release text were reviewed. No authenticated client or character-specific official FAQ was used. Runtime, focused/routine checks and actual WPF rendering remain pending. No Full run, packaging or publishing."
+  ]
+}
