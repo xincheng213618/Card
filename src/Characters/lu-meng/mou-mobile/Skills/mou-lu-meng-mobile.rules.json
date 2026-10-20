@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:keji",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "discard-hand",
+          "usageGroup": "discard-hand",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouLuMengKeji",
+              "target": "owner"
+            },
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "resolveMouLuMengKeji",
+              "target": "owner"
+            },
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "lose-hp",
+          "usageGroup": "lose-hp",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouLuMengKeji",
+              "target": "owner"
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "resolveMouLuMengKeji",
+              "target": "owner"
+            },
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:dujiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "armor-awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveMouLuMengDujiang",
+              "target": "owner"
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "mou-mobile:duojing"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:duojing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-slash-targets",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouLuMengDuojing",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -38,7 +38,8 @@ public sealed partial class GameEngine
                 card is null ? "图南亮出的牌已离开处理区，剩余结算取消。" : "图南的用牌角色已失效，剩余结算取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        var canUse = card.Kind is CardKind.Slash or CardKind.Peach ||
+        var canUse = card.Kind == CardKind.Slash ||
+            card.Kind == CardKind.Peach && !IsCardUseForbidden(user, CardKind.Peach, CardActionType.Use) ||
             EquipmentCatalog.IsEquipment(card.Kind);
         var slashVictims = _players.Where(player => player.IsAlive && player.Seat != user &&
             GetSeatDistance(user, player.Seat) <= GetAttackRange(user)).Select(player => player.Seat).ToArray();
@@ -198,6 +199,11 @@ public sealed partial class GameEngine
     private void ExecuteTunanPeachUse(ProgramSkillFrame frame, Card card, int user)
     {
         var active = GetActiveProgramFrame(frame.Id);
+        if (IsCardUseForbidden(user, CardKind.Peach, CardActionType.Use))
+        {
+            CancelProgramBindingAndCleanup(active, "图南的实际用牌角色已不能使用桃，剩余结算取消。");
+            return;
+        }
         var resolutionId = BeginCardUse(card, user, [user]);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
         BeginSimpleCardUse(resolutionId, new(card.Id, SimpleCardUseEffect.Recovery, 1, []));

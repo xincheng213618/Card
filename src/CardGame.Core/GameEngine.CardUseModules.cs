@@ -27,6 +27,7 @@ public sealed partial class GameEngine
         IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
         MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
         ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
+        IsMouLuMengPeachForbidden(actorSeat, effectiveKind, actionType) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(
             _turnNumber,

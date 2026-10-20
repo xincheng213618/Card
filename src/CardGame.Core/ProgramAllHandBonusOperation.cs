@@ -34,6 +34,7 @@ public sealed partial class GameEngine
         HasPhaseSuitAllowance(owner,card) || CardPolicies(owner, SkillProgramCardPolicyKind.BypassSlashLimitBySuit, effectiveKind)
             .Any(item => item.Policy.InputSuit == EffectiveSuit(owner, card));
     private bool CanUsePeachToRescue(int responderSeat, int victimSeat) =>
+        IsMouLuMengPeachRescueAllowed(responderSeat) &&
         !(responderSeat == victimSeat && HasSelfCardTargetProhibition(responderSeat)) &&
         !(responderSeat != victimSeat &&
           HasCardPolicy(_players[victimSeat], SkillProgramCardPolicyKind.DyingSelfRescueOnly, CardKind.Peach)) &&

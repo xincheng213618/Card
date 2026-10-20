@@ -1034,6 +1034,9 @@ public enum SkillProgramEffectOp
     ResolveLeCaoZhiWenlan = 29081,
     ResolveMouHuaXiongYangwei = 29100,
     ResolveMouHuaXiongYaowu = 29101,
+    ResolveMouLuMengKeji = 29200,
+    ResolveMouLuMengDujiang = 29201,
+    ResolveMouLuMengDuojing = 29202,
     DiscardRandomJudgment = 27500,
     RewardOtherRecoverySource = 27501,
     DiscardDeathSourceCards = 27502,
@@ -4042,7 +4045,8 @@ public sealed class SkillProgramCatalog
                  string.Equals(designatedOp.GetString(), "consumeKuiAppendLegalTargets", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "ol:mo-quanyu" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanQuanyuSlashEffects", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "ol:mo-tianen" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanTianenUniqueUse", StringComparison.OrdinalIgnoreCase) ||
-                 skillId == "ol:biguo" && string.Equals(designatedOp.GetString(), "resolveBiguoTargetedPindianAndCategoryBan", StringComparison.OrdinalIgnoreCase))))
+                 skillId == "ol:biguo" && string.Equals(designatedOp.GetString(), "resolveBiguoTargetedPindianAndCategoryBan", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == "mou-mobile:duojing" && id == "after-slash-targets" && string.Equals(designatedOp.GetString(), "resolveMouLuMengDuojing", StringComparison.OrdinalIgnoreCase))))
             Fail(path, "singleActionInstance requires cardUseCompleted or an exact supported target-addition instruction");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
         var includeResponseUses = node.TryGetProperty("includeResponseUses", out _) && RequiredBool(node, "includeResponseUses", path);
@@ -5302,6 +5306,7 @@ public sealed class SkillProgramCatalog
         foreach (var program in programs.Values) LeCaiYongComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) LeCaoZhiComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuaXiongComposition.ValidateProgram(program.Id, program);
+        foreach (var program in programs.Values) MouLuMengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouHuangYueyingComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) MouZuifengComposition.ValidateProgram(program.Id, program);
         foreach (var program in programs.Values) WuLuXunZhangcaiComposition.ValidateProgram(program.Id, program);

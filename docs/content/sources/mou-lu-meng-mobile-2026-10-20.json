@@ -1,0 +1,224 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋吕蒙·移动版",
+  "generalId": "mou:lu-meng-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "sources": [
+    {
+      "kind": "currentHero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+      "httpStatus": 200,
+      "bytes": 22345,
+      "sha256": "15b4f64872138010701efd4d8e051067b7a14163b9dc57a18a1eaf18e2dc7d76",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T04:36:36.689927+00:00"
+    },
+    {
+      "kind": "currentIdentityApi",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+      "contentType": "application/json",
+      "fetchedAtUtc": "2026-10-20T04:36:37.166796+00:00"
+    },
+    {
+      "kind": "formalLaunch",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "httpStatus": 200,
+      "bytes": 26011,
+      "sha256": "deb21831965f2fc9ff50b59d3de3bc08dd7b84b1a9995e01c737bc95044514f5",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T04:36:37.409684+00:00"
+    },
+    {
+      "kind": "currentGrantedSkillFormalAdjustment",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "httpStatus": 200,
+      "bytes": 24358,
+      "sha256": "a3bc7671bb10fabcdce9f5c34701b341a1bc27be37d68558496ea29b75e13c88",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T04:36:37.604886+00:00"
+    },
+    {
+      "kind": "latestLocatedFormalWordingCorrectionDifferentKejiVersion",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "httpStatus": 200,
+      "bytes": 15640,
+      "sha256": "f11a43f0a1c30425e72c08ea593c6baac715741593edce0e5e64139d25ab00ac",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T04:36:37.820474+00:00"
+    }
+  ],
+  "firstObtainableAt": "2022-07-09",
+  "formalLaunch": {
+    "published": "2022-07-08 17:30:00",
+    "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+    "meaning": "Official 群英绘壁 announced permanent acquisition of 谋吕蒙 from 2022-07-09. The dated activity is historical launch evidence, not a claim that its rewards remain obtainable today."
+  },
+  "officialIdentity": {
+    "heroPageId": 442,
+    "generalId": 640,
+    "faction": "wu",
+    "hp": 4,
+    "gender": "Male"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:keji",
+      "name": "克己",
+      "text": "出牌阶段各限一次（若你已发动过“渡江”，则修改为出牌阶段限一次），你可以选择一项执行对应效果：1. 弃置一张手牌，获得1点“护甲”；2. 流失1点体力，获得2点护甲。你的手牌上限+X(X为你的护甲值)。若你不处于濒死状态，你无法使用【桃】。",
+      "sha256": "b313cbbc6acb91fb53d2ece1413d07e145e5d83c2c494e8bede8df1f21b579a1",
+      "source": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:dujiang",
+      "name": "渡江",
+      "text": "觉醒技，准备阶段，若你的“护甲”值不少于3，则获得技能“夺荆”。",
+      "sha256": "9501466fb27300c43368bf6ee70c2885673b542dc8895b7f8b46fdf8cc5d0bc3",
+      "source": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:duojing",
+      "name": "夺荆",
+      "text": "你使用【杀】指定一名其他角色为目标后，你可以失去1点护甲，令此【杀】无视防具，然后你获得其一张手牌，并且本阶段可以额外使用一次【杀】。",
+      "sha256": "5fcaaab1804da25d2bf45621796eb7ab6fda17d9c25d12ea93e4ce1860673280",
+      "source": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "obtainedBy": "mou-mobile:dujiang",
+      "initiallyOwned": false
+    }
+  ],
+  "currentVersusFormal": {
+    "heroAndIdentityApiBaseSkillsAgree": true,
+    "heroDoesNotExpandGrantedDuojing": true,
+    "duojingFormalAdjustment": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "published": "2025-04-16 15:06:56",
+      "effective": "2025-04-17 08:00",
+      "scope": "指定/成为目标时 changed to 指定/成为目标后 to avoid erroneous or repeated triggers. The announcement says other situations are unchanged. Its complete Duojing paragraph is the granted-skill source used here."
+    },
+    "laterLocatedCharacterRuleChange": null,
+    "latestWordingTable": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "published": "2026-10-15 10:18:17",
+      "effective": "2026-10-16 12:00",
+      "tableUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "tableSha256": "411a068609351931e47f91fcfde8f2b04b7451c9769c117b4d6d1c635addd16c",
+      "tableVisuallyInspected": true,
+      "finding": "The table contains 克己, but its full row is classic Lu Meng: no Slash used or played during Play permits skipping Discard. It contains no Armor-based Keji, Dujiang or Duojing adjustment. It must not replace this mobile version."
+    },
+    "boundedFinding": "No later mobile Lu Meng correction or character-specific official FAQ was located by the bounded primary-source search. Hero/API agreement is not independent FAQ evidence for engineering details."
+  },
+  "separateExistingVersion": {
+    "generalId": "mou:lu-meng",
+    "skills": [
+      "mou:hengye",
+      "mou:yingbo"
+    ],
+    "meaning": "The existing Hengye/Yingbo general remains a separate version; this addition uses the mobile identity and does not replace its mechanics."
+  },
+  "artwork": {
+    "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-442.html",
+    "selector": "first image beneath observed #heroInfo1",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64000.jpg",
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64000.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 286701,
+    "sha256": "23f33e844f8f9f0a51d39bceb1d4e6857809b17867a6c4563ec4cafd4e89edbf",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-meng-mobile.jpg",
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "inspection": "Viewed the exact official 530 x 750 JPEG: a full male Lu Meng figure in white/light-blue clothing and armor with green sashes, standing aboard a wooden warship, holding a sheathed sword and round shield amid rain, lightning, waves and fire. This is a complete character portrait, not a silhouette; no redraw, recoloring, resize or crop was applied.",
+    "wpfRenderingVerified": true
+  },
+  "inheritedProjectDecisions": [
+    {
+      "id": "armor-resource-no-cap",
+      "scope": "inherited project Armor contract",
+      "confirmed": true,
+      "effect": "Armor is the existing independent damage-payment resource and has no invented upper cap in this implementation. Keji grants the full stated one or two Armor points while the native recipient remains eligible.",
+      "sourceLevel": "Inherited explicit user decision for project Armor, retained for this general; not an official mobile Lu Meng FAQ and not a claim that the character paragraph itself defines all global client rules."
+    }
+  ],
+  "engineeringInterpretations": [
+    "Keji begins with two distinct once-per-actual-Play options. After this owner actually activates Dujiang, the two options share a single once-per-actual-Play allowance. Accepted native usage and awakening history survive source loss/regrant; merely acquiring or losing Duojing is not a substitute for the historical awakening condition.",
+    "Keji option 1 pays one genuinely self-discardable hand card through a real native discard movement, then grants one Armor. Equipment is not a hand-card cost. Follow the existing native legal hand-cost contract without extending the target pool to arbitrary zones; a replaced or failed discard is proved by the actual movement receipt, not a guessed reason string.",
+    "Keji option 2 loses one HP through native HP Loss, independently of Armor. Complete HP-change, source-change, Dying and rescue children before granting two Armor to a surviving eligible recipient. Freeze the accepted instruction and cost before children can reenter; never pay the same HP or card cost twice after source loss.",
+    "While Keji is currently effective, HandLimit receives a live additive bonus equal to current Armor, not the Armor amount originally gained. Damage absorption and Duojing payment immediately affect later hand-limit queries. Armor equipment, damage reduction and the Armor resource remain separate.",
+    "Keji prohibits true Use of effective Peach whenever this actor is not personally in the native Dying state. It blocks ordinary self-healing, helping another dying character, converted Peach and zero-material native Peach producers, including native response-use/rescue paths and actor/provider substitution. It does not forbid an original printed Peach being used with a different effective card name, and it does not change unrelated pure Played semantics. The exception is the actor own exact Dying identity, not simply the existence of any Dying window.",
+    "Dujiang is a mandatory once-per-game awakening at the owner actual Preparation when current Armor is at least three. Consume the native awakening acceptance once, then grant the complete distinct Duojing skill. The official paragraph provides no MaxHP reduction, recovery, Draw or other awakening reward. Its accepted history persists when a source is lost and reacquired.",
+    "Duojing follows the finalized native target-designation-after boundary for a true effective Slash-family Use, with the original ActionId, actual actor, other target and occurrence retained. The trigger is not restricted to a normal own Play phase. A pure Played Slash in a Duel response is not a Slash Use that designated that target.",
+    "Each accepted Duojing spends one actual Armor point as a voluntary cost, with an exact source/hash/phase/mother-Use before-and-after receipt. This is not Damage, HP Loss or an Armor absorption payment. Armor zero cannot pay. All state stays on the owning native/program frames with narrow typed child returns.",
+    "The final formal sentence says this Slash ignores armor. This implementation applies the equipment-armor bypass to the complete original Use, including its native prepared or later redirected target attacks, rather than only the one current target. It bypasses neither the independent Armor resource nor distance or target prohibitions. This scope is an engineering reading of the formal wording, not an official FAQ claim.",
+    "After the Armor cost and bypass, obtain one actual Hand card from that designated target using the native concealed foreign-hand selection/transfer contract. Hand only does not include Equipment or Judgment, and the skill does not expose the entire target hand. Legal-action and snapshot queries consume no selection RNG. The accepted hidden movement has its own real receipt and child return.",
+    "An empty target hand is not an explicit qualification failure in the formal text: an owner with Armor may still pay, the obtain step gains zero actual entities, and the remaining phase Slash allowance is still granted. Do not invent a card, undo the paid Armor cost or silently suppress the remaining sequential benefit. This is a documented engineering interpretation of the sequence, not an official FAQ.",
+    "Each accepted Duojing adds one ordinary Slash allowance for the original actual phase, including multiple separately accepted target occurrences. Preserve normal use debits; do not turn the allowance into unlimited uses or refund the original Slash. A true Use outside the owner normal Play may trigger, but its quota credit is bound to the exact current phase and never carried into the next own Play.",
+    "Multiple final other targets are independent optional Duojing opportunities; each actual payment occurs at most once. Paid Armor, current-Use bypass and phase credit cannot be replayed after source loss, death, hidden-card gain children or Dying/rescue. They do not authorize a duplicate mother Slash or a fabricated native Use.",
+    "Player and AI views use CreateSnapshot(viewerSeat). Public Armor, awakening and granted phase allowance may be projected, while concealed foreign hand identities, selection drafts and private prompts remain private. Cold save/replay must preserve the exact cost, selected entity, phase identity and original mother cursor. Collection-bearing new facts require committed projection freezing; no parallel pending sidecar or gameplay epoch bump is implied.",
+    "The existing Tunan revealed-Peach producer now queries and rechecks the central true-Use prohibition for its actual selected user. Focused native regressions cover both directions: a Keji user cannot use Peach supplied by an ordinary Tunan source, while an ordinary wounded user may use Peach supplied by a Keji source. The printed-Peach-to-Slash branch, original entity movement, exact mother-frame return and cold recovery are retained."
+  ],
+  "verificationLimits": [
+    "Current source/API and the formal granted-skill adjustment were checked, and the exact official JPEG was downloaded, hashed and visually inspected. This source review does not establish runtime correctness.",
+    "No authenticated official mobile client or character-specific official FAQ was used. Whole-use equipment-armor bypass, empty-hand sequential settlement and original-phase credit are explicit engineering interpretations above.",
+    "Focused native behavior and relevant shared mechanism checks, the actual WPF gallery rendering, and bounded routine checks passed. No manual Full run, authenticated official mobile client, or complete foreground match."
+  ],
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "focused": {
+      "corePassed": 27,
+      "wpfPassed": 1,
+      "durationMs": 28179
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 65534
+    },
+    "manualFullRun": false,
+    "focusedCheckNames": [
+      "Wenhe activity: real eight seats private draft and cold restore",
+      "Shanhe Armor: full partial damage counter health delta and native Kuanggu cold",
+      "Shanhe Armor: real Iron Chain full damage HP loss and maximum replacement cold",
+      "Shenwu NPC: Futai Peach policy and native coalition death supply",
+      "actual phase end: six actual phases typed cold returns skip and restoration",
+      "Mou Huang Gai: paid gift source loss dying rescue frozen Use cold",
+      "Mou Hua Xiong Mobile: actual Draw paid source loss Slash privileges cold",
+      "Mou Hua Xiong Mobile: phase expiry next own Ending extra turn skip regrant cold",
+      "Mou Lu Meng Mobile: Keji real costs independent branches Armor Hand limit rescue cold",
+      "Mou Lu Meng Mobile: effective Peach restrictions conversion native Dying cold",
+      "Mou Lu Meng Mobile: Dujiang real Preparation once shared Keji regrant cold",
+      "Mou Lu Meng Mobile: Duojing final targets Armor opaque gain exact phase children cold",
+      "committed use contracts preserve immutable registration and response-use validation",
+      "character manifests preserve ordered registration and package isolation",
+      "Play phase temporary skills: independent sources share state and preserve permanent grants",
+      "Same name hand demand: actual faction providers own completion exactly once",
+      "Activation-count awakening: actual refunded activations preparation quota and source loss",
+      "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+      "Original target addition rights quota armor and cold",
+      "Ol Lü Kai tunan converts dodge into slash",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  }
+}
