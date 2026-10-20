@@ -171,4 +171,8 @@ public sealed partial class GameEngine
                 e.ParentFrameId == use.Id && e.RecipientSeat == outcome.RecipientSeat && e.RequestedCount == draw.RequestedCount && e.Replaced == (outcome.Replacement is not null)) != 1)
             throw new InvalidOperationException("A deferred range draw lost its exact paid physical materials.");
     }
+
+    [ProgramDamageHook(ProgramDamagePhase.AttackCompletionPrelude, 30)]
+    private bool FinishSoleIncomingAttackRangeDraw(CardAttackHandle attack, out bool paused)
+    { paused = TryBeginSoleIncomingAttackRangeDraw(attack); return paused; }
 }

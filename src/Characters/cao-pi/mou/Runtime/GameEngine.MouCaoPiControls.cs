@@ -59,4 +59,17 @@ public sealed partial class GameEngine
             _ => false
         });
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 40)]
+    private bool MouCaoPiCardUseForbidden(ProgramCardUseQuery query) =>
+        MouCaoPiResponseForbidden(query.ActorSeat, query.Kind, query.ActionType);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.AfterLegalActionKind, 20)]
+    private bool MouCaoPiLegalActionForbidden(ProgramLegalActionQuery query) =>
+        query.Action.Kind != LegalActionKind.Recast && MouCaoPiHandUseForbidden(query.Actor.Seat,
+            query.EffectiveKind!.Value, query.Action.CardId is { } material && material != 0 ? [material] : []);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.MaterialUseBan, 10)]
+    private bool MouCaoPiMaterialUseForbidden(ProgramCardMaterialQuery query) =>
+        MouCaoPiHandUseForbidden(query.ActorSeat, query.Kind, query.CardIds, query.IsResponse);
 }

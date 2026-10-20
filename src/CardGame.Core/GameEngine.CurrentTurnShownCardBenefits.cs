@@ -36,6 +36,7 @@ public sealed partial class GameEngine
         _currentTurnHeartSlashBonuses.Add(fact);
         AdvanceEventRulesAndQueueFact(new CurrentTurnDirectedHeartSlashBonusGrantedEvent(fact));
     }
+    [ProgramDamageHook(ProgramDamagePhase.FactModifiers, 20)]
     private IEnumerable<(CardUseEffectSource Source, int Amount)> GetCurrentTurnHeartSlashBonuses(IDamageAttempt attack)
     {
         if (attack.IsChainPropagation || attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind)) return [];

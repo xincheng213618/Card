@@ -10,6 +10,7 @@ public sealed partial class GameEngine
   if (accepted.Action.ConversionChain.Count != 0) PayZhenyiHoutu(accepted.Action);
  }
 
+ [ProgramCardUsePayment(ProgramCardUsePaymentStage.AcceptedConversionCost, 20)]
  private void PayZhenyiHoutu(CardActionContext action)
  {
   if(!HasZhangQiYingCapability||action.ConversionChain.Count==0)return;var sources=action.ConversionChain.Where(IsZhenyiHoutu).ToArray();if(sources.Length==0)return;
@@ -65,4 +66,8 @@ public sealed partial class GameEngine
   if(sourceLess||f.AttackAttempt is not null||f.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=f.Id||ZhangQiYingObserverRoot()is null||f.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged))return false;
   var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}r?ResolveProgramParticipant(f,r):ResolveProgramEffectTarget(f,e.Target));
  }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionSourceBan, 20)]
+    private bool ZhenyiHoutuConversionUnavailable(ProgramViewAsSourceQuery query) =>
+        !CanPayZhenyiHoutu(query.Owner, query.Source);
 }

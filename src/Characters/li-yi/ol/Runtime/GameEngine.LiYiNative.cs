@@ -78,4 +78,8 @@ public sealed partial class GameEngine
   var f=GetActiveProgramFrame(supplied.Id);if(f.Chanshuang is not{}r)return false;if(r.Native is{}o&&r.NativeReturned&&r.Stage==ChanshuangStage.NativeUse)SettleChanshuangNative(o);ContinueChanshuang(f.Id);return true;
  }
  private bool IsChanshuangNativeSettlementBatch(ProgramSkillFrame f,CardMovementBatchContext batch)=>f.Chanshuang is{Stage:ChanshuangStage.NativeChildren,NativeReturned:true,Native:{}o}r&&batch.ParentFrameId==o.UseId&&batch.AwaitingProgramFrameId is null&&batch.Movements.Count>0&&ProgramEventHistory<ChanshuangSlashReturnedEvent>().Count(e=>e.FrameId==f.Id&&e.Cursor==r.Cursor&&e.UseId==o.UseId)==1&&batch.Movements.All(m=>m.Sequence>r.After&&_cardMovements.Contains(m)&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.UseFinished&&o.Selection.Materials.Any(c=>c.CardId==m.CardId&&c.Kind==m.CardKind));
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 60)]
+    private bool HasIssuedChanshuangSlashDebitExemption(long useId, int actorSeat) =>
+        HasIssuedChanshuangSlash(useId, actorSeat);
+
 }

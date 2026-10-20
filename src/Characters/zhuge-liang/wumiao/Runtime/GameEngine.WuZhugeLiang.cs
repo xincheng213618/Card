@@ -171,6 +171,7 @@ public sealed partial class GameEngine
     private CardSnapshot[] WuZglPrivateTopCards(int viewer) => _resolutionStack.LastOrDefault() is ProgramSkillFrame { SkillId: WuZhugeLiangComposition.Jincui, TopReorder: { } order } f &&
         f.OwnerSeat == viewer && _pendingDecision is { Kind: DecisionKind.ProgramTopReorder, PlayerSeat: var seat } && seat == viewer
         ? order.ViewedCardIds.Select(id => ToSnapshot(GetAdvancedCard(id))).ToArray() : [];
+    [ProgramDamageHook(ProgramDamagePhase.FactModifiers, 60)]
     private IEnumerable<(CardUseEffectSource Source, int Amount)> WuZglQingshiDamage(IDamageAttempt attack) => attack.IsChainPropagation ? [] :
         ProgramEventHistory<WuZhugeLiangQingshiDamageEvent>().Where(e => e.UseId == attack.ResolutionId && e.TargetSeat == attack.TargetSeat &&
             LifecycleCardUse(e.UseId)?.Action is { } a && a.ActionId == e.ActionId && a.ActorSeat == e.Source.OwnerSeat && attack.CardUserSeat == a.ActorSeat)

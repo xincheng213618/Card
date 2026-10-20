@@ -54,4 +54,8 @@ public sealed partial class GameEngine
 
     private bool IsShenwuHonglianHandExempt(CharacterState owner, Card card) =>
         _contentRegistry.Skills.ContainsKey("shenwu:honglian") && ShenwuEnabled(owner, "shenwu:honglian") && IsRedSuit(EffectiveSuit(owner, card));
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 80)]
+    private bool ShenwuSipuCardUseForbidden(ProgramCardUseQuery query) =>
+        ShenwuSipuForbidsAction(query.ActorSeat);
 }

@@ -30,6 +30,7 @@ public sealed partial class GameEngine
             _=>throw new InvalidOperationException("Chouhai requires the actual damage attempt's owning frame.") });
     }
     private int SunHaoDamageCursor(IDamageAttempt a) => !a.IsChainPropagation ? -1 : a is ProgramAttackHandle ? GetProgramAttackState(a.ResolutionId).ChainedTargetIndex : GetCardAttackState(a.ResolutionId).ChainedTargetIndex;
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 180)]
     private int SunHaoChouhaiDamageBonus(IDamageAttempt attack)
     {
         if (!HasSunHaoChouhaiCapability) return 0;
@@ -49,6 +50,7 @@ public sealed partial class GameEngine
         if(attack is ProgramAttackHandle) UpdateProgramAttackState(attack.ResolutionId,s=>s with {DamageAmount=amount});
         else UpdateCardAttackState(attack.ResolutionId,s=>s! with {DamageAmount=amount});
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 30)]
     private void PrepareSunHaoChainAdvance(IDamageAttempt attack)
     {
         if (!HasSunHaoChouhaiCapability || SunHaoDamageState(attack.ResolutionId) is not { } r) return;
@@ -62,6 +64,7 @@ public sealed partial class GameEngine
         }
         SetSunHaoDamageState(attack.ResolutionId,null);
     }
+    [ProgramDamageHook(ProgramDamagePhase.AfterChainAdvance, 40)]
     private void ApplySunHaoChainedDamageBonus(IDamageAttempt attack)
     {
         if(HasSunHaoChouhaiCapability && attack.IsChainPropagation && attack.DamageAmountFinalized)

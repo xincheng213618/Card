@@ -35,9 +35,13 @@ public sealed partial class GameEngine
         if(use.PaymentMovementReceipt is not null)throw new InvalidOperationException("One native Hezhong trick cannot issue its physical payment twice.");
         ReplaceRuntimeFrame(use.Id,use with{PaymentMovementReceipt=new(use.Id,use.Action!.ActionId,batch.Movements[0].Sequence-1,batch.Movements[^1].Sequence){Batch=batch}});
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 40)]
     private bool IsFeiYiTrickPaymentBatch(CardUseFrame use,CardMovementBatchContext batch)=>
         FeiYiTrickPaymentMaterialsMatch(use,batch)&&CardUsePaymentBatchMatchesReceipt(use,batch)&&
         (use.PaymentMovementReceipt!.Batch.FeiYiSingletons??[]).SequenceEqual(batch.FeiYiSingletons??[]);
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.TrailingTail, 30)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 30)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SharedProcessingTail, 30)]
     private bool HasFeiYiTrickPaymentTail(CardUseFrame use,RecoveryPaidCardUseContinuation continuation)=>
         continuation is{Kind:RecoveryPaidCardUseKind.Trick,CardId:{}card,ActionKind:not null,TargetSeats:{}targets}&&card==use.CardId&&continuation.SourceSeat==use.SourceSeat&&
         targets.SequenceEqual(use.TargetSeats)&&use.PaymentMovementReceipt is{}receipt&&IsFeiYiTrickPaymentBatch(use,receipt.Batch);

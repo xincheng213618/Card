@@ -40,6 +40,7 @@ public sealed partial class GameEngine
     private DamageNature ShenwuDamageNature(IDamageAttempt attack, DamageNature original) =>
         !attack.IsSourceLess && (ShenwuEnabled(_players[attack.SourceSeat], "shenwu:zhaohuo") || HasWeaponAbility(_players[attack.SourceSeat], CardKind.CrimsonSoulZither))
             ? DamageNature.Fire : original;
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 240)]
     private int ShenwuShuraDamageBonus(IDamageAttempt attack) =>
         !attack.IsChainPropagation && !attack.IsSourceLess && attack.CardUserSeat == attack.SourceSeat &&
         attack.EffectiveCardKind is { } kind && IsSlashCard(kind) &&

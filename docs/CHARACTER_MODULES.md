@@ -69,6 +69,12 @@ descriptor 的 `FactRequirements` 按 `Triggered`、`Activated` 分别声明逻�
 
 修改已有物理用牌动作的能力使用 `[ProgramCardAction]`，分别在程序动作生成之前和之后接入。它复用已有可信动作构建器参数，不把这些可变参数开放给只读选择模块；新增能力不再向通用动作方法追加人物函数调用。
 
+原生用牌资格通过 `[ProgramCardLegality(stage, order)]` 注册在所属机制旁。用牌禁令、动作投影、物理材料、ViewAs 定义资格、次数资格、来源费用资格和真实提交验证分处原有位置；不同阶段不能合并成一次总判断。查询仍每次读取当前事实，保留短路和材料序列的惰性，不移动牌或支付费用。`SubmittedUseValidation` 按顺序运行，保留首个异常；动作生成和提交重验不能相互替代。
+
+实际用牌支付通过 `[ProgramCardUsePayment(stage, order)]` 注册。材料支付和回执许可按顺序短路，移动捕获、付款完成和已接受转换的费用处理则逐项执行。`LeadingTail` 与 `TrailingTail` 保留原生已提交杀的插入位置；`HpObserverTail`、`SharedProcessingTail` 和 `ProcessingAllowance` 继续使用各自的许可范围。新声明只接入原证明方法，不放宽实体、移动批次、父帧、序号或已付费用的校验，也不能用付款资格代替已支付回执。
+
+实际伤害的修正与推进通过 `[ProgramDamageHook(phase, order)]` 注册。事实修正来源保留先调用、后枚举的顺序，事实总和仍由原 `Sum()` 检查溢出；后续加成按原来的非检查左结合顺序执行，包括只签发一次的状态副作用。拦截区分继续、防止与挂起，攻击完成区分已处理与是否暂停；连环推进前后保持独立阶段。这些入口不用于公开伤害预测，也不移动原生伤害前窗口、装备选择、体力变化、濒死及连环的相对位置。
+
 ## 子结算推进与帧检查
 
 公开的阶段已用次数通过 `[ProgramPhaseUsedProjection(order)]` 注册只读 `int(int ownerSeat, string skillId, int previous)` 投影。各投影按顺序接收前值，全部执行；`0` 是有效覆盖，不能作为未处理而短路。元数据共享，委托只绑定本局引擎，不新增运行或存档状态。

@@ -39,5 +39,9 @@ public sealed partial class GameEngine
         attack.PendingRedBladeDamageBonus = applies;
         return applies ? 1 : 0;
     }
+
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 200)]
+    private int RedBladeActualDamageBonus(IDamageAttempt attack) =>
+        attack is CardAttackHandle card ? RedBladeDamageBonus(card) : 0;
 }
 

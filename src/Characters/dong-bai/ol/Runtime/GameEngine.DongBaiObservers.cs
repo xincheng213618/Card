@@ -1,6 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramCardLegality(ProgramCardLegalityStage.HandPhysicalBan, 10)]
     private bool IsXiaHuiPhysicalRestricted(int actorSeat, int cardId) => IsValidPlayerSeat(actorSeat) &&
         _players[actorSeat].XiaHuiRestrictions?.Any(r => r.RecipientSeat == actorSeat && r.CardId == cardId && _cardZones.GetLocation(cardId) == CardLocation.Hand(actorSeat)) == true;
     private bool IsXiaHuiDiscardForbidden(int actorSeat, Card card, CardLocation from, OwnedCardMoveIntent intent) =>

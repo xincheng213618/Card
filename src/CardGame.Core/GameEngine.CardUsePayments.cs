@@ -9,7 +9,7 @@ public sealed partial class GameEngine
 
     private void PaySlashUseMaterials(IReadOnlyList<Card> cards, int providerSeat, CardLocation? sourceLocation)
     {
-        if (TryPayXieweiMaterials(cards, providerSeat, sourceLocation, CardMoveReasons.Use)) return;
+        if (CardUsePayments.TryPayMaterials(cards, providerSeat, sourceLocation, CardMoveReasons.Use)) return;
         if (cards.Count == 1)
         {
             MoveCard(cards[0], sourceLocation ?? FindOwnedCardLocation(_players[providerSeat], cards[0]),
@@ -30,10 +30,7 @@ public sealed partial class GameEngine
 
     private void CaptureSlashUsePaymentBatch(CardMovementBatchContext batch)
     {
-        CaptureCaoChunUsePaymentBatch(batch);
-        CaptureXieweiPaymentBatch(batch);
-        CaptureNeifaPaymentBatch(batch);
-        CaptureXinPiUseMovementBatch(batch);
+        CardUsePayments.CaptureMovement(batch);
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || batch.ParentFrameId != use.Id ||
             use.Action is not { Type: CardActionType.Use } action || !IsSlashCard(action.EffectiveKind) ||
             !CardUsePaymentMaterialsMatch(use, batch)) return;
@@ -47,7 +44,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUsePaymentBatch(CardUseFrame use, CardMovementBatchContext batch) =>
-        IsNativePublicPileEquipmentBatch(use, batch) || IsWenhePoisonUsePaymentBatch(use, batch) && CardUsePaymentBatchMatchesReceipt(use, batch) || IsXieweiPaymentBatch(use, batch) || IsFeiYiTrickPaymentBatch(use, batch) || IsWuJingHejiTrickPaymentBatch(use, batch) || IsHuiyunTrickPaymentBatch(use, batch) || IsQiejianUsePaymentBatch(use, batch) || IsJuewuUsePaymentBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
+        CardUsePayments.MatchesBatch(use, batch) || CardUsePaymentBatchMatchesReceipt(use, batch) && CardUsePaymentMaterialsMatch(use, batch);
 
     private static bool CardUsePaymentBatchMatchesReceipt(CardUseFrame use, CardMovementBatchContext batch,
         CardUsePaymentMovementReceipt? issuedReceipt = null)
@@ -99,7 +96,7 @@ public sealed partial class GameEngine
 
     private bool IsPaidCardUseMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame movement) =>
         use.RecoveryPaidContinuation is { } continuation &&
-        (HasNativePublicPileEquipmentTail(use, continuation) || HasWenhePoisonUsePaymentTail(use, continuation) || continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || (HasQiejianUsePaymentTail(use, continuation) || HasJuewuUsePaymentTail(use, continuation))))) &&
+        HasPaidCardUseMovementTail(use, continuation) &&
         continuation.SourceSeat == use.SourceSeat && use.Step == ResolutionFrameStep.ResolvingEffect &&
         movement.Id == movement.Batch.Id && movement.ResumePaidCardUseFrameId == use.Id &&
         movement.ResumeProgramFrameId is null && movement.ResumeDeclarationFrameId is null &&
@@ -115,9 +112,10 @@ public sealed partial class GameEngine
         movement.ResumeCardSupplyCompletionFrameId is null && movement.ResumeResponseCompletionFrameId is null &&
         IsCardUsePaymentBatch(use, movement.Batch);
 
-    private bool HasFeiYiTrickPaymentProcessing(IReadOnlyList<Card> processing) =>
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.ProcessingAllowance, 10)]
+    private bool HasSharedCardUsePaymentProcessing(IReadOnlyList<Card> processing) =>
         _resolutionStack.Count == 2 && _resolutionStack[0] is CardUseFrame { RecoveryPaidContinuation: { } continuation } use &&
-        _resolutionStack[1] is CardsMovedTriggerWindowFrame movement && (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasQiejianUsePaymentTail(use, continuation) || HasJuewuUsePaymentTail(use, continuation))) &&
+        _resolutionStack[1] is CardsMovedTriggerWindowFrame movement && CardUsePayments.AllowsTail(ProgramCardUsePaymentStage.SharedProcessingTail, use, continuation) &&
         IsPaidCardUseMovementReturn(use, movement) && processing.All(card =>
             use.PaymentMovementReceipt!.Batch.Movements.Any(cost => cost.CardId == card.Id && cost.To == CardLocation.Processing));
 }

@@ -60,6 +60,8 @@ public sealed partial class GameEngine
                 .Any(selection => HasRoundGainedBasicBonus(owner, selection.OutputKind, selection.Cards.Select(c => c.Id).ToArray()));
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.AfterSlashDebitIdentity, 20)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 30)]
     private bool HasIssuedRoundGainedBasicBonus(long useId, int actor) => LifecycleCardUse(useId) is { Action: { } action } use &&
         action.ActorSeat == actor && GetProgramCardCategory(use.CardKind) == SkillProgramCardCategory.Basic &&
         use.RoundGainedUseQualifications is { Count: > 0 } qualifications && qualifications.Any(q => q.ActorSeat == actor && ValidRoundGainedQualification(use, q));

@@ -23,14 +23,13 @@ public sealed partial class GameEngine
 
     private void RecordSlashUseDebit(long cardUseFrameId, int actorSeat)
     {
-        if (HasWuHfOrDixianIssuedUse(cardUseFrameId, actorSeat) || HasIssuedMouZhaJiangUse(cardUseFrameId, actorSeat) || HasIssuedDongxinEntitySlashQuota(cardUseFrameId, actorSeat) || IsJianjiOffTurnNativeUse(cardUseFrameId, actorSeat) || HasIssuedKeBiNengPingduanUse(cardUseFrameId, actorSeat) ||
-            HasIssuedDuanJiongSaoguUnlimitedUse(cardUseFrameId, actorSeat)) return;
+        if (CardUsePayments.ExemptsSlashDebit(ProgramCardUsePaymentStage.BeforeSlashDebit, cardUseFrameId, actorSeat)) return;
         var action = _resolutionStack.OfType<CardUseFrame>()
             .Single(frame => frame.Id == cardUseFrameId).Action ??
             throw new InvalidOperationException("A counted Slash has no frozen card-action identity.");
         var identity = new CardUseDebitIdentity(action.ActionId, actorSeat, SkillRuleQuery.SlashLimit,
             _turnNumber, _phase, _cardUseDebitPhaseInstanceId);
-        if (HasIssuedJudgedRankSlashQuota(cardUseFrameId, actorSeat) || HasIssuedRoundGainedBasicBonus(cardUseFrameId, actorSeat)) return;
+        if (CardUsePayments.ExemptsSlashDebit(ProgramCardUsePaymentStage.AfterSlashDebitIdentity, cardUseFrameId, actorSeat)) return;
         var suit = action.EffectiveSuit;
         if (suit is null && action.PhysicalCards.Count == 1)
         {

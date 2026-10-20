@@ -41,6 +41,7 @@ public sealed partial class GameEngine
     }
     private bool IsYouqueUse(long id) => LifecycleCardUse(id) is { } use && IsIssuedYouqueUse(use);
     private Card YouqueRepresentation(long id) => LifecycleCardUse(id) is { } use && IsIssuedYouqueUse(use) ? new(0, use.CardKind, Suit.None, 0) : throw new InvalidOperationException("Youque requires its issued native zero-entity representation.");
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 70)]
     private bool FinishYouqueAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false; if (attack.Card is not null || !IsYouqueUse(attack.ResolutionId)) return false;

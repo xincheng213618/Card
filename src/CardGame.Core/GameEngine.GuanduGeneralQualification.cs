@@ -82,4 +82,8 @@ public sealed partial class GameEngine
         source = new("guandu:gangzhi", "incoming-damage", attack.TargetSeat, grant.SkillInstanceId);
         return true;
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 20)]
+    private bool GuanduCardUseForbidden(ProgramCardUseQuery query) =>
+        IsGuanduCardActionForbidden(query.ActorSeat, query.Kind, query.ActionType);
 }

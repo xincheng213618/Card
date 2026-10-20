@@ -11,6 +11,7 @@ public sealed partial class GameEngine
             _=>throw new InvalidOperationException("Fengwei requires the actual damage attempt's owning frame.") });
     }
     private int FengweiDamageCursor(IDamageAttempt a) => !a.IsChainPropagation ? -1 : a is ProgramAttackHandle ? GetProgramAttackState(a.ResolutionId).ChainedTargetIndex : GetCardAttackState(a.ResolutionId).ChainedTargetIndex;
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 190)]
     private int FengweiDamageBonus(IDamageAttempt attack)
     {
         if (!HasFengweiCapability) return 0;
@@ -30,6 +31,7 @@ public sealed partial class GameEngine
         if(attack is ProgramAttackHandle) UpdateProgramAttackState(attack.ResolutionId,s=>s with {DamageAmount=amount});
         else UpdateCardAttackState(attack.ResolutionId,s=>s! with {DamageAmount=amount});
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 20)]
     private void PrepareFengweiChainAdvance(IDamageAttempt attack)
     {
         if (!HasFengweiCapability || FengweiDamageState(attack.ResolutionId) is not { } r) return;
@@ -43,6 +45,7 @@ public sealed partial class GameEngine
         }
         SetFengweiDamageState(attack.ResolutionId,null);
     }
+    [ProgramDamageHook(ProgramDamagePhase.AfterChainAdvance, 50)]
     private void ApplyFengweiChainedDamageBonus(IDamageAttempt attack)
     {
         if(HasFengweiCapability && attack.IsChainPropagation && attack.DamageAmountFinalized)

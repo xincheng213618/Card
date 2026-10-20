@@ -134,4 +134,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome Dujiang(ProgramSkillFrame f) => engine.ResolveMouDujiang(f);
         public SkillProgramStepOutcome Duojing(ProgramSkillFrame f) => engine.BeginMouDuojing(f);
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 60)]
+    private bool MouLuMengCardUseForbidden(ProgramCardUseQuery query) =>
+        IsMouLuMengPeachForbidden(query.ActorSeat, query.Kind, query.ActionType);
 }

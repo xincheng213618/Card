@@ -33,8 +33,12 @@ public sealed partial class GameEngine
         if(use.PaymentMovementReceipt is null)ReplaceRuntimeFrame(use.Id,use with{PaymentMovementReceipt=new(use.Id,a.ActionId,batch.Movements[0].Sequence-1,batch.Movements[^1].Sequence){Batch=batch}});
         AdvanceEventRulesAndQueueFact(new QiejianUsePaymentCapturedEvent(use.Id,a.ActionId,batch.Id,a.ProviderSeat));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 70)]
     private bool IsQiejianUsePaymentBatch(CardUseFrame use,CardMovementBatchContext batch)=>QiejianUseMaterialsMatch(use,batch)&&
         CardUsePaymentBatchMatchesReceipt(use,batch)&&ProgramEventHistory<QiejianUsePaymentCapturedEvent>().Count(e=>e.UseId==use.Id&&e.ActionId==use.Action!.ActionId&&e.BatchId==batch.Id&&e.ProviderSeat==use.Action.ProviderSeat)==1;
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.TrailingTail, 60)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 60)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SharedProcessingTail, 60)]
     private bool HasQiejianUsePaymentTail(CardUseFrame use,RecoveryPaidCardUseContinuation continuation)
     {
         if(continuation.SourceSeat!=use.SourceSeat||use.PaymentMovementReceipt is not{}paid||!IsQiejianUsePaymentBatch(use,paid.Batch))return false;

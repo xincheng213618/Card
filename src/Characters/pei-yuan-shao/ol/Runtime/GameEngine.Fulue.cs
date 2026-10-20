@@ -60,6 +60,7 @@ public sealed partial class GameEngine
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,27120)]
     private bool QualifyFulue(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>!t.Effects.Any(e=>PeiYuanShaoComposition.Handles(e.Op))||
         (t.Effects[0].Op==SkillProgramEffectOp.OfferFulueSingleTargetOption?FulueOriginalCandidate(c,context):CanRunIssuedFulueCandidate(c,context));
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 150)]
     private int FulueDamageBonus(IDamageAttempt attack)=>!attack.IsChainPropagation&&attack is CardAttackHandle&&LifecycleCardUse(attack.ResolutionId)is{FulueEntries:not null}use&&FulueUseProof(use)?use.FulueEntries!.Count(e=>e.Option==FulueOption.Damage):0;
     [ProgramCapability]private sealed class PeiYuanShaoCapability(GameEngine e):IPeiYuanShaoHost
     {public SkillProgramStepOutcome Resolve(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginFulue(f,op);}

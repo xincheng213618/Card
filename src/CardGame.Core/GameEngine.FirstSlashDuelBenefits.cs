@@ -141,6 +141,7 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)]
     private PromptChoice SelectAiFirstSlashDuelBenefit(PendingDecision decision, ProgramSkillFrame f) =>
         decision.Choices.Single(c => c.Parameters["branch"] == (GetHand(_players[f.OwnerSeat]).Count < 3 ? "draw" : "damage"));
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 20)]
     private int FirstSlashDuelDamage(IDamageAttempt attack)
     {
         if (attack.IsChainPropagation || !IsFirstSlashDuelKind(attack.EffectiveCardKind ?? CardKind.Dodge) ||

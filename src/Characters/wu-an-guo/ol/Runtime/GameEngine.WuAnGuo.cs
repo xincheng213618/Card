@@ -111,4 +111,8 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27010)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27010)]
     private bool ContinuePaidWuAnGuoLiyong(ProgramSkillFrame f) => f.WuAnGuoLiyong is not null && ValidWuAnGuoLiyong(f);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionSourceBan, 40)]
+    private bool WuAnGuoConversionUnavailable(ProgramViewAsSourceQuery query) =>
+        !IsWuAnGuoYangConversionAvailable(query.Owner, query.Card, query.Source, query.ForResponse);
 }

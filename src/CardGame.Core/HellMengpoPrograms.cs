@@ -304,4 +304,8 @@ public sealed partial class GameEngine
         move.Reason == expectedReason && IsHellShiyouRedirectedDiscard(move) &&
         ProgramEventHistory<HellShiyouInterceptedEvent>().Any(e => e.MovementSequence == move.Sequence &&
             e.Receipt.CardId == move.CardId && e.Receipt.OriginalSource == expectedSource && e.Receipt.Reason == expectedReason);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 30)]
+    private bool HellWangshiCardUseForbidden(ProgramCardUseQuery query) =>
+        IsHellWangshiActionForbidden(query.ActorSeat, query.Kind, query.ActionType);
 }

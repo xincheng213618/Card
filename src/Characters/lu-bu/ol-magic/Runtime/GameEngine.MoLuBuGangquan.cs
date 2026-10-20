@@ -57,4 +57,8 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<LegalAction> FilterMoGangquanActions(CharacterState actor, IEnumerable<LegalAction> actions) => Array.AsReadOnly(actions.Where(a => !IsMoGangquanSource(a.ConversionSource) ||
         a.CardId is { } id && FindOwnedPlayableCard(actor, id) is { } card && a.TargetSeats.SequenceEqual(MoGangquanTargets(actor, card, a.ConversionSource!))).ToArray());
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 40)]
+    private bool MoGangquanConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseMoGangquan(query.Owner, query.Instance, query.Rule, query.ForResponse, query.DyingUse);
 }

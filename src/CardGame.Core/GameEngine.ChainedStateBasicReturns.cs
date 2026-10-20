@@ -110,6 +110,7 @@ public sealed partial class GameEngine
         if (card.Kind != LifecycleCardUse(id)!.CardKind) throw new InvalidOperationException("A chained-state logical completion changed its card name.");
         return true;
     }
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 10)]
     private bool FinishChainedStateBasicAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

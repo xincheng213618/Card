@@ -124,4 +124,8 @@ public sealed partial class GameEngine
             !IsIssuedTieredRoundZeroResponse(use, action)) return false;
         RecordTrueRoundCardName(use.Id, action.ActorSeat, action.ActionId, CardKind.Dodge, false); return true;
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 10)]
+    private bool TieredRoundConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseTieredRoundConversion(query.Owner, query.Instance, query.Rule, query.ForResponse, query.DyingUse);
 }

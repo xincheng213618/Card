@@ -60,6 +60,7 @@ public sealed partial class GameEngine
         ShownEntityUseActorMatches(use,g.Source.OwnerSeat,g.ProviderSeat)&&ProgramEventHistory<WuTuGuHanyongArmedEvent>().Count(e=>e.Grant==g)==1&&
         ProgramEventHistory<WuTuGuHanyongQualifiedEvent>().Count(e=>e.UseId==g.UseId&&e.ActionId==g.ActionId&&e.Source==g.Source&&e.GameplayHash==g.GameplayHash&&e.ActualTurn==g.ActualTurn&&e.Round==g.Round&&e.HpAtUse==g.HpAtUse&&e.ProviderSeat==g.ProviderSeat&&e.Kind==g.Kind)==1);
     [NativeUseValidation(27320)]private void AssertWuTuGuNativeUse(CardUseFrame use){if(use.WuTuGuHanyong is not null&&!ValidWuTuGuHanyongUse(use))throw new InvalidOperationException("Hanyong lost its exact once-accepted native use, original source or frozen HP/round.");}
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 170)]
     private int WuTuGuHanyongDamageBonus(IDamageAttempt attack)
     {
         if(!HasWuTuGuCapability||attack.IsChainPropagation||LifecycleCardUse(attack.ResolutionId)is not{WuTuGuHanyong:not null}use)return 0;

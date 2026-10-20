@@ -101,6 +101,7 @@ public sealed partial class GameEngine
                 r.Grains.Any(g => g.CardId == m.CardId && g.PrintedKind == m.CardKind && g.From == m.From));
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 80)]
     private bool IsJuewuUsePaymentBatch(CardUseFrame use, CardMovementBatchContext batch)
     {
         var issued = use.Juewu?.PaymentBatches.SingleOrDefault(receipt => receipt.Batch.Id == batch.Id);
@@ -110,6 +111,9 @@ public sealed partial class GameEngine
                 e.SequenceBefore == issued.SequenceBefore && e.SequenceAfter == issued.SequenceAfter && e.Primary == (batch.Id == use.Juewu!.PaymentBatchId)) == 1;
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.TrailingTail, 70)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 70)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SharedProcessingTail, 70)]
     private bool HasJuewuUsePaymentTail(CardUseFrame use, RecoveryPaidCardUseContinuation continuation)
     {
         if (use.Juewu is not { PaymentSequence: > 0 } r || continuation.SourceSeat != use.SourceSeat ||

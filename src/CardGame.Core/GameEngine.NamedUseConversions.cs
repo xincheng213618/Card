@@ -34,4 +34,8 @@ public sealed partial class GameEngine
                     key.SkillInstanceId, key.StateId, definition.InitialValue, definition.Visibility));
         }
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.NamedConversionBan, 10)]
+    private bool NamedConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !IsNamedUseConversionAvailable(query.Owner, query.Instance, query.Rule);
 }

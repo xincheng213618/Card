@@ -180,6 +180,10 @@ public sealed partial class GameEngine
             policy.Source with { BindingId = "weilin-hand-slash" });
     }
 
+    [ProgramCardLegality(ProgramCardLegalityStage.NamedConversionBan, 20)]
+    private bool GuanConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !GuanConversionAvailable(query.Owner.Seat, query.Instance.SkillId);
+
     private void ReturnDemonRoundHolds()
     {
         foreach (var player in _players)
@@ -194,4 +198,5 @@ public sealed partial record CardUseFrame
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool GuanFirstRedDistance { get; init; }
+
 }

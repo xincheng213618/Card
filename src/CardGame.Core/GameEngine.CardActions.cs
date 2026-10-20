@@ -114,10 +114,7 @@ public sealed partial class GameEngine
             }
             conversionChain.AddRange(additionalConversions);
         }
-        if (!MoDcHuanhuoPaymentAllowed(actorSeat, physicalIds))
-            throw new InvalidOperationException("Huanhuo requires its current selected Hand entity in this real Play use.");
-        if (!IsMouGuquUseAllowed(actorSeat, effectiveKind, physicalIds, conversionChain.FirstOrDefault()))
-            throw new InvalidOperationException("Guqu forbids this true Use material or conversion.");
+        CardLegality.ValidateSubmittedUse(new(actorSeat, effectiveKind, physicalIds, conversionChain));
         ConsumeProgramViewAsUsage(conversionChain);
         var trackAppearance = HasMoLuBu || HasWuHuangFuSongCapability || HasWuLuKangDixianCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuaXiongYaowu) || HasWuZhangFeiUseCapability || HasMouZuifengCapability || HasWuLuXunZhangcaiCapability || HasLeZouShiCapability || HasWuyouCapability || HasWuGuanYuJuewuCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind is CardKind.UnexpectedAssault or CardKind.WumiaoFlood || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
         var usedSuit = WuJingLiubingUsedSuit(actorSeat, card, effectiveKind, physicalIds, conversionChain, trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null);
@@ -230,7 +227,7 @@ public sealed partial class GameEngine
         if (window == SkillProgramTriggerWindow.CardUseCommitted && TracksAlternateActualUseColor)
             RecordAlternateActualUseColor(action);
         if (window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted &&
-            action.ConversionChain.Count != 0) { PayMeiYingConversion(action); PayZhenyiHoutu(action); }
+            action.ConversionChain.Count != 0) { CardUsePayments.PayAcceptedConversionCosts(action); }
         if ((HasWangYunPlanCapability || HasWangYunTrickCapability) &&
             window is SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCommitted)
         {

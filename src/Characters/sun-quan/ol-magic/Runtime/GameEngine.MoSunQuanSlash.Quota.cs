@@ -67,4 +67,11 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(use.Id, current => current with { MoQuanyuQuota = r });
         AdvanceEventRulesAndQueueFact(new MoQuanyuQuotaAcceptedEvent(r));
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.LegalActionProjection, 10)]
+    private LegalAction? ProjectMoQuanyuLegalAction(ProgramLegalActionQuery query) =>
+        query.Action is { Kind: LegalActionKind.UseEquipmentEffect, EquipmentKind: CardKind.ZhangbaSerpentSpear }
+            ? RestrictMoQuanyuZhangbaQuotaAction(query.Actor, query.Action)
+            : TryGetLegalActionEffectiveCardKind(query.Actor, query.Action, out var kind, query.NativeOriginalCard)
+                ? RestrictMoQuanyuQuotaAction(query.Actor, query.Action, kind, query.NativeOriginalCard) : query.Action;
 }

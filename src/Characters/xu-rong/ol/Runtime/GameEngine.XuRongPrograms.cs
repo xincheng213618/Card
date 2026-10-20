@@ -50,6 +50,7 @@ public sealed partial class GameEngine
  private int XuRongPool(int owner)=>_players[owner].MarkerSourceCounts.GetValueOrDefault((PlayerMarkerKind.Baoli,owner));
  private bool LiveXionghuoSource(XionghuoGrant grant)=>_players[grant.Source.OwnerSeat].IsAlive&&HasRuntimeSkillInstance(_players[grant.Source.OwnerSeat],grant.Source.SkillId,grant.Source.SkillInstanceId)&&_contentRegistry.GetSkill(grant.Source.SkillId).Program?.GameplayHash==grant.GameplayHash;
  private IEnumerable<XionghuoGrant> XuRongSubjectGrants(int owner,int subject)=>_players[subject].XionghuoGrants.Where(g=>g.TargetSeat==subject&&g.Source.OwnerSeat==owner&&LiveXionghuoSource(g));
+ [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 10)]
  private int XionghuoActualDamageBonus(IDamageAttempt attack)
  {
   if(attack.IsSourceLess||!IsValidPlayerSeat(attack.SourceSeat)||!IsValidPlayerSeat(attack.TargetSeat)||_players[attack.TargetSeat].XionghuoGrants.Count==0)return 0;

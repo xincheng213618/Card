@@ -39,6 +39,7 @@ public sealed partial class GameEngine
     private bool HasIssuedAHuiNanJuemanUse(long id)=>IsAHuiNanJuemanUse(id);
     private bool MatchesAHuiNanJuemanUseAction(long id,CardActionContext a,int cardId)=>cardId==0&&IsAHuiNanJuemanUse(id)&&LifecycleCardUse(id)!.Action is{}issued&&a.ActionId==issued.ActionId&&a.Type==CardActionType.Use&&a.EffectiveKind==issued.EffectiveKind&&a.ActorSeat==issued.ActorSeat&&a.ProviderSeat==issued.ProviderSeat&&a.PhysicalCards.Count==0&&a.ConversionChain.SequenceEqual(issued.ConversionChain)&&a.TargetSeats.SequenceEqual(issued.TargetSeats)&&a.EffectiveSuit==Suit.None&&a.EffectiveRank==0&&a.EffectiveIsRed==false;
     private bool IsAHuiNanJuemanAttackConsistent(CardAttackHandle attack,IReadOnlyList<Card> processing)=>IsAHuiNanJuemanUse(attack.ResolutionId)&&attack.Card is null&&attack.PhysicalCards.Count==0&&processing.Count==0&&LifecycleCardUse(attack.ResolutionId)is{}use&&IsSlashCard(use.CardKind)&&attack.EffectiveCardKind==use.CardKind&&attack.SourceSeat==use.SourceSeat;
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 130)]
     private bool FinishAHuiNanJuemanAttack(CardAttackHandle attack,out bool paused)
     {
         paused=false;if(!IsAHuiNanJuemanUse(attack.ResolutionId)||attack.Card is not null||attack.EffectiveCardKind is not{}kind||!IsSlashCard(kind))return false;

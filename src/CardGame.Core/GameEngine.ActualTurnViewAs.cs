@@ -18,4 +18,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(source.OwnerSeat, source.SkillId,
             usageId, SkillUsageScope.Turn, 1));
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionUsageBan, 20)]
+    private bool ActualTurnConversionUsageUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseActualTurnLimitedViewAs(query.Instance, query.Rule, query.Owner);
 }

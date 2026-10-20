@@ -39,6 +39,7 @@ public sealed partial class GameEngine
     private IEnumerable<ProgramTargetSlashReceipt> FinalTargetSlashReceipts(long frameId, int target) =>
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == frameId) is { Action: { } action, FinalTargetSlashReceipts: { } entries }
             ? entries.Where(item => item.ActionId == action.ActionId && item.CardUseFrameId == frameId && item.ActorSeat == action.ActorSeat && item.TargetSeat == target && action.EffectiveDesignatedTargetSeats.Contains(target)) : [];
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 30)]
     private int FinalTargetSlashDamage(IDamageAttempt attack) => !attack.IsChainPropagation && attack is CardAttackHandle &&
         IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash)
             ? FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat).Sum(item => item.DamageBonus) : 0;

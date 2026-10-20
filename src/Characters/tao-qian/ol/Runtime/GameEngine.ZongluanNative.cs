@@ -42,6 +42,7 @@ public sealed partial class GameEngine
     }
     private bool IsZongluanUse(long id) => LifecycleCardUse(id) is { } use && IsIssuedZongluanUse(use);
     private Card ZongluanRepresentation(long id) => LifecycleCardUse(id) is { } use && IsIssuedZongluanUse(use) ? new(0, use.CardKind, Suit.None, 0) : throw new InvalidOperationException("Zongluan requires its exact issued native zero-entity Slash.");
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 80)]
     private bool FinishZongluanAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false; if (attack.Card is not null || !IsZongluanUse(attack.ResolutionId)) return false;

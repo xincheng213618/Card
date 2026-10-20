@@ -226,6 +226,7 @@ public sealed partial class GameEngine
             batch.Movements[0].Sequence - 1, batch.Movements[^1].Sequence) { Batch = batch } });
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.LeadingTail, 20)]
     private bool HasWenhePoisonUsePaymentTail(CardUseFrame use, RecoveryPaidCardUseContinuation continuation) =>
         continuation.Kind is RecoveryPaidCardUseKind.Trick or RecoveryPaidCardUseKind.Simple or RecoveryPaidCardUseKind.EquipmentUse &&
         use.PaymentMovementReceipt is { } receipt && receipt.OwnerFrameId == use.Id &&
@@ -406,4 +407,8 @@ public sealed partial class GameEngine
         child.ParentFrameId == frame.Id && child.Id == receipt.DyingFrameId && child.KillerSeat is null &&
         child.Continuation == DyingContinuationKind.WenhePoison &&
         child.VictimSeat == frame.Batch.WenhePoisonDepartures![receipt.Cursor].OwnerSeat && receipt.HpAfter == 0;
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 20)]
+    private bool HasIssuedWenhePoisonPaymentBatch(CardUseFrame use, CardMovementBatchContext batch) =>
+        IsWenhePoisonUsePaymentBatch(use, batch) && CardUsePaymentBatchMatchesReceipt(use, batch);
+
 }

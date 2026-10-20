@@ -27,6 +27,7 @@ public sealed partial class GameEngine
     private bool YintianGrantConsumed(long grantId) =>
         ProgramEventHistory<YintianChargeConsumedEvent>().Any(e => e.GrantId == grantId);
 
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 130)]
     private int YintianDamageBonus(IDamageAttempt attack)
     {
         if (!HasYintianCapability || attack.IsSourceLess || !IsValidPlayerSeat(attack.SourceSeat) || attack.DamageAmount <= 0) return 0;
@@ -107,6 +108,7 @@ public sealed partial class GameEngine
             UpdateProgramAttackState(attack.ResolutionId, state => state with { DamageAmount = amount });
         else UpdateCardAttackState(attack.ResolutionId, state => state! with { DamageAmount = amount });
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 50)]
     private void PrepareYintianChainAdvance(IDamageAttempt attack)
     {
         if (!HasYintianCapability || YintianDamageState(attack.ResolutionId) is not { } r) return;
@@ -126,6 +128,7 @@ public sealed partial class GameEngine
         }
         SetYintianDamageState(attack.ResolutionId, null);
     }
+    [ProgramDamageHook(ProgramDamagePhase.AfterChainAdvance, 30)]
     private void ApplyYintianChainedDamageBonus(IDamageAttempt attack)
     {
         if (!HasYintianCapability || !attack.IsChainPropagation || attack.IsSourceLess) return;

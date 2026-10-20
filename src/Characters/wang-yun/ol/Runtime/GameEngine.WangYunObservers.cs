@@ -25,6 +25,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeFrame(f.Id,f.WangYunPlan is{}p?f with{WangYunPlan=p with{Stage=kind+"-issued",NativeUse=origin}}:f with{WangYunTrick=f.WangYunTrick! with{Stage="trick-issued",NativeUse=origin}});
         UpdateLifecycleCardUse(useId,current=>current with{WangYunNativeOrigin=origin});AdvanceEventRulesAndQueueFact(new WangYunNativeUseIssuedEvent(origin));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashPaymentCompleted, 10)]
     private void CompleteWangYunNativePayment(long useId)
     {
         if(LifecycleCardUse(useId)?.WangYunNativeOrigin is not{}old || old.PaymentCompleted)return;

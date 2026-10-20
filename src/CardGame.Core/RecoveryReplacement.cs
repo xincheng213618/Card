@@ -80,8 +80,7 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(useId);
         if (use is null) return false;
         continuation = FreezeNativePublicPileEquipmentChildren(use, continuation);
-        var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use) || HasNativePublicPileEquipmentTail(use, continuation) || HasWenhePoisonUsePaymentTail(use, continuation) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || (HasQiejianUsePaymentTail(use, continuation) || HasJuewuUsePaymentTail(use, continuation))));
+        var observesPayment = ObservesPaidCardUseChildren(use, continuation);
         var paymentOwner = HasNativePublicPileEquipmentTail(use, continuation)
             ? use with { RecoveryPaidContinuation = continuation } : use;
         if (use.PendingRecoveryAttempts is not { Count: > 0 } &&
@@ -117,8 +116,7 @@ public sealed partial class GameEngine
         var continuation = use.RecoveryPaidContinuation ?? throw new InvalidOperationException("Paid recovery lost its exact continuation.");
         if (_resolutionStack.LastOrDefault()?.Id != useId)
             throw new InvalidOperationException("Paid card use cannot advance before its recovery children return.");
-        var observesPayment = continuation.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
-            OwnsGenericSlashPaymentTail(use) || HasNativePublicPileEquipmentTail(use, continuation) || HasWenhePoisonUsePaymentTail(use, continuation) || (HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || (HasQiejianUsePaymentTail(use, continuation) || HasJuewuUsePaymentTail(use, continuation))));
+        var observesPayment = ObservesPaidCardUseChildren(use, continuation);
         if ((observesPayment || continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion) &&
             TryBeginHpChangedProgramWindow(useId, PostEventContinuation.RecoveryPaidCardUse)) return;
         if (use.PendingRecoveryAttempts is { Count: > 0 })
@@ -169,7 +167,7 @@ public sealed partial class GameEngine
          _resolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(frame => frame.Change.ParentFrameId == useId &&
             frame.ResumeFrameId == useId && frame.Continuation == PostEventContinuation.RecoveryPaidCardUse &&
             (LifecycleCardUse(useId)?.RecoveryPaidContinuation?.Kind is RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash ||
-             LifecycleCardUse(useId) is { RecoveryPaidContinuation: { } continuation } use && (HasNativePublicPileEquipmentTail(use, continuation) || HasFeiYiTrickPaymentTail(use, continuation) || HasWuJingHejiTrickPaymentTail(use, continuation) || (HasHuiyunTrickPaymentTail(use, continuation) || (HasQiejianUsePaymentTail(use, continuation) || HasJuewuUsePaymentTail(use, continuation)))))) ||
+             LifecycleCardUse(useId) is { RecoveryPaidContinuation: { } continuation } use && CardUsePayments.AllowsTail(ProgramCardUsePaymentStage.HpObserverTail, use, continuation))) ||
          _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(frame =>
             LifecycleCardUse(useId) is { } owner && IsPaidCardUseMovementReturn(owner, frame)));
 

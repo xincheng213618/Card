@@ -40,6 +40,13 @@ public sealed partial class GameEngine
             (a.CardId is > 0 and var id ? _cardZones.GetLocation(id) != CardLocation.Hand(actor.Seat) || id == hint.CardId :
             a.SelectableCardIds is not { Count: > 0 } ids || ids.Contains(hint.CardId))).ToArray();
     }
+    [ProgramCardLegality(ProgramCardLegalityStage.SubmittedUseValidation, 10)]
+    private void ValidateMoDiaoChanSubmittedUse(ProgramSubmittedUseQuery query)
+    {
+        if (!MoDcHuanhuoPaymentAllowed(query.ActorSeat, query.CardIds))
+            throw new InvalidOperationException("Huanhuo requires its current selected Hand entity in this real Play use.");
+    }
+
     private bool MoDcHuanhuoPaymentAllowed(int actor, IReadOnlyList<int> ids, long? existingUseId = null)
     {
         // A compulsory Play selection is not a response or a skill-payment ban.

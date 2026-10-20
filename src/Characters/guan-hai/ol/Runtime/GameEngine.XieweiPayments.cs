@@ -104,6 +104,7 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(use.Id, u => u with { XieweiPayments = (u.XieweiPayments ?? []).Append(paid).ToArray() });
     }
     private void UpdateXieweiPayment(long useId, XieweiNativePayment payment) => UpdateLifecycleCardUse(useId, u => u with { XieweiPayments = (u.XieweiPayments ?? []).Select(p => p.Id == payment.Id ? payment : p).ToArray() });
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MaterialPayment, 10)]
     private bool TryPayXieweiMaterials(IReadOnlyList<Card> cards, int providerSeat, CardLocation? sourceLocation, CardMoveReason reason)
     {
         if (!HasGuanHaiCapability || cards.Count != 2) return false;
@@ -115,6 +116,7 @@ public sealed partial class GameEngine
         MoveProgramCardsFromMultipleSources(ids, p.Pile.Location, new(XieweiStoreReason),
             disclosure: CardMovementDisclosure.FaceUp); return true;
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.CaptureMovement, 20)]
     private void CaptureXieweiPaymentBatch(CardMovementBatchContext batch)
     {
         if (!HasGuanHaiCapability || batch.ParentFrameId is not { } id || LifecycleCardUse(id) is not { XieweiPayments: { } payments }) return;
@@ -152,6 +154,7 @@ public sealed partial class GameEngine
     }
     private bool IsXieweiRemovedMaterial(long useId, int cardId) => LifecycleCardUse(useId)?.XieweiPayments?.Any(p => !p.ResponseUse && p.Paid && p.ActionId > 0 && p.Materials.Any(c => c.CardId == cardId) && ValidXieweiPayment(p)) == true;
     private bool IsXieweiResponseRemovedMaterial(ProgramMultiCardViewAsSelection selection, int cardId) => IsXieweiSelection(selection) && _resolutionStack.OfType<CardUseFrame>().SelectMany(u => u.XieweiPayments ?? []).Any(p => p.ResponseUse && p.Paid && p.ActionId > 0 && p.Source == selection.Source && p.Materials.Select(c => c.CardId).Order().SequenceEqual(selection.Cards.Select(c => c.Id).Order()) && p.Materials.Any(c => c.CardId == cardId) && ValidXieweiPayment(p));
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 30)]
     private bool IsXieweiPaymentBatch(CardUseFrame use, CardMovementBatchContext batch) => use.XieweiPayments?.Any(p => !p.ResponseUse && p.Paid && p.UseId == use.Id && p.ActionId == use.Action?.ActionId && batch.ParentFrameId == use.Id && batch.Movements.SequenceEqual(p.Movements) && ValidXieweiPayment(p)) == true;
     private void AssertXieweiPayments(CardUseFrame use)
     { if (use.XieweiPayments is not null && (use.XieweiPayments is not System.Collections.IList { IsReadOnly: true } || use.XieweiPayments.Any(p => p.UseId != use.Id || p.Materials is not System.Collections.IList { IsReadOnly: true } || p.Movements is not System.Collections.IList { IsReadOnly: true } || !ValidXieweiPayment(p)))) throw new InvalidOperationException("Xiewei lost its immutable native cost/virtual-output separation."); }

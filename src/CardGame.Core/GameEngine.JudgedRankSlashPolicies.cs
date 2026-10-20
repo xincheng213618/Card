@@ -111,6 +111,8 @@ public sealed partial class GameEngine
     }
     private bool HasIssuedJudgedRankSlashDistance(long? useId, int actor) => useId is { } id &&
         LifecycleCardUse(id)?.JudgedRankSlashUse is { ActorSeat: var owner, IgnoresDistance: true } && owner == actor;
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.AfterSlashDebitIdentity, 10)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 10)]
     private bool HasIssuedJudgedRankSlashQuota(long useId, int actor) =>
         LifecycleCardUse(useId)?.JudgedRankSlashUse is { ActorSeat: var owner, IgnoresQuota: true } && owner == actor;
     private void AssertJudgedRankSlashPolicies()

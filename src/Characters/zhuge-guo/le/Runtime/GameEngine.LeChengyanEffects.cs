@@ -102,6 +102,7 @@ public sealed partial class GameEngine
         ActiveCardAttack = attack;
         ContinueSlashAfterProgramTargetEffects(attack);
     }
+    [ProgramDamageHook(ProgramDamagePhase.AttackCompletionPrelude, 10)]
     private bool FinishLeChengyanAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

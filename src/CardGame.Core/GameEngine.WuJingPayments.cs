@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.ProcessingAllowance, 20)]
     private bool HasWuJingHejiTrickPaymentProcessing(IReadOnlyList<Card> processing)
     {
         if (_resolutionStack.Count < 3 ||

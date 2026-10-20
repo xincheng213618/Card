@@ -140,4 +140,8 @@ public sealed partial class GameEngine
                             PlayedCardKind: kind) { ConversionSource = source });
                 }
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionUsageBan, 10)]
+    private bool PhaseConversionUsageUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUsePhaseLimitedViewAs(query.Instance, query.Rule, query.Owner);
 }

@@ -186,4 +186,8 @@ public sealed partial class GameEngine
         AddLog("DamagePrevented", $"{_players[armed.OwnerSeat].Name} 的【焦尾】防止了本次{amount}点伤害。", armed.OwnerSeat, armed.OwnerSeat);
         return true;
     }
+
+    [ProgramDamageHook(ProgramDamagePhase.BeforeProgramWindow, 30)]
+    private ProgramDamageInterception InterceptJiaoweiProtection(IDamageAttempt attack, int amount, DamageNature nature) =>
+        TryConsumeJiaoweiProtection(attack, amount, nature) ? ProgramDamageInterception.Prevented : ProgramDamageInterception.Continue;
 }

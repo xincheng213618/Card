@@ -192,6 +192,7 @@ public sealed partial class GameEngine
     private bool NianDongmianForbidsTarget(int actor, int target) => actor != target && _roundNumber == 1 &&
         _players[target].HasHpValue && _players[target].Hp <= 6 && NianEnabled(_players[target], "nian:dongmian");
     private bool NianShouyiUnlimitedCardDistance(CharacterState player) => NianEnabled(player, "nian:shouyi");
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 250)]
     private int NianBaonuDamageBonus(IDamageAttempt attack) => !attack.IsSourceLess && !attack.IsChainPropagation &&
         attack.CardUserSeat == attack.SourceSeat && attack.EffectiveCardKind is { } kind && IsSlashCard(kind) &&
         _players[attack.SourceSeat].Hp < 5 && NianEnabled(_players[attack.SourceSeat], "nian:baonu") ? 1 : 0;

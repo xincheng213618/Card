@@ -226,6 +226,7 @@ public sealed partial class GameEngine
         else throw new InvalidOperationException("Diou's zero-material simple effect changed its accepted native card name.");
         return true;
     }
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 30)]
     private bool FinishDiouAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

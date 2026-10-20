@@ -288,6 +288,7 @@ public sealed partial class GameEngine
     private bool ShenwuFutaiForbidsPeach(int actorSeat, CardKind kind, CardActionType type) => kind == CardKind.Peach && type == CardActionType.Use &&
         _players.Any(p => p.Seat != actorSeat && !ShenwuOwnActualTurn(p.Seat) && ShenwuEnabled(p, "shenwu:futai"));
     private bool ShenwuCannotTurnOver(CharacterState target) => ShenwuEnabled(target, "shenwu:xiongshou");
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 230)]
     private int ShenwuNpcDamageBonus(IDamageAttempt attack)
     {
         var target = _players[attack.TargetSeat]; var bonus = 0;
@@ -316,4 +317,8 @@ public sealed partial class GameEngine
         context.OwnerSeat == candidate.OwnerSeat && context.ParentFrameId == hp.Id && context.TargetSeat == hp.TargetSeat &&
         _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } parent && parent.Id == hp.Id && parent.Change == hp &&
         parent.Candidates.ElementAtOrDefault(parent.CandidateIndex) == candidate;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 50)]
+    private bool ShenwuFutaiCardUseForbidden(ProgramCardUseQuery query) =>
+        ShenwuFutaiForbidsPeach(query.ActorSeat, query.Kind, query.ActionType);
 }

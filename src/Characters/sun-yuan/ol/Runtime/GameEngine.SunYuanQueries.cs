@@ -70,4 +70,9 @@ public sealed partial class GameEngine
         if(top.SunYuan?.Stage is SunYuanStage.Request or SunYuanStage.SlashIssuing&&TryGetSayingSlashRequest(top,out var seat,out _)&&seat==actor.Seat&&_players[top.OwnerSeat].IsAlive)return true;
         return top.EquipmentSlotNamedUse is{OriginalParentId:{}parent}&&_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==parent)is{}owner&&top.OwnerSeat==actor.Seat&&_players[owner.OwnerSeat].IsAlive&&SayingEquipmentSlotPaymentRidesOn(owner,top);
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 30)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 70)]
+    private bool HasIssuedDongxinSlashDebitExemption(long useId, int actorSeat) =>
+        HasIssuedDongxinEntitySlashQuota(useId, actorSeat);
+
 }

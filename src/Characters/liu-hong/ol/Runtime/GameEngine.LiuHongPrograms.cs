@@ -466,6 +466,7 @@ public sealed partial class GameEngine
     // Shared consumption: every damage the armed seat deals carries the armed
     // amount, whatever the card kind and including chain propagation — the OL
     // text has no non-transferred-damage restriction.
+    [ProgramDamageHook(ProgramDamagePhase.FactModifiers, 40)]
     private IReadOnlyList<(CardUseEffectSource Source, int Amount)> GetArmedGameDamageBonuses(
         IDamageAttempt attack)
     {

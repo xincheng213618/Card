@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ForeignSelectedCardSlashIssuedEvent(returned));
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashPaymentCompleted, 60)]
     private void CompleteSelectedForeignCardSlashPayment(long useId)
     {
         if (LifecycleCardUse(useId)?.ForeignSelectedCardSlashReturn is not { } returned) return;

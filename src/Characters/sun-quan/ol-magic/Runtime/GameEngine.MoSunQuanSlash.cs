@@ -142,6 +142,7 @@ public sealed partial class GameEngine
         if ((r.Mask & MoQuanyuBit(MoQuanyuEffect.Bixie)) != 0) attack.SetIgnoresArmor(true);
         if ((r.Mask & MoQuanyuBit(MoQuanyuEffect.Zidian)) != 0) attack.ProhibitDodgeBy("权御·紫电");
     }
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 60)]
     private int MoQuanyuDamageBonus(IDamageAttempt attack) => !attack.IsChainPropagation &&
         LifecycleCardUse(attack.ResolutionId)?.MoQuanyuSlashPolicy is { Stage: MoQuanyuSlashStage.Applied } r &&
         (r.Mask & MoQuanyuBit(MoQuanyuEffect.Baihong)) != 0 ? 1 : 0;

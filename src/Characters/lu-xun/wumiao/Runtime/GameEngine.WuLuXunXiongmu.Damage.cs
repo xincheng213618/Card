@@ -129,6 +129,7 @@ public sealed partial class GameEngine
             !ProgramEventHistory<ProgramDamageTransferredEvent>().Any(e => e.ResolutionId == receipt.AttackId && e.TargetSeat == recipient))) return false;
         adjusted = fact; return true;
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 10)]
     private void PrepareWuXiongmuCangxinChainAdvance(IDamageAttempt attack)
     {
         var xiongmu = WuXiongmuDamageState(attack.ResolutionId); var cangxin = LuYuShengDamageState(attack.ResolutionId);

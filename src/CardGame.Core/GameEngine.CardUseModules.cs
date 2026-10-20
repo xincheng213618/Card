@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
-        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsZhaohuoPhysicalRestricted(player.Seat, card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
+        if (IsProgramHandPhysicalRestricted(player.Seat, card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
@@ -21,16 +21,11 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false, long? existingUseFrameId = null) =>
-        IsBiguoCategoryForbidden(actorSeat, effectiveKind) && !IsAcceptedBiguoUse(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
+        CardLegality.IsUseForbidden(ProgramCardLegalityStage.BeforeIntrinsicUseBan,
+            new(actorSeat, effectiveKind, actionType, existingUseFrameId)) ||
         effectiveKind == CardKind.Poison ||
-        actionType == CardActionType.Use && IsMoLuBuOpeningDelayedForbidden(actorSeat, effectiveKind) ||
-        IsGuanduCardActionForbidden(actorSeat, effectiveKind, actionType) ||
-        IsHellWangshiActionForbidden(actorSeat, effectiveKind, actionType) ||
-        MouCaoPiResponseForbidden(actorSeat, effectiveKind, actionType) ||
-        ShenwuFutaiForbidsPeach(actorSeat, effectiveKind, actionType) ||
-        IsMouLuMengPeachForbidden(actorSeat, effectiveKind, actionType) ||
-        IsMouMengHuoUseForbidden(actorSeat, effectiveKind, actionType, existingUseFrameId) ||
-        ShenwuSipuForbidsAction(actorSeat) ||
+        CardLegality.IsUseForbidden(ProgramCardLegalityStage.BeforeTurnUseBan,
+            new(actorSeat, effectiveKind, actionType, existingUseFrameId)) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(
             _turnNumber,
@@ -42,20 +37,11 @@ public sealed partial class GameEngine
         IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsCategoryTalismanUseForbidden(actorSeat, effectiveKind, actionType);
 
-    private bool IsAcceptedBiguoUse(int actorSeat, CardKind kind, CardActionType actionType, long? useId) =>
-        actionType == CardActionType.Use && useId is { } id && LifecycleCardUse(id) is { Action: { Type: CardActionType.Use } action } use &&
-        use.SourceSeat == actorSeat && use.CardKind == kind && action.ActorSeat == actorSeat && action.EffectiveKind == kind &&
-        ProgramEventHistory<CardUseDeclaredEvent>().Count(e => e.ResolutionId == id && e.SourceSeat == actorSeat &&
-            e.CardKind == kind && e.CardId == use.CardId) == 1;
-
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
         IEnumerable<LegalAction> actions,
         Card? nativeOriginalCard = null) =>
-        actions.Select(action => action is { Kind: LegalActionKind.UseEquipmentEffect, EquipmentKind: CardKind.ZhangbaSerpentSpear }
-            ? RestrictMoQuanyuZhangbaQuotaAction(actor, action)
-            : TryGetLegalActionEffectiveCardKind(actor, action, out var kind, nativeOriginalCard)
-                ? RestrictMoQuanyuQuotaAction(actor, action, kind, nativeOriginalCard) : action)
+        actions.Select(action => CardLegality.ProjectAction(new(actor, action, null, nativeOriginalCard)))
         .Where(action => action is not null).Select(action => action!).Where(action =>
         {
             if (HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly))
@@ -67,11 +53,11 @@ public sealed partial class GameEngine
                 if (action.TargetSeats.Any(targetSeat => targetSeat != actor.Seat))
                     return false;
             }
-            if (action.Kind == LegalActionKind.UseEquipmentEffect && action.EquipmentKind == CardKind.ZhangbaSerpentSpear && MouGuquRestrictingSources(actor.Seat).Count != 0) return false;
+            if (CardLegality.IsActionForbidden(ProgramCardLegalityStage.BeforeLegalActionKind,
+                new(actor, action, null, nativeOriginalCard))) return false;
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind, nativeOriginalCard)) return true;
-            if (!IsMouGuquPlayActionAllowed(actor, action, effectiveKind)) return false;
-            if (action.Kind != LegalActionKind.Recast && MouCaoPiHandUseForbidden(actor.Seat, effectiveKind,
-                action.CardId is { } material && material != 0 ? [material] : [])) return false;
+            if (CardLegality.IsActionForbidden(ProgramCardLegalityStage.AfterLegalActionKind,
+                new(actor, action, effectiveKind, nativeOriginalCard))) return false;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
                     ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
             // Zero identifies a genuine material-free action, so only real entities have a physical color.

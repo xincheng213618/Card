@@ -148,6 +148,7 @@ public sealed partial class GameEngine
         return MouLiuChengRepresentation(id);
     }
     private bool SkipMouLiuChengFinishedMovement(long id, Card c) => c.Id == 0 && IsMouLiuChengZeroUse(id) && c.Kind == LifecycleCardUse(id)!.CardKind;
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 20)]
     private bool FinishMouLiuChengAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

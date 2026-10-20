@@ -122,4 +122,8 @@ public sealed partial class GameEngine
             GetProgramViewAsConversions(owner, card, rule.OutputKind, false).Contains(selected!)
             ? rule.OutputKind : fallback;
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 50)]
+    private bool JuewuConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseJuewuConversion(query.Owner, query.Card, query.Instance, query.Rule, query.ForResponse, query.DyingUse, query.RequestedUseTarget);
 }

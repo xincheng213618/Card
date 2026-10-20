@@ -72,4 +72,8 @@ public sealed partial class GameEngine
         if(!HasRuanYuCapability||c.SkillId!="ol:miaoxian"||c.BindingId!="unique-red-use"||!IsValidPlayerSeat(c.OwnerSeat)||!_players[c.OwnerSeat].IsAlive||context.Window!=SkillProgramTriggerWindow.CardUseCommitted||context.OwnerSeat!=c.OwnerSeat||_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w=>w.Id==context.ParentFrameId)is not{}window||window.CandidateIndex<0||window.CandidateIndex>=window.Candidates.Count||window.Candidates[window.CandidateIndex]is not{}item||item.OwnerSeat!=c.OwnerSeat||item.SkillId!=c.SkillId||item.TriggerId!=c.BindingId||item.SkillInstanceId!=c.SkillInstanceId||item.GameplayHash!=c.GameplayHash||context.CardUse?.CardActionId!=window.Action.ActionId||!HasRuanYuRedPayment(window.Action,new(c.SkillId,c.BindingId,c.OwnerSeat,c.SkillInstanceId),c.GameplayHash,window.ParentFrameId))return false;
         return !ProgramEventHistory<MiaoxianRedDrawIssuedEvent>().Any(e=>e.ActionId==window.Action.ActionId&&e.Source.OwnerSeat==c.OwnerSeat&&e.Source.SkillInstanceId==c.SkillInstanceId)||_resolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.RuanYu?.ActionId==window.Action.ActionId&&MountObserverCandidateMatches(f,c)&&f.WindowContext==context);
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionSourceBan, 50)]
+    private bool RuanYuMiaoxianConversionUnavailable(ProgramViewAsSourceQuery query) =>
+        !IsRuanYuMiaoxianBlackAvailable(query.Owner, query.Card, query.Source, query.ForResponse);
 }

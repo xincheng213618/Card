@@ -277,4 +277,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome AwakenFromIssuedLianjiSlashDamage(ProgramSkillFrame f)=>engine.AwakenFromIssuedLianjiSlashDamage(f);
         public SkillProgramStepOutcome UseThreeRandomTricksFromSelectedMaterial(ProgramSkillFrame f)=>engine.UseThreeRandomTricksFromSelectedMaterial(f);
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionSourceBan, 30)]
+    private bool WangYunConversionUnavailable(ProgramViewAsSourceQuery query) =>
+        !IsWangYunRandomConversionAvailable(query.Owner, query.Card, query.Source, query.ForResponse);
 }

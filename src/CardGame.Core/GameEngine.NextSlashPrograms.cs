@@ -92,6 +92,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new NextSlashDamageConsumedEvent(action.ActorSeat, _turnNumber, _currentSeat, frameId, amount));
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 50)]
     private int FrozenNextSlashDamage(IDamageAttempt attack) => !attack.IsChainPropagation &&
         attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
             ? LifecycleCardUse(attack.ResolutionId)?.NextSlashDamage ?? 0 : 0;

@@ -86,6 +86,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27030)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27030)] private bool ContinuePaidZhuJun(ProgramSkillFrame f)
     { if (f.ZhuJunCuipoDraw is null) return false; AssertZhuJunCuipo(f); return true; }
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 160)]
     private int ZhuJunCuipoDamageBonus(IDamageAttempt attack)
     {
         if (attack.IsChainPropagation || LifecycleCardUse(attack.ResolutionId) is not { ZhuJunCuipoDamage: { } state } use) return 0;

@@ -41,6 +41,7 @@ public sealed partial class GameEngine
         return processing.Select(card => card.Id).Order().SequenceEqual(outerCards);
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 100)]
     private bool FinishRoundOnceCardlessAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

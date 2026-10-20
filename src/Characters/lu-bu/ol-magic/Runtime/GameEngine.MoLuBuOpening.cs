@@ -36,4 +36,8 @@ public sealed partial class GameEngine
     private bool TryEndMoLuBuOpeningEarly()
     { if (!IsMoLuBuOpeningPlay(_currentSeat)) return false; CompletePlayPhaseAfterProgramWindow(); return true; }
     private bool IsMoLuBuOpeningDelayedForbidden(int actor, CardKind kind) => IsMoLuBuOpeningPlay(actor) && IsDelayedCard(kind);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 10)]
+    private bool MoLuBuOpeningCardUseForbidden(ProgramCardUseQuery query) =>
+        query.ActionType == CardActionType.Use && IsMoLuBuOpeningDelayedForbidden(query.ActorSeat, query.Kind);
 }

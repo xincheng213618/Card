@@ -237,4 +237,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome PayHpToGrantOneUseDamageShield(ProgramSkillFrame frame, PlayerMarkerKind marker) =>
             engine.BeginHpDamageShieldPayment(frame, marker);
     }
+
+    [ProgramDamageHook(ProgramDamagePhase.BeforeProgramWindow, 20)]
+    private ProgramDamageInterception InterceptOneUseDamageShield(IDamageAttempt attack, int amount, DamageNature nature) =>
+        TryConsumeOneUseDamageShield(attack, amount) ? ProgramDamageInterception.Prevented : ProgramDamageInterception.Continue;
 }

@@ -9,6 +9,7 @@ public sealed partial class GameEngine
   var ret=new ZhangYanSujiReturn(parent.Id,id,a.ActionId,r.Source,r.GameplayHash,r.Turn,r.PhaseOwner,r.Target.Value,cost.CardId,cost.CardKind,cost.From);
   ReplaceRuntimeFrame(parent.Id,parent with{ZhangYan=r with{Stage=ZhangYanStage.NativeUse,NativeReturn=ret}});UpdateLifecycleCardUse(id,u=>u with{ZhangYanSuji=ret});AdvanceEventRulesAndQueueFact(new ZhangYanSujiIssuedEvent(ret));
  }
+ [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashPaymentCompleted, 40)]
  private void CompleteZhangYanSujiPayment(long id)
  {
   if(LifecycleCardUse(id)is not{ZhangYanSuji:{}ret}use)return;var parent=_resolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==ret.ProgramFrameId);var r=parent.ZhangYan!;

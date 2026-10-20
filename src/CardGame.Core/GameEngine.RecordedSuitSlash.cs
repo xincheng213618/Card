@@ -32,6 +32,7 @@ public sealed partial class GameEngine
             ? receipts.Where(r => r.CardUseFrameId == frameId && r.ActionId == action.ActionId && r.ActorSeat == action.ActorSeat &&
                 r.TargetSeat == target && action.EffectiveDesignatedTargetSeats.Contains(target)) : [];
 
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 40)]
     private int RecordedSuitSlashDamage(IDamageAttempt attack) =>
         !attack.IsChainPropagation && attack is CardAttackHandle && IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash)
             ? RecordedSuitSlashReceipts(attack.ResolutionId, attack.TargetSeat).Sum(r => r.DamageBonus) : 0;

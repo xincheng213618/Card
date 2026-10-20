@@ -62,4 +62,8 @@ public sealed partial class GameEngine
         foreach(var actor in ProgramEventHistory<HuiyunNativeIssuedEvent>().Select(e=>e.Invoice).Where(n=>n.Plan.Kind==LegalActionKind.Alcohol&&ProgramEventHistory<JianjiOrdinaryAlcoholPaidEvent>().Any(p=>p.NativeUseId==n.UseId&&p.ActualTurn==ended.ActualTurn)).Select(n=>n.ActorSeat).Distinct().ToArray())
             if(_players[actor].HasAlcoholEffect){_players[actor].HasAlcoholEffect=false;AdvanceEventRulesAndQueueFact(new AlcoholExpiredEvent(actor));}
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 40)]
+    private bool HasIssuedHuiyunSlashDebitExemption(long useId, int actorSeat) =>
+        HasIssuedHuiyunFollowup(useId, actorSeat);
+
 }

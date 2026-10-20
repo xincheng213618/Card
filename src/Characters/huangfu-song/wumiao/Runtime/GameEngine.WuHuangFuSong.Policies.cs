@@ -22,6 +22,8 @@ public sealed partial class GameEngine
     private CardActionContext CaptureWuHfUseAction(CardActionContext a) => !HasWuHuangFuSongCapability || a.EffectiveRank is not null ? a :
         new(a.ActionId, a.ParentActionId, a.Type, a.ActorSeat, a.ProviderSeat, a.RequesterSeat, a.ResponderSeat, a.OpponentSeat, a.EffectiveKind, a.TargetSeats,
             a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats, a.EffectiveSuit, 0, a.EffectiveIsRed, a.FactionOrigin);
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 10)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 20)]
     private bool HasWuHfOrDixianIssuedUse(long id, int actor) => HasIssuedWuHfUse(id, actor) || HasIssuedWuLuKangDixianUse(id, actor);
     private bool HasWuHfOrDixianPotential(int actor) => HasWuHfPotential(actor) || HasWuLuKangDixianGrant(actor);
     private bool HasIssuedWuHfUse(long id, int actor) => LifecycleCardUse(id) is { WuHuangFuSongUse: { LianjieMaterials: true } r, Action: { } a } &&
@@ -49,6 +51,7 @@ public sealed partial class GameEngine
         var h = CompleteProgramEventHistory().ToArray(); var start = Array.FindLastIndex(h, e => e is TurnStartedEvent t && t.TurnNumber == _turnNumber && t.ActorSeat == _currentSeat);
         return Math.Min(5, h.Skip(start + 1).OfType<DamageAppliedEvent>().Count(e => !e.SourceLess && e.SourceSeat == owner && e.Amount > 0));
     }
+    [ProgramDamageHook(ProgramDamagePhase.FactModifiers, 50)]
     private IEnumerable<(CardUseEffectSource Source, int Amount)> WuHfDamageBonuses(IDamageAttempt attack)
     {
         // Native elemental propagation already carries the finalized first

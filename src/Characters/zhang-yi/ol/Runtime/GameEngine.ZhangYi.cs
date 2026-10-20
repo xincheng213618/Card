@@ -165,6 +165,7 @@ public sealed partial class GameEngine
     private PromptChoice AiZhangYi(PendingDecision p, ProgramSkillFrame f) => p.Choices.First(c => c.Parameters["branch"] ==
         (_players[f.ZhangYi!.RecipientSeat].Hp < _players[f.ZhangYi.RecipientSeat].MaxHp ? "recover" : "damage"));
 
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 100)]
     private int ZhangYiKangruiDamageBonus(IDamageAttempt attack)
     {
         if (!HasZhangYiCapability || attack.IsSourceLess) return 0;
@@ -183,6 +184,7 @@ public sealed partial class GameEngine
         if (attack is ProgramAttackHandle) UpdateProgramAttackState(attack.ResolutionId, s => s with { DamageAmount = amount });
         else UpdateCardAttackState(attack.ResolutionId, s => s! with { DamageAmount = amount });
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 60)]
     private void PrepareZhangYiChainAdvance(IDamageAttempt attack)
     {
         if (!HasZhangYiCapability || !attack.IsChainPropagation || attack.IsSourceLess) return;
@@ -195,6 +197,7 @@ public sealed partial class GameEngine
         SetZhangYiChainAmount(attack, issued.InheritedAmount);
         AdvanceEventRulesAndQueueFact(new ZhangYiChainInstanceRebasedEvent(attack.ResolutionId, cursor, attack.TargetSeat, issued.InheritedAmount));
     }
+    [ProgramDamageHook(ProgramDamagePhase.AfterChainAdvance, 10)]
     private void ApplyZhangYiChainedDamageBonus(IDamageAttempt attack)
     {
         if (!HasZhangYiCapability || !attack.IsChainPropagation || attack.IsSourceLess ||

@@ -29,6 +29,7 @@ public sealed partial class GameEngine
   damage=null!;if(w.Window!=SkillProgramTriggerWindow.AfterDamageApplied||_resolutionStack.SingleOrDefault(f=>f.Id==w.ParentFrameId)is not DamageTriggerWindowFrame window||window.TargetSeat!=owner||window.SourceSeat==owner||w.TargetSeat!=owner||w.SourceSeat!=window.SourceSeat||window.TriggerWindow!=w.Window)return null;
   var facts=CompleteProgramEventHistory().OfType<CompletedUndamagedUseDamageRecordedEvent>().Where(e=>e.DamageFrameId==window.ParentFrameId&&e.TargetSeat==owner&&e.SourceSeat==window.SourceSeat&&e.Amount>0&&!e.SourceLess).ToArray();if(facts is not[var fact]||LifecycleCardUse(fact.CardUseFrameId)is not{Action:{Type:CardActionType.Use}a}use||fact.CardActionId!=a.ActionId||fact.EffectiveKind!=use.CardKind||!HasExactAcceptedActualHandGainUse(use,a))return null;damage=fact;return use;
  }
+ [ProgramCardUsePayment(ProgramCardUsePaymentStage.CaptureMovement, 40)]
  private void CaptureXinPiUseMovementBatch(CardMovementBatchContext batch)
  {
   if(!HasXinPiCapability||batch.ParentBatchId is not null||_resolutionStack.LastOrDefault()is not CardUseFrame{XinPiOrigin:{}origin,Action:{}action}use||batch.ParentFrameId!=use.Id||origin.UseId!=use.Id||origin.Action.ActionId!=action.ActionId)return;

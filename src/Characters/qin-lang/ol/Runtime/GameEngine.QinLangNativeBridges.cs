@@ -84,6 +84,7 @@ public sealed partial class GameEngine
     }
     private bool IsQinLangXianyingBorrowedAttackConsistent(CardAttackHandle attack,IReadOnlyList<Card> processing)=>ActiveBorrowedSword is{ActiveAttack:{}child}borrowed&&SameAttackOwner(child,attack)&&IsQinLangXianyingUse(borrowed.ResolutionId)&&attack.Card is not null&&
         processing.Select(c=>c.Id).Order().SequenceEqual(attack.PhysicalCards.Where(c=>_cardZones.GetLocation(c.Id)==CardLocation.Processing).Select(c=>c.Id).Order());
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 140)]
     private bool FinishQinLangXianyingAttack(CardAttackHandle attack,out bool paused)
     {
         paused=false;if(!IsQinLangXianyingUse(attack.ResolutionId)||attack.Card is not null||attack.EffectiveCardKind is not{}kind||!IsSlashCard(kind)&&kind is not(CardKind.Duel or CardKind.FireAttack))return false;

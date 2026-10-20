@@ -36,6 +36,7 @@ public sealed partial class GameEngine
    ProgramEventHistory<ZhangYanLangdaoIssuedEvent>().Count(e=>e.UseId==use.Id&&e.ActionId==a.ActionId&&e.FrameId==r.ProgramFrameId&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash&&e.OriginalActor==r.OriginalActor&&e.OriginalTarget==r.OriginalTarget&&e.DamageBonus==r.DamageBonus&&e.ExtraCount==r.ExtraCount&&e.NoResponse==r.NoResponse)==1;
  }
  private bool IsZhangYanLangdaoUnrespondable(long id)=>LifecycleCardUse(id)is{ZhangYanLangdao:{NoResponse:true}}use&&IsZhangYanLangdaoIssued(use);
+ [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 140)]
  private int ZhangYanLangdaoDamageBonus(IDamageAttempt attack)=>!attack.IsChainPropagation&&LifecycleCardUse(attack.ResolutionId)is{ZhangYanLangdao:{}r}use&&IsZhangYanLangdaoIssued(use)?r.DamageBonus:0;
  private bool HasZhangYanLangdaoTargetTail(CardUseFrame use)
  {

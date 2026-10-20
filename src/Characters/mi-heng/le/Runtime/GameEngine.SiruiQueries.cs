@@ -167,4 +167,8 @@ public sealed partial class GameEngine
         materialIds is [var id] && _cardZones.GetLocation(id).OwnerSeat == actor.Seat &&
         _cardZones.GetLocation(id).Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
         SiruiNameLength(_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id).Kind) == SiruiNameLength(CardKind.Snatch);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 20)]
+    private bool SiruiConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseSiruiConversion(query.Owner, query.Card, query.Instance, query.Rule, query.ForResponse, query.DyingUse, query.RequestedUseTarget);
 }

@@ -261,7 +261,7 @@ public sealed partial class GameEngine
                     : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment
                     : location.Zone == CardZoneKind.PublicPersistentPile && location.OwnerSeat == owner.Seat
                         ? CardZoneKind.PublicPersistentPile : (CardZoneKind?)null;
-        if (zone is null || MouCaoPiHandUseForbidden(owner.Seat, outputKind, [card.Id], forResponse && !dyingUse)) return [];
+        if (zone is null || IsProgramMaterialUseForbidden(owner.Seat, outputKind, [card.Id], forResponse && !dyingUse)) return [];
         var inputKind = EffectiveConversionInputKind(owner, card);
         PlayerSkillContext? context = null;
         var configured = registered.Count == 0 ? Array.Empty<CardConversionSource>() : registered
@@ -276,19 +276,15 @@ public sealed partial class GameEngine
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
                                (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.RankTwoDamageUse && IsJuewuTrueSlashUse(owner) || rule.EqualNameLengthUse && IsSiruiTrueResponseUse(owner, rule.OutputKind, dyingUse, requestedUseTarget) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
-                               IsNamedUseConversionAvailable(owner, instance, rule) && GuanConversionAvailable(owner.Seat, instance.SkillId) &&
+                                !CardLegality.IsConfiguredConversionForbidden(ProgramCardLegalityStage.NamedConversionBan,
+                                    new(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget)) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
-                               CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
-                               CanUseSiruiConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
-                               CanUseFuleAlias(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
-                               CanUseMoGangquan(owner, instance, rule, forResponse, dyingUse) &&
-                               CanUseJuewuConversion(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget) &&
-                               IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse, requestedUseTarget) &&
+                                !CardLegality.IsConfiguredConversionForbidden(ProgramCardLegalityStage.ConfiguredConversionBan,
+                                    new(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget)) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (inputKind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
-                               CanUsePhaseLimitedViewAs(instance, rule, owner) &&
-                                CanUseActualTurnLimitedViewAs(instance, rule, owner) &&
-                               CanUseGuanduRoundConversion(instance, rule, owner) &&
+                                !CardLegality.IsConfiguredConversionForbidden(ProgramCardLegalityStage.ConversionUsageBan,
+                                    new(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget)) &&
                                (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
@@ -300,8 +296,10 @@ public sealed partial class GameEngine
                     item.Rule.Id,
                     owner.Seat,
                     item.Source.SkillInstanceId))
-            .Where(source => !dyingUse || !IsCuiYanSingleUseForbidden(owner, card, source))
-            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse) && IsWuAnGuoYangConversionAvailable(owner, card, source, forResponse) && IsRuanYuMiaoxianBlackAvailable(owner, card, source, forResponse))
+            .Where(source => !CardLegality.IsConversionSourceForbidden(ProgramCardLegalityStage.DyingConversionBan,
+                new(owner, card, source, forResponse, dyingUse)))
+            .Where(source => !CardLegality.IsConversionSourceForbidden(ProgramCardLegalityStage.ConversionSourceBan,
+                new(owner, card, source, forResponse, dyingUse)))
             .ToArray();
         var turnScoped = wuyouJuewuIdentity || !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
@@ -322,7 +320,7 @@ public sealed partial class GameEngine
             : Array.Empty<CardConversionSource>();
         if (configured.Length == 0 && turnScoped.Length == 0 && paidColor.Count == 0) return [];
         return configured.Concat(turnScoped).Concat(paidColor)
-            .Where(source => IsMouGuquViewAsAllowed(owner, outputKind, [card.Id], source, forResponse, dyingUse, requestedUseTarget))
+            .Where(source => IsProgramViewAsAllowed(owner, outputKind, [card.Id], source, forResponse, dyingUse, requestedUseTarget))
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
@@ -387,9 +385,9 @@ public sealed partial class GameEngine
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
         return selections.Concat(leiluan)
-            .Where(item => IsMouGuquViewAsAllowed(owner, outputKind, item.Cards.Select(c => c.Id).ToArray(), item.Source, forResponse, dyingUse, requestedUseTarget))
+            .Where(item => IsProgramViewAsAllowed(owner, outputKind, item.Cards.Select(c => c.Id).ToArray(), item.Source, forResponse, dyingUse, requestedUseTarget))
             .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
-            .Where(item => !MouCaoPiHandUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
+            .Where(item => !IsProgramMaterialUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
             .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
@@ -477,8 +475,8 @@ public sealed partial class GameEngine
             cards.Add(card);
         }
         if (forResponse ? IsTurnPhysicalUseForbiddenByExistingPolicies(owner.Seat, orderedCardIds) || IsCuiYanNativeResponseForbidden(owner, outputKind, cards) : IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
-        if (MouCaoPiHandUseForbidden(owner.Seat, outputKind, orderedCardIds, forResponse) ||
-            !IsMouGuquViewAsAllowed(owner, outputKind, orderedCardIds, source, forResponse,
+        if (IsProgramMaterialUseForbidden(owner.Seat, outputKind, orderedCardIds, forResponse) ||
+            !IsProgramViewAsAllowed(owner, outputKind, orderedCardIds, source, forResponse,
                 forResponse && outputKind is CardKind.Peach or CardKind.Alcohol && ActiveDying?.ResponderSeat == owner.Seat)) return null;
         if (rule.AllHandCardsOfSelectedSuit && !ValidWholeHandSuitConversion(owner, cards, source)) return null;
         return new(cards, source, outputKind);
@@ -669,7 +667,7 @@ public sealed partial class GameEngine
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
         cards = cards.Concat(NativePublicPileSlashUseCards(owner));
-        return cards.Where(card => !IsZhaohuoPhysicalRestricted(owner.Seat, card.Id) && !IsWuZglCopyBlocked(owner.Seat, card.Id))
+        return cards.Where(card => !IsProgramEntityPhysicalRestricted(owner.Seat, card.Id) && !IsWuZglCopyBlocked(owner.Seat, card.Id))
             .Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,WuJingLiubingUseCard(owner,card,card.Kind)))).DistinctBy(card => card.Id).ToArray();
     }
 

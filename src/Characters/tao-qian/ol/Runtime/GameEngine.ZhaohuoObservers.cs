@@ -160,6 +160,8 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 28121)]
     private bool AdvanceZhaohuoChildren() => _pendingDecision is null && ZhaohuoObserverRoot() is not null && TryAdvanceObserverSubtree(true);
 
+    [ProgramCardLegality(ProgramCardLegalityStage.HandPhysicalBan, 20)]
+    [ProgramCardLegality(ProgramCardLegalityStage.EntityPhysicalBan, 10)]
     private bool IsZhaohuoPhysicalRestricted(int actorSeat, int cardId)
     {
         if (!HasZhaohuoCapability || !IsValidPlayerSeat(actorSeat) || !ZhaohuoActualTurnOpen) return false;

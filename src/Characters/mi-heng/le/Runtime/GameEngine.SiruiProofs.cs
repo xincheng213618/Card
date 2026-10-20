@@ -35,6 +35,7 @@ public sealed partial class GameEngine
                 m.From == r.From && m.To == receipt.To && m.Reason == receipt.Reason) == 1;
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 50)]
     private bool HasIssuedSiruiUse(long useId, int actorSeat) => LifecycleCardUse(useId) is { Sirui: { NativeKind: SiruiNativeUseKind.CardUse } r } use &&
         r.Source.OwnerSeat == actorSeat && ValidSiruiInvoice(use, r, requirePayment: false);
 

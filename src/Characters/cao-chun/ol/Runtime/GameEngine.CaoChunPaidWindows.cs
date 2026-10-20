@@ -1,6 +1,7 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+ [ProgramCardUsePayment(ProgramCardUsePaymentStage.CaptureMovement, 10)]
  private void CaptureCaoChunUsePaymentBatch(CardMovementBatchContext batch)
  {
   if(!HasCaoChunCapability)return;

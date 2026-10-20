@@ -15,6 +15,7 @@ public sealed partial class GameEngine
         .Where(g => g.RecipientSeat == target && !ProgramEventHistory<DuFuRenBlackConsumedEvent>().Any(c => c.GrantId == g.FrameId) &&
             !_resolutionStack.Any(f => (f switch { CardUseFrame u => u.DuFuRenDamage, ProgramSkillFrame p => p.DuFuRenDamage,
                 JudgmentFrame j => j.DuFuRenDamage, _ => null }) is { } r && r.GrantIds.Contains(g.FrameId))).ToArray());
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 120)]
     private int DuFuRenYiseDamageBonus(IDamageAttempt attack)
     {
         if (!HasDuFuRenYise || attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind)) return 0;
@@ -72,6 +73,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Yise can only rebase its exact native chained recipient.");
         UpdateCardAttackState(attack.ResolutionId,s => s! with { DamageAmount = amount });
     }
+    [ProgramDamageHook(ProgramDamagePhase.BeforeChainAdvance, 40)]
     private void PrepareDuFuRenChainAdvance(IDamageAttempt attack)
     {
         if (!HasDuFuRenYise || DuFuRenDamageState(attack.ResolutionId) is not { } r) return;
@@ -87,6 +89,7 @@ public sealed partial class GameEngine
         }
         SetDuFuRenDamageState(attack.ResolutionId,null);
     }
+    [ProgramDamageHook(ProgramDamagePhase.AfterChainAdvance, 20)]
     private void ApplyDuFuRenChainedDamageBonus(IDamageAttempt attack)
     {
         if (!HasDuFuRenYise || !attack.IsChainPropagation || attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind)) return;

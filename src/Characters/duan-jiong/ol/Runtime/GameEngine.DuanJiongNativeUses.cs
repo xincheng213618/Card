@@ -49,6 +49,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeFrame(f.Id, f with { DuanJiongSaogu = r with { NativeUse = origin } }); UpdateLifecycleCardUse(use.Id, u => u with { DuanJiongSaoguUse = origin, UnlimitedUse = true });
         AdvanceEventRulesAndQueueFact(new DuanJiongSaoguNativeIssuedEvent(origin));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 60)]
     private bool HasIssuedDuanJiongSaoguUnlimitedUse(long id, int actor) => LifecycleCardUse(id) is { DuanJiongSaoguUse: { } o, Action: { } action } use &&
         o.CardUseFrameId == id && (o.ActorSeat == actor || use.SourceSeat == actor) && o.ActionId == action.ActionId && o.CardId == use.CardId && IsSlashCard(use.CardKind) &&
         ShownEntityUseActorMatches(use, o.ActorSeat, o.ActorSeat) && action.PhysicalCards is [{ From: var from, CardId: var material }] && from == CardLocation.DiscardPile && material == o.CardId &&

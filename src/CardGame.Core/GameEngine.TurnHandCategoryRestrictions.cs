@@ -30,7 +30,7 @@ public sealed partial class GameEngine
             _turnNumber, _currentSeat, owner.Seat, GetProgramCardCategory(AdvancedEffectiveHandKind(owner, card)));
     private bool IsHandCategoryMaterialRestricted(IReadOnlyList<int> ids) => ids.Any(id =>
         _cardZones.GetLocation(id) is { Zone: CardZoneKind.Hand, OwnerSeat: { } owner } from &&
-        (IsXiaHuiPhysicalRestricted(owner,id) || IsZhaohuoPhysicalRestricted(owner, id) || IsTurnHandCategoryRestricted(_players[owner], _cardZones.CardsAt(from).Single(c => c.Id == id))));
+        (IsProgramHandPhysicalRestricted(owner, id) || IsTurnHandCategoryRestricted(_players[owner], _cardZones.CardsAt(from).Single(c => c.Id == id))));
     private bool IsSelfHandCategoryDiscardForbidden(int actor, Card card, CardLocation from, OwnedCardMoveIntent intent) =>
         IsXiaHuiDiscardForbidden(actor,card,from,intent) || intent == OwnedCardMoveIntent.Discard && from == CardLocation.Hand(actor) && IsTurnHandCategoryRestricted(_players[actor], card);
     // Hand-limit exemptions and self-discard prohibitions answer different questions.

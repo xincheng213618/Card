@@ -51,6 +51,7 @@ public sealed partial class GameEngine
         else if (c.Effect == SimpleCardUseEffect.Alcohol && use.CardKind == CardKind.Alcohol) CompleteAlcoholUse(owner, card, id);
         else throw new InvalidOperationException("Huanpei changed its accepted native basic effect."); return true;
     }
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 40)]
     private bool FinishHuanpeiAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false; if (attack.Card is not null || !IsHuanpeiUse(attack.ResolutionId) || !IsSlashCard(attack.EffectiveCardKind ?? CardKind.Dodge)) return false;

@@ -23,7 +23,7 @@ public sealed partial class GameEngine
             CommitProgramChoiceResult(frame.Id, resultBind, RequestSlashByTargetProgramOperationDescriptor.DeclinedOption, user.Seat, "没有可用的【杀】。");
             return SkillProgramStepOutcome.Continue;
         }
-        var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Concat(NativePublicPileSlashUseCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card) && !IsZhaohuoPhysicalRestricted(user.Seat, card.Id)).ToArray();
+        var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Concat(NativePublicPileSlashUseCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card) && !IsProgramEntityPhysicalRestricted(user.Seat, card.Id)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
         var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind).Concat(KenshangProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind)).ToList();
         if (!keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
@@ -144,7 +144,7 @@ public sealed partial class GameEngine
         var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat || IsSelectedRequestedDeckBasicMaterial(userSeat, cardId) || NativePublicPileSlashUseCards(_players[userSeat]).Any(c => c.Id == cardId)
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
-        if (card is null || !IsSlashCard(card.Kind) || IsTurnHandCategoryRestricted(_players[userSeat], card) || IsZhaohuoPhysicalRestricted(userSeat, card.Id))
+        if (card is null || !IsSlashCard(card.Kind) || IsTurnHandCategoryRestricted(_players[userSeat], card) || IsProgramEntityPhysicalRestricted(userSeat, card.Id))
         {
             CancelProgramBindingAndCleanup(frame, "所选【杀】已离开用牌者手牌，技能剩余结算已取消。");
             return;

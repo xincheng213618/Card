@@ -94,4 +94,8 @@ public sealed partial class GameEngine
         }
         ContinueMouMh(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 70)]
+    private bool MouMengHuoCardUseForbidden(ProgramCardUseQuery query) =>
+        IsMouMengHuoUseForbidden(query.ActorSeat, query.Kind, query.ActionType, query.ExistingUseFrameId);
 }

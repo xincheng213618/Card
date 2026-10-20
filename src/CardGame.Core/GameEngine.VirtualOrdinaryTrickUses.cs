@@ -323,6 +323,7 @@ public sealed partial class GameEngine
         attack.IsChainPropagation && ProgramEventHistory<ChainedDamagePropagatedEvent>().Any(e => e.ResolutionId == use.Id &&
             e.SourceSeat == attack.SourceSeat && e.TargetSeat == attack.TargetSeat && e.Nature == GetDamageNature(attack));
 
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 160)]
     private bool FinishProgramVirtualOrdinaryAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

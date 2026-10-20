@@ -148,6 +148,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeFrame(use.Id, use with { MouZhaJiangUse = r });
         AdvanceEventRulesAndQueueFact(new MouZhaJiangUseAdmittedEvent(use.Id, r.ActionId, r.OriginalKind, q, r.DeclarationId));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 20)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 80)]
     private bool HasIssuedMouZhaJiangUse(long useId, int actorSeat)
     {
         if (_resolutionStack.SingleOrDefault(f => f.Id == useId) is not { MouZhaJiangUse: { } r } owner ||

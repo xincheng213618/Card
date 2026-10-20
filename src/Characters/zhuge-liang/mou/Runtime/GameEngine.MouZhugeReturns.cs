@@ -30,6 +30,7 @@ public sealed partial class GameEngine
         processing.Select(c => c.Id).Order().SequenceEqual(attack.PhysicalCards.Where(c =>
             _cardZones.GetLocation(c.Id) == CardLocation.Processing).Select(c => c.Id).Order());
 
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 120)]
     private bool FinishMouZhijueZeroAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

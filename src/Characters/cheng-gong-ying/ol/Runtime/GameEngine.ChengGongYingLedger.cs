@@ -31,6 +31,7 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(use.Id, u => u with { KuangxiangBlack = r });
         AdvanceEventRulesAndQueueFact(new KuangxiangBlackUseBoundEvent(r.UseId, r.ActionId, r.GrantFrameId, r.ActorSeat, r.ProviderSeat, r.CardId, r.ObtainedSequence, r.EffectiveKind));
     }
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 110)]
     private int ChengGongYingKuangxiangDamageBonus(IDamageAttempt attack)
     {
         // The first recipient's finalized amount is the native propagation base.

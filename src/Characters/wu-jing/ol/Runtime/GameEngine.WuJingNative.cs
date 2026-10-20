@@ -28,6 +28,7 @@ public sealed partial class GameEngine
         for (var i = 0; i < material.Length; i++) AdvanceEventRulesAndQueueFact(new WuJingHejiMaterialIssuedEvent(f.Id, id, i, material[i]));
         if (material.Length == 0) AdvanceEventRulesAndQueueFact(new WuJingHejiPaidEvent(f.Id, id, r.Before, r.After));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashPaymentCompleted, 50)]
     private void CompleteWuJingHejiPayment(long id)
     {
         if (LifecycleCardUse(id) is not { WuJingHeji: { Origin: { } origin } } use) return;
@@ -105,6 +106,10 @@ public sealed partial class GameEngine
         if (use.PaymentMovementReceipt is not null) throw new InvalidOperationException("One Heji Duel cannot issue its native physical payment twice.");
         ReplaceRuntimeFrame(use.Id, use with { PaymentMovementReceipt = new(use.Id, use.Action!.ActionId, batch.Movements[0].Sequence - 1, batch.Movements[^1].Sequence) { Batch = batch } });
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 50)]
     private bool IsWuJingHejiTrickPaymentBatch(CardUseFrame use, CardMovementBatchContext batch) => WuJingHejiTrickMaterialsMatch(use, batch) && CardUsePaymentBatchMatchesReceipt(use, batch);
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.TrailingTail, 40)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 40)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.SharedProcessingTail, 40)]
     private bool HasWuJingHejiTrickPaymentTail(CardUseFrame use, RecoveryPaidCardUseContinuation continuation) => continuation is { Kind: RecoveryPaidCardUseKind.Trick, CardId: { } card, ActionKind: LegalActionKind.Duel, TargetSeats: { } targets } && card == use.CardId && continuation.SourceSeat == use.SourceSeat && targets.SequenceEqual(use.TargetSeats) && use.PaymentMovementReceipt is { } receipt && IsWuJingHejiTrickPaymentBatch(use, receipt.Batch);
 }

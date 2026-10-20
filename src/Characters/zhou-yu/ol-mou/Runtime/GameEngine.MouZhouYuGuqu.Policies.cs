@@ -120,4 +120,29 @@ public sealed partial class GameEngine
         p.CardId == paid.Cost.CardId && p.PrintedKind == paid.Cost.CardKind && p.From == paid.Cost.From && p.Conversion == paid.Source &&
         p.OutputKind == paid.DeclaredKind && p.From == CardLocation.Hand(p.ProviderSeat) && p.MovementSequence <= _movementSequence &&
         ProgramEventHistory<GuquDeclarationCapturedEvent>().Count(e => e.Permit == p) == 1;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeLegalActionKind, 10)]
+    private bool MouGuquEquipmentActionForbidden(ProgramLegalActionQuery query) =>
+        query.Action.Kind == LegalActionKind.UseEquipmentEffect &&
+        query.Action.EquipmentKind == CardKind.ZhangbaSerpentSpear && MouGuquRestrictingSources(query.Actor.Seat).Count != 0;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.AfterLegalActionKind, 10)]
+    private bool MouGuquLegalActionForbidden(ProgramLegalActionQuery query) =>
+        !IsMouGuquPlayActionAllowed(query.Actor, query.Action, query.EffectiveKind!.Value);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ViewAsBan, 10)]
+    private bool MouGuquViewAsForbidden(ProgramViewAsLegalityQuery query) =>
+        !IsMouGuquViewAsAllowed(query.Owner, query.Kind, query.CardIds, query.Source,
+            query.ForResponse, query.DyingUse, query.RequestedUseTarget);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.NativeResponseBan, 10)]
+    private bool MouGuquNativeResponseForbidden(ProgramNativeResponseQuery query) =>
+        !IsMouGuquResponseAllowed(query.Provider, query.Kind, query.CardIds, query.Source, query.DyingUse);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.SubmittedUseValidation, 20)]
+    private void ValidateMouGuquSubmittedUse(ProgramSubmittedUseQuery query)
+    {
+        if (!IsMouGuquUseAllowed(query.ActorSeat, query.Kind, query.CardIds, query.ConversionChain.FirstOrDefault()))
+            throw new InvalidOperationException("Guqu forbids this true Use material or conversion.");
+    }
 }

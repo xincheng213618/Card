@@ -42,6 +42,7 @@ public sealed partial class GameEngine
     }
     private bool IsWuLuKangKegouUse(long id) => LifecycleCardUse(id) is { } use && IsIssuedWuLuKangKegouUse(use);
     private Card WuLuKangKegouRepresentation(long id) => LifecycleCardUse(id) is { } use && IsIssuedWuLuKangKegouUse(use) ? new(0, use.CardKind, Suit.None, 0) : throw new InvalidOperationException("Kegou requires its issued native zero-entity representation.");
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 60)]
     private bool FinishWuLuKangKegouAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false; if (attack.Card is not null || !IsWuLuKangKegouUse(attack.ResolutionId)) return false;

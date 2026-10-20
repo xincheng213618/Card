@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         if (accepted.Action.ConversionChain.Count != 0) PayMeiYingConversion(accepted.Action);
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.AcceptedConversionCost, 10)]
     private void PayMeiYingConversion(CardActionContext action)
     {
         if(!HasMeiYingConversionCapability || action.ConversionChain.Count==0)return;
@@ -222,4 +223,8 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome ExchangeFiveShuBySpentMeiYing(ProgramSkillFrame f)=>engine.ExchangeFiveShuBySpentMeiYing(f);
         public SkillProgramStepOutcome DrawAfterPaidMeiYingConversion(ProgramSkillFrame f)=>engine.DrawAfterPaidMeiYingConversion(f);
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionSourceBan, 10)]
+    private bool MeiYingConversionUnavailable(ProgramViewAsSourceQuery query) =>
+        !CanPayMeiYingConversion(query.Owner, query.Source);
 }

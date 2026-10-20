@@ -65,4 +65,8 @@ public sealed partial class GameEngine
             new Dictionary<string, string> { ["response-card-kind"] = kind.ToString() })
             .Any(choice => !IsCuiYanFactionSlashChoiceForbidden(request, choice));
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.DyingConversionBan, 10)]
+    private bool CuiYanDyingConversionForbidden(ProgramViewAsSourceQuery query) =>
+        query.DyingUse && IsCuiYanSingleUseForbidden(query.Owner, query.Card, query.Source);
 }

@@ -86,6 +86,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ShownEntityUseBenefitIssuedEvent(useId,action.ActionId,action.ActorSeat,action.ProviderSeat,benefit.Policy));
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.FactModifiers, 30)]
     private IEnumerable<(CardUseEffectSource Source,int Amount)> GetShownEntityUseDamageBenefits(IDamageAttempt attack)
     {
         if(attack.IsChainPropagation ||attack.IsSourceLess ||attack.SourceSeat!=attack.CardUserSeat ||attack.EffectiveCardKind is null)return [];

@@ -136,4 +136,8 @@ public sealed partial class GameEngine
                 choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString()))
             throw new InvalidOperationException("A card declaration lost its validated owner, entity or prompt.");
     }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 60)]
+    private bool ConfiguredConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !IsConfiguredConversionAvailable(query.Owner, query.Card, query.Instance, query.Rule, query.DyingUse, query.RequestedUseTarget);
 }

@@ -326,6 +326,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 110)]
     private bool FinishTieredRoundZeroAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

@@ -15,6 +15,7 @@ public sealed partial class GameEngine
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 530)]
  private void ObserveNeifaTurnBoundary(IGameEvent payload){if(payload is TurnEndedEvent)ExpireNeifaTurn();}
  private void ExpireNeifaTurn(){foreach(var p in _players)if(p.NeifaTurnState is{}s&&s.ActualTurn<=_turnNumber)p.NeifaTurnState=null;}
+ [ProgramCardUsePayment(ProgramCardUsePaymentStage.CaptureMovement, 30)]
  private void CaptureNeifaPaymentBatch(CardMovementBatchContext batch)
  {
   if(!HasNeifaCapability||_resolutionStack.LastOrDefault()is not CardUseFrame{Action:{Type:CardActionType.Use}a}use||CurrentNeifa(a.ActorSeat)is not{NonBasicBranch:true}||GetProgramCardCategory(a.EffectiveKind)!=SkillProgramCardCategory.Equipment||batch.ParentFrameId!=use.Id||batch.ParentBatchId is not null||a.PhysicalCards.Count==0||batch.Movements.Count!=a.PhysicalCards.Count)return;

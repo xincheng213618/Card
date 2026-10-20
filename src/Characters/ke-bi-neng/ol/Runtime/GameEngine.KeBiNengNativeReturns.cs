@@ -55,6 +55,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeFrame(parent.Id, parent with { KeBiNengPingduan = r with { Stage = KeBiNengPingduanStage.BasicNative, NativeUse = origin } });
         UpdateLifecycleCardUse(use.Id, current => current with { KeBiNengPingduanUse = origin }); AdvanceEventRulesAndQueueFact(new KeBiNengPingduanNativeIssuedEvent(origin));
     }
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 50)]
     private bool HasIssuedKeBiNengPingduanUse(long id, int actor) => LifecycleCardUse(id) is { KeBiNengPingduanUse: { } origin, Action: { } action } use &&
         origin.CardUseFrameId == id && (origin.ActorSeat == actor || use.SourceSeat == actor) && action.ActionId == origin.ActionId && ShownEntityUseActorMatches(use, origin.ActorSeat, origin.ActorSeat) &&
         _resolutionStack.SingleOrDefault(f => f.Id == origin.ProgramFrameId) is ProgramSkillFrame { KeBiNengPingduan: { NativeUse: { } stored } } parent && stored == origin && ValidKeBiNeng(parent) &&

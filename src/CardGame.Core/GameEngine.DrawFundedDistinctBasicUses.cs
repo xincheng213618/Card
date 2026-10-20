@@ -161,6 +161,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.IssuedAttackCompletion, 150)]
     private bool FinishDrawFundedDistinctBasicAttack(CardAttackHandle attack, out bool paused)
     {
         paused = false;

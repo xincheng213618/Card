@@ -196,6 +196,7 @@ public sealed partial class GameEngine
         return MountObserverCandidateMatches(frame, window.Candidates[window.CandidateIndex]);
     }
 
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 260)]
     private int HellArrivalDamageBonus(IDamageAttempt attack) => _modeDefinition.HellActivity is { BossTier: 5 } &&
         !attack.IsChainPropagation && !attack.IsSourceLess && attack.EffectiveCardKind == CardKind.BarbarianAssault &&
         LifecycleCardUse(attack.ResolutionId)?.VirtualOrdinaryTrickOrigin is { SkillId: "hell:boss-tier" } origin &&

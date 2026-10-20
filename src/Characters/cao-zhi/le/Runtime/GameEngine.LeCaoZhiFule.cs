@@ -235,4 +235,8 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class LeCaoZhiFuleCapability(GameEngine engine) : ILeCaoZhiFuleHost
     { public SkillProgramStepOutcome Initialize(ProgramSkillFrame frame) => engine.InitializeLeCaoZhiFule(frame); }
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 30)]
+    private bool FuleConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseFuleAlias(query.Owner, query.Card, query.Instance, query.Rule, query.ForResponse, query.DyingUse, query.RequestedUseTarget);
 }

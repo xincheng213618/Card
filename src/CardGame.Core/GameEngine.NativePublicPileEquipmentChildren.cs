@@ -26,6 +26,8 @@ public sealed partial class GameEngine
         cost.CardKind == use.CardKind && payment.Card.Id == cost.CardId &&
         IsNativePublicPileOriginalActionCost(action, cost);
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.LeadingTail, 10)]
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 10)]
     private bool HasNativePublicPileEquipmentTail(CardUseFrame use, RecoveryPaidCardUseContinuation continuation) =>
         continuation.NativeOriginalEquipmentMovements is not null && IsNativePublicPileEquipmentOwner(use, continuation);
 
@@ -73,6 +75,7 @@ public sealed partial class GameEngine
                  removal.Movements is [var old] && old.CardKind == CardKind.WoodenOx && Replacement(old))));
     }
 
+    [ProgramCardUsePayment(ProgramCardUsePaymentStage.MatchBatch, 10)]
     private bool IsNativePublicPileEquipmentBatch(CardUseFrame use, CardMovementBatchContext batch)
     {
         if (use.RecoveryPaidContinuation is not { NativeOriginalEquipmentMovements: { } receipts } continuation ||

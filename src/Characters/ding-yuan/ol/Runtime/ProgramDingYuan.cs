@@ -264,6 +264,7 @@ public sealed partial class GameEngine
         if (use.AdoptedChildDamageIssue != issue)
             ReplaceRuntimeFrame(use.Id, use with { AdoptedChildDamageIssue = issue });
     }
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 90)]
     private int AdoptedChildSlashDamage(IDamageAttempt attack) =>
         !attack.IsChainPropagation && LifecycleCardUse(attack.ResolutionId)?.AdoptedChildDamageIssue is { } issue &&
         issue.CardUseFrameId == attack.ResolutionId && issue.ActorSeat == attack.SourceSeat &&

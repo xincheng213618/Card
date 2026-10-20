@@ -134,4 +134,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An extra effect lost its one real use, paid source or native target seeds.");
         }
     }
+
+    [ProgramDamageHook(ProgramDamagePhase.AttackCompletionPrelude, 20)]
+    private bool FinishExtraAttackRound(CardAttackHandle attack, out bool paused)
+    { paused = TryBeginExtraAttackRound(attack); return paused; }
 }

@@ -4,12 +4,7 @@ public sealed partial class GameEngine
 {
     private bool TryAdvanceChainedDamageTarget(IDamageAttempt attack, out int fromSeat)
     {
-        PrepareWuXiongmuCangxinChainAdvance(attack);
-        PrepareFengweiChainAdvance(attack);
-        PrepareSunHaoChainAdvance(attack);
-        PrepareDuFuRenChainAdvance(attack);
-        PrepareYintianChainAdvance(attack);
-        PrepareZhangYiChainAdvance(attack);
+        DamageHooks.AdvanceChain(ProgramDamagePhase.BeforeChainAdvance, attack);
         // A zero segment cannot issue zero damage to the next recipient.
         // An already issued positive recipient base can still restore there.
         if (attack.DamageAmountFinalized && attack.DamageAmount <= 0 &&
@@ -22,11 +17,7 @@ public sealed partial class GameEngine
                 UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity ||
                 HasPublicEnemyRecipientDamageScope(attack) || HasFixedTargetRecipientDamageScope(attack) ||
                 HasPerOccurrenceSourceDamageModifiers(attack.SourceSeat) || HasNextRecipientPassiveDamageCap(attack), out fromSeat)) return false;
-        ApplyZhangYiChainedDamageBonus(attack);
-        ApplyDuFuRenChainedDamageBonus(attack);
-        ApplyYintianChainedDamageBonus(attack);
-        ApplySunHaoChainedDamageBonus(attack);
-        ApplyFengweiChainedDamageBonus(attack);
+        DamageHooks.AdvanceChain(ProgramDamagePhase.AfterChainAdvance, attack);
         return true;
     }
 

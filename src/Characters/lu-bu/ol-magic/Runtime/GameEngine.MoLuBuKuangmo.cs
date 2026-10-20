@@ -10,6 +10,7 @@ public sealed partial class GameEngine
         var count = MoLuBuPairs().Count(p => _players[p.Source.OwnerSeat].IsAlive && _players[p.OpponentSeat].IsAlive && (p.Source.OwnerSeat == owner || p.OpponentSeat == owner));
         return count == 0 ? ordinary : Array.AsReadOnly((ordinary ?? []).Where(m => m.Kind != PlayerMarkerKind.OlMoKuang).Append(new PlayerMarkerSnapshot(PlayerMarkerKind.OlMoKuang, "狂", count)).ToArray());
     }
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 70)]
     private int MoLuBuKuangDamage(IDamageAttempt attack)
     {
         if (!HasMoLuBu || attack.IsSourceLess || !IsValidPlayerSeat(attack.SourceSeat) || !IsValidPlayerSeat(attack.TargetSeat) ||

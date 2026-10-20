@@ -14,6 +14,7 @@ public sealed record WenyiDamageHealthReturnedEvent(WenyiDamageHealthReceipt Rec
 
 public sealed partial class GameEngine
 {
+    [ProgramDamageHook(ProgramDamagePhase.AppliedBeforeDying, 10)]
     private bool TryBeginWenyiDamageHealth(IDamageAttempt attack, long damageFrameId)
     {
         if (!HasWenyiHealthSubject(attack.TargetSeat) ||

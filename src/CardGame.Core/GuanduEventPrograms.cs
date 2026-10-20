@@ -89,6 +89,7 @@ public sealed partial class GameEngine
     }
     private DamageNature GuanduDamageNature(DamageNature nature) => CurrentGuanduEvent == GuanduBattleEvent.WuchaoFire &&
         nature == DamageNature.Normal ? DamageNature.Fire : nature;
+    [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 210)]
     private int GuanduEventDamageBonus(IDamageAttempt damage)
     {
         if (damage.IsSourceLess || !IsGuanduActivity) return 0;
@@ -250,4 +251,8 @@ public sealed partial class GameEngine
     private bool IsGuanduArroganceDying() => _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
         { GuanduEventFlow.Operation: SkillProgramEffectOp.ResolveGuanduArrogance } f && ActiveDying is { ResumesProgramSkill: true } d &&
         d.ParentFrameId == f.Id && d.VictimSeat == f.OwnerSeat;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.ConversionUsageBan, 30)]
+    private bool GuanduRoundConversionUsageUnavailable(ProgramConfiguredViewAsQuery query) =>
+        !CanUseGuanduRoundConversion(query.Instance, query.Rule, query.Owner);
 }

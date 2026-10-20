@@ -89,4 +89,15 @@ public sealed partial class GameEngine
         var candidate = new ProgramTriggerCandidate(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority, c.OccurrenceIndex);
         return BiguoTargetRoot(candidate, c, false) && use.Action?.ActionId == origin.ActionId;
     }
+
+    private bool IsAcceptedBiguoUse(int actorSeat, CardKind kind, CardActionType actionType, long? useId) =>
+        actionType == CardActionType.Use && useId is { } id && LifecycleCardUse(id) is { Action: { Type: CardActionType.Use } action } use &&
+        use.SourceSeat == actorSeat && use.CardKind == kind && action.ActorSeat == actorSeat && action.EffectiveKind == kind &&
+        ProgramEventHistory<CardUseDeclaredEvent>().Count(e => e.ResolutionId == id && e.SourceSeat == actorSeat &&
+            e.CardKind == kind && e.CardId == use.CardId) == 1;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeIntrinsicUseBan, 10)]
+    private bool BiguoCardUseForbidden(ProgramCardUseQuery query) =>
+        IsBiguoCategoryForbidden(query.ActorSeat, query.Kind) &&
+        !IsAcceptedBiguoUse(query.ActorSeat, query.Kind, query.ActionType, query.ExistingUseFrameId);
 }
