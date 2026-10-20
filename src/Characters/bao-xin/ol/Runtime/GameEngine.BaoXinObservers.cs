@@ -37,6 +37,7 @@ public sealed partial class GameEngine
         return true;
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27450)]private void AssertBaoXin(ProgramSkillFrame f){if(f.BaoXin is not null&&!ValidBaoXin(f))throw new InvalidOperationException("Bao Xin lost his exact native source, frozen damage qualification, original entities, random reservation or once-paid stage.");}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 390)]
     private bool IsBaoXinMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)=>f.BaoXin is{Paid:true}r&&effect?.Op==r.Op&&pending==f.PendingMovementContinuation&&pending.SubjectSeat==r.Recipient&&pending.BeforeCount==0&&pending.CoverageResultBind is null;
     private bool BaoXinMovementMatches(ProgramSkillFrame f,CardMovementRecord m)
     {
@@ -61,9 +62,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? BaoXinObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.BaoXinFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 900)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1010)]
     private bool HasBaoXinDamageObserver(long id)=>BaoXinObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1040)]
     private bool HasBaoXinBeforeDamageObserver(long id)=>HasBaoXinDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 870)]
     private bool IsBaoXinDying()=>ActiveDying is{}dying&&BaoXinObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1440)]
     private bool AllowsBaoXinNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id)return false;

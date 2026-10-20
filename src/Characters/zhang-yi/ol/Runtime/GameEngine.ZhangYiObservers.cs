@@ -38,6 +38,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Dianjun lost its once-issued native actual-end cleanup receipt.");
     }
 
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 910)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 850)]
     private bool IsZhangYiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.ZhangYi is { Stage: ZhangYiStage.KangruiRecovery, Choice: "recover", RecoveryRequested: > 0 } r && ContinuePaidZhangYi(f) &&
         recovery.ParentFrameId == f.Id && recovery.Return == new RecoveryReplacementReturn(PostEventContinuation.Program, f.Id) &&
@@ -74,11 +76,16 @@ public sealed partial class GameEngine
         static (e, i) => e.IsMovementObserverEdge(i) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]) ||
             e.PaidTargetObserverEdge(i), static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? ZhangYiObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.ZhangYiFirstChild(f, child), static (e, i) => e.ZhangYiObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1510)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1620)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1640)]
     private bool HasZhangYiDamageObserver(long id) => ZhangYiObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1480)]
     private bool IsZhangYiDying() => ActiveDying is { } dying && ZhangYiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2130)]
     private bool AllowsZhangYiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZhangYiObserverRoot() is not { } root || root.Id == f.Id) return false;

@@ -439,9 +439,14 @@ public sealed partial class GameEngine
         return null;
     }
     private bool HasChainedStateBasicObserver(long id) => ChainedStateBasicObserverRoot(id) is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1630)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 20)]
     private bool HasChainedStateBasicDamageObserver(long id) => ChainedStateBasicObserverRoot(id) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 20, group: 80)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 130)]
     private bool IsChainedStateBasicProgramDying() => ActiveDying is { } dying && ChainedStateBasicObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 250)]
     private bool AllowsChainedStateBasicNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||

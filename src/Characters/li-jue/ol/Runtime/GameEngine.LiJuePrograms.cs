@@ -56,6 +56,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 200)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 200)]
  private bool CanContinueLiJue(ProgramSkillFrame f){if(f.LiJue is not{Stage:LiJueStage.DamageChildren or LiJueStage.MaximumHpChildren or LiJueStage.GainChildren})return false;RequireLiJue(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 200)]
  private bool IsLiJueMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation p)=>f.LiJue is{Stage:LiJueStage.GainChildren}&&effect?.Op==SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick&&CanContinueLiJue(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireLiJue(ProgramSkillFrame f)
  {

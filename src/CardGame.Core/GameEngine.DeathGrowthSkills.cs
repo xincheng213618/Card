@@ -96,6 +96,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 30)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 30)]
     private bool CanContinueDeathGrowthSkill(ProgramSkillFrame f) => f.DeathGrowthSkill is not null && ValidDeathGrowthSkill(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 40)]
     private bool IsDeathGrowthMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.DeathGrowthSkill is { Stage: DeathGrowthSkillStage.DrawChildren } r && r.InstructionIndex == f.InstructionIndex &&
         effect?.Op == SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;

@@ -56,10 +56,14 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? XuanGongZhuObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.XuanGongZhuFirstChild(r,c),static(e,i)=>e.HasMovementObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1550)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1660)]
     private bool HasXuanGongZhuDamageObserver(long id)=>XuanGongZhuObserverRoot() is {} r && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 210)]
     private bool IsXuanGongZhuDying()=>ActiveDying is {} d && XuanGongZhuObserverRoot() is {} r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 420)]
     private bool TryAdvanceXuanGongZhuSubtree()=>_pendingDecision is null && XuanGongZhuObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 690)]
     private bool AllowsXuanGongZhuNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess || observer.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id!=observer.Id || XuanGongZhuObserverRoot() is not {} root || root.Id==observer.Id || observer.WindowContext?.Window is not

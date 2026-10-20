@@ -67,11 +67,16 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1990)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 90)]
     private bool HasDynamicDiscardDamageObserver(long window)=>DynamicDiscardDamageObserverRoot(window) is not null;
     private bool HasDynamicDiscardDamageAttackObserver(IDamageAttempt attack)=>DynamicDiscardDamageObserverRoot() is { } root &&
         root.Id==attack.ResolutionId && root.AttackAttempt is { } actual && actual.SourceSeat==attack.SourceSeat && actual.TargetSeat==attack.TargetSeat;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 220, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 340)]
     private bool IsDynamicDiscardDamageProgramDying()=>ActiveDying is { } dying && DynamicDiscardDamageObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 30)]
     private bool AllowsDynamicDiscardNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(observer.AttackAttempt is not null || observer.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=observer.Id ||

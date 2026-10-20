@@ -82,6 +82,7 @@ public sealed partial class GameEngine
   var candidate=new ProgramTriggerCandidate(f.OwnerSeat,f.SkillId,f.TriggerId,f.SkillInstanceId,f.GameplayHash,GetProgramTrigger(f).Priority,window.OccurrenceIndex);
   return HasIssuedWeiluDebtCandidate(candidate,window)||IsIssuedZengdaoCandidate(candidate,window);
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 310)]
  private bool IsLvQianMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.LvQian is not null&&e is not null&&LvQianComposition.Own(e.Op)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&CanContinueLvQian(f);
  private bool LvQianFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -91,11 +92,16 @@ public sealed partial class GameEngine
   return child is RecoveryReplacementFrame recovery&&recovery.ParentFrameId==root.Id&&recovery.Return.ResumeFrameId==root.Id&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&IsLvQianRecoveryCompletion(root,recovery.Attempt);
  }
  private ProgramSkillFrame? LvQianObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.LvQianFirstChild(r,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsSameNameHandObserverEdge(n),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)||x.TieredRoundZeroDyingRescueRide(n,d)||(x.DrawFundedDistinctBasicDyingRescueRide(n,d) || x.HuanpeiDyingRescueRide(n,d))));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 270)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 380)]
  private bool HasLvQianDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 470)]
  private bool HasLvQianBeforeDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 240)]
  private bool IsLvQianDying()=>ActiveDying is{}d&&LvQianObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 380)]
  private bool TryAdvanceLvQianSubtree()=>_pendingDecision is null&&LvQianObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 610)]
  private bool AllowsLvQianNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||LvQianObserverRoot()is not{}r||r.Id==observer.Id)return false;var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(observer,p):ResolveProgramEffectTarget(observer,e.Target));

@@ -52,6 +52,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 29002)]
     private bool PermitPaidWuLuXunZhangcai(ProgramSkillFrame f)
     { if (f.WuLuXunZhangcai is null) return false; AssertWuLuXunZhangcai(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 280)]
     private bool IsWuLuXunZhangcaiMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.WuLuXunZhangcai is { Stage: WuLuXunZhangcaiStage.DrawChildren, DrawOutcome: not null } &&
         effect?.Op == SkillProgramEffectOp.ResolveWuLuXunZhangcai && p == f.PendingMovementContinuation &&
@@ -91,12 +92,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? WuLuXunZhangcaiObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WuLuXunZhangcaiFirstChild(f, child), static (g, index) => g.WuLuXunZhangcaiObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1230)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1340)]
     private bool HasWuLuXunZhangcaiDamageObserver(long id) => WuLuXunZhangcaiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1370)]
     private bool HasWuLuXunZhangcaiBeforeDamageObserver(long id) => WuLuXunZhangcaiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1200)]
     private bool IsWuLuXunZhangcaiDying() => ActiveDying is { } d && WuLuXunZhangcaiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1770)]
     private bool AllowsWuLuXunZhangcaiNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -106,6 +112,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 460)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 450)]
     private bool IsWuLuXunZhangcaiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.WuLuXunZhangcai is null || recovery.ParentFrameId == f.Id) return false;

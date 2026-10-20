@@ -158,6 +158,7 @@ public sealed partial class GameEngine
         if (f.SameNameHandDiscardOrDamage is not { Stage: SameNameHandStage.DiscardChildren } || f.PendingMovementContinuation is null) return false;
         AssertSameNameHandDiscardOrDamage(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 140)]
     private bool IsSameNameHandDiscardOrDamageMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is { Op: SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage } && f.SameNameHandDiscardOrDamage is { Stage: SameNameHandStage.DiscardChildren, TargetSeat: { } target } &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == target && ValidSameNameHandReceipt(f);

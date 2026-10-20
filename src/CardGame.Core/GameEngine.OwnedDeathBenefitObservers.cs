@@ -23,6 +23,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? OwnedDeathBenefitObserverRoot() => _resolutionStack.OfType<ProgramSkillFrame>()
         .LastOrDefault(f => f.OwnedDeathBenefitReturn is not null && OwnedDeathBenefitObserverPrefix(f));
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 160)]
     private bool AllowsOwnedDeathBenefitNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -38,6 +39,7 @@ public sealed partial class GameEngine
         return root is not null && root.Id != observer.Id && root.OwnedDeathBenefitReturn!.OriginalAttackOwnerFrameId == CurrentDamageAttempt?.ResolutionId;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 680)]
     private bool IsOwnedDeathBenefitProgramDying() => ActiveDying is { } dying && OwnedDeathBenefitObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 

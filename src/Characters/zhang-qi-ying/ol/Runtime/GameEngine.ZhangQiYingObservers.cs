@@ -46,14 +46,20 @@ public sealed partial class GameEngine
   ReplaceRuntimeTop(f=f with{ZhangQiYing=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24405)] private bool ReturnZhangQiYingMovement(ProgramSkillFrame f)=>CanContinueZhangQiYing(f)&&ResumeZhangQiYing(f.Id);
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 260)]
  private bool IsZhangQiYingMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.GainThreeDeckCategoriesAfterElementalDamage&&CanContinueZhangQiYing(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private bool ZhangQiYingFirstChild(ProgramSkillFrame f,ResolutionFrame child)=>f.ZhangQiYing is{Stage:"gain-children"}r&&CanContinueZhangQiYing(f)&&child is CardsMovedTriggerWindowFrame moved&&moved.Batch.ParentFrameId==f.Id&&moved.Batch.AwaitingProgramFrameId==f.Id&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&r.Cards.Contains(m.CardId)&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==ZhenyiGainReason);
  private ProgramSkillFrame? ZhangQiYingObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.ZhangQiYingFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 220)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 330)]
  private bool HasZhangQiYingDamageObserver(long id)=>ZhangQiYingObserverRoot()is not null&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 420)]
  private bool HasZhangQiYingBeforeDamageObserver(long id)=>ZhangQiYingObserverRoot()is not null&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 190)]
  private bool IsZhangQiYingDying()=>ActiveDying is not null&&ZhangQiYingObserverRoot()is not null;
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 330)]
  private bool TryAdvanceZhangQiYingSubtree()=>_pendingDecision is null&&ZhangQiYingObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 560)]
  private bool AllowsZhangQiYingNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||f.AttackAttempt is not null||f.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=f.Id||ZhangQiYingObserverRoot()is null||f.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged))return false;

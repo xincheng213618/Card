@@ -27,6 +27,7 @@ public sealed partial class GameEngine
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 150)]
     private void RequireIssuedJiqiao(ProgramSkillFrame f)
     {if(f.JiqiaoPaid is not null && !CanContinueIssuedJiqiao(f))throw new InvalidOperationException("Jiqiao lost its actual paid equipment, native stage movements or owning source invoice.");}
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 110)]
     private bool IsJiqiaoMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.DiscardEquipmentAndResolveJiqiao && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null && CanContinueIssuedJiqiao(f);
     private bool JiqiaoFirstChild(ProgramSkillFrame root,ResolutionFrame child)
     {
@@ -41,10 +42,14 @@ public sealed partial class GameEngine
     }
     private bool HasPaidJiqiaoSilverLion(ProgramSkillFrame f)=>f.JiqiaoPaid is {} r && _cardMovements.Any(m=>m.Sequence>r.Invoice.CostBefore && m.Sequence<=r.Invoice.CostAfter && m.From==CardLocation.Equipment(f.OwnerSeat) && m.To==CardLocation.DiscardPile && m.Reason.Value==JiqiaoCostReason && JiqiaoCard(m.CardId).Kind==CardKind.SilverLion);
     private ProgramSkillFrame? JiqiaoObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.JiqiaoFirstChild(r,c),static(e,i)=>e.HasMovementObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 70)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 180)]
     private bool HasJiqiaoDamageObserver(long id)=>JiqiaoObserverRoot() is {} root && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 30)]
     private bool IsJiqiaoDying()=>ActiveDying is {} d && JiqiaoObserverRoot() is {} root && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 150)]
     private bool TryAdvanceJiqiaoSubtree()=>_pendingDecision is null && JiqiaoObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 420)]
     private bool AllowsJiqiaoNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess || o.AttackAttempt is not null || o.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=o.Id || JiqiaoObserverRoot() is not {} root || root.Id==o.Id)return false;

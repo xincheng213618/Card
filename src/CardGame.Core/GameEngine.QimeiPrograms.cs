@@ -153,5 +153,6 @@ public sealed partial class GameEngine
     {
         if (frame.QimeiDraw is not null) RequireQimeiDraw(frame);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 380)]
     private bool IsQimeiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.SettleQimeiPairEquality && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null && ValidQimeiDraw(f);
 }

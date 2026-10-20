@@ -50,6 +50,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault()?.Id == f.Id && r.Stage == WuJingStage.UseChoice && (nativePrompt is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } prompt || prompt.PlayerSeat != f.OwnerSeat || !AssistedChoicesEqual(prompt.Choices, WuJingChoices(f))))
             throw new InvalidOperationException("Heji lost its real private chosen-card boundary.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 600)]
     private bool IsWuJingMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.WuJing is { Stage: WuJingStage.NativeChildren or WuJingStage.RewardChildren or WuJingStage.ClaimChildren } r && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && (e is null || e.Op == r.Operation);
     private bool IsWuJingNativeSettlementBatch(ProgramSkillFrame f, CardMovementBatchContext batch) => f.WuJing is { Stage: WuJingStage.NativeChildren, NativeCompleted: true, NativeOrigin: { } origin } r &&
         batch.ParentFrameId == origin.UseId && batch.AwaitingProgramFrameId is null && batch.Movements.Count > 0 && ProgramEventHistory<WuJingHejiReturnedEvent>().Count(e => e.ProgramFrameId == f.Id && e.UseId == origin.UseId) == 1 &&
@@ -70,9 +71,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame state && state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && state.ResumeProgramFrameId == f.Id && state.CharacterStateContinuation == CharacterStateContinuation.Program && ProgramEventHistory<CharacterStateChangedEvent>().Any(e => e.Change.Id == state.Id && e.Change.ParentFrameId == f.Id && e.Change.TargetSeat == state.OwnerSeat && e.Change.Window == state.Window);
     }
     private ProgramSkillFrame? WuJingObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.WuJingFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i, static (engine, c) => engine.IsMovementObserverEdge(c) || engine.IsYanPuDyingExitEdge(c) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c], engine._resolutionStack[c - 1]), static (engine, c, d) => engine.IsSuspendedOrPaidRescueObserverSuffix(c, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1460)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1570)]
     private bool HasWuJingDamageObserver(long id) => WuJingObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1590)]
     private bool HasWuJingBeforeDamageObserver(long id) => HasWuJingDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1420)]
     private bool IsWuJingDying() => ActiveDying is { } d && WuJingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2070)]
     private bool AllowsWuJingNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WuJingObserverRoot() is not { } root || root.Id == f.Id) return false;

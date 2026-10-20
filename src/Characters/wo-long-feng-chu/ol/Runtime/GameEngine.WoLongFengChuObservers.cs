@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 920)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 860)]
     private bool IsLuanfengRecoveryParent(ProgramSkillFrame producer, RecoveryReplacementFrame recovery)
     {
         if (recovery.ParentFrameId != producer.Id || recovery.Return != new RecoveryReplacementReturn(PostEventContinuation.Program, producer.Id)) return false;
@@ -44,6 +46,8 @@ public sealed partial class GameEngine
                 (index == _resolutionStack.Count - 1 || WoLongFengChuFirstChild(root, _resolutionStack[index + 1]) && HasMovementObserverSuffix(index))) return root;
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 360)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 470)]
     private bool HasWoLongFengChuDamageObserver(long id) => WoLongFengChuObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
@@ -92,10 +96,12 @@ public sealed partial class GameEngine
             !MountObserverCandidateMatches(root, entry.Candidates[entry.CandidateIndex])) return false;
         return at + 2 == _resolutionStack.Count - 1 || WoLongFengChuFirstChild(root, _resolutionStack[at + 3]) && HasMovementObserverSuffix(at + 2);
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 330)]
     private bool IsWoLongFengChuDying() => ActiveDying is { } dying &&
         (IsExactLuanfengDyingRide(dying.FrameId) || WoLongFengChuObserverRoot() is { } root &&
             (_resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id) ||
              root.EquipmentSlotNamedUse is { Intent: EquipmentSlotNamedUseIntent.DyingPeach or EquipmentSlotNamedUseIntent.DyingAlcohol } d && d.OriginalParentId == dying.FrameId));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 970)]
     private bool AllowsWoLongFengChuNestedDamage(ProgramSkillFrame frame, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || frame.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != frame.Id ||

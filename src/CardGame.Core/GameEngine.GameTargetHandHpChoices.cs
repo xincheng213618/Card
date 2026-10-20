@@ -91,6 +91,7 @@ public sealed partial class GameEngine
                 paid.Count(m => m.CardId == p.id && m.From == p.from && p.from.OwnerSeat == target && p.from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
                     (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(p.id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m)))) == 1);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 290)]
     private bool IsGameHandHpMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.GameTargetHandHp is { Stage: "children" } r && effect?.Op == SkillProgramEffectOp.ResolveGameTargetHandHpChoice && ValidGameHandHpReceipt(f) &&
         pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

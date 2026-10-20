@@ -78,6 +78,7 @@ public sealed partial class GameEngine
     }
     private bool MouChenGongMovementSigned(ProgramSkillFrame f, CardMovementRecord m) => _cardMovements.Contains(m) &&
         ProgramEventHistory<MouChenGongMovementSignedEvent>().Count(e => e == new MouChenGongMovementSignedEvent(f.Id, m.CardId, m.CardKind, m.From, m.To, m.Reason, m.Sequence)) == 1;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 370)]
     private bool IsMouChenGongMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         e?.Op == SkillProgramEffectOp.ResolveMouChenGongMingceGift && f.MouChenGongGift is { Stage: MouChenGongGiftStage.GiftChildren or MouChenGongGiftStage.LosingHp or MouChenGongGiftStage.LossChildren or MouChenGongGiftStage.DrawChildren } &&
         p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && ValidMouChenGongGift(f);
@@ -117,9 +118,16 @@ public sealed partial class GameEngine
             NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]),
             static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? MouChenGongObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.MouChenGongFirstChild(f, child), static (g, n) => g.MouChenGongObserverSuffix(n));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1350)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1460)]
     private bool HasMouChenGongDamageObserver(long id) => MouChenGongObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1490)]
     private bool HasMouChenGongBeforeDamageObserver(long id) => MouChenGongObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1320)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 740)]
     private bool IsMouChenGongDying() => ActiveDying is { } dying && MouChenGongObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 120)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1910)]
     private bool AllowsMouChenGongNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || sourceLess) return false;
@@ -129,6 +137,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 520)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 510)]
     private bool IsMouChenGongRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         var index = _resolutionStack.FindIndex(x => x.Id == f.Id); var child = _resolutionStack.FindIndex(x => x.Id == recovery.Id);

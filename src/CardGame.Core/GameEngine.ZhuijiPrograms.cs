@@ -120,6 +120,7 @@ public sealed partial class GameEngine
                 f.WindowContext?.Window==SkillProgramTriggerWindow.PlayEnding && f.TriggerId==grant.EndingBindingId &&
                 (f.ZhuijiDebt is {} debt ? debt.InstructionIndex==f.InstructionIndex : f.InstructionIndex is 0 or 1 && _players[f.OwnerSeat].ZhuijiPlayDebts.Contains(grant)));
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 390)]
     private bool IsZhuijiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.ZhuijiDebt is {} r &&
         e?.Op==SkillProgramEffectOp.SettleZhuijiActualPlayDebt && p.SubjectSeat==f.OwnerSeat && p.CoverageResultBind is null && ValidZhuijiIssued(f) &&
         (r.Stage==ZhuijiDebtStage.HpChildren ? CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Count(x=>x.FrameId==f.Id && x.SkillId==f.SkillId && x.TargetSeat==f.OwnerSeat && x.Amount==1)==1 :

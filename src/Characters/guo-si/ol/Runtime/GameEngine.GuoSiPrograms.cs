@@ -64,6 +64,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 250)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 250)]
  private bool CanContinueIssuedGuoSi(ProgramSkillFrame f){if(f.GuoSi?.Stage is not(GuoSiStage.MovementChildren or GuoSiStage.NativeUse or GuoSiStage.Completed))return false;RequireIssuedGuoSi(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 250)]
  private bool IsGuoSiMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.GuoSi is{Stage:GuoSiStage.MovementChildren}&&e?.Op==SkillProgramEffectOp.ChooseTanbeiTargetPact&&CanContinueIssuedGuoSi(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireIssuedGuoSi(ProgramSkillFrame f)
  {

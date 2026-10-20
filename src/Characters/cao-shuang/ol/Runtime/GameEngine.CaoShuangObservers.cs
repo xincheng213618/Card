@@ -73,11 +73,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? CaoShuangObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.CaoShuangFirstChild(root, child),
         static (engine, child) => engine.HasMovementObserverSuffix(child));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 320)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 430)]
     private bool HasCaoShuangDamageObserver(long id) => CaoShuangObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.Any(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 290)]
     private bool IsCaoShuangDying() => ActiveDying is { } dying && CaoShuangObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 930)]
     private bool AllowsCaoShuangNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id ||

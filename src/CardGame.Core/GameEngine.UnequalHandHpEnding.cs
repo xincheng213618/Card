@@ -223,6 +223,7 @@ public sealed partial class GameEngine
     {
         if (frame.UnequalHandHp is not null) RequireUnequalHandHpReceipt(frame);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 10)]
     private bool IsUnequalHandHpMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.UnequalHandHp is { Payments.Count: > 0 } r && effect?.Op == SkillProgramEffectOp.ResolveUnequalHandHpEnding &&
         pending.SubjectSeat == r.Payments[^1].SubjectSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

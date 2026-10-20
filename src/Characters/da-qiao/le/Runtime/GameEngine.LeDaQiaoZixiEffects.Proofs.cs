@@ -87,6 +87,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is { } pending && !IsZixiEffectsMovement(f, GetPausedPrivateOfferEffect(f), pending))
             throw new InvalidOperationException("Zixi's movement continuation lost its exact paid native instruction.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 230)]
     private bool IsZixiEffectsMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.ZixiEffects is { Stage: ZixiEffectsStage.DrawChildren or ZixiEffectsStage.ObtainChildren } &&
         effect?.Op == SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects && ValidZixiEffectsStarted(f) &&
@@ -107,6 +108,8 @@ public sealed partial class GameEngine
         batch.ParentBatchId == r.BatchId && batch.Movements.Count > 0 && batch.Movements.All(m =>
             m.From == CardLocation.WoodenOxGrain(r.TargetSeat) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard &&
             _cardMovements.Contains(m)) && r.Entities.Any(e => e.PrintedKind == CardKind.WoodenOx && e.From == CardLocation.Equipment(r.TargetSeat));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 400)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 390)]
     private bool IsZixiEffectsRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.ZixiEffects is { Stage: ZixiEffectsStage.ObtainChildren } r && ValidZixiEffectsStarted(f) &&
         RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement &&

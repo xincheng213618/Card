@@ -17,11 +17,15 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? LiuPiObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.LiuPiFirstChild(root, child), static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 350)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 460)]
     private bool HasLiuPiDamageObserver(long id) => LiuPiObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 320)]
     private bool IsLiuPiDying() => ActiveDying is { } dying && LiuPiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 960)]
     private bool AllowsLiuPiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || LiuPiObserverRoot() is not { } root || root.Id == f.Id ||

@@ -35,6 +35,7 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.SoleTargetProtectionFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
     private bool HasSoleTargetProtectionCardObserver(long useId) => SoleTargetProtectionObserverRoot()?.SoleTargetProtection?.CardUseFrameId == useId;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 110)]
     private bool IsSoleTargetProtectionDying() => ActiveDying is { } dying && SoleTargetProtectionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 40)]

@@ -25,6 +25,7 @@ public sealed partial class GameEngine
   else if(r.Paid is not null||f.PendingMovementContinuation is not null||r.Before!=0||r.After!=0)throw new InvalidOperationException("Unpaid Weijie cannot claim a payment or pending movement.");
   if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}p&&(p.PlayerSeat!=f.OwnerSeat||p.SkillPrompt?.SkillId!=f.SkillId||!p.IsPrivate||!AssistedChoicesEqual(p.Choices,WeijieChoices(f))))throw new InvalidOperationException("Weijie changed its private native request frontier.");
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 400)]
  private bool IsWeijieMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation p)=>f.Weijie is{Stage:WeijieStage.CostChildren,Paid:not null}&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&effect?.Op==SkillProgramEffectOp.ResolveWeijieRequiredBasicRequest;
  private bool WeijieFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
@@ -35,9 +36,14 @@ public sealed partial class GameEngine
   return child is CardsMovedTriggerWindowFrame moved&&ProgramMovementReturnMatches(f,moved)&&moved.Batch.Id==p.PaymentBatchId&&moved.Batch.ParentFrameId==f.Id&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.Movements is[var m]&&m.Sequence==p.PaymentSequence&&m.CardId==p.CardId&&m.From==p.From&&m.To==CardLocation.DiscardPile&&m.Reason.Value==WeijieDiscardReason;
  }
  private ProgramSkillFrame? WeijieObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WeijieFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 910)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1020)]
  private bool HasWeijieDamageObserver(long id)=>WeijieObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1050)]
  private bool HasWeijieBeforeDamageObserver(long id)=>WeijieObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 880)]
  private bool IsWeijieDying()=>ActiveDying is{}d&&(ActiveWeijieDraft()is{Weijie:{Need:{Intent:WeijieIntent.Dying}need}}draft&&need.OwnerFrameId==d.Id&&need.RequestFrameId==d.Id&&WeijieParent(draft)||WeijieObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id));
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1450)]
  private bool AllowsWeijieNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess){if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||WeijieObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27462)]private bool AdvanceWeijieChildren()=>_pendingDecision is null&&WeijieObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
  private ProgramSkillFrame? ActiveWeijieDraft()=>_resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f=>f.Weijie is not null);

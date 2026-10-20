@@ -283,6 +283,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 570)]
     private bool CanContinueRecipientCategoryMark(ProgramSkillFrame f) => f.RecipientCategoryMark is { } r &&
         (r.Consumed || r.Stage == RecipientCategoryMarkStage.GiftChildren) && ValidRecipientCategoryMarkReceipt(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 160)]
     private bool IsRecipientCategoryMarkMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.RecipientCategoryMark is { } r && effect?.Op == r.Operation && f.PendingMovementContinuation == p && p.BeforeCount == 0 && p.CoverageResultBind is null &&
         p.SubjectSeat == (r.Stage == RecipientCategoryMarkStage.DiscardChildren ? r.TargetSeat : r.HolderSeat) && ValidRecipientCategoryMarkReceipt(f);

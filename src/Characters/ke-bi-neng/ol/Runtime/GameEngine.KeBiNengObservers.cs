@@ -3,6 +3,8 @@ public sealed partial class GameEngine
 {
     private bool KeBiNengCardPaymentStage(KeBiNengPingduanReceipt r) => r.Stage is KeBiNengPingduanStage.RecastChildren or KeBiNengPingduanStage.EquipmentChildren;
     private CardMoveReason KeBiNengPaymentReason(KeBiNengPingduanReceipt r) => r.Stage == KeBiNengPingduanStage.RecastChildren ? CardMoveReasons.RecastDiscard : new(PingduanEquipmentReason);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 890)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 830)]
     private bool IsKeBiNengRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.KeBiNengPingduan is { SelectedCard: { } c } r && KeBiNengCardPaymentStage(r) && ValidKeBiNeng(f) &&
         c.From == CardLocation.Equipment(r.ActorSeat) && GetAttackCard(c.CardId).Kind == CardKind.SilverLion && recovery.ParentFrameId == f.Id &&
         recovery.Return == new RecoveryReplacementReturn(PostEventContinuation.Program, f.Id) && recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion &&
@@ -30,10 +32,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? KeBiNengObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.KeBiNengFirstChild(f, c),
         static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1480)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1590)]
     private bool HasKeBiNengDamageObserver(long id) => KeBiNengObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1610)]
     private bool HasKeBiNengBeforeDamageObserver(long id) => HasKeBiNengDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1440)]
     private bool IsKeBiNengDying() => ActiveDying is { } dying && KeBiNengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2090)]
     private bool AllowsKeBiNengNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || KeBiNengObserverRoot() is not { } root || root.Id == f.Id) return false;

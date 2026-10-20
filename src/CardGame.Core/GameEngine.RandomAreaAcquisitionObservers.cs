@@ -51,14 +51,21 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? RandomAreaObserverRoot() => FindProgramObserverRoot(static (g, root, child) => g.RandomAreaFirstChild(root, child),
         static (g, index) => g.HasObserverSuffix(index, static (host, child) => host.RandomAreaObserverEdge(child),
             static (host, child, dying) => host.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 10)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 10)]
     private bool IsRandomAreaRecoveryParent(ProgramSkillFrame frame, RecoveryReplacementFrame recovery) =>
         frame.RandomAreaAcquisition is not null && RandomAreaFirstChild(frame, recovery);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 2010)]
     private bool HasRandomAreaDamageObserver(long id) => RandomAreaObserverRoot() is { } root &&
         (root.RandomAreaAcquisition!.DamageWindowId == id || _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id));
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamagePrelude, 20)]
     private bool HasRandomAreaBeforeDamageObserver(long id) => RandomAreaObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 20, group: 30)]
     private bool IsRandomAreaDying() => ActiveDying is { } dying && RandomAreaObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 80)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1810)]
     private bool AllowsRandomAreaNestedDamage(ProgramSkillFrame frame, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || frame.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != frame.Id || RandomAreaObserverRoot() is not { } root || root.Id == frame.Id)

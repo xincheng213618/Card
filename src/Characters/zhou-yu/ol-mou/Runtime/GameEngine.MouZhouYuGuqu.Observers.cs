@@ -47,6 +47,7 @@ public sealed partial class GameEngine
     { if (f.Guqu is not null) { AssertMouGuqu(f); return true; }
         return f.InstructionIndex is 0 or 1 && f.TriggerId == MouGuquBinding && f.WindowContext is { } c &&
             IsIssuedMouGuquCandidate(new(f.OwnerSeat, f.SkillId, f.TriggerId, f.SkillInstanceId, f.GameplayHash, 0, c.OccurrenceIndex), c); }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 320)]
     private bool IsMouGuquMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.Guqu is { Stage: GuquStage.DrawChildren, DrawOutcome: not null } &&
         effect?.Op == SkillProgramEffectOp.ResolveMouZhouYuGuqu && p == f.PendingMovementContinuation &&
@@ -86,12 +87,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? MouGuquObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.MouGuquFirstChild(f, child), static (g, index) => g.MouGuquObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1300)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1410)]
     private bool HasMouGuquDamageObserver(long id) => MouGuquObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1440)]
     private bool HasMouGuquBeforeDamageObserver(long id) => MouGuquObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1270)]
     private bool IsMouGuquDying() => ActiveDying is { } d && MouGuquObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1860)]
     private bool AllowsMouGuquNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -101,6 +107,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 470)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 460)]
     private bool IsMouGuquRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Guqu is null || recovery.ParentFrameId == f.Id) return false;

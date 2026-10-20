@@ -265,6 +265,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 650)]
     private bool CanContinuePhaseNamePrediction(ProgramSkillFrame f) => f.PhaseNamePrediction is not null ||
         f.WindowContext?.PhaseNamePrediction is { } p && _phaseNamePredictions.Contains(p);
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 70)]
     private bool IsPhaseNamePredictionMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is not null && PhaseNamePredictionComposition.IsOperation(e.Op) && f.PendingMovementContinuation == pending &&
         f.PhaseNamePrediction is { Stage: PhaseNamePredictionStage.CostChildren or PhaseNamePredictionStage.ClaimChildren };

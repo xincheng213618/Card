@@ -752,6 +752,7 @@ var tests = new (string Name, Action Body)[]
     ("Triggered card conversion: real hand equipment materials and cold replay", TriggeredCardConversionChecks.BlackHandAndEquipmentUseRealMaterialsAndColdReplay),
     ("program runtime hook registration preserves phase order and per-game isolation", ProgramRuntimeHookChecks.OrderedPhasesAndMatchIsolation),
     ("program runtime hook registration rejects invalid metadata", ProgramRuntimeHookChecks.InvalidMetadataRejected),
+    ("program runtime proofs preserve typed admission order and dying groups", ProgramRuntimeProofChecks.OrderedTypedAdmissionAndDyingGroups),
     ("program continuation registration preserves ordered typed returns", ProgramContinuationChecks.OrderedRegistrationPreservesReturnBoundaries),
     ("native return protocol preserves ordered preparation and isolation", ProgramNativeReturnChecks.OrderedNativeBoundariesPreservePreparationAndIsolation),
     ("native return protocol rejects invalid metadata", ProgramNativeReturnChecks.InvalidNativeReturnMetadataFailsBeforeDispatch),

@@ -51,11 +51,16 @@ public sealed partial class GameEngine
   return r.Stage=="damage" && f.AttackAttempt is{}a && f.AttackReturn is not null && a.SourceSeat==f.OwnerSeat && a.TargetSeat==r.Target && a.DamageAmount==2 && !a.SourceLess && DyingSuitsStructuralEdge(f,child);
  }
  private ProgramSkillFrame? ZhangJiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.ZhangJiFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 140)]
  private bool IsZhangJiDying()=>ActiveDying is{}d && ZhangJiObserverRoot() is{}f && _resolutionStack.FindIndex(x=>x.Id==d.Id)>_resolutionStack.FindIndex(x=>x.Id==f.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 170)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 280)]
  private bool HasZhangJiDamageObserver(long id)=>_resolutionStack.Any(x=>x.Id==id && x is DamageTriggerWindowFrame) && ZhangJiObserverRoot() is not null;
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 370)]
  private bool HasZhangJiBeforeDamageObserver(long id)=>_resolutionStack.Any(x=>x.Id==id && x is BeforeDamageProgramWindowFrame) && ZhangJiObserverRoot() is not null;
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 280)]
  private bool TryAdvanceZhangJiSubtree()=>_pendingDecision is null && ZhangJiObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 510)]
  private bool AllowsZhangJiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess || f.AttackAttempt is not null || f.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=f.Id)return false;

@@ -148,14 +148,19 @@ public sealed partial class GameEngine
         static (g, index) => g.HasObserverSuffix(index, static (host, child) => host.DamageCardColorHealthObserverEdge(child),
             static (host, child, dying) => host.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamagePrelude, 10)]
     private bool HasDamageCardColorHealthBeforeDamage(long id) => DamageCardColorHealthObserverRoot() is { } root &&
         (root.DamageCardColorHealth!.BeforeDamageWindowId == id ||
          _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1640)]
     private bool HasDamageCardColorHealthDamageObserver(long id) => DamageCardColorHealthObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 30)]
     private bool IsDamageCardColorHealthDying() => ActiveDying is { } dying && DamageCardColorHealthObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 70)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1820)]
     private bool AllowsDamageCardColorHealthNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -169,6 +174,7 @@ public sealed partial class GameEngine
                 ResolveProgramEffectTarget(f, effect.Target));
     }
 
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 30)]
     private bool IsDamageCardColorHealthRecoveryParent(ProgramSkillFrame frame, RecoveryReplacementFrame recovery)
     {
         if (frame.DamageCardColorHealth is null || !ValidDamageCardColorHealth(frame) || recovery.ParentFrameId == frame.Id)

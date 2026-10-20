@@ -152,7 +152,9 @@ public sealed partial class GameEngine
         _events.Select(e => e.Payload).Concat(_pendingEvents).OfType<PlayerDyingEvent>().Any(e =>
             e.ResolutionId == dying.Id && e.VictimSeat == dying.VictimSeat && e.KillerSeat is null);
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 100)]
     private bool HasDamageJudgmentSuitPaymentObserver(long id) => DamageJudgmentSuitPaymentRoot(id) is not null;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 580)]
     private bool IsDamageJudgmentSuitPaymentMovement(ProgramSkillFrame frame, SkillProgramEffect? effect,
         ProgramMovementContinuation movement) => effect?.Op == SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard &&
         movement.SubjectSeat == frame.OwnerSeat && movement.BeforeCount == 0 && movement.CoverageResultBind is null &&
@@ -161,6 +163,8 @@ public sealed partial class GameEngine
             ProgramDamageJudgmentPaymentStage.CleanupChildren } && IsValidDamageJudgmentSuitPayment(frame);
     private bool HasDamageJudgmentSuitPaymentRide(long judgment) => ActiveDamageTrigger is { } damage &&
         DamageJudgmentSuitPaymentRoot(damage.Id)?.DamageJudgmentSuitPayment?.JudgmentFrameId == judgment;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 410, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 410)]
     private bool IsDamageJudgmentSuitPaymentDying() => ActiveDamageTrigger is { } damage && ActiveDying is { ResumesProgramSkill: true } &&
         DamageJudgmentSuitPaymentRoot(damage.Id) is not null;
 

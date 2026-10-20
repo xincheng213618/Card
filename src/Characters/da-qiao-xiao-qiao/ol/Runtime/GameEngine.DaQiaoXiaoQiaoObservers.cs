@@ -23,6 +23,8 @@ public sealed partial class GameEngine
         return ProgramEventHistory<DaQiaoXiaoQiaoEntityPaidEvent>().Any(e=>e.FrameId==f.Id&&e.Step==r.MovementStep&&e.CardId==m.CardId&&e.From==m.From&&e.To==m.To&&e.Sequence==m.Sequence)&&r.Entities.Any(e=>e.Id==m.CardId&&e.From==m.From)&&
             m.Reason.Value==(r.Stage==DaQiaoXiaoQiaoStage.DepositChildren?XingwuDepositReason:r.Stage==DaQiaoXiaoQiaoStage.CostChildren?r.Branch=="pile"?XingwuPileReason:XingwuHandReason:XingwuEquipmentReason);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 120)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 110)]
     private bool IsDaQiaoXiaoQiaoRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.DaQiaoXiaoQiao is{}r&&ValidDaQiaoXiaoQiao(f)&&r.Stage is(DaQiaoXiaoQiaoStage.DepositChildren or DaQiaoXiaoQiaoStage.EquipmentChildren)&&
         r.Entities.Any(c=>c.From.Zone==CardZoneKind.Equipment&&GetAttackCard(c.Id).Kind==CardKind.SilverLion&&c.From.OwnerSeat==recovery.Attempt.TargetSeat)&&recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&
         recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==(r.Stage==DaQiaoXiaoQiaoStage.DepositChildren?XingwuDepositReason:XingwuEquipmentReason)&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Amount==1;
@@ -37,9 +39,14 @@ public sealed partial class GameEngine
         return child is BeforeDamageProgramWindowFrame before&&before.ParentFrameId==f.Id||child is DamageTriggerWindowFrame damage&&damage.ParentFrameId==f.Id||child is DyingFrame dying&&dying.ParentFrameId==f.Id&&dying.VictimSeat==attack.TargetSeat;
     }
     private ProgramSkillFrame? DaQiaoXiaoQiaoObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.DaQiaoXiaoQiaoFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 800)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 910)]
     private bool HasDaQiaoXiaoQiaoDamageObserver(long id)=>DaQiaoXiaoQiaoObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 940)]
     private bool HasDaQiaoXiaoQiaoBeforeDamageObserver(long id)=>HasDaQiaoXiaoQiaoDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 770)]
     private bool IsDaQiaoXiaoQiaoDying()=>ActiveDying is{}dying&&DaQiaoXiaoQiaoObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1340)]
     private bool AllowsDaQiaoXiaoQiaoNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id)return false;

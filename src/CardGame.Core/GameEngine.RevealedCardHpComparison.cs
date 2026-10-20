@@ -32,6 +32,7 @@ public sealed partial class GameEngine
         return loses ? new ProgramSkillHost(this).LoseHp(frame.Id, frame.SkillId, target, 1) : SkillProgramStepOutcome.Continue;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 460)]
     private bool IsRevealedHpComparisonProgramDying()
     {
         if (ActiveDying is not { Continuation: DyingContinuationKind.ProgramSkill, KillerSeat: null } dying)

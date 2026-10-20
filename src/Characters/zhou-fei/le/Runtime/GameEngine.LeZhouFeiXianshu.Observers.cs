@@ -119,6 +119,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Xianshu's native child lost its exact typed parent return.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 210)]
     private bool IsLeZhouFeiXianshuMovement(ProgramSkillFrame frame, SkillProgramEffect? effect,
         ProgramMovementContinuation pending) => frame.LeZhouFeiXianshu is { } receipt &&
         effect?.Op == SkillProgramEffectOp.ResolveXianshuGiftDrawAndHealth &&
@@ -126,6 +127,8 @@ public sealed partial class GameEngine
         pending.SubjectSeat == (receipt.Stage is LeZhouFeiXianshuStage.GiftChildren or LeZhouFeiXianshuStage.DrawChildren
             ? frame.OwnerSeat : receipt.TargetSeat) && receipt.Stage != LeZhouFeiXianshuStage.Drawing;
 
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 370)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 360)]
     private bool IsLeZhouFeiXianshuRecoveryParent(ProgramSkillFrame frame, RecoveryReplacementFrame recovery) =>
         frame.LeZhouFeiXianshu is { Stage: LeZhouFeiXianshuStage.HealthChildren, HealthAction: XianshuHealthAction.Recover } receipt &&
         HasPaidLeZhouFeiXianshuSelection(frame) && RecoveryReplacementFrameRidesOn(recovery, frame) &&
@@ -205,12 +208,17 @@ public sealed partial class GameEngine
                 game.IsYanPuDyingExitEdge(next),
             static (game, next, dying) => game.IsSuspendedOrPaidRescueObserverSuffix(next, dying)));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1140)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1250)]
     private bool HasLeZhouFeiXianshuDamageObserver(long id) => LeZhouFeiXianshuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1280)]
     private bool HasLeZhouFeiXianshuBeforeDamageObserver(long id) => LeZhouFeiXianshuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1110)]
     private bool IsLeZhouFeiXianshuDying() => ActiveDying is { } dying && LeZhouFeiXianshuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1680)]
     private bool AllowsLeZhouFeiXianshuNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

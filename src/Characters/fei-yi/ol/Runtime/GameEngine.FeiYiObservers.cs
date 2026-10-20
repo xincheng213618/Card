@@ -49,8 +49,13 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? FeiYiObserverRoot()=>FindProgramObserverRoot(static(e,root,child)=>e.FeiYiFirstChild(root,child),static(e,index)=>e.HasObserverSuffix(index,
         static(engine,child)=>engine.IsMovementObserverEdge(child)||engine.IsYanPuDyingExitEdge(child)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child],engine._resolutionStack[child-1]),static(engine,child,dying)=>engine.IsSuspendedOrPaidRescueObserverSuffix(child,dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 470)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 580)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 610)]
     private bool HasFeiYiDamageObserver(long id)=>FeiYiObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 440)]
     private bool IsFeiYiDying()=>ActiveDying is{}dying&&FeiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1080)]
     private bool AllowsFeiYiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||FeiYiObserverRoot()is not{}root||root.Id==f.Id)return false;

@@ -31,11 +31,15 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.RoundGainedEquipmentDrawFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 70)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 20)]
     private bool IsRoundGainedEquipmentDrawDying() => ActiveDying is { } dying && RoundGainedEquipmentDrawObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasRoundGainedEquipmentDrawCardObserver(long useId) => RoundGainedEquipmentDrawObserverRoot() is { } root &&
         root.RoundGainedEquipmentDrawReceipt!.Qualification.CardUseFrameId == useId;
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1660)]
     private bool HasRoundGainedEquipmentDrawDamageObserver(long id) => HasRoundGainedEquipmentDrawObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 240)]
     private bool HasRoundGainedEquipmentDrawBeforeDamageObserver(long id) => HasRoundGainedEquipmentDrawObserver(id, true);
     private bool HasRoundGainedEquipmentDrawObserver(long id, bool before)
     {
@@ -52,6 +56,7 @@ public sealed partial class GameEngine
         return index < rootIndex;
     }
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 840)]
     private bool AllowsRoundGainedEquipmentDrawNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

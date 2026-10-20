@@ -141,6 +141,7 @@ public sealed partial class GameEngine
         return PaidMountObserverEdge(index);
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 90)]
     private bool HasOwnedDamagePointJudgmentObserver(long damageWindowId) =>
         OwnedDamagePointJudgmentRoot(damageWindowId) is not null;
 
@@ -183,6 +184,8 @@ public sealed partial class GameEngine
         return _pendingEvents.Any(Claim) || _events.Any(e => Claim(e.Payload));
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 380, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 390)]
     private bool IsOwnedDamagePointJudgmentProgramDying() => ActiveDamageTrigger is { } damage &&
         ActiveDying is { ResumesProgramSkill: true } dying && OwnedDamagePointJudgmentRoot(damage.Id) is not null &&
         _resolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.FrameId && f.ParentFrameId == dying.ParentFrameId);

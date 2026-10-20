@@ -186,6 +186,7 @@ public sealed partial class GameEngine
                     m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == BeifenObtainReason) == 1);
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 620)]
     private bool IsBeifenMovement(ProgramSkillFrame f, SkillProgramEffect? effect,
         ProgramMovementContinuation pending)
     {

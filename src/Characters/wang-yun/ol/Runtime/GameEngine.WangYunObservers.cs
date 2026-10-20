@@ -158,11 +158,16 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? WangYunObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.WangYunFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 90)]
     private bool IsWangYunDying()=>ActiveDying is{}d && WangYunObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1540)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1650)]
     private bool HasWangYunDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && WangYunObserverRoot() is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1650)]
     private bool HasWangYunBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && WangYunObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 190)]
     private bool TryAdvanceWangYunSubtree()=>_pendingDecision is null && WangYunObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 430)]
     private bool AllowsWangYunNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {
         if(sourceLess || f.AttackAttempt is not null || f.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=f.Id || WangYunObserverRoot() is null)return false;

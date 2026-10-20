@@ -29,6 +29,7 @@ public sealed partial class GameEngine
     // The executor commits its cursor before Draw suspends. Only that actual
     // paused producer, its frozen own-hand receipt, the immediate opt-in consumer
     // and its exact movement continuation enable existing typed observer rides.
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 20)]
     private bool HasAvailableBoundDamageObserver(long damageWindowId) =>
         GetAvailableBoundDamageObserverRoot(damageWindowId) is not null;
 
@@ -75,6 +76,7 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 290, group: 10)]
     private bool IsAvailableBoundDamageProgramDying()
     {
         if (ActiveDamageTrigger is not { } trigger ||

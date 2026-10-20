@@ -52,15 +52,20 @@ public sealed partial class GameEngine
         static (engine, frame, child) => engine.OlMoRumoFirstChild(frame, child),
         static (engine, index) => engine.OlMoRumoObserverSuffix(index));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1160)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1270)]
     private bool HasOlMoRumoDamageObserver(long frameId) => OlMoRumoObserverRoot() is { } root &&
         _resolutionStack.FindIndex(item => item.Id == frameId && item is DamageTriggerWindowFrame) >
             _resolutionStack.FindIndex(item => item.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1300)]
     private bool HasOlMoRumoBeforeDamageObserver(long frameId) => OlMoRumoObserverRoot() is { } root &&
         _resolutionStack.FindIndex(item => item.Id == frameId && item is BeforeDamageProgramWindowFrame) >
             _resolutionStack.FindIndex(item => item.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1130)]
     private bool IsOlMoRumoDying() => ActiveDying is { } dying && OlMoRumoObserverRoot() is { } root &&
         _resolutionStack.FindIndex(item => item.Id == dying.Id) > _resolutionStack.FindIndex(item => item.Id == root.Id);
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1700)]
     private bool AllowsOlMoRumoNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -73,6 +78,8 @@ public sealed partial class GameEngine
                 ResolveProgramEffectTarget(frame, effect.Target));
     }
 
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 390)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 380)]
     private bool IsOlMoRumoRecoveryParent(ProgramSkillFrame frame, RecoveryReplacementFrame recovery)
     {
         if (frame.OlMoRumo is null) return false;

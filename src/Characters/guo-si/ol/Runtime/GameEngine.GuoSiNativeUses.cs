@@ -60,11 +60,16 @@ public sealed partial class GameEngine
   return child is RecoveryReplacementFrame recovery&&recovery.ParentFrameId==use.Id&&recovery.Return.ResumeFrameId==use.Id&&recovery.Return.Continuation==PostEventContinuation.GuoSiCardUse;
  }
  private ProgramSkillFrame? GuoSiObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.GuoSiFirstChild(r,c),static(e,i)=>e.GuoSiObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 210)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 320)]
  private bool HasGuoSiDamageObserver(long id)=>GuoSiObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 410)]
  private bool HasGuoSiBeforeDamageObserver(long id)=>GuoSiObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 180)]
  private bool IsGuoSiDying()=>ActiveDying is{}d&&GuoSiObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 320)]
  private bool TryAdvanceGuoSiSubtree()=>_pendingDecision is null&&GuoSiObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 550)]
  private bool AllowsGuoSiNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||GuoSiObserverRoot()is not{}r||r.Id==observer.Id)return false;

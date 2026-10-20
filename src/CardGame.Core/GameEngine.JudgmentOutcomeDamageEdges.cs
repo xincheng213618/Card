@@ -64,6 +64,7 @@ public sealed partial class GameEngine
         _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(before =>
             BeforeDamageJudgmentOutcomeRoot(before.Id)?.Id == judgment.ParentFrameId);
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 260)]
     private bool IsJudgmentOutcomeProgramDying() => ActiveDying is { ResumesProgramSkill: true } active &&
         _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(before =>
             BeforeDamageJudgmentOutcomeRoot(before.Id) is { } root &&

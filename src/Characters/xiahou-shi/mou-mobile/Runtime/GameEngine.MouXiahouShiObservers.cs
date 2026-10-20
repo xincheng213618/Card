@@ -15,6 +15,7 @@ public sealed partial class GameEngine
     }
     private bool MouXiahouShiMovementSigned(ProgramSkillFrame f, CardMovementRecord m) => _cardMovements.Contains(m) &&
         ProgramEventHistory<MouXiahouShiMovementSignedEvent>().Count(e => e == new MouXiahouShiMovementSignedEvent(f.Id, m.CardId, m.CardKind, m.From, m.To, m.Reason, m.Sequence)) == 1;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 390)]
     private bool IsMouXiahouShiMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) => e is not null && MouXiahouShiComposition.Handles(e.Op) &&
         ValidMouXiahouShi(f) && pending == f.PendingMovementContinuation && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (f.MouXiahouShiYanyu?.Stage is MouXiahouShiYanyuStage.DiscardChildren or MouXiahouShiYanyuStage.DrawChildren ||
@@ -51,15 +52,24 @@ public sealed partial class GameEngine
     private bool MouXiahouShiObserverSuffix(int index) => _resolutionStack[index + 1] is DyingFrame dying && index + 2 < _resolutionStack.Count && IsSuspendedOrPaidRescueObserverSuffix(index + 1, dying) ||
         HasObserverSuffix(index, static (g, n) => g.MouXiahouShiObserverEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? MouXiahouShiObserverRoot() => FindProgramObserverRoot(static (g, f, c) => g.MouXiahouShiFirstChild(f, c), static (g, n) => g.MouXiahouShiObserverSuffix(n));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1370)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1480)]
     private bool HasMouXiahouShiDamageObserver(long id) => MouXiahouShiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1500)]
     private bool HasMouXiahouShiBeforeDamageObserver(long id) => MouXiahouShiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1330)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 760)]
     private bool IsMouXiahouShiDying() => ActiveDying is { } dying && MouXiahouShiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 140)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1930)]
     private bool AllowsMouXiahouShiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || sourceLess || MouXiahouShiObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 540)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 530)]
     private bool IsMouXiahouShiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (IsMouXiahouShiDirectRecoveryParent(f, recovery)) return true;

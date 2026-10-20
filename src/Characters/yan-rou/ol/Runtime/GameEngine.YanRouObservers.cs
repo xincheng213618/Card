@@ -48,6 +48,8 @@ public sealed partial class GameEngine
             _cardMovements.Any(ox=>ox.Sequence>r.Before&&ox.Sequence<=r.After&&ox.CardId==r.CardId&&ox.CardKind==CardKind.WoodenOx&&ox.From==CardLocation.Equipment(r.Payer)&&ox.Reason.Value==YanRouDiscardReason);
     }
     private bool YanRouSilverLion(ProgramSkillFrame f)=>f.YanRou is{Stage:YanRouStage.DiscardChildren}r&&_cardMovements.Any(m=>IsYanRouIssuedMovement(f,m)&&m.CardId==r.CardId&&m.From==CardLocation.Equipment(r.Payer)&&m.CardKind==CardKind.SilverLion);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 720)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 660)]
     private bool IsYanRouRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.YanRou is not{}r||!RecoveryReplacementFrameRidesOn(recovery,f)||recovery.Return.Continuation!=PostEventContinuation.AwaitedProgramMovement)return false;
@@ -69,8 +71,13 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? YanRouObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.YanRouFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 520)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 630)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 660)]
     private bool HasYanRouDamageObserver(long id)=>YanRouObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 490)]
     private bool IsYanRouDying()=>ActiveDying is{}d&&YanRouObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1130)]
     private bool AllowsYanRouNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||YanRouObserverRoot()is not{}root||root.Id==f.Id)return false;

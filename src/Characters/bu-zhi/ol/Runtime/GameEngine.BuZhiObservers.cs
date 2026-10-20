@@ -12,6 +12,7 @@ public sealed partial class GameEngine
             attack.SourceSeat==f.OwnerSeat && attack.TargetSeat==r.Target && !attack.SourceLess && DyingSuitsStructuralEdge(f,child);
     }
     private ProgramSkillFrame? BuZhiObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.BuZhiFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 400)]
     private bool AllowsBuZhiNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=observer.Id)return false;
@@ -21,8 +22,12 @@ public sealed partial class GameEngine
         var e=BuZhiPausedEffect(observer)!;
         return e.Op==SkillProgramEffectOp.Damage && amount==e.Amount && source==e.ActorReference && nature==e.DamageNature && target==(e.TargetReference is{}r?ResolveProgramParticipant(observer,r):ResolveProgramEffectTarget(observer,e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10)]
     private bool IsBuZhiDying()=>ActiveDying is{}d && BuZhiObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 50)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 160)]
     private bool HasBuZhiDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && BuZhiObserverRoot() is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 270)]
     private bool HasBuZhiBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && BuZhiObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 130)]
     private bool TryAdvanceBuZhiSubtree()=>_pendingDecision is null && BuZhiObserverRoot() is not null && TryAdvanceObserverSubtree(true);

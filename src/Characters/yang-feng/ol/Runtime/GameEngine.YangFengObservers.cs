@@ -94,10 +94,13 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,27150)]
     private bool ContinuePaidYangFeng(ProgramSkillFrame f)
     {if(f.YangFeng is not{Movements.Count:>0})return false;AssertYangFeng(f);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 580)]
     private bool IsYangFengMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     {if(f.YangFeng is not{Movements.Count:>0}r||e?.Op!=r.Op||p!=f.PendingMovementContinuation)return false;AssertYangFeng(f);return true;}
     private bool YangFengLionProof(ProgramSkillFrame f,int seat,CardMoveReason? reason)
     {var m=f.YangFeng!.Movements[^1];return reason?.Value==JiaweiDiscard&&m.Stage==YangFengStage.DiscardChildren&&_cardMovements.Any(move=>move.Sequence>m.Before&&move.Sequence<=m.After&&move.CardKind==CardKind.SilverLion&&move.From==CardLocation.Equipment(seat)&&move.Reason==reason);}
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 850)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 790)]
     private bool IsYangFengRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.YangFeng is not{Movements.Count:>0}||f.PendingMovementContinuation is null)return false;AssertYangFeng(f);
@@ -115,9 +118,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? YangFengObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.YangFengFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 690)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 800)]
     private bool HasYangFengDamageObserver(long id)=>YangFengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 830)]
     private bool HasYangFengBeforeDamageObserver(long id)=>YangFengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 650)]
     private bool IsYangFengDying()=>ActiveDying is{}dying&&YangFengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2020)]
     private bool AllowsYangFengNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||YangFengObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);

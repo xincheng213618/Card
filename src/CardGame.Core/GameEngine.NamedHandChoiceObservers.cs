@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 30)]
     private bool IsNamedHandChoiceMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation movement)
     {
         if (movement.SubjectSeat != f.OwnerSeat || movement.BeforeCount != 0 || movement.CoverageResultBind is not null) return false;
@@ -44,11 +45,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? NamedHandChoiceObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.NamedHandChoiceFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1620)]
     private bool HasNamedHandChoiceDamageObserver(long id) => NamedHandChoiceObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 120)]
     private bool IsNamedHandChoiceDying() => ActiveDying is { } dying && NamedHandChoiceObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 350)]
     private bool AllowsNamedHandChoiceNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

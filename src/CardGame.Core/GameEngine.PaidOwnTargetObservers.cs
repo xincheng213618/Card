@@ -116,6 +116,7 @@ public sealed partial class GameEngine
                 (window.CandidateIndex == window.Candidates.Count || window.Contexts[window.CandidateIndex].ActualUseTarget is { } use && MatchesActualUseTarget(use));
         return HasUniqueHpPeerActualTargetObserver(useId) || HasSameTypeAidTargetObserver(useId) || ActualUseTargetObserverRoot(useId) is not null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 480)]
     private bool IsPaidOwnTargetProgramDying() => ActiveDying is { ResumesProgramSkill: true } &&
         _resolutionStack.OfType<ActualUseTargetWindowFrame>().Any(w => ActualUseTargetObserverRoot(w.ParentFrameId) is { PaidOwnTarget: not null });
 

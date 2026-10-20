@@ -37,6 +37,8 @@ public sealed partial class GameEngine
         if(m.Reason==CardMoveReasons.WoodenOxGrainDiscard)return r.Stage==WenYangStage.EndingChildren&&r.WoodenOxGrain.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(f.OwnerSeat)&&m.To==CardLocation.DiscardPile;
         return ProgramEventHistory<WenYangEntityMovedEvent>().Any(e=>e.FrameId==f.Id&&e.Step==r.MovementStep&&e.CardId==m.CardId&&e.From==m.From&&e.To==m.To&&e.Sequence==m.Sequence)&&m.Reason.Value==(r.Stage==WenYangStage.GainChildren?WenYangGain:r.Stage==WenYangStage.HandDiscardChildren?WenYangHandDiscard:WenYangEndingDiscard);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 130)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 120)]
     private bool IsWenYangRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.WenYang is not{}r||!ValidWenYang(f)||recovery.ParentFrameId!=f.Id||recovery.Return!=new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)||recovery.Attempt.SourceSeat!=f.OwnerSeat||recovery.Attempt.TargetSeat!=f.OwnerSeat)return false;
@@ -54,9 +56,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? WenYangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WenYangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 820)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 930)]
     private bool HasWenYangDamageObserver(long id)=>WenYangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 960)]
     private bool HasWenYangBeforeDamageObserver(long id)=>HasWenYangDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 790)]
     private bool IsWenYangDying()=>ActiveDying is{}dying&&WenYangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1360)]
     private bool AllowsWenYangNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||WenYangObserverRoot()is not{}root||root.Id==f.Id)return false;

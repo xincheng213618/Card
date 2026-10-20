@@ -272,6 +272,7 @@ public sealed partial class GameEngine
         if (f.OriginalHandBenefit is not { Stage: OriginalHandBenefitStage.DrawChildren }) return false;
         AssertOriginalHandEntityProgram(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 200)]
     private bool IsOriginalHandEntityMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.OfferOriginalHandLossBenefit && f.OriginalHandBenefit is { Stage: OriginalHandBenefitStage.DrawChildren } r &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 &&

@@ -58,6 +58,7 @@ public sealed partial class GameEngine
         }
         if (_cardMovements.Any(m => m.Sequence > r.Before && m.Sequence <= r.After && !IsKongShuPaidMovement(f, m))) throw new InvalidOperationException("Kong Shu's issued movement interval contains unrelated movement.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 480)]
     private bool IsKongShuMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.KongShu is { Paid: true } r && e?.Op == r.Op && KongShuMoving(r.Stage) && p == f.PendingMovementContinuation && p.SubjectSeat == r.Payer && p.BeforeCount == 0 && p.CoverageResultBind is null;
     private bool IsKongShuPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -69,6 +70,8 @@ public sealed partial class GameEngine
             ProgramEventHistory<KongShuMaterialMovedEvent>().Any(e => e.FrameId == f.Id && e.Cursor == r.Cursor && e.CardId == m.CardId && e.From == m.From && e.To == m.To && e.Sequence == m.Sequence)) return true;
         return discard && r.Grain.Contains(m.CardId) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard && r.Materials.Any(c => c.Kind == CardKind.WoodenOx && c.From == CardLocation.Equipment(r.Payer) && m.From == CardLocation.WoodenOxGrain(r.Payer));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 240)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 230)]
     private bool IsKongShuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.KongShu is { Paid: true, Stage: KongShuStage.RoundDiscardChildren } r && RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.Amount == 1 && recovery.Attempt.SourceSeat == r.Payer && recovery.Attempt.TargetSeat == r.Payer && recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && recovery.Attempt.Completion.MoveReason?.Value == FuchaoDiscardReason && r.Materials.Any(c => c.Kind == CardKind.SilverLion && c.From == CardLocation.Equipment(r.Payer));
     private bool KongShuFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
@@ -81,9 +84,14 @@ public sealed partial class GameEngine
         return child is CardsMovedTriggerWindowFrame moved && f.PendingMovementContinuation is not null && ProgramMovementReturnMatches(f, moved) && moved.Batch.OriginOwnerSeat == f.OwnerSeat && moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => IsKongShuPaidMovement(f, m));
     }
     private ProgramSkillFrame? KongShuObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.KongShuFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i, static (g, n) => g.IsMovementObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1000)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1110)]
     private bool HasKongShuDamageObserver(long id) => KongShuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1140)]
     private bool HasKongShuBeforeDamageObserver(long id) => KongShuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 970)]
     private bool IsKongShuDying() => ActiveDying is { } dying && KongShuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1540)]
     private bool AllowsKongShuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || KongShuObserverRoot() is not { } root || root.Id == f.Id) return false;

@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 870)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 810)]
     private bool IsLiuYanRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.LiuYan is{Stage:LiuYanStage.LimuRecoveryChildren,RecoveryIssued:true}&&ValidLiuYan(f)&&
         recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.Program&&
         recovery.Attempt.Completion.InstructionIndex==f.InstructionIndex&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==f.OwnerSeat&&recovery.Attempt.Amount==1;
@@ -27,9 +29,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? LiuYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 710)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 820)]
     private bool HasLiuYanDamageObserver(long id)=>LiuYanObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 850)]
     private bool HasLiuYanBeforeDamageObserver(long id)=>HasLiuYanDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 680)]
     private bool IsLiuYanDying()=>IsLiuYanOriginalDyingRide()||ActiveDying is{}d&&LiuYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2040)]
     private bool AllowsLiuYanNestedDamage(ProgramSkillFrame f,int targetSeat,int amount,ProgramParticipantReference? sourceReference,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||LiuYanObserverRoot()is not{}root||root.Id==f.Id)return false;

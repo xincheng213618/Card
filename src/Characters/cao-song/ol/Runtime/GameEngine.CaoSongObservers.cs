@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 40)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 30)]
     private bool IsCaoSongLiluRecoveryParent(ProgramSkillFrame producer, RecoveryReplacementFrame recovery) =>
         producer.CaoSongLilu is { Stage: CaoSongLiluStage.RecoveryChildren, Grows: true, GiftCount: > 0 } receipt &&
         receipt.Source == CaoSongSource(producer) && recovery.ParentFrameId == producer.Id &&
@@ -35,13 +37,17 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.CaoSongLiluFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 310)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 420)]
     private bool HasCaoSongLiluDamageObserver(long id) => CaoSongLiluObserverRoot() is { } root &&
         _resolutionStack.Any(frame => frame.Id == id && frame is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(frame => frame.Id == id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 280)]
     private bool IsCaoSongLiluDying() => ActiveDying is { } dying && CaoSongLiluObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 920)]
     private bool AllowsCaoSongLiluNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

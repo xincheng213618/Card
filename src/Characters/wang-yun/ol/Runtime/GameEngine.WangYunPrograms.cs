@@ -258,6 +258,7 @@ public sealed partial class GameEngine
         if(f.WangYunPlan?.Stage=="weapon"){IssueWangYunWeapon(f);return true;}
         if(_pendingDecision is null)PublishWangYun(f);return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 130)]
     private bool IsWangYunMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.ResolveLianjiPaidWeaponAndSlash &&
         f.WangYunPlan is{Stage:"movement"} && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;
     [ProgramContinuation(ProgramContinuationKind.Movement,22900)]

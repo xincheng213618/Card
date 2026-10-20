@@ -54,9 +54,14 @@ public sealed partial class GameEngine
  private ProgramSkillFrame? SpPangTongObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.SpPangTongFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 360)]
  private bool TryAdvanceSpPangTongSubtree()=>_pendingDecision is null&&SpPangTongObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 250)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 360)]
  private bool HasSpPangTongDamageObserver(long id)=>SpPangTongObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 450)]
  private bool HasSpPangTongBeforeDamageObserver(long id)=>SpPangTongObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 220)]
  private bool IsSpPangTongDying()=>ActiveDying is{}d&&SpPangTongObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 590)]
  private bool AllowsSpPangTongNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||f.AttackAttempt is not null||f.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=f.Id||SpPangTongObserverRoot()is not{}root||root.Id==f.Id||f.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged))return false;

@@ -33,6 +33,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? UnequalHandHpObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.UnequalHandHpFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 310)]
     private bool AllowsUnequalHandHpNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -44,8 +45,11 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 100, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 210)]
     private bool IsUnequalHandHpDying() => ActiveDying is { } dying && UnequalHandHpObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1760)]
     private bool HasUnequalHandHpDamageObserver(long id) => UnequalHandHpObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

@@ -42,6 +42,7 @@ public sealed partial class GameEngine
   if(r.Stage==YuanJiStage.ReturnChildren)return m.From==CardLocation.Hand(f.OwnerSeat)&&m.To==CardLocation.DrawPile&&r.Eligible.Contains(m.CardId)&&m.Reason.Value==(r.Op==SkillProgramEffectOp.ResolveJinghuaTurnReturn?YuanJiBottomReason:YuanJiTopReason);
   if(r.Stage!=YuanJiStage.DrawChildren||r.Draws.LastOrDefault()is not{}d)return false;return m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle||m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(d.RecipientSeat)&&m.Reason.Value==(r.Op==SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair?YuanJiPairReason:r.Op==SkillProgramEffectOp.ResolveJinghuaRoundDraw?YuanJiJinghuaReason:YuanJiShuiyueReason);
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 470)]
  private bool IsYuanJiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.YuanJi is{Stage:YuanJiStage.DrawChildren or YuanJiStage.ReturnChildren}r&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&e?.Op==r.Op;
  private bool YuanJiFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
@@ -54,10 +55,17 @@ public sealed partial class GameEngine
  }
  private bool YuanJiObserverEdge(int n)=>n>0&&_resolutionStack[n-1]is ProgramSkillFrame f&&YuanJiFirstChild(f,_resolutionStack[n]);
  private ProgramSkillFrame? YuanJiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.YuanJiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.YuanJiObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 990)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1100)]
  private bool HasYuanJiDamageObserver(long id)=>YuanJiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1130)]
  private bool HasYuanJiBeforeDamageObserver(long id)=>YuanJiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 960)]
  private bool IsYuanJiDying()=>ActiveDying is{}d&&YuanJiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1530)]
  private bool AllowsYuanJiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||YuanJiObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 230)]
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 220)]
  private bool IsYuanJiRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.YuanJi is{Stage:YuanJiStage.DrawChildren}r&&r.Draws.Count>0&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement;
 }

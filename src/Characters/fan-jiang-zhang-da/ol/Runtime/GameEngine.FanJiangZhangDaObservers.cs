@@ -32,9 +32,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? FanJiangZhangDaObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.FanJiangZhangDaFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
         static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
         static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 810)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 920)]
     private bool HasFanJiangZhangDaDamageObserver(long id) => FanJiangZhangDaObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 950)]
     private bool HasFanJiangZhangDaBeforeDamageObserver(long id) => FanJiangZhangDaObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 780)]
     private bool IsFanJiangZhangDaDying() => ActiveDying is { } d && FanJiangZhangDaObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1350)]
     private bool AllowsFanJiangZhangDaNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || FanJiangZhangDaObserverRoot() is not { } root || root.Id == f.Id) return false;

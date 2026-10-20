@@ -208,6 +208,7 @@ public sealed partial class GameEngine
             new SkillProgramAiHint(0, 0, 0, c.Parameters["branch"] == "damage-draw" ? Math.Min(5, _players[c.Targets[0]].MaxHp - _players[c.Targets[0]].Hp + SuitBenefitEffect(f).Amount) : 1,
                 0, SuitBenefitEffect(f).Amount, false, false))).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 10)]
     private bool AllowsSuitPreventionNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess) =>
         f.SuitPreventionBenefit is { Stage: SuitPreventionBenefitStage.Damaging, Branch: SuitPreventionBenefitBranch.DamageAndDraw } r &&
         target == r.RecipientSeat && amount == SuitBenefitEffect(f).Amount && nature == DamageNature.Normal && sourceLess == r.SourceLess &&

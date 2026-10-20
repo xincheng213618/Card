@@ -62,6 +62,8 @@ public sealed partial class GameEngine
     }
     private bool DingShangWanSilverLion(ProgramSkillFrame f)=>f.DingShangWan is{Stage:DingShangWanStage.FengGiftChildren or DingShangWanStage.FengDiscardChildren}r&&
         _cardMovements.Any(m=>IsDingShangWanIssuedMovement(f,m)&&m.From==CardLocation.Equipment(r.Payer)&&m.CardKind==CardKind.SilverLion);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 690)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 630)]
     private bool IsDingShangWanRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.DingShangWan is{}r&&DingShangWanSilverLion(f)&&
         RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&
         recovery.Attempt.SourceSeat==r.Payer&&recovery.Attempt.TargetSeat==r.Payer&&recovery.Attempt.Amount==1&&
@@ -86,8 +88,13 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? DingShangWanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.DingShangWanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1])||NativeDrawAttemptRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 490)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 600)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 630)]
     private bool HasDingShangWanDamageObserver(long id)=>DingShangWanObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 460)]
     private bool IsDingShangWanDying()=>ActiveDying is{}d&&DingShangWanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1100)]
     private bool AllowsDingShangWanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||DingShangWanObserverRoot()is not{}root||root.Id==f.Id)return false;

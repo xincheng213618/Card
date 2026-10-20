@@ -69,8 +69,11 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 26920)]
     private bool ContinueIssuedYuanHuan(ProgramSkillFrame f)
     { if (f.YuanHuan is not { Stage: not (YuanHuanStage.Guess or YuanHuanStage.SourceDiscard) }) return false; AssertYuanHuan(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 210)]
     private bool IsYuanHuanMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     { if (f.YuanHuan is not { Movements.Count: > 0 } r || e?.Op != r.Op || p != f.PendingMovementContinuation) return false; AssertYuanHuan(f); return true; }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 750)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 690)]
     private bool IsYuanHuanRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.YuanHuan is not { Stage: YuanHuanStage.RecoveryChildren } r) return false;
@@ -92,9 +95,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.SkillsChanged } skills && skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? YuanHuanObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.YuanHuanFirstChild(f, c), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 560)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 670)]
     private bool HasYuanHuanDamageObserver(long id) => YuanHuanObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 700)]
     private bool HasYuanHuanBeforeDamageObserver(long id) => YuanHuanObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 520)]
     private bool IsYuanHuanDying() => ActiveDying is { } dying && YuanHuanObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1160)]
     private bool AllowsYuanHuanNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || YuanHuanObserverRoot() is not { } root || root.Id == f.Id) return false;

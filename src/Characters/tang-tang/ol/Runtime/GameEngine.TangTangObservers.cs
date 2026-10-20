@@ -55,6 +55,7 @@ public sealed partial class GameEngine
         }
         else if (f.PendingMovementContinuation is not null && r.Stage is not (TangTangStage.HpIssuing or TangTangStage.HpChildren)) throw new InvalidOperationException("Tang Tang has no unowned movement continuation.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 460)]
     private bool IsTangTangMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.TangTang is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.BeforeCount == 0 && p.CoverageResultBind is null &&
         (TangTangMoving(r.Stage) && p.SubjectSeat == (r.Stage == TangTangStage.TakeChildren ? r.Peer : r.Stage == TangTangStage.DrawChildren ? r.Recipient : f.OwnerSeat) || r.Stage is TangTangStage.HpIssuing or TangTangStage.HpChildren && p.SubjectSeat == r.Peer);
     private bool IsTangTangPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
@@ -67,6 +68,8 @@ public sealed partial class GameEngine
         if (ProgramEventHistory<TangTangEntityMovedEvent>().Any(e => e.FrameId == f.Id && e.Step == r.Step && e.Stage == r.Stage && e.CardId == m.CardId && e.Kind == m.CardKind && e.From == m.From && e.To == m.To && e.Sequence == m.Sequence)) return true;
         return r.Grain.Contains(m.CardId) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard && r.Materials.Any(c => c.Kind == CardKind.WoodenOx && c.From.Zone == CardZoneKind.Equipment && m.From == CardLocation.WoodenOxGrain(c.From.OwnerSeat!.Value));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 210)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 200)]
     private bool IsTangTangRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.TangTang is { Paid: true } r && r.Stage is TangTangStage.TakeChildren or TangTangStage.GiftChildren && RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.Amount == 1 && recovery.Attempt.SourceSeat == recovery.Attempt.TargetSeat && recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion &&
         recovery.Attempt.Completion.MoveReason?.Value == (r.Stage == TangTangStage.TakeChildren ? ZexingTakeReason : ZexingGiftReason) && r.Materials.Any(c => c.Kind == CardKind.SilverLion && c.From.Zone == CardZoneKind.Equipment && c.From.OwnerSeat == recovery.Attempt.TargetSeat);
     private bool TangTangFirstChild(ProgramSkillFrame f, ResolutionFrame child)
@@ -88,9 +91,14 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? TangTangObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.TangTangFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
         static (g, n) => g.IsMovementObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 970)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1080)]
     private bool HasTangTangDamageObserver(long id) => TangTangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1110)]
     private bool HasTangTangBeforeDamageObserver(long id) => TangTangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 940)]
     private bool IsTangTangDying() => ActiveDying is { } d && TangTangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1510)]
     private bool AllowsTangTangNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || TangTangObserverRoot() is not { } root || root.Id == f.Id) return false;

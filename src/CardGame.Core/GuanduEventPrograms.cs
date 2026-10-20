@@ -246,6 +246,7 @@ public sealed partial class GameEngine
                 : r.Operation != SkillProgramEffectOp.ResolveGuanduArrogance || r.UseFrameId is not null))
             throw new InvalidOperationException("A Guandu event lost its exact instruction and once-issued payment.");
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 10)]
     private bool IsGuanduArroganceDying() => _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
         { GuanduEventFlow.Operation: SkillProgramEffectOp.ResolveGuanduArrogance } f && ActiveDying is { ResumesProgramSkill: true } d &&
         d.ParentFrameId == f.Id && d.VictimSeat == f.OwnerSeat;

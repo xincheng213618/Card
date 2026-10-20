@@ -117,11 +117,16 @@ public sealed partial class GameEngine
             return PaidObserverDamageDyingProgramMatches(response, dying);
         return EquipmentDonationDamageObserverEdge(index);
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1740)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 110)]
     private bool HasPaidColorDamageClaimDamageObserver(long exactDamageWindowId) =>
         PaidColorDamageClaimObserverRoot(exactDamageWindowId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 480, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 560)]
     private bool IsPaidColorDamageClaimProgramDying() => ActiveDying is { } dying &&
         PaidColorDamageClaimObserverRoot(ActiveDamageTrigger?.Id) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 120)]
     private bool IsPaidColorDamageClaimMovement(ProgramSkillFrame root, SkillProgramEffect? op, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == root.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (op?.Op == SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel && root.PaidColorConversion is not null ||

@@ -29,6 +29,7 @@ public sealed partial class GameEngine
             if(r.Stage!=SunYuanStage.SlashIssuing&&(r.Native is not{}o||o.Selection!=s||o.Source!=r.Source||o.GameplayHash!=r.GameplayHash||ProgramEventHistory<SayingSlashIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.UseId==o.UseId&&e.ActionId==o.ActionId&&e.OriginalActionHash==SunYuanHash(o.OriginalAction))!=1))throw new InvalidOperationException("Saying lost its exact issued whole Use.");
         }
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 440)]
     private bool IsSunYuanMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)=>f.SunYuan is{Paid:true}r&&SunYuanMovementStage(r.Stage)&&pending==f.PendingMovementContinuation&&pending.SubjectSeat==f.OwnerSeat&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&effect?.Op==r.Op;
     private bool IsSunYuanPaidMovement(ProgramSkillFrame f,CardMovementRecord m)
     {
@@ -36,6 +37,8 @@ public sealed partial class GameEngine
         if(ProgramEventHistory<SunYuanEntityMovedEvent>().Any(e=>e.FrameId==f.Id&&e.Step==r.Step&&e.Stage==r.Stage&&e.CardId==m.CardId&&e.Kind==m.CardKind&&e.From==m.From&&e.To==m.To&&e.Sequence==m.Sequence))return true;
         return r.Grain.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(r.Holder)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard&&r.Materials.Any(c=>c.Kind==CardKind.WoodenOx&&c.From==CardLocation.Equipment(r.Holder));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 190)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 180)]
     private bool IsSunYuanRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.SunYuan is{}r&&r.Stage is SunYuanStage.ObtainChildren or SunYuanStage.DiscardChildren&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==r.Holder&&recovery.Attempt.TargetSeat==r.Holder&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&r.Materials.Any(c=>c.Kind==CardKind.SilverLion&&c.From==CardLocation.Equipment(r.Holder))&&recovery.Attempt.Completion.MoveReason?.Value==(r.Stage==SunYuanStage.ObtainChildren?SayingObtainReason:DongxinDiscardReason);
     private bool SunYuanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -57,9 +60,14 @@ public sealed partial class GameEngine
         return r.Stage==SunYuanStage.NativeChildren?moved.ResumeProgramFrameId==f.Id&&IsSayingNativeSettlementBatch(f,moved.Batch):SunYuanMovementStage(r.Stage)&&ProgramMovementReturnMatches(f,moved)&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsSunYuanPaidMovement(f,m));
     }
     private ProgramSkillFrame? SunYuanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.SunYuanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 950)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1060)]
     private bool HasSunYuanDamageObserver(long id)=>SunYuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1090)]
     private bool HasSunYuanBeforeDamageObserver(long id)=>SunYuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 920)]
     private bool IsSunYuanDying()=>ActiveDying is{}d&&SunYuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1490)]
     private bool AllowsSunYuanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id)return false;

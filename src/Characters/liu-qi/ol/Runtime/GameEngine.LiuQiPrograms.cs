@@ -59,6 +59,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 160)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 160)]
  private bool CanContinueLiuQi(ProgramSkillFrame f){if(f.LiuQi is not{Stage:LiuQiStage.GiftChildren or LiuQiStage.DrawChildren})return false;RequireLiuQi(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 160)]
  private bool IsLiuQiMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation p)=>f.LiuQi is{Stage:LiuQiStage.GiftChildren or LiuQiStage.DrawChildren}&&effect is not null&&LiuQiComposition.IsOp(effect.Op)&&CanContinueLiuQi(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireLiuQi(ProgramSkillFrame f)
  {

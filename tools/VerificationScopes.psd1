@@ -157,6 +157,7 @@
         'typed trigger window driver preserves candidate and closing boundaries',
         'trigger window protocol preserves ordered skip and typed returns',
         'program runtime hook registration preserves phase order and per-game isolation',
+        'program runtime proofs preserve typed admission order and dying groups',
         'program runtime hook registration rejects invalid metadata',
         'First strategic damage: committed cursor survives real child windows and replay',
         'skill executor retires strategic damage batches',
@@ -303,7 +304,8 @@
         'Program paid choices preserve actor control and opaque slots',
         'Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift',
         'declaration and general library views protect private faces',
-        'hand responses label actual decline and retain native press feedback',
+        # Native press feedback requires idle physical input. Run it by name when
+        # changing native input; ordinary background verification cannot own it.
         'opaque target-card slots render privately and commit through WPF commands',
         'saved UI boundaries restore and continue through actual files',
         'failed writes preserve saves and failed reads initialize a new game',

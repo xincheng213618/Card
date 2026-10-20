@@ -39,6 +39,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 140)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 140)]
  private bool CanContinueIssuedXiZhiCai(ProgramSkillFrame f)=>ValidXianfuEcho(f)||ValidChouce(f);
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 150)]
  private bool IsXiZhiCaiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>p.BeforeCount==0&&p.CoverageResultBind is null&&
   (e?.Op==SkillProgramEffectOp.SettleXianfuNativeEcho&&f.XianfuPending is {Receipt.Kind:XianfuEchoKind.Recovery}&&p.SubjectSeat==f.OwnerSeat&&ValidXianfuEcho(f)||
    e?.Op==SkillProgramEffectOp.ResolveChouceFrozenJudgment&&f.Chouce is {Stage:ChouceStage.NativeChildren,TargetSeat:{} target}&&p.SubjectSeat==target&&ValidChouce(f));
@@ -87,11 +88,16 @@ public sealed partial class GameEngine
   var candidate=frame.Candidates[frame.CandidateIndex];if(candidate.OwnerSeat!=child.OwnerSeat||candidate.SkillId!=child.SkillId||candidate.TriggerId!=child.TriggerId||candidate.SkillInstanceId!=child.SkillInstanceId||candidate.GameplayHash!=child.GameplayHash)return false;
   return ValidChouce(root)&&FindProgramObserverRoot(static(e,r,c)=>e.XiZhiCaiFirstChild(r,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.XiZhiCaiObserverEdge(n),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)),root.Id) is not null;
  }
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 120)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 230)]
  private bool HasXiZhiCaiDamageObserver(long id)=>XiZhiCaiObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 320)]
  private bool HasXiZhiCaiBeforeDamageObserver(long id)=>XiZhiCaiObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 80)]
  private bool IsXiZhiCaiDying()=>ActiveDying is {} d&&XiZhiCaiObserverRoot() is {} root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 210)]
  private bool TryAdvanceXiZhiCaiSubtree()=>_pendingDecision is null&&XiZhiCaiObserverRoot() is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 450)]
  private bool AllowsXiZhiCaiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {
   if(sourceLess&&ValidXianfuEcho(f)&&f.XianfuPending is {Receipt.Kind:XianfuEchoKind.Damage} echo&&target==f.OwnerSeat&&amount==echo.Receipt.ActualAmount&&source is null&&nature is null)return true;

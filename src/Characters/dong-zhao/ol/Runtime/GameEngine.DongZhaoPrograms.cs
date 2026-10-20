@@ -157,6 +157,7 @@ public sealed partial class GameEngine
              CompleteProgramEventHistory().OfType<XianlueMovementIssuedEvent>().Any(e=>e.FrameId==f.Id && e.Stage==r.Stage && e.Before==r.GiftBefore && e.After==r.GiftAfter && e.GiftCardId==gift && e.GiftTargetSeat==target) &&
              (target==f.OwnerSeat ? r.GiftBefore==r.GiftAfter : _cardMovements.Count(m=>m.Sequence>r.GiftBefore && m.Sequence<=r.GiftAfter && m.CardId==gift && m.From==CardLocation.Hand(f.OwnerSeat) && m.To==CardLocation.Hand(target) && m.Reason.Value=="program.xianlue.gift")==1));
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 60)]
     private bool IsDongZhaoMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => e?.Op==SkillProgramEffectOp.XianlueRedistribute && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null && ValidIssuedXianlue(f);
     private bool DongZhaoFirstChild(ProgramSkillFrame root, ResolutionFrame child)
     {

@@ -151,15 +151,18 @@ public sealed partial class GameEngine
                 engine.HalfHandPaidDamageObserverEdge(child) || engine.PaidTargetObserverEdge(child),
             static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)) ? root : null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 30, group: 10)]
     private bool IsLastDamageSourceReciprocityDying() => ActiveDying is { } dying &&
         _resolutionStack.OfType<DamageTriggerWindowFrame>().Any(window => LastDamageSourceReciprocityObserverRoot(window.Id) is { } root &&
             _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id));
 
     private ProgramSkillFrame? AnyLastDamageSourceReciprocityObserverRoot() => _resolutionStack.OfType<DamageTriggerWindowFrame>()
         .Select(window => LastDamageSourceReciprocityObserverRoot(window.Id)).FirstOrDefault(root => root is not null);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1810)]
     private bool HasLastDamageSourceReciprocityDamageObserver(long windowId) =>
         _resolutionStack.Any(frame => frame.Id == windowId && frame is DamageTriggerWindowFrame) &&
         AnyLastDamageSourceReciprocityObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 770)]
     private bool AllowsLastDamageSourceReciprocityNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

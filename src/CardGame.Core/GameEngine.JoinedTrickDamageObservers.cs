@@ -31,11 +31,15 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.JoinedTrickDamageRewardFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 20, group: 70)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 30)]
     private bool IsJoinedTrickDamageRewardDying() => ActiveDying is { } dying && JoinedTrickDamageRewardObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasJoinedTrickDamageRewardCardObserver(long useId) => JoinedTrickDamageRewardObserverRoot() is { } root &&
         root.JoinedTrickDamageRewardReceipt!.Benefit.CardUseFrameId == useId;
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1670)]
     private bool HasJoinedTrickDamageRewardDamageObserver(long id) => HasJoinedTrickDamageRewardObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 230)]
     private bool HasJoinedTrickDamageRewardBeforeDamageObserver(long id) => HasJoinedTrickDamageRewardObserver(id, true);
     private bool HasJoinedTrickDamageRewardObserver(long id, bool before)
     {
@@ -52,6 +56,7 @@ public sealed partial class GameEngine
         return index < rootIndex;
     }
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 830)]
     private bool AllowsJoinedTrickDamageRewardNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

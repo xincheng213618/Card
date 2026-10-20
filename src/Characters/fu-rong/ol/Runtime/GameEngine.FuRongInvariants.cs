@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 90)]
     private bool IsFuRongAwaitedMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e?.Op == SkillProgramEffectOp.DiscardBasicPairAndReuse && f.FuRongPair is
             { Stage: FuRongPairStage.OwnerChildren or FuRongPairStage.TargetChildren or FuRongPairStage.DrawChildren or FuRongPairStage.NativeChildren } r &&

@@ -27,11 +27,26 @@ internal static class ProgramRuntimeHookChecks
         Require(a.Trace.SequenceEqual(["before", "plan"]), "Invariants receive the original frame and resolved plan in order.");
         a.Hooks.AssertFrame(ProgramFrameInvariantPhase.AfterSelectionState, frame, plan);
         Require(a.Trace.SequenceEqual(["before", "plan", "after"]), "Selection checks stay between separate invariant phases; static invariants remain supported.");
+        var recovery = new RecoveryReplacementFrame(2, frame.Id,
+            new RecoveryAttempt(2, 0, 0, 1, 2, 1, 0, [], new(RecoveryAttemptProducer.Program)),
+            new(PostEventContinuation.Program, frame.Id));
+        a.Trace.Clear(); a.ExpectedRecovery = recovery;
+        Require(a.Hooks.IsRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, frame, recovery) &&
+            a.Trace.SequenceEqual(["recovery-first", "recovery-second"]),
+            "Recovery parent proofs preserve original arguments, order and short circuit.");
+        b.ExpectedFrame = frame; b.ExpectedRecovery = recovery; b.Trace.Clear();
+        Require(!b.Hooks.IsRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, frame, recovery) &&
+            b.Trace.SequenceEqual(["recovery-first", "recovery-second", "recovery-last"]),
+            "Recovery parent proofs bind to the current match.");
+        a.Trace.Clear();
+        Require(!a.Hooks.IsRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, frame, recovery) &&
+            a.Trace.SequenceEqual(["recovery-last"]), "Recovery-only admission cannot authorize a damage cursor.");
         a.Trace.Clear(); a.Failure = new InvalidOperationException("original invariant failure");
         try { a.Hooks.AssertFrame(ProgramFrameInvariantPhase.BeforeSelectionState, frame, plan); throw new Exception("Expected failure"); }
         catch (InvalidOperationException error) when (ReferenceEquals(error, a.Failure))
         { Require(a.Trace.SequenceEqual(["before"]), "The original exception stops later checks without reflection wrapping."); }
-        Require(catalog.Hooks.Values.Concat(catalog.Invariants.Values).All(rows => rows is IList<ProgramRuntimeRegistration> list && list.IsReadOnly),
+        Require(catalog.Hooks.Values.Concat(catalog.Invariants.Values).Concat(catalog.RecoveryParents.Values)
+                .All(rows => rows is IList<ProgramRuntimeRegistration> list && list.IsReadOnly),
             "Shared metadata lists must be frozen.");
         _ = ProgramRuntimeHookCatalog.Discover(typeof(GameEngine).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic));
     }
@@ -48,6 +63,9 @@ internal static class ProgramRuntimeHookChecks
         Reject(typeof(WrongHookParameter), "invalid handler signature");
         Reject(typeof(WrongInvariantResult), "invalid handler signature");
         Reject(typeof(OptionalInvariant), "invalid handler signature");
+        Reject(typeof(DuplicateRecoveryParent), "Duplicate recovery parent order");
+        Reject(typeof(WrongRecoveryParent), "invalid handler signature");
+        Reject(typeof(InvalidRecoveryPhase), "valid phase");
         try { _ = ProgramRuntimeHookCatalog.Discover([]); }
         catch (InvalidOperationException e) when (e.Message.Contains("has no registrations", StringComparison.Ordinal)) { return; }
         throw new InvalidOperationException("Missing runtime phases must fail before dispatch.");
@@ -69,6 +87,7 @@ internal static class ProgramRuntimeHookChecks
         internal Exception? Failure { get; set; }
         internal ProgramSkillFrame? ExpectedFrame { get; set; }
         internal ProgramExecutionPlan? ExpectedPlan { get; set; }
+        internal RecoveryReplacementFrame? ExpectedRecovery { get; set; }
         internal ProgramRuntimeHooks Hooks { get; }
         internal Fixture(ProgramRuntimeHookCatalog catalog) => Hooks = new(catalog, (m, t) => m.IsStatic ? m.CreateDelegate(t) : m.CreateDelegate(t, this));
         [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 10)]
@@ -98,6 +117,17 @@ internal static class ProgramRuntimeHookChecks
         private static void Static(ProgramSkillFrame frame) => Require(frame.Id > 0, "Static argument lost.");
         [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 20)]
         private void After(ProgramSkillFrame frame) => Trace.Add("after");
+        [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 10)]
+        private bool RecoveryFirst(ProgramSkillFrame frame, RecoveryReplacementFrame recovery)
+        {
+            Require(ReferenceEquals(frame, ExpectedFrame) && ReferenceEquals(recovery, ExpectedRecovery), "Recovery parent arguments changed.");
+            Trace.Add("recovery-first"); return false;
+        }
+        [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 20)]
+        private bool RecoverySecond(ProgramSkillFrame frame, RecoveryReplacementFrame recovery) { Trace.Add("recovery-second"); return Stop; }
+        [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 30)]
+        [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 10)]
+        private bool RecoveryLast(ProgramSkillFrame frame, RecoveryReplacementFrame recovery) { Trace.Add("recovery-last"); return false; }
     }
     private sealed class DuplicateHook { [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 10)] private bool Bad() => false; }
     private sealed class DuplicateInvariant { [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 10)] private void Bad(ProgramSkillFrame f) { } }
@@ -109,4 +139,7 @@ internal static class ProgramRuntimeHookChecks
     private sealed class WrongHookParameter { [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 999)] private bool Bad(ProgramSkillFrame f) => false; }
     private sealed class WrongInvariantResult { [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 999)] private bool Bad(ProgramSkillFrame f) => false; }
     private sealed class OptionalInvariant { [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 999)] private void Bad(ProgramSkillFrame f, ProgramExecutionPlan? p = null) { } }
+    private sealed class DuplicateRecoveryParent { [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 10)] private bool Bad(ProgramSkillFrame f, RecoveryReplacementFrame r) => false; }
+    private sealed class WrongRecoveryParent { [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 999)] private bool Bad(ProgramSkillFrame f) => false; }
+    private sealed class InvalidRecoveryPhase { [ProgramRecoveryParent((ProgramRecoveryParentPhase)999, 10)] private bool Bad(ProgramSkillFrame f, RecoveryReplacementFrame r) => false; }
 }

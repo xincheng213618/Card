@@ -79,6 +79,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 110)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 110)]
     private bool CanContinueHeQi(ProgramSkillFrame f){if(f.HeQi is not{Stage:not HeQiStage.SelectingReveal})return false;RequireHeQi(f);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 360)]
     private bool IsHeQiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.HeQi is{Stage:HeQiStage.DiscardChildren or HeQiStage.ObtainChildren} && e?.Op==SkillProgramEffectOp.RevealJointHandsAndDiscardDodges && CanContinueHeQi(f) && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;
     private void RequireHeQi(ProgramSkillFrame f)
     {

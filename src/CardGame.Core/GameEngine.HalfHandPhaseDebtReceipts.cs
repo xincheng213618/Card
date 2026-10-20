@@ -95,6 +95,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The recipient support lost its actual target owning return.");
         }
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 510)]
     private bool IsHalfHandPhaseMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation movement) =>
         movement.SubjectSeat == f.OwnerSeat && movement.BeforeCount == 0 && movement.CoverageResultBind is null && (effect?.Op switch
         {

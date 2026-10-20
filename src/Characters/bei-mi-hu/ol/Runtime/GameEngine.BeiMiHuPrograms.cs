@@ -142,6 +142,7 @@ public sealed partial class GameEngine
         }
         FinishBeiMiHu(f);return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 170)]
     private bool IsBeiMiHuMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation pending)=>effect?.Op==SkillProgramEffectOp.DrawAfterActualKuiDamage && f.BeiMiHu is{Stage:"draw-children"} && pending.SubjectSeat==f.OwnerSeat && pending.BeforeCount==0 && pending.CoverageResultBind is null;
     [ProgramContinuation(ProgramContinuationKind.Movement,23202)]
     private bool ReturnBeiMiHuMovement(ProgramSkillFrame f)

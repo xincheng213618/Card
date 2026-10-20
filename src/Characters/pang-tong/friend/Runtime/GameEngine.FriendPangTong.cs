@@ -306,6 +306,7 @@ public sealed partial class GameEngine
         if (receipt.Stage == FriendPangTongStage.Issued) return true;
         if (_pendingDecision is null) ContinueFriendPangTong(frame); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 90)]
     private bool IsFriendPangTongMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.FriendPangTong is { Stage: FriendPangTongStage.Movement } receipt && effect?.Op == receipt.Operation &&
         frame.PendingMovementContinuation == pending && pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

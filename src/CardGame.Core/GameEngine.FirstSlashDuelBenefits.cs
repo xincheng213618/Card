@@ -131,6 +131,7 @@ public sealed partial class GameEngine
         RequireFirstSlashDuelBenefit(f);
         if (!DrainFirstSlashDuelChildren(f)) FinishFirstSlashDuelBenefit(f); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 400)]
     private bool IsFirstSlashDuelMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         f.FirstSlashDuelBenefit is { SelectedBranch: "draw" } r && e?.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit &&
         r.InstructionIndex == f.InstructionIndex && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;

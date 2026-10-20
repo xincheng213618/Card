@@ -126,6 +126,8 @@ public sealed partial class GameEngine
             skills.Window == SkillProgramTriggerWindow.SkillsChanged && skills.ResumeProgramFrameId == f.Id &&
             skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && skills.CandidateIndex >= 0 && skills.CandidateIndex <= skills.Candidates.Count;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 100)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 160)]
     private bool IsGameActivationAwakeningProgramDying() => ActiveDying is { } dying && CategoryActivationObserverRoot(true) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     [ProgramCapability]

@@ -88,6 +88,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 21800)]
     private bool ReturnCaoYingMovement(ProgramSkillFrame f)
     { if (f.CaoYing?.Stage != CaoYingStage.DrawChildren) return false; RequireCaoYing(f); if (!DrainCaoYingChildren(f)) FinishCaoYing(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 70)]
     private bool IsCaoYingMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => CanContinueCaoYing(f) && e?.Op == SkillProgramEffectOp.GuessTargetCategoriesAndArmTurnDamage && p.SubjectSeat == f.OwnerSeat && p.CoverageResultBind is null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 50)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 50)]
@@ -130,8 +131,12 @@ public sealed partial class GameEngine
                 m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(root.OwnerSeat) && m.Reason.Value == "skill-program.cao-ying.draw");
     }
     private ProgramSkillFrame? CaoYingObserverRoot() => FindProgramObserverRoot(static (engine, root, child) => engine.CaoYingFirstChild(root, child), static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 30)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 140)]
     private bool HasCaoYingDamageObserver(long id) => CaoYingObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 180)]
     private bool IsCaoYingDying() => ActiveDying is { } dying && CaoYingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 380)]
     private bool AllowsCaoYingNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||

@@ -99,6 +99,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 130)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 130)]
     private bool CanContinueZhugeGuo(ProgramSkillFrame f){if(f.ZhugeGuo is not{Stage:ZhugeGuoStage.GainChildren or ZhugeGuoStage.YuhuaInspect})return false;RequireZhugeGuo(f);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 140)]
     private bool IsZhugeGuoMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.ZhugeGuo is{Stage:ZhugeGuoStage.GainChildren}&&e?.Op==SkillProgramEffectOp.ObtainDeckTrickForActualEquipmentUse&&CanContinueZhugeGuo(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private void RequireZhugeGuo(ProgramSkillFrame f)
     {

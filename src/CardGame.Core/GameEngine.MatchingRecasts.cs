@@ -193,6 +193,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("A matching recast child lost its exact movement return.");
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 220)]
     private bool IsMatchingRecastMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice && f.MatchingRecast is
             { Stage: MatchingRecastStage.OwnerCostChildren or MatchingRecastStage.OwnerDrawChildren or MatchingRecastStage.PeerCostChildren or MatchingRecastStage.PeerDrawChildren } r &&

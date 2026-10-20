@@ -58,8 +58,11 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 180, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 300)]
     private bool IsPrivateOfferProgramDying() => ActiveDying is { } dying && PrivateOfferObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1980)]
     private bool HasPrivateOfferDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) && PrivateOfferObserverRoot() is not null;
     private void AssertPrivateOfferPrograms()
     {

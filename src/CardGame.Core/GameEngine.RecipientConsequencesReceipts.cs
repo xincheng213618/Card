@@ -141,6 +141,7 @@ public sealed partial class GameEngine
             f.BlackGiftContest is not null && f.PrintedLordBenefit is not null)
             throw new InvalidOperationException("Recipient consequences lost their exact paid fact, original participant or owning instruction.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 70)]
     private bool IsRecipientConsequencesMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         f.BlackGiftContest is { Stage: BlackGiftContestStage.GiftPaid or BlackGiftContestStage.DiscardPaid or BlackGiftContestStage.Pindian } &&
         e?.Op == SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest && pending == f.PendingMovementContinuation && ValidBlackGiftContest(f);

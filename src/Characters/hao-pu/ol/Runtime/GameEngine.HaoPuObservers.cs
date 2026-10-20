@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 120)]
     private bool IsZhenyingMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         effect?.Op == SkillProgramEffectOp.ResolveZhenyingSimultaneousHands && f.Zhenying is { Stage: ZhenyingStage.AdjustmentChildren } &&
         p is { BeforeCount: 0, CoverageResultBind: null } && p.SubjectSeat == f.OwnerSeat && ValidZhenying(f);
@@ -18,12 +19,17 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? ZhenyingObserverRoot() => FindProgramObserverRoot(static (e, root, child) => e.ZhenyingFirstChild(root, child),
         static (e, index) => e.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 430)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 540)]
     private bool HasZhenyingDamageObserver(long id) => ZhenyingObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 570)]
     private bool HasZhenyingBeforeDamageObserver(long id) => ZhenyingObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 400)]
     private bool IsZhenyingDying() => ActiveDying is { } dying && ZhenyingObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1040)]
     private bool AllowsZhenyingNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZhenyingObserverRoot() is not { } root || root.Id == f.Id) return false;

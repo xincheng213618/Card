@@ -323,6 +323,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("Outside-phase child lost its owning movement return.");
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 210)]
     private bool IsOutsidePhaseDrawDiscardMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect is not null && IsOutsidePhaseOperation(effect.Op) && f.OutsidePhaseDrawDiscard is { MovementIssued: true } r &&
         r.Op == effect.Op && f.PendingMovementContinuation == pending && pending.SubjectSeat == r.ParticipantSeat &&

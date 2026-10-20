@@ -44,12 +44,17 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 2000)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 100)]
     private bool HasSignedDamagePaymentObserver(long exactWindowId) => SignedDamagePaymentObserverRoot(exactWindowId) is not null;
     private bool HasSignedDamagePaymentAttackObserver(IDamageAttempt attack) => SignedDamagePaymentObserverRoot() is { } root &&
         root.SignedDamagePayment!.OriginalAttackFrameId == attack.ResolutionId && root.SignedDamagePayment.SourceSeat == attack.SourceSeat &&
         root.SignedDamagePayment.TargetSeat == attack.TargetSeat && root.SignedDamagePayment.Nature == GetDamageNature(attack);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 460, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 540)]
     private bool IsSignedDamagePaymentProgramDying() => ActiveDying is { } dying && SignedDamagePaymentObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 40)]
     private bool AllowsSignedDamagePaymentNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

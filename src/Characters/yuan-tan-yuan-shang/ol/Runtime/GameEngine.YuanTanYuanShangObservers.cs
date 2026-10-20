@@ -17,11 +17,16 @@ public sealed partial class GameEngine
   return child is RecoveryReplacementFrame recovery&&RecoveryReplacementFrameRidesOn(recovery,root)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==victim&&recovery.Attempt.TargetSeat==victim&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&_cardMovements.Any(m=>m.CardId==cardId&&m.From==from&&m.Sequence>paid.Before&&m.Sequence<=paid.After&&m.Reason==recovery.Attempt.Completion.MoveReason);
  }
  private ProgramSkillFrame? NeifaObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.NeifaFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 260)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 370)]
  private bool HasNeifaDamageObserver(long id)=>NeifaObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 460)]
  private bool HasNeifaBeforeDamageObserver(long id)=>NeifaObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 230)]
  private bool IsNeifaDying()=>ActiveDying is{}d&&NeifaObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 370)]
  private bool TryAdvanceNeifaSubtree()=>_pendingDecision is null&&NeifaObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 600)]
  private bool AllowsNeifaNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||NeifaObserverRoot()is not{}r||r.Id==observer.Id)return false;

@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         }
         if (f.PendingMovementContinuation is { } movement && !IsLiFengMovement(f, GetPausedPrivateOfferEffect(f), movement)) throw new InvalidOperationException("Li Feng retained an unrelated movement continuation.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 540)]
     private bool IsLiFengMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.LiFeng is { Paid: true } r && effect?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is LiFengStage.InitialChildren or LiFengStage.PreparationChildren or LiFengStage.CollectChildren or LiFengStage.DistributionChildren;
     private bool IsLiFengPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -67,14 +68,21 @@ public sealed partial class GameEngine
     }
     private bool LiFengObserverSuffix(int index) => HasObserverSuffix(index, static (g, n) => g.IsMovementObserverEdge(n) || g.IsSameNameHandObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? LiFengObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.LiFengFirstChild(f, child), static (e, index) => e.LiFengObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1060)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1170)]
     private bool HasLiFengDamageObserver(long id) => LiFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1200)]
     private bool HasLiFengBeforeDamageObserver(long id) => LiFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1030)]
     private bool IsLiFengDying() => ActiveDying is { } dying && LiFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1600)]
     private bool AllowsLiFengNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || LiFengObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature && target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 290)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 280)]
     private bool IsLiFengRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.LiFeng is not { Paid: true } r) return false;

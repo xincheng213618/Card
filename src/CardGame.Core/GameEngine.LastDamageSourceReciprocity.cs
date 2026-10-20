@@ -218,6 +218,7 @@ public sealed partial class GameEngine
         if (f.LastDamageSourceReciprocity is not { MovementIssued: true } || f.PendingMovementContinuation is null) return false;
         AssertLastDamageSourceReciprocity(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 100)]
     private bool IsLastDamageSourceReciprocityMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.LastDamageSourceReciprocity is { } receipt && effect is { Op: SkillProgramEffectOp.LastDamageSourceReciprocity } && effect.StateId == receipt.StateId &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == receipt.ParticipantSeat && ValidLastDamageSourceReceipt(f);

@@ -42,6 +42,8 @@ public sealed partial class GameEngine
             (r.BenefitsMask & (1 << (e.Benefit - 1))) == 0 || e.SequenceBefore < 0 || e.SequenceAfter < e.SequenceBefore || e.SequenceAfter > _movementSequence))
             throw new InvalidOperationException("A Weimian benefit cannot issue twice or be paid by another recipient.");
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 50)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 40)]
     private bool IsSunRuOlRecoveryParent(ProgramSkillFrame producer, RecoveryReplacementFrame recovery)
     {
         if (producer.SunRuOlWeimian is not { Paid: true } r || r.Source != SunRuOlSource(producer) ||
@@ -81,11 +83,15 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? SunRuOlObserverRoot() => FindProgramObserverRoot(
         static (e, root, child) => e.SunRuOlFirstChild(root, child), static (e, index) => e.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 340)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 450)]
     private bool HasSunRuOlDamageObserver(long id) => SunRuOlObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 310)]
     private bool IsSunRuOlDying() => ActiveDying is { } dying && SunRuOlObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 950)]
     private bool AllowsSunRuOlNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || SunRuOlObserverRoot() is not { } root || root.Id == f.Id) return false;

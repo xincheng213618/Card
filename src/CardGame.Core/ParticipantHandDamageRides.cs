@@ -28,6 +28,7 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 70)]
     private bool HasPaidHandRepaymentObserver(long damageWindowId) => GetPaidHandRepaymentRoot(damageWindowId) is not null;
 
     private static bool ParticipantHandDyingRide(ResolutionFrame child, ResolutionFrame parent) =>
@@ -129,6 +130,8 @@ public sealed partial class GameEngine
             RecoveryReplacementFrameRidesOn(frame, parent) || ParticipantHandRescueCardWindowRide(frame, parent, rescue);
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 360, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 380)]
     private bool IsPaidHandRepaymentProgramDying()
     {
         if (ActiveDamageTrigger is not { } trigger || ActiveDying is not { ResumesProgramSkill: true } dying ||

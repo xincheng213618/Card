@@ -52,8 +52,10 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 60)]
     private bool HasCappedHandRefreshObserver(long damageWindowId) => CappedHandRefreshObserverRoot(damageWindowId) is not null;
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 350, group: 10)]
     private bool IsCappedHandRefreshProgramDying() =>
         ActiveDamageTrigger is { } damage && ActiveDying is { ResumesProgramSkill: true } dying &&
         CappedHandRefreshObserverRoot(damage.Id) is not null &&

@@ -13,6 +13,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? OldHandDispositionObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.OldHandDispositionFirstChild(root, child),
         static (engine,index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 890)]
     private bool AllowsOldHandDispositionNestedDamage(ProgramSkillFrame observer,int target,int amount,
         ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
@@ -24,8 +25,10 @@ public sealed partial class GameEngine
         return e.Op==SkillProgramEffectOp.Damage && amount==e.Amount && source==e.ActorReference && nature==e.DamageNature &&
             target==(e.TargetReference is { } reference ? ResolveProgramParticipant(observer,reference) : ResolveProgramEffectTarget(observer,e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 70, group: 10)]
     private bool IsOldHandDispositionProgramDying()=>ActiveDying is { } dying && OldHandDispositionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f=>f.Id==dying.FrameId)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1730)]
     private bool HasOldHandDispositionDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && OldHandDispositionObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 510)]
     private bool TryAdvanceOldHandDispositionSubtree()=>_pendingDecision is null && OldHandDispositionObserverRoot() is not null && TryAdvanceObserverSubtree(false);

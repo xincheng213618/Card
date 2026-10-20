@@ -101,16 +101,19 @@ public sealed partial class GameEngine
         return PaidMountObserverEdge(index);
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 30)]
     private bool HasPreventionDrawDying(long beforeDamageId) => ActiveDying is { ResumesProgramSkill: true } dying &&
         PreventionDrawObserverRoot(beforeDamageId) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 400)]
     private bool IsPreventionDrawProgramDying() => _resolutionStack.OfType<BeforeDamageProgramWindowFrame>()
         .Any(parent => HasPreventionDrawDying(parent.Id));
 
     // An outer after-damage cursor is admitted only when this exact original
     // program attack return names it and the ancestry still contains that live
     // candidate. A different prevention/Dying chain cannot bless the cursor.
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 390, group: 10)]
     private bool IsPreventionDrawInsideDamageProgramDying()
     {
         if (ActiveDamageTrigger is not { } damage) return false;

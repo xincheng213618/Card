@@ -184,6 +184,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("A paired recast child lost its exact movement return.");
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 230)]
     private bool IsPairedHandRecastMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.PairedHandRecast && f.PairedHandRecast is
             { Stage: PairedHandRecastStage.CostChildren or PairedHandRecastStage.DrawChildren } r &&

@@ -75,6 +75,7 @@ public sealed partial class GameEngine
         return moving.Length == 0 ? receipt.SequenceBefore == receipt.SequenceAfter && moved.Length == 0 : moved.Length == moving.Length &&
             moving.All(p => moved.Count(m => m.CardId == p.id && m.From == p.from && m.To == CardLocation.Hand(receipt.TargetSeat)) == 1);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 10)]
     private bool IsPhaseHandSeizureMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (effect?.Op == SkillProgramEffectOp.DiscardTurnOverAndTakeHand && frame.PhaseHandSeizure?.Stage is

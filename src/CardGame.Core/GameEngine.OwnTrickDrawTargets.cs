@@ -126,6 +126,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 560)]
     private bool IsOwnTrickDrawMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation m) =>
         e?.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick && f.OwnTrickDraw is not null &&
         m.SubjectSeat == f.OwnerSeat && m.BeforeCount == 0 && m.CoverageResultBind is null &&
@@ -137,6 +138,8 @@ public sealed partial class GameEngine
         first.Batch.OriginSkillId == f.SkillId && first.Batch.OriginSkillInstanceId == f.SkillInstanceId && first.Batch.OriginOwnerSeat == f.OwnerSeat &&
         first.Batch.Movements.Count > 0 && first.Batch.Movements.All(x => _cardMovements.Contains(x) &&
             x.Sequence > r.SequenceBefore && x.Sequence <= r.SequenceAfter && x.From == CardLocation.DrawPile && x.To == CardLocation.Hand(f.OwnerSeat) && x.Reason.Value == OwnTrickDrawReason);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 230, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 490)]
     private bool IsOwnTrickDrawProgramDying() => ActiveDying is { } dying && _resolutionStack.OfType<ActualUseTargetWindowFrame>()
         .Any(w => ActualUseTargetObserverRoot(w.ParentFrameId) is { OwnTrickDraw: not null } root &&
             _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id));

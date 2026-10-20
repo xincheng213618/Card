@@ -75,8 +75,11 @@ public sealed partial class GameEngine
             IsIssuedRuanHuiCandidate(new(f.OwnerSeat,f.SkillId,id,f.SkillInstanceId,f.GameplayHash,0,context.OccurrenceIndex))&&
             CanRunIssuedRuanHuiCandidate(new(f.OwnerSeat,f.SkillId,id,f.SkillInstanceId,f.GameplayHash,GetProgramTrigger(f).Priority,context.OccurrenceIndex),context);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 260)]
     private bool IsRuanHuiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     {if(f.RuanHui is not{}r||e?.Op!=r.Op||p!=f.PendingMovementContinuation||r.Stage is RuanHuiStage.DrawChoice or RuanHuiStage.TargetChoice)return false;AssertRuanHui(f);return true;}
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 790)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 730)]
     private bool IsRuanHuiRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.RuanHui is not{Stage:RuanHuiStage.RandomChildren,RandomEntity:{Kind:CardKind.SilverLion}card,Steps.Count:>0}r||f.PendingMovementContinuation is null)return false;
@@ -95,9 +98,14 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? RuanHuiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.RuanHuiFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 620)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 730)]
     private bool HasRuanHuiDamageObserver(long id)=>RuanHuiObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 760)]
     private bool HasRuanHuiBeforeDamageObserver(long id)=>RuanHuiObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 580)]
     private bool IsRuanHuiDying()=>ActiveDying is{}d&&RuanHuiObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1220)]
     private bool AllowsRuanHuiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||RuanHuiObserverRoot()is not{}r||r.Id==f.Id)return false;

@@ -185,6 +185,7 @@ public sealed partial class GameEngine
     {
         if (frame.DamageZoneAcquisition is not null) RequireDamageAcquisitionReceipt(frame);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 50)]
     private bool IsDamageAcquisitionMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     {
         if (f.DamageZoneAcquisition?.Stage != DamageZoneAcquisitionStage.MovementChildren || e?.Op != SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly ||

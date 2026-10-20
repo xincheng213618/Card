@@ -136,6 +136,7 @@ public sealed partial class GameEngine
     }
     private bool DrainMouCaoPi(ProgramSkillFrame f) => TryBeginAdvancedSkillsChanged(f.Id) || TryBeginQueuedRecoveryReplacement(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) || TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 550)]
     private bool IsMouCaoPiMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation continuation) =>
         f.MouCaoPi is { Stage: not MouCaoPiStage.Choosing } r && effect?.Op == r.Op && continuation == f.PendingMovementContinuation &&
         continuation.SubjectSeat == r.TargetSeat && continuation.BeforeCount == 0 && continuation.CoverageResultBind is null &&

@@ -196,13 +196,20 @@ public sealed partial class GameEngine
         static (g, child, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(child, dying));
     private ProgramSkillFrame? MouHuaXiongObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.MouHuaXiongFirstChild(f, child),
         static (g, index) => g.MouHuaXiongObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1270)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1380)]
     private bool HasMouHuaXiongDamageObserver(long id) => MouHuaXiongObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1410)]
     private bool HasMouHuaXiongBeforeDamageObserver(long id) => MouHuaXiongObserverRoot() is { } root &&
         (root.MouHuaXiongYaowu?.WindowId == id ||
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1240)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 800)]
     private bool IsMouHuaXiongDying() => ActiveDying is { } dying && MouHuaXiongObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 60)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1830)]
     private bool AllowsMouHuaXiongNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || MouHuaXiongObserverRoot() is not { } root || root.Id == f.Id) return false;
@@ -210,6 +217,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 570)]
     private bool IsMouHuaXiongRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (!MouHuaXiongPaidRoot(f) || recovery.ParentFrameId == f.Id) return false;

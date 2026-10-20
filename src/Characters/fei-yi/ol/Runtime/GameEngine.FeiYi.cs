@@ -138,6 +138,7 @@ public sealed partial class GameEngine
     private void CompleteFeiYi(ProgramSkillFrame f,bool applied){AdvanceEventRulesAndQueueFact(new FeiYiCompletedEvent(f.Id,applied));ReplaceRuntimeTop(f=f with{FeiYi=null,PendingMovementContinuation=null});FinishProgramSkill(f,applied);}
     [ProgramContinuation(ProgramContinuationKind.Resume,26600)] private bool ResumeFeiYi(long id){if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame{FeiYi:not null}f||f.Id!=id)return false;ContinueFeiYi(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,26600)] private bool ReturnFeiYiMovement(ProgramSkillFrame f){if(f.FeiYi is null)return false;ContinueFeiYi(f.Id);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 140)]
     private bool IsFeiYiAwaitedMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.FeiYi is{Paid:true,Stage:FeiYiStage.DrawChildren or FeiYiStage.DiscardChildren or FeiYiStage.HezhongDrawChildren}&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&(e is null||FeiYiComposition.IsOperation(e.Op));
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,26600)] [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,26600)]
     private bool ContinuePaidFeiYi(ProgramSkillFrame f)=>f.FeiYi is{Paid:true}r&&ProgramEventHistory<FeiYiStartedEvent>().Count(e=>e.FrameId==f.Id&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash)==1;

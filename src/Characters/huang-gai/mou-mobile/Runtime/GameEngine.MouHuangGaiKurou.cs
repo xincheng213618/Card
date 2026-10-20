@@ -254,6 +254,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("KuRou's private current-entity gift choice escaped its real chooser.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 400)]
     private bool IsMouKurouMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.ResolveMouHuangGaiKurouGift && frame.MouHuangGaiKurou is
             { Stage: MouHuangGaiKurouStage.GiftChildren or MouHuangGaiKurouStage.LossRequested or MouHuangGaiKurouStage.LossChildren } &&
@@ -294,12 +295,18 @@ public sealed partial class GameEngine
         static (game, child, dying) => game.IsSuspendedOrPaidRescueObserverSuffix(child, dying));
     private ProgramSkillFrame? MouKurouObserverRoot() => FindProgramObserverRoot(
         static (game, frame, child) => game.MouKurouFirstChild(frame, child), static (game, index) => game.MouKurouObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1380)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1490)]
     private bool HasMouKurouDamageObserver(long id) => MouKurouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == id && frame is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1510)]
     private bool HasMouKurouBeforeDamageObserver(long id) => MouKurouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == id && frame is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1340)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 730)]
     private bool IsMouKurouDying() => ActiveDying is { } dying && MouKurouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1940)]
     private bool AllowsMouKurouNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -308,6 +315,8 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } participant ? ResolveProgramParticipant(frame, participant) : ResolveProgramEffectTarget(frame, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 600)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 540)]
     private bool IsMouKurouRecoveryParent(ProgramSkillFrame frame, RecoveryReplacementFrame recovery)
     {
         if (frame.MouHuangGaiKurou is null || recovery.ParentFrameId == frame.Id) return false;

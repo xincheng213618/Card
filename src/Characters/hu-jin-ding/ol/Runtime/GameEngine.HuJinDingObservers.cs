@@ -55,6 +55,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 26820)]
     private bool ContinuePaidHuJinDing(ProgramSkillFrame f)
     { if (f.Qingyuan is not { Stage: QingyuanStage.TakeChildren }) return false; AssertHuJinDing(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 190)]
     private bool IsHuJinDingMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending)
     { if (f.Qingyuan is not { Stage: QingyuanStage.TakeChildren } r || effect?.Op != r.Op || pending != f.PendingMovementContinuation) return false; AssertHuJinDing(f); return true; }
     private bool HuJinDingFirstChild(ProgramSkillFrame f, ResolutionFrame child)
@@ -68,13 +69,20 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.SkillsChanged } skills &&
             skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 900)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 840)]
     private bool IsHuJinDingRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => false;
     private ProgramSkillFrame? HuJinDingObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.HuJinDingFirstChild(f, c), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1490)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1600)]
     private bool HasHuJinDingDamageObserver(long id) => HuJinDingObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1620)]
     private bool HasHuJinDingBeforeDamageObserver(long id) => HuJinDingObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1460)]
     private bool IsHuJinDingDying() => ActiveDying is { } dying && HuJinDingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2110)]
     private bool AllowsHuJinDingNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || HuJinDingObserverRoot() is not { } root || root.Id == f.Id) return false;

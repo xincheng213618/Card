@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 810)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 750)]
     private bool IsDuanJiongRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.DuanJiongSaogu is { } r &&
         r.Stage is DuanJiongSaoguStage.DelegateChildren or DuanJiongSaoguStage.DiscardChildren && ValidSaogu(f) &&
         r.Selected.Any(c => c.From == CardLocation.Equipment(r.Stage == DuanJiongSaoguStage.DelegateChildren ? f.OwnerSeat : r.ActorSeat) && c.Kind == CardKind.SilverLion) &&
@@ -37,10 +39,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? SaoguObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.SaoguFirstChild(f, c),
         static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 640)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 750)]
     private bool HasDuanJiongDamageObserver(long id) => SaoguObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 780)]
     private bool HasDuanJiongBeforeDamageObserver(long id) => HasDuanJiongDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 600)]
     private bool IsDuanJiongDying() => ActiveDying is { } dying && SaoguObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1240)]
     private bool AllowsDuanJiongNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || SaoguObserverRoot() is not { } root || root.Id == f.Id) return false;

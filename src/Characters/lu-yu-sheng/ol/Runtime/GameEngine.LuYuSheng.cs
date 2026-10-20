@@ -118,6 +118,7 @@ public sealed partial class GameEngine
     private void FinishLuYuSheng(ProgramSkillFrame f){AdvanceEventRulesAndQueueFact(new LuYuShengCompletedEvent(f.Id,true));ReplaceRuntimeTop(f=f with{LuYuSheng=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
     [ProgramContinuation(ProgramContinuationKind.Resume,26900)]private bool ResumeLuYuSheng(long id){if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{LuYuSheng:not null}f||f.Id!=id)return false;ContinueLuYuSheng(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,26900)]private bool ReturnLuYuSheng(ProgramSkillFrame f){if(f.LuYuSheng is null)return false;ContinueLuYuSheng(f.Id);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 200)]
     private bool IsLuYuShengAwaitedMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.LuYuSheng is{}r&&p.SubjectSeat==r.Payer&&p.BeforeCount==0&&p.CoverageResultBind is null&&(e is null||LuYuShengComposition.IsOperation(e.Op));
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,26900)][ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,26900)]private bool ContinuePaidLuYuSheng(ProgramSkillFrame f){if(f.LuYuSheng is null)return false;AssertLuYuSheng(f);return true;}
     [ProgramAiChoice(SkillProgramEffectOp.RevealBottomHeartsAndDraw,SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction,SkillProgramEffectOp.RunweiDrawOrDiscardForActualPhase)]

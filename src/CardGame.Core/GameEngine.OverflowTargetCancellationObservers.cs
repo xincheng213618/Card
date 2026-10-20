@@ -169,9 +169,13 @@ public sealed partial class GameEngine
             HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 520, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 600)]
     private bool IsOverflowTargetCancellationDying() => ActiveDying is { } dying && OverflowTargetCancellationObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1700)]
     private bool HasOverflowTargetCancellationDamageObserver(long id) => HasOverflowTargetCancellationObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 170)]
     private bool HasOverflowTargetCancellationBeforeDamageObserver(long id) => HasOverflowTargetCancellationObserver(id, true);
     private bool HasOverflowTargetCancellationObserver(long id, bool before)
     {
@@ -187,6 +191,7 @@ public sealed partial class GameEngine
                 !DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child])) return false;
         return index < rootIndex;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 140)]
     private bool AllowsOverflowTargetCancellationNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

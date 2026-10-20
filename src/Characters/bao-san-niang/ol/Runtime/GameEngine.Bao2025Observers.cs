@@ -80,6 +80,7 @@ public sealed partial class GameEngine
     private bool CanContinueBao2025(ProgramSkillFrame f) => f.Bao2025 is { } r && ValidBao2025(f) &&
         (r.GainedCardId is not null || r.Stage is ProgramBao2025Stage.AssaultCostChildren or ProgramBao2025Stage.AssaultUse or ProgramBao2025Stage.AssaultOutcomes or
             ProgramBao2025Stage.AssaultOutcomeChildren or ProgramBao2025Stage.DyingRecipientChoice or ProgramBao2025Stage.DyingSkillChildren or ProgramBao2025Stage.DyingRecoveryChildren);
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 50)]
     private bool IsBaoMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.Bao2025 is not null && e is not null && IsBaoOperation(e.Op) && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && ValidBao2025(f);
     private bool IsChosenAssaultUse(long id) => LifecycleCardUse(id) is { ChosenAssault: { } ret, CardId: 0, CardKind: CardKind.BarbarianAssault,
@@ -139,10 +140,14 @@ public sealed partial class GameEngine
         (m.Reason == BaoGainReason || m.Reason == BaoCostReason || m.Reason == BaoOutcomeReason));
     private ProgramSkillFrame? BaoObserverRoot() => FindProgramObserverRoot(static (engine, root, child) => engine.BaoFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 20)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1680)]
     private bool HasBaoDamageObserver(long id) => BaoObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 170)]
     private bool IsBaoDying() => ActiveDying is { } dying && BaoObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 720)]
     private bool AllowsBaoNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||

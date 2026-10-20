@@ -72,7 +72,10 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 120)]
     private bool HasFireTargetBenefitObserver(long windowId) => FireTargetBenefitObserverRoot(windowId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 200, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 320)]
     private bool IsFireTargetBenefitProgramDying() => ActiveDamageTrigger is { } w && ActiveDying is { } dying &&
         FireTargetBenefitObserverRoot(w.Id) is not null && _resolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.FrameId);
 }

@@ -115,6 +115,7 @@ public sealed partial class GameEngine
     private bool CanContinueSelectedForeignCardSlash(ProgramSkillFrame frame) =>
         frame.ForeignSelectedCardSlash is { Stage: not ForeignSelectedCardSlashStage.ChoosingCard and not ForeignSelectedCardSlashStage.IssuingUse } &&
         ValidSelectedForeignCardSlash(frame);
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 40)]
     private bool IsSelectedForeignCardSlashMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.UseSelectedForeignCardAsSlash && frame.PendingMovementContinuation == pending &&
         frame.ForeignSelectedCardSlash is { Stage: ForeignSelectedCardSlashStage.SettlementChildren or ForeignSelectedCardSlashStage.DrawChildren } &&
@@ -178,9 +179,13 @@ public sealed partial class GameEngine
             { Stage: ForeignSelectedCardSlashStage.SettlementChildren or ForeignSelectedCardSlashStage.DrawChildren } &&
             engine.SelectedForeignCardSlashFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 30, group: 80)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 140)]
     private bool IsSelectedForeignCardSlashProgramDying() => ActiveDying is { } dying && SelectedForeignCardSlashObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1650)]
     private bool HasSelectedForeignCardSlashDamageObserver(long id) => HasSelectedForeignCardSlashObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 10)]
     private bool HasSelectedForeignCardSlashBeforeDamageObserver(long id) => HasSelectedForeignCardSlashObserver(id, true);
     private bool HasSelectedForeignCardSlashObserver(long id, bool before)
     {
@@ -196,6 +201,7 @@ public sealed partial class GameEngine
                 !OrderedPrintedSkillLossSkillsChangedEdge(_resolutionStack[child - 1], _resolutionStack[child])) return false;
         return index < rootIndex;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 260)]
     private bool AllowsSelectedForeignCardSlashNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

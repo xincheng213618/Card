@@ -102,6 +102,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Yixian's movement/recovery child lost its typed parent return.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 240)]
     private bool IsWuYixianMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.Yixian is { Paid: true } r && effect?.Op == SkillProgramEffectOp.ResolveYixianAllEquipmentObtainAndCompensate &&
         pending == f.PendingMovementContinuation && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
@@ -124,6 +125,8 @@ public sealed partial class GameEngine
     }
     private bool WuYixianLionRemoval(ProgramSkillFrame f, int seat) => f.Yixian is { Stage: YixianStage.EquipmentChildren } r &&
         r.Entities.Any(e => e.PrintedKind == CardKind.SilverLion && e.From == CardLocation.Equipment(seat) && e.To != e.From);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 410)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 400)]
     private bool IsWuYixianRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Yixian is not { Paid: true } r || !HasPaidWuYixian(f)) return false;
@@ -168,12 +171,17 @@ public sealed partial class GameEngine
         static (g, next, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(next, dying));
     private ProgramSkillFrame? WuYixianObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WuYixianFirstChild(f, child), static (g, index) => g.WuYixianObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1180)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1290)]
     private bool HasWuYixianDamageObserver(long id) => WuYixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1320)]
     private bool HasWuYixianBeforeDamageObserver(long id) => WuYixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1150)]
     private bool IsWuYixianDying() => ActiveDying is { } dying && WuYixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1720)]
     private bool AllowsWuYixianNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WuYixianObserverRoot() is not { } root || root.Id == f.Id) return false;

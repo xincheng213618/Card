@@ -35,9 +35,13 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1840)]
     private bool HasCappedConversionBenefitObserver(long damageWindowId) => CappedConversionObserverRoot(damageWindowId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 600, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 690)]
     private bool IsCappedConversionBenefitProgramDying() => ActiveDying is not null && CappedConversionObserverRoot() is not null;
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 70)]
     private bool AllowsCappedConversionNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

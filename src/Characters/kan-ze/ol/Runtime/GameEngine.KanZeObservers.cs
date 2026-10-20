@@ -84,6 +84,7 @@ public sealed partial class GameEngine
   if(f.PendingMovementContinuation is not {BeforeCount:0,CoverageResultBind:null,SubjectSeat:var actor}||actor!=f.OwnerSeat)throw new InvalidOperationException("Xiashu lost its native movement continuation.");
   if(r.Stage==XiashuStage.ClaimChildren&&(GetProgramCardSet(f,XiashuClaimBind).CardIds.Count!=r.Count||CompleteProgramEventHistory().OfType<XiashuClaimPaidEvent>().Count(e=>e.FrameId==f.Id&&e.Before==r.Before&&e.After==r.After&&e.Count==r.Count)!=1||GetProgramCardSet(f,XiashuClaimBind).CardIds.Any(id=>_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==id&&m.From==CardLocation.Hand(i.RecipientSeat)&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==XiashuClaimReason)!=1)))throw new InvalidOperationException("Xiashu claim invoice changed.");
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 120)]
  private bool IsXiashuMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation p)=>f.XiashuPaid is {Stage:XiashuStage.GiftChildren or XiashuStage.ClaimChildren}&&effect?.Op==SkillProgramEffectOp.GiveAllHandAndResolveXiashu&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&CanContinueIssuedKanZe(f);
  private bool KanZeFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -91,11 +92,16 @@ public sealed partial class GameEngine
   return moved.Batch.ParentFrameId==root.Id&&moved.Batch.AwaitingProgramFrameId==root.Id&&moved.Batch.OriginOwnerSeat==root.OwnerSeat&&moved.Batch.OriginSkillId==root.SkillId&&moved.Batch.OriginSkillInstanceId==root.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&m.Reason.Value==(r.Stage==XiashuStage.GiftChildren?XiashuGiftReason:XiashuClaimReason)&&m.From==CardLocation.Hand(r.Stage==XiashuStage.GiftChildren?root.OwnerSeat:r.Invoice.RecipientSeat)&&m.To==CardLocation.Hand(r.Stage==XiashuStage.GiftChildren?r.Invoice.RecipientSeat:root.OwnerSeat));
  }
  private ProgramSkillFrame? KanZeObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.KanZeFirstChild(r,c),static(e,i)=>e.HasMovementObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 290)]
  private bool HasKanZeBeforeDamageObserver(long id)=>KanZeObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 80)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 190)]
  private bool HasKanZeDamageObserver(long id)=>KanZeObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 40)]
  private bool IsKanZeDying()=>ActiveDying is {} d&&KanZeObserverRoot() is {} root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 160)]
  private bool TryAdvanceKanZeSubtree()=>_pendingDecision is null&&KanZeObserverRoot() is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 660)]
  private bool AllowsKanZeNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {if(sourceLess||o.AttackAttempt is not null||o.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=o.Id||KanZeObserverRoot() is not {} root||root.Id==o.Id)return false;var e=GetPausedPrivateOfferEffect(o);return e is {Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is {} p?ResolveProgramParticipant(o,p):ResolveProgramEffectTarget(o,e.Target));}
 }

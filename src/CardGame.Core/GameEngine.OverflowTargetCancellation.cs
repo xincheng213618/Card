@@ -162,6 +162,7 @@ public sealed partial class GameEngine
     private bool CanContinueOverflowTargetCancellation(ProgramSkillFrame frame) =>
         frame.OverflowTargetCancellation is not null && ValidOverflowTargetCancellationReceipt(frame);
 
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 190)]
     private bool IsOverflowTargetCancellationAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.CancelOtherCurrentUseTargetsIfOverHandLimit && frame.PendingMovementContinuation == pending &&
         pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&

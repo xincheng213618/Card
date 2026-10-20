@@ -112,6 +112,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A round-gained equipment draw retained an unrelated child.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 130)]
     private bool IsRoundGainedEquipmentDrawAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.PendingMovementContinuation == pending && effect?.Op == SkillProgramEffectOp.DrawForRoundGainedEquipmentUse && ValidRoundGainedEquipmentDraw(frame);
 }

@@ -311,6 +311,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 29071)]
     private bool ReturnLeCaiYongFeibaiMovement(ProgramSkillFrame f)
     { if (f.LeCaiYongFeibai is null || f.PendingMovementContinuation is null) return false; ContinueLeCaiYongFeibai(f.Id); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 300)]
     private bool IsFeibaiMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.LeCaiYongFeibai is { Stage: FeibaiStage.ObtainChildren or FeibaiStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.ResolveLeCaiYongFeibai &&
         pending == f.PendingMovementContinuation && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
@@ -393,9 +394,16 @@ public sealed partial class GameEngine
         NativeDrawAttemptRidesOn(g._resolutionStack[child], g._resolutionStack[child - 1]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[child], g._resolutionStack[child - 1]),
         static (g, child, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(child, dying));
     private ProgramSkillFrame? FeibaiObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.FeibaiFirstChild(f, child), static (g, index) => g.FeibaiObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1250)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1360)]
     private bool HasFeibaiDamageObserver(long id) => FeibaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1390)]
     private bool HasFeibaiBeforeDamageObserver(long id) => FeibaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1220)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 780)]
     private bool IsFeibaiDying() => ActiveDying is { } dying && FeibaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 40)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1790)]
     private bool AllowsFeibaiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || FeibaiObserverRoot() is not { } root || root.Id == f.Id) return false;
@@ -403,6 +411,7 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 550)]
     private bool IsFeibaiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.LeCaiYongFeibai is null || recovery.ParentFrameId == f.Id) return false;

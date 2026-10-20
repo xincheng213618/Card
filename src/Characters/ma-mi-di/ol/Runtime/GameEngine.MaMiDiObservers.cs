@@ -51,9 +51,12 @@ public sealed partial class GameEngine
     private bool IsMaMiDiStepMovement(MaMiDiDiscardStep step, CardMovementRecord m) => _cardMovements.Contains(m) && m.Sequence > step.Before && m.Sequence <= step.After &&
         (m.CardId == step.CardId && m.CardKind == step.Kind && m.From == step.From && m.To == step.To && m.Reason.Value == MaMiDiDiscardReason ||
          step.Kind == CardKind.WoodenOx && step.From == CardLocation.Equipment(step.TargetSeat) && step.WoodenOxGrain.Contains(m.CardId) && m.From == CardLocation.WoodenOxGrain(step.TargetSeat) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 610)]
     private bool IsMaMiDiMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.MaMiDi is { Stage: MaMiDiStage.TargetChildren } r && e?.Op == r.Op &&
         p == f.PendingMovementContinuation && p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == MaMiDiCurrentTarget(r).Target;
     private bool MaMiDiLion(ProgramSkillFrame f) => f.MaMiDi is { Stage: MaMiDiStage.TargetChildren, Steps.Count: > 0 } r && r.Steps[^1] is { Kind: CardKind.SilverLion, From.Zone: CardZoneKind.Equipment };
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 800)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 740)]
     private bool IsMaMiDiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => MaMiDiLion(f) && RecoveryReplacementFrameRidesOn(recovery, f) &&
         recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.SourceSeat == f.MaMiDi!.Steps[^1].TargetSeat && recovery.Attempt.TargetSeat == recovery.Attempt.SourceSeat && recovery.Attempt.Amount == 1 &&
         recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && recovery.Attempt.Completion.MoveReason?.Value == MaMiDiDiscardReason;
@@ -74,9 +77,14 @@ public sealed partial class GameEngine
             moved.Batch.OriginOwnerSeat == f.OwnerSeat && moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => IsMaMiDiStepMovement(r.Steps[^1], m));
     }
     private ProgramSkillFrame? MaMiDiObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.MaMiDiFirstChild(f, child), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 630)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 740)]
     private bool HasMaMiDiDamageObserver(long id) => MaMiDiObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 770)]
     private bool HasMaMiDiBeforeDamageObserver(long id) => MaMiDiObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 590)]
     private bool IsMaMiDiDying() => ActiveDying is { } dying && MaMiDiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1230)]
     private bool AllowsMaMiDiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || MaMiDiObserverRoot() is not { } root || root.Id == f.Id) return false;

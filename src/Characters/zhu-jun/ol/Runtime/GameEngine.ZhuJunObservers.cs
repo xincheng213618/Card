@@ -20,6 +20,7 @@ public sealed partial class GameEngine
     }
     private bool IsZhuJunDrawMovement(ProgramSkillFrame f, CardMovementRecord m) => f.ZhuJunCuipoDraw is { } r && _cardMovements.Contains(m) && m.Sequence > r.Before && m.Sequence <= r.After &&
         (m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == ZhuJunDrawReason || m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 240)]
     private bool IsZhuJunMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.ZhuJunCuipoDraw is not null && effect?.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
     private bool ZhuJunFirstChild(ProgramSkillFrame f, ResolutionFrame child)
@@ -34,8 +35,13 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? ZhuJunObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.ZhuJunFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
         static (engine, child) => engine.IsMovementObserverEdge(child) || engine.IsYanPuDyingExitEdge(child) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child], engine._resolutionStack[child - 1]),
         static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 600)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 710)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 740)]
     private bool HasZhuJunDamageObserver(long id) => ZhuJunObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 560)]
     private bool IsZhuJunDying() => IsZhuJunLegacyAlcoholPreRecoveryRide() || ActiveDying is { } dying && ZhuJunObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1200)]
     private bool AllowsZhuJunNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZhuJunObserverRoot() is not { } root || root.Id == f.Id) return false;

@@ -40,6 +40,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? PhaseNamePredictionObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.PhaseNamePredictionFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 760)]
     private bool AllowsPhaseNamePredictionNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -51,8 +52,10 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 20, group: 10)]
     private bool IsPhaseNamePredictionDying() => ActiveDying is { } dying && PhaseNamePredictionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1800)]
     private bool HasPhaseNamePredictionDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && PhaseNamePredictionObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 70)]
     private bool TryAdvancePhaseNamePredictionSubtree()

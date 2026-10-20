@@ -2,11 +2,13 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 450)]
     private bool IsMoTianenMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.MoTianen is { PaymentSealed: true, Stage: MoTianenStage.DiscardChildren or MoTianenStage.ObtainChildren } &&
         effect is { Op: SkillProgramEffectOp.ResolveMoSunQuanTianenUniqueUse, Target: SkillProgramEffectTarget.Owner,
             Condition.Kind: SkillProgramConditionKind.Always } && p == f.PendingMovementContinuation &&
         p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 460)]
     private bool IsMoQiangangMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.MoQiangang is { Stage: MoQiangangStage.TianenLossChildren or MoQiangangStage.EntryChildren } &&
         effect is { Op: SkillProgramEffectOp.ResolveMoSunQuanQiangangEntry, Target: SkillProgramEffectTarget.Owner,
@@ -55,12 +57,17 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? MoSunQuanPaidObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.MoTianenFirstChild(f, child) || g.MoQiangangFirstChild(f, child),
         static (g, index) => g.MoSunQuanPaidObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1430)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1540)]
     private bool HasMoSunQuanPaidDamageObserver(long id) => MoSunQuanPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1560)]
     private bool HasMoSunQuanPaidBeforeDamageObserver(long id) => MoSunQuanPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1390)]
     private bool IsMoSunQuanPaidDying() => ActiveDying is { } dying && MoSunQuanPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1980)]
     private bool AllowsMoSunQuanPaidNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -70,6 +77,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 640)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 580)]
     private bool IsMoSunQuanPaidRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.MoTianen is null && f.MoQiangang is null) return false;

@@ -50,11 +50,16 @@ public sealed partial class GameEngine
         static (e, i) => e.IsMovementObserverEdge(i) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
         static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? MaWanObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.MaWanFirstChild(f, child), static (e, i) => e.MaWanObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 440)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 550)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 580)]
     private bool HasMaWanDamageObserver(long id) => MaWanObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 410)]
     private bool IsMaWanDying() => ActiveDying is { } dying && MaWanObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1050)]
     private bool AllowsMaWanNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || MaWanObserverRoot() is not { } root || root.Id == f.Id) return false;

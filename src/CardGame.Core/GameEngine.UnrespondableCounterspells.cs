@@ -202,6 +202,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 420)]
     private bool IsPaidCounterspellProgramDying() => ActiveDying is { ResumesProgramSkill: true } dying &&
         ActiveNullificationWindow is { CounterspellPayment: not null } window &&
         _resolutionStack.OfType<DyingFrame>().Any(frame => frame.Id == dying.FrameId && frame.ParentFrameId == dying.ParentFrameId) &&

@@ -20,6 +20,10 @@ internal enum ProgramRuntimePhase
 
 internal enum ProgramFrameInvariantPhase { BeforeSelectionState, AfterSelectionState }
 
+// Recovery and damage cursors have distinct admission sets. Keep each original
+// proof and its short-circuit order on the capability that owns the receipt.
+internal enum ProgramRecoveryParentPhase { RecoveryCursor, DamageCursor }
+
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 internal sealed class ProgramRuntimeHookAttribute(ProgramRuntimePhase phase, int order) : Attribute
 {
@@ -34,6 +38,13 @@ internal sealed class ProgramFrameInvariantAttribute(ProgramFrameInvariantPhase 
     internal int Order { get; } = order;
 }
 
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+internal sealed class ProgramRecoveryParentAttribute(ProgramRecoveryParentPhase phase, int order) : Attribute
+{
+    internal ProgramRecoveryParentPhase Phase { get; } = phase;
+    internal int Order { get; } = order;
+}
+
 internal sealed record ProgramRuntimeRegistration(MethodInfo Method, Type DelegateType);
 
 // Static discovery retains immutable metadata only. All match-bound delegates
@@ -42,22 +53,31 @@ internal sealed class ProgramRuntimeHookCatalog
 {
     internal IReadOnlyDictionary<ProgramRuntimePhase, IReadOnlyList<ProgramRuntimeRegistration>> Hooks { get; }
     internal IReadOnlyDictionary<ProgramFrameInvariantPhase, IReadOnlyList<ProgramRuntimeRegistration>> Invariants { get; }
+    internal IReadOnlyDictionary<ProgramRecoveryParentPhase, IReadOnlyList<ProgramRuntimeRegistration>> RecoveryParents { get; }
+    internal ProgramRuntimeProofCatalog Proofs { get; }
 
     private ProgramRuntimeHookCatalog(
         Dictionary<ProgramRuntimePhase, SortedDictionary<int, ProgramRuntimeRegistration>> hooks,
-        Dictionary<ProgramFrameInvariantPhase, SortedDictionary<int, ProgramRuntimeRegistration>> invariants)
+        Dictionary<ProgramFrameInvariantPhase, SortedDictionary<int, ProgramRuntimeRegistration>> invariants,
+        Dictionary<ProgramRecoveryParentPhase, SortedDictionary<int, ProgramRuntimeRegistration>> recoveryParents,
+        ProgramRuntimeProofCatalog proofs)
     {
         Hooks = Freeze(hooks);
         Invariants = Freeze(invariants);
+        RecoveryParents = Freeze(recoveryParents);
+        Proofs = proofs;
     }
 
     internal static ProgramRuntimeHookCatalog Discover(IEnumerable<MethodInfo> methods)
     {
+        var methodArray = methods.ToArray();
         var hooks = Enum.GetValues<ProgramRuntimePhase>().ToDictionary(p => p,
             _ => new SortedDictionary<int, ProgramRuntimeRegistration>());
         var invariants = Enum.GetValues<ProgramFrameInvariantPhase>().ToDictionary(p => p,
             _ => new SortedDictionary<int, ProgramRuntimeRegistration>());
-        foreach (var method in methods.OrderBy(m => m.DeclaringType?.FullName, StringComparer.Ordinal)
+        var recoveryParents = Enum.GetValues<ProgramRecoveryParentPhase>().ToDictionary(p => p,
+            _ => new SortedDictionary<int, ProgramRuntimeRegistration>());
+        foreach (var method in methodArray.OrderBy(m => m.DeclaringType?.FullName, StringComparer.Ordinal)
                      .ThenBy(m => m.Name, StringComparer.Ordinal))
         {
             foreach (var attribute in method.GetCustomAttributes<ProgramRuntimeHookAttribute>())
@@ -86,12 +106,23 @@ internal sealed class ProgramRuntimeHookCatalog
                 if (!invariants[attribute.Phase].TryAdd(attribute.Order, registration))
                     throw new InvalidOperationException($"Duplicate frame invariant order '{attribute.Phase}:{attribute.Order}'.");
             }
+            foreach (var attribute in method.GetCustomAttributes<ProgramRecoveryParentAttribute>())
+            {
+                if (!Enum.IsDefined(attribute.Phase) || attribute.Order <= 0)
+                    throw new InvalidOperationException($"Recovery parent '{method.Name}' requires a valid phase and positive order.");
+                if (!ValidSignature(method, typeof(bool), [typeof(ProgramSkillFrame), typeof(RecoveryReplacementFrame)]))
+                    throw Invalid(method);
+                var registration = new ProgramRuntimeRegistration(method,
+                    typeof(Func<ProgramSkillFrame, RecoveryReplacementFrame, bool>));
+                if (!recoveryParents[attribute.Phase].TryAdd(attribute.Order, registration))
+                    throw new InvalidOperationException($"Duplicate recovery parent order '{attribute.Phase}:{attribute.Order}'.");
+            }
         }
         foreach (var pair in hooks)
             if (pair.Value.Count == 0) throw new InvalidOperationException($"Runtime hook phase '{pair.Key}' has no registrations.");
         foreach (var pair in invariants)
             if (pair.Value.Count == 0) throw new InvalidOperationException($"Frame invariant phase '{pair.Key}' has no registrations.");
-        return new(hooks, invariants);
+        return new(hooks, invariants, recoveryParents, ProgramRuntimeProofCatalog.Discover(methodArray));
     }
 
     internal static bool IsPermission(ProgramRuntimePhase phase) =>
@@ -111,10 +142,11 @@ internal sealed class ProgramRuntimeHookCatalog
             p => p.Key, p => (IReadOnlyList<ProgramRuntimeRegistration>)Array.AsReadOnly(p.Value.Values.ToArray())));
 }
 
-internal sealed class ProgramRuntimeHooks
+internal sealed partial class ProgramRuntimeHooks
 {
     private readonly Dictionary<ProgramRuntimePhase, Delegate[]> _hooks;
     private readonly Dictionary<ProgramFrameInvariantPhase, Action<ProgramSkillFrame, ProgramExecutionPlan>[]> _invariants;
+    private readonly Dictionary<ProgramRecoveryParentPhase, Func<ProgramSkillFrame, RecoveryReplacementFrame, bool>[]> _recoveryParents;
 
     internal ProgramRuntimeHooks(ProgramRuntimeHookCatalog catalog, Func<MethodInfo, Type, Delegate> bind)
     {
@@ -132,6 +164,9 @@ internal sealed class ProgramRuntimeHooks
             return callback is Action<ProgramSkillFrame, ProgramExecutionPlan> withPlan
                 ? withPlan : Adapt((Action<ProgramSkillFrame>)callback);
         }).ToArray());
+        _recoveryParents = catalog.RecoveryParents.ToDictionary(p => p.Key, p => p.Value
+            .Select(registration => (Func<ProgramSkillFrame, RecoveryReplacementFrame, bool>)Bind(registration)).ToArray());
+        _proofs = new(catalog.Proofs, Bind);
     }
 
     internal bool TryAdvance(ProgramRuntimePhase phase)
@@ -151,6 +186,13 @@ internal sealed class ProgramRuntimeHooks
     internal void AssertFrame(ProgramFrameInvariantPhase phase, ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         foreach (var callback in _invariants[phase]) callback(frame, plan);
+    }
+
+    internal bool IsRecoveryParent(ProgramRecoveryParentPhase phase, ProgramSkillFrame frame, RecoveryReplacementFrame recovery)
+    {
+        foreach (var callback in _recoveryParents[phase])
+            if (callback(frame, recovery)) return true;
+        return false;
     }
 
     private static Action<ProgramSkillFrame, ProgramExecutionPlan> Adapt(Action<ProgramSkillFrame> callback) =>

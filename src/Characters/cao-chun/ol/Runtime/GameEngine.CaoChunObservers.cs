@@ -81,11 +81,16 @@ public sealed partial class GameEngine
 
  }
  private ProgramSkillFrame? CaoChunObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.CaoChunFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 230)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 340)]
  private bool HasCaoChunDamageObserver(long id)=>CaoChunObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 430)]
  private bool HasCaoChunBeforeDamageObserver(long id)=>CaoChunObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 200)]
  private bool IsCaoChunDying()=>ActiveDying is{}d&&CaoChunObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 340)]
  private bool TryAdvanceCaoChunSubtree()=>_pendingDecision is null&&CaoChunObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 570)]
  private bool AllowsCaoChunNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||o.AttackAttempt is not null||o.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=o.Id||CaoChunObserverRoot()is not{}root||root.Id==o.Id)return false;var e=GetPausedPrivateOfferEffect(o);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(o,p):ResolveProgramEffectTarget(o,e.Target));

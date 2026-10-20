@@ -168,6 +168,7 @@ public sealed partial class GameEngine
     {AdvanceEventRulesAndQueueFact(new DingShangWanCompletedEvent(f.Id,true));ReplaceRuntimeTop(f=f with{DingShangWan=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
     [ProgramContinuation(ProgramContinuationKind.Resume,26700)]private bool ResumeDingShangWan(long id){if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{DingShangWan:not null}f||f.Id!=id)return false;ContinueDingShangWan(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,26700)]private bool ReturnDingShangWan(ProgramSkillFrame f){if(f.DingShangWan is null)return false;ContinueDingShangWan(f.Id);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 160)]
     private bool IsDingShangWanAwaitedMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.DingShangWan is{}r&&p.SubjectSeat==r.Payer&&p.BeforeCount==0&&p.CoverageResultBind is null&&(e is null||DingShangWanComposition.IsOperation(e.Op));
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,26700)][ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,26700)]
     private bool ContinuePaidDingShangWan(ProgramSkillFrame f){if(f.DingShangWan is null)return false;AssertDingShangWan(f);return true;}

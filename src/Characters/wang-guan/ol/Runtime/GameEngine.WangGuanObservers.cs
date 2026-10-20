@@ -73,6 +73,7 @@ public sealed partial class GameEngine
         if(f.InstructionIndex is not(0 or 1)||f.SkillId!="ol:miuyan"||f.TriggerId is null||f.WindowContext is not{}context)return false;
         return CanRunIssuedMiuyanCandidate(new(f.OwnerSeat,f.SkillId,GetProgramBindingId(f),f.SkillInstanceId,f.GameplayHash,GetProgramTrigger(f).Priority),context);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 590)]
     private bool IsWangGuanMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     {
         if(f.WangGuan is not{Stage:WangGuanStage.MiuyanGainChildren or WangGuanStage.ShiluDrawChildren}r||e?.Op!=r.Op||p!=f.PendingMovementContinuation)return false;
@@ -89,9 +90,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? WangGuanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WangGuanFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 720)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 830)]
     private bool HasWangGuanDamageObserver(long id)=>WangGuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 860)]
     private bool HasWangGuanBeforeDamageObserver(long id)=>WangGuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 690)]
     private bool IsWangGuanDying()=>ActiveDying is{}dying&&WangGuanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2050)]
     private bool AllowsWangGuanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||WangGuanObserverRoot()is not{}root||root.Id==f.Id)return false;

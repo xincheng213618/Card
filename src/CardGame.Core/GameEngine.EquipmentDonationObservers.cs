@@ -230,6 +230,9 @@ public sealed partial class GameEngine
                 afterContext.OccurrenceIndex == applied.Candidates[applied.CandidateIndex].OccurrenceIndex;
         return PaidTargetObserverEdge(index);
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1730)]
+    private bool MatchEquipmentDonationDamageObserver(long damageWindowId) => HasEquipmentDonationDamageObserver(damageWindowId);
+
     private bool HasEquipmentDonationDamageObserver(long? damageWindowId = null)
     {
         foreach (var root in _resolutionStack.OfType<ProgramSkillFrame>().Where(IsEquipmentDonationAttack))
@@ -247,10 +250,13 @@ public sealed partial class GameEngine
         }
         return false;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 440, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 520)]
     private bool IsEquipmentDonationProgramDying() => ActiveDying is { ResumesProgramSkill: true } &&
         (HasEquipmentDonationDamageObserver() || _resolutionStack.OfType<ProgramSkillFrame>().Any(f =>
             (f.EquipmentDonation is not null || f.ActualEndedEquipment is not null) && f.AttackAttempt is null &&
             EquipmentDonationObserverRoot(f.Id) is not null));
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 130)]
     private bool IsEquipmentDonationMovement(ProgramSkillFrame f, SkillProgramEffect? paid,
         ProgramMovementContinuation pending) => pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 &&
         pending.CoverageResultBind is null &&

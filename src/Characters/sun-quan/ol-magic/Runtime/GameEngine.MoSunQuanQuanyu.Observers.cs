@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 440)]
     private bool IsMoQuanyuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.MoQuanyu is { Stage: MoQuanyuStage.DrawChildren, DrawOutcome: not null } &&
         effect is { Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always } &&
@@ -42,12 +43,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? MoQuanyuObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.MoQuanyuFirstChild(f, child), static (g, index) => g.MoQuanyuObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1420)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1530)]
     private bool HasMoQuanyuDamageObserver(long id) => MoQuanyuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1550)]
     private bool HasMoQuanyuBeforeDamageObserver(long id) => MoQuanyuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1380)]
     private bool IsMoQuanyuDying() => ActiveDying is { } d && MoQuanyuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1970)]
     private bool AllowsMoQuanyuNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -58,6 +64,8 @@ public sealed partial class GameEngine
             effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 630)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 570)]
     private bool IsMoQuanyuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.MoQuanyu is null || recovery.ParentFrameId == f.Id) return false;

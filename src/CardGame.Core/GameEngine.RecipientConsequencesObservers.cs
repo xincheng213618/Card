@@ -117,6 +117,7 @@ public sealed partial class GameEngine
             CurrentDamageAttempt?.ResolutionId == attack.Id && RecipientConsequencesObserverRoot() is { } root &&
             _resolutionStack.FindIndex(f => f.Id == root.Id) < _resolutionStack.FindIndex(f => f.Id == attack.Id);
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 60)]
     private bool AllowsRecipientConsequencesNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

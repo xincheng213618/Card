@@ -46,11 +46,16 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 250, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 360)]
     private bool IsInspectedHandProgramDying() => ActiveDying is { } dying && InspectedHandPaidObserverRoot(ActiveDamageTrigger?.Id) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 50)]
     private bool IsInspectedHandMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash && pending.SubjectSeat == f.OwnerSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && f.InspectedHandSlash is { Stage: InspectedHandSlashStage.DiscardChildren } &&
         ValidInspectedHandSlash(f);
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1870)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 250)]
     private bool HasInspectedHandDamageObserver(long window) => InspectedHandPaidObserverRoot(window) is not null;
 }

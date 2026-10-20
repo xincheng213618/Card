@@ -62,6 +62,7 @@ public sealed partial class GameEngine
         AssertJigu(f); return true;
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 200)]
     private bool IsLeMiHengMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.Jigu is { Paid: true, Stage: JiguStage.DrawChildren, DrawOutcome: not null } &&
         effect?.Op == SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw && p == f.PendingMovementContinuation &&
@@ -109,6 +110,8 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? JiguObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.JiguFirstChild(f, child), static (g, index) => g.JiguObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1130)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1240)]
     private bool HasLeMiHengDamageObserver(long id)
     {
         if (JiguObserverRoot() is not { Jigu: { Paid: true } r } root ||
@@ -122,10 +125,13 @@ public sealed partial class GameEngine
             window.TriggerWindow == SkillProgramTriggerWindow.AfterDamageApplied &&
             DamageProgramMatchesWindow(root, window);
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1270)]
     private bool HasLeMiHengBeforeDamageObserver(long id) => JiguObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1100)]
     private bool IsLeMiHengDying() => ActiveDying is { } d && JiguObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1670)]
     private bool AllowsLeMiHengNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -136,6 +142,8 @@ public sealed partial class GameEngine
             effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 360)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 350)]
     private bool IsLeMiHengRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Jigu is not { Paid: true } || recovery.ParentFrameId == f.Id) return false;

@@ -70,6 +70,7 @@ public sealed partial class GameEngine
                 (pending.SubjectSeat != f.OwnerSeat || pending.BeforeCount != 0 || pending.CoverageResultBind is not null))
             throw new InvalidOperationException("A pair/fixed-recipient receipt differs from its exact original producer, binding or real ledger.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 520)]
     private bool IsPairBenefitMovement(ProgramSkillFrame f, SkillProgramEffect? paid, ProgramMovementContinuation movement) =>
         movement.SubjectSeat == f.OwnerSeat && movement.BeforeCount == 0 && movement.CoverageResultBind is null &&
         (paid?.Op == SkillProgramEffectOp.ObtainOneFromEachSelectedTarget && f.PairObtain is { AwaitingMovement: true } && ValidPairObtain(f) ||

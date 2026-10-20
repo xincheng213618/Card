@@ -40,7 +40,10 @@ public sealed partial class GameEngine
   if(ProgramEventHistory<ChanshuangMaterialPaidEvent>().Any(e=>e.FrameId==f.Id&&e.Cursor==r.Cursor&&e.Sequence==m.Sequence&&e.CardId==m.CardId&&e.From==m.From&&e.To==m.To))return true;
   return r.Materials.Any(c=>c.Kind==CardKind.WoodenOx&&c.From==CardLocation.Equipment(actor))&&r.Grain.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(actor)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard;
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 430)]
  private bool IsLiYiMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)=>f.Chanshuang is{}r&&ChanshuangChildren(r.Stage)&&pending==f.PendingMovementContinuation&&pending.SubjectSeat==f.OwnerSeat&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&effect?.Op==r.Operation;
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 180)]
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 170)]
  private bool IsLiYiRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.Chanshuang is{Stage:ChanshuangStage.CostChildren}r&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==ChanshuangItem(f).Seat&&recovery.Attempt.TargetSeat==ChanshuangItem(f).Seat&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&r.Materials.Any(c=>c.Kind==CardKind.SilverLion&&c.From==CardLocation.Equipment(recovery.Attempt.TargetSeat))&&recovery.Attempt.Completion.MoveReason==(ChanshuangItem(f).Option==ChanshuangOption.Recast?CardMoveReasons.RecastDiscard:new CardMoveReason(ChanshuangDiscardReason));
  private bool LiYiFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
@@ -59,9 +62,14 @@ public sealed partial class GameEngine
   return r.Stage==ChanshuangStage.NativeChildren?moved.ResumeProgramFrameId==f.Id&&IsChanshuangNativeSettlementBatch(f,moved.Batch):ProgramMovementReturnMatches(f,moved)&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsLiYiPaidMovement(f,m));
  }
  private ProgramSkillFrame? LiYiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiYiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 940)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1050)]
  private bool HasLiYiDamageObserver(long id)=>LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1080)]
  private bool HasLiYiBeforeDamageObserver(long id)=>LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 910)]
  private bool IsLiYiDying()=>ActiveDying is{}d&&LiYiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1480)]
  private bool AllowsLiYiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess){if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||LiYiObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27480)]private bool AdvanceLiYiChildren()=>_pendingDecision is null&&LiYiObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
 }

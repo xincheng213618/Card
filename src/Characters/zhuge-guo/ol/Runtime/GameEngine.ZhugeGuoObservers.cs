@@ -51,9 +51,14 @@ public sealed partial class GameEngine
         return moved.Batch.ParentFrameId==root.Id&&moved.Batch.AwaitingProgramFrameId==root.Id&&moved.ResumeProgramFrameId is null&&moved.Batch.OriginOwnerSeat==root.OwnerSeat&&moved.Batch.OriginSkillId==root.SkillId&&moved.Batch.OriginSkillInstanceId==root.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==r.GainedCardId&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(root.OwnerSeat)&&m.Reason.Value==QirangGainReason);
     }
     private ProgramSkillFrame? ZhugeGuoObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.ZhugeGuoFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 110)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 220)]
     private bool HasZhugeGuoDamageObserver(long id)=>ZhugeGuoObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 310)]
     private bool HasZhugeGuoBeforeDamageObserver(long id)=>ZhugeGuoObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 70)]
     private bool IsZhugeGuoDying()=>ActiveDying is{}dying&&ZhugeGuoObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 440)]
     private bool AllowsZhugeGuoNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {
         if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||ZhugeGuoObserverRoot()is not{}root||root.Id==observer.Id)return false;

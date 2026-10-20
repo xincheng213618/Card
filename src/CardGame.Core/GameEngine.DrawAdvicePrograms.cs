@@ -278,6 +278,7 @@ public sealed partial class GameEngine
         if (frame.DrawAdviceReceipt is null || frame.PendingMovementContinuation is null) return false;
         AssertDrawAdviceReceipt(frame); AdvanceRuntimeProgram(frame.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 670)]
     private bool IsDrawAdviceAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp &&
         frame.PendingMovementContinuation == pending && frame.DrawAdviceReceipt is not null && ValidDrawAdviceReceipt(frame);
@@ -329,10 +330,13 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.DrawAdviceFirstChild(root, child),
         static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 280)]
     private bool IsDrawAdviceProgramDying() => ActiveDying is { } dying && DrawAdviceObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1950)]
     private bool HasDrawAdviceDamageObserver(long id) =>
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && DrawAdviceObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 230)]
     private bool AllowsDrawAdviceNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

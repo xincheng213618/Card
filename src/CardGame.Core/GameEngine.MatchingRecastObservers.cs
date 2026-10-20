@@ -131,10 +131,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? MatchingRecastObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.MatchingRecastFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 40)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 90)]
     private bool IsMatchingRecastDying() => ActiveDying is { } dying && MatchingRecastObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1870)]
     private bool HasMatchingRecastDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) && MatchingRecastObserverRoot() is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 150)]
     private bool HasMatchingRecastBeforeDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is BeforeDamageProgramWindowFrame) && MatchingRecastObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 780)]
     private bool AllowsMatchingRecastNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id) return false;

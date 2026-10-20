@@ -21,6 +21,7 @@ public sealed partial class GameEngine
         if(r.Stage==CuiYanStage.DamageChoice&&_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}choice&&(choice.PlayerSeat!=f.OwnerSeat||choice.IsPrivate||!AssistedChoicesEqual(choice.Choices,CuiYanDamageChoices(f))))throw new InvalidOperationException("Zhijie changed its public actual attack-range target choices.");
     }
     private bool CuiYanDrawMovement(ProgramSkillFrame f,CardMovementRecord m)=>f.CuiYan is{Stage:CuiYanStage.DrawChildren}r&&_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&(m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==CuiYanDrawReason||m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 420)]
     private bool IsCuiYanMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation p)=>f.CuiYan is{Stage:CuiYanStage.DrawChildren}&&effect?.Op==SkillProgramEffectOp.ResolveShutongFinalizedUse&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private bool CuiYanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -30,9 +31,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame state&&state.Continuation==ProgramLifecycleContinuation.ResumeCharacterStateChange&&state.ResumeProgramFrameId==f.Id&&ProgramEventHistory<CharacterStateChangedEvent>().Any(e=>e.Change.Id==state.Id&&e.Change.ParentFrameId==f.Id&&e.Change.TargetSeat==state.OwnerSeat&&e.Change.Window==state.Window);
     }
     private ProgramSkillFrame? CuiYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.CuiYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 930)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1040)]
     private bool HasCuiYanDamageObserver(long id)=>CuiYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1070)]
     private bool HasCuiYanBeforeDamageObserver(long id)=>HasCuiYanDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 900)]
     private bool IsCuiYanDying()=>IsCuiYanOriginalDyingRide()||ActiveDying is{}d&&CuiYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1470)]
     private bool AllowsCuiYanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||CuiYanObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27470)]private bool AdvanceCuiYanChildren()=>_pendingDecision is null&&CuiYanObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

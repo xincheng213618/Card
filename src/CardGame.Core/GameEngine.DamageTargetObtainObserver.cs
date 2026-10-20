@@ -24,7 +24,9 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 40)]
     private bool HasPaidDamageTargetObtainObserver(long id)=>PaidDamageTargetObtainObserverRoot(id) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 310, group: 10)]
     private bool IsPaidDamageTargetObtainDying()=>ActiveDamageTrigger is{ } w && ActiveDying is{ResumesProgramSkill:true} dying &&
         PaidDamageTargetObtainObserverRoot(w.Id) is not null && _resolutionStack.OfType<DyingFrame>().Any(f=>f.Id==dying.FrameId&&f.ParentFrameId==dying.ParentFrameId);
 }

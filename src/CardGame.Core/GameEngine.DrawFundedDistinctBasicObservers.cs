@@ -50,11 +50,15 @@ public sealed partial class GameEngine
         return null;
     }
     private bool HasDrawFundedDistinctBasicObserver(long cardUseId) => DrawFundedDistinctBasicObserverRoot(cardUseId) is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 10)]
     private bool HasDrawFundedDistinctBasicDamageObserver(long damageId) => DrawFundedDistinctBasicObserverRoot(damageId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 80)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 120)]
     private bool IsDrawFundedDistinctBasicProgramDying() => ActiveDying is { } dying &&
         (DrawFundedDistinctBasicObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id) ||
          _resolutionStack.FindIndex(f => f.Id == dying.FrameId) is var index && index >= 0 && (DrawFundedDistinctBasicDyingRescueRide(index, (DyingFrame)_resolutionStack[index]) || HuanpeiDyingRescueRide(index, (DyingFrame)_resolutionStack[index])));
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 270)]
     private bool AllowsDrawFundedDistinctBasicNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

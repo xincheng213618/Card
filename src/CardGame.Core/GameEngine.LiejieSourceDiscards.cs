@@ -301,6 +301,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Paid Liejie continuation lost its exact native first child.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BeforePrivatePayments, 10)]
     private bool IsLiejieAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.LiejieSourceDiscard && frame.LiejieDiscardPending is { Paid: true } draft &&
         draft.InstructionIndex == frame.InstructionIndex && pending.SubjectSeat == draft.SourceSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
@@ -376,10 +377,13 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.LiejieSourceDiscardFirstChild(root, child),
         static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 290)]
     private bool IsLiejieSourceDiscardProgramDying() => ActiveDying is { } dying && LiejieSourceDiscardObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1960)]
     private bool HasLiejieSourceDiscardDamageObserver(long id) =>
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && LiejieSourceDiscardObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 240)]
     private bool AllowsLiejieSourceDiscardNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

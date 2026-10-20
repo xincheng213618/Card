@@ -73,6 +73,7 @@ public sealed partial class GameEngine
         if(f.Goude is not{Stage:GoudeStage.MovementChildren or GoudeStage.NativeSlash or GoudeStage.NativeChildren})return false;
         AssertMengDa(f);return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 280)]
     private bool IsMengDaMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     {
         if(f.Goude is not{Stage:GoudeStage.MovementChildren or GoudeStage.NativeChildren}||e?.Op!=SkillProgramEffectOp.ResolveGoudeActualTurnEnd||p!=f.PendingMovementContinuation)return false;
@@ -92,9 +93,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? MengDaObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.MengDaFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),
         static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 730)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 840)]
     private bool HasMengDaDamageObserver(long id)=>MengDaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 870)]
     private bool HasMengDaBeforeDamageObserver(long id)=>MengDaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 700)]
     private bool IsMengDaDying()=>ActiveDying is{}d&&MengDaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1270)]
     private bool AllowsMengDaNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||MengDaObserverRoot()is not{}root||root.Id==f.Id)return false;

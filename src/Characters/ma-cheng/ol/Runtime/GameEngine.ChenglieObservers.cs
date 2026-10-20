@@ -30,7 +30,10 @@ public sealed partial class GameEngine
         else if(f.PendingMovementContinuation is not null)throw new InvalidOperationException("Chenglie retained a movement continuation outside its actual children.");
         if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}prompt&&r.Stage is ChenglieStage.Targets or ChenglieStage.Exchange or ChenglieStage.Assignment or ChenglieStage.Gift&&(prompt.SkillPrompt?.SkillId!=f.SkillId||!AssistedChoicesEqual(prompt.Choices,ChenglieChoices(f))))throw new InvalidOperationException("Chenglie's secret/public menu changed its original legal choices.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 490)]
     private bool IsMaChengMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation pending)=>f.Chenglie is{}r&&ChenglieChildren(r.Stage)&&pending==f.PendingMovementContinuation&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&e?.Op==(r.Outcome?SkillProgramEffectOp.ResolveChenglieRedHolderOutcome:SkillProgramEffectOp.ResolveChenglieExtraTargetsAndHiddenCards);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 250)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 240)]
     private bool IsMaChengRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.Chenglie is not{}r||!RecoveryReplacementFrameRidesOn(recovery,f)||recovery.Return.Continuation!=PostEventContinuation.AwaitedProgramMovement)return false;
@@ -54,9 +57,14 @@ public sealed partial class GameEngine
         return child is CardsMovedTriggerWindowFrame moved&&ProgramMovementReturnMatches(f,moved)&&moved.Batch.ParentFrameId==f.Id&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>ChenglieOwnMovement(f,m));
     }
     private ProgramSkillFrame? MaChengObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.MaChengFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1010)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1120)]
     private bool HasMaChengDamageObserver(long id)=>MaChengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1150)]
     private bool HasMaChengBeforeDamageObserver(long id)=>MaChengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 980)]
     private bool HasMaChengDyingObserver()=>ActiveDying is{}d&&MaChengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1550)]
     private bool AllowsMaChengNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||MaChengObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27560)]private bool AdvanceMaChengSubtree()=>_pendingDecision is null&&MaChengObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

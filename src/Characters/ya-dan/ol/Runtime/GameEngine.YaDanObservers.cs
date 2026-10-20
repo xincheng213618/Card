@@ -106,6 +106,7 @@ public sealed partial class GameEngine
         return IsIssuedQingyaCandidate(new(f.OwnerSeat,f.SkillId,GetProgramBindingId(f),f.SkillInstanceId,f.GameplayHash,
             GetProgramTrigger(f).Priority,context.OccurrenceIndex),context);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 290)]
     private bool IsYaDanMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)
     {if(f.YaDan is not{Stage:QingyaStage.DiscardChildren or QingyaStage.NativeChildren}||!IsYaDanOperation(effect?.Op??default)||pending!=f.PendingMovementContinuation)return false;AssertYaDan(f);return true;}
     private bool YaDanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
@@ -120,9 +121,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? YaDanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.YaDanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),
         static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 750)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 860)]
     private bool HasYaDanDamageObserver(long id)=>YaDanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 890)]
     private bool HasYaDanBeforeDamageObserver(long id)=>YaDanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 720)]
     private bool IsYaDanDying()=>ActiveDying is{}dying&&YaDanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1290)]
     private bool AllowsYaDanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||YaDanObserverRoot()is not{}root||root.Id==f.Id)return false;

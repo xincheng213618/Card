@@ -35,6 +35,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? PhaseStartCardControlObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.PhaseStartCardControlFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 320)]
     private bool AllowsPhaseStartCardControlNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -46,14 +47,18 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 110, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 220)]
     private bool IsPhaseStartCardControlDying() => ActiveDying is { } dying && PhaseStartCardControlObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1770)]
     private bool HasPhaseStartCardControlDamageObserver(long id) => PhaseStartCardControlObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 50)]
     private bool TryAdvancePhaseStartCardControlSubtree() => _pendingDecision is null && PhaseStartCardControlObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 20)]
     private bool IsPhaseStartCardControlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.PhaseStartCardControl is { Stage: PhaseStartCardControlStage.MovementChildren, Payment: { } payment } r &&
         effect?.Op == (r.Kind == PhaseStartCardControlKind.OtherPlayRestriction ? SkillProgramEffectOp.GrantOtherPlayUseRestriction : SkillProgramEffectOp.ChooseStartingEquipmentControl) &&

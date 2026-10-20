@@ -66,6 +66,7 @@ public sealed partial class GameEngine
                     m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.Sequence > r.PrimaryAfter && m.Sequence <= r.SequenceAfter) != 1))
             throw new InvalidOperationException("Zixi cannot replace or duplicate the exact original Ox grain payment children.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 470)]
     private bool IsZixiPlacementMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         HasPaidZixiPlacement(f) && effect is { Op: SkillProgramEffectOp.ResolveZixiQinJudgmentPlacement, Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always } &&
         pending == f.PendingMovementContinuation && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
@@ -82,6 +83,8 @@ public sealed partial class GameEngine
     }
     private bool ZixiPlacementLionRemoval(ProgramSkillFrame f, int seat) => f.ZixiPlacement is { Paid: true } r &&
         r.Entities.Any(e => e.PrintedKind == CardKind.SilverLion && e.From == CardLocation.Equipment(seat));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 650)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 590)]
     private bool IsZixiPlacementRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (!HasPaidZixiPlacement(f)) return false;
@@ -116,12 +119,17 @@ public sealed partial class GameEngine
         static (g, next, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(next, dying));
     private ProgramSkillFrame? ZixiPlacementObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.ZixiPlacementFirstChild(f, child), static (g, index) => g.ZixiPlacementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1440)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1550)]
     private bool HasZixiPlacementDamageObserver(long id) => ZixiPlacementObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1570)]
     private bool HasZixiPlacementBeforeDamageObserver(long id) => ZixiPlacementObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1400)]
     private bool IsZixiPlacementDying() => ActiveDying is { } dying && ZixiPlacementObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1990)]
     private bool AllowsZixiPlacementNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZixiPlacementObserverRoot() is not { } root || root.Id == f.Id) return false;

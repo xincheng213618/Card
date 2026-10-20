@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         b.OriginSkillId == f.SkillId && b.OriginSkillInstanceId == f.SkillInstanceId && b.Movements is [var m] &&
         _cardMovements.Contains(m) && m.Sequence == r.CostSequence && m.CardId == r.CostId && m.CardKind == r.CostKind &&
         m.From == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == MouZuifengDiscardReason;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 430)]
     private bool IsMouZuifengMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.MouZuifeng is { Stage: MouZuifengStage.CostChildren or MouZuifengStage.NativeChildren } && IsPaidMouZuifeng(f) &&
         effect?.Op == SkillProgramEffectOp.ResolveMouZhouYuZuifeng && f.PendingMovementContinuation == pending &&

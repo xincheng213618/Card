@@ -105,6 +105,7 @@ public sealed partial class GameEngine
   if(!ValidZhangJiNativeUse(u) || _cardMovements.Count(m=>m.Sequence>o.Before && m.CardId==o.CardId && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing)!=1 || CompleteProgramEventHistory().OfType<ZhangJiNativeUseReturnedEvent>().Any(e=>e.Origin.UseId==u.Id))throw new InvalidOperationException("Tunjun native equipment returned a foreign or unpaid entity.");
   var f=_resolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==o.ProgramFrameId);ReplaceRuntimeFrame(f.Id,f with{ZhangJi=f.ZhangJi! with{NativeReturned=true}});AdvanceEventRulesAndQueueFact(new ZhangJiNativeUseReturnedEvent(o,_movementSequence));return true;
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 210)]
  private bool IsZhangJiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e is not null && IsZhangJiOp(e.Op) && f.ZhangJi is{Stage:"movement"} && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;
  [ProgramContinuation(ProgramContinuationKind.Movement,23800)]
  private bool ReturnZhangJiMovement(ProgramSkillFrame f)

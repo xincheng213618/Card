@@ -127,9 +127,12 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 80)]
     private bool HasSuitPreventionBenefitObserver(long beforeDamageId) => SuitPlacementObserverRoot(beforeDamageId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 530)]
     private bool IsSuitPlacementProgramDying() => ActiveDying is { } dying && SuitPlacementObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 450, group: 10)]
     private bool IsSuitPreventionInsideDamageProgramDying()
     {
         if (ActiveDamageTrigger is not { } window || !IsSuitPlacementProgramDying()) return false;

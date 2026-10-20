@@ -134,6 +134,7 @@ public sealed partial class GameEngine
             _cardZones.GetLocation(id).Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException("Xiongmu's selected own HE entity moved before confirmation.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 650)]
     private bool IsWuXiongmuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.Xiongmu is { } r && ValidWuXiongmuStarted(f) && effect?.Op == SkillProgramEffectOp.ResolveWuLuXunXiongmu &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&

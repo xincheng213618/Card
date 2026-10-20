@@ -166,6 +166,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 50)]
     private bool HasDamageAppearanceDrawObserver(long windowId)
     {
         if(DamageAppearanceDrawObserverRoot(windowId) is not { } root)return false;
@@ -178,6 +179,7 @@ public sealed partial class GameEngine
         return _resolutionStack[index].Id==root.Id;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 320, group: 10)]
     private bool IsDamageAppearanceDrawProgramDying()
     {
         if (ActiveDamageTrigger is not { } trigger ||

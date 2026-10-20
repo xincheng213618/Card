@@ -45,6 +45,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 29701)]
     private bool ContinueAcceptedWuLuKangDixian(ProgramSkillFrame f)
     { if (f.WuLuKangDixian is not { Rank: > 0 }) return false; RequireWuLuKangDixian(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 350)]
     private bool IsWuLuKangDixianMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         e?.Op == SkillProgramEffectOp.ResolveWuLuKangDixian && f.WuLuKangDixian is { Stage: WuLuKangDixianStage.DrawChildren or WuLuKangDixianStage.MovementChildren or WuLuKangDixianStage.Collecting } &&
         p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && HasWuLuKangDixianOriginalPayment(f);
@@ -88,12 +89,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? WuLuKangDixianObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WuLuKangDixianFirstChild(f, child), static (g, i) => g.WuLuKangDixianObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1330)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1440)]
     private bool HasWuLuKangDixianDamageObserver(long id) => WuLuKangDixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1470)]
     private bool HasWuLuKangDixianBeforeDamageObserver(long id) => WuLuKangDixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1300)]
     private bool IsWuLuKangDixianDying() => ActiveDying is { } dying && WuLuKangDixianObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1890)]
     private bool AllowsWuLuKangDixianNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WuLuKangDixianObserverRoot() is not { } root || root.Id == f.Id) return false;
@@ -101,6 +107,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 500)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 490)]
     private bool IsWuLuKangDixianRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.WuLuKangDixian is null || recovery.ParentFrameId == f.Id) return false;

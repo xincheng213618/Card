@@ -227,6 +227,7 @@ public sealed partial class GameEngine
     }
     private SkillProgramEffect? GainGiftPausedEffect(ProgramSkillFrame f) => f.InstructionIndex < 1 ? null :
         ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 60)]
     private bool IsGainGiftMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.GainGiftReceipt is { Stage: not GainGiftStage.Choosing } r && r.InstructionIndex == f.InstructionIndex &&
         effect?.Op == r.Operation && effect == GainGiftPausedEffect(f) && pending.SubjectSeat == f.OwnerSeat &&

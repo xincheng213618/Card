@@ -127,12 +127,15 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 70)]
     private bool HasSourceFactionYieldObserver(long beforeDamageId) => SourceFactionYieldObserverRoot(beforeDamageId) is not null;
     private bool HasSourceFactionYieldDying(long beforeDamageId) => ActiveDying is { ResumesProgramSkill: true } dying &&
         SourceFactionYieldObserverRoot(beforeDamageId) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 430)]
     private bool IsSourceFactionYieldProgramDying() => _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(f => HasSourceFactionYieldDying(f.Id));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 400, group: 10)]
     private bool IsSourceFactionYieldInsideDamageProgramDying()
     {
         if (ActiveDamageTrigger is not { } damage) return false;

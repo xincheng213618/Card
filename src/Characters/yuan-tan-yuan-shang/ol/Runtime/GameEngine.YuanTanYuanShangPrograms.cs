@@ -92,6 +92,7 @@ public sealed partial class GameEngine
   if(f.Neifa is null)return f.InstructionIndex==0&&f.TriggerId is{}trigger&&f.ActivationId==trigger&&f.WindowContext is{}context&&f.SelectedCardIds.Count==0&&f.SelectedTargetSeats.Count==0&&HasIssuedNeifaCandidate(new(f.OwnerSeat,f.SkillId,trigger,f.SkillInstanceId,f.GameplayHash,0),context);
   var r=f.Neifa;if(r.Segments.Count==0&&r.Stage!=NeifaStage.Targets)return false;AssertNeifaFrame(f);return true;
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 300)]
  private bool IsNeifaMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.Neifa is{Stage:NeifaStage.GainChildren or NeifaStage.DiscardChildren or NeifaStage.EquipmentDrawChildren}&&e is not null&&NeifaComposition.IsOp(e.Op)&&CanContinueNeifa(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 340)]
  private void AssertNeifaFrame(ProgramSkillFrame f)

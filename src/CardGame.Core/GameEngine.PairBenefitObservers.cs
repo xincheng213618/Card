@@ -93,9 +93,12 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 550, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 630)]
     private bool IsPairBenefitProgramDying() => ActiveDying is { } dying && PairBenefitObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1760)]
     private bool HasPairBenefitDamageObserver(long damageWindowId)
     {
         var index = _resolutionStack.FindIndex(f => f.Id == damageWindowId && f is DamageTriggerWindowFrame);

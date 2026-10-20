@@ -26,6 +26,8 @@ public sealed partial class GameEngine
         return index >= 0 && TieredRoundZeroDyingRescueRide(index, (DyingFrame)_resolutionStack[index]);
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 610, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 700)]
     private bool IsTieredRoundZeroRescueProgramDying() => ActiveDying is { } dying &&
         _resolutionStack.LastOrDefault() is ProgramSkillFrame && HasTieredRoundZeroDyingRide(dying.FrameId);
 

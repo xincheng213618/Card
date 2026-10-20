@@ -55,6 +55,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 29401)]
     private bool PermitPaidMouLiuCheng(ProgramSkillFrame f)
     { if (f.MouLiuChengCompletion is not { Paid: true }) return false; AssertMouLiuChengCompletion(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 340)]
     private bool IsMouLiuChengMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.MouLiuChengCompletion is { Paid: true, Stage: MouLiuChengStage.NativeChildren or MouLiuChengStage.DrawChildren } &&
         e?.Op == SkillProgramEffectOp.ResolveMouLiuChengCompletion && p == f.PendingMovementContinuation &&
@@ -229,12 +230,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? MouLiuChengObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.MouLiuChengFirstChild(f, child), static (g, index) => g.MouLiuChengObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1320)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1430)]
     private bool HasMouLiuChengDamageObserver(long id) => MouLiuChengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1460)]
     private bool HasMouLiuChengBeforeDamageObserver(long id) => MouLiuChengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1290)]
     private bool IsMouLiuChengDying() => ActiveDying is { } dying && MouLiuChengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1880)]
     private bool AllowsMouLiuChengNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -243,6 +249,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 490)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 480)]
     private bool IsMouLiuChengRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.MouLiuChengCompletion is null || recovery.ParentFrameId == f.Id) return false;

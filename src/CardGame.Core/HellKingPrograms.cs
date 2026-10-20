@@ -453,6 +453,7 @@ public sealed partial class GameEngine
     private bool IsOriginalDyingSuspendedByHellKing(DyingFrame dying) => !_players[dying.VictimSeat].IsAlive &&
         _resolutionStack.OfType<ProgramSkillFrame>().Any(root => HasExactHellKingDeathPrefix(root, out var original, out _) && original?.Id == dying.Id);
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 10)]
     private bool AllowsHellKingNestedDamage(ProgramSkillFrame frame, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || frame.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != frame.Id || frame.InstructionIndex < 1 ||

@@ -347,6 +347,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A gifted Slash instruction retained an unrelated native movement child.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 20)]
     private bool IsGiftedSlashAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.PendingMovementContinuation == pending &&
         (frame.GiftedSlashGiftReceipt is not null && effect?.Op == SkillProgramEffectOp.GiveBoundHandAsSlashWithUseReward && ValidGiftedSlashGift(frame) ||
@@ -378,10 +379,13 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.GiftedSlashFirstChild(root, child),
         static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 270)]
     private bool IsGiftedSlashProgramDying() => ActiveDying is { } dying && GiftedSlashObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1930)]
     private bool HasGiftedSlashDamageObserver(long id) =>
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && GiftedSlashObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 210)]
     private bool AllowsGiftedSlashNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

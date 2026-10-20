@@ -189,6 +189,7 @@ public sealed partial class GameEngine
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 390)]
     private void AssertFixedDistanceDebtPayment(ProgramSkillFrame f)
     { if (f.FixedDistanceDebtPayment is not null && !ValidFixedDistanceDebtPayment(f)) throw new InvalidOperationException("An issued distance debt lost its exact source, item or paid interval."); }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 240)]
     private bool IsFixedDistanceDebtMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e?.Op == SkillProgramEffectOp.SettleFixedDistanceOneEndingDebt && pending == f.PendingMovementContinuation && ValidFixedDistanceDebtPayment(f);
     private bool DrainFixedDistanceDebtChildren(ProgramSkillFrame f) =>

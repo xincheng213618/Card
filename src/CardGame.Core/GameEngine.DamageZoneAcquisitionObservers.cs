@@ -30,6 +30,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? DamageAcquisitionObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.DamageAcquisitionFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 750)]
     private bool AllowsDamageAcquisitionNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||
@@ -42,8 +43,11 @@ public sealed partial class GameEngine
     }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 480)]
     private bool TryAdvanceDamageAcquisitionSubtree() => _pendingDecision is null && DamageAcquisitionObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1580)]
     private bool HasDamageAcquisitionDamageObserver(long id) => DamageAcquisitionObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 250)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 10)]
     private bool IsDamageAcquisitionDying() => ActiveDying is { } dying && DamageAcquisitionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 }

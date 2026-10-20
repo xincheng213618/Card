@@ -44,7 +44,10 @@ public sealed partial class GameEngine
         if(f.Kenshang is not null){AssertKenshang(f);return true;}
         return f.InstructionIndex is 0 or 1&&f.TriggerId is{}id&&f.ActivationId==id&&f.WindowContext is{}c&&CanRunIssuedKenshangCandidate(new(f.OwnerSeat,f.SkillId,id,f.SkillInstanceId,f.GameplayHash,0,c.OccurrenceIndex),c);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 560)]
     private bool IsKenshangMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p){if(f.Kenshang is not{Stage:KenshangProgramStage.DrawChildren}||e?.Op!=SkillProgramEffectOp.DrawForKenshangShortDamage||p!=f.PendingMovementContinuation)return false;AssertKenshang(f);return true;}
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 830)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 770)]
     private bool IsKenshangRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>false;
     private bool KenshangFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -53,9 +56,14 @@ public sealed partial class GameEngine
         return f.PendingMovementContinuation is not null&&child is CardsMovedTriggerWindowFrame m&&ProgramMovementReturnMatches(f,m)&&m.Batch.OriginOwnerSeat==f.OwnerSeat&&m.Batch.OriginSkillId==f.SkillId&&m.Batch.OriginSkillInstanceId==f.SkillInstanceId&&m.Batch.Movements.All(x=>_cardMovements.Contains(x)&&x.Sequence>r.Before&&x.Sequence<=r.After);
     }
     private ProgramSkillFrame? KenshangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.KenshangFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 670)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 780)]
     private bool HasKenshangDamageObserver(long id)=>KenshangObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 810)]
     private bool HasKenshangBeforeDamageObserver(long id)=>KenshangObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 630)]
     private bool IsKenshangDying()=>ActiveDying is{}d&&KenshangObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2000)]
     private bool AllowsKenshangNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||KenshangObserverRoot()is not{}r||r.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}reference?ResolveProgramParticipant(f,reference):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27110)]private bool AdvanceKenshangSubtree()=>_pendingDecision is null&&KenshangObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

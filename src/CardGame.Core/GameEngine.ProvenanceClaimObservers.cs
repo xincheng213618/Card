@@ -33,7 +33,9 @@ public sealed partial class GameEngine
         }
         return paid;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1720)]
     private bool HasProvenanceClaimObserver(long damageId)=>ProvenanceClaimDamageObserverRoot(damageId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 270, group: 10)]
     private bool IsProvenanceClaimProgramDying()=>ActiveDamageTrigger is { } damage && ActiveDying is {ResumesProgramSkill:true} dying &&
         ProvenanceClaimDamageObserverRoot(damage.Id) is { } root &&
         _resolutionStack.FindIndex(f=>f.Id==dying.FrameId)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

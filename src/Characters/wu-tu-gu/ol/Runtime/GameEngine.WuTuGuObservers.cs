@@ -17,9 +17,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? WuTuGuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.WuTuGuFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 780)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 890)]
     private bool HasWuTuGuDamageObserver(long id)=>WuTuGuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 920)]
     private bool HasWuTuGuBeforeDamageObserver(long id)=>HasWuTuGuDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 750)]
     private bool IsWuTuGuDying()=>ActiveDying is{}dying&&WuTuGuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1320)]
     private bool AllowsWuTuGuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||WuTuGuObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);

@@ -5,6 +5,8 @@ public sealed partial class GameEngine
     private bool IsQinLangDiscardMovement(QinLangXianyingReceipt r,CardMovementRecord m)=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&
         (r.Selected.Any(c=>c.CardId==m.CardId&&c.Kind==m.CardKind&&c.From==m.From)&&m.To==(m.CardKind==CardKind.GeneralWeapon&&m.From.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile)&&m.Reason.Value==QinLangDiscardReason||
          r.Auxiliaries.Any(c=>c.CardId==m.CardId&&c.Kind==m.CardKind&&c.From==m.From)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 860)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 800)]
     private bool IsQinLangRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.QinLangXianying is{Stage:QinLangXianyingStage.DiscardChildren}r&&ValidQinLang(f)&&
         r.Selected.Any(c=>c.Kind==CardKind.SilverLion&&c.From==CardLocation.Equipment(f.OwnerSeat))&&recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&
         recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==QinLangDiscardReason&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==f.OwnerSeat&&recovery.Attempt.Amount==1;
@@ -28,9 +30,14 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? QinLangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.QinLangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1450)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1560)]
     private bool HasQinLangDamageObserver(long id)=>QinLangObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1580)]
     private bool HasQinLangBeforeDamageObserver(long id)=>HasQinLangDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1410)]
     private bool IsQinLangDying()=>ActiveDying is{}dying&&QinLangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2060)]
     private bool AllowsQinLangNestedDamage(ProgramSkillFrame f,int targetSeat,int amount,ProgramParticipantReference? sourceReference,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||QinLangObserverRoot()is not{}root||root.Id==f.Id)return false;

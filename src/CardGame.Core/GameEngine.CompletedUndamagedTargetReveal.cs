@@ -329,6 +329,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 560)]
     private bool CanContinueCompletedUndamagedTargetReveal(ProgramSkillFrame f) =>
         f.CompletedUndamagedTargetReveal is { SelectionIssued: true } && ValidCompletedUndamagedTargetRevealReceipt(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 150)]
     private bool IsCompletedUndamagedTargetRevealMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor &&
         f.CompletedUndamagedTargetReveal is { MovementIssued: true, Stage: CompletedUndamagedTargetRevealStage.MovementChildren } r &&

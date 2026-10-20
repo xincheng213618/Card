@@ -105,6 +105,7 @@ public sealed partial class GameEngine
 
     // A new gain/HP observer may suspend the original Slash only when the
     // actual recipient's one-card support has already been delivered once.
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 20)]
     private bool AllowsHalfHandSupportNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -125,6 +126,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1750)]
     private bool HasHalfHandPaidDamageObserver(long damageWindowId)
     {
         var windowIndex = _resolutionStack.FindIndex(f => f.Id == damageWindowId && f is DamageTriggerWindowFrame);

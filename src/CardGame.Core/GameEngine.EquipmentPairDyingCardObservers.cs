@@ -113,6 +113,7 @@ public sealed partial class GameEngine
         return null;
     }
     private bool IsExactDyingOwnedCardRide(long dyingId) => DyingOwnedCardObserverRoot(dyingId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 470)]
     private bool IsEquipmentPairOrDyingCardProgramDying()
     {
         if (ActiveDying is not { ResumesProgramSkill: true } dying) return false;

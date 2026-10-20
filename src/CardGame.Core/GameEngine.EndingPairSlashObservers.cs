@@ -1,6 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 530)]
     private bool IsEndingPairMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (e?.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal && f.EndingPairDraw is { AwaitingMovement: true } && ValidEndingPairDraw(f) ||
@@ -61,8 +62,11 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 560, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 640)]
     private bool IsEndingPairSlashProgramDying() => ActiveDying is { } dying && EndingPairPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1770)]
     private bool HasEndingPairSlashDamageObserver(long windowId)
     {
         var index = _resolutionStack.FindIndex(f => f.Id == windowId && f is DamageTriggerWindowFrame);

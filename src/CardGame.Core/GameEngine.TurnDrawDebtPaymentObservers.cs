@@ -62,6 +62,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 450)]
     private bool IsTurnDrawDebtPaymentProgramDying() => ActiveDying is { ResumesProgramSkill: true } dying &&
         TurnDrawDebtPaymentObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);

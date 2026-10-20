@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         if(index<0||index+2>=_resolutionStack.Count||_resolutionStack[index]is not CardUseFrame{Step:ResolutionFrameStep.Completed,HuiyunOrigin:{}origin}use||_resolutionStack[index+1]is not ProgramCardTriggerWindowFrame{Continuation:ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard}window||window.ParentFrameId!=use.Id||_resolutionStack[index+2]is not ProgramSkillFrame{Huiyun:{}r}f||r.Origin!=origin||r.ParentWindowId!=window.Id||f.WindowContext is not{}context||HuiyunCandidateUse(new(f.OwnerSeat,f.SkillId,f.TriggerId??"",f.SkillInstanceId,f.GameplayHash,0),context)?.Id!=useId||ProgramEventHistory<HuiyunStartedEvent>().Where(e=>e.FrameId==f.Id).ToArray()is not[var started]||started.Origin!=origin||started.ParentWindowId!=window.Id||ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==useId)!=1||!Enum.IsDefined(r.Stage)||r.Index<0||r.Index>r.Opportunities.Count)return false;
         return index+3==_resolutionStack.Count||HuBanFirstChild(f,_resolutionStack[index+3]);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 330)]
     private bool IsHuBanMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.Huiyun is{Stage:HuiyunStage.NativeChildren or HuiyunStage.RecastCostChildren or HuiyunStage.RecastDrawChildren or HuiyunStage.DrawChildren}r&&e?.Op==SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack&&p==f.PendingMovementContinuation&&p.SubjectSeat==HuiyunCurrent(r).TargetSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private bool IsHuiyunNativeSettlementBatch(ProgramSkillFrame f,CardMovementBatchContext batch)
     {
@@ -77,9 +78,14 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 840)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 950)]
     private bool HasHuBanDamageObserver(long id)=>HuBanAnyObserverRootIndex()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>root;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 980)]
     private bool HasHuBanBeforeDamageObserver(long id)=>HuBanAnyObserverRootIndex()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>root;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 810)]
     private bool IsHuBanDying()=>ActiveDying is{}d&&HuBanAnyObserverRootIndex()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>root;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1380)]
     private bool AllowsHuBanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||HuBanAnyObserverRootIndex()is not{}root||_resolutionStack.FindIndex(p=>p.Id==f.Id)<=root)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27380)]private bool AdvanceHuBanSubtree()=>_pendingDecision is null&&HuBanAnyObserverRootIndex()is not null&&TryAdvanceObserverSubtree(true);

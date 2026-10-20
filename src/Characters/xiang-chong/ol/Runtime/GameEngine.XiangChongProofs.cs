@@ -58,6 +58,8 @@ public sealed partial class GameEngine
             if(_pendingDecision is not{Kind:DecisionKind.ProgramTrigger,IsPrivate:true}p||p.PlayerSeat!=actor||p.SkillPrompt?.SkillId!=f.SkillId||!AssistedChoicesEqual(p.Choices,XiangChoices(f)))throw new InvalidOperationException("XiangChong's private chooser or exact legal payment frontier changed.");
         }
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 880)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 820)]
     private bool IsXiangChongRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.XiangChong is{}r&&ValidXiang(f)&&XiangSilverLionSeats(r).Contains(recovery.Attempt.TargetSeat)&&recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Amount==1&&
         _cardMovements.Any(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardKind==CardKind.SilverLion&&m.From==CardLocation.Equipment(recovery.Attempt.TargetSeat)&&m.Reason==recovery.Attempt.Completion.MoveReason);
     private static IEnumerable<int> XiangSilverLionSeats(XiangChongReceipt r)=>r.Payments.Concat(r.Replaced is{}p?[p]:Array.Empty<XiangChongCard>()).Where(c=>c.Kind==CardKind.SilverLion&&c.From.Zone==CardZoneKind.Equipment&&c.From.OwnerSeat is not null).Select(c=>c.From.OwnerSeat!.Value);
@@ -89,9 +91,14 @@ public sealed partial class GameEngine
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==origin.ProgramFrameId)is{}owner&&MatchesXiangChongEquipment(owner,origin)&&window.CandidateIndex>=0&&window.CandidateIndex<window.Candidates.Count&&MountObserverCandidateMatches(p,ToSharedCandidate(window.Candidates[window.CandidateIndex]))&&CreateCardActionProgramContext(window,window.Candidates[window.CandidateIndex])==p.WindowContext;
     }
     private ProgramSkillFrame? XiangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.XiangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.XiangEquipmentObserverEdge(n)||x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1470)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1580)]
     private bool HasXiangChongDamageObserver(long id)=>XiangObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1600)]
     private bool HasXiangChongBeforeDamageObserver(long id)=>HasXiangChongDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1430)]
     private bool IsXiangChongDying()=>ActiveDying is{}d&&XiangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2080)]
     private bool AllowsXiangChongNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||XiangObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27140)]private bool AdvanceXiangSubtree()=>_pendingDecision is null&&XiangObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

@@ -281,6 +281,7 @@ public sealed partial class GameEngine
         if (frame.EquipmentSlotNamedUse is null) return false;
         return ResumeEquipmentSlotNamedUse(frame.Id);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 80)]
     private bool IsEquipmentSlotNamedUseMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (frame.EquipmentSlotNamedUse is { Stage: EquipmentSlotNamedUseStage.MovementChildren, Payment: { } p } && p.FrameId == frame.Id && effect?.Op == SkillProgramEffectOp.PayEquipmentSlotForNamedUse ||

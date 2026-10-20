@@ -106,6 +106,7 @@ public sealed partial class GameEngine
             effect.Condition, zones: [CardZoneKind.Hand, CardZoneKind.Equipment], resultBind: effect.ResultBind);
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 540)]
     private bool IsExtraDrawDebtMovement(ProgramSkillFrame frame, SkillProgramEffect? paid, ProgramMovementContinuation movement) =>
         paid?.Op == SkillProgramEffectOp.DrawExtraAndArmTurnDamageUseDebt && frame.ExtraDrawReceipt is { } receipt &&
         receipt.InstructionIndex == frame.InstructionIndex - 1 && receipt.StateId == paid.StateId &&

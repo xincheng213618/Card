@@ -192,6 +192,7 @@ public sealed partial class GameEngine
         attack.CardUserSeat == attack.SourceSeat && attack.EffectiveCardKind is { } kind && IsSlashCard(kind) &&
         _players[attack.SourceSeat].Hp < 5 && NianEnabled(_players[attack.SourceSeat], "nian:baonu") ? 1 : 0;
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BeforePrivatePayments, 20)]
     private bool IsNianRuizhiMovement(ProgramSkillFrame frame, SkillProgramEffect? paidEffect, ProgramMovementContinuation pending) =>
         paidEffect?.Op == SkillProgramEffectOp.DiscardNianRuizhiRemainder && frame.SkillId == "nian:ruizhi" &&
         frame.WindowContext is { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, TargetSeat: { } other } context &&

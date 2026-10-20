@@ -26,6 +26,8 @@ public sealed partial class GameEngine
             ProgramEventHistory<CaoTengJianxiongClaimedEvent>().Where(e=>e.FrameId==f.Id).All(e=>r.Materials.Any(m=>m.CardId==e.CardId)&&_cardMovements.Count(m=>m.Sequence==e.Sequence&&m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==e.CardId&&m.From==CardLocation.Processing&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==CaoTengJianxiongClaimReason)==1);
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27300)]private void AssertCaoTeng(ProgramSkillFrame f){if(f.CaoTeng is not null&&!ValidCaoTeng(f))throw new InvalidOperationException("Cao Teng lost his exact native parent, private chooser order, original cause or once-issued benefit.");}
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 100)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 90)]
     private bool IsCaoTengRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.CaoTeng is{Stage:CaoTengStage.YongzuChildren,Option:"recover",RecoveryRequested:>0}r&&ValidCaoTeng(f)&&
         recovery.ParentFrameId==f.Id&&recovery.Return==new RecoveryReplacementReturn(PostEventContinuation.Program,f.Id)&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==CaoTengChooser(f)&&recovery.Attempt.Amount==r.RecoveryRequested&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.Program&&recovery.Attempt.Completion.InstructionIndex==1;
     private bool CaoTengFirstChild(ProgramSkillFrame f,ResolutionFrame child)
@@ -45,9 +47,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? CaoTengObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.CaoTengFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 760)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 870)]
     private bool HasCaoTengDamageObserver(long id)=>CaoTengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 900)]
     private bool HasCaoTengBeforeDamageObserver(long id)=>HasCaoTengDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 730)]
     private bool IsCaoTengDying()=>ActiveDying is{}dying&&CaoTengObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1300)]
     private bool AllowsCaoTengNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||CaoTengObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);

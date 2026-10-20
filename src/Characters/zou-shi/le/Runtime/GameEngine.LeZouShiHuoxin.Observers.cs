@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 270)]
     private bool IsHuoxinMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.Huoxin is { Paid: true, Stage: HuoxinStage.ObtainChildren, PaidSequence: > 0 } &&
         effect is { Op: SkillProgramEffectOp.ResolveHuoxinNonEquipmentUse, Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always } &&
@@ -29,12 +30,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? HuoxinObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.HuoxinFirstChild(f, child), static (g, i) => g.HuoxinObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1220)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1330)]
     private bool HasHuoxinDamageObserver(long id) => HuoxinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1360)]
     private bool HasHuoxinBeforeDamageObserver(long id) => HuoxinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1190)]
     private bool IsHuoxinDying() => ActiveDying is { } d && HuoxinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1760)]
     private bool AllowsHuoxinNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -43,6 +49,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 450)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 440)]
     private bool IsHuoxinRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Huoxin is null || recovery.ParentFrameId == f.Id) return false;

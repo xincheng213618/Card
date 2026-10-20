@@ -81,6 +81,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 240)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 240)]
  private bool CanContinueFanChou(ProgramSkillFrame f){if(f.FanChou is not{Stage:FanChouStage.MovementChildren or FanChouStage.DrawChildren})return false;RequireFanChou(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 240)]
  private bool IsFanChouMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.FanChou is{}r&&e?.Op==SkillProgramEffectOp.ChooseXingluanRankSixBenefit&&CanContinueFanChou(f)&&p.SubjectSeat==(r.Branch=="other-discard"?r.Recipient!.Value:f.OwnerSeat)&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireFanChou(ProgramSkillFrame f)
  {

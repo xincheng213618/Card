@@ -38,6 +38,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 440)]
     private bool IsExtraDrawDebtProgramDying() => ActiveDying is { ResumesProgramSkill: true } dying &&
         ExtraDrawDebtObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);

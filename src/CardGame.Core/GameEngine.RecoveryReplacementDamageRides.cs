@@ -26,6 +26,8 @@ public sealed partial class GameEngine
         ride is HpChangedTriggerWindowFrame hp && hp.Change.ParentFrameId == use.Id &&
         hp.ResumeFrameId == use.Id && hp.Continuation == PostEventContinuation.RecoveryPaidCardUse;
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 20)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 110)]
     private bool IsPaidCardUseProgramDying() => ActiveCardAttack is { } attack &&
         LifecycleCardUse(attack.ResolutionId)?.RecoveryPaidContinuation?.Kind is RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash &&
         IsRecoveryReplacementProgramDying(attack.ResolutionId);
@@ -45,6 +47,9 @@ public sealed partial class GameEngine
         }
         return false;
     }
+
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 330, group: 10)]
+    private bool MatchRecoveryReplacementProgramDying() => IsRecoveryReplacementProgramDying();
 
     private bool IsRecoveryReplacementProgramDying(long? requiredPaidUseId = null)
     {

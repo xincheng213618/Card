@@ -135,6 +135,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 300)]
     private bool AllowsGainGiftNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -148,7 +149,10 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 90, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 200)]
     private bool IsGainGiftProgramDying() => ActiveDying is { } dying && GainGiftObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1750)]
     private bool HasGainGiftDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && GainGiftObserverRoot() is not null;
 }

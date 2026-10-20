@@ -70,7 +70,9 @@ public sealed partial class GameEngine
             return IsAvailableBoundPeachRescueRide(index-1,peachParent);
         return false;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 30)]
     private bool HasPaidDamageTargetMountObserver(long damageWindowId)=>PaidDamageTargetMountObserverRoot(damageWindowId) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 300, group: 10)]
     private bool IsPaidDamageTargetMountDying()=>ActiveDamageTrigger is{ } damage && ActiveDying is{ResumesProgramSkill:true} dying &&
         PaidDamageTargetMountObserverRoot(damage.Id) is not null &&
         _resolutionStack.OfType<DyingFrame>().Any(f=>f.Id==dying.FrameId && f.ParentFrameId==dying.ParentFrameId);

@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 260)]
     private bool IsGuYinMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.GuYin is { Stage: GuYinStage.DrawChildren, DrawOutcome: not null } &&
         effect is { Op: SkillProgramEffectOp.ResolveGuYinInitialEntityDiscardDraw, Target: SkillProgramEffectTarget.Owner,
@@ -45,12 +46,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? GuYinObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.GuYinFirstChild(f, child), static (g, index) => g.GuYinObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1200)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1310)]
     private bool HasGuYinDamageObserver(long id) => GuYinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1340)]
     private bool HasGuYinBeforeDamageObserver(long id) => GuYinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1170)]
     private bool IsGuYinDying() => ActiveDying is { } d && GuYinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1740)]
     private bool AllowsGuYinNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -61,6 +67,8 @@ public sealed partial class GameEngine
             effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 430)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 420)]
     private bool IsGuYinRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.GuYin is null || recovery.ParentFrameId == f.Id) return false;

@@ -63,6 +63,7 @@ public sealed partial class GameEngine
                 m.From == CardLocation.Hand(f.OwnerSeat) && m.To == CardLocation.DiscardPile && m.Reason.Value == KuangfuHandReason) == 1);
     }
     private static bool IsKuangfuPending(ProgramSkillFrame f) => f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } p && p.SubjectSeat == f.OwnerSeat;
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 50)]
     private bool IsKuangfuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome && pending == f.PendingMovementContinuation &&
         f.Kuangfu is { Stage: KuangfuStage.EquipmentChildren or KuangfuStage.OutcomeChildren } && IsKuangfuPending(f) && ValidKuangfu(f);
@@ -144,7 +145,10 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1710)]
     private bool HasKuangfuDamageObserver(long window) => KuangfuPaidObserverRoot(window) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 50, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 180)]
     private bool IsKuangfuProgramDying() => ActiveDying is { } dying && KuangfuPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 490)]
@@ -153,6 +157,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is not null || KuangfuPaidObserverRoot() is null) return false;
         return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false);
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 290)]
     private bool AllowsKuangfuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || f.InstructionIndex < 1 || ActiveDying is not null || _resolutionStack.LastOrDefault()?.Id != f.Id ||

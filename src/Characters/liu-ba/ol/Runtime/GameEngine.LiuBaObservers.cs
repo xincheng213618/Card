@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         if(r.Op==SkillProgramEffectOp.ReturnTongduOriginalCardAtPlayEnd&&(r.DebtId is not{}debt||ProgramEventHistory<TongduDebtConsumedEvent>().Count(e=>e.DebtId==debt&&e.FrameId==f.Id&&e.ParentId==r.ParentId&&e.ActualTurn==r.ActualTurn&&e.PhaseInstance==r.PhaseInstance)!=1))throw new InvalidOperationException("Tongdu cannot repeat or transfer its issued original-card debt.");
         if(f.PendingMovementContinuation is{}p&&!IsLiuBaMovement(f,GetPausedPrivateOfferEffect(f),p))throw new InvalidOperationException("Liu Ba lost the typed waiting participant.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 340)]
     private bool IsLiuBaMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.LiuBa is{Paid:true}r&&e?.Op==r.Op&&p==f.PendingMovementContinuation&&p.SubjectSeat==r.Recipient&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private bool LiuBaMovementMatches(ProgramSkillFrame f,CardMovementRecord m)
     {
@@ -22,6 +23,8 @@ public sealed partial class GameEngine
         return r.Grain.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(r.Recipient)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard;
     }
     private bool LiuBaLion(ProgramSkillFrame f,int seat)=>f.LiuBa is{Paid:true}r&&r.Stage!=LiuBaStage.DrawChildren&&r.Entities.Any(c=>c.Kind==CardKind.SilverLion&&c.From==CardLocation.Equipment(seat))&&ProgramEventHistory<LiuBaEntityMovedEvent>().Any(e=>e.FrameId==f.Id&&e.Step==r.Step&&e.Kind==CardKind.SilverLion&&e.From==CardLocation.Equipment(seat));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 140)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 130)]
     private bool IsLiuBaRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.LiuBa is{Paid:true}&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.Amount==1&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&LiuBaLion(f,recovery.Attempt.TargetSeat)&&recovery.Attempt.Completion.MoveReason?.Value==(f.LiuBa.Stage==LiuBaStage.RecastChildren?CardMoveReasons.RecastDiscard.Value:f.LiuBa.Stage==LiuBaStage.ReturnChildren?TongduReturnReason:LiuBaExchangeReason);
     private bool LiuBaFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -33,9 +36,14 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? LiuBaObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuBaFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 850)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 960)]
     private bool HasLiuBaDamageObserver(long id)=>LiuBaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 990)]
     private bool HasLiuBaBeforeDamageObserver(long id)=>HasLiuBaDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 820)]
     private bool IsLiuBaDying()=>ActiveDying is{}d&&LiuBaObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1390)]
     private bool AllowsLiuBaNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||LiuBaObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27390)]private bool AdvanceLiuBaChildren()=>_pendingDecision is null&&LiuBaObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

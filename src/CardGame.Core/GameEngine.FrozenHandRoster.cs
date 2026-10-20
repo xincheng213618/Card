@@ -101,6 +101,7 @@ public sealed partial class GameEngine
     }
     private SkillProgramEffect? FrozenHandRosterPausedEffect(ProgramSkillFrame f)=>f.InstructionIndex<1?null:
         ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 270)]
     private bool IsFrozenHandRosterMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>
         e?.Op==SkillProgramEffectOp.ResolveFrozenHandRosterEndingExchange && f.FrozenHandRoster is{Stage:"movement"} r && r.InstructionIndex==f.InstructionIndex &&
         p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;

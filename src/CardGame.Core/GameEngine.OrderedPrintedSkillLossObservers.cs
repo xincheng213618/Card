@@ -158,9 +158,13 @@ public sealed partial class GameEngine
             HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 510, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 590)]
     private bool IsOrderedPrintedSkillLossProgramDying() => ActiveDying is { } dying && OrderedPrintedSkillLossObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1690)]
     private bool HasOrderedPrintedSkillLossDamageObserver(long id) => HasOrderedPrintedSkillLossObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 160)]
     private bool HasOrderedPrintedSkillLossBeforeDamageObserver(long id) => HasOrderedPrintedSkillLossObserver(id, true);
     private bool HasOrderedPrintedSkillLossObserver(long id, bool before)
     {
@@ -177,6 +181,7 @@ public sealed partial class GameEngine
         return index < rootIndex;
     }
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 130)]
     private bool AllowsOrderedPrintedSkillLossNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

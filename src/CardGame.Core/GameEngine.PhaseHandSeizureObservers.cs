@@ -57,10 +57,13 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1900)]
     private bool HasPhaseHandSeizureDamageObserver(long windowId) => PhaseHandSeizureObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == windowId && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 160, group: 10)]
     private bool IsPhaseHandSeizureProgramDying() => ActiveDying is { } dying && PhaseHandSeizureObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 180)]
     private bool AllowsPhaseHandSeizureNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

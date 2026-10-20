@@ -157,6 +157,8 @@ public sealed partial class GameEngine
                 NativeDrawAttemptRidesOn(engine._resolutionStack[next], engine._resolutionStack[next - 1]) ||
                 engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[next], engine._resolutionStack[next - 1]) || engine.IsYanPuDyingExitEdge(next),
             static (engine, next, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(next, dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1400)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1510)]
     private bool HasMouHuangYueyingDamageObserver(long id)
     {
         if (MouHuangYueyingObserverRoot() is not { } root || _resolutionStack.SingleOrDefault(f => f.Id == id) is not DamageTriggerWindowFrame window) return false;
@@ -164,8 +166,10 @@ public sealed partial class GameEngine
         return root.MouLixian is { Paid: true } r && ValidMouLixianStarted(root) && r.WindowId == window.Id &&
             root.WindowContext?.ParentFrameId == window.Id && window.TriggerWindow == SkillProgramTriggerWindow.AfterDamageApplied && DamageProgramMatchesWindow(root, window);
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1530)]
     private bool HasMouHuangYueyingBeforeDamageObserver(long id) => MouHuangYueyingObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1360)]
     private bool IsMouHuangYueyingDying()
     {
         if (ActiveDying is not { } dying) return false;
@@ -173,6 +177,7 @@ public sealed partial class GameEngine
         return _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.MouBingcai is not null && ValidMouBingcaiStarted(f) && IsMouBingcaiLegacyDyingParent(f)) ||
             IsMouBingcaiLegacyDyingWindow();
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1950)]
     private bool AllowsMouHuangYueyingNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

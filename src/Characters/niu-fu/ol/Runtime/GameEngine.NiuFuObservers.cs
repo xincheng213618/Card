@@ -62,10 +62,13 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27050)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27050)]
     private bool ContinuePaidNiuFu(ProgramSkillFrame f) { if (f.NiuFu is not { } r || r.Steps.Count == 0 && r.SourceBranch is null) return false; AssertNiuFu(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 250)]
     private bool IsNiuFuMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     { if (f.NiuFu is not { Steps.Count: > 0 } r || e?.Op != r.Op || p != f.PendingMovementContinuation) return false; AssertNiuFu(f); return true; }
     private bool NiuFuLionProof(ProgramSkillFrame f, int seat, CardMoveReason? reason)
     { var step = f.NiuFu!.Steps[^1]; return reason is not null && _cardMovements.Any(m => m.Sequence > step.Before && m.Sequence <= step.After && m.From == CardLocation.Equipment(seat) && m.CardKind == CardKind.SilverLion && m.Reason == reason); }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 780)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 720)]
     private bool IsNiuFuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.NiuFu is not { Steps.Count: > 0 } || f.PendingMovementContinuation is null) return false; AssertNiuFu(f);
@@ -93,9 +96,14 @@ public sealed partial class GameEngine
             _cardMovements.Any(m => m.Sequence > step.Before && m.Sequence <= step.After && m.From == CardLocation.Equipment(recoveryHp.Change.TargetSeat) && m.CardKind == CardKind.SilverLion);
     }
     private ProgramSkillFrame? NiuFuObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.NiuFuFirstChild(f, c), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 610)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 720)]
     private bool HasNiuFuDamageObserver(long id) => NiuFuObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 750)]
     private bool HasNiuFuBeforeDamageObserver(long id) => NiuFuObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 570)]
     private bool IsNiuFuDying() => ActiveDying is { } dying && NiuFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1210)]
     private bool AllowsNiuFuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || NiuFuObserverRoot() is not { } root || root.Id == f.Id) return false;

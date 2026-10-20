@@ -59,6 +59,7 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("A private offer resumed without its precise movement/HP return.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 280)]
     private bool IsPrivateOfferMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.PrivateOffer is { Stage: not PrivateOfferStage.ChoosingExchange and not PrivateOfferStage.HpLoss } r &&
         effect == GetPausedPrivateOfferEffect(f) && ValidPrivateOfferReceipt(f) && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&

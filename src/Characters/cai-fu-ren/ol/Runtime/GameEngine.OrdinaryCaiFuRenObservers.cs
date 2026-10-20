@@ -43,6 +43,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 27595)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27595)]
     private bool PermitPaidOrdinaryCaiFuRen(ProgramSkillFrame f) => CanContinueIssuedOrdinaryCaiFuRen(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 140)]
     private bool IsOrdinaryCaiFuRenMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.OrdinaryQieting is { Paid: true, Stage: OrdinaryQietingStage.MovementChildren or OrdinaryQietingStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
     private bool IsOrdinaryQietingPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -63,14 +64,21 @@ public sealed partial class GameEngine
     }
     private bool OrdinaryQietingObserverSuffix(int index) => HasObserverSuffix(index, static (g, n) => g.IsMovementObserverEdge(n) || g.IsSameNameHandObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? OrdinaryQietingObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.OrdinaryQietingFirstChild(f, child), static (e, index) => e.OrdinaryQietingObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1070)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1180)]
     private bool HasOrdinaryCaiFuRenDamageObserver(long id) => OrdinaryQietingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1210)]
     private bool HasOrdinaryCaiFuRenBeforeDamageObserver(long id) => OrdinaryQietingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1040)]
     private bool IsOrdinaryCaiFuRenDying() => ActiveDying is { } dying && OrdinaryQietingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1610)]
     private bool AllowsOrdinaryCaiFuRenNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || OrdinaryQietingObserverRoot() is not { } root || root.Id == f.Id) return false;
         var effect = GetPausedPrivateOfferEffect(f); return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature && target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 300)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 290)]
     private bool IsOrdinaryCaiFuRenRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.OrdinaryQieting is not { Paid: true } r) return false;

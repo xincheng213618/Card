@@ -51,10 +51,13 @@ public sealed partial class GameEngine
     private bool MouBingcaiOxSpill(ProgramSkillFrame f, CardMovementBatchContext b) => f.MouBingcai is { Stage: MouBingcaiStage.CostChildren,
         PrintedKind: CardKind.WoodenOx, From: { Zone: CardZoneKind.Equipment } } r && b.ParentBatchId == r.BatchId && b.Movements.Count > 0 &&
         b.Movements.All(m => m.From == CardLocation.WoodenOxGrain(f.OwnerSeat) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard && _cardMovements.Contains(m));
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 420)]
     private bool IsMouHuangYueyingMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.MouBingcai is { Stage: MouBingcaiStage.CostChildren or MouBingcaiStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.ResolveMouHuangYueyingBingcai &&
         IsPaidMouBingcai(f) && pending == f.PendingMovementContinuation && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null ||
         IsMouLixianMovement(f, effect, pending);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 610)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 550)]
     private bool IsMouHuangYueyingRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.MouBingcai is { Stage: MouBingcaiStage.CostChildren, PrintedKind: CardKind.SilverLion, From: { Zone: CardZoneKind.Equipment } } &&
         IsPaidMouBingcai(f) && RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement &&

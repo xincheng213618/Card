@@ -96,6 +96,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? ActualHandGainObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.ActualHandGainFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 880)]
     private bool AllowsActualHandGainNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -107,8 +108,11 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 60, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 190)]
     private bool IsActualHandGainProgramDying() => ActiveDying is { } dying && ActualHandGainObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1720)]
     private bool HasActualHandGainDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && ActualHandGainObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 500)]
     private bool TryAdvanceActualHandGainSubtree()

@@ -217,6 +217,7 @@ public sealed partial class GameEngine
         if (f.PairedColorDisposition is not { Stage: PairedColorDispositionStage.MovementChildren }) return false;
         AssertPairedColorDisposition(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 110)]
     private bool IsPairedColorDispositionMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.OfferPairedColorCardDisposition && f.PairedColorDisposition is
             { Stage: PairedColorDispositionStage.MovementChildren } r && f.PendingMovementContinuation == pending &&

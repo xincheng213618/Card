@@ -1,6 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 820)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 760)]
     private bool IsTianChouRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.TianChouShandao is { Stage: TianChouShandaoStage.TopChildren, Tops.Count: > 0 } r && ValidTianChou(f) &&
         r.Tops[^1] is { Kind: CardKind.SilverLion, From.Zone: CardZoneKind.Equipment } top && recovery.ParentFrameId == f.Id &&
         recovery.Return == new RecoveryReplacementReturn(PostEventContinuation.Program, f.Id) && recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion &&
@@ -23,10 +25,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? TianChouObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.TianChouFirstChild(f, c),
         static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 650)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 760)]
     private bool HasTianChouDamageObserver(long id) => TianChouObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 790)]
     private bool HasTianChouBeforeDamageObserver(long id) => HasTianChouDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 610)]
     private bool IsTianChouDying() => ActiveDying is { } dying && TianChouObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1250)]
     private bool AllowsTianChouNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || TianChouObserverRoot() is not { } root || root.Id == f.Id) return false;

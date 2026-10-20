@@ -134,6 +134,7 @@ public sealed partial class GameEngine
     {
         if (frame.EndRefillNextTurn is not null) RequireEndRefillNextTurnReceipt(frame);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 30)]
     private bool IsEndRefillNextTurnMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.EndRefillNextTurn is { Stage: EndRefillNextTurnStage.MovementChildren } r && e?.Op == SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly &&
         p.SubjectSeat == r.TargetSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;

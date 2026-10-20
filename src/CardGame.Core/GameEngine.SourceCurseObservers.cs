@@ -156,6 +156,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 280)]
     private bool AllowsSourceCurseNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -172,8 +173,10 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) :
                 ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 170, group: 10)]
     private bool IsSourceCurseProgramDying() => ActiveDying is { } dying && SourceCurseObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1970)]
     private bool HasSourceCurseDamageObserver(long windowId) =>
         _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) && SourceCurseObserverRoot() is not null;
 }

@@ -56,9 +56,11 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 80)]
     private bool HasBoundRankBonusMovementObserver(long damageWindowId) =>
         BoundRankBonusMovementRoot(damageWindowId) is not null;
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 370, group: 10)]
     private bool IsBoundRankBonusMovementDying() => ActiveDamageTrigger is { } damage &&
         ActiveDying is { ResumesProgramSkill: true } dying && BoundRankBonusMovementRoot(damage.Id) is not null &&
         _resolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.FrameId && f.ParentFrameId == dying.ParentFrameId);

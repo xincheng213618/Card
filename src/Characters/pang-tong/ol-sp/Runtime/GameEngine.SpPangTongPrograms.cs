@@ -95,6 +95,7 @@ public sealed partial class GameEngine
   var drawn=DrawCards(_players[seat],1,true,new(SpPangTongDrawReason),r.Source);f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{SpPangTong=f.SpPangTong!with{After=_movementSequence,ActualCount=drawn.Count}});IssueSpPangTongSegment(f);AdvanceRuntimeProgram(f.Id);
  }
  private void FinishSpPangTong(ProgramSkillFrame f){ReplaceRuntimeTop(f=f with{SpPangTong=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 290)]
  private bool IsSpPangTongMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>e is not null&&SpPangTongComposition.Own(e.Op)&&f.SpPangTong is{Stage:"exchange-children" or "draw-children"}&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  [ProgramContinuation(ProgramContinuationKind.Movement,24700)] private bool ReturnSpPangTongMovement(ProgramSkillFrame f)=>f.SpPangTong is not null&&ResumeSpPangTong(f.Id);
  [ProgramContinuation(ProgramContinuationKind.Resume,24700)] private bool ResumeSpPangTong(long id)

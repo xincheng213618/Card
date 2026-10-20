@@ -35,6 +35,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 26420)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 26420)]
     private bool ContinueIssuedDaili(ProgramSkillFrame frame) => ValidDaili(frame);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 110)]
     private bool IsDailiMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation movement) =>
         effect?.Op == SkillProgramEffectOp.ResolveDailiTurnEnd && frame.Daili is { Stage: DailiStage.DrawChildren } &&
         movement is { BeforeCount: 0, CoverageResultBind: null } && movement.SubjectSeat == frame.OwnerSeat && ValidDaili(frame);
@@ -52,14 +53,19 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? DailiObserverRoot() => FindProgramObserverRoot(static (engine, root, child) => engine.DailiFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 420)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 530)]
     private bool HasDailiDamageObserver(long id) => DailiObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 560)]
     private bool HasDailiBeforeDamageObserver(long id) => DailiObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 390)]
     private bool IsDailiDying() => ActiveDying is { } dying && DailiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 26420)]
     private bool AdvanceDailiSubtree() => _pendingDecision is null && DailiObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1030)]
     private bool AllowsDailiNestedDamage(ProgramSkillFrame frame, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || frame.AttackAttempt is not null || frame.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != frame.Id || DailiObserverRoot() is not { } root || root.Id == frame.Id) return false;

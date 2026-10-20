@@ -67,6 +67,7 @@ public sealed partial class GameEngine
         return f.Diou is null && f.InstructionIndex is 0 or 1 && f.TriggerId == DiouBinding && f.WindowContext is { } c &&
             IsIssuedDiouCandidate(new(f.OwnerSeat, f.SkillId, f.TriggerId, f.SkillInstanceId, f.GameplayHash, 0, c.OccurrenceIndex), c);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 330)]
     private bool IsDiouMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.Diou is { Paid: true, Stage: DiouStage.NativeChildren or DiouStage.DrawChildren } &&
         e?.Op == SkillProgramEffectOp.ResolveDiouTanbanUse && p == f.PendingMovementContinuation &&
@@ -339,12 +340,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? DiouObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.DiouFirstChild(f, child), static (g, index) => g.DiouObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1310)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1420)]
     private bool HasDiouDamageObserver(long id) => DiouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1450)]
     private bool HasDiouBeforeDamageObserver(long id) => DiouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1280)]
     private bool IsDiouDying() => ActiveDying is { } dying && DiouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1870)]
     private bool AllowsDiouNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -353,6 +359,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 480)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 470)]
     private bool IsDiouRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Diou is null || recovery.ParentFrameId == f.Id) return false;

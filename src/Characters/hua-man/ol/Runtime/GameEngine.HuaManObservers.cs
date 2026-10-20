@@ -79,6 +79,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 340)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 340)]
  private bool CanContinueHuaMan(ProgramSkillFrame f){if(f.HuaMan is not{Paid:true})return false;AssertHuaManFrame(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 340)]
  private bool IsHuaManMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation pending)=>f.HuaMan is{Paid:true}&&effect is not null&&HuaManComposition.Own(effect.Op)&&pending.SubjectSeat==f.OwnerSeat&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&CanContinueHuaMan(f);
  private bool HuaManFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -89,11 +90,16 @@ public sealed partial class GameEngine
   return child is RecoveryReplacementFrame recovery&&r.Stage==HuaManStage.RecoveryChildren&&recovery.ParentFrameId==root.Id&&recovery.Return.ResumeFrameId==root.Id&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.TargetSeat==root.OwnerSeat&&recovery.Attempt.SourceSeat==root.OwnerSeat&&recovery.Attempt.Amount==r.RecoveryRequested&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.Program&&recovery.Attempt.Completion.InstructionIndex==root.InstructionIndex;
  }
  private ProgramSkillFrame? HuaManObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.HuaManFirstChild(r,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsSameNameHandObserverEdge(n),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)||x.TieredRoundZeroDyingRescueRide(n,d)||(x.DrawFundedDistinctBasicDyingRescueRide(n,d) || x.HuanpeiDyingRescueRide(n,d))));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 300)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 410)]
  private bool HasHuaManDamageObserver(long id)=>HuaManObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 500)]
  private bool HasHuaManBeforeDamageObserver(long id)=>HuaManObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 270)]
  private bool IsHuaManDying()=>ActiveDying is{}d&&HuaManObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 410)]
  private bool TryAdvanceHuaManSubtree()=>_pendingDecision is null&&HuaManObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 640)]
  private bool AllowsHuaManNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||HuaManObserverRoot()is not{}r||r.Id==observer.Id)return false;var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(observer,p):ResolveProgramEffectTarget(observer,e.Target));

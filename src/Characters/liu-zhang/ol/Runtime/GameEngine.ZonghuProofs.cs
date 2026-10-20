@@ -27,6 +27,7 @@ public sealed partial class GameEngine
   else if(r.Paid is not null||f.PendingMovementContinuation is not null||r.Before!=0||r.After!=0)throw new InvalidOperationException("Unpaid Zonghu cannot claim a native movement.");
   if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}p&&(p.PlayerSeat!=f.OwnerSeat||p.SkillPrompt?.SkillId!=f.SkillId||!p.IsPrivate||!AssistedChoicesEqual(p.Choices,ZonghuChoices(f))))throw new InvalidOperationException("Zonghu changed its private native request frontier.");
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 450)]
  private bool IsLiuZhangMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation p)=>f.Fengwei is{Stage:FengweiStage.DrawChildren}&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&effect?.Op==SkillProgramEffectOp.ResolveFengweiRoundStartDraw||f.Zonghu is{Stage:ZonghuStage.CostChildren,Paid:not null}&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&effect?.Op==SkillProgramEffectOp.ResolveZonghuRequiredUseRequest;
  private bool ZonghuFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
@@ -39,9 +40,14 @@ public sealed partial class GameEngine
  }
  private bool IsZonghuGiftMovement(ProgramSkillFrame f,CardMovementRecord m)=>f.Zonghu is{Stage:ZonghuStage.CostChildren,Paid:{}paid}r&&m.Sequence>r.Before&&m.Sequence<=r.After&&(paid.Gifts.Any(g=>g.Sequence==m.Sequence&&g.CardId==m.CardId&&g.From==m.From&&m.To==CardLocation.Hand(paid.RecipientSeat)&&m.Reason.Value==ZonghuGiftReason)||r.GrainIds.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(f.OwnerSeat)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard&&paid.Gifts.Any(g=>g.Kind==CardKind.WoodenOx&&g.From==CardLocation.Equipment(f.OwnerSeat)));
  private ProgramSkillFrame? ZonghuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.ZonghuFirstChild(f,c)||e.FengweiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 960)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1070)]
  private bool HasLiuZhangDamageObserver(long id)=>ZonghuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1100)]
  private bool HasLiuZhangBeforeDamageObserver(long id)=>ZonghuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 930)]
  private bool IsLiuZhangDying()=>ActiveDying is{}d&&(ActiveZonghuDraft()is{Zonghu:{Need:{Intent:ZonghuIntent.Dying}need}}draft&&need.OwnerFrameId==d.Id&&need.RequestFrameId==d.Id&&ZonghuParent(draft)||ZonghuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id));
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1500)]
  private bool AllowsLiuZhangNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess){if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||ZonghuObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27512)]private bool AdvanceZonghuChildren()=>_pendingDecision is null&&ZonghuObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
  private ProgramSkillFrame? ActiveZonghuDraft()=>_resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault(f=>f.Zonghu is not null);

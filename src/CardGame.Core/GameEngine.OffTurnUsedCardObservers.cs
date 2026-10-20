@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 170)]
     private bool IsOffTurnUsedCardGiftMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.GiveOffTurnUsedCards && pending.SubjectSeat == frame.OwnerSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && CanContinueOffTurnUsedCardGift(frame);
@@ -87,12 +88,16 @@ public sealed partial class GameEngine
         return root;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 500, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 580)]
     private bool IsOffTurnUsedCardGiftProgramDying() => ActiveDying is { } dying &&
         _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.OffTurnUsedCardGift is not null &&
             OffTurnUsedCardGiftObserverRoot(f.Id) is not null &&
             _resolutionStack.FindIndex(x => x.Id == dying.Id) > _resolutionStack.FindIndex(x => x.Id == f.Id));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1790)]
     private bool HasOffTurnUsedCardGiftDamageObserver(long windowId) => OffTurnUsedCardGiftDamageObserver(windowId, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 140)]
     private bool HasOffTurnUsedCardGiftBeforeDamageObserver(long windowId) => OffTurnUsedCardGiftDamageObserver(windowId, true);
 
     private bool OffTurnUsedCardGiftDamageObserver(long windowId, bool before)
@@ -120,6 +125,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 120)]
     private bool AllowsOffTurnUsedCardGiftNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

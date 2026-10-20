@@ -108,6 +108,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 1245)]
     private bool CanContinueRandomAreaAcquisition(ProgramSkillFrame frame) => frame.RandomAreaAcquisition is { } r &&
         (r.Steps.Count > 0 || r.TurnoverIssued) && ValidRandomAreaAcquisition(frame);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 480)]
     private bool IsRandomAreaAcquisitionMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.ObtainRandomAreaFromEachOtherThenTurnOver && frame.RandomAreaAcquisition is { Stage: RandomAreaAcquisitionStage.MovementChildren, Steps.Count: > 0 } &&
         pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidRandomAreaAcquisition(frame);

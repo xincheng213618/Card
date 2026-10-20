@@ -120,6 +120,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 570)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 590)]
     private bool CanContinueOrderedPrintedSkillLoss(ProgramSkillFrame f) => f.OrderedPrintedSkillLoss is not null && ValidOrderedPrintedSkillLossReceipt(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 180)]
     private bool IsOrderedPrintedSkillLossMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.LoseFirstPrintedSkillsUntilTurnEndAndDraw && pending.SubjectSeat == f.OwnerSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && f.PendingMovementContinuation == pending && CanContinueOrderedPrintedSkillLoss(f);

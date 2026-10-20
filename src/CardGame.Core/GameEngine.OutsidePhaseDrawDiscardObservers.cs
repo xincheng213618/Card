@@ -166,10 +166,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? OutsidePhaseDrawDiscardObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.OutsidePhaseDrawDiscardFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 50)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 80)]
     private bool IsOutsidePhaseDrawDiscardDying() => ActiveDying is { } dying && OutsidePhaseDrawDiscardObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1860)]
     private bool HasOutsidePhaseDrawDiscardDamageObserver(long windowId) => _resolutionStack.Any(frame =>
         frame.Id == windowId && frame is DamageTriggerWindowFrame) && OutsidePhaseDrawDiscardObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 800)]
     private bool AllowsOutsidePhaseDrawDiscardNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

@@ -19,11 +19,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? ExtraEffectsAndRankGuessObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.ExtraEffectsAndRankGuessFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1600)]
     private bool HasExtraEffectsAndRankGuessDamageObserver(long id) => ExtraEffectsAndRankGuessObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 130)]
     private bool IsExtraEffectsAndRankGuessDying() => ActiveDying is { } dying && ExtraEffectsAndRankGuessObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 360)]
     private bool AllowsExtraEffectsAndRankGuessNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

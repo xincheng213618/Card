@@ -137,6 +137,7 @@ public sealed partial class GameEngine
         if (TryDrainFireTargetMovement(f)) return true;
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); ResumeNamedCardAcquisition(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 320)]
     private bool IsNamedCardAcquisitionMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         f.NamedCardAcquisition is { Stage: NamedCardAcquisitionStage.MovementChildren } d && d.InstructionIndex == f.InstructionIndex &&
         e?.Op == SkillProgramEffectOp.LoseSkillsAndObtainNamedCard && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;

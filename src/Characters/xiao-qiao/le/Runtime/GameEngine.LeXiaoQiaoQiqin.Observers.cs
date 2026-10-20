@@ -38,6 +38,7 @@ public sealed partial class GameEngine
         if (f.Qiqin is not null && !ValidQiqinReceipt(f))
             throw new InvalidOperationException("Qiqin lost its original preparation, immutable whole-pile selection or once-paid physical obtain.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 250)]
     private bool IsQiqinMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.Qiqin is { BatchId: > 0 } && ValidQiqinReceipt(f) && effect is
             { Op: SkillProgramEffectOp.ResolveQiqinDiscardPileQin, Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always } &&
@@ -71,12 +72,17 @@ public sealed partial class GameEngine
         static (g, next, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(next, dying));
     private ProgramSkillFrame? QiqinObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.QiqinFirstChild(f, child), static (g, index) => g.QiqinObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1190)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1300)]
     private bool HasQiqinDamageObserver(long id) => QiqinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1330)]
     private bool HasQiqinBeforeDamageObserver(long id) => QiqinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1160)]
     private bool IsQiqinDying() => ActiveDying is { } dying && QiqinObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1730)]
     private bool AllowsQiqinNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || QiqinObserverRoot() is not { } root || root.Id == f.Id) return false;
@@ -84,6 +90,8 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature && !sourceLess &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(f, reference) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 420)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 410)]
     private bool IsQiqinRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         var index = _resolutionStack.FindIndex(s => s.Id == f.Id); var child = _resolutionStack.FindIndex(s => s.Id == recovery.Id);

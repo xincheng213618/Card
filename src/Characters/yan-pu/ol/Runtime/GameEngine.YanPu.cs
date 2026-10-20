@@ -172,6 +172,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 26410)]
     private bool ReturnYanPuMovement(ProgramSkillFrame f)
     { if (f.YanPu is null) return false; ContinueYanPu(f.Id); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 660)]
     private bool IsYanPuAwaitedMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.YanPu is { Stage: not (YanPuStage.GiftChoice or YanPuStage.EndingChoice or YanPuStage.EndingGiftChoice), Movements.Count: > 0 } r &&
         (e is null || YanPuComposition.IsOperation(e.Op)) && p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == r.Movements[^1].SubjectSeat;

@@ -33,9 +33,12 @@ public sealed partial class GameEngine
         if(f.Fulue is not null){AssertFulue(f);return true;}
         return f.InstructionIndex is 0 or 1&&f.TriggerId is{}id&&f.ActivationId==id&&f.WindowContext is{}context&&CanRunIssuedFulueCandidate(new(f.OwnerSeat,f.SkillId,id,f.SkillInstanceId,f.GameplayHash,0),context);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 570)]
     private bool IsFulueMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)
     {if(f.Fulue?.Stage!=FulueStage.MovementChildren||effect is null||!PeiYuanShaoComposition.Handles(effect.Op)||pending!=f.PendingMovementContinuation)return false;AssertFulue(f);return true;}
     private bool FulueLionProof(ProgramSkillFrame f,int seat,CardMoveReason? reason)=>f.Fulue is{Stage:FulueStage.MovementChildren,Obtained:{CardKind:CardKind.SilverLion,From.Zone:CardZoneKind.Equipment}cost}r&&cost.From.OwnerSeat==seat&&reason?.Value==FulueObtainReason&&_cardMovements.Any(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==cost.CardId&&m.From==cost.From&&m.Reason==reason);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 840)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 780)]
     private bool IsFulueRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.Fulue?.Stage==FulueStage.MovementChildren&&f.PendingMovementContinuation is not null&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.Amount==1&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&FulueLionProof(f,recovery.Attempt.TargetSeat,recovery.Attempt.Completion.MoveReason);
     private bool FulueFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -46,9 +49,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? FulueObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.FulueFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 680)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 790)]
     private bool HasFulueDamageObserver(long id)=>FulueObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 820)]
     private bool HasFulueBeforeDamageObserver(long id)=>FulueObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 640)]
     private bool IsFulueDying()=>ActiveDying is{}dying&&FulueObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2010)]
     private bool AllowsFulueNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||FulueObserverRoot()is not{}root||root.Id==f.Id)return false;var effect=GetPausedPrivateOfferEffect(f);return effect is{Op:SkillProgramEffectOp.Damage}&&effect.Amount==amount&&effect.ActorReference==source&&effect.DamageNature==nature&&target==(effect.TargetReference is{}reference?ResolveProgramParticipant(f,reference):ResolveProgramEffectTarget(f,effect.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27120)]private bool AdvanceFulueSubtree()=>_pendingDecision is null&&FulueObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

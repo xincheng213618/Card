@@ -125,6 +125,7 @@ public sealed partial class GameEngine
         if (!TryDrainFireTargetMovement(frame)) ReturnCategoryTalismanMovement(frame);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 70)]
     private bool IsCategoryTalismanMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.CategoryTalismanMovement is { } receipt && receipt.InstructionIndex == frame.InstructionIndex &&
         effect?.Op == receipt.Operation && pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

@@ -261,6 +261,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Public pile cash-out retained an unrelated native child.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 10)]
     private bool IsPublicPileCashOutMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.PublicPileCashOut is { } receipt && effect?.Op == receipt.Operation &&
         pending == frame.PendingMovementContinuation && ValidPublicPileCashOut(frame);
@@ -308,12 +309,16 @@ public sealed partial class GameEngine
         static (engine, root, child) => engine.PublicPileCashOutFirstChild(root, child),
         static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 150, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 260)]
     private bool IsPublicPileCashOutProgramDying() => ActiveDying is { } dying && PublicPileCashOutObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);
 
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1920)]
     private bool HasPublicPileCashOutDamageObserver(long id) =>
         _resolutionStack.Any(frame => frame.Id == id && frame is DamageTriggerWindowFrame) && PublicPileCashOutObserverRoot() is not null;
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 200)]
     private bool AllowsPublicPileCashOutNestedDamage(ProgramSkillFrame frame, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

@@ -144,6 +144,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 430)]
     private bool ReturnDyingSuitsMovement(ProgramSkillFrame f)
     { if (f.DyingSuits is null) return false; if (!IsDyingSuitsMovement(f,null,f.PendingMovementContinuation!)) throw new InvalidOperationException("Dying suits lost its paid movement return."); AdvanceRuntimeProgram(f.Id); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 300)]
     private bool IsDyingSuitsMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => pending is not null &&
         f.DyingSuits is { Stage:DyingSuitsStage.Drawing or DyingSuitsStage.Discarding, RecipientSeat:{ } recipient } &&
         (effect is null || effect.Op == SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) && pending.SubjectSeat == recipient && pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidDyingSuitsReceipt(f);

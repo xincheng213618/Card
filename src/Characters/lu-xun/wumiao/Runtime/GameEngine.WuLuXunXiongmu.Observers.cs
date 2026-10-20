@@ -53,12 +53,17 @@ public sealed partial class GameEngine
         static (g, n, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n, dying));
     private ProgramSkillFrame? WuXiongmuObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WuXiongmuFirstChild(f, child), static (g, i) => g.WuXiongmuObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1210)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1320)]
     private bool HasWuXiongmuDamageObserver(long id) => WuXiongmuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1350)]
     private bool HasWuXiongmuBeforeDamageObserver(long id) => WuXiongmuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1180)]
     private bool IsWuXiongmuDying() => ActiveDying is { } dying && WuXiongmuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1750)]
     private bool AllowsWuXiongmuNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -69,6 +74,8 @@ public sealed partial class GameEngine
             effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 440)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 430)]
     private bool IsWuXiongmuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Xiongmu is null) return false;

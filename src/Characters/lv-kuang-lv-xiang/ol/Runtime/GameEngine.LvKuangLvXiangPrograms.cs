@@ -59,6 +59,7 @@ public sealed partial class GameEngine
   if(_pendingDecision is null)PublishLvKuangLvXiang(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,25000)]private bool ReturnLvKuangLvXiangMovement(ProgramSkillFrame f)=>f.LvKuangLvXiang is not null&&ResumeLvKuangLvXiang(f.Id);
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 320)]
  private bool IsLvKuangLvXiangMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>e is not null&&LvKuangLvXiangComposition.Own(e.Op)&&f.LvKuangLvXiang is{Stage:"receive-children" or "give-children"}&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void FinishLvKuangLvXiang(ProgramSkillFrame f){RestoreQigongParentAttack(f);ReplaceRuntimeTop(f=f with{LvKuangLvXiang=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
  [ProgramAiChoice(SkillProgramEffectOp.ResolveQigongActualDodgedSlashRequest,SkillProgramEffectOp.ResolveLiehouRangeHandRelay)]private PromptChoice LvKuangLvXiangAi(PendingDecision p,ProgramSkillFrame f)=>p.Choices[0];

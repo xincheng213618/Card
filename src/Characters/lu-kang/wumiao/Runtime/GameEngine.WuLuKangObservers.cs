@@ -15,6 +15,7 @@ public sealed partial class GameEngine
     }
     private bool WuLuKangSignedMovement(ProgramSkillFrame f, CardMovementRecord m) => _cardMovements.Contains(m) &&
         ProgramEventHistory<WuLuKangMovementSignedEvent>().Count(e => e == new WuLuKangMovementSignedEvent(f.Id, m.CardId, m.CardKind, m.From, m.To, m.Reason, m.Sequence)) == 1;
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 380)]
     private bool IsWuLuKangMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null &&
         (e?.Op == SkillProgramEffectOp.ResolveWuLuKangShenduan && f.WuLuKangShenduan is { Stage: not WuLuKangShenduanStage.DiscardChoice and not WuLuKangShenduanStage.Drawing } && ValidWuLuKangShenduan(f) ||
          e?.Op == SkillProgramEffectOp.ResolveWuLuKangKegou && f.WuLuKangKegou is { Stage: WuLuKangKegouStage.GainChildren or WuLuKangKegouStage.NativeSlashChildren } && ValidWuLuKangKegou(f));
@@ -51,15 +52,22 @@ public sealed partial class GameEngine
     private bool WuLuKangObserverSuffix(int index) => _resolutionStack[index + 1] is DyingFrame dying && index + 2 < _resolutionStack.Count && IsSuspendedOrPaidRescueObserverSuffix(index + 1, dying) ||
         HasObserverSuffix(index, static (g, n) => g.WuLuKangObserverEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? WuLuKangObserverRoot() => FindProgramObserverRoot(static (g, f, c) => g.WuLuKangFirstChild(f, c), static (g, n) => g.WuLuKangObserverSuffix(n));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1360)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1470)]
     private bool HasWuLuKangDamageObserver(long id) => WuLuKangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasWuLuKangBeforeDamageObserver(long id) => WuLuKangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 750)]
     private bool IsWuLuKangDying() => ActiveDying is { } dying && WuLuKangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 130)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1920)]
     private bool AllowsWuLuKangNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || sourceLess || WuLuKangObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 530)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 520)]
     private bool IsWuLuKangRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         var index = _resolutionStack.FindIndex(x => x.Id == f.Id); var child = _resolutionStack.FindIndex(x => x.Id == recovery.Id);

@@ -97,6 +97,7 @@ public sealed partial class GameEngine
     {
         if (frame.RicePile is not null) RequireRiceReceipt(frame);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 40)]
     private bool IsRiceMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p)
     {
         if (f.RicePile is not { Stage: RicePileStage.DrawChildren or RicePileStage.MovementChildren } r || effect?.Op != r.Operation ||

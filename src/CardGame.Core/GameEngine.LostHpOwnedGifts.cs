@@ -213,6 +213,7 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 500)]
     private bool IsLostHpOwnedGiftProgramDying() => ActiveDying is { ResumesProgramSkill: true } && LostHpOwnedGiftObserverRoot() is not null;
     private void AssertLostHpOwnedGifts()
     {

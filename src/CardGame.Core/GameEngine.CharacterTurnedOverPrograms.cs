@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 340, group: 10)]
     private bool IsCharacterTurnedOverProgramDying()
     {
         if (ActiveDying is not { ResumesProgramSkill: true } dying ||

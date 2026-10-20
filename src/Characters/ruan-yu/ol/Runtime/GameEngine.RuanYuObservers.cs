@@ -30,6 +30,7 @@ public sealed partial class GameEngine
         return true;
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27430)]private void AssertRuanYu(ProgramSkillFrame f){if(f.RuanYu is not null&&!ValidRuanYu(f))throw new InvalidOperationException("Ruan Yu lost his exact original source, native parent, private physical sets or once-paid stage.");}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 380)]
     private bool IsRuanYuMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)=>f.RuanYu is{Paid:true}r&&r.Stage is RuanYuStage.FrontChildren or RuanYuStage.EndingChildren or RuanYuStage.RedChildren&&effect?.Op==r.Op&&pending==f.PendingMovementContinuation&&pending.SubjectSeat==r.Recipient&&pending.BeforeCount==0&&pending.CoverageResultBind is null;
     private bool RuanYuFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -40,9 +41,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? RuanYuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.RuanYuFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 890)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1000)]
     private bool HasRuanYuDamageObserver(long id)=>RuanYuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1030)]
     private bool HasRuanYuBeforeDamageObserver(long id)=>HasRuanYuDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 860)]
     private bool IsRuanYuDying()=>ActiveDying is{}d&&RuanYuObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1430)]
     private bool AllowsRuanYuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||RuanYuObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27430)]private bool AdvanceRuanYuChildren()=>_pendingDecision is null&&RuanYuObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

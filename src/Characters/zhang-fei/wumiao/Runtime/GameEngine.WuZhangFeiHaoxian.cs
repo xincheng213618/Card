@@ -153,6 +153,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 29063)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 29063)]
     private bool ContinueIssuedWuHaoxian(ProgramSkillFrame f) => f.WuHaoxian is not null && HasWuHaoxianOriginalPayment(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 410)]
     private bool IsWuHaoxianMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.ResolveWuZhangFeiHaoxian && f.WuHaoxian is { Stage: WuHaoxianStage.RecycleChildren or WuHaoxianStage.ObtainChildren } &&
         pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null && HasWuHaoxianOriginalPayment(f);

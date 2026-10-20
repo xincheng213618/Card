@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 60)]
     private bool IsSimultaneousPindianMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     {
         if (e?.Op != SkillProgramEffectOp.StartSimultaneousPindian || f.SimultaneousPindian is not { } r ||
@@ -65,10 +66,14 @@ public sealed partial class GameEngine
         static (engine,root,child) => engine.SimultaneousFirstChild(root,child),static (engine,index) => engine.HasMovementObserverSuffix(index));
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 460)]
     private bool TryAdvanceSimultaneousSubtree() => _pendingDecision is null && SimultaneousObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 10)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1700)]
     private bool HasSimultaneousDamageObserver(long id) => SimultaneousObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 150)]
     private bool IsSimultaneousProgramDying() => ActiveDying is { } dying && SimultaneousObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 730)]
     private bool AllowsSimultaneousNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || f.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != f.Id ||

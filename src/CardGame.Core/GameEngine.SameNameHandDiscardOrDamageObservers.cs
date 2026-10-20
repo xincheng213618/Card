@@ -150,12 +150,16 @@ public sealed partial class GameEngine
         SameNameHandObserverRoot() is { } root && root.SameNameHandDiscardOrDamage!.OriginalParentFrameId == parentFrameId ||
         ResponseCompletionObserverRoot() is { } response && response.ParentFrameId == parentFrameId ||
         CardSupplyCompletionObserverRoot() is { } supply && supply.ParentFrameId == parentFrameId;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 40, group: 70)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 50)]
     private bool IsSameNameHandDying() => ActiveDying is { } dying &&
         (SameNameHandObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id) ||
          ResponseCompletionObserverRoot() is { } response && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == response.Id) ||
          CardSupplyCompletionObserverRoot() is { } supply && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == supply.Id));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1820)]
     private bool HasSameNameHandDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) &&
         (SameNameHandObserverRoot() is not null || ResponseCompletionObserverRoot() is not null || CardSupplyCompletionObserverRoot() is not null);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 850)]
     private bool AllowsSameNameHandNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

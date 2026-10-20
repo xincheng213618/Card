@@ -123,7 +123,10 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1820)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 200)]
     private bool HasSlashBenefitDamageObserver(long id) => SlashBenefitPaidObserverRoot(id) is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 90)]
     private bool AllowsSlashTargetBenefitNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -140,8 +143,11 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 580, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 660)]
     private bool IsSlashTargetBenefitProgramDying() => ActiveDying is { } dying && SlashBenefitPaidObserverRoot(ActiveDamageTrigger?.Id) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 90)]
     private bool IsSlashTargetBenefitMovement(ProgramSkillFrame root, SkillProgramEffect? op, ProgramMovementContinuation pending) =>
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && root.SlashTargetBenefitDraft is { Stage: SlashTargetBenefitDraftStage.PaidChildren } d &&
         pending.SubjectSeat == (d.Settlement ? root.OwnerSeat : d.Receipt.DrawBenefit ? root.OwnerSeat : d.Receipt.Use.TargetSeat) &&

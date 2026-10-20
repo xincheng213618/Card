@@ -64,6 +64,8 @@ public sealed partial class GameEngine
         return index >= 0 && index + 1 < _resolutionStack.Count && HalfHandSupportPaymentMatches(f, parent, true) &&
             HalfHandPhaseFirstChild(f, _resolutionStack[index + 1]);
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 470, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 550)]
     private bool IsHalfHandPhaseDebtProgramDying() => ActiveDying is { } dying &&
         (HalfHandPhaseDebtObserverRoot() ?? _resolutionStack.OfType<ActualUseTargetWindowFrame>()
             .Select(w => ActualUseTargetObserverRoot(w.ParentFrameId)).LastOrDefault(f => f?.HalfHandSupport is { Paid: true })) is { } root &&

@@ -36,6 +36,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? RiceObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.RiceFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 740)]
     private bool AllowsRiceNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||
@@ -48,8 +49,10 @@ public sealed partial class GameEngine
     }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 470)]
     private bool TryAdvanceRiceSubtree() => _pendingDecision is null && RiceObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1610)]
     private bool HasRiceDamageObserver(long id) => RiceObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 230)]
     private bool IsRiceProgramDying() => ActiveDying is { } dying && RiceObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 }

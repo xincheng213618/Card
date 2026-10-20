@@ -53,6 +53,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 28110)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 28110)]
     private bool PermitIssuedZhaoZhong(ProgramSkillFrame f) => CanContinueIssuedZhaoZhong(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 170)]
     private bool IsZhaoZhongMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.ZhaoZhong is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is ZhaoZhongStage.GiftChildren or ZhaoZhongStage.RecoveryChildren or ZhaoZhongStage.NextGiftChildren or ZhaoZhongStage.DrawChildren;
     private bool ZhaoZhongPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -61,6 +62,8 @@ public sealed partial class GameEngine
         if (ProgramEventHistory<DiciGiftEntityEvent>().Any(e => e.FrameId == f.Id && e.LeaseId == r.LeaseId && e.CardId == m.CardId && e.Kind == m.CardKind && e.From == m.From && e.To == m.To && e.Sequence == m.Sequence)) return true;
         return r.DrawOutcome is { } o && m.Sequence > o.SequenceBefore && m.Sequence <= o.SequenceAfter && (o.ActualDrawIds.Contains(m.CardId) && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == BiriDrawReason || o.ReplacementGainedIds.Contains(m.CardId) && m.To == CardLocation.Hand(f.OwnerSeat) || m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 330)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 320)]
     private bool IsZhaoZhongRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame child) => f.ZhaoZhong is { Paid: true, Stage: ZhaoZhongStage.RecoveryChildren } r && RecoveryReplacementFrameRidesOn(child, f) && child.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && child.Attempt.SourceSeat == f.OwnerSeat && child.Attempt.TargetSeat == r.TargetSeat && child.Attempt.Amount == 1 && child.Attempt.Completion.Producer == RecoveryAttemptProducer.Program && child.Attempt.Completion.InstructionIndex == f.InstructionIndex;
     private bool ZhaoZhongFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
@@ -77,9 +80,14 @@ public sealed partial class GameEngine
     private bool ZhaoZhongLifecycleEdge(int index) => _resolutionStack[index - 1] is ProgramLifecycleTriggerWindowFrame w && _resolutionStack[index] is ProgramSkillFrame f && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count && MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex]) && f.WindowContext is { } c && c.ParentFrameId == w.Id && c.Window == w.Window;
     private bool ZhaoZhongObserverSuffix(int i) => HasObserverSuffix(i, static (g, n) => g.IsMovementObserverEdge(n) || g.TypedDamagePostEventEdge(g._resolutionStack[n - 1], g._resolutionStack[n]) || g.ZhaoZhongLifecycleEdge(n) || g._resolutionStack[n - 1] is ProgramSkillFrame { Zenrun: not null } z && g.ZenrunFirstChild(z, g._resolutionStack[n]) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? ZhaoZhongObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.ZhaoZhongFirstChild(f, child), static (g, i) => g.ZhaoZhongObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1100)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1210)]
     private bool HasZhaoZhongDamageObserver(long id) => ZhaoZhongObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1240)]
     private bool HasZhaoZhongBeforeDamageObserver(long id) => ZhaoZhongObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1070)]
     private bool IsZhaoZhongDying() => ActiveDying is { } d && ZhaoZhongObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == d.Id) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1640)]
     private bool AllowsZhaoZhongNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id) return false;

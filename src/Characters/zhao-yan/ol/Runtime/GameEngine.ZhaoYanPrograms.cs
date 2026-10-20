@@ -723,6 +723,7 @@ public sealed partial class GameEngine
     // A lethal 同协 prevention cost starts its dying child while the guarded
     // before-damage window is still live; the child pins the exact guard
     // program frame, so the window keeps its damage context.
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 40)]
     private bool HasTongxieGuardDying(long beforeDamageId) =>
         ActiveDying is { ResumesProgramSkill: true, ParentFrameId: var parentId } dying &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) is var dyingIndex && dyingIndex >= 0 &&

@@ -46,6 +46,7 @@ public sealed partial class GameEngine
                     e.ProgramFrameId == f.Id && e.Source == r.Source && e.Use == r.Use && e.RecipientSeat == extra) != 1))
             throw new InvalidOperationException("Aid changed its exact actual use, recipient or committed payment.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 10)]
     private bool IsForeignContestOrAidMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (effect?.Op == SkillProgramEffectOp.ResolveForeignTurnPindian && f.ForeignTurnContest is { Stage: ForeignTurnContestStage.ClaimChildren } &&
@@ -111,7 +112,11 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1800)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 180)]
     private bool HasForeignContestAidDamageObserver(long window) => ForeignContestAidPaidObserverRoot(window) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 540, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 620)]
     private bool IsForeignContestAidProgramDying() => ActiveDying is { } dying &&
         ForeignContestAidPaidObserverRoot(ActiveDamageTrigger?.Id) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

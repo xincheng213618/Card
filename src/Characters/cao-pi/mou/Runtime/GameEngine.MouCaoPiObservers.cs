@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 220)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 210)]
     private bool IsMouCaoPiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.MouCaoPi is { Stage: MouCaoPiStage.RecoveryChildren, Option: "grow" } r &&
         RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement &&
@@ -33,12 +35,17 @@ public sealed partial class GameEngine
         static (g, n) => g.IsMovementObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) ||
             NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]),
         static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 980)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1090)]
     private bool HasMouCaoPiDamageObserver(long id) => MouCaoPiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1120)]
     private bool HasMouCaoPiBeforeDamageObserver(long id) => MouCaoPiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 950)]
     private bool IsMouCaoPiDying() => ActiveDying is { } d && MouCaoPiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1520)]
     private bool AllowsMouCaoPiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || MouCaoPiObserverRoot() is not { } root || root.Id == f.Id) return false;

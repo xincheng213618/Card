@@ -129,6 +129,7 @@ public sealed partial class GameEngine
     private bool CanContinueSequentialDeckKindGrowth(ProgramSkillFrame frame) =>
         frame.SequentialDeckKindGrowth is { Steps.Count: > 0 } && ValidSequentialDeckKindGrowth(frame);
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 490)]
     private bool IsSequentialDeckKindGrowthMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.AcquireDeckKindSequentiallyAndGrowOnShortfall &&
         frame.SequentialDeckKindGrowth is { Stage: SequentialDeckKindGrowthStage.GainChildren, Steps.Count: > 0 } &&

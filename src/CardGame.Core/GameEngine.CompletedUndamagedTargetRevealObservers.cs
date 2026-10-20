@@ -179,10 +179,14 @@ public sealed partial class GameEngine
             CardSupplyCompletionStructuralEdge(parent, current) ||
             HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 50, group: 70)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 60)]
     private bool IsCompletedUndamagedTargetRevealDying() => ActiveDying is { } dying && CompletedUndamagedTargetRevealObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1830)]
     private bool HasCompletedUndamagedTargetRevealDamageObserver(long windowId) =>
         _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) && CompletedUndamagedTargetRevealObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 860)]
     private bool AllowsCompletedUndamagedTargetRevealNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

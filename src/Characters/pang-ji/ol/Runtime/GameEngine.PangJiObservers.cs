@@ -45,6 +45,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 28130)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 28130)]
     private bool PermitIssuedPangJi(ProgramSkillFrame f) => CanContinueIssuedPangJi(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 190)]
     private bool IsPangJiMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => IsDouyuMovement(f, e, p) || f.PangJi is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is PangJiStage.CostChildren or PangJiStage.ObtainChildren or PangJiStage.PindianChildren;
     private bool PangJiPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -54,6 +55,8 @@ public sealed partial class GameEngine
         if (r.Stage == PangJiStage.ObtainChildren) return ProgramEventHistory<BiguoObtainEntityPaidEvent>().Any(e => e.FrameId == f.Id && e.CardId == m.CardId && e.PrintedKind == m.CardKind && e.From == m.From && e.To == m.To && e.Sequence == m.Sequence) && m.Reason.Value == BiguoObtainReason;
         return r.Stage == PangJiStage.PindianChildren && r.Result is { } result && (m.CardId == result.SourceCardId || m.CardId == result.OpponentCardId);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 350)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 340)]
     private bool IsPangJiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame child) => IsDouyuRecoveryParent(f, child) || f.PangJi is { Paid: true, Stage: PangJiStage.CostChildren, Cost: { CardKind: CardKind.SilverLion, From.Zone: CardZoneKind.Equipment } } && RecoveryReplacementFrameRidesOn(child, f) && child.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && child.Attempt.SourceSeat == f.OwnerSeat && child.Attempt.TargetSeat == f.OwnerSeat && child.Attempt.Amount == 1 && child.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && child.Attempt.Completion.MoveReason?.Value == BiguoCostReason;
     private bool IsBiguoPindianSettlementBatch(ProgramSkillFrame f, CardMovementBatchContext batch)
     {
@@ -103,9 +106,14 @@ public sealed partial class GameEngine
     private bool PangJiLifecycleEdge(int index) => _resolutionStack[index - 1] is ProgramLifecycleTriggerWindowFrame w && _resolutionStack[index] is ProgramSkillFrame f && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count && MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex]) && f.WindowContext is { } c && c.ParentFrameId == w.Id && c.Window == w.Window;
     private bool PangJiObserverSuffix(int index) => HasObserverSuffix(index, static (g, n) => g.IsMovementObserverEdge(n) || g.TypedDamagePostEventEdge(g._resolutionStack[n - 1], g._resolutionStack[n]) || g.PangJiLifecycleEdge(n) || g.DouyuPindianChildRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g._resolutionStack[n - 1] is ProgramSkillFrame { Zenrun: not null } z && g.ZenrunFirstChild(z, g._resolutionStack[n]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g.IsYanPuDyingExitEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? PangJiObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.PangJiFirstChild(f, child), static (g, n) => g.PangJiObserverSuffix(n));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1120)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1230)]
     private bool HasPangJiDamageObserver(long id) => HasDouyuDamageObserver(id) || PangJiObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1260)]
     private bool HasPangJiBeforeDamageObserver(long id) => HasDouyuBeforeDamageObserver(id) || PangJiObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1090)]
     private bool IsPangJiDying() => IsDouyuDying() || ActiveDying is { } d && PangJiObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == d.Id) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1660)]
     private bool AllowsPangJiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (AllowsDouyuNestedDamage(f, target, amount, source, nature, sourceLess)) return true;

@@ -44,7 +44,10 @@ public sealed partial class GameEngine
   var reason=r.Stage switch{CaoYuStage.GongjieGiftChildren=>GongjieGiftReason,CaoYuStage.XiangxuDiscardChildren=>XiangxuDiscardReason,CaoYuStage.XiangzuGiftChildren=>XiangzuGiftReason,_=>null};if(reason is null)return false;
   return r.Materials.Any(c=>c.CardId==m.CardId&&c.From==m.From&&m.To==(r.Stage==CaoYuStage.XiangxuDiscardChildren?CardLocation.DiscardPile:CardLocation.Hand(r.Target!.Value))&&m.Reason.Value==reason)||r.GrainIds.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(f.OwnerSeat)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard&&r.Materials.Any(c=>c.Kind==CardKind.WoodenOx&&c.From==CardLocation.Equipment(f.OwnerSeat));
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 370)]
  private bool IsCaoYuMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.CaoYu is{}r&&CaoYuChildren(r.Stage)&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&e is not null&&e.Op==r.Op;
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 170)]
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 160)]
  private bool IsCaoYuRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
  {
   if(f.CaoYu is not{}r||!RecoveryReplacementFrameRidesOn(recovery,f)||recovery.Return.Continuation!=PostEventContinuation.AwaitedProgramMovement)return false;
@@ -60,9 +63,14 @@ public sealed partial class GameEngine
   return child is CardsMovedTriggerWindowFrame moved&&ProgramMovementReturnMatches(f,moved)&&moved.Batch.OriginSkillId==f.SkillId&&moved.Batch.OriginOwnerSeat==f.OwnerSeat&&moved.Batch.OriginSkillInstanceId==f.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>IsCaoYuIssuedMovement(f,m));
  }
  private ProgramSkillFrame? CaoYuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.CaoYuFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.IsYanPuDyingExitEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 880)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 990)]
  private bool HasCaoYuDamageObserver(long id)=>CaoYuObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1020)]
  private bool HasCaoYuBeforeDamageObserver(long id)=>CaoYuObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 850)]
  private bool IsCaoYuDying()=>ActiveDying is{}d&&CaoYuObserverRoot()is{}root&&(root.CaoYu!.DyingId==d.Id&&CaoYuDyingEntry(root,out var original)&&original.Id==d.Id||_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id));
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1420)]
  private bool AllowsCaoYuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess){if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||CaoYuObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27440)]private bool AdvanceCaoYuSubtree()=>_pendingDecision is null&&CaoYuObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
 }

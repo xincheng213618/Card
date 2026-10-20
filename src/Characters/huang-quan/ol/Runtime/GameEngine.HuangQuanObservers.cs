@@ -21,6 +21,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 230)]
  private bool CanContinueIssuedHuangQuan(ProgramSkillFrame f)
  {if(f.HuangQuan is null)return false;RequireIssuedHuangQuan(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 230)]
  private bool IsHuangQuanMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation continuation)=>f.HuangQuan is{Stage:"draw-paid",RecipientSeat:var target}&&continuation.SubjectSeat==target&&continuation.BeforeCount==0&&continuation.CoverageResultBind is null&&e?.Op is SkillProgramEffectOp.DrawForDianhuActualOccurrence or SkillProgramEffectOp.DrawAndOfferJianjiExactCard&&ValidHuangQuanDraw(f);
  private bool HuangQuanFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -30,11 +31,16 @@ public sealed partial class GameEngine
   return p.Stage=="draw-paid"&&child is CardsMovedTriggerWindowFrame moved&&moved.Batch.ParentFrameId==root.Id&&moved.Batch.AwaitingProgramFrameId==root.Id&&moved.Batch.OriginOwnerSeat==root.OwnerSeat&&moved.Batch.OriginSkillId==root.SkillId&&moved.Batch.OriginSkillInstanceId==root.SkillInstanceId&&moved.Batch.Movements.Count>0&&moved.Batch.Movements.All(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&p.CardIds.Contains(m.CardId)&&_cardMovements.Contains(m));
  }
  private ProgramSkillFrame? HuangQuanObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.HuangQuanFirstChild(r,c),static(e,i)=>e.HuangQuanDeclarationObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 190)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 300)]
  private bool HasHuangQuanDamageObserver(long id)=>HuangQuanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 390)]
  private bool HasHuangQuanBeforeDamageObserver(long id)=>HuangQuanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 160)]
  private bool IsHuangQuanDying()=>ActiveDying is{}d&&HuangQuanObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 300)]
  private bool TryAdvanceHuangQuanSubtree()=>_pendingDecision is null&&HuangQuanObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 530)]
  private bool AllowsHuangQuanNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||HuangQuanObserverRoot()is not{}root||root.Id==observer.Id)return false;var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(observer,p):ResolveProgramEffectTarget(observer,e.Target));

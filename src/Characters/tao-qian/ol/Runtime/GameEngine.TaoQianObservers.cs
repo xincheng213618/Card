@@ -34,6 +34,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 28120)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 28120)]
     private bool PermitIssuedTaoQian(ProgramSkillFrame f) => f.TaoQian is { Paid: true } && CanContinueIssuedTaoQian(f);
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 180)]
     private bool IsTaoQianMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => IsZhaohuoMovement(f, e, p) || f.TaoQian is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is TaoQianStage.NativeChildren or TaoQianStage.DiscardChildren or TaoQianStage.DrawChildren;
     private bool TaoQianPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -45,6 +46,8 @@ public sealed partial class GameEngine
         }
         return r.Stage == TaoQianStage.DrawChildren && r.DrawOutcome is { } o && (o.ActualDrawIds.Contains(m.CardId) && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(o.RecipientSeat) && m.Reason.Value == WenrenDrawReason || o.ReplacementGainedIds.Contains(m.CardId) && m.To == CardLocation.Hand(o.RecipientSeat) || m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 340)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 330)]
     private bool IsTaoQianRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame child) => IsZhaohuoRecoveryParent(f, child) || f.TaoQian is { Paid: true, Stage: TaoQianStage.DiscardChildren } r && RecoveryReplacementFrameRidesOn(child, f) && child.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && child.Attempt.SourceSeat == f.OwnerSeat && child.Attempt.TargetSeat == f.OwnerSeat && child.Attempt.Amount == 1 && child.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && r.Materials.Any(c => c.CardKind == CardKind.SilverLion && c.From == CardLocation.Equipment(f.OwnerSeat)) && child.Attempt.Completion.MoveReason?.Value == ZongluanDiscardReason;
     private bool TaoQianFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
@@ -60,9 +63,14 @@ public sealed partial class GameEngine
     private bool TaoQianLifecycleEdge(int index) => _resolutionStack[index - 1] is ProgramLifecycleTriggerWindowFrame w && _resolutionStack[index] is ProgramSkillFrame f && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count && MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex]) && f.WindowContext is { } c && c.ParentFrameId == w.Id && c.Window == w.Window;
     private bool TaoQianObserverSuffix(int index) => HasObserverSuffix(index, static (g, n) => g.IsMovementObserverEdge(n) || g.TypedDamagePostEventEdge(g._resolutionStack[n - 1], g._resolutionStack[n]) || g.TaoQianLifecycleEdge(n) || g._resolutionStack[n - 1] is ProgramSkillFrame { Zenrun: not null } z && g.ZenrunFirstChild(z, g._resolutionStack[n]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || g.IsYanPuDyingExitEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? TaoQianObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.TaoQianFirstChild(f, child), static (g, i) => g.TaoQianObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1110)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1220)]
     private bool HasTaoQianDamageObserver(long id) => HasZhaohuoDamageObserver(id) || TaoQianObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1250)]
     private bool HasTaoQianBeforeDamageObserver(long id) => HasZhaohuoBeforeDamageObserver(id) || TaoQianObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1080)]
     private bool IsTaoQianDying() => IsZhaohuoDying() || ActiveDying is { } d && TaoQianObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == d.Id) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1650)]
     private bool AllowsTaoQianNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (AllowsZhaohuoNestedDamage(f, target, amount, source, nature, sourceLess)) return true;

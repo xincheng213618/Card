@@ -30,6 +30,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 28100)]
     private bool ContinuePaidHuanShuJun(ProgramSkillFrame f)
     { if (f.HuanShuJun is not { Paid: true }) return false; AssertHuanShuJun(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 160)]
     private bool IsHuanShuJunMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.HuanShuJun is { Paid: true } r && effect?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is HuanShuJunStage.AdjustmentChildren or HuanShuJunStage.DrawChildren or HuanShuJunStage.EquipmentGiftChildren or HuanShuJunStage.NativeChildren or HuanShuJunStage.FaceChildren or HuanShuJunStage.ChainChildren;
     private bool HuanShuJunPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
@@ -41,6 +42,8 @@ public sealed partial class GameEngine
         if (r.DrawOutcome is { } o && m.Sequence > o.SequenceBefore && m.Sequence <= o.SequenceAfter) return o.ActualDrawIds.Contains(m.CardId) && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == (r.Op == SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh ? MiaoxinDrawReason : HuanpeiDrawReason) || o.ReplacementGainedIds.Contains(m.CardId) && m.To == CardLocation.Hand(f.OwnerSeat) || m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle;
         return r.Stage == HuanShuJunStage.EquipmentGiftChildren && r.Materials.Any(c => c.Kind == CardKind.WoodenOx && c.From == CardLocation.Equipment(f.OwnerSeat)) && m.From == CardLocation.WoodenOxGrain(f.OwnerSeat) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.Sequence > r.Before && m.Sequence <= r.After;
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 320)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 310)]
     private bool IsHuanShuJunRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.HuanShuJun is { Paid: true, Stage: HuanShuJunStage.EquipmentGiftChildren } r && RecoveryReplacementFrameRidesOn(recovery, f) && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.SourceSeat == f.OwnerSeat && recovery.Attempt.TargetSeat == f.OwnerSeat && recovery.Attempt.Amount == 1 && recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && r.Materials.Any(c => c.Kind == CardKind.SilverLion && c.From == CardLocation.Equipment(f.OwnerSeat)) && recovery.Attempt.Completion.MoveReason?.Value == "skill-program.huan-shu-jun.wenyi.give";
     private bool HuanShuJunFirstChild(ProgramSkillFrame f, ResolutionFrame child)
@@ -71,6 +74,8 @@ public sealed partial class GameEngine
     }
     private bool HuanShuJunObserverSuffix(int i) => HasObserverSuffix(i, static (g, n) => g.IsMovementObserverEdge(n) || g.HuanShuJunReplacementObserverEdge(n) || g.IsSameNameHandObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d));
     private ProgramSkillFrame? HuanShuJunObserverRoot() => FindProgramObserverRoot(static (g, f, c) => g.HuanShuJunFirstChild(f, c), static (g, i) => g.HuanShuJunObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1090)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1200)]
     private bool HasHuanShuJunDamageObserver(long id)
     {
         if (HuanShuJunObserverRoot() is not { } root || _resolutionStack.SingleOrDefault(x => x.Id == id) is not DamageTriggerWindowFrame window) return false;
@@ -78,7 +83,9 @@ public sealed partial class GameEngine
         return root.HuanShuJun is { Op: SkillProgramEffectOp.ResolveMiaoxinDamageDrawAndRefresh, Paid: true } r &&
             r.WindowId == window.Id && root.WindowContext?.ParentFrameId == window.Id && window.TriggerWindow == SkillProgramTriggerWindow.AfterDamageApplied && DamageProgramMatchesWindow(root, window);
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1230)]
     private bool HasHuanShuJunBeforeDamageObserver(long id) => HuanShuJunObserverRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == id && x is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(x => x.Id == f.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1060)]
     private bool IsHuanShuJunDying()
     {
         if (ActiveDying is not { } d) return false;
@@ -88,6 +95,7 @@ public sealed partial class GameEngine
             HuanShuJunPaidOrPreparing(draft) && HuanpeiDyingRescueRide(position, d)) return true;
         return HuanShuJunObserverRoot() is { } f && position > _resolutionStack.FindIndex(x => x.Id == f.Id);
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1630)]
     private bool AllowsHuanShuJunNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || HuanShuJunObserverRoot() is not { } root || root.Id == f.Id) return false;

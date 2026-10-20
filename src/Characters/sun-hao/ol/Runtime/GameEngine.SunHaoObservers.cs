@@ -43,9 +43,12 @@ public sealed partial class GameEngine
     private bool IsSunHaoPaymentMovement(ProgramSkillFrame f,CardMovementRecord m)=>f.SunHaoCanshi is{Payment:{} p} r&&_cardMovements.Contains(m)&&m.Sequence>p.Before&&m.Sequence<=p.After&&
         (m.CardId==p.CardId&&m.From==p.From&&m.To==p.To&&m.Reason.Value==SunHaoCanshiDiscardReason||
             p.Kind==CardKind.WoodenOx&&p.From==CardLocation.Equipment(f.OwnerSeat)&&r.WoodenOxGrain.Contains(m.CardId)&&m.From==CardLocation.WoodenOxGrain(f.OwnerSeat)&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard);
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 310)]
     private bool IsSunHaoMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.SunHaoCanshi is{Stage:SunHaoCanshiStage.DiscardChildren,Payment:not null}&&
         e?.Op==SkillProgramEffectOp.ResolveSunHaoCanshiUseDiscard&&p==f.PendingMovementContinuation&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private bool SunHaoLion(ProgramSkillFrame f)=>f.SunHaoCanshi is{Payment:{Kind:CardKind.SilverLion,From.Zone:CardZoneKind.Equipment}};
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 110)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 100)]
     private bool IsSunHaoRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>SunHaoLion(f)&&RecoveryReplacementFrameRidesOn(recovery,f)&&
         recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==f.OwnerSeat&&recovery.Attempt.Amount==1&&
         recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==SunHaoCanshiDiscardReason;
@@ -61,9 +64,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? SunHaoObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.SunHaoFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,
         static(x,n)=>x.IsMovementObserverEdge(n)||x.IsYanPuDyingExitEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),
         static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 790)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 900)]
     private bool HasSunHaoDamageObserver(long id)=>SunHaoObserverRoot() is{} root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 930)]
     private bool HasSunHaoBeforeDamageObserver(long id)=>SunHaoObserverRoot() is{} root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 760)]
     private bool IsSunHaoDying()=>ActiveDying is{} dying&&SunHaoObserverRoot() is{} root&&_resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1330)]
     private bool AllowsSunHaoNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||SunHaoObserverRoot() is not{} root||root.Id==f.Id)return false;

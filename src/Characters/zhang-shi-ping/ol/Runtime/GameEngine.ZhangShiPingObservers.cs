@@ -75,10 +75,15 @@ public sealed partial class GameEngine
         static (e, i) => e.IsMovementObserverEdge(i) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[i], e._resolutionStack[i - 1]),
         static (e, i, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(i, dying));
     private ProgramSkillFrame? ZhangShiPingObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.ZhangShiPingFirstChild(f, child), static (e, i) => e.ZhangShiPingObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 460)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 570)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 600)]
     private bool HasZhangShiPingDamageObserver(long id) => ZhangShiPingObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 430)]
     private bool IsZhangShiPingDying() => ActiveDying is { } dying && ZhangShiPingObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1070)]
     private bool AllowsZhangShiPingNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZhangShiPingObserverRoot() is not { } root || root.Id == f.Id) return false;

@@ -81,10 +81,13 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,27020)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,27020)]
     private bool ContinuePaidHanFu(ProgramSkillFrame f) { if(f.HanFu is not { Movements.Count:>0 }) return false; AssertHanFu(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 220)]
     private bool IsHanFuMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)
     { if(f.HanFu is not { Movements.Count:>0 } r || e?.Op!=r.Op || p!=f.PendingMovementContinuation) return false; AssertHanFu(f); return true; }
     private bool HanFuLionProof(ProgramSkillFrame f,int seat,CardMoveReason? reason)
     { var m=f.HanFu!.Movements![^1]; return reason is not null && _cardMovements.Any(move=>move.Sequence>m.Before && move.Sequence<=m.After && move.CardKind==CardKind.SilverLion && move.From==CardLocation.Equipment(seat) && move.Reason==reason); }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 760)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 700)]
     private bool IsHanFuRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if(f.HanFu is not { Movements.Count:>0 } || f.PendingMovementContinuation is null) return false; AssertHanFu(f);
@@ -104,9 +107,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame { Window:SkillProgramTriggerWindow.SkillsChanged } skills && skills.ResumeProgramFrameId==f.Id && skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? HanFuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.HanFuFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 570)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 680)]
     private bool HasHanFuDamageObserver(long id)=>HanFuObserverRoot() is { } root && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 710)]
     private bool HasHanFuBeforeDamageObserver(long id)=>HanFuObserverRoot() is { } root && _resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 530)]
     private bool IsHanFuDying()=>ActiveDying is { } dying && HanFuObserverRoot() is { } root && _resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1170)]
     private bool AllowsHanFuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id!=f.Id) return false;

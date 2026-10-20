@@ -466,6 +466,7 @@ public sealed partial class GameEngine
         return frame;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 50)]
     private bool HasJielieGiftDying(long beforeDamageId) =>
         JieliePaidObserverRoot(beforeDamageId) is { } frame &&
         ActiveDying is { ResumesProgramSkill: true } dying && dying.ParentFrameId == frame.Id &&
@@ -474,9 +475,12 @@ public sealed partial class GameEngine
         _resolutionStack[dyingIndex] is DyingFrame { KillerSeat: null } child &&
         child.ParentFrameId == frame.Id && _resolutionStack[dyingIndex - 1].Id == frame.Id;
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 630, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 720)]
     private bool IsJielieGiftProgramDying() =>
         _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(window => HasJielieGiftDying(window.Id));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 60)]
     private bool HasJielieGiftDamageObserver(long beforeDamageId) =>
         JieliePaidObserverRoot(beforeDamageId) is { } frame &&
         (HasJielieGiftDying(beforeDamageId) || DamageCursorEffectiveTop(includeNestedObservers: true)?.Id == frame.Id);

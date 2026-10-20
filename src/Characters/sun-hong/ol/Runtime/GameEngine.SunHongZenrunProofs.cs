@@ -126,6 +126,8 @@ public sealed partial class GameEngine
             (state.Window == SkillProgramTriggerWindow.SkillsChanged && state.Continuation == ProgramLifecycleContinuation.ResumeParentProgram ||
              state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 660)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 600)]
     private bool IsSunHongRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         f.Zenrun is { Paid: true, Stage: ZenrunStage.TakeChildren } r && ValidZenrun(f) && RecoveryReplacementFrameRidesOn(recovery, f) &&
         recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.SourceSeat == r.SourceSeat &&

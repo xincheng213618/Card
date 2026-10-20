@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 40)]
     private bool IsConditionalDuelAwaitedMovement(ProgramSkillFrame root, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel && root.ConditionalDiscardDuel is
             { Stage: ConditionalDiscardDuelStage.OwnerChildren or ConditionalDiscardDuelStage.TargetChildren } d &&
@@ -51,6 +52,8 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 240, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 350)]
     private bool IsConditionalDiscardDuelProgramDying() => ActiveDying is { } dying && ConditionalDuelPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
 }

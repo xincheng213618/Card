@@ -52,6 +52,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 220)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 220)]
  private bool CanContinueSuFei(ProgramSkillFrame f){if(f.SuFei is null)return false;RequireSuFei(f);return true;}
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 220)]
  private bool IsSuFeiMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.SuFei is{Stage:SuFeiStage.DrawChildren or SuFeiStage.GiftChildren}&&e?.Op==SkillProgramEffectOp.DrawThenOfferActualConsecutiveTargetGift&&CanContinueSuFei(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireSuFei(ProgramSkillFrame f)
  {

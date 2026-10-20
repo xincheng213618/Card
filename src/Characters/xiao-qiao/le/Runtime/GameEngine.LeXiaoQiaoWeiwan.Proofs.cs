@@ -89,6 +89,7 @@ public sealed partial class GameEngine
                     e.Amount == (r.AppearancePrevented ? 0 : 1) && e.PreventedByAppearance == r.AppearancePrevented) != 1))
             throw new InvalidOperationException("Weiwan repeated or changed the branch of its exact actual obtained count.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 220)]
     private bool IsWeiwanMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.Weiwan is { } r && HasPaidWeiwanSelection(f) && effect?.Op == SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain &&
         pending == f.PendingMovementContinuation && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&

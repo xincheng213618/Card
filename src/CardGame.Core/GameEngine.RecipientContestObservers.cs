@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 60)]
     private bool IsRecipientContestMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (f.UniqueHpPeer is { Stage: UniqueHpPeerStage.CostChildren or UniqueHpPeerStage.DrawChildren } peer &&
@@ -85,8 +86,11 @@ public sealed partial class GameEngine
             f.UniqueHpPeer is not { CardUseFrameId: var original } || original != useId || !ValidUniqueHpPeer(f)) return false;
         return index + 2 == _resolutionStack.Count || RecipientContestPaidPrefix(index + 1, _resolutionStack.Count - 1);
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 260, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 370)]
     private bool IsRecipientContestProgramDying() => IsRecipientConsequencesProgramDying() || ActiveDying is { } dying && RecipientContestPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1860)]
     private bool HasRecipientContestDamageObserver(long windowId)
     {
         if (HasRecipientConsequencesDamageObserver(windowId)) return true;
@@ -96,6 +100,7 @@ public sealed partial class GameEngine
             CurrentDamageAttempt?.ResolutionId == attack.Id && RecipientContestPaidObserverRoot() is { } root &&
             _resolutionStack.FindIndex(f => f.Id == root.Id) < _resolutionStack.FindIndex(f => f.Id == attack.Id);
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 50)]
     private bool AllowsRecipientContestNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

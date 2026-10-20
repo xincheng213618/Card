@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is { } pending && !IsZhouQunMovement(f, GetPausedPrivateOfferEffect(f), pending)) throw new InvalidOperationException("Weather has an unrelated native movement continuation.");
         if (r.Stage == ZhouQunStage.HpChildren && (r.Cursor >= r.Targets.Count || ProgramEventHistory<ZhouQunHpPaidEvent>().Count(e => e.FrameId == f.Id && e.Index == r.Cursor && e.TargetSeat == r.Targets[r.Cursor]) != 1)) throw new InvalidOperationException("Weather HP children require the exact actual payment once.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 510)]
     private bool IsZhouQunMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.ZhouQun is { Paid: true } r && effect?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is ZhouQunStage.RevealChildren or ZhouQunStage.GainChildren or ZhouQunStage.ViewChildren or ZhouQunStage.ExchangeChildren or ZhouQunStage.CleanupChildren or ZhouQunStage.JudgmentChildren;
     private bool ZhouQunMovementMatches(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -42,14 +43,21 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.SkillsChanged } skills && skills.ResumeProgramFrameId == f.Id && skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? ZhouQunObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.ZhouQunFirstChild(f, c), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1030)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1140)]
     private bool HasZhouQunDamageObserver(long id) => ZhouQunObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1170)]
     private bool HasZhouQunBeforeDamageObserver(long id) => ZhouQunObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1000)]
     private bool IsZhouQunDying() => ActiveDying is { } d && ZhouQunObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1570)]
     private bool AllowsZhouQunNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ZhouQunObserverRoot() is not { } root || root.Id == f.Id) return false;
         var effect = GetPausedPrivateOfferEffect(f); return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature && target == (effect.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 260)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 250)]
     private bool IsZhouQunRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.ZhouQun is null) return false;

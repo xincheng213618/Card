@@ -35,6 +35,7 @@ public sealed partial class GameEngine
         else if (r.Op != SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit || !r.Paid || r.Stage is not (GuanHaiStage.RewardDraw or GuanHaiStage.RewardChildren) || f.TriggerId is null || f.WindowContext is not { Window: SkillProgramTriggerWindow.AfterDamageApplied } dc || dc.DamageFrameId != r.DamageFrameId || dc.Amount <= 0 || ProgramEventHistory<YouqueBenefitIssuedEvent>().Count(e => e == new YouqueBenefitIssuedEvent(f.Id, r.ParentId, r.NativeUseId, r.DamageFrameId, f.OwnerSeat)) != 1 || ProgramEventHistory<YouqueSlashIssuedEvent>().Count(e => e.Origin.ProgramFrameId == r.ParentId && e.Origin.UseId == r.NativeUseId && e.Origin.ActionId == r.ActionId && e.Origin.Phase == r.Phase && e.Origin.Source.OwnerSeat == f.OwnerSeat) != 1) throw new InvalidOperationException("Youque reward requires its original actual positive-damage native use, never a synthetic damage event.");
         if (f.PendingMovementContinuation is { } pending && !IsGuanHaiMovement(f, GetPausedPrivateOfferEffect(f), pending)) throw new InvalidOperationException("Guan Hai has an unrelated native movement return.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 520)]
     private bool IsGuanHaiMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.GuanHai is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is GuanHaiStage.XieweiChildren or GuanHaiStage.Pindian or GuanHaiStage.PindianChildren or GuanHaiStage.DiscardChildren or GuanHaiStage.NativeChildren or GuanHaiStage.RewardChildren;
     private bool GuanHaiMovementMatches(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -60,14 +61,21 @@ public sealed partial class GameEngine
         return r.Stage == GuanHaiStage.XieweiChildren ? moved.Batch.ParentFrameId == r.NativeUseId && (moved.Batch.AwaitingProgramFrameId == f.Id || moved.ResumeProgramFrameId == f.Id) : ProgramMovementReturnMatches(f, moved) && (r.Stage == GuanHaiStage.Pindian ? moved.Batch.ParentFrameId == r.PindianId : moved.Batch.ParentFrameId == f.Id);
     }
     private ProgramSkillFrame? GuanHaiObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.GuanHaiFirstChild(f, child), static (e, i) => e.HasObserverSuffix(i, static (g, n) => g.IsMovementObserverEdge(n) || g.IsSameNameHandObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1040)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1150)]
     private bool HasGuanHaiDamageObserver(long id) => GuanHaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1180)]
     private bool HasGuanHaiBeforeDamageObserver(long id) => GuanHaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1010)]
     private bool IsGuanHaiDying() => ActiveDying is { } d && GuanHaiObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1580)]
     private bool AllowsGuanHaiNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || GuanHaiObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature && target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 270)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 260)]
     private bool IsGuanHaiRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.GuanHai is not { Paid: true } || !RecoveryReplacementFrameRidesOn(recovery, f)) return false;

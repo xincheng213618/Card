@@ -51,9 +51,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame state && state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && state.ResumeProgramFrameId == f.Id && ProgramEventHistory<CharacterStateChangedEvent>().Any(e => e.Change.Id == state.Id && e.Change.ParentFrameId == f.Id && e.Change.TargetSeat == state.OwnerSeat && e.Change.Window == state.Window);
     }
     private ProgramSkillFrame? ChengGongYingObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.ChengGongYingFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i, static (engine, c) => engine.IsMovementObserverEdge(c) || engine.IsYanPuDyingExitEdge(c) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c], engine._resolutionStack[c - 1]), static (engine, c, d) => engine.IsSuspendedOrPaidRescueObserverSuffix(c, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 660)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 770)]
     private bool HasChengGongYingDamageObserver(long id) => ChengGongYingObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 800)]
     private bool HasChengGongYingBeforeDamageObserver(long id) => HasChengGongYingDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 620)]
     private bool IsChengGongYingDying() => ActiveDying is { } dying && ChengGongYingObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1260)]
     private bool AllowsChengGongYingNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || ChengGongYingObserverRoot() is not { } root || root.Id == f.Id) return false;

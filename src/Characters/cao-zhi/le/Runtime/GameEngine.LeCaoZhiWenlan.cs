@@ -361,6 +361,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 29081)]
     private bool ReturnLeCaoZhiWenlanMovement(ProgramSkillFrame f)
     { if (f.LeCaoZhiWenlan is null || f.PendingMovementContinuation is null) return false; ContinueLeCaoZhiWenlan(f.Id); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 310)]
     private bool IsWenlanMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.LeCaoZhiWenlan is { Stage: WenlanStage.ObtainChildren } && effect?.Op == SkillProgramEffectOp.ResolveLeCaoZhiWenlan &&
         pending == f.PendingMovementContinuation && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
@@ -432,9 +433,16 @@ public sealed partial class GameEngine
         NativeDrawAttemptRidesOn(g._resolutionStack[child], g._resolutionStack[child - 1]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[child], g._resolutionStack[child - 1]),
         static (g, child, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(child, dying));
     private ProgramSkillFrame? WenlanObserverRoot() => FindProgramObserverRoot(static (g, f, child) => g.WenlanFirstChild(f, child), static (g, index) => g.WenlanObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1260)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1370)]
     private bool HasWenlanDamageObserver(long id) => WenlanObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1400)]
     private bool HasWenlanBeforeDamageObserver(long id) => WenlanObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1230)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 790)]
     private bool IsWenlanDying() => ActiveDying is { } dying && WenlanObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 50)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1800)]
     private bool AllowsWenlanNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WenlanObserverRoot() is not { } root || root.Id == f.Id) return false;
@@ -442,6 +450,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } participant ? ResolveProgramParticipant(f, participant) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 560)]
     private bool IsWenlanRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.LeCaoZhiWenlan is null || recovery.ParentFrameId == f.Id) return false;

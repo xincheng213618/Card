@@ -235,6 +235,7 @@ public sealed partial class GameEngine
         (frame.WenhePoisonLoss is null || frame.WenhePoisonLoss is { Stage: not WenhePoisonLossStage.Completed } receipt &&
             receipt.Cursor >= 0 && receipt.Cursor < frame.Batch.WenhePoisonDepartures!.Count);
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 240)]
     private bool IsCurrentWenhePoisonDying() => ActiveDying is { } dying &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) is var index && index > 0 &&
         IsWenhePoisonDyingChild(_resolutionStack[index - 1], dying);

@@ -152,11 +152,16 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? BeiMiHuObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.BeiMiHuFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 100)]
     private bool IsBeiMiHuDying()=>ActiveDying is{}d && BeiMiHuObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 130)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 240)]
     private bool HasBeiMiHuDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && BeiMiHuObserverRoot() is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 330)]
     private bool HasBeiMiHuBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && BeiMiHuObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 230)]
     private bool TryAdvanceBeiMiHuSubtree()=>_pendingDecision is null && BeiMiHuObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 470)]
     private bool AllowsBeiMiHuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {
         if(sourceLess || f.AttackAttempt is not null || f.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=f.Id || BeiMiHuObserverRoot() is null ||

@@ -199,6 +199,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A joined trick reward retained an unrelated native child.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 120)]
     private bool IsJoinedTrickDamageRewardAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.PendingMovementContinuation == pending && effect?.Op == SkillProgramEffectOp.DrawAfterJoinedTrickDamage && ValidJoinedTrickDamageReward(frame);
 }

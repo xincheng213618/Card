@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         }
         if (f.PendingMovementContinuation is { } p && !IsXieLingYuMovement(f, GetPausedPrivateOfferEffect(f), p)) throw new InvalidOperationException("Xie Ling Yu retained an unrelated movement continuation.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 530)]
     private bool IsXieLingYuMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.XieLingYu is { Paid: true } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && r.Stage is XieLingYuStage.CostChildren or XieLingYuStage.DrawChildren;
     private bool IsXieLingYuPaidMovement(ProgramSkillFrame f, CardMovementRecord m)
     {
@@ -64,14 +65,21 @@ public sealed partial class GameEngine
         return child is CardsMovedTriggerWindowFrame moved && ProgramMovementReturnMatches(f, moved) && moved.Batch.ParentFrameId == f.Id && moved.Batch.OriginOwnerSeat == f.OwnerSeat && moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId && moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => IsXieLingYuPaidMovement(f, m));
     }
     private ProgramSkillFrame? XieLingYuObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.XieLingYuFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i, static (g, n) => g.IsMovementObserverEdge(n) || g.IsSameNameHandObserverEdge(n) || g.IsYanPuDyingExitEdge(n) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]) || NativeDrawAttemptRidesOn(g._resolutionStack[n], g._resolutionStack[n - 1]), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1050)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1160)]
     private bool HasXieLingYuDamageObserver(long id) => XieLingYuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1190)]
     private bool HasXieLingYuBeforeDamageObserver(long id) => XieLingYuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1020)]
     private bool IsXieLingYuDying() => ActiveDying is { } dying && XieLingYuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1590)]
     private bool AllowsXieLingYuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || XieLingYuObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature && target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 280)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 270)]
     private bool IsXieLingYuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.XieLingYu is not { Paid: true }) return false;

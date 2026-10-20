@@ -116,6 +116,7 @@ public sealed partial class GameEngine
     {AdvanceEventRulesAndQueueFact(new YanRouCompletedEvent(f.Id,applied));ReplaceRuntimeTop(f=f with{YanRou=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
     [ProgramContinuation(ProgramContinuationKind.Resume,26800)]private bool ResumeYanRou(long id){if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{YanRou:not null}f||f.Id!=id)return false;ContinueYanRou(id);return true;}
     [ProgramContinuation(ProgramContinuationKind.Movement,26800)]private bool ReturnYanRou(ProgramSkillFrame f){if(f.YanRou is null)return false;ContinueYanRou(f.Id);return true;}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 180)]
     private bool IsYanRouAwaitedMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.YanRou is{}r&&p.SubjectSeat==r.Payer&&p.BeforeCount==0&&p.CoverageResultBind is null&&(e is null||YanRouComposition.IsOperation(e.Op));
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,26800)][ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,26800)]private bool ContinuePaidYanRou(ProgramSkillFrame f){if(f.YanRou is null)return false;AssertYanRou(f);return true;}
     [ProgramAiChoice(SkillProgramEffectOp.DiscardSlashUserForUncancelable,SkillProgramEffectOp.RecoverAndDrawByTurnDamage)]private PromptChoice AiYanRou(PendingDecision p,ProgramSkillFrame f)=>p.Choices.First();

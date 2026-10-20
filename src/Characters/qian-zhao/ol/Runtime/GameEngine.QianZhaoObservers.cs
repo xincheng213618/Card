@@ -99,6 +99,7 @@ public sealed partial class GameEngine
         if (f.Weifu is null && f.WeifuTargets is null && f.Kuansai is not { Stage: KuansaiStage.Children }) return false;
         AssertQianZhao(f); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 150)]
     private bool IsQianZhaoMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     {
         var matches = p is { BeforeCount: 0, CoverageResultBind: null } && p.SubjectSeat == f.OwnerSeat &&
@@ -111,6 +112,8 @@ public sealed partial class GameEngine
             _cardMovements.Any(m => m.CardId == w.CostCardId && m.CardKind == CardKind.SilverLion && m.From == w.CostFrom && m.Reason.Value == WeifuDiscardReason) ||
         f.Kuansai is { Stage: KuansaiStage.Children, Gift: true, From: { Zone: CardZoneKind.Equipment } } k && target == k.ChooserSeat && reason?.Value == KuansaiGiftReason &&
             _cardMovements.Any(m => m.Sequence > k.Before && m.Sequence <= k.After && m.CardId == k.CardId && m.CardKind == CardKind.SilverLion && m.Reason.Value == KuansaiGiftReason);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 680)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 620)]
     private bool IsQianZhaoRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) =>
         (f.Weifu is not null || f.Kuansai is not null) && RecoveryReplacementFrameRidesOn(recovery, f) &&
         recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && recovery.Attempt.Amount == 1 &&
@@ -148,12 +151,17 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? QianZhaoObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.QianZhaoFirstChild(f, c),
         static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 480)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 590)]
     private bool HasQianZhaoDamageObserver(long id) => QianZhaoObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 620)]
     private bool HasQianZhaoBeforeDamageObserver(long id) => QianZhaoObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 450)]
     private bool IsQianZhaoDying() => ActiveDying is { } d && QianZhaoObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1090)]
     private bool AllowsQianZhaoNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || QianZhaoObserverRoot() is not { } root || root.Id == f.Id) return false;

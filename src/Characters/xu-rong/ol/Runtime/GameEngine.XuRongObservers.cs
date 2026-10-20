@@ -63,6 +63,7 @@ public sealed partial class GameEngine
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 190)]
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 190)]
  private bool CanContinueIssuedXuRong(ProgramSkillFrame f)=>ValidXuRong(f);
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 190)]
  private bool IsXuRongMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e is not null&&(e.Op is SkillProgramEffectOp.SettleXionghuoMarkedPlay or SkillProgramEffectOp.ReplenishShaJueAndClaimDyingCause)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&(f.XuRong?.Stage is "take-native" or "claim-native")&&ValidXuRong(f);
  private bool XuRongFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -75,11 +76,16 @@ public sealed partial class GameEngine
   return false;
  }
  private ProgramSkillFrame? XuRongObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.XuRongFirstChild(r,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 150)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 260)]
  private bool HasXuRongDamageObserver(long id)=>XuRongObserverRoot()is {}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 350)]
  private bool HasXuRongBeforeDamageObserver(long id)=>XuRongObserverRoot()is {}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 120)]
  private bool IsXuRongDying()=>ActiveDying is {}d&&XuRongObserverRoot()is {}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 260)]
  private bool TryAdvanceXuRongSubtree()=>_pendingDecision is null&&XuRongObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 490)]
  private bool AllowsXuRongNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||XuRongObserverRoot()is not {}r||r.Id==observer.Id)return false;

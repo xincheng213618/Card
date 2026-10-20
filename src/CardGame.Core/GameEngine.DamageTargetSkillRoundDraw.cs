@@ -161,6 +161,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 1247)]
     private bool ContinuePaidDamageTargetRoundSkill(ProgramSkillFrame frame)
     { if (frame.DamageTargetSkillRoundDraw is null) return false; RequireDamageTargetSkillRoundDraw(frame); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 500)]
     private bool IsDamageTargetSkillRoundMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         e?.Op == SkillProgramEffectOp.GrantDamageTargetSkillAndDrawByRound && f.DamageTargetSkillRoundDraw is not null &&
         p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;

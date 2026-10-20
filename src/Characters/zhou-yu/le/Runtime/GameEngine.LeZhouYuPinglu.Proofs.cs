@@ -86,6 +86,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Pinglu lost its original paid movement continuation.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 640)]
     private bool IsPingluMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.Pinglu is { Stage: PingluStage.ObtainChildren } &&
         effect?.Op == SkillProgramEffectOp.ResolvePingluInRangeRandomHands &&

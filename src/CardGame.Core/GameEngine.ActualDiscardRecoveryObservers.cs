@@ -50,11 +50,14 @@ public sealed partial class GameEngine
         return root;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 490, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 570)]
     private bool IsActualEquipmentOrDiscardProgramDying()=>ActiveDying is { } dying &&
         _resolutionStack.OfType<ProgramSkillFrame>().Any(f=>(f.CapturedEquipmentDraw is not null ||f.ActualDiscardRecovery is not null) &&
             ActualEquipmentOrDiscardObserverRoot(f.Id) is not null &&
             _resolutionStack.FindIndex(d=>d.Id==dying.Id)>_resolutionStack.FindIndex(r=>r.Id==f.Id));
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1780)]
     private bool HasActualDiscardRecoveryDamageObserver(long damageWindowId)
     {
         var index=_resolutionStack.FindIndex(f=>f.Id==damageWindowId);
@@ -77,6 +80,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 130)]
     private bool HasActualDiscardRecoveryBeforeDamageObserver(long beforeDamageId)
     {
         var index=_resolutionStack.FindIndex(f=>f.Id==beforeDamageId);
@@ -97,6 +101,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 110)]
     private bool AllowsActualEquipmentOrDiscardNestedDamage(ProgramSkillFrame observer,int target,int amount,
         ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
@@ -119,6 +124,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Actual equipment/discard recovery lost its exact paid receipt and typed descendant subtree.");
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 110)]
     private bool IsActualEquipmentOrDiscardMovement(ProgramSkillFrame f,SkillProgramEffect? op,ProgramMovementContinuation pending)=>
         pending.SubjectSeat==f.OwnerSeat &&pending.BeforeCount==0 &&pending.CoverageResultBind is null &&
         (op?.Op==SkillProgramEffectOp.PlaceCapturedEquipmentAndDraw &&f.CapturedEquipmentDraw is not null ||

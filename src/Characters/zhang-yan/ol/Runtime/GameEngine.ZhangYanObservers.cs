@@ -34,6 +34,7 @@ public sealed partial class GameEngine
   if(_resolutionStack.LastOrDefault()?.Id==f.Id&&r.Stage is ZhangYanStage.SujiCard or ZhangYanStage.SujiTarget or ZhangYanStage.RewardChoice or ZhangYanStage.LangdaoVotes or ZhangYanStage.LangdaoTargets)
    if(_pendingDecision is not{Kind:DecisionKind.ProgramTrigger}p||p.PlayerSeat!=ZhangYanChooser(f)||p.IsPrivate!=(r.Stage!=ZhangYanStage.LangdaoTargets)||!AssistedChoicesEqual(p.Choices,ZhangYanChoices(f)))throw new InvalidOperationException("Zhang Yan lost its actual source/target-private choice boundary.");
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 230)]
  private bool IsZhangYanMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.ZhangYan is{}r&&r.Stage is ZhangYanStage.NativeChildren or ZhangYanStage.RewardChildren&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&(e is null||ZhangYanComposition.IsOperation(e.Op));
  private bool IsZhangYanRewardMovement(ProgramSkillFrame f,CardMovementRecord m)
  {
@@ -43,6 +44,8 @@ public sealed partial class GameEngine
  }
  private bool IsZhangYanNativeSettlementBatch(ProgramSkillFrame f,CardMovementBatchContext batch)=>f.ZhangYan is{Stage:ZhangYanStage.NativeChildren,NativeCompleted:true,NativeReturn:{}ret}r&&batch.ParentFrameId==ret.UseId&&batch.AwaitingProgramFrameId is null&&batch.OriginOwnerSeat==f.OwnerSeat&&batch.OriginSkillId==f.SkillId&&batch.OriginSkillInstanceId==f.SkillInstanceId&&batch.Movements.Count>0&&
   ProgramEventHistory<ZhangYanSujiReturnedEvent>().Count(e=>e.Return==ret)==1&&batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.After&&m.CardId==ret.CardId&&m.CardKind==ret.PrintedKind&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.UseFinished);
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 770)]
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 710)]
  private bool IsZhangYanRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.ZhangYan is{Stage:ZhangYanStage.RewardChildren}r&&r.From==CardLocation.Equipment(r.PhaseOwner)&&r.CardId is{}id&&_cardMovements.Any(m=>IsZhangYanRewardMovement(f,m)&&m.CardId==id&&m.CardKind==CardKind.SilverLion)&&
   RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==r.PhaseOwner&&recovery.Attempt.TargetSeat==r.PhaseOwner&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==ZhangYanObtainReason;
  private bool ZhangYanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
@@ -57,12 +60,17 @@ public sealed partial class GameEngine
   return child is ProgramLifecycleTriggerWindowFrame state&&state.Continuation==ProgramLifecycleContinuation.ResumeCharacterStateChange&&state.ResumeProgramFrameId==f.Id&&ProgramEventHistory<CharacterStateChangedEvent>().Any(e=>e.Change.Id==state.Id&&e.Change.ParentFrameId==f.Id&&e.Change.TargetSeat==state.OwnerSeat&&e.Change.Window==state.Window);
  }
  private ProgramSkillFrame? ZhangYanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.ZhangYanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(engine,c)=>engine.IsMovementObserverEdge(c)||engine.IsYanPuDyingExitEdge(c)||engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[c],engine._resolutionStack[c-1]),static(engine,c,d)=>engine.IsSuspendedOrPaidRescueObserverSuffix(c,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 590)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 700)]
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 730)]
  private bool HasZhangYanDamageObserver(long id)
  {
   if(ZhangYanObserverRoot()is not{}root||!_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame))return false;
   var index=_resolutionStack.FindIndex(f=>f.Id==id);var own=_resolutionStack.FindIndex(f=>f.Id==root.Id);return index>own||index+1==own&&root.WindowContext?.ParentFrameId==id&&root.ZhangYan!.Operation==SkillProgramEffectOp.ObtainSujiDamagedPhaseOwnerCard;
  }
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 550)]
  private bool IsZhangYanDying()=>ActiveDying is{}d&&ZhangYanObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1190)]
  private bool AllowsZhangYanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||ZhangYanObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}reference?ResolveProgramParticipant(f,reference):ResolveProgramEffectTarget(f,e.Target));}
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27000)]private bool AdvanceZhangYanSubtree()=>_pendingDecision is null&&ZhangYanObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

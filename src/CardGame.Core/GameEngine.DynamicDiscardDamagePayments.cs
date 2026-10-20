@@ -109,6 +109,7 @@ public sealed partial class GameEngine
             TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement) ||
             TryBeginCardsMovedProgramWindow(f.Id);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 30)]
     private bool IsDynamicDiscardDamageMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation movement) =>
         effect?.Op==SkillProgramEffectOp.DiscardTargetHpCardsAndDamage && f.DynamicDiscardDamage is {Stage:DynamicDiscardDamageStage.Paid} r &&
         f.InstructionIndex==r.InstructionIndex && f.SelectedTargetSeats is [var target] && target==r.TargetSeat &&

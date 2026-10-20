@@ -120,6 +120,7 @@ public sealed partial class GameEngine
                 m.To == CardLocation.Hand(lease.HolderSeat) && m.Reason.Value == WuyouReturnReason) == 1;
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 630)]
     private bool IsWuyouMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         effect?.Op == SkillProgramEffectOp.ResolveWuyouContributionAndNamedReturn && f.Wuyou is
             { Stage: WuyouStage.ContributionChildren or WuyouStage.ReturnChildren, ContributionPaid: true } &&

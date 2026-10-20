@@ -117,6 +117,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement,26520)]
     private bool ReturnDuFuRenMovement(ProgramSkillFrame f)
     { if (f.DuFuRen is null) return false; ContinueDuFuRen(f.Id); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 130)]
     private bool IsDuFuRenAwaitedMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p) => f.DuFuRen is { } r &&
         r.Stage is DuFuRenStage.GiftChildren or DuFuRenStage.RecoveryChildren && (e is null || DuFuRenComposition.IsOperation(e.Op)) &&
         p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == (r.Stage == DuFuRenStage.GiftChildren ? f.OwnerSeat : r.RecipientSeat);

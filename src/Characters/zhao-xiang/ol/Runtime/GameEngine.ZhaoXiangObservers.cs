@@ -22,6 +22,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 120)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 120)]
     private bool CanContinueZhaoXiang(ProgramSkillFrame f)=>f.ZhaoXiang is not null && ValidZhaoXiang(f);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 680)]
     private bool AllowsZhaoXiangNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {
         if(sourceLess || f.AttackAttempt is not null || f.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=f.Id || ZhaoXiangObserverRoot() is null ||
@@ -31,8 +32,12 @@ public sealed partial class GameEngine
         return e.Op==SkillProgramEffectOp.Damage && amount==e.Amount && source==e.ActorReference && nature==e.DamageNature &&
             target==(e.TargetReference is{}r?ResolveProgramParticipant(f,r):ResolveProgramEffectTarget(f,e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 60)]
     private bool IsZhaoXiangDying()=>ActiveDying is{}d && ZhaoXiangObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 100)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 210)]
     private bool HasZhaoXiangDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && ZhaoXiangObserverRoot() is not null;
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 280)]
     private bool HasZhaoXiangBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && ZhaoXiangObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 180)]
     private bool TryAdvanceZhaoXiangSubtree()=>_pendingDecision is null && ZhaoXiangObserverRoot() is not null && TryAdvanceObserverSubtree(true);

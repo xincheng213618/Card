@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         if (f.PrepDiscard is not null && !ValidPrepDiscard(f) || f.PrepDiscardEndingDraw is not null && !ValidPrepDiscardEndingDraw(f))
             throw new InvalidOperationException("A preparation discard or its promised draw changed original identity, actual turn or real paid ledger.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 80)]
     private bool IsPrepDiscardMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (effect?.Op is (SkillProgramEffectOp.ResolvePrepDiscardOrEnding or SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw) && f.PrepDiscard is { } d &&

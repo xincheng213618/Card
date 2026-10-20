@@ -23,6 +23,8 @@ public sealed partial class GameEngine
             hp.Change.SourceSeat == root.OwnerSeat && hp.Change.TargetSeat == root.OwnerSeat &&
             _cardMovements.Any(move => move.Sequence == promise.MovementSequence && move.CardId == promise.CardId && move.CardKind == CardKind.SilverLion);
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 90)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 80)]
     private bool IsYanPuRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.YanPu is not { } r || !RecoveryReplacementFrameRidesOn(recovery, f) || recovery.Return.Continuation != PostEventContinuation.AwaitedProgramMovement ||
@@ -36,11 +38,16 @@ public sealed partial class GameEngine
         static (e, index) => e.HasObserverSuffix(index, static (engine, child) => engine.IsMovementObserverEdge(child) ||
             engine.IsYanPuDyingExitEdge(child) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child], engine._resolutionStack[child - 1]),
             static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1500)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1610)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1630)]
     private bool HasYanPuDamageObserver(long id) => YanPuObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1470)]
     private bool IsYanPuDying() => ActiveDying is { } dying && YanPuObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 2120)]
     private bool AllowsYanPuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || YanPuObserverRoot() is not { } root || root.Id == f.Id) return false;

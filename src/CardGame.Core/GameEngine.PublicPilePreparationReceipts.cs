@@ -70,6 +70,7 @@ public sealed partial class GameEngine
         if (f.PublicPilePreparation is not null && !ValidPublicPilePreparation(f))
             throw new InvalidOperationException("Public preparation lost its original window, exact paid invoice or once-issued successor.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 20)]
     private bool IsPublicPilePreparationMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.PublicPilePreparation is { Stage: PublicPilePreparationStage.PaymentChildren or PublicPilePreparationStage.DrawChildren } r &&
         effect?.Op == r.Operation && pending == f.PendingMovementContinuation && ValidPublicPilePreparation(f);
@@ -128,9 +129,13 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 140, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 250)]
     private bool IsPublicPilePreparationProgramDying() => ActiveDying is { } d && PublicPilePreparationObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1910)]
     private bool HasPublicPilePreparationDamageObserver(long id) => _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) && PublicPilePreparationObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 190)]
     private bool AllowsPublicPilePreparationNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || f.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != f.Id ||

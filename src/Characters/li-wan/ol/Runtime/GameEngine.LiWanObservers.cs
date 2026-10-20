@@ -82,6 +82,7 @@ public sealed partial class GameEngine
             f.SelectedCardIds.Count == 0 && f.SelectedTargetSeats.Count == 0 && IsIssuedLiWanCandidate(new(f.OwnerSeat, f.SkillId, id, f.SkillInstanceId, f.GameplayHash, 0, context.OccurrenceIndex)) &&
             CanRunIssuedLiWanCandidate(new(f.OwnerSeat, f.SkillId, id, f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority, context.OccurrenceIndex), context);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 170)]
     private bool IsLiWanMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending)
     {
         if (f.LiWan is not { Stage: LiWanStage.Children } r || effect?.Op != r.Op || pending != f.PendingMovementContinuation) return false;
@@ -103,13 +104,20 @@ public sealed partial class GameEngine
         return false;
     }
     // None of the four direct operations removes equipment or recovers HP. Recovery children belong to their exact nested gain observer.
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 700)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 640)]
     private bool IsLiWanRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => false;
     private ProgramSkillFrame? LiWanObserverRoot() => FindProgramObserverRoot(static (e, f, child) => e.LiWanFirstChild(f, child), static (e, i) => e.SameNameHandObserverSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 500)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 610)]
     private bool HasLiWanDamageObserver(long id) => LiWanObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 640)]
     private bool HasLiWanBeforeDamageObserver(long id) => LiWanObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 470)]
     private bool IsLiWanDying() => ActiveDying is { } dying && LiWanObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1110)]
     private bool AllowsLiWanNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || LiWanObserverRoot() is not { } root || root.Id == f.Id) return false;

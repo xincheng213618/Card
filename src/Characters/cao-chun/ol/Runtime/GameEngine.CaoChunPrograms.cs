@@ -99,6 +99,7 @@ public sealed partial class GameEngine
   if(r.Stage==CaoChunStage.NativeSlash&&r.Slash is{Returned:true}n){if(!n.Ending)ArmCaoChunDebt(f);FinishCaoChun(f);return true;}return false;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24500)]private bool ReturnCaoChunMovement(ProgramSkillFrame f)=>f.CaoChun is not null&&ResumeCaoChun(f.Id);
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 270)]
  private bool IsCaoChunMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>e?.Op is (SkillProgramEffectOp.DrawAndRequestShanjiaSlash or SkillProgramEffectOp.PayShanjiaHandUseDebt)&&f.CaoChun?.Stage is (CaoChunStage.DrawChildren or CaoChunStage.DiscardChildren)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&CanContinueCaoChun(f);
  private void FinishCaoChun(ProgramSkillFrame f){if(f.CaoChun?.Stage==CaoChunStage.InitialSlash&&_players[f.OwnerSeat].IsAlive&&!CompleteProgramEventHistory().OfType<ShanjiaDebtArmedEvent>().Any(e=>e.ActivationFrameId==f.Id))ArmCaoChunDebt(f);ReplaceRuntimeTop(f=f with{CaoChun=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
  private void RequireCaoChun(ProgramSkillFrame f)

@@ -50,12 +50,17 @@ public sealed partial class GameEngine
         static (g,n,dying) => g.IsSuspendedOrPaidRescueObserverSuffix(n,dying));
     private ProgramSkillFrame? MouZuifengObserverRoot() => FindProgramObserverRoot(
         static (g,f,child) => g.MouZuifengFirstChild(f,child),static (g,index) => g.MouZuifengObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1410)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1520)]
     private bool HasMouZuifengDamageObserver(long id) => MouZuifengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1540)]
     private bool HasMouZuifengBeforeDamageObserver(long id) => MouZuifengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1370)]
     private bool IsMouZuifengDying() => ActiveDying is { } dying && MouZuifengObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1960)]
     private bool AllowsMouZuifengNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || sourceLess) return false;
@@ -67,6 +72,8 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } p ? ResolveProgramParticipant(f,p) : ResolveProgramEffectTarget(f,effect.Target));
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 620)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 560)]
     private bool IsMouZuifengRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if (f.MouZuifeng is null || recovery.ParentFrameId == f.Id) return false;

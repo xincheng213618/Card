@@ -144,10 +144,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? PairedHandRecastObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.PairedHandRecastFirstChild(root, child),
         static (engine, index) => engine.HasMovementObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 20, group: 40)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 100)]
     private bool IsPairedHandRecastDying() => ActiveDying is { } dying && PairedHandRecastObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1880)]
     private bool HasPairedHandRecastDamageObserver(long windowId) => _resolutionStack.Any(f =>
         f.Id == windowId && f is DamageTriggerWindowFrame) && PairedHandRecastObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 790)]
     private bool AllowsPairedHandRecastNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

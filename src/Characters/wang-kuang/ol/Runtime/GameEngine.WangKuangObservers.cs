@@ -1,6 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 740)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 680)]
     private bool IsWangKuangRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery) => f.WangKuangRenxia is { Stage: WangKuangRenxiaStage.MovementChildren, Branch: WangKuangRenxiaBranch.Discard } r &&
         ValidWangKuang(f) && r.Selected.Any(c => c.From == CardLocation.Equipment(f.OwnerSeat) && GetAttackCard(c.CardId).Kind == CardKind.SilverLion) &&
         recovery.ParentFrameId == f.Id && recovery.Return == new RecoveryReplacementReturn(PostEventContinuation.Program, f.Id) &&
@@ -26,9 +28,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? WangKuangObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.WangKuangFirstChild(f, c),
         static (e, i) => e.HasObserverSuffix(i, static (x, n) => x.IsMovementObserverEdge(n) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
             static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 550)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 660)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 690)]
     private bool HasWangKuangDamageObserver(long id) => WangKuangObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 510)]
     private bool IsWangKuangDying() => ActiveDying is { } dying && WangKuangObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1150)]
     private bool AllowsWangKuangNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WangKuangObserverRoot() is not { } root || root.Id == f.Id) return false;

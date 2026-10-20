@@ -343,6 +343,7 @@ public sealed partial class GameEngine
     }
     private void FinishFriendTrio(ProgramSkillFrame f)
     { ReplaceRuntimeTop(f with { FriendTrio = null, PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 80)]
     private bool IsFriendTrioMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is not null && IsFriendTrioOperation(e.Op) && f.FriendTrio is { Stage: FriendTrioStage.Movement or FriendTrioStage.EquipmentUse } r && r.Operation == e.Op &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

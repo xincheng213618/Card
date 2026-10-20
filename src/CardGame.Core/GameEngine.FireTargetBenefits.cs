@@ -79,6 +79,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null });
         ResumeFireTargetBenefit(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 310)]
     private bool IsFireTargetBenefitMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.FireTargetBenefit is { } r && effect?.Op == SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota &&
         r.InstructionIndex == f.InstructionIndex && pending.SubjectSeat == r.TargetSeat && pending.CoverageResultBind is null;

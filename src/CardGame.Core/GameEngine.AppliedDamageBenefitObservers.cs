@@ -83,12 +83,14 @@ public sealed partial class GameEngine
             m.To.Zone is CardZoneKind.DiscardPile or CardZoneKind.OutsideGame &&
             m.Reason.Value == $"skill-program.{root.SkillId}.SelectAndMoveOwnedCard") == 1;
 
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 110)]
     private bool HasAppliedDamageBenefitObserver(long damageWindowId) => AppliedDamageBenefitRoot(damageWindowId) is not null;
     private void AssertAppliedDamageBenefitReceipt(ProgramSkillFrame frame)
     {
         if (frame.AppliedDamageBenefit is { } receipt && AppliedDamageBenefitRoot(receipt.DamageWindowId)?.Id != frame.Id)
             throw new InvalidOperationException("An applied-damage benefit lost its actual once-issued draw or exact owning producer subtree.");
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 420, group: 10)]
     private bool IsAppliedDamageBenefitDying() => ActiveDamageTrigger is { } damage && ActiveDying is { } dying &&
         AppliedDamageBenefitRoot(damage.Id) is not null &&
         _resolutionStack.OfType<DyingFrame>().Any(d => d.Id == dying.FrameId && d.ParentFrameId == dying.ParentFrameId);

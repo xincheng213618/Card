@@ -58,5 +58,7 @@ public sealed partial class GameEngine
   if(child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills)return skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
   return child is ProgramLifecycleTriggerWindowFrame state&&state.Continuation==ProgramLifecycleContinuation.ResumeCharacterStateChange&&state.ResumeProgramFrameId==f.Id;
  }
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 200)]
+ [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 190)]
  private bool IsLiuZhangRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.Zonghu is{Stage:ZonghuStage.CostChildren,Paid:{}p}&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&p.Gifts.Any(g=>g.Kind==CardKind.SilverLion&&g.From==CardLocation.Equipment(f.OwnerSeat))&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==f.OwnerSeat&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==ZonghuGiftReason;
 }

@@ -300,6 +300,7 @@ public sealed partial class GameEngine
             draw.ReplacementGainedIds.Contains(move.CardId) && move.To == CardLocation.Hand(f.OwnerSeat) ||
             move.From == CardLocation.DiscardPile && move.To == CardLocation.DrawPile && move.Reason == CardMoveReasons.Reshuffle;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 290)]
     private bool IsWuZhangFeiMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (effect?.Op == SkillProgramEffectOp.ResolveWuZhangFeiUseSample && f.WuZhangFeiUse is { Stage: WuZhangFeiUseStage.MovementChildren } ||
@@ -365,12 +366,17 @@ public sealed partial class GameEngine
         static (g, child, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(child, dying));
     private ProgramSkillFrame? WuZhangFeiObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WuZhangFeiFirstChild(f, child), static (g, index) => g.WuZhangFeiObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1240)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1350)]
     private bool HasWuZhangFeiDamageObserver(long id) => WuZhangFeiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1380)]
     private bool HasWuZhangFeiBeforeDamageObserver(long id) => WuZhangFeiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1210)]
     private bool IsWuZhangFeiDying() => ActiveDying is { } dying && WuZhangFeiObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1780)]
     private bool AllowsWuZhangFeiNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

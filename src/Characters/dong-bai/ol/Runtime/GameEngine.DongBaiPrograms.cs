@@ -86,6 +86,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 80)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 80)]
     private bool CanContinueLianZhu(ProgramSkillFrame f) { if (f.LianZhu is null) return false; RequireLianZhu(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 100)]
     private bool IsLianZhuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.LianZhu is { Stage: LianZhuStage.GiftChildren or LianZhuStage.DiscardChildren or LianZhuStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.RevealHandGiftAndResolveRecipientChoice && CanContinueLianZhu(f) && p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == (f.LianZhu!.Stage == LianZhuStage.DiscardChildren ? f.LianZhu.RecipientSeat : f.OwnerSeat);
     private void RequireLianZhu(ProgramSkillFrame f)
     {

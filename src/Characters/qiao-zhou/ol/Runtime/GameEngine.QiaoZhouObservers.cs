@@ -41,11 +41,15 @@ public sealed partial class GameEngine
             _resolutionStack[1] is not CardsMovedTriggerWindowFrame moved || prep.ActiveChildFrameId != moved.Id || !IsQiaoZhouPreparationMovement(prep, moved)) return null;
         AssertQiaoZhouPreparation(prep); return HasMovementObserverSuffix(0) ? prep : null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 380)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 490)]
     private bool HasQiaoZhouDamageObserver(long id) => QiaoZhouObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is BeforeDamageProgramWindowFrame or DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 350)]
     private bool IsQiaoZhouDying() => ActiveDying is { } dying && QiaoZhouObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 990)]
     private bool AllowsQiaoZhouNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || QiaoZhouObserverRoot() is not { } root || root.Id == f.Id ||

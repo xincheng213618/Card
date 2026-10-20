@@ -39,12 +39,17 @@ public sealed partial class GameEngine
                 NativeDrawAttemptRidesOn(engine._resolutionStack[next], engine._resolutionStack[next - 1]) ||
                 engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[next], engine._resolutionStack[next - 1]) || engine.IsYanPuDyingExitEdge(next),
             static (engine, next, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(next, dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1170)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1280)]
     private bool HasZixiEffectsDamageObserver(long id) => ZixiEffectsObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1310)]
     private bool HasZixiEffectsBeforeDamageObserver(long id) => ZixiEffectsObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1140)]
     private bool IsZixiEffectsDying() => ActiveDying is { } dying && ZixiEffectsObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1710)]
     private bool AllowsZixiEffectsNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

@@ -17,6 +17,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? EndRefillObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.EndRefillFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 330)]
     private bool AllowsEndRefillNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -28,8 +29,11 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 120, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 230)]
     private bool IsEndRefillDying() => ActiveDying is { } dying && EndRefillObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1780)]
     private bool HasEndRefillDamageObserver(long id) => EndRefillObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

@@ -245,7 +245,10 @@ public sealed partial class GameEngine
         f.DyingSuits is { Stage: not DyingSuitsStage.Recipient and not DyingSuitsStage.Complete } r &&
         (r.OriginalCursor.AttackOwnerFrameId == attackId || r.OriginalCursor.ParentFrameId == attackId && r.OriginalCursor.Continuation == DyingContinuationKind.AttackHpLoss) &&
         DyingSuitsStructuralPrefix(f));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 620, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 710)]
     private bool IsDyingSuitsProgramDying() => ActiveDying is {} d && DyingSuitsObserverRoot() is {} root && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 170)]
     private bool AllowsDyingSuitsNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(observer.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id!=observer.Id || observer.InstructionIndex<1 || ActiveDying is not null || DyingSuitsObserverRoot() is not {} root || root.Id==observer.Id)return false;

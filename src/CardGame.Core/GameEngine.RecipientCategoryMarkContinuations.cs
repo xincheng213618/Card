@@ -73,8 +73,11 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? RecipientCategoryMarkObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.RecipientCategoryMarkFirstChild(root, child),
         static (engine, index) => engine.RecipientCategoryObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 530, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 610)]
     private bool IsRecipientCategoryMarkProgramDying() => ActiveDying is { } dying && RecipientCategoryMarkObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1840)]
     private bool HasRecipientCategoryMarkDamageObserver(long windowId)
     {
         var index = _resolutionStack.FindIndex(f => f.Id == windowId && f is DamageTriggerWindowFrame);
@@ -87,6 +90,7 @@ public sealed partial class GameEngine
             if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child])) return false;
         return index < rootIndex;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 150)]
     private bool AllowsRecipientCategoryMarkNestedDamage(ProgramSkillFrame observer, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex < 1 || _resolutionStack.LastOrDefault()?.Id != observer.Id ||

@@ -56,6 +56,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 27310)]
     private bool ContinuePaidYangFu(ProgramSkillFrame f)
     { if (f.YangFu is not { } r || r.Stage == YangFuStage.Targets) return false; AssertYangFu(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 300)]
     private bool IsYangFuMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     {
         if (f.YangFu is not { } r || e?.Op != r.Op || p != f.PendingMovementContinuation ||
@@ -74,9 +75,14 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? YangFuObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.YangFuFirstChild(f, c), static (e, i) => e.HasObserverSuffix(i,
         static (x, n) => x.IsMovementObserverEdge(n) || x.IsYanPuDyingExitEdge(n) || x.RandomEquipmentFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]) || x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n], x._resolutionStack[n - 1]),
         static (x, n, d) => x.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 770)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 880)]
     private bool HasYangFuDamageObserver(long id) => YangFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 910)]
     private bool HasYangFuBeforeDamageObserver(long id) => YangFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 740)]
     private bool IsYangFuDying() => ActiveDying is { } dying && YangFuObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1310)]
     private bool AllowsYangFuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || YangFuObserverRoot() is not { } root || root.Id == f.Id) return false;

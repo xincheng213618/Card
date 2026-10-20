@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         return true;
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState,27460)]private void AssertQushi(ProgramSkillFrame f){if(f.Qushi is not null&&!ValidQushi(f))throw new InvalidOperationException("Qushi lost its original source, typed holder Ending, physical seal or once-paid native movement interval.");}
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 410)]
     private bool IsQushiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.Qushi is{Paid:true}r&&GuoTuQushiComposition.Handles(r.Op)&&e?.Op==r.Op&&p==f.PendingMovementContinuation&&p.BeforeCount==0&&p.CoverageResultBind is null&&p.SubjectSeat==(r.Stage is QushiStage.DrawChildren or QushiStage.RewardChildren?f.OwnerSeat:r.HolderSeat);
     private bool QushiMovementMatches(ProgramSkillFrame f,CardMovementRecord m)
     {
@@ -33,9 +34,14 @@ public sealed partial class GameEngine
         return false;
     }
     private ProgramSkillFrame? QushiObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.QushiFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(x,n)=>x.IsMovementObserverEdge(n)||x.RecoveryReplacementFrameRidesOn(x._resolutionStack[n],x._resolutionStack[n-1]),static(x,n,d)=>x.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 920)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1030)]
     private bool HasQushiDamageObserver(long id)=>QushiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1060)]
     private bool HasQushiBeforeDamageObserver(long id)=>HasQushiDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 890)]
     private bool IsQushiDying()=>ActiveDying is{}d&&QushiObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1460)]
     private bool AllowsQushiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(sourceLess||f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||QushiObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27460)]private bool AdvanceQushiChildren()=>_pendingDecision is null&&QushiObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

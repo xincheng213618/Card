@@ -289,6 +289,7 @@ public sealed partial class GameEngine
         if (f.DrawDiscardCategoryRefund is null || f.PendingMovementContinuation is null) return false;
         AssertDrawDiscardCategoryReceipt(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 550)]
     private bool IsDrawDiscardCategoryMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DrawThenDiscardDistinctCategories && effect.Amount == f.DrawDiscardCategoryRefund?.RequestedCount &&
         effect.StateId == f.DrawDiscardCategoryRefund?.StateId && f.PendingMovementContinuation == pending && ValidDrawDiscardCategoryReceipt(f);
@@ -359,10 +360,14 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 90)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 150)]
     private bool IsDrawDiscardCategoryProgramDying() => ActiveDying is { } dying && CategoryActivationObserverRoot(false) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1940)]
     private bool HasCategoryActivationDamageObserver(long id) => _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         (CategoryActivationObserverRoot(false) is not null || CategoryActivationObserverRoot(true) is not null);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 220)]
     private bool AllowsCategoryActivationNestedDamage(ProgramSkillFrame f, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

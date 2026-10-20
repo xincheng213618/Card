@@ -137,6 +137,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f=f with{BuZhi=f.BuZhi! with{Stage="damage-issued",DamageIssued=true}});
         AdvanceEventRulesAndQueueFact(new BuZhiDamageIssuedEvent(f.Id,f.OwnerSeat,f.BuZhi!.Target!.Value,1));BeginProgramSkillDamage(f,f.BuZhi.Target.Value,1);
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 90)]
     private bool IsBuZhiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op is SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit or SkillProgramEffectOp.ResolveRebelCountEquipmentChoice &&
         f.BuZhi is{Stage:"movement"}r && r.InstructionIndex==f.InstructionIndex && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;
     [ProgramContinuation(ProgramContinuationKind.Movement,22300)]

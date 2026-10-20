@@ -93,6 +93,7 @@ public sealed partial class GameEngine
                 !AssistedChoicesEqual(prompt.Choices, XianbiChoices(f))))
             throw new InvalidOperationException("Xianbi's private legal menu changed the actual original Hand choices.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 500)]
     private bool IsSunHongMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.Xianbi is { Issued: true } r && XianbiChildren(r.Stage) &&
         effect?.Op == SkillProgramEffectOp.ResolveXianbiHandAdjustmentAndRandomReturns &&
@@ -136,12 +137,17 @@ public sealed partial class GameEngine
             static (e, at) => e.IsMovementObserverEdge(at) || e.IsYanPuDyingExitEdge(at) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[at], e._resolutionStack[at - 1]) ||
                 NativeDrawAttemptRidesOn(e._resolutionStack[at], e._resolutionStack[at - 1]),
             static (e, at, dying) => e.IsSuspendedOrPaidRescueObserverSuffix(at, dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1020)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1130)]
     private bool HasSunHongDamageObserver(long id) => SunHongObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1160)]
     private bool HasSunHongBeforeDamageObserver(long id) => SunHongObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 990)]
     private bool HasSunHongDyingObserver() => ActiveDying is { } dying && SunHongObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1560)]
     private bool AllowsSunHongNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || SunHongObserverRoot() is not { } root || root.Id == f.Id) return false;

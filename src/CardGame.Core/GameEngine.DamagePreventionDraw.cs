@@ -26,6 +26,7 @@ public sealed partial class GameEngine
         return AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat);
     }
 
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 570)]
     private bool IsPreventionDrawMovement(ProgramSkillFrame frame, SkillProgramEffect? paidEffect,
         ProgramMovementContinuation movement) =>
         paidEffect?.Op is SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource &&

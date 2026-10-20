@@ -273,10 +273,14 @@ public sealed partial class GameEngine
             DyingSuitsStructuralEdge(parent, current) ||
             HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 60)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 70)]
     private bool IsOriginalHandEntityProgramDying() => ActiveDying is { } dying && OriginalHandEntityObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1850)]
     private bool HasOriginalHandEntityDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) &&
         OriginalHandEntityObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 810)]
     private bool AllowsOriginalHandEntityNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

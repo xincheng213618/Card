@@ -5,6 +5,8 @@ public sealed partial class GameEngine
     private bool WeiwanLionRemoval(ProgramSkillFrame f, int seat) => f.Weiwan is { } r &&
         (r.Stage == WeiwanStage.CostChildren && r.PrintedKind == CardKind.SilverLion && r.CostFrom == CardLocation.Equipment(seat) && r.CostTo != r.CostFrom ||
          r.Stage == WeiwanStage.ObtainChildren && r.Samples.Any(s => s.PrintedKind == CardKind.SilverLion && s.From == CardLocation.Equipment(seat)));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 380)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 370)]
     private bool IsWeiwanRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.Weiwan is not { } r || !HasPaidWeiwanSelection(f)) return false;
@@ -58,12 +60,17 @@ public sealed partial class GameEngine
         static (g, next, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(next, dying));
     private ProgramSkillFrame? WeiwanObserverRoot() => FindProgramObserverRoot(
         static (g, f, child) => g.WeiwanFirstChild(f, child), static (g, index) => g.WeiwanObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1150)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1260)]
     private bool HasWeiwanDamageObserver(long id) => WeiwanObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1290)]
     private bool HasWeiwanBeforeDamageObserver(long id) => WeiwanObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 1120)]
     private bool IsWeiwanDying() => ActiveDying is { } dying && WeiwanObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1690)]
     private bool AllowsWeiwanNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || WeiwanObserverRoot() is not { } root || root.Id == f.Id) return false;

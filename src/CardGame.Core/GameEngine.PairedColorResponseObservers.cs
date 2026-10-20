@@ -109,11 +109,15 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? PairedColorDispositionObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.PairedColorDispositionFirstChild(root, child),
         static (engine, index) => engine.SameNameHandObserverSuffix(index));
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 30, group: 70)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 40)]
     private bool IsPairedColorDispositionDying() => ActiveDying is { } dying && PairedColorDispositionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasPairedColorDispositionCardObserver(long parentId) => PairedColorDispositionObserverRoot() is { } root &&
         root.PairedColorDisposition!.Pair.NativeParentFrameId == parentId;
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1680)]
     private bool HasPairedColorDispositionDamageObserver(long id) => HasPairedColorDispositionObserver(id, false);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 220)]
     private bool HasPairedColorDispositionBeforeDamageObserver(long id) => HasPairedColorDispositionObserver(id, true);
     private bool HasPairedColorDispositionObserver(long id, bool before)
     {
@@ -129,6 +133,7 @@ public sealed partial class GameEngine
                 !OrderedPrintedSkillLossSkillsChangedEdge(_resolutionStack[child - 1], _resolutionStack[child])) return false;
         return index < rootIndex;
     }
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 820)]
     private bool AllowsPairedColorDispositionNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

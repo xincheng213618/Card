@@ -19,6 +19,7 @@ public sealed partial class GameEngine
         if(r.OwnerCards.Concat(r.OtherCards).Select(c=>c.CardId).Distinct().Count()!=r.OwnerCards.Count+r.OtherCards.Count)throw new InvalidOperationException("Nishou requires two distinct original physical Hand sets.");
         foreach(var card in r.OwnerCards.Concat(r.OtherCards))if(ProgramEventHistory<NishouOriginalHandFrozenEvent>().Count(e=>e.FrameId==f.Id&&e.HolderSeat==card.From.OwnerSeat&&e.CardId==card.CardId&&e.Kind==card.Kind)!=1)throw new InvalidOperationException("Nishou cannot add a child's newly drawn Hand card to its frozen exchange.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 360)]
     private bool IsQuHuangMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.QuHuang is{Paid:true}r&&e?.Op==r.Op&&p==f.PendingMovementContinuation&&p.SubjectSeat==r.TargetSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private bool IsNishouHeldProcessingCard(int cardId)=>HasQuHuangCapability&&_cardZones.GetLocation(cardId)==CardLocation.Processing&&_resolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.QuHuang is{Op:SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap,Paid:true}r&&r.OwnerCards.Concat(r.OtherCards).Any(c=>c.CardId==cardId)&&ProgramEventHistory<QuHuangEntityMovedEvent>().Any(e=>e.FrameId==f.Id&&e.CardId==cardId&&e.To==CardLocation.Processing&&e.Stage is QuHuangStage.HoldOwner or QuHuangStage.HoldOther&&_cardMovements.LastOrDefault(m=>m.CardId==cardId)is{}last&&last.Sequence==e.Sequence&&last.From==e.From&&last.To==e.To&&last.Reason.Value==NishouHoldReason));
     private IReadOnlyList<Card> WithoutNishouHeldProcessingCards(IReadOnlyList<Card> processing)=>!HasQuHuangCapability?processing:Array.AsReadOnly(processing.Where(c=>!IsNishouHeldProcessingCard(c.Id)).ToArray());
@@ -31,6 +32,8 @@ public sealed partial class GameEngine
         return r.Grain.Contains(m.CardId)&&m.From.Zone==CardZoneKind.WoodenOxGrain&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.WoodenOxGrainDiscard;
     }
     private bool QuHuangLion(ProgramSkillFrame f,int seat)=>f.QuHuang is{Stage:QuHuangStage.FieldChildren}r&&r.Entities.Any(c=>c.Kind==CardKind.SilverLion&&c.From==CardLocation.Equipment(seat));
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 160)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 150)]
     private bool IsQuHuangRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>QuHuangLion(f,recovery.Attempt.TargetSeat)&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.Amount==1&&recovery.Attempt.SourceSeat==recovery.Attempt.TargetSeat&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==QiejianDiscardReason;
     private bool QuHuangFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -42,9 +45,14 @@ public sealed partial class GameEngine
         return child is ProgramLifecycleTriggerWindowFrame{Window:SkillProgramTriggerWindow.SkillsChanged}skills&&skills.ResumeProgramFrameId==f.Id&&skills.Continuation==ProgramLifecycleContinuation.ResumeParentProgram;
     }
     private ProgramSkillFrame? QuHuangObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.QuHuangFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 870)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 980)]
     private bool HasQuHuangDamageObserver(long id)=>QuHuangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==id&&f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1010)]
     private bool HasQuHuangBeforeDamageObserver(long id)=>HasQuHuangDamageObserver(id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 840)]
     private bool IsQuHuangDying()=>ActiveDying is{}d&&QuHuangObserverRoot()is{}root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1410)]
     private bool AllowsQuHuangNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||QuHuangObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27420)]private bool AdvanceQuHuangChildren()=>_pendingDecision is null&&QuHuangObserverRoot()is not null&&TryAdvanceObserverSubtree(true);

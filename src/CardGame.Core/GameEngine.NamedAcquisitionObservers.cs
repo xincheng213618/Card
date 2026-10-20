@@ -53,8 +53,12 @@ public sealed partial class GameEngine
         }
         return null;
     }
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1710)]
     private bool HasNamedAcquisitionDamageObserver(long id) => NamedAcquisitionObserverRoot(id) is not null;
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 210, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 330)]
     private bool IsNamedAcquisitionProgramDying() => ActiveDying is not null && NamedAcquisitionObserverRoot() is not null;
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 80)]
     private bool AllowsFireOrNamedNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

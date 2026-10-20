@@ -238,6 +238,7 @@ public sealed partial class GameEngine
     }
     private SkillProgramEffect? SourceCursePausedEffect(ProgramSkillFrame f) => f.InstructionIndex < 1 ? null :
         ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 30)]
     private bool IsSourceCurseMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.SourceCurseReceipt is { Stage: not SourceCurseStage.LossHpChildren } r &&
         r.InstructionIndex == f.InstructionIndex && effect == SourceCursePausedEffect(f) &&

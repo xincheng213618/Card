@@ -132,6 +132,7 @@ public sealed partial class GameEngine
                 IsExactLegacyActualUseCompletion(use) && ProgramEventHistory<ZhuJunLegacyAlcoholWindowIssuedEvent>().Count(e => e.Return == zhu) == 1;
     }
 
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 670)]
     private bool IsMouBingcaiLegacyDyingWindow()
     {
         if (ActiveDying is not { } dying || _resolutionStack.LastOrDefault() is not ProgramCardTriggerWindowFrame window ||

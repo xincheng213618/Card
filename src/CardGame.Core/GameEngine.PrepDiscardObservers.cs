@@ -76,9 +76,15 @@ public sealed partial class GameEngine
         }
         return true;
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 570, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 650)]
     private bool IsPrepDiscardProgramDying() => ActiveDying is { } dying && PrepDiscardPaidObserverRoot(ActiveDamageTrigger?.Id) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1810)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 190)]
     private bool HasPrepDiscardDamageObserver(long id) => PrepDiscardPaidObserverRoot(id) is not null;
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 20)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 20)]
     private bool IsPrepDiscardRecoveryParent(ProgramSkillFrame root, RecoveryReplacementFrame recovery)
     {
         if (root.PrepDiscard is not { Stage: PrepDiscardStage.TargetChildren or PrepDiscardStage.OwnerChildren } draft ||

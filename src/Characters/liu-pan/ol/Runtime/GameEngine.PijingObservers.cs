@@ -27,7 +27,10 @@ public sealed partial class GameEngine
         if(!r.Reciprocal)for(var i=0;i<r.Index;i++)if(ProgramEventHistory<PijingGiftCompletedEvent>().Where(e=>e.FrameId==f.Id&&e.Index==i).ToArray()is not[var done]||ProgramEventHistory<PijingGrantIssuedEvent>().SingleOrDefault(g=>g.GrantId==done.GrantId)is not{}grant||grant.HolderSeat!=r.Toggles[i].Seat||grant.Source!=r.Source||grant.UseId!=r.UseId||grant.ActionId!=r.ActionId)throw new InvalidOperationException("Pijing lost or repeated a selected person's completed gift/lease boundary.");
         if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}prompt&&r.Stage is PijingStage.Toggles or PijingStage.Reciprocal&&(prompt.PlayerSeat!=(r.Reciprocal?r.ActorSeat:f.OwnerSeat)||!AssistedChoicesEqual(prompt.Choices,PijingChoices(f))))throw new InvalidOperationException("Pijing's chooser cannot answer another or obsolete designation frontier.");
     }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 350)]
     private bool IsLiuPanMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation pending)=>f.Pijing is{Stage:PijingStage.GiftChildren or PijingStage.DrawChildren}r&&pending==f.PendingMovementContinuation&&effect?.Op==(r.Reciprocal?SkillProgramEffectOp.ResolvePijingNextSoleTargetChoice:SkillProgramEffectOp.ResolvePijingTargetTogglesAndRandomGifts)&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&pending.SubjectSeat==(r.Stage==PijingStage.GiftChildren?r.Toggles[r.Index].Seat:r.ActorSeat);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 150)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 140)]
     private bool IsLiuPanRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)=>f.Pijing is{Stage:PijingStage.GiftChildren,Gift:{Kind:CardKind.SilverLion,From.Zone:CardZoneKind.Equipment}g}r&&recovery.ParentFrameId==f.Id&&recovery.Return.ResumeFrameId==f.Id&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.TargetSeat==g.DonorSeat&&recovery.Attempt.Amount==1&&recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==PijingGiftReason&&ProgramEventHistory<PijingGiftPaidEvent>().Any(e=>e.FrameId==f.Id&&e.Index==r.Index&&e.CardId==g.CardId);
     private bool LiuPanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -39,9 +42,14 @@ public sealed partial class GameEngine
         return r.Stage==PijingStage.DrawChildren&&moved.Batch.Movements.All(m=>_cardMovements.Contains(m)&&m.Sequence>r.Before&&m.Sequence<=r.After&&(m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle||m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(r.ActorSeat)&&m.Reason.Value==PijingDrawReason));
     }
     private ProgramSkillFrame? LiuPanObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.LiuPanFirstChild(f,c),static(e,i)=>e.HasObserverSuffix(i,static(g,n)=>g.IsMovementObserverEdge(n)||g.RecoveryReplacementFrameRidesOn(g._resolutionStack[n],g._resolutionStack[n-1]),static(g,n,d)=>g.IsSuspendedOrPaidRescueObserverSuffix(n,d)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 860)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 970)]
     private bool HasLiuPanDamageObserver(long id)=>LiuPanObserverRoot()is{}f&&_resolutionStack.Any(x=>x.Id==id&&x is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(x=>x.Id==id)>_resolutionStack.FindIndex(x=>x.Id==f.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 1000)]
     private bool HasLiuPanBeforeDamageObserver(long id)=>LiuPanObserverRoot()is{}f&&_resolutionStack.Any(x=>x.Id==id&&x is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(x=>x.Id==id)>_resolutionStack.FindIndex(x=>x.Id==f.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 830)]
     private bool IsLiuPanDying()=>ActiveDying is{}d&&LiuPanObserverRoot()is{}f&&_resolutionStack.FindIndex(x=>x.Id==d.Id)>_resolutionStack.FindIndex(x=>x.Id==f.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1400)]
     private bool AllowsLiuPanNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess){if(f.AttackAttempt is not null||_resolutionStack.LastOrDefault()?.Id!=f.Id||LiuPanObserverRoot()is not{}root||root.Id==f.Id)return false;var e=GetPausedPrivateOfferEffect(f);return e is{Op:SkillProgramEffectOp.Damage}&&e.Amount==amount&&e.ActorReference==source&&e.DamageNature==nature&&target==(e.TargetReference is{}p?ResolveProgramParticipant(f,p):ResolveProgramEffectTarget(f,e.Target));}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth,27410)]private bool AdvanceLiuPanSubtree()=>_pendingDecision is null&&LiuPanObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
 }

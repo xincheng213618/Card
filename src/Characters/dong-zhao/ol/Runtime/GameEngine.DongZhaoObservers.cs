@@ -3,10 +3,14 @@ public sealed partial class GameEngine
 {
     private ProgramSkillFrame? DongZhaoObserverRoot() => FindProgramObserverRoot(static (engine,root,child)=>engine.DongZhaoFirstChild(root,child),
         static (engine,index)=>engine.HasMovementObserverSuffix(index));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1560)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 1670)]
     private bool HasDongZhaoDamageObserver(long id) => DongZhaoObserverRoot() is {} root && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 10, group: 220)]
     private bool IsDongZhaoDying() => ActiveDying is {} dying && DongZhaoObserverRoot() is {} root &&
         _resolutionStack.FindIndex(f=>f.Id==dying.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 700)]
     private bool AllowsDongZhaoNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if(sourceLess || observer.AttackAttempt is not null || observer.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=observer.Id ||

@@ -42,6 +42,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Shunshi lost its one genuine paid HE gift and issued independent phase benefits.");
         }
     }
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 670)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 610)]
     private bool IsDuFuRenRecoveryParent(ProgramSkillFrame f,RecoveryReplacementFrame recovery)
     {
         if (f.DuFuRen is not { } r || !RecoveryReplacementFrameRidesOn(recovery,f) || recovery.Return.Continuation != PostEventContinuation.AwaitedProgramMovement ||
@@ -75,11 +77,16 @@ public sealed partial class GameEngine
         static (e,index) => e.HasObserverSuffix(index,static (engine,child) => engine.IsMovementObserverEdge(child) ||
             engine.IsYanPuDyingExitEdge(child) || engine.RecoveryReplacementFrameRidesOn(engine._resolutionStack[child],engine._resolutionStack[child-1]),
             static (engine,child,dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child,dying)));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 450)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 560)]
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 590)]
     private bool HasDuFuRenDamageObserver(long id) => DuFuRenObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame or BeforeDamageProgramWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 420)]
     private bool IsDuFuRenDying() => ActiveDying is { } dying && DuFuRenObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 1060)]
     private bool AllowsDuFuRenNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {
         if (sourceLess || f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || DuFuRenObserverRoot() is not { } root || root.Id == f.Id) return false;

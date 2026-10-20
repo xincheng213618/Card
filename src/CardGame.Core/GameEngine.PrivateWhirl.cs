@@ -116,6 +116,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 60)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 60)]
     private bool CanContinuePrivateWhirl(ProgramSkillFrame f) { if (f.PrivateWhirl is not { } r || r.Stage is PrivateWhirlStage.SelectDeposit or PrivateWhirlStage.SelectRemove) return false; RequirePrivateWhirl(f); return true; }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 80)]
     private bool IsPrivateWhirlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => CanContinuePrivateWhirl(f) && (effect?.Op is SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding or SkillProgramEffectOp.ConsumePrivateWhirlForActualUse or SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding) && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
     private void RequirePrivateWhirl(ProgramSkillFrame f)
     {

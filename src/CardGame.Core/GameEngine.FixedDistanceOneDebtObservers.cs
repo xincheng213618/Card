@@ -30,6 +30,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? FixedDistanceDebtObserverRoot() => FindProgramObserverRoot(
         static (engine, root, child) => engine.FixedDistanceDebtFirstChild(root, child),
         static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 870)]
     private bool AllowsFixedDistanceDebtNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -41,8 +42,11 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 40, group: 10)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 170)]
     private bool IsFixedDistanceDebtProgramDying() => ActiveDying is { } dying && FixedDistanceDebtObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 1890)]
     private bool HasFixedDistanceDebtDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && FixedDistanceDebtObserverRoot() is not null;
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 30)]
     private bool TryAdvanceFixedDistanceDebtSubtree()

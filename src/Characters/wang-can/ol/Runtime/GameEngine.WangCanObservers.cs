@@ -83,6 +83,7 @@ public sealed partial class GameEngine
   if(f.WangCan is not{}r)return false;RequireIssuedWangCan(f);
   return true;
  }
+ [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 280)]
  private bool IsWangCanMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation p)=>f.WangCan is{}r&&effect is not null&&WangCanContract.Own(effect.Op)&&r.Stage is WangCanStage.SanwenDiscard or WangCanStage.SanwenDraw or WangCanStage.QiaiGift or WangCanStage.DenglouViewChildren or WangCanStage.DenglouGain or WangCanStage.DenglouDiscard or WangCanStage.DenglouCancel&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&CanContinueIssuedWangCan(f);
  private bool WangCanFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
@@ -92,11 +93,16 @@ public sealed partial class GameEngine
  }
  private ProgramSkillFrame? WangCanObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.WangCanFirstChild(r,c),static(e,i)=>e.WangCanObserverSuffix(i));
  private bool WangCanObserverSuffix(int index)=>HasObserverSuffix(index,static(e,i)=>e.IsSameNameHandObserverEdge(i)||e.DenglouNativePaymentEdge(i),static(e,i,d)=>e.IsSuspendedOrPaidRescueObserverSuffix(i,d)||e.TieredRoundZeroDyingRescueRide(i,d)||(e.DrawFundedDistinctBasicDyingRescueRide(i,d) || e.HuanpeiDyingRescueRide(i,d)));
+ [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 240)]
+ [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 350)]
  private bool HasWangCanDamageObserver(long id)=>WangCanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 440)]
  private bool HasWangCanBeforeDamageObserver(long id)=>WangCanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 210)]
  private bool IsWangCanDying()=>ActiveDying is{}d&&WangCanObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 350)]
  private bool TryAdvanceWangCanSubtree()=>_pendingDecision is null&&WangCanObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
+ [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 580)]
  private bool AllowsWangCanNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {
   if(sourceLess||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||WangCanObserverRoot()is not{}r||r.Id==observer.Id)return false;var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}reference?ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,e.Target));
