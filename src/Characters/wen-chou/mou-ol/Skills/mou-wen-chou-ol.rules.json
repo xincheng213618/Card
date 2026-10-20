@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:lunzhan",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "duel-0",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 0
+            }
+          ]
+        },
+        {
+          "id": "duel-1",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "duel-2",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "duel-3",
+          "minCards": 3,
+          "maxCards": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        },
+        {
+          "id": "duel-4",
+          "minCards": 4,
+          "maxCards": 4,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 4
+            }
+          ]
+        },
+        {
+          "id": "duel-5",
+          "minCards": 5,
+          "maxCards": 5,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useMouWenChouLunzhan",
+              "target": "owner",
+              "amount": 5
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "reward",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "singleActionInstance": true,
+          "cardKinds": [
+            "duel"
+          ],
+          "effects": [
+            {
+              "op": "rewardMouWenChouLunzhan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:juejue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "all-hand",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouWenChouJuejue",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

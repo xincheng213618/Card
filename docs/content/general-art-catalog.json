@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-hua-xiong-ol",
+      "characterName": "谋华雄·OL",
+      "defaultSkinId": "64400",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/644",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-hua-xiong-ol.png",
+          "sha256": "128fc2c8592050b9c364b81f563f55995f423454cc0998c4e7c01df9ca5d8961",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "64400",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-jiang-wei-mobile",
+      "characterName": "谋姜维·移动版",
+      "defaultSkinId": "69200",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-510.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/69200.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-jiang-wei-mobile.jpg",
+          "sha256": "dab8521d51a05dddf7e5b8016477d176de23edb52b752734dbfb5231eede0027",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "69200",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-wen-chou-ol",
+      "characterName": "谋文丑·OL",
+      "defaultSkinId": "68100",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/681",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-wen-chou-ol.png",
+          "sha256": "ed539016ba68d9f3f9c8a2c66b5af4080f0675f4d819b4a89b4f5b4cbdd4c47b",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "68100",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-lu-xun-mobile",
       "characterName": "谋陆逊·移动版",
       "defaultSkinId": "78500",

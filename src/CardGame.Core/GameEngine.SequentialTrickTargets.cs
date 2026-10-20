@@ -50,7 +50,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
             (IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
-            IsMouXuHuangZeroUse(use.Id) || IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            IsMouWenChouZeroDuel(use.Id) || IsMouXuHuangZeroUse(use.Id) || IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
             : (IsClaimedUseCardEntity(use.Id, use.CardId) || (IsHellDestroyedSoulMaterial(use.Id, use.CardId) || (IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId) || IsSiruiOutsideGeneralWeaponMaterial(use.Id, use.CardId)) || IsGuanduDestroyedChariotMaterial(use.Id, use.CardId))) ? EntityAtCurrentLocation(use.CardId)
@@ -77,7 +77,7 @@ public sealed partial class GameEngine
                 use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
                 !IsTieredRoundZeroUse(use.Id) &&
                 !IsProgramVirtualOrdinaryTrickUse(use.Id) && !IsDiouZeroUse(use.Id) &&
-                !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&
+                !IsMouWenChouZeroDuel(use.Id) && !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&
                 _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId) &&

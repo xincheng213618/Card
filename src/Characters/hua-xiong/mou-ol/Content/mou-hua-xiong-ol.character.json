@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-xiong",
+  "skills": [
+    { "registrationOrder": 2510, "programBundle": "mou-hua-xiong-ol", "includeProgramPresentation": true,
+      "definition": { "id": "mou-ol:bojue", "name": "搏决", "description": "出牌阶段限两次，你可以与一名其他角色同时选择摸或弃置一张牌。若你与其的手牌数之和因此变化数为：0，你与其弃置对方一张牌；2，你与其视为对对方使用一张【杀】。", "actionForms": "Active", "executionForms": "Trigger" } },
+    { "registrationOrder": 2511, "programBundle": null, "includeProgramPresentation": false,
+      "definition": { "id": "mou-ol:yangwei", "name": "扬威", "description": "锁定技，当你一回合于摸牌阶段外摸至少两张牌后，你下一次造成的伤害+1；当你一回合于弃牌阶段外弃置至少两张牌后，你下一次受到的伤害+1。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [ { "registrationOrder": 2512, "pools": { "current": 555 }, "definition": {
+    "id": "mou:hua-xiong-ol", "name": "谋华雄·OL", "portraitKey": "mou-hua-xiong-ol", "skillId": "mou-ol:bojue", "additionalSkillIds": ["mou-ol:yangwei"],
+    "factionId": "qun", "baseHp": 6, "gender": "Male", "characterId": "character:hua-xiong", "variantId": "mou-ol", "rulesetId": "sanguosha-ol"
+  } } ]
+}

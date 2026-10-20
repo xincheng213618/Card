@@ -47,7 +47,8 @@ internal sealed class SkillProgramDependencies
         RequiredFacts = triggers.Aggregate(ProgramTrackedFact.None, (facts, trigger) =>
                 facts | resolver.Features(trigger).FactRequirements.Triggered) |
             programs.SelectMany(program => program.Activations).Aggregate(ProgramTrackedFact.None,
-                (facts, activation) => facts | resolver.Features(activation).FactRequirements.Activated);
+                (facts, activation) => facts | resolver.Features(activation).FactRequirements.Activated) |
+            ProgramPassiveFactRequirementsAttribute.ForSkills(definitions);
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
         TracksActualTurnUseOrdinal = UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionActualTurnUseOrdinalIs) ||
             triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveCuipoActualTurnUse));

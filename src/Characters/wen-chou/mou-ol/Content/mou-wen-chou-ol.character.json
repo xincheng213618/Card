@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wen-chou",
+  "skills": [
+    {
+      "registrationOrder": 2490,
+      "programBundle": "mou-wen-chou-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:lunzhan",
+        "name": "轮战",
+        "description": "出牌阶段，你可将任意张牌当一张【决斗】使用（至多为5，且本回合不可重复）。若你以此法对唯一目标造成了伤害，你可摸X张牌，然后你本回合不能再对目标角色发动此技能（X为本回合你使用牌指定其为目标的次数）。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2491,
+      "programBundle": "mou-wen-chou-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:juejue",
+        "name": "决绝",
+        "description": "锁定技，当你于回合内首次使用所有手牌（仅包含手牌）指定仅一名其他角色为目标时，令其弃置X张牌（X为本回合你使用牌指定其为目标的次数）。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2492,
+      "pools": {
+        "current": 553
+      },
+      "definition": {
+        "id": "mou:wen-chou-ol",
+        "name": "谋文丑·OL",
+        "portraitKey": "mou-wen-chou-ol",
+        "skillId": "mou-ol:lunzhan",
+        "additionalSkillIds": [
+          "mou-ol:juejue"
+        ],
+        "factionId": "qun",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:wen-chou",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

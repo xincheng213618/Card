@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:tiaoxin",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "taunt",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "usesPerGame": null,
+          "effects": [
+            {
+              "op": "resolveMouJiangWeiTiaoxin",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initial-charge",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "initializeMouJiangWei",
+              "target": "owner"
+            },
+            {
+              "target": "owner",
+              "amount": 1,
+              "op": "grantArmor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:zhiji",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveMouJiangWeiZhiji",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

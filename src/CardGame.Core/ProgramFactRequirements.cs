@@ -7,7 +7,8 @@ internal enum ProgramTrackedFact
     NativeLogicalDiscard = 1,
     ActualDiscardRecoveryPhase = 2,
     NativeTrueUseProcessingEntry = 4,
-    WholeActualUseDeclaration = 8
+    WholeActualUseDeclaration = 8,
+    NativeDrawInvocation = 16
 }
 
 // Definition-only demand for shared native facts. Keep trigger and activation
@@ -22,5 +23,6 @@ internal readonly record struct ProgramFactRequirements(
 
     internal bool IsValid => ((Triggered | Activated) &
         ~(ProgramTrackedFact.NativeLogicalDiscard | ProgramTrackedFact.ActualDiscardRecoveryPhase |
-          ProgramTrackedFact.NativeTrueUseProcessingEntry | ProgramTrackedFact.WholeActualUseDeclaration)) == ProgramTrackedFact.None;
+          ProgramTrackedFact.NativeTrueUseProcessingEntry | ProgramTrackedFact.WholeActualUseDeclaration |
+          ProgramTrackedFact.NativeDrawInvocation)) == ProgramTrackedFact.None;
 }

@@ -1,0 +1,108 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:hua-xiong-ol",
+  "characterId": "character:hua-xiong",
+  "displayName": "谋华雄·OL",
+  "edition": "mou-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 6,
+    "officialHeroId": 644,
+    "apiInitialHpSentinel": 0,
+    "initialHpNote": "API initial_hp=0 is the default sentinel. Current hp and the release identity table both give six; the hero OpenGraph zero-HP description is not a health rule."
+  },
+  "skills": [
+    {
+      "id": "mou-ol:bojue",
+      "name": "搏决",
+      "officialText": "出牌阶段限两次，你可以与一名其他角色同时选择摸或弃置一张牌。若你与其的手牌数之和因此变化数为：\n•0，你与其弃置对方一张牌；\n•2，你与其视为对对方使用一张【杀】。"
+    },
+    {
+      "id": "mou-ol:yangwei",
+      "name": "扬威",
+      "officialText": "锁定技，当你一回合于摸牌阶段外摸至少两张牌后，你下一次造成的伤害+1；当你一回合于弃牌阶段外弃置至少两张牌后，你下一次受到的伤害+1。"
+    }
+  ],
+  "derivedSkills": [],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/644",
+      "sha256": "81A528E7F5CF5AD030EE58F3F805004AC97D94EBC1C5EDDF9F52160682A95720",
+      "bytes": 24142
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=644",
+      "sha256": "2520D6FCC7C135282CE0819BE186E20FD132E54DC5D2C30CCDDE9376FFD46076",
+      "bytes": 871
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20241105_7785_0114",
+      "sha256": "4CB1D08B956A231235F29369BA5F04BCADC41AAB964660E1E039B3179759A987",
+      "bytes": 687466
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20241118_9703_3916",
+      "sha256": "C0E442C6E9348774E5CE1120137BDFD7B365C1275AF5FD4552FA717CC9D0784A",
+      "bytes": 23340
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260709_5388_3211",
+      "sha256": "06BCF0DF48ABF80A8280B35DDFB1CA75B2671281624CC6C64231A4ADBA3CDFE2",
+      "bytes": 29284
+    }
+  ],
+  "firstPermanentRelease": {
+    "publishedAt": "2024-11-08 17:33:14",
+    "availableFrom": "2024-11-09 00:15:00",
+    "firstWindowEnd": "2024-11-16 24:00:00",
+    "method": "祈愿台随机获取，或传世玉玺兑换",
+    "url": "https://www.sanguosha.com/news/20241105_7785_0114"
+  },
+  "revisionAudit": {
+    "currentHeroCompleteTwoSkills": true,
+    "currentIdentityApiContainsSkillText": false,
+    "apiRole": "Identity, HP and current portrait. It supplies no skill text.",
+    "currentHeroAndFirstReleaseSkillTextAgree": true,
+    "maintenance20241119": "Added skill visual effects; no textual rule revision.",
+    "conflictingApplicableRevisionLocated": false,
+    "characterSpecificOfficialFAQConfirmed": false,
+    "absenceIsNotExhaustiveProof": true,
+    "boundedSearch": [
+      "site:sanguosha.com/news 谋华雄 搏决",
+      "site:sanguosha.com/news 谋华雄 扬威 调整",
+      "site:sanguosha.com 谋华雄 FAQ",
+      "site:sanguosha.com 谋华雄 距离",
+      "site:sanguosha.com 搏决 手牌 弃置"
+    ]
+  },
+  "portrait": {
+    "officialUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64400.png",
+    "sourcePage": "https://www.sanguosha.com/hero/644",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-hua-xiong-ol.png",
+    "sha256": "128FC2C8592050B9C364B81F563F55995F423454CC0998C4E7C01DF9CA5D8961",
+    "width": 750,
+    "height": 950,
+    "bytes": 1043592,
+    "rootReportedOriginalImageVisualInspection": true
+  },
+  "implementationContract": [
+    "Engineering interpretation, not an official FAQ or additional human ruling: each participant privately commits Draw or a real discard before either choice is revealed or executed. Original owner acts first, selected peer second. A discard menu requires at least one natively selectable owned Hand/Equipment entity; Draw remains available. A committed discard that loses its last legal material cannot fabricate payment.",
+    "Freeze the real combined Hand count before the transaction. Only after both original branches and their complete native gain, equipment, recovery, health, source-change and Dying children return, classify the absolute actual net Hand-count change. Two means +2 or -2. Requested draw counts or the nominal selected option pair do not replace the real Hand result.",
+    "At zero, each participant discards one natively legal entity from the other participant Hand/Equipment/Judgment in original owner then peer order. Foreign Hand uses opaque native slots and actual discard protections. Logical discard records the actual executor and primary entity; collateral Wooden Ox spill is not another primary discard.",
+    "At two, the original owner and peer separately issue true zero-material native Slashes against each other, completing responses, damage, health and whole Use before advancing. Normal native use prohibitions, target restrictions, distance and Slash quota apply; no exemption is introduced. An item with no currently legal native Use is skipped.",
+    "Yangwei observes actual native Draw hand-gain count, not arbitrary card gains or replacement gains. Its discard direction observes true native logical-discard primary counts with the character as executor, not cards merely taken or dismantled by another executor. Each direction issues at most one ticket per character and whole actual turn once its cumulative qualifying count reaches two.",
+    "Engineering interpretation: qualification excludes every actual Draw phase or Discard phase respectively, including phases belonging to another character; phase identity is frozen at the original native invocation. Issued outgoing and incoming tickets are independent, remain across turns, stack between different turns, and remain effective after source loss or regrant.",
+    "A matching positive native damage attempt consumes all outstanding tickets in its direction and adds their count at the existing additive-damage point. Source-less damage has no outgoing source, while a real recipient can still consume incoming tickets. Native prevention, Armor, HP, Dying and chain progression remain authoritative; newly consumed chain-target tickets do not leak into later chain targets. Public ActiveEffects displays outstanding direction counts without private card data.",
+    "Bojue stores commitments, paid materials, requested draw outcomes, actual Hand delta and ordered native Use cursors on its owning ProgramSkillFrame. Native Slash origins bind the original frame, source, content hash, participant cursor and action. Accepted two-party tails survive source loss without repeating a cost; death and terminal cutoffs retain normal native policy. This is the OL six-HP Bojue/Yangwei edition, not the separate mobile Wei/cooldown implementation."
+  ],
+  "behaviorCheck": {
+    "file": "tests/CardGame.Core.Tests/MouHuaXiongOlChecks.cs",
+    "method": "NativeCommittedPairMutualUseAndPersistentDirectionalTicketsCold",
+    "sharedExistingChecks": [
+      "MouLuZhiOlChecks.RealRedPressureCounterAndRoundDrawCold",
+      "ProgramFactRequirementChecks"
+    ]
+  }
+}

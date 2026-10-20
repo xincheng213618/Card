@@ -6,7 +6,11 @@ namespace CardGame.Core;
 public sealed record NativeLogicalDiscardInvocationRecordedEvent(long InvocationId, int TurnNumber,
     int ActualTurnOwnerSeat, int InitiatorSeat, int ExecutorSeat, int? SubjectSeat,
     int ActualCount, int HandCount, int SequenceBefore, int SequenceAfter,
-    long? ParentFrameId, CardMoveReason Reason) : IGameEvent;
+    long? ParentFrameId, CardMoveReason Reason) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? Phase { get; init; }
+}
 
 public sealed record NativeLogicalDiscardMaterial(int CardId, CardLocation From);
 
@@ -21,6 +25,8 @@ public sealed record NativeLogicalDiscardInvocationDraft
     public int InstructionIndex { get; init; }
     public long? ParentFrameId { get; init; }
     public CardMoveReason Reason { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? Phase { get; init; }
     private IReadOnlyList<NativeLogicalDiscardMaterial> _materials = Array.AsReadOnly(Array.Empty<NativeLogicalDiscardMaterial>());
     public IReadOnlyList<NativeLogicalDiscardMaterial> Materials
     { get => _materials; init => _materials = Array.AsReadOnly(value.ToArray()); }
@@ -63,7 +69,8 @@ public sealed partial class GameEngine
             InvocationId = ++_resolutionSequence, TurnNumber = _turnNumber,
             ActualTurnOwnerSeat = _turnProgression.OwnerSeat, InitiatorSeat = initiatorSeat,
             ExecutorSeat = executorSeat, SequenceBefore = _movementSequence,
-            ParentFrameId = parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, Reason = reason, Materials = materials
+            ParentFrameId = parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, Reason = reason, Materials = materials,
+            Phase = CurrentActualDiscardRecoveryPhase()
         });
     }
 
@@ -87,7 +94,7 @@ public sealed partial class GameEngine
             draft.TurnNumber, draft.ActualTurnOwnerSeat, draft.InitiatorSeat, draft.ExecutorSeat,
             owners.Length == 1 ? owners[0] : null, actual.Length,
             actual.Count(m => m.From.Zone == CardZoneKind.Hand), draft.SequenceBefore, _movementSequence,
-            draft.ParentFrameId, draft.Reason));
+            draft.ParentFrameId, draft.Reason) { Phase = draft.Phase });
     }
 
     private void MoveProgramLogicalDiscard(ProgramSkillFrame frame, int executorSeat, IReadOnlyList<int> ids,

@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jiang-wei",
+  "skills": [
+    {
+      "registrationOrder": 2500,
+      "programBundle": "mou-jiang-wei-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:tiaoxin",
+        "description": "蓄力技（4/4），出牌阶段限一次，你可以至多选择X名其他角色（X为你拥有的蓄力点数量），令这些角色依次选择一项：1.对你使用一张无距离限制的【杀】；2.交给你一张牌。然后你每选择一名角色，减少1点蓄力点。弃牌阶段，你每弃置一张牌，获得1点蓄力点。",
+        "executionForms": "Trigger, State",
+        "actionForms": "Active",
+        "name": "挑衅"
+      }
+    },
+    {
+      "registrationOrder": 2501,
+      "programBundle": "mou-jiang-wei-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:zhiji",
+        "description": "觉醒技，准备阶段，若你发动“挑衅”选择过至少4名角色，你减少1点体力值上限，令任意名角色直到你的下个回合开始时获得“北伐”标记。拥有“北伐”标记的角色使用牌只能选择你或其为目标。",
+        "executionForms": "Trigger, State",
+        "tags": "Awakening",
+        "name": "志继"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2502,
+      "pools": {
+        "current": 554
+      },
+      "definition": {
+        "id": "mou:jiang-wei-mobile",
+        "factionId": "shu",
+        "rulesetId": "sanguosha-mobile",
+        "name": "谋姜维·移动版",
+        "portraitKey": "mou-jiang-wei-mobile",
+        "additionalSkillIds": [
+          "mou-mobile:zhiji"
+        ],
+        "baseHp": 4,
+        "characterId": "character:jiang-wei",
+        "skillId": "mou-mobile:tiaoxin",
+        "gender": "Male",
+        "variantId": "mou-mobile"
+      }
+    }
+  ]
+}

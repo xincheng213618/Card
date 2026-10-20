@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"mou-ol:bojue":{"name":"搏决","description":"出牌阶段限两次，你可以与一名其他角色同时选择摸或弃置一张牌。若你与其的手牌数之和因此变化数为：0，你与其弃置对方一张牌；2，你与其视为对对方使用一张【杀】。","activationLabels":{"simultaneous-choice":"搏决"}}}}

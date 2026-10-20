@@ -1,0 +1,78 @@
+{
+  "generalId": "mou:jiang-wei-mobile",
+  "officialName": "谋·姜维",
+  "product": "三国杀移动版",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "maximumHp": 4,
+    "faction": "shu",
+    "initialArmor": 1,
+    "gameGeneralId": 692,
+    "initialHp": 4,
+    "gender": "Male",
+    "officialHeroId": 510
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-510.html",
+      "role": "current-hero",
+      "sha256": "E758FFAB58DC715288DE00A301592ADC4604D8C137033F8AF183835147FD4D08"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1521.html",
+      "role": "formal-current-revision",
+      "sha256": "842528B217007B2F1F7DD434D2C35309A8E0DBEF0EE2718E45392E2F4FA48364"
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1514.html",
+      "role": "first-release",
+      "sha256": "A9414CAE8849D4B9300891108C34228ED4B4C489DC3643DE593311A8C60F668A"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "fresh-official-identity-api",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27"
+    }
+  ],
+  "completeOfficialSkills": [
+    {
+      "name": "挑衅",
+      "text": "蓄力技（4/4），出牌阶段限一次，你可以至多选择X名其他角色（X为你拥有的蓄力点数量），令这些角色依次选择一项：1.对你使用一张无距离限制的【杀】；2.交给你一张牌。然后你每选择一名角色，减少1点蓄力点。弃牌阶段，你每弃置一张牌，获得1点蓄力点。",
+      "id": "mou-mobile:tiaoxin"
+    },
+    {
+      "name": "志继",
+      "text": "觉醒技，准备阶段，若你发动“挑衅”选择过至少4名角色，你减少1点体力值上限，令任意名角色直到你的下个回合开始时获得“北伐”标记。拥有“北伐”标记的角色使用牌只能选择你或其为目标。",
+      "id": "mou-mobile:zhiji"
+    }
+  ],
+  "release": {
+    "effective": "2023-05-17 11:00",
+    "firstAvailability": "2023-04-29",
+    "difference": "The complete skills are unchanged; the formal revision adds one initial armor. Current hero omits charge parenthesis; formal text explicitly supplies (4/4). Public-test rework descriptions are not adopted without a released replacement.",
+    "latestApplicableFormalRevisionPublished": "2023-05-16 16:08:24",
+    "firstAnnouncement": "2023-04-28 17:30:00"
+  },
+  "portrait": {
+    "sha256": "DAB8521D51A05DDDF7E5B8016477D176DE23EDB52B752734DBFB5231EEDE0027",
+    "visualInspection": "Root integration agent inspected the actual official image.",
+    "url": "https://www.sanguosha.cn/storage/uploads/images/69200.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-jiang-wei-mobile.jpg",
+    "bytes": 325735,
+    "height": 750,
+    "width": 530,
+    "actualDomSrc": "/storage/uploads/images/69200.jpg"
+  },
+  "engineeringInterpretations": [
+    "The awakening threshold counts selected-person occurrences over accepted Tiaoxin activations; the same character selected in different activations counts again. This is a project interpretation, not an official FAQ.",
+    "Up to X allows selecting zero, spending the actual Play activation but zero charge. Zhiji any number likewise permits zero and includes the owner.",
+    "Ordered recipients are frozen on confirmation. Charge remains observable until the sequence returns; selected points are reserved on the owning frame against nested double spending, then actually deducted once.",
+    "A requested Slash is a real native Use. Only its distance restriction is removed; other target/use prohibitions remain. Native requested-Slash quota accounting is retained. HE gifts move actual entities and drain all native movement, recovery and skill-change children.",
+    "Discard charge reads the execution actor and Discard phase frozen in the native logical-discard invoice, rather than current phase after child settlement. Charge cannot exceed four.",
+    "Awakening progress is permanent per owner and named skill; source loss and regrant do not refresh it. The actual maximum-HP decrease occurs before mark selection.",
+    "Each paid Beifa mark constrains its holder to target only itself or that mark issuer. Multiple issuers compose their individual restrictions. Marks survive source loss and expire at the issuer next actual TurnStarted, including an extra actual turn.",
+    "Issuing no mark does not postpone or refund the awakening. No additional recovery, draw or acquired skill is invented.",
+    "Beifa follows the native original-card target boundary: a Borrowed Sword attack victim is not a second original trick target. Actual faction-supplied Slash keeps its requester as the Use actor and its distinct real provider as the material owner, with native payment and typed completion unchanged."
+  ],
+  "behaviorCheck": "tests/CardGame.Core.Tests/MouJiangWeiMobileChecks.cs::RealRequestedSlashGiftChargeAwakeningAndBeifaCold"
+}

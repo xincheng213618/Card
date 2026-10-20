@@ -1,0 +1,76 @@
+{
+  "generalId": "mou:wen-chou-ol",
+  "officialName": "谋文丑",
+  "edition": "普通OL谋攻篇",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "faction": "qun",
+    "gender": "Male",
+    "maximumHp": 4,
+    "initialHp": 4,
+    "officialHeroGid": 681,
+    "apiInitialHpZero": "官网API的initial_hp=0为默认满体力哨兵；正式身份表为群、男、4体力，不实现为0体力。"
+  },
+  "currentPrimary": {
+    "url": "https://www.sanguosha.com/hero/681",
+    "skills": [
+      {
+        "name": "轮战",
+        "id": "mou-ol:lunzhan",
+        "text": "出牌阶段，你可将任意张牌当一张【决斗】使用（至多为5，且本回合不可重复）。若你以此法对唯一目标造成了伤害，你可摸X张牌，然后你本回合不能再对目标角色发动此技能（X为本回合你使用牌指定其为目标的次数）。"
+      },
+      {
+        "name": "决绝",
+        "id": "mou-ol:juejue",
+        "text": "锁定技，当你于回合内首次使用所有手牌（仅包含手牌）指定仅一名其他角色为目标时，令其弃置X张牌（X为本回合你使用牌指定其为目标的次数）。"
+      }
+    ]
+  },
+  "identityApi": "https://www.sanguosha.com/api/v1/hero/info?gid=681",
+  "formalFirstRelease": {
+    "url": "https://www.sanguosha.com/news/20250401_1851_3714",
+    "publishedAt": "2025-04-03 17:04:17",
+    "availableFrom": "2025-04-04 00:15:00",
+    "agreement": "轮战全文一致；首发决绝少当前官网括注“（仅包含手牌）”，按当前完整第一方正文实现。未找到加入括注的定日改版公告，不虚构改版日期。"
+  },
+  "revisionCheck": {
+    "scope": "有界官方域名现页、API、正式首发及调整/FAQ检索。",
+    "result": "当前完整两技一致；未找到对零材料、首次合格条件及目标计数另作完整定义的第一方FAQ。保留下面工程解释，不声称官方未发布任何其他材料。"
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/68100.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-wen-chou-ol.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1017059,
+    "sha256": "ed539016ba68d9f3f9c8a2c66b5af4080f0675f4d819b4a89b4f5b4cbdd4c47b",
+    "visuallyInspectedBy": "root"
+  },
+  "engineeringInterpretations": [
+    {
+      "topic": "任意张和实际回合",
+      "decision": "主代理按正文确定允许0至5张，数量指本次真实材料张数；每个数量在本人同一实际回合至多使用一次，含插入实际出牌阶段，失去和重授不重置。零材料决斗不凭空满足决绝的所有手牌条件。",
+      "authority": "项目工程解释，非用户裁定或官方FAQ。"
+    },
+    {
+      "topic": "真实用牌",
+      "decision": "使用标准本人HE材料和原生决斗、无懈、响应、额外合法目标、付款及完成回程，不给予正文没有的距离、次数或目标豁免。真实已发Use及支付后子结算保留原来源、实例、哈希和父帧凭据，不以单独伤害代替。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "轮战奖励",
+      "decision": "整次原Use及其子结算结束后，最终目标恰一名且本人实际对该目标造成伤害才提供奖励。可放弃；仅接受摸牌时冻结X并封住本回合后续对该目标发动轮战。X按本实际回合本人真实Use指定该目标的不同Use次数，含当前Use，不按伤害次数或材料张数。",
+      "authority": "项目工程解释，非官方FAQ。"
+    },
+    {
+      "topic": "决绝首次和所有手牌",
+      "decision": "第一次满足完整条件的真实Use才消耗本回合决绝机会，不是本回合简单第一张牌。付款前至少一张本人提供的真实Hand材料，全部实际手牌实体集合相等，且没有装备或私堆材料；唯一定其他角色为目标。目标按原生规则自己选择可弃HE，不足则处理其实际可弃牌。",
+      "authority": "项目工程解释，非用户裁定或官方FAQ。"
+    }
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouWenChouOlChecks.cs",
+    "method": "NativeCountsAndFirstAllHand",
+    "filter": "Mou Wen Chou OL: native counts and first all-Hand"
+  }
+}

@@ -5369,7 +5369,7 @@ public sealed partial class GameEngine
             playedCardKind: pending.EffectCardKind,
             physicalCards: GetCardUsePhysicalCards(pending.ParentFrameId),
             damageAmount: PrepareDamageTargetDuelDamage(pending.ParentFrameId, targetSeat),
-            programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId ?? obtainOrigin?.ParentProgramFrameId ?? dualColorOrigin?.ParentProgramFrameId ?? conditionalOrigin?.ParentProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.FriendRecastDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.ZhenyingDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.HeJinMouzhu?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.WuAnGuoLiyong?.ProgramFrameId ?? WuJingHejiProgramParent(pending.ParentFrameId) ?? JueshengDuelProgramParent(pending.ParentFrameId) ?? MouXuHuangDuelProgramParent(pending.ParentFrameId));
+            programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId ?? obtainOrigin?.ParentProgramFrameId ?? dualColorOrigin?.ParentProgramFrameId ?? conditionalOrigin?.ParentProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.FriendRecastDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.ZhenyingDuel?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.HeJinMouzhu?.ProgramFrameId ?? LifecycleCardUse(pending.ParentFrameId)?.WuAnGuoLiyong?.ProgramFrameId ?? WuJingHejiProgramParent(pending.ParentFrameId) ?? JueshengDuelProgramParent(pending.ParentFrameId) ?? MouXuHuangDuelProgramParent(pending.ParentFrameId) ?? MouWenChouDuelProgramParent(pending.ParentFrameId));
         ActiveCardAttack = attack;
         var duel = new DuelHandle(this, attack);
         ActiveDuel = duel;
@@ -9940,7 +9940,7 @@ public sealed partial class GameEngine
         var frameId = pending.ProgramSkillFrameId ??
             throw new InvalidOperationException("A faction-card request has no program-skill frame.");
         if (pending.IsAssistedProgramUse)
-        { if(FinishQigongFactionDeclined(frameId,pending)) return; if(FinishCaoChunFactionDeclined(frameId,pending)) return; if(FinishWuJingFactionDeclined(frameId,pending)) return; CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "declined", pending.OwnerSeat, "没有角色提供【杀】。"); }
+        { if(FinishQigongFactionDeclined(frameId,pending)) return; if(FinishCaoChunFactionDeclined(frameId,pending)) return; if(FinishMouJwFactionDeclined(frameId,pending)) return; if(FinishWuJingFactionDeclined(frameId,pending)) return; CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "declined", pending.OwnerSeat, "没有角色提供【杀】。"); }
         AdvanceRuntimeProgram(frameId);
         _status = EngineStatus.Running;
     }
@@ -10151,7 +10151,7 @@ public sealed partial class GameEngine
                 PrepareSayingSuppliedSlash(frame, owner.Seat, provider.Seat, target.Seat, effectiveKind, physicalCards, actualConversion);
             else if (IsChanshuangSlashRequest(frame))
                 PrepareChanshuangSuppliedSlash(frame, owner.Seat, provider.Seat, target.Seat, effectiveKind, physicalCards, conversionSource);
-            else if(!PrepareQigongFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareCaoChunFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareWuJingFactionNative(frame,pending,provider,physicalCards,effectiveKind)) CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "used-slash", owner.Seat, "通过势力响应使用【杀】。");
+            else if(!PrepareMouJwFactionNative(frame, pending, provider, physicalCards, effectiveKind, actualConversion) && !PrepareQigongFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareCaoChunFactionNative(frame,pending,provider,physicalCards,effectiveKind) && !PrepareWuJingFactionNative(frame,pending,provider,physicalCards,effectiveKind)) CommitProgramChoiceResult(frameId, pending.AssistedResultBind!, "used-slash", owner.Seat, "通过势力响应使用【杀】。");
             AdvanceEventRulesAndQueueFact(new FactionSlashResolvedEvent(pending.ResolutionId, owner.Seat,
                 Succeeded: true, provider.Seat, selectedSlash.Id, effectiveKind, IsActiveUse: true, target.Seat));
         }
@@ -14098,7 +14098,7 @@ public sealed partial class GameEngine
                 effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
         if (actionContext is not null) actionContext = PrepareHuanpeiAction(PrepareZonghuAction(PrepareWeijieAction(actionContext, weijieOrigin), zonghuOrigin), huanpeiOrigin);
         if (actionContext is not null) actionContext = PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext))));
-        if (actionContext is not null) actionContext = PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareDiouAction(actionContext)));
+        if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareDiouAction(actionContext))));
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
         if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
@@ -14592,7 +14592,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor))
         {
             return actions;
         }
@@ -14628,7 +14628,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -19535,7 +19535,7 @@ public sealed partial class GameEngine
         if (IsRoundOnceCardlessProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsWeijieProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsZonghuProgramRequestAttackConsistent(attack, processing)) return true;
-        if (IsMouXuHuangDuelAttackConsistent(attack, processing) || IsMouLiuChengAttackConsistent(attack, processing) || IsDiouAttackConsistent(attack, processing) || IsHuanpeiAttackConsistent(attack, processing)) return true;
+        if (IsMouWenChouDuelAttackConsistent(attack, processing) || IsMouXuHuangDuelAttackConsistent(attack, processing) || IsMouLiuChengAttackConsistent(attack, processing) || IsDiouAttackConsistent(attack, processing) || IsHuanpeiAttackConsistent(attack, processing)) return true;
         if (IsSoleTargetQuarantinedAttackConsistent(attack, processing)) return true;
         if (IsAHuiNanJuemanAttackConsistent(attack, processing) || IsQinLangXianyingAttackConsistent(attack, processing) || IsQinLangXianyingBorrowedAttackConsistent(attack, processing) || IsTianChouShandaoAttackConsistent(attack, processing) || IsChosenAssaultAttackConsistent(attack, processing) || IsMouZhijueZeroAttackConsistent(attack, processing) || IsMouZhijueBorrowedAttackConsistent(attack, processing) || IsPaidZeroMaterialAttackConsistent(attack, processing) || IsTieredRoundZeroBorrowedAttackConsistent(attack, processing)) return true;
         if (IsChainedStateBasicAttackConsistent(attack, processing)) return true;

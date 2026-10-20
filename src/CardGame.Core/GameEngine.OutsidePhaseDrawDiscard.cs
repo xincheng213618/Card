@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         { get => _ordinalEntitlements; init => _ordinalEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     }
     private bool TracksNativeDrawInvocations =>
+        _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeDrawInvocation) ||
         TracksNativeDrawOrdinals ||
         _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||

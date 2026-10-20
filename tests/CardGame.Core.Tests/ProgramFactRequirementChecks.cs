@@ -35,6 +35,13 @@ internal static class ProgramFactRequirementChecks
                 !empty.TracksWholeActualTurnUseOrdinal && !empty.TracksCurrentTurnUseKinds,
             "A triggered whole-use declaration demand enables the existing native ledger, while another entry source or catalog remains isolated.");
 
+        var passive = new SkillProgramDependencies([new ContentSkillDefinition("mou-ol:yangwei", "扬威", "Passive native facts")]);
+        var unrelatedPassive = new SkillProgramDependencies([new ContentSkillDefinition("fixture:unrelated-yangwei", "扬威", "No registered demand")]);
+        Require(passive.RequiredFacts == (ProgramTrackedFact.NativeDrawInvocation | ProgramTrackedFact.NativeLogicalDiscard |
+                    ProgramTrackedFact.ActualDiscardRecoveryPhase) && unrelatedPassive.RequiredFacts == ProgramTrackedFact.None &&
+                empty.RequiredFacts == ProgramTrackedFact.None,
+            "A loaded passive skill has its own native fact demand without an operation, while another identity or catalog stays isolated.");
+
         var combined = Dependencies(triggerOnly, activationOnly, phaseOnly);
         Require(combined.RequiredFacts == Dependencies(activationOnly).RequiredFacts &&
                 empty.RequiredFacts == ProgramTrackedFact.None,
@@ -54,8 +61,8 @@ internal static class ProgramFactRequirementChecks
 
         foreach (var invalid in new[]
                  {
-                     new ProgramFactRequirements(Triggered: (ProgramTrackedFact)16),
-                     new ProgramFactRequirements(Activated: (ProgramTrackedFact)32)
+                     new ProgramFactRequirements(Triggered: (ProgramTrackedFact)32),
+                     new ProgramFactRequirements(Activated: (ProgramTrackedFact)64)
                  })
         {
             var rejected = false;
