@@ -191,22 +191,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private void AdvanceProgramJudgmentCandidate(ProgramJudgmentTriggerWindowFrame frame)
-    {
-        var candidate = frame.Candidates[frame.CandidateIndex];
-        AdvanceEventRulesAndQueueFact(new ProgramJudgmentTriggerResolvedEvent(
-            frame.Id,
-            frame.Judgment.JudgmentFrameId,
-            candidate.SkillId,
-            candidate.TriggerId,
-            candidate.OwnerSeat,
-            frame.Activated));
-        ReplaceRuntimeTop(frame with
-        {
-            CandidateIndex = frame.CandidateIndex + 1,
-            Activated = false
-        });
-    }
+    private void AdvanceProgramJudgmentCandidate(ProgramJudgmentTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceProgramJudgmentCandidate(frame);
 
     private void ExposeProgramJudgmentPrompt(
         ProgramJudgmentTriggerWindowFrame frame,

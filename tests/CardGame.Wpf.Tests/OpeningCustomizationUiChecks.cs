@@ -84,7 +84,13 @@ internal static class OpeningCustomizationUiChecks
             Program.Assert(((ItemsControl)window.FindName("IdentityOverrideChoices")).Items.Count == 5,
                 "The identity reveal panel exposes random and all four explicit identities.");
             var roleButtons = Program.Find<Button>((ItemsControl)window.FindName("IdentityOverrideChoices")).ToArray();
-            Press(roleButtons.Single(button => ((StartingRoleOption)button.DataContext).Role == Role.Rebel), Key.Enter);
+            TableShortcutChecks.WithControl(() =>
+            {
+                Press(roleButtons.Single(button => ((StartingRoleOption)button.DataContext).Role == Role.Rebel), Key.Enter);
+                Program.Assert(Keyboard.Modifiers == ModifierKeys.Control,
+                    "An unmodified setup route must restore its inherited calling-thread modifier after activating the real button.");
+                return true;
+            });
             Program.Assert(vm.IsIdentityRevealOpen && Program.Engine(vm).CreateSnapshot(0).Players[0].Role == Role.Rebel,
                 "Enter on the actual identity button changes the role without leaving its reveal panel.");
             var previousIdentityGame = Program.Engine(vm);
@@ -322,7 +328,7 @@ internal static class OpeningCustomizationUiChecks
             element.Focus();
             Program.Assert(ReferenceEquals(Keyboard.FocusedElement, element),
                 "The hidden native host must focus the real setup control. " + Diagnose(null));
-            return modifiers == ModifierKeys.None ? Route() : TableShortcutChecks.WithModifiers(modifiers, Route);
+            return TableShortcutChecks.WithModifiers(modifiers, Route);
 
             bool Route()
             {

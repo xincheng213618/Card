@@ -1,4 +1,5 @@
 using System.Reflection;
+using CardGame.Content.Standard;
 using CardGame.Core;
 
 internal static class ProgramRuntimeModuleChecks
@@ -37,6 +38,52 @@ internal static class ProgramRuntimeModuleChecks
         Reject(() => new ProgramRuntimeModuleCatalog([typeof(MutableStaticModule)]));
         Reject(() => first.Get(typeof(StatelessModule)));
         Reject(() => new ProgramRuntimeModuleRegistry(catalog, _ => new object()).Get(typeof(FixtureModule)));
+        CheckMechanismBindingsAndFramePrimitives();
+    }
+
+    private static void CheckMechanismBindingsAndFramePrimitives()
+    {
+        var content = StandardContentRegistry.Create();
+        var first = GameEngine.CreateStandard(new GameOptions { Seed = 7 }, content);
+        var second = GameEngine.CreateStandard(new GameOptions { Seed = 7 }, content);
+        var metadata = ProgramRuntimeModuleCatalog.Default;
+        foreach (var registration in metadata.Registrations.Where(item => !item.Type.IsAbstract))
+        {
+            var instance = first.GetRuntimeModuleInstance(registration.Type);
+            Require(ReferenceEquals(instance, first.GetRuntimeModuleInstance(registration.Type)) &&
+                    !ReferenceEquals(instance, second.GetRuntimeModuleInstance(registration.Type)),
+                "Stateful mechanism runtimes must bind once per match, including modules used only by compatibility bridges.");
+            Require(registration.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                    .All(field => field.FieldType.IsInterface &&
+                        (typeof(IProgramSelectionQuery).IsAssignableFrom(field.FieldType) ||
+                         typeof(IProgramRuntimeOperations).IsAssignableFrom(field.FieldType))),
+                "Production runtimes retain only narrow ports; paid cursors and mutable stores remain outside their instances.");
+        }
+        var capabilities = new ProgramCapabilityCatalog(typeof(GameEngine).GetNestedTypes(BindingFlags.NonPublic)
+            .Concat(metadata.Registrations.Select(item => item.Type)));
+        var adapters = new ProgramCapabilityRegistry(first, capabilities);
+        Require(ReferenceEquals(adapters.Get<IProgramWindowCursors>(), first.GetRuntimeModule<ProgramWindowCursorRuntime>()),
+            "Native returns and ordinary window dispatch must share the same cursor runtime instance.");
+        var returnMethod = typeof(ProgramWindowReturnRuntime).GetMethod("ReturnDrawPhaseEndedProgramWindow",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        Require(ReferenceEquals(first.BindRuntimeHandler(returnMethod, typeof(Action<ProgramSkillFrame, bool>)).Target,
+                first.GetRuntimeModule<ProgramWindowReturnRuntime>()),
+            "Registered window returns bind to the same runtime used by compatibility entry points.");
+
+        var frames = adapters.Get<IProgramRuntimeFrames>();
+        var original = frames.Top;
+        var frame = new ProgramSkillFrame(41, 0, "fixture:runtime", "run", "hash", 0, [], [])
+        {
+            NativeDraw = new NativeDrawProducerReceipt(1, 1, null, SkillProgramCardSetVisibility.Private,
+                new CardMoveReason("fixture.runtime")) { Recipients = [0] }
+        };
+        frames.Push(frame);
+        Reject(() => frames.ReplaceTop(frame with { Id = 42 }));
+        Reject(() => frames.Pop(frame.Id, frame.Kind));
+        Require(ReferenceEquals(frames.Top, frame), "A rejected transition cannot retire or change an unconsumed paid producer.");
+        frames.ReplaceTop(frame with { NativeDraw = null });
+        frames.Pop(frame.Id, frame.Kind);
+        Require(ReferenceEquals(frames.Top, original), "Consuming the original receipt restores the original parent exactly once.");
     }
 
     private interface IFacts : IProgramSelectionQuery { int Value { get; } }

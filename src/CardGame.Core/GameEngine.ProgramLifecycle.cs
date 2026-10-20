@@ -3377,17 +3377,8 @@ public sealed partial class GameEngine
         AdvanceTurnEndingBoundaryCursor(frame);
     }
 
-    private void AdvanceTurnEndingBoundaryCursor(TurnEndingBoundaryFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() is not TurnEndingBoundaryFrame current ||
-            current.Id != frame.Id || current.ItemIndex != frame.ItemIndex)
-            throw new InvalidOperationException("The turn-ending item cursor is no longer current.");
-        ReplaceRuntimeTop(current with
-        {
-            ItemIndex = current.ItemIndex + 1,
-            Step = ResolutionFrameStep.ResolvingEffect
-        });
-    }
+    private void AdvanceTurnEndingBoundaryCursor(TurnEndingBoundaryFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceTurnEndingBoundaryCursor(frame);
 
     private bool TryBeginPlayPhaseStartingBoundary(CharacterState owner)
     {
@@ -3457,17 +3448,8 @@ public sealed partial class GameEngine
         AdvancePlayPhaseStartingCursor(frame);
     }
 
-    private void AdvancePlayPhaseStartingCursor(PlayPhaseStartingBoundaryFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() is not PlayPhaseStartingBoundaryFrame current ||
-            current.Id != frame.Id || current.ItemIndex != frame.ItemIndex)
-            throw new InvalidOperationException("The play-phase-starting item cursor is no longer current.");
-        ReplaceRuntimeTop(current with
-        {
-            ItemIndex = current.ItemIndex + 1,
-            Step = ResolutionFrameStep.ResolvingEffect
-        });
-    }
+    private void AdvancePlayPhaseStartingCursor(PlayPhaseStartingBoundaryFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvancePlayPhaseStartingCursor(frame);
 
     private void ContinueProgramLifecycleWindowCore() =>
         ProgramTriggerWindowDriver.Run(new LifecycleTriggerWindowHost(this));
@@ -3617,13 +3599,8 @@ public sealed partial class GameEngine
         AdvanceProgramLifecycleCursor(frame);
     }
 
-    private void AdvanceProgramLifecycleCursor(ProgramLifecycleTriggerWindowFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame current ||
-            current.Id != frame.Id || current.CandidateIndex != frame.CandidateIndex)
-            throw new InvalidOperationException("The lifecycle trigger cursor is no longer current.");
-        ReplaceRuntimeTop(current with { CandidateIndex = current.CandidateIndex + 1 });
-    }
+    private void AdvanceProgramLifecycleCursor(ProgramLifecycleTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceProgramLifecycleCursor(frame);
 
     private IReadOnlyList<ProgramTriggerCandidate> GetProgramTriggerChoiceGroup(
         ProgramLifecycleTriggerWindowFrame frame,

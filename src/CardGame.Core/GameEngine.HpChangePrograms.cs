@@ -300,10 +300,6 @@ public sealed partial class GameEngine
         AdvanceHpChangedProgramCursor(frame);
     }
 
-    private void AdvanceHpChangedProgramCursor(HpChangedTriggerWindowFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() != frame)
-            throw new InvalidOperationException("The HP-change trigger cursor is no longer current.");
-        ReplaceRuntimeTop(frame with { CandidateIndex = frame.CandidateIndex + 1, Step = ResolutionFrameStep.ResolvingEffect });
-    }
+    private void AdvanceHpChangedProgramCursor(HpChangedTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceHpChangedProgramCursor(frame);
 }

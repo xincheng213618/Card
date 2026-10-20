@@ -899,15 +899,6 @@ public sealed partial class GameEngine
         AdvanceCardsMovedProgramCursor(frame);
     }
 
-    private void AdvanceCardsMovedProgramCursor(CardsMovedTriggerWindowFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() is not CardsMovedTriggerWindowFrame current ||
-            current.Id != frame.Id || current.CandidateIndex != frame.CandidateIndex)
-            throw new InvalidOperationException("The cards-moved trigger cursor is no longer current.");
-        ReplaceRuntimeTop(current with
-        {
-            CandidateIndex = current.CandidateIndex + 1,
-            Step = ResolutionFrameStep.ResolvingEffect
-        });
-    }
+    private void AdvanceCardsMovedProgramCursor(CardsMovedTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceCardsMovedProgramCursor(frame);
 }

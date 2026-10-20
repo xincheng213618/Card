@@ -202,27 +202,8 @@ public sealed partial class GameEngine
     private void AdvanceBeforeDamageProgramCandidate(
         BeforeDamageProgramWindowFrame frame,
         bool activated,
-        bool completed)
-    {
-        if (_resolutionStack.LastOrDefault() is not BeforeDamageProgramWindowFrame current ||
-            current.Id != frame.Id || current.CandidateIndex != frame.CandidateIndex)
-            throw new InvalidOperationException("The before-damage program cursor is no longer current.");
-        var candidate = current.Candidates[current.CandidateIndex].Candidate;
-        AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-            current.Id,
-            candidate.SkillId,
-            candidate.BindingId,
-            candidate.SkillInstanceId,
-            candidate.OwnerSeat,
-            SkillProgramTriggerWindow.BeforeDamageApplied,
-            activated,
-            completed));
-        ReplaceRuntimeTop(current with
-        {
-            CandidateIndex = current.CandidateIndex + 1,
-            Step = ResolutionFrameStep.ResolvingEffect
-        });
-    }
+        bool completed) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceBeforeDamageProgramCandidate(frame, activated, completed);
 
     private void PreventProgramCurrentDamage(ProgramSkillFrame program)
     {

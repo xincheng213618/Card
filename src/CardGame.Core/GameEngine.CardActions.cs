@@ -717,17 +717,8 @@ public sealed partial class GameEngine
         BeginSlashTargetResolution(attack);
     }
 
-    private void AdvanceProgramCardCandidate(ProgramCardTriggerWindowFrame frame)
-    {
-        var candidate = frame.Candidates[frame.CandidateIndex];
-        AdvanceEventRulesAndQueueFact(new ProgramCardTriggerResolvedEvent(frame.Id, candidate.SkillId, candidate.TriggerId,
-            candidate.OwnerSeat, candidate.OpponentSeat, frame.Activated));
-        ReplaceRuntimeTop(frame with
-        {
-            CandidateIndex = frame.CandidateIndex + 1,
-            Activated = false
-        });
-    }
+    private void AdvanceProgramCardCandidate(ProgramCardTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceProgramCardCandidate(frame);
 
     // Legacy validation for a saved completed-card prompt. True Qinglong
     // insertions keep the original use unfinished and cannot enter this ride.

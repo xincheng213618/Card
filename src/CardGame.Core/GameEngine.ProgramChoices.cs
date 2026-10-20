@@ -3,129 +3,20 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private SkillProgramStepOutcome ChooseProgramOption(ProgramSkillFrame frame, int chooserSeat,
-        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options)
-    {
-        var active = GetActiveProgramFrame(frame.Id);
-        if (active.ChoiceBindings.Any(binding => binding.Name == resultBind))
-            throw new InvalidOperationException("A named program choice cannot be answered twice.");
-        var chooser = _players[chooserSeat];
-        var choices = options.Where(option => IsProgramOptionAvailable(active, chooserSeat, option)).Select(option =>
-            new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
-                option.Label, [], [], new Dictionary<string, string>
-                {
-                    ["program-action"] = "choose-option",
-                    ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    ["result-bind"] = resultBind,
-                    ["option-id"] = option.Id
-                })).ToArray();
-        if (!chooser.IsAlive || choices.Length == 0)
-        {
-            CancelProgramBindingAndCleanup(active, "没有可用的效果选项，技能剩余步骤取消。");
-            return SkillProgramStepOutcome.AwaitChild;
-        }
-        var skill = _contentRegistry!.GetSkill(frame.SkillId);
-        _pendingDecision = new PendingDecision(DecisionKind.ProgramTrigger, chooserSeat,
-            $"【{skill.Name}】请选择一项。", [], [], frame.OwnerSeat)
-        {
-            PromptId = CreatePromptId(),
-            IsPrivate = true,
-            TargetSeat = chooserSeat,
-            SkillPrompt = new SkillPromptPresentation(frame.SkillId, skill.Name,
-                $"{skill.Name} · 选择效果", skill.Description),
-            Choices = Array.AsReadOnly(choices)
-        };
-        _status = chooser.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
-        return SkillProgramStepOutcome.AwaitChoice;
-    }
+        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
+        GetRuntimeModule<ProgramPaidCardRuntime>().ChooseProgramOption(frame, chooserSeat, resultBind, options);
 
-    [ProgramAnswer("choose-option")]
-    private void ResolveProgramOptionChoice(PromptChoice selected)
-    {
-        var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
-            throw new InvalidOperationException("The named choice lost its program frame.");
-        var effect = ProgramInstructionResolver.Default.Resolve(frame,
-            _contentRegistry!.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
-        var chooserSeat = effect.ChooserRef is { } chooser
-            ? ResolveProgramParticipant(frame, chooser)
-            : ResolveProgramEffectTarget(frame, effect.Target);
-        if (effect.Op != SkillProgramEffectOp.ChooseOption ||
-            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
-            decision.PlayerSeat != chooserSeat || selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
-            selected.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
-            selected.Parameters.GetValueOrDefault("result-bind") != effect.ResultBind ||
-            frame.ChoiceBindings.Any(binding => binding.Name == effect.ResultBind))
-            throw new InvalidOperationException("The choice does not match its suspended instruction.");
-        var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id")) ??
-            throw new InvalidOperationException("The selected program option is unavailable.");
-        var stillAvailable = IsProgramOptionAvailable(frame, chooserSeat, option);
-        if (!stillAvailable && option.RequiredTargetKind is not null)
-            throw new InvalidOperationException("The selected option's required targets are no longer available.");
-        if (!stillAvailable && (option.Condition.ContainsHasClaimableDamageCards() ||
-            option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory() ||
-            option.Condition.ContainsBoundCardsMatchCategories()))
-            throw new InvalidOperationException("The selected option's required cards are no longer available.");
-        ClearPendingDecision();
-        if (!_players[chooserSeat].IsAlive || !stillAvailable ||
-            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
-        {
-            CancelProgramBindingAndCleanup(frame, "效果选项或技能实例已失效，技能剩余步骤取消。");
-            return;
-        }
-        ReplaceRuntimeTop(frame with
-        {
-            ChoiceBindings = Array.AsReadOnly(frame.ChoiceBindings.Append(
-                new ProgramChoiceResultBinding(effect.ResultBind!, option.Id, chooserSeat)).ToArray())
-        });
-        AdvanceEventRulesAndQueueFact(new ProgramOptionChosenEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame),
-            frame.OwnerSeat, effect.ResultBind!, option.Id, chooserSeat, option.Label));
-        AdvanceRuntimeProgram(frame.Id);
-    }
+    private void ResolveProgramOptionChoice(PromptChoice selected) =>
+        GetRuntimeModule<ProgramPaidCardRuntime>().ResolveProgramOptionChoice(selected);
 
-    private bool IsClaimableProgramOptionStillAvailable(PromptChoice selected)
-    {
-        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame)
-            return true;
-        var effect = ProgramInstructionResolver.Default.Resolve(frame,
-            _contentRegistry!.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
-        if (effect.Op != SkillProgramEffectOp.ChooseOption)
-            return true;
-        var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id"));
-        if (option is null) return true;
-        if (option.RequiredTargetKind is null && !option.Condition.ContainsHasClaimableDamageCards() &&
-            !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory() &&
-            !option.Condition.ContainsBoundCardsMatchCategories()) return true;
-        var chooserSeat = effect.ChooserRef is { } chooser
-            ? ResolveProgramParticipant(frame, chooser)
-            : ResolveProgramEffectTarget(frame, effect.Target);
-        return IsProgramOptionAvailable(frame, chooserSeat, option);
-    }
+    private bool IsClaimableProgramOptionStillAvailable(PromptChoice selected) =>
+        GetRuntimeModule<ProgramPaidCardRuntime>().IsClaimableProgramOptionStillAvailable(selected);
 
     private bool IsProgramOptionAvailable(ProgramSkillFrame frame, int chooserSeat, SkillProgramChoiceOption option) =>
-        (option.RequiredTargetKind is not { } requiredTargetKind ||
-         chooserSeat == frame.OwnerSeat && GetProgramTargetSeats(chooserSeat, requiredTargetKind, frame.WindowContext)
-             .Any(seat => CanSelectProgramPindianOpponent(frame, seat))) &&
-        option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
-            () => GetClaimableProgramDamageCards(frame).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
-            hasOwnedCardCategory: (zones, categories, kinds) =>
-                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
-            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
-            activationCardCount: frame.SelectedCardIds.Count,
-            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
-            boundCardsMatchCategories: (bind, categories) =>
-                DoProgramBoundCardsMatchCategories(frame, bind, categories));
+        GetRuntimeModule<ProgramPaidCardRuntime>().IsProgramOptionAvailable(frame, chooserSeat, option);
 
-    private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
-    {
-        var cards = GetProgramCardSet(frame, bind);
-        if (cards.CardIds.Count != cards.SourceLocations.Count ||
-            cards.SourceLocations.Any(location => location.OwnerSeat != chooserSeat ||
-                location.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
-            throw new InvalidOperationException("A chooser cannot inspect another player's private card set.");
-        return cards.CardIds.Select((id, index) => (id, index))
-            .Count(item => _cardZones.GetLocation(item.id) == cards.SourceLocations[item.index]);
-    }
+    private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat) =>
+        GetRuntimeModule<ProgramPaidCardRuntime>().CountChooserProgramBoundCards(frame, bind, chooserSeat);
 
     private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramChoices.ResolveProgramEffectTarget(frame,target);
@@ -172,16 +63,6 @@ public sealed partial class GameEngine
         }).OrderByDescending(item => item.Score).ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First().Choice;
     }
 
-    private int? TryCountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
-    {
-        var cards = frame.CardSetBindings.SingleOrDefault(item => item.Name == bind);
-        if (cards is { Visibility: SkillProgramCardSetVisibility.Public })
-            return cards.CardIds.Count(cardId =>
-                _cardZones.GetLocation(cardId) is
-                { OwnerSeat: var seat, Zone: CardZoneKind.Hand or CardZoneKind.Equipment } &&
-                seat == chooserSeat);
-        return cards is not null && cards.SourceLocations.All(location => location.OwnerSeat == chooserSeat &&
-            location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment)
-            ? CountChooserProgramBoundCards(frame, bind, chooserSeat) : null;
-    }
+    private int? TryCountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat) =>
+        GetRuntimeModule<ProgramPaidCardRuntime>().TryCountChooserProgramBoundCards(frame, bind, chooserSeat);
 }

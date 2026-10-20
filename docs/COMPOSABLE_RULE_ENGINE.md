@@ -50,7 +50,13 @@
 
 技能 Runtime 已支持同程序集独立类型，通过 `[ProgramRuntimeModule]` 显式登记，与原引擎入口共用阶段、顺序和签名校验。纯计算规则已批量迁出，部分目标、人口、距离和历史算法使用只读查询独立执行，原 `GameEngine` 小桥保留兼容调用点。实例构造只保存继承 `IProgramSelectionQuery` 的窄查询或继承 `IProgramRuntimeOperations` 的窄操作依赖，不查询尚未初始化的引擎事实；查询和效果仍在原调用位置发生。
 
-复杂状态推进和专属续接仍有实现保留在引擎中，不能把独立类型注册等同于全部 Runtime 迁移完成。待决选择、已付费用及继续游标保持在原所属帧，实例与绑定委托不进入存档，也不持有另一套支付状态。迁移按依赖分组批量完成，复用已有代表行为和共享机制检查，整批统一验证，不增加逐技能测试或检查流程。边界与后续工作见 [Runtime 独立类型迁移评估](CHARACTER_MODULES.md#runtime-独立类型迁移评估)。
+共享复杂机制由独立 Runtime 编排：`ProgramPaidCardRuntime` 负责选择提交、动态支付重验与移牌后续接；`NativeDrawProducerRuntime` 和 `NativeDrawAttemptRuntime` 负责摸牌生产、实际请求、替代及类型化返回；`HealthContinuationRuntime` 负责回复应用回执和已付回复、体力变化、濒死子树的续接证明；`ProgramWindowReturnRuntime` 和 `ProgramWindowCursorRuntime` 负责窗口返回和候选游标。它们通过帧、事件、提示、窗口游标及机制专用窄口访问原生原语，保留原短路、事实读取、实体移动、完成事件和父帧推进的先后时机。
+
+复用现有选择、弃牌、移牌和 Draw DSL 的普通武将自动经过这些机制，无须自行增加付款侧车、NativeDraw 恢复循环或中央返回名单。专用操作可以沿用 `BeginOperationProgramDraw` 发起摸牌，通过实现旁的 `[ProgramNativeDrawReturn]` 接回原操作阶段；新的独立模块窗口返回使用 `[ProgramWindowReturn]` 就近注册。旧 `GameEngine` 桥兼容正在开发的批次，不要求在制人物同步重写；后续独立 Runtime 使用对应的事实与操作窄接口。
+
+待决选择、已付费用、摸牌与窗口游标及子结算收据保持在原所属帧，实例与绑定委托不进入存档，也不持有另一套支付状态。恢复仍以原帧和原生凭据决定后续步骤，不再次支付已经完成的费用。迁移按共享机制和依赖分组批量完成，复用已有代表行为和共享机制检查，整批统一验证，不增加逐技能测试或检查流程。
+
+新的 DSL 或 opcode、新的原生帧路由仍需要共享 Core 接线；既有原生攻击和健康邻接协议也仍有实现保留在 `GameEngine`，复杂状态推进和专属续接尚未全部迁完。边界与后续工作见 [Runtime 独立类型迁移评估](CHARACTER_MODULES.md#runtime-独立类型迁移评估)。
 
 ## 内容与回放契约
 

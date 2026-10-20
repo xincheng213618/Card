@@ -219,13 +219,8 @@ public sealed partial class GameEngine
         AdvanceOwnerDiedProgramCursor(current);
     }
 
-    private void AdvanceOwnerDiedProgramCursor(ProgramDeathTriggerWindowFrame frame)
-    {
-        if (_resolutionStack.LastOrDefault() is not ProgramDeathTriggerWindowFrame current ||
-            current.Id != frame.Id)
-            throw new InvalidOperationException("The owner-death program cursor is not active.");
-        ReplaceRuntimeTop(current with { CandidateIndex = current.CandidateIndex + 1 });
-    }
+    private void AdvanceOwnerDiedProgramCursor(ProgramDeathTriggerWindowFrame frame) =>
+        GetRuntimeModule<ProgramWindowCursorRuntime>().AdvanceOwnerDiedProgramCursor(frame);
 
     private void AssertOwnerDiedProgramInvariant()
     {

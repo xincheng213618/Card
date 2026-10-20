@@ -191,17 +191,25 @@ internal static class TableShortcutChecks
     {
         var (aggregateKey, leftKey, rightKey) = modifiers switch
         {
+            ModifierKeys.None => (0, 0, 0),
             ModifierKeys.Control => (0x11, 0xA2, 0xA3), // VK_CONTROL, VK_LCONTROL, VK_RCONTROL
             ModifierKeys.Shift => (0x10, 0xA0, 0xA1), // VK_SHIFT, VK_LSHIFT, VK_RSHIFT
             _ => throw new ArgumentOutOfRangeException(nameof(modifiers))
         };
         var original = new byte[256];
-        Program.Assert(GetKeyboardState(original) && Keyboard.Modifiers == ModifierKeys.None,
-            "A modifier route must begin with the test thread's original unmodified keyboard state.");
+        Program.Assert(GetKeyboardState(original), "A modifier route must preserve the test thread's original keyboard state.");
+        var originalModifiers = Keyboard.Modifiers;
         var modified = (byte[])original.Clone();
-        modified[aggregateKey] |= 0x80;
-        modified[leftKey] |= 0x80;
-        modified[rightKey] &= 0x7F;
+        // Native focus can inherit a user's held modifier. Define this route's
+        // input explicitly, including None, without changing global input.
+        foreach (var key in new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5 })
+            modified[key] &= 0x7F;
+        if (modifiers != ModifierKeys.None)
+        {
+            modified[aggregateKey] |= 0x80;
+            modified[leftKey] |= 0x80;
+            modified[rightKey] &= 0x7F;
+        }
         try
         {
             Program.Assert(SetKeyboardState(modified) && Keyboard.Modifiers == modifiers,
@@ -212,7 +220,7 @@ internal static class TableShortcutChecks
         {
             Program.Assert(SetKeyboardState(original), "The modifier route must restore its original calling-thread keyboard state.");
             var restored = new byte[256];
-            Program.Assert(GetKeyboardState(restored) && restored.SequenceEqual(original) && Keyboard.Modifiers == ModifierKeys.None,
+            Program.Assert(GetKeyboardState(restored) && restored.SequenceEqual(original) && Keyboard.Modifiers == originalModifiers,
                 "All 256 original keyboard bytes and WPF modifiers must be restored even when a routed assertion fails.");
         }
     }
