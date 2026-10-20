@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 20)]
+    private bool OriginalTargetAdditionFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition);
+
+
     private readonly List<OriginalTargetAdditionGrant> _originalTargetAdditionGrants = [];
 
     private void GrantOriginalTargetAddition(ProgramSkillFrame frame, int targetSeat)

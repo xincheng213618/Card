@@ -75,6 +75,11 @@ public sealed partial record CardMovementBatchContext
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetRule(ProgramTargetRulePoint.DirectedProhibition, 20)]
+    [ProgramTargetRule(ProgramTargetRulePoint.DeclaredGlobalProhibition, 10)]
+    private bool NianDongmianDirectedTargetProhibited(ProgramDirectedTargetQuery query) =>
+        NianDongmianForbidsTarget(query.ActorSeat, query.TargetSeat);
+
     [ProgramCapability]
     private sealed class NianActivityProgramHost(GameEngine engine) : INianActivityProgramHost
     {
@@ -191,6 +196,7 @@ public sealed partial class GameEngine
 
     private bool NianDongmianForbidsTarget(int actor, int target) => actor != target && _roundNumber == 1 &&
         _players[target].HasHpValue && _players[target].Hp <= 6 && NianEnabled(_players[target], "nian:dongmian");
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseLimitExemption, 10)]
     private bool NianShouyiUnlimitedCardDistance(CharacterState player) => NianEnabled(player, "nian:shouyi");
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 250)]
     private int NianBaonuDamageBonus(IDamageAttempt attack) => !attack.IsSourceLess && !attack.IsChainPropagation &&
@@ -298,4 +304,9 @@ public sealed partial class GameEngine
         context.OwnerSeat == candidate.OwnerSeat && context.ParentFrameId == hp.Id && context.TargetSeat == hp.TargetSeat &&
         _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } parent && parent.Id == hp.Id && parent.Change == hp &&
         parent.Candidates.ElementAtOrDefault(parent.CandidateIndex) == candidate;
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 60)]
+    private bool DistanceCardUseExemption60NianShouyiUnlimitedCardDistance(ProgramCardDistanceQuery q) =>
+        NianShouyiUnlimitedCardDistance(q.Actor);
+
 }

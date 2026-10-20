@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 150)]
+    private bool SoleTargetProtectionNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget);
+
+
     private const string SoleProtectionCostReason = "skill-program.sole-target-protection.cost";
     private const string SoleProtectionQuarantineReason = "skill-program.sole-target-protection.quarantine";
     private bool HasSoleTargetProtectionCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget);

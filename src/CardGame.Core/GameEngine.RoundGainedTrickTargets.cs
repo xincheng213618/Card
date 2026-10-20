@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 50)]
+    private bool RoundGainedTargetFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget);
+
+
     private IReadOnlyList<int> RoundGainedOriginalTargets(CardUseFrame use) =>
         use.CardKind == CardKind.DrawTwo && use.TargetSeats.Count == 0 ? Array.AsReadOnly(new[] { use.Action!.ActorSeat }) : use.TargetSeats;
 

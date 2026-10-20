@@ -4,6 +4,11 @@ public sealed record ShenwuEquipmentInitializedEvent(int SelectedGodCount) : IGa
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetRule(ProgramTargetRulePoint.DirectedProhibition, 40)]
+    [ProgramTargetRule(ProgramTargetRulePoint.DeclaredGlobalProhibition, 20)]
+    private bool ShenwuRobeDirectedTargetProhibited(ProgramDirectedTargetQuery query) =>
+        IsShenwuRobeTargetProhibited(query.ActorSeat, query.TargetSeat, query.Kind);
+
     private static string? ShenwuEquipmentSkillId(CardKind kind) => kind switch
     {
         CardKind.ShuraInfernoHalberd => "shenwu:shura-inferno-halberd",
@@ -121,4 +126,12 @@ public sealed partial class GameEngine
         "classic:shen-lu-bu" => "character:lu-bu", "classic:shen-sima-yi" => "character:sima-yi",
         _ => null
     };
+
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceBaseTerms, 20)]
+    private void AddShenwuDistanceBaseTerms(ProgramDistanceQuery query, List<RuleQueryBaseTerm> terms)
+    {
+        var distance = ShenwuDustlessDistanceBonus(query.Source, query.Target);
+        if (distance != 0) terms.Add(new("shenwu:dustless-allied-distance", distance));
+    }
+
 }

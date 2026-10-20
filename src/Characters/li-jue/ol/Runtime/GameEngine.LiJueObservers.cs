@@ -1,6 +1,11 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 100)]
+    private bool YisuanFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasYisuanCapability && query.Category == SkillProgramCardCategory.Trick;
+
+
  private bool HasYisuanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 480)]
  private void ObserveLiJueNativeEvent(IGameEvent payload)

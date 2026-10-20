@@ -61,4 +61,14 @@ public sealed partial class GameEngine
     [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 40)]
     private bool MoGangquanConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
         !CanUseMoGangquan(query.Owner, query.Instance, query.Rule, query.ForResponse, query.DyingUse);
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 10)]
+    private bool DistanceBorrowedSlash10MoGangquanBorrowedDistance(ProgramSlashDistanceQuery q) =>
+        MoGangquanBorrowedDistance(q.Actor, q.Target, q.Kind, q.PhysicalCardIds, q.Conversion);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 10)]
+    private bool DistanceBorrowedPhysicalSlash10MoGangquanBorrowedDistance(ProgramSlashDistanceQuery q) =>
+        MoGangquanBorrowedDistance(q.Actor, q.Target, q.Kind, [q.PhysicalCard!.Id]);
+
 }

@@ -67,3 +67,10 @@ public sealed partial class GameEngine
         HasIssuedHuiyunFollowup(useId, actorSeat);
 
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 100)]
+    private bool HuiyunSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        IsHuiyunExactHandQuery(query.Actor, query.PhysicalCardIds is [var huiyunCardId] ? huiyunCardId : query.PhysicalCard?.Id);
+}

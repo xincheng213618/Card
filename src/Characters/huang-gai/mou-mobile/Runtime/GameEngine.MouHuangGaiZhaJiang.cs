@@ -274,3 +274,10 @@ public sealed partial class GameEngine
         }
     }
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 20)]
+    private bool MouZhaJiangSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        HasMouZhaJiangPreUsePrivilege(query.Actor);
+}

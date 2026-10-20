@@ -3,6 +3,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, 30)]
+    private bool MouLiuChengFinalizedBeforeActivityTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasMouLiuChengCapability && (IsSlashCard(query.Kind) || IsMouLiuChengNonDamageOrdinary(query.Kind));
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.ImplicitSelfDrawTwo, 10)]
+    private bool MouLiuChengImplicitSelfDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasMouLiuChengCapability;
+
+
     private const string MouLiuChengDrawReason = "skill-program.mou-mobile:liu-cheng.draw";
     private static CardConversionSource MouLiuChengSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private bool HasMouLiuChengCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLiuChengCompletion);

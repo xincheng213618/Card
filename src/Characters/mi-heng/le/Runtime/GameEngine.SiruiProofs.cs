@@ -98,4 +98,9 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Sirui lost its exact original native owner, phase, source, material or action invoice.");
         }
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 10)]
+    private bool DistancePhysicalSlash10HasIssuedSiruiUse(ProgramSlashDistanceQuery q) =>
+        q.ExistingUseFrameId is { } siruiUseId && HasIssuedSiruiUse(siruiUseId, q.Actor.Seat);
+
 }

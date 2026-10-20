@@ -1,6 +1,11 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 10)]
+    private bool CuiYanFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasCuiYanCapability;
+
+
     private bool HasCuiYanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShutongFinalizedUse)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZhijieActualTurnEnd);
     private bool CuiYanActualTurnOpen=>_setupComplete&&_turnNumber>0&&_turnProgression.TurnNumber==_turnNumber&&!ProgramEventHistory<ActualTurnCursorReturnedEvent>().Any(e=>e.ActualTurn==_turnNumber&&e.OwnerSeat==_turnProgression.OwnerSeat);
     // This is a skill-local semantic projection. Older consumers retain the

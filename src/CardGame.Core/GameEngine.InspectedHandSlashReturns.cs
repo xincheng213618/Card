@@ -105,6 +105,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The inspected Slash lost its exact retired Use and once-paid program parent.");
         FinishInspectedHandSlash(f, true);
     }
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 30)]
     private RuleQueryEvaluation ApplyInspectedHandDistance(CharacterState actor, CharacterState target, RuleQueryEvaluation prior)
     {
         var grants = _turnCardUseEffects.InspectedHandDistances.Where(g => g.TurnNumber == _turnNumber &&

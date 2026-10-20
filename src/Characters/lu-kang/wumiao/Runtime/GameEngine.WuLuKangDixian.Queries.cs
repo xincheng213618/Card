@@ -106,4 +106,16 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Dixian changed its frozen actual Use actor, effective rank or issued permanent admission.");
         }
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.SpecificSlashExemption, 30)]
+    private bool DistanceSpecificSlashExemption30HasWuLuKangDixianRankPrivilege(ProgramSlashDistanceQuery q) =>
+        HasWuLuKangDixianRankPrivilege(q.Actor.Seat, q.EffectiveRank, q.ExistingUseFrameId);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 80)]
+    private bool DixianRankSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasWuLuKangDixianRankPrivilege(query.Actor.Seat, query.EffectiveRank ?? (query.PhysicalCard is not null ? SpecificSlashRank(query.Actor, query.PhysicalCard, query.Kind) : WuLuKangDixianQueryRank(query.Actor, query.Kind, query.PhysicalCardIds)));
 }

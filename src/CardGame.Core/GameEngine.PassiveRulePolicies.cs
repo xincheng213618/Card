@@ -36,6 +36,7 @@ public sealed partial class GameEngine
         _ => false
     };
 
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 60)]
     private RuleQueryEvaluation ApplyPersistentOutgoingDistancePolicy(CharacterState source, CharacterState target,
         RuleQueryEvaluation original)
     {

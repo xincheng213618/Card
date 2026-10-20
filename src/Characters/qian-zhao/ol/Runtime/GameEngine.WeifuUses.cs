@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 110)]
+    private bool WeifuNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasWeifuCapability;
+
+
     private bool HasWeifuCapability => _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveWeifuJudgment);
     private IReadOnlyList<WeifuGrantedEvent> ActiveWeifuGrants(int actor, CardKind kind)
     {
@@ -166,4 +171,14 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 90)]
+    private bool DistanceCardUseExemption90HasWeifuUseDistance(ProgramCardDistanceQuery q) =>
+        HasWeifuUseDistance(q.Actor, q.Kind, q.CardUseFrameId);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 40)]
+    private bool DistancePhysicalSlash40HasWeifuUseDistance(ProgramSlashDistanceQuery q) =>
+        q.ExistingUseFrameId is not null && HasWeifuUseDistance(q.Actor, q.Kind, q.ExistingUseFrameId);
+
 }

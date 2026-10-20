@@ -139,4 +139,21 @@ public sealed partial class GameEngine
             if (!HasIssuedBeifenUse(use.Id, use.SourceSeat))
                 throw new InvalidOperationException("Beifen's native use lost its exact accepted actor, source, ratio or action invoice.");
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 50)]
+    private bool DistanceCardUseExemption50HasBeifenUseDistance(ProgramCardDistanceQuery q) =>
+        (HasBeifenUseDistance(q.Actor, q.CardUseFrameId) || HasMouZhaJiangUseDistance(q.Actor, q.CardUseFrameId));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPaidWeaponSlash, 10)]
+    private bool DistanceBorrowedPaidWeaponSlash10HasBeifenPreUsePrivilege(ProgramSlashDistanceQuery q) =>
+        (HasBeifenPreUsePrivilege(q.Actor) || HasMouZhaJiangPreUsePrivilege(q.Actor));
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 10)]
+    private bool BeifenSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        HasBeifenPreUsePrivilege(query.Actor);
 }

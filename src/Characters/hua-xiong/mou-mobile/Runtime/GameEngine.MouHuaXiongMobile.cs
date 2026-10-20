@@ -234,4 +234,9 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome Yangwei(ProgramSkillFrame f) => engine.ResolveMouYangwei(f);
         public SkillProgramStepOutcome Yaowu(ProgramSkillFrame f) => engine.ResolveMouYaowu(f);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 20)]
+    private bool DistanceCardUseExemption20HasMouHuaXiongWei(ProgramCardDistanceQuery q) =>
+        IsSlashCard(q.Kind) && HasMouHuaXiongWei(q.Actor.Seat);
+
 }

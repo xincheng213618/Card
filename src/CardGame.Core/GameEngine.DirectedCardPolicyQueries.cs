@@ -6,14 +6,7 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
-        cardUseFrameId is { } dixianUse && HasWuHfOrDixianIssuedUse(dixianUse, actor.Seat) ||
-        IsSlashCard(kind) && HasMouHuaXiongWei(actor.Seat) ||
-        cardUseFrameId is { } wuyouUse && HasIssuedWuyouUse(wuyouUse, actor.Seat) ||
-        HasWeiwanUseDistance(actor, target, kind, cardUseFrameId) || (HasBeifenUseDistance(actor, cardUseFrameId) || HasMouZhaJiangUseDistance(actor, cardUseFrameId)) || NianShouyiUnlimitedCardDistance(actor) ||
-        HasSunHaoCanshiIssuedDistance(cardUseFrameId, actor.Seat, target.Seat) ||
-        !IsSlashCard(kind) && HasLiuYanLimuTargetAllowance(actor,target,excludedEquipmentId,excludedEquipmentSlot) || HasWeifuUseDistance(actor, kind, cardUseFrameId) ||
-        HasGuoSiTargetEffect(actor.Seat, target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance) ||
-        HasIssuedKuangfuDistance(cardUseFrameId, actor.Seat) || (cardUseFrameId is { } id && HasPhaseSuitAllowance(actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit)) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.CardUseDistanceLimit, kind) || HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
+        DistanceRules.HasCardUseExemption(new(actor, target, kind, cardUseFrameId, excludedEquipmentId, excludedEquipmentSlot));
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
         IsSlashCard(kind) && HasMouHuaXiongWei(actor.Seat) ||
@@ -52,8 +45,7 @@ public sealed partial class GameEngine
     // Borrowed Sword's second seat is the target of a later Slash, not of this trick.
     private IEnumerable<int> GetDeclaredGlobalCardTargets(CharacterState actor, CardKind kind) =>
         _players.Where(player => player.IsAlive &&
-            !NianDongmianForbidsTarget(actor.Seat, player.Seat) &&
-            !IsShenwuRobeTargetProhibited(actor.Seat, player.Seat, kind) &&
+            !TargetRules.IsDeclaredGlobalProhibited(new(actor.Seat, player.Seat, kind)) &&
             (kind is CardKind.PeachGarden or CardKind.FiveGrains or CardKind.AllianceFeast || player.Seat != actor.Seat))
             .Select(player => player.Seat);
 
@@ -68,4 +60,23 @@ public sealed partial class GameEngine
             LegalActionKind.BorrowedSword => targets.Take(1),
             _ => targets
         };
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 200)]
+    private bool DistancePhysicalSlash200HasCardDistanceExemption(ProgramSlashDistanceQuery q) =>
+        HasCardDistanceExemption(q.Actor, q.Target, q.Kind, q.ExistingUseFrameId);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 100)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 80)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 160)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 100)]
+    private bool DistanceVirtualSlash100HasCardDistanceExemption(ProgramSlashDistanceQuery q) =>
+        HasCardDistanceExemption(q.Actor, q.Target, q.Kind);
+
+
+
+
+
+
+
 }

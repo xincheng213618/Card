@@ -1,6 +1,15 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 50)]
+    private bool NeifaFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasNeifaCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 60)]
+    private bool NeifaNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasNeifaCapability;
+
+
  private bool HasNeifaCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GainThenDiscardAndArmNeifaActualTurn);
  private NeifaTurnState? CurrentNeifa(int seat)=>IsValidPlayerSeat(seat)&&_players[seat].IsAlive&&_players[seat].NeifaTurnState is{ActualTurn:var turn}state&&turn==_turnNumber?state:null;
  private int NeifaX(int seat,bool basicBranch)=>Math.Min(5,_cardZones.CardsAt(CardLocation.Hand(seat)).Count(c=>basicBranch?GetProgramCardCategory(c.Kind)!=SkillProgramCardCategory.Basic:GetProgramCardCategory(c.Kind)==SkillProgramCardCategory.Basic));

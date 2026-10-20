@@ -53,3 +53,10 @@ public sealed partial class GameEngine
         }
     }
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 90)]
+    private bool SuitSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        query.PhysicalCard is not null && BypassesSlashLimitBySuit(query.Actor, query.PhysicalCard, query.Kind);
+}

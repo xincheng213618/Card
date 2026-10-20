@@ -195,9 +195,7 @@ public sealed partial class GameEngine
         CardConversionSource? source)
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
-        if (SiruiIgnoresSlashDistance(owner, source)) return true;
-        if (IgnoresNonBasicSlashDistance(owner, source)) return true;
-        if (FriendXuanjianIgnoresDistance(owner, source)) return true;
+        if (DistanceRules.HasConvertedSlashExemption(new(owner, source))) return true;
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId &&
@@ -912,4 +910,25 @@ public sealed partial class GameEngine
             (selectedChoice || candidates.Length == 0)) return null;
         throw new InvalidOperationException("A converted card use requires its published source choice.");
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 230)]
+    private bool DistancePhysicalSlash230IgnoresProgramSlashDistance(ProgramSlashDistanceQuery q) =>
+        IgnoresProgramSlashDistance(q.Actor, q.Conversion);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 240)]
+    private bool DistancePhysicalSlash240IgnoresSpGuanYuWushengDistance(ProgramSlashDistanceQuery q) =>
+        IgnoresSpGuanYuWushengDistance(q.Actor, q.PhysicalCard!);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 250)]
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 110)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 90)]
+    private bool DistancePhysicalSlash250IgnoresSlashUseDistance(ProgramSlashDistanceQuery q) =>
+        IgnoresSlashUseDistance(q.Actor);
+
+
+
+
+
 }

@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 10)]
+    private bool MoTianenNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasMoTianenCapability;
+
+
     private const string MoTianenDiscardReason = "skill-program.mo-sun-quan.tianen.discard";
     private const string MoTianenObtainReason = "skill-program.mo-sun-quan.tianen.obtain";
     private bool HasMoTianenCapability => _contentRegistry.ProgramDependencies

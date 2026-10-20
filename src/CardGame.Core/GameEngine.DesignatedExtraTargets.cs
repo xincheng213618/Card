@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 10)]
+    private bool DesignatedExtraTargetFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget);
+
+
     private CardConversionSource DesignatedExtraTargetSource(ProgramSkillFrame frame) =>
         new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
 

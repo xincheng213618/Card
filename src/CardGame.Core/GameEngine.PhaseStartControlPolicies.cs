@@ -76,6 +76,7 @@ public sealed partial class GameEngine
             _cardMovements.Count(m => m.CardId == p.CardId && m.From == p.From && m.To == p.To && m.CardKind == p.Kind &&
                 m.Sequence > p.SequenceBefore && m.Sequence <= p.SequenceAfter && m.Reason.Value == PhaseStartControlReason(r.Kind)) == 1;
     }
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 50)]
     private RuleQueryEvaluation ApplyOtherPlayRestrictionDistance(CharacterState source, CharacterState target, RuleQueryEvaluation original)
     {
         if (source.Seat == target.Seat || !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantOtherPlayUseRestriction)) return original;

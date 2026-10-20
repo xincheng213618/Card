@@ -2,6 +2,11 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 120)]
+    private bool AdjacentRedTargetFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) && (query.Category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(query.Kind));
+
+
     private bool HasAdjacentRedTargetCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget);
     private bool TryGetAdjacentRedTargetUse(int owner, ProgramSkillWindowContext context, out CardUseFrame use, out ProgramCardTriggerWindowFrame window)
     {

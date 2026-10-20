@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, 20)]
+    private bool LeZhugeGuoFinalizedBeforeActivityTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasLeZhugeGuoCapability && (IsSlashCard(query.Kind) || IsOrdinaryTrick(query.Kind));
+
+
     private const string LeXidi = "le:xidi", LeChengyan = "le:chengyan", LeChengyanDrawReason = "skill-program.le:chengyan.draw";
     private bool HasLeZhugeGuoCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveLeZhugeGuoChengyan) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeLeZhugeGuoXidi);

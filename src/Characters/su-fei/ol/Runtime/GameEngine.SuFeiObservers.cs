@@ -1,6 +1,15 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 60)]
+    private bool SuFeiFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasSuFeiCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 70)]
+    private bool SuFeiNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasSuFeiCapability;
+
+
  private bool HasSuFeiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawThenOfferActualConsecutiveTargetGift);
  private bool SuFeiOwnerQualified(int seat)=>IsValidPlayerSeat(seat)&&_players[seat].IsAlive&&GetSkillBindingShard(_players[seat]).GetInstanceTriggers(SkillProgramTriggerWindow.CardUseTargetsFinalized).Any(b=>ProgramInstructionResolver.Default.Features(b.Trigger).HasOperation(SkillProgramEffectOp.DrawThenOfferActualConsecutiveTargetGift));
  private int[] SuFeiPrimaryTargets(CardActionContext a)

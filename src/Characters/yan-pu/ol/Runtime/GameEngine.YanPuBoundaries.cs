@@ -107,6 +107,7 @@ public sealed partial class GameEngine
         if (TryBeginFactionRecoveryDebts(dying, true)) return;
         ContinueDyingAfterFactionRecoveryDebts(dying, true);
     }
+    [ProgramDistanceRule(ProgramDistanceStage.IncomingContributions, 20)]
     private IEnumerable<RuleQueryContribution> YanPuIncomingDistanceContributions(int target) =>
         ProgramEventHistory<YanPuRoundDistanceIssuedEvent>().Where(e => e.Round == _roundNumber && e.TargetSeat == target &&
             _players[target].IsAlive && ProgramEventHistory<DyingResolvedEvent>().Any(d => d.ResolutionId == e.DyingFrameId && d.VictimSeat == target && d.Survived))

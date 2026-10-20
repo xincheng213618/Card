@@ -1,6 +1,11 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 60)]
+    private bool QirangTargetFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddTargetForQirangPhysicalTrick);
+
+
     private const string QirangGainReason="skill-program.qirang.deck-trick";
     private static CardConversionSource ZhugeGuoSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private bool TryQirangEquipmentParent(int owner,ProgramSkillWindowContext context,out CardUseFrame use)

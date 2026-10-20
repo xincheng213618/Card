@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<MouLiuChengUsePlan> MouLiuChengNativePlans(CharacterState actor, CardKind kind, CardConversionSource source)
     {
         if (kind is not (CardKind.Slash or CardKind.Dismantlement) || !actor.IsAlive || _winner != Winner.None || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) ||
-            !IsMouGuquUseAllowed(actor.Seat, kind, [], source) || IsCuiYanNextUseForbidden(actor.Seat, [], null) ||
+            !TargetRules.AllowsNativeUseMaterial(new(actor.Seat, kind, [], source)) || IsCuiYanNextUseForbidden(actor.Seat, [], null) ||
             HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly)) return [];
         var result = new List<MouLiuChengUsePlan>();
         void Add(LegalActionKind action, IReadOnlyList<int> targets, string text, int? card = null,

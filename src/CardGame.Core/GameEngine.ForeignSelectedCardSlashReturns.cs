@@ -254,4 +254,9 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The selected foreign-card Slash lost its exact native-use owner or accepted material provenance.");
         }
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 120)]
+    private bool DistancePhysicalSlash120HasIssuedSelectedForeignCardSlashDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedSelectedForeignCardSlashDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
 }

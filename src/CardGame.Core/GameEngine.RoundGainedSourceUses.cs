@@ -193,4 +193,47 @@ public sealed partial class GameEngine
     private bool CanContinueIssuedRoundGainedUse(ProgramSkillFrame frame) =>
         frame.RoundGainedEquipmentDrawReceipt is not null && ValidRoundGainedEquipmentDraw(frame) ||
         frame.TriggerId is { } trigger && frame.WindowContext is { } context && ExactIssuedRoundGainedUseCandidate(new(frame.OwnerSeat, frame.SkillId, trigger, frame.SkillInstanceId, frame.GameplayHash, 0), context) is not null;
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 90)]
+    private bool DistancePhysicalSlash90HasIssuedRoundGainedBasicBonus(ProgramSlashDistanceQuery q) =>
+        q.ExistingUseFrameId is { } roundUseId && HasIssuedRoundGainedBasicBonus(roundUseId, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 110)]
+    private bool DistancePhysicalSlash110HasRoundGainedBasicBonus(ProgramSlashDistanceQuery q) =>
+        q.ExistingUseFrameId is null && HasRoundGainedBasicBonus(q.Actor, q.Kind, q.PhysicalCardIds ?? (q.PhysicalCard!.Id > 0 ? [q.PhysicalCard!.Id] : []));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 50)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 30)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 60)]
+    private bool DistanceVirtualSlash50HasRoundGainedBasicBonus(ProgramSlashDistanceQuery q) =>
+        HasRoundGainedBasicBonus(q.Actor, q.Kind, q.PhysicalCardIds ?? []);
+
+
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 70)]
+    private bool DistanceBorrowedSlash70HasPotentialRoundGainedBasicMaterials(ProgramSlashDistanceQuery q) =>
+        q.PhysicalCardIds is null && q.AllowAnyPhysicalSuit && HasPotentialRoundGainedBasicMaterials(q.Actor, q.Kind);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 40)]
+    private bool DistanceBorrowedPhysicalSlash40HasRoundGainedBasicBonus(ProgramSlashDistanceQuery q) =>
+        HasRoundGainedBasicBonus(q.Actor, q.Kind, [q.PhysicalCard!.Id]);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPaidWeaponSlash, 30)]
+    private bool DistanceBorrowedPaidWeaponSlash30HasRoundGainedBasicBonus(ProgramSlashDistanceQuery q) =>
+        HasRoundGainedBasicBonus(q.Actor, CardKind.Slash, [q.PhysicalCard!.Id]);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 20)]
+    private bool RoundGainedSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasRoundGainedBasicBonus(query.Actor, query.Kind, query.PhysicalCardIds ?? (query.PhysicalCard is { Id: > 0 } ? [query.PhysicalCard.Id] : []));
 }

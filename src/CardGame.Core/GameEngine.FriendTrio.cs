@@ -380,4 +380,9 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class FriendTrioProgramCapability(GameEngine engine) : IFriendTrioProgramHost
     { public SkillProgramStepOutcome ExecuteFriendTrio(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.ExecuteFriendTrio(f, op); }
+
+    [ProgramDistanceRule(ProgramDistanceStage.ConvertedSlashExemption, 30)]
+    private bool FriendXuanjianIgnoresDistanceQuery(ProgramSlashConversionDistanceQuery q) =>
+        FriendXuanjianIgnoresDistance(q.Owner, q.Source);
+
 }

@@ -66,4 +66,14 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new IssuedCardNoResponseEvent(issued));
     }
     private static bool IsEligibleIssuedNoResponseCard(CardKind kind) => CardCatalog.Get(kind).CategoryName == "基本牌" || IsOrdinaryTrick(kind);
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 140)]
+    private bool DistanceCardUseExemption140HasFirstActualPlayUseDistance(ProgramCardDistanceQuery q) =>
+        HasFirstActualPlayUseDistance(q.Actor);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 150)]
+    private bool DistanceCardUseExemption150HasIssuedFirstPlayUseDistance(ProgramCardDistanceQuery q) =>
+        HasIssuedFirstPlayUseDistance(q.CardUseFrameId);
+
 }

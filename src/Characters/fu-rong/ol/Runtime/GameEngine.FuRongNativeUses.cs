@@ -133,4 +133,26 @@ public sealed partial class GameEngine
         // The native producer must finish its tail before this parent issues a
         // second card. The normal runtime loop resumes the owning instruction.
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 50)]
+    private bool DistancePhysicalSlash50HasIssuedFuRongDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedFuRongDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 60)]
+    private bool DistancePhysicalSlash60HasFuRongDiscardDistance(ProgramSlashDistanceQuery q) =>
+        HasFuRongDiscardDistance(q.Actor, q.Kind, q.PhysicalCardIds ?? (q.PhysicalCard!.Id > 0 ? [q.PhysicalCard!.Id] : []));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 20)]
+    private bool DistanceVirtualSlash20HasFuRongDiscardDistance(ProgramSlashDistanceQuery q) =>
+        HasFuRongDiscardDistance(q.Actor, q.Kind, q.PhysicalCardIds);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 10)]
+    private bool FuRongSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasFuRongDiscardDistance(query.Actor, query.Kind, query.PhysicalCardIds ?? (query.PhysicalCard is { Id: > 0 } ? [query.PhysicalCard.Id] : []));
 }

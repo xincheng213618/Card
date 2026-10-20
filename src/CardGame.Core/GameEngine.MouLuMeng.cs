@@ -381,4 +381,9 @@ public sealed partial class GameEngine
         public CardAttackHandle? Attack => State.AttackOwnerId is { } id ? new(engine, id) : null;
         public GroupCardHandle? Group => State.GroupOwnerId is { } id ? new(engine, id) : null;
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 50)]
+    private void AddGetHengyeGrowthAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
+        AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
+
 }

@@ -5,12 +5,7 @@ public sealed partial class GameEngine
     private CardUseFrame NormalizeImplicitDrawTwoUseTarget(CardUseFrame use)
     {
         if (use.CardKind != CardKind.DrawTwo || use.TargetSeats.Count != 0 || use.Action is not { } old ||
-            !HasMoTianenCapability && !HasZixiEffectsCapability && !HasLiuYanCapability && !HasLiuPanCapability && !HasCaoChunCapability && !HasNeifaCapability && !HasSuFeiCapability && !HasJianjiNativeUseCapability && !HasFanChouCapability && !HasGuoSiCapability &&
-            !HasWeifuCapability && !HasKuansaiCapability &&
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBingzhongExtraTargets) &&
-            !HasTargetedOrdinaryTrickAdjustment && !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget) &&
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget) &&
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets)) return use;
+            !TargetWindowProtocols.HasCardWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, new(use.CardKind))) return use;
         var targets = Array.AsReadOnly(new[] { use.SourceSeat });
         var action = CloneDesignatedExtraTargetAction(old, targets);
         use = use with { TargetSeats = targets, Action = action };

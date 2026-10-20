@@ -171,4 +171,24 @@ public sealed partial class GameEngine
     [ProgramCardLegality(ProgramCardLegalityStage.ConfiguredConversionBan, 20)]
     private bool SiruiConversionUnavailable(ProgramConfiguredViewAsQuery query) =>
         !CanUseSiruiConversion(query.Owner, query.Card, query.Instance, query.Rule, query.ForResponse, query.DyingUse, query.RequestedUseTarget);
+
+    [ProgramDistanceRule(ProgramDistanceStage.ConvertedSlashExemption, 10)]
+    private bool SiruiIgnoresSlashDistanceQuery(ProgramSlashConversionDistanceQuery q) =>
+        SiruiIgnoresSlashDistance(q.Owner, q.Source);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 40)]
+    private bool DistanceBorrowedSlash40HasSiruiSlashDistance(ProgramSlashDistanceQuery q) =>
+        HasSiruiSlashDistance(q.Actor,q.Kind,q.PhysicalCardIds,q.Conversion);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 30)]
+    private bool DistanceBorrowedPhysicalSlash30IsSiruiPhysicalSlashKind(ProgramSlashDistanceQuery q) =>
+        IsSiruiPhysicalSlashKind(q.Actor,q.PhysicalCard!,q.Kind);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPaidWeaponSlash, 20)]
+    private bool DistanceBorrowedPaidWeaponSlash20SiruiPhysicalSlashVariants(ProgramSlashDistanceQuery q) =>
+        SiruiPhysicalSlashVariants(q.Actor,q.PhysicalCard!).Concat(JuewuPhysicalSlashVariants(q.Actor,q.PhysicalCard!)).Concat(FulePhysicalSlashVariants(q.Actor, q.PhysicalCard!)).Any();
+
 }

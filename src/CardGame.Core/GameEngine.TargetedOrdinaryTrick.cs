@@ -3,6 +3,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 140)]
+    private bool TargetedOrdinaryTrickFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasTargetedOrdinaryTrickAdjustment && IsOrdinaryTrick(query.Kind);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 140)]
+    private bool TargetedOrdinaryTrickNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasTargetedOrdinaryTrickAdjustment;
+
+
     private bool HasTargetedOrdinaryTrickAdjustment => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustTargetedOrdinaryTrick);
     private bool TryGetTargetedOrdinaryTrickUse(ProgramSkillWindowContext context, out CardUseFrame use, out ProgramCardTriggerWindowFrame window)
     {

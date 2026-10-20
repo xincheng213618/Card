@@ -201,7 +201,7 @@ public sealed partial class GameEngine
 
     private bool IsSoleTargetReplacementFact(CardUseFrame use, SoleTargetReplacedEvent fact, IReadOnlyList<int> before)
     {
-        if (IsMoDcSoleTargetFact(use, fact, before)) return true;
+        if (TargetWindowProtocols.AcceptsReplacementFact(use, fact, before)) return true;
         if (fact.CardUseFrameId != use.Id || fact.ActionId != use.Action?.ActionId || !fact.BeforeTargets.SequenceEqual(before) ||
             fact.PreviousTargetSeat == fact.NewTargetSeat || fact.NewTargetSeat != fact.Source.OwnerSeat ||
             use.SoleTargetProtectionSources?.Contains(fact.Source) != true) return false;

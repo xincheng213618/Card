@@ -58,4 +58,33 @@ public sealed partial class GameEngine
         public void IssueCurrentTurnNonLockedSkillSuppression(ProgramSkillFrame f, int seat) => engine.IssueCurrentTurnNonLockedSkillSuppression(f, seat);
         public void GrantCurrentTurnDirectedHeartSlashBonus(ProgramSkillFrame f, int seat) => engine.GrantCurrentTurnDirectedHeartSlashBonus(f, seat);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 170)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 60)]
+    private bool DistancePhysicalSlash170HasSlashUseDistanceBySuit(ProgramSlashDistanceQuery q) =>
+        HasSlashUseDistanceBySuit(q.Actor,q.Kind,EffectiveSuit(q.Actor,q.PhysicalCard!));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 70)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 40)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 100)]
+    private bool DistanceVirtualSlash70HasSlashUseDistanceBySuit(ProgramSlashDistanceQuery q) =>
+        HasSlashUseDistanceBySuit(q.Actor,q.Kind,q.PhysicalSuit);
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 50)]
+    private bool DistanceProvidedSlash50HasSlashUseDistanceBySuit(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && HasSlashUseDistanceBySuit(q.Actor,q.Kind,Suit.Diamond);
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 110)]
+    private bool DistanceBorrowedSlash110HasSlashUseDistanceBySuit(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && GetSlashUseCards(q.Actor).Any(c=>HasSlashUseDistanceBySuit(q.Actor,q.Kind,EffectiveSuit(q.Actor,c)));
+
+
+
 }

@@ -171,4 +171,9 @@ public sealed partial class GameEngine
     }
     [ProgramCapability] private sealed class MouTianYuCapability(GameEngine e) : IMouTianYuHost
     { public SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp op) => e.BeginMouTianYu(f, op); }
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 30)]
+    private void AddMouTianYuRangeBonusAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-tian-yu:yangshi:attack-range", MouTianYuRangeBonus(player));
+
 }

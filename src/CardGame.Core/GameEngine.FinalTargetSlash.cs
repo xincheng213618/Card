@@ -104,8 +104,8 @@ public sealed partial class GameEngine
     private bool HasRankSlashRange(CharacterState actor, CardKind kind) =>
         IsSlashCard(kind) && (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || HasWuLuKangDixianGrant(actor.Seat));
     private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank, long? existingUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
-        HasSayingRoundRange(actor.Seat, target.Seat) || HasJudgedRankSlashDistance(actor.Seat, kind, rank, existingUseFrameId) ||
-        HasWuLuKangDixianRankPrivilege(actor.Seat, rank, existingUseFrameId) ||
+        DistanceRules.AllowsSlashDistance(ProgramDistanceStage.SpecificSlashExemption,
+            new(actor, target, kind, ExistingUseFrameId: existingUseFrameId, EffectiveRank: rank)) ||
         (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) && rank is > 0
             ? (excludedEquipmentId is null && excludedEquipmentSlot is null ? GetCombatDistance(actor.Seat, target.Seat) :
                 ConvertRuleValue(EvaluateDistance(actor, target, excludedEquipmentId, excludedEquipmentSlot))) <= rank.Value
@@ -145,4 +145,38 @@ public sealed partial class GameEngine
     {
         public void IssueFinalTargetSlashReceipt(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.IssueFinalTargetSlashReceipt(frame, effect);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 260)]
+    private bool DistancePhysicalSlash260IsWithinSpecificSlashRange(ProgramSlashDistanceQuery q) =>
+        IsWithinSpecificSlashRange(q.Actor, q.Target, q.Kind, q.SpecificEffectiveRank ?? (q.NoEffectiveRank ? null : SpecificSlashRank(q.Actor, q.PhysicalCard!, q.Kind, q.ExistingUseFrameId)), q.ExistingUseFrameId, q.ExcludedEquipmentId, q.ExcludedEquipmentSlot);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 120)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 100)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 50)]
+    private bool DistanceVirtualSlash120IsWithinSpecificSlashRange(ProgramSlashDistanceQuery q) =>
+        IsWithinSpecificSlashRange(q.Actor, q.Target, q.Kind, q.EffectiveRank);
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 110)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 170)]
+    private bool DistanceProvidedSlash110HasPotentialRankSlashRange(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && HasPotentialRankSlashRange(q.Actor,q.Target,q.Kind);
+
+
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 90)]
+    private bool DistanceBorrowedPhysicalSlash90IsWithinSpecificSlashRange(ProgramSlashDistanceQuery q) =>
+        IsWithinSpecificSlashRange(q.Actor,q.Target,q.Kind,SpecificSlashRank(q.Actor,q.PhysicalCard!,q.Kind));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPaidWeaponSlash, 50)]
+    private bool DistanceBorrowedPaidWeaponSlash50HasRankSlashRange(ProgramSlashDistanceQuery q) =>
+        HasRankSlashRange(q.Actor,CardKind.Slash) && q.PhysicalCard!.Rank > 0;
+
 }

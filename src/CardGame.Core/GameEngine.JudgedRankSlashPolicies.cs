@@ -173,4 +173,22 @@ public sealed partial class GameEngine
         public void GrantJudgedRankSplitSlashTurnPolicy(ProgramSkillFrame frame, string bind) => engine.GrantOriginalJudgedRankSlashPolicy(frame, bind);
         public void DrawFromOtherActualBasicDiscard(ProgramSkillFrame frame) => engine.DrawFromOriginalOtherBasicDiscard(frame);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 140)]
+    private bool DistancePhysicalSlash140HasIssuedJudgedRankSlashDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedJudgedRankSlashDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.SpecificSlashExemption, 20)]
+    private bool DistanceSpecificSlashExemption20HasJudgedRankSlashDistance(ProgramSlashDistanceQuery q) =>
+        HasJudgedRankSlashDistance(q.Actor.Seat, q.Kind, q.EffectiveRank, q.ExistingUseFrameId);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 60)]
+    private bool JudgedRankSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasJudgedRankSlashQuota(query.Actor.Seat, query.Kind, query.EffectiveRank ??
+             (query.PhysicalCard is not null ? SpecificSlashRank(query.Actor, query.PhysicalCard, query.Kind) : null));
 }

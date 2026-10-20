@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<DiouUsePlan> DiouNativePlans(CharacterState actor, CardKind kind, CardConversionSource source)
     {
         if (!actor.IsAlive || _winner != Winner.None || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) ||
-            !IsMouGuquUseAllowed(actor.Seat, kind, [], source) || IsCuiYanNextUseForbidden(actor.Seat, [], null)) return [];
+            !TargetRules.AllowsNativeUseMaterial(new(actor.Seat, kind, [], source)) || IsCuiYanNextUseForbidden(actor.Seat, [], null)) return [];
         var result = new List<DiouUsePlan>();
         void Add(LegalActionKind action, IReadOnlyList<int> targets, string text, int? card = null,
             CardKind? required = null, bool adjusted = false) =>

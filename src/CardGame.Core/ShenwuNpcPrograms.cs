@@ -121,6 +121,10 @@ public sealed record ShenwuYinzeiDiscardedEvent(long ProgramFrameId, int OwnerSe
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetRule(ProgramTargetRulePoint.DirectedProhibition, 30)]
+    private bool ShenwuMingwanDirectedTargetProhibited(ProgramDirectedTargetQuery query) =>
+        ShenwuMingwanForbidsTarget(query.ActorSeat, query.TargetSeat);
+
     [ProgramCapability]
     private sealed class ShenwuNpcProgramHost(GameEngine engine) : IShenwuNpcProgramHost
     {

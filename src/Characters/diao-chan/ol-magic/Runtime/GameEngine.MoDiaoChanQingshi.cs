@@ -2,6 +2,10 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.SoleTargetRedirectSource, 10)]
+    private bool MoDiaoChanSoleTargetRedirectSource(CardConversionSource source) =>
+        HasMoDiaoChan && source.SkillId == MoDiaoChanComposition.Qingshi;
+
     private bool HasMoDcQingshiCard(int owner, int card) => card > 0 && ProgramEventHistory<MoDiaoChanCardGrantedEvent>().Any(e => e.Source.OwnerSeat == owner && e.CardId == card);
     private bool HasMoDcQingshiCard(int card) => HasMoDiaoChan && card > 0 && ProgramEventHistory<MoDiaoChanCardGrantedEvent>().Any(e => e.CardId == card);
     private bool MoDcRefreshReady(int owner)
@@ -70,6 +74,7 @@ public sealed partial class GameEngine
         else { RefreshCurrentUseAddedTargetCandidates(LifecycleCardUse(use.Id)!, targets); RefreshSoleProtectionObservers(LifecycleCardUse(use.Id)!); }
         FinishMoDc(GetActiveProgramFrame(f.Id));
     }
+    [ProgramTargetWindow(ProgramTargetWindowStage.SoleTargetReplacementFact, 10)]
     private bool IsMoDcSoleTargetFact(CardUseFrame use, SoleTargetReplacedEvent fact, IReadOnlyList<int> before) => HasMoDiaoChan &&
         fact.Source.SkillId == MoDiaoChanComposition.Qingshi && fact.Source.BindingId == "cohort-unique-target" && before is [var old] &&
         fact.BeforeTargets.SequenceEqual(before) && fact.AfterTargets is [var target] && old == fact.PreviousTargetSeat && target == fact.NewTargetSeat && target != old &&

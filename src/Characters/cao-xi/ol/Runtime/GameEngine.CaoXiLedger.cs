@@ -105,4 +105,9 @@ public sealed partial class GameEngine
         }
         else if (payload is PlayerDiedEvent death) ExpireCaoXiGangshuUnits(death.VictimSeat, "owner-death", death.VictimSeat);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 20)]
+    private void AddCaoXiGangshuBonusAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
+        AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:attack-range", CaoXiGangshuBonus(player, SkillRuleQuery.AttackRange));
+
 }

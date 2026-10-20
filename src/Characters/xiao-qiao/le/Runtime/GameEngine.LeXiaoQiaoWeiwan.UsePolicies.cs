@@ -143,4 +143,9 @@ public sealed partial class GameEngine
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(f => f.WeiwanUse is not null))
             if (ValidIssuedWeiwanUse(use.Id, use.SourceSeat) is null) throw new InvalidOperationException("Weiwan lost its exact accepted use, including the original absence of any target lease.");
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 40)]
+    private bool DistanceCardUseExemption40HasWeiwanUseDistance(ProgramCardDistanceQuery q) =>
+        HasWeiwanUseDistance(q.Actor, q.Target, q.Kind, q.CardUseFrameId);
+
 }

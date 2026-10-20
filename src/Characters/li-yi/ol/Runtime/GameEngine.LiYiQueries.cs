@@ -44,4 +44,19 @@ public sealed partial class GameEngine
  }
  private bool IsChanshuangSlashRequest(ProgramSkillFrame f)=>f.Chanshuang?.Stage==ChanshuangStage.SlashChoice&&TryGetChanshuangSlashRequest(f,out _,out _);
  private bool IsChanshuangSlashQuery(CharacterState actor)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{Chanshuang:{}r}f&&r.Stage is ChanshuangStage.SlashTarget or ChanshuangStage.SlashChoice or ChanshuangStage.SlashIssuing&&r.Cursor<ChanshuangItemCount(r)&&ChanshuangItem(f)is{Option:ChanshuangOption.Slash}item&&item.Seat==actor.Seat&&r.Source==ChanshuangSource(f)&&r.GameplayHash==f.GameplayHash;
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeBaseTerms, 10)]
+    private void AddLiYiAttackRangeBaseTerms(ProgramAttackRangeQuery query, List<RuleQueryBaseTerm> terms)
+    {
+        if (HasLiYiVirtualStoneAxe(query.Player, query.ExcludedEquipmentId, query.ExcludedEquipmentSlot) && terms[0].Value < 3)
+            terms[0] = new RuleQueryBaseTerm($"skill:{query.Player.Seat}:zhanjin:attack-range", 3);
+    }
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 60)]
+    private bool ChanshuangSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        IsChanshuangSlashQuery(query.Actor);
 }

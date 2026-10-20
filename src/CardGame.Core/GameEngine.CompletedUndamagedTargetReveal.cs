@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 160)]
+    private bool CompletedUndamagedFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        TracksCompletedUndamagedUseDamage && IsCompletedUndamagedDamageUse(query.Kind) && IsOrdinaryTrick(query.Kind);
+
+
     private const string CompletedUndamagedRevealBind = "completed-undamaged-target-reveal";
     private long CompletedUndamagedMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private bool TracksCompletedUndamagedUseDamage => _contentRegistry.ProgramDependencies

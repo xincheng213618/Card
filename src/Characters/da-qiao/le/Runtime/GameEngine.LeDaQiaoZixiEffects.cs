@@ -2,6 +2,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, 40)]
+    private bool ZixiFinalizedBeforeActivityTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasZixiEffectsCapability && ZixiEffectsKind(query.Kind);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 20)]
+    private bool ZixiNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasZixiEffectsCapability;
+
+
     private const string ZixiEffectsDrawReason = "skill-program.le-da-qiao.zixi.draw";
     private const string ZixiEffectsObtainReason = "skill-program.le-da-qiao.zixi.obtain";
     private bool HasZixiEffectsCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects);

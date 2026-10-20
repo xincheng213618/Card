@@ -146,8 +146,7 @@ public sealed partial class GameEngine
             var declared = cardKind == CardKind.BorrowedSword ? targets.Take(1) : targets.AsEnumerable();
             if (cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains or CardKind.AllianceFeast or CardKind.ReturnSoul or CardKind.StriveUpstream)
                 targets = targets.Where(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit) &&
-                    !NianDongmianForbidsTarget(source.Seat, t) &&
-                    !IsShenwuRobeTargetProhibited(source.Seat, t, cardKind)).ToArray();
+                    !TargetRules.IsDeclaredGlobalProhibited(new(source.Seat, t, cardKind))).ToArray();
             else if (declared.Any(t => HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) return;
             if (cardKind == CardKind.ReturnSoul && targets.Length == 0) return;
             if (cardKind == CardKind.StriveUpstream && targets.Length == 0) return;

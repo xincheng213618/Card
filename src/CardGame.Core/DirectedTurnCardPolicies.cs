@@ -49,13 +49,25 @@ public sealed partial class GameEngine
             HasRuntimeSkillInstance(_players[item.Source.OwnerSeat], item.Source.SkillId, item.Source.SkillInstanceId));
 
     private bool IsDirectedCardTargetProhibited(int actorSeat, int targetSeat, CardKind cardKind, long? cardUseFrameId = null) =>
-        IsWeiwanTargetForbidden(actorSeat, targetSeat, cardKind, cardUseFrameId) || NianDongmianForbidsTarget(actorSeat, targetSeat) ||
-        ShenwuMingwanForbidsTarget(actorSeat, targetSeat) || IsShenwuRobeTargetProhibited(actorSeat, targetSeat, cardKind) ||
-        HasGuoSiTargetEffect(actorSeat, targetSeat, DirectedTurnCardPolicyEffect.ForbidTarget) ||
-        IsXuRongSlashTargetForbidden(actorSeat, targetSeat, cardKind) || GuanFocusProhibitsSlash(actorSeat, targetSeat, cardKind) ||
-        actorSeat == targetSeat && HasSelfCardTargetProhibition(actorSeat) ||
-        HasDirectedTurnCardPolicy(actorSeat, targetSeat, cardKind, DirectedTurnCardPolicyEffect.ForbidTarget);
+        TargetRules.IsDirectedProhibited(new(actorSeat, targetSeat, cardKind, cardUseFrameId));
+
+    [ProgramTargetRule(ProgramTargetRulePoint.DirectedProhibition, 90)]
+    private bool DirectedTurnTargetProhibited(ProgramDirectedTargetQuery query) =>
+        HasDirectedTurnCardPolicy(query.ActorSeat, query.TargetSeat, query.Kind, DirectedTurnCardPolicyEffect.ForbidTarget);
 
     private void ExpireDirectedTurnCardPolicies(int turnNumber, int turnSeat) =>
         _directedTurnCardPolicies.RemoveAll(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat);
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 170)]
+    private bool DistanceCardUseExemption170HasDirectedTurnCardPolicy(ProgramCardDistanceQuery q) =>
+        HasDirectedTurnCardPolicy(q.Actor.Seat, q.Target.Seat, q.Kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 100)]
+    private bool DirectedTurnSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasDirectedTurnCardPolicy(query.Actor.Seat, query.Target.Seat, query.Kind,
+             DirectedTurnCardPolicyEffect.BypassSlashLimit);
 }

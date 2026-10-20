@@ -194,4 +194,14 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Equipment Slash lost its exact zero-entity use and typed paid parent.");
         }
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 110)]
+    private bool DistanceCardUseExemption110HasIssuedKuangfuDistance(ProgramCardDistanceQuery q) =>
+        HasIssuedKuangfuDistance(q.CardUseFrameId, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 130)]
+    private bool DistancePhysicalSlash130HasIssuedKuangfuDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedKuangfuDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
 }

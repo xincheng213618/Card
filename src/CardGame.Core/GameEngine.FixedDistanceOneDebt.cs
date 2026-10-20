@@ -33,6 +33,7 @@ public sealed partial class GameEngine
             new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId), f.GameplayHash,
             _turnNumber, _currentSeat, target, ending.Id)));
     }
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 40)]
     private RuleQueryEvaluation ApplyFixedDistanceOne(CharacterState source, CharacterState target, RuleQueryEvaluation original)
     {
         if (source.Seat == target.Seat || !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.GrantFixedDistanceOneTurnPolicy) ||

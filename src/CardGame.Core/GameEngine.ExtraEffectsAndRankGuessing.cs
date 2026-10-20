@@ -3,6 +3,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 130)]
+    private bool ExtraEffectsFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardSameCategoryForExtraEffect) && ExtraEffectCardKind(query.Kind);
+
+
     private const string RankGuessRevealReason = "skill-program.rank-guess.reveal";
     private const string RankGuessGainReason = "skill-program.rank-guess.gain";
     private const string ExtraEffectCostReason = "skill-program.extra-effect.cost";

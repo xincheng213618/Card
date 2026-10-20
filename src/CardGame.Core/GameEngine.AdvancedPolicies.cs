@@ -43,5 +43,10 @@ public sealed partial class GameEngine
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 200)]
     private int RedBladeActualDamageBonus(IDamageAttempt attack) =>
         attack is CardAttackHandle card ? RedBladeDamageBonus(card) : 0;
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 160)]
+    private bool DistanceCardUseExemption160HasNextUnlimitedCard(ProgramCardDistanceQuery q) =>
+        HasNextUnlimitedCard(q.Actor);
+
 }
 

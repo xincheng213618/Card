@@ -1,6 +1,15 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 80)]
+    private bool FanChouFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasFanChouCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 90)]
+    private bool FanChouNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasFanChouCapability;
+
+
  private const string FanChouDiscardReason="skill-program.xingluan.recipient.discard";
  private const string FanChouDrawReason="skill-program.xingluan.fallback-draw",FanChouFieldReason="skill-program.xingluan.field-gain",FanChouDeckReason="skill-program.xingluan.deck-gain",FanChouGiftReason="skill-program.xingluan.recipient-gift";
  private bool HasFanChouCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseXingluanRankSixBenefit);

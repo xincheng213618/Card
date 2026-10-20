@@ -1,6 +1,18 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    private bool HasJianjiNativeUseCapability => _contentRegistry.ProgramDependencies
+        .HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 70)]
+    private bool JianjiFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasJianjiNativeUseCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 80)]
+    private bool JianjiNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasJianjiNativeUseCapability;
+
+
  // This bridge recognizes only the native declaration created by the already-paid
  // Jianji exact-card request. The declaration frame itself owns payment and return.
  private bool MatchesJianjiDeclaration(ProgramSkillFrame root,CardDeclarationFrame declaration)

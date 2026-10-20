@@ -76,4 +76,44 @@ public sealed partial class GameEngine
         AfterTurnEndedCandidate(parent) == c && parent.OwnerSeat == c.OwnerSeat && parent.TurnNumber == arm.Turn.Number;
     private string? WuHfEntityMark(int cardId) => HasWuHuangFuSongCapability && WuHfTurnOpen(WuHfTurn()) &&
         ProgramEventHistory<WuHuangFuSongLianjieEntityEvent>().Any(e => e.CardId == cardId && e.Turn == WuHfTurn()) ? "连捷" : null;
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 10)]
+    private bool DistanceCardUseExemption10HasWuHfOrDixianIssuedUse(ProgramCardDistanceQuery q) =>
+        q.CardUseFrameId is { } dixianUse && HasWuHfOrDixianIssuedUse(dixianUse, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 100)]
+    private bool DistancePhysicalSlash100HasWuHfOrWuyouMaterialPrivilege(ProgramSlashDistanceQuery q) =>
+        HasWuHfOrWuyouMaterialPrivilege(q.Actor, q.Kind, q.PhysicalCardIds ?? (q.PhysicalCard!.Id > 0 ? [q.PhysicalCard!.Id] : []), q.ExistingUseFrameId);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 10)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 10)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 20)]
+    private bool DistanceVirtualSlash10HasWuHfOrWuyouMaterialPrivilege(ProgramSlashDistanceQuery q) =>
+        HasWuHfOrWuyouMaterialPrivilege(q.Actor, q.Kind, q.PhysicalCardIds);
+
+
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 20)]
+    private bool DistanceBorrowedPhysicalSlash20HasWuHfOrWuyouMaterialPrivilege(ProgramSlashDistanceQuery q) =>
+        HasWuHfOrWuyouMaterialPrivilege(q.Actor, q.Kind, [q.PhysicalCard!.Id]);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 30)]
+    private bool WuHfWuyouSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        HasWuHfOrWuyouMaterialPrivilege(query.Actor, query.Kind, query.PhysicalCardIds ?? (query.PhysicalCard is { Id: > 0 } ? [query.PhysicalCard.Id] : []));
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 70)]
+    private bool WuHfMaterialSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasWuHfMaterialPrivilege(query.Actor, query.PhysicalCardIds ?? (query.PhysicalCard is { Id: > 0 } ? [query.PhysicalCard.Id] : []));
 }

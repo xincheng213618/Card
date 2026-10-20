@@ -4,6 +4,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 150)]
+    private bool PairedColorResponseFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) && query.Category == SkillProgramCardCategory.Trick;
+
+
     private const string PairedColorDiscardReason = "skill-program.paired-color-response.discard";
     private const string PairedColorObtainReason = "skill-program.paired-color-response.obtain";
     private long PairedColorSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;

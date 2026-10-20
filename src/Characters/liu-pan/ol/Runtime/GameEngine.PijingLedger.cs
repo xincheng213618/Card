@@ -1,6 +1,11 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 40)]
+    private bool LiuPanNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasLiuPanCapability;
+
+
     private bool HasLiuPanCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePijingTargetTogglesAndRandomGifts);
     private static CardConversionSource PijingSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
     private bool TryGetPijingUse(ProgramSkillWindowContext context,out CardUseFrame use,out ProgramCardTriggerWindowFrame window)

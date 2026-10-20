@@ -293,4 +293,9 @@ public sealed partial class GameEngine
             SkillProgramEffectOp.AwakenWhenOriginalHandEmpty => engine.BeginOriginalHandAwakening(f, e),
             _ => throw new InvalidOperationException("Unknown original-hand operation.") };
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 40)]
+    private void AddGetOriginalHandAttackRangeBonusAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
+        AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:attack-range", GetOriginalHandAttackRangeBonus(player.Seat));
+
 }

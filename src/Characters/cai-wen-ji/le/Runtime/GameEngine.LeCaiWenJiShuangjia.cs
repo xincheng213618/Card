@@ -16,6 +16,7 @@ public sealed partial class GameEngine
     private bool IsShuangjiaHandLimitExempt(CharacterState owner, int cardId) =>
         HasLeCaiWenJiShuangjiaCapability && HasRuntimeSkill(owner, "le:shuangjia") &&
         HasShuangjiaHandEntityMark(owner.Seat, cardId);
+    [ProgramDistanceRule(ProgramDistanceStage.IncomingContributions, 30)]
     private IEnumerable<RuleQueryContribution> ShuangjiaIncomingDistanceContributions(int targetSeat)
     {
         if (!HasLeCaiWenJiShuangjiaCapability || !IsValidPlayerSeat(targetSeat) ||

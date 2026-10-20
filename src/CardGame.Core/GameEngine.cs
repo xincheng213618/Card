@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>
 /// A synchronous, explicit state machine. Advance runs AI turns until it reaches
@@ -5661,8 +5661,7 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive &&
                 !HasCardPolicy(player, SkillProgramCardPolicyKind.ExcludeGlobalTarget,
                     groupCard.Kind) &&
-                !NianDongmianForbidsTarget(source.Seat, player.Seat) &&
-                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, groupCard.Kind) &&
+                !TargetRules.IsDeclaredGlobalProhibited(new(source.Seat, player.Seat, groupCard.Kind)) &&
                 !IsCardTargetProhibited(player, groupCard.Kind, groupCard.Suit, SuitColor(EffectiveSuit(source, groupCard))) && !HasBeneficiarySuitShield(source.Seat, player.Seat, EffectiveSuit(source, groupCard)))
             .Select(player => player.Seat)
             .ToArray();
@@ -5704,8 +5703,7 @@ public sealed partial class GameEngine
         var targets = ApplyTurnCardGroupTargetRestrictions(source, Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive &&
-                !NianDongmianForbidsTarget(source.Seat, player.Seat) &&
-                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, CardKind.PeachGarden) &&
+                !TargetRules.IsDeclaredGlobalProhibited(new(source.Seat, player.Seat, CardKind.PeachGarden)) &&
                 !IsCardTargetProhibited(player, CardKind.PeachGarden, peachGarden.Suit, SuitColor(EffectiveSuit(source, peachGarden))) && !HasBeneficiarySuitShield(source.Seat, player.Seat, EffectiveSuit(source, peachGarden)))
             .Select(player => player.Seat)
             .ToArray());
@@ -5737,8 +5735,7 @@ public sealed partial class GameEngine
         var aliveSeats = ApplyTurnCardGroupTargetRestrictions(source, Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive &&
-                !NianDongmianForbidsTarget(source.Seat, player.Seat) &&
-                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, CardKind.FiveGrains) &&
+                !TargetRules.IsDeclaredGlobalProhibited(new(source.Seat, player.Seat, CardKind.FiveGrains)) &&
                 !IsCardTargetProhibited(player, CardKind.FiveGrains, fiveGrains.Suit, SuitColor(EffectiveSuit(source, fiveGrains))) && !HasBeneficiarySuitShield(source.Seat, player.Seat, EffectiveSuit(source, fiveGrains)))
             .Select(player => player.Seat)
             .ToArray());
@@ -6669,12 +6666,12 @@ public sealed partial class GameEngine
         CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true, bool? effectiveColor = null, int? effectiveRank = null, IReadOnlyList<int>? physicalCardIds = null, CardConversionSource? conversionSource = null) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
-              MoGangquanTargetAllowed(weaponOwner, target, kind, conversionSource, physicalCardIds) &&
+              TargetRules.AllowsSlash(new(weaponOwner, target, kind, conversionSource, physicalCardIds)) &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (MoGangquanBorrowedDistance(weaponOwner, target, kind, physicalCardIds, conversionSource) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, kind, physicalCardIds) || physicalCardIds is null && allowAnyPhysicalSuit && HasPublicWuyouContributionPotential(weaponOwner) || HasSiruiSlashDistance(weaponOwner,kind,physicalCardIds,conversionSource) || IsWithinSpecificSlashRange(weaponOwner,target,kind,effectiveRank) || HasRoundGainedBasicBonus(weaponOwner, kind, physicalCardIds ?? []) ||
-               physicalCardIds is null && allowAnyPhysicalSuit && HasPotentialRoundGainedBasicMaterials(weaponOwner, kind) ||
-               (HasProvenanceUseDistance(weaponOwner, physicalCardIds) || HasGrantedPhaseEntityDistance(weaponOwner, physicalCardIds)) || allowAnyPhysicalSuit && (HasPotentialProvenanceSlash(weaponOwner) || HasPotentialGrantedPhaseSlash(weaponOwner)) || HasSlashUseDistanceBySuit(weaponOwner,kind,physicalSuit) || allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasSlashUseDistanceBySuit(weaponOwner,kind,EffectiveSuit(weaponOwner,c))) || HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
-               allowAnyPhysicalSuit && HasPotentialRankSlashRange(weaponOwner,target,kind)) &&
+              (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.BorrowedSlash,
+                  new(weaponOwner, target, kind, Conversion: conversionSource, PhysicalCardIds: physicalCardIds,
+                      PhysicalSuit: physicalSuit, EffectiveColor: effectiveColor, EffectiveRank: effectiveRank,
+                      AllowAnyPhysicalSuit: allowAnyPhysicalSuit))) &&
               !IsDirectedCardTargetProhibited(weaponOwner.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
             : SlashKinds.Any(candidate => IsLegalBorrowedSwordSlashTarget(weaponOwner, target, candidate, physicalSuit, allowAnyPhysicalSuit, effectiveColor,effectiveRank,physicalCardIds,conversionSource));
@@ -6694,7 +6691,8 @@ public sealed partial class GameEngine
             {
                 var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
-                        (MoGangquanBorrowedDistance(weaponOwner, slashTarget, variant.EffectiveKind, [card.Id]) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, variant.EffectiveKind, [card.Id]) || IsSiruiPhysicalSlashKind(weaponOwner,card,variant.EffectiveKind) || HasRoundGainedBasicBonus(weaponOwner, variant.EffectiveKind, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,variant.EffectiveKind,SpecificSlashRank(weaponOwner,card,variant.EffectiveKind)) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
+                        (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.BorrowedPhysicalSlash,
+                            new(weaponOwner, slashTarget, variant.EffectiveKind, card))) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6705,7 +6703,8 @@ public sealed partial class GameEngine
 
                 // When Wusheng spends the equipped weapon itself, that weapon
                 // cannot also provide the range needed for the forced Slash.
-                return (HasBeifenPreUsePrivilege(weaponOwner) || HasMouZhaJiangPreUsePrivilege(weaponOwner)) || SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card)).Any() || HasRoundGainedBasicBonus(weaponOwner, CardKind.Slash, [card.Id]) || (HasProvenanceUseDistance(weaponOwner,card) || HasGrantedPhaseEntityDistance(weaponOwner,[card.Id])) || HasRankSlashRange(weaponOwner,CardKind.Slash) && card.Rank > 0 || GetCombatDistance(weaponOwner.Seat, slashTarget.Seat) <= 1;
+                return DistanceRules.AllowsSlashDistance(ProgramDistanceStage.BorrowedPaidWeaponSlash,
+                    new(weaponOwner, slashTarget, CardKind.Slash, card));
             })
             .ToArray();
     }
@@ -14630,25 +14629,21 @@ public sealed partial class GameEngine
         CardKind effectiveKind = CardKind.Slash,
         bool ignoreDistance = false, long? existingUseFrameId=null, bool noEffectiveRank = false, int? specificEffectiveRank = null, IReadOnlyList<int>? physicalCardIds = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
-        if (!MoGangquanTargetAllowed(source, target, effectiveKind, conversionSource, physicalCardIds ?? [slashCard.Id])) return false;
+        if (!TargetRules.AllowsSlash(new(source, target, effectiveKind, conversionSource, physicalCardIds ?? [slashCard.Id]))) return false;
         ignoreDistance |= IsMoGangquanSource(conversionSource);
         slashCard = WuJingLiubingUseCard(source, slashCard, effectiveKind, conversionSource, physicalCardIds, existingUseFrameId);
         if (existingUseFrameId is null && excludedEquipmentId is null && excludedEquipmentSlot is null)
             excludedEquipmentId = LiYiPaidSlashWeapon(source, physicalCardIds ?? [slashCard.Id]);
         if (existingUseFrameId is null && HasCuiYanCapability && IsCuiYanNextUseForbidden(source.Seat, physicalCardIds ?? [slashCard.Id], EffectiveSuit(source, ApplyProgramUseAppearance(source, slashCard, conversionSource)))) return false;
         return
-        IsMouGuquUseAllowed(source.Seat, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : []), conversionSource, existingUseFrameId) &&
+        TargetRules.AllowsNativeUseMaterial(new(source.Seat, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : []), conversionSource, existingUseFrameId)) &&
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat), existingUseFrameId: existingUseFrameId) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        (ignoreDistance || existingUseFrameId is { } siruiUseId && HasIssuedSiruiUse(siruiUseId, source.Seat) || HasSunHaoCanshiIssuedDistance(existingUseFrameId, source.Seat, target.Seat) || HasIssuedWuJingHejiDistance(existingUseFrameId, source.Seat) || existingUseFrameId is not null && HasWeifuUseDistance(source, effectiveKind, existingUseFrameId) || HasIssuedFuRongDistance(existingUseFrameId, source.Seat) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || IsQigongIssuedDistance(existingUseFrameId, source.Seat) || HasIssuedNonBasicSlashDistance(existingUseFrameId) || existingUseFrameId is { } roundUseId && HasIssuedRoundGainedBasicBonus(roundUseId, source.Seat) ||
-         HasWuHfOrWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : []), existingUseFrameId) ||
-         existingUseFrameId is null && HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? (slashCard.Id > 0 ? [slashCard.Id] : [])) || HasIssuedSelectedForeignCardSlashDistance(existingUseFrameId, source.Seat) || HasIssuedKuangfuDistance(existingUseFrameId, source.Seat) || HasIssuedJudgedRankSlashDistance(existingUseFrameId, source.Seat) || (HasIssuedProvenanceUseDistance(existingUseFrameId, source.Seat) || HasIssuedGrantedPhaseEntityDistance(existingUseFrameId, source.Seat)) || (HasProvenanceUseDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : [])) || HasGrantedPhaseEntityDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : []))) || HasSlashUseDistanceBySuit(source,effectiveKind,EffectiveSuit(source,slashCard)) || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind, existingUseFrameId) ||
-         GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedDistance(source, slashCard, existingUseFrameId) ||
-         IgnoresProgramSlashDistance(source, conversionSource) ||
-         IgnoresSpGuanYuWushengDistance(source, slashCard) ||
-         IgnoresSlashUseDistance(source) ||
-         IsWithinSpecificSlashRange(source, target, effectiveKind, specificEffectiveRank ?? (noEffectiveRank ? null : SpecificSlashRank(source, slashCard, effectiveKind, existingUseFrameId)), existingUseFrameId, excludedEquipmentId, excludedEquipmentSlot)) &&
+        (ignoreDistance || DistanceRules.AllowsSlashDistance(ProgramDistanceStage.PhysicalSlash,
+            new(source, target, effectiveKind, slashCard, conversionSource, existingUseFrameId, physicalCardIds,
+                NoEffectiveRank: noEffectiveRank, SpecificEffectiveRank: specificEffectiveRank,
+                ExcludedEquipmentId: excludedEquipmentId, ExcludedEquipmentSlot: excludedEquipmentSlot))) &&
         !IsDirectedCardTargetProhibited(source.Seat, target.Seat, effectiveKind, existingUseFrameId) &&
         !IsSlashProhibited(source, target, slashCard);
     }
@@ -14660,7 +14655,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? physicalCardIds = null, bool ignoreDistance = false,
         CardConversionSource? conversionSource = null, bool actualUnconvertedPhysical = false, bool countsTowardLimit = true)
     {
-        if (!MoGangquanTargetAllowed(source, target, effectiveKind, conversionSource, physicalCardIds)) return false;
+        if (!TargetRules.AllowsSlash(new(source, target, effectiveKind, conversionSource, physicalCardIds))) return false;
         ignoreDistance |= IsMoGangquanSource(conversionSource);
         if (actualUnconvertedPhysical && conversionSource is null && physicalCardIds is [var physicalId])
         {
@@ -14672,14 +14667,14 @@ public sealed partial class GameEngine
                 effectiveColor = SuitColor(physicalSuit);
             }
         }
-        return IsMouGuquUseAllowed(source.Seat, effectiveKind, physicalCardIds ?? [], conversionSource) &&
+        return TargetRules.AllowsNativeUseMaterial(new(source.Seat, effectiveKind, physicalCardIds ?? [], conversionSource)) &&
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
         CanSpendSlashUse(source, target, ignoresCount: !countsTowardLimit || HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) &&
-        (ignoreDistance || HasWuHfOrWuyouMaterialPrivilege(source, effectiveKind, physicalCardIds) || HasFuRongDiscardDistance(source, effectiveKind, physicalCardIds) || GuanFocusAllowsSlash(source.Seat, target.Seat) || GuanFirstRedAvailable(source, physicalSuit) || HasRoundGainedBasicBonus(source, effectiveKind, physicalCardIds ?? []) || (HasProvenanceUseDistance(source, physicalCardIds) || HasGrantedPhaseEntityDistance(source, physicalCardIds)) || HasSlashUseDistanceBySuit(source,effectiveKind,physicalSuit) || HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
-         IgnoresSlashUseDistance(source) ||
-         IsWithinSpecificSlashRange(source, target, effectiveKind, effectiveRank)) &&
+        (ignoreDistance || DistanceRules.AllowsSlashDistance(ProgramDistanceStage.VirtualSlash,
+            new(source, target, effectiveKind, Conversion: conversionSource, PhysicalCardIds: physicalCardIds,
+                PhysicalSuit: physicalSuit, EffectiveColor: effectiveColor, EffectiveRank: effectiveRank))) &&
         !IsSlashProhibited(target);
     }
 
@@ -17548,9 +17543,9 @@ public sealed partial class GameEngine
               (CanSpendSlashUse(owner, target, ignoresCount: false, kind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) ||
                allowAnyPhysicalSuit && effectiveRank is null && (HasPotentialJudgedRankSlashQuota(owner.Seat, kind) || HasWuHfOrDixianPotential(owner.Seat)) ||
                allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind)) &&
-              (HasWuHfOrWuyouMaterialPrivilege(owner, kind, physicalCardIds) || allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind) || HasRoundGainedBasicBonus(owner, kind, physicalCardIds ?? []) || HasSlashUseDistanceBySuit(owner,kind,physicalSuit) || allowAnyPhysicalSuit && HasSlashUseDistanceBySuit(owner,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
-               IgnoresSlashUseDistance(owner) ||
-               IsWithinSpecificSlashRange(owner,target,kind,effectiveRank) || allowAnyPhysicalSuit && HasPotentialRankSlashRange(owner,target,kind)) &&
+              (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.ProvidedSlash,
+                  new(owner, target, kind, PhysicalCardIds: physicalCardIds, PhysicalSuit: physicalSuit,
+                      EffectiveColor: effectiveColor, EffectiveRank: effectiveRank, AllowAnyPhysicalSuit: allowAnyPhysicalSuit))) &&
               !IsSlashProhibited(target)
             : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate,physicalSuit,allowAnyPhysicalSuit,effectiveColor,effectiveRank,physicalCardIds));
 

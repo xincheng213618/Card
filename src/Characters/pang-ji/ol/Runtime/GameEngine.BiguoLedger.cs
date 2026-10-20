@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, 10)]
+    private bool BiguoFinalizedBeforeActivityTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan);
+
+
     private bool ValidBiguoArm(BiguoArmedEvent arm)
     {
         if (arm.Source.SkillId != "ol:biguo" || arm.Source.BindingId != "draw-end-category-gain" || _contentRegistry.GetSkill(arm.Source.SkillId).Program?.GameplayHash != arm.GameplayHash ||

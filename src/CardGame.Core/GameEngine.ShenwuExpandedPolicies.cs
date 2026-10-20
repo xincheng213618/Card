@@ -2,6 +2,12 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetRule(ProgramTargetRulePoint.TargetCountContributions, 20)]
+    private RuleQueryContribution? ShenwuJuyuanTargetCountContribution(ProgramTargetCountQuery query) =>
+        ShenwuJuyuanExtraTarget(query.Actor, query.Kind)
+            ? new FiniteRuleQueryContribution($"turn:{query.Actor.Seat}:shenwu:juyuan", SkillRuleOperation.Add, 1)
+            : null;
+
     private int ShenwuReplacementDrawBonus(int seat) => _modeDefinition.ShenwuActivity is { Edition: 2020, EnemyTier: >= 4 } &&
         !IsShenwuPlayerSlot(seat) ? 1 : 0;
 

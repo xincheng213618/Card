@@ -39,4 +39,32 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class TurnRedSlashProgramCapability(GameEngine engine) : ITurnRedSlashProgramHost
     { public void GrantTurnRedSlashBenefits(ProgramSkillFrame frame)=>engine.GrantTurnRedSlashBenefits(frame); }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 180)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 70)]
+    private bool DistancePhysicalSlash180HasTurnRedSlashPolicy(ProgramSlashDistanceQuery q) =>
+        HasTurnRedSlashPolicy(q.Actor.Seat, q.Kind, EffectiveSuit(q.Actor,q.PhysicalCard!));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 80)]
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 60)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 120)]
+    private bool DistanceVirtualSlash80HasTurnRedSlashPolicyForColor(ProgramSlashDistanceQuery q) =>
+        HasTurnRedSlashPolicyForColor(q.Actor.Seat, q.Kind, q.EffectiveColor ?? SuitColor(q.PhysicalSuit));
+
+
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 130)]
+    private bool DistanceBorrowedSlash130HasTurnRedSlashPolicy(ProgramSlashDistanceQuery q) =>
+        (q.AllowAnyPhysicalSuit && GetSlashUseCards(q.Actor).Any(c=>HasTurnRedSlashPolicy(q.Actor.Seat,q.Kind,EffectiveSuit(q.Actor,c))));
+
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 70)]
+    private bool DistanceProvidedSlash70HasRedSlashPolicy(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,q.Actor.Seat);
+
+
+
 }

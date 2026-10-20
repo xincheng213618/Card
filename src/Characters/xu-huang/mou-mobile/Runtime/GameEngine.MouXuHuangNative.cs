@@ -40,7 +40,7 @@ public sealed partial class GameEngine
     private bool CanMouXuHuangDuel(int actor, int target, CardConversionSource source) =>
         _players[actor].IsAlive && _players[target].IsAlive && actor != target && _winner == Winner.None &&
         !HasTurnCardTargetRestriction(actor, SkillProgramCardTargetRestriction.SelfOnly) &&
-        !IsCardUseForbidden(actor, CardKind.Duel, CardActionType.Use) && IsMouGuquUseAllowed(actor, CardKind.Duel, [], source) &&
+        !IsCardUseForbidden(actor, CardKind.Duel, CardActionType.Use) && TargetRules.AllowsNativeUseMaterial(new(actor, CardKind.Duel, [], source)) &&
         !IsCuiYanNextUseForbidden(actor, [], null) &&
         BuildProgramOrdinaryTrickUseOptions(_players[actor], CardKind.Duel, Suit.None, enforceUsePermission: true,
             beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null, hasActualColor: true, physicalCardIds: [], conversionSource: source)
@@ -54,7 +54,7 @@ public sealed partial class GameEngine
             !HasJudgmentEffectiveCard(target, CardKind.SupplyShortage) && !HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) &&
             !IsCardUseForbidden(actor.Seat, CardKind.SupplyShortage, CardActionType.Use) &&
             !IsTurnPhysicalUseForbidden(actor.Seat, [card.Id]) && !IsTurnSuitUseForbidden(actor.Seat, suit) &&
-            IsMouGuquUseAllowed(actor.Seat, CardKind.SupplyShortage, [card.Id], r.Source) && !IsCuiYanNextUseForbidden(actor.Seat, [card.Id], suit) &&
+            TargetRules.AllowsNativeUseMaterial(new(actor.Seat, CardKind.SupplyShortage, [card.Id], r.Source)) && !IsCuiYanNextUseForbidden(actor.Seat, [card.Id], suit) &&
             !HasTurnCardTargetRestriction(actor.Seat, SkillProgramCardTargetRestriction.SelfOnly) &&
             !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, CardKind.SupplyShortage) &&
             !IsCardTargetProhibited(target, CardKind.SupplyShortage, suit, color) &&

@@ -1,6 +1,11 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 130)]
+    private bool BingzhongNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBingzhongExtraTargets);
+
+
     private bool TryGetBingzhongUse(int owner, ProgramSkillWindowContext context, out CardUseFrame use, out ProgramCardTriggerWindowFrame window)
     {
         if (TryGetDesignatedExtraTargetUse(owner, context, out use, out window)) return true;

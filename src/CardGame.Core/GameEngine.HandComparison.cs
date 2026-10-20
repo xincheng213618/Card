@@ -1,6 +1,10 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+ [ProgramTargetRule(ProgramTargetRulePoint.DirectedProhibition, 80)]
+ private bool SelfCardDirectedTargetProhibited(ProgramDirectedTargetQuery query) =>
+  query.ActorSeat==query.TargetSeat&&HasSelfCardTargetProhibition(query.ActorSeat);
+
  private IEnumerable<IGameEvent> HandComparisonHistory()=>_events.Select(e=>e.Payload).Concat(_pendingEvents);
  private int? HandComparisonPhaseLimit(CharacterState owner,SkillProgram program,SkillProgramActivation activation,string? instanceId = null)
  {

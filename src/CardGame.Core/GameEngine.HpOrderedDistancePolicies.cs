@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 20)]
     private RuleQueryEvaluation ApplyHpOrderedDistance(CharacterState source, CharacterState target, RuleQueryEvaluation original)
     {
         if (!source.HasHpValue || !target.HasHpValue || source.Seat == target.Seat || target.Hp > source.Hp) return original;

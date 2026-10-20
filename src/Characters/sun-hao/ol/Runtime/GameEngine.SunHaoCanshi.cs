@@ -144,4 +144,14 @@ public sealed partial class GameEngine
             ProgramEventHistory<SunHaoCanshiDiscardedEvent>().Any(p=>p.FrameId==s.FrameId&&p.From.OwnerSeat==actorSeat&&p.Before<p.After&&
                 _cardMovements.Any(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.CardId==p.CardId&&m.From==p.From&&m.To==p.To&&m.Reason.Value==SunHaoCanshiDiscardReason)));
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 70)]
+    private bool DistanceCardUseExemption70HasSunHaoCanshiIssuedDistance(ProgramCardDistanceQuery q) =>
+        HasSunHaoCanshiIssuedDistance(q.CardUseFrameId, q.Actor.Seat, q.Target.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 20)]
+    private bool DistancePhysicalSlash20HasSunHaoCanshiIssuedDistance(ProgramSlashDistanceQuery q) =>
+        HasSunHaoCanshiIssuedDistance(q.ExistingUseFrameId, q.Actor.Seat, q.Target.Seat);
+
 }

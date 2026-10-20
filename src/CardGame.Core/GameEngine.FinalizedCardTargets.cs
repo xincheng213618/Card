@@ -5,16 +5,9 @@ public sealed partial class GameEngine
     // Optional target windows are enabled by the loaded catalog, retaining old
     // card actions and event shapes for historical content fingerprints.
 
-    private bool HasJianjiNativeUseCapability => _contentRegistry.ProgramDependencies
-        .HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard);
-
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
-        if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) return true;
-        if (HasLeZhugeGuoCapability && (IsSlashCard(kind) || IsOrdinaryTrick(kind))) return true;
-        if (HasMouLiuChengCapability && (IsSlashCard(kind) || IsMouLiuChengNonDamageOrdinary(kind))) return true;
-        if (HasZixiEffectsCapability && ZixiEffectsKind(kind)) return true;
-        if (HasSoleIncomingEffectCapability && ExtraEffectCardKind(kind)) return true;
+        if (TargetWindowProtocols.HasCardWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, new(kind))) return true;
         if (IsGuanduActivity) return true;
         if (HasActivityOrdinaryTrickProjection && (kind is CardKind.AllianceFeast or CardKind.SowBeans or CardKind.TransplantWood or CardKind.ReturnSoul || IsWenheCard(kind) || IsDragonBoatTrick(kind) || IsGuanduTrick(kind)) &&
             _players.Where(player => player.IsAlive).Any(player => GetSkillBindingShard(player)
@@ -28,30 +21,14 @@ public sealed partial class GameEngine
         };
         // Response exchanges and paired responses need the original trick's
         // accepted Use identity even without a target-changing subscriber.
-        return HasCuiYanCapability || HasHuaManCapability || HasXinPiCapability || HasCaoChunCapability || HasNeifaCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability || HasYisuanCapability && category == SkillProgramCardCategory.Trick ||
-            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeRespondedCardEntities) && IsOrdinaryTrick(kind) ||
-            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
-            (category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind)) ||
-            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardSameCategoryForExtraEffect) && ExtraEffectCardKind(kind) ||
-            HasTargetedOrdinaryTrickAdjustment && IsOrdinaryTrick(kind) ||
-            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) &&
-            category == SkillProgramCardCategory.Trick ||
-            TracksCompletedUndamagedUseDamage && IsCompletedUndamagedDamageUse(kind) && IsOrdinaryTrick(kind) ||
+        return TargetWindowProtocols.HasCardWindow(ProgramTargetWindowStage.FinalizedAfterCategory, new(kind, category)) ||
             _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, category) ||
-            ((_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddTargetForQirangPhysicalTrick) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantActorHandLimitPenalty)) &&
+            (TargetWindowProtocols.HasCardWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, new(kind, category)) &&
                 IsOrdinaryTrick(kind) && _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, SkillProgramCardCategory.InstantTrick));
     }
 
     private IReadOnlyList<int> GetImplicitSelfCardUseTargets(CardKind kind, int sourceSeat,
-        IReadOnlyList<int> targets) => HasMouLiuChengCapability && kind == CardKind.DrawTwo && targets.Count == 0
+        IReadOnlyList<int> targets) => TargetWindowProtocols.HasCardWindow(ProgramTargetWindowStage.ImplicitSelfDrawTwo, new(kind)) && kind == CardKind.DrawTwo && targets.Count == 0
             ? [sourceSeat] : targets.Count == 0 &&
         (HasFinalizedTargetProgram(kind) && (kind == CardKind.Alcohol || CardCatalog.Get(kind).CategoryName == "装备牌") ||
          HasBeforeTargetCardProgram(kind) && kind is CardKind.Alcohol or CardKind.DrawTwo)

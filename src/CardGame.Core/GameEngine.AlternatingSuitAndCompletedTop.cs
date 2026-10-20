@@ -144,4 +144,30 @@ public sealed partial class GameEngine
             (_pendingDecision is not {Kind:DecisionKind.ProgramTrigger} p||p.PlayerSeat!=f.OwnerSeat||p.Choices.Count!=d.CardIds.Count-d.SelectedIds.Count||p.Choices.Any(c=>c.Cards.Count!=1||!d.CardIds.Except(d.SelectedIds).Contains(c.Cards[0]))))
             throw new InvalidOperationException("Alternating suit/top prompt lost its exact choices.");
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 120)]
+    private bool DistanceCardUseExemption120HasPhaseSuitAllowance(ProgramCardDistanceQuery q) =>
+        (q.CardUseFrameId is { } id && HasPhaseSuitAllowance(q.Actor.Seat,_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==id)?.Action?.EffectiveSuit));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 190)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 80)]
+    private bool DistancePhysicalSlash190HasPhaseSuitAllowance(ProgramSlashDistanceQuery q) =>
+        HasPhaseSuitAllowance(q.Actor,q.PhysicalCard!);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 90)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 140)]
+    private bool DistanceVirtualSlash90HasPhaseSuitAllowance(ProgramSlashDistanceQuery q) =>
+        HasPhaseSuitAllowance(q.Actor.Seat,q.PhysicalSuit);
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 150)]
+    private bool DistanceBorrowedSlash150HasPhaseSuitAllowance(ProgramSlashDistanceQuery q) =>
+        (q.AllowAnyPhysicalSuit && GetSlashUseCards(q.Actor).Any(c=>HasPhaseSuitAllowance(q.Actor,c)));
+
+
+
 }

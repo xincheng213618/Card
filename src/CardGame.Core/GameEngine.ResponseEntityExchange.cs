@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 110)]
+    private bool ResponseEntityExchangeFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeRespondedCardEntities) && IsOrdinaryTrick(query.Kind);
+
+
     private IEnumerable<IGameEvent> ResponseExchangeHistory() => _events.Select(e=>e.Payload).Concat(_pendingEvents);
     private bool HasResponseEntityExchangeObservers() => _players.Any(p=>p.IsAlive&&(GetSkillBindingShard(p)?.GetInstanceTriggers(SkillProgramTriggerWindow.CardResponseAccepted)??[]).Any(b=>b.Trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ExchangeRespondedCardEntities)));
     private IReadOnlyList<ProgramResponseExchangeStateSnapshot>? GetResponseExchangeStateSnapshots()

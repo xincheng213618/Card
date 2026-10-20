@@ -192,6 +192,20 @@ public sealed partial class GameEngine
             if (held.Length > 0) MoveCards(held, CardLocation.RoundHold(player.Seat), player.IsAlive ? CardLocation.Hand(player.Seat) : CardLocation.DiscardPile, new("skill-program.hanguo.return"));
         }
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 210)]
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 30)]
+    private bool DistancePhysicalSlash210GuanFocusAllowsSlash(ProgramSlashDistanceQuery q) =>
+        GuanFocusAllowsSlash(q.Actor.Seat, q.Target.Seat);
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 220)]
+    private bool DistancePhysicalSlash220GuanFirstRedDistance(ProgramSlashDistanceQuery q) =>
+        GuanFirstRedDistance(q.Actor, q.PhysicalCard!, q.ExistingUseFrameId);
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 40)]
+    private bool DistanceVirtualSlash40GuanFirstRedAvailable(ProgramSlashDistanceQuery q) =>
+        GuanFirstRedAvailable(q.Actor, q.PhysicalSuit);
+
 }
 
 public sealed partial record CardUseFrame

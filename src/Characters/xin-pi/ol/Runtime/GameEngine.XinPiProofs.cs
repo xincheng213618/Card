@@ -1,6 +1,11 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 30)]
+    private bool XinPiFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasXinPiCapability;
+
+
  private bool HasXinPiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawBothAfterYinjuActualTargetUse)||_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ArmYinjuActualTurnRelation);
  private static CardConversionSource XinPiSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
  [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 540)]

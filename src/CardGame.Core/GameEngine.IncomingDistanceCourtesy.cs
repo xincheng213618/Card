@@ -172,6 +172,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new IncomingDistanceCourtesyCompletedEvent(f.Id));
         ReplaceRuntimeTop(f = f with { IncomingDistanceCourtesy = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
+    [ProgramDistanceRule(ProgramDistanceStage.IncomingContributions, 10)]
     private IEnumerable<RuleQueryContribution> IncomingDistanceCourtesyContributions(int target) =>
         !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions) &&
         !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseEndingCourtesyBenefits) ? [] :

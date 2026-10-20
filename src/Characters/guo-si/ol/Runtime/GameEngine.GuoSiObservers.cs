@@ -1,6 +1,15 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 90)]
+    private bool GuoSiFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasGuoSiCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 100)]
+    private bool GuoSiNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasGuoSiCapability;
+
+
  private bool HasGuoSiCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferSidaoCompletedPairSnatch);
  private bool GuoSiQualified(int seat)=>IsValidPlayerSeat(seat)&&_players[seat].IsAlive&&GetSkillBindingShard(_players[seat]).GetInstanceTriggers(SkillProgramTriggerWindow.CardUseCompleted).Any(b=>ProgramInstructionResolver.Default.Features(b.Trigger).HasOperation(SkillProgramEffectOp.OfferSidaoCompletedPairSnatch));
  private bool GuoSiResponseUse(CardActionContext a)
@@ -57,4 +66,9 @@ public sealed partial class GameEngine
   if(!ProgramInstructionResolver.Default.Features(t).HasOperation(SkillProgramEffectOp.OfferSidaoCompletedPairSnatch))return true;
   return _phase==TurnPhase.Play&&c.OwnerSeat==_currentSeat&&w.CardUse is{}i&&LifecycleCardUse(i.ParentCardUseFrameId)is{GuoSiPair:{}q,Action:{}a}&&a.ActionId==i.CardActionId&&GuoSiQualified(c.OwnerSeat)&&SidaoActions(c.OwnerSeat,q).Count>0;
  }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 100)]
+    private bool DistanceCardUseExemption100HasGuoSiTargetEffect(ProgramCardDistanceQuery q) =>
+        HasGuoSiTargetEffect(q.Actor.Seat, q.Target.Seat, DirectedTurnCardPolicyEffect.IgnoreDistance);
+
 }

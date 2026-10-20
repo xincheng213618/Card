@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedBeforeActivity, 50)]
+    private bool SoleIncomingEffectFinalizedBeforeActivityTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasSoleIncomingEffectCapability && ExtraEffectCardKind(query.Kind);
+
+
     private bool HasSoleIncomingEffectCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RepeatIncomingSoleCardEffectAndDrawByRange);
     private bool TryGetSoleIncomingEffect(int owner, ProgramSkillWindowContext? context, out CardUseFrame use, out ProgramCardTriggerWindowFrame window)
     {

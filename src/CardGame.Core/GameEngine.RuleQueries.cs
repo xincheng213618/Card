@@ -31,23 +31,16 @@ public sealed partial class GameEngine
             $"equipment:{card.Id}:incoming-distance",
             EquipmentCatalog.Get(card.Kind).IncomingDistanceModifier)));
 
-        if (_modeDefinition.TeamActivity is not null)
-            baseTerms.Add(new("jiange:jingfan:allied-distance", JiangeDistanceModifier(source, target)));
-        var shenwuDistance = ShenwuDustlessDistanceBonus(source, target);
-        if (shenwuDistance != 0) baseTerms.Add(new("shenwu:dustless-allied-distance", shenwuDistance));
+        DistanceRules.AddDistanceBaseTerms(new(source, target), baseTerms);
         var outgoing = CollectNumericRuleContributions(source, SkillRuleQuery.OutgoingDistance).ToList();
         outgoing.AddRange(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, source.Seat, SkillRuleQuery.OutgoingDistance)
             .Select(item => new FiniteRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
         var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance).ToList();
         if (source.Seat != target.Seat)
-        {
-            incoming.AddRange(IncomingDistanceCourtesyContributions(target.Seat));
-            incoming.AddRange(YanPuIncomingDistanceContributions(target.Seat));
-            incoming.AddRange(ShuangjiaIncomingDistanceContributions(target.Seat));
-        }
-        return ApplyPersistentOutgoingDistancePolicy(source, target, ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
-            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)))))));
+            DistanceRules.AddIncomingContributions(target.Seat, incoming);
+        return DistanceRules.ProjectDistance(source, target,
+            RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming));
     }
 
     private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
@@ -67,19 +60,14 @@ public sealed partial class GameEngine
                     GetWeaponAttackRange(player, weapon)));
         }
 
-        if (HasLiYiVirtualStoneAxe(player, excludedEquipmentId, excludedEquipmentSlot) && baseTerms[0].Value < 3)
-            baseTerms[0] = new RuleQueryBaseTerm($"skill:{player.Seat}:zhanjin:attack-range", 3);
+        DistanceRules.AddAttackRangeBaseTerms(new(player, excludedEquipmentId, excludedEquipmentSlot), baseTerms);
 
         if (GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.AttackRange) is { } assignedRange)
             baseTerms.Add(new RuleQueryBaseTerm($"turn:{_turnNumber}:{player.Seat}:allocated-attack-range",
                 Math.Max(0, assignedRange - baseTerms[0].Value)));
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
-        AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:attack-range", SequentialDeckKindGrowthBonus(player.Seat));
-        AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:attack-range", CaoXiGangshuBonus(player, SkillRuleQuery.AttackRange));
-        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-tian-yu:yangshi:attack-range", MouTianYuRangeBonus(player));
-        AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:attack-range", GetOriginalHandAttackRangeBonus(player.Seat));
-        AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
+        DistanceRules.AddAttackRangeContributions(player, contributions);
         contributions.AddRange(_turnCardUseEffects
             .GetRuleModifiers(_turnNumber, _currentSeat, player.Seat, SkillRuleQuery.AttackRange)
             .Where(item => item.Operation == SkillRuleOperation.Unlimited)
@@ -216,16 +204,13 @@ public sealed partial class GameEngine
                 .Where(item => item.Operation == SkillRuleOperation.Add)
                 .Select(item => (RuleQueryContribution)new FiniteRuleQueryContribution(
                     $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray();
-        if (NeifaSlashTargetBonus(player.Seat, effectiveCardKind) != 0)
-            contributions = [.. contributions, new FiniteRuleQueryContribution($"turn:{player.Seat}:neifa:slash-target", SkillRuleOperation.Add, 1)];
-        if (ShenwuJuyuanExtraTarget(player, effectiveCardKind))
-            contributions = [.. contributions, new FiniteRuleQueryContribution($"turn:{player.Seat}:shenwu:juyuan", SkillRuleOperation.Add, 1)];
+        contributions = TargetRules.AppendTargetCount(new(player, effectiveCardKind), contributions);
         return RuleQueryService.Evaluate(SkillRuleQuery.CardTargetCount, new RuleQueryBounds(1, int.MaxValue),
             [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-target-count", 1)], contributions);
     }
 
     private int GetCardUseDistanceLimit(CharacterState player, CardKind effectiveCardKind) =>
-        NianShouyiUnlimitedCardDistance(player) ? int.MaxValue : ConvertRuleValue(RuleQueryService.Evaluate(
+        DistanceRules.HasCardUseLimitExemption(player) ? int.MaxValue : ConvertRuleValue(RuleQueryService.Evaluate(
             SkillRuleQuery.CardUseDistanceLimit,
             new RuleQueryBounds(1, int.MaxValue),
             [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-use-distance", 1)],
@@ -303,21 +288,10 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
-        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount || (HasBeifenPreUsePrivilege(player) || HasMouZhaJiangPreUsePrivilege(player)) || HasWuHfOrWuyouMaterialPrivilege(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsSayingSlashQuery(player) || HasDongxinEntitySlashQuota(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) || IsChanshuangSlashQuery(player) || IsQinLangXianyingSlashQuery(player) || HasLiuYanLimuQuotaAllowance(player,target,physicalCard,physicalCardIds,excludedEquipmentId,excludedEquipmentSlot) ||
-         IsDuanJiongSaoguDiscardQuery(player, physicalCardIds is [var saoguCardId] ? saoguCardId : physicalCard?.Id) ||
-         IsHuiyunExactHandQuery(player, physicalCardIds is [var huiyunCardId] ? huiyunCardId : physicalCard?.Id) ||
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
+         TargetRules.HasSlashQuotaBeforeLimit(new(player, target, effectiveKind, physicalCard, effectiveRank,
+             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu)) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||
-         HasFuRongDiscardDistance(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
-         HasRoundGainedBasicBonus(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
-         HasOutsideAttackRangeSlashQuota(player, target, effectiveKind, excludedEquipmentSlot) ||
-         GuanFocusAllowsSlash(player.Seat, target.Seat) || GuanFirstBasicAvailable(player, effectiveKind) ||
-         HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
-             (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||
-         HasWuHfMaterialPrivilege(player, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
-         HasWuLuKangDixianRankPrivilege(player.Seat, effectiveRank ?? (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : WuLuKangDixianQueryRank(player, effectiveKind, physicalCardIds))) ||
-         physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
-         HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
-             DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
-         HasTargetCardQuotaAllowance(player.Seat, target.Seat) ||
-         !ignoreMoQuanyu && HasMoQuanyuProspectiveQuota(player, target, effectiveKind));
+         TargetRules.HasSlashQuotaAfterLimit(new(player, target, effectiveKind, physicalCard, effectiveRank,
+             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu)));
 }

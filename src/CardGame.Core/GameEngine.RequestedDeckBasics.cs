@@ -164,7 +164,7 @@ public sealed partial class GameEngine
         var r=view.Receipt;var actor=_players[r.ActorSeat];
         if (RequestedDeckBasicActionType(r.Intent) == CardActionType.Response && !IsMouHanDangNativeResponseAllowed(actor, card)) return false;
         if (RequestedDeckBasicActionType(r.Intent) == CardActionType.Use
-            ? !IsMouGuquUseAllowed(actor.Seat, card.Kind, [card.Id])
+            ? !TargetRules.AllowsNativeUseMaterial(new(actor.Seat, card.Kind, [card.Id]))
             : !IsProgramNativeResponseAllowed(actor, card.Kind, [card.Id], dyingUse: r.Intent == RequestedDeckBasicIntent.Dying)) return false;
         if(r.Intent==RequestedDeckBasicIntent.WenyiPeach) return WenyiRequestedDeckPeachTargets(view,card).Length==1;
         if(r.Intent==RequestedDeckBasicIntent.Dying)

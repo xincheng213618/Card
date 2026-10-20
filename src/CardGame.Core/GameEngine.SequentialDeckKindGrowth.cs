@@ -255,4 +255,9 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome AcquireDeckKindSequentiallyAndGrowOnShortfall(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.AcquireDeckKindSequentiallyAndGrowOnShortfall(frame, effect);
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.AttackRangeContributions, 10)]
+    private void AddSequentialDeckKindGrowthBonusAttackRangeContribution(CharacterState player, List<RuleQueryContribution> contributions) =>
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:attack-range", SequentialDeckKindGrowthBonus(player.Seat));
+
 }

@@ -44,4 +44,14 @@ public sealed partial class GameEngine
     private bool IgnoresNonBasicSlashDistance(CharacterState owner, CardConversionSource source) =>
         source.OwnerSeat == owner.Seat && HasRuntimeSkillInstance(owner, source.SkillId, source.SkillInstanceId) &&
         ViewAsRule(source)?.NonBasicUnrespondableSlash == true;
+
+    [ProgramDistanceRule(ProgramDistanceStage.ConvertedSlashExemption, 20)]
+    private bool IgnoresNonBasicSlashDistanceQuery(ProgramSlashConversionDistanceQuery q) =>
+        IgnoresNonBasicSlashDistance(q.Owner, q.Source);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 80)]
+    private bool DistancePhysicalSlash80HasIssuedNonBasicSlashDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedNonBasicSlashDistance(q.ExistingUseFrameId);
+
 }

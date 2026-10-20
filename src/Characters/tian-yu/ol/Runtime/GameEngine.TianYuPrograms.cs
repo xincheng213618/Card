@@ -254,6 +254,7 @@ public sealed partial class GameEngine
     // Shared consumption: every active directed grant against the queried pair
     // joins the outgoing distance as an additive contribution, bounded to the
     // game minimum of one, beneath the Set-style distance overlays.
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceProjection, 10)]
     private RuleQueryEvaluation ApplyProgramDirectedDistance(CharacterState source, CharacterState target,
         RuleQueryEvaluation original)
     {

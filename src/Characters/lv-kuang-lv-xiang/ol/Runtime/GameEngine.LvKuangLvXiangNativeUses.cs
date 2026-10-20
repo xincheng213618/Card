@@ -103,4 +103,9 @@ public sealed partial class GameEngine
   if(f.LvKuangLvXiang is not{OriginalUseId:{}id,OriginalActionId:{}actionId}r)return;
   if(LifecycleCardUse(id)is not{Action:{}action,CardAttack:{}attack}original||action.ActionId!=actionId||original.TargetSeats is not[var target]||target!=r.Target||attack.SuccessfulDodgeResponses!=attack.RequiredDodgeResponses||attack.RequiredDodgeResponses<1)throw new InvalidOperationException("Qigong must retain the actual original fully-dodged attack until its own child returns.");ActiveCardAttack=new(this,id);
  }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 70)]
+    private bool DistancePhysicalSlash70IsQigongIssuedDistance(ProgramSlashDistanceQuery q) =>
+        IsQigongIssuedDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
 }

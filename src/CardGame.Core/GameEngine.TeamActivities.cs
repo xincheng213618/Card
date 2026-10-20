@@ -115,4 +115,12 @@ public sealed partial class GameEngine
         return !_players.Any(p => p.TeamId == ActivityPlayerTeam && p.IsAlive)
             ? GetModeTeamIds().Single(t => t != ActivityPlayerTeam) : null;
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.DistanceBaseTerms, 10)]
+    private void AddJiangeDistanceBaseTerms(ProgramDistanceQuery query, List<RuleQueryBaseTerm> terms)
+    {
+        if (_modeDefinition.TeamActivity is not null)
+            terms.Add(new("jiange:jingfan:allied-distance", JiangeDistanceModifier(query.Source, query.Target)));
+    }
+
 }

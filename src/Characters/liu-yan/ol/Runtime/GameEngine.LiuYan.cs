@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 30)]
+    private bool LiuYanNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasLiuYanCapability;
+
+
     private const string LiuYanDrawReason="skill-program.liu-yan.tushe.draw";
     private bool HasLiuYanCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.UseLimuSelfIndulgenceAndRecover)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawTusheForActualNonEquipmentTargets);
     private static CardConversionSource LiuYanSource(ProgramSkillFrame f)=>new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);
@@ -88,4 +93,16 @@ public sealed partial class GameEngine
     {if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{LiuYan:not null}f||f.Id!=id)return false;ContinueLiuYan(id);return true;}
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,27230)][ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,27230)]
     private bool ContinuePaidLiuYan(ProgramSkillFrame f)=>f.LiuYan is not null&&ValidLiuYan(f);
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 80)]
+    private bool DistanceCardUseExemption80HasLiuYanLimuTargetAllowance(ProgramCardDistanceQuery q) =>
+        !IsSlashCard(q.Kind) && HasLiuYanLimuTargetAllowance(q.Actor,q.Target,q.ExcludedEquipmentId,q.ExcludedEquipmentSlot);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 80)]
+    private bool LiuYanLimuSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        HasLiuYanLimuQuotaAllowance(query.Actor,query.Target,query.PhysicalCard,query.PhysicalCardIds,query.ExcludedEquipmentId,query.ExcludedEquipmentSlot);
 }

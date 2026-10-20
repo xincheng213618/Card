@@ -83,3 +83,10 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { DuanJiongSaogu = r with { Stage = DuanJiongSaoguStage.NativeChildren } }); AdvanceEventRulesAndQueueFact(new DuanJiongSaoguNativeReturnedEvent(o));
     }
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 90)]
+    private bool DuanJiongSaoguSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        IsDuanJiongSaoguDiscardQuery(query.Actor, query.PhysicalCardIds is [var saoguCardId] ? saoguCardId : query.PhysicalCard?.Id);
+}

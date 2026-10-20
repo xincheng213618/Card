@@ -123,3 +123,10 @@ public sealed partial class GameEngine
         }
     }
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 70)]
+    private bool QinLangXianyingSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        IsQinLangXianyingSlashQuery(query.Actor);
+}

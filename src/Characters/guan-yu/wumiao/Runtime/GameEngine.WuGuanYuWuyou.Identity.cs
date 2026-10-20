@@ -212,4 +212,19 @@ public sealed partial class GameEngine
             if (!HasIssuedWuyouUse(use.Id, use.SourceSeat))
                 throw new InvalidOperationException("Wuyou's accepted native entity lost its original provider, identity or exact action invoice.");
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.CardUseExemption, 30)]
+    private bool DistanceCardUseExemption30HasIssuedWuyouUse(ProgramCardDistanceQuery q) =>
+        q.CardUseFrameId is { } wuyouUse && HasIssuedWuyouUse(wuyouUse, q.Actor.Seat);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.ProvidedSlash, 20)]
+    private bool DistanceProvidedSlash20HasPotentialWuyouFactionSlash(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && q.PhysicalCardIds is null && HasPotentialWuyouFactionSlash(q.Actor, q.Kind);
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 30)]
+    private bool DistanceBorrowedSlash30HasPublicWuyouContributionPotential(ProgramSlashDistanceQuery q) =>
+        q.PhysicalCardIds is null && q.AllowAnyPhysicalSuit && HasPublicWuyouContributionPotential(q.Actor);
+
 }

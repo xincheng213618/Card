@@ -2,6 +2,23 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 70)]
+    private bool KuiCancelTargetFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedInstantTrickRequirement, 80)]
+    private bool KuiAppendTargetFinalizedInstantTrickRequirementTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 160)]
+    private bool KuiCancelTargetNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget);
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 170)]
+    private bool KuiAppendTargetNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets);
+
+
     private static int[] BeiMiHuPrimaryTargets(CardUseFrame use)=>(use.CardKind==CardKind.DrawTwo && use.TargetSeats.Count==0?[use.SourceSeat]:
         use.CardKind==CardKind.BorrowedSword?use.TargetSeats.Where((_,i)=>i%2==0):use.TargetSeats).Distinct().ToArray();
     private bool TryGetBeiMiHuCardUse(int owner,ProgramSkillWindowContext context,SkillProgramEffectOp op,out CardUseFrame use,out ProgramCardTriggerWindowFrame window)

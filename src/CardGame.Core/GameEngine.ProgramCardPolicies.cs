@@ -106,3 +106,10 @@ public sealed partial class GameEngine
         return suit;
     }
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 30)]
+    private bool OutsideAttackRangeSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        HasOutsideAttackRangeSlashQuota(query.Actor, query.Target, query.Kind, query.ExcludedEquipmentSlot);
+}

@@ -57,4 +57,35 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(useId,f=>f with { IssuedNoResponse=issued,ProvenanceUseSource=source });
         AdvanceEventRulesAndQueueFact(new IssuedCardNoResponseEvent(issued));
     }
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 150)]
+    private bool DistancePhysicalSlash150HasIssuedProvenanceUseDistance(ProgramSlashDistanceQuery q) =>
+        (HasIssuedProvenanceUseDistance(q.ExistingUseFrameId, q.Actor.Seat) || HasIssuedGrantedPhaseEntityDistance(q.ExistingUseFrameId, q.Actor.Seat));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 160)]
+    private bool DistancePhysicalSlash160HasProvenanceUseDistance(ProgramSlashDistanceQuery q) =>
+        (HasProvenanceUseDistance(q.Actor, q.PhysicalCardIds ?? (q.PhysicalCard!.Id > 0 ? new[] { q.PhysicalCard!.Id } : [])) || HasGrantedPhaseEntityDistance(q.Actor, q.PhysicalCardIds ?? (q.PhysicalCard!.Id > 0 ? new[] { q.PhysicalCard!.Id } : [])));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.VirtualSlash, 60)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 80)]
+    private bool DistanceVirtualSlash60HasProvenanceUseDistance(ProgramSlashDistanceQuery q) =>
+        (HasProvenanceUseDistance(q.Actor, q.PhysicalCardIds) || HasGrantedPhaseEntityDistance(q.Actor, q.PhysicalCardIds));
+
+
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedSlash, 90)]
+    private bool DistanceBorrowedSlash90HasPotentialProvenanceSlash(ProgramSlashDistanceQuery q) =>
+        q.AllowAnyPhysicalSuit && (HasPotentialProvenanceSlash(q.Actor) || HasPotentialGrantedPhaseSlash(q.Actor));
+
+
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPhysicalSlash, 50)]
+    [ProgramDistanceRule(ProgramDistanceStage.BorrowedPaidWeaponSlash, 40)]
+    private bool DistanceBorrowedPhysicalSlash50HasProvenanceUseDistance(ProgramSlashDistanceQuery q) =>
+        (HasProvenanceUseDistance(q.Actor,q.PhysicalCard!) || HasGrantedPhaseEntityDistance(q.Actor,[q.PhysicalCard!.Id]));
+
+
+
 }

@@ -1,6 +1,15 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.FinalizedAfterCategory, 40)]
+    private bool CaoChunFinalizedAfterCategoryTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasCaoChunCapability;
+
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 50)]
+    private bool CaoChunNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasCaoChunCapability;
+
+
  private bool HasCaoChunCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.DrawAndRequestShanjiaSlash);
  private bool HasIssuedCaoChunDebt {get{foreach(var p in _players)if(p.Shanjia?.Debt is not null)return true;return false;}}
  private static bool ShanjiaHeld(CardLocation location,int owner)=>location.OwnerSeat==owner&&location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain;

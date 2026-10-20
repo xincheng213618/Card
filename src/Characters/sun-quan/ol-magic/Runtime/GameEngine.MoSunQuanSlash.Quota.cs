@@ -75,3 +75,10 @@ public sealed partial class GameEngine
             : TryGetLegalActionEffectiveCardKind(query.Actor, query.Action, out var kind, query.NativeOriginalCard)
                 ? RestrictMoQuanyuQuotaAction(query.Actor, query.Action, kind, query.NativeOriginalCard) : query.Action;
 }
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaAfterLimit, 120)]
+    private bool MoQuanyuSlashQuotaAfterLimit(ProgramSlashQuotaQuery query) =>
+        !query.IgnoreMoQuanyu && HasMoQuanyuProspectiveQuota(query.Actor, query.Target, query.Kind);
+}

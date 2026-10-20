@@ -75,4 +75,23 @@ public sealed partial class GameEngine
     private bool HasIssuedDongxinSlashDebitExemption(long useId, int actorSeat) =>
         HasIssuedDongxinEntitySlashQuota(useId, actorSeat);
 
+
+    [ProgramDistanceRule(ProgramDistanceStage.SpecificSlashExemption, 10)]
+    private bool DistanceSpecificSlashExemption10HasSayingRoundRange(ProgramSlashDistanceQuery q) =>
+        HasSayingRoundRange(q.Actor.Seat, q.Target.Seat);
+
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 40)]
+    private bool SayingSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        IsSayingSlashQuery(query.Actor);
+}
+
+public sealed partial class GameEngine
+{
+    [ProgramTargetRule(ProgramTargetRulePoint.SlashQuotaBeforeLimit, 50)]
+    private bool DongxinSlashQuotaBeforeLimit(ProgramSlashQuotaQuery query) =>
+        HasDongxinEntitySlashQuota(query.Actor, query.Kind, query.PhysicalCardIds ?? (query.PhysicalCard is { Id: > 0 } ? [query.PhysicalCard.Id] : []));
 }

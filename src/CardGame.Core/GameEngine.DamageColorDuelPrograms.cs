@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private bool CanIssueSelectedActorDuel(int ownerSeat,int actorSeat) =>
         IsValidPlayerSeat(ownerSeat) && IsValidPlayerSeat(actorSeat) && ownerSeat!=actorSeat &&
         _players[ownerSeat].IsAlive && _players[actorSeat].IsAlive &&
-        !IsCardUseForbidden(actorSeat,CardKind.Duel,CardActionType.Use) && IsMouGuquUseAllowed(actorSeat, CardKind.Duel, []) &&
+        !IsCardUseForbidden(actorSeat,CardKind.Duel,CardActionType.Use) && TargetRules.AllowsNativeUseMaterial(new(actorSeat, CardKind.Duel, [])) &&
         !HasTurnCardTargetRestriction(actorSeat,SkillProgramCardTargetRestriction.SelfOnly) &&
         !IsCardTargetProhibited(_players[ownerSeat],CardKind.Duel,Suit.None) &&
         !IsDirectedCardTargetProhibited(actorSeat,ownerSeat,CardKind.Duel);

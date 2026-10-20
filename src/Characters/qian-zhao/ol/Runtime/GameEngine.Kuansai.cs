@@ -2,6 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTargetWindow(ProgramTargetWindowStage.NormalizeImplicitDrawTwo, 120)]
+    private bool KuansaiNormalizeImplicitDrawTwoTargetWindow(ProgramTargetCardWindowQuery query) =>
+        HasKuansaiCapability;
+
+
     private const string KuansaiGiftReason = "skill-program.qian-zhao.kuansai.gift";
     private bool HasKuansaiCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKuansaiTargetChoice);
     private CardUseFrame? KuansaiUse(ProgramSkillWindowContext context) => context is

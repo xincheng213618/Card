@@ -112,4 +112,9 @@ public sealed partial class GameEngine
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.HpObserverTail, 40)]
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.SharedProcessingTail, 40)]
     private bool HasWuJingHejiTrickPaymentTail(CardUseFrame use, RecoveryPaidCardUseContinuation continuation) => continuation is { Kind: RecoveryPaidCardUseKind.Trick, CardId: { } card, ActionKind: LegalActionKind.Duel, TargetSeats: { } targets } && card == use.CardId && continuation.SourceSeat == use.SourceSeat && targets.SequenceEqual(use.TargetSeats) && use.PaymentMovementReceipt is { } receipt && IsWuJingHejiTrickPaymentBatch(use, receipt.Batch);
+
+    [ProgramDistanceRule(ProgramDistanceStage.PhysicalSlash, 30)]
+    private bool DistancePhysicalSlash30HasIssuedWuJingHejiDistance(ProgramSlashDistanceQuery q) =>
+        HasIssuedWuJingHejiDistance(q.ExistingUseFrameId, q.Actor.Seat);
+
 }
